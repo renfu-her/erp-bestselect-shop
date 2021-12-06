@@ -39,11 +39,12 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
-
+        /*
         $this->renderable(function (NotFoundHttpException $e, $request) {
 
             return response()->json(["message" => 404], 404);
         });
+        */
     }
 
     protected function unauthenticated($request, AuthenticationException $exception)

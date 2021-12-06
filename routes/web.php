@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Cms\AuthCtrl;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,3 +17,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('pages/dashboard');
 });
+
+Route::get('/login', [AuthCtrl::class, 'login'])->name('cms.login');
+Route::post('/login', [AuthCtrl::class, 'authenticate']);
+Route::get('/logout', [AuthCtrl::class, 'logout'])->name('cms.logout');
