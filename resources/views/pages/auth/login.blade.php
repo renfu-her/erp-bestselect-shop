@@ -7,7 +7,7 @@
                 @method('POST')
                 @csrf
                 <img class="mb-4 w-100" src="{{ Asset('images/Best-logo.png') }}" alt="喜鴻國際 Logo">
-                <h1 class="h3 fw-normal">喜鴻國際 託運系統</h1>
+                <h1 class="h3 fw-normal">喜鴻國際 購物系統</h1>
                 <h2 class="h5 fw-light mb-3">
                     <span @class([
                         'rounded-pill px-3 py-1',

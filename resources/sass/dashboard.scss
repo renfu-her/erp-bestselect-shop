@@ -114,10 +114,7 @@ header .mainLogo img {
   font-weight: 300;
 }
 .navbar-brand::after {
-  content: '託運系統';
-}
-header.admin .navbar-brand::after {
-  content: '託運喜鴻物流';
+  content: attr(aria-label);
 }
 
 header .navbar-iconBtn > .divider {

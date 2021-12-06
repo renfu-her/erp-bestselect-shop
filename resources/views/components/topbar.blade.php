@@ -10,10 +10,10 @@
         </div>
         <!-- logo -->
         <div class="mainLogo d-flex align-items-center justify-content-center flex-grow-1 flex-sm-grow-0">
-            <img src="{{ Asset('images/Best-logo-white.png') }}" alt="喜鴻國際託運系統">
+            <img src="{{ Asset('images/Best-logo-white.png') }}" alt="喜鴻國際">
         </div>
         <!-- 站名 brand -->
-        <div class="navbar-brand d-none d-sm-block m-0 d-flex flex-grow-1"></div>
+        <div class="navbar-brand d-none d-sm-block m-0 d-flex flex-grow-1" aria-label="購物系統"></div>
         <!-- 功能鈕 iconBtn -->
         <div class="navbar-iconBtn d-flex justify-content-end">
             <!-- *隱藏按鈕請加 hidden -->

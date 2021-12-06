@@ -8,9 +8,9 @@
     <title>
         @if(preg_match('/^admin((\/.*)|(-login$))/',
             Request::path()))
-            喜鴻物流
+            喜鴻購物
         @else
-            託運系統
+            購物系統
         @endif
     </title>
     <link rel="stylesheet" href="{{ Asset('dist/css/app.css') }}">
