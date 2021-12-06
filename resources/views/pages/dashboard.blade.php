@@ -32,13 +32,13 @@
     <a href="#" data-href="#" data-bs-toggle="modal" data-bs-target="#confirm-delete" type="button" class="btn btn-danger btn-sm">
         123
     </a>
-    {{-- <x-b-modal id="confirm-delete">
+    <x-b-modal id="confirm-delete">
         <x-slot name="title">是否要刪除此人員？</x-slot>
         <x-slot name="body">123</x-slot>
         <x-slot name="foot">
             <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
         </x-slot>
-    </x-b-modal> --}}
+    </x-b-modal>
 
 @endsection
 @once
