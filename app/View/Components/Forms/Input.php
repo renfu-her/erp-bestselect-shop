@@ -1,0 +1,37 @@
+<?php
+
+namespace App\View\Components\Backend\Forms;
+
+use Illuminate\View\Component;
+
+class Input extends Component
+{
+    public $name;
+    public $type;
+    public $title;
+    /**
+     * Create a new component instance.
+     *
+     * @return void
+     */
+    public function __construct($name, $type = null, $title = null)
+    {
+        $this->name = $name;
+        $this->type = $type ? $type : 'text';
+        $this->title = $title ? $title : $name;
+
+    }
+
+    /**
+     * Get the view / contents that represent the component.
+     *
+     * @return \Illuminate\Contracts\View\View|string
+     */
+    public function render()
+    {
+        return view('components.forms.input', [
+            'name' => $this->name,
+            'type' => $this->type,
+            'title' => $this->title]);
+    }
+}

@@ -1,0 +1,368 @@
+// Variables
+@import 'variables';
+// Bootstrap
+// @import '~bootstrap/scss/bootstrap';
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+@import '~bootstrap/scss/mixins';
+@import '~bootstrap/scss/grid';
+
+/* 
+ viewport:
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px
+ */
+
+html, body {
+  font-size: $font-size-base;
+  font-family: $font-family-sans-serif;
+  width: 100%;
+  min-width: fit-content;
+  box-sizing: border-box;
+  margin: 0;
+}
+@include media-breakpoint-down(md) {
+  html, body {
+    font-size: $font-size-base-md;
+  }
+}
+
+/*
+ * Header
+ */
+header {
+  height: $Header-height;
+  min-width: fit-content;
+  background-color: $color-main;
+}
+
+header > div {
+  height: $Header-height;
+  background-image: url('/../images/header-user.svg');
+  background-size: auto;
+  background-repeat: no-repeat;
+  background-position: left center;
+}
+// 託運商 user
+header.user {
+  background-image: linear-gradient(to right, #1A97CF 0%, #1CC6E8 50%, $color-User 100%);
+}
+// 管理員 admin
+header.admin {
+  background-image: linear-gradient(to right, #FFB52D 0%, #EBC229 50%, $color-Admin 100%);;
+}
+header.admin > div {
+  background-image: url('/../images/header-admin.svg');
+}
+// 物流人員 deliveryman
+header.deliveryman {
+  background-image: linear-gradient(to right, #88AD00 0%, #9FC939 50%, $color-Deliveryman 100%);
+}
+header.deliveryman > div {
+  background-image: url('/../images/header-deliveryman.svg');
+}
+
+header.navbar .btn:focus {
+  box-shadow: none;
+}
+
+header.navbar .navbar-toggler {
+  padding: .15rem .5rem;
+  font-size: 1rem;
+  margin: .25rem 1rem;
+  background-color: rgba(255, 255, 255, .8);
+}
+header.navbar .navbar-toggler:hover {
+  background-color: rgba(220, 220, 220, .8);
+}
+header.navbar .navbar-toggler:focus {
+  box-shadow: none;
+}
+header.navbar .bi-list {
+  color: $color-main;
+  font-size: 24px;
+}
+// 託運商
+header.navbar.user .bi-list {
+  color: $color-User;
+}
+// 管理員
+header.navbar.admin .bi-list {
+  color: $color-Admin;
+}
+// 物流人員
+header.navbar.deliveryman .bi-list {
+  color: $color-Deliveryman;
+}
+
+header .mainLogo {
+    padding-left: 200px;
+    padding-right: 10px;
+    height: 38px;
+}
+header .mainLogo img {
+  height: 100%;
+  width: auto;
+}
+
+.navbar-brand {
+  padding-top: .85rem;
+  /* padding-bottom: .75rem; */
+  font-size: 1rem;
+  font-weight: 300;
+}
+.navbar-brand::after {
+  content: '託運系統';
+}
+header.admin .navbar-brand::after {
+  content: '託運喜鴻物流';
+}
+
+header .navbar-iconBtn > .divider {
+  border-right: solid 1px $color-white;
+  display: none;
+}
+header .navbar-iconBtn > div:not([hidden]) ~ .divider {
+  display: block;
+}
+
+header .navbar-member #memberMenu {
+  border: none;
+  padding: 0;
+  font-weight: 300;
+}
+header .navbar-member #memberAvatar {
+  width: 40px;
+  height: 40px;
+  margin-right: 5px;
+  line-height: 40px;
+  font-size: 25px;
+  font-weight: 400;
+  color: $color-main;
+  background-color: $color-white;
+}
+// 託運商
+header.user .navbar-member #memberAvatar {
+  color: $color-User;
+}
+// 管理員
+header.admin .navbar-member #memberAvatar {
+  color: $color-Admin;
+}
+// 物流人員
+header.deliveryman .navbar-member #memberAvatar {
+  color: $color-Deliveryman;
+}
+header .navbar-member .dropdown-item {
+  font-weight: 300;
+}
+
+/* 手機版 */
+@include media-breakpoint-down(md) {
+  header .mainLogo {
+    padding-left: 110px;
+  }
+}
+@include media-breakpoint-down(sm) {
+  header {
+    height: $Header-height-sm;
+  }
+  header > div {
+    background-image: none !important;
+    height: $Header-height-sm;
+  }
+  header .mainLogo {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  header .mainLogo img {
+    height: 90%;
+  }
+  header .navbar-member #memberAvatar {
+    height: 35px;
+    width: 35px;
+    font-size: 23px;
+    line-height: 35px;
+  }
+}
+
+/*
+ * Sidebar 左側 Menu #sidebarMenu
+ */
+#sidebarMenu.sidebar {
+  position: fixed;
+  top: 0;
+  /* rtl:raw:
+  right: 0;
+  */
+  bottom: 0;
+  /* rtl:remove */
+  left: 0;
+  z-index: 100; /* Behind the navbar */
+  padding: 0;
+  margin-top: $Header-height; /* Height of navbar */
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+  background-color: $bgColor-grey;
+  width: $Sidebar-width;
+  overflow-y: auto;
+}
+@include media-breakpoint-down(md) {
+  #sidebarMenu.sidebar {
+    width: 100%;
+  }
+}
+@include media-breakpoint-down(sm) {
+  #sidebarMenu.sidebar {
+    margin-top: $Header-height-sm;
+  }
+}
+
+/* 父項 */
+#sidebarMenu.sidebar .btn-toggle {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+#sidebarMenu.sidebar .btn-toggle::after {
+  width: 1.25em;
+  line-height: 0;
+  content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='rgba%280,0,0,.5%29' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 14l6-6-6-6'/%3e%3c/svg%3e");
+  transition: transform .35s ease;
+  transform-origin: .5em 50%;
+  position: absolute;
+  right: 10px;
+}
+
+#sidebarMenu.sidebar .btn-toggle[aria-expanded="true"] {
+  color: $color-text-dark;
+}
+#sidebarMenu.sidebar .btn-toggle[aria-expanded="true"]::after {
+  transform: rotate(90deg);
+}
+
+#sidebarMenu.sidebar .btn-toggle i {
+  margin-right: 10px;
+  font-size: 18px;
+  line-height: 18px;
+}
+
+/* 子項 */
+#sidebarMenu.sidebar .nav-link {
+  font-weight: 400;
+  font-size: $font-size-base;
+  color: $color-text-dark;
+  margin-left: 1.25rem;
+  user-select: none;
+}
+#sidebarMenu.sidebar ul.btn-toggle-nav li:hover {
+  background-color: #EDEEEF;
+}
+#sidebarMenu.sidebar ul.btn-toggle-nav li.active .nav-link {
+  color: $color-active-title;
+  border-left: solid 1px $color-active-title;
+}
+#sidebarMenu.sidebar ul.btn-toggle-nav li.active {
+  background-color: #EDEEEF;
+  margin-right: 1px;
+}
+
+#sidebarMenu.sidebar-heading {
+  font-size: .75rem;
+  text-transform: uppercase;
+}
+
+/* 
+ * Breadcrumb 麵包屑 #navBreadcrumb
+ */
+#navBreadcrumb {
+  height: 37px;
+  font-size: .9rem;
+  width: calc(100% - #{$Sidebar-width});
+}
+@include media-breakpoint-down(md) {
+  #navBreadcrumb {
+    width: 100%;
+  }
+}
+#navBreadcrumb .breadcrumb {
+  margin: 0;
+}
+#navBreadcrumb .breadcrumb-item {
+  color: $color-text-light;
+}
+#navBreadcrumb .breadcrumb-item.active {
+  color: $color-black;
+}
+
+/* 
+ * Main 主內容
+ */
+.container-fluid main {
+  background-color: $bgColor-light;
+  min-height: calc(100vh - #{$Header-breadcrumb-height});
+  width: calc(100% - #{$Sidebar-width});
+}
+@include media-breakpoint-down(md) {
+  .container-fluid main {
+    width: 100%;
+  }
+}
+.container-fluid main>div>div {
+  width: 100%;
+  min-height: calc(100vh - #{$Header-breadcrumb-height});
+}
+
+
+
+/*
+ * Icon button
+ */
+.icon-btn {
+  position: relative;
+  background-color: transparent;
+}
+.icon-btn:hover {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+.icon-btn::after {
+  content: "";
+  background-color: $color-white;
+  display: block;
+  border-radius: 50%;
+  position: absolute;
+  padding: 60%;
+  top: -10%;
+  left: -10%;
+  opacity: 0;
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+}
+.icon-btn:active::after {
+  padding: 0;
+  opacity: 1;
+  top: 50%;
+  left: 50%;
+  transition: 0s;
+}
+
+/*
+ * 前綴分頁標籤
+ */
+.prefix-tabs {
+  margin-bottom: -1px;
+  border-bottom: none;
+}
+.nav-tabs.prefix-tabs .nav-item {
+  z-index: 9;
+}
+.nav-tabs.prefix-tabs .nav-link:hover {
+  border-bottom-color: transparent;
+}
+.nav-tabs.prefix-tabs .nav-link.active {
+  background-color: #ffffff;
+  border-bottom: 2px solid transparent;
+}

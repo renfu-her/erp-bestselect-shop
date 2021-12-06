@@ -1,0 +1,297 @@
+/* Variables */
+// @import 'variables';
+/* Bootstrap */
+// @import '~bootstrap/scss/functions';
+// @import '~bootstrap/scss/variables';
+// @import '~bootstrap/scss/mixins';
+// @import '~bootstrap/scss/grid';
+@import 'dashboard';
+
+html,
+body {
+  background-color: transparent;
+  min-width: 100%;
+}
+
+a {
+  text-decoration: none;
+}
+
+h2,
+h6 {
+  color: $color-active-title;
+}
+
+div.card h6 {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+div.card h6:not(:first-child) {
+  margin-top: 1rem;
+}
+
+.form-check {
+  font-size: 1rem;
+}
+.form-check-input {
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-top: 0.2rem;
+}
+.form-check-input[type=checkbox]:checked,
+.form-check-input[type=checkbox]:indeterminate {
+  background-position: center;
+  background-size: 140%;
+}
+
+.icon {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+.card .icon,
+.tableList .icon {
+  width: 40px;
+  height: 40px;
+  margin: auto;
+  vertical-align: middle;
+}
+.input-group .icon {
+  font-size: 1rem;
+  line-height: 1rem;
+}
+
+i.bi-question-circle {
+  display: inline-block;
+  cursor: pointer;
+  margin-left: 3px;
+}
+
+/* Table 列表 */
+.tableOverBox {
+  margin: 0 -1.5rem;
+}
+.tableOverBox .tableList th:first-child,
+.tableOverBox .tableList td:first-child {
+  padding-left: 1.5rem;
+}
+.tableOverBox .tableList th:last-child,
+.tableOverBox .tableList td:last-child {
+  padding-right: 1.5rem;
+}
+
+.tableList th,
+.tableList td {
+  white-space: nowrap;
+}
+.tableList th.wrap,
+.tableList td.wrap {
+  white-space: normal;
+  line-height: 1.8rem;
+}
+.tableList tbody th,
+.tableList tbody td {
+  line-height: 40px;
+  vertical-align: middle;
+}
+.tableList input.form-check-input[type=checkbox] {
+  margin: -3px 0 0;
+  vertical-align: middle;
+}
+.tableList input.form-control,
+.tableList .input-group > input.form-control,
+.tableList select.form-select {
+  min-width: 100px;
+}
+.tableList input.form-control.-l,
+.tableList .input-group > input.form-control.-l,
+.tableList select.form-select.-l {
+  min-width: 130px;
+}
+.tableList input.form-control.-xl,
+.tableList .input-group > input.form-control.-xl,
+.tableList select.form-select.-xl {
+  min-width: 400px;
+}
+.tableList>:last-child>:last-child>* {
+  border-bottom-width: 0;
+}
+
+/* 分頁 */
+nav ul.pagination {
+  margin-bottom: 0;
+}
+nav ul.pagination .page-link {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 元件: chip */
+// .chipGroup {}
+
+.chipGroup .chipElem {
+  height: 24px;
+  min-width: max-content;
+  line-height: 24px;
+  font-size: .9rem;
+  display: inline-flex;
+  align-items: center;
+  padding-left: 10px;
+  padding-right: 2px;
+  margin-left: 6px;
+  margin-bottom: 5px;
+}
+.chipGroup .chipElem button {
+  height: 20px;
+  width: 20px;
+  padding: 0;
+  margin-left: 8px;
+  font-size: 1rem;
+    line-height: 11px;
+}
+@include media-breakpoint-up(md) {
+  .chipGroup .chipElem button {
+    font-size: 14px;
+  }
+}
+
+/* 日期快速鍵 */
+button[data-daysBefore] {
+  color: #212529;
+  border-color: #ced4da;
+  background-color: #f8fafc;
+}
+button[data-daysBefore]:hover {
+  color: $color-white;
+  border-color: $primary;
+  background-color: $primary;
+}
+
+/* 步驟標籤 */
+span.badge.-step {
+  font-size: 1rem;
+  line-height: 1rem;
+  font-weight: 500;
+  margin-right: 12px;
+  padding-top: 0.45em;
+  color: $color-white;
+  background-color: $color-main;
+}
+// 託運商
+span.badge.-step.user {
+  background-color: $color-User;
+}
+// 管理員
+span.badge.-step.admin {
+  background-color: $color-Admin;
+}
+// 物流人員
+span.badge.-step.deliveryman {
+  background-color: $color-Deliveryman;
+}
+
+
+/* 物流歷程 */
+#order-flow p.h5 {
+  font-size: 18px;
+}
+#flow-list h6,
+#flow-list p {
+  font-size: 17px;
+  color: $color-text-light;
+}
+#flow-list li:first-child h6,
+#flow-list li:first-child p {
+  color: $primary;
+}
+#flow-list p {
+  margin-bottom: 0px;
+}
+#flow-list p > span:not(:first-child) {
+  padding-left: 20px;
+}
+#flow-list > ul {
+  padding-left: 24px;
+  list-style: none;
+}
+#flow-list > ul > li {
+  margin-top: 20px;
+  position: relative;
+}
+#flow-list > ul > li::before {
+  content: '';
+  color: transparent;
+  font-size: 0;
+  position: absolute;
+  background-color: $color-text-light;
+  border-radius: 50%;
+  display: block;
+  height: 9px;
+  width: 9px;
+  left: -22px;
+  top: 4px;
+}
+#flow-list > ul > li:first-child::before {
+  width: 13px;
+  height: 13px;
+  left: -24px;
+  top: 2px;
+}
+#flow-list > ul > li:not(:last-child)::after {
+  content: '';
+  color: transparent;
+  font-size: 0;
+  position: absolute;
+  background-color: $color-text-light;
+  display: block;
+  height: calc(100% + 20px);
+  width: 0;
+  top: 4px;
+  left: -18px;
+  border-left: 1px solid $color-text-light;
+}
+
+
+/* Date input */
+input.form-control[type="date"],
+input.form-control[type="month"] {
+  position: relative;
+}
+input.form-control[type="date"]::-webkit-calendar-picker-indicator,
+input.form-control[type="month"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  right: 0;
+  width: calc(100% - 110px);
+  min-width: 35px;
+  height: 100%;
+  background-position: right 5px center;
+  background-size: 20px;
+  background-color: inherit;
+}
+
+input.form-control,
+.input-group > input.form-control,
+select.form-select {
+  min-width: min-content;
+}
+
+select.form-select optgroup {
+  background-color: #CCCCCC;
+}
+select.form-select optgroup option {
+  background-color: #f8fafc;
+}
+
+/* Toast */
+.toast-danger {
+  color: #842029;
+  background-color: #f8d7da;
+  border-color: #f5c2c7;
+}
+.toast-danger .toast-header {
+  color: #842029;
+}

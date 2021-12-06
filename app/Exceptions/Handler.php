@@ -56,7 +56,7 @@ class Handler extends ExceptionHandler
 
         switch ($guard) {
             default:
-                return redirect(Route('cms.login'));
+                return redirect(Route('pages.auth.login'));
         }
     }
 
