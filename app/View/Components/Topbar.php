@@ -1,6 +1,6 @@
 <?php
 
-namespace App\View\Components\Cms;
+namespace App\View\Components;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;

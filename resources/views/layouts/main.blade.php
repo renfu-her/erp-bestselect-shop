@@ -1,14 +1,14 @@
 @extends('layouts.layout')
 @section('content')
     <!-- Header -->
-    {{-- <x-b-topbar /> --}}
+    <x-b-topbar />
     <div class="container-fluid">
         <div class="row">
             <!-- 左側 Menu -->
-            {{-- <x-b-sidebar /> --}}
+            <x-b-sidebar />
 
             <!-- 麵包屑 -->
-            {{-- <x-b-breadcrumb :value="isset($breadcrumb_data) ? $breadcrumb_data : ''" /> --}}
+            <x-b-breadcrumb :value="isset($breadcrumb_data) ? $breadcrumb_data : ''" />
 
 
             <!-- 主內容 -->

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\View\Components\Cms;
+namespace App\View\Components;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\View\Component;
@@ -30,9 +30,6 @@ class Breadcrumb extends Component
     {
         // dd(Route::currentRouteName());
         // $controllerName = class_basename(Route::getCurrentRoute()->getAction()['controller']);
-        return view('components.breadcrumb', [
-            'routeName' => Route::currentRouteName(),
-            'value' => $this->value
-        ]);
+        return view('components.breadcrumb', []);
     }
 }

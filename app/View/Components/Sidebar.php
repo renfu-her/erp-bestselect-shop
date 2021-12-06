@@ -1,6 +1,6 @@
 <?php
 
-namespace App\View\Components\Cms;
+namespace App\View\Components;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -26,8 +26,8 @@ class Sidebar extends Component
     public function render()
     {
         // $adminAuths = request()->session()->get('adminAuths');
-        $controllerName = class_basename(Route::getCurrentRoute()->getAction()['controller']);
-        $controllerName = explode('@', $controllerName)[0];
+        // $controllerName = class_basename(Route::getCurrentRoute()->getAction()['controller']);
+        // $controllerName = explode('@', $controllerName)[0];
        
         $menuId = '';
         /*
@@ -37,9 +37,9 @@ class Sidebar extends Component
         */
 
         return view('components.sidebar', [
-            'tree' => Auth::user()->menuTree(),
+            'tree' => [],
             'menuId' => 1,
-            'controllerName' => $controllerName,
+            'controllerName' => '$controllerName',
         ]);
     }
 

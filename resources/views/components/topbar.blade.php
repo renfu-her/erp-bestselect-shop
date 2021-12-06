@@ -35,7 +35,7 @@
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="memberMenu">
                     <li>
-                        <a class="dropdown-item" href="{{ Route("$userType.usermnt.index") }}">
+                        <a class="dropdown-item" href="">
                             <i class="bi bi-person me-1"></i>資料維護
                         </a>
                     </li>
@@ -43,7 +43,7 @@
                         <hr class="dropdown-divider">
                     </li>
                     <li>
-                        <a class="dropdown-item" href="{{ Route($logout) }}">
+                        <a class="dropdown-item" href="">
                             <i class="bi bi-box-arrow-left me-1"></i>登出
                         </a>
                     </li>

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\View\Components\Cms\Forms;
+namespace App\View\Components\Forms;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\View\Component;
