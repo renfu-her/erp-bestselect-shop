@@ -28,8 +28,11 @@ class Breadcrumb extends Component
      */
     public function render()
     {
-        // dd(Route::currentRouteName());
-        // $controllerName = class_basename(Route::getCurrentRoute()->getAction()['controller']);
-        return view('components.breadcrumb', []);
+      //  dd(Route::currentRouteName());
+       //  $controllerName = class_basename(Route::getCurrentRoute()->getAction()['controller']);
+        return view('components.breadcrumb', [
+            'routeName' => Route::currentRouteName(),
+            'value' => $this->value
+        ]);
     }
 }

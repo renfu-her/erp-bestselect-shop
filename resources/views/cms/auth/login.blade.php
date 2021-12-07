@@ -38,12 +38,8 @@
                     </label>
                 </div>
                 <button class="w-100 btn btn-lg btn-primary" type="submit">登入</button>
-                <div class="pt-3">
-                    @foreach ($otherLogins as $key => $value)
-                        <a class="px-3" href="{{ $value['url'] }}">{{ $value['title'] }}</a>
-                    @endforeach
-                </div>
-                <p class="mt-5 mb-3 text-muted">&copy; 2017–2021</p>
+               
+                <p class="mt-5 mb-3 text-muted">&copy; 2022</p>
             </form>
 
         </main>

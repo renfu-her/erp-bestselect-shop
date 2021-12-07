@@ -12,7 +12,8 @@
         "laravel/framework": "^8.65",
         "laravel/sanctum": "^2.12",
         "laravel/tinker": "^2.5",
-        "laravel/ui": "^3.4"
+        "laravel/ui": "^3.4",
+        "spatie/laravel-permission": "^5.4"
     },
     "require-dev": {
         "facade/ignition": "^2.5",
@@ -27,7 +28,12 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/Helpers/url.php",
+            "app/Helpers/toast.php",
+            "app/Helpers/address.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

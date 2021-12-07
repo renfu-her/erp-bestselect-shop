@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Cms\AuthCtrl;
+use App\Http\Controllers\Cms\DashboardCtrl;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -11,8 +13,16 @@ use Illuminate\Support\Facades\Route;
 | routes are loaded by the RouteServiceProvider within a group which
 | contains the "web" middleware group. Now create something great!
 |
-*/
+ */
 
 Route::get('/', function () {
     return view('pages/dashboard');
+});
+
+Route::get('/login', [AuthCtrl::class, 'login'])->name('cms.login');
+Route::post('/login', [AuthCtrl::class, 'authenticate']);
+Route::get('/logout', [AuthCtrl::class, 'logout'])->name('cms.logout');
+
+Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], function () {
+    Route::get('dashboard', DashboardCtrl::class)->name('dashboard');
 });
