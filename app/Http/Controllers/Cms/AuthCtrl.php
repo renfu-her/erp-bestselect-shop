@@ -11,7 +11,7 @@ class AuthCtrl extends Controller
     //
     public function login(Request $request)
     {
-        return view('pages.auth.login', [
+        return view('cms.auth.login', [
             'title' => '',
             'action' => Route('cms.login'),
             'otherLogins' => [
@@ -39,7 +39,7 @@ class AuthCtrl extends Controller
         $remember_me = (!empty($request->remember_me)) ? true : false;
 
         if (Auth::guard('user')->attempt($credentials, $remember_me)) {
-            return redirect(Route('user.dashboard'));
+            return redirect(Route('cms.dashboard'));
         } else {
             return redirect(Route('cms.login'))
                 ->withErrors([

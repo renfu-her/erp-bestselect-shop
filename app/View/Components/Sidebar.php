@@ -26,9 +26,8 @@ class Sidebar extends Component
     public function render()
     {
         // $adminAuths = request()->session()->get('adminAuths');
-        // $controllerName = class_basename(Route::getCurrentRoute()->getAction()['controller']);
-        // $controllerName = explode('@', $controllerName)[0];
-       
+         $controllerName = class_basename(Route::getCurrentRoute()->getAction()['controller']);
+         $controllerName = explode('@', $controllerName)[0];
         $menuId = '';
         /*
         if (isset($adminAuths->controllers->{$controllerName})) {
@@ -37,9 +36,9 @@ class Sidebar extends Component
         */
 
         return view('components.sidebar', [
-            'tree' => [],
+            'tree' => Auth::user()->menuTree(),
             'menuId' => 1,
-            'controllerName' => '$controllerName',
+            'controllerName' => $controllerName,
         ]);
     }
 
