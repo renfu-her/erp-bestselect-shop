@@ -52,7 +52,7 @@
 
 </div>
 @once
-    @push('styles')
+    @push('sub-styles')
         <style>
             /* 功能按鈕群 */
             .pm_btnGroup a span.icon {

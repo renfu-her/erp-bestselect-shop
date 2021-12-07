@@ -28,6 +28,7 @@
 @once
     @push('styles')
         <link rel="stylesheet" href="{{ Asset('dist/css/sub-content.css') }}">
+        @stack('sub-styles')
     @endpush
     @push('scripts')
         <script src="{{ Asset('dist/js/dashboard.js') }}"></script>

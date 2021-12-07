@@ -265,12 +265,12 @@ input.form-control[type="date"]::-webkit-calendar-picker-indicator,
 input.form-control[type="month"]::-webkit-calendar-picker-indicator {
   position: absolute;
   right: 0;
-  width: calc(100% - 110px);
+  width: 100%;
   min-width: 35px;
   height: 100%;
   background-position: right 5px center;
   background-size: 20px;
-  background-color: inherit;
+  background-color: transparent;
 }
 
 input.form-control,
