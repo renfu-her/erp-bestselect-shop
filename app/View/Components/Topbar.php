@@ -40,7 +40,7 @@ class Topbar extends Component
         // }
 
         return view('components.topbar', [
-            'name' => Auth::User()->name,
+            'name' => isset(Auth::User()->name) ? Auth::User()->name : '旅客',
             'userType' => 'user',
             'logout' => 'logout'
         ]);

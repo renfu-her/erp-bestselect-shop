@@ -2,6 +2,8 @@
     "/dist/js/app.js": "/dist/js/app.js",
     "/dist/js/dashboard.js": "/dist/js/dashboard.js",
     "/dist/js/helpers.js": "/dist/js/helpers.js",
+    "/dist/js/components.js": "/dist/js/components.js",
+    "/dist/css/component.css": "/dist/css/component.css",
     "/dist/css/app.css": "/dist/css/app.css",
     "/dist/css/sub-content.css": "/dist/css/sub-content.css"
 }

@@ -49,7 +49,7 @@
 
 
 @once
-    @push('styles')
+    @push('sub-styles')
         <link href="{{ Asset('css/signin.css') }}" rel="stylesheet">
         <style>
             .bd-placeholder-img {

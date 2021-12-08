@@ -10,6 +10,7 @@ window._ = require('lodash');
     window.Popper = require('popper.js').default;
     window.$ = window.jQuery = require('jquery');
     window.moment = require('moment');
+    window.$.select2 = require('select2');
 
     window.bootstrap =require('bootstrap');
 } catch (e) {}

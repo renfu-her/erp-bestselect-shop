@@ -45,23 +45,23 @@ header > div {
   background-repeat: no-repeat;
   background-position: left center;
 }
-// 託運商 user
+// user
 header.user {
   background-image: linear-gradient(to right, #1A97CF 0%, #1CC6E8 50%, $color-User 100%);
 }
-// 管理員 admin
+// admin
 header.admin {
   background-image: linear-gradient(to right, #FFB52D 0%, #EBC229 50%, $color-Admin 100%);;
 }
 header.admin > div {
   background-image: url('/../images/header-admin.svg');
 }
-// 物流人員 deliveryman
+// 3類人員
 header.deliveryman {
   background-image: linear-gradient(to right, #88AD00 0%, #9FC939 50%, $color-Deliveryman 100%);
 }
 header.deliveryman > div {
-  background-image: url('/../images/header-deliveryman.svg');
+  background-image: url('/../images/header-3.svg');
 }
 
 header.navbar .btn:focus {

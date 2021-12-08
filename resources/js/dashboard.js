@@ -4,14 +4,14 @@ const moment = require("moment");
     'use strict'
 
     // // 左側 Menu 事件
-    // $('#sidebarMenu a.nav-link').off('click.nav').on('click.nav', function (e) {
-    //   // class 'active'
-    //   $('#sidebarMenu ul.btn-toggle-nav li').removeClass('active');
-    //   $(this).parent('li').addClass('active');
-    // });
+    $('#sidebarMenu a.nav-link').off('click.nav').on('click.nav', function (e) {
+      // class 'active'
+      $('#sidebarMenu ul.btn-toggle-nav li').removeClass('active');
+      $(this).parent('li').addClass('active');
+    });
 
     // 會員大頭貼
-    // $('#memberAvatar').text($('#memberName').text()[0].toLocaleUpperCase());
+    $('#memberAvatar').text(($('#memberName').text() || '')[0].toLocaleUpperCase());
 
     // datepicker 快速鍵
     $('button[data-daysBefore]').off('click.days').on('click.days', function () {
@@ -79,57 +79,5 @@ const moment = require("moment");
 
     // 月份最大值
     $('input[type="month"]').attr('max', moment().format('YYYY-MM'));
-
-    /* clone 項目：
-     * 重複的clone元素加 .-cloneElem
-     * 新增鈕加 .-newClone
-     * 新增處加 .-appendClone
-     * 送出檢查鈕加 .-checkSubmit
-     */
-    
-    const _CloneElem = $('.-cloneElem:first').clone();
-    _CloneElem.removeClass('d-none');
-    $('.-cloneElem.d-none').remove();
-
-    if (_CloneElem.length) {
-        // 新增鈕
-        $('.-newClone').off('click').on('click', function () {
-            let $cloneElem = getCloneElem();
-            bindDelElem($cloneElem);
-            $('.-appendClone').append($cloneElem);
-            checkSubmitDiv();
-        });
-
-        // 取 clone element
-        function getCloneElem() {
-            let $c = _CloneElem.clone();
-            $c.find('input').val('');
-            $c.find('button').attr({
-                'idx': null
-            });
-            return $c;
-        }
-
-        // 檢查數量
-        window.Clone_checkSubmitDiv = checkSubmitDiv;
-        function checkSubmitDiv() {
-            const count = $('.-cloneElem').length;
-            if (count > 0) {
-                $('.-checkSubmit').removeClass('d-none');
-            } else {
-                $('.-checkSubmit').addClass('d-none');
-            }
-        }
-
-        // bind 刪除
-        window.Clone_bindDelElem = bindDelElem;
-        function bindDelElem($elem) {
-            let $button = ($elem.hasClass('-del')) ? $elem : $elem.find('.-del');
-            $button.off('click.del').on('click.del', function () {
-                $(this).closest('.-cloneElem').remove();
-                checkSubmitDiv();
-            });
-        }
-    }
 
 })();

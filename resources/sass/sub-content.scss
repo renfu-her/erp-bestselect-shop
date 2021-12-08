@@ -16,6 +16,9 @@ body {
 a {
   text-decoration: none;
 }
+a:not(.btn):hover {
+  text-decoration: underline;
+}
 
 h2,
 h6 {
@@ -266,7 +269,6 @@ input.form-control[type="month"]::-webkit-calendar-picker-indicator {
   position: absolute;
   right: 0;
   width: 100%;
-  min-width: 35px;
   height: 100%;
   background-position: right 5px center;
   background-size: 20px;

@@ -64,8 +64,16 @@
         </div>
     </div>
 
+    <div class="col m-2">
+        <input type="month" name="" id="" class="form-control" placeholder="yyyy / mm">
+    </div>
+    
 @endsection
 @once
+    @push('sub-styles')
+    <style>
+    </style>
+    @endpush
     @push('sub-scripts')
         <script>
             var toastTrigger = $('#liveToastBtn')

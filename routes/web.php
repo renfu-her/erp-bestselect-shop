@@ -21,6 +21,9 @@ Route::get('/', function () {
     return redirect()->route('cms.dashboard');
 });
 
+Route::get('/demo', function () {
+    return view('cms/styleDemo');
+});
 
 Route::get('/login', [AuthCtrl::class, 'login'])->name('cms.login');
 Route::post('/login', [AuthCtrl::class, 'authenticate']);

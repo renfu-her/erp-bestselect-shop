@@ -28,11 +28,13 @@
 @once
     @push('styles')
         <link rel="stylesheet" href="{{ Asset('dist/css/sub-content.css') }}">
+        <link rel="stylesheet" href="{{ Asset('dist/css/component.css') }}">
         @stack('sub-styles')
     @endpush
     @push('scripts')
         <script src="{{ Asset('dist/js/dashboard.js') }}"></script>
         <script src="{{ Asset('dist/js/helpers.js') }}"></script>
+        <script src="{{ Asset('dist/js/components.js') }}"></script>
         <script>
             window.Laravel = {!! json_encode([
                 'apiToken' => auth()->user()->api_token ?? null,
