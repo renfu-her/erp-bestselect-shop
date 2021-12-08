@@ -50,4 +50,8 @@ Route::group(['prefix' => 'user', 'as' => 'user.', 'middleware' => 'auth:sanctum
         return $request->user();
     });
 
+   
+
 });
+
+require base_path('routes/api/Addr.php');

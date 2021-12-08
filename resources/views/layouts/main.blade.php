@@ -34,7 +34,15 @@
         <script src="{{ Asset('dist/js/dashboard.js') }}"></script>
         <script src="{{ Asset('dist/js/helpers.js') }}"></script>
         <script>
-            // window.axios.defaults.headers.common['Authorization'] = 'Bearer ' + Laravel.apiToken;
+            window.Laravel = {!! json_encode([
+                'apiToken' => auth()->user()->api_token ?? null,
+                'apiUrl' => [
+                    'getRegions' => Route('api.addr.get-regions'),
+                    'addrFormating' => Route('api.addr.formating'),
+                ],
+            ]) !!};
+
+            window.axios.defaults.headers.common['Authorization'] = 'Bearer ' + Laravel.apiToken;
             window.axios.defaults.headers.common['Accept'] = 'application/json';
         </script>
         @stack('sub-scripts')
