@@ -43,7 +43,7 @@
                         <hr class="dropdown-divider">
                     </li>
                     <li>
-                        <a class="dropdown-item" href="">
+                        <a class="dropdown-item" href="{{ route('cms.logout') }}">
                             <i class="bi bi-box-arrow-left me-1"></i>登出
                         </a>
                     </li>

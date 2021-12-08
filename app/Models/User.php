@@ -22,14 +22,14 @@ class User extends Authenticatable
     const USER_MENU_TREE =
         [
         [
-            "title" => "test",
+            "title" => "產品相關",
             "icon" => "bi-signpost-2",
             "menu_id" => "1",
             "child" => [
                 [
-                    "title" => "home",
-                    "controller_name" => "DashboardCtrl",
-                    "route_name" => "cms.dashboard",
+                    "title" => "庫存管理",
+                    "controller_name" => "ProductCtrl",
+                    "route_name" => "cms.product.index",
                 ],
 
             ],

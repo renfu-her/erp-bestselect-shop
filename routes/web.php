@@ -15,9 +15,12 @@ use Illuminate\Support\Facades\Route;
 |
  */
 
+
 Route::get('/', function () {
-    return view('pages/dashboard');
+    // dd(app('url')->route('test',[],false));
+    return redirect()->route('cms.dashboard');
 });
+
 
 Route::get('/login', [AuthCtrl::class, 'login'])->name('cms.login');
 Route::post('/login', [AuthCtrl::class, 'authenticate']);
@@ -25,4 +28,6 @@ Route::get('/logout', [AuthCtrl::class, 'logout'])->name('cms.logout');
 
 Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], function () {
     Route::get('dashboard', DashboardCtrl::class)->name('dashboard');
+    require base_path('routes/cms/Product.php');
+
 });
