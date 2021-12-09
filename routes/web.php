@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\Cms\AuthCtrl;
 use App\Http\Controllers\Cms\DashboardCtrl;
+use App\Http\Controllers\cms\StyleDemo;
 use Illuminate\Support\Facades\Route;
+use NunoMaduro\Collision\Adapters\Phpunit\Style;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,9 +23,7 @@ Route::get('/', function () {
     return redirect()->route('cms.dashboard');
 });
 
-Route::get('/demo', function () {
-    return view('cms/styleDemo');
-});
+Route::get('/demo', StyleDemo::class)->name('cms.styleDemo');
 
 Route::get('/login', [AuthCtrl::class, 'login'])->name('cms.login');
 Route::post('/login', [AuthCtrl::class, 'authenticate']);

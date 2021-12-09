@@ -16,7 +16,7 @@ body {
 a {
   text-decoration: none;
 }
-a:not(.btn):hover {
+a.-text:hover {
   text-decoration: underline;
 }
 
@@ -183,18 +183,6 @@ span.badge.-step {
   padding-top: 0.45em;
   color: $color-white;
   background-color: $color-main;
-}
-// 託運商
-span.badge.-step.user {
-  background-color: $color-User;
-}
-// 管理員
-span.badge.-step.admin {
-  background-color: $color-Admin;
-}
-// 物流人員
-span.badge.-step.deliveryman {
-  background-color: $color-Deliveryman;
 }
 
 

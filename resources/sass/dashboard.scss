@@ -35,33 +35,16 @@ html, body {
 header {
   height: $Header-height;
   min-width: fit-content;
-  background-color: $color-main;
+  // background-color: $color-main;
+  background-image: linear-gradient(to right, #ff8863 0%, #cf611d 50%, $color-main 100%);
 }
 
 header > div {
   height: $Header-height;
-  background-image: url('/../images/header-user.svg');
+  background-image: url('/../images/header.svg');
   background-size: auto;
   background-repeat: no-repeat;
   background-position: left center;
-}
-// user
-header.user {
-  background-image: linear-gradient(to right, #1A97CF 0%, #1CC6E8 50%, $color-User 100%);
-}
-// admin
-header.admin {
-  background-image: linear-gradient(to right, #FFB52D 0%, #EBC229 50%, $color-Admin 100%);;
-}
-header.admin > div {
-  background-image: url('/../images/header-admin.svg');
-}
-// 3類人員
-header.deliveryman {
-  background-image: linear-gradient(to right, #88AD00 0%, #9FC939 50%, $color-Deliveryman 100%);
-}
-header.deliveryman > div {
-  background-image: url('/../images/header-3.svg');
 }
 
 header.navbar .btn:focus {
@@ -83,18 +66,6 @@ header.navbar .navbar-toggler:focus {
 header.navbar .bi-list {
   color: $color-main;
   font-size: 24px;
-}
-// 託運商
-header.navbar.user .bi-list {
-  color: $color-User;
-}
-// 管理員
-header.navbar.admin .bi-list {
-  color: $color-Admin;
-}
-// 物流人員
-header.navbar.deliveryman .bi-list {
-  color: $color-Deliveryman;
 }
 
 header .mainLogo {
@@ -139,18 +110,6 @@ header .navbar-member #memberAvatar {
   font-weight: 400;
   color: $color-main;
   background-color: $color-white;
-}
-// 託運商
-header.user .navbar-member #memberAvatar {
-  color: $color-User;
-}
-// 管理員
-header.admin .navbar-member #memberAvatar {
-  color: $color-Admin;
-}
-// 物流人員
-header.deliveryman .navbar-member #memberAvatar {
-  color: $color-Deliveryman;
 }
 header .navbar-member .dropdown-item {
   font-weight: 300;
