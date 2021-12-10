@@ -43,7 +43,7 @@ class AuthCtrl extends Controller
         } else {
             return redirect(Route('cms.login'))
                 ->withErrors([
-                    'login-error' => 'Oppes! You have entered invalid credentials',
+                    'login-error' => __('auth.failed')
                 ]);
         }
     }
