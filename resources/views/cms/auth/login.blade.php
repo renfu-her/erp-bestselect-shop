@@ -26,7 +26,7 @@
                     @enderror
                 </div>
                 <div class="form-floating">
-                    <input type="password" class="form-control" id="password" name="password">
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Password">
                     <label for="password">密碼</label>
                 </div>
                 @error('login-error')
@@ -38,7 +38,7 @@
                     </label>
                 </div>
                 <button class="w-100 btn btn-lg btn-primary" type="submit">登入</button>
-
+               
                 <p class="mt-5 mb-3 text-muted">&copy; 2022</p>
             </form>
 
