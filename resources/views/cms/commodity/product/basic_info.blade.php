@@ -1,10 +1,7 @@
 @extends('layouts.main')
 @section('sub-content')
 <div class="d-flex align-items-center mb-4">
-    <h2 class="flex-grow-1 mb-0">新增商品</h2>
-    <a href="/" class="btn btn-outline-primary -in-header" role="button">
-        <i class="bi bi-arrow-left"></i> 返回上一頁
-    </a>
+    <h2>新增商品</h2>
 </div>
 
 <form>
@@ -44,8 +41,12 @@
                 <input class="form-control" type="text" placeholder="請輸入負責人員" aria-label="負責人員">
             </div>
             <div class="col-12 col-sm-6 mb-3">
-                <label class="form-label">廠商</label>
-                <input class="form-control" type="text" placeholder="廠商列表" aria-label="廠商">
+                <label class="form-label" for="vendor">廠商</label>
+                <select name="vendor[]" id="vendor" multiple="multiple" class="w-100" data-placeholder="請選擇廠商">
+                    <option value="1">item 1</option>
+                    <option value="2">item 2</option>
+                    <option value="3">item 3</option>
+                </select>
             </div>
             <div class="col-12 col-sm-6 mb-3">
                 <label class="form-label">上架時間</label>
@@ -105,15 +106,38 @@
     </div>
 
     <div class="card shadow p-4 mb-4">
-        <h6>通路銷售</h6>
-    </div>
-
-    <div class="card shadow p-4 mb-4">
-        <h6>款式管理</h6>
-    </div>
-
-    <div class="card shadow p-4 mb-4">
         <h6>商品優惠</h6>
+        <div class="table-responsive tableOverBox">
+            <table class="table tableList table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">優惠名稱</th>
+                        <th scope="col">適用商品</th>
+                        <th scope="col">優惠起始日期</th>
+                        <th scope="col">優惠終止日期</th>
+                        <th scope="col">優惠類別</th>
+                        <th scope="col">優惠內容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{-- <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>$ {{ number_format(99) }} / 99% / 贈品名</td>
+                    </tr> --}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary px-4">儲存</button>
+            <a href="/" class="btn btn-outline-primary px-4" role="button">返回列表</a>
+        </div>
     </div>
 </form>
 
@@ -126,7 +150,11 @@
     @endpush
     @push('sub-scripts')
         <script>
+            // 顯示字數
             showWordsLength($('input[maxlength],textarea[maxlength]'));
+            
+            // select2
+            $('#vendor').select2();
         </script>
         <script>
             /*** 媒體設定 ***/

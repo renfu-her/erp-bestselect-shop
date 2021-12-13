@@ -14,7 +14,7 @@ class ProductCtrl extends Controller
      */
     public function index()
     {
-        //
+        return view('cms.commodity.product.main');
     }
 
     /**

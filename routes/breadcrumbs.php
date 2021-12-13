@@ -10,6 +10,11 @@ Breadcrumbs::for('cms.dashboard', function (BreadcrumbTrail $trail) {
     $trail->push('Home', route('cms.dashboard'));
 });
 
+// 商品主頁
+Breadcrumbs::for('cms.product.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('商品主頁');
+});
 // 新增商品
 Breadcrumbs::for('cms.product.create', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');

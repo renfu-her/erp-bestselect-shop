@@ -314,6 +314,13 @@ select.form-select optgroup option {
   line-height: 1;
 }
 
+
+/* 商品頁 layout - pm_* */
+.pm_btnGroup a span.icon {
+  margin-right: -5px;
+}
+
+
 /* 拖曳區塊 */
 .sortabled {
   position: relative;
