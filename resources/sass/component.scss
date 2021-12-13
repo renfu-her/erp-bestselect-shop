@@ -1,6 +1,8 @@
 @import 'variables';
 @import '~bootstrap/scss/functions';
 @import '~bootstrap/scss/variables';
+// jquery-ui
+// @import '~jquery-ui/themes/base/all.css';
 // tui-calendar
 @import 'tui-calendar/dist/tui-calendar.css';
 @import 'tui-date-picker/dist/tui-date-picker.css';
@@ -13,7 +15,7 @@
 @import 'select2/dist/css/select2.min.css';
 
 /* 
-   Calendar 
+   Tui-Calendar 
 */
 .calendarMenu {
     padding: 10px;
@@ -69,7 +71,6 @@
     content: '）';
 }
 
-
 /* 
    Editor
 */
@@ -82,11 +83,56 @@
    select2
 */
 .select2-container--default {
-    .select2-selection--multiple.pillbox {
+    // 基本設定
+    .select2-selection.pillbox {
         background-color: $input-bg;
         border-color: $input-border-color;
         padding-left: $input-padding-y;
+        height: auto;
+        
+        // all clear button
+        .select2-selection__clear {
+            height: auto;
+            position: absolute;
+            margin: 0;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            padding: 0rem 0.75rem;
+            border-left: 1px solid $input-border-color;
+            color: $secondary;
+            font-size: 25px;
+            line-height: 1;
+            border-top-right-radius: 0.25rem;
+            border-bottom-right-radius: 0.25rem;
 
+            &:hover {
+                color: $color-white;
+                background-color: $secondary;
+                border-color: $secondary;
+            }
+        }
+
+        // .pillbox with all clear button
+        &.select2-selection--clearable {
+            padding-right: 2.5rem;
+            background-position: right 3rem center;
+        }
+    }
+
+    // 單選
+    .select2-selection--single {
+        // 下箭頭
+        .select2-selection__arrow {
+            display: none;
+        }
+        .select2-selection__rendered {
+            line-height: 1.6;
+        }
+    }
+
+    // 多選
+    .select2-selection--multiple.pillbox {
         // each selected item in input box
         .select2-selection__choice {
             border-radius: $border-radius-pill;
@@ -115,32 +161,12 @@
         // search field textarea
         .select2-search__field {
             margin-top: 0;
-            height: 25px;
+            height: 26.59px;
         }
-
-        // all clear button
-        .select2-selection__clear {
-            height: auto;
-            margin: 0;
-            top: 0;
-            bottom: 0;
-            padding: 0rem 0.75rem;
-            border-left: 1px solid $input-border-color;
-            color: $secondary;
-            font-size: 25px;
-            line-height: 1;
-
-            &:hover {
-                color: $color-white;
-                background-color: $secondary;
-                border-color: $secondary;
-            }
-        }
-
+        
+        // .pillbox with all clear button
         &.select2-selection--clearable {
             padding-top: 0;
-            padding-right: 2.5rem;
-            background-position: right 3rem center;
         }
     }
 }

@@ -53,6 +53,36 @@
         }
     }
 
+    /**
+     * 顯示字數長度
+     */
+    window.showWordsLength = showWordsLength;
+    function showWordsLength($elems, callback = false) {
+        $elems.each(function () {
+            let num = $(this).val().length;
+            let max = $(this).attr('maxlength');
+            let $DIV = $('<div></div>').addClass('show_words_length')
+                .attr('data-after', num + '/' + max);
+            $(this).after($DIV);
+        });
+        bindCountWordsLength($elems);
+        
+        if (typeof callback === 'function') {
+            callback();
+        }
+    }
+    // 綁定事件: 計算字數
+    function bindCountWordsLength($elems) {
+        $elems.off('change.count keydown.count keyup.count')
+        .on('change.count keydown.count keyup.count', function () {
+            let num = $(this).val().length;
+            let max = $(this).attr('maxlength');
+            // console.log(num, max);
+            let $DIV = $(this).next('.show_words_length');
+            $DIV.attr('data-after', num + '/' + max);
+        });
+    }
+
     /** 
      * Combo box - select2
      */
@@ -65,20 +95,20 @@
             return '刪除項目';
         },
         inputTooLong: function (args) {
-            var overChars = args.input.length - args.maximum;
-            var message = '請刪掉' + overChars + '個字元';
+            let overChars = args.input.length - args.maximum;
+            let message = '請刪掉' + overChars + '個字元';
             return message;
         },
         inputTooShort: function (args) {
-            var remainingChars = args.minimum - args.input.length;
-            var message = '請再輸入' + remainingChars + '個字元';
+            let remainingChars = args.minimum - args.input.length;
+            let message = '請再輸入' + remainingChars + '個字元';
             return message;
         },
         loadingMore: function () {
             return '載入中…';
         },
         maximumSelected: function (args) {
-            var message = '你只能選擇最多' + args.maximum + '項';
+            let message = '你只能選擇最多' + args.maximum + '項';
             return message;
         },
         noResults: function () {
