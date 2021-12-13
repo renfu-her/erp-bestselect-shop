@@ -24,7 +24,7 @@ class ProductCtrl extends Controller
      */
     public function create()
     {
-        //
+        return view('cms.commodity.product.basic_info');
     }
 
     /**

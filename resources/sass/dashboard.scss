@@ -322,3 +322,19 @@ header .navbar-member .dropdown-item {
   background-color: #ffffff;
   border-bottom: 2px solid transparent;
 }
+
+/* 
+ * 字數
+ */
+.show_words_length {
+  position: relative;
+}
+.show_words_length::after {
+  content: attr(data-after);
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  font-size: .7rem;
+  color: #999;
+  background-color: $input-bg;
+}
