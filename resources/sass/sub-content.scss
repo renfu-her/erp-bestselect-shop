@@ -316,8 +316,23 @@ select.form-select optgroup option {
 
 
 /* 商品頁 layout - pm_* */
-.pm_btnGroup a span.icon {
-  margin-right: -5px;
+.pm_btnGroup  {
+  .icon {
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 1.2rem;
+    vertical-align: top;
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+  
+  a span.icon {
+    margin-right: -5px;
+  }
 }
 
 
