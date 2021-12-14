@@ -6,7 +6,7 @@
     @if ($method == 'edit')
         <x-b-prd-navi></x-b-prd-navi>
     @endif
-    <form method="POST" action="{{ $formAction }}">
+    <form method="POST" action="{{ $formAction }}" enctype="multipart/form-data">
         @csrf
         <div class="card shadow p-4 mb-4">
             <h6>基本設定</h6>
@@ -59,14 +59,22 @@
                         @endforeach
                     </select>
                 </div>
+                @error('user_id')
+                    <div class="alert alert-danger mt-3">{{ $message }}</div>
+                @enderror
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label" for="vendor">廠商</label>
-                    <select name="vendor[]" id="vendor" multiple="multiple" class="w-100" data-placeholder="請選擇廠商">
-                        <option value="1">item 1</option>
-                        <option value="2">item 2</option>
-                        <option value="3">item 3</option>
+                    <label class="form-label" for="supplier">廠商</label>
+                    <select name="supplier[]" id="supplier" multiple="multiple" class="w-100"
+                        data-placeholder="請選擇廠商">
+                        @foreach ($suppliers as $key => $supplier)
+                            <option value="{{ $supplier->id }}" @if (in_array($supplier->id, old('supplier', $current_supplier ?? []))) selected @endif>{{ $supplier->name }}
+                            </option>
+                        @endforeach
                     </select>
                 </div>
+                @error('supplier')
+                    <div class="alert alert-danger mt-3">{{ $message }}</div>
+                @enderror
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">上架時間</label>
                     <input class="form-control" name="active_sdate" type="date" aria-label="上架時間"
@@ -98,10 +106,13 @@
                         </div>
                     </div>
                 </fieldset>
+                @error('has_tax')
+                    <div class="alert alert-danger mt-3">{{ $message }}</div>
+                @enderror
             </div>
 
         </div>
-
+      
         <div id="mediaSettings" class="card shadow p-4 mb-4">
             <h6>媒體設定</h6>
             <label>圖片設定（圖片尺寸建議：不超過1MB，1000×1000px，可上傳JPG/ JPEG/ PNG/ GIF/ SVG格式）</label>
@@ -129,7 +140,8 @@
                         <span class="browser_box">
                             <i class="bi bi-plus-circle text-secondary fs-4"></i>
                         </span>
-                        <input type="file" name="" id="product_img_add" accept=".jpg,.jpeg,.png,.gif,.svg" multiple hidden>
+                        <input type="file" name="files[]" id="product_img_add" accept=".jpg,.jpeg,.png,.gif,.svg" multiple
+                            hidden>
                     </label>
                 </div>
             </div>

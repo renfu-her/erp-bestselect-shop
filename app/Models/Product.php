@@ -13,7 +13,7 @@ class Product extends Model
     protected $table = 'prd_products';
     protected $guarded = [];
 
-    public static function createProduct($title, $user_id, $category_id, $feature = null, $url = null, $slogan = null, $active_sdate = null, $active_edate = null, $has_tax = 0)
+    public static function createProduct($title, $user_id, $category_id, $feature = null, $url = null, $slogan = null, $active_sdate = null, $active_edate = null, $supplier = [], $has_tax = 0)
     {
         return DB::transaction(function () use ($title,
             $user_id,
@@ -23,6 +23,7 @@ class Product extends Model
             $slogan,
             $active_sdate,
             $active_edate,
+            $supplier,
             $has_tax) {
 
             $sku = "P" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
@@ -43,6 +44,8 @@ class Product extends Model
                 "has_tax" => $has_tax,
             ])->id;
 
+            Supplier::updateProductSupplier($id, $supplier);
+
             return [
                 'sku' => $sku,
                 'id' => $id,
@@ -51,9 +54,19 @@ class Product extends Model
         });
     }
 
-    public static function updateProduct($id,$title, $user_id, $category_id, $feature = null, $url = null, $slogan = null, $active_sdate = null, $active_edate = null, $has_tax = 0){
+    public static function updateProduct($id,
+        $title,
+        $user_id,
+        $category_id,
+        $feature = null,
+        $url = null,
+        $slogan = null,
+        $active_sdate = null,
+        $active_edate = null,
+        $supplier,
+        $has_tax = 0) {
 
-        self::where('id',$id)->update([
+        self::where('id', $id)->update([
             "title" => $title,
             "user_id" => $user_id,
             "category_id" => $category_id,
@@ -64,6 +77,8 @@ class Product extends Model
             "active_edate" => $active_edate,
             "has_tax" => $has_tax,
         ]);
+
+        Supplier::updateProductSupplier($id, $supplier);
     }
 
 }

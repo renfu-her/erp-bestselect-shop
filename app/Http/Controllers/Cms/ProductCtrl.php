@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cms;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -33,6 +34,8 @@ class ProductCtrl extends Controller
             'method' => 'create',
             'formAction' => Route('cms.product.create'),
             'users' => User::get(),
+            'suppliers' => Supplier::get(),
+
         ]);
     }
 
@@ -44,19 +47,23 @@ class ProductCtrl extends Controller
      */
     public function store(Request $request)
     {
-        //
+        
+
         $request->validate([
-            //  'file' => 'required|max:10000|mimes:xlsx,xls',
+            // 'files' => 'required|max:10000|mimes:png,jpg',
             'title' => 'required',
             'has_tax' => 'required',
             'active_sdate' => 'date|nullable',
             'active_edate' => 'date|nullable',
             'user_id' => 'required',
             'category_id' => 'required',
+            'supplier' => 'required|array',
         ]);
 
+        // $path = $request->file('file')->store('excel');
+
         $d = $request->all();
-        Product::createProduct($d['title'], $d['user_id'], $d['category_id'], $d['feature'], $d['url'], $d['slogan'], $d['active_sdate'], $d['active_edate'], $d['has_tax']);
+        $re = Product::createProduct($d['title'], $d['user_id'], $d['category_id'], $d['feature'], $d['url'], $d['slogan'], $d['active_sdate'], $d['active_edate'], $d['supplier'], $d['has_tax']);
         wToast('新增完畢');
         return redirect(route('cms.product.index'));
     }
@@ -82,11 +89,16 @@ class ProductCtrl extends Controller
     public function edit($id)
     {
         //
+
+        $current_supplier = Supplier::getProductSupplier($id, true);
+
         return view('cms.commodity.product.basic_info', [
             'method' => 'edit',
             'formAction' => Route('cms.product.edit', ['id' => $id]),
             'users' => User::get(),
             'data' => Product::where('id', $id)->get()->first(),
+            'suppliers' => Supplier::get(),
+            'current_supplier' => $current_supplier,
         ]);
     }
 
@@ -107,10 +119,12 @@ class ProductCtrl extends Controller
             'active_edate' => 'date|nullable',
             'user_id' => 'required',
             'category_id' => 'required',
+            'supplier' => 'required|array',
         ]);
 
         $d = $request->all();
-        Product::updateProduct($d['title'], $d['user_id'], $d['category_id'], $d['feature'], $d['url'], $d['slogan'], $d['active_sdate'], $d['active_edate'], $d['has_tax']);
+
+        Product::updateProduct($id, $d['title'], $d['user_id'], $d['category_id'], $d['feature'], $d['url'], $d['slogan'], $d['active_sdate'], $d['active_edate'], $d['supplier'], $d['has_tax']);
         wToast('儲存完畢');
         return redirect(route('cms.product.index'));
 
