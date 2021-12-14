@@ -32,7 +32,7 @@ Route::get('/logout', [AuthCtrl::class, 'logout'])->name('cms.logout');
 Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], function () {
     Route::get('dashboard', DashboardCtrl::class)->name('dashboard');
     require base_path('routes/cms/Product.php');
+    require base_path('routes/web/cms/Supplier.php');
 });
 
-require base_path('routes/web/cms/Supplier.php');
 

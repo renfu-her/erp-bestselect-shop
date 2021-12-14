@@ -25,7 +25,7 @@ class SupplierCtrl extends Controller
     {
         return view('cms.supplier.edit', [
             'method' => 'create',
-            'formAction' => Route('supplier.create'),
+            'formAction' => Route('cms.supplier.create'),
         ]);
     }
 
@@ -50,7 +50,7 @@ class SupplierCtrl extends Controller
             'memo' => $v['memo'],
         ]);
         wToast(__('Add finished.'));
-        return redirect(Route('supplier.edit', [
+        return redirect(Route('cms.supplier.edit', [
             'id' => $id,
             'query' => $query
         ]));
@@ -91,7 +91,7 @@ class SupplierCtrl extends Controller
             'id' => $id,
             'data' => $data,
             'method' => 'edit',
-            'formAction' => Route('supplier.edit', ['id' => $id]),
+            'formAction' => Route('cms.supplier.edit', ['id' => $id]),
         ]);
     }
 
@@ -103,7 +103,7 @@ class SupplierCtrl extends Controller
 
         Supplier::where('id', '=', $id)->update($v);
         wToast(__('Edit finished.'));
-        return redirect(Route('supplier.edit', [
+        return redirect(Route('cms.supplier.edit', [
             'id' => $id,
             'query' => $query
         ]));
@@ -113,6 +113,6 @@ class SupplierCtrl extends Controller
     {
         Supplier::where('id', '=', $id)->delete();
         wToast(__('Delete finished.'));
-        return redirect(Route('supplier.index'));
+        return redirect(Route('cms.supplier.index'));
     }
 }

@@ -4,8 +4,8 @@
 <div class="card shadow p-4 mb-4">
     <div class="row mb-4">
         <div class="col-auto">
-            @can('supplier.create')
-            <a href="{{ Route('supplier.create', null, true) }}" class="btn btn-primary">
+            @can('cms.supplier.create')
+            <a href="{{ Route('cms.supplier.create', null, true) }}" class="btn btn-primary">
                 <i class="bi bi-plus-lg"></i> 新增廠商
             </a>
             @endcan
@@ -53,7 +53,7 @@
                         <td>{{ $data->memo }}</td>
                         <td class="text-center">
 {{--                            @can('admin.supplier.edit')--}}
-                            <a href="{{ Route('supplier.edit', ['id' => $data->id], true) }}"
+                            <a href="{{ Route('cms.supplier.edit', ['id' => $data->id], true) }}"
                                 data-bs-toggle="tooltip" title="編輯"
                                 class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                 <i class="bi bi-pencil-square"></i>
@@ -62,7 +62,7 @@
                         </td>
                         <td class="text-center">
 {{--                            @can('admin.supplier.delete')--}}
-                            <a href="javascript:void(0)" data-href="{{ Route('supplier.delete', ['id' => $data->id], true) }}"
+                            <a href="javascript:void(0)" data-href="{{ Route('cms.supplier.delete', ['id' => $data->id], true) }}"
                                 data-bs-toggle="modal" data-bs-target="#confirm-delete"
                                 class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
                                 <i class="bi bi-trash"></i>

@@ -31,6 +31,11 @@ class User extends Authenticatable
                     "controller_name" => "ProductCtrl",
                     "route_name" => "cms.product.index",
                 ],
+                [
+                    "title" => "新增廠商",
+                    "controller_name" => "SupplierCtrl",
+                    "route_name" => "cms.supplier.index",
+                ],
 
             ],
         ],
