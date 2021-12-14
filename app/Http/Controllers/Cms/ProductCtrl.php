@@ -57,7 +57,7 @@ class ProductCtrl extends Controller
 
         $d = $request->all();
         Product::createProduct($d['title'], $d['user_id'], $d['category_id'], $d['feature'], $d['url'], $d['slogan'], $d['active_sdate'], $d['active_edate'], $d['has_tax']);
-
+        wToast('新增完畢');
         return redirect(route('cms.product.index'));
     }
 
@@ -111,7 +111,7 @@ class ProductCtrl extends Controller
 
         $d = $request->all();
         Product::updateProduct($d['title'], $d['user_id'], $d['category_id'], $d['feature'], $d['url'], $d['slogan'], $d['active_sdate'], $d['active_edate'], $d['has_tax']);
-
+        wToast('儲存完畢');
         return redirect(route('cms.product.index'));
 
         //
