@@ -171,5 +171,8 @@
     "You may delete any of your existing tokens if they are no longer needed." : "You may delete any of your existing tokens if they are no longer needed.",
     "You may not delete your personal team.": "You may not delete your personal team.",
     "You may not leave a team that you created.": "You may not leave a team that you created.",
-    "Your email address is not verified.": "您的 E-mail 尚未驗證通過"
+    "Your email address is not verified.": "您的 E-mail 尚未驗證通過",
+    "Add finished.": "新增完成",
+    "Edit finished.": "修改完成",
+    "Delete finished.": "刪除完成"
 }
