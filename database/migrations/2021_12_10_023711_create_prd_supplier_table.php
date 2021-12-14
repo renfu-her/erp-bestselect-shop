@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCpnCompaniesTable extends Migration
+class CreatePrdSupplierTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class CreateCpnCompaniesTable extends Migration
      */
     public function up()
     {
-        Schema::create('cpn_companies', function (Blueprint $table) {
-            $table->id();
+        Schema::create('prd_supplier', function (Blueprint $table) {
+            $table->id()->comment('廠商');
             $table->string('name')->comment('廠商名稱');
             $table->string('nickname')->nullable()->comment('廠商簡稱');
             $table->string('vat_no', 8)->nullable()->comment('統編');
@@ -40,6 +40,6 @@ class CreateCpnCompaniesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('cpn_companies');
+        Schema::dropIfExists('prd_supplier');
     }
 }
