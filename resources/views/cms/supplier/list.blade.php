@@ -18,18 +18,18 @@
                 <tr>
                     <th scope="col" style="width:10%">#</th>
                     <th scope="col">廠商名稱</th>
-                    <th scope="col">廠商簡稱</th>
-                    <th scope="col">統編</th>
-                    <th scope="col">負責人</th>
-                    <th scope="col">匯款銀行</th>
-                    <th scope="col">匯款銀行代碼</th>
-                    <th scope="col">匯款戶名</th>
-                    <th scope="col">匯款帳號</th>
-                    <th scope="col">聯絡電話</th>
-                    <th scope="col">聯絡地址</th>
+{{--                    <th scope="col">廠商簡稱</th>--}}
+{{--                    <th scope="col">統編</th>--}}
+{{--                    <th scope="col">負責人</th>--}}
+{{--                    <th scope="col">匯款銀行</th>--}}
+{{--                    <th scope="col">匯款銀行代碼</th>--}}
+{{--                    <th scope="col">匯款戶名</th>--}}
+{{--                    <th scope="col">匯款帳號</th>--}}
+{{--                    <th scope="col">聯絡電話</th>--}}
+{{--                    <th scope="col">聯絡地址</th>--}}
                     <th scope="col">聯絡人</th>
                     <th scope="col">電子郵件</th>
-                    <th scope="col">備註</th>
+{{--                    <th scope="col">備註</th>--}}
                     <th scope="col" class="text-center">編輯</th>
                     <th scope="col" class="text-center">刪除</th>
                 </tr>
@@ -39,18 +39,18 @@
                     <tr>
                         <th scope="row">{{ $key + 1 }}</th>
                         <td>{{ $data->name }}</td>
-                        <td>{{ $data->nickname }}</td>
-                        <td>{{ $data->vat_no }}</td>
-                        <td>{{ $data->chargeman }}</td>
-                        <td>{{ $data->bank_cname }}</td>
-                        <td>{{ $data->bank_code }}</td>
-                        <td>{{ $data->bank_acount }}</td>
-                        <td>{{ $data->bank_numer }}</td>
-                        <td>{{ $data->contact_tel }}</td>
-                        <td>{{ $data->contact_address }}</td>
+{{--                        <td>{{ $data->nickname }}</td>--}}
+{{--                        <td>{{ $data->vat_no }}</td>--}}
+{{--                        <td>{{ $data->chargeman }}</td>--}}
+{{--                        <td>{{ $data->bank_cname }}</td>--}}
+{{--                        <td>{{ $data->bank_code }}</td>--}}
+{{--                        <td>{{ $data->bank_acount }}</td>--}}
+{{--                        <td>{{ $data->bank_numer }}</td>--}}
+{{--                        <td>{{ $data->contact_tel }}</td>--}}
+{{--                        <td>{{ $data->contact_address }}</td>--}}
                         <td>{{ $data->contact_person }}</td>
                         <td>{{ $data->email }}</td>
-                        <td>{{ $data->memo }}</td>
+{{--                        <td>{{ $data->memo }}</td>--}}
                         <td class="text-center">
 {{--                            @can('admin.supplier.edit')--}}
                             <a href="{{ Route('cms.supplier.edit', ['id' => $data->id], true) }}"
