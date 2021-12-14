@@ -15,6 +15,7 @@ class CreateProductsTable extends Migration
     {
         Schema::create('prd_products', function (Blueprint $table) {
             $table->id();
+            $table->string('sku')->unique()->comment('sku碼');
             $table->string('title')->comment('產品名稱');
             $table->string('url')->nullable()->comment('網址');
             $table->text('feature')->nullable()->comment('敘述');

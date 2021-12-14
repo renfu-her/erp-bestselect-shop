@@ -2,18 +2,19 @@
 
 namespace App\Models;
 
+use App\Http\MenuTreeTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
-use App\Http\MenuTreeTrait;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles, SoftDeletes;
     use MenuTreeTrait;
 
     protected $table = 'usr_users';
@@ -36,8 +37,6 @@ class User extends Authenticatable
         ],
 
     ];
-
-
 
     /**
      * The attributes that are mass assignable.
@@ -71,7 +70,7 @@ class User extends Authenticatable
 
     public function menuTree(): array
     {
-        return $this->getMenuTree(true,self::USER_MENU_TREE);
+        return $this->getMenuTree(true, self::USER_MENU_TREE);
     }
 
     public static function createUser($name, $account, $email, $password, $permission_id = [], $role_id = [])

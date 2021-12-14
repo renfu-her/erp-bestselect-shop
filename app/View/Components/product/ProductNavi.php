@@ -2,6 +2,7 @@
 
 namespace App\View\Components\product;
 
+use Illuminate\Support\Facades\Route;
 use Illuminate\View\Component;
 
 class ProductNavi extends Component
@@ -14,6 +15,7 @@ class ProductNavi extends Component
     public function __construct()
     {
         //
+        //  $this->id = $id;
     }
 
     /**
@@ -23,6 +25,9 @@ class ProductNavi extends Component
      */
     public function render()
     {
-        return view('components.product.product-navi');
+        $id = Route::current()->parameters()['id'];
+        $route_name = Route::currentRouteName();
+        return view('components.product.product-navi', ['id' => $id,
+            'route_name' => $route_name]);
     }
 }

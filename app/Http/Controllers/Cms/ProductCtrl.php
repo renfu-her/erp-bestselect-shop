@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Cms;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class ProductCtrl extends Controller
@@ -14,7 +16,10 @@ class ProductCtrl extends Controller
      */
     public function index()
     {
-        return view('cms.commodity.product.main');
+
+        return view('cms.commodity.product.main', [
+            'dataList' => Product::paginate(10),
+            'data_per_page' => 10]);
     }
 
     /**
@@ -24,7 +29,11 @@ class ProductCtrl extends Controller
      */
     public function create()
     {
-        return view('cms.commodity.product.basic_info');
+        return view('cms.commodity.product.basic_info', [
+            'method' => 'create',
+            'formAction' => Route('cms.product.create'),
+            'users' => User::get(),
+        ]);
     }
 
     /**
@@ -36,6 +45,20 @@ class ProductCtrl extends Controller
     public function store(Request $request)
     {
         //
+        $request->validate([
+            //  'file' => 'required|max:10000|mimes:xlsx,xls',
+            'title' => 'required',
+            'has_tax' => 'required',
+            'active_sdate' => 'date|nullable',
+            'active_edate' => 'date|nullable',
+            'user_id' => 'required',
+            'category_id' => 'required',
+        ]);
+
+        $d = $request->all();
+        Product::createProduct($d['title'], $d['user_id'], $d['category_id'], $d['feature'], $d['url'], $d['slogan'], $d['active_sdate'], $d['active_edate'], $d['has_tax']);
+
+        return redirect(route('cms.product.index'));
     }
 
     /**
@@ -47,6 +70,7 @@ class ProductCtrl extends Controller
     public function show($id)
     {
         //
+
     }
 
     /**
@@ -58,6 +82,12 @@ class ProductCtrl extends Controller
     public function edit($id)
     {
         //
+        return view('cms.commodity.product.basic_info', [
+            'method' => 'edit',
+            'formAction' => Route('cms.product.edit', ['id' => $id]),
+            'users' => User::get(),
+            'data' => Product::where('id', $id)->get()->first(),
+        ]);
     }
 
     /**
@@ -69,6 +99,21 @@ class ProductCtrl extends Controller
      */
     public function update(Request $request, $id)
     {
+        $request->validate([
+            //  'file' => 'required|max:10000|mimes:xlsx,xls',
+            'title' => 'required',
+            'has_tax' => 'required',
+            'active_sdate' => 'date|nullable',
+            'active_edate' => 'date|nullable',
+            'user_id' => 'required',
+            'category_id' => 'required',
+        ]);
+
+        $d = $request->all();
+        Product::updateProduct($d['title'], $d['user_id'], $d['category_id'], $d['feature'], $d['url'], $d['slogan'], $d['active_sdate'], $d['active_edate'], $d['has_tax']);
+
+        return redirect(route('cms.product.index'));
+
         //
     }
 
