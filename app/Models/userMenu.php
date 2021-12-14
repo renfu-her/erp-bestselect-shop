@@ -18,4 +18,16 @@ return
             ],
         ],
     ],
+    [
+        "title" => "基本設定",
+        "icon" => "bi-basket",
+        "menu_id" => "2",
+        "child" => [
+            [
+                "title" => "商品類別",
+                "controller_name" => "CategoryController",
+                "route_name" => "cms.category.index",
+            ],
+        ],
+    ],
 ];

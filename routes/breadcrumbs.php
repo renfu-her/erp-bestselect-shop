@@ -29,3 +29,17 @@ Breadcrumbs::for('cms.supplier.edit', function ($trail) {
     $trail->parent('cms.supplier.index');
     $trail->push('編輯');
 });
+
+// 商品類別
+Breadcrumbs::for('cms.category.index', function ($trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('商品類別', route('cms.category.index'));
+});
+Breadcrumbs::for('cms.category.create', function ($trail) {
+    $trail->parent('cms.category.index');
+    $trail->push('新增');
+});
+Breadcrumbs::for('cms.category.edit', function ($trail) {
+    $trail->parent('cms.category.index');
+    $trail->push('編輯');
+});
