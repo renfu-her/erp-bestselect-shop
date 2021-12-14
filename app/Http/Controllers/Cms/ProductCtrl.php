@@ -14,7 +14,7 @@ class ProductCtrl extends Controller
      */
     public function index()
     {
-        //
+        return view('cms.commodity.product.main');
     }
 
     /**
@@ -24,7 +24,7 @@ class ProductCtrl extends Controller
      */
     public function create()
     {
-        //
+        return view('cms.commodity.product.basic_info');
     }
 
     /**

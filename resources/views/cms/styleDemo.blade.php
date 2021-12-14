@@ -34,6 +34,15 @@
                                 <a href="#" class="btn btn-primary" role="button">
                                     <i class="bi bi-arrow-left"></i> 返回
                                 </a>
+                                <div class="d-flex align-items-center mt-3">
+                                    <h2 class="flex-grow-1 mb-0">標題</h2>
+                                    <a href="#" class="btn btn-outline-primary -in-header">
+                                        <i class="bi bi-plus-circle"></i> 新增1
+                                    </a>
+                                    <a href="#" class="btn btn-outline-primary -in-header">
+                                        <i class="bi bi-plus-lg"></i> 新增2
+                                    </a>
+                                </div>
                             </div>
                             <div class="mt-2 tableList">
                                 <a href="#" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
@@ -86,6 +95,9 @@
                             <h5>h5. heading 標題</h5>
                             <h6>h6. heading 標題</h6>
 
+                            <label class="col-form-label">
+                                必填欄位 <span class="text-danger">*</span>
+                            </label>
                             <p><mark>[mark] tag - 代表被標記或是重點強調的文本，以供參考或標記</mark></p>
                             <p><del>[del] tag - 刪除線文字</del></p>
                             <p><u>[u] tag - 底線文字</u></p>
@@ -104,11 +116,11 @@
                         <legend class="col-form-label">內容</legend>
                         <div>
                             <div class="card shadow p-4 mb-4">
-                                <div class="row mb-4">Card</div>
+                                <h6>Card</h6>
 
                                 <p>Table <code>.table-striped</code> 條紋行 / <code>.table-hover</code> 滑入行</p>
                                 <div class="table-responsive tableOverBox">
-                                    <table class="table table-striped tableList mb-0 table-hover table-striped">
+                                    <table class="table tableList table-hover table-striped">
                                         <thead>
                                             <tr>
                                                 <th scope="col" style="width:10%">#</th>
@@ -240,8 +252,16 @@
                                     <div id="chip-group-regions" class="d-flex flex-wrap bd-highlight chipGroup"></div>
                                 </div>
                                 <div class="col-4">
-                                    <label class="form-label" for="select2">Select2 搜尋多選</label>
-                                    <select name="select2[]" id="select2" multiple="multiple" class="w-100">
+                                    <label class="form-label" for="select2-multiple">Select2 搜尋多選</label>
+                                    <select name="select2[]" id="select2-multiple" multiple="multiple" class="w-100" data-placeholder="可多選">
+                                        <option value="1">item 1</option>
+                                        <option value="2">item 2</option>
+                                        <option value="3">item 3</option>
+                                    </select>
+                                </div>
+                                <div class="col-4">
+                                    <label class="form-label" for="select2">Select2 搜尋單選</label>
+                                    <select name="select2[]" id="select2" class="w-100" data-placeholder="請單選">
                                         <option value="1">item 1</option>
                                         <option value="2">item 2</option>
                                         <option value="3">item 3</option>
@@ -263,15 +283,137 @@
                                 <div class="col-12 col-sm-4 mb-3">
                                     <label class="form-label">Select</label>
                                     <select class="form-select" aria-label="Select">
-                                        <option value="1">item</option>
-                                        <option value="2">item</option>
-                                        <option value="3">item</option>
+                                        <option value="1">item 1</option>
+                                        <option value="2" disabled>item 2</option>
+                                        <option value="3">item 3</option>
                                     </select>
                                 </div>
                                 <div class="col-12 col-sm-4 mb-3">
                                     <label class="form-label">Textarea</label>
                                     <textarea class="form-control" placeholder="Textarea" rows="1"></textarea>
                                 </div>
+                                <div class="col-12 col-sm-4 mb-3">
+                                    <label class="form-label">Date</label>
+                                    <input class="form-control" type="date">
+                                </div>
+                                <div class="col-12 col-sm-8 mb-3">
+                                    <label class="form-label">Files</label>
+                                    <input class="form-control" type="file" multiple>
+                                </div>
+                                <fieldset class="col-12 mb-3">
+                                    <legend class="col-form-label p-0 mb-2">Checkbox</legend>
+                                    <div class="px-1 pt-1">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" name="checkbox" type="checkbox" >
+                                            <label class="form-check-label">Default</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" name="checkbox" type="checkbox" checked>
+                                            <label class="form-check-label">Checked</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" name="checkbox" type="checkbox" disabled>
+                                            <label class="form-check-label">Disabled</label>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                                <fieldset class="col-12 mb-3">
+                                    <legend class="col-form-label p-0 mb-2">Radio</legend>
+                                    <div class="px-1 pt-1">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" name="radio" type="radio" >
+                                            <label class="form-check-label">Default</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" name="radio" type="radio" checked>
+                                            <label class="form-check-label">Checked</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" name="radio" type="radio" disabled>
+                                            <label class="form-check-label">Disabled</label>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                                <div class="col-12 mb-3">
+                                    <label class="form-label">Range</label>
+                                    <input class="form-range" type="range" min="0" max="50" step="5">
+                                </div>
+                                
+                                <form class="row">
+                                    <h6>Validation</h6>
+                                    <div class="col-12 col-sm-4 mb-3">
+                                        <input type="text" class="form-control is-valid" value="Valid" required>
+                                        <div class="valid-feedback">Good!</div>
+                                    </div>
+                                    <div class="col-12 col-sm-4 mb-3">
+                                        <select class="form-select is-valid" aria-label="Select">
+                                            <option value="1">item 1</option>
+                                            <option value="2">item 2</option>
+                                        </select>
+                                        <div class="valid-feedback">Good!</div>
+                                    </div>
+                                    <div class="col-12 col-sm-4 mb-3">
+                                        <textarea class="form-control is-valid" placeholder="Textarea" rows="1"></textarea>
+                                        <div class="valid-feedback">Good!</div>
+                                    </div>
+
+                                    <div class="col-12 col-sm-4 mb-3">
+                                        <input type="text" class="form-control is-invalid" value="" required>
+                                        <div class="invalid-feedback">Bad!</div>
+                                    </div>
+                                    <div class="col-12 col-sm-4 mb-3">
+                                        <select class="form-select is-invalid" aria-label="Select">
+                                            <option value="1">item 1</option>
+                                            <option value="2">item 2</option>
+                                        </select>
+                                        <div class="invalid-feedback">Bad!</div>
+                                    </div>
+                                    <div class="col-12 col-sm-4 mb-3">
+                                        <textarea class="form-control is-invalid" placeholder="Textarea" rows="1"></textarea>
+                                        <div class="invalid-feedback">Bad!</div>
+                                    </div>
+
+                                    <div class="col-12 col-sm-4 mb-3">
+                                        <div class="input-group has-validation">
+                                            <span class="input-group-text">@</span>
+                                            <input type="text" class="form-control is-valid" value="abc" required>
+                                            <div class="valid-feedback">Good!</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-4 mb-3">
+                                        <div class="input-group has-validation">
+                                            <input type="text" class="form-control is-invalid" value="" required>
+                                            <button class="btn btn-outline-secondary" type="button"><i class="bi bi-x-lg"></i></button>
+                                            <div class="invalid-feedback">Bad!</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-4 mb-3">
+                                        <div class="input-group has-validation">
+                                            <span class="input-group-text">$</span>
+                                            <input type="text" class="form-control is-valid" value="9" required>
+                                            <span class="input-group-text">.00</span>
+                                            <div class="valid-feedback">Good!</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-4 mb-3">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input is-invalid" name="checkbox" type="checkbox" >
+                                            <label class="form-check-label">Ban to terms</label>
+                                            <div class="invalid-feedback">Bad!</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-8 mb-3">
+                                        <div class="form-check form-check-inline is-valid">
+                                            <input class="form-check-input is-valid" name="radioValid" type="radio" >
+                                            <label class="form-check-label">Agree to terms</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input is-valid" name="radioValid" type="radio" >
+                                            <label class="form-check-label">Agree to terms</label>
+                                        </div>
+                                        <div class="valid-feedback">Good!</div>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </fieldset>
@@ -289,8 +431,8 @@
         <link rel="stylesheet" href="{{ Asset('dist/css/sub-content.css') }}">
         <link rel="stylesheet" href="{{ Asset('dist/css/component.css') }}">
         <style>
-            fieldset:target::before,
-            fieldset:not(:target)::before {
+            main > div > div > fieldset[id]:target::before,
+            main > div > div > fieldset[id]:not(:target)::before {
                 content: "";
                 display: block;
                 /* height: 60px; fixed header height*/
@@ -299,10 +441,10 @@
             main > div > div {
                 margin-top: -60px;
             }
-            fieldset {
+            main > div > div > fieldset[id]:not(:last-child) {
                 margin-bottom: -50px;
             }
-            fieldset legend.col-form-label {
+            main > div > div > fieldset[id] > legend.col-form-label {
                 font-size: 1.5rem;
                 font-weight: 500;
                 position: relative;
@@ -310,7 +452,7 @@
                 display: flex;
                 align-items: center;
             }
-            fieldset legend.col-form-label::before {
+            main > div > div > fieldset[id] > legend.col-form-label::before {
                 content: '';
                 display: block;
                 position: absolute;
@@ -319,6 +461,8 @@
                 background-color: #c2185b;
                 left: 0;
             }
+
+            /*********/
         </style>
     @endpush
     @push('scripts')
@@ -329,7 +473,7 @@
             window.axios.defaults.headers.common['Accept'] = 'application/json';
 
             // menu
-            $('main > div > div > fieldset').each(function (index, element) {
+            $('main > div > div > fieldset[id]').each(function (index, element) {
                 // element == this
                 let $li = $('<li></li>');
                 let $a = $('<a></a>').addClass('link-dark nav-link');
@@ -413,7 +557,7 @@
             });
 
             // select2
-            $('#select2').select2();
+            $('#select2, #select2-multiple').select2();
         </script>
     @endpush
 @endonce
