@@ -1,11 +1,7 @@
 @extends('layouts.main')
 @section('sub-content')
 <div class="d-flex align-items-center">
-    <a href="/demo" class="btn btn-warning -in-header">Demo page</a>
-
-    <a href="/cms/product/create" class="btn btn-outline-primary -in-header">
-        <i class="bi bi-plus-circle"></i> 新增商品
-    </a>
+    <h2>庫存列表</h2>
 </div>
 @endsection
 @once
