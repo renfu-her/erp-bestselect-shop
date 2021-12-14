@@ -19,31 +19,6 @@ class User extends Authenticatable
     protected $table = 'usr_users';
     public $userType = 'user';
 
-    const USER_MENU_TREE =
-        [
-        [
-            "title" => "進銷存退",
-            "icon" => "bi-basket",
-            "menu_id" => "1",
-            "child" => [
-                [
-                    "title" => "商品及庫存",
-                    "controller_name" => "ProductCtrl",
-                    "route_name" => "cms.product.index",
-                ],
-                [
-                    "title" => "新增廠商",
-                    "controller_name" => "SupplierCtrl",
-                    "route_name" => "cms.supplier.index",
-                ],
-
-            ],
-        ],
-
-    ];
-
-
-
     /**
      * The attributes that are mass assignable.
      *
@@ -76,7 +51,7 @@ class User extends Authenticatable
 
     public function menuTree(): array
     {
-        return $this->getMenuTree(true,self::USER_MENU_TREE);
+        return $this->getMenuTree(true, include 'userMenu.php');
     }
 
     public static function createUser($name, $account, $email, $password, $permission_id = [], $role_id = [])
