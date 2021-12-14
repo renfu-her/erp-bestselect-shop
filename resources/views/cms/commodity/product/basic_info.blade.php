@@ -3,7 +3,7 @@
 <div class="d-flex align-items-center mb-4">
     <h2>新增商品</h2>
 </div>
-
+<x-b-prd-navi></x-b-prd-navi>
 <form>
     <div class="card shadow p-4 mb-4">
         <h6>基本設定</h6>
