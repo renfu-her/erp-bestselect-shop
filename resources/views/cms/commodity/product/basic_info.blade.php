@@ -1,7 +1,7 @@
 @extends('layouts.main')
 @section('sub-content')
-    <div class="d-flex align-items-center mb-4">
-        <h2>@if ($method == 'edit') 編輯 @else 新增 @endif 商品</h2>
+    <div class="d-flex align-items-center mb-3">
+        <h2>@if ($method == 'create') 新增商品 @else {{ $data->title }} @endif </h2>
     </div>
     @if ($method == 'edit')
         <x-b-prd-navi></x-b-prd-navi>
@@ -143,37 +143,6 @@
         </div>
 
     </form>
-
-    <div class="card shadow p-4 mb-4">
-        <h6>商品優惠</h6>
-        <div class="table-responsive tableOverBox">
-            <table class="table tableList table-striped">
-                <thead>
-                    <tr>
-                        <th scope="col">優惠名稱</th>
-                        <th scope="col">適用商品</th>
-                        <th scope="col">優惠起始日期</th>
-                        <th scope="col">優惠終止日期</th>
-                        <th scope="col">優惠類別</th>
-                        <th scope="col">優惠內容</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {{-- <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>$ {{ number_format(99) }} / 99% / 贈品名</td>
-                    </tr> --}}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-
-
 @endsection
 
 @once

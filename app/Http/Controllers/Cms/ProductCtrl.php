@@ -17,7 +17,7 @@ class ProductCtrl extends Controller
     public function index()
     {
 
-        return view('cms.commodity.product.main', [
+        return view('cms.commodity.product.list', [
             'dataList' => Product::paginate(10),
             'data_per_page' => 10]);
     }

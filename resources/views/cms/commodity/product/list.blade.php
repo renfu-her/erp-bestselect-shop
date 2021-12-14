@@ -1,7 +1,7 @@
 @extends('layouts.main')
 @section('sub-content')
     <div class="mb-3">
-        <h2>主商品名稱22</h2>
+        <h2>商品列表</h2>
         <div class="card shadow p-4 mb-4">
             <div class="col mb-4">
                 <a href="{{ Route('cms.product.create') }}" class="btn btn-primary">
@@ -18,7 +18,7 @@
                 筆
             </div>
             <div class="table-responsive tableOverBox">
-                <table class="table table-striped tableList mb-0">
+                <table class="table table-striped tableList">
                     <thead>
                         <tr>
                             <th scope="col" style="width:10%">#</th>
