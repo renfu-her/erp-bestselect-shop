@@ -17,7 +17,7 @@ class CreateProductsTable extends Migration
             $table->id();
             $table->string('sku')->unique()->comment('sku碼');
             $table->string('title')->comment('產品名稱');
-            $table->string('url')->nullable()->comment('網址');
+            $table->string('url')->nullable()->comment('網址')->unique();
             $table->text('feature')->nullable()->comment('敘述');
             $table->string('slogan')->nullable()->comment('標語');
             $table->integer('category_id')->comment('類別名稱id');

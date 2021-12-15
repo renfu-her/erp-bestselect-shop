@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             PageAuthSeeder::class,
             UserSeeder::class,
             SupplierSeeder::class,
+            ProductSeeder::class,
         ]);
     }
 }

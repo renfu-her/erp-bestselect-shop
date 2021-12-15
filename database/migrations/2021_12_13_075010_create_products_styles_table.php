@@ -19,7 +19,7 @@ class CreateProductsStylesTable extends Migration
             $table->integer('safety_stock')->default(0)->comment('安全庫存');
             $table->integer('in_stock')->default(0)->comment('庫存');
             $table->integer('overbought')->default(0)->comment('超買設定');
-            $table->integer('spec_item1_id')->comment('所選項目');
+            $table->integer('spec_item1_id')->nullable()->comment('所選項目');
             $table->integer('spec_item2_id')->nullable()->comment('所選項目');
             $table->integer('spec_item3_id')->nullable()->comment('所選項目');
             $table->tinyInteger('can_modify')->default(1)->comment('是否可變更修改');
@@ -29,10 +29,17 @@ class CreateProductsStylesTable extends Migration
 
         Schema::create('prd_spec', function (Blueprint $table) {
             $table->id();
-            $table->integer('parent_id')->nullable();
-            $table->string('title');
+            $table->string('title')->unique();
             $table->softDeletes();
         });
+
+        Schema::create('prd_spec_items', function (Blueprint $table) {
+            $table->id();
+            $table->integer('product_id');
+            $table->integer('spec_id');
+            $table->string('title');        
+        });
+        
 
     }
 
@@ -45,6 +52,6 @@ class CreateProductsStylesTable extends Migration
     {
         Schema::dropIfExists('prd_product_styles');
         Schema::dropIfExists('prd_spec');
-
+        Schema::dropIfExists('prd_spec_items');
     }
 }
