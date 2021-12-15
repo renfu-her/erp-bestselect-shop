@@ -9,8 +9,8 @@ use Illuminate\Support\Facades\DB;
 
 class Supplier extends Model
 {
-    use HasFactory, SoftDeletes;
-    protected $table = 'prd_supplier';
+    use HasFactory,SoftDeletes;
+    protected $table = 'prd_suppliers';
     protected $guarded = [];
 
     public static function getProductSupplier($product_id, $just_id = null)

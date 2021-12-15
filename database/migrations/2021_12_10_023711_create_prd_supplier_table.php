@@ -13,7 +13,7 @@ class CreatePrdSupplierTable extends Migration
      */
     public function up()
     {
-        Schema::create('prd_supplier', function (Blueprint $table) {
+        Schema::create('prd_suppliers', function (Blueprint $table) {
             $table->id()->comment('廠商');
             $table->string('name')->comment('廠商名稱');
             $table->string('nickname')->nullable()->comment('廠商簡稱');
@@ -40,6 +40,6 @@ class CreatePrdSupplierTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('prd_supplier');
+        Schema::dropIfExists('prd_suppliers');
     }
 }
