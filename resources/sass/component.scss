@@ -118,6 +118,11 @@
             padding-right: 2.5rem;
             background-position: right 3rem center;
         }
+
+        // 驗證錯誤
+        &.is-invalid {
+            border-color: $form-feedback-invalid-color;
+        }
     }
 
     // 單選
