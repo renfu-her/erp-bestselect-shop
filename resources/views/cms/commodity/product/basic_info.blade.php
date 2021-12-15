@@ -116,7 +116,7 @@
             </div>
 
         </div>
-      
+
         <div id="mediaSettings" class="card shadow p-4 mb-4">
             <h6>媒體設定</h6>
             <label>商品圖片（可將檔案拖拉至框中即可上傳）</label>
@@ -139,6 +139,8 @@
                         <input type="file" name="files[]" accept=".jpg,.jpeg,.png,.gif,.svg" multiple hidden>
                     </div>
                     <!-- 新增圖Box end -->
+
+                    {{-- 舊增圖Box放這裡；sortabled_box 拿掉 hidden，不用input[type="file"] --}}
 
                     <!-- 按鈕 -->
                     <label for="product_img_add">
