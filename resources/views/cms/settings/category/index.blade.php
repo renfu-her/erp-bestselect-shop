@@ -30,14 +30,14 @@
                 <tr>
                     <th scope="row">{{ $key + 1 }}</th>
                     <td>{{ $data->category }}</td>
-                    <td class="text-center">
+                    <td>
                         <a href="{{ Route('cms.category.edit', ['id' => $data->id], true) }}"
                            data-bs-toggle="tooltip" title="編輯"
                            class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                             <i class="bi bi-pencil-square"></i>
                         </a>
                     </td>
-                    <td class="text-center">
+                    <td>
                         <a href="javascript:void(0)" data-href="{{ Route('cms.category.delete', ['id' => $data->id], true) }}"
                            data-bs-toggle="modal" data-bs-target="#confirm-delete"
                            class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
