@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\ProductSpec;
 use Illuminate\Database\Seeder;
-
+use App\Models\Product;
+use App\Models\ProductSpecItem;
 class ProductSeeder extends Seeder
 {
     /**
@@ -16,7 +16,15 @@ class ProductSeeder extends Seeder
     {
         //
 
-        ProductSpec::insert([['title' => '尺寸'], ['title' => '容量']]);
+        // ProductSpec::insert([['title' => '尺寸'], ['title' => '容量']]);
+
+        $re = Product::createProduct('測試商品', 1, 1, '測試', null, '好吃商品', null, null, [1, 2], 1);
+
+        Product::setProductSpec($re['id'], [1, 1, 2]);
+
+
+        ProductSpecItem::createItems($re['id'],1,'X');
+
 
     }
 }
