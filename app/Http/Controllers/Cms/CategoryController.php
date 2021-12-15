@@ -46,11 +46,8 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'category' => 'required|string'
-        ]);
-
-        Category::create(['category' => $request->input('category')]);
+        $category = new Category();
+        $category->storeNewCategory($request);
 
         return redirect(Route('cms.category.index'));
     }
@@ -75,7 +72,9 @@ class CategoryController extends Controller
      */
     public function edit(int $id)
     {
-        $category = Category::find($id)->category;
+        $ctg = new Category();
+        $category = $ctg->findCategoryById($id);
+
         return view('cms.settings.category.edit', [
             'method' => 'edit',
             'formAction' => Route('cms.category.edit', ['id' => $id]),
@@ -88,19 +87,13 @@ class CategoryController extends Controller
      * Update the specified resource in storage.
      *
      * @param  UpdateCategoryRequest  $request
-     * @param  Category  $category
      *
      * @return Response
      */
     public function update(Request $request, int $id)
     {
-        //
-        $request->validate([
-            'category' => 'required|string'
-        ]);
-
-        Category::where('id', '=', $id)
-            ->update(['category' => $request->input('category')]);
+        $ctg = new Category();
+        $ctg->updateCategory($request, $id);
 
         return redirect(Route('cms.category.index'));
     }
@@ -108,13 +101,13 @@ class CategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  Category  $category
-     *
      * @return Response
      */
-    public function destroy(Category $category, int $id)
+    public function destroy(int $id)
     {
-        $category::destroy($id);
+        $ctg = new Category();
+        $ctg->destroyById($id);
+
         return redirect(Route('cms.category.index'));
     }
 }
