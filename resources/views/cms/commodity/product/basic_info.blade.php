@@ -1,11 +1,11 @@
 @extends('layouts.main')
 @section('sub-content')
-    <div class="d-flex align-items-center mb-3">
-        <h2>@if ($method == 'create') 新增商品 @else {{ $data->title }} @endif </h2>
+    <div>
+        <h2 class="mb-3">@if ($method == 'create') 新增商品 @else {{ $data->title }} @endif </h2>
+        @if ($method == 'edit')
+            <x-b-prd-navi></x-b-prd-navi>
+        @endif
     </div>
-    @if ($method == 'edit')
-        <x-b-prd-navi></x-b-prd-navi>
-    @endif
     <form method="POST" action="{{ $formAction }}" enctype="multipart/form-data">
         @csrf
         <div class="card shadow p-4 mb-4">
@@ -64,7 +64,7 @@
                 @enderror
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label" for="supplier">廠商</label>
-                    <select name="supplier[]" id="supplier" multiple="multiple" class="w-100"
+                    <select name="supplier[]" id="supplier" multiple="multiple" class="w-100 -select2 -multiple"
                         data-placeholder="請選擇廠商">
                         @foreach ($suppliers as $key => $supplier)
                             <option value="{{ $supplier->id }}" @if (in_array($supplier->id, old('supplier', $current_supplier ?? []))) selected @endif>{{ $supplier->name }}
@@ -115,7 +115,7 @@
       
         <div id="mediaSettings" class="card shadow p-4 mb-4">
             <h6>媒體設定</h6>
-            <label>圖片設定（圖片尺寸建議：不超過1MB，1000×1000px，可上傳JPG/ JPEG/ PNG/ GIF/ SVG格式）</label>
+            <label>商品圖片（可將檔案拖拉至框中即可上傳）</label>
             <div class="upload_image_block -multiple">
                 <!-- 可排序圖片集中區塊 -->
                 <div class="sortabled">
@@ -132,6 +132,7 @@
                             <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
                                 aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width: 1%"></div>
                         </div>
+                        <input type="file" name="files[]" accept=".jpg,.jpeg,.png,.gif,.svg" multiple hidden>
                     </div>
                     <!-- 新增圖Box end -->
 
@@ -140,11 +141,12 @@
                         <span class="browser_box">
                             <i class="bi bi-plus-circle text-secondary fs-4"></i>
                         </span>
-                        <input type="file" name="files[]" id="product_img_add" accept=".jpg,.jpeg,.png,.gif,.svg" multiple
+                        <input type="file" id="product_img_add" accept=".jpg,.jpeg,.png,.gif,.svg" multiple
                             hidden>
                     </label>
                 </div>
             </div>
+            <p><mark>圖片限制：不超過1MB，1000×1000px，可上傳JPG/ JPEG/ PNG/ GIF/ SVG格式</mark></p>
         </div>
 
         <div>
@@ -167,8 +169,6 @@
             // 顯示字數
             showWordsLength($('input[maxlength],textarea[maxlength]'));
 
-            // select2
-            $('#vendor').select2();
         </script>
         <script>
             /*** 媒體設定 ***/
@@ -179,7 +179,7 @@
             function bindReadImageFiles() {
                 // 支援檔案讀取
                 if (window.File && window.FileList && window.FileReader) {
-                    $('#mediaSettings .upload_image_block label input[type="file"]')
+                    $('#mediaSettings .upload_image_block label #product_img_add')
                         .off('change')
                         .on('change', function() {
                             readerFiles(this.files);
@@ -223,7 +223,7 @@
                         e.preventDefault();
                         e.stopPropagation();
 
-                        var files = e.originalEvent.dataTransfer.files;
+                        const files = e.originalEvent.dataTransfer.files;
                         readerFiles(files);
                     });
             }
@@ -231,24 +231,29 @@
             // 讀檔案
             function readerFiles(files) {
                 if (files) {
-                    /*** 上傳物件 ***/
-                    var fd = new FormData();
-
-                    for (var i = 0; i < files.length; i++) {
-                        var ff = files[i];
+                    let alertMsg = '';
+                    for (let i = 0; i < files.length; i++) {
+                        const ff = files[i];
 
                         /*** 檢查寫這裡 ***/
-
-                        /*** 上傳物件 ***/
-                        fd.append('files[]', ff);
+                        if (!decideTypeOfImage(ff.type) || !decideSizeOfImage(ff.size)) {
+                            alertMsg += '檔案[' + ff.name + ']不符合規定\n';
+                            continue;
+                        }
 
                         /*** 先上傳的話 以下就不用做 (顯示預覽圖) ***/
                         // 新增圖Box
-                        var $new_box = addProductImageBox('#mediaSettings .upload_image_block > .sortabled');
-                        var $progress = $new_box.children('.progress');
-                        var img = $new_box.find('img')[0];
+                        let $new_box = addProductImageBox('#mediaSettings .upload_image_block > .sortabled');
+                        let $progress = $new_box.children('.progress');
+                        let img = $new_box.find('img')[0];
+                        let input = $new_box.find('input[name="files[]"]')[0];
 
-                        var reader = new FileReader();
+                        // 存檔案
+                        let tempFile = new DataTransfer();
+                        tempFile.items.add(ff);
+                        input.files = tempFile.files;
+
+                        const reader = new FileReader();
                         // 開始載入檔案
                         reader.onloadstart = (function(progress) {
                             return function(e) {
@@ -261,7 +266,7 @@
                         reader.onprogress = (function(progress) {
                             return function(e) {
                                 if (e.lengthComputable) {
-                                    var percentLoaded = Math.round((e.loaded / e.total) * 100);
+                                    const percentLoaded = Math.round((e.loaded / e.total) * 100);
                                     // console.log(percentLoaded);
                                     if (percentLoaded <= 100) {
                                         progress.children('.progress-bar').attr('aria-valuenow', percentLoaded);
@@ -290,22 +295,24 @@
                         /*** 先上傳的話 以上就不用做 ***/
                     }
 
-                    /*** call 上傳API ***/
-                    // uploadData(fd);
+                    if (alertMsg) {
+                        alert(alertMsg);
+                    }
                 }
             }
 
             // 新增圖Box
             function addProductImageBox(upload_bolck) {
-                var $sortabled_box = $('<div class="sortabled_box"></div>');
-                var $browser_box = $('<span class="browser_box box">' +
+                let $sortabled_box = $('<div class="sortabled_box"></div>');
+                let $browser_box = $('<span class="browser_box box">' +
                     '<span class="icon -move"><i class="bi bi-arrows-move"></i></span>' +
                     '<span class="icon -x"><i class="bi bi-x"></i></span>' +
                     '<img src="" /></span>');
-                var $progress = $('<div class="progress" hidden>' +
+                let $progress = $('<div class="progress" hidden>' +
                     '<div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width: 1%"></div>' +
                     '</div>');
-                $sortabled_box.append([$browser_box, $progress]);
+                let $file_input = $('<input type="file" name="files[]" accept=".jpg,.jpeg,.png,.gif,.svg" multiple hidden>');
+                $sortabled_box.append([$browser_box, $progress, $file_input]);
                 $(upload_bolck).prepend($sortabled_box);
 
                 // 綁定事件
@@ -340,29 +347,31 @@
                 });
             }
 
-            // 上傳檔案
-            function uploadData(formdata) {
-                $.ajax({
-                    url: '',
-                    type: 'POST',
-                    data: formdata,
-                    contentType: false,
-                    processData: false,
-                    dataType: 'json',
-                    beforeSend: function() {
-                        // 上傳前
-                    },
-                    complete: function() {
-                        // 上傳完成
-                    },
-                    error: function(err) {
-                        // 回傳錯誤
-                    },
-                    success: function(res) {
-                        // 回傳成功
-                        // 顯示預覽圖
-                    }
-                });
+            // 判斷檔案類型
+            function decideTypeOfImage(type) {
+                // console.log('檔案類型: ' + type);
+                switch (type) {
+                    case "image/jpg":
+                    case "image/jpeg":
+                    case "image/gif":
+                    case "image/png":
+                    case "image/svg":
+                    case "image/svg+xml":
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+            // 判斷檔案大小
+            function decideSizeOfImage(size) {
+                // console.log('檔案 size: ' + size);
+                let MAX_SIZE = 1024 * 1024;
+                return (size <= MAX_SIZE);
+            }
+            // 判斷圖片尺寸
+            function decideAreaOfImage(w, h) {
+                // console.log('檔案 W*H: ' + w + ' * ' + h);
+                return (w <= 1000) && (h <= 1000);
             }
         </script>
     @endpush

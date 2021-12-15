@@ -333,6 +333,36 @@ select.form-select optgroup option {
   a span.icon {
     margin-right: -5px;
   }
+
+  a.nav-link {
+    padding: 0 1rem 0 0;
+  }
+}
+.pm_navbar {
+  border-bottom: 0px;
+
+  &.nav-tabs .nav-link.active,
+  &.nav-tabs .nav-link.active:focus,
+  &.nav-tabs .nav-link.active:hover {
+    background-color: transparent;
+    border-width: 0;
+    border-bottom: 3px solid #999999;
+    margin-bottom: -2px;
+    color: #007bff;
+  }
+  &.nav-tabs .nav-link:focus,
+  &.nav-tabs .nav-link:hover {
+    border-color: transparent;
+    border-bottom-color: $nav-tabs-border-color;
+  }
+
+  a.nav-link {
+    color: #999999;
+  }
+
+  & + .narbarBottomLine {
+    margin: 0 -1.5rem;
+  }
 }
 
 
