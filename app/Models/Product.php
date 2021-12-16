@@ -40,7 +40,7 @@ class Product extends Model
                 "url" => $url,
                 "slogan" => $slogan,
                 "active_sdate" => $active_sdate,
-                "active_edate" => $active_edate,
+                "active_edate" => $active_edate ? $active_edate . " 23:59:59" : null,
                 "has_tax" => $has_tax,
             ])->id;
 
@@ -79,6 +79,18 @@ class Product extends Model
         ]);
 
         Supplier::updateProductSupplier($id, $supplier);
+    }
+
+    public static function setProductSpec($product_id, $spec_ids = [])
+    {
+        $spec_ids = array_values(array_unique($spec_ids));
+        $specCol = [];
+        for ($i = 0; $i < 3; $i++) {
+            $spec_id = isset($spec_ids[$i]) ? $spec_ids[$i] : null;
+            $specCol["spec" . ($i + 1) . "_id"] = $spec_id;
+        }
+
+        self::where('id', $product_id)->update($specCol);
     }
 
 }

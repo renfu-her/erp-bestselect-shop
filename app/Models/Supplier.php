@@ -16,7 +16,7 @@ class Supplier extends Model
     public static function getProductSupplier($product_id, $just_id = null)
     {
         $re = DB::table('prd_product_supplier as ps')
-            ->leftJoin('prd_supplier as supplier', 'ps.supplier_id', '=', 'supplier.id')
+            ->leftJoin('prd_suppliers as supplier', 'ps.supplier_id', '=', 'supplier.id')
             ->where('ps.product_id', $product_id);
 
         if (!$just_id) {

@@ -3,18 +3,20 @@
     <div>
         <h2 class="mb-3">@if ($method == 'create') 新增商品 @else {{ $data->title }} @endif </h2>
         @if ($method == 'edit')
-            <x-b-prd-navi id="{{  $data->id }}"></x-b-prd-navi>
+            <x-b-prd-navi id="{{ $data->id }}"></x-b-prd-navi>
         @endif
     </div>
-    <form method="POST" action="{{ $formAction }}" enctype="multipart/form-data" >
+
+    <form method="POST" action="{{ $formAction }}" enctype="multipart/form-data">
         @csrf
         <div class="card shadow p-4 mb-4">
             <h6>基本設定</h6>
             <div class="row">
                 <div class="col-12 mb-3">
                     <label class="form-label">商品名稱 <span class="text-danger">*</span></label>
-                    <input class="form-control @error('title')is-invalid @enderror" name="title" type="text" placeholder="例：女休閒短T" maxlength="30"
-                        value="{{ old('title', $data->title ?? '') }}" aria-label="商品名稱" required />
+                    <input class="form-control @error('title')is-invalid @enderror" name="title" type="text"
+                        placeholder="例：女休閒短T" maxlength="30" value="{{ old('title', $data->title ?? '') }}"
+                        aria-label="商品名稱" required />
                     @error('title')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -23,10 +25,14 @@
                     <label class="form-label">商品網址（發佈後若有更改網址可能會影響SEO搜尋）</label>
                     <div class="input-group">
                         <span class="input-group-text">https://demo.bestselection.com.tw/products/</span>
-                        <input type="text" name="url" class="form-control" placeholder="請輸入連結路徑"
-                            value="{{ old('url', $data->url ?? '') }}" aria-label="商品網址">
+                        <input type="text" name="url" class="form-control @error('url')is-invalid @enderror"
+                            placeholder="請輸入連結路徑" value="{{ old('url', $data->url ?? '') }}" aria-label="商品網址">
                     </div>
+
                 </div>
+                @error('url')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
                 <div class="col-12 mb-3">
                     <label class="form-label">商品簡述</label>
                     <textarea rows="3" name="feature" class="form-control" maxlength="150" placeholder="請輸入關於產品的描述"
@@ -39,12 +45,13 @@
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">商品歸類 <span class="text-danger">*</span></label>
-                    <select class="form-select @error('category_id')is-invalid @enderror" required
-                        aria-label="Select" name="category_id">
+                    <select class="form-select @error('category_id')is-invalid @enderror" required aria-label="Select"
+                        name="category_id">
                         <option value="" disabled selected>請選擇商品歸類</option>
-                        <option value="1">type 1</option>
-                        <option value="2">type 2</option>
-                        <option value="3">type 3</option>
+                        @foreach ($categorys as $key => $category)
+                            <option value="{{ $category->id }}" @if (old('category_id', $data->category_id ?? '') == $category->id) selected @endif>{{ $category->category }}
+                            </option>
+                        @endforeach
                     </select>
                     @error('category_id')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -53,8 +60,8 @@
 
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">負責人員 <span class="text-danger">*</span></label>
-                    <select class="form-select @error('user_id')is-invalid @enderror" required
-                        aria-label="Select" name="user_id" >
+                    <select class="form-select @error('user_id')is-invalid @enderror" required aria-label="Select"
+                        name="user_id">
                         <option value="" disabled selected>請選擇負責人員</option>
                         @foreach ($users as $key => $user)
                             <option value="{{ $user->id }}" @if (old('user_id', $data->user_id ?? '') == $user->id) selected @endif>{{ $user->name }}</option>
@@ -66,8 +73,8 @@
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label" for="supplier">廠商 <span class="text-danger">*</span></label>
-                    <select name="supplier[]" id="supplier" multiple="multiple" hidden class="-select2 -multiple @error('supplier')is-invalid @enderror"
-                        data-placeholder="請選擇廠商" required>
+                    <select name="supplier[]" id="supplier" multiple="multiple" hidden
+                        class="-select2 -multiple @error('supplier')is-invalid @enderror" data-placeholder="請選擇廠商" required>
                         @foreach ($suppliers as $key => $supplier)
                             <option value="{{ $supplier->id }}" @if (in_array($supplier->id, old('supplier', $current_supplier ?? []))) selected @endif>{{ $supplier->name }}
                             </option>
@@ -79,16 +86,16 @@
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">上架時間</label>
-                    <input class="form-control @error('active_sdate')is-invalid @enderror" name="active_sdate" type="date" aria-label="上架時間"
-                        value="{{ old('active_sdate', $data->active_sdate ?? '') }}">
+                    <input class="form-control @error('active_sdate')is-invalid @enderror" name="active_sdate" type="date"
+                        aria-label="上架時間" value="{{ old('active_sdate', $data->active_sdate ?? '') }}">
                     @error('active_sdate')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">下架時間</label>
-                    <input class="form-control @error('active_edate')is-invalid @enderror" name="active_edate" type="date" aria-label="下架時間"
-                        value="{{ old('active_edate', $data->active_edate ?? '') }}">
+                    <input class="form-control @error('active_edate')is-invalid @enderror" name="active_edate" type="date"
+                        aria-label="下架時間" value="{{ old('active_edate', $data->active_edate ?? '') }}">
                     @error('active_edate')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -97,15 +104,13 @@
                     <legend class="col-form-label p-0 mb-2">應稅免稅 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline @error('has_tax')is-invalid @enderror">
-                            <input class="form-check-input @error('has_tax')is-invalid @enderror" 
-                                name="has_tax" value="0" type="radio" id="tax_1" required
-                                @if (old('has_tax', $data->has_tax ?? '') == '0') checked @endif>
+                            <input class="form-check-input @error('has_tax')is-invalid @enderror" name="has_tax" value="0"
+                                type="radio" id="tax_1" required @if (old('has_tax', $data->has_tax ?? '') == '0') checked @endif>
                             <label class="form-check-label" for="tax_1">應稅</label>
                         </div>
                         <div class="form-check form-check-inline @error('has_tax')is-invalid @enderror">
-                            <input class="form-check-input @error('has_tax')is-invalid @enderror" 
-                                name="has_tax" value="1" type="radio" id="tax_2" required
-                                @if (old('has_tax', $data->has_tax ?? '') == '1') checked @endif>
+                            <input class="form-check-input @error('has_tax')is-invalid @enderror" name="has_tax" value="1"
+                                type="radio" id="tax_2" required @if (old('has_tax', $data->has_tax ?? '1') == '1') checked @endif>
                             <label class="form-check-label" for="tax_2">免稅（農林漁牧產品/免稅）</label>
                         </div>
                         @error('has_tax')
@@ -141,18 +146,35 @@
                     <!-- 新增圖Box end -->
 
                     {{-- 舊增圖Box放這裡；sortabled_box 拿掉 hidden，不用input[type="file"] --}}
-
+                    @foreach ($images as $key => $image)
+                        <div class="sortabled_box" data-id="{{ $image->id }}">
+                            <!-- /* 預覽圖 */ -->
+                            <span class="browser_box box">
+                                <span class="icon -move"><i class="bi bi-arrows-move"></i></span>
+                                <span class="icon -x"><i class="bi bi-x"></i></span>
+                                <img src="{{ asset($image->url) }}" />
+                            </span>
+                            <!-- /* 進度條 */ -->
+                            <div class="progress" hidden>
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                                    aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width: 1%"></div>
+                            </div>
+                        </div>
+                    @endforeach
                     <!-- 按鈕 -->
                     <label for="product_img_add">
                         <span class="browser_box">
                             <i class="bi bi-plus-circle text-secondary fs-4"></i>
                         </span>
-                        <input type="file" id="product_img_add" accept=".jpg,.jpeg,.png,.gif,.svg" multiple
-                            hidden>
+                        <input type="file" id="product_img_add" accept=".jpg,.jpeg,.png,.gif,.svg" multiple hidden>
                     </label>
                 </div>
             </div>
+            @error('files')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
             <p><mark>圖片限制：不超過1MB，1000×1000px，可上傳JPG/ JPEG/ PNG/ GIF/ SVG格式</mark></p>
+            <input type="hidden" name="del_image">
         </div>
 
         <div>
@@ -174,7 +196,6 @@
         <script>
             // 顯示字數
             showWordsLength($('input[maxlength],textarea[maxlength]'));
-
         </script>
         <script>
             /*** 媒體設定 ***/

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Cms;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductImg;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -30,12 +32,14 @@ class ProductCtrl extends Controller
      */
     public function create()
     {
+
         return view('cms.commodity.product.basic_info', [
             'method' => 'create',
             'formAction' => Route('cms.product.create'),
             'users' => User::get(),
             'suppliers' => Supplier::get(),
-
+            'categorys' => Category::get(),
+            'images' => [],
         ]);
     }
 
@@ -47,10 +51,9 @@ class ProductCtrl extends Controller
      */
     public function store(Request $request)
     {
-        
 
         $request->validate([
-            // 'files' => 'required|max:10000|mimes:png,jpg',
+            'files.*' => 'max:10000|mimes:jpg,jpeg,png,bmp',
             'title' => 'required',
             'has_tax' => 'required',
             'active_sdate' => 'date|nullable',
@@ -64,6 +67,14 @@ class ProductCtrl extends Controller
 
         $d = $request->all();
         $re = Product::createProduct($d['title'], $d['user_id'], $d['category_id'], $d['feature'], $d['url'], $d['slogan'], $d['active_sdate'], $d['active_edate'], $d['supplier'], $d['has_tax']);
+
+        if ($request->hasfile('files')) {
+            foreach ($request->file('files') as $file) {
+                $imgData[] = $file->store('product_imgs');
+            }
+            ProductImg::createImgs($re['id'], $imgData);
+        }
+
         wToast('新增完畢');
         return redirect(route('cms.product.index'));
     }
@@ -76,7 +87,15 @@ class ProductCtrl extends Controller
      */
     public function edit($id)
     {
+
         //
+        $data = Product::where('id', $id)->get()->first();
+        if (!$data) {
+            return abort(404);
+        }
+
+        $data->active_sdate = $data->active_sdate ? date('Y-m-d', strtotime($data->active_sdate)) : null;
+        $data->active_edate = $data->active_edate ? date('Y-m-d', strtotime($data->active_edate)) : null;
 
         $current_supplier = Supplier::getProductSupplier($id, true);
 
@@ -84,9 +103,11 @@ class ProductCtrl extends Controller
             'method' => 'edit',
             'formAction' => Route('cms.product.edit', ['id' => $id]),
             'users' => User::get(),
-            'data' => Product::where('id', $id)->get()->first(),
+            'data' => $data,
             'suppliers' => Supplier::get(),
             'current_supplier' => $current_supplier,
+            'categorys' => Category::get(),
+            'images' => ProductImg::where('product_id', $id)->get(),
         ]);
     }
 
@@ -100,7 +121,8 @@ class ProductCtrl extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            //  'file' => 'required|max:10000|mimes:xlsx,xls',
+            'files.*' => 'max:10000|mimes:jpg,jpeg,png,bmp',
+            'url' => [ "unique:App\Models\Product,url,$id,id", 'nullable'],
             'title' => 'required',
             'has_tax' => 'required',
             'active_sdate' => 'date|nullable',
@@ -113,6 +135,14 @@ class ProductCtrl extends Controller
         $d = $request->all();
 
         Product::updateProduct($id, $d['title'], $d['user_id'], $d['category_id'], $d['feature'], $d['url'], $d['slogan'], $d['active_sdate'], $d['active_edate'], $d['supplier'], $d['has_tax']);
+
+        if ($request->hasfile('files')) {
+            foreach ($request->file('files') as $file) {
+                $imgData[] = $file->store('product_imgs');
+            }
+            ProductImg::createImgs($id, $imgData);
+        }
+
         wToast('儲存完畢');
         return redirect(route('cms.product.index'));
 
