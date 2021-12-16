@@ -9,14 +9,7 @@
                 <img class="mb-4 w-100" src="{{ Asset('images/Best-logo.png') }}" alt="喜鴻國際 Logo">
                 <h1 class="h3 fw-normal">喜鴻國際 購物系統</h1>
                 <h2 class="h5 fw-light mb-3">
-                    <span @class([
-                        'rounded-pill px-3 py-1',
-                        'bg-User text-white' => !$title,
-                        'bg-Admin' => $title == '管理員',
-                        'bg-Deliveryman' => $title == '物流人員'
-                    ])>
-                        {{ $title ? $title : '託運商' }}
-                    </span>
+                    <span class="rounded-pill px-3 py-1 bg-User text-white bg-Admin">管理員</span>
                 </h2>
                 <div class="form-floating">
                     <input type="text" class="form-control @error('account') is-invalid @enderror" id="account" name="account">
