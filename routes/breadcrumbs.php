@@ -29,3 +29,17 @@ Breadcrumbs::for('cms.supplier.edit', function ($trail) {
     $trail->parent('cms.supplier.index');
     $trail->push('編輯');
 });
+
+// 通路管理
+Breadcrumbs::for('cms.sale_channel.index', function ($trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('廠商管理', route('cms.sale_channel.index'));
+});
+Breadcrumbs::for('cms.sale_channel.create', function ($trail) {
+    $trail->parent('cms.sale_channel.index');
+    $trail->push('新增');
+});
+Breadcrumbs::for('cms.sale_channel.edit', function ($trail) {
+    $trail->parent('cms.sale_channel.index');
+    $trail->push('編輯');
+});
