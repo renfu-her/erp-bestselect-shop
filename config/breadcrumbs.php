@@ -55,7 +55,7 @@ return [
     'missing-route-bound-breadcrumb-exception' => true,
 
     // When a named breadcrumb is used but doesn't exist (InvalidBreadcrumbException)
-    'invalid-named-breadcrumb-exception' => true,
+    'invalid-named-breadcrumb-exception' => false,
 
     /*
     |--------------------------------------------------------------------------

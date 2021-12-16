@@ -15,6 +15,7 @@ use App\View\Components\Calendar as B_Calendar;
 use App\View\Components\Editor as B_Editor;
 use App\View\Components\Modal as B_Modal;
 use App\View\Components\Toast as B_Toast;
+use App\View\Components\product\ProductNavi;
 
 class ComponentServiceProvider extends ServiceProvider
 {
@@ -46,5 +47,7 @@ class ComponentServiceProvider extends ServiceProvider
         Blade::component('b-editor', B_Editor::class);
         Blade::component('b-modal', B_Modal::class);
         Blade::component('b-toast', B_Toast::class);
+        Blade::component('b-prd-navi', ProductNavi::class);
+        
     }
 }

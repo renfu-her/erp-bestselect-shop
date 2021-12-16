@@ -19,7 +19,10 @@ class DatabaseSeeder extends Seeder
             PageAuthSeeder::class,
             UserSeeder::class,
             SupplierSeeder::class,
+
             SaleChannelSeeder::class,
+            ProductSeeder::class,
         ]);
     }
 }
+
