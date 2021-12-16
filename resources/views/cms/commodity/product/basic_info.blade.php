@@ -3,7 +3,7 @@
     <div>
         <h2 class="mb-3">@if ($method == 'create') 新增商品 @else {{ $data->title }} @endif </h2>
         @if ($method == 'edit')
-            <x-b-prd-navi></x-b-prd-navi>
+            <x-b-prd-navi id="{{  $data->id }}"></x-b-prd-navi>
         @endif
     </div>
     <form method="POST" action="{{ $formAction }}" enctype="multipart/form-data" >
