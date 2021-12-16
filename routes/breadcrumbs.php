@@ -98,3 +98,57 @@ Breadcrumbs::for('cms.sale_channel.edit', function ($trail) {
     $trail->parent('cms.sale_channel.index');
     $trail->push('編輯');
 });
+
+// 員工帳號管理
+Breadcrumbs::for('cms.user.index', function ($trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('員工帳號管理', route('cms.user.index'));
+});
+Breadcrumbs::for('cms.user.create', function ($trail) {
+    $trail->parent('cms.user.index');
+    $trail->push('新增');
+});
+Breadcrumbs::for('cms.user.edit', function ($trail) {
+    $trail->parent('cms.user.index');
+    $trail->push('編輯');
+});
+
+// 角色管理
+Breadcrumbs::for('cms.role.index', function ($trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('角色管理', route('cms.role.index'));
+});
+Breadcrumbs::for('cms.role.create', function ($trail) {
+    $trail->parent('cms.role.index');
+    $trail->push('新增');
+});
+Breadcrumbs::for('cms.role.edit', function ($trail) {
+    $trail->parent('cms.role.index');
+    $trail->push('編輯');
+});
+
+// 頁面權限管理
+Breadcrumbs::for('cms.permission.index', function ($trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('頁面權限管理', route('cms.permission.index'));
+});
+Breadcrumbs::for('cms.permission.create', function ($trail) {
+    $trail->parent('cms.permission.index');
+    $trail->push('新增');
+});
+Breadcrumbs::for('cms.permission.edit', function ($trail) {
+    $trail->parent('cms.permission.index');
+    $trail->push('編輯');
+});
+Breadcrumbs::for('cms.permission.child', function ($trail, $value) {
+    $trail->parent('cms.permission.index');
+    $trail->push('權限設定 [' . $value->title . ']', route('cms.permission.child', ['id' => $value->id]));
+});
+Breadcrumbs::for('cms.permission.child-create', function ($trail, $value) {
+    $trail->parent('cms.permission.child', $value);
+    $trail->push('新增');
+});
+Breadcrumbs::for('cms.permission.child-edit', function ($trail, $value) {
+    $trail->parent('cms.permission.child', $value);
+    $trail->push('編輯');
+});

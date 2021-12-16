@@ -35,4 +35,26 @@ return
             ],
         ],
     ],
+    [
+        "title" => "帳號管理",
+        "icon" => "bi-person-circle",
+        "menu_id" => "3",
+        "child" => [
+            [
+                "title" => "員工帳號管理",
+                "controller_name" => "UserCtrl",
+                "route_name" => "cms.user.index",
+            ],
+            [
+                "title" => "角色管理",
+                "controller_name" => "RoleCtrl",
+                "route_name" => "cms.role.index",
+            ],
+            [
+                "title" => "頁面權限管理",
+                "controller_name" => "PermissionCtrl",
+                "route_name" => "cms.permission.index",
+            ],
+        ],
+    ],
 ];

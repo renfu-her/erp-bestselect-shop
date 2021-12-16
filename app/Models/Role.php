@@ -18,7 +18,6 @@ class Role extends ModelsRole
             ->select('id', 'name', 'title');
 
         return self::where('guard_name', '=', $guard_name)
-            ->where("company_id", '=', $company_id)
             ->where("name", "<>", "Super Admin")
             ->union($union)
             ->select('id', 'name', 'title')
@@ -70,26 +69,18 @@ class Role extends ModelsRole
             ->assignRole($role_ids);
     }
 
-    public static function createRole($name, $guard, $permission_id = [], $company_id = null)
+    public static function createRole($name, $guard, $permission_id = [])
     {
-        return DB::transaction(function () use ($name, $guard, $permission_id, $company_id) {
+        return DB::transaction(function () use ($name, $guard, $permission_id) {
 
-            $role_no = str_pad((self::where('company_id', '=', $company_id)
-                    ->withTrashed()
+            $role_no = str_pad((DB::table('per_roles')
                     ->get()
                     ->count()) + 1, 4, '0', STR_PAD_LEFT);
-
-            if ($company_id) {
-                $role_no = "$role_no@$company_id";
-            } else {
-                $role_no = "$role_no@admin";
-            }
 
             $re = Role::create([
                 'guard_name' => $guard,
                 'name' => $role_no,
                 'title' => $name,
-                'company_id' => $company_id,
             ]);
 
             $re->givePermissionTo($permission_id);
