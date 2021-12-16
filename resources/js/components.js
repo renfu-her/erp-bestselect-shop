@@ -89,7 +89,7 @@
     $.fn.select2.defaults.set('width', '100%');
     $.fn.select2.defaults.set('allowClear', true);
     $.fn.select2.defaults.set('placeholder', '請選擇');
-    $.fn.select2.defaults.set('selectionCssClass', 'pillbox form-select');
+    $.fn.select2.defaults.set('selectionCssClass', 'pillbox form-select :all:');
     $.fn.select2.defaults.set('language', {
         removeItem: function () {
             return '刪除項目';
@@ -121,5 +121,6 @@
             return '刪除所有項目';
         }
     });
+    $('.-select2').select2();
 
 })();

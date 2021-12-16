@@ -314,6 +314,76 @@ select.form-select optgroup option {
   line-height: 1;
 }
 
+/* 
+ * 字數
+ */
+ .show_words_length {
+  position: relative;
+}
+.show_words_length::after {
+  content: attr(data-after);
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  font-size: .7rem;
+  color: #999;
+  background-color: $input-bg;
+}
+.is-invalid ~ .show_words_length::after {
+  right: 38px;
+}
+
+/* 商品頁 layout - pm_* */
+.pm_btnGroup  {
+  .icon {
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 1.2rem;
+    vertical-align: top;
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+  
+  a span.icon {
+    margin-right: -5px;
+  }
+
+  a.nav-link {
+    padding: 0 1rem 0 0;
+  }
+}
+.pm_navbar {
+  border-bottom: 0px;
+
+  &.nav-tabs .nav-link.active,
+  &.nav-tabs .nav-link.active:focus,
+  &.nav-tabs .nav-link.active:hover {
+    background-color: transparent;
+    border-width: 0;
+    border-bottom: 3px solid #999999;
+    margin-bottom: -2px;
+    color: #007bff;
+  }
+  &.nav-tabs .nav-link:focus,
+  &.nav-tabs .nav-link:hover {
+    border-color: transparent;
+    border-bottom-color: $nav-tabs-border-color;
+  }
+
+  a.nav-link {
+    color: #999999;
+  }
+
+  & + .narbarBottomLine {
+    margin: 0 -1.5rem;
+  }
+}
+
+
 /* 拖曳區塊 */
 .sortabled {
   position: relative;
