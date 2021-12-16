@@ -120,9 +120,10 @@ class ProductCtrl extends Controller
      */
     public function update(Request $request, $id)
     {
+
         $request->validate([
-            'files.*' => 'max:10000|mimes:jpg,jpeg,png,bmp',
-            'url' => [ "unique:App\Models\Product,url,$id,id", 'nullable'],
+            'files.*' => 'max:5000|mimes:jpg,jpeg,png,bmp',
+            'url' => ["unique:App\Models\Product,url,$id,id", 'nullable'],
             'title' => 'required',
             'has_tax' => 'required',
             'active_sdate' => 'date|nullable',
@@ -141,6 +142,10 @@ class ProductCtrl extends Controller
                 $imgData[] = $file->store('product_imgs');
             }
             ProductImg::createImgs($id, $imgData);
+        }
+
+        if (isset($d['del_image']) && $d['del_image']) {
+            ProductImg::delImgs(explode(',', $d['del_image']));
         }
 
         wToast('儲存完畢');
