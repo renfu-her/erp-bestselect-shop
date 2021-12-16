@@ -121,7 +121,7 @@ class ProductCtrl extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'files.*' => 'max:10000|mimes:jpg,jpeg,png,bmp',
+            'files.*' => 'max:5000|mimes:jpg,jpeg,png,bmp',
             'url' => [ "unique:App\Models\Product,url,$id,id", 'nullable'],
             'title' => 'required',
             'has_tax' => 'required',
