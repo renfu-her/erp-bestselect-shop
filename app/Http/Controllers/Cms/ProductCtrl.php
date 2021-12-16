@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Cms;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\Supplier;
 use App\Models\User;
@@ -30,12 +31,13 @@ class ProductCtrl extends Controller
      */
     public function create()
     {
+      
         return view('cms.commodity.product.basic_info', [
             'method' => 'create',
             'formAction' => Route('cms.product.create'),
             'users' => User::get(),
             'suppliers' => Supplier::get(),
-
+            'categorys' => Category::get(),
         ]);
     }
 
@@ -47,7 +49,18 @@ class ProductCtrl extends Controller
      */
     public function store(Request $request)
     {
-        
+
+        if($request->hasfile('files')) {
+            dd($request->file('files'));
+            foreach($request->file('files') as $file)
+            {
+               // $name = $file->getClientOriginalName();
+               // $file->move(public_path().'/uploads/', $name);  
+               // $imgData[] = $name;  
+            }
+    
+            
+        }
 
         $request->validate([
             // 'files' => 'required|max:10000|mimes:png,jpg',
