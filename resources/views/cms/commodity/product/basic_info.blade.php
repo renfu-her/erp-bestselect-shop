@@ -3,22 +3,22 @@
     <div>
         <h2 class="mb-3">@if ($method == 'create') 新增商品 @else {{ $data->title }} @endif </h2>
         @if ($method == 'edit')
-            <x-b-prd-navi></x-b-prd-navi>
+            <x-b-prd-navi id="{{  $data->id }}"></x-b-prd-navi>
         @endif
     </div>
-    <form method="POST" action="{{ $formAction }}" enctype="multipart/form-data">
+    <form method="POST" action="{{ $formAction }}" enctype="multipart/form-data" >
         @csrf
         <div class="card shadow p-4 mb-4">
             <h6>基本設定</h6>
             <div class="row">
                 <div class="col-12 mb-3">
                     <label class="form-label">商品名稱 <span class="text-danger">*</span></label>
-                    <input class="form-control" name="title" type="text" placeholder="例：女休閒短T" maxlength="30"
+                    <input class="form-control @error('title')is-invalid @enderror" name="title" type="text" placeholder="例：女休閒短T" maxlength="30"
                         value="{{ old('title', $data->title ?? '') }}" aria-label="商品名稱" required />
+                    @error('title')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
-                @error('title')
-                    <div class="alert alert-danger mt-3">{{ $message }}</div>
-                @enderror
                 <div class="col-12 mb-3">
                     <label class="form-label">商品網址（發佈後若有更改網址可能會影響SEO搜尋）</label>
                     <div class="input-group">
@@ -38,81 +38,85 @@
                         type="text" placeholder="請輸入商品標語" aria-label="商品標語">
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">商品歸類</label>
-                    <select class="form-select" aria-label="Select" name="category_id" placeholder="請選擇商品歸類">
-                        <option value="" selected>請選擇商品歸類</option>
+                    <label class="form-label">商品歸類 <span class="text-danger">*</span></label>
+                    <select class="form-select @error('category_id')is-invalid @enderror" required
+                        aria-label="Select" name="category_id">
+                        <option value="" disabled selected>請選擇商品歸類</option>
                         <option value="1">type 1</option>
                         <option value="2">type 2</option>
                         <option value="3">type 3</option>
                     </select>
+                    @error('category_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
-                @error('category_id')
-                    <div class="alert alert-danger mt-3">{{ $message }}</div>
-                @enderror
 
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">負責人員</label>
-                    <select class="form-select" aria-label="Select" name="user_id" placeholder="請選擇商品歸類">
-                        <option value="" selected>負責人員</option>
+                    <label class="form-label">負責人員 <span class="text-danger">*</span></label>
+                    <select class="form-select @error('user_id')is-invalid @enderror" required
+                        aria-label="Select" name="user_id" >
+                        <option value="" disabled selected>請選擇負責人員</option>
                         @foreach ($users as $key => $user)
                             <option value="{{ $user->id }}" @if (old('user_id', $data->user_id ?? '') == $user->id) selected @endif>{{ $user->name }}</option>
                         @endforeach
                     </select>
+                    @error('user_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
-                @error('user_id')
-                    <div class="alert alert-danger mt-3">{{ $message }}</div>
-                @enderror
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label" for="supplier">廠商</label>
-                    <select name="supplier[]" id="supplier" multiple="multiple" class="w-100 -select2 -multiple"
-                        data-placeholder="請選擇廠商">
+                    <label class="form-label" for="supplier">廠商 <span class="text-danger">*</span></label>
+                    <select name="supplier[]" id="supplier" multiple="multiple" hidden class="-select2 -multiple @error('supplier')is-invalid @enderror"
+                        data-placeholder="請選擇廠商" required>
                         @foreach ($suppliers as $key => $supplier)
                             <option value="{{ $supplier->id }}" @if (in_array($supplier->id, old('supplier', $current_supplier ?? []))) selected @endif>{{ $supplier->name }}
                             </option>
                         @endforeach
                     </select>
+                    @error('supplier')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
-                @error('supplier')
-                    <div class="alert alert-danger mt-3">{{ $message }}</div>
-                @enderror
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">上架時間</label>
-                    <input class="form-control" name="active_sdate" type="date" aria-label="上架時間"
+                    <input class="form-control @error('active_sdate')is-invalid @enderror" name="active_sdate" type="date" aria-label="上架時間"
                         value="{{ old('active_sdate', $data->active_sdate ?? '') }}">
+                    @error('active_sdate')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
-                @error('active_sdate')
-                    <div class="alert alert-danger mt-3">{{ $message }}</div>
-                @enderror
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">下架時間</label>
-                    <input class="form-control" name="active_edate" type="date" aria-label="下架時間"
+                    <input class="form-control @error('active_edate')is-invalid @enderror" name="active_edate" type="date" aria-label="下架時間"
                         value="{{ old('active_edate', $data->active_edate ?? '') }}">
+                    @error('active_edate')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
-                @error('active_edate')
-                    <div class="alert alert-danger mt-3">{{ $message }}</div>
-                @enderror
                 <fieldset class="col-12 col-lg-6 mb-3">
-                    <legend class="col-form-label p-0 mb-2">應稅免稅</legend>
+                    <legend class="col-form-label p-0 mb-2">應稅免稅 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="has_tax" value="0" type="radio" id="tax_1"
+                        <div class="form-check form-check-inline @error('has_tax')is-invalid @enderror">
+                            <input class="form-check-input @error('has_tax')is-invalid @enderror" 
+                                name="has_tax" value="0" type="radio" id="tax_1" required
                                 @if (old('has_tax', $data->has_tax ?? '') == '0') checked @endif>
                             <label class="form-check-label" for="tax_1">應稅</label>
                         </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="has_tax" value="1" type="radio" id="tax_2"
+                        <div class="form-check form-check-inline @error('has_tax')is-invalid @enderror">
+                            <input class="form-check-input @error('has_tax')is-invalid @enderror" 
+                                name="has_tax" value="1" type="radio" id="tax_2" required
                                 @if (old('has_tax', $data->has_tax ?? '') == '1') checked @endif>
                             <label class="form-check-label" for="tax_2">免稅（農林漁牧產品/免稅）</label>
                         </div>
+                        @error('has_tax')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </fieldset>
-                @error('has_tax')
-                    <div class="alert alert-danger mt-3">{{ $message }}</div>
-                @enderror
             </div>
 
         </div>
-      
+
         <div id="mediaSettings" class="card shadow p-4 mb-4">
             <h6>媒體設定</h6>
             <label>商品圖片（可將檔案拖拉至框中即可上傳）</label>
@@ -120,9 +124,9 @@
                 <!-- 可排序圖片集中區塊 -->
                 <div class="sortabled">
                     <!-- 新增圖Box -->
-                    <div class="sortabled_box">
+                    <div class="sortabled_box" hidden>
                         <!-- /* 預覽圖 */ -->
-                        <span class="browser_box box" hidden>
+                        <span class="browser_box box">
                             <span class="icon -move"><i class="bi bi-arrows-move"></i></span>
                             <span class="icon -x"><i class="bi bi-x"></i></span>
                             <img src="" />
@@ -135,6 +139,8 @@
                         <input type="file" name="files[]" accept=".jpg,.jpeg,.png,.gif,.svg" multiple hidden>
                     </div>
                     <!-- 新增圖Box end -->
+
+                    {{-- 舊增圖Box放這裡；sortabled_box 拿掉 hidden，不用input[type="file"] --}}
 
                     <!-- 按鈕 -->
                     <label for="product_img_add">
@@ -172,7 +178,7 @@
         </script>
         <script>
             /*** 媒體設定 ***/
-            $('#mediaSettings .upload_image_block > .sortabled > .sortabled_box:has([hidden])').remove();
+            $('#mediaSettings .upload_image_block > .sortabled > .sortabled_box[hidden]').remove();
 
             bindReadImageFiles();
             // 綁定事件: 選擇圖片

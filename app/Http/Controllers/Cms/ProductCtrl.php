@@ -69,19 +69,7 @@ class ProductCtrl extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-
-    }
-
-    /**
-     * Show the form for editing the specified resource.
+     * 編輯 - 商品資訊
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
@@ -103,7 +91,7 @@ class ProductCtrl extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * 編輯 - 商品資訊 儲存
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
@@ -129,6 +117,84 @@ class ProductCtrl extends Controller
         return redirect(route('cms.product.index'));
 
         //
+    }
+
+    /**
+     * 編輯 - 規格款式
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editStyle($id)
+    {
+        return view('cms.commodity.product.styles', [
+            'data' => Product::where('id', $id)->get()->first(),
+        ]);
+    }
+
+    /**
+     * 編輯 - 銷售控管
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editSale($id)
+    {
+        return view('cms.commodity.product.sales', [
+            'data' => Product::where('id', $id)->get()->first(),
+        ]);
+    }
+
+    /**
+     * 編輯 - [網頁]商品介紹
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editWebDesc($id)
+    {
+        return view('cms.commodity.product.web_desciption', [
+            'data' => Product::where('id', $id)->get()->first(),
+        ]);
+    }
+
+    /**
+     * 編輯 - [網頁]規格說明
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editWebSpec($id)
+    {
+        return view('cms.commodity.product.web_spec', [
+            'data' => Product::where('id', $id)->get()->first(),
+        ]);
+    }
+
+    /**
+     * 編輯 - [網頁]運送方式
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editWebLogis($id)
+    {
+        return view('cms.commodity.product.web_logistics', [
+            'data' => Product::where('id', $id)->get()->first(),
+        ]);
+    }
+
+    /**
+     * 編輯 - 設定
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editSetting($id)
+    {
+        return view('cms.commodity.product.settings', [
+            'data' => Product::where('id', $id)->get()->first(),
+        ]);
     }
 
     /**

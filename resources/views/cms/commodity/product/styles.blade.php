@@ -6,7 +6,7 @@
 </div>
 <form action="">
     <div class="card shadow p-4 mb-4">
-        <h6>商品介紹（官網）</h6>
+        <h6>規格款式</h6>
     </div>
 </form>
 @endsection
