@@ -304,6 +304,10 @@ header .navbar-member .dropdown-item {
   left: 50%;
   transition: 0s;
 }
+.icon-btn:disabled {
+  pointer-events: none;
+  opacity: .5;
+}
 
 /*
  * 前綴分頁標籤
