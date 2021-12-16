@@ -13,21 +13,32 @@
     $('.-cloneElem.d-none').remove();
 
     if (_CloneElem.length) {
-        // 新增鈕
-        $('.-newClone').off('click').on('click', function () {
-            let $cloneElem = getCloneElem();
+        // 新增鈕: 改為手動各自新增
+        // $('.-newClone').off('click').on('click', function () {
+        //     bindCloneBtn();
+        // });
+
+        // bind 新增
+        window.Clone_bindCloneBtn = bindCloneBtn;
+        function bindCloneBtn(initFn) {
+            let $cloneElem = getCloneElem(initFn);
             bindDelElem($cloneElem);
             $('.-appendClone').append($cloneElem);
             checkSubmitDiv();
-        });
+        }
 
         // 取 clone element
-        function getCloneElem() {
+        function getCloneElem(initFn) {
             let $c = _CloneElem.clone();
-            $c.find('input').val('');
-            $c.find('button').attr({
-                'idx': null
-            });
+            
+            if (typeof initFn === 'function') {
+                initFn($c);
+            } else {
+                $c.find('input, select').val('');
+                $c.find('button').attr({
+                    'idx': null
+                });
+            }
             return $c;
         }
 

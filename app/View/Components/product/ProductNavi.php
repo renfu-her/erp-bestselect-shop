@@ -26,8 +26,10 @@ class ProductNavi extends Component
     public function render()
     {
         $id = Route::current()->parameters()['id'];
-        $route_name = Route::currentRouteName();
-        return view('components.product.product-navi', ['id' => $id,
-            'route_name' => $route_name]);
+        $route_name = explode('.', Route::getCurrentRoute()->getName())[2];
+        return view('components.product.product-navi', [
+            'id' => $id,
+            'route_name' => $route_name
+        ]);
     }
 }
