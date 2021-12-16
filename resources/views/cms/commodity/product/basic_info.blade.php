@@ -6,6 +6,7 @@
             <x-b-prd-navi id="{{ $data->id }}"></x-b-prd-navi>
         @endif
     </div>
+
     <form method="POST" action="{{ $formAction }}" enctype="multipart/form-data">
         @csrf
         <div class="card shadow p-4 mb-4">
@@ -24,10 +25,14 @@
                     <label class="form-label">商品網址（發佈後若有更改網址可能會影響SEO搜尋）</label>
                     <div class="input-group">
                         <span class="input-group-text">https://demo.bestselection.com.tw/products/</span>
-                        <input type="text" name="url" class="form-control" placeholder="請輸入連結路徑"
-                            value="{{ old('url', $data->url ?? '') }}" aria-label="商品網址">
+                        <input type="text" name="url" class="form-control @error('url')is-invalid @enderror"
+                            placeholder="請輸入連結路徑" value="{{ old('url', $data->url ?? '') }}" aria-label="商品網址">
                     </div>
+
                 </div>
+                @error('url')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
                 <div class="col-12 mb-3">
                     <label class="form-label">商品簡述</label>
                     <textarea rows="3" name="feature" class="form-control" maxlength="150" placeholder="請輸入關於產品的描述"
@@ -44,7 +49,8 @@
                         name="category_id">
                         <option value="" disabled selected>請選擇商品歸類</option>
                         @foreach ($categorys as $key => $category)
-                            <option value="{{ $category->id }}" @if (old('category_id', $data->category_id ?? '') == $category->id) selected @endif>{{ $category->name }}</option>
+                            <option value="{{ $category->id }}" @if (old('category_id', $data->category_id ?? '') == $category->id) selected @endif>{{ $category->category }}
+                            </option>
                         @endforeach
                     </select>
                     @error('category_id')
@@ -104,7 +110,7 @@
                         </div>
                         <div class="form-check form-check-inline @error('has_tax')is-invalid @enderror">
                             <input class="form-check-input @error('has_tax')is-invalid @enderror" name="has_tax" value="1"
-                                type="radio" id="tax_2" required @if (old('has_tax', $data->has_tax ?? '') == '1') checked @endif>
+                                type="radio" id="tax_2" required @if (old('has_tax', $data->has_tax ?? '1') == '1') checked @endif>
                             <label class="form-check-label" for="tax_2">免稅（農林漁牧產品/免稅）</label>
                         </div>
                         @error('has_tax')
@@ -164,6 +170,9 @@
                     </label>
                 </div>
             </div>
+            @error('files')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
             <p><mark>圖片限制：不超過1MB，1000×1000px，可上傳JPG/ JPEG/ PNG/ GIF/ SVG格式</mark></p>
             <input type="hidden" name="del_image">
         </div>

@@ -40,7 +40,7 @@ class Product extends Model
                 "url" => $url,
                 "slogan" => $slogan,
                 "active_sdate" => $active_sdate,
-                "active_edate" => $active_edate,
+                "active_edate" => $active_edate ? $active_edate . " 23:59:59" : null,
                 "has_tax" => $has_tax,
             ])->id;
 
