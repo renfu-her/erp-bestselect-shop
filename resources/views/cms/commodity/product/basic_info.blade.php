@@ -44,7 +44,7 @@
                         name="category_id">
                         <option value="" disabled selected>請選擇商品歸類</option>
                         @foreach ($categorys as $key => $category)
-                            <option value="{{ $category->id }}" @if (old('user_id', $data->category_id ?? '') == $category->id) selected @endif>{{ $category->name }}</option>
+                            <option value="{{ $category->id }}" @if (old('category_id', $data->category_id ?? '') == $category->id) selected @endif>{{ $category->name }}</option>
                         @endforeach
                     </select>
                     @error('category_id')
@@ -140,7 +140,21 @@
                     <!-- 新增圖Box end -->
 
                     {{-- 舊增圖Box放這裡；sortabled_box 拿掉 hidden，不用input[type="file"] --}}
-
+                    @foreach ($images as $key => $image)
+                        <div class="sortabled_box" data-id="{{ $image->id }}">
+                            <!-- /* 預覽圖 */ -->
+                            <span class="browser_box box">
+                                <span class="icon -move"><i class="bi bi-arrows-move"></i></span>
+                                <span class="icon -x"><i class="bi bi-x"></i></span>
+                                <img src="{{ asset($image->url) }}" />
+                            </span>
+                            <!-- /* 進度條 */ -->
+                            <div class="progress" hidden>
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                                    aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width: 1%"></div>
+                            </div>
+                        </div>
+                    @endforeach
                     <!-- 按鈕 -->
                     <label for="product_img_add">
                         <span class="browser_box">
@@ -151,6 +165,7 @@
                 </div>
             </div>
             <p><mark>圖片限制：不超過1MB，1000×1000px，可上傳JPG/ JPEG/ PNG/ GIF/ SVG格式</mark></p>
+            <input type="hidden" name="del_image">
         </div>
 
         <div>

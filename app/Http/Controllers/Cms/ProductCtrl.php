@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Cms;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductImg;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -31,13 +32,14 @@ class ProductCtrl extends Controller
      */
     public function create()
     {
-      
+
         return view('cms.commodity.product.basic_info', [
             'method' => 'create',
             'formAction' => Route('cms.product.create'),
             'users' => User::get(),
             'suppliers' => Supplier::get(),
             'categorys' => Category::get(),
+            'images' => [],
         ]);
     }
 
@@ -49,18 +51,6 @@ class ProductCtrl extends Controller
      */
     public function store(Request $request)
     {
-
-        if($request->hasfile('files')) {
-            dd($request->file('files'));
-            foreach($request->file('files') as $file)
-            {
-               // $name = $file->getClientOriginalName();
-               // $file->move(public_path().'/uploads/', $name);  
-               // $imgData[] = $name;  
-            }
-    
-            
-        }
 
         $request->validate([
             // 'files' => 'required|max:10000|mimes:png,jpg',
@@ -77,6 +67,14 @@ class ProductCtrl extends Controller
 
         $d = $request->all();
         $re = Product::createProduct($d['title'], $d['user_id'], $d['category_id'], $d['feature'], $d['url'], $d['slogan'], $d['active_sdate'], $d['active_edate'], $d['supplier'], $d['has_tax']);
+
+        if ($request->hasfile('files')) {
+            foreach ($request->file('files') as $file) {
+                $imgData[] = $file->store('product_imgs');
+            }
+            ProductImg::createImgs($re['id'], $imgData);
+        }
+
         wToast('新增完畢');
         return redirect(route('cms.product.index'));
     }
@@ -100,6 +98,8 @@ class ProductCtrl extends Controller
             'data' => Product::where('id', $id)->get()->first(),
             'suppliers' => Supplier::get(),
             'current_supplier' => $current_supplier,
+            'categorys' => Category::get(),
+            'images' => ProductImg::where('product_id', $id)->get(),
         ]);
     }
 
