@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Cms;
 use App\Http\Controllers\Controller;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 class SupplierCtrl extends Controller
 {
@@ -13,11 +14,17 @@ class SupplierCtrl extends Controller
     {
         //
         $query = $request->query();
-        $dataList =  Supplier::whereNull('deleted_at')->paginate(10)->appends($query);
+        $title = Arr::get($query, 'title', '');
+        $data_per_page = Arr::get($query, 'data_per_page', 10);
+        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
 
-//        dd($dataList);
+        $dataList =  Supplier::getSupplierList($title)
+            ->paginate($data_per_page)->appends($query);
+
         return view('cms.supplier.list', [
-            'dataList' => $dataList
+            'dataList' => $dataList,
+            'title' => $title,
+            'data_per_page' => $data_per_page,
         ]);
     }
 

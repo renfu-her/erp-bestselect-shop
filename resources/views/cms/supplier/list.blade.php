@@ -1,20 +1,50 @@
 @extends('layouts.main')
 @section('sub-content')
-<h2 class="mb-4">廠商管理</h2>
-<div class="card shadow p-4 mb-4">
-    <div class="row mb-4">
-        <div class="col-auto">
-            @can('cms.supplier.create')
-            <a href="{{ Route('cms.supplier.create', null, true) }}" class="btn btn-primary">
-                <i class="bi bi-plus-lg"></i> 新增廠商
-            </a>
-            @endcan
+
+<div class="d-flex mb-4 align-items-center">
+    <h2 class="flex-grow-1 mb-0">廠商管理</h2>
+
+    @can('cms.supplier.create')
+    <a href="{{ Route('cms.supplier.create', null, true) }}"
+       class="btn btn-outline-primary py-1 d-flex align-items-center" style="line-height: normal;">
+        <i class="bi bi-plus-lg pe-1"></i> 新增廠商
+    </a>
+    @endcan
+</div>
+
+<form id="search" action="{{ Route('cms.supplier.index') }}" method="GET">
+    <div class="card shadow p-4 mb-4">
+        <h6>搜尋條件</h6>
+        <div class="row">
+            <div class="col-12 col-sm-6 mb-3">
+                <label class="form-label">廠商名稱 / 廠商簡稱 / 統編</label>
+                <input class="form-control" name="title" type="text" placeholder="請輸入廠商名稱 / 廠商簡稱 / 統編" value="{{ $title }}"
+                       aria-label="廠商名稱 / 廠商簡稱 / 統編">
+            </div>
+        </div>
+
+        <div class="col">
+            <input type="hidden" name="data_per_page" value="{{ $data_per_page }}" />
+            <button type="submit" class="btn btn-primary px-4">搜尋</button>
         </div>
     </div>
+</form>
+<form id="actionForms">
+    @csrf
+    <div class="card shadow p-4 mb-4">
+        <div class="col mb-4">
+            顯示
+            <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
+                @foreach (config('global.dataPerPage') as $value)
+                    <option value="{{ $value }}" @if ($data_per_page == $value) selected @endif>{{ $value }}</option>
+                @endforeach
+            </select>
+            筆
+        </div>
 
-    <div class="table-responsive tableOverBox">
-        <table class="table table-striped tableList mb-0">
-            <thead>
+        <div class="table-responsive tableOverBox">
+            <table class="table table-striped tableList mb-0">
+                <thead>
                 <tr>
                     <th scope="col" style="width:10%">#</th>
                     <th scope="col">廠商名稱</th>
@@ -33,8 +63,8 @@
                     <th scope="col" class="text-center">編輯</th>
                     <th scope="col" class="text-center">刪除</th>
                 </tr>
-            </thead>
-            <tbody>
+                </thead>
+                <tbody>
                 @foreach ($dataList as $key => $data)
                     <tr>
                         <th scope="row">{{ $key + 1 }}</th>
@@ -54,8 +84,8 @@
                         <td class="text-center">
 {{--                            @can('admin.supplier.edit')--}}
                             <a href="{{ Route('cms.supplier.edit', ['id' => $data->id], true) }}"
-                                data-bs-toggle="tooltip" title="編輯"
-                                class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                               data-bs-toggle="tooltip" title="編輯"
+                               class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
 {{--                            @endcan--}}
@@ -63,25 +93,30 @@
                         <td class="text-center">
 {{--                            @can('admin.supplier.delete')--}}
                             <a href="javascript:void(0)" data-href="{{ Route('cms.supplier.delete', ['id' => $data->id], true) }}"
-                                data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                                class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
+                               data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                               class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
                                 <i class="bi bi-trash"></i>
                             </a>
 {{--                            @endcan--}}
                         </td>
                     </tr>
                 @endforeach
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
-<div class="row flex-column-reverse flex-sm-row">
-    <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">
-        {{-- 頁碼 --}}
-        <div class="d-flex justify-content-center">{{ $dataList->links() }}</div>
-    </div>
-</div>
 
+    <div class="row flex-column-reverse flex-sm-row">
+        <div class="col-auto">
+
+        </div>
+        <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">
+            <div class="mx-3">共 {{ $dataList->lastPage() }} 頁(共找到 {{ $dataList->total() }} 筆資料)</div>
+            {{-- 頁碼 --}}
+            <div class="d-flex justify-content-center">{{ $dataList->links() }}</div>
+        </div>
+    </div>
+</form>
 
 <!-- Modal -->
 <x-b-modal id="confirm-delete">
@@ -97,6 +132,11 @@
 @once
     @push('scripts')
         <script>
+            // 顯示筆數選擇
+            $('#dataPerPageElem').on('change', function(e) {
+                $('input[name=data_per_page]').val($(this).val());
+                $('#search').submit();
+            });
             $('#confirm-delete').on('show.bs.modal', function(e) {
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
             });
