@@ -15,7 +15,7 @@ class CreateCategoriesTable extends Migration
     {
         Schema::create('prd_categorys', function (Blueprint $table) {
             $table->id();
-            $table->string('rank')->nullable();
+            $table->integer('rank')->default(100);
             $table->string('category');
             $table->timestamps();
         });
