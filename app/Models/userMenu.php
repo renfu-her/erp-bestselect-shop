@@ -20,7 +20,7 @@ return
     ],
     [
         "title" => "基本設定",
-        "icon" => "bi-basket",
+        "icon" => "bi-sliders",
         "menu_id" => "2",
         "child" => [
             [
