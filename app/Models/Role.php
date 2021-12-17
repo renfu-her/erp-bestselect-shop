@@ -111,6 +111,12 @@ class Role extends ModelsRole
         if ($role->name == 'Super Admin') {
             return;
         }
+
+        $users = User::role($role->name)->get();
+        foreach ($users as $key => $user) {
+            $user->removeRole($role->name);
+        }
+
         $role->revokePermissionTo($role->permissions);
         $role->delete();
     }
