@@ -71,14 +71,16 @@
                         </td>
                         <td>
                             <select name="" class="form-select form-select-sm">
-                                <option value="S">S</option>
+                                <option value="" disabled>請選擇</option>
+                                <option value="S" selected>S</option>
                                 <option value="M">M</option>
                             </select>
                         </td>
                         <td>
                             <select name="" class="form-select form-select-sm">
+                                <option value="" disabled>請選擇</option>
                                 <option value="紅">紅</option>
-                                <option value="黃">黃</option>
+                                <option value="黃" selected>黃</option>
                             </select>
                         </td>
                         <td>
@@ -116,12 +118,14 @@
                         </td>
                         <td>
                             <select name="" class="form-select form-select-sm">
+                                <option value="" disabled selected>請選擇</option>
                                 <option value="S">S</option>
                                 <option value="M">M</option>
                             </select>
                         </td>
                         <td>
                             <select name="" class="form-select form-select-sm">
+                                <option value="" disabled selected>請選擇</option>
                                 <option value="紅">紅</option>
                                 <option value="黃">黃</option>
                             </select>
@@ -153,7 +157,7 @@
             </table>
         </div>
         <div class="mt-3">
-            <button type="button" class="btn btn-primary -newClone"><i class="bi bi-plus-circle"></i> 新增款式</button>
+            <button type="button" class="btn btn-primary -newClone">新增款式</button>
         </div>
     </div>
     
@@ -175,8 +179,9 @@
     @push('sub-scripts')
         <script>
             // clone 項目
+            const $clone = $('.-cloneElem:first-child').clone();
             $('.-newClone').off('click').on('click', function () {
-                window.Clone_bindCloneBtn(function (cloneElem) {
+                Clone_bindCloneBtn($clone, function (cloneElem) {
                     cloneElem.find('input, select').val('');
                     cloneElem.find('.form-switch input').prop('checked', true);
                     cloneElem.find('a.-text.-cost').text('採購單');
