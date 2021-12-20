@@ -268,7 +268,12 @@
                                     </select>
                                 </div>
                             </div>
-                            
+                            <div>
+                                <x-b-editor id="editor" classes="my-3"></x-b-editor>
+                            </div>
+                            <div>
+                                <x-b-calendar id="calendar" readOnly="false" create="true" classes="my-3" ></x-b-calendar>
+                            </div>
                         </div>
                     </fieldset>
                     
