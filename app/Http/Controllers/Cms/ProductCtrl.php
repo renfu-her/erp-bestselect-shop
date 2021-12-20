@@ -175,7 +175,7 @@ class ProductCtrl extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function editStyle2($id)
+    public function editSpec($id)
     {
         return view('cms.commodity.product.styles-edit', [
             'data' => Product::where('id', $id)->get()->first(),
