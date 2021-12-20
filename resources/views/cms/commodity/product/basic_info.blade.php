@@ -170,7 +170,7 @@
                     </label>
                 </div>
             </div>
-            <p><mark>圖片限制：不超過1MB，1000×1000px，可上傳JPG/ JPEG/ PNG/ GIF/ SVG格式</mark></p>
+            <p><mark>圖片限制：不超過1MB，1000×1000px，可上傳JPG/ JPEG/ PNG/ GIF格式</mark></p>
             <input type="hidden" name="del_image">
             @error('files')
                 <div class="alert alert-danger" role="alert">{{ $message }}</div>
@@ -393,8 +393,6 @@
                     case "image/jpeg":
                     case "image/gif":
                     case "image/png":
-                    case "image/svg":
-                    case "image/svg+xml":
                         return true;
                     default:
                         return false;

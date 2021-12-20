@@ -2,55 +2,62 @@
     'use strict'
 
     /** 
-     * clone 項目：
+     * clone 項目2.0：改為手動各自新增，檢查fn改為參數帶入
      * 重複的clone元素加 .-cloneElem
      * 新增鈕加 .-newClone
      * 新增處加 .-appendClone
-     * 送出檢查鈕加 .-checkSubmit
      */
-    const _CloneElem = $('.-cloneElem:first').clone();
-    _CloneElem.removeClass('d-none');
-    $('.-cloneElem.d-none').remove();
 
-    if (_CloneElem.length) {
-        // 新增鈕
-        $('.-newClone').off('click').on('click', function () {
-            let $cloneElem = getCloneElem();
-            bindDelElem($cloneElem);
-            $('.-appendClone').append($cloneElem);
-            checkSubmitDiv();
-        });
+    // bind 新增
+    window.Clone_bindCloneBtn = bindCloneBtn;
+    function bindCloneBtn($clone, initFn, {
+        appendClone = '.-appendClone', 
+        cloneElem = '.-cloneElem',
+        delElem = '.-del',
+        $thisAppend = [],
+        checkFn = null
+    } = {}) {
+        let $cloneElem = getCloneElem(initFn, $clone);
+        bindDelElem($cloneElem, { appendClone, cloneElem, delElem, checkFn });
+        let $append = $thisAppend.length ? $thisAppend : $(appendClone);
+        $append.append($cloneElem);
+        if (typeof checkFn === 'function') {
+            checkFn({ appendClone, cloneElem, delElem, $append });
+        }
+    }
 
-        // 取 clone element
-        function getCloneElem() {
-            let $c = _CloneElem.clone();
-            $c.find('input').val('');
+    // 取 clone element
+    function getCloneElem(initFn, $clone) {
+        let $c = $clone.clone();
+        $c.removeClass('d-none');
+        
+        if (typeof initFn === 'function') {
+            initFn($c);
+        } else {
+            $c.find('input, select').val('');
+            $c.find('.-del').prop('disabled', false);
             $c.find('button').attr({
                 'idx': null
             });
-            return $c;
         }
+        return $c;
+    }
 
-        // 檢查數量
-        window.Clone_checkSubmitDiv = checkSubmitDiv;
-        function checkSubmitDiv() {
-            const count = $('.-cloneElem').length;
-            if (count > 0) {
-                $('.-checkSubmit').removeClass('d-none');
-            } else {
-                $('.-checkSubmit').addClass('d-none');
+    // bind 刪除
+    window.Clone_bindDelElem = bindDelElem;
+    function bindDelElem($elem, {
+        appendClone = '.-appendClone',
+        cloneElem = '.-cloneElem',
+        delElem = '.-del',
+        checkFn = null
+    } = {}) {
+        let $button = ($elem.hasClass('-del')) ? $elem : $elem.find(delElem);
+        $button.off('click.del').on('click.del', function () {
+            $(this).closest(cloneElem).remove();
+            if (typeof checkFn === 'function') {
+                checkFn({ appendClone, cloneElem, delElem, $append: $(this).closest(appendClone) });
             }
-        }
-
-        // bind 刪除
-        window.Clone_bindDelElem = bindDelElem;
-        function bindDelElem($elem) {
-            let $button = ($elem.hasClass('-del')) ? $elem : $elem.find('.-del');
-            $button.off('click.del').on('click.del', function () {
-                $(this).closest('.-cloneElem').remove();
-                checkSubmitDiv();
-            });
-        }
+        });
     }
 
     /**

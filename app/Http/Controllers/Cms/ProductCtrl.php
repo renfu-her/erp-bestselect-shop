@@ -168,6 +168,19 @@ class ProductCtrl extends Controller
     }
 
     /**
+     * 編輯 - 編輯規格
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editStyle2($id)
+    {
+        return view('cms.commodity.product.styles-edit', [
+            'data' => Product::where('id', $id)->get()->first(),
+        ]);
+    }
+
+    /**
      * 編輯 - 銷售控管
      *
      * @param  int  $id
