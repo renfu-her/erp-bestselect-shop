@@ -51,22 +51,11 @@ class Role extends ModelsRole
 
     public static function updateUserRoles($user_id, $guard, $role_ids = [])
     {
+        $user = User::where('id', '=', $user_id)
+                    ->get()
+                    ->first();
 
-        switch ($guard) {
-            case "user":
-                $model_type = "App\Models\User";
-                break;
-            default:
-                $model_type = "App\Models\Admin";
-        }
-
-        DB::table('per_model_has_roles')
-            ->where('model_type', '=', $model_type)
-            ->where('model_id', '=', $user_id)
-            ->delete();
-
-        $model_type::where('id', '=', $user_id)->get()->first()
-            ->assignRole($role_ids);
+        $user->syncRoles($role_ids);
     }
 
     public static function createRole($name, $guard, $permission_id = [])
@@ -87,11 +76,13 @@ class Role extends ModelsRole
         });
     }
 
-    public static function updateRoleAndPermission($id, $name, $permission_id = [])
+    public static function assignPermissionToRule($id, $name, $permission_id = [])
     {
         Role::where('id', '=', $id)->update(['name' => $name, 'title' => $name]);
-        DB::table('per_role_has_permissions')->where('role_id', '=', $id)->delete();
-        Role::where('id', '=', $id)->get()->first()->givePermissionTo($permission_id);
+
+        $role = Role::where('id', '=', $id)->get()->first();
+        $role->revokePermissionTo($role->permissions);
+        $role->givePermissionTo($permission_id);
     }
 
     public static function getRolePermissions($role_id, callable $callback = null)

@@ -122,7 +122,7 @@ class RoleCtrl extends Controller
 
         $title = $request->input('title');
         $permission_id = Arr::get($_POST, 'permission_id', []);
-        Role::updateRoleAndPermission($id, $title, $permission_id);
+        Role::assignPermissionToRule($id, $title, $permission_id);
 
         wToast('檔案更新完成');
         return redirect(Route('cms.role.index'));

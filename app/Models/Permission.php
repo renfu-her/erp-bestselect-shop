@@ -36,25 +36,16 @@ class Permission extends Model
         return $re;
     }
 
-    static function updatePermissions($id, $guard = null, $per = [])
+    public static function updateDirectPermissions($id, $guard = null, $per = [])
     {
-        switch ($guard) {
-            case "user":
-                $model_type = "App\Models\User";
-                break;
-            default:
-                $model_type = "App\Models\Admin";
-        }
+        $user = User::where('id', '=', $id)
+                    ->get()
+                    ->first();
 
-
-        DB::table('per_model_has_permissions')
-            ->where('model_id', '=', $id)
-            ->where('model_type', '=', $model_type)
-            ->delete();
-
-        
-    //    dd($per);
-        $model_type::where('id', '=', $id)->get()->first()->givePermissionTo($per);
+//        $old_per = $user->getDirectPermissions();
+//        $user->revokePermissionTo($old_per);
+//        $user->givePermissionTo($per);
+        $user->syncPermissions($per);
     }
 
     static function getPermissions($id, $guard, callable $callback = null)

@@ -166,7 +166,7 @@ class UserCtrl extends Controller
 
         User::where('id', $id)->update($userData);
 
-        Permission::updatePermissions($id, 'user', $perData);
+        Permission::updateDirectPermissions($id, 'user', $perData);
 
         Role::updateUserRoles($id, 'user', $role_ids);
 
