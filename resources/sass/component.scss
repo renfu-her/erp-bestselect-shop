@@ -175,3 +175,7 @@
         }
     }
 }
+// modal 中的 select2
+.modal-backdrop ~ .select2-container--open .select2-dropdown.select2-dropdown--below {
+    z-index: 1500;
+}
