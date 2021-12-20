@@ -34,6 +34,12 @@ class CreateProductsStylesTable extends Migration
             $table->softDeletes();
         });
 
+        Schema::create('prd_product_spec', function (Blueprint $table) {
+            $table->integer('product_id');
+            $table->integer('spec_id');
+            $table->integer('rank')->default(500);
+        });
+
         Schema::create('prd_spec_items', function (Blueprint $table) {
             $table->id();
             $table->integer('product_id');
@@ -52,6 +58,7 @@ class CreateProductsStylesTable extends Migration
     public function down()
     {
         Schema::dropIfExists('prd_product_styles');
+        Schema::dropIfExists('prd_product_spec');
         Schema::dropIfExists('prd_spec');
         Schema::dropIfExists('prd_spec_items');
     }

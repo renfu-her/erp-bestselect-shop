@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImg;
+use App\Models\ProductSpec;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -164,6 +165,7 @@ class ProductCtrl extends Controller
     {
         return view('cms.commodity.product.styles', [
             'data' => Product::where('id', $id)->get()->first(),
+            'specList' => ProductSpec::specList($id),
         ]);
     }
 
