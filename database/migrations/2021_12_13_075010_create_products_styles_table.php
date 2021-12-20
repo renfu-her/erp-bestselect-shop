@@ -15,6 +15,7 @@ class CreateProductsStylesTable extends Migration
     {
         Schema::create('prd_product_styles', function (Blueprint $table) {
             $table->id();
+            $table->string('title')->nullable();
             $table->string('sku')->unique()->comment('sku碼');
             $table->integer('safety_stock')->default(0)->comment('安全庫存');
             $table->integer('in_stock')->default(0)->comment('庫存');
@@ -31,6 +32,12 @@ class CreateProductsStylesTable extends Migration
             $table->id();
             $table->string('title')->unique();
             $table->softDeletes();
+        });
+
+        Schema::create('prd_product_spec', function (Blueprint $table) {
+            $table->integer('product_id');
+            $table->integer('spec_id');
+            $table->integer('rank')->default(500);
         });
 
         Schema::create('prd_spec_items', function (Blueprint $table) {
@@ -51,6 +58,7 @@ class CreateProductsStylesTable extends Migration
     public function down()
     {
         Schema::dropIfExists('prd_product_styles');
+        Schema::dropIfExists('prd_product_spec');
         Schema::dropIfExists('prd_spec');
         Schema::dropIfExists('prd_spec_items');
     }

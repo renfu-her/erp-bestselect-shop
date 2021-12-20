@@ -27,7 +27,9 @@ class ProductSeeder extends Seeder
 
         $re = Product::createProduct('測試商品', 1, 1, '測試', null, '好吃商品', null, null, [1, 2], 1);
 
-        Product::setProductSpec($re['id'], [1, 1, 2]);
+        Product::setProductSpec($re['id'], 1);
+        Product::setProductSpec($re['id'], 1);
+        Product::setProductSpec($re['id'], 2);
 
         ProductSpecItem::createItems($re['id'], 1, 'X');
 
