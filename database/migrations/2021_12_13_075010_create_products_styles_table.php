@@ -15,6 +15,7 @@ class CreateProductsStylesTable extends Migration
     {
         Schema::create('prd_product_styles', function (Blueprint $table) {
             $table->id();
+            $table->string('title')->nullable();
             $table->string('sku')->unique()->comment('sku碼');
             $table->integer('safety_stock')->default(0)->comment('安全庫存');
             $table->integer('in_stock')->default(0)->comment('庫存');
