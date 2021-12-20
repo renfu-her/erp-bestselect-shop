@@ -19,7 +19,8 @@ class ProductSpec extends Model
         $sub = DB::table('prd_spec_items as item')
             ->where('product_id', $product_id)->groupBy('spec_id')
             ->select('item.spec_id')
-            ->selectRaw('GROUP_CONCAT(item.title) as item');
+            ->selectRaw('GROUP_CONCAT(item.title) as item')
+            ->selectRaw('CONCAT("[",GROUP_CONCAT("{\\"key\\":\\"",item.id,"\\",\\"value\\":\\"",item.title,"\\"}"),"]") as items');
 
         $re = DB::table('prd_product_spec as ps')
             ->leftJoin('prd_spec as spec', 'ps.spec_id', '=', 'spec.id')
@@ -27,11 +28,14 @@ class ProductSpec extends Model
                 $join->on('spec.id', '=', 'items.spec_id');
             })
             ->where('ps.product_id', $product_id)
-            ->select('spec.title', 'spec.id', 'items.item')
+            ->select('spec.title', 'spec.id', 'items.item', 'items.items')
             ->orderBy('ps.rank', 'ASC')
             ->mergeBindings($sub);
 
-        return $re->get()->toArray();
+        return array_map(function ($n) {
+            $n->items = $n->items ? json_decode($n->items) : [];
+            return $n;
+        }, $re->get()->toArray());
 
     }
 }
