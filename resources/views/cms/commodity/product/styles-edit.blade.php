@@ -15,16 +15,16 @@
                 <div class="modal-body px-3 px-md-4">
                     <label>規格最多只能選擇三種</label>
                     <div class="card border-0">
-                        <div class="mb-4 -appendClone -spec">
-                            <div class="border-bottom pt-4 pb-3 -cloneElem -spec">
+                        <div class="-appendClone -spec">
+                            <div class="pt-4 pb-3 -cloneElem -spec">
                                 <div class="row mb-3">
                                     <div class="col-auto p-0">
                                         <button type="button" class="-del -spec icon icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </div>
-                                    <div class="col-7 col-md-6 col-xl-4">
-                                        <select name="" class="-select2 -single" data-placeholder="請選擇規格">
+                                    <div class="col-7 col-md-6">
+                                        <select name="" class="-single" data-placeholder="請選擇規格">
                                             <option value="1">item 1</option>
                                             <option value="2">item 2</option>
                                             <option value="3">item 3</option>
@@ -39,15 +39,15 @@
                                         <div class="input-group has-validation">
                                             <input class="form-control" value="" name=""
                                             type="text" placeholder="請輸入項目" aria-label="項目">
-                                            <button class="btn btn-outline-secondary -del -item" type="button"><i class="bi bi-x-lg"></i></button>
+                                            <button class="btn btn-outline-secondary -del -item" type="button" title="刪除"><i class="bi bi-x-lg"></i></button>
                                             <div class="invalid-feedback"></div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="d-grid gap-2">
-                            <button type="button" class="btn btn-outline-primary border-dashed -newSpec" style="font-weight: 500;">
+                        <div class="d-grid gap-2 border-top -newSpecBtnBox">
+                            <button type="button" class="btn btn-outline-primary border-dashed mt-4 -newSpec" style="font-weight: 500;">
                                 <i class="bi bi-plus-circle"></i> 新增規格
                             </button>
                         </div>
@@ -66,6 +66,9 @@
 @once
     @push('sub-styles')
     <style>
+        .-appendClone.-spec .-cloneElem.-spec:not(:last-child) {
+            border-bottom: 1px solid #c4c4c4;
+        }
     </style>
     @endpush
     @push('sub-scripts')
@@ -86,7 +89,7 @@
             };
             const $cloneSpec = $(Spec.clone + ':first-child').clone();
             const $cloneItem = $(Spec.clone + ':first-child ' + Items.clone + ':first-child').clone();
-            // init .-del
+            // init
             Clone_bindDelElem($(Spec.del), {
                 appendClone: Spec.append,
                 cloneElem: Spec.clone,
@@ -97,12 +100,14 @@
                 cloneElem: Items.clone,
                 checkFn: checkStylesQty
             });
+            $('.-single').addClass('-select2').select2();
             // 新增規格
             $('.-newSpec').off('click').on('click', function () {
                 Clone_bindCloneBtn($cloneSpec, function ($c_s) {
                     $c_s.find('input, select').val('');
                     $c_s.find(Spec.del).prop('disabled', false);
                     $c_s.find(Items.clone + ':nth-child(n+2)').remove();
+                    $c_s.find('select.-single').addClass('-select2').select2();
 
                     // 規格裡的btn: 新增項目
                     $c_s.find('.-newItem').off('click').on('click', function () {
@@ -141,7 +146,8 @@
                 let chkItems = true;
 
                 // 規格最多三種
-                $('.-newSpec').prop('disabled', (spec_qty >= 3));
+                $('.-newSpecBtnBox').toggleClass('d-none', spec_qty >= 3);
+                // $('.-newSpec').prop('disabled', (spec_qty >= 3));
 
                 // 至少一個規格
                 chkItems &= (spec_qty > 0);
