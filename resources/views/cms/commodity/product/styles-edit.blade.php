@@ -5,62 +5,57 @@
     <x-b-prd-navi id="{{  $data->id }}"></x-b-prd-navi>
 </div>
 
-<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="false">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <form action="">
-                <div class="modal-header">
-                    <h5 class="modal-title">編輯規格</h5>
-                </div>
-                <div class="modal-body px-3 px-md-4">
-                    <label>規格最多只能選擇三種</label>
-                    <div class="card border-0">
-                        <div class="-appendClone -spec">
-                            <div class="pt-4 pb-3 -cloneElem -spec">
-                                <div class="row mb-3">
-                                    <div class="col-auto p-0">
-                                        <button type="button" class="-del -spec icon icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </div>
-                                    <div class="col-7 col-md-6">
-                                        <select name="" class="-single" data-placeholder="請選擇規格">
-                                            <option value="1">item 1</option>
-                                            <option value="2">item 2</option>
-                                            <option value="3">item 3</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-auto">
-                                        <button type="button" class="btn btn-outline-primary px-4 -newItem">新增項目</button>
-                                    </div>
-                                </div>
-                                <div class="row -appendClone -item">
-                                    <div class="col-12 col-sm-6 mb-2 -cloneElem -item">
-                                        <div class="input-group has-validation">
-                                            <input class="form-control" value="" name=""
-                                            type="text" placeholder="請輸入項目" aria-label="項目">
-                                            <button class="btn btn-outline-secondary -del -item" type="button" title="刪除"><i class="bi bi-x-lg"></i></button>
-                                            <div class="invalid-feedback"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="d-grid gap-2 border-top -newSpecBtnBox">
-                            <button type="button" class="btn btn-outline-primary border-dashed mt-4 -newSpec" style="font-weight: 500;">
-                                <i class="bi bi-plus-circle"></i> 新增規格
+<form action="">
+    <div class="card shadow p-4 mb-4">
+        <h6>編輯規格</h6>
+        <div>
+            <label>規格最多只能選擇三種</label>
+            <div class="-appendClone -spec">
+                <div class="pt-4 pb-3 -cloneElem -spec">
+                    <div class="row mb-3">
+                        <div class="col-auto p-0">
+                            <button type="button" class="-del -spec icon icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                <i class="bi bi-trash"></i>
                             </button>
+                        </div>
+                        <div class="col-7 col-md-6">
+                            <select name="" class="-single" data-placeholder="請選擇規格">
+                                <option value="1">item 1</option>
+                                <option value="2">item 2</option>
+                                <option value="3">item 3</option>
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <button type="button" class="btn btn-outline-primary px-4 -newItem">新增項目</button>
+                        </div>
+                    </div>
+                    <div class="row -appendClone -item">
+                        <div class="col-12 col-sm-6 mb-2 -cloneElem -item">
+                            <div class="input-group has-validation">
+                                <input class="form-control" value="" name=""
+                                type="text" placeholder="請輸入項目" aria-label="項目">
+                                <button class="btn btn-outline-secondary -del -item" type="button" title="刪除"><i class="bi bi-x-lg"></i></button>
+                                <div class="invalid-feedback"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <a href="{{ Route('cms.product.edit-style', ['id' => $data->id]) }}" class="btn btn-outline-primary px-4" role="button">取消</a>
-                    <button type="submit" class="btn btn-primary px-4 -checkSubmit">儲存</button>
-                </div>
-            </form>
+            </div>
+            <div class="d-grid gap-2 border-top -newSpecBtnBox">
+                <button type="button" class="btn btn-outline-primary border-dashed mt-4 -newSpec" style="font-weight: 500;">
+                    <i class="bi bi-plus-circle"></i> 新增規格
+                </button>
+            </div>
         </div>
     </div>
-</div>
+
+    <div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary px-4 -checkSubmit">儲存</button>
+            <a href="{{ Route('cms.product.edit-style', ['id' => $data->id]) }}" class="btn btn-outline-primary px-4" role="button">取消</a>
+        </div>
+    </div>
+</form>
 
 @endsection
 @once
@@ -73,10 +68,7 @@
     @endpush
     @push('sub-scripts')
         <script>
-            const myModal = new bootstrap.Modal($('#staticBackdrop'));
-            myModal.show();
-
-            // clone 項目
+            // clone 規格、項目
             const Spec = {
                 append: '.-appendClone.-spec',
                 clone: '.-cloneElem.-spec',
