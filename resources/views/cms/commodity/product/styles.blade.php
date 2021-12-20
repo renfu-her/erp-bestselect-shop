@@ -30,7 +30,7 @@
             </table>
         </div>
         <div>
-            <a href="{{ Route('cms.product.edit-style2', ['id' => $data->id]) }}" class="btn btn-primary px-4">編輯規格</a>
+            <a href="{{ Route('cms.product.edit-spec', ['id' => $data->id]) }}" class="btn btn-primary px-4">編輯規格</a>
         </div>
     </div>
 

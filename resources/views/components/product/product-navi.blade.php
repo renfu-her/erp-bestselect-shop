@@ -28,7 +28,7 @@
     </li>
     <li class="nav-item">
         <a href="{{ Route('cms.product.edit-style', ['id' => $id], true) }}" 
-            class="nav-link {{ isActive('edit-style', $route_name) }}{{ isActive('edit-style2', $route_name) }}" >規格款式</a>
+            class="nav-link {{ isActive('edit-style', $route_name) }}{{ isActive('edit-spec', $route_name) }}" >規格款式</a>
     </li>
     <li class="nav-item">
         <a href="{{ Route('cms.product.edit-sale', ['id' => $id], true) }}" 
