@@ -1,23 +1,13 @@
 @extends('layouts.main')
 @section('sub-content')
 
-<div class="d-flex mb-4 align-items-center">
-    <h2 class="flex-grow-1 mb-0">廠商管理</h2>
-
-    @can('cms.supplier.create')
-    <a href="{{ Route('cms.supplier.create', null, true) }}"
-       class="btn btn-outline-primary py-1 d-flex align-items-center" style="line-height: normal;">
-        <i class="bi bi-plus-lg pe-1"></i> 新增廠商
-    </a>
-    @endcan
-</div>
+<h2 class="mb-4">廠商管理</h2>
 
 <form id="search" action="{{ Route('cms.supplier.index') }}" method="GET">
     <div class="card shadow p-4 mb-4">
-        <h6>搜尋條件</h6>
         <div class="row">
-            <div class="col-12 col-sm-6 mb-3">
-                <label class="form-label">廠商名稱 / 廠商簡稱 / 統編</label>
+            <div class="col-12 mb-3">
+                <label class="form-label">搜尋條件</label>
                 <input class="form-control" name="title" type="text" placeholder="請輸入廠商名稱 / 廠商簡稱 / 統編" value="{{ $title }}"
                        aria-label="廠商名稱 / 廠商簡稱 / 統編">
             </div>
@@ -32,14 +22,23 @@
 <form id="actionForms">
     @csrf
     <div class="card shadow p-4 mb-4">
-        <div class="col mb-4">
-            顯示
-            <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
-                @foreach (config('global.dataPerPage') as $value)
-                    <option value="{{ $value }}" @if ($data_per_page == $value) selected @endif>{{ $value }}</option>
-                @endforeach
-            </select>
-            筆
+        <div class="row justify-content-end mb-4">
+            <div class="col">
+                @can('cms.supplier.create')
+                <a href="{{ Route('cms.supplier.create', null, true) }}" class="btn btn-primary">
+                    <i class="bi bi-plus-lg pe-1"></i> 新增廠商
+                </a>
+                @endcan
+            </div>
+            <div class="col-auto">
+                顯示
+                <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
+                    @foreach (config('global.dataPerPage') as $value)
+                        <option value="{{ $value }}" @if ($data_per_page == $value) selected @endif>{{ $value }}</option>
+                    @endforeach
+                </select>
+                筆
+            </div>
         </div>
 
         <div class="table-responsive tableOverBox">

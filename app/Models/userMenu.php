@@ -12,11 +12,6 @@ return
                 "route_name" => "cms.product.index",
             ],
             [
-                "title" => "新增廠商",
-                "controller_name" => "SupplierCtrl",
-                "route_name" => "cms.supplier.index",
-            ],
-            [
                 "title" => "新增銷售通路",
                 "controller_name" => "SaleChannelCtrl",
                 "route_name" => "cms.sale_channel.index",
@@ -24,7 +19,7 @@ return
         ],
     ],
     [
-        "title" => "基本設定",
+        "title" => "設定",
         "icon" => "bi-sliders",
         "menu_id" => "2",
         "child" => [
@@ -32,6 +27,11 @@ return
                 "title" => "商品類別",
                 "controller_name" => "CategoryController",
                 "route_name" => "cms.category.index",
+            ],
+            [
+                "title" => "廠商管理",
+                "controller_name" => "SupplierCtrl",
+                "route_name" => "cms.supplier.index",
             ],
         ],
     ],

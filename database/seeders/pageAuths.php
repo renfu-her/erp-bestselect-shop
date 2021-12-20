@@ -22,7 +22,7 @@ return [
         ],
     ],
     [
-        "unit" => "新增廠商",
+        "unit" => "廠商管理",
         "permissions" => [
             [
                 "cms.supplier.index",
