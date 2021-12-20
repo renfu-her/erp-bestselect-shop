@@ -63,6 +63,7 @@
                     @endif
                 @endforeach
 
+                @can('cms.user.permit')
                 <h6><span class="badge rounded-pill -step admin">各單元權限</span></h6>
                 @foreach ($permissions as $key => $permission)
                     @if($is_super_admin || $permission->title != '頁面權限管理')
@@ -91,6 +92,7 @@
                         <hr>
                     @endif
                 @endforeach
+                @endcan
             </div>
         </div>
 
