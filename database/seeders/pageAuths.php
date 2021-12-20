@@ -100,6 +100,10 @@ return [
                 "編輯",
             ],
             [
+                "cms.user.delete",
+                "刪除",
+            ],
+            [
                 "cms.user.permit",
                 "編輯各單元權限",
             ],
