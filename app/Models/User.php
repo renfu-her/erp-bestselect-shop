@@ -10,7 +10,6 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use JetBrains\PhpStorm\ArrayShape;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -87,11 +86,8 @@ class User extends Authenticatable
      *
      * @return array [LengthAwarePaginator|array]
      */
-    #[ArrayShape([
-        'dataList' => "array",
-        'account'  => "\Illuminate\Contracts\Pagination\LengthAwarePaginator"
-    ])]
-    public static function getUserBySearch(array $query, $company_id = null, int $per_page = 10)  {
+    public static function getUserBySearch(array $query, $company_id = null, int $per_page = 10)
+    {
         $user_model = new User();
         $user_table = DB::table($user_model->getTable());
         if (isset($query['roles']) && $query['roles']) {
