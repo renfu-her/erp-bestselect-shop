@@ -3,7 +3,7 @@
 </div>
 
 @once
-    @push('styles')
+    @push('sub-styles')
     <style>
         
     </style>
