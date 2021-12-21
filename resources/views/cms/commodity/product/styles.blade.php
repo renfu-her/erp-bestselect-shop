@@ -44,8 +44,9 @@
                         <tr>
                             <th scope="col" class="text-center">上架</th>
                             <th scope="col">SKU <button type="button" class="btn btn-primary btn-sm">產生SKU碼</button></th>
-                            <th scope="col">尺寸</th>
-                            <th scope="col">顏色</th>
+                            @foreach ($specList as $key => $spec)
+                                <th scope="col">{{ $spec->title }}</th>
+                            @endforeach
                             <th scope="col">成本</th>
                             <th scope="col">庫存</th>
                             <th scope="col">安全庫存</th>
@@ -64,20 +65,18 @@
                                 <input type="text" class="form-control form-control-sm -l" value="P211105001-42"
                                     aria-label="訂單編號" readonly />
                             </td>
-                            <td>
-                                <select name="" class="form-select form-select-sm">
-                                    <option value="" disabled>請選擇</option>
-                                    <option value="S" selected>S</option>
-                                    <option value="M">M</option>
-                                </select>
-                            </td>
-                            <td>
-                                <select name="" class="form-select form-select-sm">
-                                    <option value="" disabled>請選擇</option>
-                                    <option value="紅">紅</option>
-                                    <option value="黃" selected>黃</option>
-                                </select>
-                            </td>
+
+                            @foreach ($specList as $spec)
+                                <td>
+                                    <select name="" class="form-select form-select-sm">
+                                        <option value="" disabled>請選擇</option>
+                                        @foreach ($spec->items as $key => $value)
+                                            <option value="{{ $value->key }}">{{ $value->value }}</option>
+                                        @endforeach
+                                    </select>
+                                </td>
+                            @endforeach
+
                             <td>
                                 <a href="#" class="-text -cost">50</a>
                             </td>
