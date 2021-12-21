@@ -7,9 +7,11 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImg;
 use App\Models\ProductSpec;
+use App\Models\ProductSpecItem;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Route;
 
 class ProductCtrl extends Controller
 {
@@ -162,8 +164,8 @@ class ProductCtrl extends Controller
      * @return \Illuminate\Http\Response
      */
     public function editStyle($id)
-    {   
-        
+    {
+       
         return view('cms.commodity.product.styles', [
             'data' => Product::where('id', $id)->get()->first(),
             'specList' => ProductSpec::specList($id),
@@ -183,6 +185,24 @@ class ProductCtrl extends Controller
             'specs' => ProductSpec::get()->toArray(),
             'currentSpec' => ProductSpec::specList($id),
         ]);
+    }
+
+    public function storeSpec(Request $request, $id)
+    {
+        $d = $request->all();
+
+        for ($i = 0; $i < 3; $i++) {
+            if (isset($d["spec" . $i])) {
+                Product::setProductSpec($id, $d["spec" . $i]);
+                if (isset($d["item" . $i]) && is_array($d["item" . $i])) {
+                    foreach ($d["item" . $i] as $item) {
+                        ProductSpecItem::createItems($id, $d["spec" . $i], $item);
+                    }
+                }
+            }
+        }
+
+        return redirect(Route('cms.product.edit-style', ['id' => $id]));
     }
 
     /**

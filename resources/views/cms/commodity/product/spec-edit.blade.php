@@ -5,7 +5,8 @@
         <x-b-prd-navi id="{{ $data->id }}"></x-b-prd-navi>
     </div>
 
-    <form id="form1" action="">
+    <form id="form1" method="POST" action="{{ Route('cms.product.edit-spec', ['id' => $data->id]) }}">
+        @csrf
         <div class="card shadow p-4 mb-4">
             <h6>編輯規格</h6>
             <div>
@@ -34,8 +35,8 @@
                             <div class="row -appendClone -item">
                                 <div class="col-12 col-sm-6 mb-2 -cloneElem -item">
                                     <div class="input-group has-validation">
-                                        <input class="form-control" value="" type="text" required
-                                            placeholder="請輸入項目" aria-label="項目">
+                                        <input class="form-control" value="" type="text" required placeholder="請輸入項目"
+                                            aria-label="項目">
                                         <button class="btn btn-outline-secondary -del -item" type="button" title="刪除">
                                             <i class="bi bi-x-lg"></i>
                                         </button>
@@ -74,8 +75,8 @@
                                             <input class="form-control" value="{{ $item->value }}" disabled
                                                 data-id="{{ $item->key }}" type="text" placeholder="請輸入項目"
                                                 aria-label="項目">
-                                            <button class="btn btn-outline-secondary -del -item" disabled type="button" title="刪除"><i
-                                                    class="bi bi-x-lg"></i></button>
+                                            <button class="btn btn-outline-secondary -del -item" disabled type="button"
+                                                title="刪除"><i class="bi bi-x-lg"></i></button>
                                             <div class="invalid-feedback"></div>
                                         </div>
                                     </div>
@@ -110,6 +111,7 @@
             .-appendClone.-spec .-cloneElem.-spec:not(:last-child) {
                 border-bottom: 1px solid #c4c4c4;
             }
+
         </style>
     @endpush
     @push('sub-scripts')
@@ -150,7 +152,7 @@
 
                     // 規格裡的btn: 新增項目
                     $c_s.find('.-newItem').off('click').on('click', function() {
-                        Clone_bindCloneBtn($cloneItem, function ($c_i) {
+                        Clone_bindCloneBtn($cloneItem, function($c_i) {
                             $c_i.find('input').val('');
                             $c_i.find('input, button').prop('disabled', false);
                         }, {
@@ -176,7 +178,7 @@
             // 新增項目
             $('.-newItem').off('click').on('click', function() {
                 const $this = $(this);
-                Clone_bindCloneBtn($cloneItem, function ($c_i) {
+                Clone_bindCloneBtn($cloneItem, function($c_i) {
                     $c_i.find('input').val('');
                     $c_i.find('input, button').prop('disabled', false);
                 }, {
@@ -205,10 +207,11 @@
             }
 
             // 儲存前設定name
-            $('#form1').submit(function (e) { 
-                $(Spec.clone).each(function (index, element) {
+            $('#form1').submit(function(e) {
+                $(Spec.clone).each(function(index, element) {
                     // element == this
-                    $(element).find('select.-single.-select2, select.-single + input:hidden').attr('name', 'spec' + index);
+                    $(element).find('select.-single.-select2, select.-single + input:hidden').attr('name',
+                        'spec' + index);
                     $(element).find(Items.clone + ' input').attr('name', 'item' + index + '[]');
                 });
             });

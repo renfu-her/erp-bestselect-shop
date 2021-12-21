@@ -31,7 +31,7 @@ class ProductSpec extends Model
             ->select('spec.title', 'spec.id', 'items.item', 'items.items')
             ->orderBy('ps.rank', 'ASC')
             ->mergeBindings($sub);
-
+     
         return array_map(function ($n) {
             $n->items = $n->items ? json_decode($n->items) : [];
             return $n;
