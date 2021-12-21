@@ -5,13 +5,13 @@
         <x-b-prd-navi id="{{ $data->id }}"></x-b-prd-navi>
     </div>
 
-    <form action="">
+    <form id="form1" action="">
         <div class="card shadow p-4 mb-4">
             <h6>編輯規格</h6>
             <div>
                 <label>規格最多只能選擇三種</label>
                 <div class="-appendClone -spec">
-                    @foreach ($currentSpec as $specKey => $cSpec)
+                    @if (count($currentSpec) == 0)
                         <div class="pt-4 pb-3 -cloneElem -spec">
                             <div class="row mb-3">
                                 <div class="col-auto p-0">
@@ -21,12 +21,47 @@
                                     </button>
                                 </div>
                                 <div class="col-7 col-md-6">
-                                    <select name="spec[]" class="-single" data-placeholder="請選擇規格">
+                                    <select class="-single" data-placeholder="請選擇規格" required>
+                                        @foreach ($specs as $key => $spec)
+                                            <option value="{{ $spec['id'] }}">{{ $spec['title'] }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-auto">
+                                    <button type="button" class="btn btn-outline-primary px-4 -newItem">新增項目</button>
+                                </div>
+                            </div>
+                            <div class="row -appendClone -item">
+                                <div class="col-12 col-sm-6 mb-2 -cloneElem -item">
+                                    <div class="input-group has-validation">
+                                        <input class="form-control" value="" type="text" required
+                                            placeholder="請輸入項目" aria-label="項目">
+                                        <button class="btn btn-outline-secondary -del -item" type="button" title="刪除">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                    @foreach ($currentSpec as $specKey => $cSpec)
+                        <div class="pt-4 pb-3 -cloneElem -spec">
+                            <div class="row mb-3">
+                                <div class="col-auto p-0">
+                                    <button type="button" disabled
+                                        class="-del -spec icon icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                                <div class="col-7 col-md-6">
+                                    <select class="-single" data-placeholder="請選擇規格" disabled>
                                         @foreach ($specs as $key => $spec)
                                             <option value="{{ $spec['id'] }}" @if ($spec['id'] == $cSpec->id) selected @endif>
                                                 {{ $spec['title'] }}</option>
                                         @endforeach
                                     </select>
+                                    <input type="hidden" value="{{ $cSpec->id }}">
                                 </div>
                                 <div class="col-auto">
                                     <button type="button" class="btn btn-outline-primary px-4 -newItem">新增項目</button>
@@ -36,10 +71,10 @@
                                 @foreach ($cSpec->items as $item)
                                     <div class="col-12 col-sm-6 mb-2 -cloneElem -item">
                                         <div class="input-group has-validation">
-                                            <input class="form-control" value="{{ $item->value }}"
-                                                data-id="{{ $item->key }}" name="spec_item{{ $specKey }}[]" type="text" placeholder="請輸入項目"
+                                            <input class="form-control" value="{{ $item->value }}" disabled
+                                                data-id="{{ $item->key }}" type="text" placeholder="請輸入項目"
                                                 aria-label="項目">
-                                            <button class="btn btn-outline-secondary -del -item" type="button" title="刪除"><i
+                                            <button class="btn btn-outline-secondary -del -item" disabled type="button" title="刪除"><i
                                                     class="bi bi-x-lg"></i></button>
                                             <div class="invalid-feedback"></div>
                                         </div>
@@ -75,7 +110,6 @@
             .-appendClone.-spec .-cloneElem.-spec:not(:last-child) {
                 border-bottom: 1px solid #c4c4c4;
             }
-
         </style>
     @endpush
     @push('sub-scripts')
@@ -104,18 +138,22 @@
                 cloneElem: Items.clone,
                 checkFn: checkStylesQty
             });
-            $('.-single').addClass('-select2').select2();
+            $('.-single:disabled').addClass('form-select');
+            $('.-single:not(:disabled)').addClass('-select2').select2();
             // 新增規格
             $('.-newSpec').off('click').on('click', function() {
                 Clone_bindCloneBtn($cloneSpec, function($c_s) {
                     $c_s.find('input, select').val('');
-                    $c_s.find(Spec.del).prop('disabled', false);
-                    $c_s.find(Items.clone + ':nth-child(n+2)').remove();
+                    $c_s.find('input, select, button').prop('disabled', false);
+                    $c_s.find(Items.clone + ':nth-child(n+2), select.-single + input:hidden').remove();
                     $c_s.find('select.-single').addClass('-select2').select2();
 
                     // 規格裡的btn: 新增項目
                     $c_s.find('.-newItem').off('click').on('click', function() {
-                        Clone_bindCloneBtn($cloneItem, '', {
+                        Clone_bindCloneBtn($cloneItem, function ($c_i) {
+                            $c_i.find('input').val('');
+                            $c_i.find('input, button').prop('disabled', false);
+                        }, {
                             cloneElem: Items.clone,
                             delElem: Items.del,
                             $thisAppend: $(this).closest(Spec.clone).children(Items.append),
@@ -137,10 +175,14 @@
             });
             // 新增項目
             $('.-newItem').off('click').on('click', function() {
-                Clone_bindCloneBtn($cloneItem, '', {
+                const $this = $(this);
+                Clone_bindCloneBtn($cloneItem, function ($c_i) {
+                    $c_i.find('input').val('');
+                    $c_i.find('input, button').prop('disabled', false);
+                }, {
                     cloneElem: Items.clone,
                     delElem: Items.del,
-                    $thisAppend: $(this).closest(Spec.clone).children(Items.append),
+                    $thisAppend: $this.closest(Spec.clone).children(Items.append),
                     checkFn: checkStylesQty
                 });
             });
@@ -161,6 +203,15 @@
                 });
                 $('.-checkSubmit').prop('disabled', !chkItems);
             }
+
+            // 儲存前設定name
+            $('#form1').submit(function (e) { 
+                $(Spec.clone).each(function (index, element) {
+                    // element == this
+                    $(element).find('select.-single.-select2, select.-single + input:hidden').attr('name', 'spec' + index);
+                    $(element).find(Items.clone + ' input').attr('name', 'item' + index + '[]');
+                });
+            });
         </script>
     @endpush
 @endOnce
