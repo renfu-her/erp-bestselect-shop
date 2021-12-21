@@ -11,11 +11,6 @@ return
                 "controller_name" => "ProductCtrl",
                 "route_name" => "cms.product.index",
             ],
-            [
-                "title" => "新增銷售通路",
-                "controller_name" => "SaleChannelCtrl",
-                "route_name" => "cms.sale_channel.index",
-            ],
         ],
     ],
     [
@@ -32,6 +27,11 @@ return
                 "title" => "廠商管理",
                 "controller_name" => "SupplierCtrl",
                 "route_name" => "cms.supplier.index",
+            ],
+            [
+                "title" => "新增銷售通路",
+                "controller_name" => "SaleChannelCtrl",
+                "route_name" => "cms.sale_channel.index",
             ],
         ],
     ],

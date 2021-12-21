@@ -21,7 +21,7 @@ class SupplierCtrl extends Controller
         $dataList =  Supplier::getSupplierList($title)
             ->paginate($data_per_page)->appends($query);
 
-        return view('cms.supplier.list', [
+        return view('cms.settings.supplier.list', [
             'dataList' => $dataList,
             'title' => $title,
             'data_per_page' => $data_per_page,
@@ -30,7 +30,7 @@ class SupplierCtrl extends Controller
 
     public function create(Request $request)
     {
-        return view('cms.supplier.edit', [
+        return view('cms.settings.supplier.edit', [
             'method' => 'create',
             'formAction' => Route('cms.supplier.create'),
         ]);
@@ -94,7 +94,7 @@ class SupplierCtrl extends Controller
         if (!$data) {
             return abort(404);
         }
-        return view('cms.supplier.edit', [
+        return view('cms.settings.supplier.edit', [
             'id' => $id,
             'data' => $data,
             'method' => 'edit',

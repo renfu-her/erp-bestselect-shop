@@ -15,14 +15,14 @@ class SaleChannelCtrl extends Controller
         $query = $request->query();
         $dataList =  SaleChannel::whereNull('deleted_at')->paginate(10)->appends($query);
 
-        return view('cms.sale_channel.list', [
+        return view('cms.settings.sale_channel.list', [
             'dataList' => $dataList
         ]);
     }
 
     public function create(Request $request)
     {
-        return view('cms.sale_channel.edit', [
+        return view('cms.settings.sale_channel.edit', [
             'method' => 'create',
             'formAction' => Route('cms.sale_channel.create'),
         ]);
@@ -72,7 +72,7 @@ class SaleChannelCtrl extends Controller
         if (!$data) {
             return abort(404);
         }
-        return view('cms.sale_channel.edit', [
+        return view('cms.settings.sale_channel.edit', [
             'id' => $id,
             'data' => $data,
             'method' => 'edit',
