@@ -37,7 +37,9 @@
     <form action="">
         <div class="card shadow p-4 mb-4">
             <h6>款式管理</h6>
-            <p>尚無款式，請先至規格管理新增規格</p>
+            @if (count($specList) == 0)
+                <p class="mark"><i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i> 尚無款式，請先至規格管理新增規格</p>
+            @endif
             <div class="table-responsive tableOverBox">
                 <table class="table tableList table-striped">
                     <thead>
@@ -55,6 +57,52 @@
                         </tr>
                     </thead>
                     <tbody class="-appendClone">
+                        @if (count($styles) == 0)
+                            <tr class="-cloneElem d-none">
+                                <td class="text-center">
+                                    <div class="form-check form-switch form-switch-lg">
+                                        <input class="form-check-input" type="checkbox" checked>
+                                    </div>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control form-control-sm -l" value=""
+                                        aria-label="SKU" readonly />
+                                </td>
+
+                                @foreach ($specList as $specKey => $spec)
+                                    <td>
+                                        <select name="" class="form-select form-select-sm" required >
+                                            <option value="" disabled selected>請選擇</option>
+                                            @foreach ($spec->items as $key => $value)
+                                                <option value="{{ $value->key }}">
+                                                    {{ $value->value }}</option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                @endforeach
+
+                                <td>
+                                    <a href="#" class="-text -stock">庫存管理</a>
+                                </td>
+                                <td>
+                                    <a href="#" class="-text -stock">庫存管理</a>
+                                </td>
+                                <td>
+                                    <select name="" class="form-select form-select-sm">
+                                        <option value="繼續銷售">繼續銷售</option>
+                                        <option value="停止銷售">停止銷售</option>
+                                        <option value="下架">下架</option>
+                                        <option value="預售">預售</option>
+                                    </select>
+                                </td>
+                                <td class="text-center">
+                                    <button type="button"
+                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        @endif
                         @foreach ($styles as $styleKey => $style)
                             <tr class="-cloneElem">
                                 <td class="text-center">
@@ -78,7 +126,6 @@
                                         </select>
                                     </td>
                                 @endforeach
-
 
                                 <td>
                                     <a href="#" class="-text -stock">{{ $style->safety_stock }}</a>
@@ -132,6 +179,7 @@
         <script>
             // clone 項目
             const $clone = $('.-cloneElem:first-child').clone();
+            $('.-cloneElem.d-none').remove();
             $('.-newClone').off('click').on('click', function() {
                 Clone_bindCloneBtn($clone, function(cloneElem) {
                     cloneElem.find('input, select').val('');
