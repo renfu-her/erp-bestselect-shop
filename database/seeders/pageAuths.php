@@ -22,6 +22,26 @@ return [
         ],
     ],
     [
+        "unit" => "倉庫設定",
+        "permissions" => [
+            [
+                "cms.depot.index",
+                "瀏覽",
+            ],
+            [
+                "cms.depot.create",
+                "新增",
+            ],
+            [
+                "cms.depot.edit",
+                "修改",            ],
+            [
+                "cms.depot.delete",
+                "刪除",
+            ],
+        ],
+    ],
+    [
         "unit" => "廠商管理",
         "permissions" => [
             [
