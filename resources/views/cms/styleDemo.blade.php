@@ -268,7 +268,12 @@
                                     </select>
                                 </div>
                             </div>
-                            
+                            <div>
+                                <x-b-editor id="editor" classes="my-3"></x-b-editor>
+                            </div>
+                            <div>
+                                <x-b-calendar id="calendar" readOnly="false" create="true" classes="my-3" ></x-b-calendar>
+                            </div>
                         </div>
                     </fieldset>
                     
@@ -464,6 +469,7 @@
 
             /*********/
         </style>
+        @stack('sub-styles')
     @endpush
     @push('scripts')
         <script src="{{ Asset('dist/js/dashboard.js') }}"></script>
@@ -559,5 +565,6 @@
             // select2
             // $('.-select2').select2();
         </script>
+        @stack('sub-scripts')
     @endpush
 @endonce

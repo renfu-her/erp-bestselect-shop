@@ -180,7 +180,7 @@
         <div>
             <div class="col-auto">
                 <button type="submit" class="btn btn-primary px-4">儲存</button>
-                <a href="/" class="btn btn-outline-primary px-4" role="button">返回列表</a>
+                <a href="{{ Route('cms.product.index') }}" class="btn btn-outline-primary px-4" role="button">返回列表</a>
             </div>
         </div>
 

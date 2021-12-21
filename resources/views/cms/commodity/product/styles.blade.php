@@ -63,12 +63,12 @@
                             </td>
                             <td>
                                 <input type="text" class="form-control form-control-sm -l" value="P211105001-42"
-                                    aria-label="訂單編號" readonly />
+                                    aria-label="SKU" readonly />
                             </td>
 
                             @foreach ($specList as $spec)
                                 <td>
-                                    <select name="" class="form-select form-select-sm">
+                                    <select name="" class="form-select form-select-sm" required disabled>
                                         <option value="" disabled>請選擇</option>
                                         @foreach ($spec->items as $key => $value)
                                             <option value="{{ $value->key }}">{{ $value->value }}</option>
@@ -101,54 +101,6 @@
                                 </button>
                             </td>
                         </tr>
-                        <tr class="-cloneElem">
-                            <td class="text-center">
-                                <div class="form-check form-switch form-switch-lg">
-                                    <input class="form-check-input" type="checkbox" checked>
-                                </div>
-                            </td>
-                            <td>
-                                <input type="text" class="form-control form-control-sm -l" value="" aria-label="訂單編號"
-                                    readonly />
-                            </td>
-                            <td>
-                                <select name="" class="form-select form-select-sm">
-                                    <option value="" disabled selected>請選擇</option>
-                                    <option value="S">S</option>
-                                    <option value="M">M</option>
-                                </select>
-                            </td>
-                            <td>
-                                <select name="" class="form-select form-select-sm">
-                                    <option value="" disabled selected>請選擇</option>
-                                    <option value="紅">紅</option>
-                                    <option value="黃">黃</option>
-                                </select>
-                            </td>
-                            <td>
-                                <a href="#" class="-text -cost">採購單</a>
-                            </td>
-                            <td>
-                                <a href="#" class="-text -stock">庫存管理</a>
-                            </td>
-                            <td>
-                                <a href="#" class="-text -stock">庫存管理</a>
-                            </td>
-                            <td>
-                                <select name="" class="form-select form-select-sm">
-                                    <option value="繼續銷售">繼續銷售</option>
-                                    <option value="停止銷售">停止銷售</option>
-                                    <option value="下架">下架</option>
-                                    <option value="預售">預售</option>
-                                </select>
-                            </td>
-                            <td class="text-center">
-                                <button type="button"
-                                    class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -160,6 +112,7 @@
         <div>
             <div class="col-auto">
                 <button type="submit" class="btn btn-primary px-4">儲存</button>
+                <a href="{{ Route('cms.product.index') }}" class="btn btn-outline-primary px-4" role="button">返回列表</a>
             </div>
         </div>
     </form>
@@ -183,7 +136,7 @@
                     cloneElem.find('.form-switch input').prop('checked', true);
                     cloneElem.find('a.-text.-cost').text('採購單');
                     cloneElem.find('a.-text.-stock').text('庫存管理');
-                    cloneElem.find('.-del').prop('disabled', false);
+                    cloneElem.find('select, .-del').prop('disabled', false);
                 });
             });
             Clone_bindDelElem($('.-del'));
