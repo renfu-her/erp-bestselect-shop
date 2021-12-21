@@ -35,7 +35,7 @@
             initFn($c);
         } else {
             $c.find('input, select').val('');
-            $c.find('.-del').prop('disabled', false);
+            $c.find('input, select, button').prop('disabled', false);
             $c.find('button').attr({
                 'idx': null
             });

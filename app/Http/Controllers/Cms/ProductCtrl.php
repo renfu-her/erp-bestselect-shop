@@ -177,8 +177,10 @@ class ProductCtrl extends Controller
      */
     public function editSpec($id)
     {
-        return view('cms.commodity.product.styles-edit', [
+        return view('cms.commodity.product.spec-edit', [
             'data' => Product::where('id', $id)->get()->first(),
+            'specs' => ProductSpec::get()->toArray(),
+            'currentSpec' => ProductSpec::specList($id),
         ]);
     }
 
@@ -192,6 +194,7 @@ class ProductCtrl extends Controller
     {
         return view('cms.commodity.product.sales', [
             'data' => Product::where('id', $id)->get()->first(),
+
         ]);
     }
 
