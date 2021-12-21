@@ -92,9 +92,11 @@ class Product extends Model
             return '重複設定';
         }
 
-        DB::table('prd_product_spec')->insert(['product_id' => $product_id, 'spec_id' => $spec_id]);
+        return DB::transaction(function () use ($product_id, $spec_id) {
+            $count = DB::table('prd_product_spec')->where('product_id', $product_id)->count();
+            return DB::table('prd_product_spec')->insert(['product_id' => $product_id, 'spec_id' => $spec_id, 'rank' => $count]);
+        });
 
-        return true;
     }
 
 }
