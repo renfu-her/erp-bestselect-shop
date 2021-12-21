@@ -26,6 +26,7 @@ class CreatePcsPurchaseTable extends Migration
             $table->string('deposit_pay_num')->nullable()->comment('訂金代墊單號');
             $table->string('final_pay_num')->nullable()->comment('尾款代墊單號');
             $table->string('logistic_price')->comment('物流運費(輸入)(提示無外加運費填0)(預設0)');
+            $table->dateTime('close_date')->nullable()->comment('結案日期');
             $table->timestamps();
             $table->softDeletes();
         });
