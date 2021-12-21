@@ -8,6 +8,12 @@
     <div class="card shadow p-4 mb-4">
         <h6>銷售控管</h6>
     </div>
+    <div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary px-4">儲存</button>
+            <a href="{{ Route('cms.product.index') }}" class="btn btn-outline-primary px-4" role="button">返回列表</a>
+        </div>
+    </div>
 </form>
 @endsection
 @once
