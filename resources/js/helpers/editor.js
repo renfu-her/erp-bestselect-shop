@@ -27,7 +27,7 @@ module.exports = class Editor {
             plugins: (options.colorTool) ? [colorPlugin] : []
         });
         // auto height
-        document.querySelector(elem).addEventListener('click', function () {
+        document.querySelector(elem + ' .toastui-editor-main-container').addEventListener('click', function () {
             editor.focus();
         });
 
