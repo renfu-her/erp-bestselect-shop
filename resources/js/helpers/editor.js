@@ -26,6 +26,10 @@ module.exports = class Editor {
             toolbarItems: options.toolbarItems,
             plugins: (options.colorTool) ? [colorPlugin] : []
         });
+        // auto height
+        document.querySelector(elem).addEventListener('click', function () {
+            editor.focus();
+        });
 
         return editor;
     }

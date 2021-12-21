@@ -469,6 +469,7 @@
 
             /*********/
         </style>
+        @stack('sub-styles')
     @endpush
     @push('scripts')
         <script src="{{ Asset('dist/js/dashboard.js') }}"></script>
@@ -564,5 +565,6 @@
             // select2
             // $('.-select2').select2();
         </script>
+        @stack('sub-scripts')
     @endpush
 @endonce
