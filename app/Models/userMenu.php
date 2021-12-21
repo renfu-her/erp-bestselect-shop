@@ -24,6 +24,11 @@ return
                 "route_name" => "cms.category.index",
             ],
             [
+                "title" => "倉庫設定",
+                "controller_name" => "DepotCtrl",
+                "route_name" => "cms.depot.index",
+            ],
+            [
                 "title" => "廠商管理",
                 "controller_name" => "SupplierCtrl",
                 "route_name" => "cms.supplier.index",
