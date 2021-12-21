@@ -157,6 +157,8 @@
     "Update your account's profile information and email address." : "Update your account's profile information and email address.",
     "Use a recovery code": "Use a recovery code",
     "Use an authentication code": "Use an authentication code",
+    "User does not have the right permissions.": "使用者沒有適當的權限",
+    "User does not have the right roles.": "使用者沒有適當的角色",
     "Verify Email Address": "驗證 E-mail",
     "Verify Your Email Address": "驗證 E-mail",
     "We were unable to find a registered user with this email address.": "We were unable to find a registered user with this email address.",

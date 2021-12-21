@@ -13,12 +13,10 @@ trait MenuTreeTrait {
         }
 
         return array_filter(
-            array_map(function ($n){
+            array_map(function ($n) {
                 $n['child'] = array_filter($n['child'], function ($n2) {
                     if (self::can($n2['route_name']) &&
-                        !preg_match('/.*\.permission\..*/', $n2['route_name']) &&
-                        // test 託運費月報表 for Super Admin
-                        !preg_match('/.*\.haulage-report\..*/', $n2['route_name'])
+                        !preg_match('/.*\.permission\..*/', $n2['route_name'])
                     ) {
                         return true;
                     }
