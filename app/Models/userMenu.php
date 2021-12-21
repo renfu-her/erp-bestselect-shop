@@ -29,7 +29,7 @@ return
                 "route_name" => "cms.supplier.index",
             ],
             [
-                "title" => "新增銷售通路",
+                "title" => "銷售通路管理",
                 "controller_name" => "SaleChannelCtrl",
                 "route_name" => "cms.sale_channel.index",
             ],

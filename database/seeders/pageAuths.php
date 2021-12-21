@@ -43,7 +43,7 @@ return [
         ],
     ],
     [
-        "unit" => "新增銷售通路",
+        "unit" => "銷售通路管理",
         "permissions" => [
             [
                 "cms.sale_channel.index",
