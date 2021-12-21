@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\ProductImg;
 use App\Models\ProductSpec;
 use App\Models\ProductSpecItem;
+use App\Models\ProductStyle;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -165,10 +166,11 @@ class ProductCtrl extends Controller
      */
     public function editStyle($id)
     {
-       
+
         return view('cms.commodity.product.styles', [
             'data' => Product::where('id', $id)->get()->first(),
             'specList' => ProductSpec::specList($id),
+            'styles' => ProductStyle::where('product_id', $id)->get(),
         ]);
     }
 
@@ -180,6 +182,7 @@ class ProductCtrl extends Controller
      */
     public function editSpec($id)
     {
+
         return view('cms.commodity.product.spec-edit', [
             'data' => Product::where('id', $id)->get()->first(),
             'specs' => ProductSpec::get()->toArray(),

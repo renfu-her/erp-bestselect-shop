@@ -47,7 +47,7 @@
                             @foreach ($specList as $key => $spec)
                                 <th scope="col">{{ $spec->title }}</th>
                             @endforeach
-                            <th scope="col">成本</th>
+
                             <th scope="col">庫存</th>
                             <th scope="col">安全庫存</th>
                             <th scope="col">庫存不足</th>
@@ -55,52 +55,54 @@
                         </tr>
                     </thead>
                     <tbody class="-appendClone">
-                        <tr class="-cloneElem">
-                            <td class="text-center">
-                                <div class="form-check form-switch form-switch-lg">
-                                    <input class="form-check-input" type="checkbox">
-                                </div>
-                            </td>
-                            <td>
-                                <input type="text" class="form-control form-control-sm -l" value="P211105001-42"
-                                    aria-label="SKU" readonly />
-                            </td>
-
-                            @foreach ($specList as $spec)
+                        @foreach ($styles as $styleKey => $style)
+                            <tr class="-cloneElem">
+                                <td class="text-center">
+                                    <div class="form-check form-switch form-switch-lg">
+                                        <input class="form-check-input" type="checkbox" @if ($style->is_active) checked @endif>
+                                    </div>
+                                </td>
                                 <td>
-                                    <select name="" class="form-select form-select-sm" required disabled>
-                                        <option value="" disabled>請選擇</option>
-                                        @foreach ($spec->items as $key => $value)
-                                            <option value="{{ $value->key }}">{{ $value->value }}</option>
-                                        @endforeach
+                                    <input type="text" class="form-control form-control-sm -l" value="{{ $style->sku }}"
+                                        aria-label="SKU" readonly />
+                                </td>
+
+                                @foreach ($specList as $specKey => $spec)
+                                    <td>
+                                        <select name="" class="form-select form-select-sm" required disabled>
+                                            <option value="" disabled>請選擇</option>
+                                            @foreach ($spec->items as $key => $value)
+                                                <option value="{{ $value->key }}" @if ($value->key == $style->{'spec_item' . ($specKey + 1) . '_id'}) selected @endif>
+                                                    {{ $value->value }}</option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                @endforeach
+
+
+                                <td>
+                                    <a href="#" class="-text -stock">{{ $style->safety_stock }}</a>
+                                </td>
+                                <td>
+                                    <a href="#" class="-text -stock">{{ $style->in_stock }}</a>
+                                </td>
+                                <td>
+                                    <select name="" class="form-select form-select-sm">
+                                        <option value="繼續銷售">繼續銷售</option>
+                                        <option value="停止銷售">停止銷售</option>
+                                        <option value="下架">下架</option>
+                                        <option value="預售">預售</option>
                                     </select>
                                 </td>
-                            @endforeach
+                                <td class="text-center">
+                                    <button type="button" disabled
+                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        @endforeach
 
-                            <td>
-                                <a href="#" class="-text -cost">50</a>
-                            </td>
-                            <td>
-                                <a href="#" class="-text -stock">23</a>
-                            </td>
-                            <td>
-                                <a href="#" class="-text -stock">10</a>
-                            </td>
-                            <td>
-                                <select name="" class="form-select form-select-sm">
-                                    <option value="繼續銷售">繼續銷售</option>
-                                    <option value="停止銷售">停止銷售</option>
-                                    <option value="下架">下架</option>
-                                    <option value="預售">預售</option>
-                                </select>
-                            </td>
-                            <td class="text-center">
-                                <button type="button" disabled
-                                    class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
