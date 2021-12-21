@@ -69,7 +69,7 @@
 
                                 @foreach ($specList as $specKey => $spec)
                                     <td>
-                                        <select name="" class="form-select form-select-sm" required disabled>
+                                        <select name="" class="form-select form-select-sm" required @if (isset($style->sku)) disabled @endif >
                                             <option value="" disabled>請選擇</option>
                                             @foreach ($spec->items as $key => $value)
                                                 <option value="{{ $value->key }}" @if ($value->key == $style->{'spec_item' . ($specKey + 1) . '_id'}) selected @endif>
@@ -95,7 +95,7 @@
                                     </select>
                                 </td>
                                 <td class="text-center">
-                                    <button type="button" disabled
+                                    <button type="button" @if (isset($style->sku)) disabled @endif 
                                         class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                         <i class="bi bi-trash"></i>
                                     </button>
