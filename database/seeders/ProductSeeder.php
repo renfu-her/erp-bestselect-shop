@@ -19,7 +19,7 @@ class ProductSeeder extends Seeder
     {
         //
 
-        ProductSpec::insert([['title' => '尺寸'], ['title' => '容量']]);
+        ProductSpec::insert([['title' => '尺寸'], ['title' => '容量'], ['title' => '顏色']]);
         // Category::insert([])
 
         Category::create((['category' => '食品', 'rank' => 100]));
