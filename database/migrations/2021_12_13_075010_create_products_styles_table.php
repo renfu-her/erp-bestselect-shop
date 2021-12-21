@@ -24,6 +24,9 @@ class CreateProductsStylesTable extends Migration
             $table->integer('spec_item1_id')->nullable()->comment('所選項目');
             $table->integer('spec_item2_id')->nullable()->comment('所選項目');
             $table->integer('spec_item3_id')->nullable()->comment('所選項目');
+            $table->string('spec_item1_title')->nullable()->comment('所選項目名稱');
+            $table->string('spec_item2_title')->nullable()->comment('所選項目名稱');
+            $table->string('spec_item3_title')->nullable()->comment('所選項目名稱');
             $table->tinyInteger('is_active')->default(1)->comment('上下架');
             $table->string('sold_out_event')->nullable()->comment('售罄狀況');
             $table->timestamps();

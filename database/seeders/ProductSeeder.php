@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductSpec;
 use App\Models\ProductSpecItem;
+use App\Models\ProductStyle;
 use Illuminate\Database\Seeder;
 
 class ProductSeeder extends Seeder
@@ -17,11 +18,9 @@ class ProductSeeder extends Seeder
      */
     public function run()
     {
-        //
-
+        
         ProductSpec::insert([['title' => '尺寸'], ['title' => '容量'], ['title' => '顏色']]);
-        // Category::insert([])
-
+    
         Category::create((['category' => '食品', 'rank' => 100]));
         Category::create((['category' => '清潔用品', 'rank' => 100]));
 
@@ -32,6 +31,19 @@ class ProductSeeder extends Seeder
         Product::setProductSpec($re['id'], 2);
 
         ProductSpecItem::createItems($re['id'], 1, 'X');
+        ProductSpecItem::createItems($re['id'], 1, 'M');
+        ProductSpecItem::createItems($re['id'], 1, 'L');
+        ProductSpecItem::createItems($re['id'], 2, '10ml');
+        ProductSpecItem::createItems($re['id'], 2, '15ml');
+        ProductSpecItem::createItems($re['id'], 2, '20ml');
+        ProductSpecItem::createItems($re['id'], 3, '黃');
+        ProductSpecItem::createItems($re['id'], 3, '綠');
+        ProductSpecItem::createItems($re['id'], 3, '紅');
+
+        ProductStyle::createStyle($re['id'], [4, 1]);
+        ProductStyle::createStyle($re['id'], [2, 5]);
+        
+        ProductStyle::createSku($re['id'], 2);
 
     }
 }
