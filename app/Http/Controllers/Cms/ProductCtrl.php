@@ -174,6 +174,13 @@ class ProductCtrl extends Controller
         ]);
     }
 
+    public function storeStyle(Request $request,$id)
+    {
+
+       dd($_POST);
+    }
+
+
     /**
      * 編輯 - 編輯規格
      *
