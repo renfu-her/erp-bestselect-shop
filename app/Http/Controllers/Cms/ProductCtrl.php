@@ -167,11 +167,19 @@ class ProductCtrl extends Controller
      */
     public function editStyle($id)
     {
+        $specList = ProductSpec::specList($id);
+        $styles = ProductStyle::where('product_id', $id)->get()->toArray();
+        $init_styles = [];
+        if (count($styles) == 0) {
+            $init_styles = ProductStyle::createInitStyles($id);
+        }
+
 
         return view('cms.commodity.product.styles', [
             'data' => Product::where('id', $id)->get()->first(),
-            'specList' => ProductSpec::specList($id),
-            'styles' => ProductStyle::where('product_id', $id)->get(),
+            'specList' => $specList,
+            'styles' => $styles,
+            'initStyles' => $init_styles,
         ]);
     }
 

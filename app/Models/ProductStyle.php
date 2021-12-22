@@ -94,4 +94,34 @@ class ProductStyle extends Model
             self::whereIn('id', $ids)->update(['is_active' => 1]);
         }
     }
+
+    public static function createInitStyles($product_id)
+    {
+        $count = DB::table('prd_product_spec')->where('product_id', $product_id)->count();
+        if (!$count) {
+            return [];
+        }
+        $re = DB::table('prd_spec_items as t1')
+            ->select('t1.spec_id as spec_item1_id')
+            ->selectRaw('@sku:=null as sku')
+            ->selectRaw('@safety_stock:=0 as safety_stock')
+            ->selectRaw('@in_stock:=0 as in_stock')
+            ->selectRaw('@sold_out_event:=null as sold_out_event')
+            ->selectRaw('@is_active:=1 as is_active')
+            ->where('t1.product_id', $product_id)
+            ->orderBy('spec_item1_id');
+
+        if ($count > 1) {
+            for ($i = 2; $i <= $count; $i++) {
+                $re->crossJoin("prd_spec_items as t$i")
+                    ->addSelect("t$i.spec_id as spec_item${i}_id")
+                    ->where("t$i.product_id", $product_id)
+                    ->orderBy("spec_item${i}_id");
+            }
+
+        }
+        return $re->distinct()->get()->toArray();
+
+    }
+
 }
