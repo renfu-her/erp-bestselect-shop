@@ -24,7 +24,7 @@ class UserCtrl extends Controller
         $query = $request->query();
         $user = User::getUserBySearch($query);
 
-        return view('cms.user.list', [
+        return view('cms.admin.user.list', [
             "dataList" => $user['dataList'], "users" => $user['account'],
         ]);
     }
@@ -38,7 +38,7 @@ class UserCtrl extends Controller
     {
         //
 
-        return view('cms.user.edit', [
+        return view('cms.admin.user.edit', [
             'method'         => 'create',
             'formAction'     => Route('cms.user.create'),
             'permissions'    => Permission::getPermissionGroups('user'),
@@ -128,7 +128,7 @@ class UserCtrl extends Controller
             }
         );
 
-        return view('cms.user.edit', [
+        return view('cms.admin.user.edit', [
             'method'         => 'edit', 'id' => $id,
             'formAction'     => Route('cms.user.edit', ['id' => $id]),
             'data'           => $data,

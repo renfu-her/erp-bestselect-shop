@@ -18,7 +18,7 @@ class PermissionCtrl extends Controller
      */
     public function index()
     {
-        return view('cms.permission.list', [
+        return view('cms.admin.permission.list', [
             'dataList' => PermissionGroup::getPermissions('user')
         ]);
     }
@@ -30,7 +30,7 @@ class PermissionCtrl extends Controller
      */
     public function create()
     {
-        return view('cms.permission.edit', [
+        return view('cms.admin.permission.edit', [
             'method' => 'create',
             'formAction' => Route('cms.permission.create'),
         ]);
@@ -82,7 +82,7 @@ class PermissionCtrl extends Controller
     {
         //
         // dd(PermissionGroup::where('id','=',$id)->get()->first());
-        return view('cms.permission.edit', [
+        return view('cms.admin.permission.edit', [
             'method' => 'edit',
             'formAction' => Route('cms.permission.edit', ['id' => $id]),
             'data' => PermissionGroup::where('id', '=', $id)->get()->first()
@@ -131,7 +131,7 @@ class PermissionCtrl extends Controller
 
     public function child($id)
     {
-        return view('cms.permission.child_list', [
+        return view('cms.admin.permission.child_list', [
             'dataList' => Permission::where('group_id', '=', $id)->get(),
             'groupId' => $id,
             "breadcrumb_data" => PermissionGroup::where("id", '=', $id)->get()->first()
@@ -141,7 +141,7 @@ class PermissionCtrl extends Controller
     public function childEdit($id, $cid)
     {
         // dd(PermissionGroup::where('id','=',$id)->get()->first());
-        return view('cms.permission.child_edit', [
+        return view('cms.admin.permission.child_edit', [
             'method' => 'edit',
             'formAction' => Route('cms.permission.child-edit', ['id' => $id, 'cid' => $cid]),
             'data' => Permission::where('id', '=', $cid)->get()->first(),
@@ -172,7 +172,7 @@ class PermissionCtrl extends Controller
 
     public function childCreate($id)
     {
-        return view('cms.permission.child_edit', [
+        return view('cms.admin.permission.child_edit', [
             'method' => 'create',
             'formAction' => Route('cms.permission.child-create', ['id' => $id]),
             'groupId' => $id,
