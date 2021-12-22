@@ -8,6 +8,7 @@
     <div class="card shadow p-4 mb-4">
         <h6>商品介紹（官網）</h6>
         <x-b-editor id="editor"></x-b-editor>
+        <x-b-editor id="editor2" classes="mt-3"></x-b-editor>
     </div>
     <div>
         <div class="col-auto">
@@ -24,6 +25,13 @@
     @endpush
     @push('sub-scripts')
         <script>
+            Editor.createEditor('editor');
+            Editor.createEditor('editor2');
+            
+            $('form').submit(function (e) { 
+                e.preventDefault();
+                console.log(editor.getHTML());
+            });
         </script>
     @endpush
 @endOnce

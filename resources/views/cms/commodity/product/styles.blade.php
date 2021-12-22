@@ -110,7 +110,7 @@
                                 $prefix = $style->sku ? 'sk_' : 'nsk_';
                             @endphp
                             <tr class="-cloneElem">
-                                <input type="hidden" name="{{ $prefix }}style_id[]" value="{{ $style->id }}">
+                                
                                 <td class="text-center">
                                     <div class="form-check form-switch form-switch-lg">
                                         <input class="form-check-input" name="active_id[]" type="checkbox"
@@ -120,11 +120,12 @@
                                 <td>
                                     <input type="text" class="form-control form-control-sm -l" value="{{ $style->sku }}"
                                         aria-label="SKU" readonly />
+                                    <input type="hidden" name="{{ $prefix }}style_id[]" value="{{ $style->id }}">
                                 </td>
 
                                 @foreach ($specList as $specKey => $spec)
                                     <td>
-                                        <select name="@if (!isset($style->sku)){{ $prefix }}spec{{ $specKey + 1 }}[]@endif" class="form-select form-select-sm" required
+                                        <select @if (!isset($style->sku))name="{{ $prefix }}spec{{ $specKey + 1 }}[]"@endif class="form-select form-select-sm" required
                                             @if (isset($style->sku)) disabled @endif>
                                             <option value="" disabled>請選擇</option>
                                             @foreach ($spec->items as $key => $value)
@@ -168,6 +169,7 @@
 
         <div>
             <div class="col-auto">
+                <input type="hidden" name="del_id">
                 <button type="submit" class="btn btn-primary px-4">儲存</button>
                 <a href="{{ Route('cms.product.index') }}" class="btn btn-outline-primary px-4" role="button">返回列表</a>
             </div>
@@ -191,14 +193,27 @@
             $('.-newClone').off('click').on('click', function() {
                 Clone_bindCloneBtn($clone, function(cloneElem) {
                     cloneElem.find('input, select').val('');
+                    cloneElem.find('select[name$="_sold_out_event[]"]').val('繼續銷售');
+                    cloneElem.find('input:hidden[name$="_style_id[]"]').remove();
                     cloneElem.find('.form-switch input').prop('checked', true);
                     cloneElem.find('a.-text.-cost').text('採購單');
                     cloneElem.find('a.-text.-stock').text('庫存管理');
                     cloneElem.find('select, .-del').prop('disabled', false);
-                    cloneElem.find('input:hidden[name$="style_id[]"]').remove()
+                    cloneElem.find('input[name="active_id[]"]').attr('name', 'n_active[]');
+                    cloneElem.find('select[name]').attr('name', function (index, attr) { 
+                        return attr.replace(/nsk_|sk_/, 'n_');
+                    });
                 });
             });
+            let del_id = [];
             Clone_bindDelElem($('.-del'));
+            $('.-del').off('click.del-id').on('click.del-id', function () {
+                const style_id = $(this).closest('.-cloneElem').find('input:hidden[name="nsk_style_id[]"]').val();
+                if (style_id) {
+                    del_id.push(style_id);
+                    $('input[name="del_id"]').val(del_id.toString());
+                }
+            });
         </script>
     @endpush
 @endOnce
