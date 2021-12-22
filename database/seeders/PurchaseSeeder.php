@@ -22,7 +22,7 @@ class PurchaseSeeder extends Seeder
             'bank_code' => '822',
             'bank_acount' => 'XX商行',
             'bank_numer' => '123456789098',
-            'Invoice_num' => '12345678',
+            'invoice_num' => '12345678',
             'pay_type' => '1',
         ]);
         Purchase::create([
@@ -32,7 +32,7 @@ class PurchaseSeeder extends Seeder
             'bank_code' => '822',
             'bank_acount' => 'OO企業社',
             'bank_numer' => '987654321012',
-            'Invoice_num' => '87654321',
+            'invoice_num' => '87654321',
             'pay_type' => '2',
         ]);
 
