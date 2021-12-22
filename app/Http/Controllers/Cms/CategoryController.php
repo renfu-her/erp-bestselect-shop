@@ -20,7 +20,7 @@ class CategoryController extends Controller
         $query = $request->query();
         $dataList = Category::paginate(10)->appends($query);
 
-        return view('cms.settings.category.index', [
+        return view('cms.settings.category.list', [
             'dataList' => $dataList
         ]);
     }
