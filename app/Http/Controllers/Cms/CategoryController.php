@@ -44,9 +44,8 @@ class CategoryController extends Controller
      * @param  Request  $request
      * @return Response
      */
-    public function store(Request $request)
+    public function store(Request $request, Category $category)
     {
-        $category = new Category();
         $category->storeNewCategory($request);
 
         return redirect(Route('cms.category.index'));
@@ -70,15 +69,12 @@ class CategoryController extends Controller
      *
      * @return Response
      */
-    public function edit(int $id)
+    public function edit(int $id, Category $category)
     {
-        $ctg = new Category();
-        $category = $ctg->findCategoryById($id);
-
         return view('cms.settings.category.edit', [
             'method' => 'edit',
             'formAction' => Route('cms.category.edit', ['id' => $id]),
-            'category' => $category,
+            'category' => $category->findCategoryById($id),
             'id' => $id,
         ]);
     }
@@ -90,10 +86,9 @@ class CategoryController extends Controller
      *
      * @return Response
      */
-    public function update(Request $request, int $id)
+    public function update(Request $request, int $id, Category $category)
     {
-        $ctg = new Category();
-        $ctg->updateCategory($request, $id);
+        $category->updateCategory($request, $id);
 
         return redirect(Route('cms.category.index'));
     }
@@ -103,10 +98,9 @@ class CategoryController extends Controller
      *
      * @return Response
      */
-    public function destroy(int $id)
+    public function destroy(int $id, Category $category)
     {
-        $ctg = new Category();
-        $ctg->destroyById($id);
+        $category->destroyById($id);
 
         return redirect(Route('cms.category.index'));
     }
