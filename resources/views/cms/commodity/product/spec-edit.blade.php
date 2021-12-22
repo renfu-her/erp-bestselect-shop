@@ -142,6 +142,7 @@
             });
             $('.-single:disabled').addClass('form-select');
             $('.-single:not(:disabled)').addClass('-select2').select2();
+            checkStylesQty();
             // 新增規格
             $('.-newSpec').off('click').on('click', function() {
                 Clone_bindCloneBtn($cloneSpec, function($c_s) {
