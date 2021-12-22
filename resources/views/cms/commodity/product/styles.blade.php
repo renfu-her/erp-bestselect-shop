@@ -63,7 +63,7 @@
                             <tr class="-cloneElem d-none">
                                 <td class="text-center">
                                     <div class="form-check form-switch form-switch-lg">
-                                        <input class="form-check-input" type="checkbox" name="n_active[]" checked>
+                                        <input class="form-check-input" value="1" type="checkbox" name="n_active[]" checked>
                                     </div>
                                 </td>
                                 <td>

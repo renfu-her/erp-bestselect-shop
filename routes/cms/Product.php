@@ -9,6 +9,7 @@ Route::group(['prefix' => 'product', 'as' => 'product.'], function () {
     Route::post('edit/{id}', [ProductCtrl::class, 'update']);
     Route::get('edit/{id}/style', [ProductCtrl::class, 'editStyle'])->name('edit-style'); //->middleware('permission:cms.product.style');
     Route::post('edit/{id}/style', [ProductCtrl::class, 'storeStyle']); //->middleware('permission:cms.product.style');
+    Route::get('edit/{id}/create-sku', [ProductCtrl::class, 'createAllSku'])->name('create-sku');; //->middleware('permission:cms.product.style');
 
     Route::get('edit/{id}/spec', [ProductCtrl::class, 'editSpec'])->name('edit-spec'); //->middleware('permission:cms.product.style');
     Route::post('edit/{id}/spec', [ProductCtrl::class, 'storeSpec']); //->middleware('permission:cms.product.style');

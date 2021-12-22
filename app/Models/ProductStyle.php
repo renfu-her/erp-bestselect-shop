@@ -65,17 +65,17 @@ class ProductStyle extends Model
     {
         $product = Product::where('id', $product_id)->get()->first();
         if (!$product) {
-            return;
+            return false;
         }
 
         $style = self::where('id', $id)->select('sku')->get()->first();
         if ($style->sku) {
-            return;
+            return false;
         }
 
         $sku = $product->sku;
 
-        DB::transaction(function () use ($product_id, $sku, $id) {
+        return DB::transaction(function () use ($product_id, $sku, $id) {
             $sku = $sku . str_pad((self::where('product_id', '=', $product_id)
                     ->whereNotNull('sku')
                     ->withTrashed()
@@ -83,6 +83,15 @@ class ProductStyle extends Model
                     ->count()) + 1, 2, '0', STR_PAD_LEFT);
 
             self::where('id', $id)->update(['sku' => $sku]);
+            return true;
         });
+    }
+
+    public static function activeStyle($product_id, $ids = [])
+    {
+        self::where('product_id', $product_id)->update(['is_active' => 0]);
+        if ($ids) {
+            self::whereIn('id', $ids)->update(['is_active' => 1]);
+        }
     }
 }
