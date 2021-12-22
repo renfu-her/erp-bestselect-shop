@@ -8,6 +8,8 @@ Route::group(['prefix' => 'product', 'as' => 'product.'], function () {
     Route::get('edit/{id}', [ProductCtrl::class, 'edit'])->name('edit'); //->middleware('permission:cms.product.edit');
     Route::post('edit/{id}', [ProductCtrl::class, 'update']);
     Route::get('edit/{id}/style', [ProductCtrl::class, 'editStyle'])->name('edit-style'); //->middleware('permission:cms.product.style');
+    Route::post('edit/{id}/style', [ProductCtrl::class, 'storeStyle']); //->middleware('permission:cms.product.style');
+
     Route::get('edit/{id}/spec', [ProductCtrl::class, 'editSpec'])->name('edit-spec'); //->middleware('permission:cms.product.style');
     Route::post('edit/{id}/spec', [ProductCtrl::class, 'storeSpec']); //->middleware('permission:cms.product.style');
 

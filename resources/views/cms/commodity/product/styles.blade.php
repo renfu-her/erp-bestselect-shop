@@ -34,11 +34,13 @@
         </div>
     </div>
 
-    <form action="">
+    <form action="{{ route('cms.product.edit-style', ['id' => $data->id]) }}" method="POST">
+        @csrf
         <div class="card shadow p-4 mb-4">
             <h6>款式管理</h6>
             @if (count($specList) == 0)
-                <p class="mark"><i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i> 尚無款式，請先至規格管理新增規格</p>
+                <p class="mark"><i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i> 尚無款式，請先至規格管理新增規格
+                </p>
             @endif
             <div class="table-responsive tableOverBox">
                 <table class="table tableList table-striped">
@@ -61,17 +63,17 @@
                             <tr class="-cloneElem d-none">
                                 <td class="text-center">
                                     <div class="form-check form-switch form-switch-lg">
-                                        <input class="form-check-input" type="checkbox" checked>
+                                        <input class="form-check-input" type="checkbox" name="n_active[]" checked>
                                     </div>
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm -l" value=""
-                                        aria-label="SKU" readonly />
+                                    <input type="text" class="form-control form-control-sm -l" value="" aria-label="SKU"
+                                        readonly />
                                 </td>
 
                                 @foreach ($specList as $specKey => $spec)
                                     <td>
-                                        <select name="" class="form-select form-select-sm" required >
+                                        <select name="n_spec{{ $specKey+1 }}[]" class="form-select form-select-sm" required>
                                             <option value="" disabled selected>請選擇</option>
                                             @foreach ($spec->items as $key => $value)
                                                 <option value="{{ $value->key }}">
@@ -104,10 +106,15 @@
                             </tr>
                         @endif
                         @foreach ($styles as $styleKey => $style)
+                            @php
+                                $prefix = $style->sku ? 'sk_' : 'nsk_';
+                            @endphp
                             <tr class="-cloneElem">
+                                <input type="hidden" name="{{ $prefix }}style_id[]" value="{{ $style->id }}">
                                 <td class="text-center">
                                     <div class="form-check form-switch form-switch-lg">
-                                        <input class="form-check-input" type="checkbox" @if ($style->is_active) checked @endif>
+                                        <input class="form-check-input" name="active_id[]" type="checkbox"
+                                            value="{{ $style->id }}" @if ($style->is_active) checked @endif>
                                     </div>
                                 </td>
                                 <td>
@@ -117,7 +124,8 @@
 
                                 @foreach ($specList as $specKey => $spec)
                                     <td>
-                                        <select name="" class="form-select form-select-sm" required @if (isset($style->sku)) disabled @endif >
+                                        <select name="@if (!isset($style->sku)){{ $prefix }}spec{{ $specKey + 1 }}[]@endif" class="form-select form-select-sm" required
+                                            @if (isset($style->sku)) disabled @endif>
                                             <option value="" disabled>請選擇</option>
                                             @foreach ($spec->items as $key => $value)
                                                 <option value="{{ $value->key }}" @if ($value->key == $style->{'spec_item' . ($specKey + 1) . '_id'}) selected @endif>
@@ -134,7 +142,7 @@
                                     <a href="#" class="-text -stock">{{ $style->in_stock }}</a>
                                 </td>
                                 <td>
-                                    <select name="" class="form-select form-select-sm">
+                                    <select name="{{ $prefix }}sold_out_event[]" class="form-select form-select-sm">
                                         <option value="繼續銷售">繼續銷售</option>
                                         <option value="停止銷售">停止銷售</option>
                                         <option value="下架">下架</option>
@@ -142,7 +150,7 @@
                                     </select>
                                 </td>
                                 <td class="text-center">
-                                    <button type="button" @if (isset($style->sku)) disabled @endif 
+                                    <button type="button" @if (isset($style->sku)) disabled @endif
                                         class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                         <i class="bi bi-trash"></i>
                                     </button>
@@ -187,6 +195,7 @@
                     cloneElem.find('a.-text.-cost').text('採購單');
                     cloneElem.find('a.-text.-stock').text('庫存管理');
                     cloneElem.find('select, .-del').prop('disabled', false);
+                    cloneElem.find('input:hidden[name$="style_id[]"]').remove()
                 });
             });
             Clone_bindDelElem($('.-del'));
