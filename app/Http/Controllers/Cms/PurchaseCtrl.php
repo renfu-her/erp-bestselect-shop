@@ -25,7 +25,7 @@ class PurchaseCtrl extends Controller
         $dataList =  Purchase::getPurchaseList($startDate, $endDate, true, $title)
             ->paginate($data_per_page)->appends($query);
 
-        return view('cms.settings.purchase.list', [
+        return view('cms.commodity.purchase.list', [
             'startDate' => $startDate,
             'endDate' => $endDate,
             'dataList' => $dataList,
@@ -37,7 +37,7 @@ class PurchaseCtrl extends Controller
     public function create(Request $request)
     {
         $supplierList =  Supplier::getSupplierList()->get();
-        return view('cms.settings.purchase.edit', [
+        return view('cms.commodity.purchase.edit', [
             'method' => 'create',
             'supplierList' => $supplierList,
             'formAction' => Route('cms.purchase.create'),
@@ -118,7 +118,7 @@ class PurchaseCtrl extends Controller
         }
 
         $supplierList =  Supplier::getSupplierList()->get();
-        return view('cms.settings.purchase.edit', [
+        return view('cms.commodity.purchase.edit', [
             'id' => $id,
             'data' => $purchaseData,
             'payingOrderData' => $payingOrderList,
