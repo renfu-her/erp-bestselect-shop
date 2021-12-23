@@ -47,7 +47,8 @@
                     <thead>
                         <tr>
                             <th scope="col" class="text-center">上架</th>
-                            <th scope="col">SKU <button type="button" class="btn btn-primary btn-sm">產生SKU碼</button></th>
+                            <th scope="col">SKU <a href="{{ route('cms.product.create-sku', ['id' => $data->id]) }}"
+                                    type="button" class="btn btn-primary btn-sm">產生SKU碼</a></th>
                             @foreach ($specList as $key => $spec)
                                 <th scope="col">{{ $spec->title }}</th>
                             @endforeach
@@ -73,7 +74,8 @@
 
                                 @foreach ($specList as $specKey => $spec)
                                     <td>
-                                        <select name="n_spec{{ $specKey+1 }}[]" class="form-select form-select-sm" required>
+                                        <select name="n_spec{{ $specKey + 1 }}[]" class="form-select form-select-sm"
+                                            required>
                                             <option value="" disabled selected>請選擇</option>
                                             @foreach ($spec->items as $key => $value)
                                                 <option value="{{ $value->key }}">
@@ -110,17 +112,19 @@
                                 $prefix = $style['sku'] ? 'sk_' : 'nsk_';
                             @endphp
                             <tr class="-cloneElem">
-                                
+
                                 <td class="text-center">
                                     <div class="form-check form-switch form-switch-lg">
-                                        <input class="form-check-input" name="active_id[]" type="checkbox"
-                                            @if ($style['is_active']) checked @endif>
+                                        {{ $style['is_active'] }}
+                                        <input class="form-check-input" name="active_id[]" value="{{ $style['id'] }}"
+                                            type="checkbox" @if ($style['is_active']) checked @endif>
                                     </div>
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm -l" value="{{ $style['sku'] }}"
-                                        aria-label="SKU" readonly />
-                                    <input type="hidden" name="{{ $prefix }}style_id[]" value="{{ $style['id'] }}">
+                                    <input type="text" class="form-control form-control-sm -l"
+                                        value="{{ $style['sku'] }}" aria-label="SKU" readonly />
+                                    <input type="hidden" name="{{ $prefix }}style_id[]"
+                                        value="{{ $style['id'] }}">
                                 </td>
 
                                 @foreach ($specList as $specKey => $spec)
@@ -188,7 +192,7 @@
     @push('sub-scripts')
         <script>
             const initStyles = @json($initStyles);
-          
+
             // clone 項目
             const $clone = $('.-cloneElem:first-child').clone();
             $('.-cloneElem.d-none').remove();
@@ -209,7 +213,7 @@
                     cloneElem.find('select[name$="sold_out_event[]"]').val('繼續銷售');
                     cloneElem.find('select, .-del').prop('disabled', false);
                     cloneElem.find('input[name="active_id[]"]').attr('name', 'n_active[]');
-                    cloneElem.find('select[name]').attr('name', function (index, attr) { 
+                    cloneElem.find('select[name]').attr('name', function(index, attr) {
                         return attr.replace(/nsk_|sk_/, 'n_');
                     });
                     if (items) {
@@ -222,7 +226,7 @@
             // del
             let del_id = [];
             Clone_bindDelElem($('.-del'));
-            $('.-del').off('click.del-id').on('click.del-id', function () {
+            $('.-del').off('click.del-id').on('click.del-id', function() {
                 const style_id = $(this).closest('.-cloneElem').find('input:hidden[name="nsk_style_id[]"]').val();
                 if (style_id) {
                     del_id.push(style_id);
