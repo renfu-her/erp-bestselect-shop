@@ -14,6 +14,8 @@
         @endif
     </title>
     <link rel="stylesheet" href="{{ Asset('dist/css/app.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    @stack('styles')
 
     {{-- icon --}}
     <link rel="icon" href="{{ Asset('favicon.ico') }}">
@@ -37,7 +39,6 @@
     <meta name="msapplication-wide310x150logo" content="{{ Asset('images/webicon/310x150.png') }}">
     <meta name="msapplication-square310x310logo" content="{{ Asset('images/webicon/310.png') }}"> 
 
-    @stack('styles')
 </head>
 
 <body>
