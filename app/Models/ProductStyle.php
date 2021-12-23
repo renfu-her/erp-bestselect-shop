@@ -97,34 +97,50 @@ class ProductStyle extends Model
 
     public static function createInitStyles($product_id)
     {
-        $count = DB::table('prd_product_spec')->where('product_id', $product_id)->count();
-        if (!$count) {
+        $spec = DB::table('prd_product_spec')
+            ->where('product_id', $product_id)
+            ->orderBy('rank')
+            ->get()->toArray();
+
+        if (!$spec) {
             return [];
         }
-        // t1.spec_id as spec_item1_id',
+      
         $re = DB::table('prd_spec_items as t1')
-            ->select('t1.spec_id as spec_item1_id')
-        /*   ->selectRaw('@sku:=null as sku')
-        ->selectRaw('@safety_stock:=0 as safety_stock')
-        ->selectRaw('@in_stock:=0 as in_stock')
-        ->selectRaw('@sold_out_event:=null as sold_out_event')
-        ->selectRaw('@is_active:=1 as is_active') */
+            ->select("t1.id as spec_item1_id")
+            ->selectRaw('@sku:=null as sku')
+            ->selectRaw('@safety_stock:=0 as safety_stock')
+            ->selectRaw('@in_stock:=0 as in_stock')
+            ->selectRaw('@sold_out_event:=null as sold_out_event')
+            ->selectRaw('@is_active:=1 as is_active')
             ->where('t1.product_id', $product_id)
-        //  ->orderBy('item1_id');
-            ->orderBy('spec_item1_id');
+            ->where('t1.spec_id', $spec[0]->spec_id)
+            ->orderBy("spec_item1_id");
 
-        if ($count > 1) {
-            for ($i = 2; $i <= $count; $i++) {
-                $re->crossJoin("prd_spec_items as t$i")
-                    ->addSelect("t$i.spec_id as spec_item${i}_id")
-                //    ->addSelect("t$i.id as item${i}_id")
-                    ->where("t$i.product_id", $product_id)
-                // ->orderBy("item${i}_id");
-                    ->orderBy("spec_item${i}_id");
+        if (count($spec) > 1) {
+            for ($i = 1; $i < count($spec); $i++) {
+                $k = $i + 1;
+             
+                $re->crossJoin("prd_spec_items as t$k")
+                    ->addSelect("t$k.id as spec_item${k}_id")
+                    ->where("t$k.product_id", $product_id)
+                    ->where("t$k.spec_id", $spec[$i]->spec_id)
+                    ->orderBy("spec_item${k}_id");
+
+                switch ($i) {
+                    case 1:   
+                        $re->where('t1.spec_id', '<>', 't2.spec_id');
+                        break;
+                    case 2:  
+                        $re->where('t2.spec_id', '<>', 't3.spec_id');
+                        $re->where('t3.spec_id', '<>', 't1.spec_id');
+                        break;
+                }
+
             }
-
         }
-        return $re->distinct()->get()->toArray();
+
+        return $re->get()->toArray();
 
     }
 
