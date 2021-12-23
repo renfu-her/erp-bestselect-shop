@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class ProductImg extends Model
 {
@@ -29,5 +30,17 @@ class ProductImg extends Model
         } else {
             self::create(['product_id' => $product_id, 'url' => $images]);
         }
+    }
+
+    public static function delImgs($image_ids = [])
+    {
+        $imgs = self::whereIn('id', $image_ids)->get()->toArray();
+
+        foreach ($imgs as $i) {
+            Storage::delete($i['url']);
+        }
+
+        $imgs = self::whereIn('id', $image_ids)->delete();
+
     }
 }

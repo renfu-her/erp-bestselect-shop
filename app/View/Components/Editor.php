@@ -11,12 +11,10 @@ class Editor extends Component
      *
      * @return void
      */
-    public function __construct($id, $height = '', $classes = '', $colorTool = true)
+    public function __construct($id, $classes = '')
     {
         $this->id = $id;
-        $this->height = $height;
         $this->classes = $classes;
-        $this->colorTool = ($colorTool == 'true') ? true : false;
     }
 
     /**
@@ -28,9 +26,7 @@ class Editor extends Component
     {
         return view('components.editor', [
             'id' => $this->id,
-            'height' => $this->height,
-            'classes' => $this->classes,
-            'colorTool' => $this->colorTool,
+            'classes' => $this->classes
         ]);
     }
 }

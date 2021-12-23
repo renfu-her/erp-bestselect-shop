@@ -15,14 +15,20 @@ class CreateProductsStylesTable extends Migration
     {
         Schema::create('prd_product_styles', function (Blueprint $table) {
             $table->id();
-            $table->string('sku')->unique()->comment('sku碼');
+            $table->integer('product_id');
+            $table->string('title')->nullable();
+            $table->string('sku')->nullable()->unique()->comment('sku碼');
             $table->integer('safety_stock')->default(0)->comment('安全庫存');
             $table->integer('in_stock')->default(0)->comment('庫存');
             $table->integer('overbought')->default(0)->comment('超買設定');
             $table->integer('spec_item1_id')->nullable()->comment('所選項目');
             $table->integer('spec_item2_id')->nullable()->comment('所選項目');
             $table->integer('spec_item3_id')->nullable()->comment('所選項目');
-            $table->tinyInteger('can_modify')->default(1)->comment('是否可變更修改');
+            $table->string('spec_item1_title')->nullable()->comment('所選項目名稱');
+            $table->string('spec_item2_title')->nullable()->comment('所選項目名稱');
+            $table->string('spec_item3_title')->nullable()->comment('所選項目名稱');
+            $table->tinyInteger('is_active')->default(1)->comment('上下架');
+            $table->string('sold_out_event')->nullable()->comment('售罄狀況');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -33,13 +39,18 @@ class CreateProductsStylesTable extends Migration
             $table->softDeletes();
         });
 
+        Schema::create('prd_product_spec', function (Blueprint $table) {
+            $table->integer('product_id');
+            $table->integer('spec_id');
+            $table->integer('rank')->default(500);
+        });
+
         Schema::create('prd_spec_items', function (Blueprint $table) {
             $table->id();
             $table->integer('product_id');
             $table->integer('spec_id');
-            $table->string('title');        
+            $table->string('title');
         });
-        
 
     }
 
@@ -51,6 +62,7 @@ class CreateProductsStylesTable extends Migration
     public function down()
     {
         Schema::dropIfExists('prd_product_styles');
+        Schema::dropIfExists('prd_product_spec');
         Schema::dropIfExists('prd_spec');
         Schema::dropIfExists('prd_spec_items');
     }
