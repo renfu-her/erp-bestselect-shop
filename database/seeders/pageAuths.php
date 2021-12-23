@@ -2,7 +2,7 @@
 
 return [
     [
-        "unit" => "商品及庫存",
+        "unit" => "商品列表",
         "permissions" => [
             [
                 "cms.product.index",
@@ -22,7 +22,7 @@ return [
         ],
     ],
     [
-        "unit" => "倉庫設定",
+        "unit" => "倉庫管理",
         "permissions" => [
             [
                 "cms.depot.index",

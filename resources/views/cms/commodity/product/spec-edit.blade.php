@@ -87,7 +87,7 @@
                     @endforeach
 
                 </div>
-                @if ($data->spec_locked)
+                @if (!$data->spec_locked)
                 <div class="d-grid gap-2 border-top -newSpecBtnBox">
                     <button type="button" class="btn btn-outline-primary border-dashed mt-4 -newSpec"
                         style="font-weight: 500;">
@@ -143,7 +143,6 @@
                 cloneElem: Items.clone,
                 checkFn: checkStylesQty
             });
-            $('.-single:disabled').addClass('form-select');
             $('.-single:not(:disabled)').addClass('-select2').select2();
             checkStylesQty();
             // 新增規格
