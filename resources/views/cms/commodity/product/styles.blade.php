@@ -63,7 +63,7 @@
                             <tr class="-cloneElem d-none">
                                 <td class="text-center">
                                     <div class="form-check form-switch form-switch-lg">
-                                        <input class="form-check-input" type="checkbox" name="n_active[]" checked>
+                                        <input class="form-check-input" value="1" type="checkbox" name="n_active[]" checked>
                                     </div>
                                 </td>
                                 <td>
@@ -107,29 +107,29 @@
                         @endif
                         @foreach ($styles as $styleKey => $style)
                             @php
-                                $prefix = $style->sku ? 'sk_' : 'nsk_';
+                                $prefix = $style['sku'] ? 'sk_' : 'nsk_';
                             @endphp
                             <tr class="-cloneElem">
                                 
                                 <td class="text-center">
                                     <div class="form-check form-switch form-switch-lg">
                                         <input class="form-check-input" name="active_id[]" type="checkbox"
-                                            value="{{ $style->id }}" @if ($style->is_active) checked @endif>
+                                            value="{{ $style['id'] }}" @if ($style['is_active']) checked @endif>
                                     </div>
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm -l" value="{{ $style->sku }}"
+                                    <input type="text" class="form-control form-control-sm -l" value="{{ $style['sku'] }}"
                                         aria-label="SKU" readonly />
-                                    <input type="hidden" name="{{ $prefix }}style_id[]" value="{{ $style->id }}">
+                                    <input type="hidden" name="{{ $prefix }}style_id[]" value="{{ $style['id'] }}">
                                 </td>
 
                                 @foreach ($specList as $specKey => $spec)
                                     <td>
-                                        <select @if (!isset($style->sku))name="{{ $prefix }}spec{{ $specKey + 1 }}[]"@endif class="form-select form-select-sm" required
-                                            @if (isset($style->sku)) disabled @endif>
+                                        <select @if (!isset($style['sku']))name="{{ $prefix }}spec{{ $specKey + 1 }}[]"@endif class="form-select form-select-sm" required
+                                            @if (isset($style['sku'])) disabled @endif>
                                             <option value="" disabled>請選擇</option>
                                             @foreach ($spec->items as $key => $value)
-                                                <option value="{{ $value->key }}" @if ($value->key == $style->{'spec_item' . ($specKey + 1) . '_id'}) selected @endif>
+                                                <option value="{{ $value->key }}" @if ($value->key == $style['spec_item' . ($specKey + 1) . '_id']) selected @endif>
                                                     {{ $value->value }}</option>
                                             @endforeach
                                         </select>
@@ -137,10 +137,10 @@
                                 @endforeach
 
                                 <td>
-                                    <a href="#" class="-text -stock">{{ $style->safety_stock }}</a>
+                                    <a href="#" class="-text -stock">{{ $style['safety_stock'] }}</a>
                                 </td>
                                 <td>
-                                    <a href="#" class="-text -stock">{{ $style->in_stock }}</a>
+                                    <a href="#" class="-text -stock">{{ $style['in_stock'] }}</a>
                                 </td>
                                 <td>
                                     <select name="{{ $prefix }}sold_out_event[]" class="form-select form-select-sm">
@@ -151,7 +151,7 @@
                                     </select>
                                 </td>
                                 <td class="text-center">
-                                    <button type="button" @if (isset($style->sku)) disabled @endif
+                                    <button type="button" @if (isset($style['sku'])) disabled @endif
                                         class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                         <i class="bi bi-trash"></i>
                                     </button>
@@ -187,6 +187,8 @@
     @endpush
     @push('sub-scripts')
         <script>
+            const initStyles = @json($initStyles);
+          
             // clone 項目
             const $clone = $('.-cloneElem:first-child').clone();
             $('.-cloneElem.d-none').remove();

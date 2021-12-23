@@ -13,6 +13,7 @@ use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\DB;
 
 class ProductCtrl extends Controller
 {
@@ -166,20 +167,90 @@ class ProductCtrl extends Controller
      */
     public function editStyle($id)
     {
-
+        $specList = ProductSpec::specList($id);
+        $styles = ProductStyle::where('product_id', $id)->get()->toArray();
+        $init_styles = [];
+        if (count($styles) == 0) {
+           $init_styles = ProductStyle::createInitStyles($id);
+        }
+     
         return view('cms.commodity.product.styles', [
             'data' => Product::where('id', $id)->get()->first(),
-            'specList' => ProductSpec::specList($id),
-            'styles' => ProductStyle::where('product_id', $id)->get(),
+            'specList' => $specList,
+            'styles' => $styles,
+            'initStyles' => $init_styles,
         ]);
     }
 
-    public function storeStyle(Request $request,$id)
+    public function storeStyle(Request $request, $id)
     {
 
-       dd($_POST);
+        $d = $request->all();
+        $specCount = DB::table('prd_product_spec')->where('product_id', $id)->count();
+        // dd($d);
+        if (isset($d['nsk_style_id'])) {
+            foreach ($d['nsk_style_id'] as $key => $value) {
+                $updateData = [];
+                for ($i = 1; $i <= $specCount; $i++) {
+                    if (isset($d["nsk_spec$i"][$key])) {
+                        $updateData["spec_item${i}_id"] = $d['nsk_spec' . $i][$key];
+                    }
+                }
+                $updateData['sold_out_event'] = $d['nsk_sold_out_event'][$key];
+
+                ProductStyle::where('id', $value)->whereNull('sku')->update($updateData);
+            }
+        }
+
+        if (isset($d['sk_style_id'])) {
+            foreach ($d['sk_style_id'] as $key => $value) {
+                $updateData = [];
+                $updateData['sold_out_event'] = $d['sk_sold_out_event'][$key];
+                ProductStyle::where('id', $value)->whereNotNull('sku')->update($updateData);
+            }
+        }
+        if (isset($d['active_id'])) {
+            ProductStyle::activeStyle($id, $d['active_id']);
+        }
+
+        if (isset($d['n_sold_out_event'])) {
+            $newItemCount = count($d['n_sold_out_event']);
+            for ($i = 0; $i < $newItemCount; $i++) {
+                $updateData = [];
+                for ($j = 1; $j <= $specCount; $j++) {
+                    if (isset($d["n_spec$j"][$i])) {
+                        $updateData["spec_item${j}_id"] = $d['n_spec' . $j][$i];
+                    }
+                }
+
+                ProductStyle::createStyle($id, $updateData);
+
+            }
+        }
+
+        if ($d['del_id']) {
+            ProductStyle::whereIn('id', explode(',', $d['del_id']))->where('product_id', $id)->delete();
+        }
+        wToast('修改完成');
+        return redirect(route('cms.product.edit-style', ['id' => $id]));
+
     }
 
+    public function createAllSku(Request $request, $id)
+    {
+        $styles = ProductStyle::where('product_id', $id)->whereNull('sku')->select('id')->get()->toArray();
+
+        foreach ($styles as $style) {
+            ProductStyle::createSku($id, $style['id']);
+        }
+
+        if (count($styles) > 0) {
+            Product::where('id', $id)->update(['spec_locked' => 1]);
+        }
+
+        wToast('sku產生完成');
+        return redirect(route('cms.product.edit-style', ['id' => $id]));
+    }
 
     /**
      * 編輯 - 編輯規格
