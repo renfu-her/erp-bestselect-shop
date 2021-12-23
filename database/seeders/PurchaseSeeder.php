@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\PayingOrder;
 use App\Models\Purchase;
 use App\Models\PurchaseItem;
 use Illuminate\Database\Seeder;
@@ -23,6 +24,7 @@ class PurchaseSeeder extends Seeder
             'bank_acount' => 'XX商行',
             'bank_numer' => '123456789098',
             'invoice_num' => '12345678',
+            'scheduled_date' => '2021-12-22 00:00:00',
             'pay_type' => '1',
         ]);
         Purchase::create([
@@ -42,5 +44,21 @@ class PurchaseSeeder extends Seeder
             'num' => 10,
             'temp_id' => 1,
         ]);
+
+        PayingOrder::create([
+            'purchase_id' => 1,
+            'type' => 0,
+            'order_num' => 'ABCD',
+            'price' => 100,
+            'pay_date' => '2021-12-12 00:00:00',
+        ]);
+        PayingOrder::create([
+            'purchase_id' => 1,
+            'type' => 1,
+            'order_num' => 'ABCE',
+            'price' => 900,
+            'pay_date' => '2021-12-13 00:00:00',
+        ]);
+
     }
 }

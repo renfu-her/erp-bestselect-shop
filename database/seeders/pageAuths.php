@@ -105,6 +105,27 @@ return [
         ],
     ],
     [
+        "unit" => "採購單列表",
+        "permissions" => [
+            [
+                "cms.purchase.index",
+                "瀏覽",
+            ],
+            [
+                "cms.purchase.create",
+                "新增",
+            ],
+            [
+                "cms.purchase.edit",
+                "修改",
+            ],
+            [
+                "cms.purchase.delete",
+                "刪除",
+            ],
+        ],
+    ],
+    [
         "unit" => "員工帳號管理",
         "permissions" => [
             [

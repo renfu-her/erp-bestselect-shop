@@ -13,13 +13,31 @@ class Supplier extends Model
     protected $table = 'prd_suppliers';
     protected $guarded = [];
 
-    public static function getSupplierList($searchVal)
+    public static function getSupplierList($searchVal = null)
     {
-        $result = Supplier::where(function ($query) use ($searchVal) {
-            $query->Where('name', 'like', "%{$searchVal}%")
-                ->orWhere('nickname', 'like', "%{$searchVal}%")
-                ->orWhere('vat_no', '=', "{$searchVal}");
-        });
+        $result = DB::table('prd_suppliers as ps')
+            ->whereNull('ps.deleted_at')
+            ->select(
+        'ps.id as id',
+                'ps.name as name',
+                'ps.vat_no as vat_no',
+                'ps.chargeman as chargeman',
+                'ps.bank_cname as bank_cname',
+                'ps.bank_code as bank_code',
+                'ps.bank_acount as bank_acount',
+                'ps.bank_numer as bank_numer',
+                'ps.contact_person as contact_person',
+                'ps.email as email',
+                'ps.memo as memo',
+            );
+        if ($searchVal) {
+            $result->where(function ($query) use ($searchVal) {
+                $query->Where('ps.name', 'like', "%{$searchVal}%")
+                    ->orWhere('ps.nickname', 'like', "%{$searchVal}%")
+                    ->orWhere('ps.vat_no', '=', "{$searchVal}");
+            });
+        }
+//        dd($result->get());
         return $result;
     }
 
