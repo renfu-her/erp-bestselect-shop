@@ -30,6 +30,10 @@ Breadcrumbs::for('cms.product.edit-style', function (BreadcrumbTrail $trail, $va
     $trail->parent('cms.product.index');
     $trail->push('規格款式');
 });
+Breadcrumbs::for('cms.product.edit-spec', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.product.index');
+    $trail->push('編輯規格');
+});
 // 編輯 - 銷售控管
 Breadcrumbs::for('cms.product.edit-sale', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.index');
