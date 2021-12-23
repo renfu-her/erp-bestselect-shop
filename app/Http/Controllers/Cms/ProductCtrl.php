@@ -209,6 +209,8 @@ class ProductCtrl extends Controller
                 ProductStyle::where('id', $value)->whereNotNull('sku')->update($updateData);
             }
         }
+
+        
         if (isset($d['active_id'])) {
             ProductStyle::activeStyle($id, $d['active_id']);
         }
