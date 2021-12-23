@@ -101,21 +101,25 @@ class ProductStyle extends Model
         if (!$count) {
             return [];
         }
+        // t1.spec_id as spec_item1_id',
         $re = DB::table('prd_spec_items as t1')
             ->select('t1.spec_id as spec_item1_id')
-            ->selectRaw('@sku:=null as sku')
-            ->selectRaw('@safety_stock:=0 as safety_stock')
-            ->selectRaw('@in_stock:=0 as in_stock')
-            ->selectRaw('@sold_out_event:=null as sold_out_event')
-            ->selectRaw('@is_active:=1 as is_active')
+        /*   ->selectRaw('@sku:=null as sku')
+        ->selectRaw('@safety_stock:=0 as safety_stock')
+        ->selectRaw('@in_stock:=0 as in_stock')
+        ->selectRaw('@sold_out_event:=null as sold_out_event')
+        ->selectRaw('@is_active:=1 as is_active') */
             ->where('t1.product_id', $product_id)
+        //  ->orderBy('item1_id');
             ->orderBy('spec_item1_id');
 
         if ($count > 1) {
             for ($i = 2; $i <= $count; $i++) {
                 $re->crossJoin("prd_spec_items as t$i")
                     ->addSelect("t$i.spec_id as spec_item${i}_id")
+                //    ->addSelect("t$i.id as item${i}_id")
                     ->where("t$i.product_id", $product_id)
+                // ->orderBy("item${i}_id");
                     ->orderBy("spec_item${i}_id");
             }
 
