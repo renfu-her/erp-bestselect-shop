@@ -253,7 +253,7 @@
                                 </div>
                                 <div class="col-4">
                                     <label class="form-label" for="select2-multiple">Select2 搜尋多選</label>
-                                    <select name="select2[]" id="select2-multiple" multiple="multiple" class="-select2 -multiple" data-placeholder="可多選">
+                                    <select name="select2[]" id="select2-multiple" multiple="multiple" class="-select2 -multiple form-select" data-placeholder="可多選">
                                         <option value="1">item 1</option>
                                         <option value="2">item 2</option>
                                         <option value="3">item 3</option>
@@ -261,7 +261,7 @@
                                 </div>
                                 <div class="col-4">
                                     <label class="form-label" for="select2">Select2 搜尋單選</label>
-                                    <select name="select2[]" id="select2" class="-select2 -single" data-placeholder="請單選">
+                                    <select name="select2[]" id="select2" class="-select2 -single form-select" data-placeholder="請單選">
                                         <option value="1">item 1</option>
                                         <option value="2">item 2</option>
                                         <option value="3">item 3</option>

@@ -13,7 +13,7 @@
         </div>
 
         <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList mb-0">
+            <table class="table table-striped tableList">
                 <thead>
                 <tr>
                     <th scope="col" style="width:10%">#</th>
