@@ -20,6 +20,7 @@ class CreatePcsPayingOrdersItemsTable extends Migration
             $table->string('order_num')->comment('代墊單號');
             $table->string('price')->nullable()->comment('金額');
             $table->string('pay_date')->nullable()->comment('付款日期');
+            $table->string('memo')->nullable()->comment('備註');
             $table->timestamps();
             $table->softDeletes();
         });

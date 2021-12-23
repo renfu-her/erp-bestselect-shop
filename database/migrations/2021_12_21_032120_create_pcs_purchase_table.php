@@ -15,6 +15,7 @@ class CreatePcsPurchaseTable extends Migration
     {
         Schema::create('pcs_purchase', function (Blueprint $table) {
             $table->id()->comment('採購id 一張採購對一家廠商');
+            $table->string('sn')->comment('採購單號');
             $table->integer('supplier_id')->comment('廠商');
             $table->integer('purchase_id')->comment('採購人員');
             $table->string('bank_cname')->comment('匯款銀行');
@@ -26,6 +27,7 @@ class CreatePcsPurchaseTable extends Migration
             $table->string('logistic_price')->default(0)->comment('物流運費(輸入)(提示無外加運費填0)(預設0)');
             $table->dateTime('scheduled_date')->nullable()->comment('預計進貨日期');
             $table->dateTime('close_date')->nullable()->comment('結案日期');
+            $table->string('memo')->nullable()->comment('備註');
             $table->timestamps();
             $table->softDeletes();
         });
