@@ -19,10 +19,10 @@ class PurchaseSeeder extends Seeder
         $purchaseItemID1 = Purchase::createPurchase(
             1,
             5,
+            '2021-12-22 00:00:00',
             '12345678',
             '1',
             '第一筆採購單',
-            '2021-12-22 00:00:00',
             null,
             null,
         );
@@ -30,9 +30,9 @@ class PurchaseSeeder extends Seeder
         Purchase::createPurchase(
             1,
             6,
+            '2021-12-23 00:00:00',
             '87654321',
             '1',
-            null,
             null,
             null,
             null,

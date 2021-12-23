@@ -13,14 +13,14 @@ class Purchase extends Model
     protected $table = 'pcs_purchase';
     protected $guarded = [];
 
-    public static function createPurchase($supplier_id, $purchase_id, $invoice_num = null, $pay_type = null, $memo = null, $scheduled_date = null, $close_date = null)
+    public static function createPurchase($supplier_id, $purchase_id, $scheduled_date, $invoice_num = null, $pay_type = null, $memo = null, $close_date = null)
     {
         return DB::transaction(function () use ($supplier_id,
             $purchase_id,
+            $scheduled_date,
             $invoice_num,
             $pay_type,
             $memo,
-            $scheduled_date,
             $close_date
             ) {
 
@@ -33,9 +33,9 @@ class Purchase extends Model
                 "sn" => $sn,
                 'supplier_id' => $supplier_id,
                 'purchase_id' => $purchase_id,
+                'scheduled_date' => $scheduled_date,
                 'pay_type' =>$pay_type,
                 'memo' => $memo,
-                'scheduled_date' => $scheduled_date,
                 'close_date' => $close_date,
             ])->id;
 
