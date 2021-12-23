@@ -19,28 +19,20 @@ class PurchaseSeeder extends Seeder
         $purchaseItemID1 = Purchase::createPurchase(
             1,
             5,
-            '中信銀行',
-            '822',
-            'XX商行',
-            '123456789098',
             '12345678',
             '1',
-            0,
             '第一筆採購單',
             '2021-12-22 00:00:00',
+            null,
             null,
         );
 
         Purchase::createPurchase(
             1,
             6,
-            '中信銀行',
-            '822',
-            'OO企業社',
-            '987654321012',
             '87654321',
             '1',
-            0,
+            null,
             null,
             null,
             null,
@@ -57,17 +49,27 @@ class PurchaseSeeder extends Seeder
         PayingOrder::createPayingOrder(
             $purchaseItemID1,
             1,
-            'ABCE',
-            900,
+            '中信銀行',
+            '822',
+            'XX商行',
+            '123456789098',
+            100,
             '2021-12-13 00:00:00',
+            0,
             '第一筆備註 訂金'
         );
-        PayingOrder::create([
-            'purchase_id' => 1,
-            'type' => 1,
-            'order_num' => 'ABCE',
-            'price' => 900,
-        ]);
+        PayingOrder::createPayingOrder(
+            $purchaseItemID1,
+            1,
+            '中信銀行',
+            '822',
+            'OO企業社',
+            '987654321012',
+            900,
+            '2021-12-14 00:00:00',
+            60,
+            '第二筆備註 尾款'
+        );
 
     }
 }
