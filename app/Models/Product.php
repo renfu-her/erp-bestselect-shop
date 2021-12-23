@@ -99,4 +99,13 @@ class Product extends Model
 
     }
 
+    public static function productStyleList($supplier_id = null)
+    {
+        return DB::table('prd_products as p')->leftJoin('prd_product_styles as s', 'p.id', '=', 's.product_id')
+            ->select('s.id', 's.sku', 's.title as titl2')
+            ->selectRaw('IF(s.title,p.title,CONCAT(p.title," ",COALESCE(s.title,""))) as title')
+            ->whereNotNull('s.sku')
+            ->whereNull('s.deleted_at');
+    }
+
 }
