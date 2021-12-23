@@ -11,6 +11,7 @@
             <h6>編輯規格</h6>
             <div>
                 <label>規格最多只能選擇三種</label>
+                <p class="mark m-0"><i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>已產生SKU將無法再新增修改規格（但仍可新增項目）</p>
                 <div class="-appendClone -spec">
                     @if (count($currentSpec) == 0)
                         <div class="pt-4 pb-3 -cloneElem -spec">
@@ -21,8 +22,8 @@
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </div>
-                                <div class="col-7 col-md-6">
-                                    <select class="-single" data-placeholder="請選擇規格" required>
+                                <div class="col col-md-6">
+                                    <select class="-single form-select" data-placeholder="請選擇規格" required>
                                         @foreach ($specs as $key => $spec)
                                             <option value="{{ $spec['id'] }}">{{ $spec['title'] }}</option>
                                         @endforeach
@@ -55,8 +56,8 @@
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </div>
-                                <div class="col-7 col-md-6">
-                                    <select class="-single" data-placeholder="請選擇規格" disabled>
+                                <div class="col col-md-6">
+                                    <select class="-single form-select" data-placeholder="請選擇規格" disabled>
                                         @foreach ($specs as $key => $spec)
                                             <option value="{{ $spec['id'] }}" @if ($spec['id'] == $cSpec->id) selected @endif>
                                                 {{ $spec['title'] }}</option>
@@ -86,12 +87,14 @@
                     @endforeach
 
                 </div>
+                @if ($data->spec_locked)
                 <div class="d-grid gap-2 border-top -newSpecBtnBox">
                     <button type="button" class="btn btn-outline-primary border-dashed mt-4 -newSpec"
-                        style="font-weight: 500;" @if ($data->spec_locked) disabled @endif>
+                        style="font-weight: 500;">
                         <i class="bi bi-plus-circle"></i> 新增規格
                     </button>
                 </div>
+                @endif
             </div>
         </div>
 

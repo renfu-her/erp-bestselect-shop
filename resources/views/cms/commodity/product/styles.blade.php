@@ -63,7 +63,7 @@
                             <tr class="-cloneElem d-none">
                                 <td class="text-center">
                                     <div class="form-check form-switch form-switch-lg">
-                                        <input class="form-check-input" value="1" type="checkbox" name="n_active[]" checked>
+                                        <input class="form-check-input" type="checkbox" name="n_active[]" checked>
                                     </div>
                                 </td>
                                 <td>
@@ -90,7 +90,7 @@
                                     <a href="#" class="-text -stock">庫存管理</a>
                                 </td>
                                 <td>
-                                    <select name="" class="form-select form-select-sm">
+                                    <select name="n_sold_out_event[]" class="form-select form-select-sm">
                                         <option value="繼續銷售">繼續銷售</option>
                                         <option value="停止銷售">停止銷售</option>
                                         <option value="下架">下架</option>
@@ -114,7 +114,7 @@
                                 <td class="text-center">
                                     <div class="form-check form-switch form-switch-lg">
                                         <input class="form-check-input" name="active_id[]" type="checkbox"
-                                            value="{{ $style['id'] }}" @if ($style['is_active']) checked @endif>
+                                            @if ($style['is_active']) checked @endif>
                                     </div>
                                 </td>
                                 <td>
@@ -193,20 +193,33 @@
             const $clone = $('.-cloneElem:first-child').clone();
             $('.-cloneElem.d-none').remove();
             $('.-newClone').off('click').on('click', function() {
+                createInitStyle(false);
+            });
+            initStyles.forEach(style => {
+                createInitStyle(style);
+            });
+            // 新增一條款式
+            function createInitStyle(items) {
                 Clone_bindCloneBtn($clone, function(cloneElem) {
                     cloneElem.find('input, select').val('');
-                    cloneElem.find('select[name$="_sold_out_event[]"]').val('繼續銷售');
                     cloneElem.find('input:hidden[name$="_style_id[]"]').remove();
                     cloneElem.find('.form-switch input').prop('checked', true);
                     cloneElem.find('a.-text.-cost').text('採購單');
                     cloneElem.find('a.-text.-stock').text('庫存管理');
+                    cloneElem.find('select[name$="sold_out_event[]"]').val('繼續銷售');
                     cloneElem.find('select, .-del').prop('disabled', false);
                     cloneElem.find('input[name="active_id[]"]').attr('name', 'n_active[]');
                     cloneElem.find('select[name]').attr('name', function (index, attr) { 
                         return attr.replace(/nsk_|sk_/, 'n_');
                     });
+                    if (items) {
+                        cloneElem.find('select[name="n_spec1[]"]').val(items.spec_item1_id);
+                        cloneElem.find('select[name="n_spec2[]"]').val(items.spec_item2_id);
+                        cloneElem.find('select[name="n_spec3[]"]').val(items.spec_item3_id);
+                    }
                 });
-            });
+            }
+            // del
             let del_id = [];
             Clone_bindDelElem($('.-del'));
             $('.-del').off('click.del-id').on('click.del-id', function () {
