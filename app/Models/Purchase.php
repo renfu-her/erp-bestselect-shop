@@ -13,6 +13,47 @@ class Purchase extends Model
     protected $table = 'pcs_purchase';
     protected $guarded = [];
 
+    public static function createPurchase($supplier_id, $purchase_id, $bank_cname, $bank_code, $bank_acount, $bank_numer, $invoice_num = '', $pay_type, $logistic_price = 0, $memo = null, $scheduled_date = null, $close_date = null)
+    {
+        return DB::transaction(function () use ($supplier_id,
+            $purchase_id,
+            $bank_cname,
+            $bank_code,
+            $bank_acount,
+            $bank_numer,
+            $invoice_num,
+            $pay_type,
+            $logistic_price,
+            $memo,
+            $scheduled_date,
+            $close_date
+            ) {
+
+            $sn = "B" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
+                        ->withTrashed()
+                        ->get()
+                        ->count()) + 1, 3, '0', STR_PAD_LEFT);
+
+            $id = self::create([
+                "sn" => $sn,
+                'supplier_id' => $supplier_id,
+                'purchase_id' => $purchase_id,
+                'bank_cname' => $bank_cname,
+                'bank_code' => $bank_code,
+                'bank_acount' => $bank_acount,
+                'bank_numer' => $bank_numer,
+                'invoice_num' => $invoice_num,
+                'pay_type' =>$pay_type,
+                'logistic_price' => $logistic_price,
+                'memo' => $memo,
+                'scheduled_date' => $scheduled_date,
+                'close_date' => $close_date,
+            ])->id;
+
+            return $id;
+        });
+    }
+
     //起日 訖日 是否含已結單 發票號碼
     public static function getPurchaseList($sDate = null, $eDate = null, $hasClose = false, $invoiceNum = null)
     {
