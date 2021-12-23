@@ -41,8 +41,8 @@ div.card h6:not(:first-child) {
   height: 1.1rem;
   margin-top: 0.2rem;
 }
-.form-check-input[type=checkbox]:checked,
-.form-check-input[type=checkbox]:indeterminate {
+div:not(.form-switch) > input.form-check-input[type=checkbox]:checked,
+div:not(.form-switch) > input.form-check-input[type=checkbox]:indeterminate {
   background-position: center;
   background-size: 140%;
 }
@@ -82,7 +82,13 @@ i.bi-question-circle {
   margin-left: 3px;
 }
 
-/* Table 列表 */
+.border-dashed {
+  border-style: dashed !important;
+}
+
+/* 
+ * Table 列表
+ */
 .tableOverBox {
   margin: 0 -1.5rem;
 }
@@ -109,7 +115,7 @@ i.bi-question-circle {
   line-height: 40px;
   vertical-align: middle;
 }
-.tableList input.form-check-input[type=checkbox] {
+.tableList div:not(.form-switch) > input.form-check-input[type=checkbox] {
   margin: -3px 0 0;
   vertical-align: middle;
 }
@@ -117,6 +123,9 @@ i.bi-question-circle {
 .tableList .input-group > input.form-control,
 .tableList select.form-select {
   min-width: 100px;
+}
+.tableList select.form-select {
+  width: auto;
 }
 .tableList input.form-control.-l,
 .tableList .input-group > input.form-control.-l,
@@ -132,7 +141,9 @@ i.bi-question-circle {
   border-bottom-width: 0;
 }
 
-/* 分頁 */
+/*
+ * 分頁 
+ */
 nav ul.pagination {
   margin-bottom: 0;
 }
@@ -144,36 +155,43 @@ nav ul.pagination .page-link {
   justify-content: center;
 }
 
-/* 元件: chip */
+/*
+ * 元件: chip
+ */
 // .chipGroup {}
-
-.chipGroup .chipElem {
-  height: 24px;
-  min-width: max-content;
-  line-height: 24px;
-  font-size: .9rem;
-  display: inline-flex;
-  align-items: center;
-  padding-left: 10px;
-  padding-right: 2px;
-  margin-left: 6px;
-  margin-bottom: 5px;
-}
-.chipGroup .chipElem button {
-  height: 20px;
-  width: 20px;
-  padding: 0;
-  margin-left: 8px;
-  font-size: 1rem;
-    line-height: 11px;
-}
-@include media-breakpoint-up(md) {
-  .chipGroup .chipElem button {
-    font-size: 14px;
+.chipGroup {
+  .chipElem {
+    height: 24px;
+    min-width: max-content;
+    line-height: 24px;
+    font-size: .9rem;
+    display: inline-flex;
+    align-items: center;
+    padding-left: 10px;
+    padding-right: 2px;
+    margin-left: 6px;
+    margin-bottom: 5px;
+  }
+  .chipElem button {
+    height: 20px;
+    width: 20px;
+    padding: 0;
+    margin-left: 8px;
+    font-size: 1rem;
+      line-height: 11px;
+  }
+  
+  @include media-breakpoint-up(md) {
+    .chipElem button {
+      font-size: 14px;
+    }
   }
 }
 
-/* 日期快速鍵 */
+
+/*
+ * 日期快速鍵 
+ */
 button[data-daysBefore] {
   color: #212529;
   border-color: #ced4da;
@@ -185,7 +203,9 @@ button[data-daysBefore]:hover {
   background-color: $primary;
 }
 
-/* 步驟標籤 */
+/*
+ * 步驟標籤 
+ */
 span.badge.-step {
   font-size: 1rem;
   line-height: 1rem;
@@ -197,7 +217,9 @@ span.badge.-step {
 }
 
 
-/* 物流歷程 */
+/*
+ * 物流歷程 
+ */
 #order-flow p.h5 {
   font-size: 18px;
 }
@@ -258,7 +280,23 @@ span.badge.-step {
 }
 
 
-/* Date input */
+
+/*
+ * 表單元件
+ */
+input.form-control,
+.input-group > input.form-control,
+select.form-select {
+  min-width: min-content;
+}
+
+select.form-select optgroup {
+  background-color: #CCCCCC;
+}
+select.form-select optgroup option {
+  background-color: #f8fafc;
+}
+// Date input 
 input.form-control[type="date"],
 input.form-control[type="month"] {
   position: relative;
@@ -273,21 +311,22 @@ input.form-control[type="month"]::-webkit-calendar-picker-indicator {
   background-size: 20px;
   background-color: transparent;
 }
-
-input.form-control,
-.input-group > input.form-control,
-select.form-select {
-  min-width: min-content;
+// checkbox .form-switch 大
+.form-switch.form-switch-lg {
+  .form-check-input {
+    height: 1.5rem;
+    width: 2.75rem;
+    background-size: 62%;
+    background-position-x: -10%;
+  }
+  .form-check-input:checked {
+    background-position-x: 110%;
+  }
 }
 
-select.form-select optgroup {
-  background-color: #CCCCCC;
-}
-select.form-select optgroup option {
-  background-color: #f8fafc;
-}
-
-/* Toast */
+/*
+ * Toast 
+ */
 .toast-danger {
   color: #842029;
   background-color: #f8d7da;
@@ -297,7 +336,9 @@ select.form-select optgroup option {
   color: #842029;
 }
 
-/* Header btn */
+/*
+ * Header btn 
+ */
 .d-flex .btn.-in-header {
   display: flex;
   align-items: center;
@@ -333,7 +374,9 @@ select.form-select optgroup option {
   right: 38px;
 }
 
-/* 商品頁 layout - pm_* */
+/*
+ * 商品頁 layout - pm_* 
+ */
 .pm_btnGroup  {
   .icon {
     width: 30px;
@@ -384,7 +427,9 @@ select.form-select optgroup option {
 }
 
 
-/* 拖曳區塊 */
+/*
+ * 拖曳區塊 
+ */
 .sortabled {
   position: relative;
 }
@@ -395,7 +440,9 @@ select.form-select optgroup option {
   border: 2px dashed rgba(33, 33, 33, 0.7);
 }
 
-/* 圖片上傳 */
+/*
+ * 圖片上傳 
+ */
 // 圖片上傳區
 .upload_image_block {
   position: relative;

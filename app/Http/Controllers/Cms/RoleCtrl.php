@@ -21,7 +21,7 @@ class RoleCtrl extends Controller
      */
     public function index()
     {
-        return view('cms.role.list', [
+        return view('cms.admin.role.list', [
             "dataList"       => Role::roleList('user'),
             'is_super_admin' => Auth::user()->hasrole('Super Admin')
         ]);
@@ -35,7 +35,7 @@ class RoleCtrl extends Controller
     public function create()
     {
 
-        return view('cms.role.edit', [
+        return view('cms.admin.role.edit', [
             'method'         => 'create',
             'formAction'     => Route('cms.role.create'),
             'permissions'    => Permission::getPermissionGroups('user'),
@@ -95,7 +95,7 @@ class RoleCtrl extends Controller
             }, $arr);
         });
 
-        return view('cms.role.edit', [
+        return view('cms.admin.role.edit', [
             'method'         => 'edit', 'id' => $id,
             'formAction'     => Route('cms.role.edit', ['id' => $id]),
             'data'           => $data,

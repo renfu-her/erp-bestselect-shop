@@ -81,16 +81,22 @@ class Product extends Model
         Supplier::updateProductSupplier($id, $supplier);
     }
 
-    public static function setProductSpec($product_id, $spec_ids = [])
+    public static function setProductSpec($product_id, $spec_id)
     {
-        $spec_ids = array_values(array_unique($spec_ids));
-        $specCol = [];
-        for ($i = 0; $i < 3; $i++) {
-            $spec_id = isset($spec_ids[$i]) ? $spec_ids[$i] : null;
-            $specCol["spec" . ($i + 1) . "_id"] = $spec_id;
+        $db = DB::table('prd_product_spec')->where('product_id', $product_id);
+        if ($db->count() > 2) {
+            return '超過上限';
         }
 
-        self::where('id', $product_id)->update($specCol);
+        if ($db->where('spec_id', $spec_id)->get()->first()) {
+            return '重複設定';
+        }
+
+        return DB::transaction(function () use ($product_id, $spec_id) {
+            $count = DB::table('prd_product_spec')->where('product_id', $product_id)->count();
+            return DB::table('prd_product_spec')->insert(['product_id' => $product_id, 'spec_id' => $spec_id, 'rank' => $count]);
+        });
+
     }
 
 }

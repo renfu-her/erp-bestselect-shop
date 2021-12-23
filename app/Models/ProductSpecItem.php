@@ -17,10 +17,10 @@ class ProductSpecItem extends Model
 
         if (gettype($title) == 'array') {
             self::insert(array_map(function ($v) use ($product_id, $spec_id) {      
-                return ['product_id' => $product_id, 'spec_id' => $spec_id, 'title' => $v];
+                return ['product_id' => $product_id, 'spec_id' => $spec_id, 'title' => trim($v)];
             }, $title));
         } else {
-            self::create(['product_id' => $product_id, 'spec_id' => $spec_id, 'title' => $title]);
+            self::create(['product_id' => $product_id, 'spec_id' => $spec_id, 'title' => trim($title)]);
         }
     }
 }

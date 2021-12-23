@@ -10,10 +10,10 @@ Breadcrumbs::for('cms.dashboard', function (BreadcrumbTrail $trail) {
     $trail->push('Home', route('cms.dashboard'));
 });
 
-// 商品主頁
+// 商品列表
 Breadcrumbs::for('cms.product.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('商品主頁');
+    $trail->push('商品列表');
 });
 // 新增商品
 Breadcrumbs::for('cms.product.create', function (BreadcrumbTrail $trail) {
@@ -29,6 +29,10 @@ Breadcrumbs::for('cms.product.edit', function (BreadcrumbTrail $trail, $value) {
 Breadcrumbs::for('cms.product.edit-style', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.index');
     $trail->push('規格款式');
+});
+Breadcrumbs::for('cms.product.edit-spec', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.product.index');
+    $trail->push('編輯規格');
 });
 // 編輯 - 銷售控管
 Breadcrumbs::for('cms.product.edit-sale', function (BreadcrumbTrail $trail, $value) {
@@ -71,6 +75,20 @@ Breadcrumbs::for('cms.category.edit', function ($trail) {
 });
 
 
+// 倉庫管理
+Breadcrumbs::for('cms.depot.index', function ($trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('倉庫管理', route('cms.depot.index'));
+});
+Breadcrumbs::for('cms.depot.create', function ($trail) {
+    $trail->parent('cms.depot.index');
+    $trail->push('新增');
+});
+Breadcrumbs::for('cms.depot.edit', function ($trail) {
+    $trail->parent('cms.depot.index');
+    $trail->push('編輯');
+});
+
 // 廠商管理
 Breadcrumbs::for('cms.supplier.index', function ($trail) {
     $trail->parent('cms.dashboard');
@@ -85,10 +103,10 @@ Breadcrumbs::for('cms.supplier.edit', function ($trail) {
     $trail->push('編輯');
 });
 
-// 通路管理
+// 銷售通路管理
 Breadcrumbs::for('cms.sale_channel.index', function ($trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('廠商管理', route('cms.sale_channel.index'));
+    $trail->push('銷售通路管理', route('cms.sale_channel.index'));
 });
 Breadcrumbs::for('cms.sale_channel.create', function ($trail) {
     $trail->parent('cms.sale_channel.index');

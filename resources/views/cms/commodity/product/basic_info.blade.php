@@ -23,16 +23,16 @@
                 </div>
                 <div class="col-12 mb-3">
                     <label class="form-label">商品網址（發佈後若有更改網址可能會影響SEO搜尋）</label>
-                    <div class="input-group">
+                    <div class="input-group has-validation">
                         <span class="input-group-text">https://demo.bestselection.com.tw/products/</span>
                         <input type="text" name="url" class="form-control @error('url')is-invalid @enderror"
                             placeholder="請輸入連結路徑" value="{{ old('url', $data->url ?? '') }}" aria-label="商品網址">
+                        <div class="invalid-feedback">
+                            @error('url') {{ $message }} @enderror
+                        </div>
                     </div>
-
                 </div>
-                @error('url')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
+                
                 <div class="col-12 mb-3">
                     <label class="form-label">商品簡述</label>
                     <textarea rows="3" name="feature" class="form-control" maxlength="150" placeholder="請輸入關於產品的描述"
@@ -74,7 +74,7 @@
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label" for="supplier">廠商 <span class="text-danger">*</span></label>
                     <select name="supplier[]" id="supplier" multiple="multiple" hidden
-                        class="-select2 -multiple @error('supplier')is-invalid @enderror" data-placeholder="請選擇廠商" required>
+                        class="-select2 -multiple form-select @error('supplier')is-invalid @enderror" data-placeholder="請選擇廠商" required>
                         @foreach ($suppliers as $key => $supplier)
                             <option value="{{ $supplier->id }}" @if (in_array($supplier->id, old('supplier', $current_supplier ?? []))) selected @endif>{{ $supplier->name }}
                             </option>
@@ -170,17 +170,17 @@
                     </label>
                 </div>
             </div>
-            @error('files')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-            <p><mark>圖片限制：不超過1MB，1000×1000px，可上傳JPG/ JPEG/ PNG/ GIF/ SVG格式</mark></p>
+            <p><mark>圖片限制：不超過1MB，1000×1000px，可上傳JPG/ JPEG/ PNG/ GIF格式</mark></p>
             <input type="hidden" name="del_image">
+            @error('files')
+                <div class="alert alert-danger" role="alert">{{ $message }}</div>
+            @enderror
         </div>
 
         <div>
             <div class="col-auto">
                 <button type="submit" class="btn btn-primary px-4">儲存</button>
-                <a href="/" class="btn btn-outline-primary px-4" role="button">返回列表</a>
+                <a href="{{ Route('cms.product.index') }}" class="btn btn-outline-primary px-4" role="button">返回列表</a>
             </div>
         </div>
 
@@ -199,9 +199,13 @@
         </script>
         <script>
             /*** 媒體設定 ***/
+            let del_image = [];
             $('#mediaSettings .upload_image_block > .sortabled > .sortabled_box[hidden]').remove();
 
+            // 綁定事件 init
             bindReadImageFiles();
+            bindImageClose();
+            bindImageMove();
             // 綁定事件: 選擇圖片
             function bindReadImageFiles() {
                 // 支援檔案讀取
@@ -356,6 +360,13 @@
                     .on('click', function(e) {
                         e.stopPropagation();
                         e.preventDefault();
+
+                        const id = $(this).closest('.sortabled_box').attr('data-id');
+                        console.log(id);
+                        if (id) {
+                            del_image.push(id);
+                            $('input[name="del_image"]').val(del_image.toString());
+                        }
                         $(this).closest('.sortabled_box').remove();
                     });
             }
@@ -382,8 +393,6 @@
                     case "image/jpeg":
                     case "image/gif":
                     case "image/png":
-                    case "image/svg":
-                    case "image/svg+xml":
                         return true;
                     default:
                         return false;

@@ -6,9 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImg;
+use App\Models\ProductSpec;
+use App\Models\ProductSpecItem;
+use App\Models\ProductStyle;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\DB;
 
 class ProductCtrl extends Controller
 {
@@ -120,9 +125,10 @@ class ProductCtrl extends Controller
      */
     public function update(Request $request, $id)
     {
+
         $request->validate([
-            'files.*' => 'max:10000|mimes:jpg,jpeg,png,bmp',
-            'url' => [ "unique:App\Models\Product,url,$id,id", 'nullable'],
+            'files.*' => 'max:5000|mimes:jpg,jpeg,png,bmp',
+            'url' => ["unique:App\Models\Product,url,$id,id", 'nullable'],
             'title' => 'required',
             'has_tax' => 'required',
             'active_sdate' => 'date|nullable',
@@ -143,6 +149,10 @@ class ProductCtrl extends Controller
             ProductImg::createImgs($id, $imgData);
         }
 
+        if (isset($d['del_image']) && $d['del_image']) {
+            ProductImg::delImgs(explode(',', $d['del_image']));
+        }
+
         wToast('儲存完畢');
         return redirect(route('cms.product.index'));
 
@@ -157,9 +167,125 @@ class ProductCtrl extends Controller
      */
     public function editStyle($id)
     {
+        $specList = ProductSpec::specList($id);
+        $styles = ProductStyle::where('product_id', $id)->get()->toArray();
+        $init_styles = [];
+        if (count($styles) == 0) {
+           $init_styles = ProductStyle::createInitStyles($id);
+        }
+     
         return view('cms.commodity.product.styles', [
             'data' => Product::where('id', $id)->get()->first(),
+            'specList' => $specList,
+            'styles' => $styles,
+            'initStyles' => $init_styles,
         ]);
+    }
+
+    public function storeStyle(Request $request, $id)
+    {
+
+        $d = $request->all();
+        $specCount = DB::table('prd_product_spec')->where('product_id', $id)->count();
+        // dd($d);
+        if (isset($d['nsk_style_id'])) {
+            foreach ($d['nsk_style_id'] as $key => $value) {
+                $updateData = [];
+                for ($i = 1; $i <= $specCount; $i++) {
+                    if (isset($d["nsk_spec$i"][$key])) {
+                        $updateData["spec_item${i}_id"] = $d['nsk_spec' . $i][$key];
+                    }
+                }
+                $updateData['sold_out_event'] = $d['nsk_sold_out_event'][$key];
+
+                ProductStyle::where('id', $value)->whereNull('sku')->update($updateData);
+            }
+        }
+
+        if (isset($d['sk_style_id'])) {
+            foreach ($d['sk_style_id'] as $key => $value) {
+                $updateData = [];
+                $updateData['sold_out_event'] = $d['sk_sold_out_event'][$key];
+                ProductStyle::where('id', $value)->whereNotNull('sku')->update($updateData);
+            }
+        }
+
+        
+        if (isset($d['active_id'])) {
+            ProductStyle::activeStyle($id, $d['active_id']);
+        }
+
+        if (isset($d['n_sold_out_event'])) {
+            $newItemCount = count($d['n_sold_out_event']);
+            for ($i = 0; $i < $newItemCount; $i++) {
+                $updateData = [];
+                for ($j = 1; $j <= $specCount; $j++) {
+                    if (isset($d["n_spec$j"][$i])) {
+                        $updateData["spec_item${j}_id"] = $d['n_spec' . $j][$i];
+                    }
+                }
+
+                ProductStyle::createStyle($id, $updateData);
+
+            }
+        }
+
+        if ($d['del_id']) {
+            ProductStyle::whereIn('id', explode(',', $d['del_id']))->where('product_id', $id)->delete();
+        }
+        wToast('修改完成');
+        return redirect(route('cms.product.edit-style', ['id' => $id]));
+
+    }
+
+    public function createAllSku(Request $request, $id)
+    {
+        $styles = ProductStyle::where('product_id', $id)->whereNull('sku')->select('id')->get()->toArray();
+
+        foreach ($styles as $style) {
+            ProductStyle::createSku($id, $style['id']);
+        }
+
+        if (count($styles) > 0) {
+            Product::where('id', $id)->update(['spec_locked' => 1]);
+        }
+
+        wToast('sku產生完成');
+        return redirect(route('cms.product.edit-style', ['id' => $id]));
+    }
+
+    /**
+     * 編輯 - 編輯規格
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editSpec($id)
+    {
+
+        return view('cms.commodity.product.spec-edit', [
+            'data' => Product::where('id', $id)->get()->first(),
+            'specs' => ProductSpec::get()->toArray(),
+            'currentSpec' => ProductSpec::specList($id),
+        ]);
+    }
+
+    public function storeSpec(Request $request, $id)
+    {
+        $d = $request->all();
+
+        for ($i = 0; $i < 3; $i++) {
+            if (isset($d["spec" . $i])) {
+                Product::setProductSpec($id, $d["spec" . $i]);
+                if (isset($d["item" . $i]) && is_array($d["item" . $i])) {
+                    foreach ($d["item" . $i] as $item) {
+                        ProductSpecItem::createItems($id, $d["spec" . $i], $item);
+                    }
+                }
+            }
+        }
+
+        return redirect(Route('cms.product.edit-style', ['id' => $id]));
     }
 
     /**
@@ -172,6 +298,7 @@ class ProductCtrl extends Controller
     {
         return view('cms.commodity.product.sales', [
             'data' => Product::where('id', $id)->get()->first(),
+
         ]);
     }
 

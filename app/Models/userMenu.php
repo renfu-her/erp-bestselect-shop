@@ -12,7 +12,7 @@ return
                 "route_name" => "cms.purchase.index",
             ],
             [
-                "title" => "商品及庫存",
+                "title" => "商品列表",
                 "controller_name" => "ProductCtrl",
                 "route_name" => "cms.product.index",
             ],
@@ -29,7 +29,7 @@ return
                 "route_name" => "cms.category.index",
             ],
             [
-                "title" => "倉庫設定",
+                "title" => "倉庫管理",
                 "controller_name" => "DepotCtrl",
                 "route_name" => "cms.depot.index",
             ],
@@ -68,3 +68,4 @@ return
         ],
     ],
 ];
+

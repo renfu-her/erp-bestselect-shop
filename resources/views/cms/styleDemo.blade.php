@@ -253,7 +253,7 @@
                                 </div>
                                 <div class="col-4">
                                     <label class="form-label" for="select2-multiple">Select2 搜尋多選</label>
-                                    <select name="select2[]" id="select2-multiple" multiple="multiple" class="-select2 -multiple" data-placeholder="可多選">
+                                    <select name="select2[]" id="select2-multiple" multiple="multiple" class="-select2 -multiple form-select" data-placeholder="可多選">
                                         <option value="1">item 1</option>
                                         <option value="2">item 2</option>
                                         <option value="3">item 3</option>
@@ -261,14 +261,19 @@
                                 </div>
                                 <div class="col-4">
                                     <label class="form-label" for="select2">Select2 搜尋單選</label>
-                                    <select name="select2[]" id="select2" class="-select2 -single" data-placeholder="請單選">
+                                    <select name="select2[]" id="select2" class="-select2 -single form-select" data-placeholder="請單選">
                                         <option value="1">item 1</option>
                                         <option value="2">item 2</option>
                                         <option value="3">item 3</option>
                                     </select>
                                 </div>
                             </div>
-                            
+                            <div>
+                                <x-b-editor id="editor" classes="my-3"></x-b-editor>
+                            </div>
+                            <div>
+                                <x-b-calendar id="calendar" readOnly="false" create="true" classes="my-3" ></x-b-calendar>
+                            </div>
                         </div>
                     </fieldset>
                     
@@ -464,6 +469,7 @@
 
             /*********/
         </style>
+        @stack('sub-styles')
     @endpush
     @push('scripts')
         <script src="{{ Asset('dist/js/dashboard.js') }}"></script>
@@ -559,5 +565,6 @@
             // select2
             // $('.-select2').select2();
         </script>
+        @stack('sub-scripts')
     @endpush
 @endonce
