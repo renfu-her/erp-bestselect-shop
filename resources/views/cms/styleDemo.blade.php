@@ -28,6 +28,7 @@
                                 <button type="button" class="btn btn-primary" disabled>Disabled</button>
                                 <button type="button" class="btn btn-primary px-4">Wide</button>
                                 <button type="button" class="btn btn-outline-primary">Outline</button>
+                                <button type="button" class="btn btn-outline-primary border-dashed" style="font-weight: 500;">新增</button>
                                 <a href="#" class="btn btn-primary" role="button">
                                     <i class="bi bi-plus-lg"></i> 新增
                                 </a>
