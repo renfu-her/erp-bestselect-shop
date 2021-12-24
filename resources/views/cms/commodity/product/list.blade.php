@@ -3,20 +3,23 @@
     <div class="mb-3">
         <h2>商品列表</h2>
         <div class="card shadow p-4 mb-4">
-            <div class="col mb-4">
-                <a href="{{ Route('cms.product.create') }}" class="btn btn-primary">
-                    <i class="bi bi-plus-lg"></i> 新增商品
-                </a>
+            <div class="row justify-content-end mb-4">
+                <div class="col">
+                    <a href="{{ Route('cms.product.create') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-lg"></i> 新增商品
+                    </a>
+                </div>
+                <div class="col-auto">
+                    顯示
+                    <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
+                        @foreach (config('global.dataPerPage') as $value)
+                            <option value="{{ $value }}" @if ($data_per_page == $value) selected @endif>{{ $value }}</option>
+                        @endforeach
+                    </select>
+                    筆
+                </div>
             </div>
-            <div class="col mb-4">
-                顯示
-                <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
-                    @foreach (config('global.dataPerPage') as $value)
-                        <option value="{{ $value }}" @if ($data_per_page == $value) selected @endif>{{ $value }}</option>
-                    @endforeach
-                </select>
-                筆
-            </div>
+
             <div class="table-responsive tableOverBox">
                 <table class="table table-striped tableList">
                     <thead>

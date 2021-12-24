@@ -130,8 +130,8 @@
                 clone: '.-cloneElem.-item',
                 del: '.-del.-item'
             };
-            const $cloneSpec = $(Spec.clone + ':first-child').clone();
-            const $cloneItem = $(Spec.clone + ':first-child ' + Items.clone + ':first-child').clone();
+            const $cloneSpec = $(`${Spec.clone}:first-child`).clone();
+            const $cloneItem = $(`${Spec.clone}:first-child ${Items.clone}:first-child`).clone();
             // init
             Clone_bindDelElem($(Spec.del), {
                 appendClone: Spec.append,
@@ -150,7 +150,7 @@
                 Clone_bindCloneBtn($cloneSpec, function($c_s) {
                     $c_s.find('input, select').val('');
                     $c_s.find('input, select, button').prop('disabled', false);
-                    $c_s.find(Items.clone + ':nth-child(n+2), select.-single + input:hidden').remove();
+                    $c_s.find(`${Items.clone}:nth-child(n+2), select.-single + input:hidden`).remove();
                     $c_s.find('select.-single').addClass('-select2').select2();
 
                     // 規格裡的btn: 新增項目
@@ -213,9 +213,9 @@
             $('#form1').submit(function(e) {
                 $(Spec.clone).each(function(index, element) {
                     // element == this
-                    $(element).find('select.-single.-select2, select.-single + input:hidden').attr('name',
-                        'spec' + index);
-                    $(element).find(Items.clone + ' input').attr('name', 'item' + index + '[]');
+                    $(element).find('select.-single.-select2, select.-single + input:hidden')
+                    .attr('name', `'spec${index}`);
+                    $(element).find(`${Items.clone} input`).attr('name', `item${index}[]`);
                 });
             });
         </script>

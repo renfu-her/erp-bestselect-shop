@@ -65,7 +65,7 @@
         </div>
 
         <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList mb-0">
+            <table class="table table-striped tableList">
                 <thead>
                 <tr>
                     <th scope="col" style="width:10%">#</th>
@@ -73,7 +73,6 @@
                     <th scope="col">採購人員</th>
                     <th scope="col">發票號碼</th>
                     <th scope="col">已結案</th>
-{{--                    <th scope="col">備註</th>--}}
                     <th scope="col" class="text-center">編輯</th>
                     <th scope="col" class="text-center">刪除</th>
                 </tr>
@@ -86,7 +85,6 @@
                         <td>{{ $data->user_name }}</td>
                         <td>{{ $data->invoice_num }}</td>
                         <td>{{ ($data->close_date != null)? '已結案': '' }}</td>
-{{--                        <td>{{ $data->memo }}</td>--}}
                         <td class="text-center">
 {{--                            @can('admin.purchase.edit')--}}
                             <a href="{{ Route('cms.purchase.edit', ['id' => $data->id], true) }}"
