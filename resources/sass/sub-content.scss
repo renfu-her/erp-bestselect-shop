@@ -331,13 +331,25 @@ input.form-control[type="month"]::-webkit-calendar-picker-indicator {
 /*
  * Toast 
  */
-.toast-danger {
-  color: #842029;
-  background-color: #f8d7da;
-  border-color: #f5c2c7;
+@mixin toast-variant($background, $border, $color) {
+  color: $color;
+  @include gradient-bg($background);
+  border-color: $border;
 }
-.toast-danger .toast-header {
-  color: #842029;
+@each $state, $value in $theme-colors {
+  $toast-background: shift-color($value, $alert-bg-scale);
+  $toast-border: shift-color($value, $alert-border-scale);
+  $toast-color: shift-color($value, $alert-color-scale);
+  @if (contrast-ratio($toast-background, $toast-color) < $min-contrast-ratio) {
+    $toast-color: mix($value, color-contrast($toast-background), abs($alert-color-scale));
+  }
+
+  .toast-#{$state} {
+    @include toast-variant($toast-background, $toast-border, $toast-color);
+    .toast-header {
+      color: $toast-color;
+    }
+  }
 }
 
 /*

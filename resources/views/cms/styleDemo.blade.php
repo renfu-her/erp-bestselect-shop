@@ -169,7 +169,7 @@
                         <div>
                             <div>
                                 {{-- Toast --}}
-                                <button type="button" class="btn btn-primary" title="AAA" data-toggle="tooltip" id="liveToastBtn">
+                                <button type="button" class="btn btn-primary" title="AAA" id="liveToastBtn">
                                     Show live toast
                                 </button>
 
@@ -496,7 +496,7 @@
         </script>
         <script>
             // Toast Trigger
-            var toastTrigger = $('#liveToastBtn')
+            var toastTrigger = $('#liveToastBtn');
             if (toastTrigger) {
                 toastTrigger.on('click', function() {
                     toast.show('測試測試測試測試測試測試測試測試測試', { title: '錯誤錯誤!', type: 'danger' });
