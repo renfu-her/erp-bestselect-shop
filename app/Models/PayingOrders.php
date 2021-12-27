@@ -17,7 +17,12 @@ class PayingOrders extends Model
         $result = DB::table('pcs_paying_orders as paying_order')
             ->select('paying_order.id as id'
                 , 'paying_order.type as type'
-                , 'paying_order.order_num as order_num'
+                , 'paying_order.bank_cname as bank_cname'
+                , 'paying_order.bank_code as bank_code'
+                , 'paying_order.bank_acount as bank_acount'
+                , 'paying_order.bank_numer as bank_numer'
+                , 'paying_order.logistic_price as logistic_price'
+                , 'paying_order.sn as sn'
                 , 'paying_order.price as price'
             )
             ->selectRaw('DATE_FORMAT(paying_order.pay_date,"%Y-%m-%d") as pay_date')

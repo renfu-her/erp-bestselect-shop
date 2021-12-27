@@ -10,7 +10,7 @@
         <div class="sortabled mb-3 -appendClone">
             <div class="mb-2 row -oneitem ">
                 <div class="col d-flex flex-column flex-sm-row pe-0 -cloneElem">
-                    <div class="col col-sm-5 col-md-4 col-lg-3 px-0 pb-2 pb-sm-0">
+                    <div class="col col-sm-5 col-lg-3 px-0 pb-2 pb-sm-0">
                         <input type="text" class="form-control" maxlength="10" placeholder="請輸入標題。例：材質" aria-label="規格說明標題">
                     </div>
                     <div class="col px-0 px-sm-2 pb-2 pb-sm-0">
@@ -28,6 +28,14 @@
                 <div class="w-100 my-2 p-0 dropdown-divider d-block d-sm-none"></div>
             </div>
         </div>
+        <!-- 新增鈕 -->
+        <div>
+            <button type="button" class="addBtn btn btn-outline-primary w-100 border-dashed">
+                <span class="icon"><span class="bi bi-plus-circle"></span></span>
+                <span class="label">新增</span>
+            </button>
+        </div>
+        <!-- 新增鈕 end -->
     </div>
     <div>
         <div class="col-auto">
@@ -43,6 +51,10 @@
     </style>
     @endpush
     @push('sub-scripts')
+        <script>
+            // 顯示字數
+            showWordsLength($('input[maxlength]'));
+        </script>
         <script>
         </script>
     @endpush

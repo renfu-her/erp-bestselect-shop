@@ -13,19 +13,14 @@ class Purchase extends Model
     protected $table = 'pcs_purchase';
     protected $guarded = [];
 
-    public static function createPurchase($supplier_id, $purchase_id, $bank_cname, $bank_code, $bank_acount, $bank_numer, $invoice_num = '', $pay_type, $logistic_price = 0, $memo = null, $scheduled_date = null, $close_date = null)
+    public static function createPurchase($supplier_id, $purchase_id, $scheduled_date, $invoice_num = null, $pay_type = null, $memo = null, $close_date = null)
     {
         return DB::transaction(function () use ($supplier_id,
             $purchase_id,
-            $bank_cname,
-            $bank_code,
-            $bank_acount,
-            $bank_numer,
+            $scheduled_date,
             $invoice_num,
             $pay_type,
-            $logistic_price,
             $memo,
-            $scheduled_date,
             $close_date
             ) {
 
@@ -38,15 +33,9 @@ class Purchase extends Model
                 "sn" => $sn,
                 'supplier_id' => $supplier_id,
                 'purchase_id' => $purchase_id,
-                'bank_cname' => $bank_cname,
-                'bank_code' => $bank_code,
-                'bank_acount' => $bank_acount,
-                'bank_numer' => $bank_numer,
-                'invoice_num' => $invoice_num,
-                'pay_type' =>$pay_type,
-                'logistic_price' => $logistic_price,
-                'memo' => $memo,
                 'scheduled_date' => $scheduled_date,
+                'pay_type' =>$pay_type,
+                'memo' => $memo,
                 'close_date' => $close_date,
             ])->id;
 
@@ -62,13 +51,8 @@ class Purchase extends Model
             ->leftJoin('prd_suppliers as suppliers', 'suppliers.id', '=', 'purchase.supplier_id')
 
             ->select('purchase.id'
-                , 'purchase.bank_cname as bank_cname'
-                , 'purchase.bank_code as bank_code'
-                , 'purchase.bank_acount as bank_acount'
-                , 'purchase.bank_numer as bank_numer'
                 , 'purchase.invoice_num as invoice_num'
                 , 'purchase.pay_type as pay_type'
-                , 'purchase.logistic_price as logistic_price'
                 , 'users.name as user_name'
                 , 'suppliers.name as supplier_name'
             )
@@ -96,13 +80,8 @@ class Purchase extends Model
             ->leftJoin('prd_suppliers as suppliers', 'suppliers.id', '=', 'purchase.supplier_id')
 
             ->select('purchase.id'
-                , 'purchase.bank_cname as bank_cname'
-                , 'purchase.bank_code as bank_code'
-                , 'purchase.bank_acount as bank_acount'
-                , 'purchase.bank_numer as bank_numer'
                 , 'purchase.invoice_num as invoice_num'
                 , 'purchase.pay_type as pay_type'
-                , 'purchase.logistic_price as logistic_price'
                 , 'purchase.close_date as close_date'
                 , 'users.id as user_id'
                 , 'users.name as user_name'
