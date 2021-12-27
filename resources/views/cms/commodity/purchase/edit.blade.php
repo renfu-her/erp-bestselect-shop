@@ -65,8 +65,8 @@
                             <th scope="col">採購價錢</th>
                         </tr>
                     </thead>
-                    <tbody class="-appendClone">
-                        <tr class="-cloneElem">
+                    <tbody class="-appendClone --selectedP">
+                        <tr class="-cloneElem --selectedP">
                             <th class="text-center">
                                 <button type="button" data-id=""
                                     class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
@@ -228,7 +228,7 @@
     <x-slot name="body">
         <div class="input-group mb-3">
             <input type="text" class="form-control" placeholder="請輸入名稱或SKU" aria-label="搜尋條件">
-            <button class="btn btn-primary" type="button">搜尋商品</button>
+            <button id="searchBtn" class="btn btn-primary" type="button">搜尋商品</button>
         </div>
         <div class="row justify-content-end mb-2">
             <div class="col-auto">
@@ -253,23 +253,23 @@
                         <th scope="col">預扣庫存量</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="-appendClone --product">
                     <tr>
                         <th class="text-center">
                             <input class="form-check-input print-check" type="checkbox"
                                 value="" data-td="p_id" aria-label="選取商品">
                         </th>
                         <td data-td="name">【喜鴻嚴選】咖啡候機室(10入/盒) </td>
-                        <td data-td="styles">綜合口味</td>
+                        <td data-td="spec">綜合口味</td>
                         <td data-td="sku">AA2590</td>
-                        <td data-td="stock">58</td>
-                        <td data-td="withholding">20</td>
+                        <td>58</td>
+                        <td>20</td>
                     </tr>
                 </tbody>
             </table>
         </div>
         <div class="col d-flex justify-content-end align-items-center flex-wrap">
-            <div class="me-1 -pageSum">共 3 頁（共 135 筆資料）</div>
+            <div id="pageSum" class="me-1">共 3 頁（共 135 筆資料）</div>
             {{-- 頁碼 --}}
             <div class="d-flex justify-content-center">
                 <nav>
@@ -349,8 +349,8 @@
             let selectedProductId = [];
             let selectedProduct = [];
             // clone 項目
-            const $clone = $('.-cloneElem:first-child').clone();
-            $('.-cloneElem.d-none').remove();
+            const $selectedClone = $('.-cloneElem.--selectedP:first-child').clone();
+            $('.-cloneElem.--selectedP.d-none').remove();
 
             getProductList(1);
             // 商品清單 API
@@ -365,6 +365,9 @@
                     url: _URL,
                     data: Data,
                     dataType: "json",
+                    beforeSend: function() {
+                        $('#addProduct tbody.-appendClone.--product').empty();
+                    },
                     error: function (err) {
                         console.log(err);
                     },
@@ -372,44 +375,8 @@
                         console.log(res);
 
                         // foreach
-                        createOneProduct();
                         // endforeach
                         initPages();
-                    }
-                });
-            }
-
-            // btn - 加入採購清單
-            $('#addProduct .btn-ok').off('click').on('click', function () {
-                catchCheckedProduct();
-            });
-
-            // 紀錄 checked product
-            function catchCheckedProduct() {
-                $('#addProduct tbody input[data-td="p_id"]:checked').each(function (index, element) {
-                    // element == this
-                    const pid = $(element).val();
-                    if (selectedProductId.indexOf(pid) >= 0) {
-                        selectedProductId.push(pid);
-                        selectedProduct.push({
-                            id: pid,
-                            name: $(element).parent('th').siblings('[data-td="name"]').text(),
-                            sku: $(element).parent('th').siblings('[data-td="sku"]').text()
-                        });
-                    }
-                });
-            }
-            
-            // 加入一個商品
-            function createOneProduct(p) {
-                Clone_bindCloneBtn($clone, function (cloneElem) {
-                    cloneElem.find('input').val('');
-                    cloneElem.find('.-del').attr('data-id', '');
-                    cloneElem.find('td[data-td]').text('');
-                    if (p) {
-                        cloneElem.find('.-del').attr('data-id', p);
-                        cloneElem.find('td[data-td="name"]').text(p);
-                        cloneElem.find('td[data-td="sku"]').text(p);
                     }
                 });
             }
@@ -418,10 +385,10 @@
             function initPages(totalData, totalPages, currentPage) {
                 const Max = 13, // 最多數
                     Buffer = 3, // active 鄰居數
-                    Edge = 2,   // 頭尾數
+                    Edge = 2,   // 邊界頁數
                     Ellipsis = 1,   // ...數
                     Active = 1; // active數
-                $('#addProduct .-pageSum').text(`共 ${totalPages} 頁（共 ${totalData} 筆資料）`);
+                $('#addProduct #pageSum').text(`共 ${totalPages} 頁（共 ${totalData} 筆資料）`);
                 $('#addProduct .page-item').removeClass('disabled').attr('tabindex', null);
 
                 // 分頁
@@ -429,11 +396,18 @@
                 for (let index = 1; index <= totalPages; index++) {
                     let $li = $('<li class="page-item"></li>');
 
+                    /*** 顯示數字條件
+                     * 1. 總頁數 >= Max
+                     * 2. 邊界頁數
+                     * 3. 當前頁數及前後緩衝鄰居頁
+                     * 4. 當 當前頁在離頭尾邊界差距最大連續邊界頁(=邊界頁數+省略頁+緩衝頁+active頁)以內時，最大連續邊界頁以內的頁數
+                     * */
+                    let maxContinuousPage = Edge + Ellipsis + Buffer + Active;
                     if (totalPages <= Max || 
                         index <= Edge || index > totalPages - Edge ||
                         Math.abs(currentPage - index) <= Buffer ||
-                        (Math.abs(currentPage - index) - Ellipsis == Buffer && 
-                        (totalPages - Edge === index || Edge + Ellipsis === index))
+                        (maxContinuousPage >= currentPage && maxContinuousPage + Buffer >= index) ||
+                        (totalPages - maxContinuousPage < currentPage && totalPages - (maxContinuousPage + Buffer) < index)
                     ) {
                         $li = PageLink_N(index, $li);
                     } else {
@@ -452,7 +426,19 @@
                 $('#addProduct .page-item button.page-link').off('click').on('click', function () {
                     catchCheckedProduct();
 
-                    const page = $(this).data('page');
+                    const btn = $(this).attr('aria-label');
+                    let page = $('#addProduct .page-item.active span.page-link').data('page');
+                    switch (btn) {
+                        case 'Previous':
+                            page--;
+                            break;
+                        case 'Next':
+                            page++;
+                            break;
+                        default:
+                            page = $(this).data('page');
+                            break;
+                    }
                     getProductList(page);
                 });
 
@@ -464,8 +450,8 @@
                         $li.addClass('active');
                     } else {
                         $page_link = $(`<button class="page-link" type="button">${index}</button>`);
-                        $page_link.data('page', index);
                     }
+                        $page_link.data('page', index);
                     $li.append($page_link);
                     return $li;
                 }
@@ -479,6 +465,61 @@
                         return $li;
                     }
                 }
+            }
+
+            // 商品列表
+            function createOneProduct(p) {
+                let $tr = $(`<tr>
+                    <th class="text-center">
+                        <input class="form-check-input print-check" type="checkbox"
+                            value="${p}" data-td="p_id" aria-label="選取商品">
+                    </th>
+                    <td data-td="name">${p}</td>
+                    <td data-td="spec">${p}</td>
+                    <td data-td="sku">${p}</td>
+                    <td>${p}</td>
+                    <td>${p}</td>
+                </tr>`);
+                $('#addProduct .-appendClone.--product').append($tr);
+            }
+
+            // btn - 加入採購清單
+            $('#addProduct .btn-ok').off('click').on('click', function () {
+                catchCheckedProduct();
+            });
+
+            // 紀錄 checked product
+            function catchCheckedProduct() {
+                $('#addProduct tbody input[data-td="p_id"]:checked').each(function (index, element) {
+                    // element == this
+                    const pid = $(element).val();
+                    if (selectedProductId.indexOf(pid) >= 0) {
+                        selectedProductId.push(pid);
+                        selectedProduct.push({
+                            id: pid,
+                            name: $(element).parent('th').siblings('[data-td="name"]').text(),
+                            sku: $(element).parent('th').siblings('[data-td="sku"]').text(),
+                            spec: $(element).parent('th').siblings('[data-td="spec"]').text()
+                        });
+                    }
+                });
+            }
+            
+            // 加入採購單 - 加入一個商品
+            function createOneSelected(p) {
+                Clone_bindCloneBtn($selectedClone, function (cloneElem) {
+                    cloneElem.find('input').val('');
+                    cloneElem.find('.-del').attr('data-id', '');
+                    cloneElem.find('td[data-td]').text('');
+                    if (p) {
+                        cloneElem.find('.-del').attr('data-id', p.id);
+                        cloneElem.find('td[data-td="name"]').text(`${p.name}-${p.spec}`);
+                        cloneElem.find('td[data-td="sku"]').text(p.sku);
+                    }
+                }, {
+                    appendClone: '.-appendClone.--selectedP',
+                    cloneElem: '.-cloneElem.--selectedP'
+                });
             }
         </script>
     @endpush
