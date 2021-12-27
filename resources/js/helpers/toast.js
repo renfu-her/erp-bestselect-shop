@@ -33,9 +33,19 @@ module.exports = class Toast {
 
         if (options.type) {
             $elem.addClass('toast-' + options.type);
-            if (options.type === 'danger') {
-                $('.toast-header i.bi', $elem).removeClass('bi-info-circle-fill')
-                .addClass('bi-exclamation-triangle-fill');
+            
+            switch (options.type) {
+                case 'danger':
+                case 'warning':
+                    $('.toast-header i.bi', $elem).addClass('bi-exclamation-triangle-fill');
+                    break;
+                case 'success':
+                    $('.toast-header i.bi', $elem).addClass('bi-check-circle-fill');
+                    break;
+                case 'primary':
+                default:
+                    $('.toast-header i.bi', $elem).addClass('bi-info-circle-fill');
+                    break;
             }
         }
 

@@ -15,10 +15,11 @@
         cloneElem = '.-cloneElem',
         delElem = '.-del',
         $thisAppend = [],
+        beforeDelFn = null,
         checkFn = null
     } = {}) {
         let $cloneElem = getCloneElem(initFn, $clone);
-        bindDelElem($cloneElem, { appendClone, cloneElem, delElem, checkFn });
+        bindDelElem($cloneElem, { appendClone, cloneElem, delElem, beforeDelFn, checkFn });
         let $append = $thisAppend.length ? $thisAppend : $(appendClone);
         $append.append($cloneElem);
         if (typeof checkFn === 'function') {
@@ -49,10 +50,14 @@
         appendClone = '.-appendClone',
         cloneElem = '.-cloneElem',
         delElem = '.-del',
+        beforeDelFn = null,
         checkFn = null
     } = {}) {
         let $button = ($elem.hasClass('-del')) ? $elem : $elem.find(delElem);
         $button.off('click.del').on('click.del', function () {
+            if (typeof beforeDelFn === 'function') {
+                beforeDelFn({ appendClone, cloneElem, delElem, $this: $(this) });
+            }
             $(this).closest(cloneElem).remove();
             if (typeof checkFn === 'function') {
                 checkFn({ appendClone, cloneElem, delElem, $append: $(this).closest(appendClone) });
