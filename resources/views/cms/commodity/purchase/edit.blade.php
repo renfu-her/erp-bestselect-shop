@@ -375,7 +375,7 @@
                     $('#addProduct #pageSum').text('');
                     $('#addProduct .page-item:not(:first-child, :last-child)').remove();
                     $('#addProduct nav').hide();
-                    $('#addProduct .-checkedNum').text('已選取 0 件商品');
+                    $('#addProduct .-checkedNum').text(`已選取 ${selectedProductId.length} 件商品`);
 
                     axios.post(_URL, Data)
                     .then((result) => {
