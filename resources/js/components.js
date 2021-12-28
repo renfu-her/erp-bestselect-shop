@@ -104,7 +104,7 @@
         axis = false,
         handle = '.icon.-move',
         items = '.sortabled_box',
-        placeholder = 'placeholder-highlight mb-2',
+        placeholder = 'placeholder-highlight',
         activate = function (e, ui) {  },
         stop = function (e, ui) {  },
         update = function (e, ui) {  }

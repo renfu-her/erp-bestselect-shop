@@ -322,9 +322,16 @@ input.form-control[type="month"]::-webkit-calendar-picker-indicator {
     width: 2.75rem;
     background-size: 62%;
     background-position-x: -10%;
+    margin-top: 0;
   }
   .form-check-input:checked {
     background-position-x: 110%;
+  }
+
+  .form-check-label {
+    .form-check-input {
+      margin-right: .8rem;
+    }
   }
 }
 
