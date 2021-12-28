@@ -115,7 +115,6 @@
 
                                 <td class="text-center">
                                     <div class="form-check form-switch form-switch-lg">
-                                        {{ $style['is_active'] }}
                                         <input class="form-check-input" name="active_id[]" value="{{ $style['id'] }}"
                                             type="checkbox" @if ($style['is_active']) checked @endif>
                                     </div>

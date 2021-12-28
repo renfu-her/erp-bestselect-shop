@@ -99,4 +99,33 @@ class Product extends Model
 
     }
 
+    public static function productStyleList($keyword = null, $sku = null, $supplier_id = null)
+    {
+
+        $re = DB::table('prd_products as p')
+            ->leftJoin('prd_product_styles as s', 'p.id', '=', 's.product_id')
+            ->select('s.id', 's.sku', 'p.title as product_title', 's.title as spec', 's.in_stock', 's.safety_stock')
+        // ->selectRaw('IF(s.title,p.title,CONCAT(p.title," ",COALESCE(s.title,""))) as title')
+            ->whereNotNull('s.sku')
+            ->where(function ($q) use ($keyword, $sku) {
+                if ($keyword) {
+                    $q->where('p.title', 'like', "%$keyword%");
+                    $q->orWhere('s.title', 'like', "%$keyword%");
+                }
+
+                if ($sku) {
+                    $q->where('s.sku', 'like', "%$sku%");
+                }
+            })
+            ->whereNull('s.deleted_at');
+
+        if ($supplier_id) {
+            $re->leftJoin('prd_product_supplier as sup', 'p.id', '=', 'sup.product_id')
+                ->where('sup.supplier_id', $supplier_id);
+        }
+
+        return $re;
+
+    }
+
 }

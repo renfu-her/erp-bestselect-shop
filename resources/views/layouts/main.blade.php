@@ -41,6 +41,7 @@
                 'apiUrl' => [
                     'getRegions' => Route('api.addr.get-regions'),
                     'addrFormating' => Route('api.addr.formating'),
+                    'productStyles' => Route('api.cms.product.get-product-styles'),
                 ],
             ]) !!};
 

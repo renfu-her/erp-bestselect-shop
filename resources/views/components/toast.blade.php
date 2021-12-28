@@ -48,7 +48,7 @@
     <div id="liveToast_h" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
             <div class="rounded-3 me-1" style="width:20px;height:20px">
-                <i class="bi bi-info-circle-fill"></i>
+                <i class="bi"></i>
             </div>
             <strong class="me-auto t-title"></strong>
             <small class="t-subTitle"></small>

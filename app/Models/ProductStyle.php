@@ -13,6 +13,16 @@ class ProductStyle extends Model
     protected $table = 'prd_product_styles';
     protected $guarded = [];
 
+    private static function _specQuery($product_id, $item_ids)
+    {
+        return DB::table('prd_product_spec as ps')
+            ->leftJoin('prd_spec_items as item', 'ps.spec_id', '=', 'item.spec_id')
+            ->where('ps.product_id', $product_id)
+            ->whereIn('item.id', $item_ids)
+            ->select('item.title', 'item.id')
+            ->orderBy('ps.rank', 'ASC')->get()->toArray();
+    }
+
     public static function createStyle($product_id, $item_ids, $is_active = 1)
     {
 
@@ -21,44 +31,40 @@ class ProductStyle extends Model
             return;
         }
 
-        $spec = DB::table('prd_product_spec as ps')
-            ->leftJoin('prd_spec_items as item', 'ps.spec_id', '=', 'item.spec_id')
-            ->where('ps.product_id', $product_id)
-            ->whereIn('item.id', $item_ids)
-            ->select('item.title', 'item.id')
-            ->orderBy('ps.rank', 'ASC')->get()->toArray();
+        $spec = self::_specQuery($product_id, $item_ids);
 
+        $title = '';
         foreach ($spec as $key => $v) {
             $data['spec_item' . ($key + 1) . '_id'] = $v->id;
             $data['spec_item' . ($key + 1) . '_title'] = $v->title;
+            $title .= $v->title . " ";
         }
 
         $data['product_id'] = $product_id;
 
         $data['is_active'] = $is_active;
+        $data['title'] = trim($title);
 
         self::create($data);
 
     }
 
-    public static function updateStyle($product_id, $id)
+    public static function updateStyle($id, $product_id, $item_ids, $otherData = [])
     {
+        $data = [];
+        $spec = self::_specQuery($product_id, $item_ids);
+        $title = '';
 
-        /*
-    $product = Product::where('id', $product_id)->get()->first();
+        foreach ($spec as $key => $v) {
+            $data['spec_item' . ($key + 1) . '_id'] = $v->id;
+            $data['spec_item' . ($key + 1) . '_title'] = $v->title;
+            $title .= $v->title . " ";
+        }
 
-    $spec = DB::table('prd_product_spec as ps')
-    ->leftJoin('prd_spec_items as item', 'ps.spec_id', '=', 'item.spec_id')
-    ->where('ps.product_id', $product_id)
-    ->whereIn('item.id', $item_ids)
-    ->select('item.title', 'item.id')
-    ->orderBy('ps.rank', 'ASC')->get()->toArray();
+        $data = array_merge($data, $otherData);
+        $data['title'] = $title;
+        self::where('id', $id)->update($data);
 
-    $sku = $product->sku . str_pad((self::where('product_id', '=', $product_id)
-    ->withTrashed()
-    ->get()
-    ->count()) + 1, 2, '0', STR_PAD_LEFT);
-     */
     }
 
     public static function createSku($product_id, $id)
@@ -105,7 +111,7 @@ class ProductStyle extends Model
         if (!$spec) {
             return [];
         }
-      
+
         $re = DB::table('prd_spec_items as t1')
             ->select("t1.id as spec_item1_id")
             ->selectRaw('@sku:=null as sku')
@@ -120,7 +126,7 @@ class ProductStyle extends Model
         if (count($spec) > 1) {
             for ($i = 1; $i < count($spec); $i++) {
                 $k = $i + 1;
-             
+
                 $re->crossJoin("prd_spec_items as t$k")
                     ->addSelect("t$k.id as spec_item${k}_id")
                     ->where("t$k.product_id", $product_id)
@@ -128,10 +134,10 @@ class ProductStyle extends Model
                     ->orderBy("spec_item${k}_id");
 
                 switch ($i) {
-                    case 1:   
+                    case 1:
                         $re->where('t1.spec_id', '<>', 't2.spec_id');
                         break;
-                    case 2:  
+                    case 2:
                         $re->where('t2.spec_id', '<>', 't3.spec_id');
                         $re->where('t3.spec_id', '<>', 't1.spec_id');
                         break;

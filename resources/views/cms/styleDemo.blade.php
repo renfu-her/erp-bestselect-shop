@@ -28,6 +28,7 @@
                                 <button type="button" class="btn btn-primary" disabled>Disabled</button>
                                 <button type="button" class="btn btn-primary px-4">Wide</button>
                                 <button type="button" class="btn btn-outline-primary">Outline</button>
+                                <button type="button" class="btn btn-outline-primary border-dashed" style="font-weight: 500;">新增</button>
                                 <a href="#" class="btn btn-primary" role="button">
                                     <i class="bi bi-plus-lg"></i> 新增
                                 </a>
@@ -168,7 +169,7 @@
                         <div>
                             <div>
                                 {{-- Toast --}}
-                                <button type="button" class="btn btn-primary" title="AAA" data-toggle="tooltip" id="liveToastBtn">
+                                <button type="button" class="btn btn-primary" title="AAA" id="liveToastBtn">
                                     Show live toast
                                 </button>
 
@@ -495,7 +496,7 @@
         </script>
         <script>
             // Toast Trigger
-            var toastTrigger = $('#liveToastBtn')
+            var toastTrigger = $('#liveToastBtn');
             if (toastTrigger) {
                 toastTrigger.on('click', function() {
                     toast.show('測試測試測試測試測試測試測試測試測試', { title: '錯誤錯誤!', type: 'danger' });

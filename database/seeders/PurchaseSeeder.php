@@ -16,49 +16,60 @@ class PurchaseSeeder extends Seeder
      */
     public function run()
     {
-        Purchase::create([
-            'supplier_id' => 1,
-            'purchase_id' => 5,
-            'bank_cname' => '中信銀行',
-            'bank_code' => '822',
-            'bank_acount' => 'XX商行',
-            'bank_numer' => '123456789098',
-            'invoice_num' => '12345678',
-            'scheduled_date' => '2021-12-22 00:00:00',
-            'pay_type' => '1',
-        ]);
-        Purchase::create([
-            'supplier_id' => 1,
-            'purchase_id' => 6,
-            'bank_cname' => '中信銀行',
-            'bank_code' => '822',
-            'bank_acount' => 'OO企業社',
-            'bank_numer' => '987654321012',
-            'invoice_num' => '87654321',
-            'pay_type' => '2',
-        ]);
+        $purchaseItemID1 = Purchase::createPurchase(
+            1,
+            5,
+            '2021-12-22 00:00:00',
+            '12345678',
+            '1',
+            '第一筆採購單',
+            null,
+            null,
+        );
 
-        PurchaseItem::create([
-            'ps_id' => 1,
-            'price' => '100',
-            'num' => 10,
-            'temp_id' => 1,
-        ]);
+        Purchase::createPurchase(
+            1,
+            6,
+            '2021-12-23 00:00:00',
+            '87654321',
+            '1',
+            null,
+            null,
+            null,
+        );
 
-        PayingOrder::create([
-            'purchase_id' => 1,
-            'type' => 0,
-            'order_num' => 'ABCD',
-            'price' => 100,
-            'pay_date' => '2021-12-12 00:00:00',
-        ]);
-        PayingOrder::create([
-            'purchase_id' => 1,
-            'type' => 1,
-            'order_num' => 'ABCE',
-            'price' => 900,
-            'pay_date' => '2021-12-13 00:00:00',
-        ]);
+        PurchaseItem::createPurchase(
+            1,
+            '100',
+            10,
+            null,
+            1
+        );
+
+        PayingOrder::createPayingOrder(
+            $purchaseItemID1,
+            1,
+            '中信銀行',
+            '822',
+            'XX商行',
+            '123456789098',
+            100,
+            '2021-12-13 00:00:00',
+            0,
+            '第一筆備註 訂金'
+        );
+        PayingOrder::createPayingOrder(
+            $purchaseItemID1,
+            1,
+            '中信銀行',
+            '822',
+            'OO企業社',
+            '987654321012',
+            900,
+            '2021-12-14 00:00:00',
+            60,
+            '第二筆備註 尾款'
+        );
 
     }
 }

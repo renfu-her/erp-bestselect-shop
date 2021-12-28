@@ -54,4 +54,8 @@ Route::group(['prefix' => 'user', 'as' => 'user.', 'middleware' => 'auth:sanctum
 
 });
 
+Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:cms-api'], function () {
+    require base_path('routes/api/Product.php');
+});
+
 require base_path('routes/api/Addr.php');

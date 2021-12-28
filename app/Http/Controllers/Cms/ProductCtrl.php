@@ -171,9 +171,9 @@ class ProductCtrl extends Controller
         $styles = ProductStyle::where('product_id', $id)->get()->toArray();
         $init_styles = [];
         if (count($styles) == 0) {
-           $init_styles = ProductStyle::createInitStyles($id);
+            $init_styles = ProductStyle::createInitStyles($id);
         }
-     
+
         return view('cms.commodity.product.styles', [
             'data' => Product::where('id', $id)->get()->first(),
             'specList' => $specList,
@@ -191,14 +191,17 @@ class ProductCtrl extends Controller
         if (isset($d['nsk_style_id'])) {
             foreach ($d['nsk_style_id'] as $key => $value) {
                 $updateData = [];
+
                 for ($i = 1; $i <= $specCount; $i++) {
                     if (isset($d["nsk_spec$i"][$key])) {
-                        $updateData["spec_item${i}_id"] = $d['nsk_spec' . $i][$key];
+                        // $updateData["spec_item${i}_id"] = $d['nsk_spec' . $i][$key];
+                        $itemIds[] = $d['nsk_spec' . $i][$key];
                     }
                 }
                 $updateData['sold_out_event'] = $d['nsk_sold_out_event'][$key];
 
-                ProductStyle::where('id', $value)->whereNull('sku')->update($updateData);
+                //  ProductStyle::where('id', $value)->whereNull('sku')->update($updateData);
+                ProductStyle::updateStyle($value, $id, $itemIds, $updateData);
             }
         }
 
@@ -210,7 +213,6 @@ class ProductCtrl extends Controller
             }
         }
 
-        
         if (isset($d['active_id'])) {
             ProductStyle::activeStyle($id, $d['active_id']);
         }
