@@ -96,6 +96,35 @@
     }
 
     /** 
+     * bind 拖曳項目
+     */
+    window.bindSortableMove = bindSortableMove;
+    function bindSortableMove($elems, {
+        destroy = true,
+        axis = false,
+        handle = '.icon.-move',
+        items = '.sortabled_box',
+        placeholder = 'placeholder-highlight mb-2',
+        activate = function (e, ui) {  },
+        stop = function (e, ui) {  },
+        update = function (e, ui) {  }
+    } = {}) {
+        if (destroy) {
+            $elems.filter('.ui-sortable').sortable('destroy');
+        }
+        $elems.sortable({
+            axis,
+            cursor: 'move',
+            handle,
+            items,
+            placeholder,
+            activate,
+            stop,
+            update
+        });
+    }
+
+    /** 
      * Combo box - select2
      */
     $.fn.select2.defaults.set('width', '100%');
