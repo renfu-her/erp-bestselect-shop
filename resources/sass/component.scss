@@ -206,3 +206,26 @@
 .modal-backdrop ~ .select2-container--open .select2-dropdown.select2-dropdown--below {
     z-index: 1500;
 }
+
+/*
+    JQuery UI
+*/
+// 拖曳區塊
+.sortabled {
+    position: relative;
+}
+// 拖曳預覽框
+.placeholder-highlight {
+    display: block;
+    /* background-color: rgba(206, 203, 67, 0.37); */
+    border: 2px dashed rgba(33, 33, 33, 0.7);
+}
+.sortabled .placeholder-highlight {
+  height: 38px;
+}
+// 圖片上傳區
+.upload_image_block.-multiple .sortabled .placeholder-highlight {
+    width: 120px;
+    height: 120px;
+    margin: 0 15px 15px 0;
+}
