@@ -372,13 +372,7 @@
             }
             // 綁定事件: 拖曳排序圖片 #mediaSettings
             function bindImageMove() {
-                $('#mediaSettings .upload_image_block .sortabled.ui-sortable').sortable('destroy');
-
-                $('#mediaSettings .upload_image_block .sortabled').sortable({
-                    cursor: 'move',
-                    handle: 'span.icon.-move',
-                    items: 'div.sortabled_box',
-                    placeholder: 'placeholder-highlight',
+                bindSortableMove($('#mediaSettings .upload_image_block .sortabled'), {
                     update: function() {
                         $('.upload_image_block .sortabled > label').appendTo('.upload_image_block .sortabled');
                     }

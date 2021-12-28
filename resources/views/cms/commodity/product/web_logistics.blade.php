@@ -7,6 +7,7 @@
 <form action="">
     <div class="card shadow p-4 mb-4">
         <h6>運送方式（官網）</h6>
+        <x-b-editor id="editor"></x-b-editor>
     </div>
     <div>
         <div class="col-auto">
@@ -23,6 +24,12 @@
     @endpush
     @push('sub-scripts')
         <script>
+            Editor.createEditor('editor');
+            
+            $('form').submit(function (e) { 
+                e.preventDefault();
+                console.log(editor.getHTML());
+            });
         </script>
     @endpush
 @endOnce
