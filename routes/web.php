@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\Cms\AuthCtrl;
 use App\Http\Controllers\Cms\DashboardCtrl;
-use App\Http\Controllers\cms\StyleDemo;
+use App\Http\Controllers\Cms\StyleDemo;
 use Illuminate\Support\Facades\Route;
 use NunoMaduro\Collision\Adapters\Phpunit\Style;
 
