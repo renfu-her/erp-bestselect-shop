@@ -40,7 +40,9 @@ class PurchaseSeeder extends Seeder
 
         PurchaseItem::createPurchase(
             1,
+            1,
             '第一筆採購單款式',
+            'P21122800101',
             '100',
             10,
             null,

@@ -15,8 +15,10 @@ class CreatePcsPurchaseItemsTable extends Migration
     {
         Schema::create('pcs_purchase_items', function (Blueprint $table) {
             $table->id()->comment('採購明細id');
-            $table->string('ps_id')->comment('款式product_style_id 帶出款式sku碼');
+            $table->integer('purchase_id')->comment('採購id');
+            $table->integer('product_style_id')->comment('款式product_style_id 帶出款式sku碼');
             $table->string('title')->comment('商品名稱');
+            $table->string('sku')->comment('sku');
             $table->string('price')->comment('單價');
             $table->integer('num')->comment('數量');
             $table->dateTime('expiry_date')->nullable()->comment('有效期限');
