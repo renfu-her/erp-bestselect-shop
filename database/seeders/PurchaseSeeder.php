@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\PayingOrder;
+use App\Models\ProductStock;
 use App\Models\Purchase;
 use App\Models\PurchaseItem;
 use Illuminate\Database\Seeder;
@@ -16,7 +17,7 @@ class PurchaseSeeder extends Seeder
      */
     public function run()
     {
-        $purchaseItemID1 = Purchase::createPurchase(
+        $purchaseID1 = Purchase::createPurchase(
             1,
             5,
             '2021-12-22 00:00:00',
@@ -38,19 +39,19 @@ class PurchaseSeeder extends Seeder
             null,
         );
 
-        PurchaseItem::createPurchase(
+        $purchaseItemID = PurchaseItem::createPurchase(
             1,
             1,
             '第一筆採購單款式',
             'P21122800101',
             '100',
             10,
-            null,
-            1
+            1,
+            'memo',
         );
 
         PayingOrder::createPayingOrder(
-            $purchaseItemID1,
+            $purchaseID1,
             1,
             '中信銀行',
             '822',
@@ -62,7 +63,7 @@ class PurchaseSeeder extends Seeder
             '第一筆備註 訂金'
         );
         PayingOrder::createPayingOrder(
-            $purchaseItemID1,
+            $purchaseID1,
             1,
             '中信銀行',
             '822',
@@ -73,6 +74,18 @@ class PurchaseSeeder extends Seeder
             60,
             '第二筆備註 尾款'
         );
-
+        PurchaseItem::updatePurchase(
+            $purchaseItemID,
+            '2022-12-14 00:00:00',
+            1,
+            0,
+            '2021-12-15 00:00:00',
+            100,
+            1,
+            5,
+            0,
+            '入庫OK',
+        );
+        ProductStock::stockChange(1, 100, 'purchase');
     }
 }

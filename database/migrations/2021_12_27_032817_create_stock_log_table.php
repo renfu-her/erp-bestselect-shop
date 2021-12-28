@@ -15,7 +15,7 @@ class CreateStockLogTable extends Migration
     {
         Schema::create('prd_stock_log', function (Blueprint $table) {
             $table->id();
-            $table->integer('style_id')->comment('款式ID');
+            $table->integer('product_style_id')->comment('款式ID');
             $table->integer('qty')->comment('數量');
             $table->string('event')->comment('事件');
             $table->integer('event_id')->nullable()->comment('數量');

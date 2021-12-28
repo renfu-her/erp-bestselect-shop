@@ -24,7 +24,6 @@ class CreatePcsPurchaseItemsTable extends Migration
             $table->dateTime('expiry_date')->nullable()->comment('有效期限');
             $table->integer('temp_id')->comment('物流類型 寄來使用何種溫層');
             $table->tinyInteger('status')->default(0)->comment('狀態(0:正常/1:短缺/2:溢出)');
-            $table->tinyInteger('inbound_status')->default(0)->comment('入庫狀態 0:未入庫');
             $table->dateTime('inbound_date')->nullable()->comment('入庫日期');
             $table->integer('inbound_num')->default(0)->comment('入庫數量');
             $table->integer('depot_id')->nullable()->comment('倉庫');
