@@ -86,6 +86,6 @@ class PurchaseSeeder extends Seeder
             0,
             '入庫OK',
         );
-        ProductStock::stockChange(1, 100, 'purchase');
+        ProductStock::stockChange(1, 100, 'purchase', $purchaseID1, 'memo');
     }
 }
