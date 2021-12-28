@@ -20,6 +20,7 @@ class CreateProductsTable extends Migration
             $table->string('url')->nullable()->comment('網址')->unique();
             $table->text('feature')->nullable()->comment('敘述');
             $table->string('slogan')->nullable()->comment('標語');
+            $table->string('type', 2)->default('p')->comment('商品類別p=商品,c=組合包');
             $table->integer('category_id')->comment('類別名稱id');
             $table->integer('user_id')->comment('使用者id');
             $table->dateTime('active_sdate')->nullable()->comment('上架時間起');

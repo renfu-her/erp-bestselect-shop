@@ -19,7 +19,7 @@ class ProductSeeder extends Seeder
      */
     public function run()
     {
-        
+
         ProductSpec::insert([['title' => '尺寸'], ['title' => '容量'], ['title' => '顏色']]);
 
         Category::create((['category' => '食品', 'rank' => 100]));
@@ -28,7 +28,7 @@ class ProductSeeder extends Seeder
         $re = Product::createProduct('測試商品', 1, 1, '測試', null, '好吃商品', null, null, [1, 2], 1);
 
         Product::setProductSpec($re['id'], 1);
-       
+
         ProductSpecItem::createItems($re['id'], 1, 'X');
         ProductSpecItem::createItems($re['id'], 1, 'M');
         ProductSpecItem::createItems($re['id'], 1, 'L');
@@ -43,9 +43,8 @@ class ProductSeeder extends Seeder
         ProductStyle::createStyle($re['id'], [2, 5]);
 
         ProductStyle::createSku($re['id'], 2);
-        
-        ProductStock::stockChange(1, 10, 'in_stock');
-        ProductStock::stockChange(1, -5, 'order');
+
+       // ProductStock::stockChange(1, 10, 'purchase');
 
     }
 }
