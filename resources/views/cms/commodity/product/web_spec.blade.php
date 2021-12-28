@@ -5,11 +5,11 @@
     <x-b-prd-navi id="{{  $data->id }}"></x-b-prd-navi>
 </div>
 <form action="">
-    <div class="card shadow p-4 mb-4">
+    <div id="specList" class="card shadow p-4 mb-4">
         <h6>規格說明（官網）</h6>
         <div class="sortabled mb-3 -appendClone">
-            <div class="mb-2 row -oneitem ">
-                <div class="col d-flex flex-column flex-sm-row pe-0 -cloneElem">
+            <div class="mb-2 row sortabled_box -cloneElem">
+                <div class="col d-flex flex-column flex-sm-row pe-0">
                     <div class="col col-sm-5 col-lg-3 px-0 pb-2 pb-sm-0">
                         <input type="text" class="form-control" maxlength="10" placeholder="請輸入標題。例：材質" aria-label="規格說明標題">
                     </div>
@@ -18,9 +18,9 @@
                     </div>
                 </div>
                 <div class="col-auto d-flex flex-column flex-sm-row ps-0">
-                    <button type="button" class="icon -move icon-btn fs-5 text-primary rounded-circle border-0 p-0">
+                    <span type="button" class="icon -move icon-btn fs-5 text-primary rounded-circle border-0 p-0">
                         <i class="bi bi-arrows-move"></i>
-                    </button>
+                    </span>
                     <button type="button" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                         <i class="bi bi-trash"></i>
                     </button>
@@ -30,9 +30,8 @@
         </div>
         <!-- 新增鈕 -->
         <div>
-            <button type="button" class="addBtn btn btn-outline-primary w-100 border-dashed">
-                <span class="icon"><span class="bi bi-plus-circle"></span></span>
-                <span class="label">新增</span>
+            <button type="button" class="btn btn-outline-primary border-dashed w-100 -newSpec" style="font-weight: 500;">
+                <i class="bi bi-plus-circle"></i> 新增
             </button>
         </div>
         <!-- 新增鈕 end -->
@@ -48,14 +47,49 @@
 @once
     @push('sub-styles')
     <style>
+        .sortabled .placeholder-highlight {
+            height: 109px;
+        }
+        @media (min-width: 576px) {
+            .sortabled .placeholder-highlight {
+                height: 38px;
+            }
+        }
     </style>
     @endpush
     @push('sub-scripts')
         <script>
+            // clone 項目
+            const $clone = $('.-cloneElem:first-child').clone();
+            $('.-cloneElem.d-none').remove();
+
             // 顯示字數
             showWordsLength($('input[maxlength]'));
-        </script>
-        <script>
+            // 拖曳
+            bindMove();
+            
+            $('.-newSpec').off('click').on('click', function() {
+                Clone_bindCloneBtn($clone, function (cloneElem) {
+                    cloneElem.find('input').val('');
+                    showWordsLength(cloneElem.find('input[maxlength]'));
+                });
+                // 拖曳
+                bindMove();
+            });
+
+            // bind 拖曳
+            function bindMove() {
+                bindSortableMove($('#specList .sortabled'), {
+                    axis: 'y',
+                    placeholder: 'placeholder-highlight mb-2',
+                    activate: function (e, ui) {
+                        ui.item.find('.dropdown-divider').removeClass('d-block').hide();
+                    },
+                    stop: function (e, ui) {
+                        ui.item.find('.dropdown-divider').addClass('d-block').show();
+                    }
+                });
+            }
         </script>
     @endpush
 @endOnce

@@ -322,9 +322,16 @@ input.form-control[type="month"]::-webkit-calendar-picker-indicator {
     width: 2.75rem;
     background-size: 62%;
     background-position-x: -10%;
+    margin-top: 0;
   }
   .form-check-input:checked {
     background-position-x: 110%;
+  }
+
+  .form-check-label {
+    .form-check-input {
+      margin-right: .8rem;
+    }
   }
 }
 
@@ -442,20 +449,6 @@ input.form-control[type="month"]::-webkit-calendar-picker-indicator {
   }
 }
 
-
-/*
- * 拖曳區塊 
- */
-.sortabled {
-  position: relative;
-}
-// 拖曳預覽框
-.placeholder-highlight {
-  display: block;
-  /* background-color: rgba(206, 203, 67, 0.37); */
-  border: 2px dashed rgba(33, 33, 33, 0.7);
-}
-
 /*
  * 圖片上傳 
  */
@@ -540,14 +533,4 @@ input.form-control[type="month"]::-webkit-calendar-picker-indicator {
   vertical-align: top;
   flex-wrap: wrap;
   position: relative;
-}
-// 拖曳預覽框
-.upload_image_block.-multiple .sortabled .placeholder-highlight {
-    width: 120px;
-    height: 120px;
-    margin: 0 15px 15px 0;
-}
-.modal .sortabled .placeholder-highlight {
-  height: 38px;
-  margin-bottom: 8px;
 }
