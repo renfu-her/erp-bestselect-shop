@@ -70,10 +70,11 @@
                     @if (false == isset($purchaseItemData) || 0 >= count($purchaseItemData))
                         <tr class="-cloneElem --selectedP d-none">
                             <th class="text-center">
-                                <button type="button" 
+                                <button type="button"
                                         class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                     <i class="bi bi-trash"></i>
                                 </button>
+                                <input type="hidden" name="item_id[]" value="">
                                 <input type="hidden" name="product_style_id[]" value="">
                                 <input type="hidden" name="name[]" value="">
                                 <input type="hidden" name="sku[]" value="">
@@ -104,12 +105,18 @@
                                 <td data-td="name">{{ $psItemVal['title'] }}</td>
                                 <td data-td="sku">{{ $psItemVal['sku'] }}</td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm" name="num[]"
+                                    <input type="text" class="form-control form-control-sm @error('num.' . $psItemKey) is-invalid @enderror" name="num[]"
                                         value="{{ $psItemVal['num'] }}"/>
+                                    @error('num.' . $psItemKey)
+                                    <div class="alert alert-danger mt-3">{{ $message }}</div>
+                                    @enderror
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm" name="price[]"
+                                    <input type="text" class="form-control form-control-sm @error('price.' . $psItemKey) is-invalid @enderror" name="price[]"
                                         value="{{ $psItemVal['price'] }}"/>
+                                    @error('price.' . $psItemKey)
+                                    <div class="alert alert-danger mt-3">{{ $message }}</div>
+                                    @enderror
                                 </td>
                             </tr>
                         @endforeach
@@ -610,7 +617,7 @@
             function createOneSelected(p) {
                 Clone_bindCloneBtn($selectedClone, function (cloneElem) {
                     cloneElem.find('input').val('');
-                    cloneElem.find('input[name="item_id[]"]').remove();
+                    // cloneElem.find('input[name="item_id[]"]').remove();
                     cloneElem.find('.-del').attr('data-id', null);
                     cloneElem.find('td[data-td]').text('');
                     if (p) {

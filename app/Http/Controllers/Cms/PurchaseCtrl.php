@@ -24,7 +24,7 @@ class PurchaseCtrl extends Controller
         $data_per_page = Arr::get($query, 'data_per_page', 10);
         $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
 
-        $dataList =  Purchase::getPurchaseList($startDate, $endDate, true, $title)
+        $dataList = Purchase::getPurchaseList($startDate, $endDate, true, $title)
             ->paginate($data_per_page)->appends($query);
 
         return view('cms.commodity.purchase.list', [
@@ -38,7 +38,7 @@ class PurchaseCtrl extends Controller
 
     public function create(Request $request)
     {
-        $supplierList =  Supplier::getSupplierList()->get();
+        $supplierList = Supplier::getSupplierList()->get();
         return view('cms.commodity.purchase.edit', [
             'method' => 'create',
             'supplierList' => $supplierList,
@@ -66,15 +66,14 @@ class PurchaseCtrl extends Controller
 
         $input = [];
         if (isset($purchaseItemReq['product_style_id'])) {
-            foreach($purchaseItemReq['product_style_id'] as $key => $val)
-            {
+            foreach ($purchaseItemReq['product_style_id'] as $key => $val) {
                 array_push($input, [
                     "purchase_id" => $purchaseID,
                     "product_style_id" => $val,
-                    "title" =>  $purchaseItemReq['name'][$key],
-                    "sku" =>  $purchaseItemReq['sku'][$key],
-                    "price" =>  $purchaseItemReq['price'][$key],
-                    "num" =>  $purchaseItemReq['num'][$key],
+                    "title" => $purchaseItemReq['name'][$key],
+                    "sku" => $purchaseItemReq['sku'][$key],
+                    "price" => $purchaseItemReq['price'][$key],
+                    "num" => $purchaseItemReq['num'][$key],
                 ]);
             }
             PurchaseItem::insert($input);
@@ -105,10 +104,16 @@ class PurchaseCtrl extends Controller
     }
 
     //驗證資料
-    private function validInputValue(Request $request) {
+    private function validInputValue(Request $request)
+    {
         $request->validate([
             'supplier' => 'required|numeric',
             'scheduled_date' => 'required|string',
+            'product_style_id.*' => 'required|numeric',
+            'title.*' => 'required|numeric',
+            'sku.*' => 'required|numeric',
+            'price.*' => 'required|numeric',
+            'num.*' => 'required|numeric',
 //            'bank_cname' => 'required|string',
 //            'bank_code' => 'required|string',
 //            'bank_acount' => 'required|string',
@@ -117,7 +122,7 @@ class PurchaseCtrl extends Controller
         ]);
     }
 
-    public function edit(Request $request,$id)
+    public function edit(Request $request, $id)
     {
         $purchaseData = Purchase::getPurchase($id)->first();
         $purchaseItemData = PurchaseItem::getData($id)->get()->toArray();
@@ -138,7 +143,7 @@ class PurchaseCtrl extends Controller
             }
         }
 
-        $supplierList =  Supplier::getSupplierList()->get();
+        $supplierList = Supplier::getSupplierList()->get();
         return view('cms.commodity.purchase.edit', [
             'id' => $id,
             'purchaseData' => $purchaseData,
@@ -160,23 +165,8 @@ class PurchaseCtrl extends Controller
         $purchaseReq = $request->only('supplier', 'scheduled_date');
         $purchaseItemReq = $request->only('item_id', 'product_style_id', 'name', 'sku', 'num', 'price');
 
-        $purchase = Purchase::where('id', '=', $id)
-            ->select('supplier_id')
-            ->selectRaw('DATE_FORMAT(scheduled_date,"%Y-%m-%d") as scheduled_date')
-            ->get()->first();
-        $purchase->supplier_id = $purchaseReq['supplier'];
-        $purchase->scheduled_date = $purchaseReq['scheduled_date'];
-
-        $changeStr = "";
-        if ($purchase->isDirty()) {
-            foreach ($purchase->getDirty() as $key=>$val){
-                $changeStr .= ' '. $key . ' change to ' . $val;
-            }
-            Purchase::where('id', $id)->update([
-                "supplier_id" => $purchaseReq['supplier'],
-                "scheduled_date" => $purchaseReq['scheduled_date'],
-            ]);
-        }
+        $changeStr = '';
+        $changeStr .= $this->checkToUpdatePurchaseData($id, $purchaseReq);
 
         //刪除現有款式
         if (isset($request['del_item_id']) && null != $request['del_item_id']) {
@@ -187,42 +177,28 @@ class PurchaseCtrl extends Controller
 
         if (isset($purchaseItemReq['item_id'])) {
             $newData = [];
-            foreach($purchaseItemReq['item_id'] as $key => $val)
-            {
+            foreach ($purchaseItemReq['item_id'] as $key => $val) {
                 $itemId = $purchaseItemReq['item_id'][$key];
                 //有值則做更新
                 //itemId = null 代表新資料
                 if (null != $itemId) {
-                    $purchaseItem = PurchaseItem::where('id', '=', $itemId)
-                        ->select('price', 'num')
-                        ->get()->first();
-                    $purchaseItem->price = $purchaseItemReq['price'][$key];
-                    $purchaseItem->num = $purchaseItemReq['num'][$key];
-                    if ($purchaseItem->isDirty()) {
-                        foreach ($purchaseItem->getDirty() as $dirtykey=>$dirtyval){
-                            $changeStr .= ' itemID:'. $itemId.' '. $dirtykey . ' change to ' . $dirtyval;
-                        }
-                        PurchaseItem::where('id', $itemId)->update([
-                            "price" => $purchaseItemReq['price'][$key],
-                            "num" => $purchaseItemReq['num'][$key],
-                        ]);
-                    }
+                    $changeStr = $this->checkToUpdatePurchaseItemData($itemId, $purchaseItemReq, $key, $changeStr);
                 } else {
-                    $changeStr .= ' add item:'. $purchaseItemReq['name'][$key];
+                    $changeStr .= ' add item:' . $purchaseItemReq['name'][$key];
                     array_push($newData, [
                         "purchase_id" => $id,
                         "product_style_id" => $purchaseItemReq['product_style_id'][$key],
-                        "title" =>  $purchaseItemReq['name'][$key],
-                        "sku" =>  $purchaseItemReq['sku'][$key],
-                        "price" =>  $purchaseItemReq['price'][$key],
-                        "num" =>  $purchaseItemReq['num'][$key],
+                        "title" => $purchaseItemReq['name'][$key],
+                        "sku" => $purchaseItemReq['sku'][$key],
+                        "price" => $purchaseItemReq['price'][$key],
+                        "num" => $purchaseItemReq['num'][$key],
                     ]);
                 }
             }
             PurchaseItem::insert($newData);
         }
 
-        wToast(__('Edit finished.'). ' '. $changeStr);
+        wToast(__('Edit finished.') . ' ' . $changeStr);
         return redirect(Route('cms.purchase.edit', [
             'id' => $id,
             'query' => $query
@@ -234,5 +210,46 @@ class PurchaseCtrl extends Controller
         Purchase::where('id', '=', $id)->delete();
         wToast(__('Delete finished.'));
         return redirect(Route('cms.purchase.index'));
+    }
+
+    public function checkToUpdatePurchaseData($id, array $purchaseReq)
+    {
+        $purchase = Purchase::where('id', '=', $id)
+            ->select('supplier_id')
+            ->selectRaw('DATE_FORMAT(scheduled_date,"%Y-%m-%d") as scheduled_date')
+            ->get()->first();
+        $purchase->supplier_id = $purchaseReq['supplier'];
+        $purchase->scheduled_date = $purchaseReq['scheduled_date'];
+
+        $changeStr = "";
+        if ($purchase->isDirty()) {
+            foreach ($purchase->getDirty() as $key => $val) {
+                $changeStr .= ' ' . $key . ' change to ' . $val;
+            }
+            Purchase::where('id', $id)->update([
+                "supplier_id" => $purchaseReq['supplier'],
+                "scheduled_date" => $purchaseReq['scheduled_date'],
+            ]);
+        }
+        return $changeStr;
+    }
+
+    public function checkToUpdatePurchaseItemData($itemId, array $purchaseItemReq, $key, string $changeStr)
+    {
+        $purchaseItem = PurchaseItem::where('id', '=', $itemId)
+            ->select('price', 'num')
+            ->get()->first();
+        $purchaseItem->price = $purchaseItemReq['price'][$key];
+        $purchaseItem->num = $purchaseItemReq['num'][$key];
+        if ($purchaseItem->isDirty()) {
+            foreach ($purchaseItem->getDirty() as $dirtykey => $dirtyval) {
+                $changeStr .= ' itemID:' . $itemId . ' ' . $dirtykey . ' change to ' . $dirtyval;
+            }
+            PurchaseItem::where('id', $itemId)->update([
+                "price" => $purchaseItemReq['price'][$key],
+                "num" => $purchaseItemReq['num'][$key],
+            ]);
+        }
+        return $changeStr;
     }
 }
