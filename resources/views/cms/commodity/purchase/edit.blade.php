@@ -291,7 +291,7 @@
                     <tr>
                         <th class="text-center">
                             <input class="form-check-input" type="checkbox"
-                                   value="" data-td="p_id" aria-label="選取商品">
+                                value="" data-td="p_id" aria-label="選取商品">
                         </th>
                         <td data-td="name">【喜鴻嚴選】咖啡候機室(10入/盒)</td>
                         <td data-td="spec">綜合口味</td>
@@ -373,7 +373,7 @@
         <script>
             let addProductModal = new bootstrap.Modal(document.getElementById('addProduct'));
             /*** 選取商品 ***/
-            let selectedProductId = [];
+            let selectedProductSku = [];
             let selectedProduct = [];
             // clone 項目
             const $selectedClone = $('.-cloneElem.--selectedP:first-child').clone();
@@ -397,10 +397,10 @@
             // 加入商品、搜尋商品
             $('#addProductBtn, #addProduct .-searchBar button')
                 .off('click').on('click', function (e) {
-                selectedProductId = [];
+                selectedProductSku = [];
                 selectedProduct = [];
-                $('.-cloneElem.--selectedP input[name="product_style_id"]').each(function (index, element) {
-                    selectedProductId.push($(element).val());
+                $('.-cloneElem.--selectedP input[name="sku"]').each(function (index, element) {
+                    selectedProductSku.push($(element).val());
                 });
                 if (getProductList(1) && $(this).attr('id') === 'addProductBtn') {
                     addProductModal.show();
@@ -424,7 +424,7 @@
                     $('#addProduct #pageSum').text('');
                     $('#addProduct .page-item:not(:first-child, :last-child)').remove();
                     $('#addProduct nav').hide();
-                    $('#addProduct .-checkedNum').text(`已選取 ${selectedProductId.length} 件商品`);
+                    $('#addProduct .-checkedNum').text(`已選取 ${selectedProductSku.length} 件商品`);
 
                     axios.post(_URL, Data)
                         .then((result) => {
@@ -438,7 +438,7 @@
                                 $('#addProduct .-appendClone.--product input[type="checkbox"]:not(:disabled)')
                                     .off('change').on('change', function () {
                                     catchCheckedProduct();
-                                    $('#addProduct .-checkedNum').text(`已選取 ${selectedProductId.length} 件商品`);
+                                    $('#addProduct .-checkedNum').text(`已選取 ${selectedProductSku.length} 件商品`);
                                 });
 
                                 initPages(res.total, res.last_page, res.current_page);
@@ -454,7 +454,7 @@
 
                 // 商品列表
                 function createOneProduct(p) {
-                    let checked = (selectedProductId.indexOf((p.id).toString()) < 0) ? '' : 'checked disabled';
+                    let checked = (selectedProductSku.indexOf((p.sku).toString()) < 0) ? '' : 'checked disabled';
                     let $tr = $(`<tr>
                         <th class="text-center">
                             <input class="form-check-input" type="checkbox" ${checked}
@@ -569,7 +569,7 @@
             });
             $('#addProduct').on('hidden.bs.modal', function (e) {
                 // 清空值
-                selectedProductId = [];
+                selectedProductSku = [];
                 selectedProduct = [];
                 $('#addProduct .-searchBar input').val('');
                 $('#addProduct tbody.-appendClone.--product').empty();
@@ -584,21 +584,21 @@
             function catchCheckedProduct() {
                 $('#addProduct tbody input[data-td="p_id"]').each(function (index, element) {
                     // element == this
-                    const pid = $(element).val();
-                    const idx = selectedProductId.indexOf(pid);
+                    const sku = $(element).parent('th').siblings('[data-td="sku"]').text();
+                    const idx = selectedProductSku.indexOf(sku);
                     if ($(element).prop('checked')) {
                         if (idx < 0) {
-                            selectedProductId.push(pid);
+                            selectedProductSku.push(sku);
                             selectedProduct.push({
-                                id: pid,
+                                id: $(element).val(),
                                 name: $(element).parent('th').siblings('[data-td="name"]').text(),
-                                sku: $(element).parent('th').siblings('[data-td="sku"]').text(),
+                                sku: sku,
                                 spec: $(element).parent('th').siblings('[data-td="spec"]').text()
                             });
                         }
                     } else {
                         if (idx >= 0) {
-                            selectedProductId.splice(idx, 1);
+                            selectedProductSku.splice(idx, 1);
                             selectedProduct.splice(idx, 1);
                         }
                     }
