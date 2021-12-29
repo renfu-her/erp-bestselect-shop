@@ -74,4 +74,8 @@ class PurchaseItem extends Model
         });
     }
 
+    public static function getData($purchase_id) {
+        return self::where('purchase_id', $purchase_id)->whereNull('deleted_at');
+    }
+
 }

@@ -8,6 +8,6 @@ Route::group(['prefix' => 'purchase', 'as' => 'purchase.'], function () {
     Route::get('create', [PurchaseCtrl::class, 'create'])->name('create')->middleware('permission:cms.purchase.create');
     Route::post('create', [PurchaseCtrl::class, 'store']);
     Route::get('edit/{id}', [PurchaseCtrl::class, 'edit'])->name('edit')->middleware('permission:cms.purchase.edit');
-//    Route::post('edit/{id}', [PurchaseCtrl::class, 'update']);
+    Route::post('edit/{id}', [PurchaseCtrl::class, 'update']);
     Route::get('delete/{id}', [PurchaseCtrl::class, 'destroy'])->name('delete')->middleware('permission:cms.purchase.delete');
 });

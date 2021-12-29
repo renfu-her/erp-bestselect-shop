@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Cms;
 
 use App\Http\Controllers\Controller;
+use App\Models\PayingOrder;
 use App\Models\PayingOrders;
 use App\Models\Purchase;
+use App\Models\PurchaseItem;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -46,35 +48,60 @@ class PurchaseCtrl extends Controller
 
     public function store(Request $request)
     {
-//        $query = $request->query();
-//        $this->validInputValue($request);
-//        $v = $this->getInputValue($request);
-//
+        $query = $request->query();
+        $this->validInputValue($request);
+
+        $purchaseReq = $request->only('supplier', 'scheduled_date');
+        $purchaseItemReq = $request->only('product_style_id', 'name', 'sku', 'num', 'price');
+
+        $purchaseID = Purchase::createPurchase(
+            $purchaseReq['supplier'],
+            $request->user()->id,
+            $purchaseReq['scheduled_date'],
+//            '',
+//            $v['pay_type'],
+//            null,
+//            null,
+        );
+
+        $input = [];
+        if (isset($purchaseItemReq['product_style_id'])) {
+            foreach($purchaseItemReq['product_style_id'] as $key => $val)
+            {
+                array_push($input, [
+                    "purchase_id" => $purchaseID,
+                    "product_style_id" => $val,
+                    "title" =>  $purchaseItemReq['name'][$key],
+                    "sku" =>  $purchaseItemReq['sku'][$key],
+                    "price" =>  $purchaseItemReq['price'][$key],
+                    "num" =>  $purchaseItemReq['num'][$key],
+                ]);
+            }
+            PurchaseItem::insert($input);
+        }
+
 //        //0:先付(訂金) / 1:先付(一次付清) / 2:貨到付款
 //        $deposit_pay_id = null;
 //        $final_pay_id = null;
 //        if ("0" == $v['pay_type']) {
 //            //訂金、尾款都可填
+////            PayingOrder::createPayingOrder(
+////                $purchaseItemID,
+////                0,
+////                'ABCE',
+////                900,
+////                '2021-12-13 00:00:00',
+////                '第一筆備註 訂金'
+////            );
 //        } else if ("1" == $v['pay_type'] || "2" == $v['pay_type']) {
 //            //只有尾款都可填
 //        }
-//
-//        $id = Purchase::create([
-//            'supplier' => $v['supplier'],
-//            'purchase_id' => 1,
-//            'bank_cname' => $v['bank_cname'],
-//            'bank_code' => $v['bank_code'],
-//            'bank_acount' => $v['bank_acount'],
-//            'bank_numer' => $v['bank_numer'],
-//            'pay_type' => $v['pay_type'],
-//            'logistic_price' => $v['logistic_price'],
-//            'scheduled_date' => $v['scheduled_date'],
-//        ]);
-//        wToast(__('Add finished.'));
-//        return redirect(Route('cms.supplier.edit', [
-//            'id' => $id,
-//            'query' => $query
-//        ]));
+
+        wToast(__('Add finished.'));
+        return redirect(Route('cms.purchase.edit', [
+            'id' => $purchaseID,
+            'query' => $query
+        ]));
     }
 
     //驗證資料
@@ -82,24 +109,28 @@ class PurchaseCtrl extends Controller
         $request->validate([
             'supplier' => 'required|numeric',
             'scheduled_date' => 'required|string',
-            'bank_cname' => 'required|string',
-            'bank_code' => 'required|string',
-            'bank_acount' => 'required|string',
-            'bank_numer' => 'required|string',
-            'pay_type' => 'required|string',
+//            'bank_cname' => 'required|string',
+//            'bank_code' => 'required|string',
+//            'bank_acount' => 'required|string',
+//            'bank_numer' => 'required|string',
+//            'pay_type' => 'required|string',
         ]);
     }
 
     //取得欄位資料
     private function getInputValue(Request $request) {
-        return $request->only('supplier', 'scheduled_date', 'deposit_pay_num', 'final_pay_num'
-            , 'bank_cname', 'bank_code', 'bank_acount', 'bank_numer'
-            , 'pay_type', 'deposit_pay_price', 'deposit_pay_date', 'final_pay_date', 'logistic_price');
+        return $request->only('supplier', 'scheduled_date'
+            , 'product_style_id', 'name', 'num', 'price'
+//            , 'deposit_pay_num', 'final_pay_num'
+//            , 'bank_cname', 'bank_code', 'bank_acount', 'bank_numer'
+//            , 'pay_type', 'deposit_pay_price', 'deposit_pay_date', 'final_pay_price', 'final_pay_date', 'logistic_price'
+        );
     }
 
     public function edit(Request $request,$id)
     {
         $purchaseData = Purchase::getPurchase($id)->first();
+        $purchaseItemData = PurchaseItem::getData($id)->get()->toArray();
         if (!$purchaseData) {
             return abort(404);
         }
@@ -120,7 +151,8 @@ class PurchaseCtrl extends Controller
         $supplierList =  Supplier::getSupplierList()->get();
         return view('cms.commodity.purchase.edit', [
             'id' => $id,
-            'data' => $purchaseData,
+            'purchaseData' => $purchaseData,
+            'purchaseItemData' => $purchaseItemData,
             'payingOrderData' => $payingOrderList,
             'depositPayData' => $depositPayData,
             'finalPayData' => $finalPayData,
@@ -130,9 +162,10 @@ class PurchaseCtrl extends Controller
         ]);
     }
 
-//    public function update(Request $request, $id)
-//    {
-//        $query = $request->query();
+    public function update(Request $request, $id)
+    {
+        $query = $request->query();
+        dd($request->all());
 //        $this->validInputValue($request);
 //        $v = $this->getInputValue($request);
 //
@@ -142,8 +175,8 @@ class PurchaseCtrl extends Controller
 //            'id' => $id,
 //            'query' => $query
 //        ]));
-//    }
-//
+    }
+
     public function destroy(Request $request, $id)
     {
         Purchase::where('id', '=', $id)->delete();
