@@ -84,6 +84,27 @@ return [
         ],
     ],
     [
+        "unit" => "物流設定",
+        "permissions" => [
+            [
+                "cms.shipment.index",
+                "瀏覽",
+            ],
+            [
+                "cms.shipment.create",
+                "新增",
+            ],
+            [
+                "cms.shipment.edit",
+                "修改",
+            ],
+            [
+                "cms.shipment.delete",
+                "刪除",
+            ],
+        ],
+    ],
+    [
         "unit" => "商品類別",
         "permissions" => [
             [

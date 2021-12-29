@@ -117,6 +117,20 @@ Breadcrumbs::for('cms.sale_channel.edit', function ($trail) {
     $trail->push('編輯');
 });
 
+//物流設定
+Breadcrumbs::for('cms.shipment.index', function ($trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('物流運費', route('cms.shipment.index'));
+});
+Breadcrumbs::for('cms.shipment.create', function ($trail) {
+    $trail->parent('cms.shipment.index');
+    $trail->push('新增');
+});
+Breadcrumbs::for('cms.shipment.edit', function ($trail) {
+    $trail->parent('cms.shipment.index');
+    $trail->push('編輯');
+});
+
 // 員工帳號管理
 Breadcrumbs::for('cms.user.index', function ($trail) {
     $trail->parent('cms.dashboard');

@@ -43,6 +43,11 @@ return
                 "controller_name" => "SaleChannelCtrl",
                 "route_name" => "cms.sale_channel.index",
             ],
+            [
+                "title" => "物流設定",
+                "controller_name" => "ShipmentCtrl",
+                "route_name" => "cms.shipment.index",
+            ],
         ],
     ],
     [
@@ -68,4 +73,3 @@ return
         ],
     ],
 ];
-
