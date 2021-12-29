@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Cms\ProductCtrl;
+use App\Http\Controllers\Cms\Commodity\ProductCtrl;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'product', 'as' => 'product.'], function () {
@@ -13,6 +13,10 @@ Route::group(['prefix' => 'product', 'as' => 'product.'], function () {
 
     Route::get('edit/{id}/spec', [ProductCtrl::class, 'editSpec'])->name('edit-spec'); //->middleware('permission:cms.product.style');
     Route::post('edit/{id}/spec', [ProductCtrl::class, 'storeSpec']); //->middleware('permission:cms.product.style');
+
+    Route::get('edit/{id}/combo', [ProductCtrl::class, 'editCombo'])->name('edit-combo'); //->middleware('permission:cms.product.style');
+    //   Route::post('edit/{id}/spec', [ProductCtrl::class, 'storeSpec']); //->middleware('permission:cms.product.style');
+    Route::get('edit/{id}/combo-prod', [ProductCtrl::class, 'editComboProd'])->name('edit-combo-prod'); //->middleware('permission:cms.product.style');
 
     Route::get('edit/{id}/sale', [ProductCtrl::class, 'editSale'])->name('edit-sale'); //->middleware('permission:cms.product.sale');
     Route::get('edit/{id}/web-desc', [ProductCtrl::class, 'editWebDesc'])->name('edit-web-desc'); //->middleware('permission:cms.product.web-desc');

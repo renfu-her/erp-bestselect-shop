@@ -13,9 +13,9 @@ class ProductNavi extends Component
      *
      * @return void
      */
-    public function __construct($id)
+    public function __construct($product)
     {
-        $this->id = $id;
+        $this->product = $product;
     }
 
     /**
@@ -28,7 +28,7 @@ class ProductNavi extends Component
         $currentRouteName = explode('.', Route::getCurrentRoute()->getName())[2];
 
         return view('components.product-navi', [
-            'id' => $this->id
+            'id' => $this->product->id,
         ]);
     }
 }
