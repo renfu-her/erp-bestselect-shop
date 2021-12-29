@@ -52,7 +52,7 @@ class PurchaseSeeder extends Seeder
 
         PayingOrder::createPayingOrder(
             $purchaseID1,
-            1,
+            0,
             '中信銀行',
             '822',
             'XX商行',
