@@ -30,7 +30,8 @@ class ProductCtrl extends Controller
         $re = Product::productStyleList(
             Arr::get($d, 'keyword',''),
             Arr::get($d, 'sku',''),
-            Arr::get($d, 'supplier_id','')
+            Arr::get($d, 'supplier_id',''),
+            Arr::get($d, 'type','')
         )->paginate(10)->toArray();
         $re['status'] = '0';
         //   $re['data'] = json_decode(json_encode($re['data']), true);
