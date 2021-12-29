@@ -70,7 +70,7 @@
                     @if (false == isset($purchaseItemData) || 0 >= count($purchaseItemData))
                         <tr class="-cloneElem --selectedP d-none">
                             <th class="text-center">
-                                <button type="button" data-id=""
+                                <button type="button" 
                                         class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                     <i class="bi bi-trash"></i>
                                 </button>
@@ -81,10 +81,10 @@
                             <td data-td="name"></td>
                             <td data-td="sku"></td>
                             <td>
-                                <input type="text" class="form-control form-control-sm" name="num[]" value=""/>
+                                <input type="number" class="form-control form-control-sm" name="num[]" value=""/>
                             </td>
                             <td>
-                                <input type="text" class="form-control form-control-sm" name="price[]" value=""/>
+                                <input type="number" class="form-control form-control-sm" name="price[]" value=""/>
                             </td>
                         </tr>
                     @endif
@@ -92,7 +92,7 @@
                         @foreach ($purchaseItemData as $psItemKey => $psItemVal)
                             <tr class="-cloneElem --selectedP">
                                 <th class="text-center">
-                                    <button type="button" data-id="{{ $psItemVal['product_style_id'] }}"
+                                    <button type="button"
                                             class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                         <i class="bi bi-trash"></i>
                                     </button>
@@ -105,11 +105,11 @@
                                 <td data-td="sku">{{ $psItemVal['sku'] }}</td>
                                 <td>
                                     <input type="text" class="form-control form-control-sm" name="num[]"
-                                           value="{{ $psItemVal['num'] }}"/>
+                                        value="{{ $psItemVal['num'] }}"/>
                                 </td>
                                 <td>
                                     <input type="text" class="form-control form-control-sm" name="price[]"
-                                           value="{{ $psItemVal['price'] }}"/>
+                                        value="{{ $psItemVal['price'] }}"/>
                                 </td>
                             </tr>
                         @endforeach
@@ -248,6 +248,7 @@
 
         <div id="submitDiv">
             <div class="col-auto">
+                <input type="hidden" name="del_item_id">
                 <button type="submit" class="btn btn-primary px-4">儲存</button>
                 <a href="{{ Route('cms.purchase.index', [], true) }}" class="btn btn-outline-primary px-4"
                    role="button">返回列表</a>
@@ -378,6 +379,21 @@
             const $selectedClone = $('.-cloneElem.--selectedP:first-child').clone();
             $('.-cloneElem.--selectedP.d-none').remove();
 
+            /*** 刪除商品 ***/
+            let del_item_id = [];
+            let delItemOption = {
+                appendClone: '.-appendClone.--selectedP',
+                cloneElem: '.-cloneElem.--selectedP',
+                beforeDelFn: function ({$this}) {
+                    const item_id = $this.siblings('input[name="item_id[]"]').val();
+                    if (item_id) {
+                        del_item_id.push(item_id);
+                        $('input[name="del_item_id"]').val(del_item_id.toString());
+                    }
+                }
+            };
+            Clone_bindDelElem($('.-cloneElem.--selectedP .-del'), delItemOption);
+
             // 加入商品、搜尋商品
             $('#addProductBtn, #addProduct .-searchBar button')
                 .off('click').on('click', function (e) {
@@ -435,107 +451,107 @@
 
                     return true;
                 }
-            }
 
-            // 商品列表
-            function createOneProduct(p) {
-                let checked = (selectedProductId.indexOf((p.id).toString()) < 0) ? '' : 'checked disabled';
-                let $tr = $(`<tr>
-                    <th class="text-center">
-                        <input class="form-check-input" type="checkbox" ${checked}
-                            value="${p.id}" data-td="p_id" aria-label="選取商品">
-                    </th>
-                    <td data-td="name">${p.product_title}</td>
-                    <td data-td="spec">${p.spec || ''}</td>
-                    <td data-td="sku">${p.sku}</td>
-                    <td>${p.in_stock}</td>
-                    <td>${p.safety_stock}</td>
-                </tr>`);
-                $('#addProduct .-appendClone.--product').append($tr);
-            }
-
-            // 產生 分頁
-            function initPages(totalData, totalPages, currentPage) {
-                const Max = 13, // 最多數
-                    Buffer = 3, // active 鄰居數
-                    Edge = 2,   // 邊界頁數
-                    Ellipsis = 1,   // ...數
-                    Active = 1; // active數
-                $('#addProduct #pageSum').text(`共 ${totalPages} 頁（共 ${totalData} 筆資料）`);
-                $('#addProduct .page-item').removeClass('disabled').attr('tabindex', null);
-
-                // 分頁
-                $('#addProduct .page-item:not(:first-child, :last-child)').remove();
-                $('#addProduct nav').show();
-                for (let index = 1; index <= totalPages; index++) {
-                    let $li = $('<li class="page-item"></li>');
-
-                    /*** 顯示數字條件
-                     * 1. 總頁數 >= Max
-                     * 2. 邊界頁數
-                     * 3. 當前頁數及前後緩衝鄰居頁
-                     * 4. 當 當前頁在離頭尾邊界差距最大連續邊界頁(=邊界頁數+省略頁+緩衝頁+active頁)以內時，最大連續邊界頁以內的頁數
-                     * */
-                    let maxContinuousPage = Edge + Ellipsis + Buffer + Active;
-                    if (totalPages <= Max ||
-                        index <= Edge || index > totalPages - Edge ||
-                        Math.abs(currentPage - index) <= Buffer ||
-                        (maxContinuousPage >= currentPage && maxContinuousPage + Buffer >= index) ||
-                        (totalPages - maxContinuousPage < currentPage && totalPages - (maxContinuousPage + Buffer) < index)
-                    ) {
-                        $li = PageLink_N(index, $li);
-                    } else {
-                        $li = PageLink_Es(index, $li);
-                    }
-
-                    if ($li) $('#addProduct .page-item:last-child').before($li);
+                // 商品列表
+                function createOneProduct(p) {
+                    let checked = (selectedProductId.indexOf((p.id).toString()) < 0) ? '' : 'checked disabled';
+                    let $tr = $(`<tr>
+                        <th class="text-center">
+                            <input class="form-check-input" type="checkbox" ${checked}
+                                value="${p.id}" data-td="p_id" aria-label="選取商品">
+                        </th>
+                        <td data-td="name">${p.product_title}</td>
+                        <td data-td="spec">${p.spec || ''}</td>
+                        <td data-td="sku">${p.sku}</td>
+                        <td>${p.in_stock}</td>
+                        <td>${p.safety_stock}</td>
+                    </tr>`);
+                    $('#addProduct .-appendClone.--product').append($tr);
                 }
 
-                // disabled Previous Next
-                $('#addProduct .page-item.active:nth-child(2)').prev('.page-item').addClass('disabled');
-                $('#addProduct .page-item.active:nth-last-child(2) + .page-item').addClass('disabled');
-                $('#addProduct .page-item.disabled').attr('tabindex', -1);
+                // 產生 分頁
+                function initPages(totalData, totalPages, currentPage) {
+                    const Max = 13, // 最多數
+                        Buffer = 3, // active 鄰居數
+                        Edge = 2,   // 邊界頁數
+                        Ellipsis = 1,   // ...數
+                        Active = 1; // active數
+                    $('#addProduct #pageSum').text(`共 ${totalPages} 頁（共 ${totalData} 筆資料）`);
+                    $('#addProduct .page-item').removeClass('disabled').attr('tabindex', null);
 
-                // bind event
-                $('#addProduct .page-item button.page-link').off('click').on('click', function () {
-                    const btn = $(this).attr('aria-label');
-                    let page = $('#addProduct .page-item.active span.page-link').data('page');
-                    switch (btn) {
-                        case 'Previous':
-                            page--;
-                            break;
-                        case 'Next':
-                            page++;
-                            break;
-                        default:
-                            page = $(this).data('page');
-                            break;
+                    // 分頁
+                    $('#addProduct .page-item:not(:first-child, :last-child)').remove();
+                    $('#addProduct nav').show();
+                    for (let index = 1; index <= totalPages; index++) {
+                        let $li = $('<li class="page-item"></li>');
+
+                        /*** 顯示數字條件
+                         * 1. 總頁數 >= Max
+                         * 2. 邊界頁數
+                         * 3. 當前頁數及前後緩衝鄰居頁
+                         * 4. 當 當前頁在離頭尾邊界差距最大連續邊界頁(=邊界頁數+省略頁+緩衝頁+active頁)以內時，最大連續邊界頁以內的頁數
+                         * */
+                        let maxContinuousPage = Edge + Ellipsis + Buffer + Active;
+                        if (totalPages <= Max ||
+                            index <= Edge || index > totalPages - Edge ||
+                            Math.abs(currentPage - index) <= Buffer ||
+                            (maxContinuousPage >= currentPage && maxContinuousPage + Buffer >= index) ||
+                            (totalPages - maxContinuousPage < currentPage && totalPages - (maxContinuousPage + Buffer) < index)
+                        ) {
+                            $li = PageLink_N(index, $li);
+                        } else {
+                            $li = PageLink_Es(index, $li);
+                        }
+
+                        if ($li) $('#addProduct .page-item:last-child').before($li);
                     }
-                    getProductList(page);
-                });
 
-                // 產生 數字鈕
-                function PageLink_N(index, $li) {
-                    let $page_link = '';
-                    if (index == currentPage) {
-                        $page_link = $(`<span class="page-link">${index}</span>`);
-                        $li.addClass('active');
-                    } else {
-                        $page_link = $(`<button class="page-link" type="button">${index}</button>`);
-                    }
-                    $page_link.data('page', index);
-                    $li.append($page_link);
-                    return $li;
-                }
+                    // disabled Previous Next
+                    $('#addProduct .page-item.active:nth-child(2)').prev('.page-item').addClass('disabled');
+                    $('#addProduct .page-item.active:nth-last-child(2) + .page-item').addClass('disabled');
+                    $('#addProduct .page-item.disabled').attr('tabindex', -1);
 
-                // 產生 省略符號
-                function PageLink_Es(index, $li) {
-                    if ($('#addProduct .page-item:nth-last-child(2) span').text() === '...') {
-                        return false;
-                    } else {
-                        $li.addClass('disabled');
-                        $li.append('<span class="page-link">...</span>');
+                    // bind event
+                    $('#addProduct .page-item button.page-link').off('click').on('click', function () {
+                        const btn = $(this).attr('aria-label');
+                        let page = $('#addProduct .page-item.active span.page-link').data('page');
+                        switch (btn) {
+                            case 'Previous':
+                                page--;
+                                break;
+                            case 'Next':
+                                page++;
+                                break;
+                            default:
+                                page = $(this).data('page');
+                                break;
+                        }
+                        getProductList(page);
+                    });
+
+                    // 產生 數字鈕
+                    function PageLink_N(index, $li) {
+                        let $page_link = '';
+                        if (index == currentPage) {
+                            $page_link = $(`<span class="page-link">${index}</span>`);
+                            $li.addClass('active');
+                        } else {
+                            $page_link = $(`<button class="page-link" type="button">${index}</button>`);
+                        }
+                        $page_link.data('page', index);
+                        $li.append($page_link);
                         return $li;
+                    }
+
+                    // 產生 省略符號
+                    function PageLink_Es(index, $li) {
+                        if ($('#addProduct .page-item:nth-last-child(2) span').text() === '...') {
+                            return false;
+                        } else {
+                            $li.addClass('disabled');
+                            $li.append('<span class="page-link">...</span>');
+                            return $li;
+                        }
                     }
                 }
             }
@@ -594,20 +610,17 @@
             function createOneSelected(p) {
                 Clone_bindCloneBtn($selectedClone, function (cloneElem) {
                     cloneElem.find('input').val('');
-                    cloneElem.find('.-del').attr('data-id', '');
+                    cloneElem.find('input[name="item_id[]"]').remove();
+                    cloneElem.find('.-del').attr('data-id', null);
                     cloneElem.find('td[data-td]').text('');
                     if (p) {
-                        cloneElem.find('.-del').attr('data-id', p.id);
                         cloneElem.find('input[name="product_style_id[]"]').val(p.id);
                         cloneElem.find('input[name="name[]"]').val(`${p.name}-${p.spec}`);
                         cloneElem.find('input[name="sku[]"]').val(p.sku);
                         cloneElem.find('td[data-td="name"]').text(`${p.name}-${p.spec}`);
                         cloneElem.find('td[data-td="sku"]').text(p.sku);
                     }
-                }, {
-                    appendClone: '.-appendClone.--selectedP',
-                    cloneElem: '.-cloneElem.--selectedP'
-                });
+                }, delItemOption);
             }
         </script>
     @endpush
