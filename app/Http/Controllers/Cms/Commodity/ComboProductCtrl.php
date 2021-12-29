@@ -14,7 +14,7 @@ class ComboProductCtrl extends Controller
      */
     public function index()
     {
-        //
+        // 
     }
 
     /**
@@ -39,17 +39,6 @@ class ComboProductCtrl extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
@@ -58,6 +47,26 @@ class ComboProductCtrl extends Controller
     public function edit($id)
     {
         //
+    }
+
+    /**
+     * 組合包管理
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function editCombo()
+    {
+        return view('cms.commodity.comboProduct.combo');
+    }
+
+    /**
+     * 編輯組合包
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function editComboProd()
+    {
+        return view('cms.commodity.comboProduct.combo-edit');
     }
 
     /**
