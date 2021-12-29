@@ -71,7 +71,7 @@ class ProductCtrl extends Controller
         // $path = $request->file('file')->store('excel');
 
         $d = $request->all();
-        $re = Product::createProduct($d['title'], $d['user_id'], $d['category_id'], $d['feature'], $d['url'], $d['slogan'], $d['active_sdate'], $d['active_edate'], $d['supplier'], $d['has_tax']);
+        $re = Product::createProduct($d['title'], $d['user_id'], $d['category_id'],'p', $d['feature'], $d['url'], $d['slogan'], $d['active_sdate'], $d['active_edate'], $d['supplier'], $d['has_tax']);
 
         if ($request->hasfile('files')) {
             foreach ($request->file('files') as $file) {

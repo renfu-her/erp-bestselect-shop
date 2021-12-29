@@ -41,6 +41,7 @@ class ProductStyle extends Model
         }
 
         $data['product_id'] = $product_id;
+        $data['type'] = 'p';
 
         $data['is_active'] = $is_active;
         $data['title'] = trim($title);
@@ -147,6 +148,23 @@ class ProductStyle extends Model
         }
 
         return $re->get()->toArray();
+
+    }
+
+    public static function createComboStyle($product_id, $title, $is_active = 1)
+    {
+
+        if (!Product::where('id', $product_id)->where('type', 'c')->get()->first()) {
+            return;
+        }
+
+        $data['product_id'] = $product_id;
+        $data['type'] = 'c';
+
+        $data['is_active'] = $is_active;
+        $data['title'] = trim($title);
+
+        return self::create($data)->id;
 
     }
 
