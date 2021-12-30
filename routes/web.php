@@ -40,6 +40,5 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/Permission.php');
     require base_path('routes/cms/Purchase.php');
     require base_path('routes/cms/Depot.php');
-    require base_path('routes/cms/ComboProduct.php');
 });
 

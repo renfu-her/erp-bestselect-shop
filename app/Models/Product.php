@@ -126,6 +126,7 @@ class Product extends Model
                     $q->where('s.sku', 'like', "%$sku%");
                 }
             })
+            ->whereNotNull('s.sku')
             ->whereNull('s.deleted_at');
 
         if ($type) {
