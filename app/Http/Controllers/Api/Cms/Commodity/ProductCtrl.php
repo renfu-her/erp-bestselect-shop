@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Cms;
+namespace App\Http\Controllers\Api\Cms\Commodity;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;

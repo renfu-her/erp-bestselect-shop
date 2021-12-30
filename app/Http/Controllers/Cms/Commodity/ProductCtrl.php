@@ -9,6 +9,7 @@ use App\Models\ProductImg;
 use App\Models\ProductSpec;
 use App\Models\ProductSpecItem;
 use App\Models\ProductStyle;
+use App\Models\ProductStyleCombo;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -25,8 +26,7 @@ class ProductCtrl extends Controller
     public function index()
     {
 
-     //   dd(Product::productList()->get());
-
+        //   dd(Product::productList()->get());
 
         return view('cms.commodity.product.list', [
             'dataList' => Product::productList()->paginate(10),
@@ -130,6 +130,7 @@ class ProductCtrl extends Controller
             'current_supplier' => $current_supplier,
             'categorys' => Category::get(),
             'images' => ProductImg::where('product_id', $id)->get(),
+            'breadcrumb_data' => $product,
         ]);
     }
 
@@ -198,6 +199,7 @@ class ProductCtrl extends Controller
             'styles' => $styles,
             'initStyles' => $init_styles,
             'product' => $product,
+            'breadcrumb_data' => $product,
         ]);
     }
 
@@ -290,6 +292,7 @@ class ProductCtrl extends Controller
             'specs' => ProductSpec::get()->toArray(),
             'currentSpec' => ProductSpec::specList($id),
             'product' => $product,
+            'breadcrumb_data' => $product,
         ]);
     }
 
@@ -322,6 +325,7 @@ class ProductCtrl extends Controller
         $product = self::product_data($id);
         return view('cms.commodity.product.sales', [
             'product' => $product,
+            'breadcrumb_data' => $product,
 
         ]);
     }
@@ -337,6 +341,7 @@ class ProductCtrl extends Controller
         $product = self::product_data($id);
         return view('cms.commodity.product.web_desciption', [
             'product' => $product,
+            'breadcrumb_data' => $product,
         ]);
     }
 
@@ -351,6 +356,7 @@ class ProductCtrl extends Controller
         $product = self::product_data($id);
         return view('cms.commodity.product.web_spec', [
             'product' => $product,
+            'breadcrumb_data' => $product,
         ]);
     }
 
@@ -365,6 +371,7 @@ class ProductCtrl extends Controller
         $product = self::product_data($id);
         return view('cms.commodity.product.web_logistics', [
             'product' => $product,
+            'breadcrumb_data' => $product,
         ]);
     }
 
@@ -379,6 +386,7 @@ class ProductCtrl extends Controller
         $product = self::product_data($id);
         return view('cms.commodity.product.settings', [
             'product' => $product,
+            'breadcrumb_data' => $product,
         ]);
     }
 
@@ -400,7 +408,15 @@ class ProductCtrl extends Controller
      */
     public function editCombo($id)
     {
-        return view('cms.commodity.product.combo');
+        $product = self::product_data($id);
+        $styles = ProductStyle::where('product_id', $id)->get()->toArray();
+
+        // dd($styles);
+        return view('cms.commodity.product.combo', [
+            'product' => $product,
+            'styles' => $styles,
+            'breadcrumb_data' => $product,
+        ]);
     }
 
     /**
@@ -408,8 +424,32 @@ class ProductCtrl extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function editComboProd($id)
+    public function editComboProd($id, $sid)
     {
-        return view('cms.commodity.product.combo-edit');
+
+        $product = self::product_data($id);
+        return view('cms.commodity.product.combo-edit', [
+            'product' => $product,
+            'combos' => ProductStyleCombo::comboList($sid)->get(),
+            'breadcrumb_data' => ['product' => $product,
+                'style' => ProductStyle::where('id', $sid)->get()->first()],
+        ]);
+    }
+
+    /**
+     * 新增組合包
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function createComboProd($id)
+    {
+        $product = self::product_data($id);
+        return view('cms.commodity.product.combo-edit', [
+            'product' => $product,
+            'combos' => [],
+            'method' => 'edit',
+            'formAction' => Route('cms.product.edit', ['id' => $id]),
+            'breadcrumb_data' => $product,
+        ]);
     }
 }

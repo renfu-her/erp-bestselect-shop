@@ -1,8 +1,8 @@
 @extends('layouts.main')
 @section('sub-content')
     <div>
-        <h2 class="mb-3">組合包名稱</h2>
-        {{-- <x-b-prd-navi id="$data->id" type="combo"></x-b-prd-navi> --}}
+        <h2 class="mb-3">{{ $product->title }}</h2>
+        <x-b-prd-navi :product="$product"></x-b-prd-navi>
     </div>
 
     <form action="">
@@ -16,8 +16,7 @@
                         <tr>
                             <th scope="col" class="text-center">上架</th>
                             <th scope="col">組合包名稱</th>
-                            <th scope="col">SKU <a href=""
-                                type="button" class="btn btn-primary btn-sm">產生SKU碼</a></th>
+                            <th scope="col">SKU <a href="" type="button" class="btn btn-primary btn-sm">產生SKU碼</a></th>
                             <th scope="col">庫存</th>
                             <th scope="col">安全庫存</th>
                             <th scope="col">庫存不足</th>
@@ -27,6 +26,9 @@
                     </thead>
                     <tbody class="-appendClone">
                         {{-- @if (count($styles) == 0) --}}
+                        @foreach ($styles as $key => $style)
+
+
                             <tr class="-cloneElem">
                                 <td class="text-center">
                                     <div class="form-check form-switch form-switch-lg">
@@ -34,11 +36,12 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <input type="text" name="" class="form-control form-control-sm -l" value="">
+                                    <input type="text" name="" class="form-control form-control-sm -l"
+                                        value="{{ $style['title'] }}">
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm -l" value="" aria-label="SKU"
-                                        readonly />
+                                    <input type="text" class="form-control form-control-sm -l" value="{{ $style['sku'] }}"
+                                        aria-label="SKU" readonly />
                                 </td>
                                 <td>
                                     <a href="#" class="-text -stock">庫存管理</a>
@@ -55,10 +58,11 @@
                                     </select>
                                 </td>
                                 <td class="text-center">
-                                    <button type="button"
+                                    <a type="button"
+                                        href="{{ Route('cms.product.edit-combo-prod', ['id' => $product->id, 'sid' => $style['id']]) }}"
                                         class="icon icon-btn fs-5 text-primary rounded-circle border-0 p-0">
                                         <i class="bi bi-pencil-square"></i>
-                                    </button>
+                                    </a>
                                 </td>
                                 <td class="text-center">
                                     <button type="button"
@@ -67,12 +71,15 @@
                                     </button>
                                 </td>
                             </tr>
+
+                        @endforeach
                         {{-- @endif --}}
                     </tbody>
                 </table>
             </div>
             <div class="d-grid gap-2 mt-3">
-                <a href="{{ Route('cms.combo-product.edit-combo-prod', ['id' => 1]) }}" class="btn btn-outline-primary border-dashed" style="font-weight: 500;">
+                <a href="{{ Route('cms.product.create-combo-prod', ['id' => $product->id]) }}"
+                    class="btn btn-outline-primary border-dashed" style="font-weight: 500;">
                     <i class="bi bi-plus-circle"></i> 新增組合款式
                 </a>
             </div>

@@ -36,7 +36,7 @@
     @if ($type == 'c')
         <li class="nav-item">
             <a href="{{ Route('cms.product.edit-combo', ['id' => $id], true) }}"
-                class="nav-link {{ isActive('edit-combo', $route_name) }}{{ isActive('edit-combo-prod', $route_name) }}">組合包款式</a>
+                class="nav-link {{ isActive('edit-combo', $route_name) }}{{ isActive('edit-combo-prod', $route_name) }}{{ isActive('create-combo-prod', $route_name) }}">組合包款式</a>
         </li>
     @endif
 
