@@ -30,7 +30,7 @@
                             <td data-td="spec"></td>
                             <td data-td="sku"></td>
                             <td class="text-center">
-                                <button type="button"
+                                <button type="button" data-sku=""
                                     class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                     <i class="bi bi-trash"></i>
                                 </button>
@@ -46,7 +46,7 @@
                                 <td data-td="spec">{{ $combo->spec }}</td>
                                 <td data-td="sku">{{ $combo->sku }}</td>
                                 <td class="text-center">
-                                    <button type="button" data-sku="{{ $combo->sku }}" data-id="{{ $combo->id }}"
+                                    <button type="button" data-sku="{{ $combo->sku }}" item_id="{{ $combo->id }}"
                                         class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                         <i class="bi bi-trash"></i>
                                     </button>
@@ -66,6 +66,7 @@
 
         <div>
             <div class="col-auto">
+                <input type="hidden" name="del_item_id">
                 <button type="submit" class="btn btn-primary px-4 -checkSubmit">儲存</button>
                 <a href="{{ Route('cms.product.edit-combo', ['id' => $product->id]) }}" class="btn btn-outline-primary px-4"
                     role="button">取消</a>
@@ -136,6 +137,20 @@
             // clone
             const $selectedClone = $('.-cloneElem.--selectedP:first-child').clone();
             $('.-cloneElem.--selectedP.d-none').remove();
+            /*** 刪除商品 ***/
+            let del_item_id = [];
+            let delItemOption = {
+                appendClone: '.-appendClone.--selectedP',
+                cloneElem: '.-cloneElem.--selectedP',
+                beforeDelFn: function ({$this}) {
+                    const item_id = $this.attr('item_id');
+                    if (item_id) {
+                        del_item_id.push(item_id);
+                        $('input[name="del_item_id"]').val(del_item_id.toString());
+                    }
+                }
+            };
+            Clone_bindDelElem($('.-cloneElem.--selectedP .-del'), delItemOption);
 
             // 加入商品、搜尋商品
             $('#addProductBtn, #addProduct .-searchBar button')
@@ -251,18 +266,15 @@
                 function createOneSelected(p) {
                     Clone_bindCloneBtn($selectedClone, function (cloneElem) {
                         cloneElem.find('input').val('');
-                        cloneElem.find('.-del').attr({'data-sku': '', 'data-id': ''});
+                        cloneElem.find('.-del').attr({'data-sku': '', 'item_id': null});
                         cloneElem.find('td[data-td]').text('');
                         if (p) {
                             cloneElem.find('td[data-td="name"]').text(p.name);
                             cloneElem.find('td[data-td="spec"]').text(p.spec || '');
                             cloneElem.find('td[data-td="sku"]').text(p.sku);
-                            cloneElem.find('.-del').attr({'data-sku': p.sku, 'data-id': p.id});
+                            cloneElem.find('.-del').attr('data-sku', p.sku);
                         }
-                    }, {
-                        appendClone: '.-appendClone.--selectedP',
-                        cloneElem: '.-cloneElem.--selectedP'
-                    });
+                    }, delItemOption);
                 }
             });
             // 關閉Modal時，清空值

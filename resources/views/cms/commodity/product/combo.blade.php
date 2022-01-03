@@ -25,20 +25,18 @@
                         </tr>
                     </thead>
                     <tbody class="-appendClone">
-                        {{-- @if (count($styles) == 0) --}}
-                        @foreach ($styles as $key => $style)
-                            <tr class="-cloneElem">
+                        @if (count($styles) == 0)
+                            <tr class="-cloneElem d-none">
                                 <td class="text-center">
                                     <div class="form-check form-switch form-switch-lg">
                                         <input class="form-check-input" type="checkbox" name="n_active[]" checked>
                                     </div>
                                 </td>
                                 <td>
-                                    <input type="text" name="" class="form-control form-control-sm -l"
-                                        value="{{ $style['title'] }}">
+                                    <input type="text" name="" class="form-control form-control-sm -l" value="">
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm -l" value="{{ $style['sku'] }}"
+                                    <input type="text" class="form-control form-control-sm -l" value=""
                                         aria-label="SKU" readonly />
                                 </td>
                                 <td>
@@ -57,7 +55,7 @@
                                 </td>
                                 <td class="text-center">
                                     <a type="button"
-                                        href="{{ Route('cms.product.edit-combo-prod', ['id' => $product->id, 'sid' => $style['id']]) }}"
+                                        href="#"
                                         class="icon icon-btn fs-5 text-primary rounded-circle border-0 p-0">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
@@ -69,9 +67,53 @@
                                     </button>
                                 </td>
                             </tr>
-
+                        @endif
+                        @foreach ($styles as $key => $style)
+                            <tr class="-cloneElem">
+                                <td class="text-center">
+                                    <div class="form-check form-switch form-switch-lg">
+                                        <input class="form-check-input" type="checkbox" name="active_id[]"
+                                            value="{{ $style['id'] }}" checked>
+                                    </div>
+                                </td>
+                                <td>
+                                    <input type="text" name="" class="form-control form-control-sm -l"
+                                        value="">
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control form-control-sm -l"
+                                        aria-label="SKU" value="{{ $style['sku'] }}" readonly />
+                                    <input type="hidden" name="sid" value="{{ $style['id'] }}">
+                                </td>
+                                <td>
+                                    <a href="#" class="-text -stock">{{ $style['safety_stock'] }}</a>
+                                </td>
+                                <td>
+                                    <a href="#" class="-text -stock">{{ $style['in_stock'] }}</a>
+                                </td>
+                                <td>
+                                    <select name="_sold_out_event[]" class="form-select form-select-sm">
+                                        <option value="繼續銷售">繼續銷售</option>
+                                        <option value="停止銷售">停止銷售</option>
+                                        <option value="下架">下架</option>
+                                        <option value="預售">預售</option>
+                                    </select>
+                                </td>
+                                <td class="text-center">
+                                    <a type="button" @if (isset($style['sku'])) disabled @endif
+                                        href="{{ Route('cms.product.edit-combo-prod', ['id' => $product->id, 'sid' => $style['id']]) }}"
+                                        class="icon icon-btn fs-5 text-primary rounded-circle border-0 p-0">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" @if (isset($style['sku'])) disabled @endif
+                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
                         @endforeach
-                        {{-- @endif --}}
                     </tbody>
                 </table>
             </div>
@@ -102,38 +144,16 @@
             // clone 項目
             const $clone = $('.-cloneElem:first-child').clone();
             $('.-cloneElem.d-none').remove();
-            $('.-newClone').off('click').on('click', function() {
-                createInitStyle(false);
-            });
-            // 新增一條款式
-            function createInitStyle(items) {
-                Clone_bindCloneBtn($clone, function(cloneElem) {
-                    cloneElem.find('input, select').val('');
-                    cloneElem.find('input:hidden[name$="_style_id[]"]').remove();
-                    cloneElem.find('.form-switch input').prop('checked', true);
-                    cloneElem.find('a.-text.-cost').text('採購單');
-                    cloneElem.find('a.-text.-stock').text('庫存管理');
-                    cloneElem.find('select[name$="sold_out_event[]"]').val('繼續銷售');
-                    cloneElem.find('select, .-del').prop('disabled', false);
-                    cloneElem.find('input[name="active_id[]"]').attr('name', 'n_active[]');
-                    cloneElem.find('select[name]').attr('name', function(index, attr) {
-                        return attr.replace(/nsk_|sk_/, 'n_');
-                    });
-                    if (items) {
-                        cloneElem.find('select[name="n_spec1[]"]').val(items.spec_item1_id);
-                        cloneElem.find('select[name="n_spec2[]"]').val(items.spec_item2_id);
-                        cloneElem.find('select[name="n_spec3[]"]').val(items.spec_item3_id);
-                    }
-                });
-            }
+            
             // del
             let del_id = [];
-            Clone_bindDelElem($('.-del'));
-            $('.-del').off('click.del-id').on('click.del-id', function() {
-                const style_id = $(this).closest('.-cloneElem').find('input:hidden[name="nsk_style_id[]"]').val();
-                if (style_id) {
-                    del_id.push(style_id);
-                    $('input[name="del_id"]').val(del_id.toString());
+            Clone_bindDelElem($('.-del'), {
+                beforeDelFn: function ({$this}) {
+                    const sid = $this.closest('.-cloneElem').find('input:hidden[name="sid"]').val();
+                    if (sid) {
+                        del_id.push(sid);
+                        $('input[name="del_id"]').val(del_id.toString());
+                    }
                 }
             });
         </script>
