@@ -17,7 +17,7 @@
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3 ">
                     <label class="form-label">採購廠商</label>
-                    <select name="supplier" id="supplier"
+                    <select name="supplier" id="supplier" @if ($method === 'edit') disabled @endif
                             class="form-select @error('supplier') is-invalid @enderror"
                             aria-label="採購廠商" required>
                         <option value="" selected disabled>請選擇</option>
@@ -400,6 +400,13 @@
                         del_item_id.push(item_id);
                         $('input[name="del_item_id"]').val(del_item_id.toString());
                     }
+                },
+                checkFn: function () {
+                    if ($('.-cloneElem.--selectedP').length) {
+                        $('#supplier').prop('disabled', true);
+                    } else if (@json($method) === 'create') {
+                        $('#supplier').prop('disabled', false);
+                    }
                 }
             };
             Clone_bindDelElem($('.-cloneElem.--selectedP .-del'), delItemOption);
@@ -409,7 +416,7 @@
                 .off('click').on('click', function (e) {
                 selectedProductSku = [];
                 selectedProduct = [];
-                $('.-cloneElem.--selectedP input[name="sku"]').each(function (index, element) {
+                $('.-cloneElem.--selectedP input[name="sku[]"]').each(function (index, element) {
                     selectedProductSku.push($(element).val());
                 });
                 if (getProductList(1) && $(this).attr('id') === 'addProductBtn') {
@@ -573,6 +580,9 @@
                         createOneSelected(p);
                     }
                 });
+                if ($('.-cloneElem.--selectedP').length) {
+                    $('#supplier').prop('disabled', true);
+                }
 
                 // 關閉懸浮視窗
                 addProductModal.hide();
