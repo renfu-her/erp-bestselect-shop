@@ -28,6 +28,7 @@ class CreateShipmentTable extends Migration
             $table->integer('dlv_cost')->comment('成本');
             $table->integer('at_most')->comment('最多件數');
             $table->string('method')->comment('出貨方式');
+            $table->boolean('is_above')->comment('以上,未滿');
             $table->string('note')->nullable()->comment('說明');
             $table->timestamps();
         });
