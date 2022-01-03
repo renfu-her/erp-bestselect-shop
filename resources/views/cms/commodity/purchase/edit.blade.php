@@ -125,6 +125,9 @@
                 </table>
             </div>
             <div class="d-grid mt-3">
+                @error('sku_repeat')
+                <div class="alert alert-danger mt-3">{{ $message }}</div>
+                @enderror
                 <button id="addProductBtn" type="button"
                         class="btn btn-outline-primary border-dashed" style="font-weight: 500;">
                     <i class="bi bi-plus-circle bold"></i> 加入商品

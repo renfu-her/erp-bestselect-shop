@@ -10,6 +10,7 @@ use App\Models\PurchaseItem;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\ValidationException;
 
 class PurchaseCtrl extends Controller
 {
@@ -166,6 +167,31 @@ class PurchaseCtrl extends Controller
         $purchaseItemReq = $request->only('item_id', 'product_style_id', 'name', 'sku', 'num', 'price');
 
         $changeStr = '';
+
+        if (isset($purchaseItemReq['item_id'])) {
+
+            $sku_arr = [];
+            foreach ($purchaseItemReq['item_id'] as $key => $val) {
+                $itemId = $purchaseItemReq['item_id'][$key];
+                // 先檢查新資料是否有與舊值重複
+                if (null == $itemId) {
+                    array_push($sku_arr, $purchaseItemReq['sku'][$key]);
+                }
+            }
+            if (0 < count($sku_arr)) {
+                $pcitems = PurchaseItem::whereIn('sku', $sku_arr)
+                    ->where('purchase_id', '=', $id)
+                    ->select('id', 'sku')
+                    ->get()->toArray();
+                if (0 < count($pcitems)) {
+                    $tmp_skus = [];
+                    foreach($pcitems as $item) {
+                        array_push($tmp_skus, $item['sku']);
+                    }
+                    throw ValidationException::withMessages(['sku_repeat' => 'sku重複:'.implode(",",$tmp_skus)]);
+                }
+            }
+        }
         $changeStr .= $this->checkToUpdatePurchaseData($id, $purchaseReq);
 
         //刪除現有款式
