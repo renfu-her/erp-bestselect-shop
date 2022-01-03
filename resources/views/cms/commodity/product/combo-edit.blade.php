@@ -20,17 +20,33 @@
                             <th scope="col" class="text-center">刪除</th>
                         </tr>
                     </thead>
-                    <tbody class="-appendClone">
+                    <tbody class="-appendClone --selectedP">
+                        @if (count($combos) === 0)
+                        <tr class="-cloneElem --selectedP d-none">
+                            <td>
+                                <input type="number" name="ps_qty" class="form-control form-control-sm" value="">
+                            </td>
+                            <td data-td="name"></td>
+                            <td data-td="spec"></td>
+                            <td data-td="sku"></td>
+                            <td class="text-center">
+                                <button type="button"
+                                    class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        @endif
                         @foreach ($combos as $key => $combo)
-                            <tr class="-cloneElem">
+                            <tr class="-cloneElem --selectedP">
                                 <td>
-                                    <input type="number" name="" class="form-control form-control-sm" value="{{ $combo->qty }}">
+                                    <input type="number" name="ps_qty" class="form-control form-control-sm" value="{{ $combo->qty }}">
                                 </td>
-                                <td>{{ $combo->title }}</td>
-                                <td>{{ $combo->spec }}</td>
-                                <td>{{ $combo->sku }}</td>
+                                <td data-td="name">{{ $combo->title }}</td>
+                                <td data-td="spec">{{ $combo->spec }}</td>
+                                <td data-td="sku">{{ $combo->sku }}</td>
                                 <td class="text-center">
-                                    <button type="button"
+                                    <button type="button" data-sku="{{ $combo->sku }}" data-id="{{ $combo->id }}"
                                         class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                         <i class="bi bi-trash"></i>
                                     </button>
@@ -51,87 +67,55 @@
         <div>
             <div class="col-auto">
                 <button type="submit" class="btn btn-primary px-4 -checkSubmit">儲存</button>
-                <a href="{{ Route('cms.product.edit-combo', ['id' => 1]) }}" class="btn btn-outline-primary px-4"
+                <a href="{{ Route('cms.product.edit-combo', ['id' => $product->id]) }}" class="btn btn-outline-primary px-4"
                     role="button">取消</a>
             </div>
         </div>
     </form>
 
 
-    {{-- 商品清單 --}}
-    <x-b-modal id="addProduct" cancelBtn="false" size="modal-xl modal-fullscreen-lg-down">
-        <x-slot name="title">選取商品加入組合款式</x-slot>
-        <x-slot name="body">
-            <div class="input-group mb-3 -searchBar">
-                <input type="text" class="form-control" placeholder="請輸入名稱或SKU" aria-label="搜尋條件">
-                <button class="btn btn-primary" type="button">搜尋商品</button>
-            </div>
-            {{-- <div class="row justify-content-end mb-2">
-            <div class="col-auto">
-                顯示
-                <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
-                    @foreach (config('global.dataPerPage') as $value)
-                        <option value="{{ $value }}">{{ $value }}</option>
-                    @endforeach
-                </select>
-                筆
-            </div>
-        </div> --}}
-            <div class="table-responsive">
-                <table class="table table-hover tableList">
-                    <thead>
-                        <tr>
-                            <th scope="col" class="text-center">選取</th>
-                            <th scope="col">商品名稱</th>
-                            <th scope="col">款式</th>
-                            <th scope="col">SKU</th>
-                            <th scope="col">庫存數量</th>
-                            <th scope="col">預扣庫存量</th>
-                        </tr>
-                    </thead>
-                    <tbody class="-appendClone --product">
-                        <tr>
-                            <th class="text-center">
-                                <input class="form-check-input" type="checkbox" value="" data-td="p_id" aria-label="選取商品">
-                            </th>
-                            <td data-td="name">【喜鴻嚴選】咖啡候機室(10入/盒) </td>
-                            <td data-td="spec">綜合口味</td>
-                            <td data-td="sku">AA2590</td>
-                            <td>58</td>
-                            <td>20</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="col d-flex justify-content-end align-items-center flex-wrap">
-                <div id="pageSum" class="me-1">共 1 頁（共 0 筆資料）</div>
-                {{-- 頁碼 --}}
-                <div class="d-flex justify-content-center">
-                    <nav>
-                        <ul class="pagination">
-                            <li class="page-item disabled">
-                                <button type="button" class="page-link" aria-label="Previous">
-                                    <i class="bi bi-chevron-left"></i>
-                                </button>
-                            </li>
-                            <li class="page-item disabled">
-                                <button type="button" class="page-link" aria-label="Next">
-                                    <i class="bi bi-chevron-right"></i>
-                                </button>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-            </div>
-            <div class="alert alert-secondary mx-3 mb-0 -emptyData" style="display: none;" role="alert">
-                查無資料！
-            </div>
-        </x-slot>
-        <x-slot name="foot">
-            <span class="me-3 -checkedNum">已選取 0 件商品</span>
-            <button type="button" class="btn btn-primary btn-ok">加入組合款式</button>
-        </x-slot>
-    </x-b-modal>
+{{-- 商品清單 --}}
+<x-b-modal id="addProduct" cancelBtn="false" size="modal-xl modal-fullscreen-lg-down">
+    <x-slot name="title">選取商品加入組合款式</x-slot>
+    <x-slot name="body">
+        <div class="input-group mb-3 -searchBar">
+            <input type="text" class="form-control" placeholder="請輸入名稱或SKU" aria-label="搜尋條件">
+            <button class="btn btn-primary" type="button">搜尋商品</button>
+        </div>
+        {{-- <div class="row justify-content-end mb-2">
+        <div class="col-auto">
+            顯示
+            <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
+                @foreach (config('global.dataPerPage') as $value)
+                    <option value="{{ $value }}">{{ $value }}</option>
+                @endforeach
+            </select>
+            筆
+        </div>
+    </div> --}}
+        <div class="table-responsive">
+            <table class="table table-hover tableList">
+                <thead>
+                    <tr>
+                        <th scope="col" class="text-center">選取</th>
+                        <th scope="col">商品名稱</th>
+                        <th scope="col">款式</th>
+                        <th scope="col">SKU</th>
+                    </tr>
+                </thead>
+                <tbody class="-appendClone --product"></tbody>
+            </table>
+        </div>
+        <div class="col d-flex justify-content-end align-items-center flex-wrap -pages"></div>
+        <div class="alert alert-secondary mx-3 mb-0 -emptyData" style="display: none;" role="alert">
+            查無資料！
+        </div>
+    </x-slot>
+    <x-slot name="foot">
+        <span class="me-3 -checkedNum">已選取 0 件商品</span>
+        <button type="button" class="btn btn-primary btn-ok">加入組合款式</button>
+    </x-slot>
+</x-b-modal>
 @endsection
 @once
     @push('sub-styles')
@@ -145,20 +129,21 @@
     @push('sub-scripts')
         <script>
             let addProductModal = new bootstrap.Modal(document.getElementById('addProduct'));
+            let prodPages = new Pagination($('#addProduct .-pages'));
             /*** 選取商品 ***/
-            let selectedProductId = [];
+            let selectedProductSku = [];
             let selectedProduct = [];
             // clone
-
-            // init
+            const $selectedClone = $('.-cloneElem.--selectedP:first-child').clone();
+            $('.-cloneElem.--selectedP.d-none').remove();
 
             // 加入商品、搜尋商品
             $('#addProductBtn, #addProduct .-searchBar button')
                 .off('click').on('click', function(e) {
-                    selectedProductId = [];
+                    selectedProductSku = [];
                     selectedProduct = [];
-                    $('.-cloneElem.--selectedP input[name="ps_id"]').each(function(index, element) {
-                        selectedProductId.push($(element).val());
+                    $('.-cloneElem.--selectedP button.-del').each(function(index, element) {
+                        selectedProductSku.push($(element).attr('data-sku'));
                     });
                     if (getProductList(1) && $(this).attr('id') === 'addProductBtn') {
                         addProductModal.show();
@@ -177,37 +162,41 @@
                 $('#addProduct #pageSum').text('');
                 $('#addProduct .page-item:not(:first-child, :last-child)').remove();
                 $('#addProduct nav').hide();
-                $('#addProduct .-checkedNum').text(`已選取 ${selectedProductId.length} 件商品`);
+                $('#addProduct .-checkedNum').text(`已選取 ${selectedProductSku.length} 件商品`);
 
                 axios.post(_URL, Data)
-                    .then((result) => {
-                        const res = result.data;
-                        if (res.status === '0' && res.data && res.data.length) {
-                            $('.-emptyData').hide();
-                            (res.data).forEach(prod => {
-                                createOneProduct(prod);
+                .then((result) => {
+                    const res = result.data;
+                    if (res.status === '0' && res.data && res.data.length) {
+                        $('#addProduct .-emptyData').hide();
+                        (res.data).forEach(prod => {
+                            createOneProduct(prod);
+                        });
+                        // bind event
+                        $('#addProduct .-appendClone.--product input[type="checkbox"]:not(:disabled)')
+                            .off('change').on('change', function() {
+                                catchCheckedProduct();
+                                $('#addProduct .-checkedNum').text(`已選取 ${selectedProductSku.length} 件商品`);
                             });
-                            // bind event
-                            $('#addProduct .-appendClone.--product input[type="checkbox"]:not(:disabled)')
-                                .off('change').on('change', function() {
-                                    // catchCheckedProduct();
-                                    $('#addProduct .-checkedNum').text(`已選取 ${selectedProductId.length} 件商品`);
-                                });
 
-                            // initPages(res.total, res.last_page, res.current_page);
-                        } else {
-                            $('#addProduct .-emptyData').show();
-                        }
-                    }).catch((err) => {
-                        console.log(err);
-                    });
+                        // 產生分頁
+                        prodPages.create(res.current_page, {
+                            totalData: res.total,
+                            totalPages: res.last_page,
+                            changePageFn: getProductList
+                        });
+                    } else {
+                        $('#addProduct .-emptyData').show();
+                    }
+                }).catch((err) => {
+                    console.log(err);
+                });
 
                 return true;
 
-
                 // 商品列表
                 function createOneProduct(p) {
-                    let checked = (selectedProductId.indexOf((p.id).toString()) < 0) ? '' : 'checked disabled';
+                    let checked = (selectedProductSku.indexOf((p.sku).toString()) < 0) ? '' : 'checked disabled';
                     let $tr = $(`<tr>
                         <th class="text-center">
                             <input class="form-check-input" type="checkbox" ${checked}
@@ -216,8 +205,6 @@
                         <td data-td="name">${p.product_title}</td>
                         <td data-td="spec">${p.spec || ''}</td>
                         <td data-td="sku">${p.sku}</td>
-                        <td>${p.in_stock}</td>
-                        <td>${p.safety_stock}</td>
                     </tr>`);
                     $('#addProduct .-appendClone.--product').append($tr);
                 }
@@ -227,21 +214,21 @@
             function catchCheckedProduct() {
                 $('#addProduct tbody input[data-td="p_id"]').each(function(index, element) {
                     // element == this
-                    const pid = $(element).val();
-                    const idx = selectedProductId.indexOf(pid);
+                    const sku = $(element).parent('th').siblings('[data-td="sku"]').text();
+                    const idx = selectedProductSku.indexOf(sku);
                     if ($(element).prop('checked')) {
                         if (idx < 0) {
-                            selectedProductId.push(pid);
+                            selectedProductSku.push(sku);
                             selectedProduct.push({
-                                id: pid,
+                                id: $(element).val(),
                                 name: $(element).parent('th').siblings('[data-td="name"]').text(),
-                                sku: $(element).parent('th').siblings('[data-td="sku"]').text(),
+                                sku: sku,
                                 spec: $(element).parent('th').siblings('[data-td="spec"]').text()
                             });
                         }
                     } else {
                         if (idx >= 0) {
-                            selectedProductId.splice(idx, 1);
+                            selectedProductSku.splice(idx, 1);
                             selectedProduct.splice(idx, 1);
                         }
                     }
@@ -249,78 +236,46 @@
                 });
             }
 
-            // 新增規格
-            $('.-newSpec').off('click').on('click', function() {
-                Clone_bindCloneBtn($cloneSpec, function($c_s) {
-                    $c_s.find('input, select').val('');
-                    $c_s.find('input, select, button').prop('disabled', false);
-                    $c_s.find(`${Items.clone}:nth-child(n+2), select.-single + input:hidden`).remove();
-                    $c_s.find('select.-single').addClass('-select2').select2();
+            // btn - 加入組合款式
+            $('#addProduct .btn-ok').off('click').on('click', function () {
+                selectedProduct.forEach(p => {
+                    if (!$(`tr.-cloneElem.--selectedP button.-del[data-sku="${p.sku}"]`).length) {
+                        createOneSelected(p);
+                    }
+                });
 
-                    // 規格裡的btn: 新增項目
-                    $c_s.find('.-newItem').off('click').on('click', function() {
-                        Clone_bindCloneBtn($cloneItem, function($c_i) {
-                            $c_i.find('input').val('');
-                            $c_i.find('input, button').prop('disabled', false);
-                        }, {
-                            cloneElem: Items.clone,
-                            delElem: Items.del,
-                            $thisAppend: $(this).closest(Spec.clone).children(Items.append),
-                            checkFn: checkStylesQty
-                        });
+                // 關閉懸浮視窗
+                addProductModal.hide();
+                
+                // 加入採購單 - 加入一個商品
+                function createOneSelected(p) {
+                    Clone_bindCloneBtn($selectedClone, function (cloneElem) {
+                        cloneElem.find('input').val('');
+                        cloneElem.find('.-del').attr({'data-sku': '', 'data-id': ''});
+                        cloneElem.find('td[data-td]').text('');
+                        if (p) {
+                            cloneElem.find('td[data-td="name"]').text(p.name);
+                            cloneElem.find('td[data-td="spec"]').text(p.spec || '');
+                            cloneElem.find('td[data-td="sku"]').text(p.sku);
+                            cloneElem.find('.-del').attr({'data-sku': p.sku, 'data-id': p.id});
+                        }
+                    }, {
+                        appendClone: '.-appendClone.--selectedP',
+                        cloneElem: '.-cloneElem.--selectedP'
                     });
-                    // 規格裡的btn: 刪除項目
-                    Clone_bindDelElem($c_s.find(Items.del), {
-                        appendClone: Items.append,
-                        cloneElem: Items.clone,
-                        checkFn: checkStylesQty
-                    });
-                }, {
-                    appendClone: Spec.append,
-                    cloneElem: Spec.clone,
-                    delElem: Spec.del,
-                    checkFn: checkStylesQty
-                });
+                }
             });
-            // 新增項目
-            $('.-newItem').off('click').on('click', function() {
-                const $this = $(this);
-                Clone_bindCloneBtn($cloneItem, function($c_i) {
-                    $c_i.find('input').val('');
-                    $c_i.find('input, button').prop('disabled', false);
-                }, {
-                    cloneElem: Items.clone,
-                    delElem: Items.del,
-                    $thisAppend: $this.closest(Spec.clone).children(Items.append),
-                    checkFn: checkStylesQty
-                });
-            });
-            // 數量檢查
-            function checkStylesQty() {
-                const spec_qty = $(Spec.clone).length;
-                let chkItems = true;
-
-                // 規格最多三種
-                $('.-newSpecBtnBox').toggleClass('d-none', spec_qty >= 3);
-                // $('.-newSpec').prop('disabled', (spec_qty >= 3));
-
-                // 至少一個規格
-                chkItems &= (spec_qty > 0);
-                // 每個規格至少一個項目
-                $(Spec.clone).each(function(index, element) {
-                    chkItems &= ($(element).find(Items.clone).length > 0);
-                });
-                $('.-checkSubmit').prop('disabled', !chkItems);
-            }
-
-            // 儲存前設定name
-            $('#form1').submit(function(e) {
-                $(Spec.clone).each(function(index, element) {
-                    // element == this
-                    $(element).find('select.-single.-select2, select.-single + input:hidden')
-                        .attr('name', `'spec${index}`);
-                    $(element).find(`${Items.clone} input`).attr('name', `item${index}[]`);
-                });
+            // 關閉Modal時，清空值
+            $('#addProduct').on('hidden.bs.modal', function (e) {
+                selectedProductSku = [];
+                selectedProduct = [];
+                $('#addProduct .-searchBar input').val('');
+                $('#addProduct tbody.-appendClone.--product').empty();
+                $('#addProduct #pageSum').text('');
+                $('#addProduct .page-item:not(:first-child, :last-child)').remove();
+                $('#addProduct nav').hide();
+                $('#addProduct .-checkedNum').text('已選取 0 件商品');
+                $('.-emptyData').hide();
             });
         </script>
     @endpush

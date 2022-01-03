@@ -27,8 +27,6 @@
                     <tbody class="-appendClone">
                         {{-- @if (count($styles) == 0) --}}
                         @foreach ($styles as $key => $style)
-
-
                             <tr class="-cloneElem">
                                 <td class="text-center">
                                     <div class="form-check form-switch form-switch-lg">

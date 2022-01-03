@@ -16,7 +16,7 @@
                     <div class="form-check form-check-inline @error('type')is-invalid @enderror">
                         <input class="form-check-input @error('type')is-invalid @enderror" name="type" value="p" type="radio"
                             @if ($method == 'edit') disabled @endif id="type_1" required @if (old('type', $product->type ?? '') == 'p') checked @endif>
-                        <label class="form-check-label" for="type_1">一般</label>
+                        <label class="form-check-label" for="type_1">一般商品</label>
                     </div>
                     <div class="form-check form-check-inline @error('type')is-invalid @enderror">
                         <input class="form-check-input @error('type')is-invalid @enderror" name="type" value="c" type="radio"

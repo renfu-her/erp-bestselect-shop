@@ -15,7 +15,7 @@ class Product extends Model
 
     public static function productList()
     {
-        return self::select('id','title','sku')->selectRaw('CASE type WHEN "p" THEN "商品" WHEN "c" THEN "組合包商品" END as type_title');
+        return self::select('id','title','sku')->selectRaw('CASE type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title');
     }
 
     public static function createProduct($title, $user_id, $category_id, $type = 'p', $feature = null, $url = null, $slogan = null, $active_sdate = null, $active_edate = null, $supplier = null, $has_tax = 0)
