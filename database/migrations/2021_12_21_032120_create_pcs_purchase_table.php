@@ -17,7 +17,7 @@ class CreatePcsPurchaseTable extends Migration
             $table->id()->comment('採購id 一張採購對一家廠商');
             $table->string('sn')->comment('採購單號');
             $table->integer('supplier_id')->comment('廠商');
-            $table->integer('purchase_id')->comment('採購人員');
+            $table->integer('purchase_user_id')->comment('採購人員');
             $table->dateTime('scheduled_date')->comment('預計進貨日期');
 
             $table->tinyInteger('pay_type')->nullable()->comment('0:先付(訂金) / 1:先付(一次付清) / 2:貨到付款');

@@ -42,7 +42,7 @@ class PurchaseItem extends Model
     }
 
     //採購單入庫 更新資料
-    public static function updatePurchase($id, $expiry_date = null, $temp_id, $status = 0, $inbound_date = null, $inbound_num = 0, $depot_id = null, $inbound_id = null, $error_num = 0, $memo = null)
+    public static function updatePurchase($id, $expiry_date = null, $temp_id, $status = 0, $inbound_date = null, $inbound_num = 0, $depot_id = null, $inbound_user_id = null, $error_num = 0, $memo = null)
     {
         return DB::transaction(function () use (
             $id,
@@ -53,7 +53,7 @@ class PurchaseItem extends Model
             $inbound_date,
             $inbound_num,
             $depot_id,
-            $inbound_id,
+            $inbound_user_id,
             $error_num,
             $memo
         ) {
@@ -65,7 +65,7 @@ class PurchaseItem extends Model
                 "inbound_date" => $inbound_date,
                 "inbound_num" => $inbound_num,
                 "depot_id" => $depot_id,
-                "inbound_id" => $inbound_id,
+                "inbound_user_id" => $inbound_user_id,
                 "error_num" => $error_num,
                 "memo" => $memo
             ]);

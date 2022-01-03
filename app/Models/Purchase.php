@@ -13,10 +13,10 @@ class Purchase extends Model
     protected $table = 'pcs_purchase';
     protected $guarded = [];
 
-    public static function createPurchase($supplier_id, $purchase_id, $scheduled_date, $invoice_num = null, $pay_type = null, $memo = null, $close_date = null)
+    public static function createPurchase($supplier_id, $purchase_user_id, $scheduled_date, $invoice_num = null, $pay_type = null, $memo = null, $close_date = null)
     {
         return DB::transaction(function () use ($supplier_id,
-            $purchase_id,
+            $purchase_user_id,
             $scheduled_date,
             $invoice_num,
             $pay_type,
@@ -32,7 +32,7 @@ class Purchase extends Model
             $id = self::create([
                 "sn" => $sn,
                 'supplier_id' => $supplier_id,
-                'purchase_id' => $purchase_id,
+                'purchase_user_id' => $purchase_user_id,
                 'scheduled_date' => $scheduled_date,
                 'pay_type' =>$pay_type,
                 'memo' => $memo,
@@ -47,7 +47,7 @@ class Purchase extends Model
     public static function getPurchaseList($sDate = null, $eDate = null, $hasClose = false, $invoiceNum = null)
     {
         $result = DB::table('pcs_purchase as purchase')
-            ->leftJoin('usr_users as users', 'users.id', '=', 'purchase.purchase_id')
+            ->leftJoin('usr_users as users', 'users.id', '=', 'purchase.purchase_user_id')
             ->leftJoin('prd_suppliers as suppliers', 'suppliers.id', '=', 'purchase.supplier_id')
 
             ->select('purchase.id'
@@ -76,7 +76,7 @@ class Purchase extends Model
     public static function getPurchase($id)
     {
         $result = DB::table('pcs_purchase as purchase')
-            ->leftJoin('usr_users as users', 'users.id', '=', 'purchase.purchase_id')
+            ->leftJoin('usr_users as users', 'users.id', '=', 'purchase.purchase_user_id')
             ->leftJoin('prd_suppliers as suppliers', 'suppliers.id', '=', 'purchase.supplier_id')
 
             ->select('purchase.id'
