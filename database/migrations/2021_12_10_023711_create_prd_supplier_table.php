@@ -25,7 +25,7 @@ class CreatePrdSupplierTable extends Migration
             $table->string('bank_numer')->comment('匯款帳號');
             $table->string('contact_tel')->comment('聯絡電話');
             $table->string('contact_address')->comment('聯絡地址');
-            $table->string('contact_person')->comment('聯絡人');
+            $table->string('contact_person')->comment('廠商窗口');
             $table->string('email')->comment('電子郵件');
             $table->string('memo')->nullable()->comment('備註');
             $table->timestamps();
