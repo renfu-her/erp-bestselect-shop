@@ -410,7 +410,6 @@ class ProductCtrl extends Controller
     {
         $product = self::product_data($id);
         $styles = ProductStyle::where('product_id', $id)->get()->toArray();
-
         // dd($styles);
         return view('cms.commodity.product.combo', [
             'product' => $product,
@@ -447,9 +446,39 @@ class ProductCtrl extends Controller
         return view('cms.commodity.product.combo-edit', [
             'product' => $product,
             'combos' => [],
-            'method' => 'edit',
-            'formAction' => Route('cms.product.edit', ['id' => $id]),
+            'method' => 'create',
+            'formAction' => Route('cms.product.create-combo-prod', ['id' => $id]),
             'breadcrumb_data' => $product,
         ]);
+    }
+
+    /**
+     * 新增組合包
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function storeComboProd(Request $request, $id)
+    {
+
+       // dd($_POST);
+        $request->validate([
+            'title' => 'required',
+            'style_id' => 'array',
+            'ps_qty' => 'array',
+        ]);
+        $d = request()->all();
+
+        $sid = ProductStyle::createComboStyle($id, $d['title'], 1);
+        if (isset($d['style_id'])) {
+            for ($i = 0; $i < count($d['style_id']); $i++) {
+                if ($d['ps_qty'][$i]) {
+                    ProductStyleCombo::createCombo($sid, $d['style_id'][$i], $d['ps_qty'][$i]);
+                }
+            }
+        }
+        
+        return redirect(Route('cms.product.edit-combo', ['id' => $id]));
+
+
     }
 }

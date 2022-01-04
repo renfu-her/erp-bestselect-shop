@@ -8,6 +8,14 @@
     <form id="form1" method="POST" action="">
         @csrf
         <div class="card shadow p-4 mb-4">
+            <div class="col-12 mb-3">
+                <label class="form-label">組合包名稱 <span class="text-danger">*</span></label>
+                <input class="form-control @error('title')is-invalid @enderror" name="title" type="text" maxlength="30"
+                    value="{{ old('title') }}" aria-label="組合包名稱" required />
+                @error('title')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
             <h6>編輯組合款式</h6>
             <div class="table-responsive tableOverBox">
                 <table class="table tableList table-striped">
@@ -30,15 +38,24 @@
                                 </button>
                             </td>
                             <td>
-                                <input type="number" name="ps_qty" min="1" class="form-control form-control-sm" value="">
+                                <input type="number" name="ps_qty[]" min="1" class="form-control form-control-sm" value="">
                             </td>
                             <td data-td="name"></td>
                             <td data-td="spec"></td>
                             <td data-td="sku"></td>
                         </tr>
                         @endif
+                        
                         @foreach ($combos as $key => $combo)
                             <tr class="-cloneElem --selectedP">
+                                <td>
+                                    <input type="number" name="ps_qty[]" class="form-control form-control-sm"
+                                        value="{{ $combo->qty }}">
+                                    <input type="hidden" name="style_id[]">
+                                </td>
+                                <td data-td="name">{{ $combo->title }}</td>
+                                <td data-td="spec">{{ $combo->spec }}</td>
+                                <td data-td="sku">{{ $combo->sku }}</td>
                                 <td class="text-center">
                                     <button type="button" data-sku="{{ $combo->sku }}" item_id="{{ $combo->id }}"
                                         class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
@@ -68,22 +85,22 @@
             <div class="col-auto">
                 <input type="hidden" name="del_item_id">
                 <button type="submit" class="btn btn-primary px-4 -checkSubmit">儲存</button>
-                <a href="{{ Route('cms.product.edit-combo', ['id' => $product->id]) }}" class="btn btn-outline-primary px-4"
-                    role="button">取消</a>
+                <a href="{{ Route('cms.product.edit-combo', ['id' => $product->id]) }}"
+                    class="btn btn-outline-primary px-4" role="button">取消</a>
             </div>
         </div>
     </form>
 
 
-{{-- 商品清單 --}}
-<x-b-modal id="addProduct" cancelBtn="false" size="modal-xl modal-fullscreen-lg-down">
-    <x-slot name="title">選取商品加入組合款式</x-slot>
-    <x-slot name="body">
-        <div class="input-group mb-3 -searchBar">
-            <input type="text" class="form-control" placeholder="請輸入名稱或SKU" aria-label="搜尋條件">
-            <button class="btn btn-primary" type="button">搜尋商品</button>
-        </div>
-        {{-- <div class="row justify-content-end mb-2">
+    {{-- 商品清單 --}}
+    <x-b-modal id="addProduct" cancelBtn="false" size="modal-xl modal-fullscreen-lg-down">
+        <x-slot name="title">選取商品加入組合款式</x-slot>
+        <x-slot name="body">
+            <div class="input-group mb-3 -searchBar">
+                <input type="text" class="form-control" placeholder="請輸入名稱或SKU" aria-label="搜尋條件">
+                <button class="btn btn-primary" type="button">搜尋商品</button>
+            </div>
+            {{-- <div class="row justify-content-end mb-2">
         <div class="col-auto">
             顯示
             <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
@@ -94,29 +111,29 @@
             筆
         </div>
     </div> --}}
-        <div class="table-responsive">
-            <table class="table table-hover tableList">
-                <thead>
-                    <tr>
-                        <th scope="col" class="text-center">選取</th>
-                        <th scope="col">商品名稱</th>
-                        <th scope="col">款式</th>
-                        <th scope="col">SKU</th>
-                    </tr>
-                </thead>
-                <tbody class="-appendClone --product"></tbody>
-            </table>
-        </div>
-        <div class="col d-flex justify-content-end align-items-center flex-wrap -pages"></div>
-        <div class="alert alert-secondary mx-3 mb-0 -emptyData" style="display: none;" role="alert">
-            查無資料！
-        </div>
-    </x-slot>
-    <x-slot name="foot">
-        <span class="me-3 -checkedNum">已選取 0 件商品</span>
-        <button type="button" class="btn btn-primary btn-ok">加入組合款式</button>
-    </x-slot>
-</x-b-modal>
+            <div class="table-responsive">
+                <table class="table table-hover tableList">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="text-center">選取</th>
+                            <th scope="col">商品名稱</th>
+                            <th scope="col">款式</th>
+                            <th scope="col">SKU</th>
+                        </tr>
+                    </thead>
+                    <tbody class="-appendClone --product"></tbody>
+                </table>
+            </div>
+            <div class="col d-flex justify-content-end align-items-center flex-wrap -pages"></div>
+            <div class="alert alert-secondary mx-3 mb-0 -emptyData" style="display: none;" role="alert">
+                查無資料！
+            </div>
+        </x-slot>
+        <x-slot name="foot">
+            <span class="me-3 -checkedNum">已選取 0 件商品</span>
+            <button type="button" class="btn btn-primary btn-ok">加入組合款式</button>
+        </x-slot>
+    </x-b-modal>
 @endsection
 @once
     @push('sub-styles')
@@ -142,7 +159,9 @@
             let delItemOption = {
                 appendClone: '.-appendClone.--selectedP',
                 cloneElem: '.-cloneElem.--selectedP',
-                beforeDelFn: function ({$this}) {
+                beforeDelFn: function({
+                    $this
+                }) {
                     const item_id = $this.attr('item_id');
                     if (item_id) {
                         del_item_id.push(item_id);
@@ -180,32 +199,32 @@
                 $('#addProduct .-checkedNum').text(`已選取 ${selectedProductSku.length} 件商品`);
 
                 axios.post(_URL, Data)
-                .then((result) => {
-                    const res = result.data;
-                    if (res.status === '0' && res.data && res.data.length) {
-                        $('#addProduct .-emptyData').hide();
-                        (res.data).forEach(prod => {
-                            createOneProduct(prod);
-                        });
-                        // bind event
-                        $('#addProduct .-appendClone.--product input[type="checkbox"]:not(:disabled)')
-                            .off('change').on('change', function() {
-                                catchCheckedProduct();
-                                $('#addProduct .-checkedNum').text(`已選取 ${selectedProductSku.length} 件商品`);
+                    .then((result) => {
+                        const res = result.data;
+                        if (res.status === '0' && res.data && res.data.length) {
+                            $('#addProduct .-emptyData').hide();
+                            (res.data).forEach(prod => {
+                                createOneProduct(prod);
                             });
+                            // bind event
+                            $('#addProduct .-appendClone.--product input[type="checkbox"]:not(:disabled)')
+                                .off('change').on('change', function() {
+                                    catchCheckedProduct();
+                                    $('#addProduct .-checkedNum').text(`已選取 ${selectedProductSku.length} 件商品`);
+                                });
 
-                        // 產生分頁
-                        prodPages.create(res.current_page, {
-                            totalData: res.total,
-                            totalPages: res.last_page,
-                            changePageFn: getProductList
-                        });
-                    } else {
-                        $('#addProduct .-emptyData').show();
-                    }
-                }).catch((err) => {
-                    console.log(err);
-                });
+                            // 產生分頁
+                            prodPages.create(res.current_page, {
+                                totalData: res.total,
+                                totalPages: res.last_page,
+                                changePageFn: getProductList
+                            });
+                        } else {
+                            $('#addProduct .-emptyData').show();
+                        }
+                    }).catch((err) => {
+                        console.log(err);
+                    });
 
                 return true;
 
@@ -252,7 +271,7 @@
             }
 
             // btn - 加入組合款式
-            $('#addProduct .btn-ok').off('click').on('click', function () {
+            $('#addProduct .btn-ok').off('click').on('click', function() {
                 selectedProduct.forEach(p => {
                     if (!$(`tr.-cloneElem.--selectedP button.-del[data-sku="${p.sku}"]`).length) {
                         createOneSelected(p);
@@ -261,24 +280,29 @@
 
                 // 關閉懸浮視窗
                 addProductModal.hide();
-                
+
                 // 加入採購單 - 加入一個商品
                 function createOneSelected(p) {
-                    Clone_bindCloneBtn($selectedClone, function (cloneElem) {
+                    Clone_bindCloneBtn($selectedClone, function(cloneElem) {
                         cloneElem.find('input').val('');
-                        cloneElem.find('.-del').attr({'data-sku': '', 'item_id': null});
+                        cloneElem.find('.-del').attr({
+                            'data-sku': '',
+                            'item_id': null
+                        });
                         cloneElem.find('td[data-td]').text('');
                         if (p) {
                             cloneElem.find('td[data-td="name"]').text(p.name);
                             cloneElem.find('td[data-td="spec"]').text(p.spec || '');
                             cloneElem.find('td[data-td="sku"]').text(p.sku);
                             cloneElem.find('.-del').attr('data-sku', p.sku);
+                            cloneElem.find('input[name="style_id[]"]').val(p.id);
+                            cloneElem.find('input[name="ps_qty[]"]').val(1);
                         }
                     }, delItemOption);
                 }
             });
             // 關閉Modal時，清空值
-            $('#addProduct').on('hidden.bs.modal', function (e) {
+            $('#addProduct').on('hidden.bs.modal', function(e) {
                 selectedProductSku = [];
                 selectedProduct = [];
                 $('#addProduct .-searchBar input').val('');
