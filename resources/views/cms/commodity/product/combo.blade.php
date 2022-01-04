@@ -5,7 +5,7 @@
         <x-b-prd-navi :product="$product"></x-b-prd-navi>
     </div>
 
-    <form action="">
+    <form action="{{ route('cms.product.edit-combo', ['id' => $product->id]) }}" method="POST">
         @csrf
         <div class="card shadow p-4 mb-4">
             <h6>組合包管理</h6>
@@ -18,7 +18,9 @@
                             <th scope="col" class="text-center">編輯</th>
                             <th scope="col" class="text-center">刪除</th>
                             <th scope="col">組合包名稱</th>
-                            <th scope="col">SKU <a href="" type="button" class="btn btn-primary btn-sm">產生SKU碼</a></th>
+                            <th scope="col">SKU <a
+                                    href="{{ route('cms.product.create-sku', ['id' => $breadcrumb_data->id]) }}"
+                                    type="button" class="btn btn-primary btn-sm">產生SKU碼</a></th>
                             <th scope="col">庫存</th>
                             <th scope="col">安全庫存</th>
                             <th scope="col">庫存不足</th>
@@ -33,8 +35,7 @@
                                     </div>
                                 </td>
                                 <td class="text-center">
-                                    <a type="button"
-                                        href="#"
+                                    <a type="button" href="#"
                                         class="icon icon-btn fs-5 text-primary rounded-circle border-0 p-0">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
@@ -73,7 +74,7 @@
                                 <td class="text-center">
                                     <div class="form-check form-switch form-switch-lg">
                                         <input class="form-check-input" type="checkbox" name="active_id[]"
-                                            value="{{ $style['id'] }}" checked>
+                                            value="{{ $style['id'] }}" @if ($style['is_active'] == '1')checked @endif>
                                     </div>
                                 </td>
                                 <td class="text-center">
@@ -90,13 +91,12 @@
                                     </button>
                                 </td>
                                 <td>
-                                    <input type="text" name="" class="form-control form-control-sm -l"
-                                        value="{{ $style['title'] }}">
+                                    {{ $style['title'] }}
                                 </td>
                                 <td>
                                     <input type="text" class="form-control form-control-sm -l" aria-label="SKU"
                                         value="{{ $style['sku'] }}" readonly />
-                                    <input type="hidden" name="sid" value="{{ $style['id'] }}">
+                                    <input type="hidden" name="sid[]" value="{{ $style['id'] }}">
                                 </td>
                                 <td>
                                     <a href="#" class="-text -stock">{{ $style['safety_stock'] }}</a>
@@ -105,7 +105,7 @@
                                     <a href="#" class="-text -stock">{{ $style['in_stock'] }}</a>
                                 </td>
                                 <td>
-                                    <select name="_sold_out_event[]" class="form-select form-select-sm">
+                                    <select name="sold_out_event[]" class="form-select form-select-sm">
                                         <option value="繼續銷售">繼續銷售</option>
                                         <option value="停止銷售">停止銷售</option>
                                         <option value="下架">下架</option>
@@ -151,7 +151,7 @@
                 beforeDelFn: function({
                     $this
                 }) {
-                    const sid = $this.closest('.-cloneElem').find('input:hidden[name="sid"]').val();
+                    const sid = $this.closest('.-cloneElem').find('input:hidden[name="sid[]"]').val();
                     if (sid) {
                         del_id.push(sid);
                         $('input[name="del_id"]').val(del_id.toString());
