@@ -36,8 +36,8 @@
                                     <input type="text" name="" class="form-control form-control-sm -l" value="">
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm -l" value=""
-                                        aria-label="SKU" readonly />
+                                    <input type="text" class="form-control form-control-sm -l" value="" aria-label="SKU"
+                                        readonly />
                                 </td>
                                 <td>
                                     <a href="#" class="-text -stock">庫存管理</a>
@@ -54,8 +54,7 @@
                                     </select>
                                 </td>
                                 <td class="text-center">
-                                    <a type="button"
-                                        href="#"
+                                    <a type="button" href="#"
                                         class="icon icon-btn fs-5 text-primary rounded-circle border-0 p-0">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
@@ -78,11 +77,11 @@
                                 </td>
                                 <td>
                                     <input type="text" name="" class="form-control form-control-sm -l"
-                                        value="">
+                                        value="{{ $style['title'] }}">
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm -l"
-                                        aria-label="SKU" value="{{ $style['sku'] }}" readonly />
+                                    <input type="text" class="form-control form-control-sm -l" aria-label="SKU"
+                                        value="{{ $style['sku'] }}" readonly />
                                     <input type="hidden" name="sid" value="{{ $style['id'] }}">
                                 </td>
                                 <td>
@@ -144,11 +143,13 @@
             // clone 項目
             const $clone = $('.-cloneElem:first-child').clone();
             $('.-cloneElem.d-none').remove();
-            
+
             // del
             let del_id = [];
             Clone_bindDelElem($('.-del'), {
-                beforeDelFn: function ({$this}) {
+                beforeDelFn: function({
+                    $this
+                }) {
                     const sid = $this.closest('.-cloneElem').find('input:hidden[name="sid"]').val();
                     if (sid) {
                         del_id.push(sid);
