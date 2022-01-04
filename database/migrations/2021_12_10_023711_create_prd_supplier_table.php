@@ -18,11 +18,6 @@ class CreatePrdSupplierTable extends Migration
             $table->string('name')->comment('廠商名稱');
             $table->string('nickname')->nullable()->comment('廠商簡稱');
             $table->string('vat_no', 8)->nullable()->comment('統編');
-            $table->string('chargeman')->comment('負責人');
-            $table->string('bank_cname')->comment('匯款銀行');
-            $table->string('bank_code')->comment('匯款銀行代碼');
-            $table->string('bank_acount')->comment('匯款戶名');
-            $table->string('bank_numer')->comment('匯款帳號');
             $table->string('contact_tel')->comment('聯絡電話');
             $table->string('contact_address')->comment('聯絡地址');
             $table->string('contact_person')->comment('廠商窗口');
