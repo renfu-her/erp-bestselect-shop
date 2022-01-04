@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Cms;
+namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
@@ -9,6 +9,7 @@ use App\Models\ProductImg;
 use App\Models\ProductSpec;
 use App\Models\ProductSpecItem;
 use App\Models\ProductStyle;
+use App\Models\ProductStyleCombo;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -25,8 +26,10 @@ class ProductCtrl extends Controller
     public function index()
     {
 
+        //   dd(Product::productList()->get());
+
         return view('cms.commodity.product.list', [
-            'dataList' => Product::paginate(10),
+            'dataList' => Product::productList()->paginate(10),
             'data_per_page' => 10]);
     }
 
@@ -66,12 +69,13 @@ class ProductCtrl extends Controller
             'user_id' => 'required',
             'category_id' => 'required',
             'supplier' => 'required|array',
+            'type' => 'required|in:c,p',
         ]);
 
         // $path = $request->file('file')->store('excel');
 
         $d = $request->all();
-        $re = Product::createProduct($d['title'], $d['user_id'], $d['category_id'], $d['feature'], $d['url'], $d['slogan'], $d['active_sdate'], $d['active_edate'], $d['supplier'], $d['has_tax']);
+        $re = Product::createProduct($d['title'], $d['user_id'], $d['category_id'], $d['type'], $d['feature'], $d['url'], $d['slogan'], $d['active_sdate'], $d['active_edate'], $d['supplier'], $d['has_tax']);
 
         if ($request->hasfile('files')) {
             foreach ($request->file('files') as $file) {
@@ -85,6 +89,23 @@ class ProductCtrl extends Controller
     }
 
     /**
+     * 取得商品資料共用
+     * @return object
+     */
+
+    private static function product_data($id, $full = false)
+    {
+        $data = Product::where('id', $id)->get()->first();
+        if (!$full) {
+            $data->select('id', 'title', 'type');
+        }
+        if (!$data) {
+            return abort(404);
+        }
+        return $data;
+    }
+
+    /**
      * 編輯 - 商品資訊
      *
      * @param  int  $id
@@ -93,14 +114,10 @@ class ProductCtrl extends Controller
     public function edit($id)
     {
 
-        //
-        $data = Product::where('id', $id)->get()->first();
-        if (!$data) {
-            return abort(404);
-        }
+        $product = self::product_data($id, true);
 
-        $data->active_sdate = $data->active_sdate ? date('Y-m-d', strtotime($data->active_sdate)) : null;
-        $data->active_edate = $data->active_edate ? date('Y-m-d', strtotime($data->active_edate)) : null;
+        $product->active_sdate = $product->active_sdate ? date('Y-m-d', strtotime($product->active_sdate)) : null;
+        $product->active_edate = $product->active_edate ? date('Y-m-d', strtotime($product->active_edate)) : null;
 
         $current_supplier = Supplier::getProductSupplier($id, true);
 
@@ -108,11 +125,12 @@ class ProductCtrl extends Controller
             'method' => 'edit',
             'formAction' => Route('cms.product.edit', ['id' => $id]),
             'users' => User::get(),
-            'data' => $data,
+            'product' => $product,
             'suppliers' => Supplier::get(),
             'current_supplier' => $current_supplier,
             'categorys' => Category::get(),
             'images' => ProductImg::where('product_id', $id)->get(),
+            'breadcrumb_data' => $product,
         ]);
     }
 
@@ -167,6 +185,7 @@ class ProductCtrl extends Controller
      */
     public function editStyle($id)
     {
+        $product = self::product_data($id);
         $specList = ProductSpec::specList($id);
         $styles = ProductStyle::where('product_id', $id)->get()->toArray();
         $init_styles = [];
@@ -179,6 +198,8 @@ class ProductCtrl extends Controller
             'specList' => $specList,
             'styles' => $styles,
             'initStyles' => $init_styles,
+            'product' => $product,
+            'breadcrumb_data' => $product,
         ]);
     }
 
@@ -264,11 +285,14 @@ class ProductCtrl extends Controller
      */
     public function editSpec($id)
     {
+        $product = self::product_data($id);
 
         return view('cms.commodity.product.spec-edit', [
             'data' => Product::where('id', $id)->get()->first(),
             'specs' => ProductSpec::get()->toArray(),
             'currentSpec' => ProductSpec::specList($id),
+            'product' => $product,
+            'breadcrumb_data' => $product,
         ]);
     }
 
@@ -298,8 +322,10 @@ class ProductCtrl extends Controller
      */
     public function editSale($id)
     {
+        $product = self::product_data($id);
         return view('cms.commodity.product.sales', [
-            'data' => Product::where('id', $id)->get()->first(),
+            'product' => $product,
+            'breadcrumb_data' => $product,
 
         ]);
     }
@@ -312,8 +338,10 @@ class ProductCtrl extends Controller
      */
     public function editWebDesc($id)
     {
+        $product = self::product_data($id);
         return view('cms.commodity.product.web_desciption', [
-            'data' => Product::where('id', $id)->get()->first(),
+            'product' => $product,
+            'breadcrumb_data' => $product,
         ]);
     }
 
@@ -325,8 +353,10 @@ class ProductCtrl extends Controller
      */
     public function editWebSpec($id)
     {
+        $product = self::product_data($id);
         return view('cms.commodity.product.web_spec', [
-            'data' => Product::where('id', $id)->get()->first(),
+            'product' => $product,
+            'breadcrumb_data' => $product,
         ]);
     }
 
@@ -338,8 +368,10 @@ class ProductCtrl extends Controller
      */
     public function editWebLogis($id)
     {
+        $product = self::product_data($id);
         return view('cms.commodity.product.web_logistics', [
-            'data' => Product::where('id', $id)->get()->first(),
+            'product' => $product,
+            'breadcrumb_data' => $product,
         ]);
     }
 
@@ -351,8 +383,10 @@ class ProductCtrl extends Controller
      */
     public function editSetting($id)
     {
+        $product = self::product_data($id);
         return view('cms.commodity.product.settings', [
-            'data' => Product::where('id', $id)->get()->first(),
+            'product' => $product,
+            'breadcrumb_data' => $product,
         ]);
     }
 
@@ -365,5 +399,86 @@ class ProductCtrl extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    /**
+     * 組合包管理
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function editCombo($id)
+    {
+        $product = self::product_data($id);
+        $styles = ProductStyle::where('product_id', $id)->get()->toArray();
+        // dd($styles);
+        return view('cms.commodity.product.combo', [
+            'product' => $product,
+            'styles' => $styles,
+            'breadcrumb_data' => $product,
+        ]);
+    }
+
+    /**
+     * 編輯組合包
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function editComboProd($id, $sid)
+    {
+
+        $product = self::product_data($id);
+        return view('cms.commodity.product.combo-edit', [
+            'product' => $product,
+            'combos' => ProductStyleCombo::comboList($sid)->get(),
+            'breadcrumb_data' => ['product' => $product,
+                'style' => ProductStyle::where('id', $sid)->get()->first()],
+        ]);
+    }
+
+    /**
+     * 新增組合包
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function createComboProd($id)
+    {
+        $product = self::product_data($id);
+        return view('cms.commodity.product.combo-edit', [
+            'product' => $product,
+            'combos' => [],
+            'method' => 'create',
+            'formAction' => Route('cms.product.create-combo-prod', ['id' => $id]),
+            'breadcrumb_data' => $product,
+        ]);
+    }
+
+    /**
+     * 新增組合包
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function storeComboProd(Request $request, $id)
+    {
+
+       // dd($_POST);
+        $request->validate([
+            'title' => 'required',
+            'style_id' => 'array',
+            'ps_qty' => 'array',
+        ]);
+        $d = request()->all();
+
+        $sid = ProductStyle::createComboStyle($id, $d['title'], 1);
+        if (isset($d['style_id'])) {
+            for ($i = 0; $i < count($d['style_id']); $i++) {
+                if ($d['ps_qty'][$i]) {
+                    ProductStyleCombo::createCombo($sid, $d['style_id'][$i], $d['ps_qty'][$i]);
+                }
+            }
+        }
+        
+        return redirect(Route('cms.product.edit-combo', ['id' => $id]));
+
+
     }
 }

@@ -53,6 +53,14 @@ class CreateProductsStylesTable extends Migration
             $table->string('title');
         });
 
+        Schema::create('prd_style_combos', function (Blueprint $table) {
+            $table->id();
+            $table->integer('product_style_id');
+            $table->integer('product_style_child_id');
+            $table->integer('qty');
+        });
+
+
     }
 
     /**
@@ -66,5 +74,6 @@ class CreateProductsStylesTable extends Migration
         Schema::dropIfExists('prd_product_spec');
         Schema::dropIfExists('prd_spec');
         Schema::dropIfExists('prd_spec_items');
+        Schema::dropIfExists('prd_style_combos');
     }
 }

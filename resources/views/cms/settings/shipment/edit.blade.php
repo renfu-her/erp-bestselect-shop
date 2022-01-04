@@ -8,15 +8,15 @@
     <h2 class="mb-4">
         @if ($method === 'create') 新增 @else 編輯 @endif 物流運費
     </h2>
-        <form class="card-body" method="post" action="{{ $formAction }}">
-    <div class="card shadow p-4 mb-4">
+    <form class="card-body" method="post" action="{{ $formAction }}">
+        <div class="card shadow p-4 mb-4">
             @method('POST')
             @csrf
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
                     <x-b-form-group name="name" title="物流運費名稱" required="true">
                         <input class="form-control @error('name') is-invalid @enderror" name="name"
-                               value="{{ old('name', $data->name ?? '') }}"/>
+                               value="{{ old('shipName', $shipName ?? '') }}"/>
                     </x-b-form-group>
                 </div>
             </div>
@@ -24,18 +24,18 @@
                 <fieldset class="col-12 col-sm-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">運送溫度 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" value="常溫" name="temps" type="radio" required >
-                            <label class="form-check-label">常溫</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" value="冷藏" name="temps" type="radio">
-                            <label class="form-check-label">冷藏</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" value="冷凍" name="temps" type="radio">
-                            <label class="form-check-label">冷凍</label>
-                        </div>
+                        @foreach($shipTemps as $key => $temps_data)
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" value="{{ old('temps', $temps_data->temps ?? '')}}"
+                                       name="temps"
+                                       type="radio" required readonly
+                                       @if ($method == 'edit' && $temps_data->temps == $dataList[0]->temps)
+                                       checked
+                                    @endif
+                                >
+                                <label class="form-check-label">{{ $temps_data->temps }}</label>
+                            </div>
+                        @endforeach
                     </div>
                 </fieldset>
             </div>
@@ -44,185 +44,301 @@
                 <fieldset class="col-12 col-sm-6 mb-3">
                     <legend class="col-form-label p-0 mb-2 ">出貨方式 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="method" type="radio" required >
-                            <label class="form-check-label">喜鴻出貨</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="method" type="radio">
-                            <label class="form-check-label">廠商出貨</label>
-                        </div>
+                        @foreach($shipMethods as $key => $shipMethod)
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" name="method" value="{{ $shipMethod->method }}"
+                                       type="radio" required
+                                       @if ($method == 'edit' && $dataList[0]->method == $shipMethod->method)
+                                            checked
+                                       @endif
+                                >
+                                <label class="form-check-label">{{ $shipMethod->method }}</label>
+                            </div>
+                        @endforeach
                     </div>
                 </fieldset>
             </div>
             <div class="col-12 mb-3">
                 <label class="form-label">說明</label>
-                <textarea class="form-control" placeholder="" rows="6"></textarea>
+                <textarea name="note" class="form-control" placeholder=""
+                          rows="6">{{ old('note', $note ?? '') }}</textarea>
             </div>
+        </div>
 
-    </div>
-
-    <div class="card shadow p-4 mb-4">
-        <h6>
-             物流規則
-        </h6>
-        <div class="table-responsive tableOverBox">
-            <table class="table tableList table-striped">
-                <thead>
-                <tr>
-                    <th scope="col">最少消費金額 <span class="text-danger">*</span></th>
-                    <th scope="col"> </th>
-                    <th scope="col"> </th>
-                    <th scope="col">最多消費金額 <span class="text-danger">*</span></th>
-                    <th scope="col">運費 <span class="text-danger">*</span></th>
-                    <th scope="col">成本 <span class="text-danger">*</span></th>
-                    <th scope="col">最多件數 <span class="text-danger">*</span></th>
-                    <th scope="col">刪除 </th>
-
-                </tr>
-                </thead>
-                <tbody class="-appendClone">
-                {{--                                        @if (count($dataList) == 0)--}}
-                @if ($method === 'create')
+        <div class="card shadow p-4 mb-4">
+            <h6>
+                物流規則
+            </h6>
+            <div class="table-responsive tableOverBox">
+                <table class="table tableList table-striped">
+                    <thead>
                     <tr>
-                        <td>
-                            0
-{{--                            <input type="text" class="form-control form-control-sm -l" value="0" disabled aria-label=""/>--}}
-                        </td>
-                        <td>~</td>
-                        <td>
-
-                           <select name="is_above_0" class="form-select form-select-sm">
-                                <option value="false">未滿</option>
-                                <option value="true" >以上</option>
-                            </select>
-
-                        </td>
-                        <td>
-                            <input type="text" name="max_price_0" class="form-control form-control-sm -l" value="" aria-label="" required/>
-                        </td>
-                        <td>
-                            <input type="text" name="dlv_fee_0" class="form-control form-control-sm -l" value="" aria-label="" required/>
-                        </td>
-                        <td>
-                            <input type="text" name="dlv_cost_0" class="form-control form-control-sm -l" value="" aria-label="" required/>
-                        </td>
-                        <td>
-                            <input type="text" name="at_most_0" class="form-control form-control-sm -l" value="" aria-label="" required/>
-                        </td>
-                        <td></td>
+                        <th scope="col">刪除</th>
+                        <th scope="col">最少消費金額 <span class="text-danger">*</span></th>
+                        <th scope="col"></th>
+                        <th scope="col">以上/未滿 <span class="text-danger">*</span></th>
+                        <th scope="col">最多消費金額 <span class="text-danger">*</span></th>
+                        <th scope="col">運費 <span class="text-danger">*</span></th>
+                        <th scope="col">成本 <span class="text-danger">*</span></th>
+                        <th scope="col">最多件數 <span class="text-danger">*</span></th>
                     </tr>
-                @endif
-                @if ($method === 'edit')
-
-                    @foreach($dataList as $key => $data)
+                    </thead>
+                    <tbody class="-appendClone">
+                    @if ($method === 'create')
                         <tr>
+                            <td></td>
                             <td>
-                                <input type="text" class="form-control form-control-sm -l" aria-label="" required
-                                       @if ($key == 0)
-                                       value="0"
-                                       disabled
-                                       @else
-                                       value="{{ $data->min_price }}"
-                                       @endif
-                                />
+                                <input name="min_price[]" type="number" class="form-control form-control-sm -l"
+                                       value="0" readonly aria-label=""/>
                             </td>
-
-{{--                            <td>--}}
-{{--                                <input type="text" name="min_price_{{ $key }}" class="form-control form-control-sm -l" value="{{ $data->min_price }}" aria-label=""/>--}}
-{{--                            </td>--}}
-                            <select name="is_above_{{ $key }}" class="form-select form-select-sm">
-                                <option value="false" >未滿</option>
-                                <option value="true" @if ($data->is_above == 'true') selected @endif>以上</option>
-                            </select>
+                            <td>~</td>
                             <td>
-                                <input name="max_price_{{ $key }}" type="text" class="form-control form-control-sm -l" value="{{ $data->max_price }}" aria-label="" required/>
+                                <select name="is_above[]" class="form-select form-select-sm">
+                                    <option value="false">未滿</option>
+                                    <option value="true">以上</option>
+                                </select>
                             </td>
                             <td>
-                                <input type="text" name="dlv_price_{{ $key }}" class="form-control form-control-sm -l" value="{{ $data->dlv_price }}" aria-label="" required/>
+                                <input type="number" name="max_price[]" class="form-control form-control-sm -l" value=""
+                                       aria-label="" required/>
                             </td>
                             <td>
-                                <input type="text" name="dlv_cost_{{ $key }}" class="form-control form-control-sm -l" value="{{ $data->dlv_cost }}" aria-label="" required/>
+                                <input type="number" name="dlv_fee[]" class="form-control form-control-sm -l" value=""
+                                       aria-label="" required/>
                             </td>
                             <td>
-                                <input type="text" name="at_most_{{ $key }}" class="form-control form-control-sm -l" value="{{ $data->at_most }}" aria-label="" required/>
+                                <input type="number" name="dlv_cost[]" class="form-control form-control-sm -l" value=""
+                                       aria-label="" required/>
                             </td>
                             <td>
-                                @if( ($key + 1) == count($dataList))
-                            <button type="button"
-                            class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                                @endif
+                                <input type="number" name="at_most[]" class="form-control form-control-sm -l" value=""
+                                       aria-label="" required/>
                             </td>
-{{--                            <td>--}}
-{{--                                <input type="text" class="form-control form-control-sm -l" value="" aria-label=""/>--}}
-{{--                            </td>--}}
-{{--                                                <td class="text-center">--}}
-{{--                                                    <button type="button"--}}
-{{--                                                            class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">--}}
-{{--                                                        <i class="bi bi-trash"></i>--}}
-{{--                                                    </button>--}}
-{{--                                                </td>--}}
                         </tr>
-                    @endforeach
-                @endif
+                    @endif
+                    @if ($method === 'edit')
+                        @foreach($dataList as $key => $data)
+                            <tr>
+                                <td>
+                                    @if($key == array_key_last($dataList->toArray()) &&
+                                        $key != 0)
+                                        <button type="button"
+                                                class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    @endif
+                                </td>
+                                <td>
+                                    <input name="min_price[]" type="number" class="form-control form-control-sm -l"
+                                           aria-label="" required
+                                           value="{{ $data->min_price }}"
+                                           @if ($key == 0)
+                                                readonly
+                                           @endif
+                                    />
+                                </td>
+                                <td>~</td>
+                                <td>
+                                    <select name="is_above[]" class="form-select form-select-sm">
+                                        <option value="false">未滿</option>
+                                        <option value="true" @if ($data->is_above == 'true') selected @endif>以上</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input name="max_price[]" type="number" class="form-control form-control-sm -l"
+                                           value="{{ $data->max_price }}" aria-label="" required/>
+                                </td>
+                                <td>
+                                    <input type="number" name="dlv_fee[]" class="form-control form-control-sm -l"
+                                           value="{{ $data->dlv_fee }}" aria-label="" required/>
+                                </td>
+                                <td>
+                                    <input type="number" name="dlv_cost[]" class="form-control form-control-sm -l"
+                                           value="{{ $data->dlv_cost }}" aria-label="" required/>
+                                </td>
+                                <td>
+                                    <input type="number" name="at_most[]" class="form-control form-control-sm -l"
+                                           value="{{ $data->at_most }}" aria-label="" required/>
+                                </td>
+                            </tr>
+                        @endforeach
+                    @endif
 
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
+            <div class="d-grid mt-3">
+                <button type="button"
+                        class="btn btn-outline-primary border-dashed add_ship_rule"
+                        style="font-weight: 500;">
+                    <i class="bi bi-plus-circle bold"></i> 新增物流規則
+                </button>
+            </div>
         </div>
-        <div class="mt-3">
-            <button type="button" class="btn btn-primary -newClone">新增物流規則</button>
-        </div>
-    </div>
 
-{{--    @if ($method === 'edit')--}}
-{{--        <input type='hidden' name='id' value="{{ old('id', $id) }}"/>--}}
-{{--    @endif--}}
-{{--    @error('id')--}}
-{{--    <div class="alert alert-danger mt-3">{{ $message }}</div>--}}
-{{--    @enderror--}}
-    <div class="d-flex justify-content-end mt-3">
-        <button type="submit" class="btn btn-primary px-4">儲存</button>
-    </div>
+        <div class="d-flex justify-content-end mt-3">
+            <button type="submit" class="btn btn-primary px-4">儲存</button>
+        </div>
     </form>
 @endsection
 @once
     @push('sub-scripts')
         <script>
-            let cityElem = $('#city_id');
-            let regionElem = $('#region_id')
-            let addrInputElem = $('input[name=addr]');
+            let addNewShipElem = $('.add_ship_rule');
+            let submitElem = $('form[method=post]');
+            const trashButtonHtml = '<button type="button" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0"> ' +
+                                        '<i class="bi bi-trash"></i> ' +
+                                    '</button>';
 
-            cityElem.on('change', function (e) {
-                getRegionsAction($(this).val());
-            });
-
-            function getRegionsAction(city_id, region_id) {
-                Addr.getRegions(city_id)
-                    .then(re => {
-                        Elem.renderSelect(regionElem, re.datas, {
-                            default: region_id,
-                            key: 'region_id',
-                            value: 'region_title'
-                        });
-                    });
-            }
-
-            $('#format_btn').on('click', function (e) {
-                let addr = addrInputElem.val();
-
-                if (addr) {
-                    Addr.addrFormating(addr).then(re => {
-                        addrInputElem.val(re.data.addr);
-                        if (re.data.city_id) {
-                            cityElem.val(re.data.city_id);
-                            getRegionsAction(re.data.city_id, re.data.region_id);
-
-                        }
-                    });
+            addNewShipElem.on('click', function () {
+                if ($('tbody > tr').length === 1) {
+                    // $('tbody > tr:last-child > td:last-child').append(trashHtml);
+                    $(trashButtonHtml).appendTo('tbody >tr:last-child > td:first-child');
                 }
-            });
+                let $newShipRuleElem = $('tbody > tr:last-child').clone();
+
+                $('tbody > tr:last-child > td:first-child button').remove();
+
+                let lastShipRuleElem = $('tbody > tr:last-child');
+                let lastMaxPrice = $('input[name="max_price[]"]', lastShipRuleElem).val();
+                $('input[name="min_price[]"]', $newShipRuleElem).val(lastMaxPrice);
+                $('select[name="is_above[]"]', $newShipRuleElem).val('true');
+                $('input[name="max_price[]"]', $newShipRuleElem).attr('type', 'hidden');
+                $('input[name="max_price[]"]', $newShipRuleElem).attr('value', lastMaxPrice);
+                // $('input[name="max_price[]"]', $newShipRuleElem).prop('readonly', true);
+                $('input[name="dlv_fee[]"]', $newShipRuleElem).val('');
+                $('input[name="dlv_cost[]"]', $newShipRuleElem).val('');
+                $('input[name="at_most[]"]', $newShipRuleElem).val('');
+                $newShipRuleElem.appendTo('tbody');
+            })
+
+            //delete table row
+            $('tbody').on('click', 'td:first-child button', function () {
+                let $newTrashElem = $('tr:last-child td:first-child button').clone();
+                $('tbody > tr:last-child').remove();
+                if ($('tbody > tr').length > 1) {
+                    $newTrashElem.appendTo('tbody > tr:last-child > td:first-child');
+                }
+            })
+
+            // hide/show 最多消費金額 by changing 以上/未滿
+            $('tbody').on('change', 'select[name="is_above[]"]', function () {
+                if($(this).val() === 'true') {
+                    let minPrice = $(this).parent().prev().prev().find('input[name="min_price[]"]').val();
+                    $(this).parent().next().find('input[name="max_price[]"]').attr('type', 'hidden');
+                    $(this).parent().next().find('input[name="max_price[]"]').val(minPrice);
+                } else if($(this).val() === 'false') {
+                    $(this).parent().next().find('input[name="max_price[]"]').attr('type', 'number');
+                }
+            })
+
+            // validation before submitting form
+            // every validation could be found in each toast.show message
+            submitElem.submit(function (event) {
+                var allMinMaxPrice = [];
+
+                //「最多消費金額」不能少於「最少消費金額」
+                $('tbody > tr').each(function (index, item) {
+                    let minPriceElem = $(item).find('input[name="min_price[]"]');
+                    let maxPriceElem = $(item).find('input[name="max_price[]"]');
+
+                    //set to default background
+                    minPriceElem.removeClass('bg-danger');
+                    maxPriceElem.removeClass('bg-danger');
+
+                    if (minPriceElem.val() > maxPriceElem.val()) {
+                        toast.show('「最多消費金額」不能少於「最少消費金額」', {title: '錯誤訊息', type: 'danger'});
+                        minPriceElem.addClass('bg-danger');
+                        maxPriceElem.addClass('bg-danger');
+                        event.preventDefault();
+                    }
+
+                    allMinMaxPrice.push({
+                        min: parseInt(minPriceElem.val()),
+                        max: parseInt(maxPriceElem.val())
+                    })
+                })
+
+                if (allMinMaxPrice[0]['min'] !== 0) {
+                    console.log(allMinMaxPrice);
+                    toast.show('「最少消費金額」的初始值不是0元', {title: '錯誤訊息', type: 'danger'});
+                    event.preventDefault();
+                }
+                if (allMinMaxPrice.length === 1 &&
+                    allMinMaxPrice[0]['max'] !== 0) {
+                    toast.show('「最高消費金額」的初始值不是0元', {title: '錯誤訊息', type: 'danger'});
+                    event.preventDefault()
+                }
+
+                for (let rowIndex = 0; rowIndex < allMinMaxPrice.length; rowIndex++) {
+                    if (allMinMaxPrice[rowIndex]['min'] < 0 ||
+                        allMinMaxPrice[rowIndex]['max'] < 0) {
+                        toast.show('消費金額不能少於0', {title: '錯誤訊息', type: 'danger'});
+                        event.preventDefault();
+                    }
+                }
+
+                for (let rowIndex = 1; rowIndex < allMinMaxPrice.length; rowIndex++) {
+                    if (allMinMaxPrice[rowIndex - 1]['max'] !==
+                        allMinMaxPrice[rowIndex]['min']) {
+                        toast.show('消費金額規則沒有涵蓋所有範圍，第' + rowIndex  + '列的「最多消費金額」要跟' +
+                                                            '第' + (rowIndex + 1) + '列的「最少消費金額」相同',
+                            {title: '錯誤訊息', type: 'danger'});
+                        event.preventDefault();
+                    }
+                }
+
+                //消費金額的規則最後一組為「以上」，其它都是「未滿」
+                $('tbody > tr').each(function (index, item) {
+                    let allIsAboveElem = $('tbody > tr select[name="is_above[]"]')
+                    let isAboveElem = $(item).find('select[name="is_above[]"]');
+
+                    //set to default background
+                    isAboveElem.removeClass('bg-danger');
+
+                    if (allIsAboveElem.length === (index + 1)) {
+                        if (isAboveElem.val() !== 'true') {
+                            toast.show('消費金額規則沒有涵蓋所有範圍，最後1列沒有選擇「以上」', {title: '錯誤訊息', type: 'danger'});
+                            isAboveElem.addClass('bg-danger');
+                            event.preventDefault();
+                        }
+                    } else {
+                        if (isAboveElem.val() !== 'false') {
+                            toast.show('消費金額規則沒有涵蓋所有範圍，第' + (index + 1) + '列沒有選擇「未滿」', {title: '錯誤訊息', type: 'danger'});
+                            isAboveElem.addClass('bg-danger');
+                            event.preventDefault();
+                        }
+                    }
+                })
+
+                //運費、成本、最多件數不能小於0
+                $('tbody > tr').each(function (index, item) {
+                    let dlvFee  = $(item).find('input[name="dlv_fee[]"]');
+                    let dlvCost  = $(item).find('input[name="dlv_cost[]"]');
+                    let atMost  = $(item).find('input[name="at_most[]"]');
+
+                    //set to default background
+                    dlvFee.removeClass('bg-danger');
+                    dlvCost.removeClass('bg-danger');
+                    atMost.removeClass('bg-danger');
+
+                    if (parseInt(dlvFee.val()) > 0) {
+                        toast.show('運費不能少於0', {title: '錯誤訊息', type: 'danger'});
+                        dlvFee.addClass('bg-danger');
+                        event.preventDefault();
+                    }
+                    if (parseInt(dlvCost.val()) > 0) {
+                        toast.show('成本不能少於0', {title: '錯誤訊息', type: 'danger'});
+                        dlvCost.addClass('bg-danger');
+                        event.preventDefault();
+                    }
+                    if (parseInt(atMost.val()) > 0) {
+                        toast.show('最多件數不能少於0', {title: '錯誤訊息', type: 'danger'});
+                        atMost.addClass('bg-danger');
+                        event.preventDefault();
+                    }
+                })
+            })
         </script>
     @endpush
 @endonce

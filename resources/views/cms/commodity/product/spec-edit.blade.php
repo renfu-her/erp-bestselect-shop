@@ -1,8 +1,8 @@
 @extends('layouts.main')
 @section('sub-content')
     <div>
-        <h2 class="mb-3">{{ $data->title }}</h2>
-        <x-b-prd-navi id="{{ $data->id }}"></x-b-prd-navi>
+        <h2 class="mb-3">{{ $product->title }}</h2>
+        <x-b-prd-navi :product="$product"></x-b-prd-navi>
     </div>
 
     <form id="form1" method="POST" action="{{ Route('cms.product.edit-spec', ['id' => $data->id]) }}">
@@ -11,7 +11,8 @@
             <h6>編輯規格</h6>
             <div>
                 <label>規格最多只能選擇三種</label>
-                <p class="mark m-0"><i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>已產生SKU將無法再新增修改規格（但仍可新增項目）</p>
+                <p class="mark m-0"><i
+                        class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>已產生SKU將無法再新增修改規格（但仍可新增項目）</p>
                 <div class="-appendClone -spec">
                     @if (count($currentSpec) == 0)
                         <div class="pt-4 pb-3 -cloneElem -spec">
@@ -88,12 +89,12 @@
 
                 </div>
                 @if (!$data->spec_locked)
-                <div class="d-grid gap-2 border-top -newSpecBtnBox">
-                    <button type="button" class="btn btn-outline-primary border-dashed mt-4 -newSpec"
-                        style="font-weight: 500;">
-                        <i class="bi bi-plus-circle"></i> 新增規格
-                    </button>
-                </div>
+                    <div class="d-grid gap-2 border-top -newSpecBtnBox">
+                        <button type="button" class="btn btn-outline-primary border-dashed mt-4 -newSpec"
+                            style="font-weight: 500;">
+                            <i class="bi bi-plus-circle"></i> 新增規格
+                        </button>
+                    </div>
                 @endif
             </div>
         </div>
@@ -214,7 +215,7 @@
                 $(Spec.clone).each(function(index, element) {
                     // element == this
                     $(element).find('select.-single.-select2, select.-single + input:hidden')
-                    .attr('name', `'spec${index}`);
+                        .attr('name', `'spec${index}`);
                     $(element).find(`${Items.clone} input`).attr('name', `item${index}[]`);
                 });
             });

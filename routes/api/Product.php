@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\Cms\ProductCtrl;
+use App\Http\Controllers\Api\Cms\Commodity\ProductCtrl;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'product', 'as' => 'product.'], function () {

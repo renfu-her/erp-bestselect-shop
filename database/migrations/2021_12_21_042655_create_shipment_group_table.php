@@ -15,7 +15,7 @@ class CreateShipmentGroupTable extends Migration
     {
         Schema::create('shipment_group', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->comment('快遞物流名稱');
+            $table->string('name')->unique()->comment('快遞物流名稱');
 //            $table->unsignedBigInteger('shipment_group_id_fk');
             $table->timestamps();
         });

@@ -1,8 +1,8 @@
 @extends('layouts.main')
 @section('sub-content')
     <div>
-        <h2 class="mb-3">{{ $data->title }}</h2>
-        <x-b-prd-navi id="{{ $data->id }}"></x-b-prd-navi>
+        <h2 class="mb-3">{{ $product->title }}</h2>
+        <x-b-prd-navi :product="$product"></x-b-prd-navi>
     </div>
 
     <div class="card shadow p-4 mb-4">
@@ -41,133 +41,136 @@
             @if (count($specList) == 0)
                 <p class="mark"><i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i> 尚無款式，請先至規格管理新增規格
                 </p>
-            @endif
-            <div class="table-responsive tableOverBox">
-                <table class="table tableList table-striped">
-                    <thead>
-                        <tr>
-                            <th scope="col" class="text-center">上架</th>
-                            <th scope="col">SKU <a href="{{ route('cms.product.create-sku', ['id' => $data->id]) }}"
-                                    type="button" class="btn btn-primary btn-sm">產生SKU碼</a></th>
-                            @foreach ($specList as $key => $spec)
-                                <th scope="col">{{ $spec->title }}</th>
+            @else
+                <div class="table-responsive tableOverBox">
+                    <table class="table tableList table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="text-center">上架</th>
+                                <th scope="col" class="text-center">刪除</th>
+                                <th scope="col">SKU <a href="{{ route('cms.product.create-sku', ['id' => $data->id]) }}"
+                                        type="button" class="btn btn-primary btn-sm">產生SKU碼</a></th>
+                                @foreach ($specList as $key => $spec)
+                                    <th scope="col">{{ $spec->title }}</th>
+                                @endforeach
+
+                                <th scope="col">庫存</th>
+                                <th scope="col">安全庫存</th>
+                                <th scope="col">庫存不足</th>
+                            </tr>
+                        </thead>
+                        <tbody class="-appendClone">
+                            @if (count($styles) == 0)
+                                <tr class="-cloneElem d-none">
+                                    <td class="text-center">
+                                        <div class="form-check form-switch form-switch-lg">
+                                            <input class="form-check-input" type="checkbox" name="n_active[]" checked>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button"
+                                            class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control form-control-sm -l" value="" aria-label="SKU"
+                                            readonly />
+                                    </td>
+
+                                    @foreach ($specList as $specKey => $spec)
+                                        <td>
+                                            <select name="n_spec{{ $specKey + 1 }}[]" class="form-select form-select-sm"
+                                                required>
+                                                <option value="" disabled selected>請選擇</option>
+                                                @foreach ($spec->items as $key => $value)
+                                                    <option value="{{ $value->key }}">
+                                                        {{ $value->value }}</option>
+                                                @endforeach
+                                            </select>
+                                        </td>
+                                    @endforeach
+
+                                    <td>
+                                        <a href="#" class="-text -stock">庫存管理</a>
+                                    </td>
+                                    <td>
+                                        <a href="#" class="-text -stock">庫存管理</a>
+                                    </td>
+                                    <td>
+                                        <select name="n_sold_out_event[]" class="form-select form-select-sm">
+                                            <option value="繼續銷售">繼續銷售</option>
+                                            <option value="停止銷售">停止銷售</option>
+                                            <option value="下架">下架</option>
+                                            <option value="預售">預售</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            @endif
+                            @foreach ($styles as $styleKey => $style)
+                                @php
+                                    $prefix = $style['sku'] ? 'sk_' : 'nsk_';
+                                @endphp
+                                <tr class="-cloneElem">
+                                    <td class="text-center">
+                                        <div class="form-check form-switch form-switch-lg">
+                                            <input class="form-check-input" name="active_id[]" value="{{ $style['id'] }}"
+                                                type="checkbox" @if ($style['is_active']) checked @endif>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" @if (isset($style['sku'])) disabled @endif
+                                            class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control form-control-sm -l"
+                                            value="{{ $style['sku'] }}" aria-label="SKU" readonly />
+                                        <input type="hidden" name="{{ $prefix }}style_id[]"
+                                            value="{{ $style['id'] }}">
+                                    </td>
+
+                                    @foreach ($specList as $specKey => $spec)
+                                        <td>
+                                            <select @if (!isset($style['sku']))name="{{ $prefix }}spec{{ $specKey + 1 }}[]"@endif class="form-select form-select-sm" required
+                                                @if (isset($style['sku'])) disabled @endif>
+                                                <option value="" disabled>請選擇</option>
+                                                @foreach ($spec->items as $key => $value)
+                                                    <option value="{{ $value->key }}" @if ($value->key == $style['spec_item' . ($specKey + 1) . '_id']) selected @endif>
+                                                        {{ $value->value }}</option>
+                                                @endforeach
+                                            </select>
+                                        </td>
+                                    @endforeach
+
+                                    <td>
+                                        <a href="#" class="-text -stock">{{ $style['safety_stock'] }}</a>
+                                    </td>
+                                    <td>
+                                        <a href="#" class="-text -stock">{{ $style['in_stock'] }}</a>
+                                    </td>
+                                    <td>
+                                        <select name="{{ $prefix }}sold_out_event[]"
+                                            class="form-select form-select-sm">
+                                            <option value="繼續銷售">繼續銷售</option>
+                                            <option value="停止銷售">停止銷售</option>
+                                            <option value="下架">下架</option>
+                                            <option value="預售">預售</option>
+                                        </select>
+                                    </td>
+                                </tr>
                             @endforeach
 
-                            <th scope="col">庫存</th>
-                            <th scope="col">安全庫存</th>
-                            <th scope="col">庫存不足</th>
-                            <th scope="col" class="text-center">刪除</th>
-                        </tr>
-                    </thead>
-                    <tbody class="-appendClone">
-                        @if (count($styles) == 0)
-                            <tr class="-cloneElem d-none">
-                                <td class="text-center">
-                                    <div class="form-check form-switch form-switch-lg">
-                                        <input class="form-check-input" type="checkbox" name="n_active[]" checked>
-                                    </div>
-                                </td>
-                                <td>
-                                    <input type="text" class="form-control form-control-sm -l" value="" aria-label="SKU"
-                                        readonly />
-                                </td>
-
-                                @foreach ($specList as $specKey => $spec)
-                                    <td>
-                                        <select name="n_spec{{ $specKey + 1 }}[]" class="form-select form-select-sm"
-                                            required>
-                                            <option value="" disabled selected>請選擇</option>
-                                            @foreach ($spec->items as $key => $value)
-                                                <option value="{{ $value->key }}">
-                                                    {{ $value->value }}</option>
-                                            @endforeach
-                                        </select>
-                                    </td>
-                                @endforeach
-
-                                <td>
-                                    <a href="#" class="-text -stock">庫存管理</a>
-                                </td>
-                                <td>
-                                    <a href="#" class="-text -stock">庫存管理</a>
-                                </td>
-                                <td>
-                                    <select name="n_sold_out_event[]" class="form-select form-select-sm">
-                                        <option value="繼續銷售">繼續銷售</option>
-                                        <option value="停止銷售">停止銷售</option>
-                                        <option value="下架">下架</option>
-                                        <option value="預售">預售</option>
-                                    </select>
-                                </td>
-                                <td class="text-center">
-                                    <button type="button"
-                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        @endif
-                        @foreach ($styles as $styleKey => $style)
-                            @php
-                                $prefix = $style['sku'] ? 'sk_' : 'nsk_';
-                            @endphp
-                            <tr class="-cloneElem">
-
-                                <td class="text-center">
-                                    <div class="form-check form-switch form-switch-lg">
-                                        <input class="form-check-input" name="active_id[]" value="{{ $style['id'] }}"
-                                            type="checkbox" @if ($style['is_active']) checked @endif>
-                                    </div>
-                                </td>
-                                <td>
-                                    <input type="text" class="form-control form-control-sm -l"
-                                        value="{{ $style['sku'] }}" aria-label="SKU" readonly />
-                                    <input type="hidden" name="{{ $prefix }}style_id[]"
-                                        value="{{ $style['id'] }}">
-                                </td>
-
-                                @foreach ($specList as $specKey => $spec)
-                                    <td>
-                                        <select @if (!isset($style['sku']))name="{{ $prefix }}spec{{ $specKey + 1 }}[]"@endif class="form-select form-select-sm" required
-                                            @if (isset($style['sku'])) disabled @endif>
-                                            <option value="" disabled>請選擇</option>
-                                            @foreach ($spec->items as $key => $value)
-                                                <option value="{{ $value->key }}" @if ($value->key == $style['spec_item' . ($specKey + 1) . '_id']) selected @endif>
-                                                    {{ $value->value }}</option>
-                                            @endforeach
-                                        </select>
-                                    </td>
-                                @endforeach
-
-                                <td>
-                                    <a href="#" class="-text -stock">{{ $style['safety_stock'] }}</a>
-                                </td>
-                                <td>
-                                    <a href="#" class="-text -stock">{{ $style['in_stock'] }}</a>
-                                </td>
-                                <td>
-                                    <select name="{{ $prefix }}sold_out_event[]" class="form-select form-select-sm">
-                                        <option value="繼續銷售">繼續銷售</option>
-                                        <option value="停止銷售">停止銷售</option>
-                                        <option value="下架">下架</option>
-                                        <option value="預售">預售</option>
-                                    </select>
-                                </td>
-                                <td class="text-center">
-                                    <button type="button" @if (isset($style['sku'])) disabled @endif
-                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        @endforeach
-
-                    </tbody>
-                </table>
-            </div>
-            <div class="mt-3">
-                <button type="button" class="btn btn-primary -newClone">新增款式</button>
-            </div>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-outline-primary border-dashed -newClone" style="font-weight: 500;">
+                        <i class="bi bi-plus-circle"></i> 新增款式
+                    </button>
+                </div>
+            @endif
         </div>
 
         <div>

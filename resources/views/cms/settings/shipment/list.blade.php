@@ -22,10 +22,9 @@
     </div>
 
     <div class="table-responsive tableOverBox">
-        <table class="table table-striped tableList mb-0">
+        <table class="table tableList mb-0">
             <thead>
                 <tr>
-                    <th scope="col" style="width:10%">#</th>
                     <th scope="col">快遞物流名稱</th>
                     <th scope="col">最低消費金額</th>
                     <th scope="col">最高消費金額</th>
@@ -40,19 +39,22 @@
             </thead>
             <tbody>
                 @foreach ($dataList as $key => $data)
-                    <tr>
-                        <th scope="row">{{ $key + 1 }}</th>
+                    <tr
+                        @if(array_search($data->group_id_fk, $groupIdColorIndex) % 2 == 0)
+                            class="table-primary"
+                        @endif
+                    >
                         <td>{{ $data->name }}</td>
                         <td>{{ $data->min_price }}</td>
                         <td>{{ $data->max_price }}</td>
-                        <td>{{ $data->method }}</td>
                         <td>{{ $data->temps }}</td>
-                        <td>{{ $data->dlv_price }}</td>
+                        <td>{{ $data->method }}</td>
+                        <td>{{ $data->dlv_fee }}</td>
                         <td>{{ $data->dlv_cost }}</td>
                         <td>{{ $data->at_most }}</td>
                         <td class="text-center">
                             @can('cms.shipment.edit')
-                            <a href="{{ Route('cms.shipment.edit', ['id' => $data->group_id], true) }}"
+                            <a href="{{ Route('cms.shipment.edit', ['groupId' => $data->group_id_fk], true) }}"
                                 data-bs-toggle="tooltip" title="編輯"
                                 class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                 <i class="bi bi-pencil-square"></i>
@@ -61,7 +63,7 @@
                         </td>
                         <td class="text-center">
                             @can('cms.shipment.delete')
-                            <a href="javascript:void(0)" data-href="{{ Route('cms.shipment.delete', ['id' => $data->group_id], true) }}"
+                            <a href="javascript:void(0)" data-href="{{ Route('cms.shipment.delete', ['groupId' => $data->group_id_fk], true) }}"
                                 data-bs-toggle="modal" data-bs-target="#confirm-delete"
                                 class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
                                 <i class="bi bi-trash"></i>
@@ -84,8 +86,8 @@
 
 <!-- Modal -->
 <x-b-modal id="confirm-delete">
-    <x-slot name="title">刪除確認</x-slot>
-    <x-slot name="body">刪除後將無法復原！確認要刪除？</x-slot>
+    <x-slot name="title">刪除此「快遞物流群組」確認</x-slot>
+    <x-slot name="body">刪除後，此「快遞物流群組」將無法復原！確認要刪除？</x-slot>
     <x-slot name="foot">
         <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
     </x-slot>

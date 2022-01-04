@@ -2,6 +2,7 @@
 @section('sub-content')
 <div class="d-flex align-items-center">
     <a href="/demo" class="btn btn-warning -in-header">Demo page</a>
+
 </div>
 @endsection
 @once
