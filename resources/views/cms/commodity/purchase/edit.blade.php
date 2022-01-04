@@ -16,9 +16,9 @@
         <div class="card shadow p-4 mb-4">
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3 ">
-                    <label class="form-label">採購廠商</label>
+                    <label class="form-label">採購廠商 <span class="text-danger">*</span></label>
                     <select name="supplier" id="supplier" @if ($method === 'edit') disabled @endif
-                            class="form-select @error('supplier') is-invalid @enderror"
+                            class="form-select -select2 -single @error('supplier') is-invalid @enderror"
                             aria-label="採購廠商" required>
                         <option value="" selected disabled>請選擇</option>
                         @foreach ($supplierList as $supplierItem)
@@ -34,7 +34,7 @@
                 </div>
 
                 <div class="col-12 col-sm-6 mb-3 ">
-                    <label class="form-label">廠商預計進貨日期</label>
+                    <label class="form-label">廠商預計進貨日期 <span class="text-danger">*</span></label>
                     <div class="input-group has-validation">
                         <input type="date" id="date" name="scheduled_date"
                                value="{{ old('scheduled_date', $purchaseData->scheduled_date  ?? '') }}"
@@ -82,10 +82,13 @@
                             <td data-td="name"></td>
                             <td data-td="sku"></td>
                             <td>
-                                <input type="number" class="form-control form-control-sm" name="num[]" value=""/>
+                                <input type="number" class="form-control form-control-sm" name="num[]" min="1" value=""/>
                             </td>
                             <td>
-                                <input type="number" class="form-control form-control-sm" name="price[]" value=""/>
+                                <div class="input-group input-group-sm flex-nowrap">
+                                    <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                    <input type="number" class="form-control form-control-sm" name="price[]" min="0" value=""/>
+                                </div>
                             </td>
                         </tr>
                     @endif
@@ -106,14 +109,18 @@
                                 <td data-td="sku">{{ $psItemVal['sku'] }}</td>
                                 <td>
                                     <input type="text" class="form-control form-control-sm @error('num.' . $psItemKey) is-invalid @enderror" name="num[]"
-                                        value="{{ $psItemVal['num'] }}"/>
+                                        value="{{ $psItemVal['num'] }}" min="1"/>
                                     @error('num.' . $psItemKey)
                                     <div class="alert alert-danger mt-3">{{ $message }}</div>
                                     @enderror
                                 </td>
                                 <td>
+                                    <div class="input-group input-group-sm flex-nowrap">
+                                        <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                        <input type="number" class="form-control form-control-sm" name="price[]" value=""/>
+                                    </div>
                                     <input type="text" class="form-control form-control-sm @error('price.' . $psItemKey) is-invalid @enderror" name="price[]"
-                                        value="{{ $psItemVal['price'] }}"/>
+                                        value="{{ $psItemVal['price'] }}" min="0"/>
                                     @error('price.' . $psItemKey)
                                     <div class="alert alert-danger mt-3">{{ $message }}</div>
                                     @enderror
@@ -416,9 +423,10 @@
                 .off('click').on('click', function (e) {
                 selectedProductSku = [];
                 selectedProduct = [];
-                $('.-cloneElem.--selectedP input[name="sku[]"]').each(function (index, element) {
-                    selectedProductSku.push($(element).val());
-                });
+                // 不檢查重複
+                // $('.-cloneElem.--selectedP input[name="sku[]"]').each(function (index, element) {
+                //     selectedProductSku.push($(element).val());
+                // });
                 if (getProductList(1) && $(this).attr('id') === 'addProductBtn') {
                     addProductModal.show();
                 }
