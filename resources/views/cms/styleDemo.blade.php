@@ -121,7 +121,7 @@
 
                                 <p>Table <code>.table-striped</code> 條紋行 / <code>.table-hover</code> 滑入行</p>
                                 <div class="table-responsive tableOverBox">
-                                    <table class="table tableList table-hover table-striped">
+                                    <table class="table tableList table-hover table-striped mb-1">
                                         <thead>
                                             <tr>
                                                 <th scope="col" style="width:10%">#</th>
