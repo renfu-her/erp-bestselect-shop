@@ -16,7 +16,7 @@
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
-            <h6>編輯組合款式</h6>
+            <h6>組合款式商品</h6>
             <div class="table-responsive tableOverBox">
                 <table class="table tableList table-striped">
                     <thead>
@@ -48,14 +48,6 @@
                         
                         @foreach ($combos as $key => $combo)
                             <tr class="-cloneElem --selectedP">
-                                <td>
-                                    <input type="number" name="ps_qty[]" class="form-control form-control-sm"
-                                        value="{{ $combo->qty }}">
-                                    <input type="hidden" name="style_id[]">
-                                </td>
-                                <td data-td="name">{{ $combo->title }}</td>
-                                <td data-td="spec">{{ $combo->spec }}</td>
-                                <td data-td="sku">{{ $combo->sku }}</td>
                                 <td class="text-center">
                                     <button type="button" data-sku="{{ $combo->sku }}" item_id="{{ $combo->id }}"
                                         class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
@@ -63,7 +55,9 @@
                                     </button>
                                 </td>
                                 <td>
-                                    <input type="number" name="ps_qty" min="1" class="form-control form-control-sm" value="{{ $combo->qty }}">
+                                    <input type="number" name="ps_qty[]" class="form-control form-control-sm"
+                                        value="{{ $combo->qty }}" min="1">
+                                    <input type="hidden" name="style_id[]">
                                 </td>
                                 <td data-td="name">{{ $combo->title }}</td>
                                 <td data-td="spec">{{ $combo->spec }}</td>
