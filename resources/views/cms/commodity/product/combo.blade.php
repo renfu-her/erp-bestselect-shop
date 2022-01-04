@@ -15,13 +15,13 @@
                     <thead>
                         <tr>
                             <th scope="col" class="text-center">上架</th>
+                            <th scope="col" class="text-center">編輯</th>
+                            <th scope="col" class="text-center">刪除</th>
                             <th scope="col">組合包名稱</th>
                             <th scope="col">SKU <a href="" type="button" class="btn btn-primary btn-sm">產生SKU碼</a></th>
                             <th scope="col">庫存</th>
                             <th scope="col">安全庫存</th>
                             <th scope="col">庫存不足</th>
-                            <th scope="col" class="text-center">編輯</th>
-                            <th scope="col" class="text-center">刪除</th>
                         </tr>
                     </thead>
                     <tbody class="-appendClone">
@@ -31,6 +31,19 @@
                                     <div class="form-check form-switch form-switch-lg">
                                         <input class="form-check-input" type="checkbox" name="n_active[]" checked>
                                     </div>
+                                </td>
+                                <td class="text-center">
+                                    <a type="button"
+                                        href="#"
+                                        class="icon icon-btn fs-5 text-primary rounded-circle border-0 p-0">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                </td>
+                                <td class="text-center">
+                                    <button type="button"
+                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
                                 </td>
                                 <td>
                                     <input type="text" name="" class="form-control form-control-sm -l" value="">
@@ -53,19 +66,6 @@
                                         <option value="預售">預售</option>
                                     </select>
                                 </td>
-                                <td class="text-center">
-                                    <a type="button"
-                                        href="#"
-                                        class="icon icon-btn fs-5 text-primary rounded-circle border-0 p-0">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </a>
-                                </td>
-                                <td class="text-center">
-                                    <button type="button"
-                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </td>
                             </tr>
                         @endif
                         @foreach ($styles as $key => $style)
@@ -75,6 +75,19 @@
                                         <input class="form-check-input" type="checkbox" name="active_id[]"
                                             value="{{ $style['id'] }}" checked>
                                     </div>
+                                </td>
+                                <td class="text-center">
+                                    <a type="button" @if (isset($style['sku'])) disabled @endif
+                                        href="{{ Route('cms.product.edit-combo-prod', ['id' => $product->id, 'sid' => $style['id']]) }}"
+                                        class="icon icon-btn fs-5 text-primary rounded-circle border-0 p-0">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" @if (isset($style['sku'])) disabled @endif
+                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
                                 </td>
                                 <td>
                                     <input type="text" name="" class="form-control form-control-sm -l"
@@ -98,19 +111,6 @@
                                         <option value="下架">下架</option>
                                         <option value="預售">預售</option>
                                     </select>
-                                </td>
-                                <td class="text-center">
-                                    <a type="button" @if (isset($style['sku'])) disabled @endif
-                                        href="{{ Route('cms.product.edit-combo-prod', ['id' => $product->id, 'sid' => $style['id']]) }}"
-                                        class="icon icon-btn fs-5 text-primary rounded-circle border-0 p-0">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </a>
-                                </td>
-                                <td class="text-center">
-                                    <button type="button" @if (isset($style['sku'])) disabled @endif
-                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
                                 </td>
                             </tr>
                         @endforeach

@@ -13,44 +13,44 @@
                 <table class="table tableList table-striped">
                     <thead>
                         <tr>
-                            <th scope="col" style="width: 100px">數量</th>
+                            <th scope="col" class="text-center" style="width: 100px">刪除</th>
+                            <th scope="col" style="width: 120px">數量</th>
                             <th scope="col">名稱</th>
                             <th scope="col">款式</th>
                             <th scope="col">SKU</th>
-                            <th scope="col" class="text-center">刪除</th>
                         </tr>
                     </thead>
                     <tbody class="-appendClone --selectedP">
                         @if (count($combos) === 0)
                         <tr class="-cloneElem --selectedP d-none">
-                            <td>
-                                <input type="number" name="ps_qty" class="form-control form-control-sm" value="">
-                            </td>
-                            <td data-td="name"></td>
-                            <td data-td="spec"></td>
-                            <td data-td="sku"></td>
                             <td class="text-center">
                                 <button type="button" data-sku=""
                                     class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </td>
+                            <td>
+                                <input type="number" name="ps_qty" min="1" class="form-control form-control-sm" value="">
+                            </td>
+                            <td data-td="name"></td>
+                            <td data-td="spec"></td>
+                            <td data-td="sku"></td>
                         </tr>
                         @endif
                         @foreach ($combos as $key => $combo)
                             <tr class="-cloneElem --selectedP">
-                                <td>
-                                    <input type="number" name="ps_qty" class="form-control form-control-sm" value="{{ $combo->qty }}">
-                                </td>
-                                <td data-td="name">{{ $combo->title }}</td>
-                                <td data-td="spec">{{ $combo->spec }}</td>
-                                <td data-td="sku">{{ $combo->sku }}</td>
                                 <td class="text-center">
                                     <button type="button" data-sku="{{ $combo->sku }}" item_id="{{ $combo->id }}"
                                         class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </td>
+                                <td>
+                                    <input type="number" name="ps_qty" min="1" class="form-control form-control-sm" value="{{ $combo->qty }}">
+                                </td>
+                                <td data-td="name">{{ $combo->title }}</td>
+                                <td data-td="spec">{{ $combo->spec }}</td>
+                                <td data-td="sku">{{ $combo->sku }}</td>
                             </tr>
                         @endforeach
                     </tbody>
