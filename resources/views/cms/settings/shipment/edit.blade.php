@@ -145,8 +145,16 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <input name="max_price[]" type="number" class="form-control form-control-sm -l"
-                                           value="{{ $data->max_price }}" aria-label="" required/>
+                                    <input name="max_price[]"
+                                           type=
+                                                @if ($data->is_above == 'true')
+                                                    "hidden"
+                                                @else
+                                                    "number"
+                                                @endif
+                                            class="form-control form-control-sm -l"
+                                            value="{{ $data->max_price }}"
+                                            aria-label="" required/>
                                 </td>
                                 <td>
                                     <input type="number" name="dlv_fee[]" class="form-control form-control-sm -l"
