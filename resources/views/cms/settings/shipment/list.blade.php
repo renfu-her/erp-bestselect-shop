@@ -27,6 +27,8 @@
                 <tr>
                     <th scope="col">快遞物流名稱</th>
                     <th scope="col">最低消費金額</th>
+                    <th scope="col"></th>
+                    <th scope="col">以上/未滿</th>
                     <th scope="col">最高消費金額</th>
                     <th scope="col">運送溫度</th>
                     <th scope="col">出貨方式</th>
@@ -46,7 +48,9 @@
                     >
                         <td>{{ $data->name }}</td>
                         <td>{{ $data->min_price }}</td>
-                        <td>{{ $data->max_price }}</td>
+                        <td>~</td>
+                        <td>@if($data->is_above == 'true') 以上 @else 未滿 @endif</td>
+                        <td>@if($data->is_above == 'false') {{ $data->max_price }} @endif</td>
                         <td>{{ $data->temps }}</td>
                         <td>{{ $data->method }}</td>
                         <td>{{ $data->dlv_fee }}</td>
