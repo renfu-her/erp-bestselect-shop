@@ -43,7 +43,7 @@
                 </p>
             @else
                 <div class="table-responsive tableOverBox">
-                    <table class="table tableList table-striped">
+                    <table class="table tableList table-striped mb-0">
                         <thead>
                             <tr>
                                 <th scope="col" class="text-center">上架</th>
@@ -165,7 +165,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="d-grid gap-2">
+                <div class="d-grid gap-2 mt-3">
                     <button type="button" class="btn btn-outline-primary border-dashed -newClone" style="font-weight: 500;">
                         <i class="bi bi-plus-circle"></i> 新增款式
                     </button>

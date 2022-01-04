@@ -38,7 +38,7 @@
                                 </button>
                             </td>
                             <td>
-                                <input type="number" name="ps_qty[]" min="1" class="form-control form-control-sm" value="">
+                                <input type="number" name="n_ps_qty[]" min="1" class="form-control form-control-sm" value="">
                             </td>
                             <td data-td="name"></td>
                             <td data-td="spec"></td>
@@ -284,13 +284,14 @@
                             'item_id': null
                         });
                         cloneElem.find('td[data-td]').text('');
+                        cloneElem.find('input[name$="ps_qty[]"]').attr('name', 'n_ps_qty[]');
                         if (p) {
                             cloneElem.find('td[data-td="name"]').text(p.name);
                             cloneElem.find('td[data-td="spec"]').text(p.spec || '');
                             cloneElem.find('td[data-td="sku"]').text(p.sku);
                             cloneElem.find('.-del').attr('data-sku', p.sku);
                             cloneElem.find('input[name="style_id[]"]').val(p.id);
-                            cloneElem.find('input[name="ps_qty[]"]').val(1);
+                            cloneElem.find('input[name="n_ps_qty[]"]').val(1);
                         }
                     }, delItemOption);
                 }
