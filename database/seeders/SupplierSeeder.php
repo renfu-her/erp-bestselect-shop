@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Enums\Supplier\Payment;
 use App\Models\Supplier;
+use App\Models\SupplierPayment;
 use Illuminate\Database\Seeder;
 
 class SupplierSeeder extends Seeder
@@ -14,34 +16,48 @@ class SupplierSeeder extends Seeder
      */
     public function run()
     {
-        Supplier::create([
+        $supplier1 = Supplier::create([
             'name' => '喜鴻國際',
             'nickname' => '喜鴻',
             'vat_no' => '70381925',
-            'chargeman' => '喜鴻負責人',
+            'contact_tel' => '(02)2536-2692',
+            'contact_address' => '台北市松江路148號8樓之1',
+            'contact_person' => '廠商窗口',
+            'email' => 'xxx@xxx.com',
+            'memo' => '第一家廠商'
+        ]);
+
+        $supplier2 = Supplier::create([
+            'name' => '喜多方科技',
+            'nickname' => '喜多方',
+            'vat_no' => '12866611',
+            'contact_tel' => '(03)532-9570',
+            'contact_address' => '新竹市湳雅街311巷14號',
+            'contact_person' => '喜多方廠商窗口',
+            'email' => 'ooo@ooo.com',
+            'memo' => '第二家廠商'
+        ]);
+
+        SupplierPayment::create([
+            'supplier_id' => $supplier1,
+            'type' => Payment::cheque()->value,
+            'cheque_payable' => '第一筆支票抬頭',
+        ]);
+        SupplierPayment::create([
+            'supplier_id' => $supplier1,
+            'type' => Payment::remittance()->value,
             'bank_cname' => '合作金庫',
             'bank_code' => '006',
             'bank_acount' => '喜鴻旅行社',
             'bank_numer' => '12345678901234',
-            'contact_tel' => '(02)2536-2692',
-            'contact_address' => '台北市松江路148號8樓之1',
-            'contact_person' => '喜鴻聯絡人',
-            'email' => 'xxx@xxx.com'
         ]);
-
-        Supplier::create([
-            'name' => '喜多方科技',
-            'nickname' => '喜多方',
-            'vat_no' => '12866611',
-            'chargeman' => '喜多方',
+        SupplierPayment::create([
+            'supplier_id' => $supplier1,
+            'type' => Payment::remittance()->value,
             'bank_cname' => '喜多金庫',
             'bank_code' => '008',
             'bank_acount' => '喜多方科技有限公司',
             'bank_numer' => '01234123456789',
-            'contact_tel' => '(03)532-9570',
-            'contact_address' => '新竹市湳雅街311巷14號',
-            'contact_person' => '喜多方聯絡人',
-            'email' => 'ooo@ooo.com'
         ]);
     }
 }
