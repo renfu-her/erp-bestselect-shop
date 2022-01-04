@@ -10,18 +10,21 @@ class FormGroup extends Component
     public $title;
     public $required;
     public $border;
+    public $class;
+    public $help;
     /**
      * Create a new component instance.
      *
      * @return voids
      */
-    public function __construct($name = null, $title = null, $required = null, $border = null)
+    public function __construct($name='', $title='', $required=false, $border=false, $class='', $help=null)
     {
         $this->name = $name;
         $this->title = $title ? $title : $name;
-        $this->required = $required;
-        $this->border = !is_null($border) ? true : false;
-       
+        $this->required = ($required == 'true');
+        $this->border = ($border == 'true');
+        $this->class = $class;
+        $this->help = $help;
     }
 
     /**
@@ -36,6 +39,9 @@ class FormGroup extends Component
             'name' => $this->name,
             'title' => $this->title,
             'border' => $this->border,
-            'required' => $this->required]);
+            'required' => $this->required,
+            'class' => $this->class,
+            'help' => $this->help
+        ]);
     }
 }

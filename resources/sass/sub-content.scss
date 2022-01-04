@@ -44,7 +44,9 @@ div.card h6:not(:first-child) {
 th > input.form-check-input[type=checkbox]:checked,
 td > input.form-check-input[type=checkbox]:checked,
 div:not(.form-switch) > input.form-check-input[type=checkbox]:checked,
-div:not(.form-switch) > input.form-check-input[type=checkbox]:indeterminate {
+div:not(.form-switch) > input.form-check-input[type=checkbox]:indeterminate,
+div:not(.form-switch) > label input.form-check-input[type=checkbox]:checked,
+div:not(.form-switch) > label input.form-check-input[type=checkbox]:indeterminate {
   background-position: center;
   background-size: 140%;
 }
@@ -119,7 +121,8 @@ i.bi-question-circle {
 }
 .tableList th > input.form-check-input[type=checkbox],
 .tableList td > input.form-check-input[type=checkbox],
-.tableList div:not(.form-switch) > input.form-check-input[type=checkbox] {
+.tableList div:not(.form-switch) > input.form-check-input[type=checkbox],
+.tableList div:not(.form-switch) > label input.form-check-input[type=checkbox] {
   margin: -3px 0 0;
   vertical-align: middle;
 }
