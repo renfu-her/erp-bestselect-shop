@@ -73,6 +73,7 @@
                 <table class="table tableList table-striped">
                     <thead>
                     <tr>
+                        <th scope="col">刪除</th>
                         <th scope="col">最少消費金額 <span class="text-danger">*</span></th>
                         <th scope="col"></th>
                         <th scope="col">以上/未滿 <span class="text-danger">*</span></th>
@@ -80,12 +81,12 @@
                         <th scope="col">運費 <span class="text-danger">*</span></th>
                         <th scope="col">成本 <span class="text-danger">*</span></th>
                         <th scope="col">最多件數 <span class="text-danger">*</span></th>
-                        <th scope="col">刪除</th>
                     </tr>
                     </thead>
                     <tbody class="-appendClone">
                     @if ($method === 'create')
                         <tr>
+                            <td></td>
                             <td>
                                 <input name="min_price[]" type="number" class="form-control form-control-sm -l"
                                        value="0" readonly aria-label=""/>
@@ -119,6 +120,15 @@
                         @foreach($dataList as $key => $data)
                             <tr>
                                 <td>
+                                    @if($key == array_key_last($dataList->toArray()) &&
+                                        $key != 0)
+                                        <button type="button"
+                                                class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    @endif
+                                </td>
+                                <td>
                                     <input name="min_price[]" type="number" class="form-control form-control-sm -l"
                                            aria-label="" required
                                            value="{{ $data->min_price }}"
@@ -150,15 +160,6 @@
                                     <input type="number" name="at_most[]" class="form-control form-control-sm -l"
                                            value="{{ $data->at_most }}" aria-label="" required/>
                                 </td>
-                                @if($key == array_key_last($dataList->toArray()) &&
-                                    $key != 0)
-                                    <td>
-                                        <button type="button"
-                                                class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </td>
-                                @endif
                             </tr>
                         @endforeach
                     @endif
@@ -185,21 +186,18 @@
         <script>
             let addNewShipElem = $('.add_ship_rule');
             let submitElem = $('form[method=post]');
-            const trashButtonHtml = '<td>' +
-                                        '<button type="button" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0"> ' +
-                                            '<i class="bi bi-trash"></i> ' +
-                                        '</button>' +
-                                    '</td>';
+            const trashButtonHtml = '<button type="button" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0"> ' +
+                                        '<i class="bi bi-trash"></i> ' +
+                                    '</button>';
 
             addNewShipElem.on('click', function () {
-                // let $newShipRuleElem = lastShipRuleElem.clone();
                 if ($('tbody > tr').length === 1) {
                     // $('tbody > tr:last-child > td:last-child').append(trashHtml);
-                    $(trashButtonHtml).appendTo('tbody >tr:last-child');
+                    $(trashButtonHtml).appendTo('tbody >tr:last-child > td:first-child');
                 }
                 let $newShipRuleElem = $('tbody > tr:last-child').clone();
 
-                $('tbody > tr:last-child > td:last-child').remove();
+                $('tbody > tr:last-child > td:first-child button').remove();
 
                 let lastShipRuleElem = $('tbody > tr:last-child');
                 let lastMaxPrice = $('input[name="max_price[]"]', lastShipRuleElem).val();
@@ -215,11 +213,11 @@
             })
 
             //delete table row
-            $('tbody').on('click', 'td:last-child button', function () {
-                let $newTrashElem = $('tr:last-child td:last-child').clone();
+            $('tbody').on('click', 'td:first-child button', function () {
+                let $newTrashElem = $('tr:last-child td:first-child button').clone();
                 $('tbody > tr:last-child').remove();
                 if ($('tbody > tr').length > 1) {
-                    $newTrashElem.appendTo('tbody > tr:last-child');
+                    $newTrashElem.appendTo('tbody > tr:last-child > td:first-child');
                 }
             })
 
