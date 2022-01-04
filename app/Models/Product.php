@@ -13,11 +13,17 @@ class Product extends Model
     protected $table = 'prd_products';
     protected $guarded = [];
 
-    public static function createProduct($title, $user_id, $category_id, $feature = null, $url = null, $slogan = null, $active_sdate = null, $active_edate = null, $supplier = [], $has_tax = 0)
+    public static function productList()
+    {
+        return self::select('id','title','sku')->selectRaw('CASE type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title');
+    }
+
+    public static function createProduct($title, $user_id, $category_id, $type = 'p', $feature = null, $url = null, $slogan = null, $active_sdate = null, $active_edate = null, $supplier = null, $has_tax = 0)
     {
         return DB::transaction(function () use ($title,
             $user_id,
             $category_id,
+            $type,
             $feature,
             $url,
             $slogan,
@@ -33,6 +39,7 @@ class Product extends Model
 
             $id = self::create([
                 "title" => $title,
+                'type' => $type,
                 "sku" => $sku,
                 "user_id" => $user_id,
                 "category_id" => $category_id,
@@ -44,7 +51,9 @@ class Product extends Model
                 "has_tax" => $has_tax,
             ])->id;
 
-            Supplier::updateProductSupplier($id, $supplier);
+            if ($supplier) {
+                Supplier::updateProductSupplier($id, $supplier);
+            }
 
             return [
                 'sku' => $sku,
@@ -99,7 +108,7 @@ class Product extends Model
 
     }
 
-    public static function productStyleList($keyword = null, $sku = null, $supplier_id = null)
+    public static function productStyleList($keyword = null, $sku = null, $supplier_id = null, $type = null)
     {
 
         $re = DB::table('prd_products as p')
@@ -117,7 +126,12 @@ class Product extends Model
                     $q->where('s.sku', 'like', "%$sku%");
                 }
             })
+            ->whereNotNull('s.sku')
             ->whereNull('s.deleted_at');
+
+        if ($type) {
+            $re->where('type', $type);
+        }
 
         if ($supplier_id) {
             $re->leftJoin('prd_product_supplier as sup', 'p.id', '=', 'sup.product_id')

@@ -27,6 +27,7 @@
                             <th scope="col" style="width:10%">#</th>
                             <th scope="col">產品名稱</th>
                             <th scope="col">SKU</th>
+                            <th scope="col">商品形式</th>
                             <th scope="col" class="text-center">編輯</th>
                         </tr>
                     </thead>
@@ -36,6 +37,7 @@
                                 <th scope="row">{{ $key + 1 }}</th>
                                 <td>{{ $data['title'] }}</td>
                                 <td>{{ $data['sku'] }}</td>
+                                <td>{{ $data['type_title'] }}</td>
                                 <td class="text-center">
                                     <a href="{{ Route('cms.product.edit', ['id' => $data['id']], true) }}"
                                         data-bs-toggle="tooltip" title="編輯"

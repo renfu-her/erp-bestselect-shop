@@ -1,8 +1,8 @@
 @extends('layouts.main')
 @section('sub-content')
 <div>
-    <h2 class="mb-3">{{ $data->title }}</h2>
-    <x-b-prd-navi id="{{  $data->id }}"></x-b-prd-navi>
+    <h2 class="mb-3">{{ $product->title }}</h2>
+    <x-b-prd-navi :product="$product"></x-b-prd-navi>
 </div>
 <form action="">
     <div class="card shadow p-4 mb-4">
