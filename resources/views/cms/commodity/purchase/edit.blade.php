@@ -124,7 +124,7 @@
                                 <td>
                                     <div class="input-group input-group-sm flex-nowrap has-validation">
                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                        <input type="number" class="form-control form-control-sm @error('price.' . $psItemKey) is-invalid @enderror" 
+                                        <input type="number" class="form-control form-control-sm @error('price.' . $psItemKey) is-invalid @enderror"
                                             name="price[]" value="{{ $psItemVal['price'] }}" min="0"/>
                                         <div class="invalid-feedback">
                                             @error('price.' . $psItemKey){{ $message }} @enderror
@@ -143,6 +143,9 @@
             </div>
             <div class="d-grid mt-3">
                 @error('sku_repeat')
+                <div class="alert alert-danger mt-3">{{ $message }}</div>
+                @enderror
+                @error('item_error')
                 <div class="alert alert-danger mt-3">{{ $message }}</div>
                 @enderror
                 <button id="addProductBtn" type="button"
