@@ -20,6 +20,7 @@ class Supplier extends Model
             ->select(
         'ps.id as id',
                 'ps.name as name',
+                'ps.nickname as nickname',
                 'ps.vat_no as vat_no',
                 'ps.contact_person as contact_person',
                 'ps.email as email',

@@ -24,7 +24,7 @@
                         @foreach ($supplierList as $supplierItem)
                             <option value="{{ $supplierItem->id }}"
                                     @if ($supplierItem->id == old('supplier', $purchaseData->supplier_id ?? '')) selected @endif>
-                                {{ $supplierItem->name }}
+                                {{ $supplierItem->name }}@if ($supplierItem->nickname)（{{ $supplierItem->nickname }}） @endif
                             </option>
                         @endforeach
                     </select>
@@ -112,8 +112,8 @@
                                 <td data-td="name">{{ $psItemVal['title'] }}</td>
                                 <td data-td="sku">{{ $psItemVal['sku'] }}</td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm @error('num.' . $psItemKey) is-invalid @enderror" name="num[]"
-                                        value="{{ $psItemVal['num'] }}" min="1"/>
+                                    <input type="number" class="form-control form-control-sm @error('num.' . $psItemKey) is-invalid @enderror"
+                                        name="num[]" value="{{ $psItemVal['num'] }}" min="1"/>
                                     @error('num.' . $psItemKey)
                                     <div class="alert alert-danger mt-3">{{ $message }}</div>
                                     @enderror
