@@ -10,6 +10,8 @@ Breadcrumbs::for('cms.dashboard', function (BreadcrumbTrail $trail) {
     $trail->push('Home', route('cms.dashboard'));
 });
 
+/** 進銷存退 */
+
 // 商品列表
 Breadcrumbs::for('cms.product.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
@@ -36,19 +38,16 @@ Breadcrumbs::for('cms.product.edit-spec', function (BreadcrumbTrail $trail, $val
     $trail->parent('cms.product.edit-style', $value);
     $trail->push('編輯規格');
 });
-
 // 編輯 - 組合包
 Breadcrumbs::for('cms.product.edit-combo', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.index');
     $trail->push($value->title);
     $trail->push('組合包款式', route('cms.product.edit-combo', ['id' => $value->id]));
 });
-
 Breadcrumbs::for('cms.product.create-combo-prod', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.edit-combo', $value);
     $trail->push('新增組合包款式');
 });
-
 Breadcrumbs::for('cms.product.edit-combo-prod', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.edit-combo', $value['product']);
     $trail->push($value['style']->title);
@@ -84,6 +83,25 @@ Breadcrumbs::for('cms.product.edit-setting', function (BreadcrumbTrail $trail, $
     $trail->push($value->title);
     $trail->push('設定');
 });
+
+// 採購列表
+Breadcrumbs::for('cms.purchase.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('採購列表', route('cms.purchase.index'));
+});
+// 新增採購單
+Breadcrumbs::for('cms.purchase.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.purchase.index');
+    $trail->push('新增採購單');
+});
+// 編輯採購單
+Breadcrumbs::for('cms.purchase.edit', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.purchase.index');
+    $trail->push('編輯');
+});
+
+
+/** 設定 */
 
 // 商品類別
 Breadcrumbs::for('cms.category.index', function ($trail) {
@@ -154,6 +172,9 @@ Breadcrumbs::for('cms.shipment.edit', function ($trail) {
     $trail->parent('cms.shipment.index');
     $trail->push('編輯');
 });
+
+
+/** 帳號管理 */
 
 // 員工帳號管理
 Breadcrumbs::for('cms.user.index', function ($trail) {

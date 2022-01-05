@@ -76,6 +76,10 @@ const moment = require("moment");
 
         $this.siblings('.-startDate').val(newDay.format('YYYY-MM-DD'));
     });
+    $('button[data-clear]').off('click.clear').on('click.clear', function () {
+        const $this = $(this);
+        $this.siblings('input').val('');
+    });
 
     // 月份最大值
     $('input[type="month"]').attr('max', moment().format('YYYY-MM'));

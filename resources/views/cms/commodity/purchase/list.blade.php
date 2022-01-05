@@ -1,7 +1,7 @@
 @extends('layouts.main')
 @section('sub-content')
 
-<h2 class="mb-4">採購單管理</h2>
+<h2 class="mb-4">採購列表</h2>
 
 <form id="search" action="{{ Route('cms.purchase.index') }}" method="GET">
     <div class="card shadow p-4 mb-4">
