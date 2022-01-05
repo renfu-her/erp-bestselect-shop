@@ -43,6 +43,7 @@ class ProductSeeder extends Seeder
         ProductStyle::createStyle($re['id'], [2, 5]);
 
         ProductStyle::createSku($re['id'], 2);
+        ProductStyle::createSku($re['id'], 1);
 
         // ProductStock::stockChange(1, 10, 'purchase');
 

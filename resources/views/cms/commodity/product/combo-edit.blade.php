@@ -7,11 +7,15 @@
 
     <form id="form1" method="POST" action="">
         @csrf
+        @php
+            $sku = isset($data) ? $data->sku : '';
+        @endphp
         <div class="card shadow p-4 mb-4">
             <div class="col-12 mb-3">
                 <label class="form-label">組合包名稱 <span class="text-danger">*</span></label>
                 <input class="form-control @error('title')is-invalid @enderror" name="title" type="text" maxlength="30"
-                    value="{{ old('title') }}" aria-label="組合包名稱" required />
+                    value="{{ old('title', $data->title ?? '') }}" aria-label="組合包名稱"
+                    @if ($sku) disabled @else required @endif />
                 @error('title')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -21,7 +25,9 @@
                 <table class="table tableList table-striped">
                     <thead>
                         <tr>
+                            @if (!$sku)
                             <th scope="col" class="text-center" style="width: 100px">刪除</th>
+                            @endif
                             <th scope="col" style="width: 120px">數量</th>
                             <th scope="col">名稱</th>
                             <th scope="col">款式</th>
@@ -30,34 +36,40 @@
                     </thead>
                     <tbody class="-appendClone --selectedP">
                         @if (count($combos) === 0)
-                        <tr class="-cloneElem --selectedP d-none">
-                            <td class="text-center">
-                                <button type="button" data-sku=""
-                                    class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                            <td>
-                                <input type="number" name="n_ps_qty[]" min="1" class="form-control form-control-sm" value="">
-                            </td>
-                            <td data-td="name"></td>
-                            <td data-td="spec"></td>
-                            <td data-td="sku"></td>
-                        </tr>
+                            <tr class="-cloneElem --selectedP d-none">
+                                @if (!$sku)
+                                <td class="text-center">
+                                    <button type="button" data-sku=""
+                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                                @endif
+                                <td>
+                                    <input type="number" name="ps_qty[]" min="1" class="form-control form-control-sm"
+                                        value="">
+                                    <input type="hidden" name="style_id[]">
+                                </td>
+                                <td data-td="name"></td>
+                                <td data-td="spec"></td>
+                                <td data-td="sku"></td>
+                            </tr>
                         @endif
-                        
+
                         @foreach ($combos as $key => $combo)
                             <tr class="-cloneElem --selectedP">
+                                @if (!$sku)
                                 <td class="text-center">
                                     <button type="button" data-sku="{{ $combo->sku }}" item_id="{{ $combo->id }}"
                                         class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </td>
+                                @endif
                                 <td>
-                                    <input type="number" name="ps_qty[]" class="form-control form-control-sm"
-                                        value="{{ $combo->qty }}" min="1">
-                                    <input type="hidden" name="style_id[]">
+                                    <input type="number" name="o_ps_qty[]" class="form-control form-control-sm"
+                                        value="{{ $combo->qty }}" min="1" @if ($sku) disabled @endif>
+                                    <input type="hidden" name="o_style_id[]" value="{{ $combo->id }}">
                                 </td>
                                 <td data-td="name">{{ $combo->title }}</td>
                                 <td data-td="spec">{{ $combo->spec }}</td>
@@ -67,20 +79,29 @@
                     </tbody>
                 </table>
             </div>
+            @if (!$sku)
             <div class="d-grid gap-2 mt-3">
                 <button id="addProductBtn" type="button" class="btn btn-outline-primary border-dashed"
                     style="font-weight: 500;">
                     <i class="bi bi-plus-circle bold"></i> 新增款式商品
                 </button>
             </div>
+            @endif
         </div>
 
         <div>
             <div class="col-auto">
                 <input type="hidden" name="del_item_id">
-                <button type="submit" class="btn btn-primary px-4 -checkSubmit">儲存</button>
-                <a href="{{ Route('cms.product.edit-combo', ['id' => $product->id]) }}"
-                    class="btn btn-outline-primary px-4" role="button">取消</a>
+                @if ($sku)
+                    <a href="{{ Route('cms.product.edit-combo', ['id' => $product->id]) }}"
+                        class="btn btn-primary px-4" role="button">返回組合包
+                    </a>
+                @else
+                    <button type="submit" class="btn btn-primary px-4 -checkSubmit">儲存</button>
+                    <a href="{{ Route('cms.product.edit-combo', ['id' => $product->id]) }}"
+                        class="btn btn-outline-primary px-4" role="button">取消
+                    </a>
+                @endif
             </div>
         </div>
     </form>
@@ -183,7 +204,8 @@
                 let _URL = `${Laravel.apiUrl.productStyles}?page=${page}`;
                 let Data = {
                     keyword: $('#addProduct .-searchBar input').val(),
-                    sku: $('#addProduct .-searchBar input').val()
+                    sku: $('#addProduct .-searchBar input').val(),
+                    type: 'p'
                 };
 
                 $('#addProduct tbody.-appendClone.--product').empty();
@@ -284,14 +306,16 @@
                             'item_id': null
                         });
                         cloneElem.find('td[data-td]').text('');
-                        cloneElem.find('input[name$="ps_qty[]"]').attr('name', 'n_ps_qty[]');
+                        cloneElem.find('input[name^=o_]').attr('name', function(index, attr) {
+                            return attr.replace(/o_/, '');
+                        });
                         if (p) {
                             cloneElem.find('td[data-td="name"]').text(p.name);
                             cloneElem.find('td[data-td="spec"]').text(p.spec || '');
                             cloneElem.find('td[data-td="sku"]').text(p.sku);
                             cloneElem.find('.-del').attr('data-sku', p.sku);
                             cloneElem.find('input[name="style_id[]"]').val(p.id);
-                            cloneElem.find('input[name="n_ps_qty[]"]').val(1);
+                            cloneElem.find('input[name="ps_qty[]"]').val(1);
                         }
                     }, delItemOption);
                 }

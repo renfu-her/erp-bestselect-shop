@@ -46,40 +46,40 @@
                                 </div>
                             </div>
                             <div class="mt-2 tableList">
-                                <a href="#" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                <a href="#" data-bs-toggle="tooltip" title="編輯" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-pencil-square"></i>
                                 </a>
-                                <a href="#" class="icon icon-btn fs-5 text-danger rounded-circle border-0 -del">
+                                <a href="#" data-bs-toggle="tooltip" title="刪除" class="icon icon-btn fs-5 text-danger rounded-circle border-0 -del">
                                     <i class="bi bi-trash"></i>
                                 </a>
-                                <a href="#" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                <a href="#" data-bs-toggle="tooltip" title="附件/檔案" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-paperclip"></i>
                                 </a>
-                                <a href="#" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                <a href="#" data-bs-toggle="tooltip" title="溫層" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-thermometer-snow"></i>
                                 </a>
-                                <a href="#" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                <a href="#" data-bs-toggle="tooltip" title="歷程" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-list-check"></i>
                                 </a>
-                                <a href="#" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                <a href="#" data-bs-toggle="tooltip" title="總表查詢" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-list-ul"></i>
                                 </a>
-                                <a href="#" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                <a href="#" data-bs-toggle="tooltip" title="詳細記錄" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-card-list"></i>
                                 </a>
-                                <a href="#" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                <a href="#" data-bs-toggle="tooltip" title="確認報表" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-check2-square"></i>
                                 </a>
-                                <a href="#" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                <a href="#" data-bs-toggle="tooltip" title="派車" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-truck"></i>
                                 </a>
-                                <a href="#" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                <a href="#" data-bs-toggle="tooltip" title="取貨" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-truck-flatbed"></i>
                                 </a>
-                                <a href="#" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                <a href="#" data-bs-toggle="tooltip" title="點對點" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-arrow-left-right"></i>
                                 </a>
-                                <a href="#" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                <a href="#" data-bs-toggle="tooltip" title="權限設定" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-file-earmark-lock2"></i>
                                 </a>
                             </div>

@@ -130,7 +130,7 @@ class Product extends Model
             ->whereNull('s.deleted_at');
 
         if ($type) {
-            $re->where('type', $type);
+            $re->where('s.type', $type);
         }
 
         if ($supplier_id) {
