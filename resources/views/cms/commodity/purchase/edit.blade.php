@@ -86,16 +86,16 @@
                             <td data-td="name"></td>
                             <td data-td="sku"></td>
                             <td>
-                                <input type="number" class="form-control form-control-sm" name="num[]" min="1" value=""/>
+                                <input type="number" class="form-control form-control-sm" name="num[]" min="1" value="" required/>
                             </td>
                             <td>
                                 <div class="input-group input-group-sm flex-nowrap">
                                     <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                    <input type="number" class="form-control form-control-sm" name="price[]" min="0" value=""/>
+                                    <input type="number" class="form-control form-control-sm" name="price[]" min="0" value="" required/>
                                 </div>
                             </td>
                             <td>
-                                <input type="text" class="form-control form-control-sm -xl">
+                                <input type="text" class="form-control form-control-sm -xl" name="memo[]">
                             </td>
                         </tr>
                     @endif
@@ -116,24 +116,23 @@
                                 <td data-td="sku">{{ $psItemVal['sku'] }}</td>
                                 <td>
                                     <input type="number" class="form-control form-control-sm @error('num.' . $psItemKey) is-invalid @enderror"
-                                        name="num[]" value="{{ $psItemVal['num'] }}" min="1"/>
+                                        name="num[]" value="{{ $psItemVal['num'] }}" min="1" required/>
                                     @error('num.' . $psItemKey)
-                                    <div class="alert alert-danger mt-3">{{ $message }}</div>
+                                    <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </td>
                                 <td>
                                     <div class="input-group input-group-sm flex-nowrap has-validation">
                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                                         <input type="number" class="form-control form-control-sm @error('price.' . $psItemKey) is-invalid @enderror"
-                                            name="price[]" value="{{ $psItemVal['price'] }}" min="0"/>
+                                            name="price[]" value="{{ $psItemVal['price'] }}" min="0" required/>
                                         <div class="invalid-feedback">
                                             @error('price.' . $psItemKey){{ $message }} @enderror
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm -xl" name=""
-                                        value=""/>
+                                    <input type="text" class="form-control form-control-sm -xl" name="memo[]" value="{{ $psItemVal['memo'] }}"/>
                                 </td>
                             </tr>
                         @endforeach
