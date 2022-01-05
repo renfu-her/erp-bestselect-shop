@@ -24,7 +24,7 @@
                         @foreach ($supplierList as $supplierItem)
                             <option value="{{ $supplierItem->id }}"
                                     @if ($supplierItem->id == old('supplier', $purchaseData->supplier_id ?? '')) selected @endif>
-                                {{ $supplierItem->name }}
+                                {{ $supplierItem->name }}@if ($supplierItem->nickname)（{{ $supplierItem->nickname }}） @endif
                             </option>
                         @endforeach
                     </select>
