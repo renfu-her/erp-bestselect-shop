@@ -25,7 +25,7 @@ class SupplierSeeder extends Seeder
             'contact_person' => '廠商窗口',
             'email' => 'xxx@xxx.com',
             'memo' => '第一家廠商'
-        ]);
+        ])->id;
 
         $supplier2 = Supplier::create([
             'name' => '喜多方科技',
@@ -36,7 +36,7 @@ class SupplierSeeder extends Seeder
             'contact_person' => '喜多方廠商窗口',
             'email' => 'ooo@ooo.com',
             'memo' => '第二家廠商'
-        ]);
+        ])->id;
 
         SupplierPayment::create([
             'supplier_id' => $supplier1,

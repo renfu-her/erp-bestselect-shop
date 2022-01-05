@@ -14,7 +14,7 @@ class PurchaseItem extends Model
     protected $guarded = [];
 
     //建立採購單
-    public static function createPurchase($purchase_id, $product_style_id, $title, $sku, $price, $num, $temp_id, $memo = null)
+    public static function createPurchase($purchase_id, $product_style_id, $title, $sku, $price, $num, $temp_id = null, $memo = null)
     {
         return DB::transaction(function () use (
             $purchase_id,
@@ -41,38 +41,6 @@ class PurchaseItem extends Model
         });
     }
 
-    //採購單入庫 更新資料
-    public static function updatePurchase($id, $expiry_date = null, $temp_id, $status = 0, $inbound_date = null, $inbound_num = 0, $depot_id = null, $inbound_user_id = null, $error_num = 0, $memo = null)
-    {
-        return DB::transaction(function () use (
-            $id,
-            $expiry_date,
-            $temp_id,
-
-            $status,
-            $inbound_date,
-            $inbound_num,
-            $depot_id,
-            $inbound_user_id,
-            $error_num,
-            $memo
-        ) {
-            self::where('id', $id)->update([
-                "expiry_date" => $expiry_date,
-                "temp_id" => $temp_id,
-
-                "status" => $status,
-                "inbound_date" => $inbound_date,
-                "inbound_num" => $inbound_num,
-                "depot_id" => $depot_id,
-                "inbound_user_id" => $inbound_user_id,
-                "error_num" => $error_num,
-                "memo" => $memo
-            ]);
-
-            return $id;
-        });
-    }
 
     public static function getData($purchase_id) {
         return self::where('purchase_id', $purchase_id)->whereNull('deleted_at');

@@ -21,6 +21,7 @@ class CreatePcsPurchaseItemsTable extends Migration
             $table->string('sku')->comment('sku');
             $table->string('price')->comment('單價');
             $table->integer('num')->comment('數量');
+            $table->integer('temp_id')->nullable()->comment('溫層對應id');
             $table->string('memo')->nullable()->comment('備註');
             $table->timestamps();
             $table->softDeletes();

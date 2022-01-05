@@ -2,9 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Enums\Purchase\InboundStatus;
 use App\Models\PayingOrder;
 use App\Models\ProductStock;
 use App\Models\Purchase;
+use App\Models\PurchaseInbound;
 use App\Models\PurchaseItem;
 use Illuminate\Database\Seeder;
 
@@ -21,32 +23,25 @@ class PurchaseSeeder extends Seeder
             1,
             5,
             '2021-12-22 00:00:00',
-            '12345678',
-            '1',
             '第一筆採購單',
-            null,
-            null,
         );
 
         Purchase::createPurchase(
             1,
             6,
             '2021-12-23 00:00:00',
-            '87654321',
-            '1',
-            null,
-            null,
             null,
         );
 
+        $product_style_id1 = 1;
         $purchaseItemID = PurchaseItem::createPurchase(
             1,
-            1,
+            $product_style_id1,
             '第一筆採購單款式',
             'P21122800101',
             '100',
             10,
-            1,
+            null,
             'memo',
         );
 
@@ -74,18 +69,67 @@ class PurchaseSeeder extends Seeder
             60,
             '第二筆備註 尾款'
         );
-        PurchaseItem::updatePurchase(
+
+        $purchaseInbound1 = PurchaseInbound::createInbound(
             $purchaseItemID,
             '2022-12-14 00:00:00',
-            1,
+            InboundStatus::not_yet()->value,
+            null,
             0,
-            '2021-12-15 00:00:00',
-            100,
+            0,
             1,
             5,
-            0,
-            '入庫OK',
+            null,
+            null,
         );
-        ProductStock::stockChange(1, 100, 'purchase', $purchaseID1, 'memo');
+        ProductStock::stockChange($product_style_id1, 0, 'purchase', $purchaseInbound1, InboundStatus::not_yet()->description);
+        $purchaseInbound2 = PurchaseInbound::createInbound(
+            $purchaseItemID,
+            '2022-12-14 00:00:00',
+            InboundStatus::normal()->value,
+            '2022-01-05 00:00:00',
+            99,
+            1,
+            1,
+            5,
+            '2022-01-05 00:00:00',
+            '入庫OK 1物品退換貨',
+        );
+        ProductStock::stockChange($product_style_id1, 99, 'purchase', $purchaseInbound1, InboundStatus::shortage()->description);
+        $purchaseInbound3 = PurchaseInbound::createInbound(
+            $purchaseItemID,
+            '2022-12-14 00:00:00',
+            InboundStatus::overflow()->value,
+            '2022-01-06 00:00:00',
+            1,
+            0,
+            1,
+            5,
+            '2022-01-05 00:00:00',
+            '退換貨',
+        );
+        ProductStock::stockChange($product_style_id1, 1, 'purchase', $purchaseInbound1, InboundStatus::normal()->description);
+        PurchaseInbound::updateInbound(
+            $purchaseInbound2,
+            '2022-12-14 00:00:00',
+            InboundStatus::shortage()->value,
+            '2022-01-06 00:00:00',
+            10,
+            0,
+            1,
+            5,
+            '2022-01-06 00:00:00',
+            0,
+            '廠商贈送',
+        );
+        ProductStock::stockChange($product_style_id1, 10, 'purchase', $purchaseInbound1, InboundStatus::overflow()->description);
+
+        $sellCount = 2;
+        PurchaseInbound::sellInbound(
+            $purchaseInbound2,
+            $sellCount,
+        );
+        ProductStock::stockChange($product_style_id1, -1 * $sellCount, 'purchase', $purchaseInbound1, '銷售數量 '. $sellCount);
+
     }
 }

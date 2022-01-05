@@ -13,15 +13,12 @@ class Purchase extends Model
     protected $table = 'pcs_purchase';
     protected $guarded = [];
 
-    public static function createPurchase($supplier_id, $purchase_user_id, $scheduled_date, $invoice_num = null, $pay_type = null, $memo = null, $close_date = null)
+    public static function createPurchase($supplier_id, $purchase_user_id, $scheduled_date, $memo = null)
     {
         return DB::transaction(function () use ($supplier_id,
             $purchase_user_id,
             $scheduled_date,
-            $invoice_num,
-            $pay_type,
-            $memo,
-            $close_date
+            $memo
             ) {
 
             $sn = "B" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
@@ -34,9 +31,7 @@ class Purchase extends Model
                 'supplier_id' => $supplier_id,
                 'purchase_user_id' => $purchase_user_id,
                 'scheduled_date' => $scheduled_date,
-                'pay_type' =>$pay_type,
                 'memo' => $memo,
-                'close_date' => $close_date,
             ])->id;
 
             return $id;
