@@ -5,7 +5,7 @@
         <x-b-prd-navi :product="$product"></x-b-prd-navi>
     </div>
 
-    <form action="{{ route('cms.product.edit-combo', ['id' => $product->id]) }}" method="POST">
+    <form id="form1" action="{{ route('cms.product.edit-combo', ['id' => $product->id]) }}" method="POST">
         @csrf
         <div class="card shadow p-4 mb-4">
             <h6>組合包管理</h6>
@@ -18,9 +18,10 @@
                             <th scope="col" class="text-center">操作</th>
                             <th scope="col" class="text-center">刪除</th>
                             <th scope="col">組合包名稱</th>
-                            <th scope="col">SKU <a
-                                    href="{{ route('cms.product.create-sku', ['id' => $breadcrumb_data->id]) }}"
-                                    type="button" class="btn btn-primary btn-sm">產生SKU碼</a></th>
+                            <th scope="col">SKU
+                                <button type="submit" class="btn btn-primary btn-sm -add_sku">產生SKU碼</button>
+                                <input type="hidden" name="add_sku" value="0">
+                            </th>
                             <th scope="col">庫存</th>
                             <th scope="col">安全庫存</th>
                             <th scope="col">庫存不足</th>
@@ -119,6 +120,11 @@
                         $('input[name="del_id"]').val(del_id.toString());
                     }
                 }
+            });
+
+            // sku
+            $('#form1 button[type="submit"]').on('click.add_sku', function () {
+                $('input[name="add_sku"]').val($(this).hasClass('-add_sku') ? 1 : 0);
             });
         </script>
     @endpush

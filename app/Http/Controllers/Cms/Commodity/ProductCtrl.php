@@ -70,6 +70,7 @@ class ProductCtrl extends Controller
             'category_id' => 'required',
             'supplier' => 'required|array',
             'type' => 'required|in:c,p',
+            'url'=>'unique:App\Models\Product'
         ]);
 
         // $path = $request->file('file')->store('excel');
@@ -83,9 +84,14 @@ class ProductCtrl extends Controller
             }
             ProductImg::createImgs($re['id'], $imgData);
         }
+        if ($d['type'] == 'p') {
+            $url = 'cms.product.edit-style';
+        } else {
+            $url = 'cms.product.edit-combo';
+        }
 
         wToast('新增完畢');
-        return redirect(route('cms.product.index'));
+        return redirect(route($url, ['id' => $re['id']]));
     }
 
     /**
@@ -172,7 +178,7 @@ class ProductCtrl extends Controller
         }
 
         wToast('儲存完畢');
-        return redirect(route('cms.product.index'));
+        return redirect()->back();
 
         //
     }
@@ -206,9 +212,8 @@ class ProductCtrl extends Controller
     public function storeStyle(Request $request, $id)
     {
 
-        $d = $request->all();
         $specCount = DB::table('prd_product_spec')->where('product_id', $id)->count();
-        // dd($d);
+        $d = $request->all();
         if (isset($d['nsk_style_id'])) {
             foreach ($d['nsk_style_id'] as $key => $value) {
                 $updateData = [];
@@ -256,6 +261,11 @@ class ProductCtrl extends Controller
         if ($d['del_id']) {
             ProductStyle::whereIn('id', explode(',', $d['del_id']))->where('product_id', $id)->delete();
         }
+
+        if (isset($d['add_sku']) && $d['add_sku']) {
+            ProductStyle::createSkuByProductId($id);
+        }
+
         wToast('修改完成');
         return redirect(route('cms.product.edit-style', ['id' => $id]));
 
@@ -298,9 +308,8 @@ class ProductCtrl extends Controller
     }
 
     public function storeSpec(Request $request, $id)
-    {   
+    {
         $d = $request->all();
-
         for ($i = 0; $i < 3; $i++) {
             if (isset($d["spec" . $i])) {
                 Product::setProductSpec($id, $d["spec" . $i]);
@@ -436,6 +445,10 @@ class ProductCtrl extends Controller
 
         if (isset($d['del_id']) && $d['del_id']) {
             ProductStyle::whereIn('id', explode(',', $d['del_id']))->whereNull('sku')->delete();
+        }
+
+        if (isset($d['add_sku']) && $d['add_sku']) {
+            ProductStyle::createSkuByProductId($id);
         }
 
         wToast('儲存完畢');

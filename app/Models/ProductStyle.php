@@ -97,6 +97,19 @@ class ProductStyle extends Model
         });
     }
 
+
+    public static function createSkuByProductId($product_id){
+        $styles = self::where('product_id', $product_id)->whereNull('sku')->select('id')->get()->toArray();
+
+        foreach ($styles as $style) {
+            self::createSku($product_id, $style['id']);
+        }
+
+        if (count($styles) > 0) {
+            Product::where('id', $product_id)->update(['spec_locked' => 1]);
+        }
+    }
+
     public static function activeStyle($product_id, $ids = [])
     {
         self::where('product_id', $product_id)->update(['is_active' => 0]);
