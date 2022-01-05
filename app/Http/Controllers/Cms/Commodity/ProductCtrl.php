@@ -212,7 +212,7 @@ class ProductCtrl extends Controller
         if (isset($d['nsk_style_id'])) {
             foreach ($d['nsk_style_id'] as $key => $value) {
                 $updateData = [];
-
+                $itemIds = [];
                 for ($i = 1; $i <= $specCount; $i++) {
                     if (isset($d["nsk_spec$i"][$key])) {
                         // $updateData["spec_item${i}_id"] = $d['nsk_spec' . $i][$key];

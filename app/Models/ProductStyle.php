@@ -52,8 +52,11 @@ class ProductStyle extends Model
 
     public static function updateStyle($id, $product_id, $item_ids, $otherData = [])
     {
+        
         $data = [];
+
         $spec = self::_specQuery($product_id, $item_ids);
+     
         $title = '';
 
         foreach ($spec as $key => $v) {
