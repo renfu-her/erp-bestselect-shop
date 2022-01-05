@@ -48,9 +48,8 @@
                             <tr>
                                 <th scope="col" class="text-center">上架</th>
                                 <th scope="col" class="text-center">刪除</th>
-                                <th scope="col">SKU 
-                                    <a href="{{ route('cms.product.create-sku', ['id' => $data->id]) }}"
-                                        type="button" class="btn btn-primary btn-sm -add_sku">產生SKU碼</a>
+                                <th scope="col">SKU
+                                    <button type="submit" class="btn btn-primary btn-sm -add_sku">產生SKU碼</button>
                                     <input type="hidden" name="add_sku" value="0">
                                 </th>
                                 @foreach ($specList as $key => $spec)
@@ -240,11 +239,8 @@
             });
 
             // sku
-            $('a.-add_sku').on('click.add_sku', function () {
-                $('input[name="add_sku"]').val(1);
-            });
-            $('#form1').submit(function(e) {
-                $('input[name="add_sku"]').val(0);
+            $('#form1 button[type="submit"]').on('click.add_sku', function () {
+                $('input[name="add_sku"]').val($(this).hasClass('-add_sku') ? 1 : 0);
             });
         </script>
     @endpush

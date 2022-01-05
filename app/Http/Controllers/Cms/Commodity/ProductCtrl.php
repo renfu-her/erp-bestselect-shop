@@ -205,7 +205,6 @@ class ProductCtrl extends Controller
 
     public function storeStyle(Request $request, $id)
     {
-
         $d = $request->all();
         $specCount = DB::table('prd_product_spec')->where('product_id', $id)->count();
         // dd($d);
