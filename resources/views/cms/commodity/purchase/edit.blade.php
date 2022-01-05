@@ -40,9 +40,9 @@
                                value="{{ old('scheduled_date', $purchaseData->scheduled_date  ?? '') }}"
                                class="form-control @error('scheduled_date') is-invalid @enderror" aria-label="廠商預計進貨日期"
                                required/>
-                        <button class="btn btn-outline-secondary icon" type="button" id="resetDate"
-                                data-bs-toggle="tooltip"
-                                title="清空日期"><i class="bi bi-calendar-x"></i></button>
+                        <button class="btn btn-outline-secondary icon" type="button" data-clear
+                                data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
+                        </button>
                         <div class="invalid-feedback">
                             @error('date')
                             {{ $message }}
@@ -119,15 +119,18 @@
                                     @enderror
                                 </td>
                                 <td>
-                                    <div class="input-group input-group-sm flex-nowrap">
+                                    <div class="input-group input-group-sm flex-nowrap has-validation">
                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                        <input type="number" class="form-control form-control-sm" name="price[]" value=""/>
+                                        <input type="number" class="form-control form-control-sm @error('price.' . $psItemKey) is-invalid @enderror" 
+                                            name="price[]" value="{{ $psItemVal['price'] }}" min="0"/>
+                                        <div class="invalid-feedback">
+                                            @error('price.' . $psItemKey){{ $message }} @enderror
+                                        </div>
                                     </div>
-                                    <input type="text" class="form-control form-control-sm @error('price.' . $psItemKey) is-invalid @enderror" name="price[]"
-                                        value="{{ $psItemVal['price'] }}" min="0"/>
-                                    @error('price.' . $psItemKey)
-                                    <div class="alert alert-danger mt-3">{{ $message }}</div>
-                                    @enderror
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control form-control-sm -xl" name=""
+                                        value=""/>
                                 </td>
                             </tr>
                         @endforeach
