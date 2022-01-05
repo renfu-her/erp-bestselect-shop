@@ -2,7 +2,7 @@
 @section('sub-content')
     <h2 class="mb-3">@if ($method === 'create') 新增@else 編輯@endif 採購單</h2>
 
-    <form method="post" action="{{ $formAction }}">
+    <form id="form1" method="post" action="{{ $formAction }}">
         @method('POST')
         @csrf
 
@@ -17,7 +17,7 @@
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3 ">
                     <label class="form-label">採購廠商 <span class="text-danger">*</span></label>
-                    <select name="supplier" id="supplier" @if ($method === 'edit') disabled @endif
+                    <select id="supplier" @if ($method === 'edit') disabled @endif
                             class="form-select -select2 -single @error('supplier') is-invalid @enderror"
                             aria-label="採購廠商" required>
                         <option value="" selected disabled>請選擇</option>
@@ -28,9 +28,12 @@
                             </option>
                         @endforeach
                     </select>
-                    @error('supplier')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                    <input type="hidden" name="supplier" value="">
+                    <div class="invalid-feedback">
+                        @error('supplier')
+                        {{ $message }}
+                        @enderror
+                    </div>
                 </div>
 
                 <div class="col-12 col-sm-6 mb-3 ">
@@ -374,6 +377,11 @@
                     $('input[name=bank_numer]').val(supplierItem.bank_numer);
                 }
             };
+
+            // 儲存前設定name
+            $('#form1').submit(function(e) {
+                $('input:hidden[name="supplier"]').val($('#supplier').val());
+            });
         </script>
         <script>
             let addProductModal = new bootstrap.Modal(document.getElementById('addProduct'));
@@ -400,12 +408,21 @@
                 checkFn: function () {
                     if ($('.-cloneElem.--selectedP').length) {
                         $('#supplier').prop('disabled', true);
+                        $('button[type="submit"]').prop('disabled', false);
                     } else if (@json($method) === 'create') {
                         $('#supplier').prop('disabled', false);
+                    }
+                    // 無商品不可儲存
+                    if (!$('.-cloneElem.--selectedP').length) {
+                        $('button[type="submit"]').prop('disabled', true);
                     }
                 }
             };
             Clone_bindDelElem($('.-cloneElem.--selectedP .-del'), delItemOption);
+            // 無商品不可儲存
+            if (!$('.-cloneElem.--selectedP').length) {
+                $('button[type="submit"]').prop('disabled', true);
+            }
 
             // 加入商品、搜尋商品
             $('#addProductBtn, #addProduct .-searchBar button')
