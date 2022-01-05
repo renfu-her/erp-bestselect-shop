@@ -84,7 +84,7 @@ return [
         ],
     ],
     [
-        "unit" => "物流設定",
+        "unit" => "物流管理",
         "permissions" => [
             [
                 "cms.shipment.index",
