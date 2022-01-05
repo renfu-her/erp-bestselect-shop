@@ -178,7 +178,7 @@ class ProductCtrl extends Controller
         }
 
         wToast('儲存完畢');
-        return redirect(route('cms.product.index'));
+        return redirect()->back();
 
         //
     }
