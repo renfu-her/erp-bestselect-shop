@@ -104,19 +104,33 @@
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">上架時間</label>
-                    <input class="form-control @error('active_sdate')is-invalid @enderror" name="active_sdate" type="date"
+                    <div class="input-group has-validation">
+                        <input class="form-control @error('active_sdate')is-invalid @enderror" name="active_sdate" type="date"
                         aria-label="上架時間" value="{{ old('active_sdate', $product->active_sdate ?? '') }}">
-                    @error('active_sdate')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                        <button class="btn btn-outline-secondary icon" type="button" data-clear
+                            data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
+                        </button>
+                        <div class="invalid-feedback">
+                            @error('active_sdate')
+                            {{ $message }}
+                            @enderror
+                        </div>
+                    </div>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">下架時間</label>
-                    <input class="form-control @error('active_edate')is-invalid @enderror" name="active_edate" type="date"
+                    <div class="input-group has-validation">
+                        <input class="form-control @error('active_edate')is-invalid @enderror" name="active_edate" type="date"
                         aria-label="下架時間" value="{{ old('active_edate', $product->active_edate ?? '') }}">
-                    @error('active_edate')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                        <button class="btn btn-outline-secondary icon" type="button" data-clear
+                            data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
+                        </button>
+                        <div class="invalid-feedback">
+                            @error('active_edate')
+                            {{ $message }}
+                            @enderror
+                        </div>
+                    </div>
                 </div>
                 <fieldset class="col-12 col-lg-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">應稅免稅 <span class="text-danger">*</span></legend>

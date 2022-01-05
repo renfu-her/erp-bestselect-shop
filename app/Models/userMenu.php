@@ -7,14 +7,14 @@ return
         "menu_id" => "1",
         "child" => [
             [
-                "title" => "採購單列表",
-                "controller_name" => "PurchaseCtrl",
-                "route_name" => "cms.purchase.index",
-            ],
-            [
                 "title" => "商品列表",
                 "controller_name" => "ProductCtrl",
                 "route_name" => "cms.product.index",
+            ],
+            [
+                "title" => "採購列表",
+                "controller_name" => "PurchaseCtrl",
+                "route_name" => "cms.purchase.index",
             ],
         ],
     ],
