@@ -9,13 +9,13 @@
         @csrf
         <div class="card shadow p-4 mb-4">
             <h6>組合包管理</h6>
-            <p class="mark m-0"><i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>已產生SKU將無法再編輯刪除</p>
+            <p class="mark m-0"><i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>已產生SKU將無法再修改刪除</p>
             <div class="table-responsive tableOverBox">
                 <table class="table tableList table-striped">
                     <thead>
                         <tr>
                             <th scope="col" class="text-center">上架</th>
-                            <th scope="col" class="text-center">編輯</th>
+                            <th scope="col" class="text-center">操作</th>
                             <th scope="col" class="text-center">刪除</th>
                             <th scope="col">組合包名稱</th>
                             <th scope="col">SKU <a
@@ -27,48 +27,6 @@
                         </tr>
                     </thead>
                     <tbody class="-appendClone">
-                        @if (count($styles) == 0)
-                            <tr class="-cloneElem d-none">
-                                <td class="text-center">
-                                    <div class="form-check form-switch form-switch-lg">
-                                        <input class="form-check-input" type="checkbox" name="n_active[]" checked>
-                                    </div>
-                                </td>
-                                <td class="text-center">
-                                    <a type="button" href="#"
-                                        class="icon icon-btn fs-5 text-primary rounded-circle border-0 p-0">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </a>
-                                </td>
-                                <td class="text-center">
-                                    <button type="button"
-                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </td>
-                                <td>
-                                    <input type="text" name="" class="form-control form-control-sm -l" value="">
-                                </td>
-                                <td>
-                                    <input type="text" class="form-control form-control-sm -l" value="" aria-label="SKU"
-                                        readonly />
-                                </td>
-                                <td>
-                                    <a href="#" class="-text -stock">庫存管理</a>
-                                </td>
-                                <td>
-                                    <a href="#" class="-text -stock">庫存管理</a>
-                                </td>
-                                <td>
-                                    <select name="n_sold_out_event[]" class="form-select form-select-sm">
-                                        <option value="繼續銷售">繼續銷售</option>
-                                        <option value="停止銷售">停止銷售</option>
-                                        <option value="下架">下架</option>
-                                        <option value="預售">預售</option>
-                                    </select>
-                                </td>
-                            </tr>
-                        @endif
                         @foreach ($styles as $key => $style)
                             <tr class="-cloneElem">
                                 <td class="text-center">
@@ -78,11 +36,19 @@
                                     </div>
                                 </td>
                                 <td class="text-center">
-                                    <a type="button" @if (isset($style['sku'])) disabled @endif
-                                        href="{{ Route('cms.product.edit-combo-prod', ['id' => $product->id, 'sid' => $style['id']]) }}"
-                                        class="icon icon-btn fs-5 text-primary rounded-circle border-0 p-0">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </a>
+                                    @if (isset($style['sku']))
+                                        <a type="button" data-bs-toggle="tooltip" title="內容明細"
+                                            href="{{ Route('cms.product.edit-combo-prod', ['id' => $product->id, 'sid' => $style['id']]) }}"
+                                            class="icon icon-btn fs-5 text-primary rounded-circle border-0 p-0">
+                                            <i class="bi bi-card-list"></i>
+                                        </a>
+                                    @else
+                                        <a type="button" data-bs-toggle="tooltip" title="編輯"
+                                            href="{{ Route('cms.product.edit-combo-prod', ['id' => $product->id, 'sid' => $style['id']]) }}"
+                                            class="icon icon-btn fs-5 text-primary rounded-circle border-0 p-0">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                    @endif
                                 </td>
                                 <td class="text-center">
                                     <button type="button" @if (isset($style['sku'])) disabled @endif
@@ -141,10 +107,6 @@
     @endpush
     @push('sub-scripts')
         <script>
-            // clone 項目
-            const $clone = $('.-cloneElem:first-child').clone();
-            $('.-cloneElem.d-none').remove();
-
             // del
             let del_id = [];
             Clone_bindDelElem($('.-del'), {
