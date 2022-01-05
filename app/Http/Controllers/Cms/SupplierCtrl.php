@@ -68,15 +68,15 @@ class SupplierCtrl extends Controller
         $request->validate([
             'name' => 'required|string',
             'vat_no' => 'required|string',
-            'chargeman' => 'required|string',
-            'bank_cname' => 'required|string',
-            'bank_code' => 'required|string',
-            'bank_acount' => 'required|string',
-            'bank_numer' => 'required|string',
+            'chargeman' => 'string',
+            'bank_cname' => 'string',
+            'bank_code' => 'string',
+            'bank_acount' => 'string',
+            'bank_numer' => 'string',
             'contact_tel' => 'required|string',
             'contact_address' => 'required|string',
             'contact_person' => 'required|string',
-            'email' => 'required|string',
+            'email' => 'string',
         ]);
     }
 
