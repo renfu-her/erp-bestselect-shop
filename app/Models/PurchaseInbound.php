@@ -14,10 +14,10 @@ class PurchaseInbound extends Model
     protected $table = 'pcs_purchase_inbound';
     protected $guarded = [];
 
-    public static function createInbound($purchase_id, $expiry_date = null, $status = 0, $inbound_date = null, $inbound_num = 0, $error_num = 0, $depot_id = null, $inbound_user_id = null, $close_date = null, $memo = null)
+    public static function createInbound($purchase_item_id, $expiry_date = null, $status = 0, $inbound_date = null, $inbound_num = 0, $error_num = 0, $depot_id = null, $inbound_user_id = null, $close_date = null, $memo = null)
     {
         $id = self::create([
-            "purchase_id" => $purchase_id,
+            "purchase_item_id" => $purchase_item_id,
             "expiry_date" => $expiry_date,
             "status" => $status,
             "inbound_date" => $inbound_date,
