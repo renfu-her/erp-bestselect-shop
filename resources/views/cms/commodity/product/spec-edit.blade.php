@@ -215,7 +215,7 @@
                 $(Spec.clone).each(function(index, element) {
                     // element == this
                     $(element).find('select.-single.-select2, select.-single + input:hidden')
-                        .attr('name', `'spec${index}`);
+                        .attr('name', `spec${index}`);
                     $(element).find(`${Items.clone} input`).attr('name', `item${index}[]`);
                 });
             });
