@@ -298,7 +298,7 @@ class ProductCtrl extends Controller
     }
 
     public function storeSpec(Request $request, $id)
-    {
+    {   
         $d = $request->all();
 
         for ($i = 0; $i < 3; $i++) {
