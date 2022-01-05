@@ -15,12 +15,12 @@
                 <div class="px-1 pt-1">
                     <div class="form-check form-check-inline @error('type')is-invalid @enderror">
                         <input class="form-check-input @error('type')is-invalid @enderror" name="type" value="p" type="radio"
-                            @if ($method == 'edit') disabled @endif id="type_1" required @if (old('type', $product->type ?? '') == 'p') checked @endif>
+                            @if ($method == 'edit') disabled @endif id="type_1" required @if (old('type', $product->type ?? 'p') == 'p') checked @endif>
                         <label class="form-check-label" for="type_1">一般商品</label>
                     </div>
                     <div class="form-check form-check-inline @error('type')is-invalid @enderror">
                         <input class="form-check-input @error('type')is-invalid @enderror" name="type" value="c" type="radio"
-                            @if ($method == 'edit') disabled @endif id="type_2" required @if (old('type', $product->type ?? 'c') == 'c') checked @endif>
+                            @if ($method == 'edit') disabled @endif id="type_2" required @if (old('type', $product->type ?? '') == 'c') checked @endif>
                         <label class="form-check-label" for="type_2">組合包商品</label>
                     </div>
                     @error('type')
