@@ -278,4 +278,27 @@ class PurchaseCtrl extends Controller
         }
         return $changeStr;
     }
+
+
+    public function detailList(Request $request) {
+        $query = $request->query();
+        $startDate = Arr::get($query, 'startDate', date('Y-m-d'));
+        $endDate = Arr::get($query, 'endDate', date('Y-m-d', strtotime(date('Y-m-d') . '+ 1 days')));
+        $title = Arr::get($query, 'title', '');
+        $data_per_page = Arr::get($query, 'data_per_page', 10);
+        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
+
+
+        $dataList = PurchaseItem::getPurchaseDetailList()
+            ->paginate($data_per_page)->appends($query);
+//        $dataList = PurchaseItem::getPurchaseDetailList($startDate, $endDate, true, $title)
+//            ->paginate($data_per_page)->appends($query);
+        return view('cms.commodity.purchase.detaillist', [
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'dataList' => $dataList,
+            'title' => $title,
+            'data_per_page' => $data_per_page,
+        ]);
+    }
 }
