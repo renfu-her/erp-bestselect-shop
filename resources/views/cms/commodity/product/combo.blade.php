@@ -9,7 +9,7 @@
         @csrf
         <div class="card shadow p-4 mb-4">
             <h6>組合包管理</h6>
-            <p class="mark m-0"><i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>已產生SKU將無法再......</p>
+            <p class="mark m-0"><i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>已產生SKU將無法再編輯刪除</p>
             <div class="table-responsive tableOverBox">
                 <table class="table tableList table-striped">
                     <thead>
