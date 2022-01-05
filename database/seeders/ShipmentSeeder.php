@@ -1,0 +1,119 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\Shipment;
+use App\Models\ShipmentGroup;
+use App\Models\Temps;
+use Illuminate\Database\Seeder;
+
+class ShipmentSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        $bestFreezeGroupId = ShipmentGroup::create(['name' => 'BEST-宅配'])->id;
+        $best990GroupId = ShipmentGroup::create(['name' => 'BEST-宅配990免運'])->id;
+        $familyGroupId = ShipmentGroup::create(['name' => '全家店到店'])->id;
+        $freeRefrigeShipmentGroupId = ShipmentGroup::create(['name' => '宅配免運費'])->id;
+        $taipeiNormalGroupId = ShipmentGroup::create(['name' => '台北公司自取'])->id;
+
+//        BEST-宅配(冷凍)
+        Shipment::create([
+            'group_id_fk' => $bestFreezeGroupId,
+            'temps_fk' => Temps::findTempsIdByName('冷凍'),
+            'method' => '喜鴻出貨',
+            'note' => '不含箱子費用、不含離島地區',
+            'min_price' => 0,
+            'max_price' => 1990,
+            'dlv_fee' => 200,
+            'dlv_cost' => 60,
+            'at_most' => 5,
+            'is_above' => 'false',
+        ]);
+        Shipment::create([
+            'group_id_fk' => $bestFreezeGroupId,
+            'temps_fk' => Temps::findTempsIdByName('冷凍'),
+            'method' => '喜鴻出貨',
+            'note' => '不含箱子費用、不含離島地區',
+            'min_price' => 1990,
+            'max_price' => 1990,
+            'dlv_fee' => 0,
+            'dlv_cost' => 60,
+            'at_most' => 5,
+            'is_above' => 'true',
+        ]);
+
+//        BEST-宅配990免運
+        Shipment::create([
+            'group_id_fk' => $best990GroupId,
+            'temps_fk' => Temps::findTempsIdByName('常溫'),
+            'method' => '喜鴻出貨',
+            'note' => '不含箱子費用、不含離島地區',
+            'min_price' => 0,
+            'max_price' => 990,
+            'dlv_fee' => 100,
+            'dlv_cost' => 50,
+            'at_most' => 5,
+            'is_above' => 'false',
+        ]);
+        Shipment::create([
+            'group_id_fk' => $best990GroupId,
+            'temps_fk' => Temps::findTempsIdByName('常溫'),
+            'method' => '喜鴻出貨',
+            'note' => '不含箱子費用、不含離島地區',
+            'min_price' => 990,
+            'max_price' => 990,
+            'dlv_fee' => 0,
+            'dlv_cost' => 50,
+            'at_most' => 5,
+            'is_above' => 'true',
+        ]);
+
+        //      全家店到店
+        Shipment::create([
+            'group_id_fk' => $familyGroupId,
+            'temps_fk' => Temps::findTempsIdByName('常溫'),
+            'method' => '廠商出貨',
+            'note' => '限本島、不含離島地區',
+            'min_price' => 0,
+            'max_price' => 0,
+            'dlv_fee' => 60,
+            'dlv_cost' => 60,
+            'at_most' => 3,
+            'is_above' => 'true',
+        ]);
+
+//        宅配免運費
+        Shipment::create([
+            'group_id_fk' => $freeRefrigeShipmentGroupId,
+            'temps_fk' => Temps::findTempsIdByName('冷藏'),
+            'method' => '廠商出貨',
+            'note' => '不含箱子費用、不含離島地區',
+            'min_price' => 0,
+            'max_price' => 0,
+            'dlv_fee' => 0,
+            'dlv_cost' => 50,
+            'at_most' => 7,
+            'is_above' => 'true',
+        ]);
+
+//        台北公司自取
+        Shipment::create([
+            'group_id_fk' => $taipeiNormalGroupId,
+            'temps_fk' => Temps::findTempsIdByName('常溫'),
+            'method' => '喜鴻出貨',
+            'note' => '不含箱子費用、不含離島地區',
+            'min_price' => 0,
+            'max_price' => 0,
+            'dlv_fee' => 0,
+            'dlv_cost' => 40,
+            'at_most' => 5,
+            'is_above' => 'true',
+        ]);
+    }
+}

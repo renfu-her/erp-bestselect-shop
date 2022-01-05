@@ -56,7 +56,7 @@
         <div class="card shadow p-4 mb-4">
             <h6>採購清單</h6>
             <div class="table-responsive tableOverBox">
-                <table class="table table-hover tableList">
+                <table class="table table-hover tableList mb-1">
                     <thead>
                     <tr>
                         <th scope="col" class="text-center">刪除</th>
@@ -64,6 +64,7 @@
                         <th scope="col">SKU</th>
                         <th scope="col">採購數量</th>
                         <th scope="col">採購價錢</th>
+                        <th scope="col">備註</th>
                     </tr>
                     </thead>
                     <tbody class="-appendClone --selectedP">
@@ -89,6 +90,9 @@
                                     <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                                     <input type="number" class="form-control form-control-sm" name="price[]" min="0" value=""/>
                                 </div>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control form-control-sm -xl">
                             </td>
                         </tr>
                     @endif
@@ -319,26 +323,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="col d-flex justify-content-end align-items-center flex-wrap">
-                <div id="pageSum" class="me-1">共 1 頁（共 0 筆資料）</div>
-                {{-- 頁碼 --}}
-                <div class="d-flex justify-content-center">
-                    <nav>
-                        <ul class="pagination">
-                            <li class="page-item disabled">
-                                <button type="button" class="page-link" aria-label="Previous">
-                                    <i class="bi bi-chevron-left"></i>
-                                </button>
-                            </li>
-                            <li class="page-item disabled">
-                                <button type="button" class="page-link" aria-label="Next">
-                                    <i class="bi bi-chevron-right"></i>
-                                </button>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-            </div>
+            <div class="col d-flex justify-content-end align-items-center flex-wrap -pages"></div>
             <div class="alert alert-secondary mx-3 mb-0 -emptyData" style="display: none;" role="alert">
                 查無資料！
             </div>
@@ -389,6 +374,7 @@
         </script>
         <script>
             let addProductModal = new bootstrap.Modal(document.getElementById('addProduct'));
+            let prodPages = new Pagination($('#addProduct .-pages'));
             /*** 選取商品 ***/
             let selectedProductSku = [];
             let selectedProduct = [];
@@ -466,7 +452,12 @@
                                     $('#addProduct .-checkedNum').text(`已選取 ${selectedProductSku.length} 件商品`);
                                 });
 
-                                initPages(res.total, res.last_page, res.current_page);
+                                // 產生分頁
+                                prodPages.create(res.current_page, {
+                                    totalData: res.total,
+                                    totalPages: res.last_page,
+                                    changePageFn: getProductList
+                                });
                             } else {
                                 $('#addProduct .-emptyData').show();
                             }
@@ -475,138 +466,25 @@
                     });
 
                     return true;
-                }
 
-                // 商品列表
-                function createOneProduct(p) {
-                    let checked = (selectedProductSku.indexOf((p.sku).toString()) < 0) ? '' : 'checked disabled';
-                    let $tr = $(`<tr>
-                        <th class="text-center">
-                            <input class="form-check-input" type="checkbox" ${checked}
-                                value="${p.id}" data-td="p_id" aria-label="選取商品">
-                        </th>
-                        <td data-td="name">${p.product_title}</td>
-                        <td data-td="spec">${p.spec || ''}</td>
-                        <td data-td="sku">${p.sku}</td>
-                        <td>${p.in_stock}</td>
-                        <td>${p.safety_stock}</td>
-                    </tr>`);
-                    $('#addProduct .-appendClone.--product').append($tr);
-                }
-
-                // 產生 分頁
-                function initPages(totalData, totalPages, currentPage) {
-                    const Max = 13, // 最多數
-                        Buffer = 3, // active 鄰居數
-                        Edge = 2,   // 邊界頁數
-                        Ellipsis = 1,   // ...數
-                        Active = 1; // active數
-                    $('#addProduct #pageSum').text(`共 ${totalPages} 頁（共 ${totalData} 筆資料）`);
-                    $('#addProduct .page-item').removeClass('disabled').attr('tabindex', null);
-
-                    // 分頁
-                    $('#addProduct .page-item:not(:first-child, :last-child)').remove();
-                    $('#addProduct nav').show();
-                    for (let index = 1; index <= totalPages; index++) {
-                        let $li = $('<li class="page-item"></li>');
-
-                        /*** 顯示數字條件
-                         * 1. 總頁數 >= Max
-                         * 2. 邊界頁數
-                         * 3. 當前頁數及前後緩衝鄰居頁
-                         * 4. 當 當前頁在離頭尾邊界差距最大連續邊界頁(=邊界頁數+省略頁+緩衝頁+active頁)以內時，最大連續邊界頁以內的頁數
-                         * */
-                        let maxContinuousPage = Edge + Ellipsis + Buffer + Active;
-                        if (totalPages <= Max ||
-                            index <= Edge || index > totalPages - Edge ||
-                            Math.abs(currentPage - index) <= Buffer ||
-                            (maxContinuousPage >= currentPage && maxContinuousPage + Buffer >= index) ||
-                            (totalPages - maxContinuousPage < currentPage && totalPages - (maxContinuousPage + Buffer) < index)
-                        ) {
-                            $li = PageLink_N(index, $li);
-                        } else {
-                            $li = PageLink_Es(index, $li);
-                        }
-
-                        if ($li) $('#addProduct .page-item:last-child').before($li);
-                    }
-
-                    // disabled Previous Next
-                    $('#addProduct .page-item.active:nth-child(2)').prev('.page-item').addClass('disabled');
-                    $('#addProduct .page-item.active:nth-last-child(2) + .page-item').addClass('disabled');
-                    $('#addProduct .page-item.disabled').attr('tabindex', -1);
-
-                    // bind event
-                    $('#addProduct .page-item button.page-link').off('click').on('click', function () {
-                        const btn = $(this).attr('aria-label');
-                        let page = $('#addProduct .page-item.active span.page-link').data('page');
-                        switch (btn) {
-                            case 'Previous':
-                                page--;
-                                break;
-                            case 'Next':
-                                page++;
-                                break;
-                            default:
-                                page = $(this).data('page');
-                                break;
-                        }
-                        getProductList(page);
-                    });
-
-                    // 產生 數字鈕
-                    function PageLink_N(index, $li) {
-                        let $page_link = '';
-                        if (index == currentPage) {
-                            $page_link = $(`<span class="page-link">${index}</span>`);
-                            $li.addClass('active');
-                        } else {
-                            $page_link = $(`<button class="page-link" type="button">${index}</button>`);
-                        }
-                        $page_link.data('page', index);
-                        $li.append($page_link);
-                        return $li;
-                    }
-
-                    // 產生 省略符號
-                    function PageLink_Es(index, $li) {
-                        if ($('#addProduct .page-item:nth-last-child(2) span').text() === '...') {
-                            return false;
-                        } else {
-                            $li.addClass('disabled');
-                            $li.append('<span class="page-link">...</span>');
-                            return $li;
-                        }
+                    // 商品列表
+                    function createOneProduct(p) {
+                        let checked = (selectedProductSku.indexOf((p.sku).toString()) < 0) ? '' : 'checked disabled';
+                        let $tr = $(`<tr>
+                            <th class="text-center">
+                                <input class="form-check-input" type="checkbox" ${checked}
+                                    value="${p.id}" data-td="p_id" aria-label="選取商品">
+                            </th>
+                            <td data-td="name">${p.product_title}</td>
+                            <td data-td="spec">${p.spec || ''}</td>
+                            <td data-td="sku">${p.sku}</td>
+                            <td>${p.in_stock}</td>
+                            <td>${p.safety_stock}</td>
+                        </tr>`);
+                        $('#addProduct .-appendClone.--product').append($tr);
                     }
                 }
             }
-
-            // btn - 加入採購清單
-            $('#addProduct .btn-ok').off('click').on('click', function () {
-                selectedProduct.forEach(p => {
-                    if (!$(`tr.-cloneElem.--selectedP button[data-id="${p.id}"]`).length) {
-                        createOneSelected(p);
-                    }
-                });
-                if ($('.-cloneElem.--selectedP').length) {
-                    $('#supplier').prop('disabled', true);
-                }
-
-                // 關閉懸浮視窗
-                addProductModal.hide();
-            });
-            $('#addProduct').on('hidden.bs.modal', function (e) {
-                // 清空值
-                selectedProductSku = [];
-                selectedProduct = [];
-                $('#addProduct .-searchBar input').val('');
-                $('#addProduct tbody.-appendClone.--product').empty();
-                $('#addProduct #pageSum').text('');
-                $('#addProduct .page-item:not(:first-child, :last-child)').remove();
-                $('#addProduct nav').hide();
-                $('#addProduct .-checkedNum').text('已選取 0 件商品');
-                $('.-emptyData').hide();
-            });
 
             // 紀錄 checked product
             function catchCheckedProduct() {
@@ -634,22 +512,49 @@
                 });
             }
 
-            // 加入採購單 - 加入一個商品
-            function createOneSelected(p) {
-                Clone_bindCloneBtn($selectedClone, function (cloneElem) {
-                    cloneElem.find('input').val('');
-                    // cloneElem.find('input[name="item_id[]"]').remove();
-                    cloneElem.find('.-del').attr('data-id', null);
-                    cloneElem.find('td[data-td]').text('');
-                    if (p) {
-                        cloneElem.find('input[name="product_style_id[]"]').val(p.id);
-                        cloneElem.find('input[name="name[]"]').val(`${p.name}-${p.spec}`);
-                        cloneElem.find('input[name="sku[]"]').val(p.sku);
-                        cloneElem.find('td[data-td="name"]').text(`${p.name}-${p.spec}`);
-                        cloneElem.find('td[data-td="sku"]').text(p.sku);
+            // btn - 加入採購清單
+            $('#addProduct .btn-ok').off('click').on('click', function () {
+                selectedProduct.forEach(p => {
+                    if (!$(`tr.-cloneElem.--selectedP button[data-id="${p.id}"]`).length) {
+                        createOneSelected(p);
                     }
-                }, delItemOption);
-            }
+                });
+                if ($('.-cloneElem.--selectedP').length) {
+                    $('#supplier').prop('disabled', true);
+                }
+
+                // 關閉懸浮視窗
+                addProductModal.hide();
+
+                // 加入採購單 - 加入一個商品
+                function createOneSelected(p) {
+                    Clone_bindCloneBtn($selectedClone, function (cloneElem) {
+                        cloneElem.find('input').val('');
+                        // cloneElem.find('input[name="item_id[]"]').remove();
+                        cloneElem.find('.-del').attr('data-id', null);
+                        cloneElem.find('td[data-td]').text('');
+                        if (p) {
+                            cloneElem.find('input[name="product_style_id[]"]').val(p.id);
+                            cloneElem.find('input[name="name[]"]').val(`${p.name}-${p.spec}`);
+                            cloneElem.find('input[name="sku[]"]').val(p.sku);
+                            cloneElem.find('td[data-td="name"]').text(`${p.name}-${p.spec}`);
+                            cloneElem.find('td[data-td="sku"]').text(p.sku);
+                        }
+                    }, delItemOption);
+                }
+            });
+            // 關閉Modal時，清空值
+            $('#addProduct').on('hidden.bs.modal', function (e) {
+                selectedProductSku = [];
+                selectedProduct = [];
+                $('#addProduct .-searchBar input').val('');
+                $('#addProduct tbody.-appendClone.--product').empty();
+                $('#addProduct #pageSum').text('');
+                $('#addProduct .page-item:not(:first-child, :last-child)').remove();
+                $('#addProduct nav').hide();
+                $('#addProduct .-checkedNum').text('已選取 0 件商品');
+                $('.-emptyData').hide();
+            });
         </script>
     @endpush
 @endonce

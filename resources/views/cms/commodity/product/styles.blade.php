@@ -43,7 +43,7 @@
                 </p>
             @else
                 <div class="table-responsive tableOverBox">
-                    <table class="table tableList table-striped mb-0">
+                    <table class="table tableList table-striped mb-1">
                         <thead>
                             <tr>
                                 <th scope="col" class="text-center">上架</th>
