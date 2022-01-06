@@ -53,7 +53,7 @@ class PurchaseCtrl extends Controller
         $this->validInputValue($request);
 
         $purchaseReq = $request->only('supplier', 'scheduled_date');
-        $purchaseItemReq = $request->only('product_style_id', 'name', 'sku', 'num', 'price');
+        $purchaseItemReq = $request->only('product_style_id', 'name', 'sku', 'num', 'price', 'memo');
 
         $purchaseID = Purchase::createPurchase(
             $purchaseReq['supplier'],
@@ -75,6 +75,7 @@ class PurchaseCtrl extends Controller
                     "sku" => $purchaseItemReq['sku'][$key],
                     "price" => $purchaseItemReq['price'][$key],
                     "num" => $purchaseItemReq['num'][$key],
+                    "memo" => $purchaseItemReq['memo'][$key],
                 ]);
             }
             PurchaseItem::insert($input);
@@ -145,6 +146,7 @@ class PurchaseCtrl extends Controller
         }
 
         $supplierList = Supplier::getSupplierList()->get();
+
         return view('cms.commodity.purchase.edit', [
             'id' => $id,
             'purchaseData' => $purchaseData,
@@ -164,7 +166,7 @@ class PurchaseCtrl extends Controller
         $this->validInputValue($request);
 
         $purchaseReq = $request->only('supplier', 'scheduled_date');
-        $purchaseItemReq = $request->only('item_id', 'product_style_id', 'name', 'sku', 'num', 'price');
+        $purchaseItemReq = $request->only('item_id', 'product_style_id', 'name', 'sku', 'num', 'price', 'memo');
 
 
         //判斷是否有付款單，有則不可新增刪除商品款式
@@ -213,6 +215,7 @@ class PurchaseCtrl extends Controller
                         "sku" => $purchaseItemReq['sku'][$key],
                         "price" => $purchaseItemReq['price'][$key],
                         "num" => $purchaseItemReq['num'][$key],
+                        "memo" => $purchaseItemReq['memo'][$key],
                     ]);
                 }
             }
@@ -262,6 +265,7 @@ class PurchaseCtrl extends Controller
             ->get()->first();
         $purchaseItem->price = $purchaseItemReq['price'][$key];
         $purchaseItem->num = $purchaseItemReq['num'][$key];
+        $purchaseItem->memo = $purchaseItemReq['memo'][$key];
         if ($purchaseItem->isDirty()) {
             foreach ($purchaseItem->getDirty() as $dirtykey => $dirtyval) {
                 $changeStr .= ' itemID:' . $itemId . ' ' . $dirtykey . ' change to ' . $dirtyval;
@@ -269,6 +273,7 @@ class PurchaseCtrl extends Controller
             PurchaseItem::where('id', $itemId)->update([
                 "price" => $purchaseItemReq['price'][$key],
                 "num" => $purchaseItemReq['num'][$key],
+                "memo" => $purchaseItemReq['memo'][$key],
             ]);
         }
         return $changeStr;
@@ -276,7 +281,6 @@ class PurchaseCtrl extends Controller
 
 
     public function detailList(Request $request) {
-        var_dump($request->all());
         $query = $request->query();
         $startDate = Arr::get($query, 'startDate', date('Y-m-d'));
         $endDate = Arr::get($query, 'endDate', date('Y-m-d', strtotime(date('Y-m-d') . '+ 1 days')));
