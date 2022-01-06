@@ -16,6 +16,11 @@ return
                 "controller_name" => "PurchaseCtrl",
                 "route_name" => "cms.purchase.index",
             ],
+            [
+                "title" => "組裝組合包",
+                "controller_name" => "ComboPurchaseCtrl",
+                "route_name" => "cms.combo-purchase.index",
+            ],
         ],
     ],
     [
