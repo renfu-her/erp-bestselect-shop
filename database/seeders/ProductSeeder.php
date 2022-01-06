@@ -8,6 +8,7 @@ use App\Models\ProductSpec;
 use App\Models\ProductSpecItem;
 use App\Models\ProductStyle;
 use App\Models\ProductStyleCombo;
+use App\Models\ProductStock;
 use Illuminate\Database\Seeder;
 
 class ProductSeeder extends Seeder
@@ -19,7 +20,7 @@ class ProductSeeder extends Seeder
      */
     public function run()
     {
-
+       
         ProductSpec::insert([['title' => '尺寸'], ['title' => '容量'], ['title' => '顏色']]);
 
         Category::create((['category' => '食品', 'rank' => 100]));
@@ -50,6 +51,11 @@ class ProductSeeder extends Seeder
         $re = Product::createProduct('組合包商品', 1, 1, 'c', '組合', null, '組合商品', null, null, null, 1);
         $id = ProductStyle::createComboStyle($re['id'], '五包組', 1);
         ProductStyleCombo::createCombo($id, 1, 2);
+        ProductStyleCombo::createCombo($id, 2, 1);
+        
+        
+     //  dd(ProductStock::comboProcess(3,-20));
+        
 
     }
 }
