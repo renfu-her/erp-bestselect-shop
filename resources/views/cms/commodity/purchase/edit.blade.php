@@ -18,7 +18,7 @@
                 <div class="col-12 col-sm-6 mb-3 ">
                     <label class="form-label">採購廠商 <span class="text-danger">*</span></label>
                     <select id="supplier" @if ($method === 'edit') disabled @endif
-                            class="form-select -select2 -single @error('supplier') is-invalid @enderror"
+                    class="form-select -select2 -single @error('supplier') is-invalid @enderror"
                             aria-label="採購廠商" required>
                         <option value="" selected disabled>請選擇</option>
                         @foreach ($supplierList as $supplierItem)
@@ -71,7 +71,7 @@
                     </tr>
                     </thead>
                     <tbody class="-appendClone --selectedP">
-                    @if (false == isset($purchaseItemData) || 0 >= count($purchaseItemData))
+                    @if (0 >= count(old('item_id', $purchaseItemData?? [])))
                         <tr class="-cloneElem --selectedP d-none">
                             <th class="text-center">
                                 <button type="button"
@@ -98,41 +98,41 @@
                                 <input type="text" class="form-control form-control-sm -xl" name="memo[]">
                             </td>
                         </tr>
-                    @endif
-                    @if(isset($purchaseItemData) && 0 < count($purchaseItemData))
-                        @foreach ($purchaseItemData as $psItemKey => $psItemVal)
+                    @elseif(0 < count(old('item_id', $purchaseItemData?? [])))
+                        @foreach (old('item_id', $purchaseItemData ?? []) as $psItemKey => $psItemVal)
                             <tr class="-cloneElem --selectedP">
                                 <th class="text-center">
                                     <button type="button"
                                             class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                         <i class="bi bi-trash"></i>
                                     </button>
-                                    <input type="hidden" name="item_id[]" value="{{ $psItemVal['id'] }}">
-                                    <input type="hidden" name="product_style_id[]" value="{{ $psItemVal['product_style_id'] }}">
-                                    <input type="hidden" name="name[]" value="{{ $psItemVal['title'] }}">
-                                    <input type="hidden" name="sku[]" value="{{ $psItemVal['sku'] }}">
+                                    <input type="hidden" name="item_id[]" value="{{ old('item_id.'. $psItemKey, $psItemVal['id']?? '') }}">
+                                    <input type="hidden" name="product_style_id[]" value="{{ old('product_style_id.'. $psItemKey, $psItemVal['product_style_id']?? '') }}">
+                                    <input type="hidden" name="name[]" value="{{ old('name.'. $psItemKey, $psItemVal['title']?? '') }}">
+                                    <input type="hidden" name="sku[]" value="{{ old('sku.'. $psItemKey, $psItemVal['sku']?? '') }}">
                                 </th>
-                                <td data-td="name">{{ $psItemVal['title'] }}</td>
-                                <td data-td="sku">{{ $psItemVal['sku'] }}</td>
+                                <td data-td="name">{{ old('name.'. $psItemKey, $psItemVal['title']?? '') }}</td>
+                                <td data-td="sku">{{ old('sku.'. $psItemKey, $psItemVal['sku']?? '') }}</td>
                                 <td>
                                     <input type="number" class="form-control form-control-sm @error('num.' . $psItemKey) is-invalid @enderror"
-                                        name="num[]" value="{{ $psItemVal['num'] }}" min="1" required/>
-                                    @error('num.' . $psItemKey)
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                           name="num[]" value="{{ old('num.'. $psItemKey, $psItemVal['num']?? '') }}" min="1" required/>
+                                    <div class="invalid-feedback">
+                                        @error('num.' . $psItemKey){{ $message }} @enderror
+                                    </div>
                                 </td>
                                 <td>
                                     <div class="input-group input-group-sm flex-nowrap has-validation">
                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                                         <input type="number" class="form-control form-control-sm @error('price.' . $psItemKey) is-invalid @enderror"
-                                            name="price[]" value="{{ $psItemVal['price'] }}" min="0" required/>
+                                               name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal['price']?? '') }}" min="0" required/>
                                         <div class="invalid-feedback">
                                             @error('price.' . $psItemKey){{ $message }} @enderror
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm -xl" name="memo[]" value="{{ $psItemVal['memo'] }}"/>
+                                    <input type="text" class="form-control form-control-sm -xl" name="memo[]"
+                                           value="{{ old('memo.'. $psItemKey, $psItemVal['memo']?? '') }}"/>
                                 </td>
                             </tr>
                         @endforeach
@@ -152,6 +152,7 @@
                     <i class="bi bi-plus-circle bold"></i> 加入商品
                 </button>
             </div>
+
         </div>
 
         {{--        <div class="card shadow p-4 mb-4">--}}
@@ -320,7 +321,7 @@
                     <tr>
                         <th class="text-center">
                             <input class="form-check-input" type="checkbox"
-                                value="" data-td="p_id" aria-label="選取商品">
+                                   value="" data-td="p_id" aria-label="選取商品">
                         </th>
                         <td data-td="name">【喜鴻嚴選】咖啡候機室(10入/盒)</td>
                         <td data-td="spec">綜合口味</td>
@@ -580,3 +581,4 @@
         </script>
     @endpush
 @endonce
+
