@@ -307,16 +307,22 @@ select.form-select optgroup option {
 input.form-control[type="date"],
 input.form-control[type="month"] {
   position: relative;
-}
-input.form-control[type="date"]::-webkit-calendar-picker-indicator,
-input.form-control[type="month"]::-webkit-calendar-picker-indicator {
-  position: absolute;
-  right: 0;
-  width: 100%;
-  height: 100%;
-  background-position: right 5px center;
-  background-size: 20px;
-  background-color: transparent;
+
+  // 小月曆圖示
+  &::-webkit-calendar-picker-indicator {
+    position: absolute;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    background-position: right 5px center;
+    background-size: 20px;
+    background-color: transparent;
+  }
+  // 驗證符號
+  &.is-valid,
+  &.is-invalid {
+    background-position: right calc(2em + 0.1875rem) center;
+  }
 }
 // checkbox .form-switch 大
 .form-switch.form-switch-lg {
@@ -384,7 +390,7 @@ input.form-control[type="month"]::-webkit-calendar-picker-indicator {
 /* 
  * 字數
  */
- .show_words_length {
+.show_words_length {
   position: relative;
 }
 .show_words_length::after {
@@ -459,81 +465,100 @@ input.form-control[type="month"]::-webkit-calendar-picker-indicator {
 .upload_image_block {
   position: relative;
   vertical-align: top;
-}
-// 拖曳檔樣式
-.upload_image_block.is-dragover {
-  background-color: rgba(0, 0, 0, 0.1);
-}
-// 圖片box
-.upload_image_block span.browser_box {
-  position: relative;
-  margin: 0 15px 15px 0;
-  width: 120px;
-  height: 120px;
-  border-radius: 5px;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  border: 1px dashed;
-}
-.upload_image_block span.browser_box.box {
-  background-color: rgba(0, 0, 0, 0.1);
-  border: none;
-}
-.upload_image_block span.browser_box img {
-  max-width: 100%;
-  max-height: 100%;
-}
-.upload_image_block span.browser_box + .progress {
-  width: 120px;
-  position: absolute;
-  top: 104px;
-}
-// 含標題的圖片box
-.upload_image_block.-label span.browser_box {
-  margin-bottom: 8px;
-}
-.upload_image_block.-label span.browser_box ~ label {
-  font-size: 12px;
-  text-align: center;
-  margin-right: 15px;
-}
-.upload_image_block.-label > label,
-.upload_image_block.-label .sortabled > label,
-.upload_image_block.-label .sortabled > div {
-  display: flex;
-  flex-direction: column;
-}
-// icon btn
-.upload_image_block .icon {
-  width: 30px;
-  height: 30px;
-  font-size: 1.2rem;
-  vertical-align: top;
-  position: absolute;
-  margin-top: auto;
-  margin-bottom: auto;
-  color: $primary;
-  border-radius: 50%;
-  background-color: $color-white;
-}
-// 圖片拖曳排序鈕
-.upload_image_block .box > .icon.-move {
-  top: 0;
-  left: 0;
-}
-// 圖片刪除鈕
-.upload_image_block .box > .icon.-x {
-  top: 0;
-  right: 0;
-}
-// 多圖片可排序區塊
-.upload_image_block.-multiple .sortabled,
-.upload_image_block.-multiple .sortabled > div,
-.upload_image_block.-multiple .sortabled > label {
-  display: inline-flex;
-  vertical-align: top;
-  flex-wrap: wrap;
-  position: relative;
+
+  // 圖片box
+  span.browser_box {
+    position: relative;
+    margin: 0 15px 15px 0;
+    width: 120px;
+    height: 120px;
+    border-radius: 5px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border: 1px dashed;
+
+    &.box {
+      background-color: rgba(0, 0, 0, 0.1);
+      border: none;
+    }
+
+    img {
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    + .progress {
+      width: 120px;
+      position: absolute;
+      top: 104px;
+    }
+  }
+  
+  // 含標題的圖片box
+  &.-label {
+    span.browser_box {
+      margin-bottom: 8px;
+
+      ~ label {
+        font-size: 12px;
+        text-align: center;
+        margin-right: 15px;
+      }
+    }
+
+    > label,
+    .sortabled > label,
+    .sortabled > div {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+
+  // 拖曳檔樣式
+  &.is-dragover {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  // icon btn
+  .icon {
+    width: 30px;
+    height: 30px;
+    font-size: 1.2rem;
+    vertical-align: top;
+    position: absolute;
+    margin-top: auto;
+    margin-bottom: auto;
+    color: $primary;
+    border-radius: 50%;
+    background-color: $color-white;
+  }
+
+  .box {
+    > .icon {
+      // 圖片拖曳排序鈕
+      &.-move {
+        top: 0;
+        left: 0;
+      }
+      // 圖片刪除鈕
+      &.-x {
+        top: 0;
+        right: 0;
+      }
+    }
+  }
+
+  // 多圖片可排序區塊
+  &.-multiple {
+    .sortabled,
+    .sortabled > div,
+    .sortabled > label {
+      display: inline-flex;
+      vertical-align: top;
+      flex-wrap: wrap;
+      position: relative;
+    }
+  }
 }

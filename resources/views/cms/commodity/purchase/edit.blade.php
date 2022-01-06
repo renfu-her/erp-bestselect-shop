@@ -116,18 +116,12 @@
                                 <td>
                                     <input type="number" class="form-control form-control-sm @error('num.' . $psItemKey) is-invalid @enderror"
                                            name="num[]" value="{{ old('num.'. $psItemKey, $psItemVal['num']?? '') }}" min="1" required/>
-                                    <div class="invalid-feedback">
-                                        @error('num.' . $psItemKey){{ $message }} @enderror
-                                    </div>
                                 </td>
                                 <td>
                                     <div class="input-group input-group-sm flex-nowrap has-validation">
                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                                         <input type="number" class="form-control form-control-sm @error('price.' . $psItemKey) is-invalid @enderror"
                                                name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal['price']?? '') }}" min="0" required/>
-                                        <div class="invalid-feedback">
-                                            @error('price.' . $psItemKey){{ $message }} @enderror
-                                        </div>
                                     </div>
                                 </td>
                                 <td>
@@ -556,6 +550,7 @@
                         // cloneElem.find('input[name="item_id[]"]').remove();
                         cloneElem.find('.-del').attr('data-id', null);
                         cloneElem.find('td[data-td]').text('');
+                        cloneElem.find('.is-invalid').removeClass('is-invalid');
                         if (p) {
                             cloneElem.find('input[name="product_style_id[]"]').val(p.id);
                             cloneElem.find('input[name="name[]"]').val(`${p.name}-${p.spec}`);
