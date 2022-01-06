@@ -166,32 +166,27 @@ class PurchaseCtrl extends Controller
         $purchaseReq = $request->only('supplier', 'scheduled_date');
         $purchaseItemReq = $request->only('item_id', 'product_style_id', 'name', 'sku', 'num', 'price');
 
-        $changeStr = '';
 
-        if (isset($purchaseItemReq['item_id'])) {
-
-            $sku_arr = [];
-            foreach ($purchaseItemReq['item_id'] as $key => $val) {
-                $itemId = $purchaseItemReq['item_id'][$key];
-                // 先檢查新資料是否有與舊值重複
-                if (null == $itemId) {
-                    array_push($sku_arr, $purchaseItemReq['sku'][$key]);
-                }
+        //判斷是否有付款單，有則不可新增刪除商品款式
+        $payingOrderList = PayingOrders::getPayingOrdersWithPurchaseID($id)->get();
+        if (0 < count($payingOrderList)) {
+            if (isset($request['del_item_id']) && null != $request['del_item_id']) {
+                throw ValidationException::withMessages(['item_error' => '有付款單，有則不可刪除商品款式']);
             }
-            if (0 < count($sku_arr)) {
-                $pcitems = PurchaseItem::whereIn('sku', $sku_arr)
-                    ->where('purchase_id', '=', $id)
-                    ->select('id', 'sku')
-                    ->get()->toArray();
-                if (0 < count($pcitems)) {
-                    $tmp_skus = [];
-                    foreach($pcitems as $item) {
-                        array_push($tmp_skus, $item['sku']);
+            if (isset($purchaseItemReq['item_id'])) {
+                foreach ($purchaseItemReq['item_id'] as $key => $val) {
+                    $itemId = $purchaseItemReq['item_id'][$key];
+                    //有值則做更新
+                    //itemId = null 代表新資料
+                    if (null == $itemId) {
+                        throw ValidationException::withMessages(['item_error' => '有付款單，有則不可新增商品款式']);
+                        break;
                     }
-                    throw ValidationException::withMessages(['sku_repeat' => 'sku重複:'.implode(",",$tmp_skus)]);
                 }
             }
         }
+
+        $changeStr = '';
         $changeStr .= $this->checkToUpdatePurchaseData($id, $purchaseReq);
 
         //刪除現有款式
@@ -277,5 +272,29 @@ class PurchaseCtrl extends Controller
             ]);
         }
         return $changeStr;
+    }
+
+
+    public function detailList(Request $request) {
+        var_dump($request->all());
+        $query = $request->query();
+        $startDate = Arr::get($query, 'startDate', date('Y-m-d'));
+        $endDate = Arr::get($query, 'endDate', date('Y-m-d', strtotime(date('Y-m-d') . '+ 1 days')));
+        $title = Arr::get($query, 'title', '');
+        $data_per_page = Arr::get($query, 'data_per_page', 10);
+        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
+
+
+        $dataList = PurchaseItem::getPurchaseDetailList()
+            ->paginate($data_per_page)->appends($query);
+//        $dataList = PurchaseItem::getPurchaseDetailList($startDate, $endDate, true, $title)
+//            ->paginate($data_per_page)->appends($query);
+        return view('cms.commodity.purchase.detaillist', [
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'dataList' => $dataList,
+            'title' => $title,
+            'data_per_page' => $data_per_page,
+        ]);
     }
 }

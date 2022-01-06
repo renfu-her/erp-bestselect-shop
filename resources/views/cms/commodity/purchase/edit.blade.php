@@ -2,7 +2,7 @@
 @section('sub-content')
     <h2 class="mb-3">@if ($method === 'create') 新增@else 編輯@endif 採購單</h2>
 
-    <form method="post" action="{{ $formAction }}">
+    <form id="form1" method="post" action="{{ $formAction }}">
         @method('POST')
         @csrf
 
@@ -17,20 +17,23 @@
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3 ">
                     <label class="form-label">採購廠商 <span class="text-danger">*</span></label>
-                    <select name="supplier" id="supplier" @if ($method === 'edit') disabled @endif
+                    <select id="supplier" @if ($method === 'edit') disabled @endif
                             class="form-select -select2 -single @error('supplier') is-invalid @enderror"
                             aria-label="採購廠商" required>
                         <option value="" selected disabled>請選擇</option>
                         @foreach ($supplierList as $supplierItem)
                             <option value="{{ $supplierItem->id }}"
                                     @if ($supplierItem->id == old('supplier', $purchaseData->supplier_id ?? '')) selected @endif>
-                                {{ $supplierItem->name }}
+                                {{ $supplierItem->name }}@if ($supplierItem->nickname)（{{ $supplierItem->nickname }}） @endif
                             </option>
                         @endforeach
                     </select>
-                    @error('supplier')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                    <input type="hidden" name="supplier" value="">
+                    <div class="invalid-feedback">
+                        @error('supplier')
+                        {{ $message }}
+                        @enderror
+                    </div>
                 </div>
 
                 <div class="col-12 col-sm-6 mb-3 ">
@@ -40,9 +43,9 @@
                                value="{{ old('scheduled_date', $purchaseData->scheduled_date  ?? '') }}"
                                class="form-control @error('scheduled_date') is-invalid @enderror" aria-label="廠商預計進貨日期"
                                required/>
-                        <button class="btn btn-outline-secondary icon" type="button" id="resetDate"
-                                data-bs-toggle="tooltip"
-                                title="清空日期"><i class="bi bi-calendar-x"></i></button>
+                        <button class="btn btn-outline-secondary icon" type="button" data-clear
+                                data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
+                        </button>
                         <div class="invalid-feedback">
                             @error('date')
                             {{ $message }}
@@ -83,16 +86,16 @@
                             <td data-td="name"></td>
                             <td data-td="sku"></td>
                             <td>
-                                <input type="number" class="form-control form-control-sm" name="num[]" min="1" value=""/>
+                                <input type="number" class="form-control form-control-sm" name="num[]" min="1" value="" required/>
                             </td>
                             <td>
                                 <div class="input-group input-group-sm flex-nowrap">
                                     <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                    <input type="number" class="form-control form-control-sm" name="price[]" min="0" value=""/>
+                                    <input type="number" class="form-control form-control-sm" name="price[]" min="0" value="" required/>
                                 </div>
                             </td>
                             <td>
-                                <input type="text" class="form-control form-control-sm -xl">
+                                <input type="text" class="form-control form-control-sm -xl" name="memo[]">
                             </td>
                         </tr>
                     @endif
@@ -112,22 +115,24 @@
                                 <td data-td="name">{{ $psItemVal['title'] }}</td>
                                 <td data-td="sku">{{ $psItemVal['sku'] }}</td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm @error('num.' . $psItemKey) is-invalid @enderror" name="num[]"
-                                        value="{{ $psItemVal['num'] }}" min="1"/>
+                                    <input type="number" class="form-control form-control-sm @error('num.' . $psItemKey) is-invalid @enderror"
+                                        name="num[]" value="{{ $psItemVal['num'] }}" min="1" required/>
                                     @error('num.' . $psItemKey)
-                                    <div class="alert alert-danger mt-3">{{ $message }}</div>
+                                    <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </td>
                                 <td>
-                                    <div class="input-group input-group-sm flex-nowrap">
+                                    <div class="input-group input-group-sm flex-nowrap has-validation">
                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                        <input type="number" class="form-control form-control-sm" name="price[]" value=""/>
+                                        <input type="number" class="form-control form-control-sm @error('price.' . $psItemKey) is-invalid @enderror"
+                                            name="price[]" value="{{ $psItemVal['price'] }}" min="0" required/>
+                                        <div class="invalid-feedback">
+                                            @error('price.' . $psItemKey){{ $message }} @enderror
+                                        </div>
                                     </div>
-                                    <input type="text" class="form-control form-control-sm @error('price.' . $psItemKey) is-invalid @enderror" name="price[]"
-                                        value="{{ $psItemVal['price'] }}" min="0"/>
-                                    @error('price.' . $psItemKey)
-                                    <div class="alert alert-danger mt-3">{{ $message }}</div>
-                                    @enderror
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control form-control-sm -xl" name="memo[]" value="{{ $psItemVal['memo'] }}"/>
                                 </td>
                             </tr>
                         @endforeach
@@ -137,6 +142,9 @@
             </div>
             <div class="d-grid mt-3">
                 @error('sku_repeat')
+                <div class="alert alert-danger mt-3">{{ $message }}</div>
+                @enderror
+                @error('item_error')
                 <div class="alert alert-danger mt-3">{{ $message }}</div>
                 @enderror
                 <button id="addProductBtn" type="button"
@@ -371,6 +379,11 @@
                     $('input[name=bank_numer]').val(supplierItem.bank_numer);
                 }
             };
+
+            // 儲存前設定name
+            $('#form1').submit(function(e) {
+                $('input:hidden[name="supplier"]').val($('#supplier').val());
+            });
         </script>
         <script>
             let addProductModal = new bootstrap.Modal(document.getElementById('addProduct'));
@@ -397,12 +410,21 @@
                 checkFn: function () {
                     if ($('.-cloneElem.--selectedP').length) {
                         $('#supplier').prop('disabled', true);
+                        $('button[type="submit"]').prop('disabled', false);
                     } else if (@json($method) === 'create') {
                         $('#supplier').prop('disabled', false);
+                    }
+                    // 無商品不可儲存
+                    if (!$('.-cloneElem.--selectedP').length) {
+                        $('button[type="submit"]').prop('disabled', true);
                     }
                 }
             };
             Clone_bindDelElem($('.-cloneElem.--selectedP .-del'), delItemOption);
+            // 無商品不可儲存
+            if (!$('.-cloneElem.--selectedP').length) {
+                $('button[type="submit"]').prop('disabled', true);
+            }
 
             // 加入商品、搜尋商品
             $('#addProductBtn, #addProduct .-searchBar button')

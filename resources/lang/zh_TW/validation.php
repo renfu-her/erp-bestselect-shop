@@ -176,5 +176,9 @@ return [
         'title'                 => '標題',
         'username'              => '使用者名稱',
         'year'                  => '年',
+        'contact_person'        => '聯絡窗口',
+        'contact_tel'           => '聯絡電話',
+        'contact_address'       => '地址',
+        'vat_no'                => '統編'
     ],
 ];

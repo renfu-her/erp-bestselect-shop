@@ -14,22 +14,14 @@ class CreatePcsPurchaseItemsTable extends Migration
     public function up()
     {
         Schema::create('pcs_purchase_items', function (Blueprint $table) {
-            $table->id()->comment('採購明細id');
+            $table->id()->comment('採購款式id');
             $table->integer('purchase_id')->comment('採購id');
             $table->integer('product_style_id')->comment('款式product_style_id 帶出款式sku碼');
             $table->string('title')->comment('商品名稱');
             $table->string('sku')->comment('sku');
             $table->string('price')->comment('單價');
             $table->integer('num')->comment('數量');
-            $table->dateTime('expiry_date')->nullable()->comment('有效期限');
-            $table->integer('temp_id')->nullable()->comment('物流類型 寄來使用何種溫層');
-            $table->tinyInteger('status')->default(0)->comment('狀態(0:尚未入庫/1:正常/2:短缺/2:溢出)');
-            $table->dateTime('inbound_date')->nullable()->comment('入庫日期');
-            $table->integer('inbound_num')->default(0)->comment('入庫數量');
-            $table->integer('depot_id')->nullable()->comment('倉庫');
-            $table->integer('inbound_user_id')->nullable()->comment('入庫者');
-            $table->integer('sale_num')->default(0)->comment('銷售數量 出貨時做計算 (出貨時跳出採購單，讓人員選擇要從哪一筆出貨)');
-            $table->integer('error_num')->default(0)->comment('異常數量');
+            $table->integer('temp_id')->nullable()->comment('溫層對應id');
             $table->string('memo')->nullable()->comment('備註');
             $table->timestamps();
             $table->softDeletes();
