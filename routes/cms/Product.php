@@ -15,11 +15,12 @@ Route::group(['prefix' => 'product', 'as' => 'product.'], function () {
     Route::post('edit/{id}/spec', [ProductCtrl::class, 'storeSpec']); //->middleware('permission:cms.product.style');
 
     Route::get('edit/{id}/combo', [ProductCtrl::class, 'editCombo'])->name('edit-combo'); //->middleware('permission:cms.product.style');
-    //   Route::post('edit/{id}/spec', [ProductCtrl::class, 'storeSpec']); //->middleware('permission:cms.product.style');
+    Route::post('edit/{id}/combo', [ProductCtrl::class, 'updateCombo']); //->middleware('permission:cms.product.style');
     Route::get('edit/{id}/combo-prod', [ProductCtrl::class, 'createComboProd'])->name('create-combo-prod'); //->middleware('permission:cms.product.style');
     Route::post('edit/{id}/combo-prod', [ProductCtrl::class, 'storeComboProd']); //->middleware('permission:cms.product.style');
 
     Route::get('edit/{id}/combo-prod/{sid}/edit', [ProductCtrl::class, 'editComboProd'])->name('edit-combo-prod'); //->middleware('permission:cms.product.style');
+    Route::post('edit/{id}/combo-prod/{sid}/edit', [ProductCtrl::class, 'updateComboProd']); //->middleware('permission:cms.product.style');
 
     Route::get('edit/{id}/sale', [ProductCtrl::class, 'editSale'])->name('edit-sale'); //->middleware('permission:cms.product.sale');
     Route::get('edit/{id}/web-desc', [ProductCtrl::class, 'editWebDesc'])->name('edit-web-desc'); //->middleware('permission:cms.product.web-desc');

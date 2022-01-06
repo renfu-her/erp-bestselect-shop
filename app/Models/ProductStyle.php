@@ -52,8 +52,11 @@ class ProductStyle extends Model
 
     public static function updateStyle($id, $product_id, $item_ids, $otherData = [])
     {
+        
         $data = [];
+
         $spec = self::_specQuery($product_id, $item_ids);
+     
         $title = '';
 
         foreach ($spec as $key => $v) {
@@ -92,6 +95,19 @@ class ProductStyle extends Model
             self::where('id', $id)->update(['sku' => $sku]);
             return true;
         });
+    }
+
+
+    public static function createSkuByProductId($product_id){
+        $styles = self::where('product_id', $product_id)->whereNull('sku')->select('id')->get()->toArray();
+
+        foreach ($styles as $style) {
+            self::createSku($product_id, $style['id']);
+        }
+
+        if (count($styles) > 0) {
+            Product::where('id', $product_id)->update(['spec_locked' => 1]);
+        }
     }
 
     public static function activeStyle($product_id, $ids = [])

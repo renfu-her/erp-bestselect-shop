@@ -70,6 +70,7 @@ class ProductCtrl extends Controller
             'category_id' => 'required',
             'supplier' => 'required|array',
             'type' => 'required|in:c,p',
+            'url'=>'unique:App\Models\Product'
         ]);
 
         // $path = $request->file('file')->store('excel');
@@ -83,9 +84,14 @@ class ProductCtrl extends Controller
             }
             ProductImg::createImgs($re['id'], $imgData);
         }
+        if ($d['type'] == 'p') {
+            $url = 'cms.product.edit-style';
+        } else {
+            $url = 'cms.product.edit-combo';
+        }
 
         wToast('新增完畢');
-        return redirect(route('cms.product.index'));
+        return redirect(route($url, ['id' => $re['id']]));
     }
 
     /**
@@ -172,7 +178,7 @@ class ProductCtrl extends Controller
         }
 
         wToast('儲存完畢');
-        return redirect(route('cms.product.index'));
+        return redirect()->back();
 
         //
     }
@@ -206,13 +212,12 @@ class ProductCtrl extends Controller
     public function storeStyle(Request $request, $id)
     {
 
-        $d = $request->all();
         $specCount = DB::table('prd_product_spec')->where('product_id', $id)->count();
-        // dd($d);
+        $d = $request->all();
         if (isset($d['nsk_style_id'])) {
             foreach ($d['nsk_style_id'] as $key => $value) {
                 $updateData = [];
-
+                $itemIds = [];
                 for ($i = 1; $i <= $specCount; $i++) {
                     if (isset($d["nsk_spec$i"][$key])) {
                         // $updateData["spec_item${i}_id"] = $d['nsk_spec' . $i][$key];
@@ -256,6 +261,11 @@ class ProductCtrl extends Controller
         if ($d['del_id']) {
             ProductStyle::whereIn('id', explode(',', $d['del_id']))->where('product_id', $id)->delete();
         }
+
+        if (isset($d['add_sku']) && $d['add_sku']) {
+            ProductStyle::createSkuByProductId($id);
+        }
+
         wToast('修改完成');
         return redirect(route('cms.product.edit-style', ['id' => $id]));
 
@@ -274,7 +284,8 @@ class ProductCtrl extends Controller
         }
 
         wToast('sku產生完成');
-        return redirect(route('cms.product.edit-style', ['id' => $id]));
+        // return redirect(route('cms.product.edit-style', ['id' => $id]));
+        return redirect()->back();
     }
 
     /**
@@ -299,7 +310,6 @@ class ProductCtrl extends Controller
     public function storeSpec(Request $request, $id)
     {
         $d = $request->all();
-
         for ($i = 0; $i < 3; $i++) {
             if (isset($d["spec" . $i])) {
                 Product::setProductSpec($id, $d["spec" . $i]);
@@ -418,6 +428,34 @@ class ProductCtrl extends Controller
         ]);
     }
 
+    public function updateCombo(Request $request, $id)
+    {
+        $d = $request->all();
+        if (isset($d['sid'])) {
+            for ($i = 0; $i < count($d['sid']); $i++) {
+                if (isset($d['sold_out_event'][$i])) {
+                    ProductStyle::where('id', $d['sid'][$i])->update(['sold_out_event' => $d['sold_out_event'][$i]]);
+                }
+            }
+        }
+
+        if (isset($d['active_id'])) {
+            ProductStyle::activeStyle($id, $d['active_id']);
+        }
+
+        if (isset($d['del_id']) && $d['del_id']) {
+            ProductStyle::whereIn('id', explode(',', $d['del_id']))->whereNull('sku')->delete();
+        }
+
+        if (isset($d['add_sku']) && $d['add_sku']) {
+            ProductStyle::createSkuByProductId($id);
+        }
+
+        wToast('儲存完畢');
+        return redirect()->back();
+
+    }
+
     /**
      * 編輯組合包
      *
@@ -425,14 +463,66 @@ class ProductCtrl extends Controller
      */
     public function editComboProd($id, $sid)
     {
-
+        $style = ProductStyle::where('id', $sid)->get()->first();
         $product = self::product_data($id);
         return view('cms.commodity.product.combo-edit', [
+            'data' => $style,
             'product' => $product,
             'combos' => ProductStyleCombo::comboList($sid)->get(),
+            'method' => 'create',
+            'formAction' => Route('cms.product.edit-combo-prod', ['id' => $id, 'sid' => $sid]),
             'breadcrumb_data' => ['product' => $product,
-                'style' => ProductStyle::where('id', $sid)->get()->first()],
+                'style' => $style],
         ]);
+    }
+
+    /**
+     * 編輯組合包
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function updateComboProd(Request $request, $id, $sid)
+    {
+
+        if (ProductStyle::where('id', $sid)->whereNotNull('sku')->get()->first()) {
+            return redirect()->back();
+        }
+
+        $request->validate([
+            'title' => 'required',
+            'style_id' => 'array',
+            'ps_qty' => 'array',
+            'o_style_id' => 'array',
+            'o_ps_qty' => 'array',
+        ]);
+        $d = request()->all();
+
+        if (isset($d['style_id'])) {
+            for ($i = 0; $i < count($d['style_id']); $i++) {
+                if ($d['ps_qty'][$i]) {
+                    ProductStyleCombo::createCombo($sid, $d['style_id'][$i], $d['ps_qty'][$i]);
+                }
+            }
+        }
+
+        if (isset($d['o_style_id'])) {
+            for ($i = 0; $i < count($d['o_style_id']); $i++) {
+                if ($d['o_ps_qty'][$i]) {
+                    ProductStyleCombo::where('id', $d['o_style_id'][$i])
+                        ->update(['qty' => $d['o_ps_qty'][$i]]);
+                }
+            }
+        }
+
+        ProductStyle::where('id', $sid)->update(['title' => $d['title']]);
+
+        if (isset($d['del_item_id'])) {
+            ProductStyleCombo::whereIn('id', explode(',', $d['del_item_id']))->delete();
+        }
+
+        wToast('儲存完畢');
+        return redirect(Route('cms.product.edit-combo', ['id' => $id]));
+
     }
 
     /**
@@ -460,7 +550,7 @@ class ProductCtrl extends Controller
     public function storeComboProd(Request $request, $id)
     {
 
-       // dd($_POST);
+        // dd($_POST);
         $request->validate([
             'title' => 'required',
             'style_id' => 'array',
@@ -476,9 +566,8 @@ class ProductCtrl extends Controller
                 }
             }
         }
-        
-        return redirect(Route('cms.product.edit-combo', ['id' => $id]));
 
+        return redirect(Route('cms.product.edit-combo', ['id' => $id]));
 
     }
 }
