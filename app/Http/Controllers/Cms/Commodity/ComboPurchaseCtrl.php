@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\ProductStock;
 use App\Models\ProductStyle;
 use App\Models\ProductStyleCombo;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 class ComboPurchaseCtrl extends Controller
 {
@@ -15,10 +17,22 @@ class ComboPurchaseCtrl extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+
+        $query = $request->query();
+        $keyword = Arr::get($query, 'keyword', null);
+        $sku = Arr::get($query, 'sku', null);
+        $data_per_page = Arr::get($query, 'data_per_page', 10);
+
+        $dataList = Product::productStyleList($keyword, $sku, null, 'c')
+            ->paginate($data_per_page)->appends($query);
+
         return view('cms.commodity.comboPurchase.list', [
-            'data_per_page' => 10
+            'data_per_page' => 10,
+            'dataList' => $dataList,
+            'query' => $query,
+            'data_per_page' => $data_per_page,
         ]);
     }
 
@@ -66,16 +80,20 @@ class ComboPurchaseCtrl extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id, $sid)
+    public function edit(Request $request, $id)
     {
-        $product = self::product_data($id);
-        $style = ProductStyle::where('id', $sid)->get()->first();
-        $combos = ProductStyleCombo::comboList($sid)->get();
+        //
+        $style = ProductStyle::where('id', $id)->get()->first();
+        if (!$style) {
+            return abort(404);
+        }
+        $combos = ProductStyleCombo::comboList($id)->get();
+        $product = self::product_data($style->product_id);
         return view('cms.commodity.comboPurchase.edit', [
             'product' => $product,
             'style' => $style,
             'combos' => $combos,
-            'breadcrumb_data' => ['product' => $product, 'style' => $style]
+            'breadcrumb_data' => ['product' => $product, 'style' => $style],
         ]);
     }
 
@@ -88,7 +106,20 @@ class ComboPurchaseCtrl extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'qty' => 'required',
+        ]);
+
+        $qty = $request->input('qty');
+        $re = ProductStock::comboProcess($id, $qty);
+
+        if (!$re['success']) {
+            return redirect()->back()->withErrors(['status' => $re['error_msg']]);
+        }
+
+        wToast("儲存成功");
+        return redirect()->back();
+
     }
 
     /**
