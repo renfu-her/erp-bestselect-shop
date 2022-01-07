@@ -75,6 +75,7 @@ class Purchase extends Model
             ->leftJoin('prd_suppliers as suppliers', 'suppliers.id', '=', 'purchase.supplier_id')
 
             ->select('purchase.id'
+                , 'purchase.sn as purchase_sn'
                 , 'purchase.invoice_num as invoice_num'
                 , 'purchase.pay_type as pay_type'
                 , 'purchase.close_date as close_date'
