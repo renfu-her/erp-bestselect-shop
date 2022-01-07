@@ -102,6 +102,19 @@ Breadcrumbs::for('cms.combo-purchase.edit', function (BreadcrumbTrail $trail, $v
 });
 
 /** 設定 */
+//款式設定
+Breadcrumbs::for('cms.spec.index', function ($trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('款式設定', route('cms.spec.index'));
+});
+Breadcrumbs::for('cms.spec.create', function ($trail) {
+    $trail->parent('cms.spec.index');
+    $trail->push('新增');
+});
+Breadcrumbs::for('cms.spec.edit', function ($trail) {
+    $trail->parent('cms.spec.index');
+    $trail->push('編輯');
+});
 
 // 商品類別
 Breadcrumbs::for('cms.category.index', function ($trail) {

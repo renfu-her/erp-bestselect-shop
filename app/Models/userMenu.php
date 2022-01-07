@@ -29,6 +29,11 @@ return
         "menu_id" => "2",
         "child" => [
             [
+                "title" => "款式設定",
+                "controller_name" => "SpecCtrl",
+                "route_name" => "cms.spec.index",
+            ],
+            [
                 "title" => "商品類別",
                 "controller_name" => "CategoryController",
                 "route_name" => "cms.category.index",

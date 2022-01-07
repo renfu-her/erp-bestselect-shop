@@ -105,6 +105,27 @@ return [
         ],
     ],
     [
+        "unit" => "款式設定",
+        "permissions" => [
+            [
+                "cms.spec.index",
+                "瀏覽",
+            ],
+            [
+                "cms.spec.create",
+                "新增",
+            ],
+//            [
+//                "cms.spec.edit",
+//                "修改",
+//            ],
+//            [
+//                "cms.spec.delete",
+//                "刪除",
+//            ],
+        ],
+    ],
+    [
         "unit" => "商品類別",
         "permissions" => [
             [
