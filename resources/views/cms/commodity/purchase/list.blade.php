@@ -1,7 +1,7 @@
 @extends('layouts.main')
 @section('sub-content')
 
-<h2 class="mb-4">採購列表</h2>
+<h2 class="mb-4">採購單管理</h2>
 
 <form id="search" action="{{ Route('cms.purchase.index') }}" method="GET">
     <div class="card shadow p-4 mb-4">
@@ -69,10 +69,19 @@
                 <thead>
                 <tr>
                     <th scope="col" style="width:10%">#</th>
-                    <th scope="col">廠商名稱</th>
+                    <th scope="col">採購單號</th>
+                    <th scope="col">商品名稱</th>
+                    <th scope="col">採購日期</th>
+                    <th scope="col">入庫狀態</th>
+                    <th scope="col">訂金單號</th>
+                    <th scope="col">尾款單號</th>
+                    <th scope="col">SKU</th>
+                    <th scope="col">總價</th>
+                    <th scope="col">單價</th>
+                    <th scope="col">數量</th>
                     <th scope="col">採購人員</th>
+                    <th scope="col">廠商</th>
                     <th scope="col">發票號碼</th>
-                    <th scope="col">已結案</th>
                     <th scope="col" class="text-center">編輯</th>
                     <th scope="col" class="text-center">刪除</th>
                 </tr>
@@ -81,10 +90,19 @@
                 @foreach ($dataList as $key => $data)
                     <tr>
                         <th scope="row">{{ $key + 1 }}</th>
-                        <td>{{ $data->supplier_name }}</td>
+                        <td>{{ $data->sn }}</td>
+                        <td>{{ $data->title }}</td>
+                        <td>{{ $data->scheduled_date }}</td>
+                        <td>{{ $data->inbound_status }}</td>
+                        <td>{{ $data->deposit_num }}</td>
+                        <td>{{ $data->final_pay_num }}</td>
+                        <td>{{ $data->sku }}</td>
+                        <td>{{ $data->total_price }}</td>
+                        <td>{{ $data->price }}</td>
+                        <td>{{ $data->num }}</td>
                         <td>{{ $data->user_name }}</td>
+                        <td>{{ $data->supplier_name }}</td>
                         <td>{{ $data->invoice_num }}</td>
-                        <td>{{ ($data->close_date != null)? '已結案': '' }}</td>
                         <td class="text-center">
 {{--                            @can('admin.purchase.edit')--}}
                             <a href="{{ Route('cms.purchase.edit', ['id' => $data->id], true) }}"

@@ -18,7 +18,6 @@ class PurchaseCtrl extends Controller
 
     public function index(Request $request)
     {
-        //
         $query = $request->query();
         $startDate = Arr::get($query, 'startDate', date('Y-m-d'));
         $endDate = Arr::get($query, 'endDate', date('Y-m-d', strtotime(date('Y-m-d') . '+ 1 days')));
@@ -26,9 +25,9 @@ class PurchaseCtrl extends Controller
         $data_per_page = Arr::get($query, 'data_per_page', 10);
         $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
 
-        $dataList = Purchase::getPurchaseList($startDate, $endDate, true, $title)
-            ->paginate($data_per_page)->appends($query);
 
+        $dataList = PurchaseItem::getPurchaseDetailList()
+            ->paginate($data_per_page)->appends($query);
         return view('cms.commodity.purchase.list', [
             'startDate' => $startDate,
             'endDate' => $endDate,
@@ -60,10 +59,6 @@ class PurchaseCtrl extends Controller
             $purchaseReq['supplier'],
             $request->user()->id,
             $purchaseReq['scheduled_date'],
-//            '',
-//            $v['pay_type'],
-//            null,
-//            null,
         );
 
         $input = [];
@@ -82,22 +77,22 @@ class PurchaseCtrl extends Controller
             PurchaseItem::insert($input);
         }
 
-//        //0:先付(訂金) / 1:先付(一次付清) / 2:貨到付款
-//        $deposit_pay_id = null;
-//        $final_pay_id = null;
-//        if ("0" == $v['pay_type']) {
-//            //訂金、尾款都可填
-////            PayingOrder::createPayingOrder(
-////                $purchaseItemID,
-////                0,
-////                'ABCE',
-////                900,
-////                '2021-12-13 00:00:00',
-////                '第一筆備註 訂金'
-////            );
-//        } else if ("1" == $v['pay_type'] || "2" == $v['pay_type']) {
-//            //只有尾款都可填
-//        }
+        // //0:先付(訂金) / 1:先付(一次付清) / 2:貨到付款
+        // $deposit_pay_id = null;
+        // $final_pay_id = null;
+        // if ("0" == $v['pay_type']) {
+        //     //訂金、尾款都可填
+        //     PayingOrder::createPayingOrder(
+        //         $purchaseItemID,
+        //         0,
+        //         'ABCE',
+        //         900,
+        //         '2021-12-13 00:00:00',
+        //         '第一筆備註 訂金'
+        //     );
+        // } else if ("1" == $v['pay_type'] || "2" == $v['pay_type']) {
+        //     //只有尾款都可填
+        // }
 
         wToast(__('Add finished.'));
         return redirect(Route('cms.purchase.edit', [
@@ -117,11 +112,6 @@ class PurchaseCtrl extends Controller
             'sku.*' => 'required|string',
             'price.*' => 'required|numeric',
             'num.*' => 'required|numeric',
-//            'bank_cname' => 'required|string',
-//            'bank_code' => 'required|string',
-//            'bank_acount' => 'required|string',
-//            'bank_numer' => 'required|string',
-//            'pay_type' => 'required|string',
         ]);
     }
 
@@ -279,29 +269,6 @@ class PurchaseCtrl extends Controller
             ]);
         }
         return $changeStr;
-    }
-
-
-    public function detailList(Request $request) {
-        $query = $request->query();
-        $startDate = Arr::get($query, 'startDate', date('Y-m-d'));
-        $endDate = Arr::get($query, 'endDate', date('Y-m-d', strtotime(date('Y-m-d') . '+ 1 days')));
-        $title = Arr::get($query, 'title', '');
-        $data_per_page = Arr::get($query, 'data_per_page', 10);
-        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
-
-
-        $dataList = PurchaseItem::getPurchaseDetailList()
-            ->paginate($data_per_page)->appends($query);
-//        $dataList = PurchaseItem::getPurchaseDetailList($startDate, $endDate, true, $title)
-//            ->paginate($data_per_page)->appends($query);
-        return view('cms.commodity.purchase.detaillist', [
-            'startDate' => $startDate,
-            'endDate' => $endDate,
-            'dataList' => $dataList,
-            'title' => $title,
-            'data_per_page' => $data_per_page,
-        ]);
     }
 
     public function inbound(Request $request, $id) {

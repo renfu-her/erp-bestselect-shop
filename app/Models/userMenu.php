@@ -12,7 +12,7 @@ return
                 "route_name" => "cms.product.index",
             ],
             [
-                "title" => "採購列表",
+                "title" => "採購單管理",
                 "controller_name" => "PurchaseCtrl",
                 "route_name" => "cms.purchase.index",
             ],
