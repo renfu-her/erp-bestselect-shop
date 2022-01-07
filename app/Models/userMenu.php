@@ -7,7 +7,7 @@ return
         "menu_id" => "1",
         "child" => [
             [
-                "title" => "商品列表",
+                "title" => "商品管理",
                 "controller_name" => "ProductCtrl",
                 "route_name" => "cms.product.index",
             ],
@@ -15,6 +15,11 @@ return
                 "title" => "採購單管理",
                 "controller_name" => "PurchaseCtrl",
                 "route_name" => "cms.purchase.index",
+            ],
+            [
+                "title" => "組合包組裝",
+                "controller_name" => "ComboPurchaseCtrl",
+                "route_name" => "cms.combo-purchase.index",
             ],
         ],
     ],

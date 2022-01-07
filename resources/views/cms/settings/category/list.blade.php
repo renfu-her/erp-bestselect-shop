@@ -1,8 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-<div class="d-flex align-items-center">
-    <h2>商品類別</h2>
-</div>
+<h2 class="mb-4">商品類別</h2>
 
 <div class="card shadow p-4 mb-4">
     <div class="row mb-4">

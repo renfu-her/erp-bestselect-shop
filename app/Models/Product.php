@@ -15,7 +15,7 @@ class Product extends Model
 
     public static function productList()
     {
-        return self::select('id','title','sku')->selectRaw('CASE type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title');
+        return self::select('id', 'title', 'sku')->selectRaw('CASE type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title');
     }
 
     public static function createProduct($title, $user_id, $category_id, $type = 'p', $feature = null, $url = null, $slogan = null, $active_sdate = null, $active_edate = null, $supplier = null, $has_tax = 0)
@@ -32,7 +32,17 @@ class Product extends Model
             $supplier,
             $has_tax) {
 
-            $sku = "P" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
+            switch ($type) {
+                case 'p':
+                    $prefix = "P";
+                    break;
+                case 'c':
+                    $prefix = "C";
+                    break;
+
+            }
+
+            $sku = $prefix . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
                     ->withTrashed()
                     ->get()
                     ->count()) + 1, 3, '0', STR_PAD_LEFT);

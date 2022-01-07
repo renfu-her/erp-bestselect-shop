@@ -147,10 +147,10 @@
                                     @endforeach
 
                                     <td>
-                                        <a href="#" class="-text -stock">{{ $style['safety_stock'] }}</a>
+                                        <a href="#" class="-text -stock">{{ $style['in_stock'] }}</a>
                                     </td>
                                     <td>
-                                        <a href="#" class="-text -stock">{{ $style['in_stock'] }}</a>
+                                        <a href="#" class="-text -stock">{{ $style['safety_stock'] }}</a>
                                     </td>
                                     <td>
                                         <select name="{{ $prefix }}sold_out_event[]"

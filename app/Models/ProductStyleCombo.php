@@ -27,7 +27,7 @@ class ProductStyleCombo extends Model
         return DB::table('prd_style_combos as combo')
             ->leftJoin('prd_product_styles as style', 'combo.product_style_child_id', '=', 'style.id')
             ->leftJoin('prd_products as product', 'product.id', '=', 'style.product_id')
-            ->select('combo.id', 'combo.qty', 'style.sku', 'style.title as spec', 'product.title as title')
+            ->select('combo.id', 'combo.qty', 'style.sku', 'style.title as spec', 'style.in_stock', 'product.title as title')
             ->where('combo.product_style_id', $style_id);
     }
 

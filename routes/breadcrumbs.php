@@ -101,6 +101,16 @@ Breadcrumbs::for('cms.purchase.edit', function (BreadcrumbTrail $trail, $value) 
     $trail->push('編輯');
 });
 
+// 組合包組裝
+Breadcrumbs::for('cms.combo-purchase.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('組合包組裝', route('cms.combo-purchase.index'));
+});
+Breadcrumbs::for('cms.combo-purchase.edit', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.combo-purchase.index');
+    $trail->push('[' . $value['product']->title . '] ' . $value['style']->title);
+    $trail->push('組裝/拆包');
+});
 
 /** 設定 */
 
