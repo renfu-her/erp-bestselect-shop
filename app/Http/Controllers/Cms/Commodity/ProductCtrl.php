@@ -70,7 +70,7 @@ class ProductCtrl extends Controller
             'category_id' => 'required',
             'supplier' => 'required|array',
             'type' => 'required|in:c,p',
-            'url'=>'unique:App\Models\Product'
+           // 'url'=>'unique:App\Models\Product'
         ]);
 
         // $path = $request->file('file')->store('excel');
