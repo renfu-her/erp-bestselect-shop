@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">[{{ $product->title }}] {{ $style->title }}</h2>
+    <h2 class="mb-4">【{{ $product->title }}】{{ $style->title }}</h2>
     <form action="{{ Route('cms.combo-purchase.edit', ['id' => $style->id], true) }}" method="POST">
         @csrf
         <div class="card shadow p-4 mb-4">
@@ -50,7 +50,7 @@
                                 <td>{{ $combo->spec }}</td>
                                 <td data-td="qty">{{ $combo->qty }}</td>
                                 <td data-td="stock" class="text-center border-start border-end fw-bold fs-5">{{ $combo->in_stock }}</td>
-                                <td data-td="count" class="text-center fs-5"></td>
+                                <td data-td="count" class="text-center fs-5">{{ $combo->in_stock }}</td>
                             </tr>
                         @endforeach
                     </tbody>

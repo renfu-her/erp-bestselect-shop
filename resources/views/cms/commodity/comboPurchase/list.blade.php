@@ -42,7 +42,7 @@
                 <thead>
                     <tr>
                         <th scope="col" style="width:10%">#</th>
-                        <th scope="col">[組合包] 款式名稱</th>
+                        <th scope="col">【組合包】款式名稱</th>
                         <th scope="col">SKU</th>
                         <th scope="col">庫存</th>
                         <th scope="col" class="text-center">組裝/拆包</th>
@@ -52,7 +52,7 @@
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
-                            <td>[{{ $data->product_title}}]{{ $data->spec }}</td>
+                            <td>【{{ $data->product_title}}】{{ $data->spec }}</td>
                             <td>{{ $data->sku }}</td>
                             <td>{{ $data->in_stock }}</td>
                             <td class="text-center">

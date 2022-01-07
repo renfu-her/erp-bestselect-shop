@@ -12,10 +12,10 @@ Breadcrumbs::for('cms.dashboard', function (BreadcrumbTrail $trail) {
 
 /** 進銷存退 */
 
-// 商品列表
+// 商品管理
 Breadcrumbs::for('cms.product.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('商品列表', route('cms.product.index'));
+    $trail->push('商品管理', route('cms.product.index'));
 });
 // 新增商品
 Breadcrumbs::for('cms.product.create', function (BreadcrumbTrail $trail) {
@@ -25,14 +25,12 @@ Breadcrumbs::for('cms.product.create', function (BreadcrumbTrail $trail) {
 // 編輯 - 商品資訊
 Breadcrumbs::for('cms.product.edit', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.index');
-    $trail->push($value->title);
-    $trail->push('編輯');
+    $trail->push('[' . $value->title . '] 編輯');
 });
 // 編輯 - 規格款式
 Breadcrumbs::for('cms.product.edit-style', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.index');
-    $trail->push($value->title);
-    $trail->push('規格款式');
+    $trail->push('[' . $value->title . '] 規格款式');
 });
 Breadcrumbs::for('cms.product.edit-spec', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.edit-style', $value);
@@ -41,8 +39,7 @@ Breadcrumbs::for('cms.product.edit-spec', function (BreadcrumbTrail $trail, $val
 // 編輯 - 組合包
 Breadcrumbs::for('cms.product.edit-combo', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.index');
-    $trail->push($value->title);
-    $trail->push('組合包款式', route('cms.product.edit-combo', ['id' => $value->id]));
+    $trail->push('[' . $value->title . '] 組合包款式', route('cms.product.edit-combo', ['id' => $value->id]));
 });
 Breadcrumbs::for('cms.product.create-combo-prod', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.edit-combo', $value);
@@ -50,44 +47,38 @@ Breadcrumbs::for('cms.product.create-combo-prod', function (BreadcrumbTrail $tra
 });
 Breadcrumbs::for('cms.product.edit-combo-prod', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.edit-combo', $value['product']);
-    $trail->push($value['style']->title);
-    $trail->push('編輯');
+    $trail->push('[' . $value['style']->title . '] 編輯');
 });
 // 編輯 - 銷售控管
 Breadcrumbs::for('cms.product.edit-sale', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.index');
-    $trail->push($value->title);
-    $trail->push('銷售控管');
+    $trail->push('[' . $value->title . '] 銷售控管');
 });
 // 編輯 - 網頁-商品介紹
 Breadcrumbs::for('cms.product.edit-web-desc', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.index');
-    $trail->push($value->title);
-    $trail->push('網頁-商品介紹');
+    $trail->push('[' . $value->title . '] 網頁-商品介紹');
 });
 // 編輯 - 網頁-規格說明
 Breadcrumbs::for('cms.product.edit-web-spec', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.index');
-    $trail->push($value->title);
-    $trail->push('網頁-規格說明');
+    $trail->push('[' . $value->title . '] 網頁-規格說明');
 });
 // 編輯 - 網頁-運送方式
 Breadcrumbs::for('cms.product.edit-web-logis', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.index');
-    $trail->push($value->title);
-    $trail->push('網頁-運送方式');
+    $trail->push('[' . $value->title . '] 網頁-運送方式');
 });
 // 編輯 - 設定
 Breadcrumbs::for('cms.product.edit-setting', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.index');
-    $trail->push($value->title);
-    $trail->push('設定');
+    $trail->push('[' . $value->title . '] 設定');
 });
 
-// 採購列表
+// 採購單管理
 Breadcrumbs::for('cms.purchase.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('採購列表', route('cms.purchase.index'));
+    $trail->push('採購單管理', route('cms.purchase.index'));
 });
 // 新增採購單
 Breadcrumbs::for('cms.purchase.create', function (BreadcrumbTrail $trail) {
@@ -97,8 +88,7 @@ Breadcrumbs::for('cms.purchase.create', function (BreadcrumbTrail $trail) {
 // 編輯採購單
 Breadcrumbs::for('cms.purchase.edit', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.purchase.index');
-    $trail->push('單號：' . $value);
-    $trail->push('編輯');
+    $trail->push('[單號：' . $value . '] 編輯');
 });
 
 // 組合包組裝
@@ -108,8 +98,7 @@ Breadcrumbs::for('cms.combo-purchase.index', function (BreadcrumbTrail $trail) {
 });
 Breadcrumbs::for('cms.combo-purchase.edit', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.combo-purchase.index');
-    $trail->push('[' . $value['product']->title . '] ' . $value['style']->title);
-    $trail->push('組裝/拆包');
+    $trail->push('[【' . $value['product']->title . '】' . $value['style']->title . '] 組裝/拆包');
 });
 
 /** 設定 */
