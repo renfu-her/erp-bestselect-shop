@@ -80,4 +80,67 @@ class PurchaseInbound extends Model
         });
     }
 
+    //歷史入庫
+    public static function getInboundList($purchase_id)
+    {
+        $result = DB::table('pcs_purchase as purchase')
+            ->leftJoin('pcs_purchase_items as items', 'items.purchase_id', '=', 'purchase.id')
+            ->leftJoin('pcs_purchase_inbound as inbound', 'inbound.purchase_item_id', '=', 'items.id')
+            ->leftJoin('usr_users as users', 'users.id', '=', 'inbound.inbound_user_id')
+            //->select('*')
+            ->select('purchase.id as purchase_id'
+                , 'items.title as title'
+                , 'items.sku as sku'
+                , 'items.num as item_num'
+                , 'items.memo as item_memo'
+                , 'inbound.id as inbound_id'
+                , 'inbound.inbound_date as inbound_date'
+                , 'inbound.expiry_date as expiry_date'
+                , 'inbound.status as status'
+                , 'inbound.inbound_date as inbound_date'
+                , 'inbound.inbound_num as inbound_num'
+                , 'inbound.error_num as error_num'
+                , 'inbound.depot_id as depot_id'
+                , 'inbound.inbound_user_id as inbound_user_id'
+                , 'inbound.close_date as close_date'
+                , 'inbound.memo as inbound_memo'
+                , 'users.name as user_name'
+            )
+            ->whereNull('purchase.deleted_at')
+            ->whereNull('items.deleted_at')
+            ->whereNull('inbound.deleted_at')
+            ->whereNotNull('inbound.id')
+            ->where('purchase.id', '=', $purchase_id);
+        return $result;
+    }
+
+    //採購單入庫總覽
+    public static function getOverviewInboundList($purchase_id)
+    {
+        $result = DB::table('pcs_purchase as purchase')
+            ->leftJoin('pcs_purchase_items as items', 'items.purchase_id', '=', 'purchase.id')
+            ->leftJoin('pcs_purchase_inbound as inbound', 'inbound.purchase_item_id', '=', 'items.id')
+            ->leftJoin('prd_product_styles as styles', 'styles.id', '=', 'items.product_style_id')
+            ->leftJoin('prd_products as products', 'products.id', '=', 'styles.product_id')
+            ->leftJoin('usr_users as users', 'users.id', '=', 'products.user_id')
+            ->select('purchase.id as purchase_id'
+                , 'items.product_style_id as product_style_id'
+                , 'products.title as product_title'
+                , 'styles.title as style_title'
+                , 'users.name as user_name'
+            )
+            ->selectRaw('any_value(items.sku) as sku')
+            ->selectRaw('sum(items.num) as num')
+            ->selectRaw('sum(inbound.inbound_num) as inbound_num')
+            ->selectRaw('sum(inbound.error_num) as error_num')
+            ->selectRaw('(sum(items.num) - sum(inbound.inbound_num)) as sould_enter_num')
+            ->whereNull('purchase.deleted_at')
+            ->whereNull('items.deleted_at')
+            ->whereNull('inbound.deleted_at')
+            ->where('purchase.id', '=', $purchase_id)
+            ->groupBy('purchase.id', 'items.product_style_id')
+            ->orderBy('purchase.id')
+            ->orderBy('items.product_style_id');
+        return $result;
+    }
 }

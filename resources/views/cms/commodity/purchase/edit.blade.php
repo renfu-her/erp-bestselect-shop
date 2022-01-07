@@ -1,6 +1,10 @@
 @extends('layouts.main')
 @section('sub-content')
     <h2 class="mb-3">@if ($method === 'create') 新增@else 編輯@endif 採購單</h2>
+    @if ($method != 'create')
+        <h2 class="mb-4"> <a href="{{ Route('cms.purchase.inbound', ['id' => $id]) }}">入庫</a></h2>
+    @endif
+
 
     <form id="form1" method="post" action="{{ $formAction }}">
         @method('POST')

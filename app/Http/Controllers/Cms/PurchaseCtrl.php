@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\PayingOrder;
 use App\Models\PayingOrders;
 use App\Models\Purchase;
+use App\Models\PurchaseInbound;
 use App\Models\PurchaseItem;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
@@ -301,5 +302,24 @@ class PurchaseCtrl extends Controller
             'title' => $title,
             'data_per_page' => $data_per_page,
         ]);
+    }
+
+    public function inbound(Request $request, $id) {
+        $inboundList = PurchaseInbound::getInboundList($id)->get()->toArray();
+        $inboundOverviewList = PurchaseInbound::getOverviewInboundList($id)->get()->toArray();
+        return view('cms.commodity.purchase.inbound', [
+            'id' => $id,
+            'inboundList' => $inboundList,
+            'inboundOverviewList' => $inboundOverviewList,
+        ]);
+    }
+
+    public function inboundDestroy(Request $request, $id)
+    {
+        PurchaseInbound::where('id', '=', $id)->delete();
+        wToast(__('Delete finished.'));
+        return redirect(Route('cms.purchase.inbound', [
+            'id' => $id,
+        ]));
     }
 }

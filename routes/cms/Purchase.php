@@ -12,4 +12,6 @@ Route::group(['prefix' => 'purchase', 'as' => 'purchase.'], function () {
     Route::get('delete/{id}', [PurchaseCtrl::class, 'destroy'])->name('delete')->middleware('permission:cms.purchase.delete');
 
     Route::get('', [PurchaseCtrl::class, 'detailList'])->name('index')->middleware('permission:cms.purchase.index');
+    Route::get('inbound/{id}', [PurchaseCtrl::class, 'inbound'])->name('inbound')->middleware('permission:cms.purchase.inbound');
+    Route::get('delete_inbound/{id}', [PurchaseCtrl::class, 'inboundDestroy'])->name('inboundDestroy')->middleware('permission:cms.purchase.inboundDestroy');
 });
