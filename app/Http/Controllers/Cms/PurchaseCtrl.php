@@ -157,6 +157,7 @@ class PurchaseCtrl extends Controller
             'method' => 'edit',
             'supplierList' => $supplierList,
             'formAction' => Route('cms.purchase.edit', ['id' => $id]),
+            'breadcrumb_data' => $purchaseData->purchase_sn,
         ]);
     }
 
