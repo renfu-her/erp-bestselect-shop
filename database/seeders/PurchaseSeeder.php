@@ -26,7 +26,7 @@ class PurchaseSeeder extends Seeder
             '第一筆採購單',
         );
 
-        Purchase::createPurchase(
+        $purchaseID2 = Purchase::createPurchase(
             1,
             6,
             '2021-12-23 00:00:00',
@@ -34,15 +34,37 @@ class PurchaseSeeder extends Seeder
         );
 
         $product_style_id1 = 1;
-        $purchaseItemID = PurchaseItem::createPurchase(
-            1,
+        $product_style_id2 = 2;
+        $purchaseItemID1 = PurchaseItem::createPurchase(
+            $purchaseID1,
             $product_style_id1,
-            '第一筆採購單款式',
-            'P21122800101',
-            '100',
+            '測試商品-M',
+            'P22010600101',
+            '11',
             10,
             null,
-            'memo',
+            '第一筆款式',
+        );
+        $purchaseItemID2 = PurchaseItem::createPurchase(
+            $purchaseID1,
+            $product_style_id2,
+            '測試商品-X',
+            'P22010600102',
+            '12',
+            10,
+            null,
+            '第二筆款式',
+        );
+
+        PurchaseItem::createPurchase(
+            $purchaseID2,
+            $product_style_id1,
+            '測試商品-M',
+            'P22010600101',
+            '13',
+            10,
+            null,
+            null,
         );
 
         PayingOrder::createPayingOrder(
@@ -71,7 +93,7 @@ class PurchaseSeeder extends Seeder
         );
 
         $purchaseInbound1 = PurchaseInbound::createInbound(
-            $purchaseItemID,
+            $purchaseItemID1,
             '2022-12-14 00:00:00',
             InboundStatus::not_yet()->value,
             null,
@@ -84,7 +106,7 @@ class PurchaseSeeder extends Seeder
         );
         ProductStock::stockChange($product_style_id1, 0, 'purchase', $purchaseInbound1, InboundStatus::not_yet()->description);
         $purchaseInbound2 = PurchaseInbound::createInbound(
-            $purchaseItemID,
+            $purchaseItemID1,
             '2022-12-14 00:00:00',
             InboundStatus::normal()->value,
             '2022-01-05 00:00:00',
@@ -97,7 +119,7 @@ class PurchaseSeeder extends Seeder
         );
         ProductStock::stockChange($product_style_id1, 99, 'purchase', $purchaseInbound1, InboundStatus::shortage()->description);
         $purchaseInbound3 = PurchaseInbound::createInbound(
-            $purchaseItemID,
+            $purchaseItemID1,
             '2022-12-14 00:00:00',
             InboundStatus::overflow()->value,
             '2022-01-06 00:00:00',
