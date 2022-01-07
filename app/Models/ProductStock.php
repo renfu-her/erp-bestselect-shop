@@ -17,29 +17,25 @@ class ProductStock extends Model
     {
 
         if (!is_numeric($qty)) {
-            DB::rollBack();
             return ['success' => 0, 'error_msg' => 'qty type error'];
         }
 
         if (!StockEvent::hasKey($event)) {
-            DB::rollBack();
             return ['success' => 0, 'error_msg' => 'event error'];
         }
 
         if (!ProductStyle::where('id', $product_style_id)->get()->first()) {
-            DB::rollBack();
             return ['success' => 0, 'error_msg' => 'style not exists'];
         }
 
         return DB::transaction(function () use ($product_style_id, $qty, $event, $event_id, $note) {
+            $style = ProductStyle::where('id', $product_style_id)->select('in_stock')->get()->first();
+            if ($style['in_stock'] + $qty < 0) {
+                return ['success' => 0, 'error_msg' => '數量超出範圍'];
+            }
 
             ProductStyle::where('id', $product_style_id)
                 ->update(['in_stock' => DB::raw("in_stock + $qty")]);
-
-            if (ProductStyle::where('id', $product_style_id)->where('in_stock', '<', 0)->get()->first()) {
-                DB::rollBack();
-                return ['success' => 0, 'error_msg' => 'style overdraft'];
-            }
 
             self::create(['product_style_id' => $product_style_id,
                 'qty' => $qty,
@@ -50,5 +46,37 @@ class ProductStock extends Model
             return ['success' => 1];
 
         });
+    }
+
+    public static function comboProcess($style_id, $qty)
+    {
+        return DB::transaction(function () use ($style_id, $qty) {
+
+            $style = ProductStyle::where('id', $style_id)->whereNotNull('sku')->where('type', 'c')->get()->first();
+            if (!$style) {
+                return ['success' => 0, 'error_msg' => '無此商品'];
+            }
+
+            $combos = ProductStyleCombo::where('product_style_id', $style_id)->get()->toArray();
+
+            foreach ($combos as $combo) {
+                $_qty = $qty * -1 * $combo['qty'];
+                $re = self::stockChange($combo['id'], $_qty, 'combo', $style_id);
+                if (!$re['success']) {
+                    DB::rollBack();
+                    return $re;
+                }
+            }
+
+            $re = self::stockChange($style_id, $qty, 'combo');
+            if (!$re['success']) {
+                DB::rollBack();
+                return $re;
+            }
+
+            return ['success' => 1];
+
+        });
+
     }
 }
