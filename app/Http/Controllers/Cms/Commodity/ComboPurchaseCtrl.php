@@ -88,6 +88,7 @@ class ComboPurchaseCtrl extends Controller
             return abort(404);
         }
         $combos = ProductStyleCombo::comboList($id)->get();
+       
         $product = self::product_data($style->product_id);
         return view('cms.commodity.comboPurchase.edit', [
             'product' => $product,
