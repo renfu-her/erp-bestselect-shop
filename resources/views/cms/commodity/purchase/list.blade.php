@@ -7,13 +7,68 @@
     <div class="card shadow p-4 mb-4">
         <h6>搜尋條件</h6>
         <div class="row">
+            <div class="col-12 col-md-6 mb-3">
+                <label class="form-label">採購單號</label>
+                <input class="form-control" name="sn" type="text" placeholder="採購單號" value=""
+                       aria-label="採購單號">
+            </div>
+            <div class="col-12 col-sm-6 mb-3">
+                <label class="form-label">採購人員</label>
+                <select class="form-select -select2 -multiple" multiple="multiple" name="" aria-label="採購人員" data-placeholder="多選">
+                    <option value="1">人員1</option>
+                    <option value="2">人員2</option>
+                    <option value="3">人員3</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-6 mb-3">
+                <label class="form-label" for="region">入庫狀態</label>
+                <div class="input-group">
+                    <select id="region" class="form-select">
+                        <option value="" selected disabled>請選擇</option>
+                        <option value="1">尚未入庫</option>
+                        <option value="2">正常</option>
+                        <option value="3">短缺</option>
+                        <option value="3">溢出</option>
+                    </select>
+                    <button id="clear_region" class="btn btn-outline-secondary" type="button" data-bs-toggle="tooltip" title="清空">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <div id="chip-group-status" class="d-flex flex-wrap bd-highlight chipGroup"></div>
+            </div>
+            <div class="col-12 col-sm-6 mb-3">
+                <label class="form-label">入庫人員</label>
+                <select class="form-select -select2 -multiple" multiple="multiple" name="" aria-label="入庫人員" data-placeholder="多選">
+                    <option value="1">人員1</option>
+                    <option value="2">人員2</option>
+                    <option value="3">人員3</option>
+                </select>
+            </div>
+            <div class="col-12 col-sm-6 mb-3">
+                <label class="form-label">廠商名稱</label>
+                <select class="form-select -select2 -single" name="" aria-label="採購廠商">
+                    <option value="" selected disabled>請選擇</option>
+                    <option value="1">廠商 1</option>
+                    <option value="2">廠商 2</option>
+                    <option value="3">廠商 3</option>
+                </select>
+            </div>
+            <div class="col-12 col-sm-6 mb-3">
+                <label class="form-label">商品名稱</label>
+                <select class="form-select -select2 -single" name="" aria-label="商品名稱">
+                    <option value="" selected disabled>請選擇</option>
+                    <option value="1">名稱1 (SKU)</option>
+                    <option value="2">名稱2 (SKU)</option>
+                    <option value="3">名稱3 (SKU)</option>
+                </select>
+            </div>
             <div class="col-12 mb-3">
-                <label class="form-label">出貨日期範圍</label>
+                <label class="form-label">採購起訖日期</label>
                 <div class="input-group has-validation">
                     <input type="date" class="form-control -startDate @error('startDate') is-invalid @enderror"
-                           name="startDate" value="{{ $startDate }}" aria-label="出貨日期起始" required />
+                           name="startDate" value="{{ $startDate }}" aria-label="採購起始日期" required />
                     <input type="date" class="form-control -endDate @error('endDate') is-invalid @enderror"
-                           name="endDate" value="{{ $endDate }}" aria-label="出貨日期結束" required />
+                           name="endDate" value="{{ $endDate }}" aria-label="採購結束日期" required />
                     <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
                     <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
                     <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
@@ -29,11 +84,23 @@
                     </div>
                 </div>
             </div>
-            <div class="col-12 mb-3">
-                <label class="form-label">發票號碼</label>
-                <input class="form-control" name="title" type="text" placeholder="發票號碼" value="{{ $title }}"
-                       aria-label="發票號碼">
-            </div>
+            <fieldset class="col-12 mb-3">
+                <legend class="col-form-label p-0 mb-2">顯示類型</legend>
+                <div class="px-1 pt-1">
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label">
+                            <input class="form-check-input" name="type" type="radio" checked>
+                            明細
+                        </label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label">
+                            <input class="form-check-input" name="type" type="radio" >
+                            總表
+                        </label>
+                    </div>
+                </div>
+            </fieldset>
         </div>
 
         <div class="col">

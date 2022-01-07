@@ -263,6 +263,7 @@
                                 <div class="col-4">
                                     <label class="form-label" for="select2">Select2 搜尋單選</label>
                                     <select name="select2[]" id="select2" class="-select2 -single form-select" data-placeholder="請單選">
+                                        <option value="" selected disabled>請選擇</option>
                                         <option value="1">item 1</option>
                                         <option value="2">item 2</option>
                                         <option value="3">item 3</option>
@@ -310,16 +311,22 @@
                                     <legend class="col-form-label p-0 mb-2">Checkbox</legend>
                                     <div class="px-1 pt-1">
                                         <div class="form-check form-check-inline">
-                                            <input class="form-check-input" name="checkbox" type="checkbox" >
-                                            <label class="form-check-label">Default</label>
+                                            <label class="form-check-label">
+                                                <input class="form-check-input" name="checkbox" type="checkbox" >
+                                                Default
+                                            </label>
                                         </div>
                                         <div class="form-check form-check-inline">
-                                            <input class="form-check-input" name="checkbox" type="checkbox" checked>
-                                            <label class="form-check-label">Checked</label>
+                                            <label class="form-check-label">
+                                                <input class="form-check-input" name="checkbox" type="checkbox" checked>
+                                                Checked
+                                            </label>
                                         </div>
                                         <div class="form-check form-check-inline">
-                                            <input class="form-check-input" name="checkbox" type="checkbox" disabled>
-                                            <label class="form-check-label">Disabled</label>
+                                            <label class="form-check-label">
+                                                <input class="form-check-input" name="checkbox" type="checkbox" disabled>
+                                                Disabled
+                                            </label>
                                         </div>
                                     </div>
                                 </fieldset>
@@ -327,16 +334,22 @@
                                     <legend class="col-form-label p-0 mb-2">Radio</legend>
                                     <div class="px-1 pt-1">
                                         <div class="form-check form-check-inline">
-                                            <input class="form-check-input" name="radio" type="radio" >
-                                            <label class="form-check-label">Default</label>
+                                            <label class="form-check-label">
+                                                <input class="form-check-input" name="radio" type="radio" >
+                                                Default
+                                            </label>
                                         </div>
                                         <div class="form-check form-check-inline">
-                                            <input class="form-check-input" name="radio" type="radio" checked>
-                                            <label class="form-check-label">Checked</label>
+                                            <label class="form-check-label">
+                                                <input class="form-check-input" name="radio" type="radio" checked>
+                                                Checked
+                                            </label>
                                         </div>
                                         <div class="form-check form-check-inline">
-                                            <input class="form-check-input" name="radio" type="radio" disabled>
-                                            <label class="form-check-label">Disabled</label>
+                                            <label class="form-check-label">
+                                                <input class="form-check-input" name="radio" type="radio" disabled>
+                                                Disabled
+                                            </label>
                                         </div>
                                     </div>
                                 </fieldset>
