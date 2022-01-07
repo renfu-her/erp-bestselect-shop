@@ -97,6 +97,7 @@ Breadcrumbs::for('cms.purchase.create', function (BreadcrumbTrail $trail) {
 // 編輯採購單
 Breadcrumbs::for('cms.purchase.edit', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.purchase.index');
+    $trail->push('單號：' . $value);
     $trail->push('編輯');
 });
 
