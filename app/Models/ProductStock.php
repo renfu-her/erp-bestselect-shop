@@ -29,14 +29,13 @@ class ProductStock extends Model
         }
 
         return DB::transaction(function () use ($product_style_id, $qty, $event, $event_id, $note) {
+            $style = ProductStyle::where('id', $product_style_id)->select('in_stock')->get()->first();
+            if ($style['in_stock'] + $qty < 0) {
+                return ['success' => 0, 'error_msg' => '數量超出範圍'];
+            }
 
             ProductStyle::where('id', $product_style_id)
                 ->update(['in_stock' => DB::raw("in_stock + $qty")]);
-
-            if (ProductStyle::where('id', $product_style_id)->where('in_stock', '<', 0)->get()->first()) {
-                DB::rollBack();
-                return ['success' => 0, 'error_msg' => '數量超出範圍'];
-            }
 
             self::create(['product_style_id' => $product_style_id,
                 'qty' => $qty,
@@ -62,36 +61,18 @@ class ProductStock extends Model
 
             foreach ($combos as $combo) {
                 $_qty = $qty * -1 * $combo['qty'];
-
-                ProductStyle::where('id', $combo['id'])
-                    ->update(['in_stock' => DB::raw("in_stock + $_qty")]);
-
-                if (ProductStyle::where('id', $combo['id'])->where('in_stock', '<', 0)->get()->first()) {
+                $re = self::stockChange($combo['id'], $_qty, 'combo', $style_id);
+                if (!$re['success']) {
                     DB::rollBack();
-                    return ['success' => 0, 'error_msg' => '數量超出範圍'];
+                    return $re;
                 }
-
-                self::create(['product_style_id' => $combo['id'],
-                    'qty' => $_qty,
-                    'event' => 'combo',
-                    'event_id' => $style_id,
-                    'note' => ($qty < 0) ? '拆包' : '合包']);
-
             }
 
-            ProductStyle::where('id', $style_id)
-                ->update(['in_stock' => DB::raw("in_stock + $qty")]);
-
-            if (ProductStyle::where('id', $style_id)->where('in_stock', '<', 0)->get()->first()) {
+            $re = self::stockChange($style_id, $qty, 'combo');
+            if (!$re['success']) {
                 DB::rollBack();
-                return ['success' => 0, 'error_msg' => '數量超出範圍'];
+                return $re;
             }
-
-            self::create(['product_style_id' => $style_id,
-                'qty' => $qty,
-                'event' => 'combo',
-                'event_id' => null,
-                'note' => '']);
 
             return ['success' => 1];
 

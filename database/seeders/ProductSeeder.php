@@ -52,9 +52,9 @@ class ProductSeeder extends Seeder
         $id = ProductStyle::createComboStyle($re['id'], '五包組', 1);
         ProductStyleCombo::createCombo($id, 1, 2);
         ProductStyleCombo::createCombo($id, 2, 1);
+       
         
-        
-     //  dd(ProductStock::comboProcess(3,-20));
+      // dd(ProductStock::comboProcess(3,-130));
         
 
     }
