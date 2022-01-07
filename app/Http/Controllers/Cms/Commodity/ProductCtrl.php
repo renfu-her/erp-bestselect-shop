@@ -152,7 +152,7 @@ class ProductCtrl extends Controller
 
         $request->validate([
             'files.*' => 'max:5000|mimes:jpg,jpeg,png,bmp',
-            'url' => ["unique:App\Models\Product,url,$id,id", 'nullable'],
+          //  'url' => ["unique:App\Models\Product,url,$id,id", 'nullable'],
             'title' => 'required',
             'has_tax' => 'required',
             'active_sdate' => 'date|nullable',
