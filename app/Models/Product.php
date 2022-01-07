@@ -42,6 +42,12 @@ class Product extends Model
 
             }
 
+            $url = $url ? $url : $title;
+
+            if (self::where('url', $url)->get()->first()) {
+                $url = $url . "-" . time();
+            }
+
             $sku = $prefix . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
                     ->withTrashed()
                     ->get()
@@ -84,6 +90,12 @@ class Product extends Model
         $active_edate = null,
         $supplier,
         $has_tax = 0) {
+
+        $url = $url ? $url : $title;
+
+        if (self::where('url', $url)->where('id', '<>', $id)->get()->first()) {
+            $url = $url . "-" . time();
+        }
 
         self::where('id', $id)->update([
             "title" => $title,
