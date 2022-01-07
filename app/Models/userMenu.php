@@ -17,7 +17,7 @@ return
                 "route_name" => "cms.purchase.index",
             ],
             [
-                "title" => "組裝組合包",
+                "title" => "組合包組裝",
                 "controller_name" => "ComboPurchaseCtrl",
                 "route_name" => "cms.combo-purchase.index",
             ],

@@ -22,7 +22,7 @@
     </div>
 
     <div class="table-responsive tableOverBox">
-        <table class="table tableList mb-0">
+        <table class="table tableList">
             <thead>
                 <tr>
                     <th scope="col">快遞物流名稱</th>

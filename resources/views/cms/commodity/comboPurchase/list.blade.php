@@ -1,0 +1,79 @@
+@extends('layouts.main')
+@section('sub-content')
+<h2 class="mb-4">組合包組裝</h2>
+
+<form action="{{ Route('cms.combo-purchase.index') }}" method="GET">
+    <div class="card shadow p-4 mb-4">
+        <h6>搜尋條件</h6>
+        <div class="row">
+            <div class="col-12 col-md-6 mb-3">
+                <label class="form-label">SKU</label>
+                <input class="form-control" type="text" placeholder="SKU">
+            </div>
+            <div class="col-12 col-md-6 mb-3">
+                <label class="form-label">名稱</label>
+                <input class="form-control" type="text" placeholder="組合包名稱 或 組合款式名稱">
+            </div>
+        </div>
+        
+        <div class="col">
+            <button type="submit" class="btn btn-primary px-4">搜尋</button>
+        </div>
+    </div>
+</form>
+
+<div class="card shadow p-4 mb-4">
+    <div class="row justify-content-end mb-4">
+        <div class="col-auto">
+            顯示
+            <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
+                @foreach (config('global.dataPerPage') as $value)
+                    <option value="{{ $value }}" @if ($data_per_page == $value) selected @endif>{{ $value }}</option>
+                @endforeach
+            </select>
+            筆
+        </div>
+    </div>
+    
+    <div class="table-responsive tableOverBox">
+        <table class="table table-striped tableList">
+            <thead>
+                <tr>
+                    <th scope="col" style="width:10%">#</th>
+                    <th scope="col">[組合包] 款式名稱</th>
+                    <th scope="col">SKU</th>
+                    <th scope="col">庫存</th>
+                    <th scope="col" class="text-center">組裝/拆包</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{-- @foreach ($dataList as $key => $data) --}}
+                    <tr>
+                        <th scope="row">1</th>
+                        <td>[組合包商品] 五包組</td>
+                        <td>P22010500201</td>
+                        <td>10</td>
+                        <td class="text-center">
+                            <a type="button" data-bs-toggle="tooltip" title="組裝/拆包"
+                                href="{{ Route('cms.combo-purchase.edit', ['id' => 2, 'sid' => 3], true) }}"
+                                class="icon icon-btn fs-5 text-primary rounded-circle border-0 p-0">
+                                <i class="bi bi-plus-slash-minus"></i>
+                            </a>
+                        </td>
+                    </tr>
+                {{-- @endforeach --}}
+            </tbody>
+        </table>
+    </div>
+</div>
+@endsection
+@once
+    @push('sub-styles')
+        <style>
+        </style>
+    @endpush
+    @push('sub-scripts')
+        <script>
+        </script>
+    @endpush
+@endOnce
