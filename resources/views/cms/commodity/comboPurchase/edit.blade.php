@@ -13,12 +13,12 @@
                         <button class="btn btn-danger -minus" type="button" data-bs-toggle="tooltip" title="拆包">
                             <i class="bi bi-dash-lg"></i>
                         </button>
-                        <input type="number" class="form-control text-center  @error('status') is-invalid  @enderror"
+                        <input type="number" class="form-control text-center @error('status') is-invalid  @enderror"
                             name="qty" value="0" min="-{{ $style->in_stock }}">
                         <button class="btn btn-success -plus" type="button" data-bs-toggle="tooltip" title="組裝">
                             <i class="bi bi-plus-lg"></i>
                         </button>
-                        <div class="invalid-feedback">
+                        <div class="invalid-feedback text-center">
                             @error('status')
                                 {{ $message }}
                             @enderror
@@ -50,7 +50,7 @@
                                 <td>{{ $combo->spec }}</td>
                                 <td data-td="qty">{{ $combo->qty }}</td>
                                 <td data-td="stock" class="text-center border-start border-end fw-bold fs-5">5</td>
-                                <td data-td="count" class="text-center fs-5"></td>
+                                <td data-td="count" class="text-center fs-5 text-primary">5</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -82,7 +82,7 @@
     @push('sub-scripts')
         <script>
             const min_stock = Number($('input[name="qty"]').attr('min'));
-            countStock();
+            
             // 數量異動 input
             $('input[name="qty"]').on('change', function() {
                 countStock();
@@ -101,6 +101,7 @@
 
             function countStock() {
                 const m_qty = Number($('input[name="qty"]').val());
+                let checkCount = true;
 
                 $('tbody td[data-td="qty"]').each(function(index, element) {
                     // element == this
@@ -110,19 +111,20 @@
                         const remainder = stock - (qty * m_qty);
                         $(element).siblings('td[data-td="count"]').text(remainder);
                         if (remainder < 0) {
-                            $(element).siblings('td[data-td="count"]').removeClass('text-primary').addClass(
-                                'text-danger');
-                            $('form button[type="submit"]').prop('disabled', true);
+                            $(element).siblings('td[data-td="count"]').removeClass('text-primary')
+                                .addClass('text-danger');
+                            checkCount &= false;
                         } else {
-                            $(element).siblings('td[data-td="count"]').removeClass('text-danger').addClass(
-                                'text-primary');
-                            $('form button[type="submit"]').prop('disabled', false);
+                            $(element).siblings('td[data-td="count"]').removeClass('text-danger')
+                                .addClass('text-primary');
                         }
                     }
                 });
 
-                if (m_qty < min_stock) {
+                if (m_qty < min_stock || !checkCount) {
                     $('form button[type="submit"]').prop('disabled', true);
+                } else {
+                    $('form button[type="submit"]').prop('disabled', false);
                 }
             }
         </script>
