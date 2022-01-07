@@ -330,17 +330,17 @@
                     dlvCost.removeClass('bg-danger');
                     atMost.removeClass('bg-danger');
 
-                    if (parseInt(dlvFee.val()) > 0) {
+                    if (parseInt(dlvFee.val()) < 0) {
                         toast.show('運費不能少於0', {title: '錯誤訊息', type: 'danger'});
                         dlvFee.addClass('bg-danger');
                         event.preventDefault();
                     }
-                    if (parseInt(dlvCost.val()) > 0) {
+                    if (parseInt(dlvCost.val()) < 0) {
                         toast.show('成本不能少於0', {title: '錯誤訊息', type: 'danger'});
                         dlvCost.addClass('bg-danger');
                         event.preventDefault();
                     }
-                    if (parseInt(atMost.val()) > 0) {
+                    if (parseInt(atMost.val()) < 0) {
                         toast.show('最多件數不能少於0', {title: '錯誤訊息', type: 'danger'});
                         atMost.addClass('bg-danger');
                         event.preventDefault();
