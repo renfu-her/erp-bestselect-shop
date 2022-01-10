@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Cms;
 
 use App\Http\Controllers\Controller;
-use App\Models\PayingOrder;
+use App\Models\Depot;
 use App\Models\PayingOrders;
+use App\Models\ProductStock;
 use App\Models\Purchase;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseItem;
@@ -274,14 +275,56 @@ class PurchaseCtrl extends Controller
     public function inbound(Request $request, $id) {
         $inboundList = PurchaseInbound::getInboundList($id)->get()->toArray();
         $inboundOverviewList = PurchaseInbound::getOverviewInboundList($id)->get()->toArray();
+
+        $depotList = Depot::all()->toArray();
         return view('cms.commodity.purchase.inbound', [
             'id' => $id,
             'inboundList' => $inboundList,
             'inboundOverviewList' => $inboundOverviewList,
+            'depotList' => $depotList,
+            'formAction' => Route('cms.purchase.store_inbound', ['id' => $id,]),
         ]);
     }
 
-    public function inboundDestroy(Request $request, $id)
+    public function storeInbound(Request $request, $id)
+    {
+//        dd($request->all());
+        $request->validate([
+            'depot_id' => 'required|numeric',
+            'product_style_id.*' => 'required|numeric',
+            'inbound_date.*' => 'required|string',
+            'inbound_num.*' => 'required|numeric|min:1',
+            'error_num.*' => 'required|numeric|min:0',
+            'status.*' => 'required|numeric|min:0',
+            'expiry_date.*' => 'required|string',
+        ]);
+        $depot_id = $request->input('depot_id');
+        $inboundItemReq = $request->only('product_style_id', 'inbound_date', 'inbound_num', 'error_num', 'inbound_memo', 'status', 'expiry_date', 'inbound_memo');
+
+        if (isset($inboundItemReq['product_style_id'])) {
+            foreach ($inboundItemReq['product_style_id'] as $key => $val) {
+                $purchaseInboundID = PurchaseInbound::createInbound(
+                    $id,
+                    $inboundItemReq['product_style_id'][$key],
+                    $inboundItemReq['expiry_date'][$key],
+                    $inboundItemReq['status'][$key],
+                    $inboundItemReq['inbound_date'][$key],
+                    $inboundItemReq['inbound_num'][$key],
+                    $inboundItemReq['error_num'][$key],
+                    $depot_id,
+                    $request->user()->id,
+                    $inboundItemReq['inbound_memo'][$key]
+                );
+                ProductStock::stockChange($inboundItemReq['product_style_id'][$key], $inboundItemReq['inbound_num'][$key], 'inbound', $purchaseInboundID);
+            }
+        }
+        wToast(__('Add finished.'));
+        return redirect(Route('cms.purchase.inbound', [
+            'id' => $id,
+        ]));
+    }
+
+    public function deleteInbound(Request $request, $id)
     {
         PurchaseInbound::where('id', '=', $id)->delete();
         wToast(__('Delete finished.'));

@@ -83,7 +83,7 @@ class PurchaseItem extends Model
             ->orderByDesc('order.id')
             ->limit(1);
 
-        $tempInboundSql = 'select max(inbound_num) as inbound_num, purchase_item_id from pcs_purchase_inbound where deleted_at is null group by purchase_item_id';
+        $tempInboundSql = 'select sum(pcs_purchase_inbound.inbound_num) as inbound_num, purchase_id, product_style_id from pcs_purchase_inbound where deleted_at is null group by purchase_id, product_style_id';
 
 		//入庫 有入庫紀錄且結單日期為空
 		//已結單 結單日期有值
@@ -97,7 +97,8 @@ class PurchaseItem extends Model
         $result = DB::table('pcs_purchase as purchase')
             ->leftJoin('pcs_purchase_items as items', 'purchase.id', '=', 'items.purchase_id')
             ->leftJoin(DB::raw('(' . $tempInboundSql . ') as inbound'), function($join) {
-                $join->on('items.id', '=', 'inbound.purchase_item_id');
+                $join->on('items.purchase_id', '=', 'inbound.purchase_id');
+                $join->on('items.product_style_id', '=', 'inbound.product_style_id');
             })
             ->leftJoin('usr_users as user', 'user.id', '=', 'purchase.purchase_user_id')
             ->leftJoin('prd_suppliers as supplier', 'supplier.id', '=', 'purchase.supplier_id')
