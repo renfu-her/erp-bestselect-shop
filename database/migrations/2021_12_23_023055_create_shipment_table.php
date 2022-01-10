@@ -25,8 +25,8 @@ class CreateShipmentTable extends Migration
             $table->integer('min_price')->comment('最少消費金額');
             $table->integer('max_price')->comment('最多消費金額');
             $table->integer('dlv_fee')->comment('運費');
-            $table->integer('dlv_cost')->comment('成本');
-            $table->integer('at_most')->comment('最多件數');
+            $table->integer('dlv_cost')->nullable()->comment('成本');
+            $table->integer('at_most')->nullable()->comment('最多件數');
             $table->string('method')->comment('出貨方式');
             $table->string('is_above')->comment('以上,未滿');
             $table->string('note')->nullable()->comment('說明');

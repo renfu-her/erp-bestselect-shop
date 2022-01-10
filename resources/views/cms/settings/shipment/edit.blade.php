@@ -79,8 +79,8 @@
                         <th scope="col">以上/未滿 <span class="text-danger">*</span></th>
                         <th scope="col">最多消費金額 <span class="text-danger">*</span></th>
                         <th scope="col">運費 <span class="text-danger">*</span></th>
-                        <th scope="col">成本 <span class="text-danger">*</span></th>
-                        <th scope="col">最多件數 <span class="text-danger">*</span></th>
+                        <th scope="col">成本</th>
+                        <th scope="col">最多件數</th>
                     </tr>
                     </thead>
                     <tbody class="-appendClone">
