@@ -147,7 +147,7 @@ class PurchaseInbound extends Model
             ->selectRaw('sum(items.num) as num')
             ->selectRaw('(inbound.inbound_num) as inbound_num')
             ->selectRaw('(inbound.error_num) as error_num')
-            ->selectRaw('( COALESCE(sum(items.num), 0) - COALESCE((inbound.inbound_num), 0) ) AS sould_enter_num')
+            ->selectRaw('( COALESCE(sum(items.num), 0) - COALESCE((inbound.inbound_num), 0) ) AS should_enter_num')
             ->whereNull('purchase.deleted_at')
             ->whereNull('items.deleted_at')
             ->where('purchase.id', '=', $purchase_id)

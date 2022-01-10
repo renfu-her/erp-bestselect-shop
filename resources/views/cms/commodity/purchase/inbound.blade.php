@@ -73,7 +73,7 @@
                                     <td data-td="product_title">{{ old('product_title.'. $styleKey, $styleVal->product_title?? '') }}</td>
                                     <td data-td="style_title">{{ old('style_title.'. $styleKey, $styleVal->style_title?? '') }}</td>
                                     <td data-td="sku">{{ old('sku.'. $styleKey, $styleVal->sku?? '') }}</td>
-                                    <td data-td="sould_enter_num">{{ old('sould_enter_num.'. $styleKey, $styleVal->sould_enter_num?? '') }}</td>
+                                    <td data-td="should_enter_num">{{ old('should_enter_num.'. $styleKey, $styleVal->should_enter_num?? '') }}</td>
                                     <td>
                                         <input type="number" class="form-control form-control-sm @error('inbound_num.' . $styleKey) is-invalid @enderror"
                                                name="inbound_num[]" value="{{ old('inbound_num.'. $styleKey, '') }}" min="1" required/>
