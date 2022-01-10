@@ -14,43 +14,53 @@
             </div>
             <div class="col-12 col-sm-6 mb-3">
                 <label class="form-label">採購人員</label>
-                <select class="form-select -select2 -multiple" multiple="multiple" name="" aria-label="採購人員" data-placeholder="多選">
+                <select class="form-select -select2 -multiple" multiple name="" aria-label="採購人員" data-placeholder="多選">
                     <option value="1">人員1</option>
                     <option value="2">人員2</option>
                     <option value="3">人員3</option>
                 </select>
             </div>
             <div class="col-12 col-md-6 mb-3">
-                <label class="form-label" for="region">入庫狀態</label>
+                <label class="form-label" for="status_region">入庫狀態</label>
                 <div class="input-group">
-                    <select id="region" class="form-select">
+                    <select id="status_region" class="form-select">
                         <option value="" selected disabled>請選擇</option>
-                        <option value="1">尚未入庫</option>
-                        <option value="2">正常</option>
-                        <option value="3">短缺</option>
+                        <option value="0">尚未入庫</option>
+                        <option value="1">正常</option>
+                        <option value="2">短缺</option>
                         <option value="3">溢出</option>
                     </select>
-                    <button id="clear_region" class="btn btn-outline-secondary" type="button" data-bs-toggle="tooltip" title="清空">
+                    <button id="clear_status_region" class="btn btn-outline-secondary" type="button" data-bs-toggle="tooltip" title="清空">
                         <i class="bi bi-x-lg"></i>
                     </button>
                 </div>
+                <input type="hidden" name="status">
                 <div id="chip-group-status" class="d-flex flex-wrap bd-highlight chipGroup"></div>
             </div>
             <div class="col-12 col-sm-6 mb-3">
                 <label class="form-label">入庫人員</label>
-                <select class="form-select -select2 -multiple" multiple="multiple" name="" aria-label="入庫人員" data-placeholder="多選">
+                <select class="form-select -select2 -multiple" multiple name="" aria-label="入庫人員" data-placeholder="多選">
                     <option value="1">人員1</option>
                     <option value="2">人員2</option>
                     <option value="3">人員3</option>
                 </select>
             </div>
             <div class="col-12 col-sm-6 mb-3">
-                <label class="form-label">廠商名稱</label>
+                <label class="form-label">廠商</label>
                 <select class="form-select -select2 -single" name="" aria-label="採購廠商">
                     <option value="" selected disabled>請選擇</option>
                     <option value="1">廠商 1</option>
                     <option value="2">廠商 2</option>
                     <option value="3">廠商 3</option>
+                </select>
+            </div>
+            <div class="col-12 col-sm-6 mb-3">
+                <label class="form-label">倉庫</label>
+                <select class="form-select" name="" aria-label="倉庫">
+                    <option value="" selected disabled>請選擇</option>
+                    <option value="1">倉庫 1</option>
+                    <option value="2">倉庫 2</option>
+                    <option value="3">倉庫 3</option>
                 </select>
             </div>
             <div class="col-12 col-sm-6 mb-3">
@@ -60,6 +70,19 @@
                     <option value="1">名稱1 (SKU)</option>
                     <option value="2">名稱2 (SKU)</option>
                     <option value="3">名稱3 (SKU)</option>
+                </select>
+            </div>
+            <div class="col-12 col-sm-6 mb-3">
+                <label class="form-label">效期</label>
+                <select class="form-select" name="" aria-label="效期">
+                    <option value="" selected>不限</option>
+                    <option value="90">近90天</option>
+                    <option value="60">近60天</option>
+                    <option value="45">近45天</option>
+                    <option value="30">近30天</option>
+                    <option value="15">近15天</option>
+                    <option value="7">近7天</option>
+                    <option value="-1">已過期</option>
                 </select>
             </div>
             <div class="col-12 mb-3">
@@ -80,6 +103,28 @@
                         @enderror
                         @error('endDate')
                         {{ $message }}
+                        @enderror
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 mb-3">
+                <label class="form-label">入庫起訖日期</label>
+                <div class="input-group has-validation">
+                    <input type="date" class="form-control -startDate @error('') is-invalid @enderror"
+                           name="" value="{{ '' }}" aria-label="採購起始日期" required />
+                    <input type="date" class="form-control -endDate @error('') is-invalid @enderror"
+                           name="" value="{{ '' }}" aria-label="採購結束日期" required />
+                    <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
+                    <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
+                    <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
+                    <button class="btn px-2" data-daysBefore="6" type="button">近7日</button>
+                    <button class="btn" data-daysBefore="month" type="button">本月</button>
+                    <div class="invalid-feedback">
+                        @error('')
+                        {{ '' }}
+                        @enderror
+                        @error('')
+                        {{ '' }}
                         @enderror
                     </div>
                 </div>
@@ -219,7 +264,7 @@
 @endsection
 
 @once
-    @push('scripts')
+    @push('sub-scripts')
         <script>
             // 顯示筆數選擇
             $('#dataPerPageElem').on('change', function(e) {
@@ -228,6 +273,33 @@
             });
             $('#confirm-delete').on('show.bs.modal', function(e) {
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+            });
+        </script>
+        <script>
+            // region
+            let statusRegion = [];
+            let Chips_status = new ChipElem($('#chip-group-status'));
+            $('#status_region').off('change.chips').on('change.chips', function(e) {
+                let status = { val: $(this).val(), title: $(this).children(':selected').text()};
+                if (statusRegion.indexOf(status.val) === -1) {
+                    statusRegion.push(status.val);
+                    Chips_status.add(status.val, status.title);
+                }
+                
+                $(this).val('');
+                $('input[name="status"]').val(statusRegion);
+            });
+            // X btn
+            Chips_status.onDelete = function(id) {
+                statusRegion.splice(statusRegion.indexOf(id), 1);
+                $('input[name="status"]').val(statusRegion);
+            };
+            // 清空
+            $('#clear_status_region').on('click', function(e) {
+                statusRegion = [];
+                Chips_status.clear();
+                $('input[name="status"]').val(statusRegion);
+                e.preventDefault();
             });
         </script>
     @endpush
