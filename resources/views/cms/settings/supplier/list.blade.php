@@ -129,7 +129,7 @@
 @endsection
 
 @once
-    @push('scripts')
+    @push('sub-scripts')
         <script>
             // 顯示筆數選擇
             $('#dataPerPageElem').on('change', function(e) {

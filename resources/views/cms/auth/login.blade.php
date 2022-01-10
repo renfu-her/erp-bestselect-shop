@@ -61,7 +61,7 @@
 
         </style>
     @endpush
-    @push('scripts')
+    @push('sub-scripts')
         <script>
 
 
