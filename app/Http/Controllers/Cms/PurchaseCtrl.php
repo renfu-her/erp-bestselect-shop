@@ -272,12 +272,14 @@ class PurchaseCtrl extends Controller
     }
 
     public function inbound(Request $request, $id) {
+        $purchaseData = Purchase::getPurchase($id)->first();
         $inboundList = PurchaseInbound::getInboundList($id)->get()->toArray();
         $inboundOverviewList = PurchaseInbound::getOverviewInboundList($id)->get()->toArray();
         return view('cms.commodity.purchase.inbound', [
             'id' => $id,
             'inboundList' => $inboundList,
             'inboundOverviewList' => $inboundOverviewList,
+            'breadcrumb_data' => $purchaseData->purchase_sn,
         ]);
     }
 

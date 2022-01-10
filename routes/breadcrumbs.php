@@ -85,10 +85,15 @@ Breadcrumbs::for('cms.purchase.create', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.purchase.index');
     $trail->push('新增採購單');
 });
-// 編輯採購單
+// 編輯 - 採購單資訊
 Breadcrumbs::for('cms.purchase.edit', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.purchase.index');
-    $trail->push('[單號：' . $value . '] 編輯');
+    $trail->push('[單號：' . $value . '] 採購單資訊');
+});
+// 編輯 - 入庫審核
+Breadcrumbs::for('cms.purchase.inbound', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.purchase.index');
+    $trail->push('[單號：' . $value . '] 入庫審核');
 });
 
 // 組合包組裝

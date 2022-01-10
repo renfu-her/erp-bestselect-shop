@@ -21,7 +21,7 @@
 </div>
 
 {{-- Tabs Navbar --}}
-<ul class="nav nav-tabs pm_navbar" role="tablist">
+<ul class="nav pm_navbar" role="tablist">
     <li class="nav-item">
         <a href="{{ Route('cms.product.edit', ['id' => $id], true) }}"
             class="nav-link {{ isActive('edit', $route_name) }}">商品資訊</a>

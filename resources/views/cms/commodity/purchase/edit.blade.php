@@ -1,8 +1,8 @@
 @extends('layouts.main')
 @section('sub-content')
     <h2 class="mb-3">@if ($method === 'create') 新增@else 編輯@endif 採購單</h2>
-    @if ($method != 'create')
-        <h2 class="mb-4"> <a href="{{ Route('cms.purchase.inbound', ['id' => $id]) }}">入庫</a></h2>
+    @if ($method === 'edit')
+        <x-b-pch-navi :id="$id"></x-b-pch-navi>
     @endif
 
 
@@ -122,7 +122,7 @@
                                            name="num[]" value="{{ old('num.'. $psItemKey, $psItemVal['num']?? '') }}" min="1" required/>
                                 </td>
                                 <td>
-                                    <div class="input-group input-group-sm flex-nowrap has-validation">
+                                    <div class="input-group input-group-sm flex-nowrap">
                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                                         <input type="number" class="form-control form-control-sm @error('price.' . $psItemKey) is-invalid @enderror"
                                                name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal['price']?? '') }}" min="0" required/>

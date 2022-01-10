@@ -2,7 +2,7 @@
 @section('sub-content')
     <div>
         <h2 class="mb-3">@if ($method == 'create') 新增商品 @else {{ $product->title }} @endif </h2>
-        @if ($method == 'edit')
+        @if ($method === 'edit')
             <x-b-prd-navi :product="$product"></x-b-prd-navi>
         @endif
     </div>

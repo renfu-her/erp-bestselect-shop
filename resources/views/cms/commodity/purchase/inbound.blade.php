@@ -1,7 +1,7 @@
 @extends('layouts.main')
 @section('sub-content')
-
-    <h2 class="mb-3">入庫 <a href="{{ Route('cms.purchase.edit', ['id' => $id]) }}">回採購單</a></h2>
+    <h2 class="mb-3">入庫審核</h2>
+    <x-b-pch-navi :id="$id"></x-b-pch-navi>
 
     {{var_dump($inboundList)}}
     <BR><BR><BR>

@@ -16,6 +16,7 @@ use App\View\Components\Editor as B_Editor;
 use App\View\Components\Modal as B_Modal;
 use App\View\Components\Toast as B_Toast;
 use App\View\Components\product\ProductNavi;
+use App\View\Components\product\PurchaseNavi;
 
 class ComponentServiceProvider extends ServiceProvider
 {
@@ -48,6 +49,7 @@ class ComponentServiceProvider extends ServiceProvider
         Blade::component('b-modal', B_Modal::class);
         Blade::component('b-toast', B_Toast::class);
         Blade::component('b-prd-navi', ProductNavi::class);
+        Blade::component('b-pch-navi', PurchaseNavi::class);
         
     }
 }

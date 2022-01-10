@@ -434,23 +434,34 @@ input.form-control[type="month"] {
 .pm_navbar {
   border-bottom: 0px;
 
-  &.nav-tabs .nav-link.active,
-  &.nav-tabs .nav-link.active:focus,
-  &.nav-tabs .nav-link.active:hover {
-    background-color: transparent;
-    border-width: 0;
-    border-bottom: 3px solid #999999;
-    margin-bottom: -2px;
-    color: #007bff;
-  }
-  &.nav-tabs .nav-link:focus,
-  &.nav-tabs .nav-link:hover {
-    border-color: transparent;
-    border-bottom-color: $nav-tabs-border-color;
-  }
+  .nav-link {
+    border-top-left-radius: $nav-tabs-border-radius;
+    border-top-right-radius: $nav-tabs-border-radius;
 
-  a.nav-link {
-    color: #999999;
+    &:not(.disabled) {
+      color: #444444;
+    }
+
+    &.active,
+    &.active:focus,
+    &.active:hover {
+      background-color: transparent;
+      border-width: 0;
+      border-bottom: 3px solid #999999;
+      margin-bottom: -2px;
+      color: #007bff;
+    }
+
+    &:hover {
+      color: $nav-link-hover-color;
+      background-color: $gray-300;
+    }
+
+    &:focus,
+    &:hover {
+      border-color: transparent;
+      border-bottom-color: $nav-tabs-border-color;
+    }
   }
 
   & + .narbarBottomLine {
