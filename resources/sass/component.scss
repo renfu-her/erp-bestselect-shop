@@ -109,6 +109,9 @@
 /* 
    select2
 */
+select.-select2 {
+    display: none;
+}
 .select2-container--default {
     // 基本設定
     .select2-selection.pillbox {

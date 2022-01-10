@@ -10,7 +10,7 @@
         <div class="row">
             <div class="col-12 col-sm-6 mb-3">
                 <label class="form-label">自訂群組</label>
-                <select name="" class="form-select -select2 -multiple" data-placeholder="請選擇自訂群組" multiple="multiple" hidden>
+                <select name="" class="form-select -select2 -multiple" data-placeholder="請選擇自訂群組" multiple hidden>
                     <option value="1">item 1</option>
                     <option value="2">item 2</option>
                     <option value="3">item 3</option>
@@ -18,7 +18,7 @@
             </div>
             <div class="col-12 col-sm-6 mb-3">
                 <label class="form-label">任選折扣群組</label>
-                <select name="" class="form-select -select2 -multiple" data-placeholder="請選擇任選折扣群組" multiple="multiple" hidden>
+                <select name="" class="form-select -select2 -multiple" data-placeholder="請選擇任選折扣群組" multiple hidden>
                     <option value="1">item 1</option>
                     <option value="2">item 2</option>
                     <option value="3">item 3</option>

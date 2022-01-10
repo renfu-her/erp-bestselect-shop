@@ -250,11 +250,12 @@
                                             <i class="bi bi-x-lg"></i>
                                         </button>
                                     </div>
+                                    <input type="hidden" name="regions_value">
                                     <div id="chip-group-regions" class="d-flex flex-wrap bd-highlight chipGroup"></div>
                                 </div>
                                 <div class="col-4">
                                     <label class="form-label" for="select2-multiple">Select2 搜尋多選</label>
-                                    <select name="select2[]" id="select2-multiple" multiple="multiple" class="-select2 -multiple form-select" data-placeholder="可多選">
+                                    <select name="select2[]" id="select2-multiple" multiple class="-select2 -multiple form-select" data-placeholder="可多選">
                                         <option value="1">item 1</option>
                                         <option value="2">item 2</option>
                                         <option value="3">item 3</option>
@@ -551,15 +552,18 @@
                 }
                 
                 $(this).val('');
+                $('input[name="regions_value"]').val(selectRegion);
             });
             // X btn
             Chips_regions.onDelete = function(id) {
                 selectRegion.splice(selectRegion.indexOf(id), 1);
+                $('input[name="regions_value"]').val(selectRegion);
             };
             // 清空
             $('#clear_region').on('click', function(e) {
                 selectRegion = [];
                 Chips_regions.clear();
+                $('input[name="regions_value"]').val(selectRegion);
                 e.preventDefault();
             });
 

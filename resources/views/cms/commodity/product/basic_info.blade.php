@@ -90,7 +90,7 @@
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label" for="supplier">廠商 <span class="text-danger">*</span></label>
-                    <select name="supplier[]" id="supplier" multiple="multiple" hidden
+                    <select name="supplier[]" id="supplier" multiple hidden
                         class="-select2 -multiple form-select @error('supplier')is-invalid @enderror"
                         data-placeholder="請選擇廠商" required>
                         @foreach ($suppliers as $key => $supplier)
