@@ -93,7 +93,8 @@ class PurchaseSeeder extends Seeder
         );
 
         $purchaseInbound1 = PurchaseInbound::createInbound(
-            $purchaseItemID1,
+            $purchaseID1,
+            $product_style_id1,
             '2022-12-14 00:00:00',
             InboundStatus::not_yet()->value,
             null,
@@ -102,11 +103,11 @@ class PurchaseSeeder extends Seeder
             1,
             5,
             null,
-            null,
         );
         ProductStock::stockChange($product_style_id1, 0, 'purchase', $purchaseInbound1, InboundStatus::not_yet()->description);
         $purchaseInbound2 = PurchaseInbound::createInbound(
-            $purchaseItemID1,
+            $purchaseID1,
+            $product_style_id1,
             '2022-12-14 00:00:00',
             InboundStatus::normal()->value,
             '2022-01-05 00:00:00',
@@ -114,12 +115,12 @@ class PurchaseSeeder extends Seeder
             1,
             1,
             5,
-            '2022-01-05 00:00:00',
             '入庫OK 1物品退換貨',
         );
         ProductStock::stockChange($product_style_id1, 99, 'purchase', $purchaseInbound1, InboundStatus::shortage()->description);
         $purchaseInbound3 = PurchaseInbound::createInbound(
-            $purchaseItemID1,
+            $purchaseID1,
+            $product_style_id1,
             '2022-12-14 00:00:00',
             InboundStatus::overflow()->value,
             '2022-01-06 00:00:00',
@@ -127,7 +128,6 @@ class PurchaseSeeder extends Seeder
             0,
             1,
             5,
-            '2022-01-05 00:00:00',
             '退換貨',
         );
         ProductStock::stockChange($product_style_id1, 1, 'purchase', $purchaseInbound1, InboundStatus::normal()->description);
