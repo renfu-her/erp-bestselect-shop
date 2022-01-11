@@ -229,7 +229,7 @@
             <form method="post" action="{{ $formActionClose }}">
                 @method('POST')
                 @csrf
-                <button type="submit" class="btn btn-danger btn-ok">確認並結案</button>
+                <button type="submit" class="btn btn-primary btn-ok">確認並結案</button>
             </form>
         </x-slot>
     </x-b-modal>
