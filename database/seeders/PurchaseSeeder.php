@@ -130,19 +130,6 @@ class PurchaseSeeder extends Seeder
             5,
             '退換貨',
         );
-        PurchaseInbound::updateInbound(
-            $purchaseInbound2,
-            '2022-12-14 00:00:00',
-            InboundStatus::shortage()->value,
-            '2022-01-06 00:00:00',
-            10,
-            0,
-            1,
-            5,
-            '2022-01-06 00:00:00',
-            0,
-            '廠商贈送',
-        );
 
         $sellCount = 2;
         PurchaseInbound::sellInbound(

@@ -29,44 +29,11 @@ class PurchaseInbound extends Model
             "inbound_user_id" => $inbound_user_id,
             "memo" => $memo
         ])->id;
-        ProductStock::stockChange($product_style_id, 0, StockEvent::inbound()->value, $id);
+        ProductStock::stockChange($product_style_id, $inbound_num, StockEvent::inbound()->value, $id);
 
         return $id;
     }
 
-    //入庫 更新資料
-    public static function updateInbound($id, $expiry_date = null, $status = 0, $inbound_date = null, $inbound_num = 0, $error_num = 0, $depot_id = null, $inbound_user_id = null, $close_date = null, $sale_num = 0, $memo = null)
-    {
-        return DB::transaction(function () use (
-            $id,
-            $expiry_date,
-            $status,
-            $inbound_date,
-            $inbound_num,
-            $error_num,
-            $depot_id,
-            $inbound_user_id,
-            $close_date,
-            $sale_num,
-            $memo
-        ) {
-            self::where('id', '=', $id)->update([
-                'expiry_date' => $expiry_date,
-                'status' => $status,
-                'inbound_date' => $inbound_date,
-                'inbound_num' => $inbound_num,
-                'error_num' => $error_num,
-                'depot_id' => $depot_id,
-                'inbound_user_id' => $inbound_user_id,
-                'close_date' => $close_date,
-                'sale_num' => $sale_num,
-                'memo' => $memo
-
-            ]);
-
-            return $id;
-        });
-    }
     //售出 更新資料
     public static function sellInbound($id, $sale_num = 0)
     {
