@@ -173,7 +173,7 @@
                                 <td>{{ $inbound->inbound_num }}</td>
                                 <td>{{ $inbound->error_num }}</td>
                                 <td>{{ $inbound->expiry_date }}</td>
-                                {{ $status = App\Enums\Purchase\InboundStatus::getDescription($inbound->status) }}
+                                <td style="display: none">{{$status = App\Enums\Purchase\InboundStatus::getDescription($inbound->status)}}</td>
                                 <td @class(['text-danger' => $status === '短缺' || $status === '溢出'])>{{ $status }}</td>
                                 <td>{{ $inbound->inbound_memo }}</td>
                             </tr>
