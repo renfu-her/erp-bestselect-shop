@@ -10,7 +10,7 @@
         @error('id')
         <div class="alert alert-danger mt-3">{{ $message }}</div>
         @enderror
-        
+
         <div class="card shadow p-4 mb-4">
             <h6>採購單入庫總覽</h6>
             <div class="table-responsive tableOverBox">
@@ -137,7 +137,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="card shadow p-4 mb-4">
             <h6>歷史入庫資料</h6>
             <div class="table-responsive tableOverBox">
@@ -173,7 +173,8 @@
                                 <td>{{ $inbound->inbound_num }}</td>
                                 <td>{{ $inbound->error_num }}</td>
                                 <td>{{ $inbound->expiry_date }}</td>
-                                <td @class(['text-danger' => $inbound->status === '短缺' || $inbound->status === '溢出'])>{{ $inbound->status }}</td>
+                                {{ $status = App\Enums\Purchase\InboundStatus::getDescription($inbound->status) }}
+                                <td @class(['text-danger' => $status === '短缺' || $status === '溢出'])>{{ $status }}</td>
                                 <td>{{ $inbound->inbound_memo }}</td>
                             </tr>
                         @endforeach
@@ -181,14 +182,14 @@
                 </table>
             </div>
         </div>
-        
+
         <div>
             <div class="col-auto">
                 <button type="submit" class="btn btn-primary px-4">結案</button>
             </div>
         </div>
     </form>
-    
+
 <!-- Modal -->
 <x-b-modal id="confirm-delete">
     <x-slot name="title">刪除確認</x-slot>
