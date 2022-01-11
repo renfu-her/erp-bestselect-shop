@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\StockEvent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -28,6 +29,7 @@ class PurchaseInbound extends Model
             "inbound_user_id" => $inbound_user_id,
             "memo" => $memo
         ])->id;
+        ProductStock::stockChange($product_style_id, 0, StockEvent::inbound()->value, $id);
 
         return $id;
     }
@@ -72,11 +74,33 @@ class PurchaseInbound extends Model
             $id,
             $sale_num
         ) {
-            self::where('id', '=', $id)->update([
-                'sale_num' => DB::raw('sale_num + '. $sale_num ),
-            ]);
+            $inboundData = self::where('id', '=', $id);
+            $inboundDataGet = $inboundData->get()->first();
+            if (null != $inboundDataGet) {
+                ProductStock::stockChange($inboundDataGet->product_style_id, -1 * $sale_num, StockEvent::order()->value, $inboundDataGet->id, '銷售數量 '. $sale_num);
+                $inboundData->update([
+                    'sale_num' => DB::raw('sale_num + '. $sale_num ),
+                ]);
+            }
 
             return $id;
+        });
+    }
+
+    //取消入庫 刪除資料
+    public static function delInbound($id, $user_id)
+    {
+        return DB::transaction(function () use (
+            $id,
+            $user_id
+        ) {
+            $inboundData = PurchaseInbound::where('id', '=', $id);
+            $inboundDataGet = $inboundData->get()->first();
+            if (null != $inboundDataGet) {
+                ProductStock::stockChange($inboundDataGet->product_style_id, $inboundDataGet->inbound_num * -1, StockEvent::inbound()->value, $inboundDataGet->id, '使用者:'. $user_id. ' '. '刪除入庫單');
+                $inboundData->delete();
+            }
+
         });
     }
 
@@ -88,23 +112,22 @@ class PurchaseInbound extends Model
             ->leftJoin('pcs_purchase_inbound as inbound', 'inbound.product_style_id', '=', 'items.product_style_id')
             ->leftJoin('usr_users as users', 'users.id', '=', 'inbound.inbound_user_id')
             //->select('*')
-            ->select('purchase.id as purchase_id'
-                , 'items.title as title'
-                , 'items.sku as sku'
-                , 'items.num as item_num'
-                , 'items.memo as item_memo'
-                , 'inbound.id as inbound_id'
-                , 'inbound.inbound_date as inbound_date'
-                , 'inbound.expiry_date as expiry_date'
-                , 'inbound.status as status'
-                , 'inbound.inbound_date as inbound_date'
-                , 'inbound.inbound_num as inbound_num'
-                , 'inbound.error_num as error_num'
-                , 'inbound.depot_id as depot_id'
-                , 'inbound.inbound_user_id as inbound_user_id'
+            ->select('purchase.id as purchase_id' //採購ID
+                , 'items.title as title' //商品名稱-款式名稱
+                , 'items.sku as sku' //款式SKU
+                , 'items.num as item_num' //採購款式數量
+                , 'items.memo as item_memo' //採購款式備註
+                , 'inbound.id as inbound_id' //入庫ID
+                , 'inbound.expiry_date as expiry_date' //有效期限
+                , 'inbound.status as status' //入庫狀態
+                , 'inbound.inbound_date as inbound_date' //入庫日期
+                , 'inbound.inbound_num as inbound_num' //入庫實進數量
+                , 'inbound.error_num as error_num' //入庫異常數量
+                , 'inbound.depot_id as depot_id'  //入庫倉庫ID
+                , 'inbound.inbound_user_id as inbound_user_id'  //入庫人員ID
                 , 'inbound.close_date as close_date'
-                , 'inbound.memo as inbound_memo'
-                , 'users.name as user_name'
+                , 'inbound.memo as inbound_memo' //入庫備註
+                , 'users.name as user_name' //入庫人員名稱
             )
             ->whereNull('purchase.deleted_at')
             ->whereNull('items.deleted_at')
@@ -137,17 +160,17 @@ class PurchaseInbound extends Model
             ->leftJoin('prd_product_styles as styles', 'styles.id', '=', 'items.product_style_id')
             ->leftJoin('prd_products as products', 'products.id', '=', 'styles.product_id')
             ->leftJoin('usr_users as users', 'users.id', '=', 'products.user_id')
-            ->select('purchase.id as purchase_id'
-                , 'items.product_style_id as product_style_id'
-                , 'products.title as product_title'
-                , 'styles.title as style_title'
-                , 'users.name as user_name'
+            ->select('purchase.id as purchase_id' //採購ID
+                , 'items.product_style_id as product_style_id' //商品款式ID
+                , 'products.title as product_title' //商品名稱
+                , 'styles.title as style_title' //款式名稱
+                , 'users.name as user_name' //商品負責人
             )
-            ->selectRaw('any_value(items.sku) as sku')
-            ->selectRaw('sum(items.num) as num')
-            ->selectRaw('(inbound.inbound_num) as inbound_num')
-            ->selectRaw('(inbound.error_num) as error_num')
-            ->selectRaw('( COALESCE(sum(items.num), 0) - COALESCE((inbound.inbound_num), 0) ) AS should_enter_num')
+            ->selectRaw('any_value(items.sku) as sku') //款式SKU
+            ->selectRaw('sum(items.num) as num') //採購數量
+            ->selectRaw('(inbound.inbound_num) as inbound_num') //已到數量
+            ->selectRaw('(inbound.error_num) as error_num') //異常數量
+            ->selectRaw('( COALESCE(sum(items.num), 0) - COALESCE((inbound.inbound_num), 0) ) AS should_enter_num') //應進數量
             ->whereNull('purchase.deleted_at')
             ->whereNull('items.deleted_at')
             ->where('purchase.id', '=', $purchase_id)
