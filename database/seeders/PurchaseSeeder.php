@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Enums\Purchase\InboundStatus;
 use App\Models\PayingOrder;
-use App\Models\ProductStock;
 use App\Models\Purchase;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseItem;
@@ -92,6 +91,7 @@ class PurchaseSeeder extends Seeder
             '第二筆備註 尾款'
         );
 
+        $user_id_5 = 5;
         $purchaseInbound1 = PurchaseInbound::createInbound(
             $purchaseID1,
             $product_style_id1,
@@ -101,10 +101,11 @@ class PurchaseSeeder extends Seeder
             0,
             0,
             1,
-            5,
+            $user_id_5,
             null,
         );
-        ProductStock::stockChange($product_style_id1, 0, 'purchase', $purchaseInbound1, InboundStatus::not_yet()->description);
+        PurchaseInbound::delInbound($purchaseInbound1, $user_id_5);
+
         $purchaseInbound2 = PurchaseInbound::createInbound(
             $purchaseID1,
             $product_style_id1,
@@ -117,7 +118,6 @@ class PurchaseSeeder extends Seeder
             5,
             '入庫OK 1物品退換貨',
         );
-        ProductStock::stockChange($product_style_id1, 99, 'purchase', $purchaseInbound1, InboundStatus::shortage()->description);
         $purchaseInbound3 = PurchaseInbound::createInbound(
             $purchaseID1,
             $product_style_id1,
@@ -130,7 +130,6 @@ class PurchaseSeeder extends Seeder
             5,
             '退換貨',
         );
-        ProductStock::stockChange($product_style_id1, 1, 'purchase', $purchaseInbound1, InboundStatus::normal()->description);
         PurchaseInbound::updateInbound(
             $purchaseInbound2,
             '2022-12-14 00:00:00',
@@ -144,14 +143,11 @@ class PurchaseSeeder extends Seeder
             0,
             '廠商贈送',
         );
-        ProductStock::stockChange($product_style_id1, 10, 'purchase', $purchaseInbound1, InboundStatus::overflow()->description);
 
         $sellCount = 2;
         PurchaseInbound::sellInbound(
             $purchaseInbound2,
             $sellCount,
         );
-        ProductStock::stockChange($product_style_id1, -1 * $sellCount, 'purchase', $purchaseInbound1, '銷售數量 '. $sellCount);
-
     }
 }

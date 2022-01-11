@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\StockEvent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -28,6 +29,7 @@ class PurchaseInbound extends Model
             "inbound_user_id" => $inbound_user_id,
             "memo" => $memo
         ])->id;
+        ProductStock::stockChange($product_style_id, 0, StockEvent::inbound()->value, $id);
 
         return $id;
     }
@@ -72,11 +74,33 @@ class PurchaseInbound extends Model
             $id,
             $sale_num
         ) {
-            self::where('id', '=', $id)->update([
-                'sale_num' => DB::raw('sale_num + '. $sale_num ),
-            ]);
+            $inboundData = self::where('id', '=', $id);
+            $inboundDataGet = $inboundData->get()->first();
+            if (null != $inboundDataGet) {
+                ProductStock::stockChange($inboundDataGet->product_style_id, -1 * $sale_num, StockEvent::order()->value, $inboundDataGet->id, '銷售數量 '. $sale_num);
+                $inboundData->update([
+                    'sale_num' => DB::raw('sale_num + '. $sale_num ),
+                ]);
+            }
 
             return $id;
+        });
+    }
+
+    //取消入庫 刪除資料
+    public static function delInbound($id, $user_id)
+    {
+        return DB::transaction(function () use (
+            $id,
+            $user_id
+        ) {
+            $inboundData = PurchaseInbound::where('id', '=', $id);
+            $inboundDataGet = $inboundData->get()->first();
+            if (null != $inboundDataGet) {
+                ProductStock::stockChange($inboundDataGet->product_style_id, $inboundDataGet->inbound_num * -1, StockEvent::inbound()->value, $inboundDataGet->id, '使用者:'. $user_id. ' '. '刪除入庫單');
+                $inboundData->delete();
+            }
+
         });
     }
 
@@ -94,7 +118,6 @@ class PurchaseInbound extends Model
                 , 'items.num as item_num' //採購款式數量
                 , 'items.memo as item_memo' //採購款式備註
                 , 'inbound.id as inbound_id' //入庫ID
-                , 'inbound.inbound_date as inbound_date' //入庫日期
                 , 'inbound.expiry_date as expiry_date' //有效期限
                 , 'inbound.status as status' //入庫狀態
                 , 'inbound.inbound_date as inbound_date' //入庫日期

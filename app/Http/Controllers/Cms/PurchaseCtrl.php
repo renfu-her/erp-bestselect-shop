@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Cms;
 use App\Http\Controllers\Controller;
 use App\Models\Depot;
 use App\Models\PayingOrders;
-use App\Models\ProductStock;
 use App\Models\Purchase;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseItem;
@@ -317,7 +316,6 @@ class PurchaseCtrl extends Controller
                     $request->user()->id,
                     $inboundItemReq['inbound_memo'][$key]
                 );
-                ProductStock::stockChange($inboundItemReq['product_style_id'][$key], $inboundItemReq['inbound_num'][$key], 'inbound', $purchaseInboundID);
             }
         }
         wToast(__('Add finished.'));
@@ -328,7 +326,7 @@ class PurchaseCtrl extends Controller
 
     public function deleteInbound(Request $request, $id)
     {
-        PurchaseInbound::where('id', '=', $id)->delete();
+        PurchaseInbound::delInbound($id, $request->user()->id);
         wToast(__('Delete finished.'));
         return redirect(Route('cms.purchase.inbound', [
             'id' => $id,
