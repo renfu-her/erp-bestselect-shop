@@ -13,10 +13,10 @@ class SaleChannelCtrl extends Controller
     {
         //
         $query = $request->query();
-        $dataList =  SaleChannel::whereNull('deleted_at')->paginate(10)->appends($query);
-
+        $dataList = SaleChannel::saleList()->paginate(10)->appends($query);
+       // dd(SaleChannel::saleList()->get()->toArray());
         return view('cms.settings.sale_channel.list', [
-            'dataList' => $dataList
+            'dataList' => $dataList,
         ]);
     }
 
@@ -40,16 +40,18 @@ class SaleChannelCtrl extends Controller
             'chargeman' => $v['chargeman'],
             'sales_type' => $v['sales_type'],
             'use_coupon' => $v['use_coupon'],
+            'is_realtime' => $v['is_realtime'],
         ]);
         wToast(__('Add finished.'));
         return redirect(Route('cms.sale_channel.edit', [
             'id' => $id,
-            'query' => $query
+            'query' => $query,
         ]));
     }
 
     //驗證資料
-    private function validInputValue(Request $request) {
+    private function validInputValue(Request $request)
+    {
         $request->validate([
             'title' => 'required|string',
             'contact_person' => 'required|string',
@@ -61,8 +63,9 @@ class SaleChannelCtrl extends Controller
     }
 
     //取得欄位資料
-    private function getInputValue(Request $request) {
-        return $request->only('title', 'contact_person', 'contact_tel', 'chargeman', 'sales_type', 'use_coupon');
+    private function getInputValue(Request $request)
+    {
+        return $request->only('title', 'contact_person', 'contact_tel', 'chargeman', 'sales_type', 'use_coupon', 'is_realtime');
     }
 
     public function edit(Request $request, $id)
@@ -90,7 +93,7 @@ class SaleChannelCtrl extends Controller
         wToast(__('Edit finished.'));
         return redirect(Route('cms.sale_channel.edit', [
             'id' => $id,
-            'query' => $query
+            'query' => $query,
         ]));
     }
 
