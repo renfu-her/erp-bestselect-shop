@@ -288,6 +288,7 @@ class PurchaseCtrl extends Controller
 
         $depotList = Depot::all()->toArray();
         return view('cms.commodity.purchase.inbound', [
+            'purchaseData' => $purchaseData,
             'id' => $id,
             'inboundList' => $inboundList,
             'inboundOverviewList' => $inboundOverviewList,
