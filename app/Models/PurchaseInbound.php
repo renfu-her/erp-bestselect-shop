@@ -79,9 +79,7 @@ class PurchaseInbound extends Model
                 , 'items.num as item_num' //採購款式數量
                 , 'items.memo as item_memo' //採購款式備註
                 , 'inbound.id as inbound_id' //入庫ID
-                , 'inbound.expiry_date as expiry_date' //有效期限
                 , 'inbound.status as status' //入庫狀態
-                , 'inbound.inbound_date as inbound_date' //入庫日期
                 , 'inbound.inbound_num as inbound_num' //入庫實進數量
                 , 'inbound.error_num as error_num' //入庫異常數量
                 , 'inbound.depot_id as depot_id'  //入庫倉庫ID
@@ -90,6 +88,8 @@ class PurchaseInbound extends Model
                 , 'inbound.memo as inbound_memo' //入庫備註
                 , 'users.name as user_name' //入庫人員名稱
             )
+            ->selectRaw('DATE_FORMAT(inbound.expiry_date,"%Y-%m-%d") as expiry_date') //有效期限
+            ->selectRaw('DATE_FORMAT(inbound.inbound_date,"%Y-%m-%d") as inbound_date') //入庫日期
             ->whereNull('purchase.deleted_at')
             ->whereNull('items.deleted_at')
             ->whereNull('inbound.deleted_at')
