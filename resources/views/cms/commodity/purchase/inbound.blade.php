@@ -3,14 +3,6 @@
     <h2 class="mb-3">入庫審核</h2>
     <x-b-pch-navi :id="$id"></x-b-pch-navi>
 
-    <form id="form1" method="post" action="{{ $formAction }}">
-        @method('POST')
-        @csrf
-
-        @error('id')
-        <div class="alert alert-danger mt-3">{{ $message }}</div>
-        @enderror
-
         <div class="card shadow p-4 mb-4">
             <h6>採購單入庫總覽</h6>
             <div class="table-responsive tableOverBox">
@@ -44,7 +36,15 @@
         </div>
 
         <div class="card shadow p-4 mb-4">
-            <h6>本次入庫資料</h6>
+            <form id="form1" method="post" action="{{ $formAction }}">
+                @method('POST')
+                @csrf
+
+                @error('id')
+                <div class="alert alert-danger mt-3">{{ $message }}</div>
+                @enderror
+
+                <h6>本次入庫資料</h6>
             <div class="row mb-4">
                 <div class="col-12">
                     <label class="form-label">選擇倉庫 <span class="text-danger">*</span></label>
@@ -136,6 +136,7 @@
                     <button type="submit" class="btn btn-primary px-4">確認入庫</button>
                 </div>
             </div>
+            </form>
         </div>
 
         <div class="card shadow p-4 mb-4">
@@ -185,10 +186,13 @@
 
         <div>
             <div class="col-auto">
-                <button type="submit" class="btn btn-primary px-4">結案</button>
+                <button type="button" data-href="{{ $formActionClose }}"
+                        data-bs-toggle="modal" data-bs-target="#confirm-close"
+                        class="btn btn-primary px-4">
+                    結案
+                </button>
             </div>
         </div>
-    </form>
 
 <!-- Modal -->
 <x-b-modal id="confirm-delete">
@@ -198,6 +202,13 @@
         <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
     </x-slot>
 </x-b-modal>
+    <x-b-modal id="confirm-close">
+        <x-slot name="title">結案確認</x-slot>
+        <x-slot name="body">結案後將無法入庫！確認要結案？</x-slot>
+        <x-slot name="foot">
+            <a class="btn btn-danger btn-ok" href="#" method='post'>確認並結案</a>
+        </x-slot>
+    </x-b-modal>
 @endsection
 @once
     @push('sub-scripts')

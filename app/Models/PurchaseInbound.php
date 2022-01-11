@@ -90,18 +90,12 @@ class PurchaseInbound extends Model
     //取消入庫 刪除資料
     public static function delInbound($id, $user_id)
     {
-        return DB::transaction(function () use (
-            $id,
-            $user_id
-        ) {
-            $inboundData = PurchaseInbound::where('id', '=', $id);
-            $inboundDataGet = $inboundData->get()->first();
-            if (null != $inboundDataGet) {
-                ProductStock::stockChange($inboundDataGet->product_style_id, $inboundDataGet->inbound_num * -1, StockEvent::inbound()->value, $inboundDataGet->id, '使用者:'. $user_id. ' '. '刪除入庫單');
-                $inboundData->delete();
-            }
-
-        });
+        $inboundData = PurchaseInbound::where('id', '=', $id);
+        $inboundDataGet = $inboundData->get()->first();
+        if (null != $inboundDataGet) {
+            ProductStock::stockChange($inboundDataGet->product_style_id, $inboundDataGet->inbound_num * -1, StockEvent::inbound()->value, $inboundDataGet->id, '使用者:'. $user_id. ' '. '刪除入庫單');
+            $inboundData->delete();
+        }
     }
 
     //歷史入庫

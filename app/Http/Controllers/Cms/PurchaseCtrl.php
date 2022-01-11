@@ -271,6 +271,16 @@ class PurchaseCtrl extends Controller
         return $changeStr;
     }
 
+    //結案
+    public function close(Request $request, $id) {
+        Purchase::where('id', $id)->update(['close_date' => date('Y-m-d H:i:s')]);
+
+        wToast(__('Close finished.'));
+        return redirect(Route('cms.purchase.inbound', [
+            'id' => $id,
+        ]));
+    }
+
     public function inbound(Request $request, $id) {
         $purchaseData = Purchase::getPurchase($id)->first();
         $inboundList = PurchaseInbound::getInboundList($id)->get()->toArray();
@@ -283,6 +293,7 @@ class PurchaseCtrl extends Controller
             'inboundOverviewList' => $inboundOverviewList,
             'depotList' => $depotList,
             'formAction' => Route('cms.purchase.store_inbound', ['id' => $id,]),
+            'formActionClose' => Route('cms.purchase.close', ['id' => $id,]),
             'breadcrumb_data' => $purchaseData->purchase_sn,
         ]);
     }
@@ -326,10 +337,16 @@ class PurchaseCtrl extends Controller
 
     public function deleteInbound(Request $request, $id)
     {
-        PurchaseInbound::delInbound($id, $request->user()->id);
+        $inboundData = PurchaseInbound::where('id', '=', $id);
+        $inboundDataGet = $inboundData->get()->first();
+        $purchase_id = '';
+        if (null != $inboundDataGet) {
+            $purchase_id = $inboundDataGet->purchase_id;
+            PurchaseInbound::delInbound($id, $request->user()->id);
+        }
         wToast(__('Delete finished.'));
         return redirect(Route('cms.purchase.inbound', [
-            'id' => $id,
+            'id' => $purchase_id,
         ]));
     }
 }
