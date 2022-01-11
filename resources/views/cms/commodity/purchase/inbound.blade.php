@@ -12,7 +12,7 @@
         @enderror
         
         <div class="card shadow p-4 mb-4">
-            <h6>採購單資訊</h6>
+            <h6>採購單入庫總覽</h6>
             <div class="table-responsive tableOverBox">
                 <table class="table table-striped tableList mb-1">
                     <thead>
@@ -21,19 +21,23 @@
                             <th scope="col">款式</th>
                             <th scope="col">SKU</th>
                             <th scope="col">採購數量</th>
-                            <th scope="col">入庫數量</th>
+                            <th scope="col">已入庫數量</th>
+                            <th scope="col">異常數量</th>
                             <th scope="col">商品負責人</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
+                        @foreach ($inboundOverviewList as $overview)
+                            <tr>
+                                <td>{{ $overview->product_title }}</td>
+                                <td>{{ $overview->style_title }}</td>
+                                <td>{{ $overview->sku }}</td>
+                                <td>{{ $overview->num }}</td>
+                                <td>{{ $overview->inbound_num }}</td>
+                                <td>{{ $overview->error_num }}</td>
+                                <td>{{ $overview->user_name }}</td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -142,8 +146,7 @@
                         <tr>
                             <th scope="col" class="text-center">刪除</th>
                             <th scope="col">入庫日期</th>
-                            <th scope="col">商品</th>
-                            <th scope="col">款式</th>
+                            <th scope="col">商品名稱</th>
                             <th scope="col">SKU</th>
                             <th scope="col">應進數量</th>
                             <th scope="col">實進數量</th>
@@ -154,57 +157,31 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <th class="text-center">
-                                <button type="button" data-href=""
-                                    data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                                    class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </th>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td @class(['text-danger' => '短缺' || '溢出'])></td>
-                            <td></td>
-                        </tr>
+                        @foreach ($inboundList as $inbound)
+                            <tr>
+                                <th class="text-center">
+                                    <button type="button" data-href="{{ Route('cms.purchase.delete_inbound', ['id' => $inbound->inbound_id], true) }}"
+                                        data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </th>
+                                <td>{{ $inbound->inbound_date }}</td>
+                                <td>{{ $inbound->title }}</td>
+                                <td>{{ $inbound->sku }}</td>
+                                <td>{{ $inbound->item_num }}</td>
+                                <td>{{ $inbound->inbound_num }}</td>
+                                <td>{{ $inbound->error_num }}</td>
+                                <td>{{ $inbound->expiry_date }}</td>
+                                <td @class(['text-danger' => $inbound->status === '短缺' || $inbound->status === '溢出'])>{{ $inbound->status }}</td>
+                                <td>{{ $inbound->inbound_memo }}</td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
         </div>
         
-        <div class="card shadow p-4 mb-4">
-            <h6>入庫總覽</h6>
-            <div class="table-responsive tableOverBox">
-                <table class="table table-striped tableList mb-1">
-                    <thead>
-                        <tr>
-                            <th scope="col">商品</th>
-                            <th scope="col">款式</th>
-                            <th scope="col">SKU</th>
-                            <th scope="col">採購數量</th>
-                            <th scope="col">已到數量</th>
-                            <th scope="col">異常數量</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
         <div>
             <div class="col-auto">
                 <button type="submit" class="btn btn-primary px-4">結案</button>
