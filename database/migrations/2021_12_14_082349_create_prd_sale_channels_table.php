@@ -21,6 +21,7 @@ class CreatePrdSaleChannelsTable extends Migration
             $table->string('chargeman')->comment('負責窗口');
             $table->tinyInteger('sales_type')->comment('銷售類型');
             $table->tinyInteger('use_coupon')->comment('喜鴻紅利點數');
+            $table->tinyInteger('is_realtime')->default(0)->comment('即時與否');
             $table->timestamps();
             $table->softDeletes();
         });

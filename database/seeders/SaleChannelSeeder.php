@@ -21,6 +21,7 @@ class SaleChannelSeeder extends Seeder
             'chargeman' => '喜鴻員工',
             'sales_type' => 0,
             'use_coupon' => 0,
+            'is_realtime' => 1,
         ]);
 
         SaleChannel::create([
