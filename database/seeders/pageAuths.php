@@ -147,6 +147,27 @@ return [
         ],
     ],
     [
+        "unit" => "群組設定",
+        "permissions" => [
+            [
+                "cms.collection.index",
+                "瀏覽",
+            ],
+            [
+                "cms.collection.create",
+                "新增",
+            ],
+            [
+                "cms.collection.edit",
+                "修改",
+            ],
+            [
+                "cms.collection.delete",
+                "刪除",
+            ],
+        ],
+    ],
+    [
         "unit" => "採購單列表",
         "permissions" => [
             [

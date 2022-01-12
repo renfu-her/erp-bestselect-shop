@@ -9,24 +9,9 @@
             <div class="row justify-content-center mb-3">
                 <label class="text-muted text-center">數量異動</label>
                 <div class="col-auto mb-3">
-                    <div class="input-group input-group-lg has-validation">
-                        <button class="btn btn-danger -minus" type="button" data-bs-toggle="tooltip" title="拆包">
-                            <i class="bi bi-dash-lg"></i>
-                        </button>
-                        <input type="number" class="form-control text-center @error('status') is-invalid  @enderror"
-                            name="qty" value="0" min="-{{ $style->in_stock }}">
-                        <button class="btn btn-success -plus" type="button" data-bs-toggle="tooltip" title="組裝">
-                            <i class="bi bi-plus-lg"></i>
-                        </button>
-                        <div class="invalid-feedback text-center">
-                            @error('status')
-                                {{ $message }}
-                            @enderror
-                        </div>
-                    </div>
+                    <x-b-qty-adjuster name="qty" min="-{{ $style->in_stock }}" size="lg" minus="拆包" plus="組裝"></x-b-qty-adjuster>
                 </div>
             </div>
-
 
             <div class="table-responsive">
                 <table class="table table-striped tableList">
