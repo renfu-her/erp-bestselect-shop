@@ -70,7 +70,7 @@ class ProductCtrl extends Controller
             'category_id' => 'required',
             'supplier' => 'required|array',
             'type' => 'required|in:c,p',
-           // 'url'=>'unique:App\Models\Product'
+            // 'url'=>'unique:App\Models\Product'
         ]);
 
         // $path = $request->file('file')->store('excel');
@@ -80,7 +80,7 @@ class ProductCtrl extends Controller
 
         if ($request->hasfile('files')) {
             foreach ($request->file('files') as $file) {
-                $imgData[] = $file->store('product_imgs');
+                $imgData[] = $file->store('product_imgs/' . $re['id']);
             }
             ProductImg::createImgs($re['id'], $imgData);
         }
@@ -152,7 +152,7 @@ class ProductCtrl extends Controller
 
         $request->validate([
             'files.*' => 'max:5000|mimes:jpg,jpeg,png,bmp',
-          //  'url' => ["unique:App\Models\Product,url,$id,id", 'nullable'],
+            //  'url' => ["unique:App\Models\Product,url,$id,id", 'nullable'],
             'title' => 'required',
             'has_tax' => 'required',
             'active_sdate' => 'date|nullable',
@@ -168,7 +168,7 @@ class ProductCtrl extends Controller
 
         if ($request->hasfile('files')) {
             foreach ($request->file('files') as $file) {
-                $imgData[] = $file->store('product_imgs');
+                $imgData[] = $file->store('product_imgs/' . $id);
             }
             ProductImg::createImgs($id, $imgData);
         }
