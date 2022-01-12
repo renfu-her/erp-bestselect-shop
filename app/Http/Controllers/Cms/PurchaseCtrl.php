@@ -9,6 +9,7 @@ use App\Models\Purchase;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseItem;
 use App\Models\Supplier;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
@@ -21,19 +22,80 @@ class PurchaseCtrl extends Controller
         $query = $request->query();
         $startDate = Arr::get($query, 'startDate', date('Y-m-d'));
         $endDate = Arr::get($query, 'endDate', date('Y-m-d', strtotime(date('Y-m-d') . '+ 1 days')));
-        $title = Arr::get($query, 'title', '');
         $data_per_page = Arr::get($query, 'data_per_page', 10);
         $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
 
+        $purchase_sn = Arr::get($query, 'purchase_sn', '');
+        $title = Arr::get($query, 'title', '');
+        $sku = Arr::get($query, 'sku', '');
+        $purchase_user_id = Arr::get($query, 'purchase_user_id', []);
+        $purchase_sdate = Arr::get($query, 'purchase_sdate', '');
+        $purchase_edate = Arr::get($query, 'purchase_edate', '');
+        $supplier_id = Arr::get($query, 'supplier_id', '');
+        $depot_id = Arr::get($query, 'depot_id', '');
+        $inbound_user_id = Arr::get($query, 'inbound_user_id', []);
+        $inbound_status = Arr::get($query, 'inbound_status', []);
+        $inbound_sdate = Arr::get($query, 'inbound_sdate', '');
+        $inbound_edate = Arr::get($query, 'inbound_edate', '');
+        $expire_day = Arr::get($query, 'expire_day', '');
+        $type = Arr::get($query, 'type', '0'); //0:明細 1:總表
 
-        $dataList = PurchaseItem::getPurchaseDetailList()
-            ->paginate($data_per_page)->appends($query);
+        $dataList = null;
+        if ('0' === $type) {
+            $dataList = PurchaseItem::getPurchaseDetailList(
+                $purchase_sn
+                , $title
+                , $sku
+                , $purchase_user_id
+                , $purchase_sdate
+                , $purchase_edate
+                , $supplier_id
+                , $depot_id
+                , $inbound_user_id
+                , $inbound_status
+                , $inbound_sdate
+                , $inbound_edate
+                , $expire_day)
+                ->paginate($data_per_page)->appends($query);
+        } else {
+            $dataList = PurchaseItem::getPurchaseOverviewList(
+                $purchase_sn
+                , $title
+                , $sku
+                , $purchase_user_id
+                , $purchase_sdate
+                , $purchase_edate
+                , $supplier_id
+                , $depot_id
+                , $inbound_user_id
+                , $inbound_status
+                , $inbound_sdate
+                , $inbound_edate
+                , $expire_day)
+                ->paginate($data_per_page)->appends($query);
+        }
+
         return view('cms.commodity.purchase.list', [
             'startDate' => $startDate,
             'endDate' => $endDate,
             'dataList' => $dataList,
-            'title' => $title,
-            'data_per_page' => $data_per_page,
+            'data_per_page' => $data_per_page
+            , 'userList' => User::all()
+            , 'depotList' => Depot::all()
+            , 'supplierList' => Supplier::getSupplierList()->get()
+
+            , 'purchase_sn' => $purchase_sn
+            , 'title' => $title
+            , 'purchase_user_id' => $purchase_user_id
+            , 'purchase_sdate' => $purchase_sdate
+            , 'purchase_edate' => $purchase_edate
+            , 'supplier_id' => $supplier_id
+            , 'depot_id' => $depot_id
+            , 'inbound_user_id' => $inbound_user_id
+            , 'inbound_status' => $inbound_status
+            , 'inbound_sdate' => $inbound_sdate
+            , 'inbound_edate' => $inbound_edate
+            , 'expire_day' => $expire_day
         ]);
     }
 
