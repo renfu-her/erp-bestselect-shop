@@ -11,9 +11,7 @@
             {{ $help }}
         @endif
     </small>
-    @if (isset($name))
-        @error($name)
-            <div class="invalid-feedback">{{ $message }}</div>
-        @enderror
-    @endif
+    @error($name)
+        <div class="invalid-feedback">{{ $message }}</div>
+    @enderror
 </div>

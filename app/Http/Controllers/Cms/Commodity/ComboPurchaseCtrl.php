@@ -115,7 +115,7 @@ class ComboPurchaseCtrl extends Controller
         $re = ProductStock::comboProcess($id, $qty);
 
         if (!$re['success']) {
-            return redirect()->back()->withErrors(['status' => $re['error_msg']]);
+            return redirect()->back()->withErrors(['qty' => $re['error_msg']]);
         }
 
         wToast("儲存成功");
