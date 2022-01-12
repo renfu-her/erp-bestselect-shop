@@ -5,7 +5,13 @@
     <x-b-prd-navi :product="$product"></x-b-prd-navi>
 </div>
 <div class="card shadow p-4 mb-4">
-    <h6>商品資訊</h6>
+    <div class="d-flex align-items-center mb-4">
+        <h6 class="flex-grow-1 mb-0">商品資訊</h6>
+        <a href="{{ Route('cms.product.edit-price', ['id' => $style['product_id'], 'sid' => $style['id']]) }}"
+            class="btn btn-outline-primary px-4 -in-header">
+            <i class="bi bi-arrow-left-right"></i> 價格管理
+        </a>
+    </div>
     <div class="row">
         <div class="col-12 mb-3">
             <label class="form-label">款式</label>
@@ -21,102 +27,118 @@
         </div>
     </div>
 </div>
-<div class="card shadow p-4 mb-4">
-    <h6>各通路庫存</h6>
+<form action="" method="POST">
+    <div class="card shadow p-4 mb-4">
+        <h6>各通路庫存</h6>
 
-    <div class="table-responsive">
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th scope="col" style="width:25%;"></th>
-                    <th scope="col">安全庫存</th>
-                    <th scope="col">可預扣庫存</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <th scope="row">總即時庫存</th>
-                    <td></td>
-                    <td></td>
-                </tr>
-            </tbody>
-            <tfoot class="table-success">
-                <tr>
-                    <th>實際庫存</th>
-                    <td colspan="2" class="text-end pe-4">45</td>
-                </tr>
-            </tfoot>
-        </table>
+        <div class="table-responsive">
+            <label class="text-primary py-1 fw-bold">總即時庫存</label>
+            <table class="table table-bordered border-dark align-middle mb-4">
+                <tbody>
+                    <tr>
+                        <th scope="row" style="width:40%;">安全庫存
+                            <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="當庫存量少於等於此數量時會提示通知"></i>
+                        </th>
+                        <td>
+                            <input type="number" name="safety_stock" value="" placeholder="" min="0" class="form-control form-control-sm">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">預購(超賣)數量
+                            <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="當庫存不足時，尚可訂購的數量"></i>
+                        </th>
+                        <td>
+                            <input type="number" name="overbought" value="" placeholder="" min="0" class="form-control form-control-sm">
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot class="table-light border-dark">
+                    <tr>
+                        <th>實際庫存
+                            <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="倉庫剩餘庫存"></i>
+                        </th>
+                        <th class="text-end pe-4 text-primary -remaining">45</th>
+                    </tr>
+                </tfoot>
+            </table>
 
-        <label class="text-muted py-1">即時庫存</label>
-        <table class="table table-bordered align-middle">
-            <thead>
-                <tr>
-                    <th scope="col" style="width:25%;"></th>
-                    <th scope="col">商品訂單預扣</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <th scope="row">官網</th>
-                    <td>20</td>
-                </tr>
-                <tr>
-                    <th scope="row">同業網</th>
-                    <td>10</td>
-                </tr>
-            </tbody>
-            <tfoot class="table-success">
-                <tr>
-                    <th>總計</th>
-                    <td class="text-end pe-4">30</td>
-                </tr>
-            </tfoot>
-        </table>
+            <label class="text-secondary py-1 fw-bold">非即時庫存</label>
+            <table id="Non_instant" class="table table-bordered border-secondary align-middle mb-4">
+                <thead>
+                    <tr>
+                        <th scope="col"></th>
+                        <th scope="col">預扣庫存
+                            <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="將庫存預扣給該通路，會從實際庫存扣除"></i>
+                        </th>
+                        <th scope="col" style="width:32%;">異動數量
+                            <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="調整預扣庫存數量"></i>
+                        </th>
+                        <th scope="col">預扣試算</th>
+                    </tr>
+                </thead>
+                <tbody class="border-secondary">
+                    <tr>
+                        <th scope="row">蝦皮</th>
+                        <td data-td="stock">10</td>
+                        <td data-td="qty">
+                            <x-b-qty-adjuster name="qty[]" min="-10" max="45" size="sm" minus="減少" plus="增加"></x-b-qty-adjuster>
+                        </td>
+                        <td data-td="count" class="text-primary">10</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">美安</th>
+                        <td data-td="stock">5</td>
+                        <td data-td="qty">
+                            <x-b-qty-adjuster name="qty[]" min="-5" max="45" size="sm" minus="減少" plus="增加"></x-b-qty-adjuster>
+                        </td>
+                        <td data-td="count" class="text-primary">5</td>
+                    </tr>
+                </tbody>
+                <tfoot class="table-light border-secondary">
+                    <tr>
+                        <th>總計試算</th>
+                        <td colspan="3" class="text-end pe-4 -sum">15</td>
+                    </tr>
+                </tfoot>
+            </table>
 
-        <label class="text-muted py-1">非即時庫存</label>
-        <table class="table table-bordered align-middle">
-            <thead>
-                <tr>
-                    <th scope="col" style="width:25%;"></th>
-                    <th scope="col">預扣庫存</th>
-                    <th scope="col">異動數量</th>
-                    <th scope="col">預扣試算</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <th scope="row">蝦皮</th>
-                    <td>10</td>
-                    <td>-5</td>
-                    <td>5</td>
-                </tr>
-                <tr>
-                    <th scope="row">美安</th>
-                    <td>5</td>
-                    <td>5</td>
-                    <td>10</td>
-                </tr>
-            </tbody>
-            <tfoot class="table-success">
-                <tr>
-                    <th>總計試算</th>
-                    <td colspan="3" class="text-end pe-4">15</td>
-                </tr>
-            </tfoot>
-        </table>
+            <label class="text-secondary py-1 fw-bold">即時庫存</label>
+            <table class="table table-bordered border-secondary align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col" style="width:40%;"></th>
+                        <th scope="col">訂購未付款
+                            <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="已有訂單但尚未付款的訂購數量"></i>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="border-secondary">
+                    <tr>
+                        <th scope="row">官網</th>
+                        <td>20</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">同業網</th>
+                        <td>10</td>
+                    </tr>
+                </tbody>
+                <tfoot class="border-secondary">
+                    <tr>
+                        <th>總計</th>
+                        <td>30</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
     </div>
-</div>
-<div>
-    <div class="col-auto">
-        <a href="{{ Route('cms.product.edit-price', ['id' => $style['product_id'], 'sid' => $style['id']]) }}"
-            class="btn btn-primary px-4">
-            <i class="bi bi-arrow-left-right"></i> 價格管理
-        </a>
-        <a href="{{ Route('cms.product.edit-sale', ['id' => $product->id]) }}" class="btn btn-outline-primary px-4"
-            role="button">取消</a>
+    <div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary px-4">儲存</button>
+            <a href="{{ Route('cms.product.edit-sale', ['id' => $product->id]) }}" class="btn btn-outline-primary px-4"
+                role="button">取消</a>
+        </div>
     </div>
-</div>
+</form>
 @endsection
 @once
     @push('sub-styles')
@@ -125,6 +147,84 @@
     @endpush
     @push('sub-scripts')
         <script>
+            // 實際庫存
+            const Old_stock = Number(45);
+            
+            // 數量異動 input
+            $('input[name="qty[]"]').on('change', function() {
+                countStock();
+            });
+            // +/- btn
+            $('button.-minus, button.-plus').on('click', function() {
+                const $qty = $(this).siblings('input[name="qty[]"]');
+                const min = Number($qty.attr('min'));
+                const max = Number($qty.attr('max'));
+                const m_qty = Number($qty.val());
+                if ($(this).hasClass('-minus') && m_qty > min) {
+                    $qty.val(m_qty - 1);
+                }
+                if ($(this).hasClass('-plus') && m_qty < max) {
+                    $qty.val(m_qty + 1);
+                }
+                countStock();
+            });
+
+            function countStock() {
+                let checkCount = true;
+                let sum = 0;
+                let total_qty = 0;
+
+                $('tbody td[data-td="stock"]').each(function(index, element) {
+                    // element == this
+                    const stock = Number($(element).text());
+                    const $qty = $(element).siblings('td[data-td="qty"]').find('input[name="qty[]"]');
+                    const qty = Number($qty.val());
+                    const min = Number($qty.attr('min'));
+                    const max = Number($qty.attr('max'));
+                    if (isFinite(qty) && isFinite(stock)) {
+                        const remainder = stock + qty;
+                        $(element).siblings('td[data-td="count"]').text(remainder);
+                        total_qty += qty;
+                        sum += remainder;
+                        if (remainder < 0) {
+                            $(element).siblings('td[data-td="count"]').removeClass('text-primary')
+                                .addClass('text-danger');
+                            checkCount &= false;
+                        } else {
+                            $(element).siblings('td[data-td="count"]').removeClass('text-danger')
+                                .addClass('text-primary');
+                        }
+
+                        // check max/min
+                        if (max && qty > max) {
+                            checkCount &= false;
+                        }
+                        if (min && qty < min) {
+                            checkCount &= false;
+                        }
+                    }
+                });
+                $('#Non_instant .-sum').text(sum);
+                
+                // 計算實際庫存
+                const New_stock = Old_stock - total_qty;
+                $('th.-remaining').text(New_stock);
+                $('input[name="qty[]"]').attr('max', function (index, attr) {
+                    return Number($('input[name="qty[]"]')[index].value) + New_stock;
+                });
+                if (New_stock < 0) {
+                    $('th.-remaining').removeClass('text-primary').addClass('text-danger');
+                    checkCount &= false;
+                } else {
+                    $('th.-remaining').removeClass('text-danger').addClass('text-primary');
+                }
+
+                if (checkCount) {
+                    $('form button[type="submit"]').prop('disabled', false);
+                } else {
+                    $('form button[type="submit"]').prop('disabled', true);
+                }
+            }
         </script>
     @endpush
 @endOnce

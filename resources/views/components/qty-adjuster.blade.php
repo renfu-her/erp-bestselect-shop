@@ -3,7 +3,7 @@
     'input-group-lg' => $size === 'lg',
     'input-group-sm' => $size === 'sm'
 ])>
-    <button class="btn btn-danger -minus" type="button" 
+    <button class="btn btn-outline-primary -minus" type="button" 
         @if (isset($minus)) data-bs-toggle="tooltip" title="{{ $minus }}" @endif>
         <i class="bi bi-dash-lg"></i>
     </button>
@@ -11,7 +11,7 @@
         class="form-control text-center @error($name) is-invalid @enderror"
         @if (isset($min)) min="{{ $min }}" @endif 
         @if (isset($max)) max="{{ $max }}" @endif>
-    <button class="btn btn-success -plus" type="button" 
+    <button class="btn btn-outline-primary -plus" type="button" 
         @if (isset($plus)) data-bs-toggle="tooltip" title="{{ $plus }}" @endif>
         <i class="bi bi-plus-lg"></i>
     </button>
