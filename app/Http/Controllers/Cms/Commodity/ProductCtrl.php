@@ -271,6 +271,7 @@ class ProductCtrl extends Controller
 
     }
 
+    // 產生SKU
     public function createAllSku(Request $request, $id)
     {
         $styles = ProductStyle::where('product_id', $id)->whereNull('sku')->select('id')->get()->toArray();
@@ -289,7 +290,7 @@ class ProductCtrl extends Controller
     }
 
     /**
-     * 編輯 - 編輯規格
+     * 編輯 - 規格款式 - 編輯規格
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
@@ -333,10 +334,50 @@ class ProductCtrl extends Controller
     public function editSale($id)
     {
         $product = self::product_data($id);
+        $specList = ProductSpec::specList($id);
+        $styles = ProductStyle::where('product_id', $id)->get()->toArray();
+        
         return view('cms.commodity.product.sales', [
             'product' => $product,
+            'specList' => $specList,
+            'styles' => $styles,
             'breadcrumb_data' => $product,
-
+        ]);
+    }
+    /**
+     * 編輯 - 銷售控管 - 庫存管理
+     *
+     * @param  int  $id 商品id
+     * @param  int  $sid 款式id
+     * @return \Illuminate\Http\Response
+     */
+    public function editStock($id, $sid)
+    {
+        $product = self::product_data($id);
+        $style = ProductStyle::where('id', $sid)->get()->first();
+        // dd($style);
+        return view('cms.commodity.product.sales-stock', [
+            'product' => $product,
+            'style' => $style,
+            'breadcrumb_data' => $product,
+        ]);
+    }
+    /**
+     * 編輯 - 銷售控管 - 價格管理
+     *
+     * @param  int  $id 商品id
+     * @param  int  $sid 款式id
+     * @return \Illuminate\Http\Response
+     */
+    public function editPrice($id, $sid)
+    {
+        $product = self::product_data($id);
+        $style = ProductStyle::where('id', $sid)->get()->first();
+        
+        return view('cms.commodity.product.sales-price', [
+            'product' => $product,
+            'style' => $style,
+            'breadcrumb_data' => $product,
         ]);
     }
 

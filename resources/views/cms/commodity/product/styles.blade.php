@@ -135,7 +135,7 @@
 
                                     @foreach ($specList as $specKey => $spec)
                                         <td>
-                                            <select @if (!isset($style['sku']))name="{{ $prefix }}spec{{ $specKey + 1 }}[]"@endif class="form-select form-select-sm" required
+                                            <select name="{{ $prefix }}spec{{ $specKey + 1 }}[]" class="form-select form-select-sm" required
                                                 @if (isset($style['sku'])) disabled @endif>
                                                 <option value="" disabled>請選擇</option>
                                                 @foreach ($spec->items as $key => $value)
@@ -163,7 +163,6 @@
                                     </td>
                                 </tr>
                             @endforeach
-
                         </tbody>
                     </table>
                 </div>

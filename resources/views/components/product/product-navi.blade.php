@@ -42,7 +42,7 @@
 
     <li class="nav-item">
         <a href="{{ Route('cms.product.edit-sale', ['id' => $id], true) }}"
-            class="nav-link {{ isActive('edit-sale', $route_name) }}">銷售控管</a>
+            class="nav-link {{ isActive('edit-sale', $route_name) }}{{ isActive('edit-stock', $route_name) }}{{ isActive('edit-price', $route_name) }}">銷售控管</a>
     </li>
     <li class="nav-item">
         <a href="{{ Route('cms.product.edit-web-desc', ['id' => $id], true) }}"

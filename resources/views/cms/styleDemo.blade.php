@@ -105,6 +105,7 @@
                             <p><em>[em] tag - 斜體文字</em></p>
                             <p><small>[small] tag - 精美印刷(小字)</small></p>
                             <p><strong>[strong] tag - 粗體文字</strong></p>
+                            <p class="text-muted">text-muted 文字</p>
 
                             <p><s>[s] tag - 代表不再相關或不再準確的元素</s></p>
                             <p><ins>[ins] tag - 補充文字</ins></p>
