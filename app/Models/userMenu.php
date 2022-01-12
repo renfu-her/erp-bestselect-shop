@@ -61,9 +61,21 @@ return
         ],
     ],
     [
+        "title" => "官網設定",
+        "icon" => "bi-house-door",
+        "menu_id" => "3",
+        "child" => [
+            [
+                "title" => "群組設定",
+                "controller_name" => "CollectionCtrl",
+                "route_name" => "cms.collection.index",
+            ],
+        ],
+    ],
+    [
         "title" => "帳號管理",
         "icon" => "bi-person-circle",
-        "menu_id" => "3",
+        "menu_id" => "4",
         "child" => [
             [
                 "title" => "員工帳號管理",
