@@ -13,9 +13,13 @@
         </a>
     </div>
     <div class="row">
-        <fieldset class="col-12 mb-3">
+        <fieldset class="col-12 mb-2">
             <legend class="col-form-label">款式</legend>
-            <div class="form-control">S、R</div>
+            <div class="d-flex flex-wrap">
+                <span class="form-control col-auto me-2 mb-2">兒童款</span>
+                <span class="form-control col-auto me-2 mb-2">紅色</span>
+                <span class="form-control col-auto me-2 mb-2">超長長長長長長長長長長長長長長長長長長款式</span>
+            </div>
         </fieldset>
         <fieldset class="col-12 col-md-6 mb-3">
             <legend class="col-form-label">負責人</legend>
