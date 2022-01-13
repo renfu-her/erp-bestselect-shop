@@ -21,11 +21,17 @@
             </fieldset>
             <fieldset class="col-12 col-md-6 mb-3">
                 <legend class="col-form-label">負責人</legend>
-                <div class="form-control">&nbsp;</div>
+                <div class="form-control">{{ $product->user_name }}</div>
             </fieldset>
+            @php
+                $suppliers = json_decode($product->suppliers);
+            @endphp
             <fieldset class="col-12 col-md-6 mb-3">
                 <legend class="col-form-label">廠商名稱</legend>
-                <div class="form-control">&nbsp;</div>
+                @foreach ($suppliers as $key => $supplier)
+                    <div class="form-control">{{ $supplier->name }}</div>
+                @endforeach
+
             </fieldset>
         </div>
     </div>
@@ -73,7 +79,7 @@
                     </tfoot>
                 </table>
                 <hr>
-                
+
                 <label class="text-secondary py-1 fw-bold">非即時庫存</label>
                 <table id="Non_instant" class="table table-bordered border-secondary align-middle mb-4">
                     <thead>
@@ -113,7 +119,8 @@
                         <tr>
                             <th>總計試算</th>
                             <td>{{ $sum }}</td>
-                            <td colspan="2" class="table-warning border-secondary text-end pe-4 -sum">{{ $sum }}</td>
+                            <td colspan="2" class="table-warning border-secondary text-end pe-4 -sum">{{ $sum }}
+                            </td>
                         </tr>
                     </tfoot>
                 </table>
@@ -130,19 +137,17 @@
                         </tr>
                     </thead>
                     <tbody class="border-secondary">
-                        <tr>
-                            <th scope="row">官網</th>
-                            <td>20</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">同業網</th>
-                            <td>10</td>
-                        </tr>
+                        @foreach ($notCompleteDeliverys as $key => $notCompleteDelivery)
+                            <tr>
+                                <th scope="row">{{ $notCompleteDelivery->title }}</th>
+                                <td>0</td>
+                            </tr>
+                        @endforeach
                     </tbody>
                     <tfoot class="border-secondary">
                         <tr>
                             <th>總計</th>
-                            <td>30</td>
+                            <td>0</td>
                         </tr>
                     </tfoot>
                 </table>
@@ -166,7 +171,7 @@
         <script>
             // 實際庫存
             const Old_stock = @json($style->in_stock);
-            
+
             // 數量異動 input
             $('input[name="qty[]"]').on('change', function() {
                 countStock();
@@ -193,9 +198,9 @@
 
                 $('tbody td[data-td="stock"]').each(function(index, element) {
                     // element == this
-                    const stock = Number($(element).text());    // 預扣庫存
+                    const stock = Number($(element).text()); // 預扣庫存
                     const $qty = $(element).siblings('td[data-td="qty"]').find('input[name="qty[]"]');
-                    const qty = Number($qty.val());     // 異動數量
+                    const qty = Number($qty.val()); // 異動數量
                     const min = Number($qty.attr('min'));
                     const max = Number($qty.attr('max'));
                     if (isFinite(qty) && isFinite(stock)) {
