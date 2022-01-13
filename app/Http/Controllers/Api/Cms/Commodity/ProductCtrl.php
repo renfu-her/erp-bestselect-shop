@@ -38,4 +38,29 @@ class ProductCtrl extends Controller
         return response()->json($re);
     }
 
+    public function getProductList(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            //   'supplier_id' => ['required'],
+            //'title' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'E01',
+                'message' => $validator->messages(),
+            ]);
+        }
+
+        $d = $request->all();
+        
+        $re = Product::productList(
+            Arr::get($d, 'title',''),     
+        )->paginate(10)->toArray();
+        $re['status'] = '0';
+        //   $re['data'] = json_decode(json_encode($re['data']), true);
+        return response()->json($re);
+    }
+
 }
