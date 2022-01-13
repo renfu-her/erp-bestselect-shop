@@ -10,6 +10,7 @@ use App\Models\ProductSpec;
 use App\Models\ProductSpecItem;
 use App\Models\ProductStyle;
 use App\Models\ProductStyleCombo;
+use App\Models\SaleChannel;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -336,7 +337,7 @@ class ProductCtrl extends Controller
         $product = self::product_data($id);
         $specList = ProductSpec::specList($id);
         $styles = ProductStyle::where('product_id', $id)->get()->toArray();
-        
+
         return view('cms.commodity.product.sales', [
             'product' => $product,
             'specList' => $specList,
@@ -355,12 +356,41 @@ class ProductCtrl extends Controller
     {
         $product = self::product_data($id);
         $style = ProductStyle::where('id', $sid)->get()->first();
-        // dd($style);
+        if (!$product || !$style) {
+            return abort(404);
+        }
+        $stocks = SaleChannel::styleStockList($sid)->get()->toArray();
+
         return view('cms.commodity.product.sales-stock', [
             'product' => $product,
             'style' => $style,
             'breadcrumb_data' => $product,
+            'stocks' => $stocks,
         ]);
+    }
+    /**
+     * 編輯 - 銷售控管 - 庫存管理(儲存)
+     *
+     * @param  int  $id 商品id
+     * @param  int  $sid 款式id
+     * @return \Illuminate\Http\Response
+     */
+    public function updateStock(Request $request, $id, $sid)
+    {
+        $request->validate([
+            'safety_stock' => 'required|numeric',
+            'overbought' => 'required|numeric',
+        ]);
+
+        $d = request()->all();
+
+        $re = ProductStyle::stockProcess($sid, $d['safety_stock'], $d['overbought'], $d['sale_id'], $d['qty']);
+
+        if (!$re['success']) {
+            return redirect()->back()->withErrors(['status' => $re['error_msg']]);
+        }
+        wToast('修改完成');
+        return redirect()->back();
     }
     /**
      * 編輯 - 銷售控管 - 價格管理
@@ -373,7 +403,7 @@ class ProductCtrl extends Controller
     {
         $product = self::product_data($id);
         $style = ProductStyle::where('id', $sid)->get()->first();
-        
+
         return view('cms.commodity.product.sales-price', [
             'product' => $product,
             'style' => $style,
@@ -461,7 +491,7 @@ class ProductCtrl extends Controller
     {
         $product = self::product_data($id);
         $styles = ProductStyle::where('product_id', $id)->get()->toArray();
-        // dd($styles);
+
         return view('cms.commodity.product.combo', [
             'product' => $product,
             'styles' => $styles,

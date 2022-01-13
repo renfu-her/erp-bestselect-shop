@@ -24,23 +24,39 @@ class SaleChannel extends Model
 
         return DB::transaction(function () use ($sale_id, $style_id, $qty) {
             $tableName = 'prd_salechannel_style_stock';
+          
+           
             if (!DB::table($tableName)
                 ->where('style_id', $style_id)
-                ->where('sale_channel_id', $style_id)
+                ->where('sale_channel_id', $sale_id)
                 ->get()
                 ->first()) {
+
                 DB::table($tableName)
                     ->insert(['style_id' => $style_id,
                         'sale_channel_id' => $sale_id,
                         'in_stock' => $qty]);
+
             } else {
                 DB::table($tableName)
                     ->where('style_id', $style_id)
-                    ->where('sale_channel_id', $style_id)
+                    ->where('sale_channel_id', $sale_id)
                     ->update([
                         'in_stock' => DB::raw("in_stock + $qty")]);
+
             }
         });
+    }
+
+    public static function styleStockList($style_id, $is_realtime = 1)
+    {
+        return DB::table('prd_sale_channels as c')
+            ->leftJoin('prd_salechannel_style_stock as stock', 'c.id', '=', 'stock.sale_channel_id', 'left outer')
+            ->select('c.id as sale_id', 'c.title')
+            ->selectRaw('IF(stock.in_stock,stock.in_stock,0) as in_stock')
+            ->where('stock.style_id', $style_id)
+            ->orWhereNull('stock.style_id')
+            ->where('c.is_realtime', $is_realtime);
     }
 
     public static function changePrice($sale_id, $style_id, $dealer_price, $price, $origin_price, $bonus, $dividend)
