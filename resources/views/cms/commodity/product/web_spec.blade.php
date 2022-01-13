@@ -67,6 +67,8 @@
             showWordsLength($('input[maxlength]'));
             // 拖曳
             bindMove();
+            // 刪除
+            Clone_bindDelElem($('.-cloneElem .-del'));
             
             $('.-newSpec').off('click').on('click', function() {
                 Clone_bindCloneBtn($clone, function (cloneElem) {
