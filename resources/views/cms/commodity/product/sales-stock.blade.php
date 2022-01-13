@@ -68,7 +68,7 @@
                                 <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="right"
                                     title="倉庫剩餘庫存"></i>
                             </th>
-                            <th class="text-end pe-4 text-primary -remaining">{{ $style->in_stock }}</th>
+                            <th class="table-warning border-dark text-end pe-4 -remaining">{{ $style->in_stock }}</th>
                         </tr>
                     </tfoot>
                 </table>
@@ -165,7 +165,8 @@
     @push('sub-scripts')
         <script>
             // 實際庫存
-            const Old_stock = @json($style->in_stock);
+            // const Old_stock = @json($style->in_stock);
+            const Old_stock = 10;
             
             // 數量異動 input
             $('input[name="qty[]"]').on('change', function() {
@@ -221,7 +222,13 @@
                         }
                     }
                 });
+                // 總計試算
                 $('#Non_instant .-sum').text(sum);
+                if (sum < 0) {
+                    $('#Non_instant .-sum').addClass('text-danger');
+                } else {
+                    $('#Non_instant .-sum').removeClass('text-danger');
+                }
 
                 // 計算實際庫存
                 const New_stock = Old_stock - total_qty;
@@ -230,10 +237,10 @@
                     return Number($('input[name="qty[]"]')[index].value) + New_stock;
                 });
                 if (New_stock < 0) {
-                    $('th.-remaining').removeClass('text-primary').addClass('text-danger');
+                    $('th.-remaining').addClass('text-danger');
                     checkCount &= false;
                 } else {
-                    $('th.-remaining').removeClass('text-danger').addClass('text-primary');
+                    $('th.-remaining').removeClass('text-danger');
                 }
 
                 if (checkCount) {
