@@ -13,18 +13,18 @@
         </a>
     </div>
     <div class="row">
-        <div class="col-12 mb-3">
-            <label class="form-label">款式</label>
-            <input class="form-control" type="text" value="S、R" readonly aria-label="款式">
-        </div>
-        <div class="col-12 col-md-6 mb-3">
-            <label class="form-label">負責人</label>
-            <input class="form-control" type="text" value="施欽元" readonly aria-label="負責人">
-        </div>
-        <div class="col-12 col-md-6 mb-3">
-            <label class="form-label">廠商名稱</label>
-            <input class="form-control" type="text" value="BANNIES" readonly aria-label="廠商名稱">
-        </div>
+        <fieldset class="col-12 mb-3">
+            <legend class="col-form-label">款式</legend>
+            <div class="form-control">S、R</div>
+        </fieldset>
+        <fieldset class="col-12 col-md-6 mb-3">
+            <legend class="col-form-label">負責人</legend>
+            <div class="form-control">施欽元</div>
+        </fieldset>
+        <fieldset class="col-12 col-md-6 mb-3">
+            <legend class="col-form-label">廠商名稱</legend>
+            <div class="form-control">BANNIES</div>
+        </fieldset>
     </div>
 </div>
 <form action="" method="POST">
@@ -34,13 +34,80 @@
             <table class="table tableList table-hover mb-1">
                 <thead>
                     <tr>
-                        <th scope="col"></th>
+                        <th scope="col">銷售通路</th>
+                        <th scope="col">售價</th>
+                        <th scope="col">經銷價</th>
+                        <th scope="col">定價</th>
+                        {{-- <th scope="col">預估成本</th> --}}
+                        <th scope="col">獎金
+                            <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="預設：(售價-經銷價) × 0.97"></i>
+                        </th>
+                        <th scope="col">喜鴻紅利抵扣</th>
                     </tr>
                 </thead>
                 <tbody>
                     {{-- @foreach ($styles as $styleKey => $style) --}}
                         <tr>
-                            <td></td>
+                            <th scope="row">蝦皮
+                                <input type="hidden" name="sale_channel_id[]" value="">
+                            </th>
+                            <td>
+                                <div class="input-group input-group-sm flex-nowrap">
+                                    <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                    <input type="number" class="form-control form-control-sm" name="price[]" min="0" value="" required/>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="input-group input-group-sm flex-nowrap">
+                                    <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                    <input type="number" class="form-control form-control-sm" name="dealer_price[]" min="0" value="" required/>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="input-group input-group-sm flex-nowrap">
+                                    <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                    <input type="number" class="form-control form-control-sm" name="origin_price[]" min="0" value="" required/>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="input-group input-group-sm flex-nowrap">
+                                    <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                    <input type="number" class="form-control form-control-sm" name="bonus[]" min="0" value="" required/>
+                                </div>
+                            </td>
+                            <td>無法提供</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">官網
+                                <input type="hidden" name="sale_channel_id[]" value="">
+                            </th>
+                            <td>
+                                <div class="input-group input-group-sm flex-nowrap">
+                                    <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                    <input type="number" class="form-control form-control-sm" name="price[]" min="0" value="" required/>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="input-group input-group-sm flex-nowrap">
+                                    <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                    <input type="number" class="form-control form-control-sm" name="dealer_price[]" min="0" value="" required/>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="input-group input-group-sm flex-nowrap">
+                                    <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                    <input type="number" class="form-control form-control-sm" name="origin_price[]" min="0" value="" required/>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="input-group input-group-sm flex-nowrap">
+                                    <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                    <input type="number" class="form-control form-control-sm" name="bonus[]" min="0" value="" required/>
+                                </div>
+                            </td>
+                            <td>
+                                <input type="number" class="form-control form-control-sm" name="dividend[]" min="0" value="" required>
+                            </td>
                         </tr>
                     {{-- @endforeach --}}
                 </tbody>
