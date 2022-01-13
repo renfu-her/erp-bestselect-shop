@@ -361,6 +361,7 @@ class ProductCtrl extends Controller
         if (!$product || !$style) {
             return abort(404);
         }
+        $style->spec_titles = [$style->spec_item1_title, $style->spec_item2_title, $style->spec_item3_title];
         $stocks = SaleChannel::styleStockList($sid)->get()->toArray();
         $notCompleteDeliverys = SaleChannel::notCompleteDelivery($sid)->get()->toArray();
         return view('cms.commodity.product.sales-stock', [

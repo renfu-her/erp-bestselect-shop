@@ -16,7 +16,9 @@
             <fieldset class="col-12 mb-2">
                 <legend class="col-form-label">款式</legend>
                 <div class="d-flex flex-wrap">
-                    <span class="form-control col-auto me-2 mb-2">{{ $style->title }}</span>
+                    @foreach ($style->spec_titles as $title)
+                        <span class="form-control col-auto me-2 mb-2">{{ $title }}</span>
+                    @endforeach
                 </div>
             </fieldset>
             <fieldset class="col-12 col-md-6 mb-3">
@@ -26,12 +28,13 @@
             @php
                 $suppliers = json_decode($product->suppliers);
             @endphp
-            <fieldset class="col-12 col-md-6 mb-3">
+            <fieldset class="col-12 col-md-6 mb-2">
                 <legend class="col-form-label">廠商名稱</legend>
-                @foreach ($suppliers as $key => $supplier)
-                    <div class="form-control">{{ $supplier->name }}</div>
-                @endforeach
-
+                <div class="d-flex flex-wrap">
+                    @foreach ($suppliers as $supplier)
+                        <span class="form-control col-auto me-2 mb-2">{{ $supplier->name }}</span>
+                    @endforeach
+                </div>
             </fieldset>
         </div>
     </div>
@@ -67,8 +70,6 @@
                                     min="0" class="form-control form-control-sm">
                             </td>
                         </tr>
-                    </tbody>
-                    <tfoot>
                         <tr>
                             <th>實際庫存
                                 <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="right"
@@ -76,7 +77,7 @@
                             </th>
                             <th class="table-warning border-dark text-end pe-4 -remaining">{{ $style->in_stock }}</th>
                         </tr>
-                    </tfoot>
+                    </tbody>
                 </table>
                 <hr>
 
@@ -137,7 +138,13 @@
                         </tr>
                     </thead>
                     <tbody class="border-secondary">
+                        @php
+                            $sum = 0;
+                        @endphp
                         @foreach ($notCompleteDeliverys as $key => $notCompleteDelivery)
+                            @php
+                                $sum += 0;
+                            @endphp
                             <tr>
                                 <th scope="row">{{ $notCompleteDelivery->title }}</th>
                                 <td>0</td>
@@ -147,7 +154,7 @@
                     <tfoot class="border-secondary">
                         <tr>
                             <th>總計</th>
-                            <td>0</td>
+                            <td>{{ $sum }}</td>
                         </tr>
                     </tfoot>
                 </table>
