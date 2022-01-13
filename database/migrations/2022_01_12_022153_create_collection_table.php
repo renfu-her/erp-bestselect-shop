@@ -20,7 +20,7 @@ class CreateCollectionTable extends Migration
 //            $table->string('image_url')->comment('商品群組圖片Url連結');
             $table->string('meta_title')->nullable()->comment('商品群組網頁標題');
             $table->string('meta_description')->nullable()->comment('商品群組網頁描述');
-            $table->boolean('is_public')->comment('商品群組狀態：公開、隱藏');
+            $table->boolean('is_public')->default(false)->comment('商品群組狀態：公開、隱藏');
             $table->timestamps();
         });
     }
