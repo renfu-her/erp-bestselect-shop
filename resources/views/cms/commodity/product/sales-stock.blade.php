@@ -13,27 +13,34 @@
             </a>
         </div>
         <div class="row">
-            <div class="col-12 mb-3">
-                <label class="form-label">款式</label>
-                <input class="form-control" type="text" value="{{ $style->title }}" readonly aria-label="款式">
-            </div>
-            <div class="col-12 col-md-6 mb-3">
-                <label class="form-label">負責人</label>
-                <input class="form-control" type="text" value="施欽元" readonly aria-label="負責人">
-            </div>
-            <div class="col-12 col-md-6 mb-3">
-                <label class="form-label">廠商名稱</label>
-                <input class="form-control" type="text" value="BANNIES" readonly aria-label="廠商名稱">
-            </div>
+            <fieldset class="col-12 mb-2">
+                <legend class="col-form-label">款式</legend>
+                <div class="d-flex flex-wrap">
+                    <span class="form-control col-auto me-2 mb-2">{{ $style->title }}</span>
+                </div>
+            </fieldset>
+            <fieldset class="col-12 col-md-6 mb-3">
+                <legend class="col-form-label">負責人</legend>
+                <div class="form-control">&nbsp;</div>
+            </fieldset>
+            <fieldset class="col-12 col-md-6 mb-3">
+                <legend class="col-form-label">廠商名稱</legend>
+                <div class="form-control">&nbsp;</div>
+            </fieldset>
         </div>
     </div>
     <form action="{{ route('cms.product.edit-stock', ['id' => $product->id, 'sid' => $style->id]) }}" method="POST">
         @csrf
         <div class="card shadow p-4 mb-4">
             <h6>各通路庫存</h6>
+            @error('status')
+                <div class="alert alert-danger" role="alert">
+                    {{ $message }}
+                </div>
+            @enderror
 
             <div class="table-responsive">
-                <label class="text-primary py-1 fw-bold">總即時庫存</label>
+                <span class="badge -step mb-2">總即時庫存</span>
                 <table class="table table-bordered border-dark align-middle mb-4">
                     <tbody>
                         <tr>
@@ -55,7 +62,7 @@
                             </td>
                         </tr>
                     </tbody>
-                    <tfoot class="table-light border-dark">
+                    <tfoot>
                         <tr>
                             <th>實際庫存
                                 <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="right"
@@ -65,7 +72,8 @@
                         </tr>
                     </tfoot>
                 </table>
-
+                <hr>
+                
                 <label class="text-secondary py-1 fw-bold">非即時庫存</label>
                 <table id="Non_instant" class="table table-bordered border-secondary align-middle mb-4">
                     <thead>
@@ -81,7 +89,13 @@
                         </tr>
                     </thead>
                     <tbody class="border-secondary">
+                        @php
+                            $sum = 0;
+                        @endphp
                         @foreach ($stocks as $key => $stock)
+                            @php
+                                $sum += $stock->in_stock;
+                            @endphp
                             <tr>
                                 <th scope="row">{{ $stock->title }}</th>
                                 <td data-td="stock">{{ $stock->in_stock }}</td>
@@ -94,18 +108,16 @@
                                 <input type="hidden" name="sale_id[]" value={{ $stock->sale_id }}>
                             </tr>
                         @endforeach
-
                     </tbody>
-                    <tfoot class="table-light border-secondary">
+                    <tfoot class="border-secondary">
                         <tr>
                             <th>總計試算</th>
-                            <td colspan="3" class="text-end pe-4 -sum"></td>
+                            <td>{{ $sum }}</td>
+                            <td colspan="2" class="table-warning border-secondary text-end pe-4 -sum">{{ $sum }}</td>
                         </tr>
                     </tfoot>
                 </table>
-                @error('status')
-                {{ $message }}
-                @enderror
+
                 <label class="text-secondary py-1 fw-bold">即時庫存</label>
                 <table class="table table-bordered border-secondary align-middle">
                     <thead>
@@ -154,7 +166,7 @@
         <script>
             // 實際庫存
             const Old_stock = @json($style->in_stock);
-            countStock();
+            
             // 數量異動 input
             $('input[name="qty[]"]').on('change', function() {
                 countStock();
@@ -181,9 +193,9 @@
 
                 $('tbody td[data-td="stock"]').each(function(index, element) {
                     // element == this
-                    const stock = Number($(element).text());
+                    const stock = Number($(element).text());    // 預扣庫存
                     const $qty = $(element).siblings('td[data-td="qty"]').find('input[name="qty[]"]');
-                    const qty = Number($qty.val());
+                    const qty = Number($qty.val());     // 異動數量
                     const min = Number($qty.attr('min'));
                     const max = Number($qty.attr('max'));
                     if (isFinite(qty) && isFinite(stock)) {

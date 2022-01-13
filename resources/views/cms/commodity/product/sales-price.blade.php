@@ -16,18 +16,16 @@
         <fieldset class="col-12 mb-2">
             <legend class="col-form-label">款式</legend>
             <div class="d-flex flex-wrap">
-                <span class="form-control col-auto me-2 mb-2">兒童款</span>
-                <span class="form-control col-auto me-2 mb-2">紅色</span>
-                <span class="form-control col-auto me-2 mb-2">超長長長長長長長長長長長長長長長長長長款式</span>
+                <span class="form-control col-auto me-2 mb-2">{{ $style->title }}</span>
             </div>
         </fieldset>
         <fieldset class="col-12 col-md-6 mb-3">
             <legend class="col-form-label">負責人</legend>
-            <div class="form-control">施欽元</div>
+            <div class="form-control">&nbsp;</div>
         </fieldset>
         <fieldset class="col-12 col-md-6 mb-3">
             <legend class="col-form-label">廠商名稱</legend>
-            <div class="form-control">BANNIES</div>
+            <div class="form-control">&nbsp;</div>
         </fieldset>
     </div>
 </div>
