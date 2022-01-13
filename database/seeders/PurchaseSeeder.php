@@ -118,6 +118,7 @@ class PurchaseSeeder extends Seeder
             5,
             '入庫OK 1物品退換貨',
         );
+        PurchaseInbound::delInbound($purchaseInbound1, $user_id_5);
         $purchaseInbound3 = PurchaseInbound::createInbound(
             $purchaseID1,
             $product_style_id1,
@@ -132,9 +133,15 @@ class PurchaseSeeder extends Seeder
         );
 
         $sellCount = 2;
-        PurchaseInbound::sellInbound(
+        PurchaseInbound::shippingInbound(
             $purchaseInbound2,
             $sellCount,
+        );
+
+        $errorCount = 1;
+        PurchaseInbound::sendBackInbound(
+            $purchaseInbound2,
+            $errorCount,
         );
     }
 }

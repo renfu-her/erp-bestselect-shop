@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\InboundEvent;
 use App\Enums\StockEvent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -29,39 +30,79 @@ class PurchaseInbound extends Model
             "inbound_user_id" => $inbound_user_id,
             "memo" => $memo
         ])->id;
+
+        //入庫 新增入庫數量
+        //寫入ProductStock
+        PurchaseInboundLog::stockChange($id, $inbound_num, InboundEvent::inbound()->value);
         ProductStock::stockChange($product_style_id, $inbound_num, StockEvent::inbound()->value, $id);
 
         return $id;
     }
 
+    //取消入庫 刪除資料
+    public static function delInbound($id, $user_id)
+    {
+        return DB::transaction(function () use (
+            $id,
+            $user_id
+        ) {
+            $inboundData = PurchaseInbound::where('id', '=', $id);
+            $inboundDataGet = $inboundData->get()->first();
+            if (null != $inboundDataGet) {
+                //刪除
+                //判斷是否已結單 有則不能刪
+                $purchaseData = DB::table('pcs_purchase as purchase')
+                    ->leftJoin('pcs_purchase_inbound as inbound', 'inbound.purchase_id', '=', 'purchase.id')
+                    ->select('purchase.close_date as close_date')
+                    ->get()->first();
+                if (null != $purchaseData->close_date) {
+                    return ['success' => 0, 'error_msg' => 'purchase already close, so cant be delete'];
+                }
+                //判斷是否有賣出過 有則不能刪
+                //寫入ProductStock
+                else if (is_numeric($inboundDataGet->sale_num) && 0 < $inboundDataGet->sale_num) {
+                    return ['success' => 0, 'error_msg' => 'inbound already sell'];
+                } else {
+                    PurchaseInboundLog::stockChange($id, $inboundDataGet->inbound_num * -1, InboundEvent::delete()->value, $user_id . '刪除入庫單');
+                    ProductStock::stockChange($inboundDataGet->product_style_id, $inboundDataGet->inbound_num * -1, StockEvent::inbound_del()->value, $id, $user_id . '刪除入庫單');
+                    $inboundData->delete();
+                }
+            }
+        });
+    }
+
     //售出 更新資料
-    public static function sellInbound($id, $sale_num = 0)
+    public static function shippingInbound($id, $sale_num = 0)
     {
         return DB::transaction(function () use (
             $id,
             $sale_num
         ) {
-            $inboundData = self::where('id', '=', $id);
+            $inboundData = PurchaseInbound::where('id', '=', $id);
             $inboundDataGet = $inboundData->get()->first();
             if (null != $inboundDataGet) {
-                $inboundData->update([
-                    'sale_num' => DB::raw('sale_num + '. $sale_num ),
-                ]);
+                if (($inboundDataGet->inbound_num - $inboundDataGet->sale_num - $sale_num) < 0) {
+                    return ['success' => 0, 'error_msg' => '數量超出範圍'];
+                } else {
+                    PurchaseInbound::where('id', $id)
+                        ->update(['sale_num' => DB::raw("sale_num + $sale_num")]);
+                    PurchaseInboundLog::stockChange($id, $sale_num, InboundEvent::shipping()->value);
+                }
             }
-
-            return $id;
         });
     }
 
-    //取消入庫 刪除資料
-    public static function delInbound($id, $user_id)
+    //使用者退回 更新資料 寫入error_num
+    public static function sendBackInbound($id, $send_back_num = 0)
     {
-        $inboundData = PurchaseInbound::where('id', '=', $id);
-        $inboundDataGet = $inboundData->get()->first();
-        if (null != $inboundDataGet) {
-            ProductStock::stockChange($inboundDataGet->product_style_id, $inboundDataGet->inbound_num * -1, StockEvent::inbound()->value, $inboundDataGet->id, '使用者:'. $user_id. ' '. '刪除入庫單');
-            $inboundData->delete();
-        }
+        return DB::transaction(function () use (
+            $id,
+            $send_back_num
+        ) {
+            PurchaseInbound::where('id', $id)
+                ->update(['error_num' => DB::raw("error_num + $send_back_num")]);
+            PurchaseInboundLog::stockChange($id, $send_back_num, InboundEvent::send_back()->value);
+        });
     }
 
     //歷史入庫
