@@ -201,6 +201,20 @@ Breadcrumbs::for('cms.shipment.edit', function ($trail) {
     $trail->push('編輯');
 });
 
+//商品群組設定
+Breadcrumbs::for('cms.collection.index', function ($trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('商品群組', route('cms.collection.index'));
+});
+Breadcrumbs::for('cms.collection.create', function ($trail) {
+    $trail->parent('cms.collection.index');
+    $trail->push('新增');
+});
+Breadcrumbs::for('cms.collection.edit', function ($trail) {
+    $trail->parent('cms.collection.index');
+    $trail->push('編輯');
+});
+
 
 /** 帳號管理 */
 

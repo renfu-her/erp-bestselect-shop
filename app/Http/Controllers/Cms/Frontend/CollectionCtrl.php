@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Cms\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Collection;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 class CollectionCtrl extends Controller
 {
@@ -12,9 +14,17 @@ class CollectionCtrl extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request, Collection $collection)
     {
-        //
+        $query = $request->query();
+        $dataList = $collection->paginate(10)->appends($query);
+        $data_per_page = Arr::get($query, 'data_per_page', 10);
+        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
+
+        return view('cms.frontend.collection.list', [
+            'dataList' => $dataList,
+            'data_per_page' => $data_per_page
+        ]);
     }
 
     /**
@@ -24,18 +34,20 @@ class CollectionCtrl extends Controller
      */
     public function create()
     {
-        //
+        return view('cms.frontend.collection.edit', [
+            'method' => 'create',
+            'formAction' => Route('cms.collection.create'),
+        ]);
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreCollectionRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreCollectionRequest $request)
+    public function store(Request $request)
     {
-        //
+
     }
 
     /**
