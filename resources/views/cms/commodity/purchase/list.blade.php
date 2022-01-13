@@ -110,9 +110,9 @@
                 <label class="form-label">入庫起訖日期</label>
                 <div class="input-group has-validation">
                     <input type="date" class="form-control -startDate @error('') is-invalid @enderror"
-                           name="inbound_sdate" value="{{ $inbound_sdate }}" aria-label="採購起始日期" required />
+                           name="inbound_sdate" value="{{ $inbound_sdate }}" aria-label="入庫起始日期" />
                     <input type="date" class="form-control -endDate @error('') is-invalid @enderror"
-                           name="inbound_edate" value="{{ $inbound_edate }}" aria-label="採購結束日期" required />
+                           name="inbound_edate" value="{{ $inbound_edate }}" aria-label="入庫結束日期" />
                     <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
                     <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
                     <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
@@ -167,7 +167,7 @@
             <div class="col-auto">
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
-                    @foreach (config('global.dataPerPage') as $value)
+                    @foreach (config('global.dataPerPage_big') as $value)
                         <option value="{{ $value }}" @if ($data_per_page == $value) selected @endif>{{ $value }}</option>
                     @endforeach
                 </select>
