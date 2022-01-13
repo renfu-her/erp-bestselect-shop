@@ -86,6 +86,7 @@ class PurchaseCtrl extends Controller
 
             , 'purchase_sn' => $purchase_sn
             , 'title' => $title
+            , 'sku' => $sku
             , 'purchase_user_id' => $purchase_user_id
             , 'purchase_sdate' => $purchase_sdate
             , 'purchase_edate' => $purchase_edate

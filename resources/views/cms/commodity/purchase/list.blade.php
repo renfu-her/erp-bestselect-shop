@@ -9,7 +9,7 @@
         <div class="row">
             <div class="col-12 col-md-6 mb-3">
                 <label class="form-label">採購單號</label>
-                <input class="form-control" name="purchase_sn" type="text" placeholder="採購單號" value=""
+                <input class="form-control" name="purchase_sn" type="text" placeholder="採購單號" value="{{$purchase_sn}}"
                        aria-label="採購單號">
             </div>
             <div class="col-12 col-sm-6 mb-3">
@@ -17,16 +17,16 @@
                 <select class="form-select -select2 -multiple" multiple name="purchase_user_id[]" aria-label="採購人員" data-placeholder="多選">
                     @foreach ($userList as $key => $data)
                         <option value="{{ $data->id }}"
-                                @if ($data->id === old('purchase_user_id', '')) selected @endif>{{ $data->name }}</option>
+                                @if (in_array($data->id, $purchase_user_id ?? []))) selected @endif>{{ $data->name }}</option>
                     @endforeach
                 </select>
             </div>
             <div class="col-12 col-md-6 mb-3">
                 <label class="form-label">入庫狀態</label>
-                <select class="form-select -select2 -multiple" multiple name="inbound_status[]" aria-label="採購人員" data-placeholder="多選">
+                <select class="form-select -select2 -multiple" multiple name="inbound_status[]" aria-label="入庫狀態" data-placeholder="多選">
                     @foreach (App\Enums\Purchase\InboundStatus::asArray() as $key => $data)
                         <option value="{{ $data }}"
-                                @if ($data === old('inbound_status', '')) selected @endif>{{ App\Enums\Purchase\InboundStatus::getDescription($data) }}</option>
+                                @if (in_array($data, $inbound_status ?? []))) selected @endif>{{ App\Enums\Purchase\InboundStatus::getDescription($data) }}</option>
                     @endforeach
                 </select>
             </div>
@@ -35,7 +35,7 @@
                 <select class="form-select -select2 -multiple" multiple name="inbound_user_id[]" aria-label="入庫人員" data-placeholder="多選">
                     @foreach ($userList as $key => $data)
                         <option value="{{ $data->id }}"
-                                @if ($data->id === old('inbound_user_id', '')) selected @endif>{{ $data->name }}</option>
+                                @if (in_array($data->id, $inbound_user_id ?? []))) selected @endif>{{ $data->name }}</option>
                     @endforeach
                 </select>
             </div>
@@ -45,7 +45,7 @@
                     <option value="" selected disabled>請選擇</option>
                     @foreach ($supplierList as $supplierItem)
                         <option value="{{ $supplierItem->id }}"
-                                @if ($supplierItem->id == old('supplier_id', $purchaseData->supplier_id ?? '')) selected @endif>
+                                @if ($supplierItem->id == $supplier_id ?? '')) selected @endif>
                             {{ $supplierItem->name }}@if ($supplierItem->nickname)（{{ $supplierItem->nickname }}） @endif
                         </option>
                     @endforeach
@@ -54,34 +54,34 @@
             <div class="col-12 col-sm-6 mb-3">
                 <label class="form-label">倉庫</label>
                 <select class="form-select" name="depot_id" aria-label="倉庫">
-                    <option value="" selected disabled>請選擇</option>
+                    <option value="" @if ('' == $depot_id ?? '') selected @endif disabled>請選擇</option>
                     <@foreach ($depotList as $key => $data)
                         <option value="{{ $data->id }}"
-                                @if ($data->id === old('depot_id', '')) selected @endif>{{ $data->name }}</option>
+                                @if ($data->id === $depot_id ?? '') selected @endif>{{ $data->name }}</option>
                     @endforeach
                 </select>
             </div>
             <div class="col-12 col-sm-6 mb-3">
                 <label class="form-label">商品名稱</label>
-                <input class="form-control" name="title" type="text" placeholder="請輸入商品名稱" value=""
+                <input class="form-control" name="title" type="text" placeholder="請輸入商品名稱" value="{{$title??''}}"
                        aria-label="商品名稱">
             </div>
             <div class="col-12 col-sm-6 mb-3">
                 <label class="form-label">SKU</label>
-                <input class="form-control" name="sku" type="text" placeholder="請輸入SKU碼" value=""
+                <input class="form-control" name="sku" type="text" placeholder="請輸入SKU碼" value="{{$sku??''}}"
                        aria-label="SKU">
             </div>
             <div class="col-12 col-sm-6 mb-3">
                 <label class="form-label">效期</label>
                 <select class="form-select" name="expire_day" aria-label="效期">
-                    <option value="" selected>不限</option>
-                    <option value="90">近90天</option>
-                    <option value="60">近60天</option>
-                    <option value="45">近45天</option>
-                    <option value="30">近30天</option>
-                    <option value="15">近15天</option>
-                    <option value="7">近7天</option>
-                    <option value="-1">已過期</option>
+                    <option value="" @if ('' == $expire_day ?? '') selected @endif>不限</option>
+                    <option value="90" @if (90 == $expire_day ?? '') selected @endif>近90天</option>
+                    <option value="60" @if (60 == $expire_day ?? '') selected @endif>近60天</option>
+                    <option value="45" @if (45 == $expire_day ?? '') selected @endif>近45天</option>
+                    <option value="30" @if (30 == $expire_day ?? '') selected @endif>近30天</option>
+                    <option value="15" @if (15 == $expire_day ?? '') selected @endif>近15天</option>
+                    <option value="7" @if (7 == $expire_day ?? '') selected @endif>近7天</option>
+                    <option value="-1" @if (-1 == $expire_day ?? '') selected @endif>已過期</option>
                 </select>
             </div>
             <div class="col-12 mb-3">
@@ -110,9 +110,9 @@
                 <label class="form-label">入庫起訖日期</label>
                 <div class="input-group has-validation">
                     <input type="date" class="form-control -startDate @error('') is-invalid @enderror"
-                           name="inbound_sdate" value="{{ '' }}" aria-label="採購起始日期" required />
+                           name="inbound_sdate" value="{{ $inbound_sdate }}" aria-label="採購起始日期" required />
                     <input type="date" class="form-control -endDate @error('') is-invalid @enderror"
-                           name="inbound_edate" value="{{ '' }}" aria-label="採購結束日期" required />
+                           name="inbound_edate" value="{{ $inbound_edate }}" aria-label="採購結束日期" required />
                     <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
                     <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
                     <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
