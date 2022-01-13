@@ -44,7 +44,6 @@ class PurchaseInbound extends Model
             $inboundData = self::where('id', '=', $id);
             $inboundDataGet = $inboundData->get()->first();
             if (null != $inboundDataGet) {
-                ProductStock::stockChange($inboundDataGet->product_style_id, -1 * $sale_num, StockEvent::order()->value, $inboundDataGet->id, '銷售數量 '. $sale_num);
                 $inboundData->update([
                     'sale_num' => DB::raw('sale_num + '. $sale_num ),
                 ]);
