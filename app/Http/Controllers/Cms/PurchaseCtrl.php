@@ -186,18 +186,20 @@ class PurchaseCtrl extends Controller
         if (!$purchaseData) {
             return abort(404);
         }
+        $isAlreadyPay = false;  // 是否已有付款
         $payingOrderList = PayingOrders::getPayingOrdersWithPurchaseID($id)->get();
 
-        $depositPayData = null;
-        $finalPayData = null;
+//        $depositPayData = null;
+//        $finalPayData = null;
         if (0 < count($payingOrderList)) {
-            foreach ($payingOrderList as $payingOrderItem) {
-                if ($payingOrderItem->type == 0) {
-                    $depositPayData = $payingOrderItem;
-                } else if ($payingOrderItem->type == 1) {
-                    $finalPayData = $payingOrderItem;
-                }
-            }
+            $isAlreadyPay = true;
+//            foreach ($payingOrderList as $payingOrderItem) {
+//                if ($payingOrderItem->type == 0) {
+//                    $depositPayData = $payingOrderItem;
+//                } else if ($payingOrderItem->type == 1) {
+//                    $finalPayData = $payingOrderItem;
+//                }
+//            }
         }
 
         $supplierList = Supplier::getSupplierList()->get();
@@ -206,9 +208,10 @@ class PurchaseCtrl extends Controller
             'id' => $id,
             'purchaseData' => $purchaseData,
             'purchaseItemData' => $purchaseItemData,
-            'payingOrderData' => $payingOrderList,
-            'depositPayData' => $depositPayData,
-            'finalPayData' => $finalPayData,
+//            'payingOrderData' => $payingOrderList,
+//            'depositPayData' => $depositPayData,
+//            'finalPayData' => $finalPayData,
+            'isAlreadyPay' => $isAlreadyPay,
             'method' => 'edit',
             'supplierList' => $supplierList,
             'formAction' => Route('cms.purchase.edit', ['id' => $id]),

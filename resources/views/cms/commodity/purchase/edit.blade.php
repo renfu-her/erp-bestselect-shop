@@ -145,10 +145,12 @@
                 @error('item_error')
                 <div class="alert alert-danger mt-3">{{ $message }}</div>
                 @enderror
+                @if(false == $isAlreadyPay)
                 <button id="addProductBtn" type="button"
                         class="btn btn-outline-primary border-dashed" style="font-weight: 500;">
                     <i class="bi bi-plus-circle bold"></i> 加入商品
                 </button>
+                @endif
             </div>
 
         </div>
