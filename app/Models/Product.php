@@ -13,11 +13,19 @@ class Product extends Model
     protected $table = 'prd_products';
     protected $guarded = [];
 
-    public static function productList($id = null, $title = null, $options = [])
+    public static function productList($title = null, $id = null, $options = [])
     {
+
         $re = DB::table('prd_products as product')
             ->select('product.id as id', 'product.title as title', 'product.sku as sku', 'product.type as type')
-            ->selectRaw('CASE product.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title');
+            ->selectRaw('CASE product.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title')
+            ->whereNull('product.deleted_at');
+
+       
+
+        if($title){
+            $re->where('product.title','like', "%$title%");
+        }
 
         if ($id) {
             $re->where('product.id', $id);
