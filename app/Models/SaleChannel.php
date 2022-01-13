@@ -47,16 +47,32 @@ class SaleChannel extends Model
             }
         });
     }
-
-    public static function styleStockList($style_id, $is_realtime = 1)
+    /**
+     * 非即時庫存
+     */
+    public static function styleStockList($style_id)
     {
         return DB::table('prd_sale_channels as c')
             ->leftJoin('prd_salechannel_style_stock as stock', 'c.id', '=', 'stock.sale_channel_id', 'left outer')
             ->select('c.id as sale_id', 'c.title')
             ->selectRaw('IF(stock.in_stock,stock.in_stock,0) as in_stock')
-            ->where('stock.style_id', $style_id)
-            ->orWhereNull('stock.style_id')
-            ->where('c.is_realtime', $is_realtime);
+            ->whereNull('c.deleted_at')
+            ->where('c.is_realtime', '0')
+            ->where(function($q) use($style_id){
+                $q->where('stock.style_id', $style_id)
+                ->orWhereNull('stock.style_id');
+            });          
+    }
+
+    /**
+     * 訂單未出庫
+     */
+    public static function notCompleteDelivery($style_id)
+    {
+        return DB::table('prd_sale_channels as c')
+            ->select('c.id as sale_id', 'c.title')
+            ->whereNull('c.deleted_at')
+            ->where('c.is_realtime', '1');   
     }
 
     public static function changePrice($sale_id, $style_id, $dealer_price, $price, $origin_price, $bonus, $dividend)
