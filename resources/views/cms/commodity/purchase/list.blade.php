@@ -133,13 +133,13 @@
                 <div class="px-1 pt-1">
                     <div class="form-check form-check-inline">
                         <label class="form-check-label">
-                            <input class="form-check-input" name="type" type="radio" value="0" checked>
+                            <input class="form-check-input" name="type" type="radio" value="0" @if (0 == $type ?? '' || '' == $type ?? '') checked @endif>
                             明細
                         </label>
                     </div>
                     <div class="form-check form-check-inline">
                         <label class="form-check-label">
-                            <input class="form-check-input" name="type" type="radio" value="1" >
+                            <input class="form-check-input" name="type" type="radio" value="1" @if (1 == $type ?? '') checked @endif>
                             總表
                         </label>
                     </div>

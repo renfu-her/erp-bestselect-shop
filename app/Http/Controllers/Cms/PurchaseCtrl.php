@@ -97,6 +97,7 @@ class PurchaseCtrl extends Controller
             , 'inbound_sdate' => $inbound_sdate
             , 'inbound_edate' => $inbound_edate
             , 'expire_day' => $expire_day
+            , 'type' => $type
         ]);
     }
 
