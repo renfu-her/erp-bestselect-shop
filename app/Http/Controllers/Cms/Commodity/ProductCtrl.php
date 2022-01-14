@@ -447,7 +447,7 @@ class ProductCtrl extends Controller
 
     private static function _getStyleTitle($style)
     {
-        if ($style->type == 'P') {
+        if ($style->type == 'p') {
             $spec_titles = [];
             for ($i = 1; $i <= 3; $i++) {
                 if ($style->{"spec_item" . $i . "_title"}) {

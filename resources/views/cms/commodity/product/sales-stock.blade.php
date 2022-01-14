@@ -25,7 +25,7 @@
                 <legend class="col-form-label">負責人</legend>
                 <div class="form-control">{{ $product->user_name }}</div>
             </fieldset>
-            @if ($style->type == 'P')
+            @if ($style->type == 'p')
                 @php
                     $suppliers = json_decode($product->suppliers);
                 @endphp
