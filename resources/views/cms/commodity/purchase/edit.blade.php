@@ -349,7 +349,7 @@
     @push('sub-scripts')
         <script>
             let supplierList = @json($supplierList);
-            let isAlreadyFinalPay = {{$isAlreadyFinalPay}};
+            let isAlreadyFinalPay = @json($isAlreadyFinalPay);
 
             if (true == isAlreadyFinalPay) {
                 $('.-cloneElem.--selectedP :input').prop("disabled", true);
