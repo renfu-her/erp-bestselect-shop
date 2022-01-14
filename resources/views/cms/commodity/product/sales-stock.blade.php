@@ -25,17 +25,19 @@
                 <legend class="col-form-label">負責人</legend>
                 <div class="form-control">{{ $product->user_name }}</div>
             </fieldset>
-            @php
-                $suppliers = json_decode($product->suppliers);
-            @endphp
-            <fieldset class="col-12 col-md-6 mb-2">
-                <legend class="col-form-label">廠商名稱</legend>
-                <div class="d-flex flex-wrap form-control">
-                    @foreach ($suppliers as $supplier)
-                        <span class="badge rounded-pill bg-secondary me-2">{{ $supplier->name }}</span>
-                    @endforeach
-                </div>
-            </fieldset>
+            @if ($style->type == 'p')
+                @php
+                    $suppliers = json_decode($product->suppliers);
+                @endphp
+                <fieldset class="col-12 col-md-6 mb-2">
+                    <legend class="col-form-label">廠商名稱</legend>
+                    <div class="d-flex flex-wrap form-control">
+                        @foreach ($suppliers as $supplier)
+                            <span class="badge rounded-pill bg-secondary me-2">{{ $supplier->name }}</span>
+                        @endforeach
+                    </div>
+                </fieldset>
+            @endif
         </div>
     </div>
     <form action="{{ route('cms.product.edit-stock', ['id' => $product->id, 'sid' => $style->id]) }}" method="POST">
@@ -176,6 +178,7 @@
                 font-size: .94rem;
                 font-weight: 400;
             }
+
         </style>
     @endpush
     @push('sub-scripts')

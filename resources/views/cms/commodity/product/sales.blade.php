@@ -12,10 +12,9 @@
                 <tr>
                     <th scope="col" class="text-center">庫存管理</th>
                     <th scope="col" class="text-center">價格管理</th>
+                    <th scope="col">規格</th>
                     <th scope="col">SKU</th>
-                    @foreach ($specList as $key => $spec)
-                        <th scope="col">{{ $spec->title }}</th>
-                    @endforeach
+                   
                     <th scope="col">庫存</th>
                 </tr>
             </thead>
@@ -34,14 +33,8 @@
                                 <i class="bi bi-tags"></i>
                             </a>
                         </td>
-                        <td>{{ $style['sku'] }}</td>
-                        @foreach ($specList as $specKey => $spec)
-                            <td>
-                                @foreach ($spec->items as $key => $value)
-                                    @if ($value->key == $style['spec_item' . ($specKey + 1) . '_id']) {{ $value->value }} @endif
-                                @endforeach
-                            </td>
-                        @endforeach
+                        <td>{{ $style['title'] }}</td>
+                        <td>{{ $style['sku'] }}</td>          
                         <td>{{ $style['in_stock'] }}</td>
                     </tr>
                 @endforeach
