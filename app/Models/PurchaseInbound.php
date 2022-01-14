@@ -169,9 +169,9 @@ class PurchaseInbound extends Model
             )
             ->selectRaw('min(items.sku) as sku') //款式SKU
             ->selectRaw('sum(items.num) as num') //採購數量
-            ->selectRaw('min(inbound.inbound_num) as inbound_num') //已到數量
-            ->selectRaw('min(inbound.error_num) as error_num') //異常數量
-            ->selectRaw('( COALESCE(sum(items.num), 0) - COALESCE(min(inbound.inbound_num), 0) ) AS should_enter_num') //應進數量
+            ->selectRaw('(inbound.inbound_num) as inbound_num') //已到數量
+            ->selectRaw('(inbound.error_num) as error_num') //異常數量
+            ->selectRaw('( COALESCE(sum(items.num), 0) - COALESCE((inbound.inbound_num), 0) ) AS should_enter_num') //應進數量
             ->whereNull('purchase.deleted_at')
             ->whereNull('items.deleted_at')
             ->where('purchase.id', '=', $purchase_id)
@@ -180,6 +180,8 @@ class PurchaseInbound extends Model
                 , 'products.title'
                 , 'styles.title'
                 , 'users.name'
+                , 'inbound.inbound_num'
+                , 'inbound.error_num'
             )
             ->orderBy('purchase.id')
             ->orderBy('items.product_style_id')
