@@ -184,7 +184,6 @@ class PurchaseInbound extends Model
             ->orderBy('purchase.id')
             ->orderBy('items.product_style_id')
             ->mergeBindings($tempInboundSql);
-        dd($result->get());
         return $result;
     }
 }
