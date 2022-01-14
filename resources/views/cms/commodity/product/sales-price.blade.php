@@ -102,11 +102,8 @@
                                         <input type="hidden" name="dividend[]" value="0">
                                     @endif
                                 </td>
-
                             </tr>
-
                         @endforeach
-
                     </tbody>
                 </table>
             </div>
@@ -132,6 +129,15 @@
     @endpush
     @push('sub-scripts')
         <script>
+            // 獎金%數
+            const BonusRate = 0.97;
+
+            $('input[name="price[]"], input[name="dealer_price[]"]').on('change', function () {
+                const $this = $(this);
+                const price = $this.closest('tr').find('input[name="price[]"]').val() || 0;
+                const dealer_price = $this.closest('tr').find('input[name="dealer_price[]"]').val() || 0;
+                $this.closest('tr').find('input[name="bonus[]"]').val(Math.floor((price - dealer_price) * BonusRate));
+            });
         </script>
     @endpush
 @endOnce
