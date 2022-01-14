@@ -167,7 +167,7 @@ class PurchaseInbound extends Model
                 , 'styles.title as style_title' //款式名稱
                 , 'users.name as user_name' //商品負責人
             )
-            ->selectRaw('any_value(items.sku) as sku') //款式SKU
+            ->selectRaw('min(items.sku) as sku') //款式SKU
             ->selectRaw('sum(items.num) as num') //採購數量
             ->selectRaw('(inbound.inbound_num) as inbound_num') //已到數量
             ->selectRaw('(inbound.error_num) as error_num') //異常數量
