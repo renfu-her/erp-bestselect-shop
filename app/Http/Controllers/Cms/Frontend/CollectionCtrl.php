@@ -102,11 +102,10 @@ class CollectionCtrl extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateCollectionRequest  $request
      * @param  \App\Models\Collection  $collection
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateCollectionRequest $request, Collection $collection)
+    public function update(Request $request, Collection $collection)
     {
         //
     }
