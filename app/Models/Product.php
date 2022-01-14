@@ -13,9 +13,47 @@ class Product extends Model
     protected $table = 'prd_products';
     protected $guarded = [];
 
-    public static function productList()
+    public static function productList($title = null, $id = null, $options = [])
     {
-        return self::select('id', 'title', 'sku')->selectRaw('CASE type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title');
+
+        $re = DB::table('prd_products as product')
+            ->select('product.id as id', 'product.title as title', 'product.sku as sku', 'product.type as type')
+            ->selectRaw('CASE product.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title')
+            ->whereNull('product.deleted_at');
+
+       
+
+        if($title){
+            $re->where('product.title','like', "%$title%");
+        }
+
+        if ($id) {
+            $re->where('product.id', $id);
+        }
+
+        if (isset($options['user'])) {
+            $re->leftJoin('usr_users as user', 'product.user_id', '=', 'user.id')
+                ->addSelect('user.name as user_name');
+        }
+
+        if (isset($options['supplier'])) {
+            $subSupplier = DB::table('prd_product_supplier as ps')
+                ->select('ps.product_id')
+                ->selectRaw('CONCAT("[",GROUP_CONCAT("{\\"id\\":",s.id,",\\"name\\":","\\"",s.name,"\\"","}"),"]") as suppliers')
+                ->leftJoin('prd_suppliers as s', 'ps.supplier_id', '=', 's.id')
+                ->groupBy('ps.product_id');
+
+            $re->leftJoin(DB::raw("({$subSupplier->toSql()}) as supplier"), function ($join) {
+                $join->on('product.id', '=', 'supplier.product_id');
+            });
+
+            $re->addSelect('supplier.suppliers');
+
+            $re->mergeBindings($subSupplier);
+
+        }
+
+        return $re;
     }
 
     public static function createProduct($title, $user_id, $category_id, $type = 'p', $feature = null, $url = null, $slogan = null, $active_sdate = null, $active_edate = null, $supplier = null, $has_tax = 0)

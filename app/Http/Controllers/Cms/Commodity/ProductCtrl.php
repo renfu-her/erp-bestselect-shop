@@ -10,6 +10,7 @@ use App\Models\ProductSpec;
 use App\Models\ProductSpecItem;
 use App\Models\ProductStyle;
 use App\Models\ProductStyleCombo;
+use App\Models\SaleChannel;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -70,7 +71,7 @@ class ProductCtrl extends Controller
             'category_id' => 'required',
             'supplier' => 'required|array',
             'type' => 'required|in:c,p',
-           // 'url'=>'unique:App\Models\Product'
+            // 'url'=>'unique:App\Models\Product'
         ]);
 
         // $path = $request->file('file')->store('excel');
@@ -80,7 +81,7 @@ class ProductCtrl extends Controller
 
         if ($request->hasfile('files')) {
             foreach ($request->file('files') as $file) {
-                $imgData[] = $file->store('product_imgs');
+                $imgData[] = $file->store('product_imgs/' . $re['id']);
             }
             ProductImg::createImgs($re['id'], $imgData);
         }
@@ -152,7 +153,7 @@ class ProductCtrl extends Controller
 
         $request->validate([
             'files.*' => 'max:5000|mimes:jpg,jpeg,png,bmp',
-          //  'url' => ["unique:App\Models\Product,url,$id,id", 'nullable'],
+            //  'url' => ["unique:App\Models\Product,url,$id,id", 'nullable'],
             'title' => 'required',
             'has_tax' => 'required',
             'active_sdate' => 'date|nullable',
@@ -168,7 +169,7 @@ class ProductCtrl extends Controller
 
         if ($request->hasfile('files')) {
             foreach ($request->file('files') as $file) {
-                $imgData[] = $file->store('product_imgs');
+                $imgData[] = $file->store('product_imgs/' . $id);
             }
             ProductImg::createImgs($id, $imgData);
         }
@@ -336,7 +337,7 @@ class ProductCtrl extends Controller
         $product = self::product_data($id);
         $specList = ProductSpec::specList($id);
         $styles = ProductStyle::where('product_id', $id)->get()->toArray();
-        
+
         return view('cms.commodity.product.sales', [
             'product' => $product,
             'specList' => $specList,
@@ -353,14 +354,55 @@ class ProductCtrl extends Controller
      */
     public function editStock($id, $sid)
     {
-        $product = self::product_data($id);
+        //$product = self::product_data($id);
+        $product = Product::productList(null, $id, ['user' => true, 'supplier' => true])->get()->first();
+
         $style = ProductStyle::where('id', $sid)->get()->first();
-        // dd($style);
+        if (!$product || !$style) {
+            return abort(404);
+        }
+        
+        $spec_titles = [];
+        for($i=1;$i<=3;$i++){ 
+            if($style->{"spec_item".$i."_title"}){
+               $spec_titles[] = $style->{"spec_item".$i."_title"};
+            }
+        }
+
+        $style->spec_titles = $spec_titles;
+        $stocks = SaleChannel::styleStockList($sid)->get()->toArray();
+        $notCompleteDeliverys = SaleChannel::notCompleteDelivery($sid)->get()->toArray();
         return view('cms.commodity.product.sales-stock', [
             'product' => $product,
             'style' => $style,
             'breadcrumb_data' => $product,
+            'stocks' => $stocks,
+            'notCompleteDeliverys'=>$notCompleteDeliverys
         ]);
+    }
+    /**
+     * 編輯 - 銷售控管 - 庫存管理(儲存)
+     *
+     * @param  int  $id 商品id
+     * @param  int  $sid 款式id
+     * @return \Illuminate\Http\Response
+     */
+    public function updateStock(Request $request, $id, $sid)
+    {
+        $request->validate([
+            'safety_stock' => 'required|numeric',
+            'overbought' => 'required|numeric',
+        ]);
+
+        $d = request()->all();
+
+        $re = ProductStyle::stockProcess($sid, $d['safety_stock'], $d['overbought'], $d['sale_id'], $d['qty']);
+
+        if (!$re['success']) {
+            return redirect()->back()->withErrors(['status' => $re['error_msg']]);
+        }
+        wToast('修改完成');
+        return redirect()->back();
     }
     /**
      * 編輯 - 銷售控管 - 價格管理
@@ -373,7 +415,7 @@ class ProductCtrl extends Controller
     {
         $product = self::product_data($id);
         $style = ProductStyle::where('id', $sid)->get()->first();
-        
+
         return view('cms.commodity.product.sales-price', [
             'product' => $product,
             'style' => $style,
@@ -461,7 +503,7 @@ class ProductCtrl extends Controller
     {
         $product = self::product_data($id);
         $styles = ProductStyle::where('product_id', $id)->get()->toArray();
-        // dd($styles);
+
         return view('cms.commodity.product.combo', [
             'product' => $product,
             'styles' => $styles,

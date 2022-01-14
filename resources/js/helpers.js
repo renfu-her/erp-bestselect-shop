@@ -12,4 +12,7 @@ $(function(){
     window.tooltipList = $('[data-bs-toggle="tooltip"]').each(function(){
         return new bootstrap.Tooltip($(this));
     });
+    window.popoverList = $('[data-bs-toggle="popover"]').each(function () {
+        return new bootstrap.Popover($(this));
+    });
 });

@@ -52,11 +52,11 @@ class ProductStyle extends Model
 
     public static function updateStyle($id, $product_id, $item_ids, $otherData = [])
     {
-        
+
         $data = [];
 
         $spec = self::_specQuery($product_id, $item_ids);
-     
+
         $title = '';
 
         foreach ($spec as $key => $v) {
@@ -97,8 +97,8 @@ class ProductStyle extends Model
         });
     }
 
-
-    public static function createSkuByProductId($product_id){
+    public static function createSkuByProductId($product_id)
+    {
         $styles = self::where('product_id', $product_id)->whereNull('sku')->select('id')->get()->toArray();
 
         foreach ($styles as $style) {
@@ -182,6 +182,45 @@ class ProductStyle extends Model
 
         return self::create($data)->id;
 
+    }
+
+    public static function stockProcess($style_id, $safety_stock, $overbought, $sale_ids = [], $qtys = [])
+    {
+
+        return DB::transaction(function () use ($style_id, $safety_stock, $overbought, $sale_ids, $qtys) {
+            // self::where('id', $style_id)->update(['safety_stock' => $safety_stock, $overbought => 'overbought']);
+            if (isset($sale_ids) && is_array($sale_ids)) {
+                $data = [];
+
+                for ($i = 0; $i < count($sale_ids); $i++) {
+                    if (isset($qtys[$i])) {
+                        $data[] = ['sale_id' => $sale_ids[$i], 'qty' => $qtys[$i]];
+                    }
+                }
+
+                usort($data, function ($a, $b) {
+                    return $a['qty'] > $b['qty'];
+                });
+
+               
+                foreach ($data as $value) {
+                    if ($value['qty'] != 0) {
+                        
+                        SaleChannel::changeStock($value['sale_id'], $style_id, $value['qty']);
+                        $re = ProductStock::stockChange($style_id, $value['qty'] * -1, 'sale', $value['sale_id']);
+                        if (!$re['success']) {
+                            DB::rollBack();
+                            return $re;
+                        }
+                    }
+                }
+            }
+
+            self::where('id', $style_id)->update(['safety_stock' => $safety_stock,
+                'overbought' => $overbought]);
+
+            return ['success' => 1];
+        });
     }
 
 }
