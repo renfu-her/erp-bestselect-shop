@@ -13,14 +13,15 @@
         @csrf
 
         <div class="card shadow p-4 mb-4">
-            <x-b-form-group name="name" title="商品群組名稱" required="true">
+            <x-b-form-group name="collection_name" title="商品群組名稱" required="true">
                 <input type="text"
-                       class="form-control @error('name') is-invalid @enderror"
-                       id="name"
-                       name="name"
-                       value="{{ old('name', $name ?? '')}}"
+                       class="form-control @error('collection_name') is-invalid @enderror"
+                       id="collection_name"
+                       name="collection_name"
+                       value="{{ old('collection_name', $collection_name ?? '')}}"
+                       required
                        aria-label="商品群組名稱"/>
-                @error('name')
+                @error('collection_name')
                 <div class="alert-danger"> {{ $message }} </div>
                 @enderror
             </x-b-form-group>
