@@ -210,6 +210,8 @@
                         class="btn btn-primary px-4">
                     結案
                 </button>
+                <a href="{{ Route('cms.purchase.index', [], true) }}" class="btn btn-outline-primary px-4"
+                   role="button">返回列表</a>
             </div>
         </div>
     @endif
