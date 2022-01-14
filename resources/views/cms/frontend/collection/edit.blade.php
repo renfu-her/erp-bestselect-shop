@@ -70,7 +70,7 @@
                     <tr>
                         <th scope="col" class="text-center">刪除</th>
                         <th scope="col">商品名稱</th>
-                        <th scope="col">款式</th>
+                        <th scope="col">商品形式</th>
                         <th scope="col">SKU</th>
                     </tr>
                     </thead>
@@ -82,32 +82,30 @@
                                         class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                     <i class="bi bi-trash"></i>
                                 </button>
-                                <input type="hidden" name="item_id[]" value="">
-                                {{--                            <input type="hidden" name="product_style_id[]" value="">--}}
+                                <input type="hidden" name="id[]" value="">
                                 <input type="hidden" name="name[]" value="">
-                                <input type="hidden" name="spec[]" value="">
+                                <input type="hidden" name="type_title[]" value="">
                                 <input type="hidden" name="sku[]" value="">
                             </th>
                             <td data-td="name"></td>
-                            <td data-td="spec"></td>
+                            <td data-td="type_title"></td>
                             <td data-td="sku"></td>
                         </tr>
-                    @elseif(count(old('item_id', $dataList ?? [])) > 0)
-                        @foreach (old('item_id', $dataList ?? []) as $key => $data)
+                    @elseif(count(old('id', $dataList ?? [])) > 0)
+                        @foreach (old('id', $dataList ?? []) as $key => $data)
                             <tr class="-cloneElem --selectedP d-none">
                                 <th class="text-center">
                 <button type="button"
                                             class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                         <i class="bi bi-trash"></i>
                                     </button>
-                                    <input type="hidden" name="item_id[]" value="{{ old('item_id.' . $key, $data->item_id ?? '') }}">
-                                    {{--                            <input type="hidden" name="product_style_id[]" value="">--}}
+                                    <input type="hidden" name="id[]" value="{{ old('id.' . $key, $data->id ?? '') }}">
                                     <input type="hidden" name="name[]" value="{{ old('name.' . $key, $data->name ?? '') }}">
-                                    <input type="hidden" name="spec[]" value="{{ old('spec.' . $key, $data->spec ?? '') }}">
+                                    <input type="hidden" name="type_title[]" value="{{ old('type_title.' . $key, $data->type_title ?? '') }}">
                                     <input type="hidden" name="sku[]" value="{{ old('sku.' . $key, $data->sku ?? '') }}">
                                 </th>
                                 <td data-td="name">{{ old('name.' . $key, $data->name ?? '') }}</td>
-                                <td data-td="spec">{{ old('spec.' . $key, $data->spec ?? '') }}</td>
+                                <td data-td="type_title">{{ old('type_title.' . $key, $data->type_title ?? '') }}</td>
                                 <td data-td="sku">{{ old('sku.' . $key, $data->sku ?? '') }}</td>
                             </tr>
                         @endforeach
@@ -144,7 +142,7 @@
                     <tr>
                         <th scope="col" class="text-center">選取</th>
                         <th scope="col">商品名稱</th>
-                        <th scope="col">款式</th>
+                        <th scope="col">商品形式</th>
                         <th scope="col">SKU</th>
                     </tr>
                     </thead>
@@ -155,7 +153,7 @@
                                    value="" data-td="p_id" aria-label="選取商品">
                         </th>
                         <td data-td="name"></td>
-                        <td data-td="spec"></td>
+                        <td data-td="type_title"></td>
                         <td data-td="sku"></td>
                     </tr>
                     </tbody>
@@ -191,9 +189,9 @@
                 appendClone: '.-appendClone.--selectedP',
                 cloneElem: '.-cloneElem.--selectedP',
                 beforeDelFn: function ({$this}) {
-                    const item_id = $this.siblings('input[name="item_id[]"]').val();
-                    if (item_id) {
-                        del_item_id.push(item_id);
+                    const id = $this.siblings('input[name="id[]"]').val();
+                    if (id) {
+                        del_item_id.push(id);
                         $('input[name="del_item_id"]').val(del_item_id.toString());
                     }
                 },
@@ -233,7 +231,7 @@
 
             // 商品清單 API
             function getProductList(page) {
-                let _URL = `${Laravel.apiUrl.productStyles}?page=${page}`;
+                let _URL = `${Laravel.apiUrl.productList}?page=${page}`;
                 let Data = {
                     keyword: $('#addProduct .-searchBar input').val(),
                     sku: $('#addProduct .-searchBar input').val(),
@@ -283,8 +281,8 @@
                             <input class="form-check-input" type="checkbox" ${checked}
                                 value="${p.id}" data-td="p_id" aria-label="選取商品">
                         </th>
-                        <td data-td="name">${p.product_title}</td>
-                        <td data-td="spec">${p.spec || ''}</td>
+                        <td data-td="name">${p.title}</td>
+                        <td data-td="type_title">${p.type_title || ''}</td>
                         <td data-td="sku">${p.sku}</td>
                     </tr>`);
                     $('#addProduct .-appendClone.--product').append($tr);
@@ -304,7 +302,7 @@
                                 id: $(element).val(),
                                 name: $(element).parent('th').siblings('[data-td="name"]').text(),
                                 sku: sku,
-                                spec: $(element).parent('th').siblings('[data-td="spec"]').text()
+                                type_title: $(element).parent('th').siblings('[data-td="type_title"]').text()
                             });
                         }
                     } else {
@@ -340,12 +338,12 @@
                         cloneElem.find('td[data-td]').text('');
                         cloneElem.find('.is-invalid').removeClass('is-invalid');
                         if (p) {
-                            cloneElem.find('input[name="product_style_id[]"]').val(p.id);
+                            cloneElem.find('input[name="id[]"]').val(p.id);
                             cloneElem.find('input[name="name[]"]').val(`${p.name}`);
-                            cloneElem.find('input[name="spec[]"]').val(p.spec);
+                            cloneElem.find('input[name="type_title[]"]').val(p.type_title);
                             cloneElem.find('input[name="sku[]"]').val(p.sku);
                             cloneElem.find('td[data-td="name"]').text(`${p.name}`);
-                            cloneElem.find('td[data-td="spec"]').text(p.spec);
+                            cloneElem.find('td[data-td="type_title"]').text(p.type_title);
                             cloneElem.find('td[data-td="sku"]').text(p.sku);
                         }
                     }, delItemOption);
