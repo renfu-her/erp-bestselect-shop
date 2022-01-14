@@ -24,8 +24,7 @@ class SaleChannel extends Model
 
         return DB::transaction(function () use ($sale_id, $style_id, $qty) {
             $tableName = 'prd_salechannel_style_stock';
-          
-           
+
             if (!DB::table($tableName)
                 ->where('style_id', $style_id)
                 ->where('sale_channel_id', $sale_id)
@@ -58,10 +57,10 @@ class SaleChannel extends Model
             ->selectRaw('IF(stock.in_stock,stock.in_stock,0) as in_stock')
             ->whereNull('c.deleted_at')
             ->where('c.is_realtime', '0')
-            ->where(function($q) use($style_id){
+            ->where(function ($q) use ($style_id) {
                 $q->where('stock.style_id', $style_id)
-                ->orWhereNull('stock.style_id');
-            });          
+                    ->orWhereNull('stock.style_id');
+            });
     }
 
     /**
@@ -72,7 +71,28 @@ class SaleChannel extends Model
         return DB::table('prd_sale_channels as c')
             ->select('c.id as sale_id', 'c.title')
             ->whereNull('c.deleted_at')
-            ->where('c.is_realtime', '1');   
+            ->where('c.is_realtime', '1');
+    }
+
+    /**
+     * 價格列表
+     */
+
+    public static function stylePriceList($style_id)
+    {
+        return DB::table('prd_sale_channels as c')
+            ->leftJoin('prd_salechannel_style_price as price', 'c.id', '=', 'price.sale_channel_id', 'left outer')
+            ->select('c.id as sale_id', 'c.title', 'c.is_realtime')
+            ->selectRaw('IF(price.dealer_price,price.dealer_price,0) as dealer_price')
+            ->selectRaw('IF(price.origin_price,price.origin_price,0) as origin_price')
+            ->selectRaw('IF(price.price,price.price,0) as price')
+            ->selectRaw('IF(price.bonus,price.bonus,0) as bonus')
+            ->selectRaw('IF(price.dividend,price.dividend,0) as dividend')
+            ->whereNull('c.deleted_at')
+            ->where(function ($q) use ($style_id) {
+                $q->where('price.style_id', $style_id)
+                    ->orWhereNull('price.style_id');
+            });
     }
 
     public static function changePrice($sale_id, $style_id, $dealer_price, $price, $origin_price, $bonus, $dividend)
@@ -87,7 +107,7 @@ class SaleChannel extends Model
 
             if (!DB::table($tableName)
                 ->where('style_id', $style_id)
-                ->where('sale_channel_id', $style_id)
+                ->where('sale_channel_id', $sale_id)
                 ->get()
                 ->first()) {
                 DB::table($tableName)
@@ -97,7 +117,7 @@ class SaleChannel extends Model
             } else {
                 DB::table($tableName)
                     ->where('style_id', $style_id)
-                    ->where('sale_channel_id', $style_id)
+                    ->where('sale_channel_id', $sale_id)
                     ->update($updateData);
             }
         });

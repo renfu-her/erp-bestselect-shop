@@ -359,15 +359,9 @@ class ProductCtrl extends Controller
         if (!$product || !$style) {
             return abort(404);
         }
-        
-        $spec_titles = [];
-        for($i=1;$i<=3;$i++){ 
-            if($style->{"spec_item".$i."_title"}){
-               $spec_titles[] = $style->{"spec_item".$i."_title"};
-            }
-        }
-        $style->spec_titles = $spec_titles;
-        
+
+        $style->spec_titles = self::_getStyleTitle($style);
+
         $stocks = SaleChannel::styleStockList($sid)->get()->toArray();
         $notCompleteDeliverys = SaleChannel::notCompleteDelivery($sid)->get()->toArray();
         return view('cms.commodity.product.sales-stock', [
@@ -375,7 +369,7 @@ class ProductCtrl extends Controller
             'style' => $style,
             'breadcrumb_data' => $product,
             'stocks' => $stocks,
-            'notCompleteDeliverys'=>$notCompleteDeliverys
+            'notCompleteDeliverys' => $notCompleteDeliverys,
         ]);
     }
     /**
@@ -416,20 +410,54 @@ class ProductCtrl extends Controller
         if (!$product || !$style) {
             return abort(404);
         }
-        
-        $spec_titles = [];
-        for($i=1;$i<=3;$i++){ 
-            if($style->{"spec_item".$i."_title"}){
-               $spec_titles[] = $style->{"spec_item".$i."_title"};
-            }
-        }
-        $style->spec_titles = $spec_titles;
+
+        $style->spec_titles = self::_getStyleTitle($style);
+
+        $sales = SaleChannel::stylePriceList($sid)->get()->toArray();
 
         return view('cms.commodity.product.sales-price', [
             'product' => $product,
             'style' => $style,
             'breadcrumb_data' => $product,
+            'sales' => $sales,
         ]);
+    }
+
+    /**
+     * 編輯 - 銷售控管 - 價格管理(儲存)
+     *
+     * @param  int  $id 商品id
+     * @param  int  $sid 款式id
+     * @return \Illuminate\Http\Response
+     */
+    public function updatePrice(Request $request, $id, $sid)
+    {
+        $d = request()->all();
+
+        if (isset($d['sale_channel_id'])) {
+            for ($i = 0; $i < count($d['sale_channel_id']); $i++) {
+                SaleChannel::changePrice($d['sale_channel_id'][$i], $sid, $d['dealer_price'][$i], $d['price'][$i],
+                    $d['origin_price'][$i], $d['bonus'][$i], $d['dividend'][$i]);
+            }
+        }
+
+        wToast('修改完成');
+        return redirect()->back();
+    }
+
+    private static function _getStyleTitle($style)
+    {
+        if ($style->type == 'p') {
+            $spec_titles = [];
+            for ($i = 1; $i <= 3; $i++) {
+                if ($style->{"spec_item" . $i . "_title"}) {
+                    $spec_titles[] = $style->{"spec_item" . $i . "_title"};
+                }
+            }
+        } else {
+            $spec_titles[] = $style->title;
+        }
+        return $spec_titles;
     }
 
     /**
