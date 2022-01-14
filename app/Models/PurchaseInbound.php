@@ -163,9 +163,9 @@ class PurchaseInbound extends Model
             ->leftJoin('usr_users as users', 'users.id', '=', 'products.user_id')
             ->select('purchase.id as purchase_id' //採購ID
                 , 'items.product_style_id as product_style_id' //商品款式ID
-                , 'products.title as product_title' //商品名稱
-                , 'styles.title as style_title' //款式名稱
-                , 'users.name as user_name' //商品負責人
+//                , 'products.title as product_title' //商品名稱
+//                , 'styles.title as style_title' //款式名稱
+//                , 'users.name as user_name' //商品負責人
             )
             ->selectRaw('min(items.sku) as sku') //款式SKU
             ->selectRaw('sum(items.num) as num') //採購數量
@@ -175,10 +175,13 @@ class PurchaseInbound extends Model
             ->whereNull('purchase.deleted_at')
             ->whereNull('items.deleted_at')
             ->where('purchase.id', '=', $purchase_id)
-            ->groupBy('purchase.id', 'items.product_style_id')
+            ->groupBy('purchase.id'
+                , 'items.product_style_id'
+            )
             ->orderBy('purchase.id')
             ->orderBy('items.product_style_id')
             ->mergeBindings($tempInboundSql);
+        dd($result->get());
         return $result;
     }
 }
