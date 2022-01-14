@@ -45,15 +45,42 @@ class CollectionCtrl extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, Collection $collection)
     {
+        $request->validate([
+            'collection_name'  => [
+                'required',
+                'string',
+                'unique:App\Models\Collection,name'
+            ],
+            'url'              => 'nullable|string',
+            'meta_title'       => 'nullable|string',
+            'meta_description' => 'nullable|string',
+            'is_public'        => 'bool',
+            'id.*'             => 'required|int|min:0'
+        ]);
 
+        $req = $request->all();
+        if (!isset($req['url'])) {
+            $req['url'] = $req['collection_name'];
+        }
+
+        $collection->storeCollectionData(
+            $req['collection_name'],
+            $req['url'],
+            $req['meta_title'],
+            $req['meta_description'],
+            false,
+            $req['id']);
+
+        return redirect(Route('cms.collection.index'));
     }
 
     /**
      * Display the specified resource.
      *
      * @param  \App\Models\Collection  $collection
+     *
      * @return \Illuminate\Http\Response
      */
     public function show(Collection $collection)
@@ -75,11 +102,10 @@ class CollectionCtrl extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateCollectionRequest  $request
      * @param  \App\Models\Collection  $collection
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateCollectionRequest $request, Collection $collection)
+    public function update(Request $request, Collection $collection)
     {
         //
     }
@@ -88,10 +114,13 @@ class CollectionCtrl extends Controller
      * Remove the specified resource from storage.
      *
      * @param  \App\Models\Collection  $collection
+     *
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Collection $collection)
+    public function destroy(Collection $collection, int $id)
     {
-        //
+        $collection->deleteCollectionById($id);
+
+        return redirect(Route('cms.collection.index'));
     }
 }

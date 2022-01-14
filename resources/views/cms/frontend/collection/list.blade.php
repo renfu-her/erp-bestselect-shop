@@ -45,8 +45,13 @@
                 @foreach ($dataList as $key => $data)
                     <tr>
                         <th scope="row">{{ $key + 1 }}</th>
-                        <td>{{ $data->collection }}</td>
-                        <td>{{ $data->is_public }}</td>
+                        <td>{{ $data->name }}</td>
+                        <td class="text-center">
+                            <div class="form-check form-switch form-switch-lg">
+                                <input class="form-check-input" name="active_id[]" value="{{ $data['is_public'] }}"
+                                       type="checkbox" @if ($data['is_public']) checked @endif>
+                            </div>
+                        </td>
                         <td>
                             <a href="{{ Route('cms.collection.edit', ['id' => $data->id], true) }}"
                                data-bs-toggle="tooltip" title="編輯"
