@@ -7,7 +7,7 @@
     <div class="card shadow p-4 mb-4">
         <div class="d-flex align-items-center mb-4">
             <h6 class="flex-grow-1 mb-0">商品資訊</h6>
-            <a href="{{ Route('cms.product.edit-price', ['id' => $style['product_id'], 'sid' => $style['id']]) }}"
+            <a href="{{ Route('cms.product.edit-stock', ['id' => $style['product_id'], 'sid' => $style['id']]) }}"
                 class="btn btn-outline-primary px-4 -in-header">
                 <i class="bi bi-arrow-left-right"></i> 庫存管理
             </a>
