@@ -6,7 +6,7 @@
 </div>
 <form action="">
     <div class="card shadow p-4 mb-4">
-        <h6>運送方式（官網）</h6>
+        <h6>運送方式（網頁）</h6>
         <x-b-editor id="editor"></x-b-editor>
     </div>
     <div>

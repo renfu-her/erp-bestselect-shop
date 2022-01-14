@@ -118,6 +118,7 @@ class PurchaseSeeder extends Seeder
             5,
             '入庫OK 1物品退換貨',
         );
+        PurchaseInbound::delInbound($purchaseInbound1, $user_id_5);
         $purchaseInbound3 = PurchaseInbound::createInbound(
             $purchaseID1,
             $product_style_id1,
@@ -130,24 +131,17 @@ class PurchaseSeeder extends Seeder
             5,
             '退換貨',
         );
-        PurchaseInbound::updateInbound(
-            $purchaseInbound2,
-            '2022-12-14 00:00:00',
-            InboundStatus::shortage()->value,
-            '2022-01-06 00:00:00',
-            10,
-            0,
-            1,
-            5,
-            '2022-01-06 00:00:00',
-            0,
-            '廠商贈送',
-        );
 
         $sellCount = 2;
-        PurchaseInbound::sellInbound(
+        PurchaseInbound::shippingInbound(
             $purchaseInbound2,
             $sellCount,
+        );
+
+        $errorCount = 1;
+        PurchaseInbound::sendBackInbound(
+            $purchaseInbound2,
+            $errorCount,
         );
     }
 }
