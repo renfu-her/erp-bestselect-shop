@@ -1,10 +1,10 @@
 {{-- 功能按鈕群 --}}
 <div class="btn-group pm_btnGroup" role="group">
-    <a href="" class="nav-link">
+    <a href="#" class="nav-link">
         <span class="icon"><i class="bi bi-printer"></i></span>
         <span class="label">列印</span>
     </a>
-    <a href="" class="nav-link">
+    <a href="#" class="nav-link">
         <span class="icon"><i class="bi bi-trash"></i></span>
         <span class="label">刪除採購單</span>
     </a>
