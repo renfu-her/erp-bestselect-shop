@@ -186,13 +186,13 @@ class PurchaseCtrl extends Controller
         if (!$purchaseData) {
             return abort(404);
         }
-        $isAlreadyPay = false;  // 是否已有付款
+        $isAlreadyFinalPay = false;  // 是否已有尾款單
         $payingOrderList = PayingOrders::getPayingOrdersWithPurchaseID($id)->get();
 
 //        $depositPayData = null;
 //        $finalPayData = null;
         if (0 < count($payingOrderList)) {
-            $isAlreadyPay = true;
+            $isAlreadyFinalPay = true;
 //            foreach ($payingOrderList as $payingOrderItem) {
 //                if ($payingOrderItem->type == 0) {
 //                    $depositPayData = $payingOrderItem;
@@ -211,7 +211,7 @@ class PurchaseCtrl extends Controller
 //            'payingOrderData' => $payingOrderList,
 //            'depositPayData' => $depositPayData,
 //            'finalPayData' => $finalPayData,
-            'isAlreadyPay' => $isAlreadyPay,
+            'isAlreadyFinalPay' => $isAlreadyFinalPay,
             'method' => 'edit',
             'supplierList' => $supplierList,
             'formAction' => Route('cms.purchase.edit', ['id' => $id]),

@@ -145,7 +145,7 @@
                 @error('item_error')
                 <div class="alert alert-danger mt-3">{{ $message }}</div>
                 @enderror
-                @if(false == $isAlreadyPay)
+                @if(false == $isAlreadyFinalPay)
                 <button id="addProductBtn" type="button"
                         class="btn btn-outline-primary border-dashed" style="font-weight: 500;">
                     <i class="bi bi-plus-circle bold"></i> 加入商品
@@ -279,7 +279,9 @@
         <div id="submitDiv">
             <div class="col-auto">
                 <input type="hidden" name="del_item_id">
+                @if(false == $isAlreadyFinalPay)
                 <button type="submit" class="btn btn-primary px-4">儲存</button>
+                @endif
                 <a href="{{ Route('cms.purchase.index', [], true) }}" class="btn btn-outline-primary px-4"
                    role="button">返回列表</a>
             </div>
@@ -347,6 +349,12 @@
     @push('sub-scripts')
         <script>
             let supplierList = @json($supplierList);
+            let isAlreadyFinalPay = {{$isAlreadyFinalPay}};
+
+            if (true == isAlreadyFinalPay) {
+                $('.-cloneElem.--selectedP :input').prop("disabled", true);
+            }
+
             $('#supplier').on('change', function (e) {
                 // if ("" != $('input[name=bank_cname]').val()
                 //     || "" != $('input[name=bank_code]').val()
