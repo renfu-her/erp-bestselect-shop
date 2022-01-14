@@ -46,16 +46,22 @@ class PurchaseItem extends Model
         return self::where('purchase_id', $purchase_id)->whereNull('deleted_at');
     }
 
-    public static function getPurchaseDetailList($id = null
+    //採購 明細
+    //******* 修改時請一併修改採購 總表
+    public static function getPurchaseDetailList(
+          $purchase_sn = null
+        , $title = null
+        , $sku = null
         , $purchase_user_id = []
-        , $inbound_user_id = []
-        , $inbound_status = null
-        , $depot_id = null
         , $purchase_sdate = null
         , $purchase_edate = null
+        , $supplier_id = null
+        , $depot_id = null
+        , $inbound_user_id = []
+        , $inbound_status = []
         , $inbound_sdate = null
         , $inbound_edate = null
-        , $expiry_date = null
+        , $expire_day = null
     ) {
 
         //訂金單號
@@ -75,18 +81,39 @@ class PurchaseItem extends Model
             ->orderByDesc('order.id')
             ->limit(1);
 
-        $inbound_tb = DB::table('pcs_purchase_inbound as inbound')
-            ->select('*')
-            ->whereColumn('order.purchase_id', '=', 'purchase.id')
-            ->where('order.type', '=', '1')
-            ->whereNull('order.deleted_at')
-            ->orderByDesc('order.id')
-            ->limit(1);
+        $tempInboundSql = DB::table('pcs_purchase_inbound as inbound')
+            ->select('purchase_id'
+                , 'product_style_id')
+            ->selectRaw('sum(inbound_num) as inbound_num')
+            ->whereNull('deleted_at')
+            ->groupBy('purchase_id')
+            ->groupBy('product_style_id');
+        if ($depot_id) {
+            $tempInboundSql->where('inbound.depot_id', '=', $depot_id);
+        }
+        if ($inbound_user_id) {
+            $tempInboundSql->whereIn('inbound.inbound_user_id', $inbound_user_id);
+        }
+        if ($inbound_status) {
+            $tempInboundSql->whereIn('inbound.status', $inbound_status);
+        }
+        if ($inbound_sdate && $inbound_edate) {
+            $tempInboundSql->whereBetween('inbound.inbound_date', [date((string) $inbound_sdate), date((string) $inbound_edate)]);
+        }
+        if ($expire_day) {
+            if (0 < $expire_day) {
+                //大於0 找近N天
+                $tempInboundSql->whereBetween('inbound.expiry_date', ['now()', 'date_add(now, interval '. $expire_day. ' day)']);
+            } else if (0 > $expire_day) {
+                //小於0 找過期
+                $tempInboundSql->where('inbound.expiry_date', '<=', $expire_day);
+            }
+        }
 
-        $tempInboundSql = 'select sum(pcs_purchase_inbound.inbound_num) as inbound_num, purchase_id, product_style_id from pcs_purchase_inbound where deleted_at is null group by purchase_id, product_style_id';
-
-		//入庫 有入庫紀錄且結單日期為空
-		//已結單 結單日期有值
+//        dd(IttmsUtils::getEloquentSqlWithBindings($tempInboundSql));
+//        dd($result->get()->toArray());
+        //入庫 有入庫紀錄且結單日期為空
+        //已結單 結單日期有值
         //新增 尚未入庫且結單日期為空
         $caseInboundSql = 'case
                 when `items`.`id` is not null and inbound.inbound_num is not null and `purchase`.`close_date` is null then \'入庫\'
@@ -96,9 +123,9 @@ class PurchaseItem extends Model
 
         $result = DB::table('pcs_purchase as purchase')
             ->leftJoin('pcs_purchase_items as items', 'purchase.id', '=', 'items.purchase_id')
-            ->leftJoin(DB::raw('(' . $tempInboundSql . ') as inbound'), function($join) {
-                $join->on('items.purchase_id', '=', 'inbound.purchase_id');
-                $join->on('items.product_style_id', '=', 'inbound.product_style_id');
+            ->leftJoinSub($tempInboundSql, 'inbound', function($join) use($tempInboundSql) {
+                $join->on('items.purchase_id', '=', 'inbound.purchase_id')
+                    ->on('items.product_style_id', '=', 'inbound.product_style_id');
             })
             ->leftJoin('usr_users as user', 'user.id', '=', 'purchase.purchase_user_id')
             ->leftJoin('prd_suppliers as supplier', 'supplier.id', '=', 'purchase.supplier_id')
@@ -128,15 +155,179 @@ class PurchaseItem extends Model
             ->whereNull('supplier.deleted_at')
             ->orderBy('id')
             ->orderBy('items_id');
-//        $result = DB::table(DB::raw("({$result->toSql()}) as sub"))
-//            ->select('sub.*')
-//            ->groupBy('sub.id')
-//            ->mergeBindings($result);
 
+        if($purchase_sn) {
+            $result->where('purchase.sn', '=', $purchase_sn);
+        }
+        if($title) {
+            $result->where(function ($query) use ($title) {
+                $query->Where('items.title', 'like', "%{$title}%");
+            });
+        }
+        if($sku) {
+            $result->where(function ($query) use ($sku) {
+                $query->Where('items.sku', 'like', "%{$sku}%");
+            });
+        }
+        if ($purchase_user_id) {
+            $result->whereIn('purchase.purchase_user_id', $purchase_user_id);
+        }
+        if ($purchase_sdate && $purchase_edate) {
+            $result->whereBetween('purchase.scheduled_date', [date((string) $purchase_sdate), date((string) $purchase_edate)]);
+        }
+        if ($supplier_id) {
+            $result->where('purchase.supplier_id', '=', $supplier_id);
+        }
+//        dd(IttmsUtils::getEloquentSqlWithBindings($result));
+//        dd($result->get()->toArray());
+        return $result;
+    }
 
-//        if ($purchase_sdate && $purchase_edate) {
-//            $result->whereBetween('purchase.created_at', [date((string) $purchase_sdate), date((string) $purchase_edate)]);
-//        }
+    //採購 總表
+    //******* 修改時請一併修改採購 明細
+    public static function getPurchaseOverviewList(
+          $purchase_sn = null
+        , $title = null
+        , $sku = null
+        , $purchase_user_id = []
+        , $purchase_sdate = null
+        , $purchase_edate = null
+        , $supplier_id = null
+        , $depot_id = null
+        , $inbound_user_id = []
+        , $inbound_status = []
+        , $inbound_sdate = null
+        , $inbound_edate = null
+        , $expire_day = null
+    ) {
+        //訂金單號
+        $subColumn = DB::table('pcs_paying_orders as order')
+            ->select('order.id')
+            ->whereColumn('order.purchase_id', '=', 'purchase.id')
+            ->where('order.type', '=', '0')
+            ->whereNull('order.deleted_at')
+            ->orderByDesc('order.id')
+            ->limit(1);
+        //尾款單號
+        $subColumn2 = DB::table('pcs_paying_orders as order')
+            ->select('order.id')
+            ->whereColumn('order.purchase_id', '=', 'purchase.id')
+            ->where('order.type', '=', '1')
+            ->whereNull('order.deleted_at')
+            ->orderByDesc('order.id')
+            ->limit(1);
+
+        $tempInboundSql = DB::table('pcs_purchase_inbound as inbound')
+            ->select('purchase_id'
+                , 'product_style_id')
+            ->selectRaw('sum(inbound_num) as inbound_num')
+            ->whereNull('deleted_at')
+            ->groupBy('purchase_id')
+            ->groupBy('product_style_id');
+        if ($depot_id) {
+            $tempInboundSql->where('inbound.depot_id', '=', $depot_id);
+        }
+        if ($inbound_user_id) {
+            $tempInboundSql->whereIn('inbound.inbound_user_id', $inbound_user_id);
+        }
+        if ($inbound_status) {
+            $tempInboundSql->whereIn('inbound.status', $inbound_status);
+        }
+        if ($inbound_sdate && $inbound_edate) {
+            $tempInboundSql->whereBetween('inbound.inbound_date', [date((string) $inbound_sdate), date((string) $inbound_edate)]);
+        }
+        if ($expire_day) {
+            if (0 < $expire_day) {
+                //大於0 找近N天
+                $tempInboundSql->whereBetween('inbound.expiry_date', ['now()', 'date_add(now, interval '. $expire_day. ' day)']);
+            } else if (0 > $expire_day) {
+                //小於0 找過期
+                $tempInboundSql->where('inbound.expiry_date', '<=', $expire_day);
+            }
+        }
+
+        $tempPurchaseItemSql = DB::table('pcs_purchase_items as items')
+            ->leftJoinSub($tempInboundSql, 'inbound', function($join) use($tempInboundSql) {
+                $join->on('items.purchase_id', '=', 'inbound.purchase_id')
+                    ->on('items.product_style_id', '=', 'inbound.product_style_id');
+            })
+            ->select('items.id as id'
+                , 'items.purchase_id as purchase_id'
+                , 'items.product_style_id as product_style_id'
+                , 'items.title as title'
+                , 'items.sku as sku'
+                , 'items.price as price'
+                , 'items.num as num'
+                , 'inbound.inbound_num as inbound_num'
+            )
+            ->whereNull('items.deleted_at')
+            ->orderBy('items.product_style_id')
+            ->limit(1);
+        if($title) {
+            $tempPurchaseItemSql->where(function ($query) use ($title) {
+                $query->Where('items.title', 'like', "%{$title}%");
+            });
+        }
+        if($sku) {
+            $tempPurchaseItemSql->where(function ($query) use ($sku) {
+                $query->Where('items.sku', 'like', "%{$sku}%");
+            });
+        }
+
+//        dd(IttmsUtils::getEloquentSqlWithBindings($tempInboundSql));
+//        dd($result->get()->toArray());
+        //入庫 有入庫紀錄且結單日期為空
+        //已結單 結單日期有值
+        //新增 尚未入庫且結單日期為空
+        $caseInboundSql = 'case
+                when `itemtb_new`.`id` is not null and itemtb_new.inbound_num is not null and `purchase`.`close_date` is null then \'入庫\'
+                when `purchase`.`close_date` is not null then \'已結單\'
+                else \'新增\'
+            end';
+
+        $result = DB::table('pcs_purchase as purchase')
+            ->leftJoinSub($tempPurchaseItemSql, 'itemtb_new', function($join) use($tempPurchaseItemSql) {
+                $join->on('itemtb_new.purchase_id', '=', 'purchase.id');
+            })
+            ->leftJoin('usr_users as user', 'user.id', '=', 'purchase.purchase_user_id')
+            ->leftJoin('prd_suppliers as supplier', 'supplier.id', '=', 'purchase.supplier_id')
+            //->select('*')
+            ->select('purchase.id as id'
+                ,'purchase.sn as sn'
+                ,'itemtb_new.id as items_id'
+                ,'itemtb_new.title as title'
+                ,'purchase.created_at as created_at'
+                ,'purchase.scheduled_date as scheduled_date'
+                ,'itemtb_new.sku as sku'
+                ,'itemtb_new.price as price'
+                ,'itemtb_new.num as num'
+                ,'purchase.purchase_user_id as purchase_user_id'
+                ,'purchase.supplier_id as supplier_id'
+                ,'purchase.invoice_num as invoice_num'
+                ,'user.name as user_name'
+                ,'supplier.name as supplier_name'
+                ,'supplier.nickname as supplier_nickname'
+            )
+            ->selectRaw('itemtb_new.price * itemtb_new.num as total_price')
+            ->selectRaw('('. $caseInboundSql. ') as inbound_status')
+            ->addSelect(['deposit_num' => $subColumn, 'final_pay_num' => $subColumn2])
+            ->whereNull('purchase.deleted_at')
+            ->whereNull('user.deleted_at')
+            ->whereNull('supplier.deleted_at')
+            ->orderBy('purchase.id');
+
+        if($purchase_sn) {
+            $result->where('purchase.sn', '=', $purchase_sn);
+        }
+        if ($purchase_user_id) {
+            $result->whereIn('purchase.purchase_user_id', $purchase_user_id);
+        }
+        if ($purchase_sdate && $purchase_edate) {
+            $result->whereBetween('purchase.scheduled_date', [date((string) $purchase_sdate), date((string) $purchase_edate)]);
+        }
+        if ($supplier_id) {
+            $result->where('purchase.supplier_id', '=', $supplier_id);
+        }
 //        dd(IttmsUtils::getEloquentSqlWithBindings($result));
 //        dd($result->get()->toArray());
         return $result;

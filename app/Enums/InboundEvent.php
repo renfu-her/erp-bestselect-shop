@@ -9,32 +9,28 @@ use BenSampo\Enum\Enum;
  * @method static static OptionTwo()
  * @method static static OptionThree()
  */
-final class StockEvent extends Enum
+final class InboundEvent extends Enum
 {
-    const order = 'order';
-    const combo = 'combo';
     const inbound = 'inbound';
-    const sale = 'sale';
-    const inbound_del = 'inbound_del';
+    const delete = 'delete';
+    const shipping = 'shipping';
+    const send_back = 'send_back';
 
     public static function getDescription($value): string
     {
         $result = '';
         switch ($value) {
-            case self::order:
-                $result = '訂單';
-                break;
-            case self::combo:
-                $result = '組合包';
-                break;
             case self::inbound:
                 $result = '入庫';
                 break;
-            case self::sale:
-                $result = '通路商';
+            case self::delete:
+                $result = '刪除';
                 break;
-            case self::inbound_del:
-                $result = '刪除入庫單';
+            case self::shipping:
+                $result = '出貨';
+                break;
+            case self::send_back:
+                $result = '退回';
                 break;
             default:
                 $result = parent::getDescription($value);
@@ -44,4 +40,3 @@ final class StockEvent extends Enum
     }
 
 }
-

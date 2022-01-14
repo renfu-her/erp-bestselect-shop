@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\InboundEvent;
 use App\Enums\StockEvent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -29,62 +30,13 @@ class PurchaseInbound extends Model
             "inbound_user_id" => $inbound_user_id,
             "memo" => $memo
         ])->id;
-        ProductStock::stockChange($product_style_id, 0, StockEvent::inbound()->value, $id);
+
+        //入庫 新增入庫數量
+        //寫入ProductStock
+        PurchaseInboundLog::stockChange($id, $inbound_num, InboundEvent::inbound()->value);
+        ProductStock::stockChange($product_style_id, $inbound_num, StockEvent::inbound()->value, $id);
 
         return $id;
-    }
-
-    //入庫 更新資料
-    public static function updateInbound($id, $expiry_date = null, $status = 0, $inbound_date = null, $inbound_num = 0, $error_num = 0, $depot_id = null, $inbound_user_id = null, $close_date = null, $sale_num = 0, $memo = null)
-    {
-        return DB::transaction(function () use (
-            $id,
-            $expiry_date,
-            $status,
-            $inbound_date,
-            $inbound_num,
-            $error_num,
-            $depot_id,
-            $inbound_user_id,
-            $close_date,
-            $sale_num,
-            $memo
-        ) {
-            self::where('id', '=', $id)->update([
-                'expiry_date' => $expiry_date,
-                'status' => $status,
-                'inbound_date' => $inbound_date,
-                'inbound_num' => $inbound_num,
-                'error_num' => $error_num,
-                'depot_id' => $depot_id,
-                'inbound_user_id' => $inbound_user_id,
-                'close_date' => $close_date,
-                'sale_num' => $sale_num,
-                'memo' => $memo
-
-            ]);
-
-            return $id;
-        });
-    }
-    //售出 更新資料
-    public static function sellInbound($id, $sale_num = 0)
-    {
-        return DB::transaction(function () use (
-            $id,
-            $sale_num
-        ) {
-            $inboundData = self::where('id', '=', $id);
-            $inboundDataGet = $inboundData->get()->first();
-            if (null != $inboundDataGet) {
-                ProductStock::stockChange($inboundDataGet->product_style_id, -1 * $sale_num, StockEvent::order()->value, $inboundDataGet->id, '銷售數量 '. $sale_num);
-                $inboundData->update([
-                    'sale_num' => DB::raw('sale_num + '. $sale_num ),
-                ]);
-            }
-
-            return $id;
-        });
     }
 
     //取消入庫 刪除資料
@@ -97,10 +49,59 @@ class PurchaseInbound extends Model
             $inboundData = PurchaseInbound::where('id', '=', $id);
             $inboundDataGet = $inboundData->get()->first();
             if (null != $inboundDataGet) {
-                ProductStock::stockChange($inboundDataGet->product_style_id, $inboundDataGet->inbound_num * -1, StockEvent::inbound()->value, $inboundDataGet->id, '使用者:'. $user_id. ' '. '刪除入庫單');
-                $inboundData->delete();
+                //刪除
+                //判斷是否已結單 有則不能刪
+                $purchaseData = DB::table('pcs_purchase as purchase')
+                    ->leftJoin('pcs_purchase_inbound as inbound', 'inbound.purchase_id', '=', 'purchase.id')
+                    ->select('purchase.close_date as close_date')
+                    ->get()->first();
+                if (null != $purchaseData->close_date) {
+                    return ['success' => 0, 'error_msg' => 'purchase already close, so cant be delete'];
+                }
+                //判斷是否有賣出過 有則不能刪
+                //寫入ProductStock
+                else if (is_numeric($inboundDataGet->sale_num) && 0 < $inboundDataGet->sale_num) {
+                    return ['success' => 0, 'error_msg' => 'inbound already sell'];
+                } else {
+                    PurchaseInboundLog::stockChange($id, $inboundDataGet->inbound_num * -1, InboundEvent::delete()->value, $user_id . '刪除入庫單');
+                    ProductStock::stockChange($inboundDataGet->product_style_id, $inboundDataGet->inbound_num * -1, StockEvent::inbound_del()->value, $id, $user_id . '刪除入庫單');
+                    $inboundData->delete();
+                }
             }
+        });
+    }
 
+    //售出 更新資料
+    public static function shippingInbound($id, $sale_num = 0)
+    {
+        return DB::transaction(function () use (
+            $id,
+            $sale_num
+        ) {
+            $inboundData = PurchaseInbound::where('id', '=', $id);
+            $inboundDataGet = $inboundData->get()->first();
+            if (null != $inboundDataGet) {
+                if (($inboundDataGet->inbound_num - $inboundDataGet->sale_num - $sale_num) < 0) {
+                    return ['success' => 0, 'error_msg' => '數量超出範圍'];
+                } else {
+                    PurchaseInbound::where('id', $id)
+                        ->update(['sale_num' => DB::raw("sale_num + $sale_num")]);
+                    PurchaseInboundLog::stockChange($id, $sale_num, InboundEvent::shipping()->value);
+                }
+            }
+        });
+    }
+
+    //使用者退回 更新資料 寫入error_num
+    public static function sendBackInbound($id, $send_back_num = 0)
+    {
+        return DB::transaction(function () use (
+            $id,
+            $send_back_num
+        ) {
+            PurchaseInbound::where('id', $id)
+                ->update(['error_num' => DB::raw("error_num + $send_back_num")]);
+            PurchaseInboundLog::stockChange($id, $send_back_num, InboundEvent::send_back()->value);
         });
     }
 
@@ -118,9 +119,7 @@ class PurchaseInbound extends Model
                 , 'items.num as item_num' //採購款式數量
                 , 'items.memo as item_memo' //採購款式備註
                 , 'inbound.id as inbound_id' //入庫ID
-                , 'inbound.expiry_date as expiry_date' //有效期限
                 , 'inbound.status as status' //入庫狀態
-                , 'inbound.inbound_date as inbound_date' //入庫日期
                 , 'inbound.inbound_num as inbound_num' //入庫實進數量
                 , 'inbound.error_num as error_num' //入庫異常數量
                 , 'inbound.depot_id as depot_id'  //入庫倉庫ID
@@ -129,6 +128,8 @@ class PurchaseInbound extends Model
                 , 'inbound.memo as inbound_memo' //入庫備註
                 , 'users.name as user_name' //入庫人員名稱
             )
+            ->selectRaw('DATE_FORMAT(inbound.expiry_date,"%Y-%m-%d") as expiry_date') //有效期限
+            ->selectRaw('DATE_FORMAT(inbound.inbound_date,"%Y-%m-%d") as inbound_date') //入庫日期
             ->whereNull('purchase.deleted_at')
             ->whereNull('items.deleted_at')
             ->whereNull('inbound.deleted_at')
