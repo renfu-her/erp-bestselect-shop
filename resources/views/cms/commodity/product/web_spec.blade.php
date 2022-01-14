@@ -6,7 +6,7 @@
 </div>
 <form action="">
     <div id="specList" class="card shadow p-4 mb-4">
-        <h6>規格說明（官網）</h6>
+        <h6>規格說明（網頁）</h6>
         <div class="sortabled mb-3 -appendClone">
             <div class="mb-2 row sortabled_box -cloneElem">
                 <div class="col d-flex flex-column flex-sm-row pe-0">
@@ -67,6 +67,8 @@
             showWordsLength($('input[maxlength]'));
             // 拖曳
             bindMove();
+            // 刪除
+            Clone_bindDelElem($('.-cloneElem .-del'));
             
             $('.-newSpec').off('click').on('click', function() {
                 Clone_bindCloneBtn($clone, function (cloneElem) {

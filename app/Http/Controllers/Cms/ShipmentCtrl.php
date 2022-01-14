@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Cms;
 
 use App\Http\Controllers\Controller;
 use App\Models\Shipment;
+use App\Models\ShipmentGroup;
 use App\Models\Temps;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Validator;
 
 class ShipmentCtrl extends Controller
 {
@@ -67,18 +70,20 @@ class ShipmentCtrl extends Controller
      */
     public function store(Request $request, Shipment $shipment)
     {
-//        TODO validation in the backend
-//        $request->validate([
-//            'name' => 'required|string',
-//            'temps' => 'required|string',
-//            'method' => 'required|string',
-//            'note' => 'string|nullable',
-//            'min_price' => 'required|int',
-//            'max_price' => 'required|int',
-//            'dlv_fee' => 'required|int',
-//            'dlv_cost' => 'required|int',
-//            'at_most' => 'required|int',
-//        ]);
+        $request->validate([
+            'name' => ['required',
+                       'string',
+                       'unique:App\Models\ShipmentGroup'],
+            'temps' => 'required|string',
+            'method' => 'required|string',
+            'is_above.*' => 'required|string',
+            'note' => 'string|nullable',
+            'min_price.*' => 'required|integer|min:0',
+            'max_price.*' => 'required|integer|min:0',
+            'dlv_fee.*' => 'required|integer|min:0',
+            'dlv_cost.*' => 'nullable|integer|min:0',
+            'at_most.*' => 'nullable|integer|min:0',
+        ]);
 
         $dataField = $shipment->getDataFieldFromFormRequest($request);
 
@@ -135,8 +140,28 @@ class ShipmentCtrl extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Shipment $shipment, int $groupId)
+    public function update(Request $request, Shipment $shipment, int $groupId, ShipmentGroup $shipmentGroup)
     {
+        $ignoreId = $shipmentGroup->where('id', $groupId)
+                                ->get()
+                                ->first()
+                                ->id;
+
+        $request->validate([
+            'name' => ['required',
+                       'string',
+                       Rule::unique('shipment_group')->ignore($ignoreId)],
+            'temps' => 'required|string',
+            'method' => 'required|string',
+            'is_above.*' => 'required|string',
+            'note' => 'string|nullable',
+            'min_price.*' => 'required|integer|min:0',
+            'max_price.*' => 'required|integer|min:0',
+            'dlv_fee.*' => 'required|integer|min:0',
+            'dlv_cost.*' => 'nullable|integer|min:0',
+            'at_most.*' => 'nullable|integer|min:0',
+        ]);
+
         $dataField = $shipment->getDataFieldFromFormRequest($request);
 
         $shipment->updateShipRule(

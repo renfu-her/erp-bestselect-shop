@@ -1,12 +1,30 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">銷售通路管理</h2>
+    <h2 class="mb-4">商品群組</h2>
+
+    <form id="search" action="{{ Route('cms.collection.index') }}" method="GET">
+        <div class="card shadow p-4 mb-4">
+            <div class="row">
+                <div class="col-12 mb-3">
+                    <label class="form-label">搜尋條件</label>
+                    <input class="form-control" name="title" type="text" placeholder="請輸入商品群組名稱" value=""
+                           aria-label="商品群組名稱">
+                </div>
+            </div>
+
+            <div class="col">
+                <input type="hidden" name="data_per_page" value="{{ $data_per_page }}"/>
+                <button type="submit" class="btn btn-primary px-4">搜尋</button>
+            </div>
+        </div>
+    </form>
+
     <div class="card shadow p-4 mb-4">
         <div class="row mb-4">
             <div class="col-auto">
-                @can('cms.sale_channel.create')
-                    <a href="{{ Route('cms.sale_channel.create', null, true) }}" class="btn btn-primary">
-                        <i class="bi bi-plus-lg"></i> 新增通路
+                @can('cms.collection.create')
+                    <a href="{{ Route('cms.collection.create', null, true) }}" class="btn btn-primary">
+                        <i class="bi bi-plus-lg"></i> 新增商品群組
                     </a>
                 @endcan
             </div>
@@ -17,39 +35,32 @@
                 <thead>
                 <tr>
                     <th scope="col" style="width:10%">#</th>
-                    <th scope="col">通路名稱</th>
-                    <th scope="col">通路聯絡人</th>
-                    <th scope="col">通路聯絡電話</th>
-                    <th scope="col">類型</th>
-                    <th scope="col" class="text-center">編輯</th>
-                    <th scope="col" class="text-center">刪除</th>
+                    <th scope="col">商品群組</th>
+                    <th scope="col">公開上架</th>
+                    <th scope="col">編輯</th>
+                    <th scope="col">刪除</th>
                 </tr>
                 </thead>
                 <tbody>
                 @foreach ($dataList as $key => $data)
                     <tr>
                         <th scope="row">{{ $key + 1 }}</th>
-                        <td>{{ $data->title }}</td>
-                        <td>{{ $data->contact_person }}</td>
-                        <td>{{ $data->contact_tel }}</td>
-                        <td>{{ $data->is_realtime_title }}</td>
-                        <td class="text-center">
-{{--                            @can('admin.sale_channel.edit')--}}
-                            <a href="{{ Route('cms.sale_channel.edit', ['id' => $data->id], true) }}"
+                        <td>{{ $data->collection }}</td>
+                        <td>{{ $data->is_public }}</td>
+                        <td>
+                            <a href="{{ Route('cms.collection.edit', ['id' => $data->id], true) }}"
                                data-bs-toggle="tooltip" title="編輯"
                                class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
-{{--                            @endcan--}}
                         </td>
-                        <td class="text-center">
-{{--                            @can('admin.sale_channel.delete')--}}
-                            <a href="javascript:void(0)" data-href="{{ Route('cms.sale_channel.delete', ['id' => $data->id], true) }}"
+                        <td>
+                            <a href="javascript:void(0)"
+                               data-href="{{ Route('cms.collection.delete', ['id' => $data->id], true) }}"
                                data-bs-toggle="modal" data-bs-target="#confirm-delete"
                                class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
                                 <i class="bi bi-trash"></i>
                             </a>
-{{--                            @endcan--}}
                         </td>
                     </tr>
                 @endforeach
@@ -63,7 +74,6 @@
             <div class="d-flex justify-content-center">{{ $dataList->links() }}</div>
         </div>
     </div>
-
 
     <!-- Modal -->
     <x-b-modal id="confirm-delete">
@@ -79,9 +89,9 @@
 @once
     @push('sub-scripts')
         <script>
-            $('#confirm-delete').on('show.bs.modal', function(e) {
+            $('#confirm-delete').on('show.bs.modal', function (e) {
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
             });
         </script>
     @endpush
-@endonce
+@endOnce

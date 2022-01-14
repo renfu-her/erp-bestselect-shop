@@ -14,6 +14,7 @@ class SaleChannelSeeder extends Seeder
      */
     public function run()
     {
+        
         SaleChannel::create([
             'title' => '喜鴻官網2.0',
             'contact_person' => '喜鴻窗口',
@@ -21,6 +22,7 @@ class SaleChannelSeeder extends Seeder
             'chargeman' => '喜鴻員工',
             'sales_type' => 0,
             'use_coupon' => 0,
+            'is_realtime' => 1,
         ]);
 
         SaleChannel::create([
@@ -31,6 +33,8 @@ class SaleChannelSeeder extends Seeder
             'sales_type' => 1,
             'use_coupon' => 1,
         ]);
-
+        
+        SaleChannel::changePrice(1,1,90,120,130,5,10);
+       
     }
 }

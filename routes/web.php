@@ -33,6 +33,7 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     Route::get('dashboard', DashboardCtrl::class)->name('dashboard');
     require base_path('routes/cms/Product.php');
     require base_path('routes/cms/Category.php');
+    require base_path('routes/cms/Collection.php');
     require base_path('routes/cms/Supplier.php');
     require base_path('routes/cms/SaleChannel.php');
     require base_path('routes/cms/Shipment.php');

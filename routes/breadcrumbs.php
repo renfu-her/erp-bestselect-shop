@@ -30,7 +30,7 @@ Breadcrumbs::for('cms.product.edit', function (BreadcrumbTrail $trail, $value) {
 // 編輯 - 規格款式
 Breadcrumbs::for('cms.product.edit-style', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.index');
-    $trail->push('[' . $value->title . '] 規格款式');
+    $trail->push('[' . $value->title . '] 規格款式', route('cms.product.edit-style', $value->id));
 });
 Breadcrumbs::for('cms.product.edit-spec', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.edit-style', $value);
@@ -52,7 +52,17 @@ Breadcrumbs::for('cms.product.edit-combo-prod', function (BreadcrumbTrail $trail
 // 編輯 - 銷售控管
 Breadcrumbs::for('cms.product.edit-sale', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.index');
-    $trail->push('[' . $value->title . '] 銷售控管');
+    $trail->push('[' . $value->title . '] 銷售控管', route('cms.product.edit-sale', $value->id));
+});
+// 編輯 - 銷售控管 - 庫存管理
+Breadcrumbs::for('cms.product.edit-stock', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.product.edit-sale', $value);
+    $trail->push('庫存管理');
+});
+// 編輯 - 銷售控管 - 價格管理
+Breadcrumbs::for('cms.product.edit-price', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.product.edit-sale', $value);
+    $trail->push('價格管理');
 });
 // 編輯 - 網頁-商品介紹
 Breadcrumbs::for('cms.product.edit-web-desc', function (BreadcrumbTrail $trail, $value) {
@@ -188,6 +198,20 @@ Breadcrumbs::for('cms.shipment.create', function ($trail) {
 });
 Breadcrumbs::for('cms.shipment.edit', function ($trail) {
     $trail->parent('cms.shipment.index');
+    $trail->push('編輯');
+});
+
+//商品群組設定
+Breadcrumbs::for('cms.collection.index', function ($trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('商品群組', route('cms.collection.index'));
+});
+Breadcrumbs::for('cms.collection.create', function ($trail) {
+    $trail->parent('cms.collection.index');
+    $trail->push('新增');
+});
+Breadcrumbs::for('cms.collection.edit', function ($trail) {
+    $trail->parent('cms.collection.index');
     $trail->push('編輯');
 });
 

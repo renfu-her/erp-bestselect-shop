@@ -55,7 +55,7 @@ class Shipment extends Model
                 'dlv_fee' => (int)$dlv_fee[$i],
                 'dlv_cost' => (int)$dlv_cost[$i],
                 'at_most' => (int)$at_most[$i],
-                'is_above' => (bool)$is_above[$i]
+                'is_above' => $is_above[$i]
             ];
         }
 

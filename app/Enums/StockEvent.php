@@ -14,6 +14,7 @@ final class StockEvent extends Enum
     const order = 'order';
     const combo = 'combo';
     const inbound = 'inbound';
+    const sale = 'sale';
     const inbound_del = 'inbound_del';
 
     public static function getDescription($value): string
@@ -29,6 +30,9 @@ final class StockEvent extends Enum
             case self::inbound:
                 $result = '入庫';
                 break;
+            case self::sale:
+                $result = '通路商';
+                break;
             case self::inbound_del:
                 $result = '刪除入庫單';
                 break;
@@ -40,3 +44,4 @@ final class StockEvent extends Enum
     }
 
 }
+
