@@ -362,22 +362,28 @@ class ProductCtrl extends Controller
             return abort(404);
         }
         
-        $spec_titles = [];
-        for($i=1;$i<=3;$i++){ 
-            if($style->{"spec_item".$i."_title"}){
-               $spec_titles[] = $style->{"spec_item".$i."_title"};
-            }
-        }
 
+        $spec_titles = [];
+        if ($style->type == 'p') {
+            for ($i = 1; $i <= 3; $i++) {
+                if ($style->{"spec_item" . $i . "_title"}) {
+                    $spec_titles[] = $style->{"spec_item" . $i . "_title"};
+                }
+            }
+        } else {
+            $spec_titles[] = $style->title;
+        }
+       
         $style->spec_titles = $spec_titles;
         $stocks = SaleChannel::styleStockList($sid)->get()->toArray();
         $notCompleteDeliverys = SaleChannel::notCompleteDelivery($sid)->get()->toArray();
+
         return view('cms.commodity.product.sales-stock', [
             'product' => $product,
             'style' => $style,
             'breadcrumb_data' => $product,
             'stocks' => $stocks,
-            'notCompleteDeliverys'=>$notCompleteDeliverys
+            'notCompleteDeliverys' => $notCompleteDeliverys,
         ]);
     }
     /**
