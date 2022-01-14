@@ -15,17 +15,26 @@
     <div class="row">
         <fieldset class="col-12 mb-2">
             <legend class="col-form-label">款式</legend>
-            <div class="d-flex flex-wrap">
-                <span class="form-control col-auto me-2 mb-2">{{ $style->title }}</span>
+            <div class="d-flex flex-wrap form-control">
+                @foreach ($style->spec_titles as $title)
+                    <span class="badge rounded-pill bg-secondary me-2">{{ $title }}</span>
+                @endforeach
             </div>
         </fieldset>
         <fieldset class="col-12 col-md-6 mb-3">
             <legend class="col-form-label">負責人</legend>
-            <div class="form-control">&nbsp;</div>
+            <div class="form-control">{{ $product->user_name }}</div>
         </fieldset>
-        <fieldset class="col-12 col-md-6 mb-3">
+        @php
+            $suppliers = json_decode($product->suppliers);
+        @endphp
+        <fieldset class="col-12 col-md-6 mb-2">
             <legend class="col-form-label">廠商名稱</legend>
-            <div class="form-control">&nbsp;</div>
+            <div class="d-flex flex-wrap form-control">
+                @foreach ($suppliers as $supplier)
+                    <span class="badge rounded-pill bg-secondary me-2">{{ $supplier->name }}</span>
+                @endforeach
+            </div>
         </fieldset>
     </div>
 </div>
@@ -127,8 +136,12 @@
 @endsection
 @once
     @push('sub-styles')
-    <style>
-    </style>
+        <style>
+            fieldset .badge.rounded-pill {
+                font-size: .94rem;
+                font-weight: 400;
+            }
+        </style>
     @endpush
     @push('sub-scripts')
         <script>

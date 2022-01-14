@@ -15,9 +15,9 @@
         <div class="row">
             <fieldset class="col-12 mb-2">
                 <legend class="col-form-label">款式</legend>
-                <div class="d-flex flex-wrap">
+                <div class="d-flex flex-wrap form-control">
                     @foreach ($style->spec_titles as $title)
-                        <span class="form-control col-auto me-2 mb-2">{{ $title }}</span>
+                        <span class="badge rounded-pill bg-secondary me-2">{{ $title }}</span>
                     @endforeach
                 </div>
             </fieldset>
@@ -30,9 +30,9 @@
             @endphp
             <fieldset class="col-12 col-md-6 mb-2">
                 <legend class="col-form-label">廠商名稱</legend>
-                <div class="d-flex flex-wrap">
+                <div class="d-flex flex-wrap form-control">
                     @foreach ($suppliers as $supplier)
-                        <span class="form-control col-auto me-2 mb-2">{{ $supplier->name }}</span>
+                        <span class="badge rounded-pill bg-secondary me-2">{{ $supplier->name }}</span>
                     @endforeach
                 </div>
             </fieldset>
@@ -172,6 +172,10 @@
 @once
     @push('sub-styles')
         <style>
+            fieldset .badge.rounded-pill {
+                font-size: .94rem;
+                font-weight: 400;
+            }
         </style>
     @endpush
     @push('sub-scripts')
