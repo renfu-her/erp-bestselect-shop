@@ -22,8 +22,8 @@ class PurchaseCtrl extends Controller
         $query = $request->query();
         $startDate = Arr::get($query, 'startDate', date('Y-m-d'));
         $endDate = Arr::get($query, 'endDate', date('Y-m-d', strtotime(date('Y-m-d') . '+ 1 days')));
-        $data_per_page = Arr::get($query, 'data_per_page', 10);
-        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
+        $data_per_page = Arr::get($query, 'data_per_page', 50);
+        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 50;
 
         $purchase_sn = Arr::get($query, 'purchase_sn', '');
         $title = Arr::get($query, 'title', '');
