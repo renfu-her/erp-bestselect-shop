@@ -21,6 +21,8 @@ class CreatePcsPurchaseLogTable extends Migration
             $table->integer('feature_id')->comment('功能ID');
             $table->string('event')->comment('事件');
             $table->integer('qty')->comment('數量');
+            $table->integer('user_id')->comment('操作者');
+            $table->string('user_name')->comment('操作者名稱');
             $table->string('note')->nullable()->comment('備註');
             $table->timestamps();
         });

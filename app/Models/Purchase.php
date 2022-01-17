@@ -13,10 +13,13 @@ class Purchase extends Model
     protected $table = 'pcs_purchase';
     protected $guarded = [];
 
-    public static function createPurchase($supplier_id, $purchase_user_id, $scheduled_date, $memo = null)
+    public static function createPurchase($supplier_id, $supplier_name, $supplier_nickname, $purchase_user_id, $purchase_user_name, $scheduled_date, $memo = null)
     {
         return DB::transaction(function () use ($supplier_id,
+            $supplier_name,
+            $supplier_nickname,
             $purchase_user_id,
+            $purchase_user_name,
             $scheduled_date,
             $memo
             ) {
@@ -29,7 +32,10 @@ class Purchase extends Model
             $id = self::create([
                 "sn" => $sn,
                 'supplier_id' => $supplier_id,
+                'supplier_name' => $supplier_name,
+                'supplier_nickname' => $supplier_nickname,
                 'purchase_user_id' => $purchase_user_id,
+                'purchase_user_name' => $purchase_user_name,
                 'scheduled_date' => $scheduled_date,
                 'memo' => $memo,
             ])->id;

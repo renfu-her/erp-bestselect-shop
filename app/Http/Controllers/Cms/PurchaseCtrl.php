@@ -119,9 +119,13 @@ class PurchaseCtrl extends Controller
         $purchaseReq = $request->only('supplier', 'scheduled_date');
         $purchaseItemReq = $request->only('product_style_id', 'name', 'sku', 'num', 'price', 'memo');
 
+        $supplier = Supplier::where('id', '=', $purchaseReq['supplier'])->get()->first();
         $purchaseID = Purchase::createPurchase(
             $purchaseReq['supplier'],
+            $supplier->name,
+            $supplier->nickname,
             $request->user()->id,
+            $request->user()->name,
             $purchaseReq['scheduled_date'],
         );
 
@@ -382,7 +386,9 @@ class PurchaseCtrl extends Controller
         $inboundItemReq = $request->only('product_style_id', 'inbound_date', 'inbound_num', 'error_num', 'inbound_memo', 'status', 'expiry_date', 'inbound_memo');
 
         if (isset($inboundItemReq['product_style_id'])) {
+            $depot = Depot::where('id', '=', $depot_id)->get()->first();
             foreach ($inboundItemReq['product_style_id'] as $key => $val) {
+
                 $purchaseInboundID = PurchaseInbound::createInbound(
                     $id,
                     $inboundItemReq['product_style_id'][$key],
@@ -392,7 +398,9 @@ class PurchaseCtrl extends Controller
                     $inboundItemReq['inbound_num'][$key],
                     $inboundItemReq['error_num'][$key],
                     $depot_id,
+                    $depot->name,
                     $request->user()->id,
+                    $request->user()->name,
                     $inboundItemReq['inbound_memo'][$key]
                 );
             }

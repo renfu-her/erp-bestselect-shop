@@ -14,7 +14,7 @@ class PurchaseLog extends Model
     protected $table = 'pcs_purchase_log';
     protected $guarded = [];
 
-    public static function stockChange($purchase_id, $product_style_id, $feature, $feature_id, $event, $qty, $note = null)
+    public static function stockChange($purchase_id, $product_style_id, $feature, $feature_id, $event, $qty, $note = null, $user_id, $user_name)
     {
         if (!is_numeric($qty)) {
             return ['success' => 0, 'error_msg' => 'qty type error'];
@@ -28,7 +28,7 @@ class PurchaseLog extends Model
             return ['success' => 0, 'error_msg' => 'event error'];
         }
 
-        return DB::transaction(function () use ($purchase_id, $product_style_id, $feature, $feature_id, $event, $qty, $note) {
+        return DB::transaction(function () use ($purchase_id, $product_style_id, $feature, $feature_id, $event, $qty, $note, $user_id, $user_name) {
             self::create([
                 'purchase_id' => $purchase_id,
                 'product_style_id' => $product_style_id,
@@ -36,7 +36,9 @@ class PurchaseLog extends Model
                 'feature_id' => $feature_id,
                 'event' => $event,
                 'qty' => $qty,
-                'note' => $note]);
+                'note' => $note,
+                'user_id' => $user_id,
+                'user_name' => $user_name]);
 
             return ['success' => 1];
 

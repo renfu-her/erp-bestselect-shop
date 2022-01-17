@@ -7,6 +7,7 @@ use App\Models\PayingOrder;
 use App\Models\Purchase;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseItem;
+use App\Models\Supplier;
 use Illuminate\Database\Seeder;
 
 class PurchaseSeeder extends Seeder
@@ -18,16 +19,24 @@ class PurchaseSeeder extends Seeder
      */
     public function run()
     {
+        $supplier = Supplier::where('id', '=', 1)->get()->first();
+
         $purchaseID1 = Purchase::createPurchase(
-            1,
+            $supplier->id,
+            $supplier->name,
+            $supplier->nickname,
             5,
+            '之谷',
             '2021-12-22 00:00:00',
             '第一筆採購單',
         );
 
         $purchaseID2 = Purchase::createPurchase(
-            1,
+            $supplier->id,
+            $supplier->name,
+            $supplier->nickname,
             6,
+            '之谷',
             '2021-12-23 00:00:00',
             null,
         );
@@ -92,6 +101,11 @@ class PurchaseSeeder extends Seeder
         );
 
         $user_id_5 = 5;
+        $user_name_5 = '之谷';
+        $depot_id = 1;
+        $depot_name = '集運本倉';
+
+
         $purchaseInbound1 = PurchaseInbound::createInbound(
             $purchaseID1,
             $product_style_id1,
@@ -100,8 +114,10 @@ class PurchaseSeeder extends Seeder
             null,
             0,
             0,
-            1,
+            $depot_id,
+            $depot_name,
             $user_id_5,
+            $user_name_5,
             null,
         );
         PurchaseInbound::delInbound($purchaseInbound1, $user_id_5);
@@ -114,8 +130,10 @@ class PurchaseSeeder extends Seeder
             '2022-01-05 00:00:00',
             99,
             1,
-            1,
+            $depot_id,
+            $depot_name,
             5,
+            $user_name_5,
             '入庫OK 1物品退換貨',
         );
         PurchaseInbound::delInbound($purchaseInbound1, $user_id_5);
@@ -127,8 +145,10 @@ class PurchaseSeeder extends Seeder
             '2022-01-06 00:00:00',
             1,
             0,
-            1,
+            $depot_id,
+            $depot_name,
             5,
+            $user_name_5,
             '退換貨',
         );
 
