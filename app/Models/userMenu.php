@@ -1,6 +1,6 @@
 <?php
 return
-[
+    [
     [
         "title" => "進銷存退",
         "icon" => "bi-basket",
@@ -10,6 +10,11 @@ return
                 "title" => "商品管理",
                 "controller_name" => "ProductCtrl",
                 "route_name" => "cms.product.index",
+            ],
+            [
+                "title" => "庫存管理",
+                "controller_name" => "StockCtrl",
+                "route_name" => "cms.stock.index",
             ],
             [
                 "title" => "採購單管理",
