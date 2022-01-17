@@ -115,4 +115,18 @@ class Collection extends Model
             ]);
         }
     }
+
+    public function changePublicStatus(int $id)
+    {
+        $isPublic = self::where('id', $id)
+            ->get()
+            ->first()
+            ->is_public;
+
+        if ($isPublic) {
+            self::where('id', $id)->update(['is_public' => 0]);
+        } else {
+            self::where('id', $id)->update(['is_public' => 1]);
+        }
+    }
 }
