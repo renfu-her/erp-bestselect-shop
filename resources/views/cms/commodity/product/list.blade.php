@@ -26,7 +26,7 @@
                         <th scope="col" style="width:10%">#</th>
                         <th scope="col">商品名稱</th>
                         <th scope="col">負責人</th>
-                        <th scope="col">商品形式</th>
+                        <th scope="col">類型</th>
                         <th scope="col" class="text-center">編輯</th>
                     </tr>
                 </thead>
