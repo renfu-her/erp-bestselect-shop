@@ -18,7 +18,7 @@
                        class="form-control @error('collection_name') is-invalid @enderror"
                        id="collection_name"
                        name="collection_name"
-                       value="{{ old('collection_name', $collection_name ?? '')}}"
+                       value="{{ old('collection_name', $collectionData->name ?? '')}}"
                        required
                        aria-label="商品群組名稱"/>
                 @error('collection_name')
@@ -34,7 +34,7 @@
                        class="form-control @error('url') is-invalid @enderror"
                        id="url"
                        name="url"
-                       value="{{ old('url', $url ?? '')}}"
+                       value="{{ old('url', $collectionData->url ?? '')}}"
                        aria-label="網頁連結"/>
                 @error('url')
                 <div class="alert-danger"> {{ $message }} </div>
@@ -45,7 +45,7 @@
                        class="form-control @error('meta_title') is-invalid @enderror"
                        id="meta_title"
                        name="meta_title"
-                       value="{{ old('meta_title', $meta_title ?? '')}}"
+                       value="{{ old('meta_title', $collectionData->meta_title ?? '')}}"
                        aria-label="網頁標題"/>
                 @error('meta_title')
                 <div class="alert-danger"> {{ $message }} </div>
@@ -56,7 +56,7 @@
                        class="form-control @error('meta_description') is-invalid @enderror"
                        id="meta_description"
                        name="meta_description"
-                       value="{{ old('meta_description', $meta_description ?? '')}}"
+                       value="{{ old('meta_description', $collectionData->meta_description ?? '')}}"
                        aria-label="網頁描述"/>
                 @error('meta_description')
                 <div class="alert-danger"> {{ $message }} </div>
@@ -93,8 +93,8 @@
                             <td data-td="sku"></td>
                         </tr>
                     @elseif(count(old('id', $dataList ?? [])) > 0)
-                        @foreach (old('id', $dataList ?? []) as $key => $data)
-                            <tr class="-cloneElem --selectedP d-none">
+                        @foreach ($dataList as $key => $data)
+                            <tr class="-cloneElem --selectedP">
                                 <th class="text-center">
                 <button type="button"
                                             class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
@@ -105,7 +105,7 @@
                                     <input type="hidden" name="type_title[]" value="{{ old('type_title.' . $key, $data->type_title ?? '') }}">
                                     <input type="hidden" name="sku[]" value="{{ old('sku.' . $key, $data->sku ?? '') }}">
                                 </th>
-                                <td data-td="name">{{ old('name.' . $key, $data->name ?? '') }}</td>
+                                <td data-td="name">{{ old('name.' . $key, $data->title ?? '') }}</td>
                                 <td data-td="type_title">{{ old('type_title.' . $key, $data->type_title ?? '') }}</td>
                                 <td data-td="sku">{{ old('sku.' . $key, $data->sku ?? '') }}</td>
                             </tr>

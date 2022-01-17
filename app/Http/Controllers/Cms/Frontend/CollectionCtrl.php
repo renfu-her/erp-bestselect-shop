@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 
 class CollectionCtrl extends Controller
 {
@@ -92,11 +93,19 @@ class CollectionCtrl extends Controller
      * Show the form for editing the specified resource.
      *
      * @param  \App\Models\Collection  $collection
+     *
      * @return \Illuminate\Http\Response
      */
-    public function edit(Collection $collection)
+    public function edit(Collection $collection, int $id)
     {
-        //
+        $dataList = $collection->getCollectionDataById($id);
+
+        return view('cms.frontend.collection.edit', [
+            'dataList'    => $dataList,
+            'method'      => 'edit',
+            'formAction'  => Route('cms.collection.edit', $id),
+            'collectionData' => $dataList->first()
+        ]);
     }
 
     /**
@@ -105,9 +114,45 @@ class CollectionCtrl extends Controller
      * @param  \App\Models\Collection  $collection
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Collection $collection)
+    public function update(Request $request, Collection $collection, int $id)
     {
-        //
+        $ignoreId = $collection->where('id', $id)
+            ->get()
+            ->first()
+            ->id;
+
+        $request->validate([
+            'collection_name'  => [
+                'required',
+                'string',
+                Rule::unique('collection', 'name')->ignore($ignoreId)],
+            'url'              => 'nullable|string',
+            'meta_title'       => 'nullable|string',
+            'meta_description' => 'nullable|string',
+            'id.*'             => 'required|int|min:0'
+        ]);
+
+        $req = $request->all();
+        if (!isset($req['url'])) {
+            $req['url'] = $req['collection_name'];
+        }
+        if (!isset($req['meta_title'])) {
+            $req['meta_title'] = '';
+        }
+        if (!isset($req['meta_description'])) {
+            $req['meta_description'] = '';
+        }
+
+        $collection->updateCollectionData(
+            $id,
+            $req['collection_name'],
+            $req['url'],
+            $req['meta_title'],
+            $req['meta_description'],
+            $req['id'],
+        );
+
+        return redirect(Route('cms.collection.index'));
     }
 
     /**
