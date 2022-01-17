@@ -34,6 +34,10 @@ class Product extends Model
                 ->addSelect('user.name as user_name');
         }
 
+        if (isset($options['sku'])) {
+            $re->orWhere('product.sku', 'like', '%' . $options['sku']. '%');
+        }
+
         if (isset($options['supplier'])) {
             $subSupplier = DB::table('prd_product_supplier as ps')
                 ->select('ps.product_id')

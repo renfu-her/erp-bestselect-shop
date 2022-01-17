@@ -10,4 +10,5 @@ Route::group(['prefix' => 'collection','as'=>'collection.'], function () {
     Route::get('create', [CollectionCtrl::class, 'create'])->name('create')->middleware('permission:cms.collection.create');
     Route::post('create', [CollectionCtrl::class, 'store']);
     Route::get('delete/{id}', [CollectionCtrl::class, 'destroy'])->name('delete')->middleware('permission:cms.collection.delete');
+    Route::post('publish/{id}', [CollectionCtrl::class, 'publish'])->name('publish')->middleware('permission:cms.collection.publish');
 });

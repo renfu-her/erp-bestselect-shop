@@ -48,8 +48,9 @@
                         <td>{{ $data->name }}</td>
                         <td class="text-center">
                             <div class="form-check form-switch form-switch-lg">
-                                <input class="form-check-input" name="active_id[]" value="{{ $data['is_public'] }}"
-                                       type="checkbox" @if ($data['is_public']) checked @endif>
+                                <input class="form-check-input" name="is_public[]" value="{{ $data->is_public }}"
+                                       type="checkbox" @if ($data->is_public) checked @endif>
+                                <input type="hidden" name="id[]" value="{{ $data->id }}">
                             </div>
                         </td>
                         <td>
@@ -96,6 +97,26 @@
         <script>
             $('#confirm-delete').on('show.bs.modal', function (e) {
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+            });
+
+            $('tbody').on('change', 'input[name="is_public[]"]', function () {
+                let currentStatus = $(this).val();
+                let collectionId = $(this).next().val();
+                let _URL = '/cms/collection/publish/' + collectionId;
+                let DATA = {id: collectionId};
+
+                const ON = '1';
+                const OFF = '0';
+
+                axios.post(_URL, DATA).then((result) => {
+                    if (currentStatus === ON) {
+                        $(this).val(OFF);
+                    } else if (currentStatus === OFF) {
+                        $(this).val(ON);
+                    }
+                }).catch((error) => {
+                    console.log('post error:' + error);
+                });
             });
         </script>
     @endpush
