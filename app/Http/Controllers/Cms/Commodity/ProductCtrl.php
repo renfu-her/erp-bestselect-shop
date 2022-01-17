@@ -28,9 +28,9 @@ class ProductCtrl extends Controller
     {
 
         //   dd(Product::productList()->get());
-
+        $products = Product::productList(null, null, ['user' => true])->paginate(10);
         return view('cms.commodity.product.list', [
-            'dataList' => Product::productList()->paginate(10),
+            'dataList' => $products,
             'data_per_page' => 10]);
     }
 

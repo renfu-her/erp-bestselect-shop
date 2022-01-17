@@ -54,9 +54,11 @@ class ProductCtrl extends Controller
         }
 
         $d = $request->all();
-        
+
         $re = Product::productList(
-            Arr::get($d, 'title',''),     
+            Arr::get($d, 'title',''),
+            Arr::get($d, 'id',''),
+            Arr::get($d, 'options',''),
         )->paginate(10)->toArray();
         $re['status'] = '0';
         //   $re['data'] = json_decode(json_encode($re['data']), true);
