@@ -52,7 +52,7 @@ class PurchaseItem extends Model
     public static function getPurchaseDetailList(
           $purchase_sn = null
         , $title = null
-        , $sku = null
+//        , $sku = null
         , $purchase_user_id = []
         , $purchase_sdate = null
         , $purchase_edate = null
@@ -178,13 +178,14 @@ class PurchaseItem extends Model
         if($title) {
             $result->where(function ($query) use ($title) {
                 $query->Where('items.title', 'like', "%{$title}%");
+                $query->orWhere('items.sku', 'like', "%{$title}%");
             });
         }
-        if($sku) {
-            $result->where(function ($query) use ($sku) {
-                $query->Where('items.sku', 'like', "%{$sku}%");
-            });
-        }
+//        if($sku) {
+//            $result->where(function ($query) use ($sku) {
+//                $query->Where('items.sku', 'like', "%{$sku}%");
+//            });
+//        }
         if ($purchase_user_id) {
             $result->whereIn('purchase.purchase_user_id', $purchase_user_id);
         }
@@ -204,7 +205,7 @@ class PurchaseItem extends Model
     public static function getPurchaseOverviewList(
           $purchase_sn = null
         , $title = null
-        , $sku = null
+//        , $sku = null
         , $purchase_user_id = []
         , $purchase_sdate = null
         , $purchase_edate = null
@@ -283,13 +284,14 @@ class PurchaseItem extends Model
         if($title) {
             $tempPurchaseItemSql->where(function ($query) use ($title) {
                 $query->Where('items.title', 'like', "%{$title}%");
+                $query->orWhere('items.sku', 'like', "%{$title}%");
             });
         }
-        if($sku) {
-            $tempPurchaseItemSql->where(function ($query) use ($sku) {
-                $query->Where('items.sku', 'like', "%{$sku}%");
-            });
-        }
+//        if($sku) {
+//            $tempPurchaseItemSql->where(function ($query) use ($sku) {
+//                $query->Where('items.sku', 'like', "%{$sku}%");
+//            });
+//        }
 
 //        dd(IttmsUtils::getEloquentSqlWithBindings($tempInboundSql));
 //        dd($result->get()->toArray());

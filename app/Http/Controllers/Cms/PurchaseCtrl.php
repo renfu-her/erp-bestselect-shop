@@ -27,7 +27,7 @@ class PurchaseCtrl extends Controller
 
         $purchase_sn = Arr::get($query, 'purchase_sn', '');
         $title = Arr::get($query, 'title', '');
-        $sku = Arr::get($query, 'sku', '');
+//        $sku = Arr::get($query, 'sku', '');
         $purchase_user_id = Arr::get($query, 'purchase_user_id', []);
         $purchase_sdate = Arr::get($query, 'purchase_sdate', '');
         $purchase_edate = Arr::get($query, 'purchase_edate', '');
@@ -45,7 +45,7 @@ class PurchaseCtrl extends Controller
             $dataList = PurchaseItem::getPurchaseDetailList(
                 $purchase_sn
                 , $title
-                , $sku
+//                , $sku
                 , $purchase_user_id
                 , $purchase_sdate
                 , $purchase_edate
@@ -61,7 +61,7 @@ class PurchaseCtrl extends Controller
             $dataList = PurchaseItem::getPurchaseOverviewList(
                 $purchase_sn
                 , $title
-                , $sku
+//                , $sku
                 , $purchase_user_id
                 , $purchase_sdate
                 , $purchase_edate
@@ -86,7 +86,7 @@ class PurchaseCtrl extends Controller
 
             , 'purchase_sn' => $purchase_sn
             , 'title' => $title
-            , 'sku' => $sku
+//            , 'sku' => $sku
             , 'purchase_user_id' => $purchase_user_id
             , 'purchase_sdate' => $purchase_sdate
             , 'purchase_edate' => $purchase_edate

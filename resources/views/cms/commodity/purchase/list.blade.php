@@ -63,14 +63,14 @@
             </div>
             <div class="col-12 col-sm-6 mb-3">
                 <label class="form-label">商品名稱</label>
-                <input class="form-control" name="title" type="text" placeholder="請輸入商品名稱" value="{{$title??''}}"
+                <input class="form-control" name="title" type="text" placeholder="請輸入商品名稱或SKU" value="{{$title??''}}"
                        aria-label="商品名稱">
             </div>
-            <div class="col-12 col-sm-6 mb-3">
-                <label class="form-label">SKU</label>
-                <input class="form-control" name="sku" type="text" placeholder="請輸入SKU碼" value="{{$sku??''}}"
-                       aria-label="SKU">
-            </div>
+{{--            <div class="col-12 col-sm-6 mb-3">--}}
+{{--                <label class="form-label">SKU</label>--}}
+{{--                <input class="form-control" name="sku" type="text" placeholder="請輸入SKU碼" value="{{$sku??''}}"--}}
+{{--                       aria-label="SKU">--}}
+{{--            </div>--}}
             <div class="col-12 col-sm-6 mb-3">
                 <label class="form-label">效期</label>
                 <select class="form-select" name="expire_day" aria-label="效期">
