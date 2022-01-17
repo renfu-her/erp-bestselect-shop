@@ -48,14 +48,12 @@ class Purchase extends Model
     public static function getPurchaseList($sDate = null, $eDate = null, $hasClose = false, $invoiceNum = null)
     {
         $result = DB::table('pcs_purchase as purchase')
-            ->leftJoin('usr_users as users', 'users.id', '=', 'purchase.purchase_user_id')
-            ->leftJoin('prd_suppliers as suppliers', 'suppliers.id', '=', 'purchase.supplier_id')
-
             ->select('purchase.id'
                 , 'purchase.invoice_num as invoice_num'
                 , 'purchase.pay_type as pay_type'
-                , 'users.name as user_name'
-                , 'suppliers.name as supplier_name'
+                , 'purchase_user_name as user_name'
+                , 'supplier_name as supplier_name'
+                , 'supplier_nickname as supplier_nickname'
             )
             ->selectRaw('DATE_FORMAT(purchase.close_date,"%Y-%m-%d") as close_date')
             ->whereNull('purchase.deleted_at');
@@ -77,18 +75,15 @@ class Purchase extends Model
     public static function getPurchase($id)
     {
         $result = DB::table('pcs_purchase as purchase')
-            ->leftJoin('usr_users as users', 'users.id', '=', 'purchase.purchase_user_id')
-            ->leftJoin('prd_suppliers as suppliers', 'suppliers.id', '=', 'purchase.supplier_id')
-
             ->select('purchase.id'
                 , 'purchase.sn as purchase_sn'
                 , 'purchase.invoice_num as invoice_num'
                 , 'purchase.pay_type as pay_type'
                 , 'purchase.close_date as close_date'
-                , 'users.id as user_id'
-                , 'users.name as user_name'
-                , 'suppliers.id as supplier_id'
-                , 'suppliers.name as supplier_name'
+                , 'purchase_user_id as user_id'
+                , 'purchase_user_name as user_name'
+                , 'supplier_name as supplier_name'
+                , 'supplier_nickname as supplier_nickname'
             )
             ->selectRaw('DATE_FORMAT(purchase.scheduled_date,"%Y-%m-%d") as scheduled_date')
             ->whereNull('purchase.deleted_at')

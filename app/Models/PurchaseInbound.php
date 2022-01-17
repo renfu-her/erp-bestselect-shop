@@ -121,7 +121,6 @@ class PurchaseInbound extends Model
                 $join->on('inbound.purchase_id', '=', 'items.purchase_id');
                 $join->on('inbound.product_style_id', '=', 'items.product_style_id');
             })
-            ->leftJoin('usr_users as users', 'users.id', '=', 'inbound.inbound_user_id')
             //->select('*')
             ->select('purchase.id as purchase_id' //採購ID
                 , 'items.title as title' //商品名稱-款式名稱
@@ -133,10 +132,11 @@ class PurchaseInbound extends Model
                 , 'inbound.inbound_num as inbound_num' //入庫實進數量
                 , 'inbound.error_num as error_num' //入庫異常數量
                 , 'inbound.depot_id as depot_id'  //入庫倉庫ID
+                , 'inbound.depot_name as depot_name'  //入庫倉庫名稱
                 , 'inbound.inbound_user_id as inbound_user_id'  //入庫人員ID
+                , 'inbound.inbound_user_name as user_name' //入庫人員名稱
                 , 'inbound.close_date as close_date'
                 , 'inbound.memo as inbound_memo' //入庫備註
-                , 'users.name as user_name' //入庫人員名稱
             )
             ->selectRaw('DATE_FORMAT(inbound.expiry_date,"%Y-%m-%d") as expiry_date') //有效期限
             ->selectRaw('DATE_FORMAT(inbound.inbound_date,"%Y-%m-%d") as inbound_date') //入庫日期

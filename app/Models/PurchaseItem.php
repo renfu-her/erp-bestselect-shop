@@ -83,14 +83,12 @@ class PurchaseItem extends Model
             ->limit(1);
 
         $tempInboundSql = DB::table('pcs_purchase_inbound as inbound')
-            ->leftJoin('usr_users as user', 'user.id', '=', 'inbound.inbound_user_id')
-            ->leftJoin('depot as depot', 'depot.id', '=', 'inbound.depot_id')
             ->select('inbound.id'
                 , 'inbound.purchase_id'
                 , 'inbound.status'
                 , 'inbound.product_style_id'
-                , 'user.name as inbound_user_name'
-                , 'depot.name as depot_name')
+                , 'inbound.inbound_user_name as inbound_user_name'
+                , 'inbound.depot_name as depot_name')
             ->selectRaw('(inbound.inbound_date) as inbound_date')
             ->selectRaw('(inbound.inbound_num) as inbound_num')
             ->selectRaw('(inbound.error_num) as error_num')
@@ -300,8 +298,6 @@ class PurchaseItem extends Model
             ->leftJoinSub($tempPurchaseItemSql, 'itemtb_new', function($join) use($tempPurchaseItemSql) {
                 $join->on('itemtb_new.purchase_id', '=', 'purchase.id');
             })
-            ->leftJoin('usr_users as user', 'user.id', '=', 'purchase.purchase_user_id')
-            ->leftJoin('prd_suppliers as supplier', 'supplier.id', '=', 'purchase.supplier_id')
             //->select('*')
             ->select('purchase.id as id'
                 ,'purchase.sn as sn'
@@ -314,9 +310,9 @@ class PurchaseItem extends Model
                 ,'purchase.purchase_user_id as purchase_user_id'
                 ,'purchase.supplier_id as supplier_id'
                 ,'purchase.invoice_num as invoice_num'
-                ,'user.name as purchase_user_name'
-                ,'supplier.name as supplier_name'
-                ,'supplier.nickname as supplier_nickname'
+                ,'purchase.purchase_user_name as purchase_user_name'
+                ,'purchase.supplier_name as supplier_name'
+                ,'purchase.supplier_nickname as supplier_nickname'
             )
             ->selectRaw('DATE_FORMAT(purchase.scheduled_date,"%Y-%m-%d") as scheduled_date')
             ->selectRaw('itemtb_new.price * itemtb_new.num as total_price')
