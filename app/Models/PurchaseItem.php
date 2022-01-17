@@ -137,7 +137,6 @@ class PurchaseItem extends Model
                 ,'items.id as items_id'
                 ,'items.title as title'
                 ,'purchase.created_at as created_at'
-                ,'purchase.scheduled_date as scheduled_date'
                 ,'items.sku as sku'
                 ,'items.price as price'
                 ,'items.num as num'
@@ -149,16 +148,17 @@ class PurchaseItem extends Model
                 ,'supplier.nickname as supplier_nickname'
 
                 ,'inbound.status as inbound_status'
-                ,'inbound.inbound_date as inbound_date'
                 ,'inbound.inbound_num as inbound_num'
                 ,'inbound.error_num as error_num'
                 ,'inbound.sale_num as sale_num'
-                ,'inbound.expiry_date as expiry_date'
                 ,'inbound.depot_id as depot_id'
                 ,'inbound.inbound_user_id as inbound_user_id'
                 ,'inbound.inbound_user_name as inbound_user_name'
                 ,'inbound.depot_name as depot_name'
             )
+            ->selectRaw('DATE_FORMAT(purchase.scheduled_date,"%Y-%m-%d") as scheduled_date')
+            ->selectRaw('DATE_FORMAT(inbound.inbound_date,"%Y-%m-%d") as inbound_date')
+            ->selectRaw('DATE_FORMAT(inbound.expiry_date,"%Y-%m-%d") as expiry_date')
             ->selectRaw('items.price * items.num as total_price')
 //            ->selectRaw('('. $caseInboundSql. ') as inbound_status')
             ->addSelect(['deposit_num' => $subColumn, 'final_pay_num' => $subColumn2])
@@ -303,7 +303,6 @@ class PurchaseItem extends Model
                 ,'itemtb_new.id as items_id'
                 ,'itemtb_new.title as title'
                 ,'purchase.created_at as created_at'
-                ,'purchase.scheduled_date as scheduled_date'
                 ,'itemtb_new.sku as sku'
                 ,'itemtb_new.price as price'
                 ,'itemtb_new.num as num'
@@ -314,6 +313,7 @@ class PurchaseItem extends Model
                 ,'supplier.name as supplier_name'
                 ,'supplier.nickname as supplier_nickname'
             )
+            ->selectRaw('DATE_FORMAT(purchase.scheduled_date,"%Y-%m-%d") as scheduled_date')
             ->selectRaw('itemtb_new.price * itemtb_new.num as total_price')
             ->addSelect(['deposit_num' => $subColumn, 'final_pay_num' => $subColumn2])
             ->whereNull('purchase.deleted_at')
