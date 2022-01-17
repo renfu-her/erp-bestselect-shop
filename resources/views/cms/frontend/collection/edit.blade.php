@@ -198,11 +198,11 @@
                 },
                 checkFn: function () {
                     if ($('.-cloneElem.--selectedP').length) {
-                        $('#supplier').prop('disabled', true);
+                        // $('#supplier').prop('disabled', true);
                         $('button[type="submit"]').prop('disabled', false);
                     } else if (@json($method) ==='create')
                     {
-                        $('#supplier').prop('disabled', false);
+                        // $('#supplier').prop('disabled', false);
                     }
                     // 無商品不可儲存
                     if (!$('.-cloneElem.--selectedP').length) {
@@ -234,8 +234,8 @@
             function getProductList(page) {
                 let _URL = `${Laravel.apiUrl.productList}?page=${page}`;
                 let Data = {
-                    keyword: $('#addProduct .-searchBar input').val(),
-                    sku: $('#addProduct .-searchBar input').val(),
+                    title: $('#addProduct .-searchBar input').val(),
+                    options: {sku: $('#addProduct .-searchBar input').val()},
                 };
 
                 $('#addProduct tbody.-appendClone.--product').empty();
