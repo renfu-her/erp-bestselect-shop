@@ -193,24 +193,31 @@ class Product extends Model
         }
 
         if (isset($options['supplier'])) {
-            $supplierSub = DB::talbe('prd_product_supplier as ps')
-                ->leftJoin('prd_suppliers as sup', 'ps.supplier_id', '=', 'sup.id')
-                ->select('ps_product_id as product_id')
-                ->selectRaw('GROUP_CONCAT(sup.name) as suppliers_name')
-                ->groupBy('ps.product_id');
+            if (isset($options['supplier']['show'])) {
+                $supplierSub = DB::table('prd_product_supplier as ps')
+                    ->leftJoin('prd_suppliers as sup', 'ps.supplier_id', '=', 'sup.id')
+                    ->select('ps.product_id as product_id')
+                    ->selectRaw('GROUP_CONCAT(sup.name) as suppliers_name')
+                    ->groupBy('ps.product_id');
 
-            $re->leftJoin(DB::raw("({$supplierSub->toSql()}) as sup"), 'p.id', '=', 'sup.product_id')
-                ->addSelect('sup.suppliers_name as suppliers_name');
+                $re->leftJoin(DB::raw("({$supplierSub->toSql()}) as sup"), 'p.id', '=', 'sup.product_id')
+                    ->addSelect('sup.suppliers_name as suppliers_name');
 
-            if ($options['supplier']) {
-                if (is_array($options['supplier'])) {
-                    $re->whereIn('sup.supplier_id', $options['supplier']);
-                } else {
-                    $re->where('sup.supplier_id', $options['supplier']);
-                }
+                $re->mergeBindings($supplierSub);
             }
 
-            $re->mergeBindings($supplierSub);
+            if (isset($options['supplier']['condition'])) {
+                $re->leftJoin('prd_product_supplier as ps', 'p.id', '=', 'ps.product_id');
+                if (is_array($options['supplier']['condition'])) {
+                    if (count($options['supplier']['condition']) > 0) {
+                        $re->whereIn('ps.supplier_id', $options['supplier']['condition']);
+                    }
+                } else {
+                    if ($options['supplier']['condition']) {
+                        $re->where('ps.supplier_id', $options['supplier']['condition']);
+                    }
+                }
+            }
 
         }
 
@@ -220,9 +227,13 @@ class Product extends Model
 
             if ($options['user']) {
                 if (is_array($options['user'])) {
-                    $re->whereIn('p.user_id', $options['user']);
+                    if (count($options['user']) > 0) {
+                        $re->whereIn('p.user_id', $options['user']);
+                    }
                 } else {
-                    $re->where('p.user_id', $options['user']);
+                    if ($options['user']) {
+                        $re->where('p.user_id', $options['user']);
+                    }
                 }
             }
         }

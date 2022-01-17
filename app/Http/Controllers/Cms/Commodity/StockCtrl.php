@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class StockCtrl extends Controller
@@ -14,8 +15,10 @@ class StockCtrl extends Controller
      */
     public function index()
     {
+    //    dd(Product::productStyleList(null, null, ['supplier' => ['condition' => []]])->get()->toArray());
+
         return view('cms.commodity.stock.list', [
-            'data_per_page' => 10
+            'data_per_page' => 10,
         ]);
     }
 
