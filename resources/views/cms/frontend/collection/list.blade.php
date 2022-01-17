@@ -7,7 +7,7 @@
             <div class="row">
                 <div class="col-12 mb-3">
                     <label class="form-label">搜尋條件</label>
-                    <input class="form-control" name="title" type="text" placeholder="請輸入商品群組名稱" value=""
+                    <input class="form-control" name="name" type="text" placeholder="請輸入商品群組名稱" value=""
                            aria-label="商品群組名稱">
                 </div>
             </div>
@@ -83,7 +83,7 @@
 
     <!-- Modal -->
     <x-b-modal id="confirm-delete">
-        <x-slot name="title">刪除確認</x-slot>
+        <x-slot name="name">刪除確認</x-slot>
         <x-slot name="body">刪除後將無法復原！確認要刪除？</x-slot>
         <x-slot name="foot">
             <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>

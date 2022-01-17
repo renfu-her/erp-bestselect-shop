@@ -19,7 +19,7 @@ class CollectionCtrl extends Controller
     public function index(Request $request, Collection $collection)
     {
         $query = $request->query();
-        $dataList = $collection->paginate(10)->appends($query);
+        $dataList = $collection->getDataList($query);
         $data_per_page = Arr::get($query, 'data_per_page', 10);
         $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
 
