@@ -36,7 +36,9 @@
                 <tr>
                     <th scope="col" style="width:10%">#</th>
                     <th scope="col">商品群組</th>
-                    <th scope="col">公開上架</th>
+                    @if(auth()->user()->can('cms/collection/publish'))
+                        <th scope="col">公開上架</th>
+                    @endif
                     <th scope="col">編輯</th>
                     <th scope="col">刪除</th>
                 </tr>
@@ -46,13 +48,15 @@
                     <tr>
                         <th scope="row">{{ $key + 1 }}</th>
                         <td>{{ $data->name }}</td>
-                        <td class="text-center">
-                            <div class="form-check form-switch form-switch-lg">
-                                <input class="form-check-input" name="is_public[]" value="{{ $data->is_public }}"
-                                       type="checkbox" @if ($data->is_public) checked @endif>
-                                <input type="hidden" name="id[]" value="{{ $data->id }}">
-                            </div>
-                        </td>
+                        @if(auth()->user()->can('cms/collection/publish'))
+                            <td class="text-center">
+                                <div class="form-check form-switch form-switch-lg">
+                                    <input class="form-check-input" name="is_public[]" value="{{ $data->is_public }}"
+                                           type="checkbox" @if ($data->is_public) checked @endif>
+                                    <input type="hidden" name="id[]" value="{{ $data->id }}">
+                                </div>
+                            </td>
+                        @endif
                         <td>
                             <a href="{{ Route('cms.collection.edit', ['id' => $data->id], true) }}"
                                data-bs-toggle="tooltip" title="編輯"

@@ -165,6 +165,10 @@ return [
                 "cms.collection.delete",
                 "刪除",
             ],
+            [
+                "cms.collection.publish",
+                "公開商品群組",
+            ],
         ],
     ],
     [
