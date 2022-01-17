@@ -1,11 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <div class="pt-2 mb-3">
-        <a href="{{ Route('cms.collection.index', [], true) }}" class="btn btn-primary" role="button">
-            <i class="bi bi-arrow-left"></i> 返回上一頁
-        </a>
-    </div>
-    <h2 class="mb-4">
+    <h2 class="mb-3">
         @if ($method === 'create') 新增 @else 編輯 @endif 商品群組
     </h2>
     <form class="card-body" method="post" action="{{ $formAction }}">
@@ -13,6 +8,7 @@
         @csrf
 
         <div class="card shadow p-4 mb-4">
+            <div class="row">
             <x-b-form-group name="collection_name" title="商品群組名稱" required="true">
                 <input type="text"
                        class="form-control @error('collection_name') is-invalid @enderror"
@@ -62,6 +58,7 @@
                 <div class="alert-danger"> {{ $message }} </div>
                 @enderror
             </x-b-form-group>
+            </div>
         </div>
         <div class="card shadow p-4 mb-4">
             <h6>新增商品</h6>
@@ -135,8 +132,10 @@
             </div>
 
         </div>
-        <div class="d-flex justify-content-end pt-2">
+        <div class="col-auto">
             <button type="submit" class="btn btn-primary px-4">儲存</button>
+            <a href="{{ Route('cms.collection.index', [], true) }}" class="btn btn-outline-primary px-4"
+               role="button">返回列表</a>
         </div>
     </form>
 
