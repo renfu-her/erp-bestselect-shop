@@ -14,7 +14,9 @@ class StockCtrl extends Controller
      */
     public function index()
     {
-        //
+        return view('cms.commodity.stock.list', [
+            'data_per_page' => 10
+        ]);
     }
 
     /**
