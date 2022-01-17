@@ -35,7 +35,7 @@ class Product extends Model
         }
 
         if (isset($options['sku'])) {
-            $re->orWhere('product.sku', 'like', '%' . $options['sku']. '%');
+            $re->orWhere('product.sku', 'like', '%' . $options['sku'] . '%');
         }
 
         if (isset($options['supplier'])) {
@@ -170,7 +170,7 @@ class Product extends Model
 
     }
 
-    public static function productStyleList($keyword = null, $sku = null, $supplier_id = null, $type = null)
+    public static function productStyleList($keyword = null, $type = null, $options = [])
     {
 
         $re = DB::table('prd_products as p')
@@ -178,14 +178,11 @@ class Product extends Model
             ->select('s.id', 's.sku', 'p.title as product_title', 's.title as spec', 's.in_stock', 's.safety_stock')
         // ->selectRaw('IF(s.title,p.title,CONCAT(p.title," ",COALESCE(s.title,""))) as title')
             ->whereNotNull('s.sku')
-            ->where(function ($q) use ($keyword, $sku) {
+            ->where(function ($q) use ($keyword) {
                 if ($keyword) {
                     $q->where('p.title', 'like', "%$keyword%");
                     $q->orWhere('s.title', 'like', "%$keyword%");
-                }
-
-                if ($sku) {
-                    $q->where('s.sku', 'like', "%$sku%");
+                    $q->orWhere('s.sku', 'like', "%$keyword%");
                 }
             })
             ->whereNotNull('s.sku')
@@ -195,12 +192,42 @@ class Product extends Model
             $re->where('s.type', $type);
         }
 
-        if ($supplier_id) {
-            $re->leftJoin('prd_product_supplier as sup', 'p.id', '=', 'sup.product_id')
-                ->where('sup.supplier_id', $supplier_id);
+        if (isset($options['supplier'])) {
+            $supplierSub = DB::talbe('prd_product_supplier as ps')
+                ->leftJoin('prd_suppliers as sup', 'ps.supplier_id', '=', 'sup.id')
+                ->select('ps_product_id as product_id')
+                ->selectRaw('GROUP_CONCAT(sup.name) as suppliers_name')
+                ->groupBy('ps.product_id');
+
+            $re->leftJoin(DB::raw("({$supplierSub->toSql()}) as sup"), 'p.id', '=', 'sup.product_id')
+                ->addSelect('sup.suppliers_name as suppliers_name');
+
+            if ($options['supplier']) {
+                if (is_array($options['supplier'])) {
+                    $re->whereIn('sup.supplier_id', $options['supplier']);
+                } else {
+                    $re->where('sup.supplier_id', $options['supplier']);
+                }
+            }
+
+            $re->mergeBindings($supplierSub);
+
         }
 
-        return $re;
+        if (isset($options['user'])) {
+            $re->leftJoin('usr_users as user', 'p.user_id', '=', 'user.id')
+                ->addSelect('user.name as user_name');
+
+            if ($options['user']) {
+                if (is_array($options['user'])) {
+                    $re->whereIn('p.user_id', $options['user']);
+                } else {
+                    $re->where('p.user_id', $options['user']);
+                }
+            }
+        }
+
+        return $re->distinct();
 
     }
 
