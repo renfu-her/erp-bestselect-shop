@@ -213,7 +213,8 @@
                             <td>{{ $data->sn }}</td>
                             <td>{{ $data->title }}</td>
                             <td>{{ $data->scheduled_date }}</td>
-                            <td>{{ $data->inbound_status??'' }}</td>
+                            <td style="display: none">{{$status = (($data->inbound_status??'')? App\Enums\Purchase\InboundStatus::getDescription($data->inbound_status??''): '')}}</td>
+                            <td @class(['text-danger' => $status === '短缺' || $status === '溢出'])>{{ $status }}</td>
                             <td>{{ $data->deposit_num }}</td>
                             <td>{{ $data->final_pay_num }}</td>
                             <td>{{ $data->sku }}</td>
