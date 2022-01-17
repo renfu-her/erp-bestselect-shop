@@ -85,7 +85,8 @@ class PurchaseItem extends Model
         $tempInboundSql = DB::table('pcs_purchase_inbound as inbound')
             ->leftJoin('usr_users as user', 'user.id', '=', 'inbound.inbound_user_id')
             ->leftJoin('depot as depot', 'depot.id', '=', 'inbound.depot_id')
-            ->select('inbound.purchase_id'
+            ->select('inbound.id'
+                , 'inbound.purchase_id'
                 , 'inbound.status'
                 , 'inbound.product_style_id'
                 , 'user.name as inbound_user_name'
@@ -113,7 +114,7 @@ class PurchaseItem extends Model
         if ($expire_day) {
             if (0 < $expire_day) {
                 //大於0 找近N天
-                $tempInboundSql->whereBetween('inbound.expiry_date', ['now()', 'date_add(now, interval '. $expire_day. ' day)']);
+                $tempInboundSql->whereBetween('inbound.expiry_date', [DB::raw('NOW()'), DB::raw('date_add(now(), interval '. $expire_day. ' day)')]);
             } else if (0 > $expire_day) {
                 //小於0 找過期
                 $tempInboundSql->where('inbound.expiry_date', '<=', $expire_day);
@@ -147,6 +148,7 @@ class PurchaseItem extends Model
                 ,'supplier.name as supplier_name'
                 ,'supplier.nickname as supplier_nickname'
 
+                ,'inbound.id as inbound_id'
                 ,'inbound.status as inbound_status'
                 ,'inbound.inbound_num as inbound_num'
                 ,'inbound.error_num as error_num'
@@ -166,6 +168,7 @@ class PurchaseItem extends Model
             ->whereNull('items.deleted_at')
             ->whereNull('user.deleted_at')
             ->whereNull('supplier.deleted_at')
+//            ->whereNotNull('inbound.inbound_num')
             ->orderBy('id')
             ->orderBy('items_id');
 
@@ -252,7 +255,7 @@ class PurchaseItem extends Model
         if ($expire_day) {
             if (0 < $expire_day) {
                 //大於0 找近N天
-                $tempInboundSql->whereBetween('inbound.expiry_date', ['now()', 'date_add(now, interval '. $expire_day. ' day)']);
+                $tempInboundSql->whereBetween('inbound.expiry_date', [DB::raw('NOW()'), DB::raw('date_add(now(), interval '. $expire_day. ' day)')]);
             } else if (0 > $expire_day) {
                 //小於0 找過期
                 $tempInboundSql->where('inbound.expiry_date', '<=', $expire_day);
