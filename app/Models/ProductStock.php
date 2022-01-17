@@ -13,7 +13,7 @@ class ProductStock extends Model
     protected $table = 'prd_stock_log';
     protected $guarded = [];
 
-    public static function stockChange($product_style_id, $qty, $event, $event_id = null, $note = null)
+    public static function stockChange($product_style_id, $qty, $event, $event_id = null, $note = null, $is_inbound = false)
     {
 
         if (!is_numeric($qty)) {
@@ -28,14 +28,26 @@ class ProductStock extends Model
             return ['success' => 0, 'error_msg' => 'style not exists'];
         }
 
-        return DB::transaction(function () use ($product_style_id, $qty, $event, $event_id, $note) {
+        return DB::transaction(function () use ($product_style_id, $qty, $event, $event_id, $note, $is_inbound) {
             $style = ProductStyle::where('id', $product_style_id)->select('id','in_stock')->get()->first();
             if ($style['in_stock'] + $qty < 0) {
                 return ['success' => 0, 'error_msg' => '數量超出範圍'];
             }
 
-            ProductStyle::where('id', $product_style_id)
-                ->update(['in_stock' => DB::raw("in_stock + $qty")]);
+            $product_style = ProductStyle::where('id', $product_style_id);
+            $product_style_get = $product_style->get()->first();
+
+            if (null != $product_style_get) {
+                //判斷若為入庫單，則總進貨量total_inbound需加上數量
+                if (false == $is_inbound) {
+                    $product_style->update(['in_stock' => DB::raw("in_stock + $qty")]);
+                } else {
+                    $product_style->update([
+                        'total_inbound' => DB::raw("total_inbound + $qty")
+                        , 'in_stock' => DB::raw("in_stock + $qty")
+                    ]);
+                }
+            }
 
             self::create(['product_style_id' => $product_style_id,
                 'qty' => $qty,
@@ -58,7 +70,7 @@ class ProductStock extends Model
             }
 
             $combos = ProductStyleCombo::where('product_style_id', $style_id)->get()->toArray();
-          
+
             foreach ($combos as $combo) {
                 $_qty = $qty * -1 * $combo['qty'];
                 $re = self::stockChange($combo['product_style_child_id'], $_qty, 'combo', $style_id);
