@@ -2,7 +2,8 @@
 
 namespace App\Models;
 
-use App\Enums\InboundEvent;
+use App\Enums\Purchase\LogFeatureEvent;
+use App\Enums\Purchase\LogFeature;
 use App\Enums\StockEvent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -33,7 +34,7 @@ class PurchaseInbound extends Model
 
         //入庫 新增入庫數量
         //寫入ProductStock
-        PurchaseInboundLog::stockChange($id, $inbound_num, InboundEvent::inbound()->value);
+        PurchaseLog::stockChange($purchase_id, $product_style_id, LogFeature::inbound()->value, $id, LogFeatureEvent::inbound()->value, $inbound_num);
         ProductStock::stockChange($product_style_id, $inbound_num, StockEvent::inbound()->value, $id);
 
         return $id;
@@ -63,7 +64,7 @@ class PurchaseInbound extends Model
                 else if (is_numeric($inboundDataGet->sale_num) && 0 < $inboundDataGet->sale_num) {
                     return ['success' => 0, 'error_msg' => 'inbound already sell'];
                 } else {
-                    PurchaseInboundLog::stockChange($id, $inboundDataGet->inbound_num * -1, InboundEvent::delete()->value, $user_id . '刪除入庫單');
+                    PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogFeature::inbound()->value, $id, LogFeatureEvent::delete()->value, $inboundDataGet->inbound_num * -1, 'user '.$user_id . '刪除入庫單');
                     ProductStock::stockChange($inboundDataGet->product_style_id, $inboundDataGet->inbound_num * -1, StockEvent::inbound_del()->value, $id, $user_id . '刪除入庫單');
                     $inboundData->delete();
                 }
@@ -86,7 +87,7 @@ class PurchaseInbound extends Model
                 } else {
                     PurchaseInbound::where('id', $id)
                         ->update(['sale_num' => DB::raw("sale_num + $sale_num")]);
-                    PurchaseInboundLog::stockChange($id, $sale_num, InboundEvent::shipping()->value);
+                    PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogFeature::inbound()->value, $id, LogFeatureEvent::shipping()->value, $sale_num);
                 }
             }
         });
@@ -99,9 +100,13 @@ class PurchaseInbound extends Model
             $id,
             $send_back_num
         ) {
-            PurchaseInbound::where('id', $id)
-                ->update(['error_num' => DB::raw("error_num + $send_back_num")]);
-            PurchaseInboundLog::stockChange($id, $send_back_num, InboundEvent::send_back()->value);
+            $inboundData = PurchaseInbound::where('id', '=', $id);
+            $inboundDataGet = $inboundData->get()->first();
+            if (null != $inboundDataGet) {
+                $inboundData
+                    ->update(['error_num' => DB::raw("error_num + $send_back_num")]);
+                PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogFeature::inbound()->value, $id, LogFeatureEvent::send_back()->value, $send_back_num);
+            }
         });
     }
 
@@ -110,7 +115,10 @@ class PurchaseInbound extends Model
     {
         $result = DB::table('pcs_purchase as purchase')
             ->leftJoin('pcs_purchase_items as items', 'items.purchase_id', '=', 'purchase.id')
-            ->leftJoin('pcs_purchase_inbound as inbound', 'inbound.product_style_id', '=', 'items.product_style_id')
+            ->leftJoin('pcs_purchase_inbound as inbound', function ($join) {
+                $join->on('inbound.purchase_id', '=', 'items.purchase_id');
+                $join->on('inbound.product_style_id', '=', 'items.product_style_id');
+            })
             ->leftJoin('usr_users as users', 'users.id', '=', 'inbound.inbound_user_id')
             //->select('*')
             ->select('purchase.id as purchase_id' //採購ID

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Enums;
+namespace App\Enums\Purchase;
 
 use BenSampo\Enum\Enum;
 
@@ -9,8 +9,10 @@ use BenSampo\Enum\Enum;
  * @method static static OptionTwo()
  * @method static static OptionThree()
  */
-final class InboundEvent extends Enum
+final class LogFeatureEvent extends Enum
 {
+
+    //入庫
     const inbound = 'inbound';
     const delete = 'delete';
     const shipping = 'shipping';
