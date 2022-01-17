@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\IttmsUtils;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -82,12 +83,21 @@ class PurchaseItem extends Model
             ->limit(1);
 
         $tempInboundSql = DB::table('pcs_purchase_inbound as inbound')
-            ->select('purchase_id'
-                , 'product_style_id')
-            ->selectRaw('sum(inbound_num) as inbound_num')
-            ->whereNull('deleted_at')
-            ->groupBy('purchase_id')
-            ->groupBy('product_style_id');
+            ->leftJoin('usr_users as user', 'user.id', '=', 'inbound.inbound_user_id')
+            ->leftJoin('depot as depot', 'depot.id', '=', 'inbound.depot_id')
+            ->select('inbound.purchase_id'
+                , 'inbound.status'
+                , 'inbound.product_style_id'
+                , 'user.name as inbound_user_name'
+                , 'depot.name as depot_name')
+            ->selectRaw('(inbound.inbound_date) as inbound_date')
+            ->selectRaw('(inbound.inbound_num) as inbound_num')
+            ->selectRaw('(inbound.error_num) as error_num')
+            ->selectRaw('(inbound.sale_num) as sale_num')
+            ->selectRaw('(inbound.expiry_date) as expiry_date')
+            ->selectRaw('(inbound.depot_id) as depot_id')
+            ->selectRaw('(inbound.inbound_user_id) as inbound_user_id')
+            ->whereNull('inbound.deleted_at');
         if ($depot_id) {
             $tempInboundSql->where('inbound.depot_id', '=', $depot_id);
         }
@@ -112,14 +122,6 @@ class PurchaseItem extends Model
 
 //        dd(IttmsUtils::getEloquentSqlWithBindings($tempInboundSql));
 //        dd($result->get()->toArray());
-        //入庫 有入庫紀錄且結單日期為空
-        //已結單 結單日期有值
-        //新增 尚未入庫且結單日期為空
-        $caseInboundSql = 'case
-                when `items`.`id` is not null and inbound.inbound_num is not null and `purchase`.`close_date` is null then \'入庫\'
-                when `purchase`.`close_date` is not null then \'已結單\'
-                else \'新增\'
-            end';
 
         $result = DB::table('pcs_purchase as purchase')
             ->leftJoin('pcs_purchase_items as items', 'purchase.id', '=', 'items.purchase_id')
@@ -142,12 +144,23 @@ class PurchaseItem extends Model
                 ,'purchase.purchase_user_id as purchase_user_id'
                 ,'purchase.supplier_id as supplier_id'
                 ,'purchase.invoice_num as invoice_num'
-                ,'user.name as user_name'
+                ,'user.name as purchase_user_name'
                 ,'supplier.name as supplier_name'
                 ,'supplier.nickname as supplier_nickname'
+
+                ,'inbound.status as inbound_status'
+                ,'inbound.inbound_date as inbound_date'
+                ,'inbound.inbound_num as inbound_num'
+                ,'inbound.error_num as error_num'
+                ,'inbound.sale_num as sale_num'
+                ,'inbound.expiry_date as expiry_date'
+                ,'inbound.depot_id as depot_id'
+                ,'inbound.inbound_user_id as inbound_user_id'
+                ,'inbound.inbound_user_name as inbound_user_name'
+                ,'inbound.depot_name as depot_name'
             )
             ->selectRaw('items.price * items.num as total_price')
-            ->selectRaw('('. $caseInboundSql. ') as inbound_status')
+//            ->selectRaw('('. $caseInboundSql. ') as inbound_status')
             ->addSelect(['deposit_num' => $subColumn, 'final_pay_num' => $subColumn2])
             ->whereNull('purchase.deleted_at')
             ->whereNull('items.deleted_at')
@@ -246,6 +259,7 @@ class PurchaseItem extends Model
             }
         }
 
+        //為了只撈出一筆，獨立出來寫sub query
         $tempPurchaseItemSql = DB::table('pcs_purchase_items as items')
             ->leftJoinSub($tempInboundSql, 'inbound', function($join) use($tempInboundSql) {
                 $join->on('items.purchase_id', '=', 'inbound.purchase_id')
@@ -276,14 +290,6 @@ class PurchaseItem extends Model
 
 //        dd(IttmsUtils::getEloquentSqlWithBindings($tempInboundSql));
 //        dd($result->get()->toArray());
-        //入庫 有入庫紀錄且結單日期為空
-        //已結單 結單日期有值
-        //新增 尚未入庫且結單日期為空
-        $caseInboundSql = 'case
-                when `itemtb_new`.`id` is not null and itemtb_new.inbound_num is not null and `purchase`.`close_date` is null then \'入庫\'
-                when `purchase`.`close_date` is not null then \'已結單\'
-                else \'新增\'
-            end';
 
         $result = DB::table('pcs_purchase as purchase')
             ->leftJoinSub($tempPurchaseItemSql, 'itemtb_new', function($join) use($tempPurchaseItemSql) {
@@ -304,12 +310,11 @@ class PurchaseItem extends Model
                 ,'purchase.purchase_user_id as purchase_user_id'
                 ,'purchase.supplier_id as supplier_id'
                 ,'purchase.invoice_num as invoice_num'
-                ,'user.name as user_name'
+                ,'user.name as purchase_user_name'
                 ,'supplier.name as supplier_name'
                 ,'supplier.nickname as supplier_nickname'
             )
             ->selectRaw('itemtb_new.price * itemtb_new.num as total_price')
-            ->selectRaw('('. $caseInboundSql. ') as inbound_status')
             ->addSelect(['deposit_num' => $subColumn, 'final_pay_num' => $subColumn2])
             ->whereNull('purchase.deleted_at')
             ->whereNull('user.deleted_at')

@@ -88,9 +88,9 @@
                 <label class="form-label">採購起訖日期</label>
                 <div class="input-group has-validation">
                     <input type="date" class="form-control -startDate @error('purchase_sdate') is-invalid @enderror"
-                           name="purchase_sdate" value="{{ $purchase_sdate }}" aria-label="採購起始日期" required />
+                           name="purchase_sdate" value="{{ $purchase_sdate }}" aria-label="採購起始日期" />
                     <input type="date" class="form-control -endDate @error('purchase_edate') is-invalid @enderror"
-                           name="purchase_edate" value="{{ $purchase_edate }}" aria-label="採購結束日期" required />
+                           name="purchase_edate" value="{{ $purchase_edate }}" aria-label="採購結束日期" />
                     <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
                     <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
                     <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
@@ -193,6 +193,14 @@
                     <th scope="col">採購人員</th>
                     <th scope="col">廠商</th>
                     <th scope="col">發票號碼</th>
+
+                    <th scope="col">入庫日期</th>
+                    <th scope="col">入庫數量</th>
+                    <th scope="col">異常數量</th>
+                    <th scope="col">銷售數量</th>
+                    <th scope="col">有效期限</th>
+                    <th scope="col">倉庫</th>
+                    <th scope="col">入庫人員</th>
                     <th scope="col" class="text-center">編輯</th>
                     <th scope="col" class="text-center">刪除</th>
                 </tr>
@@ -205,16 +213,24 @@
                             <td>{{ $data->sn }}</td>
                             <td>{{ $data->title }}</td>
                             <td>{{ $data->scheduled_date }}</td>
-                            <td>{{ $data->inbound_status }}</td>
+                            <td>{{ $data->inbound_status??'' }}</td>
                             <td>{{ $data->deposit_num }}</td>
                             <td>{{ $data->final_pay_num }}</td>
                             <td>{{ $data->sku }}</td>
                             <td>{{ $data->total_price }}</td>
                             <td>{{ $data->price }}</td>
                             <td>{{ $data->num }}</td>
-                            <td>{{ $data->user_name }}</td>
+                            <td>{{ $data->purchase_user_name }}</td>
                             <td>{{ $data->supplier_name }}</td>
                             <td>{{ $data->invoice_num }}</td>
+
+                            <td>{{ $data->inbound_date ??'' }}</td>
+                            <td>{{ $data->inbound_num ??'' }}</td>
+                            <td>{{ $data->error_num ??'' }}</td>
+                            <td>{{ $data->sale_num ??'' }}</td>
+                            <td>{{ $data->expiry_date ??'' }}</td>
+                            <td>{{ $data->depot_name ??'' }}</td>
+                            <td>{{ $data->inbound_user_name ??'' }}</td>
                             <td class="text-center">
                                 {{--                            @can('admin.purchase.edit')--}}
                                 <a href="{{ Route('cms.purchase.edit', ['id' => $data->id], true) }}"
