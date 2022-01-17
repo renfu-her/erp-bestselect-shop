@@ -88,7 +88,11 @@
                                 <input type="hidden" name="type_title[]" value="">
                                 <input type="hidden" name="sku[]" value="">
                             </th>
-                            <td data-td="name"></td>
+                            <td data-td="name">
+                                @if(auth()->user()->can('cms.product.edit'))
+                                    <a class="-text" href=""></a>
+                                @endif
+                            </td>
                             <td data-td="type_title"></td>
                             <td data-td="sku"></td>
                         </tr>
@@ -105,7 +109,13 @@
                                     <input type="hidden" name="type_title[]" value="{{ old('type_title.' . $key, $data->type_title ?? '') }}">
                                     <input type="hidden" name="sku[]" value="{{ old('sku.' . $key, $data->sku ?? '') }}">
                                 </th>
-                                <td data-td="name">{{ old('name.' . $key, $data->title ?? '') }}</td>
+                                <td data-td="name">
+                                    @if(auth()->user()->can('cms.product.edit'))
+                                        <a class="-text" href="/cms/product/edit/{{ $data->id }}"> {{ old('name.' . $key, $data->title ?? '') }}</a>
+                                    @else
+                                        {{ old('name.' . $key, $data->title ?? '') }}
+                                    @endif
+                                </td>
                                 <td data-td="type_title">{{ old('type_title.' . $key, $data->type_title ?? '') }}</td>
                                 <td data-td="sku">{{ old('sku.' . $key, $data->sku ?? '') }}</td>
                             </tr>
@@ -330,20 +340,37 @@
                 // 關閉懸浮視窗
                 addProductModal.hide();
 
-                // 加入採購單 - 加入一個商品
+                //  加入一個商品
                 function createOneSelected(p) {
                     Clone_bindCloneBtn($selectedClone, function (cloneElem) {
                         cloneElem.find('input').val('');
                         // cloneElem.find('input[name="item_id[]"]').remove();
                         cloneElem.find('.-del').attr('data-id', null);
+
+                        //使用者若有「產品頁面」編輯的權限, default setup
+                        if (cloneElem.find('td[data-td="name"] a').length) {
+                            cloneElem.find('td[data-td]').not('td[data-td="name"]').text('');
+                            cloneElem.find('td[data-td="name"] a').text('');
+                            cloneElem.find('td[data-td="name"] a').attr('href', '');
+                        } else {
                         cloneElem.find('td[data-td]').text('');
+                        }
+
                         cloneElem.find('.is-invalid').removeClass('is-invalid');
                         if (p) {
                             cloneElem.find('input[name="id[]"]').val(p.id);
                             cloneElem.find('input[name="name[]"]').val(`${p.name}`);
                             cloneElem.find('input[name="type_title[]"]').val(p.type_title);
                             cloneElem.find('input[name="sku[]"]').val(p.sku);
+
+                            //使用者若有「產品頁面」編輯的權限，讓使用者可以點擊連結編輯商品
+                            if (cloneElem.find('td[data-td="name"] a').length) {
+                                cloneElem.find('td[data-td="name"] a').text(`${p.name}`);
+                                cloneElem.find('td[data-td="name"] a').attr('href', '/cms/product/edit/' + p.id);
+                            } else {
                             cloneElem.find('td[data-td="name"]').text(`${p.name}`);
+                            }
+
                             cloneElem.find('td[data-td="type_title"]').text(p.type_title);
                             cloneElem.find('td[data-td="sku"]').text(p.sku);
                         }
