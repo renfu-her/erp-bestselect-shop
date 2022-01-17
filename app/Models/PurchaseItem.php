@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Helpers\IttmsUtils;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -119,9 +118,6 @@ class PurchaseItem extends Model
             }
         }
 
-//        dd(IttmsUtils::getEloquentSqlWithBindings($tempInboundSql));
-//        dd($result->get()->toArray());
-
         $result = DB::table('pcs_purchase as purchase')
             ->leftJoin('pcs_purchase_items as items', 'purchase.id', '=', 'items.purchase_id')
             ->leftJoinSub($tempInboundSql, 'inbound', function($join) use($tempInboundSql) {
@@ -160,7 +156,6 @@ class PurchaseItem extends Model
             ->selectRaw('DATE_FORMAT(inbound.inbound_date,"%Y-%m-%d") as inbound_date')
             ->selectRaw('DATE_FORMAT(inbound.expiry_date,"%Y-%m-%d") as expiry_date')
             ->selectRaw('items.price * items.num as total_price')
-//            ->selectRaw('('. $caseInboundSql. ') as inbound_status')
             ->addSelect(['deposit_num' => $subColumn, 'final_pay_num' => $subColumn2])
             ->whereNull('purchase.deleted_at')
             ->whereNull('items.deleted_at')
@@ -179,11 +174,6 @@ class PurchaseItem extends Model
                 $query->orWhere('items.sku', 'like', "%{$title}%");
             });
         }
-//        if($sku) {
-//            $result->where(function ($query) use ($sku) {
-//                $query->Where('items.sku', 'like', "%{$sku}%");
-//            });
-//        }
         if ($purchase_user_id) {
             $result->whereIn('purchase.purchase_user_id', $purchase_user_id);
         }
@@ -193,8 +183,6 @@ class PurchaseItem extends Model
         if ($supplier_id) {
             $result->where('purchase.supplier_id', '=', $supplier_id);
         }
-//        dd(IttmsUtils::getEloquentSqlWithBindings($result));
-//        dd($result->get()->toArray());
         return $result;
     }
 
@@ -285,14 +273,6 @@ class PurchaseItem extends Model
                 $query->orWhere('items.sku', 'like', "%{$title}%");
             });
         }
-//        if($sku) {
-//            $tempPurchaseItemSql->where(function ($query) use ($sku) {
-//                $query->Where('items.sku', 'like', "%{$sku}%");
-//            });
-//        }
-
-//        dd(IttmsUtils::getEloquentSqlWithBindings($tempInboundSql));
-//        dd($result->get()->toArray());
 
         $result = DB::table('pcs_purchase as purchase')
             ->leftJoinSub($tempPurchaseItemSql, 'itemtb_new', function($join) use($tempPurchaseItemSql) {
@@ -334,8 +314,6 @@ class PurchaseItem extends Model
         if ($supplier_id) {
             $result->where('purchase.supplier_id', '=', $supplier_id);
         }
-//        dd(IttmsUtils::getEloquentSqlWithBindings($result));
-//        dd($result->get()->toArray());
         return $result;
     }
 }
