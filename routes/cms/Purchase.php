@@ -15,4 +15,6 @@ Route::group(['prefix' => 'purchase', 'as' => 'purchase.'], function () {
     Route::get('inbound/{id}', [PurchaseCtrl::class, 'inbound'])->name('inbound')->middleware('permission:cms.purchase.inbound');
     Route::post('store_inbound/{id}', [PurchaseCtrl::class, 'storeInbound'])->name('store_inbound');
     Route::get('delete_inbound/{id}', [PurchaseCtrl::class, 'deleteInbound'])->name('delete_inbound')->middleware('permission:cms.purchase.delete_inbound');
+    
+    Route::get('log/{id}', [PurchaseCtrl::class, 'historyLog'])->name('log')->middleware('permission:cms.purchase.historyLog');
 });

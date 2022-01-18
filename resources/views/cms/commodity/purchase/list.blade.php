@@ -249,9 +249,6 @@
     </div>
 
     <div class="row flex-column-reverse flex-sm-row">
-        <div class="col-auto">
-
-        </div>
         <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">
             @if($dataList)
             <div class="mx-3">共 {{ $dataList->lastPage() }} 頁(共找到 {{ $dataList->total() }} 筆資料)</div>

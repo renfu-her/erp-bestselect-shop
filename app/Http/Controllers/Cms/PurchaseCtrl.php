@@ -375,7 +375,6 @@ class PurchaseCtrl extends Controller
 
     public function storeInbound(Request $request, $id)
     {
-//        dd($request->all());
         $request->validate([
             'depot_id' => 'required|numeric',
             'product_style_id.*' => 'required|numeric',
@@ -423,5 +422,15 @@ class PurchaseCtrl extends Controller
         return redirect(Route('cms.purchase.inbound', [
             'id' => $purchase_id,
         ]));
+    }
+
+    public function historyLog(Request $request, $id) {
+        $purchaseData = Purchase::getPurchase($id)->first();
+
+        return view('cms.commodity.purchase.log', [
+            'id' => $id,
+            'purchaseData' => $purchaseData,
+            'breadcrumb_data' => $purchaseData->purchase_sn,
+        ]);
     }
 }

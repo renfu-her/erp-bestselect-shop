@@ -100,6 +100,11 @@ Breadcrumbs::for('cms.purchase.edit', function (BreadcrumbTrail $trail, $value) 
     $trail->parent('cms.purchase.index');
     $trail->push('[單號：' . $value . '] 採購單資訊');
 });
+// 編輯 - 變更紀錄
+Breadcrumbs::for('cms.purchase.log', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.purchase.index');
+    $trail->push('[單號：' . $value . '] 變更紀錄');
+});
 // 編輯 - 入庫審核
 Breadcrumbs::for('cms.purchase.inbound', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.purchase.index');
