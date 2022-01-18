@@ -176,7 +176,7 @@ class Product extends Model
         $re = DB::table('prd_products as p')
             ->leftJoin('prd_product_styles as s', 'p.id', '=', 's.product_id')
             ->select('s.id', 's.sku', 'p.title as product_title', 's.title as spec', 's.in_stock', 's.safety_stock')
-        // ->selectRaw('IF(s.title,p.title,CONCAT(p.title," ",COALESCE(s.title,""))) as title')
+            ->selectRaw('CASE p.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title')
             ->whereNotNull('s.sku')
             ->where(function ($q) use ($keyword) {
                 if ($keyword) {
@@ -188,7 +188,7 @@ class Product extends Model
             ->whereNotNull('s.sku')
             ->whereNull('s.deleted_at');
 
-        if ($type) {
+        if ($type && $type != 'all') {
             $re->where('s.type', $type);
         }
 
@@ -222,17 +222,19 @@ class Product extends Model
         }
 
         if (isset($options['user'])) {
-            $re->leftJoin('usr_users as user', 'p.user_id', '=', 'user.id')
-                ->addSelect('user.name as user_name');
+            if (isset($options['user']['show'])) {
+                $re->leftJoin('usr_users as user', 'p.user_id', '=', 'user.id')
+                    ->addSelect('user.name as user_name');
+            }
 
-            if ($options['user']) {
-                if (is_array($options['user'])) {
-                    if (count($options['user']) > 0) {
-                        $re->whereIn('p.user_id', $options['user']);
+            if (isset($options['user']['condition'])) {
+                if (is_array($options['user']['condition'])) {
+                    if (count($options['user']['condition']) > 0) {
+                        $re->whereIn('p.user_id', $options['user']['condition']);
                     }
                 } else {
-                    if ($options['user']) {
-                        $re->where('p.user_id', $options['user']);
+                    if ($options['user']['condition']) {
+                        $re->where('p.user_id', $options['user']['condition']);
                     }
                 }
             }
