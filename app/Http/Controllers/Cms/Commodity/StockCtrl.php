@@ -24,15 +24,17 @@ class StockCtrl extends Controller
         $searchParam['type'] = Arr::get($query, 'type');
         $searchParam['user'] = Arr::get($query, 'user');
         $searchParam['supplier'] = Arr::get($query, 'supplier');
+        $searchParam['stock'] = Arr::get($query, 'stock',[]);
         $searchParam['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 10));
-
+      //  dd($searchParam['stock']);
         $typeRadios = [
             'all' => '不限',
             'p' => '一般',
             'c' => '組合包',
         ];
+
         $stockRadios = [
-            'safe' => '達安全庫存',
+            'warning' => '低於安全庫存',
             'out_of_stock' => '無庫存',
         ];
 
@@ -40,14 +42,13 @@ class StockCtrl extends Controller
             $searchParam['type'] = 'all';
         }
         //   dd( $searchParam['user']);
-        $products = Product::productStyleList($searchParam['keyword'], $searchParam['type'],
+        $products = Product::productStyleList($searchParam['keyword'], $searchParam['type'],$searchParam['stock'],
             ['supplier' => ['condition' => $searchParam['supplier'], 'show' => true],
                 'user' => ['show' => true, 'condition' => $searchParam['user']]])
-            ->paginate(1)
+            ->paginate($searchParam['data_per_page'])
             ->appends($query);
 
         return view('cms.commodity.stock.list', [
-            'data_per_page' => 10,
             'dataList' => $products,
             'suppliers' => Supplier::select('name', 'id', 'vat_no')->get()->toArray(),
             'users' => User::select('id', 'name')->get()->toArray(),
