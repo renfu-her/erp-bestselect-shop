@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-3">入庫審核</h2>
+    <h2 class="mb-3">採購單 {{ $purchaseData->purchase_sn }}</h2>
     <x-b-pch-navi :id="$id"></x-b-pch-navi>
 
     <div class="card shadow p-4 mb-4">
@@ -202,19 +202,19 @@
         </div>
     </div>
 
-    @if(null == $purchaseData->close_date)
-        <div>
-            <div class="col-auto">
-                <button type="button"
-                        data-bs-toggle="modal" data-bs-target="#confirm-close"
-                        class="btn btn-primary px-4">
-                    結案
-                </button>
-                <a href="{{ Route('cms.purchase.index', [], true) }}" class="btn btn-outline-primary px-4"
-                   role="button">返回列表</a>
-            </div>
+    <div>
+        <div class="col-auto">
+            @if(null == $purchaseData->close_date)
+            <button type="button"
+                    data-bs-toggle="modal" data-bs-target="#confirm-close"
+                    class="btn btn-primary px-4">
+                結案
+            </button>
+            @endif
+            <a href="{{ Route('cms.purchase.index', [], true) }}" class="btn btn-outline-primary px-4"
+                role="button">返回列表</a>
         </div>
-    @endif
+    </div>
 
     <!-- Modal -->
     <x-b-modal id="confirm-delete">

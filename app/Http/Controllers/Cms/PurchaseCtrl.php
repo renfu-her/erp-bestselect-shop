@@ -16,6 +16,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
+use App\Enums\Purchase\InboundStatus;
 
 class PurchaseCtrl extends Controller
 {
@@ -28,6 +29,11 @@ class PurchaseCtrl extends Controller
         $data_per_page = Arr::get($query, 'data_per_page', 50);
         $data_per_page = is_numeric($data_per_page) ? $data_per_page : 50;
 
+        $all_inbound_status = [];
+        foreach (InboundStatus::asArray() as $data) {
+            $all_inbound_status[$data] = InboundStatus::getDescription($data);
+        }
+
         $purchase_sn = Arr::get($query, 'purchase_sn', '');
         $title = Arr::get($query, 'title', '');
 //        $sku = Arr::get($query, 'sku', '');
@@ -37,7 +43,7 @@ class PurchaseCtrl extends Controller
         $supplier_id = Arr::get($query, 'supplier_id', '');
         $depot_id = Arr::get($query, 'depot_id', '');
         $inbound_user_id = Arr::get($query, 'inbound_user_id', []);
-        $inbound_status = Arr::get($query, 'inbound_status', []);
+        $inbound_status = Arr::get($query, 'inbound_status', array_keys($all_inbound_status));
         $inbound_sdate = Arr::get($query, 'inbound_sdate', '');
         $inbound_edate = Arr::get($query, 'inbound_edate', '');
         $expire_day = Arr::get($query, 'expire_day', '');
@@ -97,6 +103,7 @@ class PurchaseCtrl extends Controller
             , 'depot_id' => $depot_id
             , 'inbound_user_id' => $inbound_user_id
             , 'inbound_status' => $inbound_status
+            , 'all_inbound_status' => $all_inbound_status
             , 'inbound_sdate' => $inbound_sdate
             , 'inbound_edate' => $inbound_edate
             , 'expire_day' => $expire_day
@@ -413,7 +420,6 @@ class PurchaseCtrl extends Controller
 
     public function storeInbound(Request $request, $id)
     {
-//        dd($request->all());
         $request->validate([
             'depot_id' => 'required|numeric',
             'product_style_id.*' => 'required|numeric',
@@ -465,5 +471,15 @@ class PurchaseCtrl extends Controller
         return redirect(Route('cms.purchase.inbound', [
             'id' => $purchase_id,
         ]));
+    }
+
+    public function historyLog(Request $request, $id) {
+        $purchaseData = Purchase::getPurchase($id)->first();
+
+        return view('cms.commodity.purchase.log', [
+            'id' => $id,
+            'purchaseData' => $purchaseData,
+            'breadcrumb_data' => $purchaseData->purchase_sn,
+        ]);
     }
 }

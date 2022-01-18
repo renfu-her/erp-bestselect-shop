@@ -1,11 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <div class="pt-2 mb-3">
-        <a href="{{ Route('cms.collection.index', [], true) }}" class="btn btn-primary" role="button">
-            <i class="bi bi-arrow-left"></i> 返回上一頁
-        </a>
-    </div>
-    <h2 class="mb-4">
+    <h2 class="mb-3">
         @if ($method === 'create') 新增 @else 編輯 @endif 商品群組
     </h2>
     <form class="card-body" method="post" action="{{ $formAction }}">
@@ -13,6 +8,7 @@
         @csrf
 
         <div class="card shadow p-4 mb-4">
+            <div class="row">
             <x-b-form-group name="collection_name" title="商品群組名稱" required="true">
                 <input type="text"
                        class="form-control @error('collection_name') is-invalid @enderror"
@@ -62,6 +58,7 @@
                 <div class="alert-danger"> {{ $message }} </div>
                 @enderror
             </x-b-form-group>
+            </div>
         </div>
         <div class="card shadow p-4 mb-4">
             <h6>新增商品</h6>
@@ -88,7 +85,11 @@
                                 <input type="hidden" name="type_title[]" value="">
                                 <input type="hidden" name="sku[]" value="">
                             </th>
-                            <td data-td="name"></td>
+                            <td data-td="name">
+                                @if(auth()->user()->can('cms.product.edit'))
+                                    <a class="-text" href=""></a>
+                                @endif
+                            </td>
                             <td data-td="type_title"></td>
                             <td data-td="sku"></td>
                         </tr>
@@ -105,7 +106,13 @@
                                     <input type="hidden" name="type_title[]" value="{{ old('type_title.' . $key, $data->type_title ?? '') }}">
                                     <input type="hidden" name="sku[]" value="{{ old('sku.' . $key, $data->sku ?? '') }}">
                                 </th>
-                                <td data-td="name">{{ old('name.' . $key, $data->title ?? '') }}</td>
+                                <td data-td="name">
+                                    @if(auth()->user()->can('cms.product.edit'))
+                                        <a class="-text" href="/cms/product/edit/{{ $data->id }}"> {{ old('name.' . $key, $data->title ?? '') }}</a>
+                                    @else
+                                        {{ old('name.' . $key, $data->title ?? '') }}
+                                    @endif
+                                </td>
                                 <td data-td="type_title">{{ old('type_title.' . $key, $data->type_title ?? '') }}</td>
                                 <td data-td="sku">{{ old('sku.' . $key, $data->sku ?? '') }}</td>
                             </tr>
@@ -125,8 +132,10 @@
             </div>
 
         </div>
-        <div class="d-flex justify-content-end pt-2">
+        <div class="col-auto">
             <button type="submit" class="btn btn-primary px-4">儲存</button>
+            <a href="{{ Route('cms.collection.index', [], true) }}" class="btn btn-outline-primary px-4"
+               role="button">返回列表</a>
         </div>
     </form>
 
@@ -330,20 +339,37 @@
                 // 關閉懸浮視窗
                 addProductModal.hide();
 
-                // 加入採購單 - 加入一個商品
+                //  加入一個商品
                 function createOneSelected(p) {
                     Clone_bindCloneBtn($selectedClone, function (cloneElem) {
                         cloneElem.find('input').val('');
                         // cloneElem.find('input[name="item_id[]"]').remove();
                         cloneElem.find('.-del').attr('data-id', null);
+
+                        //使用者若有「產品頁面」編輯的權限, default setup
+                        if (cloneElem.find('td[data-td="name"] a').length) {
+                            cloneElem.find('td[data-td]').not('td[data-td="name"]').text('');
+                            cloneElem.find('td[data-td="name"] a').text('');
+                            cloneElem.find('td[data-td="name"] a').attr('href', '');
+                        } else {
                         cloneElem.find('td[data-td]').text('');
+                        }
+
                         cloneElem.find('.is-invalid').removeClass('is-invalid');
                         if (p) {
                             cloneElem.find('input[name="id[]"]').val(p.id);
                             cloneElem.find('input[name="name[]"]').val(`${p.name}`);
                             cloneElem.find('input[name="type_title[]"]').val(p.type_title);
                             cloneElem.find('input[name="sku[]"]').val(p.sku);
+
+                            //使用者若有「產品頁面」編輯的權限，讓使用者可以點擊連結編輯商品
+                            if (cloneElem.find('td[data-td="name"] a').length) {
+                                cloneElem.find('td[data-td="name"] a').text(`${p.name}`);
+                                cloneElem.find('td[data-td="name"] a').attr('href', '/cms/product/edit/' + p.id);
+                            } else {
                             cloneElem.find('td[data-td="name"]').text(`${p.name}`);
+                            }
+
                             cloneElem.find('td[data-td="type_title"]').text(p.type_title);
                             cloneElem.find('td[data-td="sku"]').text(p.sku);
                         }

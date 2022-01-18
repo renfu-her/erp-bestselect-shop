@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-3">@if ($method === 'create') 新增@else 編輯@endif 採購單</h2>
+    <h2 class="mb-3">@if ($method === 'create') 新增採購單@else 採購單 {{ $purchaseData->purchase_sn }}@endif</h2>
     @if ($method === 'edit')
         <x-b-pch-navi :id="$id"></x-b-pch-navi>
     @endif
