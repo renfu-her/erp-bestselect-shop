@@ -11,3 +11,21 @@ if (!function_exists('isActive')) {
         }
     }
 }
+
+if (!function_exists('getPageCount')) {
+    function getPageCount($pageCount)
+    {   
+        $maxPage = config('global.dataPerPage');
+        if(!is_numeric($pageCount)){
+            return $maxPage[0];
+        }
+        
+        rsort($maxPage);
+        if ($pageCount > $maxPage[0]) {
+            return $maxPage[0];
+        }
+
+        return $pageCount;     
+        
+    }
+}

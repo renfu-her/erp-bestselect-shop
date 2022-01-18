@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'dataPerPage' => [10, 20, 30, 50, 100],
+    'dataPerPage' => [10, 20, 30],
     'dataPerPage_big' => [50, 100, 200, 500, 1000],
     'weekdays' => [
         'Mon' => '星期一',
