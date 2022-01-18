@@ -22,13 +22,20 @@
                 </select>
             </div>
             <div class="col-12 col-md-6 mb-3">
-                <label class="form-label">入庫狀態</label>
-                <select class="form-select -select2 -multiple" multiple name="inbound_status[]" aria-label="入庫狀態" data-placeholder="多選">
-                    @foreach (App\Enums\Purchase\InboundStatus::asArray() as $key => $data)
-                        <option value="{{ $data }}"
-                                @if (in_array($data, $inbound_status ?? []))) selected @endif>{{ App\Enums\Purchase\InboundStatus::getDescription($data) }}</option>
-                    @endforeach
-                </select>
+                <label class="form-label" for="iStatus">入庫狀態</label>
+                <div class="input-group">
+                    <select id="iStatus" class="form-select" aria-label="入庫狀態">
+                        <option value="" selected>請選擇</option>
+                        @foreach ($all_inbound_status as $key => $data)
+                            <option value="{{ $key }}">{{ $data }}</option>
+                        @endforeach
+                    </select>
+                    <button id="clear_iStatus" class="btn btn-outline-secondary" type="button" data-bs-toggle="tooltip" title="清空">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <input type="hidden" name="inbound_status[]">
+                <div id="chip-group-iStatus" class="d-flex flex-wrap bd-highlight chipGroup"></div>
             </div>
             <div class="col-12 col-sm-6 mb-3">
                 <label class="form-label">入庫人員</label>
@@ -84,6 +91,23 @@
                     <option value="-1" @if (-1 == $expire_day ?? '') selected @endif>已過期</option>
                 </select>
             </div>
+            <fieldset class="col-12 col-sm-6 mb-3">
+                <legend class="col-form-label p-0 mb-2">顯示類型</legend>
+                <div class="px-1 pt-1">
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label">
+                            <input class="form-check-input" name="type" type="radio" value="0" @if (0 == $type ?? '' || '' == $type ?? '') checked @endif>
+                            明細
+                        </label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label">
+                            <input class="form-check-input" name="type" type="radio" value="1" @if (1 == $type ?? '') checked @endif>
+                            總表
+                        </label>
+                    </div>
+                </div>
+            </fieldset>
             <div class="col-12 mb-3">
                 <label class="form-label">採購起訖日期</label>
                 <div class="input-group has-validation">
@@ -128,23 +152,6 @@
                     </div>
                 </div>
             </div>
-            <fieldset class="col-12 mb-3">
-                <legend class="col-form-label p-0 mb-2">顯示類型</legend>
-                <div class="px-1 pt-1">
-                    <div class="form-check form-check-inline">
-                        <label class="form-check-label">
-                            <input class="form-check-input" name="type" type="radio" value="0" @if (0 == $type ?? '' || '' == $type ?? '') checked @endif>
-                            明細
-                        </label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <label class="form-check-label">
-                            <input class="form-check-input" name="type" type="radio" value="1" @if (1 == $type ?? '') checked @endif>
-                            總表
-                        </label>
-                    </div>
-                </div>
-            </fieldset>
         </div>
 
         <div class="col">
@@ -276,6 +283,39 @@
             });
             $('#confirm-delete').on('show.bs.modal', function(e) {
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+            });
+            
+            // region
+            let selectStatus = @json($inbound_status);
+            let all_inbound_status = @json($all_inbound_status);
+            let Chips_regions = new ChipElem($('#chip-group-iStatus'));
+            // init
+            $('input[name="inbound_status[]"]').val(selectStatus);
+            selectStatus.forEach((status) => {
+                Chips_regions.add(status, all_inbound_status[status]);
+            });
+            // bind
+            $('#iStatus').off('change.chips').on('change.chips', function(e) {
+                let region = { val: $(this).val(), title: $(this).children(':selected').text()};
+                if (selectStatus.indexOf(region.val) === -1) {
+                    selectStatus.push(region.val);
+                    Chips_regions.add(region.val, region.title);
+                }
+                
+                $(this).val('');
+                $('input[name="inbound_status[]"]').val(selectStatus);
+            });
+            // X btn
+            Chips_regions.onDelete = function(id) {
+                selectStatus.splice(selectStatus.indexOf(id), 1);
+                $('input[name="inbound_status[]"]').val(selectStatus);
+            };
+            // 清空
+            $('#clear_iStatus').on('click', function(e) {
+                selectStatus = [];
+                Chips_regions.clear();
+                $('input[name="inbound_status[]"]').val(selectStatus);
+                e.preventDefault();
             });
         </script>
     @endpush

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class Collection extends Model
@@ -128,5 +129,18 @@ class Collection extends Model
         } else {
             self::where('id', $id)->update(['is_public' => 1]);
         }
+    }
+
+    public function getDataList(array $query)
+    {
+        $result = DB::table('collection');
+
+        $name = Arr::get($query, 'name', '');
+        if ($name) {
+           $result->where('name', 'like', "%$name%");
+        }
+
+        return $result->paginate(10)
+                    ->appends($query);
     }
 }
