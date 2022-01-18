@@ -43,11 +43,10 @@ class StockCtrl extends Controller
         $products = Product::productStyleList($searchParam['keyword'], $searchParam['type'],
             ['supplier' => ['condition' => $searchParam['supplier'], 'show' => true],
                 'user' => ['show' => true, 'condition' => $searchParam['user']]])
-            ->paginate(1)
+            ->paginate($searchParam['data_per_page'])
             ->appends($query);
 
         return view('cms.commodity.stock.list', [
-            'data_per_page' => 10,
             'dataList' => $products,
             'suppliers' => Supplier::select('name', 'id', 'vat_no')->get()->toArray(),
             'users' => User::select('id', 'name')->get()->toArray(),
