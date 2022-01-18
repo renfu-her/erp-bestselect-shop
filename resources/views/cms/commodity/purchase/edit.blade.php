@@ -1,8 +1,10 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-3">@if ($method === 'create') 新增採購單@else 採購單 {{ $purchaseData->purchase_sn }}@endif</h2>
     @if ($method === 'edit')
+        <h2 class="mb-3">採購單 {{ $purchaseData->purchase_sn }}</h2>
         <x-b-pch-navi :id="$id"></x-b-pch-navi>
+    @else
+        <h2 class="mb-3">新增採購單</h2>
     @endif
 
 
@@ -10,9 +12,6 @@
         @method('POST')
         @csrf
 
-        @if ($method === 'edit')
-            <input type='hidden' name='id' value="{{ old('id', $id) }}"/>
-        @endif
         @error('id')
         <div class="alert alert-danger mt-3">{{ $message }}</div>
         @enderror
@@ -155,126 +154,27 @@
 
         </div>
 
-        {{--        <div class="card shadow p-4 mb-4">--}}
-        {{--            <h6>代墊單</h6>--}}
-        {{--            <div class="row">--}}
-        {{--                <div class="col-12 col-sm-6 mb-3 ">--}}
-        {{--                    <label class="form-label">訂金採購單</label>--}}
-        {{--                    <input class="form-control" type="text" name="deposit_pay_num" placeholder="請輸入訂金採購單"--}}
-        {{--                           value="{{ old('deposit_pay_num', $depositPayData->order_num ?? '') }}" aria-label="訂金採購單">--}}
-        {{--                </div>--}}
-        {{--                <div class="col-12 col-sm-6 mb-3 ">--}}
-        {{--                    <label class="form-label">尾款採購單</label>--}}
-        {{--                    <input class="form-control" type="text" name="final_pay_num" placeholder="請輸入尾款採購單"--}}
-        {{--                           value="{{ old('final_pay_num', $finalPayData->order_num ?? '') }}" aria-label="尾款採購單">--}}
-        {{--                </div>--}}
-        {{--            </div>--}}
-        {{--        </div>--}}
-        {{----}}
-        {{--        <div class="card shadow p-4 mb-4">--}}
-        {{--            <h6>付款資訊</h6>--}}
-        {{--            <div class="row">--}}
-        {{--                <div class="col-12 col-sm-6 mb-3 ">--}}
-        {{--                    <label class="form-label">匯款銀行</label>--}}
-        {{--                    <input class="form-control @error('bank_cname') is-invalid @enderror" type="text" name="bank_cname" placeholder="請輸入匯款銀行"--}}
-        {{--                           value="{{ old('bank_cname', $purchaseData->bank_cname ?? '') }}" aria-label="匯款銀行">--}}
-        {{--                    <div class="invalid-feedback">--}}
-        {{--                        @error('bank_cname')--}}
-        {{--                        {{ $message }}--}}
-        {{--                        @enderror--}}
-        {{--                    </div>--}}
-        {{--                </div>--}}
-        {{--                <div class="col-12 col-sm-6 mb-3 ">--}}
-        {{--                    <label class="form-label">匯款銀行代碼</label>--}}
-        {{--                    <input class="form-control @error('bank_code') is-invalid @enderror" type="text" name="bank_code" placeholder="請輸入匯款銀行代碼"--}}
-        {{--                           value="{{ old('bank_code', $purchaseData->bank_code ?? '') }}" aria-label="匯款銀行代碼">--}}
-        {{--                    <div class="invalid-feedback">--}}
-        {{--                        @error('bank_code')--}}
-        {{--                        {{ $message }}--}}
-        {{--                        @enderror--}}
-        {{--                    </div>--}}
-        {{--                </div>--}}
-        {{--            </div>--}}
-        {{--            <div class="row">--}}
-        {{--                <div class="col-12 col-sm-6 mb-3 ">--}}
-        {{--                    <label class="form-label">匯款戶名</label>--}}
-        {{--                    <input class="form-control @error('bank_acount') is-invalid @enderror" type="text" name="bank_acount" placeholder="請輸入匯款戶名"--}}
-        {{--                           value="{{ old('bank_acount', $purchaseData->bank_acount ?? '') }}" aria-label="匯款戶名">--}}
-        {{--                    <div class="invalid-feedback">--}}
-        {{--                        @error('bank_acount')--}}
-        {{--                        {{ $message }}--}}
-        {{--                        @enderror--}}
-        {{--                    </div>--}}
-        {{--                </div>--}}
-        {{--                <div class="col-12 col-sm-6 mb-3 ">--}}
-        {{--                    <label class="form-label">匯款帳號</label>--}}
-        {{--                    <input class="form-control @error('bank_numer') is-invalid @enderror" type="text" name="bank_numer" placeholder="請輸入匯款帳號"--}}
-        {{--                           value="{{ old('bank_numer', $purchaseData->bank_numer ?? '') }}" aria-label="匯款帳號">--}}
-        {{--                    <div class="invalid-feedback">--}}
-        {{--                        @error('bank_numer')--}}
-        {{--                        {{ $message }}--}}
-        {{--                        @enderror--}}
-        {{--                    </div>--}}
-        {{--                </div>--}}
-        {{--                <fieldset class="col-12 mb-3">--}}
-        {{--                    <legend class="col-form-label p-0 mb-2">付款方式</legend>--}}
-        {{--                    <div class="px-1 pt-1">--}}
-        {{--                        <div class="form-check form-check-inline">--}}
-        {{--                            <input class="form-check-input" type="radio" name="pay_type" id="pay_type1" value="0"--}}
-        {{--                                   @if (old('pay_type', $purchaseData->pay_type ?? '') == '0') checked @endif required aria-label="付款方式">--}}
-        {{--                            <label class="form-check-label" for="pay_type1">先付(訂金)</label>--}}
-        {{--                        </div>--}}
-        {{--                        <div class="form-check form-check-inline">--}}
-        {{--                            <input class="form-check-input" type="radio" name="pay_type" id="pay_type2" value="1"--}}
-        {{--                                   @if (old('pay_type', $purchaseData->pay_type ?? '') == '1') checked @endif required aria-label="付款方式">--}}
-        {{--                            <label class="form-check-label" for="pay_type2">先付(一次付清)</label>--}}
-        {{--                        </div>--}}
-        {{--                        <div class="form-check form-check-inline">--}}
-        {{--                            <input class="form-check-input" type="radio" name="pay_type" id="pay_type3" value="2"--}}
-        {{--                                   @if (old('pay_type', $purchaseData->pay_type ?? '') == '2') checked @endif required aria-label="付款方式">--}}
-        {{--                            <label class="form-check-label" for="pay_type3">貨到付款</label>--}}
-        {{--                        </div>--}}
-        {{--                    </div>--}}
-        {{--                </fieldset>--}}
-        {{--            </div>--}}
-        {{--            <div class="row">--}}
-        {{--                <div class="col-12 col-sm-3 mb-3 ">--}}
-        {{--                    <label class="form-label">訂金金額</label>--}}
-        {{--                    <input class="form-control" type="text" name="deposit_pay_price" placeholder="請輸入訂金金額"--}}
-        {{--                           value="{{ old('deposit_pay_price', $depositPayData->price ?? '') }}" aria-label="訂金金額">--}}
-        {{--                </div>--}}
-        {{--                <div class="col-12 col-sm-3 mb-3 ">--}}
-        {{--                    <label class="form-label">訂金付款日期</label>--}}
-        {{--                    <input type="date" class="form-control @error('deposit_pay_date') is-invalid @enderror"--}}
-        {{--                           name="deposit_pay_date" placeholder="訂金付款日期"--}}
-        {{--                           value="{{ old('deposit_pay_price', $depositPayData->pay_date ?? '') }}">--}}
-        {{--                    @error('deposit_pay_date')--}}
-        {{--                    <div class="invalid-feedback">{{ $message }}</div>--}}
-        {{--                    @enderror--}}
-        {{--                </div>--}}
-        {{--                <div class="col-12 col-sm-3 mb-3 ">--}}
-        {{--                    <label class="form-label">尾款金額</label>--}}
-        {{--                    <input class="form-control" type="text" name="final_pay_price" placeholder="請輸入尾款金額"--}}
-        {{--                           value="{{ old('final_pay_price', $finalPayData->price ?? '') }}" aria-label="尾款金額">--}}
-        {{--                </div>--}}
-        {{--                <div class="col-12 col-sm-3 mb-3 ">--}}
-        {{--                    <label class="form-label">尾款付款日期(尾款日不可小於訂金日)</label>--}}
-        {{--                    <input type="date" class="form-control @error('final_pay_date') is-invalid @enderror"--}}
-        {{--                           name="final_pay_date" placeholder="尾款付款日期"--}}
-        {{--                           value="{{ old('final_pay_date', $finalPayData->pay_date ?? '') }}">--}}
-        {{--                    @error('final_pay_date')--}}
-        {{--                    <div class="invalid-feedback">{{ $message }}</div>--}}
-        {{--                    @enderror--}}
-        {{--                </div>--}}
-        {{--            </div>--}}
-        {{--            <div class="row">--}}
-        {{--                <div class="col-12 col-sm-6 mb-3 ">--}}
-        {{--                    <label class="form-label">運費(無外加運費填0)</label>--}}
-        {{--                    <input class="form-control" type="text" name="logistic_price" placeholder="請輸入運費金額"--}}
-        {{--                           value="{{ old('logistic_price', $purchaseData->logistic_price ?? '') }}" aria-label="運費">--}}
-        {{--                </div>--}}
-        {{--            </div>--}}
-        {{--        </div>--}}
+        @if ($method === 'edit')
+            <input type='hidden' name='id' value="{{ old('id', $id) }}"/>
+                
+            <div class="card shadow p-4 mb-4">
+                <h6>付款單</h6>
+                <div class="row">
+                    <div class="col-12 col-sm-6 mb-3 ">
+                        <label class="form-label">訂金付款單</label>
+                        <div class="form-control">
+                            <a href="#">新增付款單</a>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 mb-3 ">
+                        <label class="form-label">尾款付款單</label>
+                        <div class="form-control">
+                            <a href="#">新增付款單</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
 
         <div id="submitDiv">
             <div class="col-auto">
