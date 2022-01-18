@@ -20,7 +20,7 @@
         <div class="card shadow p-4 mb-4">
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3 ">
-                    <label class="form-label">採購廠商 <span class="text-danger">*</span></label>
+                    <label class="form-label">採購廠商{{$purchaseData->supplier_id ?? ''}} <span class="text-danger">*</span></label>
                     <select id="supplier" @if ($method === 'edit') disabled @endif
                     class="form-select -select2 -single @error('supplier') is-invalid @enderror"
                             aria-label="採購廠商" required>
@@ -279,7 +279,7 @@
         <div id="submitDiv">
             <div class="col-auto">
                 <input type="hidden" name="del_item_id">
-                @if(false == ($isAlreadyFinalPay?? false))
+                @if(false == ($isAlreadyFinalPay?? false) && null == $purchaseData->close_date)
                 <button type="submit" class="btn btn-primary px-4">儲存</button>
                 @endif
                 <a href="{{ Route('cms.purchase.index', [], true) }}" class="btn btn-outline-primary px-4"

@@ -16,10 +16,6 @@ class PurchaseLog extends Model
 
     public static function stockChange($purchase_id, $product_style_id, $feature, $feature_id, $event, $qty, $note = null, $user_id, $user_name)
     {
-        if (!is_numeric($qty)) {
-            return ['success' => 0, 'error_msg' => 'qty type error'];
-        }
-
         if (!LogFeature::hasKey($feature)) {
             return ['success' => 0, 'error_msg' => 'feature error'];
         }

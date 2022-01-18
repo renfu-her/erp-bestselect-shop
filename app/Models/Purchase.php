@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\Purchase\LogFeature;
+use App\Enums\Purchase\LogFeatureEvent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -39,6 +41,8 @@ class Purchase extends Model
                 'scheduled_date' => $scheduled_date,
                 'memo' => $memo,
             ])->id;
+
+            PurchaseLog::stockChange($id, null, LogFeature::purchase()->value, $id, LogFeatureEvent::pcs_add()->value, null, null, $purchase_user_id, $purchase_user_name);
 
             return $id;
         });
@@ -82,6 +86,7 @@ class Purchase extends Model
                 , 'purchase.close_date as close_date'
                 , 'purchase_user_id as user_id'
                 , 'purchase_user_name as user_name'
+                , 'supplier_id as supplier_id'
                 , 'supplier_name as supplier_name'
                 , 'supplier_nickname as supplier_nickname'
             )
