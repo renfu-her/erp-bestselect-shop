@@ -2,7 +2,7 @@
 @section('sub-content')
     <h2>庫存管理</h2>
 
-    <form action="{{ Route('cms.stock.index') }}" method="GET">
+    <form id="search" action="{{ Route('cms.stock.index') }}" method="GET">
         <div class="card shadow p-4 mb-4">
             <h6>搜尋條件</h6>
             <div class="row">
@@ -51,8 +51,8 @@
                         @foreach ($stockRadios as $key => $stockRadio)
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" value="{{ $key }}" 
-                                        name="stock[]" @if (in_array($key, $searchParam['stock'])) checked @endif type="checkbox">
+                                    <input class="form-check-input" value="{{ $key }}" name="stock[]"
+                                        @if (in_array($key, $searchParam['stock'])) checked @endif type="checkbox">
                                     {{ $stockRadio }}
                                 </label>
                             </div>
@@ -146,6 +146,10 @@
     @endpush
     @push('sub-scripts')
         <script>
+            $('#dataPerPageElem').on('change', function(e) {
+                $('input[name=data_per_page]').val($(this).val());
+                $('#search').submit();
+            });
         </script>
     @endpush
 @endOnce
