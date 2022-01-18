@@ -48,6 +48,48 @@ class Purchase extends Model
         });
     }
 
+    public static function checkToUpdatePurchaseData($id, array $purchaseReq, string $changeStr, $operator_user_id, $operator_user_name)
+    {
+        $purchase = Purchase::where('id', '=', $id)
+            ->select('supplier_id')
+            ->selectRaw('DATE_FORMAT(scheduled_date,"%Y-%m-%d") as scheduled_date')
+            ->get()->first();
+
+        $purchase->supplier_id = $purchaseReq['supplier'];
+        $purchase->scheduled_date = $purchaseReq['scheduled_date'];
+
+        if ($purchase->isDirty()) {
+            foreach ($purchase->getDirty() as $key => $val) {
+                $changeStr .= ' ' . $key . ' change to ' . $val;
+                $event = '';
+                if ($key == 'supplier_id') {
+                    $event = '修改廠商';
+                } else if($key == 'scheduled_date') {
+                    $event = '修改廠商預計進貨日期';
+                }
+                PurchaseLog::stockChange($id, null, LogFeature::purchase()->value, $id, LogFeatureEvent::pcs_change_data()->value, null, $event, $operator_user_id, $operator_user_name);
+            }
+            Purchase::where('id', $id)->update([
+                "supplier_id" => $purchaseReq['supplier'],
+                "scheduled_date" => $purchaseReq['scheduled_date'],
+            ]);
+        }
+        return $changeStr;
+    }
+
+    //刪除
+    public static function del($id, $operator_user_id, $operator_user_name) {
+        //判斷若有入庫、付款單 則不可刪除
+        Purchase::where('id', '=', $id)->delete();
+        PurchaseLog::stockChange($id, null, LogFeature::purchase()->value, $id, LogFeatureEvent::pcs_del()->value, null, null, $operator_user_id, $operator_user_name);
+    }
+
+    //結案
+    public static function close($id, $operator_user_id, $operator_user_name) {
+        Purchase::where('id', $id)->update(['close_date' => date('Y-m-d H:i:s')]);
+        PurchaseLog::stockChange($id, null, LogFeature::purchase()->value, $id, LogFeatureEvent::pcs_close()->value, null, null, $operator_user_id, $operator_user_name);
+    }
+
     //起日 訖日 是否含已結單 發票號碼
     public static function getPurchaseList($sDate = null, $eDate = null, $hasClose = false, $invoiceNum = null)
     {

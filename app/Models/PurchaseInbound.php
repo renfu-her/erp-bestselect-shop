@@ -66,8 +66,8 @@ class PurchaseInbound extends Model
                 else if (is_numeric($inboundDataGet->sale_num) && 0 < $inboundDataGet->sale_num) {
                     return ['success' => 0, 'error_msg' => 'inbound already sell'];
                 } else {
-                    PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogFeature::inbound()->value, $id, LogFeatureEvent::inbound_del()->value, $inboundDataGet->inbound_num * -1, '刪除入庫單', $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
-                    ProductStock::stockChange($inboundDataGet->product_style_id, $inboundDataGet->inbound_num * -1, StockEvent::inbound_del()->value, $id, $user_id . '刪除入庫單', true);
+                    PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogFeature::inbound()->value, $id, LogFeatureEvent::inbound_del()->value, $inboundDataGet->inbound_num * -1, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
+                    ProductStock::stockChange($inboundDataGet->product_style_id, $inboundDataGet->inbound_num * -1, StockEvent::inbound_del()->value, $id, $inboundDataGet->inbound_user_name . LogFeatureEvent::inbound_del()->getDescription(LogFeatureEvent::inbound_del()->value), true);
                     $inboundData->delete();
                 }
             }
@@ -115,18 +115,13 @@ class PurchaseInbound extends Model
     //歷史入庫
     public static function getInboundList($purchase_id)
     {
-        $result = DB::table('pcs_purchase as purchase')
-            ->leftJoin('pcs_purchase_items as items', 'items.purchase_id', '=', 'purchase.id')
-            ->leftJoin('pcs_purchase_inbound as inbound', function ($join) {
-                $join->on('inbound.purchase_id', '=', 'items.purchase_id');
-                $join->on('inbound.product_style_id', '=', 'items.product_style_id');
-            })
-            //->select('*')
-            ->select('purchase.id as purchase_id' //採購ID
-                , 'items.title as title' //商品名稱-款式名稱
-                , 'items.sku as sku' //款式SKU
-                , 'items.num as item_num' //採購款式數量
-                , 'items.memo as item_memo' //採購款式備註
+        $result = DB::table('pcs_purchase_inbound as inbound')
+            ->leftJoin('prd_product_styles as style', 'style.id', '=', 'inbound.product_style_id')
+            ->leftJoin('prd_products as product', 'product.id', '=', 'style.product_id')
+            ->select('inbound.purchase_id as purchase_id' //採購ID
+                , 'product.title as product_title' //商品名稱
+                , 'style.title as style_title' //款式名稱
+                , 'style.sku as style_sku' //款式SKU
                 , 'inbound.id as inbound_id' //入庫ID
                 , 'inbound.status as status' //入庫狀態
                 , 'inbound.inbound_num as inbound_num' //入庫實進數量
@@ -140,11 +135,9 @@ class PurchaseInbound extends Model
             )
             ->selectRaw('DATE_FORMAT(inbound.expiry_date,"%Y-%m-%d") as expiry_date') //有效期限
             ->selectRaw('DATE_FORMAT(inbound.inbound_date,"%Y-%m-%d") as inbound_date') //入庫日期
-            ->whereNull('purchase.deleted_at')
-            ->whereNull('items.deleted_at')
             ->whereNull('inbound.deleted_at')
             ->whereNotNull('inbound.id')
-            ->where('purchase.id', '=', $purchase_id);
+            ->where('inbound.purchase_id', '=', $purchase_id);
         return $result;
     }
 
@@ -196,6 +189,14 @@ class PurchaseInbound extends Model
             ->orderBy('purchase.id')
             ->orderBy('items.product_style_id')
             ->mergeBindings($tempInboundSql);
+        return $result;
+    }
+
+    public static function inboundList($id) {
+        $result = DB::table('pcs_purchase as purchase')
+            ->leftJoin('pcs_purchase_inbound as inbound', 'inbound.purchase_id', '=', 'purchase.id')
+            ->whereNull('pcs_purchase.deleted_at')
+            ->where('id', '=', $id);
         return $result;
     }
 }

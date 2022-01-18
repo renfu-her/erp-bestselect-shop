@@ -14,7 +14,7 @@ class PurchaseLog extends Model
     protected $table = 'pcs_purchase_log';
     protected $guarded = [];
 
-    public static function stockChange($purchase_id, $product_style_id, $feature, $feature_id, $event, $qty, $note = null, $user_id, $user_name)
+    public static function stockChange($purchase_id, $product_style_id, $feature, $feature_id, $event, $qty, $note = null, $operator_user_id, $operator_user_name)
     {
         if (!LogFeature::hasKey($feature)) {
             return ['success' => 0, 'error_msg' => 'feature error'];
@@ -24,7 +24,7 @@ class PurchaseLog extends Model
             return ['success' => 0, 'error_msg' => 'event error'];
         }
 
-        return DB::transaction(function () use ($purchase_id, $product_style_id, $feature, $feature_id, $event, $qty, $note, $user_id, $user_name) {
+        return DB::transaction(function () use ($purchase_id, $product_style_id, $feature, $feature_id, $event, $qty, $note, $operator_user_id, $operator_user_name) {
             self::create([
                 'purchase_id' => $purchase_id,
                 'product_style_id' => $product_style_id,
@@ -33,8 +33,8 @@ class PurchaseLog extends Model
                 'event' => $event,
                 'qty' => $qty,
                 'note' => $note,
-                'user_id' => $user_id,
-                'user_name' => $user_name]);
+                'user_id' => $operator_user_id,
+                'user_name' => $operator_user_name]);
 
             return ['success' => 1];
 

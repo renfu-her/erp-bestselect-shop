@@ -40,39 +40,52 @@ class PurchaseSeeder extends Seeder
             '2021-12-23 00:00:00',
             null,
         );
+        $operator_user_id = 5;
+        $operator_user_name = '之谷';
 
         $product_style_id1 = 1;
         $product_style_id2 = 2;
         $purchaseItemID1 = PurchaseItem::createPurchase(
-            $purchaseID1,
-            $product_style_id1,
-            '測試商品-M',
-            'P22010600101',
-            '11',
-            10,
-            null,
-            '第一筆款式',
+            [
+                'purchase_id' => $purchaseID1,
+                'product_style_id' => $product_style_id1,
+                'title' => '測試商品-M',
+                'sku' => 'P22010600101',
+                'price' => '11',
+                'num' => 10,
+                'temp_id' => null,
+                'memo' => '第一筆款式'
+            ],
+            $operator_user_id,
+            $operator_user_name
         );
         $purchaseItemID2 = PurchaseItem::createPurchase(
-            $purchaseID1,
-            $product_style_id2,
-            '測試商品-X',
-            'P22010600102',
-            '12',
-            10,
-            null,
-            '第二筆款式',
+            [
+                'purchase_id' => $purchaseID1,
+                'product_style_id' => $product_style_id1,
+                'title' => '測試商品-X',
+                'sku' => 'P22010600102',
+                'price' => '12',
+                'num' => 10,
+                'temp_id' => null,
+                'memo' => '第二筆款式'
+            ],
+            $operator_user_id,
+            $operator_user_name
         );
-
         PurchaseItem::createPurchase(
-            $purchaseID2,
-            $product_style_id1,
-            '測試商品-M',
-            'P22010600101',
-            '13',
-            10,
-            null,
-            null,
+            [
+                'purchase_id' => $purchaseID2,
+                'product_style_id' => $product_style_id1,
+                'title' => '測試商品-M',
+                'sku' => 'P22010600101',
+                'price' => '13',
+                'num' => 10,
+                'temp_id' => null,
+                'memo' => null
+            ],
+            $operator_user_id,
+            $operator_user_name
         );
 
         PayingOrder::createPayingOrder(

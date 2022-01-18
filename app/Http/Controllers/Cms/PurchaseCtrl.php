@@ -2,15 +2,12 @@
 
 namespace App\Http\Controllers\Cms;
 
-use App\Enums\Purchase\LogFeature;
-use App\Enums\Purchase\LogFeatureEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Depot;
 use App\Models\PayingOrders;
 use App\Models\Purchase;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseItem;
-use App\Models\PurchaseLog;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -139,30 +136,22 @@ class PurchaseCtrl extends Controller
             $purchaseReq['scheduled_date'],
         );
 
-        $input = [];
         if (isset($purchaseItemReq['product_style_id'])) {
             foreach ($purchaseItemReq['product_style_id'] as $key => $val) {
-//                array_push($input, [
-//                    "purchase_id" => $purchaseID,
-//                    "product_style_id" => $val,
-//                    "title" => $purchaseItemReq['name'][$key],
-//                    "sku" => $purchaseItemReq['sku'][$key],
-//                    "price" => $purchaseItemReq['price'][$key],
-//                    "num" => $purchaseItemReq['num'][$key],
-//                    "memo" => $purchaseItemReq['memo'][$key],
-//                ]);
-                $purchaseItem_id = PurchaseItem::create([
-                    "purchase_id" => $purchaseID,
-                    "product_style_id" => $val,
-                    "title" => $purchaseItemReq['name'][$key],
-                    "sku" => $purchaseItemReq['sku'][$key],
-                    "price" => $purchaseItemReq['price'][$key],
-                    "num" => $purchaseItemReq['num'][$key],
-                    "memo" => $purchaseItemReq['memo'][$key],
-                ])->id;
-                PurchaseLog::stockChange($purchaseID, $val, LogFeature::purchase()->value, $purchaseItem_id, LogFeatureEvent::pcs_style_add()->value, $purchaseItemReq['num'][$key], null, $request->user()->id, $request->user()->name);
+                PurchaseItem::createPurchase(
+                    [
+                        'purchase_id' => $purchaseID,
+                        'product_style_id' => $val,
+                        'title' => $purchaseItemReq['name'][$key],
+                        'sku' => $purchaseItemReq['sku'][$key],
+                        'price' => $purchaseItemReq['price'][$key],
+                        'num' => $purchaseItemReq['num'][$key],
+                        'temp_id' => $purchaseItemReq['temp_id'][$key] ?? null,
+                        'memo' => $purchaseItemReq['memo'][$key],
+                    ],
+                    $request->user()->id, $request->user()->name
+                );
             }
-//            PurchaseItem::insert($input);
         }
 
         // //0:先付(訂金) / 1:先付(一次付清) / 2:貨到付款
@@ -272,50 +261,40 @@ class PurchaseCtrl extends Controller
         }
 
         $changeStr = '';
-        $changeStr .= $this->checkToUpdatePurchaseData($request, $id, $purchaseReq);
+        $changeStr .= Purchase::checkToUpdatePurchaseData($id, $purchaseReq, $changeStr, $request->user()->id, $request->user()->name);
 
         //刪除現有款式
         if (isset($request['del_item_id']) && null != $request['del_item_id']) {
             $changeStr .= 'delete purchaseItem id:' . $request['del_item_id'];
             $del_item_id_arr = explode(",", $request['del_item_id']);
-            PurchaseItem::whereIn('id', $del_item_id_arr)->delete();
-            foreach ($del_item_id_arr as $del_id) {
-                PurchaseLog::stockChange($del_id, null, LogFeature::purchase()->value, $del_id, LogFeatureEvent::pcs_style_del()->value, null, null, $request->user()->id, $request->user()->name);
-            }
+            PurchaseItem::deleteItems($del_item_id_arr, $request->user()->id, $request->user()->name);
         }
 
         if (isset($purchaseItemReq['item_id'])) {
-            $newData = [];
             foreach ($purchaseItemReq['item_id'] as $key => $val) {
                 $itemId = $purchaseItemReq['item_id'][$key];
                 //有值則做更新
                 //itemId = null 代表新資料
                 if (null != $itemId) {
-                    $changeStr = $this->checkToUpdatePurchaseItemData($request, $itemId, $purchaseItemReq, $key, $changeStr);
+                    $changeStr = PurchaseItem::checkToUpdatePurchaseItemData($itemId, $purchaseItemReq, $key, $changeStr, $request->user()->id, $request->user()->name);
                 } else {
                     $changeStr .= ' add item:' . $purchaseItemReq['name'][$key];
-//                    array_push($newData, [
-//                        "purchase_id" => $id,
-//                        "product_style_id" => $purchaseItemReq['product_style_id'][$key],
-//                        "title" => $purchaseItemReq['name'][$key],
-//                        "sku" => $purchaseItemReq['sku'][$key],
-//                        "price" => $purchaseItemReq['price'][$key],
-//                        "num" => $purchaseItemReq['num'][$key],
-//                        "memo" => $purchaseItemReq['memo'][$key],
-//                    ]);
-                    $purchaseItem_id = PurchaseItem::create([
-                        "purchase_id" => $id,
-                        "product_style_id" => $purchaseItemReq['product_style_id'][$key],
-                        "title" => $purchaseItemReq['name'][$key],
-                        "sku" => $purchaseItemReq['sku'][$key],
-                        "price" => $purchaseItemReq['price'][$key],
-                        "num" => $purchaseItemReq['num'][$key],
-                        "memo" => $purchaseItemReq['memo'][$key],
-                    ])->id;
-                    PurchaseLog::stockChange($id, $purchaseItemReq['product_style_id'][$key], LogFeature::purchase()->value, $purchaseItem_id, LogFeatureEvent::pcs_style_add()->value, $purchaseItemReq['num'][$key], null, $request->user()->id, $request->user()->name);
+
+                    PurchaseItem::createPurchase(
+                        [
+                            'purchase_id' => $id,
+                            'product_style_id' => $purchaseItemReq['product_style_id'][$key],
+                            'title' => $purchaseItemReq['name'][$key],
+                            'sku' => $purchaseItemReq['sku'][$key],
+                            'price' => $purchaseItemReq['price'][$key],
+                            'num' => $purchaseItemReq['num'][$key],
+                            'temp_id' => $purchaseItemReq['temp_id'][$key] ?? null,
+                            'memo' => $purchaseItemReq['memo'][$key],
+                        ],
+                        $request->user()->id, $request->user()->name
+                    );
                 }
             }
-//            PurchaseItem::insert($newData);
         }
 
         wToast(__('Edit finished.') . ' ' . $changeStr);
@@ -327,73 +306,24 @@ class PurchaseCtrl extends Controller
 
     public function destroy(Request $request, $id)
     {
-        Purchase::where('id', '=', $id)->delete();
-        PurchaseLog::stockChange($id, null, LogFeature::purchase()->value, $id, LogFeatureEvent::pcs_del()->value, null, null, $request->user()->id, $request->user()->name);
-        wToast(__('Delete finished.'));
+        //判斷若有入庫、付款單 則不可刪除
+        $returnMsg = [];
+        $inbounds = PurchaseInbound::inboundList($id);
+        $payingOrderList = PayingOrders::getPayingOrdersWithPurchaseID($id)->get();
+        if (null != $inbounds && 0 < count($inbounds) && 0 >= count($payingOrderList)) {
+            Purchase::del($id, $request->user()->id, $request->user()->name);
+            $returnMsg = __('Delete finished.');
+        } else {
+            $returnMsg = '已入庫無法刪除';
+        }
+
+        wToast($returnMsg);
         return redirect(Route('cms.purchase.index'));
-    }
-
-    public function checkToUpdatePurchaseData(Request $request, $id, array $purchaseReq)
-    {
-        $purchase = Purchase::where('id', '=', $id)
-            ->select('supplier_id')
-            ->selectRaw('DATE_FORMAT(scheduled_date,"%Y-%m-%d") as scheduled_date')
-            ->get()->first();
-
-        $purchase->supplier_id = $purchaseReq['supplier'];
-        $purchase->scheduled_date = $purchaseReq['scheduled_date'];
-
-        $changeStr = "";
-        if ($purchase->isDirty()) {
-            foreach ($purchase->getDirty() as $key => $val) {
-                $changeStr .= ' ' . $key . ' change to ' . $val;
-                if ($key == 'supplier_id') {
-                    PurchaseLog::stockChange($id, null, LogFeature::purchase()->value, $id, LogFeatureEvent::pcs_change_data()->value, null, '修改廠商', $request->user()->id, $request->user()->name);
-                } else if($key == 'scheduled_date') {
-                    PurchaseLog::stockChange($id, null, LogFeature::purchase()->value, $id, LogFeatureEvent::pcs_change_data()->value, null, '修改廠商預計進貨日期', $request->user()->id, $request->user()->name);
-                }
-            }
-            Purchase::where('id', $id)->update([
-                "supplier_id" => $purchaseReq['supplier'],
-                "scheduled_date" => $purchaseReq['scheduled_date'],
-            ]);
-        }
-        return $changeStr;
-    }
-
-    public function checkToUpdatePurchaseItemData(Request $request, $itemId, array $purchaseItemReq, $key, string $changeStr)
-    {
-        $purchaseItem = PurchaseItem::where('id', '=', $itemId)
-            //->select('price', 'num')
-            ->get()->first();
-        $purchaseItem->price = $purchaseItemReq['price'][$key];
-        $purchaseItem->num = $purchaseItemReq['num'][$key];
-        $purchaseItem->memo = $purchaseItemReq['memo'][$key];
-        if ($purchaseItem->isDirty()) {
-            foreach ($purchaseItem->getDirty() as $dirtykey => $dirtyval) {
-                $changeStr .= ' itemID:' . $itemId . ' ' . $dirtykey . ' change to ' . $dirtyval;
-                if ($dirtykey == 'price') {
-                    PurchaseLog::stockChange($purchaseItem->purchase_id, $purchaseItem->product_style_id, LogFeature::purchase()->value, $itemId, LogFeatureEvent::pcs_style_change_data()->value, $dirtyval, '修改價錢', $request->user()->id, $request->user()->name);
-                } else if($dirtykey == 'num') {
-                    PurchaseLog::stockChange($purchaseItem->purchase_id, $purchaseItem->product_style_id, LogFeature::purchase()->value, $itemId, LogFeatureEvent::pcs_style_change_data()->value, $dirtyval, '修改數量', $request->user()->id, $request->user()->name);
-                } else if($dirtykey == 'memo') {
-                    PurchaseLog::stockChange($purchaseItem->purchase_id, $purchaseItem->product_style_id, LogFeature::purchase()->value, $itemId, LogFeatureEvent::pcs_style_change_data()->value, $dirtyval, '修改備註', $request->user()->id, $request->user()->name);
-                }
-            }
-            PurchaseItem::where('id', $itemId)->update([
-                "price" => $purchaseItemReq['price'][$key],
-                "num" => $purchaseItemReq['num'][$key],
-                "memo" => $purchaseItemReq['memo'][$key],
-            ]);
-        }
-        return $changeStr;
     }
 
     //結案
     public function close(Request $request, $id) {
-        Purchase::where('id', $id)->update(['close_date' => date('Y-m-d H:i:s')]);
-        PurchaseLog::stockChange($id, null, LogFeature::purchase()->value, $id, LogFeatureEvent::pcs_close()->value, null, '修改備註', $request->user()->id, $request->user()->name);
-
+        Purchase::close($id, $request->user()->id, $request->user()->name);
         wToast(__('Close finished.'));
         return redirect(Route('cms.purchase.inbound', [
             'id' => $id,
