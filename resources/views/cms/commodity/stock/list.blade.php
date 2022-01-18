@@ -51,8 +51,8 @@
                         @foreach ($stockRadios as $key => $stockRadio)
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" value="{{ $key }}" name="stock"
-                                        type="checkbox">
+                                    <input class="form-check-input" value="{{ $key }}" 
+                                        name="stock[]" @if (in_array($key, $searchParam['stock'])) checked @endif type="checkbox">
                                     {{ $stockRadio }}
                                 </label>
                             </div>

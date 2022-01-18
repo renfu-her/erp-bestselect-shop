@@ -170,7 +170,7 @@ class Product extends Model
 
     }
 
-    public static function productStyleList($keyword = null, $type = null, $options = [])
+    public static function productStyleList($keyword = null, $type = null, $stock_status = [], $options = [])
     {
 
         $re = DB::table('prd_products as p')
@@ -190,6 +190,18 @@ class Product extends Model
 
         if ($type && $type != 'all') {
             $re->where('s.type', $type);
+        }
+
+        if ($stock_status) {
+            $re->where(function ($_q) use ($stock_status) {
+                if (in_array('warning', $stock_status)) {
+                    $_q->orWhere('in_stock', '<=', DB::raw("safety_stock"));
+                }
+
+                if (in_array('out_of_stock', $stock_status)) {
+                    $_q->orWhere('in_stock', '=', 0);
+                }
+            });
         }
 
         if (isset($options['supplier'])) {
@@ -240,7 +252,7 @@ class Product extends Model
             }
         }
 
-        return $re->distinct();
+        return $re;
 
     }
 
