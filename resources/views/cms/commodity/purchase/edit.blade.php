@@ -454,7 +454,6 @@
                 let _URL = `${Laravel.apiUrl.productStyles}?page=${page}`;
                 let Data = {
                     keyword: $('#addProduct .-searchBar input').val(),
-                    sku: $('#addProduct .-searchBar input').val(),
                     supplier_id: $('#supplier').val()
                 };
 

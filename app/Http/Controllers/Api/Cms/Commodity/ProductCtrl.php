@@ -25,13 +25,12 @@ class ProductCtrl extends Controller
                 'message' => $validator->messages(),
             ]);
         }
-
+        // Arr::get($d, 'supplier_id',''),
         $d = $request->all();
         $re = Product::productStyleList(
-            Arr::get($d, 'keyword',''),
-            Arr::get($d, 'sku',''),
-            Arr::get($d, 'supplier_id',''),
-            Arr::get($d, 'type','')
+            Arr::get($d, 'keyword', ''),
+            Arr::get($d, 'type', ''),
+            ['supplier' => ['condition' => Arr::get($d, 'supplier_id', '')]]
         )->paginate(10)->toArray();
         $re['status'] = '0';
         //   $re['data'] = json_decode(json_encode($re['data']), true);
@@ -56,9 +55,9 @@ class ProductCtrl extends Controller
         $d = $request->all();
 
         $re = Product::productList(
-            Arr::get($d, 'title',''),
-            Arr::get($d, 'id',''),
-            Arr::get($d, 'options',''),
+            Arr::get($d, 'title', ''),
+            Arr::get($d, 'id', ''),
+            Arr::get($d, 'options', ''),
         )->paginate(10)->toArray();
         $re['status'] = '0';
         //   $re['data'] = json_decode(json_encode($re['data']), true);
