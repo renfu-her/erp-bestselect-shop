@@ -126,20 +126,12 @@ class PurchaseItem extends Model
             ->limit(1);
 
         $tempInboundSql = DB::table('pcs_purchase_inbound as inbound')
-            ->select('inbound.id'
-                , 'inbound.purchase_id'
-                , 'inbound.status'
-                , 'inbound.product_style_id'
-                , 'inbound.inbound_user_name as inbound_user_name'
-                , 'inbound.depot_name as depot_name')
-            ->selectRaw('(inbound.inbound_date) as inbound_date')
-            ->selectRaw('(inbound.inbound_num) as inbound_num')
-            ->selectRaw('(inbound.error_num) as error_num')
-            ->selectRaw('(inbound.sale_num) as sale_num')
-            ->selectRaw('(inbound.expiry_date) as expiry_date')
-            ->selectRaw('(inbound.depot_id) as depot_id')
-            ->selectRaw('(inbound.inbound_user_id) as inbound_user_id')
-            ->whereNull('inbound.deleted_at');
+            ->select('purchase_id'
+                , 'product_style_id')
+            ->selectRaw('sum(inbound_num) as inbound_num')
+            ->whereNull('deleted_at')
+            ->groupBy('purchase_id')
+            ->groupBy('product_style_id');
         if ($depot_id) {
             $tempInboundSql->where('inbound.depot_id', '=', $depot_id);
         }
@@ -184,24 +176,12 @@ class PurchaseItem extends Model
                 ,'purchase.supplier_name as supplier_name'
                 ,'purchase.supplier_name as supplier_nickname'
 
-                ,'inbound.id as inbound_id'
-                ,'inbound.status as inbound_status'
-                ,'inbound.inbound_num as inbound_num'
-                ,'inbound.error_num as error_num'
-                ,'inbound.sale_num as sale_num'
-                ,'inbound.depot_id as depot_id'
-                ,'inbound.inbound_user_id as inbound_user_id'
-                ,'inbound.inbound_user_name as inbound_user_name'
-                ,'inbound.depot_name as depot_name'
             )
             ->selectRaw('DATE_FORMAT(purchase.scheduled_date,"%Y-%m-%d") as scheduled_date')
-            ->selectRaw('DATE_FORMAT(inbound.inbound_date,"%Y-%m-%d") as inbound_date')
-            ->selectRaw('DATE_FORMAT(inbound.expiry_date,"%Y-%m-%d") as expiry_date')
             ->selectRaw('items.price * items.num as total_price')
             ->addSelect(['deposit_num' => $subColumn, 'final_pay_num' => $subColumn2])
             ->whereNull('purchase.deleted_at')
             ->whereNull('items.deleted_at')
-//            ->whereNotNull('inbound.inbound_num')
             ->orderBy('id')
             ->orderBy('items_id');
 
@@ -231,7 +211,6 @@ class PurchaseItem extends Model
     public static function getPurchaseOverviewList(
           $purchase_sn = null
         , $title = null
-//        , $sku = null
         , $purchase_user_id = []
         , $purchase_sdate = null
         , $purchase_edate = null
