@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Cms\Settings\HomepageCtrl;
+use App\Http\Controllers\Cms\Frontend\HomepageCtrl;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'homepage','as'=>'homepage.'], function () {

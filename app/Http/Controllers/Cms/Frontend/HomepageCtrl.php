@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Cms\Settings;
+namespace App\Http\Controllers\Cms\Frontend;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -11,7 +11,7 @@ class HomepageCtrl extends Controller
     {
         $query = $request->query();
 
-        return view('cms.settings.homepage.list', [
+        return view('cms.frontend.homepage.list', [
         ]);
     }
 }
