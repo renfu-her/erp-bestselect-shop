@@ -63,11 +63,6 @@ return
                 "controller_name" => "ShipmentCtrl",
                 "route_name" => "cms.shipment.index",
             ],
-            [
-                "title" => "首頁設定",
-                "controller_name" => "HomepageCtrl",
-                "route_name" => "cms.homepage.index",
-            ],
         ],
     ],
     [
@@ -75,6 +70,11 @@ return
         "icon" => "bi-house-door",
         "menu_id" => "3",
         "child" => [
+            [
+                "title" => "首頁設定",
+                "controller_name" => "HomepageCtrl",
+                "route_name" => "cms.homepage.index",
+            ],
             [
                 "title" => "群組設定",
                 "controller_name" => "CollectionCtrl",

@@ -3,3 +3,9 @@
 <h2 class="mb-4">首頁設定</h2>
 
 @endsection
+@once
+    @push('sub-scripts')
+        <script>
+        </script>
+    @endpush
+@endonce
