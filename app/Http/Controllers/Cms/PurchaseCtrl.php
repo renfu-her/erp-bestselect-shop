@@ -40,25 +40,29 @@ class PurchaseCtrl extends Controller
         $supplier_id = Arr::get($query, 'supplier_id', '');
         $depot_id = Arr::get($query, 'depot_id', '');
         $inbound_user_id = Arr::get($query, 'inbound_user_id', []);
-        $inbound_status = Arr::get($query, 'inbound_status', array_keys($all_inbound_status));
+        $inbound_status = Arr::get($query, 'inbound_status', implode(',', array_keys($all_inbound_status)));
         $inbound_sdate = Arr::get($query, 'inbound_sdate', '');
         $inbound_edate = Arr::get($query, 'inbound_edate', '');
         $expire_day = Arr::get($query, 'expire_day', '');
         $type = Arr::get($query, 'type', '0'); //0:明細 1:總表
+
+        $inbound_status_arr = [];
+        if ('' != $inbound_status) {
+            $inbound_status_arr = explode(',', $inbound_status);
+        }
 
         $dataList = null;
         if ('0' === $type) {
             $dataList = PurchaseItem::getPurchaseDetailList(
                 $purchase_sn
                 , $title
-//                , $sku
                 , $purchase_user_id
                 , $purchase_sdate
                 , $purchase_edate
                 , $supplier_id
                 , $depot_id
                 , $inbound_user_id
-                , $inbound_status
+                , $inbound_status_arr
                 , $inbound_sdate
                 , $inbound_edate
                 , $expire_day)
@@ -67,14 +71,13 @@ class PurchaseCtrl extends Controller
             $dataList = PurchaseItem::getPurchaseOverviewList(
                 $purchase_sn
                 , $title
-//                , $sku
                 , $purchase_user_id
                 , $purchase_sdate
                 , $purchase_edate
                 , $supplier_id
                 , $depot_id
                 , $inbound_user_id
-                , $inbound_status
+                , $inbound_status_arr
                 , $inbound_sdate
                 , $inbound_edate
                 , $expire_day)
@@ -92,7 +95,6 @@ class PurchaseCtrl extends Controller
 
             , 'purchase_sn' => $purchase_sn
             , 'title' => $title
-//            , 'sku' => $sku
             , 'purchase_user_id' => $purchase_user_id
             , 'purchase_sdate' => $purchase_sdate
             , 'purchase_edate' => $purchase_edate

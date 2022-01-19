@@ -34,7 +34,7 @@
                             <i class="bi bi-x-lg"></i>
                         </button>
                     </div>
-                    <input type="hidden" name="inbound_status[]">
+                    <input type="hidden" name="inbound_status" value="{{$inbound_status}}">
                     <div id="chip-group-iStatus" class="d-flex flex-wrap bd-highlight chipGroup"></div>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
