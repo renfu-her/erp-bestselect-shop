@@ -34,7 +34,7 @@
                             <i class="bi bi-x-lg"></i>
                         </button>
                     </div>
-                    <input type="hidden" name="inbound_status" value="{{$inbound_status}}">
+                    <input type="hidden" name="inbound_status">
                     <div id="chip-group-iStatus" class="d-flex flex-wrap bd-highlight chipGroup"></div>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
@@ -287,10 +287,12 @@
             let all_inbound_status = @json($all_inbound_status);
             let Chips_regions = new ChipElem($('#chip-group-iStatus'));
             // init
-            $('input[name="inbound_status[]"]').val(selectStatus);
-            selectStatus.forEach((status) => {
-                Chips_regions.add(status, all_inbound_status[status]);
-            });
+            if (selectStatus) {
+                selectStatus = selectStatus.split(',');
+                selectStatus.forEach((status) => {
+                    Chips_regions.add(status, all_inbound_status[status]);
+                });
+            }
             // bind
             $('#iStatus').off('change.chips').on('change.chips', function(e) {
                 let region = { val: $(this).val(), title: $(this).children(':selected').text()};
@@ -300,18 +302,18 @@
                 }
 
                 $(this).val('');
-                $('input[name="inbound_status[]"]').val(selectStatus);
+            });
+            $('#search').on('submit', function(e) {
+                $('input[name="inbound_status"]').val(selectStatus);
             });
             // X btn
             Chips_regions.onDelete = function(id) {
                 selectStatus.splice(selectStatus.indexOf(id), 1);
-                $('input[name="inbound_status[]"]').val(selectStatus);
             };
             // 清空
             $('#clear_iStatus').on('click', function(e) {
                 selectStatus = [];
                 Chips_regions.clear();
-                $('input[name="inbound_status[]"]').val(selectStatus);
                 e.preventDefault();
             });
         </script>
