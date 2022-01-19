@@ -23,7 +23,9 @@ class CreatePcsPurchaseInboundTable extends Migration
             $table->integer('inbound_num')->default(0)->comment('入庫數量');
             $table->integer('error_num')->default(0)->comment('異常數量');
             $table->integer('depot_id')->nullable()->comment('倉庫');
+            $table->string('depot_name')->nullable()->comment('倉庫名稱');
             $table->integer('inbound_user_id')->nullable()->comment('入庫者');
+            $table->string('inbound_user_name')->nullable()->comment('入庫者名稱');
             $table->integer('sale_num')->default(0)->comment('銷售數量 出貨時做計算 (出貨時跳出採購單，讓人員選擇要從哪一筆出貨)');
             $table->dateTime('close_date')->nullable()->comment('結單日期');
             $table->string('memo')->nullable()->comment('備註');

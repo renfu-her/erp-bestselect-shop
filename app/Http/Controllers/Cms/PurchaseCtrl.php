@@ -23,8 +23,8 @@ class PurchaseCtrl extends Controller
         $query = $request->query();
         $startDate = Arr::get($query, 'startDate', date('Y-m-d'));
         $endDate = Arr::get($query, 'endDate', date('Y-m-d', strtotime(date('Y-m-d') . '+ 1 days')));
-        $data_per_page = Arr::get($query, 'data_per_page', 10);
-        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
+        $data_per_page = Arr::get($query, 'data_per_page', 50);
+        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 50;
 
         $all_inbound_status = [];
         foreach (InboundStatus::asArray() as $data) {
@@ -33,32 +33,36 @@ class PurchaseCtrl extends Controller
 
         $purchase_sn = Arr::get($query, 'purchase_sn', '');
         $title = Arr::get($query, 'title', '');
-        $sku = Arr::get($query, 'sku', '');
+//        $sku = Arr::get($query, 'sku', '');
         $purchase_user_id = Arr::get($query, 'purchase_user_id', []);
         $purchase_sdate = Arr::get($query, 'purchase_sdate', '');
         $purchase_edate = Arr::get($query, 'purchase_edate', '');
         $supplier_id = Arr::get($query, 'supplier_id', '');
         $depot_id = Arr::get($query, 'depot_id', '');
         $inbound_user_id = Arr::get($query, 'inbound_user_id', []);
-        $inbound_status = Arr::get($query, 'inbound_status', array_keys($all_inbound_status));
+        $inbound_status = Arr::get($query, 'inbound_status', implode(',', array_keys($all_inbound_status)));
         $inbound_sdate = Arr::get($query, 'inbound_sdate', '');
         $inbound_edate = Arr::get($query, 'inbound_edate', '');
         $expire_day = Arr::get($query, 'expire_day', '');
         $type = Arr::get($query, 'type', '0'); //0:明細 1:總表
+
+        $inbound_status_arr = [];
+        if ('' != $inbound_status) {
+            $inbound_status_arr = explode(',', $inbound_status);
+        }
 
         $dataList = null;
         if ('0' === $type) {
             $dataList = PurchaseItem::getPurchaseDetailList(
                 $purchase_sn
                 , $title
-                , $sku
                 , $purchase_user_id
                 , $purchase_sdate
                 , $purchase_edate
                 , $supplier_id
                 , $depot_id
                 , $inbound_user_id
-                , $inbound_status
+                , $inbound_status_arr
                 , $inbound_sdate
                 , $inbound_edate
                 , $expire_day)
@@ -67,14 +71,13 @@ class PurchaseCtrl extends Controller
             $dataList = PurchaseItem::getPurchaseOverviewList(
                 $purchase_sn
                 , $title
-                , $sku
                 , $purchase_user_id
                 , $purchase_sdate
                 , $purchase_edate
                 , $supplier_id
                 , $depot_id
                 , $inbound_user_id
-                , $inbound_status
+                , $inbound_status_arr
                 , $inbound_sdate
                 , $inbound_edate
                 , $expire_day)
@@ -92,7 +95,6 @@ class PurchaseCtrl extends Controller
 
             , 'purchase_sn' => $purchase_sn
             , 'title' => $title
-            , 'sku' => $sku
             , 'purchase_user_id' => $purchase_user_id
             , 'purchase_sdate' => $purchase_sdate
             , 'purchase_edate' => $purchase_edate
@@ -126,26 +128,32 @@ class PurchaseCtrl extends Controller
         $purchaseReq = $request->only('supplier', 'scheduled_date');
         $purchaseItemReq = $request->only('product_style_id', 'name', 'sku', 'num', 'price', 'memo');
 
+        $supplier = Supplier::where('id', '=', $purchaseReq['supplier'])->get()->first();
         $purchaseID = Purchase::createPurchase(
             $purchaseReq['supplier'],
+            $supplier->name,
+            $supplier->nickname,
             $request->user()->id,
+            $request->user()->name,
             $purchaseReq['scheduled_date'],
         );
 
-        $input = [];
         if (isset($purchaseItemReq['product_style_id'])) {
             foreach ($purchaseItemReq['product_style_id'] as $key => $val) {
-                array_push($input, [
-                    "purchase_id" => $purchaseID,
-                    "product_style_id" => $val,
-                    "title" => $purchaseItemReq['name'][$key],
-                    "sku" => $purchaseItemReq['sku'][$key],
-                    "price" => $purchaseItemReq['price'][$key],
-                    "num" => $purchaseItemReq['num'][$key],
-                    "memo" => $purchaseItemReq['memo'][$key],
-                ]);
+                PurchaseItem::createPurchase(
+                    [
+                        'purchase_id' => $purchaseID,
+                        'product_style_id' => $val,
+                        'title' => $purchaseItemReq['name'][$key],
+                        'sku' => $purchaseItemReq['sku'][$key],
+                        'price' => $purchaseItemReq['price'][$key],
+                        'num' => $purchaseItemReq['num'][$key],
+                        'temp_id' => $purchaseItemReq['temp_id'][$key] ?? null,
+                        'memo' => $purchaseItemReq['memo'][$key],
+                    ],
+                    $request->user()->id, $request->user()->name
+                );
             }
-            PurchaseItem::insert($input);
         }
 
         // //0:先付(訂金) / 1:先付(一次付清) / 2:貨到付款
@@ -196,17 +204,17 @@ class PurchaseCtrl extends Controller
         $isAlreadyFinalPay = false;  // 是否已有尾款單
         $payingOrderList = PayingOrders::getPayingOrdersWithPurchaseID($id)->get();
 
-//        $depositPayData = null;
-//        $finalPayData = null;
+        // $depositPayData = null;
+        // $finalPayData = null;
         if (0 < count($payingOrderList)) {
             $isAlreadyFinalPay = true;
-//            foreach ($payingOrderList as $payingOrderItem) {
-//                if ($payingOrderItem->type == 0) {
-//                    $depositPayData = $payingOrderItem;
-//                } else if ($payingOrderItem->type == 1) {
-//                    $finalPayData = $payingOrderItem;
-//                }
-//            }
+            // foreach ($payingOrderList as $payingOrderItem) {
+            //     if ($payingOrderItem->type == 0) {
+            //         $depositPayData = $payingOrderItem;
+            //     } else if ($payingOrderItem->type == 1) {
+            //         $finalPayData = $payingOrderItem;
+            //     }
+            // }
         }
 
         $supplierList = Supplier::getSupplierList()->get();
@@ -215,14 +223,14 @@ class PurchaseCtrl extends Controller
             'id' => $id,
             'purchaseData' => $purchaseData,
             'purchaseItemData' => $purchaseItemData,
-//            'payingOrderData' => $payingOrderList,
-//            'depositPayData' => $depositPayData,
-//            'finalPayData' => $finalPayData,
+            // 'payingOrderData' => $payingOrderList,
+            // 'depositPayData' => $depositPayData,
+            // 'finalPayData' => $finalPayData,
             'isAlreadyFinalPay' => $isAlreadyFinalPay,
             'method' => 'edit',
             'supplierList' => $supplierList,
             'formAction' => Route('cms.purchase.edit', ['id' => $id]),
-            'breadcrumb_data' => $purchaseData->purchase_sn,
+            'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
         ]);
     }
 
@@ -255,37 +263,40 @@ class PurchaseCtrl extends Controller
         }
 
         $changeStr = '';
-        $changeStr .= $this->checkToUpdatePurchaseData($id, $purchaseReq);
+        $changeStr .= Purchase::checkToUpdatePurchaseData($id, $purchaseReq, $changeStr, $request->user()->id, $request->user()->name);
 
         //刪除現有款式
         if (isset($request['del_item_id']) && null != $request['del_item_id']) {
             $changeStr .= 'delete purchaseItem id:' . $request['del_item_id'];
             $del_item_id_arr = explode(",", $request['del_item_id']);
-            PurchaseItem::whereIn('id', $del_item_id_arr)->delete();
+            PurchaseItem::deleteItems($del_item_id_arr, $request->user()->id, $request->user()->name);
         }
 
         if (isset($purchaseItemReq['item_id'])) {
-            $newData = [];
             foreach ($purchaseItemReq['item_id'] as $key => $val) {
                 $itemId = $purchaseItemReq['item_id'][$key];
                 //有值則做更新
                 //itemId = null 代表新資料
                 if (null != $itemId) {
-                    $changeStr = $this->checkToUpdatePurchaseItemData($itemId, $purchaseItemReq, $key, $changeStr);
+                    $changeStr = PurchaseItem::checkToUpdatePurchaseItemData($itemId, $purchaseItemReq, $key, $changeStr, $request->user()->id, $request->user()->name);
                 } else {
                     $changeStr .= ' add item:' . $purchaseItemReq['name'][$key];
-                    array_push($newData, [
-                        "purchase_id" => $id,
-                        "product_style_id" => $purchaseItemReq['product_style_id'][$key],
-                        "title" => $purchaseItemReq['name'][$key],
-                        "sku" => $purchaseItemReq['sku'][$key],
-                        "price" => $purchaseItemReq['price'][$key],
-                        "num" => $purchaseItemReq['num'][$key],
-                        "memo" => $purchaseItemReq['memo'][$key],
-                    ]);
+
+                    PurchaseItem::createPurchase(
+                        [
+                            'purchase_id' => $id,
+                            'product_style_id' => $purchaseItemReq['product_style_id'][$key],
+                            'title' => $purchaseItemReq['name'][$key],
+                            'sku' => $purchaseItemReq['sku'][$key],
+                            'price' => $purchaseItemReq['price'][$key],
+                            'num' => $purchaseItemReq['num'][$key],
+                            'temp_id' => $purchaseItemReq['temp_id'][$key] ?? null,
+                            'memo' => $purchaseItemReq['memo'][$key],
+                        ],
+                        $request->user()->id, $request->user()->name
+                    );
                 }
             }
-            PurchaseItem::insert($newData);
         }
 
         wToast(__('Edit finished.') . ' ' . $changeStr);
@@ -297,58 +308,24 @@ class PurchaseCtrl extends Controller
 
     public function destroy(Request $request, $id)
     {
-        Purchase::where('id', '=', $id)->delete();
-        wToast(__('Delete finished.'));
+        //判斷若有入庫、付款單 則不可刪除
+        $returnMsg = [];
+        $inbounds = PurchaseInbound::inboundList($id);
+        $payingOrderList = PayingOrders::getPayingOrdersWithPurchaseID($id)->get();
+        if (null != $inbounds && 0 < count($inbounds) && 0 >= count($payingOrderList)) {
+            Purchase::del($id, $request->user()->id, $request->user()->name);
+            $returnMsg = __('Delete finished.');
+        } else {
+            $returnMsg = '已入庫無法刪除';
+        }
+
+        wToast($returnMsg);
         return redirect(Route('cms.purchase.index'));
-    }
-
-    public function checkToUpdatePurchaseData($id, array $purchaseReq)
-    {
-        $purchase = Purchase::where('id', '=', $id)
-            ->select('supplier_id')
-            ->selectRaw('DATE_FORMAT(scheduled_date,"%Y-%m-%d") as scheduled_date')
-            ->get()->first();
-        $purchase->supplier_id = $purchaseReq['supplier'];
-        $purchase->scheduled_date = $purchaseReq['scheduled_date'];
-
-        $changeStr = "";
-        if ($purchase->isDirty()) {
-            foreach ($purchase->getDirty() as $key => $val) {
-                $changeStr .= ' ' . $key . ' change to ' . $val;
-            }
-            Purchase::where('id', $id)->update([
-                "supplier_id" => $purchaseReq['supplier'],
-                "scheduled_date" => $purchaseReq['scheduled_date'],
-            ]);
-        }
-        return $changeStr;
-    }
-
-    public function checkToUpdatePurchaseItemData($itemId, array $purchaseItemReq, $key, string $changeStr)
-    {
-        $purchaseItem = PurchaseItem::where('id', '=', $itemId)
-            ->select('price', 'num')
-            ->get()->first();
-        $purchaseItem->price = $purchaseItemReq['price'][$key];
-        $purchaseItem->num = $purchaseItemReq['num'][$key];
-        $purchaseItem->memo = $purchaseItemReq['memo'][$key];
-        if ($purchaseItem->isDirty()) {
-            foreach ($purchaseItem->getDirty() as $dirtykey => $dirtyval) {
-                $changeStr .= ' itemID:' . $itemId . ' ' . $dirtykey . ' change to ' . $dirtyval;
-            }
-            PurchaseItem::where('id', $itemId)->update([
-                "price" => $purchaseItemReq['price'][$key],
-                "num" => $purchaseItemReq['num'][$key],
-                "memo" => $purchaseItemReq['memo'][$key],
-            ]);
-        }
-        return $changeStr;
     }
 
     //結案
     public function close(Request $request, $id) {
-        Purchase::where('id', $id)->update(['close_date' => date('Y-m-d H:i:s')]);
-
+        Purchase::close($id, $request->user()->id, $request->user()->name);
         wToast(__('Close finished.'));
         return redirect(Route('cms.purchase.inbound', [
             'id' => $id,
@@ -375,7 +352,6 @@ class PurchaseCtrl extends Controller
 
     public function storeInbound(Request $request, $id)
     {
-//        dd($request->all());
         $request->validate([
             'depot_id' => 'required|numeric',
             'product_style_id.*' => 'required|numeric',
@@ -389,7 +365,9 @@ class PurchaseCtrl extends Controller
         $inboundItemReq = $request->only('product_style_id', 'inbound_date', 'inbound_num', 'error_num', 'inbound_memo', 'status', 'expiry_date', 'inbound_memo');
 
         if (isset($inboundItemReq['product_style_id'])) {
+            $depot = Depot::where('id', '=', $depot_id)->get()->first();
             foreach ($inboundItemReq['product_style_id'] as $key => $val) {
+
                 $purchaseInboundID = PurchaseInbound::createInbound(
                     $id,
                     $inboundItemReq['product_style_id'][$key],
@@ -399,7 +377,9 @@ class PurchaseCtrl extends Controller
                     $inboundItemReq['inbound_num'][$key],
                     $inboundItemReq['error_num'][$key],
                     $depot_id,
+                    $depot->name,
                     $request->user()->id,
+                    $request->user()->name,
                     $inboundItemReq['inbound_memo'][$key]
                 );
             }
@@ -423,5 +403,50 @@ class PurchaseCtrl extends Controller
         return redirect(Route('cms.purchase.inbound', [
             'id' => $purchase_id,
         ]));
+    }
+
+    /**
+     * 新增訂金付款單
+     */
+    public function payDeposit(Request $request, $id) {
+        $purchaseData = Purchase::getPurchase($id)->first();
+        $supplierList = Supplier::getSupplierList()->get();
+
+        return view('cms.commodity.purchase.receipt', [
+            'type' => 'deposit',
+            'id' => $id,
+            'purchaseData' => $purchaseData,
+            'supplierList' => $supplierList,
+            'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
+        ]);
+    }
+
+    /**
+     * 新增尾款付款單
+     */
+    public function payFinal(Request $request, $id) {
+        $purchaseData = Purchase::getPurchase($id)->first();
+        $supplierList = Supplier::getSupplierList()->get();
+
+        return view('cms.commodity.purchase.receipt', [
+            'type' => 'final',
+            'id' => $id,
+            'purchaseData' => $purchaseData,
+            'supplierList' => $supplierList,
+            'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
+        ]);
+    }
+
+    /**
+     * 變更歷史
+     */
+    public function historyLog(Request $request, $id) {
+        $purchaseData = Purchase::getPurchase($id)->first();
+
+        return view('cms.commodity.purchase.log', [
+            'id' => $id,
+            'purchaseData' => $purchaseData,
+            'breadcrumb_data' => $purchaseData->purchase_sn,
+        ]);
     }
 }

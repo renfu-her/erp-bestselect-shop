@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\Purchase\LogFeature;
+use App\Enums\Purchase\LogFeatureEvent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -13,10 +15,13 @@ class Purchase extends Model
     protected $table = 'pcs_purchase';
     protected $guarded = [];
 
-    public static function createPurchase($supplier_id, $purchase_user_id, $scheduled_date, $memo = null)
+    public static function createPurchase($supplier_id, $supplier_name, $supplier_nickname, $purchase_user_id, $purchase_user_name, $scheduled_date, $memo = null)
     {
         return DB::transaction(function () use ($supplier_id,
+            $supplier_name,
+            $supplier_nickname,
             $purchase_user_id,
+            $purchase_user_name,
             $scheduled_date,
             $memo
             ) {
@@ -29,27 +34,72 @@ class Purchase extends Model
             $id = self::create([
                 "sn" => $sn,
                 'supplier_id' => $supplier_id,
+                'supplier_name' => $supplier_name,
+                'supplier_nickname' => $supplier_nickname,
                 'purchase_user_id' => $purchase_user_id,
+                'purchase_user_name' => $purchase_user_name,
                 'scheduled_date' => $scheduled_date,
                 'memo' => $memo,
             ])->id;
 
+            PurchaseLog::stockChange($id, null, LogFeature::purchase()->value, $id, LogFeatureEvent::pcs_add()->value, null, null, $purchase_user_id, $purchase_user_name);
+
             return $id;
         });
+    }
+
+    public static function checkToUpdatePurchaseData($id, array $purchaseReq, string $changeStr, $operator_user_id, $operator_user_name)
+    {
+        $purchase = Purchase::where('id', '=', $id)
+            ->select('supplier_id')
+            ->selectRaw('DATE_FORMAT(scheduled_date,"%Y-%m-%d") as scheduled_date')
+            ->get()->first();
+
+        $purchase->supplier_id = $purchaseReq['supplier'];
+        $purchase->scheduled_date = $purchaseReq['scheduled_date'];
+
+        if ($purchase->isDirty()) {
+            foreach ($purchase->getDirty() as $key => $val) {
+                $changeStr .= ' ' . $key . ' change to ' . $val;
+                $event = '';
+                if ($key == 'supplier_id') {
+                    $event = '修改廠商';
+                } else if($key == 'scheduled_date') {
+                    $event = '修改廠商預計進貨日期';
+                }
+                PurchaseLog::stockChange($id, null, LogFeature::purchase()->value, $id, LogFeatureEvent::pcs_change_data()->value, null, $event, $operator_user_id, $operator_user_name);
+            }
+            Purchase::where('id', $id)->update([
+                "supplier_id" => $purchaseReq['supplier'],
+                "scheduled_date" => $purchaseReq['scheduled_date'],
+            ]);
+        }
+        return $changeStr;
+    }
+
+    //刪除
+    public static function del($id, $operator_user_id, $operator_user_name) {
+        //判斷若有入庫、付款單 則不可刪除
+        Purchase::where('id', '=', $id)->delete();
+        PurchaseLog::stockChange($id, null, LogFeature::purchase()->value, $id, LogFeatureEvent::pcs_del()->value, null, null, $operator_user_id, $operator_user_name);
+    }
+
+    //結案
+    public static function close($id, $operator_user_id, $operator_user_name) {
+        Purchase::where('id', $id)->update(['close_date' => date('Y-m-d H:i:s')]);
+        PurchaseLog::stockChange($id, null, LogFeature::purchase()->value, $id, LogFeatureEvent::pcs_close()->value, null, null, $operator_user_id, $operator_user_name);
     }
 
     //起日 訖日 是否含已結單 發票號碼
     public static function getPurchaseList($sDate = null, $eDate = null, $hasClose = false, $invoiceNum = null)
     {
         $result = DB::table('pcs_purchase as purchase')
-            ->leftJoin('usr_users as users', 'users.id', '=', 'purchase.purchase_user_id')
-            ->leftJoin('prd_suppliers as suppliers', 'suppliers.id', '=', 'purchase.supplier_id')
-
             ->select('purchase.id'
                 , 'purchase.invoice_num as invoice_num'
                 , 'purchase.pay_type as pay_type'
-                , 'users.name as user_name'
-                , 'suppliers.name as supplier_name'
+                , 'purchase_user_name as user_name'
+                , 'supplier_name as supplier_name'
+                , 'supplier_nickname as supplier_nickname'
             )
             ->selectRaw('DATE_FORMAT(purchase.close_date,"%Y-%m-%d") as close_date')
             ->whereNull('purchase.deleted_at');
@@ -71,18 +121,16 @@ class Purchase extends Model
     public static function getPurchase($id)
     {
         $result = DB::table('pcs_purchase as purchase')
-            ->leftJoin('usr_users as users', 'users.id', '=', 'purchase.purchase_user_id')
-            ->leftJoin('prd_suppliers as suppliers', 'suppliers.id', '=', 'purchase.supplier_id')
-
             ->select('purchase.id'
                 , 'purchase.sn as purchase_sn'
                 , 'purchase.invoice_num as invoice_num'
                 , 'purchase.pay_type as pay_type'
                 , 'purchase.close_date as close_date'
-                , 'users.id as user_id'
-                , 'users.name as user_name'
-                , 'suppliers.id as supplier_id'
-                , 'suppliers.name as supplier_name'
+                , 'purchase_user_id as user_id'
+                , 'purchase_user_name as user_name'
+                , 'supplier_id as supplier_id'
+                , 'supplier_name as supplier_name'
+                , 'supplier_nickname as supplier_nickname'
             )
             ->selectRaw('DATE_FORMAT(purchase.scheduled_date,"%Y-%m-%d") as scheduled_date')
             ->whereNull('purchase.deleted_at')

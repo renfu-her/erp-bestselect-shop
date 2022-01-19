@@ -209,6 +209,8 @@
                                     </x-slot>
                                 </x-b-modal>
 
+                                <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="工具提示框"></i>
+
                                 {{-- 格式化地址 --}}
                                 <div calss="form-group">
                                     <label class="col-form-label">

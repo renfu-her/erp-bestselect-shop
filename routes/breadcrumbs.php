@@ -104,7 +104,22 @@ Breadcrumbs::for('cms.purchase.create', function (BreadcrumbTrail $trail) {
 // 編輯 - 採購單資訊
 Breadcrumbs::for('cms.purchase.edit', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.purchase.index');
-    $trail->push('[單號：' . $value . '] 採購單資訊');
+    $trail->push('[單號：' . $value['sn'] . '] 採購單資訊', route('cms.purchase.edit', ['id' => $value['id']]));
+});
+// 編輯 - 採購單資訊 - 新增訂金付款單
+Breadcrumbs::for('cms.purchase.pay-deposit', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.purchase.edit', $value);
+    $trail->push('新增訂金付款單');
+});
+// 編輯 - 採購單資訊 - 新增尾款付款單
+Breadcrumbs::for('cms.purchase.pay-final', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.purchase.edit', $value);
+    $trail->push('新增尾款付款單');
+});
+// 編輯 - 變更紀錄
+Breadcrumbs::for('cms.purchase.log', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.purchase.index');
+    $trail->push('[單號：' . $value . '] 變更紀錄');
 });
 // 編輯 - 入庫審核
 Breadcrumbs::for('cms.purchase.inbound', function (BreadcrumbTrail $trail, $value) {

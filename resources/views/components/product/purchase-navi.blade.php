@@ -14,11 +14,11 @@
 <ul class="nav pm_navbar" role="tablist">
     <li class="nav-item">
         <a href="{{ Route('cms.purchase.edit', ['id' => $id], true) }}"
-            class="nav-link {{ isActive('edit', $route_name) }}">採購單資訊</a>
+            class="nav-link {{ isActive('edit', $route_name) }} {{ isActive('pay-deposit', $route_name) }} {{ isActive('pay-final', $route_name) }}">採購單資訊</a>
     </li>
     <li class="nav-item">
-        <a href="#"
-            class="nav-link disabled">修改紀錄</a>
+        <a href="{{ Route('cms.purchase.log', ['id' => $id], true) }}"
+            class="nav-link {{ isActive('log', $route_name) }}">變更紀錄</a>
     </li>
     <li class="nav-item">
         <a href="{{ Route('cms.purchase.inbound', ['id' => $id], true) }}"
