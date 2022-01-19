@@ -63,6 +63,11 @@ return
                 "controller_name" => "ShipmentCtrl",
                 "route_name" => "cms.shipment.index",
             ],
+            [
+                "title" => "首頁設定",
+                "controller_name" => "HomepageCtrl",
+                "route_name" => "cms.homepage.index",
+            ],
         ],
     ],
     [
