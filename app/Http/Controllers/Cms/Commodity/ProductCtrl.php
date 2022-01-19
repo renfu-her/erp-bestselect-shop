@@ -299,7 +299,6 @@ class ProductCtrl extends Controller
     public function editSpec($id)
     {
         $product = self::product_data($id);
-
         return view('cms.commodity.product.spec-edit', [
             'data' => Product::where('id', $id)->get()->first(),
             'specs' => ProductSpec::get()->toArray(),
