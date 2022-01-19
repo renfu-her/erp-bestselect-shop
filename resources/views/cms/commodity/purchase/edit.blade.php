@@ -160,16 +160,16 @@
             <div class="card shadow p-4 mb-4">
                 <h6>付款單</h6>
                 <div class="row">
-                    <div class="col-12 col-sm-6 mb-3 ">
+                    <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">訂金付款單</label>
-                        <div class="form-control">
-                            <a href="#">新增付款單</a>
+                        <div class="form-control" readonly>
+                            <a href="{{ Route('cms.purchase.pay-deposit', ['id' => $id], true) }}">新增付款單</a>
                         </div>
                     </div>
                     <div class="col-12 col-sm-6 mb-3 ">
                         <label class="form-label">尾款付款單</label>
-                        <div class="form-control">
-                            <a href="#">新增付款單</a>
+                        <div class="form-control" readonly>
+                            <a href="{{ Route('cms.purchase.pay-final', ['id' => $id], true) }}">新增付款單</a>
                         </div>
                     </div>
                 </div>

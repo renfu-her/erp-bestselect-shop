@@ -9,6 +9,8 @@ Route::group(['prefix' => 'purchase', 'as' => 'purchase.'], function () {
     Route::post('create', [PurchaseCtrl::class, 'store']);
     Route::get('edit/{id}', [PurchaseCtrl::class, 'edit'])->name('edit')->middleware('permission:cms.purchase.edit');
     Route::post('edit/{id}', [PurchaseCtrl::class, 'update']);
+    Route::get('edit/{id}/pay-deposit', [PurchaseCtrl::class, 'payDeposit'])->name('pay-deposit');
+    Route::get('edit/{id}/pay-final', [PurchaseCtrl::class, 'payFinal'])->name('pay-final');
     Route::get('delete/{id}', [PurchaseCtrl::class, 'destroy'])->name('delete')->middleware('permission:cms.purchase.delete');
     Route::post('close/{id}', [PurchaseCtrl::class, 'close'])->name('close')->middleware('permission:cms.purchase.close');
 

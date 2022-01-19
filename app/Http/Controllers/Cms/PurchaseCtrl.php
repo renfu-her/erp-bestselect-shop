@@ -196,17 +196,17 @@ class PurchaseCtrl extends Controller
         $isAlreadyFinalPay = false;  // 是否已有尾款單
         $payingOrderList = PayingOrders::getPayingOrdersWithPurchaseID($id)->get();
 
-//        $depositPayData = null;
-//        $finalPayData = null;
+        // $depositPayData = null;
+        // $finalPayData = null;
         if (0 < count($payingOrderList)) {
             $isAlreadyFinalPay = true;
-//            foreach ($payingOrderList as $payingOrderItem) {
-//                if ($payingOrderItem->type == 0) {
-//                    $depositPayData = $payingOrderItem;
-//                } else if ($payingOrderItem->type == 1) {
-//                    $finalPayData = $payingOrderItem;
-//                }
-//            }
+            // foreach ($payingOrderList as $payingOrderItem) {
+            //     if ($payingOrderItem->type == 0) {
+            //         $depositPayData = $payingOrderItem;
+            //     } else if ($payingOrderItem->type == 1) {
+            //         $finalPayData = $payingOrderItem;
+            //     }
+            // }
         }
 
         $supplierList = Supplier::getSupplierList()->get();
@@ -215,14 +215,14 @@ class PurchaseCtrl extends Controller
             'id' => $id,
             'purchaseData' => $purchaseData,
             'purchaseItemData' => $purchaseItemData,
-//            'payingOrderData' => $payingOrderList,
-//            'depositPayData' => $depositPayData,
-//            'finalPayData' => $finalPayData,
+            // 'payingOrderData' => $payingOrderList,
+            // 'depositPayData' => $depositPayData,
+            // 'finalPayData' => $finalPayData,
             'isAlreadyFinalPay' => $isAlreadyFinalPay,
             'method' => 'edit',
             'supplierList' => $supplierList,
             'formAction' => Route('cms.purchase.edit', ['id' => $id]),
-            'breadcrumb_data' => $purchaseData->purchase_sn,
+            'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
         ]);
     }
 
@@ -424,6 +424,41 @@ class PurchaseCtrl extends Controller
         ]));
     }
 
+    /**
+     * 新增訂金付款單
+     */
+    public function payDeposit(Request $request, $id) {
+        $purchaseData = Purchase::getPurchase($id)->first();
+        $supplierList = Supplier::getSupplierList()->get();
+
+        return view('cms.commodity.purchase.receipt', [
+            'type' => 'deposit',
+            'id' => $id,
+            'purchaseData' => $purchaseData,
+            'supplierList' => $supplierList,
+            'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
+        ]);
+    }
+
+    /**
+     * 新增尾款付款單
+     */
+    public function payFinal(Request $request, $id) {
+        $purchaseData = Purchase::getPurchase($id)->first();
+        $supplierList = Supplier::getSupplierList()->get();
+
+        return view('cms.commodity.purchase.receipt', [
+            'type' => 'final',
+            'id' => $id,
+            'purchaseData' => $purchaseData,
+            'supplierList' => $supplierList,
+            'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
+        ]);
+    }
+
+    /**
+     * 變更歷史
+     */
     public function historyLog(Request $request, $id) {
         $purchaseData = Purchase::getPurchase($id)->first();
 
