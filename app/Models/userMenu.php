@@ -73,7 +73,7 @@ return
             [
                 "title" => "首頁設定",
                 "controller_name" => "HomepageCtrl",
-                "route_name" => "cms.homepage.index",
+                "route_name" => "cms.homepage.navbar.index",
             ],
             [
                 "title" => "商品群組",
