@@ -143,6 +143,7 @@
                                                         {{ $value->value }}</option>
                                                 @endforeach
                                             </select>
+                                            {{ $style['spec_item' . ($specKey + 1) . '_title'] }}
                                         </td>
                                     @endforeach
 
