@@ -222,7 +222,16 @@ Breadcrumbs::for('cms.shipment.edit', function ($trail) {
     $trail->push('編輯');
 });
 
-//商品群組設定
+
+/** 官網設定 */
+
+//首頁設定
+Breadcrumbs::for('cms.homepage.index', function ($trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('首頁設定', route('cms.homepage.index'));
+});
+
+//商品群組
 Breadcrumbs::for('cms.collection.index', function ($trail) {
     $trail->parent('cms.dashboard');
     $trail->push('商品群組', route('cms.collection.index'));

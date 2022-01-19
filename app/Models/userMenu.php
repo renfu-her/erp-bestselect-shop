@@ -76,7 +76,7 @@ return
                 "route_name" => "cms.homepage.index",
             ],
             [
-                "title" => "群組設定",
+                "title" => "商品群組",
                 "controller_name" => "CollectionCtrl",
                 "route_name" => "cms.collection.index",
             ],
