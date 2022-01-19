@@ -19,6 +19,7 @@ class CreateProductsStylesTable extends Migration
             $table->string('title')->nullable();
             $table->string('sku')->nullable()->unique()->comment('sku碼');
             $table->integer('safety_stock')->default(0)->comment('安全庫存');
+            $table->integer('total_inbound')->default(0)->comment('總進貨量');
             $table->integer('in_stock')->default(0)->comment('庫存');
             $table->string('type', 2)->default('p')->comment('商品類別p=商品,c=組合包');
             $table->integer('overbought')->default(0)->comment('超買設定');

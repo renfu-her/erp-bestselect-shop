@@ -17,7 +17,7 @@ class PurchaseInbound extends Model
     protected $table = 'pcs_purchase_inbound';
     protected $guarded = [];
 
-    public static function createInbound($purchase_id, $product_style_id, $expiry_date = null, $status = 0, $inbound_date = null, $inbound_num = 0, $error_num = 0, $depot_id = null, $inbound_user_id = null, $memo = null)
+    public static function createInbound($purchase_id, $product_style_id, $expiry_date = null, $status = 0, $inbound_date = null, $inbound_num = 0, $error_num = 0, $depot_id = null, $depot_name = null, $inbound_user_id = null, $inbound_user_name = null, $memo = null)
     {
         $id = self::create([
             "purchase_id" => $purchase_id,
@@ -28,14 +28,16 @@ class PurchaseInbound extends Model
             "inbound_num" => $inbound_num,
             "error_num" => $error_num,
             "depot_id" => $depot_id,
+            "depot_name" => $depot_name,
             "inbound_user_id" => $inbound_user_id,
+            "inbound_user_name" => $inbound_user_name,
             "memo" => $memo
         ])->id;
 
         //入庫 新增入庫數量
         //寫入ProductStock
-        PurchaseLog::stockChange($purchase_id, $product_style_id, LogFeature::inbound()->value, $id, LogFeatureEvent::inbound()->value, $inbound_num);
-        ProductStock::stockChange($product_style_id, $inbound_num, StockEvent::inbound()->value, $id);
+        PurchaseLog::stockChange($purchase_id, $product_style_id, LogFeature::inbound()->value, $id, LogFeatureEvent::inbound_add()->value, $inbound_num, null, $inbound_user_id, $inbound_user_name);
+        ProductStock::stockChange($product_style_id, $inbound_num, StockEvent::inbound()->value, $id, null, true);
 
         return $id;
     }
@@ -64,8 +66,8 @@ class PurchaseInbound extends Model
                 else if (is_numeric($inboundDataGet->sale_num) && 0 < $inboundDataGet->sale_num) {
                     return ['success' => 0, 'error_msg' => 'inbound already sell'];
                 } else {
-                    PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogFeature::inbound()->value, $id, LogFeatureEvent::delete()->value, $inboundDataGet->inbound_num * -1, 'user '.$user_id . '刪除入庫單');
-                    ProductStock::stockChange($inboundDataGet->product_style_id, $inboundDataGet->inbound_num * -1, StockEvent::inbound_del()->value, $id, $user_id . '刪除入庫單');
+                    PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogFeature::inbound()->value, $id, LogFeatureEvent::inbound_del()->value, $inboundDataGet->inbound_num * -1, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
+                    ProductStock::stockChange($inboundDataGet->product_style_id, $inboundDataGet->inbound_num * -1, StockEvent::inbound_del()->value, $id, $inboundDataGet->inbound_user_name . LogFeatureEvent::inbound_del()->getDescription(LogFeatureEvent::inbound_del()->value), true);
                     $inboundData->delete();
                 }
             }
@@ -87,7 +89,7 @@ class PurchaseInbound extends Model
                 } else {
                     PurchaseInbound::where('id', $id)
                         ->update(['sale_num' => DB::raw("sale_num + $sale_num")]);
-                    PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogFeature::inbound()->value, $id, LogFeatureEvent::shipping()->value, $sale_num);
+                    PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogFeature::inbound()->value, $id, LogFeatureEvent::inbound_shipping()->value, $sale_num, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
                 }
             }
         });
@@ -105,7 +107,7 @@ class PurchaseInbound extends Model
             if (null != $inboundDataGet) {
                 $inboundData
                     ->update(['error_num' => DB::raw("error_num + $send_back_num")]);
-                PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogFeature::inbound()->value, $id, LogFeatureEvent::send_back()->value, $send_back_num);
+                PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogFeature::inbound()->value, $id, LogFeatureEvent::inbound_send_back()->value, $send_back_num, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
             }
         });
     }
@@ -113,36 +115,29 @@ class PurchaseInbound extends Model
     //歷史入庫
     public static function getInboundList($purchase_id)
     {
-        $result = DB::table('pcs_purchase as purchase')
-            ->leftJoin('pcs_purchase_items as items', 'items.purchase_id', '=', 'purchase.id')
-            ->leftJoin('pcs_purchase_inbound as inbound', function ($join) {
-                $join->on('inbound.purchase_id', '=', 'items.purchase_id');
-                $join->on('inbound.product_style_id', '=', 'items.product_style_id');
-            })
-            ->leftJoin('usr_users as users', 'users.id', '=', 'inbound.inbound_user_id')
-            //->select('*')
-            ->select('purchase.id as purchase_id' //採購ID
-                , 'items.title as title' //商品名稱-款式名稱
-                , 'items.sku as sku' //款式SKU
-                , 'items.num as item_num' //採購款式數量
-                , 'items.memo as item_memo' //採購款式備註
+        $result = DB::table('pcs_purchase_inbound as inbound')
+            ->leftJoin('prd_product_styles as style', 'style.id', '=', 'inbound.product_style_id')
+            ->leftJoin('prd_products as product', 'product.id', '=', 'style.product_id')
+            ->select('inbound.purchase_id as purchase_id' //採購ID
+                , 'product.title as product_title' //商品名稱
+                , 'style.title as style_title' //款式名稱
+                , 'style.sku as style_sku' //款式SKU
                 , 'inbound.id as inbound_id' //入庫ID
                 , 'inbound.status as status' //入庫狀態
                 , 'inbound.inbound_num as inbound_num' //入庫實進數量
                 , 'inbound.error_num as error_num' //入庫異常數量
                 , 'inbound.depot_id as depot_id'  //入庫倉庫ID
+                , 'inbound.depot_name as depot_name'  //入庫倉庫名稱
                 , 'inbound.inbound_user_id as inbound_user_id'  //入庫人員ID
+                , 'inbound.inbound_user_name as user_name' //入庫人員名稱
                 , 'inbound.close_date as close_date'
                 , 'inbound.memo as inbound_memo' //入庫備註
-                , 'users.name as user_name' //入庫人員名稱
             )
             ->selectRaw('DATE_FORMAT(inbound.expiry_date,"%Y-%m-%d") as expiry_date') //有效期限
             ->selectRaw('DATE_FORMAT(inbound.inbound_date,"%Y-%m-%d") as inbound_date') //入庫日期
-            ->whereNull('purchase.deleted_at')
-            ->whereNull('items.deleted_at')
             ->whereNull('inbound.deleted_at')
             ->whereNotNull('inbound.id')
-            ->where('purchase.id', '=', $purchase_id);
+            ->where('inbound.purchase_id', '=', $purchase_id);
         return $result;
     }
 
@@ -194,6 +189,14 @@ class PurchaseInbound extends Model
             ->orderBy('purchase.id')
             ->orderBy('items.product_style_id')
             ->mergeBindings($tempInboundSql);
+        return $result;
+    }
+
+    public static function inboundList($id) {
+        $result = DB::table('pcs_purchase as purchase')
+            ->leftJoin('pcs_purchase_inbound as inbound', 'inbound.purchase_id', '=', 'purchase.id')
+            ->whereNull('pcs_purchase.deleted_at')
+            ->where('id', '=', $id);
         return $result;
     }
 }

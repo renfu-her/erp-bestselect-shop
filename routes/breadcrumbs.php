@@ -85,6 +85,12 @@ Breadcrumbs::for('cms.product.edit-setting', function (BreadcrumbTrail $trail, $
     $trail->push('[' . $value->title . '] 設定');
 });
 
+// 庫存管理
+Breadcrumbs::for('cms.stock.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('庫存管理', route('cms.stock.index'));
+});
+
 // 採購單管理
 Breadcrumbs::for('cms.purchase.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');

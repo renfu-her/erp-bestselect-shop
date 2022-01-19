@@ -35,7 +35,7 @@ class Product extends Model
         }
 
         if (isset($options['sku'])) {
-            $re->orWhere('product.sku', 'like', '%' . $options['sku']. '%');
+            $re->orWhere('product.sku', 'like', '%' . $options['sku'] . '%');
         }
 
         if (isset($options['supplier'])) {
@@ -170,34 +170,86 @@ class Product extends Model
 
     }
 
-    public static function productStyleList($keyword = null, $sku = null, $supplier_id = null, $type = null)
+    public static function productStyleList($keyword = null, $type = null, $stock_status = [], $options = [])
     {
 
         $re = DB::table('prd_products as p')
             ->leftJoin('prd_product_styles as s', 'p.id', '=', 's.product_id')
             ->select('s.id', 's.sku', 'p.title as product_title', 's.title as spec', 's.in_stock', 's.safety_stock')
-        // ->selectRaw('IF(s.title,p.title,CONCAT(p.title," ",COALESCE(s.title,""))) as title')
+            ->selectRaw('CASE p.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title')
             ->whereNotNull('s.sku')
-            ->where(function ($q) use ($keyword, $sku) {
+            ->where(function ($q) use ($keyword) {
                 if ($keyword) {
                     $q->where('p.title', 'like', "%$keyword%");
                     $q->orWhere('s.title', 'like', "%$keyword%");
-                }
-
-                if ($sku) {
-                    $q->where('s.sku', 'like', "%$sku%");
+                    $q->orWhere('s.sku', 'like', "%$keyword%");
                 }
             })
             ->whereNotNull('s.sku')
             ->whereNull('s.deleted_at');
 
-        if ($type) {
+        if ($type && $type != 'all') {
             $re->where('s.type', $type);
         }
 
-        if ($supplier_id) {
-            $re->leftJoin('prd_product_supplier as sup', 'p.id', '=', 'sup.product_id')
-                ->where('sup.supplier_id', $supplier_id);
+        if ($stock_status) {
+            $re->where(function ($_q) use ($stock_status) {
+                if (in_array('warning', $stock_status)) {
+                    $_q->orWhere('in_stock', '<=', DB::raw("safety_stock"));
+                }
+
+                if (in_array('out_of_stock', $stock_status)) {
+                    $_q->orWhere('in_stock', '=', 0);
+                }
+            });
+        }
+
+        if (isset($options['supplier'])) {
+            if (isset($options['supplier']['show'])) {
+                $supplierSub = DB::table('prd_product_supplier as ps')
+                    ->leftJoin('prd_suppliers as sup', 'ps.supplier_id', '=', 'sup.id')
+                    ->select('ps.product_id as product_id')
+                    ->selectRaw('GROUP_CONCAT(sup.name) as suppliers_name')
+                    ->groupBy('ps.product_id');
+
+                $re->leftJoin(DB::raw("({$supplierSub->toSql()}) as sup"), 'p.id', '=', 'sup.product_id')
+                    ->addSelect('sup.suppliers_name as suppliers_name');
+
+                $re->mergeBindings($supplierSub);
+            }
+
+            if (isset($options['supplier']['condition'])) {
+                $re->leftJoin('prd_product_supplier as ps', 'p.id', '=', 'ps.product_id');
+                if (is_array($options['supplier']['condition'])) {
+                    if (count($options['supplier']['condition']) > 0) {
+                        $re->whereIn('ps.supplier_id', $options['supplier']['condition']);
+                    }
+                } else {
+                    if ($options['supplier']['condition']) {
+                        $re->where('ps.supplier_id', $options['supplier']['condition']);
+                    }
+                }
+            }
+
+        }
+
+        if (isset($options['user'])) {
+            if (isset($options['user']['show'])) {
+                $re->leftJoin('usr_users as user', 'p.user_id', '=', 'user.id')
+                    ->addSelect('user.name as user_name');
+            }
+
+            if (isset($options['user']['condition'])) {
+                if (is_array($options['user']['condition'])) {
+                    if (count($options['user']['condition']) > 0) {
+                        $re->whereIn('p.user_id', $options['user']['condition']);
+                    }
+                } else {
+                    if ($options['user']['condition']) {
+                        $re->where('p.user_id', $options['user']['condition']);
+                    }
+                }
+            }
         }
 
         return $re;
