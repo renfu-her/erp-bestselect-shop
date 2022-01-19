@@ -25,7 +25,7 @@ class ComboPurchaseCtrl extends Controller
         $sku = Arr::get($query, 'sku', null);
         $data_per_page = Arr::get($query, 'data_per_page', 10);
 
-        $dataList = Product::productStyleList($keyword, null, 'c')
+        $dataList = Product::productStyleList($keyword, 'c')
             ->paginate($data_per_page)->appends($query);
 
         return view('cms.commodity.combo_purchase.list', [
