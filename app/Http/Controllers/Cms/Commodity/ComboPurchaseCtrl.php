@@ -28,7 +28,7 @@ class ComboPurchaseCtrl extends Controller
         $dataList = Product::productStyleList($keyword, null, 'c')
             ->paginate($data_per_page)->appends($query);
 
-        return view('cms.commodity.comboPurchase.list', [
+        return view('cms.commodity.combo_purchase.list', [
             'data_per_page' => 10,
             'dataList' => $dataList,
             'query' => $query,
@@ -90,7 +90,7 @@ class ComboPurchaseCtrl extends Controller
         $combos = ProductStyleCombo::comboList($id)->get();
        
         $product = self::product_data($style->product_id);
-        return view('cms.commodity.comboPurchase.edit', [
+        return view('cms.commodity.combo_purchase.edit', [
             'product' => $product,
             'style' => $style,
             'combos' => $combos,
