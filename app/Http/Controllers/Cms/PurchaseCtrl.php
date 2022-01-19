@@ -310,7 +310,7 @@ class PurchaseCtrl extends Controller
     {
         //判斷若有入庫、付款單 則不可刪除
         $returnMsg = [];
-        $inbounds = PurchaseInbound::inboundList($id);
+        $inbounds = PurchaseInbound::inboundList($id)->get()->toArray();
         $payingOrderList = PayingOrders::getPayingOrdersWithPurchaseID($id)->get();
         if (null != $inbounds && 0 < count($inbounds) && 0 >= count($payingOrderList)) {
             Purchase::del($id, $request->user()->id, $request->user()->name);
