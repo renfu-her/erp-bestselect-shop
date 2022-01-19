@@ -1,6 +1,6 @@
 <?php
 
-namespace App\View\Components\product;
+namespace App\View\Components\Navbar;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\View\Component;
@@ -26,7 +26,7 @@ class ProductNavi extends Component
     public function render()
     {
         $route_name = explode('.', Route::getCurrentRoute()->getName())[2];
-        return view('components.product.product-navi', [
+        return view('components.navbar.product-navi', [
             'id' => $this->product->id,
             'type' => $this->product->type,
             'route_name' => $route_name,

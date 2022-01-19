@@ -57,8 +57,9 @@ class PurchaseInbound extends Model
                 $purchaseData = DB::table('pcs_purchase as purchase')
                     ->leftJoin('pcs_purchase_inbound as inbound', 'inbound.purchase_id', '=', 'purchase.id')
                     ->select('purchase.close_date as close_date')
+                    ->where('purchase.id', '', $inboundDataGet->purchase_id)
                     ->get()->first();
-                if (null != $purchaseData->close_date) {
+                if (null != $purchaseData && null != $purchaseData->close_date) {
                     return ['success' => 0, 'error_msg' => 'purchase already close, so cant be delete'];
                 }
                 //判斷是否有賣出過 有則不能刪
@@ -195,8 +196,8 @@ class PurchaseInbound extends Model
     public static function inboundList($id) {
         $result = DB::table('pcs_purchase as purchase')
             ->leftJoin('pcs_purchase_inbound as inbound', 'inbound.purchase_id', '=', 'purchase.id')
-            ->whereNull('pcs_purchase.deleted_at')
-            ->where('id', '=', $id);
+            ->whereNull('purchase.deleted_at')
+            ->where('purchase.id', '=', $id);
         return $result;
     }
 }

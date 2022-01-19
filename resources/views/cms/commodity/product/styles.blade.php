@@ -62,53 +62,51 @@
                             </tr>
                         </thead>
                         <tbody class="-appendClone">
-                            @if (count($styles) == 0)
-                                <tr class="-cloneElem d-none">
-                                    <td class="text-center">
-                                        <div class="form-check form-switch form-switch-lg">
-                                            <input class="form-check-input" type="checkbox" name="n_active[]" checked>
-                                        </div>
-                                    </td>
-                                    <td class="text-center">
-                                        <button type="button"
-                                            class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </td>
-                                    <td>
-                                        <input type="text" class="form-control form-control-sm -l" value="" aria-label="SKU"
-                                            readonly />
-                                    </td>
+                            <tr class="-cloneElem d-none">
+                                <td class="text-center">
+                                    <div class="form-check form-switch form-switch-lg">
+                                        <input class="form-check-input" type="checkbox" name="n_active[]" checked>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <button type="button"
+                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control form-control-sm -l" value="" aria-label="SKU"
+                                        readonly />
+                                </td>
 
-                                    @foreach ($specList as $specKey => $spec)
-                                        <td>
-                                            <select name="n_spec{{ $specKey + 1 }}[]" class="form-select form-select-sm"
-                                                required>
-                                                <option value="" disabled selected>請選擇</option>
-                                                @foreach ($spec->items as $key => $value)
-                                                    <option value="{{ $value->key }}">
-                                                        {{ $value->value }}</option>
-                                                @endforeach
-                                            </select>
-                                        </td>
-                                    @endforeach
-
+                                @foreach ($specList as $specKey => $spec)
                                     <td>
-                                        <a href="#" class="-text -stock">庫存管理</a>
-                                    </td>
-                                    <td>
-                                        <a href="#" class="-text -stock">庫存管理</a>
-                                    </td>
-                                    <td>
-                                        <select name="n_sold_out_event[]" class="form-select form-select-sm">
-                                            <option value="繼續銷售">繼續銷售</option>
-                                            <option value="停止銷售">停止銷售</option>
-                                            <option value="下架">下架</option>
-                                            <option value="預售">預售</option>
+                                        <select name="n_spec{{ $specKey + 1 }}[]" class="form-select form-select-sm"
+                                            required>
+                                            <option value="" disabled selected>請選擇</option>
+                                            @foreach ($spec->items as $key => $value)
+                                                <option value="{{ $value->key }}">
+                                                    {{ $value->value }}</option>
+                                            @endforeach
                                         </select>
                                     </td>
-                                </tr>
-                            @endif
+                                @endforeach
+
+                                <td>
+                                    <a href="#" class="-text -stock">庫存管理</a>
+                                </td>
+                                <td>
+                                    <a href="#" class="-text -stock">庫存管理</a>
+                                </td>
+                                <td>
+                                    <select name="n_sold_out_event[]" class="form-select form-select-sm">
+                                        <option value="繼續銷售" selected>繼續銷售</option>
+                                        <option value="停止銷售">停止銷售</option>
+                                        <option value="下架">下架</option>
+                                        <option value="預售">預售</option>
+                                    </select>
+                                </td>
+                            </tr>
                             @foreach ($styles as $styleKey => $style)
                                 @php
                                     $prefix = $style['sku'] ? 'sk_' : 'nsk_';
@@ -135,22 +133,27 @@
 
                                     @foreach ($specList as $specKey => $spec)
                                         <td>
-                                            <select name="{{ $prefix }}spec{{ $specKey + 1 }}[]" class="form-select form-select-sm" required
-                                                @if (isset($style['sku'])) disabled @endif>
-                                                <option value="" disabled>請選擇</option>
-                                                @foreach ($spec->items as $key => $value)
-                                                    <option value="{{ $value->key }}" @if ($value->key == $style['spec_item' . ($specKey + 1) . '_id']) selected @endif>
-                                                        {{ $value->value }}</option>
-                                                @endforeach
-                                            </select>
+                                            @if (isset($style['sku'])) 
+                                                <div class="form-control form-control-sm" readonly>
+                                                    {{ $style['spec_item' . ($specKey + 1) . '_title'] }}
+                                                </div>
+                                            @else
+                                                <select name="{{ $prefix }}spec{{ $specKey + 1 }}[]" class="form-select form-select-sm" required>
+                                                    <option value="" disabled>請選擇</option>
+                                                    @foreach ($spec->items as $key => $value)
+                                                        <option value="{{ $value->key }}" @if ($value->key == $style['spec_item' . ($specKey + 1) . '_id']) selected @endif>
+                                                            {{ $value->value }}</option>
+                                                    @endforeach
+                                                </select>
+                                            @endif
                                         </td>
                                     @endforeach
 
                                     <td>
-                                        <a href="#" class="-text -stock">{{ $style['in_stock'] }}</a>
+                                        <a href="{{ Route('cms.product.edit-stock', ['id' => $data->id, 'sid' => $style['id']]) }}" class="-text -stock">{{ $style['in_stock'] }}</a>
                                     </td>
                                     <td>
-                                        <a href="#" class="-text -stock">{{ $style['safety_stock'] }}</a>
+                                        <a href="{{ Route('cms.product.edit-stock', ['id' => $data->id, 'sid' => $style['id']]) }}" class="-text -stock">{{ $style['safety_stock'] }}</a>
                                     </td>
                                     <td>
                                         <select name="{{ $prefix }}sold_out_event[]"
@@ -208,17 +211,6 @@
             // 新增一條款式
             function createInitStyle(items) {
                 Clone_bindCloneBtn($clone, function(cloneElem) {
-                    cloneElem.find('input, select').val('');
-                    cloneElem.find('input:hidden[name$="_style_id[]"]').remove();
-                    cloneElem.find('.form-switch input').prop('checked', true);
-                    cloneElem.find('a.-text.-cost').text('採購單');
-                    cloneElem.find('a.-text.-stock').text('庫存管理');
-                    cloneElem.find('select[name$="sold_out_event[]"]').val('繼續銷售');
-                    cloneElem.find('select, .-del').prop('disabled', false);
-                    cloneElem.find('input[name="active_id[]"]').attr('name', 'n_active[]');
-                    cloneElem.find('select[name]').attr('name', function(index, attr) {
-                        return attr.replace(/nsk_|sk_/, 'n_');
-                    });
                     if (items) {
                         cloneElem.find('select[name="n_spec1[]"]').val(items.spec_item1_id);
                         cloneElem.find('select[name="n_spec2[]"]').val(items.spec_item2_id);

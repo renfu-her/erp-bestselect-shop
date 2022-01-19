@@ -48,40 +48,46 @@ class PurchaseItem extends Model
 
     public function checkToUpdatePurchaseItemData($itemId, array $purchaseItemReq, $key, string $changeStr, $operator_user_id, $operator_user_name)
     {
-        $purchaseItem = PurchaseItem::where('id', '=', $itemId)
-            //->select('price', 'num')
-            ->get()->first();
-        $purchaseItem->price = $purchaseItemReq['price'][$key];
-        $purchaseItem->num = $purchaseItemReq['num'][$key];
-        $purchaseItem->memo = $purchaseItemReq['memo'][$key];
-        if ($purchaseItem->isDirty()) {
-            foreach ($purchaseItem->getDirty() as $dirtykey => $dirtyval) {
-                $changeStr .= ' itemID:' . $itemId . ' ' . $dirtykey . ' change to ' . $dirtyval;
-                $event = '';
-                if ($dirtykey == 'price') {
-                    $event = '修改價錢';
-                } else if($dirtykey == 'num') {
-                    $event = '修改數量';
-                } else if($dirtykey == 'memo') {
-                    $event = '修改備註';
+        return DB::transaction(function () use ($itemId, $purchaseItemReq, $key, $changeStr, $operator_user_id, $operator_user_name
+        ) {
+            $purchaseItem = PurchaseItem::where('id', '=', $itemId)
+                //->select('price', 'num')
+                ->get()->first();
+            $purchaseItem->price = $purchaseItemReq['price'][$key];
+            $purchaseItem->num = $purchaseItemReq['num'][$key];
+            $purchaseItem->memo = $purchaseItemReq['memo'][$key];
+            if ($purchaseItem->isDirty()) {
+                foreach ($purchaseItem->getDirty() as $dirtykey => $dirtyval) {
+                    $changeStr .= ' itemID:' . $itemId . ' ' . $dirtykey . ' change to ' . $dirtyval;
+                    $event = '';
+                    if ($dirtykey == 'price') {
+                        $event = '修改價錢';
+                    } else if($dirtykey == 'num') {
+                        $event = '修改數量';
+                    } else if($dirtykey == 'memo') {
+                        $event = '修改備註';
+                    }
+                    PurchaseLog::stockChange($purchaseItem->purchase_id, $purchaseItem->product_style_id, LogFeature::purchase()->value, $itemId, LogFeatureEvent::pcs_style_change_data()->value, $dirtyval, $event, $operator_user_id, $operator_user_name);
                 }
-                PurchaseLog::stockChange($purchaseItem->purchase_id, $purchaseItem->product_style_id, LogFeature::purchase()->value, $itemId, LogFeatureEvent::pcs_style_change_data()->value, $dirtyval, $event, $operator_user_id, $operator_user_name);
+                PurchaseItem::where('id', $itemId)->update([
+                    "price" => $purchaseItemReq['price'][$key],
+                    "num" => $purchaseItemReq['num'][$key],
+                    "memo" => $purchaseItemReq['memo'][$key],
+                ]);
             }
-            PurchaseItem::where('id', $itemId)->update([
-                "price" => $purchaseItemReq['price'][$key],
-                "num" => $purchaseItemReq['num'][$key],
-                "memo" => $purchaseItemReq['memo'][$key],
-            ]);
-        }
-        return $changeStr;
+            return $changeStr;
+        });
     }
 
     public static function deleteItems(array $del_item_id_arr, $operator_user_id, $operator_user_name) {
         if (0 < count($del_item_id_arr)) {
-            PurchaseItem::whereIn('id', $del_item_id_arr)->delete();
-            foreach ($del_item_id_arr as $del_id) {
-                PurchaseLog::stockChange($del_id, null, LogFeature::purchase()->value, $del_id, LogFeatureEvent::pcs_style_del()->value, null, null, $operator_user_id, $operator_user_name);
-            }
+            return DB::transaction(function () use ($del_item_id_arr, $operator_user_id, $operator_user_name
+            ) {
+                PurchaseItem::whereIn('id', $del_item_id_arr)->delete();
+                foreach ($del_item_id_arr as $del_id) {
+                    PurchaseLog::stockChange($del_id, null, LogFeature::purchase()->value, $del_id, LogFeatureEvent::pcs_style_del()->value, null, null, $operator_user_id, $operator_user_name);
+                }
+            });
         }
     }
 
