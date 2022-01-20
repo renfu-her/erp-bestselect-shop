@@ -14,7 +14,7 @@
         <table>
             <thead>
             </thead>
-            <tbody>
+            <tbody id="sortable">
             @foreach ($dataList as $key => $data)
                 <tr>
                     <th scope="row">{{ $key + 1 }}</th>
@@ -41,9 +41,11 @@
             @endforeach
             </tbody>
         </table>
+        @if(isset($dataList) && 0 < count($dataList))
         <div class="col-auto">
-            <button type="submit" class="btn btn-primary px-4">儲存</button>
+            <button type="submit" class="btn btn-primary px-4">儲存排序</button>
         </div>
+        @endif
     </form>
 
     <x-b-modal id="confirm-delete">
@@ -58,6 +60,9 @@
 @once
     @push('sub-scripts')
         <script>
+            $( function() {
+                $( "#sortable" ).sortable();
+            } );
             $('#confirm-delete').on('show.bs.modal', function (e) {
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
             });

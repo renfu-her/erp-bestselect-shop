@@ -16,9 +16,9 @@ class Banner extends Model
 
     protected $path_banner = 'idx_banner/';
 
-    public function storeNewBanner(Request $request)
+    public static function storeNewBanner(Request $request)
     {
-        $this->validInputValue($request);
+        self::validInputValue($request);
         return DB::transaction(function () use ($request
         ) {
             $id = Banner::create([
@@ -48,7 +48,7 @@ class Banner extends Model
         });
     }
 
-    public function validInputValue(Request $request) {
+    public static function validInputValue(Request $request) {
         $request->validate([
             'title' => 'required|string'
             , 'event_type' => 'required|string'
@@ -60,9 +60,9 @@ class Banner extends Model
         ]);
     }
 
-    public function updateBanner(Request $request, int $id)
+    public static function updateBanner(Request $request, int $id)
     {
-        $this->validInputValue($request);
+        self::validInputValue($request);
         return DB::transaction(function () use ($request, $id
         ) {
             $bannerData = Banner::where('id', '=', $id);
@@ -97,9 +97,25 @@ class Banner extends Model
         });
     }
 
-    public function destroyById(int $id)
+    public static function destroyById(int $id)
     {
         Banner::destroy($id);
+    }
+
+    public static function sort(Request $request)
+    {
+        $req_banner_ids = $request->input('banner_id');
+        if (isset($req_banner_ids) && 0 < count($req_banner_ids)) {
+            $banner_ids = implode(',', $req_banner_ids);
+            $condtion = '';
+            foreach ($req_banner_ids as $sort => $id) {
+                $condtion = $condtion. ' when '. $id. ' then '. $sort;
+            }
+            DB::update('update idx_banner set sort = case id'
+                . $condtion
+                . ' end where id in ('. $banner_ids. ')'
+            );
+        }
     }
 
     public static function getList() {

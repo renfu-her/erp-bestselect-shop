@@ -4,14 +4,16 @@ namespace App\Http\Controllers\Cms\Frontend\Homepage;
 
 use App\Http\Controllers\Controller;
 use App\Models\Banner;
+use App\Models\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class BannerCtrl extends Controller
 {
     public function index(Request $request)
     {
         $query = $request->query();
-        $dataList = Banner::getList()->get();
+        $dataList = Banner::getList()->orderBy('sort')->get();
 
         return view('cms.frontend.homepage.banner.list', [
             'dataList' => $dataList
@@ -21,16 +23,30 @@ class BannerCtrl extends Controller
 
     public function sort(Request $request)
     {
-        $query = $request->query();
-        dd($request->all());
+        Banner::sort($request);
+        $req_banner_ids = $request->input('banner_id');
+        if (isset($req_banner_ids) && 0 < count($req_banner_ids)) {
+            $banner_ids = implode(',', $req_banner_ids);
+            $condtion = '';
+            foreach ($req_banner_ids as $sort => $id) {
+                $condtion = $condtion. ' when '. $id. ' then '. $sort;
+            }
+            DB::update('update idx_banner set sort = case id'
+                . $condtion
+                . ' end where id in ('. $banner_ids. ')'
+            );
+        }
+
         wToast(__('Edit finished.'));
-        return redirect(Route('cms.sale_channel.index'));
+        return redirect(Route('cms.homepage.banner.index'));
     }
 
     public function create(Request $request)
     {
+        $collectionList = Collection::all();
         return view('cms.frontend.homepage.banner.edit', [
             'method' => 'create',
+            'collectionList' => Collection::all(),
             'formAction' => Route('cms.homepage.banner.create'),
         ]);
     }
