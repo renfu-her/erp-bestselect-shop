@@ -9,12 +9,7 @@
 
         <div class="card shadow p-4 mb-4">
             <div class="row">
-                <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">橫幅廣告主標題</label>
-                    <input class="form-control" value="{{ old('title', $data->title ?? '') }}" name="title"
-                           type="text" placeholder="請輸入橫幅廣告主標題" aria-label="橫幅廣告主標題">
-                </div>
-                <fieldset class="col-12 col-lg-6 mb-3">
+                <fieldset class="col-12 col-lg-12 mb-3">
                     <legend class="col-form-label p-0 mb-2">顯示橫幅廣告區塊 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline @error('is_public')is-invalid @enderror">
@@ -36,6 +31,12 @@
                         @enderror
                     </div>
                 </fieldset>
+
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">橫幅廣告主標題</label>
+                    <input class="form-control" value="{{ old('title', $data->title ?? '') }}" name="title"
+                           type="text" placeholder="請輸入橫幅廣告主標題" aria-label="橫幅廣告主標題">
+                </div>
 
                 <div id="mediaSettings" class="card shadow p-4 mb-4">
                     <h6>橫幅廣告</h6>
