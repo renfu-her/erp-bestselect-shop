@@ -65,10 +65,13 @@
         });
     }
 
+    window.showWordsLength = showWordsLength;
     /**
      * 顯示字數長度
+     * @param {*} $elems 顯示目標
+     * @param {*} callback 綁定後執行 fn
+     * @example showWordsLength($('input[maxlength],textarea[maxlength]'));
      */
-    window.showWordsLength = showWordsLength;
     function showWordsLength($elems, callback = false) {
         $elems.each(function () {
             let num = $(this).val().length;
@@ -95,10 +98,16 @@
         });
     }
 
-    /** 
-     * bind 拖曳項目
-     */
     window.bindSortableMove = bindSortableMove;
+    /**
+     * 綁定事件: 拖曳項目
+     * @param {*} $elems 拖曳區塊
+     * @param {*} param1 options
+     * @example bindSortableMove($('.sortabled'), {
+     *  axis: 'y',
+     *  placeholder: 'placeholder-highlight mb-2',
+     * });
+     */
     function bindSortableMove($elems, {
         destroy = true,
         axis = false,
@@ -168,15 +177,25 @@
     /** 
      * 圖片上傳
      */
-    // 綁定事件: 選擇圖片
     window.bindReadImageFile = bindReadImageFile;
+    /**
+     * 綁定事件: 選擇圖片
+     * @param {*} $elems upload iamge input
+     * @param {*} param1 options
+     * @example bindReadImageFile($('input'), {
+     *  num: 'single',
+     *  fileInputName: 'logo',
+     *  delFn: function ($that) {}
+     * });
+     */
     function bindReadImageFile($elems, {
         num = 'single',     // 多檔 multiple
-        fileInputName = 'files[]',
-        maxSize = 1,    // 單位 MB
-        delFn = null,
-        moveOpt = {},
-        addImageBoxFn = addImageBox
+        fileInputName = 'files[]',  // saved iamge input's name
+        maxSize = 1,    // (單位 MB) 圖片最大容量
+        delFn = null,   // 刪除圖片 fn
+        movable = true, // 可拖曳排序的 (多檔 only)
+        moveOpt = {},   // 拖曳排序 option (多檔 only)
+        addImageBoxFn = addImageBox    // 新增的 image box fn (多檔 only)
     } = {}) {
         // 支援檔案讀取
         if (window.File && window.FileList && window.FileReader) {
@@ -244,7 +263,7 @@
                         $img_box = $upload_image_block.children('label');
                     } else {
                         // 新增圖Box
-                        $img_box = addImageBoxFn($upload_image_block.children('.sortabled'), delFn, moveOpt);
+                        $img_box = addImageBoxFn($upload_image_block.children('.sortabled'), delFn, movable, moveOpt);
                     }
                     
                     // 存檔案
@@ -346,10 +365,12 @@
     }
 
     // 新增圖Box
-    function addImageBox($upload_bolck, delFn, moveOpt) {
+    function addImageBox($upload_bolck, delFn, movable, moveOpt) {
+        let hideMove = (movable) ? '' : 'hidden';
+
         let $sortabled_box = $('<div class="sortabled_box"></div>');
         let $browser_box = $(`<span class="browser_box box">
-            <span class="icon -move"><i class="bi bi-arrows-move"></i></span>
+            <span class="icon -move" ${hideMove}><i class="bi bi-arrows-move"></i></span>
             <span class="icon -x"><i class="bi bi-x"></i></span>
             <img src="" /></span>`);
         let $progress = $(`<div class="progress" hidden>
@@ -361,13 +382,20 @@
 
         // 綁定事件
         bindImageClose(delFn, $upload_bolck.find('.-x'));
-        bindImageMove($upload_bolck, moveOpt);
-
+        if (movable) {
+            bindSortableMove($upload_bolck, moveOpt);
+        }
+        
         return $sortabled_box;
     }
 
-    // 綁定事件: 刪除圖片
     window.bindImageClose = bindImageClose;
+    /**
+     * 綁定事件: 刪除圖片
+     * @param {*} fn 刪除 fn
+     * @param {*} $target [可略]事件綁定目標
+     * @example bindImageClose(delFn, $('.-x'));
+     */
     function bindImageClose(fn, $target) {
         const $x = $target || $('.browser_box.box .-x');
         $x.off('click').on('click', function(e) {
@@ -378,12 +406,6 @@
                 fn($(this));
             }
         });
-    }
-
-    // 綁定事件: 拖曳排序圖片
-    window.bindImageMove = bindImageMove;
-    function bindImageMove($target, opt) {
-        bindSortableMove($target, opt);
     }
 
 })();

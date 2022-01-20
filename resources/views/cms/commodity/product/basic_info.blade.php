@@ -14,14 +14,18 @@
             <fieldset class="col-12 col-lg-6 mb-3">
                 <div class="px-1 pt-1">
                     <div class="form-check form-check-inline @error('type')is-invalid @enderror">
-                        <input class="form-check-input @error('type')is-invalid @enderror" name="type" value="p" type="radio"
-                            @if ($method == 'edit') disabled @endif id="type_1" required @if (old('type', $product->type ?? 'p') == 'p') checked @endif>
-                        <label class="form-check-label" for="type_1">一般商品</label>
+                        <label class="form-check-label">
+                            <input class="form-check-input @error('type')is-invalid @enderror" name="type" value="p" type="radio"
+                            @if ($method == 'edit') disabled @endif required @if (old('type', $product->type ?? 'p') == 'p') checked @endif>
+                            一般商品
+                        </label>
                     </div>
                     <div class="form-check form-check-inline @error('type')is-invalid @enderror">
-                        <input class="form-check-input @error('type')is-invalid @enderror" name="type" value="c" type="radio"
+                        <label class="form-check-label" for="type_2">
+                            <input class="form-check-input @error('type')is-invalid @enderror" name="type" value="c" type="radio"
                             @if ($method == 'edit') disabled @endif id="type_2" required @if (old('type', $product->type ?? '') == 'c') checked @endif>
-                        <label class="form-check-label" for="type_2">組合包商品</label>
+                            組合包商品
+                        </label>
                     </div>
                     @error('type')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -164,7 +168,7 @@
                     <div class="sortabled_box" hidden>
                         <!-- /* 預覽圖 */ -->
                         <span class="browser_box box">
-                            <span class="icon -move"><i class="bi bi-arrows-move"></i></span>
+                            <span class="icon -move" hidden><i class="bi bi-arrows-move"></i></span>
                             <span class="icon -x"><i class="bi bi-x"></i></span>
                             <img src="" />
                         </span>
@@ -173,7 +177,7 @@
                             <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
                                 aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width: 1%"></div>
                         </div>
-                        <input type="file" name="files[]" accept=".jpg,.jpeg,.png,.gif,.svg" multiple hidden>
+                        <input type="file" name="files[]" accept=".jpg,.jpeg,.png,.gif" multiple hidden>
                     </div>
                     <!-- 新增圖Box end -->
 
@@ -182,7 +186,7 @@
                         <div class="sortabled_box" data-id="{{ $image->id }}">
                             <!-- /* 預覽圖 */ -->
                             <span class="browser_box box">
-                                <span class="icon -move"><i class="bi bi-arrows-move"></i></span>
+                                <span class="icon -move" hidden><i class="bi bi-arrows-move"></i></span>
                                 <span class="icon -x"><i class="bi bi-x"></i></span>
                                 <img src="{{ asset($image->url) }}" />
                             </span>
@@ -195,10 +199,10 @@
                     @endforeach
                     <!-- 按鈕 -->
                     <label for="product_img_add">
-                        <span class="browser_box">
+                        <span class="browser_box -plusBtn">
                             <i class="bi bi-plus-circle text-secondary fs-4"></i>
                         </span>
-                        <input type="file" id="product_img_add" accept=".jpg,.jpeg,.png,.gif,.svg" multiple hidden>
+                        <input type="file" id="product_img_add" accept=".jpg,.jpeg,.png,.gif" multiple hidden>
                     </label>
                 </div>
             </div>
@@ -235,206 +239,32 @@
             $('#mediaSettings .upload_image_block > .sortabled > .sortabled_box[hidden]').remove();
 
             // 綁定事件 init
-            bindReadImageFiles();
-            bindImageClose();
-            bindImageMove();
-            // 綁定事件: 選擇圖片
-            function bindReadImageFiles() {
-                // 支援檔案讀取
-                if (window.File && window.FileList && window.FileReader) {
-                    $('#mediaSettings .upload_image_block label #product_img_add')
-                        .off('change')
-                        .on('change', function() {
-                            readerFiles(this.files);
-                        });
-
-                    // 拖曳上傳
-                    bindDropFiles();
-                } else {
-                    console.log('該瀏覽器不支援檔案上傳');
+            let moveOpt = {
+                update: function() {
+                    $('.upload_image_block .sortabled > label').appendTo('.upload_image_block .sortabled');
                 }
-            }
+            };
 
-            // 拖曳防止轉頁 drag 拖 | drop 放
-            $('html').on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
+            bindReadImageFile($('#mediaSettings .upload_image_block label #product_img_add'), {
+                num: 'multiple',
+                fileInputName: 'files[]',
+                delFn: delImage,
+                movable: false,    // 暫時無法排序
+                moveOpt: moveOpt
             });
+            bindImageClose(delImage);
+            bindSortableMove($('#mediaSettings .upload_image_block > .sortabled'), moveOpt);
 
-            // 綁定事件: 拖曳上傳
-            function bindDropFiles() {
-                // 拖曳進 / 拖曳至上方
-                $('#mediaSettings .upload_image_block')
-                    .off('dragenter dragover')
-                    .on('dragenter dragover', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        $(this).addClass('is-dragover');
-                    });
-
-                // 拖曳出 / 放下
-                $('#mediaSettings .upload_image_block')
-                    .off('dragleave dragend drop.addClass')
-                    .on('dragleave dragend drop.addClass', function(e) {
-                        $(this).removeClass('is-dragover');
-                    });
-
-                // 放下
-                $('#mediaSettings .upload_image_block')
-                    .off('drop.readFile')
-                    .on('drop.readFile', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        const files = e.originalEvent.dataTransfer.files;
-                        readerFiles(files);
-                    });
-            }
-
-            // 讀檔案
-            function readerFiles(files) {
-                if (files) {
-                    let alertMsg = '';
-                    for (let i = 0; i < files.length; i++) {
-                        const ff = files[i];
-
-                        /*** 檢查寫這裡 ***/
-                        if (!decideTypeOfImage(ff.type) || !decideSizeOfImage(ff.size)) {
-                            alertMsg += '檔案[' + ff.name + ']不符合規定\n';
-                            continue;
-                        }
-
-                        /*** 先上傳的話 以下就不用做 (顯示預覽圖) ***/
-                        // 新增圖Box
-                        let $new_box = addProductImageBox('#mediaSettings .upload_image_block > .sortabled');
-                        let $progress = $new_box.children('.progress');
-                        let img = $new_box.find('img')[0];
-                        let input = $new_box.find('input[name="files[]"]')[0];
-
-                        // 存檔案
-                        let tempFile = new DataTransfer();
-                        tempFile.items.add(ff);
-                        input.files = tempFile.files;
-
-                        const reader = new FileReader();
-                        // 開始載入檔案
-                        reader.onloadstart = (function(progress) {
-                            return function(e) {
-                                progress.children('.progress-bar').attr('aria-valuenow', 1);
-                                progress.children('.progress-bar').css('width', '1%');
-                                progress.prop('hidden', false);
-                            }
-                        })($progress);
-                        // 載入中
-                        reader.onprogress = (function(progress) {
-                            return function(e) {
-                                if (e.lengthComputable) {
-                                    const percentLoaded = Math.round((e.loaded / e.total) * 100);
-                                    // console.log(percentLoaded);
-                                    if (percentLoaded <= 100) {
-                                        progress.children('.progress-bar').attr('aria-valuenow', percentLoaded);
-                                        progress.children('.progress-bar').css('width', percentLoaded + '%');
-                                    }
-                                }
-                            }
-                        })($progress);
-                        // 載入成功
-                        reader.onload = (function(aImg, aBox, file) {
-                            return function(e) {
-                                aImg.src = e.target.result;
-                                aImg.file = file;
-                            };
-                        })(img, $new_box, ff);
-                        // 載入完成
-                        reader.onloadend = (function(progress) {
-                            return function(e) {
-                                setTimeout(function() {
-                                    progress.prop('hidden', true);
-                                }, 200);
-                            }
-                        })($progress);
-
-                        reader.readAsDataURL(ff);
-                        /*** 先上傳的話 以上就不用做 ***/
-                    }
-
-                    if (alertMsg) {
-                        alert(alertMsg);
-                    }
+            function delImage($that) {
+                const id = $that.closest('.sortabled_box').attr('data-id');
+                console.log(id);
+                if (id) {
+                    del_image.push(id);
+                    $('input[name="del_image"]').val(del_image.toString());
                 }
+                $that.closest('.sortabled_box').remove();
             }
 
-            // 新增圖Box
-            function addProductImageBox(upload_bolck) {
-                let $sortabled_box = $('<div class="sortabled_box"></div>');
-                let $browser_box = $('<span class="browser_box box">' +
-                    '<span class="icon -move"><i class="bi bi-arrows-move"></i></span>' +
-                    '<span class="icon -x"><i class="bi bi-x"></i></span>' +
-                    '<img src="" /></span>');
-                let $progress = $('<div class="progress" hidden>' +
-                    '<div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width: 1%"></div>' +
-                    '</div>');
-                let $file_input = $('<input type="file" name="files[]" accept=".jpg,.jpeg,.png,.gif,.svg" multiple hidden>');
-                $sortabled_box.append([$browser_box, $progress, $file_input]);
-                $(upload_bolck).prepend($sortabled_box);
-
-                // 綁定事件
-                bindImageClose();
-                bindImageMove();
-
-                return $sortabled_box;
-            }
-
-            // 綁定事件: 刪除圖片
-            function bindImageClose() {
-                $('.browser_box.box .-x')
-                    .off('click')
-                    .on('click', function(e) {
-                        e.stopPropagation();
-                        e.preventDefault();
-
-                        const id = $(this).closest('.sortabled_box').attr('data-id');
-                        console.log(id);
-                        if (id) {
-                            del_image.push(id);
-                            $('input[name="del_image"]').val(del_image.toString());
-                        }
-                        $(this).closest('.sortabled_box').remove();
-                    });
-            }
-            // 綁定事件: 拖曳排序圖片 #mediaSettings
-            function bindImageMove() {
-                bindSortableMove($('#mediaSettings .upload_image_block .sortabled'), {
-                    update: function() {
-                        $('.upload_image_block .sortabled > label').appendTo('.upload_image_block .sortabled');
-                    }
-                });
-            }
-
-            // 判斷檔案類型
-            function decideTypeOfImage(type) {
-                // console.log('檔案類型: ' + type);
-                switch (type) {
-                    case "image/jpg":
-                    case "image/jpeg":
-                    case "image/gif":
-                    case "image/png":
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-            // 判斷檔案大小
-            function decideSizeOfImage(size) {
-                // console.log('檔案 size: ' + size);
-                let MAX_SIZE = 1024 * 1024;
-                return (size <= MAX_SIZE);
-            }
-            // 判斷圖片尺寸
-            function decideAreaOfImage(w, h) {
-                // console.log('檔案 W*H: ' + w + ' * ' + h);
-                return (w <= 1000) && (h <= 1000);
-            }
         </script>
     @endpush
 @endOnce
