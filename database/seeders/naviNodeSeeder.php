@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\Collection;
 use App\Models\NaviNode;
 use Illuminate\Database\Seeder;
-use App\Models\Collection;
+
 class naviNodeSeeder extends Seeder
 {
     /**
@@ -16,9 +17,8 @@ class naviNodeSeeder extends Seeder
     {
         //
 
-      //  $collection->storeCollectionData('testbbb2aa2','url-abbsbbs22','aaaa','bbbbb','y',[]);
-        
-        /*
+        $collection->storeCollectionData('testbbb2aa2', 'url-abbsbbs22', 'aaaa', 'bbbbb', 'y', []);
+
         $re = NaviNode::createNode(0, 'level1-a', null, null, 1);
 
         if ($re['success']) {
@@ -31,8 +31,8 @@ class naviNodeSeeder extends Seeder
                 NaviNode::createNode($reb['id'], 'level3-c');
             }
         }
-*/
-        $re = NaviNode::createNode(0, 'level1-b','aaa',1);
+
+        $re = NaviNode::createNode(0, 'level1-b', 'aaa', 1);
 
     }
 }

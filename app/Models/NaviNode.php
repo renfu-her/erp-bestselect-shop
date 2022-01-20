@@ -14,6 +14,58 @@ class NaviNode extends Model
 
     public $timestamps = false;
 
+    public static function nodeList($parent_id)
+    {
+        return DB::table('idx_navi_node as node')
+            ->select(
+                'node.id as id',
+                'node.title as node_title',
+                'node.url as url',
+                'node.sort as sort',
+                'node.level as level',
+                'node.has_child as has_child',
+                'col.name as group_title')
+            ->leftJoin('collection as col', 'node.group_id', '=', 'col.id')
+            ->where('node.parent_id', $parent_id)
+            ->orderBy('node.sort');
+    }
+
+    public static function forBreadcrumb($level)
+    {
+        $arrLevel = explode('-', $level);
+
+        $re = DB::table("idx_navi_node as lv0")->where('lv0.id', end($arrLevel))
+            ->select('lv0.title as lv0_title', 'lv0.id as lv0_id');
+        for ($i = 1; $i < count($arrLevel) - 1; $i++) {
+            $re->leftJoin("idx_navi_node as lv" . ($i), 'lv' . ($i - 1) . '.parent_id', '=', 'lv' . ($i) . '.id')
+                ->addSelect("lv$i.title as lv{$i}_title")
+                ->addSelect("lv$i.id as lv{$i}_id");
+        }
+
+        $re = $re->get()->first();
+        /*
+        $b[] = [
+            'id' => '0',
+            'title' => '列表',
+            'path' => '0',
+        ];
+        */
+        $b=[];
+        $path = '';
+        for ($i = count($arrLevel) - 2; $i >= 0; $i--) {
+            // dd($i);
+            $path = $path . "-" . $re->{"lv{$i}_id"};
+            $b[] = [
+                'id' => $re->{"lv{$i}_id"},
+                'title' => $re->{"lv{$i}_title"},
+                'path' => '0' . $path,
+            ];
+
+        }
+     
+        return $b;
+    }
+
     public static function createNode($parent_id, $title, $url = null, $group_id = null, $has_child = 0, $type = "url", $target = "_self")
     {
         $data = ['title' => $title,
@@ -24,9 +76,9 @@ class NaviNode extends Model
             'has_child' => $has_child,
             'target' => $target,
         ];
-        
+
         if ($group_id) {
-            $gData = Collection::where('id', $group_id)->select('url')->get()->first();    
+            $gData = Collection::where('id', $group_id)->select('url')->get()->first();
             if (!$gData) {
                 return ['success' => 0, 'error_msg' => "群組ID無效"];
             }

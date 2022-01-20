@@ -13,12 +13,28 @@ class NaviNodeCtrl extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request, $level = 0)
     {
-        //
+        $parent_id = 0;
+        $prev = null;
+        if ($level) {
+            $match = [];
+            preg_match("/-(\d{1,})$/", $level, $match);
 
-       dd(NaviNode::tree());
+            if (!isset($match[1])) {
+                return abort(404);
+            }
+            $parent_id = $match[1];
+            $prev = preg_replace("/-(\d{1,})$/", "", $level);
+        }
 
+        return view('cms.frontend.navinode.list', [
+            'dataList' => NaviNode::nodeList($parent_id)->get()->toArray(),
+            'level' => $level,
+            'prev' => $prev,
+            'breadcrumb_data' => NaviNode::forBreadcrumb($level),
+        ],
+        );
     }
 
     /**
