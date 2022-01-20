@@ -2,7 +2,7 @@
 <ul class="nav pm_navbar" role="tablist">
     <li class="nav-item">
         <a href="{{ Route('cms.homepage.navbar.index') }}"
-            class="nav-link {{ isActive('navbar', $route_name) }}">導覽列Navbar</a>
+            class="nav-link {{ isActive('navbar', $route_name) }}">導覽列</a>
     </li>
     <li class="nav-item">
         <a href="{{ Route('cms.homepage.banner.index') }}"

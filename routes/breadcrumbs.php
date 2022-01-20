@@ -225,10 +225,20 @@ Breadcrumbs::for('cms.shipment.edit', function ($trail) {
 
 /** 官網設定 */
 
-//首頁設定
-Breadcrumbs::for('cms.homepage.index', function ($trail) {
+//首頁設定-導覽列
+Breadcrumbs::for('cms.homepage.navbar.index', function ($trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('首頁設定', route('cms.homepage.index'));
+    $trail->push('首頁設定-導覽列', route('cms.homepage.navbar.index'));
+});
+//首頁設定-橫幅廣告
+Breadcrumbs::for('cms.homepage.banner.index', function ($trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('首頁設定-橫幅廣告', route('cms.homepage.banner.index'));
+});
+//首頁設定-版型
+Breadcrumbs::for('cms.homepage.template.index', function ($trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('首頁設定-版型', route('cms.homepage.template.index'));
 });
 
 //商品群組

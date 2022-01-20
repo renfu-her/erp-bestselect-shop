@@ -11,7 +11,7 @@ class TemplateCtrl extends Controller
     {
         $query = $request->query();
 
-        return view('cms.frontend.homepage.template', [
+        return view('cms.frontend.homepage.template.index', [
         ]);
     }
 }
