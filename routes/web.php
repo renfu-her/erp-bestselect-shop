@@ -45,5 +45,7 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/Depot.php');
     require base_path('routes/cms/Spec.php');
     require base_path('routes/cms/Stock.php');
+    require base_path('routes/cms/NaviNode.php');
+
 
 });
