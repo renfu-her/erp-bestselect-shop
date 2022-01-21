@@ -58,6 +58,21 @@ class Product extends Model
         return $re;
     }
 
+    /**
+     * @param string $title 商品名稱
+     * @param int $user_id
+     * @param int $category_id
+     * @param string $type 商品類別 p:商品 c:組合包
+     * @param string $feature 商品簡述
+     * @param $url
+     * @param string $slogan 商品標語
+     * @param $active_sdate
+     * @param $active_edate
+     * @param $supplier
+     * @param int $has_tax 應稅免稅
+     *
+     * @return string[]
+     */
     public static function createProduct($title, $user_id, $category_id, $type = 'p', $feature = null, $url = null, $slogan = null, $active_sdate = null, $active_edate = null, $supplier = null, $has_tax = 0)
     {
         return DB::transaction(function () use ($title,

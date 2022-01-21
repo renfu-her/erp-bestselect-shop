@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * 處理「規格」的名稱 Model
+ */
 class ProductSpec extends Model
 {
     use HasFactory, SoftDeletes;
