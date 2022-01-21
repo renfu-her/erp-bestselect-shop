@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\Purchase\BannerEventType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class Banner extends Model
 {
@@ -18,7 +20,7 @@ class Banner extends Model
 
     public static function storeNewBanner(Request $request)
     {
-        self::validInputValue($request);
+        $request = self::validInputValue($request);
         return DB::transaction(function () use ($request
         ) {
             $id = Banner::create([
@@ -52,17 +54,39 @@ class Banner extends Model
         $request->validate([
             'title' => 'required|string'
             , 'event_type' => 'required|string'
-            , 'event_id' => 'required_without:event_url|numeric'
-            , 'event_url' => 'required_without:event_id|string'
+//            , 'event_id' => 'required_without:event_url|numeric'
+//            , 'event_url' => 'required_without:event_id|string'
             , 'img_pc' => 'required|nullable|image'
             , 'img_phone' => 'required|nullable|image'
             , 'is_public' => 'required|numeric'
         ]);
+
+        $event_type = $request->input('event_type');
+        $event_id = $request->input('event_id');
+        $event_url = $request->input('event_url');
+        if (!BannerEventType::hasKey($event_type)) {
+            throw ValidationException::withMessages(['event error' => '未選擇類型']);
+        }
+        if (BannerEventType::none()->value == $event_type) {
+            $request->merge(['event_id' => null]);
+            $request->merge(['event_url' => null]);
+        } else if (BannerEventType::group()->value == $event_type) {
+            $request->merge(['event_url' => null]);
+            if (null == $event_id) {
+                throw ValidationException::withMessages(['event error' => '類型為群組，但未選擇群組']);
+            }
+        } else if (BannerEventType::url()->value == $event_type) {
+            $request->merge(['event_id' => null]);
+            if (null == $event_url) {
+                throw ValidationException::withMessages(['event error' => '類型為連結，但未輸入連結']);
+            }
+        }
+        return $request;
     }
 
     public static function updateBanner(Request $request, int $id)
     {
-        self::validInputValue($request);
+        $request = self::validInputValue($request);
         return DB::transaction(function () use ($request, $id
         ) {
             $bannerData = Banner::where('id', '=', $id);
