@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Enums\Purchase;
+namespace App\Enums\Homepage;
 
 use BenSampo\Enum\Enum;
 

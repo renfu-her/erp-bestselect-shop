@@ -46,16 +46,16 @@
                     <div class="form-check form-check-inline @error('event_type')is-invalid @enderror">
                         <label class="form-check-label">
                             <input class="form-check-input @error('event_type')is-invalid @enderror" name="event_type"
-                                value="group" type="radio" required
-                                @if (old('event_type', $data->event_type ?? '1') == '1') checked @endif>
+                                value="{{App\Enums\Homepage\BannerEventType::group()->key}}" type="radio" required
+                                @if (old('event_type', $data->event_type ?? '') == App\Enums\Homepage\BannerEventType::group()->key) checked @endif>
                             群組
                         </label>
                     </div>
                     <div class="form-check form-check-inline @error('event_type')is-invalid @enderror">
                         <label class="form-check-label">
                             <input class="form-check-input @error('event_type')is-invalid @enderror" name="event_type"
-                                value="url" type="radio" required
-                                @if (old('event_type', $data->event_type ?? '') == '0') checked @endif>
+                                value="{{App\Enums\Homepage\BannerEventType::url()->key}}" type="radio" required
+                                @if (old('event_type', $data->event_type ?? '') == App\Enums\Homepage\BannerEventType::url()->key) checked @endif>
                             連結
                         </label>
                     </div>
@@ -65,34 +65,39 @@
                 </div>
             </fieldset>
             <div class="col-12 col-sm-6 mb-3">
-                <div class="event_type -group">
+                <div class="event_type -group"
+                     @if (old('event_type', $data->event_type ?? '') != App\Enums\Homepage\BannerEventType::group()->key) hidden @endif>
                     <label class="form-label">橫幅廣告群組 <span class="text-danger">*</span></label>
                     {{-- @if ($event_type === 'group') <select> 加 required @else 加 disabled --}}
-                    <select name="event_id" class="form-select" required>
-                        <option value="" selected disabled>請選擇</option>
-                        <option value="1">item 1</option>
-                        <option value="2">item 2</option>
-                        <option value="3">item 3</option>
+                    <select name="event_id" class="form-select"
+                            @if (old('event_type', $data->event_type ?? '') == App\Enums\Homepage\BannerEventType::group()->key) required @else disabled @endif>
+                        <option value="" @if('' == old('event_id', $data->event_id ?? '')) selected @endif disabled>請選擇</option>
+                        @foreach($collectionList as $key => $collection)
+                            <option value="{{$collection->id}}" @if($collection->id = old('event_id', $data->event_id ?? '')) selected @endif>{{$collection->name}}</option>
+                        @endforeach
                     </select>
                 </div>
-                <div class="event_type -url" hidden>
+                <div class="event_type -url"
+                     @if (old('event_type', $data->event_type ?? '') != App\Enums\Homepage\BannerEventType::url()->key) hidden @endif>
                     <label class="form-label">橫幅廣告連結 <span class="text-danger">*</span></label>
                     {{-- @if ($event_type === 'url') <input> 加 required @else 加 disabled --}}
-                    <input type="url" name="event_url" class="form-control" placeholder="請輸入連結" disabled>
+                    <input type="url" name="event_url" class="form-control" placeholder="請輸入連結"
+                           value="{{old('event_type', $data->event_url ?? '')}}"
+                           @if (old('event_type', $data->event_type ?? '') == App\Enums\Homepage\BannerEventType::url()->key) required @else disabled @endif>
                 </div>
             </div>
             <div class="col-12 mb-3">
-                <label class="form-label">橫幅廣告圖片（可將檔案拖拉至框中上傳）</label>
+                <label class="form-label">橫幅廣告圖片（可將檔案拖拉至框中上傳</label>
                 <div class="upload_image_block">
                     <label>
                         <!-- 按鈕 -->
-                        <span class="browser_box -plusBtn">
+                        <span class="browser_box -plusBtn" @if(isset($data->img_pc)) hidden @endif>
                             <i class="bi bi-plus-circle text-secondary fs-4"></i>
                         </span>
                         <!-- 預覽圖 -->
-                        <span class="browser_box box" hidden>
+                        <span class="browser_box box" @if(false == isset($data->img_pc)) hidden @endif>
                             <span class="icon -x"><i class="bi bi-x"></i></span>
-                            <img src="" />
+                            <img src="@if(true == isset($data->img_pc)) {{asset($data->img_pc)}} @endif" />
                         </span>
                         <!-- 進度條 -->
                         <div class="progress" hidden>
@@ -108,6 +113,9 @@
                 @enderror
             </div>
         </div>
+        @if($errors->any())
+            {{ implode('', $errors->all('<div>:message</div>')) }}
+        @endif
     </div>
 
     <div class="col-auto">

@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enums\Purchase\BannerEventType;
+use App\Enums\Homepage\BannerEventType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -16,7 +16,7 @@ class Banner extends Model
     protected $table = 'idx_banner';
     protected $guarded = [];
 
-    protected $path_banner = 'idx_banner/';
+    protected static $path_banner = 'idx_banner/';
 
     public static function storeNewBanner(Request $request)
     {
@@ -33,12 +33,12 @@ class Banner extends Model
 
             $imgData_Pc = null;
             if ($request->hasfile('img_pc')) {
-                $imgData_Pc = $request->file('img_pc')->store($this->path_banner.$id);
+                $imgData_Pc = $request->file('img_pc')->store(self::$path_banner.$id);
             }
 
             $imgData_Phone = null;
             if ($request->hasfile('img_phone')) {
-                $imgData_Phone = $request->file('img_phone')->store($this->path_banner.$id);
+                $imgData_Phone = $request->file('img_phone')->store(self::$path_banner.$id);
             }
             Banner::where('id', '=', $id)
                 ->update([
@@ -56,8 +56,8 @@ class Banner extends Model
             , 'event_type' => 'required|string'
 //            , 'event_id' => 'required_without:event_url|numeric'
 //            , 'event_url' => 'required_without:event_id|string'
-            , 'img_pc' => 'required|nullable|image'
-            , 'img_phone' => 'required|nullable|image'
+            , 'img_pc' => 'max:10000|mimes:jpg,jpeg,png,bmp'
+            , 'img_phone' => 'max:10000|mimes:jpg,jpeg,png,bmp'
             , 'is_public' => 'required|numeric'
         ]);
 
@@ -97,28 +97,38 @@ class Banner extends Model
 
                 $imgData_Pc = null;
                 if ($request->has('img_pc')) {
-                    $imgData_Pc = $request->file('img_pc')->store($this->path_banner.$id);
+                    $imgData_Pc = $request->file('img_pc')->store(Banner::$path_banner.$id);
                 }
 
                 $imgData_Phone = null;
                 if ($request->hasfile('img_phone')) {
-                    $imgData_Phone = $request->file('img_phone')->store($this->path_banner.$id);
+                    $imgData_Phone = $request->file('img_phone')->store(Banner::$path_banner.$id);
                 }
 
+                $updateData = [
+                    'title' => $request->input('title')
+                    , 'event_type' => $request->input('event_type')
+                    , 'event_id' => $request->input('event_id')
+                    , 'is_public' => $request->input('is_public')
+                ];
+                $updateData = Banner::setValueToArr($updateData, 'event_url', $request->input('event_url'));
+                $updateData = Banner::setValueToArr($updateData, 'img_pc', $request->input('img_pc'));
+                $updateData = Banner::setValueToArr($updateData, 'img_phone', $request->input('img_phone'));
+
                 Banner::where('id', '=', $id)
-                    ->update([
-                        'title' => $request->input('title')
-                        , 'event_type' => $request->input('event_type')
-                        , 'event_id' => $request->input('event_id')
-                        , 'event_url' => $request->input('event_url')
-                        , 'img_pc' => $imgData_Pc
-                        , 'img_phone' => $imgData_Phone
-                        , 'is_public' => $request->input('is_public')
-                    ]);
+                    ->update($updateData);
             }
 
             return $id;
         });
+    }
+
+    private static function setValueToArr($data, $key, $value) {
+        //if (null != $data && null != $key && null != $value)
+        {
+            $data[$key] = $value;
+        }
+        return $data;
     }
 
     public static function destroyById(int $id)

@@ -56,7 +56,7 @@ class BannerCtrl extends Controller
         $query = $request->query();
         $bannerID = Banner::storeNewBanner($request);
         wToast(__('Add finished.'));
-        return redirect(Route('cms.homepage.banner.create', [
+        return redirect(Route('cms.homepage.banner.edit', [
             'id' => $bannerID,
             'query' => $query,
         ]));
@@ -73,6 +73,7 @@ class BannerCtrl extends Controller
             'id' => $id,
             'data' => $data,
             'method' => 'edit',
+            'collectionList' => Collection::all(),
             'formAction' => Route('cms.homepage.banner.edit', ['id' => $id]),
             'breadcrumb_data' => $id,
         ]);
