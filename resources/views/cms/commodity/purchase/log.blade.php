@@ -15,13 +15,20 @@
                 </tr>
                 </thead>
                 <tbody>
-                {{-- @foreach () --}}
-                    <tr>
-                        <td>2021-11-17 10:45:00</td>
-                        <td>新增採購清單【日本愛華】輕巧便攜藍芽喇叭（黑/紅）AB-T3</td>
-                        <td>施欽元</td>
-                    </tr>
-                {{-- @endforeach --}}
+                 @foreach ($purchaseLog as $key =>$data)
+                     <tr>
+                         <td>{{$data->created_at}}</td>
+                         <td>{{App\Enums\Purchase\LogFeatureEvent::getDescription($data->event)}}
+                             @if($data->feature == App\Enums\Purchase\LogFeature::style()->key)
+                                 {{$data->title}}
+                             @endif
+                             @if($data->feature == App\Enums\Purchase\LogFeature::inbound()->key)
+                                 {{$data->title}} 數量:{{$data->qty}}
+                             @endif
+                         </td>
+                         <td>{{$data->user_name}}</td>
+                     </tr>
+                 @endforeach
                 </tbody>
             </table>
         </div>
