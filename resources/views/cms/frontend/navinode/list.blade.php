@@ -40,7 +40,7 @@
                             <td>@if ($data->has_child == 0) 單 @else 多階 @endif</td>
                             <td><input type="number" name="" value="{{ $data->sort }}"></td>
                             <td class="text-center">
-                                <a href="{{ Route('cms.product.edit', ['id' => $data->id], true) }}"
+                                <a href="{{ Route('cms.navinode.edit', ['level' => $level, 'id' => $data->id]) }}"
                                     data-bs-toggle="tooltip" title="編輯"
                                     class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-pencil-square"></i>
@@ -48,7 +48,7 @@
                             </td>
                             <td>
                                 @if ($data->has_child == 1)
-                                    <a href="{{ Route('cms.navinode.index', ['level' => $level . '-' . $data->id], true) }}"
+                                    <a href="{{ Route('cms.navinode.index', ['level' => $level . '-' . $data->id]) }}"
                                         data-bs-toggle="tooltip" title="編輯"
                                         class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                         <i class="bi bi-diagram-2"></i>

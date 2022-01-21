@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Cms\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Collection;
 use App\Models\NaviNode;
 use Illuminate\Http\Request;
 
@@ -75,9 +76,21 @@ class NaviNodeCtrl extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Request $request, Collection $collection, $level = 0, $id)
     {
-        //
+        $data = NaviNode::where('id', $id)->get()->first();
+
+        if (!$data) {
+            return abort(404);
+        }
+
+        return view('cms.frontend.navinode.edit', [
+            'data' => $data,
+            'method' => 'edit',
+            'formAction' => Route('cms.navinode.edit', ['level' => $level, 'id' => $id]),
+            'collections' => $collection->get()->toArray(),
+            'breadcrumb_data' => ['level' => NaviNode::forBreadcrumb($level), 'title' => $data->title],
+        ]);
     }
 
     /**

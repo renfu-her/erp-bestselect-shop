@@ -301,3 +301,10 @@ Breadcrumbs::for('cms.navinode.index', function ($trail, $value) {
         $trail->push($v['title'], route('cms.navinode.index', ['level' => $v['path']]));
     }
 });
+
+Breadcrumbs::for('cms.navinode.edit', function ($trail, $value) {
+    $trail->parent('cms.dashboard');
+    $trail->push('選單設定', route('cms.navinode.index'), $value['level']);
+    $trail->push($value['title']);
+    $trail->push('編輯');
+});
