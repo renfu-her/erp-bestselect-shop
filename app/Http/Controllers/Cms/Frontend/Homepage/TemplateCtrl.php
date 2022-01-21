@@ -11,7 +11,37 @@ class TemplateCtrl extends Controller
     {
         $query = $request->query();
 
-        return view('cms.frontend.homepage.template.index', [
+        return view('cms.frontend.homepage.template.list', [
+            'dataList' => [],
+            'formAction' => Route('cms.homepage.template.sort')
         ]);
+    }
+
+    public function sort(Request $request)
+    {
+        // 
+    }
+
+    public function create(Request $request)
+    {
+        return view('cms.frontend.homepage.template.edit', [
+            'method' => 'create',
+            'formAction' => Route('cms.homepage.template.create'),
+        ]);
+    }
+    
+    public function edit(Request $request, $id)
+    {
+        return view('cms.frontend.homepage.template.edit', [
+            'method' => 'edit',
+            'id' => $id,
+            'formAction' => Route('cms.homepage.template.edit', ['id' => $id]),
+            'breadcrumb_data' => $id,
+        ]);
+    }
+
+    public function destroy($id)
+    {
+        // 
     }
 }
