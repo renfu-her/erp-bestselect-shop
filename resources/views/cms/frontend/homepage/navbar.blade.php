@@ -54,49 +54,49 @@
         <div id="keywords" class="sortabled col-12 col-lg-6">
             <div class="col-12 d-flex mb-2 sortabled_box">
                 <input type="text" class="form-control col" name="keyword[]" maxlength="8" disabled placeholder="請輸入關鍵字" aria-label="關鍵字">
-                <span type="button" class="icon -move icon-btn fs-5 text-primary rounded-circle border-0 p-0 col-auto">
+                <span class="icon -move icon-btn fs-5 text-primary rounded-circle border-0 p-0 col-auto">
                     <i class="bi bi-arrows-move"></i>
                 </span>
             </div>
             <div class="col-12 d-flex mb-2 sortabled_box">
                 <input type="text" class="form-control col" name="keyword[]" maxlength="8" disabled placeholder="請輸入關鍵字" aria-label="關鍵字">
-                <span type="button" class="icon -move icon-btn fs-5 text-primary rounded-circle border-0 p-0 col-auto">
+                <span class="icon -move icon-btn fs-5 text-primary rounded-circle border-0 p-0 col-auto">
                     <i class="bi bi-arrows-move"></i>
                 </span>
             </div>
             <div class="col-12 d-flex mb-2 sortabled_box">
                 <input type="text" class="form-control col" name="keyword[]" maxlength="8" disabled placeholder="請輸入關鍵字" aria-label="關鍵字">
-                <span type="button" class="icon -move icon-btn fs-5 text-primary rounded-circle border-0 p-0 col-auto">
+                <span class="icon -move icon-btn fs-5 text-primary rounded-circle border-0 p-0 col-auto">
                     <i class="bi bi-arrows-move"></i>
                 </span>
             </div>
             <div class="col-12 d-flex mb-2 sortabled_box">
                 <input type="text" class="form-control col" name="keyword[]" maxlength="8" disabled placeholder="請輸入關鍵字" aria-label="關鍵字">
-                <span type="button" class="icon -move icon-btn fs-5 text-primary rounded-circle border-0 p-0 col-auto">
+                <span class="icon -move icon-btn fs-5 text-primary rounded-circle border-0 p-0 col-auto">
                     <i class="bi bi-arrows-move"></i>
                 </span>
             </div>
             <div class="col-12 d-flex mb-2 sortabled_box">
                 <input type="text" class="form-control col" name="keyword[]" maxlength="8" disabled placeholder="請輸入關鍵字" aria-label="關鍵字">
-                <span type="button" class="icon -move icon-btn fs-5 text-primary rounded-circle border-0 p-0 col-auto">
+                <span class="icon -move icon-btn fs-5 text-primary rounded-circle border-0 p-0 col-auto">
                     <i class="bi bi-arrows-move"></i>
                 </span>
             </div>
             <div class="col-12 d-flex mb-2 sortabled_box">
                 <input type="text" class="form-control col" name="keyword[]" maxlength="8" disabled placeholder="請輸入關鍵字" aria-label="關鍵字">
-                <span type="button" class="icon -move icon-btn fs-5 text-primary rounded-circle border-0 p-0 col-auto">
+                <span class="icon -move icon-btn fs-5 text-primary rounded-circle border-0 p-0 col-auto">
                     <i class="bi bi-arrows-move"></i>
                 </span>
             </div>
             <div class="col-12 d-flex mb-2 sortabled_box">
                 <input type="text" class="form-control col" name="keyword[]" maxlength="8" disabled placeholder="請輸入關鍵字" aria-label="關鍵字">
-                <span type="button" class="icon -move icon-btn fs-5 text-primary rounded-circle border-0 p-0 col-auto">
+                <span class="icon -move icon-btn fs-5 text-primary rounded-circle border-0 p-0 col-auto">
                     <i class="bi bi-arrows-move"></i>
                 </span>
             </div>
             <div class="col-12 d-flex mb-2 sortabled_box">
                 <input type="text" class="form-control col" name="keyword[]" maxlength="8" disabled placeholder="請輸入關鍵字" aria-label="關鍵字">
-                <span type="button" class="icon -move icon-btn fs-5 text-primary rounded-circle border-0 p-0 col-auto">
+                <span class="icon -move icon-btn fs-5 text-primary rounded-circle border-0 p-0 col-auto">
                     <i class="bi bi-arrows-move"></i>
                 </span>
             </div>
