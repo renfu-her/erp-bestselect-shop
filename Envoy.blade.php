@@ -30,3 +30,10 @@
 @task('serve')
     php artisan serve
 @endtask
+
+@task('demo-db')
+    php artisan migrate:reset
+    php artisan migrate
+    php artisan db:seed
+    php artisan db:seed --class=CyberbizImportSeeder
+@endtask
