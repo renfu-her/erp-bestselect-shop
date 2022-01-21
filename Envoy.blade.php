@@ -17,6 +17,7 @@
 @task('setup-pkg-dev')
     rm composer.lock
     composer install
+    npm install
     npm run dev
 @endtask
 
