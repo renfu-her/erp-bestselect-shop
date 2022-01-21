@@ -80,6 +80,11 @@ return
                 "controller_name" => "CollectionCtrl",
                 "route_name" => "cms.collection.index",
             ],
+            [
+                "title" => "選單設定",
+                "controller_name" => "NaviNodeCtrl",
+                "route_name" => "cms.navinode.index",
+            ],
         ],
     ],
     [
