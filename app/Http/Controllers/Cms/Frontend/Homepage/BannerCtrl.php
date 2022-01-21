@@ -56,7 +56,7 @@ class BannerCtrl extends Controller
         $query = $request->query();
         $bannerID = Banner::storeNewBanner($request);
         wToast(__('Add finished.'));
-        return redirect(Route('cms.sale_channel.edit', [
+        return redirect(Route('cms.homepage.banner.create', [
             'id' => $bannerID,
             'query' => $query,
         ]));
