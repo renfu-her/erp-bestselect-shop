@@ -5,10 +5,11 @@
 
 <form method="POST" action="">
     <div class="card shadow p-4 mb-4">
+        <h6>導覽列 Navbar</h6>
         <!-- Logo -->
-        <h6>Logo 圖片</h6>
+        <label class="form-label">Logo 圖片（可將檔案拖拉至框中上傳）</label>
         <div class="upload_image_block">
-            <label for="logo_img">
+            <label>
                 <!-- 按鈕 -->
                 <span class="browser_box -plusBtn">
                     <i class="bi bi-plus-circle text-secondary fs-4"></i>
@@ -23,15 +24,15 @@
                     <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
                         aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width: 1%"></div>
                 </div>
-                <input type="file" id="logo_img" name="logo" accept=".jpg,.jpeg,.png,.gif" hidden>
+                <input type="file" name="logo" accept=".jpg,.jpeg,.png,.gif" hidden>
             </label>
         </div>
-        <p><mark>圖片尺寸建議：165×50px，可上傳JPG/ JPEG/ PNG/ GIF格式</mark></p>
+        <p><mark>圖片尺寸建議：165×50px，不超過1MB，可上傳JPG/ JPEG/ PNG/ GIF格式</mark></p>
         <!-- Logo end -->
 
         <!-- 關鍵字 -->
-        <h6>熱門關鍵字</h6>
-        <fieldset class="col-12 col-lg-6 mb-3">
+        <fieldset class="col-12 mb-3">
+            <legend class="col-form-label p-0 mb-2">熱門關鍵字</legend>
             <div class="px-1 pt-1">
                 <div class="form-check form-check-inline">
                     <label class="form-check-label">
@@ -113,12 +114,12 @@
     @push('sub-scripts')
         <script>
             // -- Logo -------------
-            bindReadImageFile($('#logo_img'), {
+            bindReadImageFile($('input[name="logo"]'), {
                 num: 'single',
                 fileInputName: 'logo',
-                delFn: function ($that) {
-                    $that.siblings('img').attr('src', '');
-                    let img_box = $that.closest('.box');
+                delFn: function ($x) {
+                    $x.siblings('img').attr('src', '');
+                    let img_box = $x.closest('.box');
                     img_box.prop('hidden', true);
                     img_box.siblings('.browser_box.-plusBtn').prop('hidden', false)
                     img_box.siblings('input[name="logo"]').val('');

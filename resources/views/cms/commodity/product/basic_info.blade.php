@@ -160,7 +160,7 @@
 
         <div id="mediaSettings" class="card shadow p-4 mb-4">
             <h6>媒體設定</h6>
-            <label>商品圖片（可將檔案拖拉至框中即可上傳）</label>
+            <label class="form-label">商品圖片（可將檔案拖拉至框中上傳）</label>
             <div class="upload_image_block -multiple">
                 <!-- 可排序圖片集中區塊 -->
                 <div class="sortabled">
@@ -244,6 +244,15 @@
                     $('.upload_image_block .sortabled > label').appendTo('.upload_image_block .sortabled');
                 }
             };
+            function delImage($x) {
+                const id = $x.closest('.sortabled_box').attr('data-id');
+                console.log(id);
+                if (id) {
+                    del_image.push(id);
+                    $('input[name="del_image"]').val(del_image.toString());
+                }
+                $x.closest('.sortabled_box').remove();
+            }
 
             bindReadImageFile($('#mediaSettings .upload_image_block label #product_img_add'), {
                 num: 'multiple',
@@ -252,18 +261,7 @@
                 movable: false,    // 暫時無法排序
                 moveOpt: moveOpt
             });
-            bindImageClose(delImage);
             bindSortableMove($('#mediaSettings .upload_image_block > .sortabled'), moveOpt);
-
-            function delImage($that) {
-                const id = $that.closest('.sortabled_box').attr('data-id');
-                console.log(id);
-                if (id) {
-                    del_image.push(id);
-                    $('input[name="del_image"]').val(del_image.toString());
-                }
-                $that.closest('.sortabled_box').remove();
-            }
 
         </script>
     @endpush

@@ -179,7 +179,7 @@
      */
     window.bindReadImageFile = bindReadImageFile;
     /**
-     * 綁定事件: 選擇圖片
+     * 綁定事件: 選擇圖片 (包含 init刪除事件)
      * @param {*} $elems upload iamge input
      * @param {*} param1 options
      * @example bindReadImageFile($('input'), {
@@ -190,20 +190,26 @@
      */
     function bindReadImageFile($elems, {
         num = 'single',     // 多檔 multiple
-        fileInputName = 'files[]',  // saved iamge input's name
-        maxSize = 1,    // (單位 MB) 圖片最大容量
+        fileInputName = '',  // saved iamge input's name
+        maxSize = 1024,    // (單位 KB) 圖片最大容量
         delFn = null,   // 刪除圖片 fn
         movable = true, // 可拖曳排序的 (多檔 only)
         moveOpt = {},   // 拖曳排序 option (多檔 only)
         addImageBoxFn = addImageBox    // 新增的 image box fn (多檔 only)
     } = {}) {
+        if (!fileInputName) {
+            fileInputName = $elems.attr('name');
+        }
+        // init bind del btn
+        bindImageClose(delFn, $elems.closest('.upload_image_block').find('.box .-x'));
+
         // 支援檔案讀取
         if (window.File && window.FileList && window.FileReader) {
             $elems.off('change').on('change', function() {
                 readerFiles(this.files);
             });
 
-            // 拖曳上傳
+            // bind 拖曳上傳
             bindDropFile($elems.closest('.upload_image_block'));
         } else {
             console.log('該瀏覽器不支援檔案上傳');
@@ -267,11 +273,13 @@
                     }
                     
                     // 存檔案
-                    let input = $img_box.find(`input[name="${fileInputName}"]`)[0];
-                    let tempFile = new DataTransfer();
-                    tempFile.items.add(ff);
-                    input.files = tempFile.files;
-
+                    if (fileInputName) {
+                        let input = $img_box.find(`input[name="${fileInputName}"]`)[0];
+                        let tempFile = new DataTransfer();
+                        tempFile.items.add(ff);
+                        input.files = tempFile.files;
+                    }
+                    
                     readEvents(ff, $img_box);
                     /*** 先上傳的話 以上就不用做 ***/
                 }
@@ -353,8 +361,8 @@
         }
         // 判斷檔案大小
         function decideSizeOfImage(size) {
-            // console.log('檔案 size: ' + size);
-            let MAX_SIZE = 1024 * 1024 * maxSize;
+            // console.log('檔案 size: ' + size + '位元組');
+            let MAX_SIZE = 1024 * maxSize;
             return (size <= MAX_SIZE);
         }
         // 判斷圖片尺寸
@@ -374,7 +382,8 @@
             <span class="icon -x"><i class="bi bi-x"></i></span>
             <img src="" /></span>`);
         let $progress = $(`<div class="progress" hidden>
-            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width: 1%"></div>
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" 
+                aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width: 1%"></div>
             </div>`);
         let $file_input = $('<input type="file" name="files[]" accept=".jpg,.jpeg,.png,.gif" multiple hidden>');
         $sortabled_box.append([$browser_box, $progress, $file_input]);
