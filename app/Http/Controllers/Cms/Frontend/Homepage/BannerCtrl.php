@@ -74,6 +74,7 @@ class BannerCtrl extends Controller
             'data' => $data,
             'method' => 'edit',
             'formAction' => Route('cms.homepage.banner.edit', ['id' => $id]),
+            'breadcrumb_data' => $id,
         ]);
     }
 
