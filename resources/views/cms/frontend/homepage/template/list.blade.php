@@ -13,7 +13,7 @@
             </a>
         </div>
 
-        <div class="d-flex col-12 mb-3 border-bottom border-2 border-dark">
+        <div class="d-flex col-12 mb-3 border-bottom border-2 border-dark fw-bold">
             <div class="col-auto px-2" style="width: 50px;">ID</div>
             <div class="col px-2">版型大標題</div>
             <div class="col-auto text-center" style="width: 40px;">編輯</div>
