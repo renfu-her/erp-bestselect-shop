@@ -19,6 +19,7 @@ use App\View\Components\QtyAdjuster as B_QtyAdjuster;
 
 use App\View\Components\Navbar\ProductNavi;
 use App\View\Components\Navbar\PurchaseNavi;
+use App\View\Components\Navbar\HomepageNavi;
 
 class ComponentServiceProvider extends ServiceProvider
 {
@@ -54,5 +55,6 @@ class ComponentServiceProvider extends ServiceProvider
 
         Blade::component('b-prd-navi', ProductNavi::class);
         Blade::component('b-pch-navi', PurchaseNavi::class);
+        Blade::component('b-home-navi', HomepageNavi::class);
     }
 }

@@ -71,7 +71,12 @@ return
         "menu_id" => "3",
         "child" => [
             [
-                "title" => "群組設定",
+                "title" => "首頁設定",
+                "controller_name" => "HomepageCtrl",
+                "route_name" => "cms.homepage.navbar.index",
+            ],
+            [
+                "title" => "商品群組",
                 "controller_name" => "CollectionCtrl",
                 "route_name" => "cms.collection.index",
             ],
