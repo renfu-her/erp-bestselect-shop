@@ -250,6 +250,14 @@ Breadcrumbs::for('cms.homepage.template.index', function (BreadcrumbTrail $trail
     $trail->parent('cms.dashboard');
     $trail->push('首頁設定-版型', route('cms.homepage.template.index'));
 });
+Breadcrumbs::for('cms.homepage.template.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.homepage.template.index');
+    $trail->push('新增');
+});
+Breadcrumbs::for('cms.homepage.template.edit', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.homepage.template.index');
+    $trail->push('[#' . $value . '] 編輯');
+});
 
 //商品群組
 Breadcrumbs::for('cms.collection.index', function (BreadcrumbTrail $trail) {
