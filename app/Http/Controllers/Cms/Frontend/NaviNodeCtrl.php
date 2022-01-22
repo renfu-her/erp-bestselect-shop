@@ -48,6 +48,7 @@ class NaviNodeCtrl extends Controller
     {
         return view('cms.frontend.navinode.edit', [
             'method' => 'create',
+            'level' => $level,
             'formAction' => Route('cms.navinode.create', ['level' => $level]),
             'collections' => $collection->get()->toArray(),
             'breadcrumb_data' => ['level' => NaviNode::forBreadcrumb($level)],
@@ -136,6 +137,7 @@ class NaviNodeCtrl extends Controller
         return view('cms.frontend.navinode.edit', [
             'data' => $data,
             'method' => 'edit',
+            'level' => $level,
             'formAction' => Route('cms.navinode.edit', ['level' => $level, 'id' => $id]),
             'collections' => $collection->get()->toArray(),
             'breadcrumb_data' => ['level' => NaviNode::forBreadcrumb($level), 'title' => $data->title],
