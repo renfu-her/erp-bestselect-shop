@@ -87,10 +87,10 @@ class Banner extends Model
     public static function updateBanner(Request $request, int $id)
     {
         $request = self::validInputValue($request);
-        return DB::transaction(function () use ($request, $id
+        $bannerData = Banner::where('id', '=', $id);
+        $bannerDataGet = $bannerData->get()->first();
+        return DB::transaction(function () use ($request, $id, $bannerDataGet
         ) {
-            $bannerData = Banner::where('id', '=', $id);
-            $bannerDataGet = $bannerData->get()->first();
             if (null != $bannerDataGet) {
                 Storage::delete($bannerDataGet->img_pc);
                 Storage::delete($bannerDataGet->img_phone);
@@ -112,8 +112,8 @@ class Banner extends Model
                     , 'is_public' => $request->input('is_public')
                 ];
                 $updateData = Banner::setValueToArr($updateData, 'event_url', $request->input('event_url'));
-                $updateData = Banner::setValueToArr($updateData, 'img_pc', $request->input('img_pc'));
-                $updateData = Banner::setValueToArr($updateData, 'img_phone', $request->input('img_phone'));
+                $updateData = Banner::setValueToArr($updateData, 'img_pc', $imgData_Pc);
+                $updateData = Banner::setValueToArr($updateData, 'img_phone', $imgData_Phone);
 
                 Banner::where('id', '=', $id)
                     ->update($updateData);
