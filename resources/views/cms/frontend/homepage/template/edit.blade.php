@@ -15,7 +15,7 @@
                 <legend class="col-form-label p-0 mb-2">選擇版型 <span class="text-danger">*</span></legend>
                 <div class="row">
                     @foreach (App\Enums\Homepage\TemplateStyleType::asArray() as $key => $val)
-                        <div class="col-12 col-sm-6 col-xl-4 mb-3">
+                        <div class="col-12 col-sm-6 col-xl-4 col-xxl-3 mb-3">
                             <label class="d-flex flex-wrap -template">
                                 <input type="radio" name="style_type" value="{{$val}}" class="form-check-input" required
                                        @if ($val == old('style_type', $data->style_type ?? '')) checked @endif>
