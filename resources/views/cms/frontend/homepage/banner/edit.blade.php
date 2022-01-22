@@ -73,7 +73,7 @@
                             @if (old('event_type', $data->event_type ?? '') == App\Enums\Homepage\BannerEventType::group()->key) required @else disabled @endif>
                         <option value="" @if('' == old('event_id', $data->event_id ?? '')) selected @endif disabled>請選擇</option>
                         @foreach($collectionList as $key => $collection)
-                            <option value="{{$collection->id}}" @if($collection->id = old('event_id', $data->event_id ?? '')) selected @endif>{{$collection->name}}</option>
+                            <option value="{{$collection->id}}" @if($collection->id == old('event_id', $data->event_id ?? '')) selected @endif>{{$collection->name}}</option>
                         @endforeach
                     </select>
                 </div>
