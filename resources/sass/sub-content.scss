@@ -576,3 +576,31 @@ input.form-control[type="month"] {
     }
   }
 }
+
+/*
+ * 序號 
+ */
+.-serial-number {
+  counter-reset: num;
+
+  // 第一組序號
+  .-serial-title {
+    counter-increment: num;
+
+    &.-before::before {
+      content: counter(num) '. ';
+    }
+    &.-after::after {
+      content: ' ' counter(num);
+    }
+  }
+  // 第二組序號
+  label.title2 {
+    &.-before::before {
+      content: counter(num) '. ';
+    }
+    &.-after::after {
+      content: ' ' counter(num);
+    }
+  }
+}

@@ -18,23 +18,27 @@
         </div>
 
         <div class="table-responsive tableOverBox">
-            <table class="table table-hover tableList">
+            <table class="table tableList">
                 <thead>
                     <tr>
-                        <th scope="col" style="width:10%">#</th>
+                        <th scope="col" style="width:50px">#</th>
                         <th scope="col">名稱</th>
                         <th scope="col">階層</th>
                         <th scope="col">網址</th>
                         <th scope="col">群組名稱</th>
                         <th scope="col" class="text-center">子階層</th>
                         <th scope="col" class="text-center">編輯</th>
+                        <th scope="col" class="text-center">排序</th>
                         <th scope="col" class="text-center">刪除</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="-serial-number sortabled">
                     @foreach ($dataList as $key => $data)
-                        <tr>
-                            <th scope="row">{{ $key + 1 }}</th>
+                        <tr class="sortabled_box">
+                            <th scope="row" style="width:50px">
+                                <span class="-serial-title -after"></span>
+                                <input type="hidden" name="id[]" value="{{ $data->id }}">
+                            </th>
                             <td>{{ $data->node_title }}</td>
                             <td>@if ($data->has_child == 0) 單層 @else 多階 @endif</td>
                             <td @class(['table-secondary' => $data->has_child == 1])>{{ $data->url }}</td>
@@ -56,6 +60,12 @@
                                 </a>
                             </td>
                             <td class="text-center">
+                                <span class="icon -move icon-btn col-auto fs-5 text-primary rounded-circle border-0 p-0"
+                                    data-bs-toggle="tooltip" title="拖曳排序">
+                                    <i class="bi bi-arrows-move"></i>
+                                </span>
+                            </td>
+                            <td class="text-center">
                                 <a href="javascript:void(0)"
                                     data-href="{{ Route('cms.navinode.delete', ['level' => $level, 'id' => $data->id]) }}"
                                     data-bs-toggle="modal" data-bs-target="#confirm-delete"
@@ -64,7 +74,6 @@
                                 </a>
                             </td>
                         </tr>
-                        <input type="hidden" name="id[]" value="{{ $data->id }}">
                     @endforeach
                 </tbody>
             </table>
@@ -91,9 +100,26 @@
 @endsection
 @once
     @push('sub-styles')
+    <style>
+        tr.ui-sortable-helper {
+            background-color: rgba(255, 246, 200, 0.6);
+        }
+    </style>
     @endpush
     @push('sub-scripts')
         <script>
+            // 綁定拖曳功能
+            bindSortableMove($('.sortabled'), {
+                axis: 'y',
+                activate: function (e, ui) {
+                    ui.item.children('td:not(:first-of-type)').hide();
+                },
+                stop: function (e, ui) {
+                    ui.item.children('td:not(:first-of-type)').show();
+                },
+            });
+
+            // 刪除 btn
             $('#confirm-delete').on('show.bs.modal', function(e) {
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
             });
