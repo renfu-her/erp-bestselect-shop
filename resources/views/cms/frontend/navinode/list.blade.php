@@ -41,9 +41,9 @@
                             </th>
                             <td>{{ $data->node_title }}</td>
                             <td>@if ($data->has_child == 0) 單層 @else 多階 @endif</td>
-                            <td @class(['table-secondary' => $data->has_child == 1])>{{ $data->url }}</td>
-                            <td @class(['table-secondary' => $data->has_child == 1])>{{ $data->group_title }}</td>
-                            <td @class(['text-center', 'table-secondary' => $data->has_child == 0])>
+                            <td @class(['table-active' => $data->has_child == 1])>{{ $data->url }}</td>
+                            <td @class(['table-active' => $data->has_child == 1])>{{ $data->group_title }}</td>
+                            <td @class(['text-center', 'table-active' => $data->has_child == 0])>
                                 @if ($data->has_child == 1)
                                     <a href="{{ Route('cms.navinode.index', ['level' => $level . '-' . $data->id]) }}"
                                         data-bs-toggle="tooltip" title="子階層"
