@@ -28,7 +28,7 @@ class NaviNodeCtrl extends Controller
             $parent_id = $match[1];
             $prev = preg_replace("/-(\d{1,})$/", "", $level);
         }
-
+      //  dd(NaviNode::nodeList($parent_id)->get()->toArray());
         return view('cms.frontend.navinode.list', [
             'dataList' => NaviNode::nodeList($parent_id)->get()->toArray(),
             'level' => $level,
@@ -46,12 +46,15 @@ class NaviNodeCtrl extends Controller
 
     public function create(Request $request, Collection $collection, $level = 0)
     {
+        $currentLevel = count(explode('-', $level));
+
         return view('cms.frontend.navinode.edit', [
             'method' => 'create',
             'level' => $level,
+            'currentLevel' => $currentLevel,
             'formAction' => Route('cms.navinode.create', ['level' => $level]),
             'collections' => $collection->get()->toArray(),
-            'breadcrumb_data' => ['level' => NaviNode::forBreadcrumb($level)],
+            'breadcrumb_data' => NaviNode::forBreadcrumb($level),
         ]);
     }
 
@@ -87,10 +90,15 @@ class NaviNodeCtrl extends Controller
 
     public function vali($request, &$d = [], $level)
     {
-        $request->validate([
+        $currentLevel = count(explode('-', $level));
+        $valuRule = [
             'title' => ['required', 'string'],
-            'has_child' => 'required|in:0,1',
-        ]);
+        ];
+        if ($currentLevel != 3) {
+            $valuRule['has_child'] = 'required|in:0,1';
+        };
+
+        $request->validate($valuRule);
 
         $data = request()->all();
 
@@ -99,16 +107,21 @@ class NaviNodeCtrl extends Controller
         $d['type'] = null;
         $d['url'] = null;
         $d['target'] = null;
-        $d['has_child'] = $data['has_child'];
+        $d['has_child'] = isset($data['has_child']) ? $data['has_child'] : 0;
         $d['title'] = $data['title'];
 
+        if ($currentLevel >= 3) {
+            $d['has_child'] = 0;
+        }
+
         if ($d['has_child'] == 0) {
+           
             $request->validate([
                 'type' => ['required', 'in:url,group'],
                 'target' => ['required', 'in:_self,_blank'],
             ]);
-            $data['type'] = $d['type'];
-            $data['target'] = $d['target'];
+            $d['type'] = $data['type'];
+            $d['target'] = $data['target'];
 
             switch ($d['type']) {
                 case 'url':
@@ -121,6 +134,7 @@ class NaviNodeCtrl extends Controller
                     $request->validate([
                         'group_id' => ['required'],
                     ]);
+
                     $d['group_id'] = $data['group_id'];
 
                     break;
@@ -154,10 +168,13 @@ class NaviNodeCtrl extends Controller
             return abort(404);
         }
 
+        $currentLevel = count(explode('-', $level));
+      
         return view('cms.frontend.navinode.edit', [
             'data' => $data,
             'method' => 'edit',
             'level' => $level,
+            'currentLevel' => $currentLevel,
             'formAction' => Route('cms.navinode.edit', ['level' => $level, 'id' => $id]),
             'collections' => $collection->get()->toArray(),
             'breadcrumb_data' => ['level' => NaviNode::forBreadcrumb($level), 'title' => $data->title],
@@ -175,7 +192,7 @@ class NaviNodeCtrl extends Controller
     {
 
         $this->vali($request, $d, $level);
-
+       
         $re = NaviNode::updateNode($id, $d['title'], $d['url'], $d['group_id'], $d['has_child'], $d['type'], $d['target']);
         if (!$re['success']) {
             return redirect()->back()->withErrors(['status' => $re['error_msg']]);
