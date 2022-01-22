@@ -302,6 +302,12 @@ Breadcrumbs::for('cms.navinode.index', function ($trail, $value) {
     }
 });
 
+Breadcrumbs::for('cms.navinode.create', function ($trail, $value) {
+    $trail->parent('cms.dashboard');
+    $trail->push('選單設定', route('cms.navinode.index'), $value);
+    $trail->push('新增');
+});
+
 Breadcrumbs::for('cms.navinode.edit', function ($trail, $value) {
     $trail->parent('cms.dashboard');
     $trail->push('選單設定', route('cms.navinode.index'), $value['level']);

@@ -25,7 +25,7 @@
                         </label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" value="1" @if (old('has_child', $data->has_child ?? '') == '1') checked @endif type="radio" name="has_child"
+                        <input class="form-check-input" value="1" @if (old('has_child', $data->has_child ?? '1') == '1') checked @endif type="radio" name="has_child"
                             id="has_child2">
                         <label class="form-check-label" for="has_child2">
                             有 </label>
@@ -34,7 +34,7 @@
                 <div id="hasChildArea">
                     <x-b-form-group name="type" title="連結類型" required="true">
                         <div class="form-check">
-                            <input class="form-check-input" value="url" @if (old('type', $data->type ?? '') == 'url') checked @endif type="radio" name="type"
+                            <input class="form-check-input" value="url" @if (old('type', $data->type ?? 'url') == 'url') checked @endif type="radio" name="type"
                                 id="type1">
                             <label class="form-check-label" for="type1">
                                 網址</label>
@@ -44,6 +44,20 @@
                                 id="type2">
                             <label class="form-check-label" for="type2">
                                 群組</label>
+                        </div>
+                    </x-b-form-group>
+                    <x-b-form-group name="target" title="開啟視窗" required="true">
+                        <div class="form-check">
+                            <input class="form-check-input" value="_self" @if (old('target', $data->target ?? '_self') == '_self') checked @endif type="radio" name="target"
+                                id="target1">
+                            <label class="form-check-label" for="target1">
+                                當前</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" value="_blank" @if (old('target', $data->target ?? '') == '_blank') checked @endif type="radio" name="target"
+                                id="target2">
+                            <label class="form-check-label" for="target2">
+                                新開</label>
                         </div>
                     </x-b-form-group>
                     <div id="urlArea">
@@ -87,7 +101,7 @@
             let groupAreaElem = $('#groupArea');
             let childAreaElem = $('#hasChildArea');
 
-            let currentChild = @json(old('has_child', $data->has_child ?? '0'));
+            let currentChild = @json(old('has_child', $data->has_child ?? '1'));
             let currentType = @json(old('type', $data->type ?? 'url'));
 
             hasChildAreaVisible(currentChild);
@@ -103,9 +117,9 @@
 
             function hasChildAreaVisible(_status) {
                 if (_status == 1) {
-                    childAreaElem.show();
-                } else {
                     childAreaElem.hide();
+                } else {
+                    childAreaElem.show();
                 }
             }
 
