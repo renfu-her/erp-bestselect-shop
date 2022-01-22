@@ -41,4 +41,73 @@ class PurchaseLog extends Model
         });
     }
 
+    public static function getData($purchase_id) {
+        $log_purchase = DB::table('pcs_purchase_log as log')
+            ->leftJoin('pcs_purchase as purchase', function($join) {
+                $join->on('purchase.id', '=', 'log.feature_id');
+            })
+            ->select('log.id'
+                , 'log.event'
+                , 'log.feature'
+                , 'log.user_name'
+                , 'log.created_at'
+                , 'log.qty'
+            )
+            ->selectRaw('CONCAT("") as title')
+            ->where('log.purchase_id', '=', $purchase_id)
+            ->where('log.feature', '=', 'purchase');
+        $log_style = DB::table('pcs_purchase_log as log')
+            ->leftJoin('pcs_purchase_items as items', function($join) {
+                $join->on('items.id', '=', 'log.feature_id');
+            })
+            ->leftJoin('prd_product_styles as styles', 'styles.id', '=', 'log.feature_id')
+            ->leftJoin('prd_products as products', 'products.id', '=', 'styles.product_id')
+            ->select('log.id'
+                , 'log.event'
+                , 'log.feature'
+                , 'log.user_name'
+                , 'log.created_at'
+                , 'log.qty'
+            )
+            ->selectRaw('CONCAT(products.title, "-", styles.title) as title')
+            ->where('log.purchase_id', '=', $purchase_id)
+            ->where('log.feature', '=', 'style');
+        $log_inbound = DB::table('pcs_purchase_log as log')
+            ->leftJoin('pcs_purchase_inbound as inbound', function($join) {
+                $join->on('inbound.id', '=', 'log.feature_id');
+            })
+            ->leftJoin('prd_product_styles as styles', 'styles.id', '=', 'log.feature_id')
+            ->leftJoin('prd_products as products', 'products.id', '=', 'styles.product_id')
+            ->select('log.id'
+                , 'log.event'
+                , 'log.feature'
+                , 'log.user_name'
+                , 'log.created_at'
+                , 'log.qty'
+            )
+            ->selectRaw('CONCAT(products.title, "-", styles.title) as title')
+            ->where('log.purchase_id', '=', $purchase_id)
+            ->where('log.feature', '=', 'inbound');
+        $log_pay_order = DB::table('pcs_purchase_log as log')
+            ->leftJoin('pcs_paying_orders as orders', function($join) {
+                $join->on('orders.id', '=', 'log.feature_id');
+            })
+            ->select('log.id'
+                , 'log.event'
+                , 'log.feature'
+                , 'log.user_name'
+                , 'log.created_at'
+                , 'log.qty'
+            )
+            ->selectRaw('CONCAT("") as title')
+            ->where('log.purchase_id', '=', $purchase_id)
+            ->where('log.feature', '=', 'pay');
+
+        $log_purchase->union($log_style);
+        $log_purchase->union($log_inbound);
+        $log_purchase->union($log_pay_order);
+
+        return $log_purchase;
+    }
+
 }

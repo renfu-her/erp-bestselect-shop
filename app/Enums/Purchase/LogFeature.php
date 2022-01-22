@@ -8,6 +8,7 @@ class LogFeature extends Enum
 {
     //採購、入庫、付款
     const purchase = 'purchase';
+    const style = 'style';
     const inbound = 'inbound';
     const pay = 'pay';
 

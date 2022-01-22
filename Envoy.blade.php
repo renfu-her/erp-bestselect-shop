@@ -17,6 +17,7 @@
 @task('setup-pkg-dev')
     rm composer.lock
     composer install
+    npm install
     npm run dev
 @endtask
 
@@ -28,4 +29,11 @@
 
 @task('serve')
     php artisan serve
+@endtask
+
+@task('demo-db')
+    php artisan migrate:reset
+    php artisan migrate
+    php artisan db:seed
+    php artisan db:seed --class=CyberbizImportSeeder
 @endtask

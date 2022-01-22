@@ -1,8 +1,8 @@
 <?php
 
-use App\Http\Controllers\Cms\Commodity\stockCtrl;
+use App\Http\Controllers\Cms\Commodity\StockCtrl;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'stock', 'as' => 'stock.'], function () {
-    Route::get('', [stockCtrl::class, 'index'])->name('index'); //->middleware('permission:cms.stock.index');
+    Route::get('', [StockCtrl::class, 'index'])->name('index'); //->middleware('permission:cms.stock.index');
 });

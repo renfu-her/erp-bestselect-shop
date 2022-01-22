@@ -65,10 +65,13 @@
         });
     }
 
+    window.showWordsLength = showWordsLength;
     /**
      * 顯示字數長度
+     * @param {*} $elems 顯示目標
+     * @param {*} callback 綁定後執行 fn
+     * @example showWordsLength($('input[maxlength],textarea[maxlength]'));
      */
-    window.showWordsLength = showWordsLength;
     function showWordsLength($elems, callback = false) {
         $elems.each(function () {
             let num = $(this).val().length;
@@ -95,10 +98,16 @@
         });
     }
 
-    /** 
-     * bind 拖曳項目
-     */
     window.bindSortableMove = bindSortableMove;
+    /**
+     * 綁定事件: 拖曳項目
+     * @param {*} $elems 拖曳區塊
+     * @param {*} param1 options
+     * @example bindSortableMove($('.sortabled'), {
+     *  axis: 'y',
+     *  placeholder: 'placeholder-highlight mb-2',
+     * });
+     */
     function bindSortableMove($elems, {
         destroy = true,
         axis = false,
@@ -163,5 +172,249 @@
         }
     });
     $('.-select2').select2();
+
+    
+    /** 
+     * 圖片上傳
+     */
+    window.bindReadImageFile = bindReadImageFile;
+    /**
+     * 綁定事件: 選擇圖片 (包含 init刪除事件)
+     * @param {*} $elems upload iamge input
+     * @param {*} param1 options
+     * @example bindReadImageFile($('input'), {
+     *  num: 'single',
+     *  fileInputName: 'logo',
+     *  delFn: function ($that) {}
+     * });
+     */
+    function bindReadImageFile($elems, {
+        num = 'single',     // 多檔 multiple
+        fileInputName = '',  // saved iamge input's name
+        maxSize = 1024,    // (單位 KB) 圖片最大容量
+        delFn = null,   // 刪除圖片 fn
+        movable = true, // 可拖曳排序的 (多檔 only)
+        moveOpt = {},   // 拖曳排序 option (多檔 only)
+        addImageBoxFn = addImageBox    // 新增的 image box fn (多檔 only)
+    } = {}) {
+        if (!fileInputName) {
+            fileInputName = $elems.attr('name');
+        }
+        // init bind del btn
+        bindImageClose(delFn, $elems.closest('.upload_image_block').find('.box .-x'));
+
+        // 支援檔案讀取
+        if (window.File && window.FileList && window.FileReader) {
+            $elems.off('change').on('change', function() {
+                readerFiles(this.files);
+            });
+
+            // bind 拖曳上傳
+            bindDropFile($elems.closest('.upload_image_block'));
+        } else {
+            console.log('該瀏覽器不支援檔案上傳');
+        }
+    
+        // 綁定事件: 拖曳上傳
+        function bindDropFile($uploadElem) {
+            // 拖曳防止轉頁 drag 拖 | drop 放
+            $('html').on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+
+            // 拖曳進 / 拖曳至上方
+            $uploadElem.off('dragenter dragover')
+            .on('dragenter dragover', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(this).addClass('is-dragover');
+            });
+
+            // 拖曳出 / 放下
+            $uploadElem.off('dragleave dragend drop.addClass')
+            .on('dragleave dragend drop.addClass', function(e) {
+                $(this).removeClass('is-dragover');
+            });
+
+            // 放下
+            $uploadElem.off('drop.readFile').on('drop.readFile', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const files = e.originalEvent.dataTransfer.files;
+                readerFiles(files);
+            });
+        }
+
+        // 讀檔案
+        function readerFiles(files) {
+            const $upload_image_block = $elems.closest('.upload_image_block');
+            console.log(files);
+            if (files.length) {
+                let alertMsg = '';
+                for (let i = 0; i < files.length; i++) {
+                    const ff = files[i];
+
+                    /*** 檢查寫這裡 ***/
+                    if (!decideTypeOfImage(ff.type) || !decideSizeOfImage(ff.size)) {
+                        alertMsg += '檔案[' + ff.name + ']不符合規定\n';
+                        continue;
+                    }
+
+                    /*** 先上傳的話 以下就不用做 (顯示預覽圖) ***/
+                    let $img_box;
+                    if (num === 'single' || num === 's') {
+                        // 上傳圖Box
+                        $img_box = $upload_image_block.children('label');
+                    } else {
+                        // 新增圖Box
+                        $img_box = addImageBoxFn($upload_image_block.children('.sortabled'), delFn, movable, moveOpt);
+                    }
+                    
+                    // 存檔案
+                    if (fileInputName) {
+                        let input = $img_box.find(`input[name="${fileInputName}"]`)[0];
+                        let tempFile = new DataTransfer();
+                        tempFile.items.add(ff);
+                        input.files = tempFile.files;
+                    }
+                    
+                    readEvents(ff, $img_box);
+                    /*** 先上傳的話 以上就不用做 ***/
+                }
+
+                if (alertMsg) {
+                    alert(alertMsg);
+                }
+            } else if (num === 'single' || num === 's') {
+                delFn($upload_image_block.find('.-x'));
+            }
+
+            // 檔案操作事件
+            function readEvents(file, $img_box) {
+                let $progress = $img_box.children('.progress');
+                let img = $img_box.find('img')[0];
+                const reader = new FileReader();
+
+                // 開始載入檔案
+                reader.onloadstart = (function(progress) {
+                    return function(e) {
+                        progress.children('.progress-bar').attr('aria-valuenow', 1);
+                        progress.children('.progress-bar').css('width', '1%');
+                        progress.prop('hidden', false);
+                    }
+                })($progress);
+
+                // 載入中
+                reader.onprogress = (function(progress) {
+                    return function(e) {
+                        if (e.lengthComputable) {
+                            const percentLoaded = Math.round((e.loaded / e.total) * 100);
+                            // console.log(percentLoaded);
+                            if (percentLoaded <= 100) {
+                                progress.children('.progress-bar').attr('aria-valuenow', percentLoaded);
+                                progress.children('.progress-bar').css('width', percentLoaded + '%');
+                            }
+                        }
+                    }
+                })($progress);
+
+                // 載入成功
+                reader.onload = (function(aImg, file, img_box) {
+                    return function(e) {
+                        aImg.src = e.target.result;
+                        aImg.file = file;
+                        if (num === 'single' || num === 's') {
+                            img_box.children('.browser_box.box').prop('hidden', false);
+                            img_box.children('.browser_box.-plusBtn').prop('hidden', true);
+                            bindImageClose(delFn, img_box.find('.-x'));
+                        }
+                    };
+                })(img, file, $img_box);
+
+                // 載入完成
+                reader.onloadend = (function(progress) {
+                    return function(e) {
+                        setTimeout(function() {
+                            progress.prop('hidden', true);
+                        }, 200);
+                    }
+                })($progress);
+
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // 判斷檔案類型
+        function decideTypeOfImage(type) {
+            // console.log('檔案類型: ' + type);
+            switch (type) {
+                case "image/jpg":
+                case "image/jpeg":
+                case "image/gif":
+                case "image/png":
+                    return true;
+                default:
+                    return false;
+            }
+        }
+        // 判斷檔案大小
+        function decideSizeOfImage(size) {
+            // console.log('檔案 size: ' + size + '位元組');
+            let MAX_SIZE = 1024 * maxSize;
+            return (size <= MAX_SIZE);
+        }
+        // 判斷圖片尺寸
+        function decideAreaOfImage(w, h) {
+            // console.log('檔案 W*H: ' + w + ' * ' + h);
+            return (w <= 1000) && (h <= 1000);
+        }
+    }
+
+    // 新增圖Box
+    function addImageBox($upload_bolck, delFn, movable, moveOpt) {
+        let hideMove = (movable) ? '' : 'hidden';
+
+        let $sortabled_box = $('<div class="sortabled_box"></div>');
+        let $browser_box = $(`<span class="browser_box box">
+            <span class="icon -move" ${hideMove}><i class="bi bi-arrows-move"></i></span>
+            <span class="icon -x"><i class="bi bi-x"></i></span>
+            <img src="" /></span>`);
+        let $progress = $(`<div class="progress" hidden>
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" 
+                aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width: 1%"></div>
+            </div>`);
+        let $file_input = $('<input type="file" name="files[]" accept=".jpg,.jpeg,.png,.gif" multiple hidden>');
+        $sortabled_box.append([$browser_box, $progress, $file_input]);
+        $upload_bolck.prepend($sortabled_box);
+
+        // 綁定事件
+        bindImageClose(delFn, $upload_bolck.find('.-x'));
+        if (movable) {
+            bindSortableMove($upload_bolck, moveOpt);
+        }
+        
+        return $sortabled_box;
+    }
+
+    window.bindImageClose = bindImageClose;
+    /**
+     * 綁定事件: 刪除圖片
+     * @param {*} fn 刪除 fn
+     * @param {*} $target [可略]事件綁定目標
+     * @example bindImageClose(delFn, $('.-x'));
+     */
+    function bindImageClose(fn, $target) {
+        const $x = $target || $('.browser_box.box .-x');
+        $x.off('click').on('click', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+
+            if (typeof fn === 'function') {
+                fn($(this));
+            }
+        });
+    }
 
 })();

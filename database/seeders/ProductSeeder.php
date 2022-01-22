@@ -20,8 +20,12 @@ class ProductSeeder extends Seeder
      */
     public function run()
     {
-       
-        ProductSpec::insert([['title' => '尺寸'], ['title' => '容量'], ['title' => '顏色']]);
+        ProductSpec::insert([
+            ['title' => '尺寸'],
+            ['title' => '容量'],
+            ['title' => '顏色'],
+            ['title' => '品項']
+        ]);
 
         Category::create((['category' => '食品', 'rank' => 100]));
         Category::create((['category' => '清潔用品', 'rank' => 100]));
@@ -52,10 +56,10 @@ class ProductSeeder extends Seeder
         $id = ProductStyle::createComboStyle($re['id'], '五包組', 1);
         ProductStyleCombo::createCombo($id, 1, 2);
         ProductStyleCombo::createCombo($id, 2, 1);
-       
-        
+
+
       // dd(ProductStock::comboProcess(3,-130));
-        
+
 
     }
 }

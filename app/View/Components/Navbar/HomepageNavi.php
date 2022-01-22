@@ -1,21 +1,20 @@
 <?php
 
-namespace App\View\Components\product;
+namespace App\View\Components\Navbar;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\View\Component;
 
-class PurchaseNavi extends Component
+class HomepageNavi extends Component
 {
     /**
      * Create a new component instance.
      *
      * @return void
      */
-    public function __construct($id)
+    public function __construct()
     {
         //
-        $this->id = $id;
     }
 
     /**
@@ -26,8 +25,7 @@ class PurchaseNavi extends Component
     public function render()
     {
         $route_name = explode('.', Route::getCurrentRoute()->getName())[2];
-        return view('components.product.purchase-navi', [
-            'id' => $this->id,
+        return view('components.navbar.homepage-navi', [
             'route_name' => $route_name,
         ]);
     }

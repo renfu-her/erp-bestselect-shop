@@ -402,6 +402,9 @@ input.form-control[type="month"] {
   color: #999;
   background-color: $input-bg;
 }
+:disabled + .show_words_length::after {
+  background-color: $input-disabled-bg;
+}
 .is-invalid ~ .show_words_length::after {
   right: 38px;
 }
