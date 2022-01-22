@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">階層管理</h2>
+    <h2 class="mb-4">選單列表設定</h2>
     <div class="card shadow p-4 mb-4">
         <div class="row justify-content-end mb-4">
             <div class="col">
