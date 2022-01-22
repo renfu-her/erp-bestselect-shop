@@ -7,6 +7,7 @@
         <a href="{{ Route('cms.navinode.index', ['level' => $prev]) }}" class="btn btn-primary">
             <i class="bi bi-arrow-left"></i> 返回上一階層
         </a>
+        <h3>工程版</h3>
     </div>
 @endif
 <form method="GET" action="{{ Route('cms.navinode.sort', ['level' => $level]) }}">

@@ -227,7 +227,7 @@ class NaviNodeCtrl extends Controller
         $id = $request->input('id');
 
         NaviNode::sort($id);
-
+        wToast('排序完成');
         return redirect()->back();
     }
 }

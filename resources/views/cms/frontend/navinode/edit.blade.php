@@ -4,6 +4,7 @@
         <a href="{{ Route('cms.navinode.index', ['level' => $level]) }}" class="btn btn-primary" role="button">
             <i class="bi bi-arrow-left"></i> 返回上一頁
         </a>
+        <h3>工程版</h3>
     </div>
 
     <form method="post" action="{{ $formAction }}" novalidate>
