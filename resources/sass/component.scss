@@ -236,6 +236,16 @@ select.-select2 {
 .sortabled .placeholder-highlight {
   height: 38px;
 }
+table .sortabled {
+    tr.placeholder-highlight {
+        display: table-row;
+    }
+    
+    tr.ui-sortable-helper > * {
+        border-bottom: none;
+        font-weight: bold;
+    }
+}
 // 圖片上傳區
 .upload_image_block.-multiple .sortabled .placeholder-highlight {
     width: 120px;

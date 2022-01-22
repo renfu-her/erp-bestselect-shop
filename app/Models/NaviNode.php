@@ -45,12 +45,12 @@ class NaviNode extends Model
         $re = $re->get()->first();
         /*
         $b[] = [
-            'id' => '0',
-            'title' => '列表',
-            'path' => '0',
+        'id' => '0',
+        'title' => '列表',
+        'path' => '0',
         ];
-        */
-        $b=[];
+         */
+        $b = [];
         $path = '';
         for ($i = count($arrLevel) - 2; $i >= 0; $i--) {
             // dd($i);
@@ -62,30 +62,27 @@ class NaviNode extends Model
             ];
 
         }
-     
+
         return $b;
     }
 
     public static function createNode($parent_id, $title, $url = null, $group_id = null, $has_child = 0, $type = "url", $target = "_self")
     {
         $data = ['title' => $title,
-            'parent_id' => $parent_id,
-            'type' => $type,
-            'url' => $url,
-            'group_id' => $group_id,
             'has_child' => $has_child,
-            'target' => $target,
+            'parent_id' => $parent_id,
+            'type' => null,
+            'url' => null,
+            'group_id' => null,
+            'target' => null,
         ];
 
-        if ($group_id) {
-            $gData = Collection::where('id', $group_id)->select('url')->get()->first();
-            if (!$gData) {
-                return ['success' => 0, 'error_msg' => "群組ID無效"];
+        if ($has_child == 0) {
+            $re = self::hasChildProcess($data, $type, $url, $group_id, $target);
+            if ($re) {
+                return $re;
             }
-            $data['type'] = "group";
-            $data['url'] = $gData->url;
         }
-
         if ($parent_id == 0) {
             $data['level'] = 1;
         } else {
@@ -97,9 +94,82 @@ class NaviNode extends Model
             $data['level'] = $level;
         }
 
+        /*
+        $data = ['title' => $title,
+        'parent_id' => $parent_id,
+        'type' => $type,
+        'url' => $url,
+        'group_id' => $group_id,
+        'has_child' => $has_child,
+        'target' => $target,
+        ];
+
+        if ($group_id) {
+        $gData = Collection::where('id', $group_id)->select('url')->get()->first();
+        if (!$gData) {
+        return ['success' => 0, 'error_msg' => "群組ID無效"];
+        }
+        $data['type'] = "group";
+        $data['url'] = $gData->url;
+        }
+
+        if ($parent_id == 0) {
+        $data['level'] = 1;
+        } else {
+        $parent = self::where('id', $parent_id)->select('level', 'has_child')->get()->first();
+        if (!$parent || $parent->has_child == 0 || $parent->level == 3) {
+        return ['success' => 0, 'error_msg' => "新增失敗"];
+        }
+        $level = $parent->level + 1;
+        $data['level'] = $level;
+        }
+         */
         $id = self::create($data)->id;
 
         return ['success' => 1, 'id' => $id];
+    }
+
+    public static function updateNode($id, $title, $url = null, $group_id = null, $has_child = 0, $type = "url", $target = "_self")
+    {
+        $data = ['title' => $title,
+            'has_child' => $has_child,
+            'type' => null,
+            'url' => null,
+            'group_id' => null,
+            'target' => null,
+        ];
+
+        if ($has_child == 0) {
+            $re = self::hasChildProcess($data, $type, $url, $group_id, $target);
+            if ($re) {
+                return $re;
+            }
+        }
+
+        $id = self::where('id', $id)->update($data);
+
+        return ['success' => 1];
+    }
+
+    private static function hasChildProcess(&$data, $type, $url, $group_id, $target)
+    {
+        switch ($type) {
+            case 'url':
+                $data['url'] = $url;
+                break;
+            case 'group':
+                $gData = Collection::where('id', $group_id)->select('url')->get()->first();
+                if (!$gData) {
+                    return ['success' => 0, 'error_msg' => "群組ID無效"];
+                }
+                $data['url'] = $gData->url;
+                $data['group_id'] = $group_id;
+                break;
+        }
+
+        $data['type'] = $type;
+        $data['target'] = $target;
+        return null;
     }
 
     public static function tree($id = 0)
@@ -192,6 +262,20 @@ class NaviNode extends Model
         if ($tree['ids']) {
             self::whereIn('id', $tree['ids'])->delete();
         }
+    }
+
+    public static function sort($sorts = null)
+    {
+       
+        $sorts = implode(',', array_map(function ($n, $k) {
+            return "(" . $n . "," . ($k * 10) . ")";
+        }, $sorts, array_keys($sorts)));
+
+        DB::select("INSERT INTO idx_navi_node
+        (id, sort)
+        VALUES $sorts
+        ON DUPLICATE KEY UPDATE
+            sort = VALUES(sort)");
     }
 
 }

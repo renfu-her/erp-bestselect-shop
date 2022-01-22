@@ -114,7 +114,10 @@
         handle = '.icon.-move',
         items = '.sortabled_box',
         placeholder = 'placeholder-highlight',
+        forcePlaceholderSize = false,
         activate = function (e, ui) {  },
+        sort = function (e, ui) {  },
+        start = function (e, ui) {  },
         stop = function (e, ui) {  },
         update = function (e, ui) {  }
     } = {}) {
@@ -127,7 +130,10 @@
             handle,
             items,
             placeholder,
+            forcePlaceholderSize,
             activate,
+            sort,
+            start,
             stop,
             update
         });

@@ -81,7 +81,7 @@ return
                 "route_name" => "cms.collection.index",
             ],
             [
-                "title" => "選單設定",
+                "title" => "選單列表設定",
                 "controller_name" => "NaviNodeCtrl",
                 "route_name" => "cms.navinode.index",
             ],
