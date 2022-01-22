@@ -273,7 +273,6 @@ Breadcrumbs::for('cms.collection.edit', function (BreadcrumbTrail $trail) {
     $trail->push('編輯');
 });
 
-
 /** 帳號管理 */
 
 // 員工帳號管理
@@ -328,4 +327,14 @@ Breadcrumbs::for('cms.permission.child-create', function (BreadcrumbTrail $trail
 Breadcrumbs::for('cms.permission.child-edit', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.permission.child', $value);
     $trail->push('編輯');
+});
+
+// 前端多階層選單
+
+Breadcrumbs::for('cms.navinode.index', function ($trail, $value) {
+    $trail->parent('cms.dashboard');
+    $trail->push('選單設定', route('cms.navinode.index'));
+    foreach ($value as $v) {
+        $trail->push($v['title'], route('cms.navinode.index', ['level' => $v['path']]));
+    }
 });

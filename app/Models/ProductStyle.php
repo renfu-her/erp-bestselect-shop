@@ -7,12 +7,21 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * 處理商品的款式 Model
+ */
 class ProductStyle extends Model
 {
     use HasFactory, SoftDeletes;
     protected $table = 'prd_product_styles';
     protected $guarded = [];
 
+    /**
+     * @param $product_id
+     * @param int[] $item_ids Table prd_spec_items primary_id
+     *
+     * @return array
+     */
     private static function _specQuery($product_id, $item_ids)
     {
         return DB::table('prd_product_spec as ps')
@@ -23,6 +32,17 @@ class ProductStyle extends Model
             ->orderBy('ps.rank', 'ASC')->get()->toArray();
     }
 
+    /**
+     * @param int $product_id
+     * @param int[] $item_ids Table prd_spec_items' primary_id array
+     * 同一規格的spec_id只能傳入1個,
+     * 例如商品A，規格「容量」有項目「100ML」,「200ML」，對應的pimary_id為1, 2
+     *          規格「顏色」有項目「紅」,「藍」對應的primary_id為3, 4
+     *          $item_ids只需傳入[1, 3],[1, 4],[2, 3], [2,4]
+     * @param int $is_active 上下架
+     *
+     * @return void
+     */
     public static function createStyle($product_id, $item_ids, $is_active = 1)
     {
 
@@ -71,6 +91,13 @@ class ProductStyle extends Model
 
     }
 
+    /**
+     * 建立商品各款式SKU(商品SKU後面再加流水號）
+     * @param $product_id
+     * @param int $id this model's primary_id
+     *
+     * @return false|mixed
+     */
     public static function createSku($product_id, $id)
     {
         $product = Product::where('id', $product_id)->get()->first();
@@ -202,10 +229,10 @@ class ProductStyle extends Model
                     return $a['qty'] > $b['qty'];
                 });
 
-               
+
                 foreach ($data as $value) {
                     if ($value['qty'] != 0) {
-                        
+
                         SaleChannel::changeStock($value['sale_id'], $style_id, $value['qty']);
                         $re = ProductStock::stockChange($style_id, $value['qty'] * -1, 'sale', $value['sale_id']);
                         if (!$re['success']) {

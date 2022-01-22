@@ -8,6 +8,7 @@ use App\Models\PayingOrders;
 use App\Models\Purchase;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseItem;
+use App\Models\PurchaseLog;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -442,10 +443,12 @@ class PurchaseCtrl extends Controller
      */
     public function historyLog(Request $request, $id) {
         $purchaseData = Purchase::getPurchase($id)->first();
+        $purchaseLog = PurchaseLog::getData($id)->get();
 
         return view('cms.commodity.purchase.log', [
             'id' => $id,
             'purchaseData' => $purchaseData,
+            'purchaseLog' => $purchaseLog,
             'breadcrumb_data' => $purchaseData->purchase_sn,
         ]);
     }

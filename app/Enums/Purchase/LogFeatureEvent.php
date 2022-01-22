@@ -16,11 +16,13 @@ final class LogFeatureEvent extends Enum
     const pcs_del = 'pcs_del';
     const pcs_close = 'pcs_close';
     const pcs_change_data = 'pcs_change_data';
-    const pcs_style_add = 'pcs_style_add';
-    const pcs_style_del = 'pcs_style_del';
-    const pcs_style_change_data = 'pcs_style_change_data';
-    const pcs_change_price = 'pcs_change_price';
-    const pcs_change_qty = 'pcs_change_qty';
+
+    //款式
+    const style_add = 'style_add';
+    const style_del = 'style_del';
+    const style_change_data = 'style_change_data';
+    const style_change_price = 'style_change_price';
+    const style_change_qty = 'style_change_qty';
 
     //入庫
     const inbound_add = 'inbound_add';
@@ -50,19 +52,19 @@ final class LogFeatureEvent extends Enum
             case self::pcs_change_data:
                 $result = '採購單修改內容';
                 break;
-            case self::pcs_style_add:
+            case self::style_add:
+                $result = '新增商品';
+                break;
+            case self::style_del:
                 $result = '刪除商品';
                 break;
-            case self::pcs_style_del:
-                $result = '刪除商品';
-                break;
-            case self::pcs_style_change_data:
+            case self::style_change_data:
                 $result = '採購單修改商品內容';
                 break;
-            case self::pcs_change_qty:
+            case self::style_change_qty:
                 $result = '修改數量';
                 break;
-            case self::pcs_change_price:
+            case self::style_change_price:
                 $result = '修改價錢';
                 break;
 
