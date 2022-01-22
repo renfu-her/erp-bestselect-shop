@@ -73,31 +73,7 @@ class NaviNodeCtrl extends Controller
             }
             $parent_id = $match[1];
         }
-
-        $request->validate([
-            'title' => ['required', 'string'],
-            'has_child' => 'required|in:0,1',
-        ]);
-
-        $d = request()->all();
-        if ($d['has_child'] == 0) {
-            $request->validate([
-                'type' => ['required', 'in:url,group'],
-                'target' => ['required', 'in:_self,_blank'],
-            ]);
-            switch ($d['type']) {
-                case 'url':
-                    $request->validate([
-                        'url' => ['required'],
-                    ]);
-                    break;
-                case 'group':
-                    $request->validate([
-                        'group_id' => ['required'],
-                    ]);
-                    break;
-            }
-        }
+        $this->vali($request, $d, $level);
 
         $re = NaviNode::createNode($parent_id, $d['title'], $d['url'], $d['group_id'], $d['has_child'], $d['type'], $d['target']);
         if (!$re['success']) {
@@ -106,6 +82,50 @@ class NaviNodeCtrl extends Controller
 
         wToast('更新完成');
         return redirect(route('cms.navinode.index', ['level' => $level]));
+
+    }
+
+    public function vali($request, &$d = [], $level)
+    {
+        $request->validate([
+            'title' => ['required', 'string'],
+            'has_child' => 'required|in:0,1',
+        ]);
+
+        $data = request()->all();
+
+        $d['url'] = null;
+        $d['group_id'] = null;
+        $d['type'] = null;
+        $d['url'] = null;
+        $d['target'] = null;
+        $d['has_child'] = $data['has_child'];
+        $d['title'] = $data['title'];
+
+        if ($d['has_child'] == 0) {
+            $request->validate([
+                'type' => ['required', 'in:url,group'],
+                'target' => ['required', 'in:_self,_blank'],
+            ]);
+            $data['type'] = $d['type'];
+            $data['target'] = $d['target'];
+
+            switch ($d['type']) {
+                case 'url':
+                    $request->validate([
+                        'url' => ['required'],
+                    ]);
+                    $d['url'] = $data['url'];
+                    break;
+                case 'group':
+                    $request->validate([
+                        'group_id' => ['required'],
+                    ]);
+                    $d['group_id'] = $data['group_id'];
+
+                    break;
+            }
+        }
 
     }
 
@@ -153,31 +173,9 @@ class NaviNodeCtrl extends Controller
      */
     public function update(Request $request, $level = 0, $id)
     {
-        //
-        $request->validate([
-            'title' => ['required', 'string'],
-            'has_child' => 'required|in:0,1',
-        ]);
 
-        $d = request()->all();
-        if ($d['has_child'] == 0) {
-            $request->validate([
-                'type' => ['required', 'in:url,group'],
-                'target' => ['required', 'in:_self,_blank'],
-            ]);
-            switch ($d['type']) {
-                case 'url':
-                    $request->validate([
-                        'url' => ['required'],
-                    ]);
-                    break;
-                case 'group':
-                    $request->validate([
-                        'group_id' => ['required'],
-                    ]);
-                    break;
-            }
-        }
+        $this->vali($request, $d, $level);
+
         $re = NaviNode::updateNode($id, $d['title'], $d['url'], $d['group_id'], $d['has_child'], $d['type'], $d['target']);
         if (!$re['success']) {
             return redirect()->back()->withErrors(['status' => $re['error_msg']]);
@@ -202,7 +200,8 @@ class NaviNodeCtrl extends Controller
 
     }
 
-    public function sort(Request $request){
+    public function sort(Request $request)
+    {
         $request->validate([
             'id' => ['required', 'array'],
             'id.*' => 'numeric',
