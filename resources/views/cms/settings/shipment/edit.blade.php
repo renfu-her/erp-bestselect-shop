@@ -14,7 +14,7 @@
             @csrf
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
-                    <x-b-form-group name="name" title="物流運費名稱" required="true">
+                    <x-b-form-group name="name" title="物流名稱" required="true">
                         <input class="form-control @error('name') is-invalid @enderror"
                                name="name"
                                value="{{ old('shipName', $shipName ?? '') }}"/>
@@ -23,7 +23,7 @@
             </div>
             <div class="row">
                 <fieldset class="col-12 col-sm-6 mb-3">
-                    <legend class="col-form-label p-0 mb-2">運送溫度 <span class="text-danger">*</span></legend>
+                    <legend class="col-form-label p-0 mb-2">溫層 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
                         @foreach($shipTemps as $key => $temps_data)
                             <div class="form-check form-check-inline">
