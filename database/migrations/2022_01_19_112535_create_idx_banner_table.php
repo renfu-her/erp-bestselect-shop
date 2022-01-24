@@ -21,6 +21,7 @@ class CreateIdxBannerTable extends Migration
             $table->string('event_url')->nullable()->comment('事件url');
             $table->string('img_pc')->nullable()->comment('圖片_電腦');
             $table->string('img_phone')->nullable()->comment('圖片_手機');
+            $table->string('target')->nullable()->comment('開啟方式 _self _blank');
             $table->tinyInteger('is_public')->default(0)->comment('開關 0:false 1:true');
             $table->integer('sort')->default(100)->comment('排序');
             $table->timestamps();
