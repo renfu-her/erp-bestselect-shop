@@ -14,49 +14,38 @@
             <fieldset class="col-12 mb-3">
                 <legend class="col-form-label p-0 mb-2">選擇版型 <span class="text-danger">*</span></legend>
                 <div class="row">
-                    <div class="col-12 col-sm-6 col-xl-4 mb-3">
-                        <label class="d-flex flex-wrap -template">
-                            <input type="radio" name="radio1" class="form-check-input" required>
-                            樣式一（左右滑動）
-                            <div class="mb-1 p-0 col-12">
-                                <div class="me-2 -preview">
-                                    <img src="{{ Asset('images/frontend/template_1.svg') }}" alt="樣式一（左右滑動）">
-                                    <div class="mask">
-                                        <i class="bi-check-circle-fill"></i>
+                    @foreach (App\Enums\Homepage\TemplateStyleType::asArray() as $key => $val)
+                        <div class="col-12 col-sm-6 col-xl-4 col-xxl-3 mb-3">
+                            <label class="d-flex flex-wrap -template">
+                                <input type="radio" name="style_type" value="{{$val}}" class="form-check-input" required
+                                       @if ($val == old('style_type', $data->style_type ?? '')) checked @endif>
+                                {{ $description = App\Enums\Homepage\TemplateStyleType::getDescription($val) }}
+                                <div class="mb-1 p-0 col-12">
+                                    <div class="me-2 -preview">
+                                        <img src="{{ Asset( App\Enums\Homepage\TemplateStyleType::getAsset($val) ) }}" alt="{{ $description }}">
+                                        <div class="mask">
+                                            <i class="bi-check-circle-fill"></i>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </label>
-                    </div>
-                    <div class="col-12 col-sm-6 col-xl-4 mb-3">
-                        <label class="d-flex flex-wrap -template">
-                            <input type="radio" name="radio1" class="form-check-input" required>
-                            樣式二（瀑布式）
-                            <div class="mb-1 p-0 col-12">
-                                <div class="me-2 -preview">
-                                    <img src="{{ Asset('images/frontend/template_2.svg') }}" alt="樣式一（左右滑動）">
-                                    <div class="mask">
-                                        <i class="bi-check-circle-fill"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </label>
-                    </div>
+                            </label>
+                        </div>
+                    @endforeach
                 </div>
             </fieldset>
             <div class="col-12 col-sm-6 mb-3">
                 <label class="form-label">大標題 <span class="text-danger">*</span></label>
-                <input class="form-control" value="" name=""
-                    type="text" placeholder="請輸入大標題" aria-label="大標題" maxlength="12">
+                <input class="form-control" name="title" value="{{old('title', $data->title ?? '')}}"
+                    type="text" placeholder="請輸入大標題" aria-label="大標題" maxlength="12" required>
             </div>
             <div class="col-12 col-sm-6 mb-3">
                 <div class="event_type">
-                    <label class="form-label">商品群組 <span class="text-danger">*</span></label>
-                    <select name="" class="form-select" required>
-                        <option value="" selected disabled>請選擇</option>
-                        <option value="1">item 1</option>
-                        <option value="2">item 2</option>
-                        <option value="3">item 3</option>
+                    <label class="form-label">商品群組<span class="text-danger">*</span></label>
+                    <select name="group_id" class="form-select" required>
+                        <option value="" @if('' == old('group_id', $data->group_id ?? '')) selected @endif disabled>請選擇</option>
+                        @foreach($collectionList as $key => $collection)
+                            <option value="{{$collection->id}}" @if($collection->id == old('group_id', $data->group_id ?? '')) selected @endif>{{$collection->name}}</option>
+                        @endforeach
                     </select>
                 </div>
             </div>
@@ -136,20 +125,6 @@
                 $(`div.event_type.-${val}`).children('select, input').prop({
                     'required': true, 'disabled': false
                 });
-            });
-
-            /*** 圖片 ***/
-            bindReadImageFile($('input[name="img_pc"]'), {
-                num: 'single',
-                fileInputName: 'img_pc',
-                maxSize: 300,
-                delFn: function ($x) {
-                    $x.siblings('img').attr('src', '');
-                    let img_box = $x.closest('.box');
-                    img_box.prop('hidden', true);
-                    img_box.siblings('.browser_box.-plusBtn').prop('hidden', false)
-                    img_box.siblings('input[name="img_pc"]').val('');
-                }
             });
 
         </script>

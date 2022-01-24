@@ -20,16 +20,16 @@
             <div class="col-auto text-center" style="width: 40px;">排序</div>
             <div class="col-auto text-center" style="width: 40px;">刪除</div>
         </div>
-        
+
         <div class="sortabled col-12">
             @foreach ($dataList as $key => $data)
             <div class="d-flex col-12 mb-3 sortabled_box">
                 <div class="input-group col">
                     <span class="input-group-text" style="width: 50px;">{{ $data->id }}</span>
-                    <input type="hidden" name="banner_id[]" value="{{$data->id}}">
+                    <input type="hidden" name="template_id[]" value="{{$data->id}}">
                     <span class="form-control">{{ $data->title }}</span>
                 </div>
-                <a href="{{ Route('cms.homepage.template.edit', ['id' => $data->id], true) }}" 
+                <a href="{{ Route('cms.homepage.template.edit', ['id' => $data->id], true) }}"
                     data-bs-toggle="tooltip" title="編輯"
                     class="icon -edit icon-btn col-auto fs-5 text-primary rounded-circle border-0 p-0">
                     <i class="bi bi-pencil-square"></i>
@@ -47,7 +47,7 @@
             @endforeach
         </div>
     </div>
-    
+
     <div>
         <div class="col-auto">
             <button type="submit" class="btn btn-primary px-4"
@@ -55,7 +55,7 @@
             >儲存排序</button>
         </div>
     </div>
-    
+
 </form>
 
 <x-b-modal id="confirm-delete">

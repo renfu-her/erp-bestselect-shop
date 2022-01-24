@@ -24,18 +24,6 @@ class BannerCtrl extends Controller
     public function sort(Request $request)
     {
         Banner::sort($request);
-        $req_banner_ids = $request->input('banner_id');
-        if (isset($req_banner_ids) && 0 < count($req_banner_ids)) {
-            $banner_ids = implode(',', $req_banner_ids);
-            $condtion = '';
-            foreach ($req_banner_ids as $sort => $id) {
-                $condtion = $condtion. ' when '. $id. ' then '. $sort;
-            }
-            DB::update('update idx_banner set sort = case id'
-                . $condtion
-                . ' end where id in ('. $banner_ids. ')'
-            );
-        }
 
         wToast(__('Edit finished.'));
         return redirect(Route('cms.homepage.banner.index'));
@@ -43,7 +31,6 @@ class BannerCtrl extends Controller
 
     public function create(Request $request)
     {
-        $collectionList = Collection::all();
         return view('cms.frontend.homepage.banner.edit', [
             'method' => 'create',
             'collectionList' => Collection::all(),
@@ -56,7 +43,7 @@ class BannerCtrl extends Controller
         $query = $request->query();
         $bannerID = Banner::storeNewBanner($request);
         wToast(__('Add finished.'));
-        return redirect(Route('cms.sale_channel.edit', [
+        return redirect(Route('cms.homepage.banner.edit', [
             'id' => $bannerID,
             'query' => $query,
         ]));
@@ -73,6 +60,7 @@ class BannerCtrl extends Controller
             'id' => $id,
             'data' => $data,
             'method' => 'edit',
+            'collectionList' => Collection::all(),
             'formAction' => Route('cms.homepage.banner.edit', ['id' => $id]),
             'breadcrumb_data' => $id,
         ]);
