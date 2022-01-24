@@ -5,222 +5,216 @@
             <i class="bi bi-arrow-left"></i> 返回上一頁
         </a>
     </div>
-    <h2 class="mb-4">
-        @if ($method === 'create') 新增 @else 編輯 @endif 物流運費
-    </h2>
-    <form class="card-body" method="post" action="{{ $formAction }}">
-        <div class="card shadow p-4 mb-4">
-            @method('POST')
-            @csrf
-            <div class="row">
-                <div class="col-12 col-sm-6 mb-3">
+
+    <form method="post" action="{{ $formAction }}">
+        @method('POST')
+        @csrf
+
+        <div class="card mb-4">
+            <div class="card-header">@if ($method === 'create') 新增 @else 編輯 @endif 物流運費</div>
+            <div class="card-body">
+                <div class="row">
                     <x-b-form-group name="name" title="物流名稱" required="true">
                         <input class="form-control @error('name') is-invalid @enderror"
-                               name="name"
-                               value="{{ old('shipName', $shipName ?? '') }}"/>
+                            name="name" placeholder="請輸入物流名稱"
+                            value="{{ old('shipName', $shipName ?? '') }}"/>
+                    </x-b-form-group>
+                    <x-b-form-group name="temps" title="溫層" required="true">
+                        <div class="px-1">
+                            @foreach($shipTemps as $key => $temps_data)
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label">
+                                        <input class="form-check-input @error('temps') is-invalid @enderror"
+                                            value="{{ old('temps', $temps_data->temps ?? '')}}"
+                                            name="temps"
+                                            type="radio"
+                                            required
+                                            readonly
+                                            @if ($method == 'edit' && $temps_data->temps == $dataList[0]->temps)
+                                                checked
+                                            @endif
+                                        > {{ $temps_data->temps }}
+                                    </label>
+                                </div>
+                            @endforeach
+                        </div>
+                    </x-b-form-group>
+                    <x-b-form-group name="method" title="出貨方式" required="true">
+                        <div class="px-1">
+                            @foreach($shipMethods as $key => $shipMethod)
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label">
+                                        <input class="form-check-input @error('method') is-invalid @enderror"
+                                            name="method"
+                                            value="{{ $shipMethod->method }}"
+                                            type="radio"
+                                            required
+                                            @if ($method == 'edit' && $dataList[0]->method == $shipMethod->method)
+                                                checked
+                                                @endif
+                                        > {{ $shipMethod->method }}
+                                    </label>
+                                </div>
+                            @endforeach
+                        </div>
+                    </x-b-form-group>
+                    <x-b-form-group name="note" title="說明" required="true">
+                        <textarea name="note" class="form-control" placeholder="請輸入物流說明"
+                            rows="6">{{ old('note', $note ?? '') }}</textarea>
                     </x-b-form-group>
                 </div>
             </div>
-            <div class="row">
-                <fieldset class="col-12 col-sm-6 mb-3">
-                    <legend class="col-form-label p-0 mb-2">溫層 <span class="text-danger">*</span></legend>
-                    <div class="px-1 pt-1">
-                        @foreach($shipTemps as $key => $temps_data)
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input @error('temps') is-invalid @enderror"
-                                       value="{{ old('temps', $temps_data->temps ?? '')}}"
-                                       name="temps"
-                                       type="radio"
-                                       required
-                                       readonly
-                                       @if ($method == 'edit' && $temps_data->temps == $dataList[0]->temps)
-                                           checked
-                                    @endif
-                                >
-                                <label class="form-check-label">{{ $temps_data->temps }}</label>
-                            </div>
-                        @endforeach
-                    </div>
-                </fieldset>
-            </div>
-
-            <div class="row">
-                <fieldset class="col-12 col-sm-6 mb-3">
-                    <legend class="col-form-label p-0 mb-2 ">出貨方式 <span class="text-danger">*</span></legend>
-                    <div class="px-1 pt-1">
-                        @foreach($shipMethods as $key => $shipMethod)
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input @error('method') is-invalid @enderror"
-                                       name="method"
-                                       value="{{ $shipMethod->method }}"
-                                       type="radio"
-                                       required
-                                       @if ($method == 'edit' && $dataList[0]->method == $shipMethod->method)
-                                           checked
-                                        @endif
-                                >
-                                <label class="form-check-label">{{ $shipMethod->method }}</label>
-                            </div>
-                        @endforeach
-                    </div>
-                </fieldset>
-            </div>
-            <div class="col-12 mb-3">
-                <label class="form-label">說明</label>
-                <textarea name="note" class="form-control" placeholder=""
-                          rows="6">{{ old('note', $note ?? '') }}</textarea>
-            </div>
         </div>
 
-        <div class="card shadow p-4 mb-4">
-            <h6>
-                物流規則
-            </h6>
-            <div class="table-responsive tableOverBox">
-                <table class="table tableList table-striped">
-                    <thead>
-                    <tr>
-                        <th scope="col">刪除</th>
-                        <th scope="col">最少消費金額 <span class="text-danger">*</span></th>
-                        <th scope="col"></th>
-                        <th scope="col">以上/未滿 <span class="text-danger">*</span></th>
-                        <th scope="col">最多消費金額 <span class="text-danger">*</span></th>
-                        <th scope="col">運費 <span class="text-danger">*</span></th>
-                        <th scope="col">成本</th>
-                        <th scope="col">最多件數</th>
-                    </tr>
-                    </thead>
-                    <tbody class="-appendClone">
-                    @if ($method === 'create')
+        <div class="card mb-4">
+            <div class="card-header">物流規則</div>
+            <div class="card-body px-4">
+                <div class="table-responsive tableOverBox">
+                    <table class="table tableList table-striped">
+                        <thead>
                         <tr>
-                            <td></td>
-                            <td>
-                                <input name="min_price[]"
-                                       type="number"
-                                       class="form-control form-control-sm -l @error('min_price.*') is-invalid @enderror"
-                                       value="0"
-                                       readonly
-                                       aria-label=""/>
-                            </td>
-                            <td>~</td>
-                            <td>
-                                <select name="is_above[]"
-                                        class="form-select form-select-sm @error('is_above.*') is-invalid @enderror">
-                                    <option value="false">未滿</option>
-                                    <option value="true">以上</option>
-                                </select>
-                            </td>
-                            <td>
-                                <input type="number"
-                                       name="max_price[]"
-                                       class="form-control form-control-sm -l @error('max_price.*') is-invalid @enderror"
-                                       value=""
-                                       aria-label=""
-                                       required/>
-                            </td>
-                            <td>
-                                <input type="number"
-                                       name="dlv_fee[]"
-                                       class="form-control form-control-sm -l @error('dlv_fee.*') is-invalid @enderror"
-                                       value=""
-                                       aria-label=""
-                                       required/>
-                            </td>
-                            <td>
-                                <input type="number"
-                                       name="dlv_cost[]"
-                                       class="form-control form-control-sm -l @error('dlv_cost.*') is-invalid @enderror"
-                                       value=""
-                                       aria-label=""/>
-                            </td>
-                            <td>
-                                <input type="number"
-                                       name="at_most[]"
-                                       class="form-control form-control-sm -l @error('at_most.*') is-invalid @enderror"
-                                       value=""
-                                       aria-label=""/>
-                            </td>
+                            <th scope="col">刪除</th>
+                            <th scope="col">最少消費金額 <span class="text-danger">*</span></th>
+                            <th scope="col"></th>
+                            <th scope="col">以上/未滿 <span class="text-danger">*</span></th>
+                            <th scope="col">最多消費金額 <span class="text-danger">*</span></th>
+                            <th scope="col">運費 <span class="text-danger">*</span></th>
+                            <th scope="col">成本</th>
+                            <th scope="col">最多件數</th>
                         </tr>
-                    @endif
-                    @if ($method === 'edit')
-                        @foreach($dataList as $key => $data)
+                        </thead>
+                        <tbody class="-appendClone">
+                        @if ($method === 'create')
                             <tr>
-                                <td>
-                                    @if($key == array_key_last($dataList->toArray()) &&
-                                        $key != 0)
-                                        <button type="button"
-                                                class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    @endif
-                                </td>
+                                <td></td>
                                 <td>
                                     <input name="min_price[]"
-                                           type="number"
-                                           class="form-control form-control-sm -l @error('min_price.*') is-invalid @enderror"
-                                           aria-label=""
-                                           required
-                                           value="{{ $data->min_price }}"
-                                           @if ($key == 0)
-                                               readonly
-                                            @endif
-                                    />
+                                        type="number"
+                                        class="form-control form-control-sm -l @error('min_price.*') is-invalid @enderror"
+                                        value="0"
+                                        readonly
+                                        aria-label=""/>
                                 </td>
                                 <td>~</td>
                                 <td>
-                                    <select name="is_above[]" class="form-select form-select-sm @error('is_above.*') is-invalid @enderror">
+                                    <select name="is_above[]"
+                                            class="form-select form-select-sm @error('is_above.*') is-invalid @enderror">
                                         <option value="false">未滿</option>
-                                        <option value="true" @if ($data->is_above == 'true') selected @endif>以上</option>
+                                        <option value="true">以上</option>
                                     </select>
                                 </td>
                                 <td>
-                                    <input name="max_price[]"
-                                           type=
-                                                @if ($data->is_above == 'true')
-                                                    "hidden"
-                                                @else
-                                                    "number"
-                                                @endif
-                                            class="form-control form-control-sm -l @error('max_price.*') is-invalid @enderror"
-                                            value="{{ $data->max_price }}"
-                                            aria-label="" required/>
+                                    <input type="number"
+                                        name="max_price[]"
+                                        class="form-control form-control-sm -l @error('max_price.*') is-invalid @enderror"
+                                        value=""
+                                        aria-label=""
+                                        required/>
                                 </td>
                                 <td>
                                     <input type="number"
-                                           name="dlv_fee[]"
-                                           class="form-control form-control-sm -l @error('dlv_fee.*') is-invalid @enderror"
-                                           value="{{ $data->dlv_fee }}"
-                                           aria-label=""
-                                           required/>
+                                        name="dlv_fee[]"
+                                        class="form-control form-control-sm -l @error('dlv_fee.*') is-invalid @enderror"
+                                        value=""
+                                        aria-label=""
+                                        required/>
                                 </td>
                                 <td>
                                     <input type="number"
-                                           name="dlv_cost[]"
-                                           id="dlv_cost[]"
-                                           class="form-control form-control-sm -l @error('dlv_cost.*') is-invalid @enderror"
-                                           value="{{ $data->dlv_cost }}"
-                                           aria-label=""/>
+                                        name="dlv_cost[]"
+                                        class="form-control form-control-sm -l @error('dlv_cost.*') is-invalid @enderror"
+                                        value=""
+                                        aria-label=""/>
                                 </td>
                                 <td>
                                     <input type="number"
-                                           name="at_most[]"
-                                           class="form-control form-control-sm -l @error('at_most.*') is-invalid @enderror"
-                                           value="{{ $data->at_most }}"
-                                           aria-label=""/>
+                                        name="at_most[]"
+                                        class="form-control form-control-sm -l @error('at_most.*') is-invalid @enderror"
+                                        value=""
+                                        aria-label=""/>
                                 </td>
                             </tr>
-                        @endforeach
-                    @endif
+                        @endif
+                        @if ($method === 'edit')
+                            @foreach($dataList as $key => $data)
+                                <tr>
+                                    <td>
+                                        @if($key == array_key_last($dataList->toArray()) &&
+                                            $key != 0)
+                                            <button type="button"
+                                                    class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <input name="min_price[]"
+                                            type="number"
+                                            class="form-control form-control-sm -l @error('min_price.*') is-invalid @enderror"
+                                            aria-label=""
+                                            required
+                                            value="{{ $data->min_price }}"
+                                            @if ($key == 0)
+                                                readonly
+                                                @endif
+                                        />
+                                    </td>
+                                    <td>~</td>
+                                    <td>
+                                        <select name="is_above[]" class="form-select form-select-sm @error('is_above.*') is-invalid @enderror">
+                                            <option value="false">未滿</option>
+                                            <option value="true" @if ($data->is_above == 'true') selected @endif>以上</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input name="max_price[]"
+                                            type=
+                                                    @if ($data->is_above == 'true')
+                                                        "hidden"
+                                                    @else
+                                                        "number"
+                                                    @endif
+                                                class="form-control form-control-sm -l @error('max_price.*') is-invalid @enderror"
+                                                value="{{ $data->max_price }}"
+                                                aria-label="" required/>
+                                    </td>
+                                    <td>
+                                        <input type="number"
+                                            name="dlv_fee[]"
+                                            class="form-control form-control-sm -l @error('dlv_fee.*') is-invalid @enderror"
+                                            value="{{ $data->dlv_fee }}"
+                                            aria-label=""
+                                            required/>
+                                    </td>
+                                    <td>
+                                        <input type="number"
+                                            name="dlv_cost[]"
+                                            id="dlv_cost[]"
+                                            class="form-control form-control-sm -l @error('dlv_cost.*') is-invalid @enderror"
+                                            value="{{ $data->dlv_cost }}"
+                                            aria-label=""/>
+                                    </td>
+                                    <td>
+                                        <input type="number"
+                                            name="at_most[]"
+                                            class="form-control form-control-sm -l @error('at_most.*') is-invalid @enderror"
+                                            value="{{ $data->at_most }}"
+                                            aria-label=""/>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @endif
 
-                    </tbody>
-                </table>
-            </div>
-            <div class="d-grid mt-3">
-                <button type="button"
-                        class="btn btn-outline-primary border-dashed add_ship_rule"
-                        style="font-weight: 500;">
-                    <i class="bi bi-plus-circle bold"></i> 新增物流規則
-                </button>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="d-grid mt-3">
+                    <button type="button"
+                            class="btn btn-outline-primary border-dashed add_ship_rule"
+                            style="font-weight: 500;">
+                        <i class="bi bi-plus-circle bold"></i> 新增物流規則
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -234,8 +228,10 @@
             </div>
         @endif
 
-        <div class="d-flex justify-content-end mt-3">
+        <div class="col-auto">
             <button type="submit" class="btn btn-primary px-4">儲存</button>
+            <a href="{{ Route('cms.shipment.index') }}" class="btn btn-outline-primary px-4"
+                role="button">返回列表</a>
         </div>
     </form>
 @endsection
