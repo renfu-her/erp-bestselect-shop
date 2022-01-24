@@ -156,7 +156,7 @@
 
         @if ($method === 'edit')
             <input type='hidden' name='id' value="{{ old('id', $id) }}"/>
-                
+
             <div class="card shadow p-4 mb-4">
                 <h6>付款單</h6>
                 <div class="row">
@@ -175,6 +175,10 @@
                 </div>
             </div>
         @endif
+
+        @error('item_error')
+        <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
 
         <div id="submitDiv">
             <div class="col-auto">

@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\Globals\FrontendApiUrl;
 use App\Enums\Homepage\BannerEventType;
-use App\Helpers\IttmsUtils;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -29,7 +29,7 @@ class Banner extends Model
                 , 'event_type' => $request->input('event_type')
                 , 'event_id' => $request->input('event_id')
                 , 'event_url' => $request->input('event_url')
-                , 'target' => $request->input('target')?? null
+                , 'target' => $request->input('target')
                 , 'is_public' => $request->input('is_public')
             ])->id;
 
@@ -60,6 +60,7 @@ class Banner extends Model
 //            , 'event_url' => 'required_without:event_id|string'
             , 'img_pc' => 'max:10000|mimes:jpg,jpeg,png,bmp'
             , 'img_phone' => 'max:10000|mimes:jpg,jpeg,png,bmp'
+            , 'target' => 'required|string'
             , 'is_public' => 'required|numeric'
         ]);
 
@@ -67,7 +68,7 @@ class Banner extends Model
         $event_id = $request->input('event_id');
         $event_url = $request->input('event_url');
         if (!BannerEventType::hasKey($event_type)) {
-            throw ValidationException::withMessages(['event error' => '未選擇類型']);
+            throw ValidationException::withMessages(['event_error' => '未選擇類型']);
         }
         if (BannerEventType::none()->value == $event_type) {
             $request->merge(['event_id' => null]);
@@ -75,12 +76,12 @@ class Banner extends Model
         } else if (BannerEventType::group()->value == $event_type) {
             $request->merge(['event_url' => null]);
             if (null == $event_id) {
-                throw ValidationException::withMessages(['event error' => '類型為群組，但未選擇群組']);
+                throw ValidationException::withMessages(['event_error' => '類型為群組，但未選擇群組']);
             }
         } else if (BannerEventType::url()->value == $event_type) {
             $request->merge(['event_id' => null]);
             if (null == $event_url) {
-                throw ValidationException::withMessages(['event error' => '類型為連結，但未輸入連結']);
+                throw ValidationException::withMessages(['event_error' => '類型為連結，但未輸入連結']);
             }
         }
         return $request;
@@ -111,7 +112,7 @@ class Banner extends Model
                     'title' => $request->input('title')
                     , 'event_type' => $request->input('event_type')
                     , 'event_id' => $request->input('event_id')
-                    , 'target' => $request->input('target')?? null
+                    , 'target' => $request->input('target')
                     , 'is_public' => $request->input('is_public')
                 ];
                 $updateData = Banner::setValueToArr($updateData, 'event_url', $request->input('event_url'));
@@ -176,18 +177,25 @@ class Banner extends Model
 
 
     public static function getListWithWeb($is_public = null) {
+        $groupDoman = frontendUrl(FrontendApiUrl::collection());
+        $queryUrlCase = 'case event_id
+            when collection.id is not null
+                then concat("'. $groupDoman. '", collection.url)
+            else banner.event_url
+            end';
+
         $result = DB::table('idx_banner as banner')
+            ->leftJoin('collection', 'collection.id', '=', 'banner.event_id')
             ->select(
                 'banner.id',
                 'banner.title',
                 'banner.event_type',
-                'banner.event_id',
-                'banner.event_url',
                 'banner.img_pc',
                 'banner.target',
                 'banner.is_public',
                 'banner.sort'
-            );
+            )
+            ->selectRaw('('. $queryUrlCase . ') as url');
         if ($is_public) {
             $result->where('banner.is_public', '=', $is_public);
         }
