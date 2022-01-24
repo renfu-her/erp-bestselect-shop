@@ -26,23 +26,20 @@ class ShipmentCtrl extends Controller
         $shipList = $shipment->getShipmentList();
         $dataList = $shipList->paginate($data_per_page)->appends($query);
 
-        $data = $dataList->items();
         $uniqueGroupId = array();
-        foreach ($data as $datum) {
-            $uniqueGroupId[] = $datum->group_id_fk;
+        $uniqueDataList = array();
+        foreach ($dataList as $datum) {
+            if (!in_array($datum->group_id_fk, $uniqueGroupId)) {
+                $uniqueGroupId[] = $datum->group_id_fk;
+                $group = $shipment->getEditShipmentData($datum->group_id_fk);
+                $datum->group = $group;
+                $uniqueDataList[] = $datum;
+            }
         }
-        $uniqueGroupId = array_unique($uniqueGroupId);
-        $groupIdColorIndex = array();
-        $index = 0;
-        foreach ($uniqueGroupId as $group_id) {
-            $groupIdColorIndex[$index] = $group_id;
-            $index++;
-        }
-
         return view('cms.settings.shipment.list', [
             'dataList'          => $dataList,
+            'uniqueDataList'    => $uniqueDataList,
             'data_per_page'     => $data_per_page,
-            'groupIdColorIndex' => $groupIdColorIndex
         ]);
         //
     }

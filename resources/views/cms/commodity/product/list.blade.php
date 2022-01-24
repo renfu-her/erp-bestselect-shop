@@ -2,7 +2,7 @@
 @section('sub-content')
     <h2 class="mb-4">商品管理</h2>
     
-    <form action="{{ Route('cms.product.index') }}" method="GET">
+    <form id="search" action="{{ Route('cms.product.index') }}" method="GET">
         <div class="card shadow p-4 mb-4">
             <h6>搜尋條件</h6>
             <div class="row">
@@ -115,6 +115,10 @@
     @endpush
     @push('sub-scripts')
         <script>
+            $('#dataPerPageElem').on('change', function(e) {
+                $('input[name=data_per_page]').val($(this).val());
+                $('#search').submit();
+            });
         </script>
     @endpush
 @endOnce
