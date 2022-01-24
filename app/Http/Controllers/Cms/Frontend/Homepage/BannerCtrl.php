@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Banner;
 use App\Models\Collection;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class BannerCtrl extends Controller
 {
