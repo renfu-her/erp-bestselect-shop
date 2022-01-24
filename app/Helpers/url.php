@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Globals\FrontendApiUrl;
 
 if (!function_exists('isActive')) {
     function isActive(String $routeName, String $currentRouteName)
@@ -14,18 +15,25 @@ if (!function_exists('isActive')) {
 
 if (!function_exists('getPageCount')) {
     function getPageCount($pageCount)
-    {   
+    {
         $maxPage = config('global.dataPerPage');
-        if(!is_numeric($pageCount)){
+        if (!is_numeric($pageCount)) {
             return $maxPage[0];
         }
-        
+
         rsort($maxPage);
         if ($pageCount > $maxPage[0]) {
             return $maxPage[0];
         }
 
-        return $pageCount;     
-        
+        return $pageCount;
+
+    }
+}
+
+if (!function_exists('frontendUrl')) {
+    function frontendUrl(FrontendApiUrl $category)
+    { 
+        return env('FRONTEND_URL') . $category->value . "/";
     }
 }
