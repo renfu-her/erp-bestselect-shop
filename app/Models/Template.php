@@ -92,7 +92,7 @@ class Template extends Model
                 'template.sort',
             );
         if ($is_public) {
-            $result->where('banner.is_public', '=', $is_public);
+            $result->where('template.is_public', '=', $is_public);
         }
         return $result;
     }
