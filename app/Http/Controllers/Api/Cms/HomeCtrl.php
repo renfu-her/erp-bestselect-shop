@@ -12,7 +12,7 @@ class HomeCtrl extends Controller
     //
     public function getBannerList(Request $request)
     {
-        $dataList = Banner::getList()->orderBy('sort')->get();
+        $dataList = Banner::getList(true)->orderBy('sort')->get();
         $re = [];
         $re['status'] = '0';
         $re['data'] = $dataList->toArray();
@@ -22,7 +22,7 @@ class HomeCtrl extends Controller
 
     public function getTemplateList(Request $request)
     {
-        $dataList = Template::getList()->orderBy('sort')->get();
+        $dataList = Template::getList(true)->orderBy('sort')->get();
 
         $re = [];
         $re['status'] = '0';

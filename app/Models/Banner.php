@@ -152,8 +152,8 @@ class Banner extends Model
         }
     }
 
-    public static function getList() {
-        return DB::table('idx_banner as banner')
+    public static function getList($is_public = null) {
+        $result = DB::table('idx_banner as banner')
             ->select(
                 'banner.id',
                 'banner.title',
@@ -164,5 +164,9 @@ class Banner extends Model
                 'banner.is_public',
                 'banner.sort'
             );
+        if ($is_public) {
+            $result->where('banner.is_public', '=', $is_public);
+        }
+        return $result;
     }
 }
