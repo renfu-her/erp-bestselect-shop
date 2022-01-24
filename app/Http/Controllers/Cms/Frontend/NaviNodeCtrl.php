@@ -17,7 +17,6 @@ class NaviNodeCtrl extends Controller
      */
     public function index(Request $request, $level = 0)
     {
-        
         $parent_id = 0;
         $prev = null;
         if ($level) {

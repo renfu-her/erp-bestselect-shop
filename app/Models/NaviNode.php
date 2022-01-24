@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Globals\FrontendApiUrl;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
@@ -184,22 +185,25 @@ class NaviNode extends Model
                 'lv1.url as lv1_url',
                 'lv1.target as lv1_target',
                 'lv1.has_child as lv1_has_child',
+                'lv1.collection_id as lv1_collection_id',
                 'lv2.id as lv2_id',
                 'lv2.title as lv2_title',
                 'lv2.url as lv2_url',
                 'lv2.target as lv2_target',
                 'lv2.has_child as lv2_has_child',
+                'lv2.collection_id as lv2_collection_id',
                 'lv3.id as lv3_id',
                 'lv3.title as lv3_title',
                 'lv3.url as lv3_url',
                 'lv3.target as lv3_target',
-                'lv3.has_child as lv3_has_child')
+                'lv3.has_child as lv3_has_child',
+                'lv3.collection_id as lv3_collection_id')
             ->where('lv1.parent_id', $id)
             ->orderBy('lv1.sort')
             ->orderBy('lv2.sort')
             ->orderBy('lv3.sort')
             ->get()->toArray();
-        //  dd($re);
+        
         $tree = [];
         $ids = [];
         foreach ($re as $key => $value) {
@@ -235,7 +239,11 @@ class NaviNode extends Model
         ];
 
         if ($v->{"lv" . $level . "_has_child"} == 0) {
-            $re['url'] = $v->{"lv" . $level . "_url"};
+            $host = "";
+            if ($v->{"lv" . $level . "_collection_id"}) {
+                $host = frontendUrl(FrontendApiUrl::collection());
+            }
+            $re['url'] = $host . $v->{"lv" . $level . "_url"};
             $re['target'] = $v->{"lv" . $level . "_target"};
         } else {
             $re['child'] = [];
@@ -287,7 +295,7 @@ class NaviNode extends Model
 
     public static function cacheProcess()
     {
-        Cache::put('tree',self::tree());
+        Cache::put('tree', (self::tree())['tree']);
     }
 
 }
