@@ -38,7 +38,11 @@
                     <tr>
                         <th scope="row">{{ $key + 1 }}</th>
                         <td>{{ $uData->name }}</td>
-                        <td>{{ $uData->temps }}</td>
+                        <td @class([
+                            'table-warning' => $uData->temps === '常溫',
+                            'table-success' => $uData->temps === '冷藏',
+                            'table-primary' => $uData->temps === '冷凍'
+                        ])>{{ $uData->temps }}</td>
                         <td>{{ $uData->method }}</td>
                         <td class="text-center">
                             @can('cms.shipment.edit')
