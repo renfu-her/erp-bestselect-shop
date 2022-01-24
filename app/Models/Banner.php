@@ -153,6 +153,16 @@ class Banner extends Model
     }
 
     public static function getList() {
-        return DB::table('idx_banner as banner');
+        return DB::table('idx_banner as banner')
+            ->select(
+                'banner.id',
+                'banner.title',
+                'banner.event_type',
+                'banner.event_id',
+                'banner.event_url',
+                'banner.img_pc',
+                'banner.is_public',
+                'banner.sort'
+            );
     }
 }

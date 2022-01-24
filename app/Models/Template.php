@@ -80,6 +80,13 @@ class Template extends Model
     }
 
     public static function getList() {
-        return DB::table('idx_template as template');
+        return DB::table('idx_template as template')
+            ->select(
+                'template.id',
+                'template.title',
+                'template.group_id',
+                'template.style_type',
+                'template.sort',
+            );
     }
 }
