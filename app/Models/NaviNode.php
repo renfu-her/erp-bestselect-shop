@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class NaviNode extends Model
@@ -125,7 +126,7 @@ class NaviNode extends Model
         }
          */
         $id = self::create($data)->id;
-
+        self::cacheProcess();
         return ['success' => 1, 'id' => $id];
     }
 
@@ -147,6 +148,7 @@ class NaviNode extends Model
         }
 
         $id = self::where('id', $id)->update($data);
+        self::cacheProcess();
 
         return ['success' => 1];
     }
@@ -262,11 +264,13 @@ class NaviNode extends Model
         if ($tree['ids']) {
             self::whereIn('id', $tree['ids'])->delete();
         }
+        self::cacheProcess();
+
     }
 
     public static function sort($sorts = null)
     {
-       
+
         $sorts = implode(',', array_map(function ($n, $k) {
             return "(" . $n . "," . ($k * 10) . ")";
         }, $sorts, array_keys($sorts)));
@@ -276,6 +280,14 @@ class NaviNode extends Model
         VALUES $sorts
         ON DUPLICATE KEY UPDATE
             sort = VALUES(sort)");
+
+        self::cacheProcess();
+
+    }
+
+    public static function cacheProcess()
+    {
+        Cache::put('tree',self::tree());
     }
 
 }
