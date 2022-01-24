@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Cms\Frontend;
 
+use App\Enums\Globals\FrontendApiUrl;
 use App\Http\Controllers\Controller;
 use App\Models\Collection;
 use App\Models\NaviNode;
@@ -16,6 +17,7 @@ class NaviNodeCtrl extends Controller
      */
     public function index(Request $request, $level = 0)
     {
+        
         $parent_id = 0;
         $prev = null;
         if ($level) {

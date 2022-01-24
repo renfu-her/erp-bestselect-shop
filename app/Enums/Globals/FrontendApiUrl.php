@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Enums\Homepage;
+namespace App\Enums\Globals;
 
 use BenSampo\Enum\Enum;
 
-class ApiUrl extends Enum
+class FrontendApiUrl extends Enum
 {
     const collection = 'collection';
     const product = 'product';
