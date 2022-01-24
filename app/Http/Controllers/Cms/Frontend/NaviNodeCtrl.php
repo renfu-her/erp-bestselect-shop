@@ -46,7 +46,7 @@ class NaviNodeCtrl extends Controller
     public function design()
     {   
        
-        dd(NaviNode::nodeList(0)->get()->toArray());
+        dd(NaviNode::tree());
     }
 
     /**
