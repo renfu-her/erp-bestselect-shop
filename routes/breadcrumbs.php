@@ -208,10 +208,10 @@ Breadcrumbs::for('cms.sale_channel.edit', function (BreadcrumbTrail $trail) {
     $trail->push('編輯');
 });
 
-//物流設定
+// 物流運費管理
 Breadcrumbs::for('cms.shipment.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('物流運費', route('cms.shipment.index'));
+    $trail->push('物流運費管理', route('cms.shipment.index'));
 });
 Breadcrumbs::for('cms.shipment.create', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.shipment.index');

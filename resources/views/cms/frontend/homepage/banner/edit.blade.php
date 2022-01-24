@@ -86,6 +86,24 @@
                            @if (old('event_type', $data->event_type ?? '') == App\Enums\Homepage\BannerEventType::url()->key) required @else disabled @endif>
                 </div>
             </div>
+            <fieldset class="col-12 col-sm-6 mb-3">
+                <legend class="col-form-label p-0 mb-2">連結的開啟方式 <span class="text-danger">*</span></legend>
+                <div class="px-1 pt-1">
+                    @foreach (App\Enums\Homepage\BannerTarget::asArray() as $key => $val)
+                        <div class="form-check form-check-inline @error('target')is-invalid @enderror">
+                            <label class="form-check-label">
+                                <input class="form-check-input @error('target')is-invalid @enderror" name="target"
+                                       value="{{ $val }}" type="radio" required
+                                       @if (old('target', $data->target ?? '') == $val) checked @endif>
+                                {{ App\Enums\Homepage\BannerTarget::getDescription($val) }}
+                            </label>
+                        </div>
+                    @endforeach
+                    @error('target')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </fieldset>
             <div class="col-12 mb-3">
                 <label class="form-label">橫幅廣告圖片（可將檔案拖拉至框中上傳</label>
                 <div class="upload_image_block">
@@ -113,9 +131,9 @@
                 @enderror
             </div>
         </div>
-        @if($errors->any())
-            {{ implode('', $errors->all('<div>:message</div>')) }}
-        @endif
+        @error('event_error')
+        <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
     </div>
 
     <div class="col-auto">

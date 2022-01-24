@@ -93,32 +93,42 @@ i.bi-question-circle {
 /* 
  * Table 列表
  */
+
+thead, tbody, tfoot, tr, td, th {
+  line-height: initial;
+}
 .tableOverBox {
   margin: 0 -1.5rem;
 }
-.tableOverBox .tableList th:first-child,
-.tableOverBox .tableList td:first-child {
+.tableOverBox .tableList > :not(caption) > * > *:first-child {
   padding-left: 1.5rem;
 }
-.tableOverBox .tableList th:last-child,
-.tableOverBox .tableList td:last-child {
+.tableOverBox .tableList > :not(caption) > * > *:last-child {
   padding-right: 1.5rem;
 }
 
-.tableList th,
-.tableList td {
+.tableList > :not(caption) > * > * {
   white-space: nowrap;
 }
-.tableList th.wrap,
-.tableList td.wrap {
+.tableList > :not(caption) > * > th.wrap,
+.tableList > :not(caption) > * > td.wrap {
   white-space: normal;
-  line-height: 1.8rem;
 }
-.tableList tbody th,
-.tableList tbody td {
-  line-height: 40px;
+.tableList > tbody th,
+.tableList > tbody td {
   vertical-align: middle;
 }
+.tableList > :not(caption) > * > .wrap {
+  line-height: 1.8rem;
+}
+.tableList > :not(caption) > * > * {
+  line-height: 40px;
+}
+.tableList > :last-child > :last-child > * {
+  border-bottom-width: 0;
+}
+
+// form in table
 .tableList th > input.form-check-input[type=checkbox],
 .tableList td > input.form-check-input[type=checkbox],
 .tableList div:not(.form-switch) > input.form-check-input[type=checkbox],
@@ -143,9 +153,6 @@ i.bi-question-circle {
 .tableList .input-group > input.form-control.-xl,
 .tableList select.form-select.-xl {
   min-width: 400px;
-}
-.tableList>:last-child>:last-child>* {
-  border-bottom-width: 0;
 }
 
 /*

@@ -59,7 +59,7 @@ return
                 "route_name" => "cms.sale_channel.index",
             ],
             [
-                "title" => "物流管理",
+                "title" => "物流運費管理",
                 "controller_name" => "ShipmentCtrl",
                 "route_name" => "cms.shipment.index",
             ],
