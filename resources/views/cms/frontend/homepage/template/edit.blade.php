@@ -11,6 +11,30 @@
         <h6>@if ($method === 'create') 新增 @else 編輯 @endif 版型區塊</h6>
 
         <div class="row">
+            <fieldset class="col-12 col-sm-6 mb-3">
+                <legend class="col-form-label p-0 mb-2">顯示版型區塊 <span class="text-danger">*</span></legend>
+                <div class="px-1 pt-1">
+                    <div class="form-check form-check-inline @error('is_public')is-invalid @enderror">
+                        <label class="form-check-label">
+                            <input class="form-check-input @error('is_public')is-invalid @enderror" name="is_public"
+                                   value="1" type="radio" required
+                                   @if (old('is_public', $data->is_public ?? '1') == '1') checked @endif>
+                            開啟
+                        </label>
+                    </div>
+                    <div class="form-check form-check-inline @error('is_public')is-invalid @enderror">
+                        <label class="form-check-label">
+                            <input class="form-check-input @error('is_public')is-invalid @enderror" name="is_public"
+                                   value="0" type="radio" required
+                                   @if (old('is_public', $data->is_public ?? '') == '0') checked @endif>
+                            關閉
+                        </label>
+                    </div>
+                    @error('is_public')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </fieldset>
             <fieldset class="col-12 mb-3">
                 <legend class="col-form-label p-0 mb-2">選擇版型 <span class="text-danger">*</span></legend>
                 <div class="row">
