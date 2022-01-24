@@ -4,12 +4,14 @@ use App\Http\Controllers\Cms\Frontend\NaviNodeCtrl;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'navinode', 'as' => 'navinode.'], function () {
-    Route::get('/{level?}', [NaviNodeCtrl::class, 'index'])->name('index');
-    Route::get('/{level?}/edit/{id}', [NaviNodeCtrl::class, 'edit'])->name('edit');
-    Route::post('/{level?}/edit/{id}', [NaviNodeCtrl::class, 'update']);
-    Route::get('/{level?}/create', [NaviNodeCtrl::class, 'create'])->name('create');
-    Route::post('/{level?}/create', [NaviNodeCtrl::class, 'store']);
-    Route::get('/{level?}/delete/{id}', [NaviNodeCtrl::class, 'destroy'])->name('delete');
-    Route::get('/{level?}/sort', [NaviNodeCtrl::class, 'sort'])->name('sort');
+    Route::get('static/{level?}', [NaviNodeCtrl::class, 'index'])->name('index');
+    Route::get('static/{level?}/edit/{id}', [NaviNodeCtrl::class, 'edit'])->name('edit');
+    Route::post('static/{level?}/edit/{id}', [NaviNodeCtrl::class, 'update']);
+    Route::get('static/{level?}/create', [NaviNodeCtrl::class, 'create'])->name('create');
+    Route::post('static/{level?}/create', [NaviNodeCtrl::class, 'store']);
+    Route::get('static/{level?}/delete/{id}', [NaviNodeCtrl::class, 'destroy'])->name('delete');
+    Route::get('static/{level?}/sort', [NaviNodeCtrl::class, 'sort'])->name('sort');
+    // 設計版
+    Route::get('/design', [NaviNodeCtrl::class, 'design'])->name('new-index');
 
 });

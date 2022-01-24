@@ -19,7 +19,7 @@ class CreateNaviNodeTable extends Migration
             $table->string('title')->nullable()->comment('title');
             $table->string('type')->nullable()->comment('類型');
             $table->string('url')->nullable()->comment('網址');
-            $table->integer('group_id')->nullable()->comment('群組id');
+            $table->integer('collection_id')->nullable()->comment('群組id');
             $table->integer('sort')->default(500)->comment('排序');
             $table->tinyInteger('has_child')->default(0)->comment('是否有子項');
             $table->tinyInteger('level')->nullable()->comment('階層');

@@ -4,7 +4,6 @@
         <a href="{{ Route('cms.navinode.index', ['level' => $level]) }}" class="btn btn-primary" role="button">
             <i class="bi bi-arrow-left"></i> 返回上一頁
         </a>
-        <h3>工程版</h3>
     </div>
 
     <form method="post" action="{{ $formAction }}" novalidate>
@@ -63,11 +62,11 @@
                     </div>
                 </x-b-form-group>
                 <div class="menu_type -group" @if (old('type', $data->type ?? 'group') !== 'group') hidden @endif>
-                    <x-b-form-group name="group_id" title="群組" required="true">
-                        <select class="form-select" name="group_id" aria-label="Default select example"
+                    <x-b-form-group name="collection_id" title="群組" required="true">
+                        <select class="form-select" name="collection_id" aria-label="Default select example"
                             @if (old('type', $data->type ?? 'group') == 'group') required @else disabled @endif>
                             @foreach ($collections as $key => $group)
-                                <option value="{{ $group['id'] }}" @if (old('group_id', $data->group_id ?? '') == $group['id']) selected @endif>
+                                <option value="{{ $group['id'] }}" @if (old('collection_id', $data->collection_id ?? '') == $group['id']) selected @endif>
                                     {{ $group['name'] }}</option>
                             @endforeach
                         </select>
