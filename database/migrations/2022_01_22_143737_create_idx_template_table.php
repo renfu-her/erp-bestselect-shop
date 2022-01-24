@@ -18,6 +18,7 @@ class CreateIdxTemplateTable extends Migration
             $table->string('title')->comment('大標題');
             $table->integer('group_id')->nullable()->comment('商品群組id');
             $table->tinyInteger('style_type')->nullable()->comment('樣式 1:樣式一（左右滑動） 2:... 3:...');
+            $table->tinyInteger('is_public')->default(0)->comment('開關 0:false 1:true');
             $table->integer('sort')->default(100)->comment('排序');
             $table->timestamps();
         });

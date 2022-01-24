@@ -48,6 +48,7 @@ class Template extends Model
                     'title' => $request->input('title')
                     , 'group_id' => $request->input('group_id')
                     , 'style_type' => $request->input('style_type')
+                    , 'is_public' => $request->input('is_public')?? 1
                 ];
 
                 Template::where('id', '=', $id)
@@ -79,7 +80,20 @@ class Template extends Model
         }
     }
 
-    public static function getList() {
-        return DB::table('idx_template as template');
+    public static function getList($is_public = null) {
+        $result = DB::table('idx_template as template')
+            ->select(
+                'template.id',
+                'template.title',
+                'template.group_id',
+                'template.style_type',
+                'template.style_type',
+                'template.is_public',
+                'template.sort',
+            );
+        if ($is_public) {
+            $result->where('template.is_public', '=', $is_public);
+        }
+        return $result;
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Homepage\BannerEventType;
+use App\Helpers\IttmsUtils;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -28,6 +29,7 @@ class Banner extends Model
                 , 'event_type' => $request->input('event_type')
                 , 'event_id' => $request->input('event_id')
                 , 'event_url' => $request->input('event_url')
+                , 'target' => $request->input('target')?? null
                 , 'is_public' => $request->input('is_public')
             ])->id;
 
@@ -109,6 +111,7 @@ class Banner extends Model
                     'title' => $request->input('title')
                     , 'event_type' => $request->input('event_type')
                     , 'event_id' => $request->input('event_id')
+                    , 'target' => $request->input('target')?? null
                     , 'is_public' => $request->input('is_public')
                 ];
                 $updateData = Banner::setValueToArr($updateData, 'event_url', $request->input('event_url'));
@@ -152,7 +155,42 @@ class Banner extends Model
         }
     }
 
-    public static function getList() {
-        return DB::table('idx_banner as banner');
+    public static function getList($is_public = null) {
+        $result = DB::table('idx_banner as banner')
+            ->select(
+                'banner.id',
+                'banner.title',
+                'banner.event_type',
+                'banner.event_id',
+                'banner.event_url',
+                'banner.img_pc',
+                'banner.target',
+                'banner.is_public',
+                'banner.sort'
+            );
+        if ($is_public) {
+            $result->where('banner.is_public', '=', $is_public);
+        }
+        return $result;
+    }
+
+
+    public static function getListWithWeb($is_public = null) {
+        $result = DB::table('idx_banner as banner')
+            ->select(
+                'banner.id',
+                'banner.title',
+                'banner.event_type',
+                'banner.event_id',
+                'banner.event_url',
+                'banner.img_pc',
+                'banner.target',
+                'banner.is_public',
+                'banner.sort'
+            );
+        if ($is_public) {
+            $result->where('banner.is_public', '=', $is_public);
+        }
+        return $result;
     }
 }

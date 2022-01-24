@@ -17,7 +17,7 @@
                     <div class="form-check form-check-inline @error('is_public')is-invalid @enderror">
                         <label class="form-check-label">
                             <input class="form-check-input @error('is_public')is-invalid @enderror" name="is_public"
-                                value="0" type="radio" required
+                                value="1" type="radio" required
                                 @if (old('is_public', $data->is_public ?? '1') == '1') checked @endif>
                             開啟
                         </label>
@@ -25,7 +25,7 @@
                     <div class="form-check form-check-inline @error('is_public')is-invalid @enderror">
                         <label class="form-check-label">
                             <input class="form-check-input @error('is_public')is-invalid @enderror" name="is_public"
-                                value="1" type="radio" required
+                                value="0" type="radio" required
                                 @if (old('is_public', $data->is_public ?? '') == '0') checked @endif>
                             關閉
                         </label>
