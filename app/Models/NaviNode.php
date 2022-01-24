@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class NaviNode extends Model
@@ -25,7 +26,7 @@ class NaviNode extends Model
                 'node.level as level',
                 'node.has_child as has_child',
                 'col.name as group_title')
-            ->leftJoin('collection as col', 'node.group_id', '=', 'col.id')
+            ->leftJoin('collection as col', 'node.collection_id', '=', 'col.id')
             ->where('node.parent_id', $parent_id)
             ->orderBy('node.sort');
     }
@@ -66,19 +67,19 @@ class NaviNode extends Model
         return $b;
     }
 
-    public static function createNode($parent_id, $title, $url = null, $group_id = null, $has_child = 0, $type = "url", $target = "_self")
+    public static function createNode($parent_id, $title, $url = null, $collection_id = null, $has_child = 0, $type = "url", $target = "_self")
     {
         $data = ['title' => $title,
             'has_child' => $has_child,
             'parent_id' => $parent_id,
             'type' => null,
             'url' => null,
-            'group_id' => null,
+            'collection_id' => null,
             'target' => null,
         ];
 
         if ($has_child == 0) {
-            $re = self::hasChildProcess($data, $type, $url, $group_id, $target);
+            $re = self::hasChildProcess($data, $type, $url, $collection_id, $target);
             if ($re) {
                 return $re;
             }
@@ -99,13 +100,13 @@ class NaviNode extends Model
         'parent_id' => $parent_id,
         'type' => $type,
         'url' => $url,
-        'group_id' => $group_id,
+        'collection_id' => $collection_id,
         'has_child' => $has_child,
         'target' => $target,
         ];
 
-        if ($group_id) {
-        $gData = Collection::where('id', $group_id)->select('url')->get()->first();
+        if ($collection_id) {
+        $gData = Collection::where('id', $collection_id)->select('url')->get()->first();
         if (!$gData) {
         return ['success' => 0, 'error_msg' => "群組ID無效"];
         }
@@ -125,45 +126,46 @@ class NaviNode extends Model
         }
          */
         $id = self::create($data)->id;
-
+        self::cacheProcess();
         return ['success' => 1, 'id' => $id];
     }
 
-    public static function updateNode($id, $title, $url = null, $group_id = null, $has_child = 0, $type = "url", $target = "_self")
+    public static function updateNode($id, $title, $url = null, $collection_id = null, $has_child = 0, $type = "url", $target = "_self")
     {
         $data = ['title' => $title,
             'has_child' => $has_child,
             'type' => null,
             'url' => null,
-            'group_id' => null,
+            'collection_id' => null,
             'target' => null,
         ];
 
         if ($has_child == 0) {
-            $re = self::hasChildProcess($data, $type, $url, $group_id, $target);
+            $re = self::hasChildProcess($data, $type, $url, $collection_id, $target);
             if ($re) {
                 return $re;
             }
         }
 
         $id = self::where('id', $id)->update($data);
+        self::cacheProcess();
 
         return ['success' => 1];
     }
 
-    private static function hasChildProcess(&$data, $type, $url, $group_id, $target)
+    private static function hasChildProcess(&$data, $type, $url, $collection_id, $target)
     {
         switch ($type) {
             case 'url':
                 $data['url'] = $url;
                 break;
             case 'group':
-                $gData = Collection::where('id', $group_id)->select('url')->get()->first();
+                $gData = Collection::where('id', $collection_id)->select('url')->get()->first();
                 if (!$gData) {
                     return ['success' => 0, 'error_msg' => "群組ID無效"];
                 }
                 $data['url'] = $gData->url;
-                $data['group_id'] = $group_id;
+                $data['collection_id'] = $collection_id;
                 break;
         }
 
@@ -262,11 +264,13 @@ class NaviNode extends Model
         if ($tree['ids']) {
             self::whereIn('id', $tree['ids'])->delete();
         }
+        self::cacheProcess();
+
     }
 
     public static function sort($sorts = null)
     {
-       
+
         $sorts = implode(',', array_map(function ($n, $k) {
             return "(" . $n . "," . ($k * 10) . ")";
         }, $sorts, array_keys($sorts)));
@@ -276,6 +280,14 @@ class NaviNode extends Model
         VALUES $sorts
         ON DUPLICATE KEY UPDATE
             sort = VALUES(sort)");
+
+        self::cacheProcess();
+
+    }
+
+    public static function cacheProcess()
+    {
+        Cache::put('tree',self::tree());
     }
 
 }

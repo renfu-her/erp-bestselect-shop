@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Web\NaviCtrl;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -17,9 +18,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/tokens/get', function (Request $request) {
 
-   //  $token = User::where('id', 1)->get()->first()->tokens()->delete();
-   $token = User::where('id', 1)->get()->first()->tokens()->plainTextToken();
-   dd($token);
+    //  $token = User::where('id', 1)->get()->first()->tokens()->delete();
+    $token = User::where('id', 1)->get()->first()->tokens()->plainTextToken();
+    dd($token);
     return 'ok';
 });
 
@@ -49,14 +50,16 @@ Route::group(['prefix' => 'user', 'as' => 'user.', 'middleware' => 'auth:sanctum
 
         return $request->user();
     });
-
-
-
 });
 
 Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:cms-api'], function () {
     require base_path('routes/api/Product.php');
 });
 
+Route::group(['prefix' => 'web', 'as' => 'web.'], function () {
+    Route::get('navi', NaviCtrl::class);
+});
+
 require base_path('routes/api/Addr.php');
 require base_path('routes/api/Home.php');
+
