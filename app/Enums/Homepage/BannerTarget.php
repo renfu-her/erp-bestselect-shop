@@ -4,7 +4,7 @@ namespace App\Enums\Homepage;
 
 use BenSampo\Enum\Enum;
 
-class BannerEventType extends Enum
+class BannerTarget extends Enum
 {
     const _self = '_self';
     const _parent = '_parent';
