@@ -478,6 +478,11 @@ class ProductCtrl extends Controller
         ]);
     }
 
+    public function updateWebDesc(Request $request, $id)
+    {
+        dd($_POST);
+    }
+
     /**
      * 編輯 - [網頁]規格說明
      *
