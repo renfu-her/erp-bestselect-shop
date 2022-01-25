@@ -59,7 +59,7 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:cms-api']
 Route::group(['prefix' => 'web', 'as' => 'web.'], function () {
     Route::get('navi', NaviCtrl::class);
     require base_path('routes/api/Home.php');
+    require base_path('routes/api/Collection.php');
 });
 
 require base_path('routes/api/Addr.php');
-
