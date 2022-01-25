@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Globals\FrontendApiUrl;
+use App\Enums\Globals\LinkType;
 use App\Enums\Homepage\BannerEventType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -70,15 +71,15 @@ class Banner extends Model
         if (!BannerEventType::hasKey($event_type)) {
             throw ValidationException::withMessages(['event_error' => '未選擇類型']);
         }
-        if (BannerEventType::none()->value == $event_type) {
+        if (BannerEventType::none()->key == $event_type) {
             $request->merge(['event_id' => null]);
             $request->merge(['event_url' => null]);
-        } else if (BannerEventType::group()->value == $event_type) {
+        } else if (BannerEventType::collection()->key == $event_type) {
             $request->merge(['event_url' => null]);
             if (null == $event_id) {
                 throw ValidationException::withMessages(['event_error' => '類型為群組，但未選擇群組']);
             }
-        } else if (BannerEventType::url()->value == $event_type) {
+        } else if (BannerEventType::url()->key == $event_type) {
             $request->merge(['event_id' => null]);
             if (null == $event_url) {
                 throw ValidationException::withMessages(['event_error' => '類型為連結，但未輸入連結']);
@@ -175,27 +176,50 @@ class Banner extends Model
         return $result;
     }
 
-
     public static function getListWithWeb($is_public = null) {
-        $groupDoman = frontendUrl(FrontendApiUrl::collection());
-        $queryUrlCase = 'case event_id
-            when collection.id is not null
-                then concat("'. $groupDoman. '", collection.url)
-            else banner.event_url
+
+
+        //type
+        //1：內部連結，不含網域
+        //　群組：collection/群組id/群組名稱
+        //　商品頁：product/商品sku/商品名稱
+        //　搜尋：search/搜尋文字
+        //　* 註：中文名稱文字不可含有url相關符號，如（/ \ & : + ? % # =）
+        //2：外部連結，完整網址
+        $queryCase_type = 'case
+            when event_id is not null
+                then "'.LinkType::internal()->value.'"
+            when event_url is not null
+                then "'.LinkType::external()->value.'"
+            else null
+            end';
+
+        $queryCase_link = 'case
+            when event_id = collection.id
+                then concat("'. frontendUrl(FrontendApiUrl::collection()). '", collection.id, "\/", collection.name)
+            when event_id = products.id
+                then concat("'. frontendUrl(FrontendApiUrl::product()). '", products.id, "\/", products.title)
+            when event_url is not null
+                then banner.event_url
+            else null
             end';
 
         $result = DB::table('idx_banner as banner')
-            ->leftJoin('collection', 'collection.id', '=', 'banner.event_id')
+            ->leftJoin('collection', function($join) {
+                $join->on('collection.id', '=', 'banner.event_id');
+                $join->where('banner.event_type', '=', BannerEventType::collection()->key);
+            })
+            ->leftJoin('prd_products as products', function($join) {
+                $join->on('products.id', '=', 'banner.event_id');
+                $join->where('banner.event_type', '=', BannerEventType::product()->key);
+            })
             ->select(
-                'banner.id',
+                'banner.img_pc as src',
                 'banner.title',
-                'banner.event_type',
-                'banner.img_pc',
                 'banner.target',
-                'banner.is_public',
-                'banner.sort'
             )
-            ->selectRaw('('. $queryUrlCase . ') as url');
+            ->selectRaw('('. $queryCase_type . ') as type')
+            ->selectRaw('('. $queryCase_link . ') as link');
         if ($is_public) {
             $result->where('banner.is_public', '=', $is_public);
         }
