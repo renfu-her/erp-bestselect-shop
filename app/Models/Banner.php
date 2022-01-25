@@ -73,7 +73,7 @@ class Banner extends Model
         if (BannerEventType::none()->value == $event_type) {
             $request->merge(['event_id' => null]);
             $request->merge(['event_url' => null]);
-        } else if (BannerEventType::group()->value == $event_type) {
+        } else if (BannerEventType::collection()->value == $event_type) {
             $request->merge(['event_url' => null]);
             if (null == $event_id) {
                 throw ValidationException::withMessages(['event_error' => '類型為群組，但未選擇群組']);

@@ -7,7 +7,7 @@ use BenSampo\Enum\Enum;
 class BannerEventType extends Enum
 {
     const none = 'none';
-    const group = 'group';
+    const collection = 'collection';
     const url = 'url';
 
     public static function getDescription($value): string
@@ -17,7 +17,7 @@ class BannerEventType extends Enum
             case self::none:
                 $result = '無';
                 break;
-            case self::group:
+            case self::collection:
                 $result = '群組';
                 break;
             case self::url:
