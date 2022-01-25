@@ -54,8 +54,16 @@
                     <div class="form-check form-check-inline @error('event_type')is-invalid @enderror">
                         <label class="form-check-label">
                             <input class="form-check-input @error('event_type')is-invalid @enderror" name="event_type"
-                                value="{{App\Enums\Homepage\BannerEventType::url()->key}}" type="radio" required
-                                @if (old('event_type', $data->event_type ?? '') == App\Enums\Homepage\BannerEventType::url()->key) checked @endif>
+                                   value="{{App\Enums\Homepage\BannerEventType::product()->key}}" type="radio" required
+                                   @if (old('event_type', $data->event_type ?? '') == App\Enums\Homepage\BannerEventType::product()->key) checked @endif>
+                            商品
+                        </label>
+                    </div>
+                    <div class="form-check form-check-inline @error('event_type')is-invalid @enderror">
+                        <label class="form-check-label">
+                            <input class="form-check-input @error('event_type')is-invalid @enderror" name="event_type"
+                                   value="{{App\Enums\Homepage\BannerEventType::url()->key}}" type="radio" required
+                                   @if (old('event_type', $data->event_type ?? '') == App\Enums\Homepage\BannerEventType::url()->key) checked @endif>
                             連結
                         </label>
                     </div>
@@ -65,7 +73,7 @@
                 </div>
             </fieldset>
             <div class="col-12 col-sm-6 mb-3">
-                <div class="event_type -group"
+                <div class="event_type -collection"
                      @if (old('event_type', $data->event_type ?? '') != App\Enums\Homepage\BannerEventType::collection()->key) hidden @endif>
                     <label class="form-label">橫幅廣告群組 <span class="text-danger">*</span></label>
                     {{-- @if ($event_type === 'group') <select> 加 required @else 加 disabled --}}
