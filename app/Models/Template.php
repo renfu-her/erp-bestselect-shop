@@ -102,13 +102,12 @@ class Template extends Model
         $groupDoman = frontendUrl(FrontendApiUrl::collection());
         $result = DB::table('idx_template as template')
             ->select(
-                'template.id',
                 'template.title',
-                'template.group_id',
+                'template.group_id as id',
                 'template.style_type',
-                'template.is_public',
                 'template.sort',
-            );
+            )
+            ->selectRaw('concat("'. frontendUrl(FrontendApiUrl::collection()). '", template.group_id, "\/", template.title) as link');
         if ($is_public) {
             $result->where('template.is_public', '=', $is_public);
         }
