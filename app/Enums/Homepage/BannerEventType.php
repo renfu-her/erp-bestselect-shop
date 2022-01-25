@@ -8,6 +8,7 @@ class BannerEventType extends Enum
 {
     const none = 'none';
     const collection = 'collection';
+    const product = 'product';
     const url = 'url';
 
     public static function getDescription($value): string
@@ -20,6 +21,9 @@ class BannerEventType extends Enum
             case self::collection:
                 $result = '群組';
                 break;
+            case self::product:
+                $result = '商品';
+                break;
             case self::url:
                 $result = '連結';
                 break;
@@ -30,3 +34,4 @@ class BannerEventType extends Enum
         return $result;
     }
 }
+
