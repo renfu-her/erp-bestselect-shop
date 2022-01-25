@@ -208,6 +208,7 @@ class NaviNode extends Model
             $host = "";
             if ($v->{"lv" . $level . "_collection_id"}) {
                 $re['type'] = "1";
+                $re['id'] = $v->{"lv" . $level . "_collection_id"};
                 $host = FrontendApiUrl::collection() . "/" . ($v->{"lv" . $level . "_collection_id"}) . "/" . ($v->{"lv" . $level . "_event_title"});
             } else {
                 $re['type'] = "2";
