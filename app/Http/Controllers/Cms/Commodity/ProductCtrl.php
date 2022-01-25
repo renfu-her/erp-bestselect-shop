@@ -470,11 +470,29 @@ class ProductCtrl extends Controller
      */
     public function editWebDesc($id)
     {
+        
         $product = self::product_data($id);
         return view('cms.commodity.product.web_desciption', [
             'product' => $product,
             'breadcrumb_data' => $product,
+            'desc' => $product->desc,
         ]);
+    }
+
+    public function updateWebDesc(Request $request, $id)
+    {
+
+        $desc = $request->input('desc');
+
+        if (!$desc) {
+            $desc = '';
+        }
+        Product::where('id', $id)->update(['desc' => $desc]);
+
+        wToast('儲存完畢');
+
+        return redirect()->back();
+
     }
 
     /**

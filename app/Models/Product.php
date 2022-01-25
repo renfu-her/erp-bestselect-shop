@@ -306,24 +306,24 @@ class Product extends Model
             ->leftJoin(DB::raw("({$imgQuery->toSql()}) as i"), function ($join) {
                 $join->on('p.id', '=', 'i.product_id');
             })
-            ->select('p.id', 'p.title', 'p.sku', 's.styles', 'i.imgs')
-            ->whereNull('p.deleted_at')
-            ->whereNotNull('s.styles')
-            ->where('p.sku', $sku)
+            ->select('p.id', 'p.title', 'p.sku', 'p.desc', 's.styles', 'i.imgs')
             ->mergeBindings($styleQuery)
             ->mergeBindings($imgQuery)
+            ->where('sku', $sku)
+            ->whereNull('p.deleted_at')
+            ->whereNotNull('s.styles')
             ->get()->first();
-
-        if(!$re){
-            return ;
+      
+        if (!$re) {
+            return;
         }
 
         $re->styles = json_decode($re->styles);
-        $re->imgs = array_map(function ($n) {     
-             $n->url = asset($n->url);
-             return $n;     
+        $re->imgs = array_map(function ($n) {
+            $n->url = asset($n->url);
+            return $n;
         }, json_decode($re->imgs));
-       
+
         return $re;
     }
 

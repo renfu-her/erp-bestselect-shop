@@ -4,10 +4,11 @@
     <h2 class="mb-3">{{ $product->title }}</h2>
     <x-b-prd-navi :product="$product"></x-b-prd-navi>
 </div>
-<form action="">
+<form id="form1" action="">
     <div class="card shadow p-4 mb-4">
         <h6>運送方式（網頁）</h6>
         <x-b-editor id="editor"></x-b-editor>
+        <textarea name="" hidden></textarea>
     </div>
     <div>
         <div class="col-auto">
@@ -24,11 +25,12 @@
     @endpush
     @push('sub-scripts')
         <script>
-            Editor.createEditor('editor');
+            Editor.createEditor('editor', {
+                initialValue: ''
+            });
             
-            $('form').submit(function (e) { 
-                e.preventDefault();
-                console.log(editor.getHTML());
+            $('#form1').submit(function (e) { 
+                $('textarea[name=""]').val(editor.getHTML());
             });
         </script>
     @endpush
