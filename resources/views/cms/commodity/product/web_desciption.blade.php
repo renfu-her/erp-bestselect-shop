@@ -4,11 +4,12 @@
         <h2 class="mb-3">{{ $product->title }}</h2>
         <x-b-prd-navi :product="$product"></x-b-prd-navi>
     </div>
-    <form action="{{ route('cms.product.edit-web-desc', ['id' => $product->id]) }}" method="post">
+    <form id="form1" action="{{ route('cms.product.edit-web-desc', ['id' => $product->id]) }}" method="post">
         @csrf
         <div class="card shadow p-4 mb-4">
             <h6>商品介紹（網頁）</h6>
             <x-b-editor id="editor"></x-b-editor>
+            <textarea name="desc" hidden></textarea>
         </div>
         <div>
             <div class="col-auto">
@@ -30,12 +31,10 @@
             Editor.createEditor('editor', {
                 initialValue: desc
             });
-            /*
-            $('form').submit(function(e) {
-                e.preventDefault();
-                console.log(editor.getHTML());
+            
+            $('#form1').submit(function(e) {
+                $('textarea[name="desc"]').val(editor.getHTML());
             });
-            */
         </script>
     @endpush
 @endOnce
