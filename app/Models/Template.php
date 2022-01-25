@@ -89,7 +89,6 @@ class Template extends Model
                 'template.title',
                 'template.group_id',
                 'template.style_type',
-                'template.style_type',
                 'template.is_public',
                 'template.sort',
             );
@@ -102,19 +101,14 @@ class Template extends Model
     public static function getListWithWeb($is_public = null) {
         $groupDoman = frontendUrl(FrontendApiUrl::collection());
         $result = DB::table('idx_template as template')
-            ->leftJoin('collection', 'collection.id', '=', 'template.group_id')
             ->select(
                 'template.id',
                 'template.title',
+                'template.group_id',
                 'template.style_type',
+                'template.is_public',
                 'template.sort',
-                'collection.id as collection_id',
-                'collection.name as collection_name',
-                'collection.meta_title as collection_meta_title',
-                'collection.meta_description as collection_meta_description',
-                'collection.is_public as collection_is_public',
-            )
-            ->selectRaw('concat("'. $groupDoman. '", collection.url) as url');
+            );
         if ($is_public) {
             $result->where('template.is_public', '=', $is_public);
         }
