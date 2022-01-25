@@ -45,19 +45,21 @@
                 </select>
             </x-b-form-group>
             <x-b-form-group name="is_realtime" title="類型" required="true">
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="is_realtime" id="is_realtime1" value="1"
-                        @if (old('is_realtime', $data->is_realtime ?? '1') == 1) checked @endif>
-                    <label class="form-check-label" for="is_realtime1">
-                        即時
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="is_realtime" id="is_realtime2" value="0"
-                        @if (old('is_realtime', $data->is_realtime ?? '') == 0) checked @endif>
-                    <label class="form-check-label" for="is_realtime2">
-                        非即時
-                    </label>
+                <div class="px-1">
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label">
+                            <input class="form-check-input" type="radio" name="is_realtime" value="1"
+                                @if (old('is_realtime', $data->is_realtime ?? '1') == 1) checked @endif>
+                            即時
+                        </label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label">
+                            <input class="form-check-input" type="radio" name="is_realtime" value="0"
+                                @if (old('is_realtime', $data->is_realtime ?? '') == 0) checked @endif>
+                            非即時
+                        </label>
+                    </div>
                 </div>
             </x-b-form-group>
 

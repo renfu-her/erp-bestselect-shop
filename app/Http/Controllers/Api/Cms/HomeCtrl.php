@@ -22,7 +22,7 @@ class HomeCtrl extends Controller
 
     public function getTemplateList(Request $request)
     {
-        $dataList = Template::getList(true)->orderBy('sort')->get();
+        $dataList = Template::getListWithWeb(true)->orderBy('sort')->get();
 
         $re = [];
         $re['status'] = '0';
