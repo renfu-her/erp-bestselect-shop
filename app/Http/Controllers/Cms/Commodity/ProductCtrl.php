@@ -15,6 +15,7 @@ use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class ProductCtrl extends Controller
@@ -26,9 +27,11 @@ class ProductCtrl extends Controller
      */
     public function index(Request $request)
     {
-        $page = $request->data_per_page;
-        //   dd(Product::productList()->get());
-        $products = Product::productList(null, null, ['user' => true])->paginate($page);
+        $query = $request->query();
+        $page = Arr::get($query, 'data_per_page', 10);
+
+        $products = Product::productList(null, null, ['user' => true])->paginate(5);
+
         return view('cms.commodity.product.list', [
             'dataList' => $products,
             'data_per_page' => $page]);

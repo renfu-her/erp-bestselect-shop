@@ -24,7 +24,9 @@
     @endpush
     @push('sub-scripts')
         <script>
-            Editor.createEditor('editor');
+            Editor.createEditor('editor', {
+                initialValue: ''
+            });
             
             $('form').submit(function (e) { 
                 e.preventDefault();
