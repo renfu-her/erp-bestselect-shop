@@ -585,6 +585,10 @@
 
             // select2
             // $('.-select2').select2();
+
+            Editor.createEditor('editor', {
+                initialValue: '<h2>Header</h2><p>iewo reiu8ud jijh3 dsl</p>'
+            });
         </script>
         @stack('sub-scripts')
     @endpush
