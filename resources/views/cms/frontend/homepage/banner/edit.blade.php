@@ -131,6 +131,7 @@
                                 aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width: 1%"></div>
                         </div>
                         <input type="file" name="img_pc" accept=".jpg,.jpeg,.png,.gif" hidden>
+                        <input type="hidden" name="del_img_pc">
                     </label>
                 </div>
                 <p><mark>圖片尺寸建議：1200x400px，不超過300KB，可上傳JPG/ JPEG/ PNG/ GIF格式</mark></p>
@@ -181,8 +182,9 @@
                     $x.siblings('img').attr('src', '');
                     let img_box = $x.closest('.box');
                     img_box.prop('hidden', true);
-                    img_box.siblings('.browser_box.-plusBtn').prop('hidden', false)
+                    img_box.siblings('.browser_box.-plusBtn').prop('hidden', false);
                     img_box.siblings('input[name="img_pc"]').val('');
+                    img_box.siblings('input[name="del_img_pc"]').val('del');
                 }
             });
 

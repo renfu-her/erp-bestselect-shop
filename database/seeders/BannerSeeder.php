@@ -39,6 +39,6 @@ class BannerSeeder extends Seeder
             , 'is_public' => '1'
         ]);
 
-        Banner::updateBanner($request_updateBanner, $bannerID1);
+        Banner::updateBanner($request_updateBanner, $bannerID1, false);
     }
 }

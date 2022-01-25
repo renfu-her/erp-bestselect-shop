@@ -88,25 +88,36 @@ class Banner extends Model
         return $request;
     }
 
-    public static function updateBanner(Request $request, int $id)
+    public static function updateBanner(Request $request, int $id, $is_del_old_img = false)
     {
         $request = self::validInputValue($request);
         $bannerData = Banner::where('id', '=', $id);
         $bannerDataGet = $bannerData->get()->first();
-        return DB::transaction(function () use ($request, $id, $bannerDataGet
+        return DB::transaction(function () use ($request, $id, $bannerDataGet, $is_del_old_img
         ) {
             if (null != $bannerDataGet) {
-                Storage::delete($bannerDataGet->img_pc);
-                Storage::delete($bannerDataGet->img_phone);
 
+                //img_pc = '有'  then 刪除原有、更新圖片
+                //img_pc = '' && del_img_pc = del then 刪除圖片
+                //img_pc = '' && del_img_pc = '' then 不動
                 $imgData_Pc = null;
                 if ($request->has('img_pc')) {
+                    Storage::delete($bannerDataGet->img_pc);
                     $imgData_Pc = $request->file('img_pc')->store(Banner::$path_banner.$id);
+                } else if (true == $is_del_old_img) {
+                    Storage::delete($bannerDataGet->img_pc);
+                } else {
+                    $imgData_Pc = $bannerDataGet->img_pc;
                 }
 
                 $imgData_Phone = null;
                 if ($request->hasfile('img_phone')) {
+                    Storage::delete($bannerDataGet->img_phone);
                     $imgData_Phone = $request->file('img_phone')->store(Banner::$path_banner.$id);
+                } else if (true == $is_del_old_img) {
+                    Storage::delete($bannerDataGet->img_phone);
+                } else {
+                    $imgData_Phone = $bannerDataGet->img_phone;
                 }
 
                 $updateData = [
