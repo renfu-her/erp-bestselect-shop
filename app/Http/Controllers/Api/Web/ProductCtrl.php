@@ -1,0 +1,23 @@
+<?php
+
+namespace App\Http\Controllers\Api\Web;
+
+use App\Http\Controllers\Controller;
+use App\Models\Product;
+use Illuminate\Http\Request;
+
+class ProductCtrl extends Controller
+{
+    //
+
+    public static function getSingleProduct(Request $request, $sku)
+    {
+        $re = Product::singleProduct($sku);
+
+        if ($re) {
+            return response()->json(['status' => 0, 'data' => $re]);
+        } else {
+            return response()->json(['status' => 'E04', 'msg' => '查無資料']);
+        }
+    }
+}
