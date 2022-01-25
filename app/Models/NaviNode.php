@@ -45,13 +45,7 @@ class NaviNode extends Model
         }
 
         $re = $re->get()->first();
-        /*
-        $b[] = [
-        'id' => '0',
-        'title' => '列表',
-        'path' => '0',
-        ];
-         */
+       
         $b = [];
         $path = '';
         for ($i = count($arrLevel) - 2; $i >= 0; $i--) {
@@ -95,37 +89,7 @@ class NaviNode extends Model
             $level = $parent->level + 1;
             $data['level'] = $level;
         }
-
-        /*
-        $data = ['title' => $title,
-        'parent_id' => $parent_id,
-        'type' => $type,
-        'url' => $url,
-        'collection_id' => $collection_id,
-        'has_child' => $has_child,
-        'target' => $target,
-        ];
-
-        if ($collection_id) {
-        $gData = Collection::where('id', $collection_id)->select('url')->get()->first();
-        if (!$gData) {
-        return ['success' => 0, 'error_msg' => "群組ID無效"];
-        }
-        $data['type'] = "group";
-        $data['url'] = $gData->url;
-        }
-
-        if ($parent_id == 0) {
-        $data['level'] = 1;
-        } else {
-        $parent = self::where('id', $parent_id)->select('level', 'has_child')->get()->first();
-        if (!$parent || $parent->has_child == 0 || $parent->level == 3) {
-        return ['success' => 0, 'error_msg' => "新增失敗"];
-        }
-        $level = $parent->level + 1;
-        $data['level'] = $level;
-        }
-         */
+    
         $id = self::create($data)->id;
         self::cacheProcess();
         return ['success' => 1, 'id' => $id];
@@ -177,33 +141,35 @@ class NaviNode extends Model
 
     public static function tree($id = 0)
     {
-        $re = DB::table('idx_navi_node as lv1')
-            ->leftJoin('idx_navi_node as lv2', 'lv1.id', '=', 'lv2.parent_id')
-            ->leftJoin('idx_navi_node as lv3', 'lv2.id', '=', 'lv3.parent_id')
-            ->select('lv1.id as lv1_id',
-                'lv1.title as lv1_title',
-                'lv1.url as lv1_url',
-                'lv1.target as lv1_target',
-                'lv1.has_child as lv1_has_child',
-                'lv1.collection_id as lv1_collection_id',
-                'lv2.id as lv2_id',
-                'lv2.title as lv2_title',
-                'lv2.url as lv2_url',
-                'lv2.target as lv2_target',
-                'lv2.has_child as lv2_has_child',
-                'lv2.collection_id as lv2_collection_id',
-                'lv3.id as lv3_id',
-                'lv3.title as lv3_title',
-                'lv3.url as lv3_url',
-                'lv3.target as lv3_target',
-                'lv3.has_child as lv3_has_child',
-                'lv3.collection_id as lv3_collection_id')
-            ->where('lv1.parent_id', $id)
+        $sub = DB::table('idx_navi_node as n')
+            ->leftJoin('collection as c', 'n.collection_id', '=', 'c.id')
+            ->select('n.*', 'c.name as event_title');
+
+        $re = DB::table(DB::raw("({$sub->toSql()}) as lv1"))
+            ->leftJoin(DB::raw("({$sub->toSql()}) as lv2"), function ($join) {
+                $join->on('lv1.id', '=', 'lv2.parent_id');
+            })
+            ->leftJoin(DB::raw("({$sub->toSql()}) as lv3"), function ($join) {
+                $join->on('lv2.id', '=', 'lv3.parent_id');
+            });
+
+        for ($i = 1; $i < 4; $i++) {
+            $re->addSelect('lv' . $i . '.id as lv' . $i . '_id');
+            $re->addSelect('lv' . $i . '.title as lv' . $i . '_title');
+            $re->addSelect('lv' . $i . '.url as lv' . $i . '_url');
+            $re->addSelect('lv' . $i . '.target as lv' . $i . '_target');
+            $re->addSelect('lv' . $i . '.has_child as lv' . $i . '_has_child');
+            $re->addSelect('lv' . $i . '.collection_id as lv' . $i . '_collection_id');
+            $re->addSelect('lv' . $i . '.event_title as lv' . $i . '_event_title', );
+        }
+
+        $re = $re->where('lv1.parent_id', $id)
             ->orderBy('lv1.sort')
             ->orderBy('lv2.sort')
             ->orderBy('lv3.sort')
+            ->mergeBindings($sub)
             ->get()->toArray();
-        
+
         $tree = [];
         $ids = [];
         foreach ($re as $key => $value) {
@@ -213,14 +179,14 @@ class NaviNode extends Model
             }
 
             if ($value->lv2_id) {
-                if (!isset($tree[$value->lv1_id]['child'][$value->lv2_id])) {
-                    $tree[$value->lv1_id]['child'][$value->lv2_id] = self::_getValue($value, 2);
+                if (!isset($tree[$value->lv1_id]['item'][$value->lv2_id])) {
+                    $tree[$value->lv1_id]['item'][$value->lv2_id] = self::_getValue($value, 2);
                     $ids[] = $value->lv2_id;
                 }
 
                 if ($value->lv3_id) {
-                    if (!isset($tree[$value->lv1_id]['child'][$value->lv2_id]['child'][$value->lv3_id])) {
-                        $tree[$value->lv1_id]['child'][$value->lv2_id]['child'][$value->lv3_id] = self::_getValue($value, 3);
+                    if (!isset($tree[$value->lv1_id]['item'][$value->lv2_id]['item'][$value->lv3_id])) {
+                        $tree[$value->lv1_id]['item'][$value->lv2_id]['item'][$value->lv3_id] = self::_getValue($value, 3);
                         $ids[] = $value->lv3_id;
                     }
                 }
@@ -234,19 +200,22 @@ class NaviNode extends Model
 
     private static function _getValue($v, $level = 1)
     {
-        $re = ['id' => $v->{"lv" . $level . "_id"},
+        $re = [
             'title' => $v->{"lv" . $level . "_title"},
         ];
 
         if ($v->{"lv" . $level . "_has_child"} == 0) {
             $host = "";
             if ($v->{"lv" . $level . "_collection_id"}) {
-                $host = frontendUrl(FrontendApiUrl::collection());
+                $re['type'] = "1";
+                $host = FrontendApiUrl::collection() . "/" . ($v->{"lv" . $level . "_collection_id"}) . "/" . ($v->{"lv" . $level . "_event_title"});
+            } else {
+                $re['type'] = "2";
             }
             $re['url'] = $host . $v->{"lv" . $level . "_url"};
             $re['target'] = $v->{"lv" . $level . "_target"};
         } else {
-            $re['child'] = [];
+            $re['item'] = [];
         }
 
         return $re;
@@ -256,8 +225,8 @@ class NaviNode extends Model
     {
         foreach ($arr as $key => $value) {
             //  dd($value);
-            if (isset($value['child'])) {
-                $arr[$key]['child'] = self::_array_values($value['child']);
+            if (isset($value['item'])) {
+                $arr[$key]['item'] = self::_array_values($value['item']);
                 unset($arr[$key]['target']);
                 unset($arr[$key]['url']);
             }
