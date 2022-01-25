@@ -3,15 +3,15 @@
 namespace App\Http\Controllers\Api\Web;
 
 use App\Http\Controllers\Controller;
-use App\Models\Product;
 use Illuminate\Http\Request;
-
+use App\Models\Product;
 class ProductCtrl extends Controller
 {
     //
 
     public static function getSingleProduct(Request $request, $sku)
     {
+
         $re = Product::singleProduct($sku);
 
         if ($re) {
@@ -19,5 +19,6 @@ class ProductCtrl extends Controller
         } else {
             return response()->json(['status' => 'E04', 'msg' => '查無資料']);
         }
+
     }
 }
