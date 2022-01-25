@@ -474,6 +474,7 @@ class ProductCtrl extends Controller
         return view('cms.commodity.product.web_desciption', [
             'product' => $product,
             'breadcrumb_data' => $product,
+            'desc' => $product->desc,
         ]);
     }
 
