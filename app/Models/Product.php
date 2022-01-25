@@ -271,4 +271,60 @@ class Product extends Model
 
     }
 
+    public static function singleProduct($sku = null, $sale_channel_id = 1)
+    {
+        $concatString = concatStr([
+            'id' => 's.id',
+            'title' => 's.title',
+            'sku' => 's.sku',
+            'in_stock' => 's.in_stock',
+            'origin_price' => 'p.origin_price',
+            'price' => 'p.price']);
+
+        $concatImg = concatStr([
+            'url' => 'url',
+        ]);
+
+        $styleQuery = DB::table('prd_product_styles as s')
+            ->leftJoin('prd_salechannel_style_price as p', 's.id', '=', 'p.style_id')
+            ->where('p.sale_channel_id', $sale_channel_id)
+            ->whereNull('s.deleted_at')
+            ->whereNotNull('s.sku')
+            ->select('s.product_id')
+            ->selectRaw($concatString . ' as styles')
+            ->groupBy('s.product_id');
+
+        $imgQuery = DB::table('prd_product_images')
+            ->select('product_id')
+            ->selectRaw($concatImg . ' as imgs')
+            ->groupBy('product_id');
+
+        $re = DB::table('prd_products as p')
+            ->leftJoin(DB::raw("({$styleQuery->toSql()}) as s"), function ($join) {
+                $join->on('p.id', '=', 's.product_id');
+            })
+            ->leftJoin(DB::raw("({$imgQuery->toSql()}) as i"), function ($join) {
+                $join->on('p.id', '=', 'i.product_id');
+            })
+            ->select('p.id', 'p.title', 'p.sku', 's.styles', 'i.imgs')
+            ->whereNull('p.deleted_at')
+            ->whereNotNull('s.styles')
+            ->where('p.sku', $sku)
+            ->mergeBindings($styleQuery)
+            ->mergeBindings($imgQuery)
+            ->get()->first();
+
+        if(!$re){
+            return ;
+        }
+
+        $re->styles = json_decode($re->styles);
+        $re->imgs = array_map(function ($n) {     
+             $n->url = asset($n->url);
+             return $n;     
+        }, json_decode($re->imgs));
+       
+        return $re;
+    }
+
 }
