@@ -15,6 +15,7 @@
                     <th scope="col">採購數量</th>
                     <th scope="col">已入庫數量</th>
                     <th scope="col">異常數量</th>
+                    <th scope="col">狀態</th>
                     <th scope="col">商品負責人</th>
                 </tr>
                 </thead>
@@ -27,6 +28,7 @@
                         <td>{{ $overview->num }}</td>
                         <td>{{ $overview->inbound_num }}</td>
                         <td>{{ $overview->error_num }}</td>
+                        <td @class(['text-danger' => $overview->inbound_type === '短缺' || $overview->inbound_type === '溢出'])>{{ $overview->inbound_type }}</td>
                         <td>{{ $overview->user_name }}</td>
                     </tr>
                 @endforeach

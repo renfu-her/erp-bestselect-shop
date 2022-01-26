@@ -157,6 +157,8 @@ class PurchaseInbound extends Model
             ->groupBy('inbound.purchase_id')
             ->groupBy('inbound.product_style_id');
 
+        $queryTotalInboundNum = '( COALESCE(sum(items.num), 0) - COALESCE((inbound.inbound_num), 0) )'; //應進數量
+
         $result = DB::table('pcs_purchase as purchase')
             ->leftJoin('pcs_purchase_items as items', 'items.purchase_id', '=', 'purchase.id')
 //            ->leftJoin('pcs_purchase_inbound as inbound', 'inbound.product_style_id', '=', 'items.product_style_id')
@@ -176,8 +178,15 @@ class PurchaseInbound extends Model
             ->selectRaw('min(items.sku) as sku') //款式SKU
             ->selectRaw('sum(items.num) as num') //採購數量
             ->selectRaw('(inbound.inbound_num) as inbound_num') //已到數量
-            ->selectRaw('(inbound.error_num) as error_num') //異常數量
-            ->selectRaw('( COALESCE(sum(items.num), 0) - COALESCE((inbound.inbound_num), 0) ) AS should_enter_num') //應進數量
+            ->selectRaw($queryTotalInboundNum.' AS should_enter_num') //應進數量
+            ->selectRaw('('. $queryTotalInboundNum. ' - COALESCE((inbound.error_num), 0))'. ' as error_num') //異常數量
+
+            ->selectRaw('(case
+                    when '. $queryTotalInboundNum. ' = 0 then "正常"
+                    when COALESCE((inbound.inbound_num), 0) = 0 then "尚未入庫"
+                    when ('. $queryTotalInboundNum. ' - COALESCE((inbound.error_num), 0)) < 0 then "溢出"
+                    when ('. $queryTotalInboundNum. ' - COALESCE((inbound.error_num), 0)) > 0 then "短缺"
+                end) as inbound_type') //採購狀態
             ->whereNull('purchase.deleted_at')
             ->whereNull('items.deleted_at')
             ->where('purchase.id', '=', $purchase_id)
