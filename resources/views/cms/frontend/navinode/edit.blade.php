@@ -111,11 +111,11 @@
 @once
     @push('sub-scripts')
         <script>
+            changeHasChild();
             // 子階層
             $('input[name="has_child"]').on('change', function() {
                 changeHasChild();
             });
-
             function changeHasChild() {
                 const val = $('input[name="has_child"]:checked').val();
                 if (val == '0') {
@@ -135,11 +135,11 @@
                 }
             }
 
+            changeMenuType();
             // 內容類型
             $('input[name="event"]').on('change', function() {
                 changeMenuType();
             });
-
             function changeMenuType() {
                 const val = $('input[name="event"]:checked').val();
                 $(`div.menu_type:not(.-${val})`).prop('hidden', true);
