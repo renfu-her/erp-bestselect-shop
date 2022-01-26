@@ -45,7 +45,7 @@ class NaviNode extends Model
         }
 
         $re = $re->get()->first();
-       
+
         $b = [];
         $path = '';
         for ($i = count($arrLevel) - 2; $i >= 0; $i--) {
@@ -89,7 +89,7 @@ class NaviNode extends Model
             $level = $parent->level + 1;
             $data['level'] = $level;
         }
-    
+
         $id = self::create($data)->id;
         self::cacheProcess();
         return ['success' => 1, 'id' => $id];
@@ -123,6 +123,7 @@ class NaviNode extends Model
         switch ($event) {
             case 'url':
                 $data['url'] = $url;
+                $data['event_id'] = null;
                 break;
             case 'group':
                 $gData = Collection::where('id', $event_id)->select('url')->get()->first();
@@ -160,6 +161,8 @@ class NaviNode extends Model
             $re->addSelect('lv' . $i . '.target as lv' . $i . '_target');
             $re->addSelect('lv' . $i . '.has_child as lv' . $i . '_has_child');
             $re->addSelect('lv' . $i . '.event_id as lv' . $i . '_event_id');
+            $re->addSelect('lv' . $i . '.event as lv' . $i . '_event');
+            $re->addSelect('lv' . $i . '.level as lv' . $i . '_level');
             $re->addSelect('lv' . $i . '.event_title as lv' . $i . '_event_title', );
         }
 
@@ -179,14 +182,14 @@ class NaviNode extends Model
             }
 
             if ($value->lv2_id) {
-                if (!isset($tree[$value->lv1_id]['item'][$value->lv2_id])) {
-                    $tree[$value->lv1_id]['item'][$value->lv2_id] = self::_getValue($value, 2);
+                if (!isset($tree[$value->lv1_id]['child'][$value->lv2_id])) {
+                    $tree[$value->lv1_id]['child'][$value->lv2_id] = self::_getValue($value, 2);
                     $ids[] = $value->lv2_id;
                 }
 
                 if ($value->lv3_id) {
-                    if (!isset($tree[$value->lv1_id]['item'][$value->lv2_id]['item'][$value->lv3_id])) {
-                        $tree[$value->lv1_id]['item'][$value->lv2_id]['item'][$value->lv3_id] = self::_getValue($value, 3);
+                    if (!isset($tree[$value->lv1_id]['child'][$value->lv2_id]['child'][$value->lv3_id])) {
+                        $tree[$value->lv1_id]['child'][$value->lv2_id]['child'][$value->lv3_id] = self::_getValue($value, 3);
                         $ids[] = $value->lv3_id;
                     }
                 }
@@ -194,29 +197,30 @@ class NaviNode extends Model
         }
 
         $tree = self::_array_values($tree);
-
+       
         return ['ids' => $ids, 'tree' => $tree];
     }
 
     private static function _getValue($v, $level = 1)
     {
         $re = [
+            'id' => $v->{"lv" . $level . "_id"},
             'title' => $v->{"lv" . $level . "_title"},
+            'event' => $v->{"lv" . $level . "_event"},
+            'level' => $v->{"lv" . $level . "_level"},
         ];
 
         if ($v->{"lv" . $level . "_has_child"} == 0) {
-            $host = "";
             if ($v->{"lv" . $level . "_event_id"}) {
-                $re['event'] = "1";
-                $re['id'] = $v->{"lv" . $level . "_event_id"};
-                $host = FrontendApiUrl::collection() . "/" . ($v->{"lv" . $level . "_event_id"}) . "/" . ($v->{"lv" . $level . "_event_title"});
+                $re['event_id'] = $v->{"lv" . $level . "_event_id"};
+                $re['url'] = FrontendApiUrl::collection() . "/" . ($v->{"lv" . $level . "_event_id"}) . "/" . ($v->{"lv" . $level . "_event_title"});
             } else {
-                $re['event'] = "2";
+                $re['event_id'] = null;
+                $re['url'] = $v->{"lv" . $level . "_url"};
             }
-            $re['url'] = $host . $v->{"lv" . $level . "_url"};
             $re['target'] = $v->{"lv" . $level . "_target"};
         } else {
-            $re['item'] = [];
+            $re['child'] = [];
         }
 
         return $re;
@@ -226,8 +230,8 @@ class NaviNode extends Model
     {
         foreach ($arr as $key => $value) {
             //  dd($value);
-            if (isset($value['item'])) {
-                $arr[$key]['item'] = self::_array_values($value['item']);
+            if (isset($value['child'])) {
+                $arr[$key]['child'] = self::_array_values($value['child']);
                 unset($arr[$key]['target']);
                 unset($arr[$key]['url']);
             }
