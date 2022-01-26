@@ -29,15 +29,6 @@ $(function () {
      */
     const MIN_LV = 3;
 
-    /** Template: one item component */
-    const OneItemCopy = $('div.-cloneElem').clone().removeClass('-cloneElem');
-    $('div.-cloneElem').remove();
-    /** Template: li component */
-    const LiCopy = $('<li class="col-12"></li>').append([
-        OneItemCopy,
-        '<ul class="d-flex align-items-end flex-column level level_2"></ul>'
-    ]);
-
     // 樣式 class
     /** ul component 基本樣式 */
     const UlBaseClass = 'd-flex align-items-end flex-column level ';
@@ -59,6 +50,15 @@ $(function () {
     /** li component 所有層級樣式 */
     const AllLiLvClass = Object.values(LiClass).join(' ');
 
+    /** Template: one item component */
+    const OneItemCopy = $('div.-cloneElem').clone().removeClass('-cloneElem d-none');
+    $('div.-cloneElem').remove();
+    /** Template: li component */
+    const LiCopy = $(`<li class="${LiBaseClass}"></li>`).append([
+        OneItemCopy,
+        `<ul class="${UlBaseClass}level_2"></ul>`
+    ]);
+
     /**
      * 自動生成 ul 階層樣式表
      * @returns {object} 樣式表
@@ -74,14 +74,12 @@ $(function () {
     /* ************************************************************************ */
     
     /** 按鈕: 新增項目 */
-    $('#addNewItem').on('click', function () {
-        bindNewItemBtn('.-appendClone');
-    });
+    window.bindNewItemBtn = bindNewItemBtn;
     function bindNewItemBtn(parent = '') {
         let newLi = LiCopy.clone();
         bindDeleteBtn(newLi);
         
-        $(`${parent} ul.${UlBaseClass[MAX_LV]}`).append(newLi);
+        $(`${parent} ul.${UlClass[MAX_LV]}`).append(newLi);
         resetAllLevelBtn();
         bindSortableBtn();
     }
@@ -103,7 +101,7 @@ $(function () {
          */
         function getOneLiData($li) {
             let level = getCurrentLevel($li.closest('ul.level'));
-            let title = $li.children('.oneItem').find('input').val();
+            let title = $li.children('.oneItem').find('.-title').text();
             // console.log(level, '--- ', title);
 
             if ($li.children('ul.level').length) {
@@ -117,7 +115,7 @@ $(function () {
         }
     });
 
-    loadNaviNode(testData);
+    loadNaviNode(testData, '.-appendClone');
     /**
      * 依資料載入主選單
      * @param {Array} data 資料陣列
@@ -126,7 +124,7 @@ $(function () {
     function loadNaviNode(data, parent = '') {
         data.forEach(liItem => {
             if (liItem.title && liItem.level) {
-                $(`${parent} ul.${UlBaseClass[MAX_LV]}`).append(setOneLiComponent(liItem));
+                $(`${parent} ul.${UlClass[MAX_LV]}`).append(setOneLiComponent(liItem));
             }
         });
         
@@ -141,8 +139,8 @@ $(function () {
          */
         function setOneLiComponent(liItem) {
             let newLi = LiCopy.clone();
-            // 改 value
-            newLi.find('.oneItem input[name="title"]').val(liItem.title);
+            // 改 title
+            newLi.find('.oneItem .-title').text(liItem.title);
             if (liItem.level < MIN_LV) {
                 // 改 子項的ul level class
                 newLi.children('ul.level').removeClass(AllUlLvClass).addClass(UlClass[liItem.level + 1]);
@@ -168,7 +166,7 @@ $(function () {
      * @param {JQuery} $li 一組 li 項目
      */
     function bindDeleteBtn($li, parent = '') {
-        let $target = $li || $(`${parent} ul.${UlBaseClass[MAX_LV]}`);
+        let $target = $li || $(`${parent} ul.${UlClass[MAX_LV]}`);
         $target.find('.oneItem .icon.-del').off('click').on('click', function () {
             $(this).closest('li').remove();
             resetAllLevelBtn();
@@ -181,13 +179,13 @@ $(function () {
      */
     window.resetAllLevelBtn = resetAllLevelBtn;
     function resetAllLevelBtn() {
-        $('.oneItem .icon > span.bi').removeClass('disabled');
+        $('.oneItem .icon').filter('.-upLv, .-downLv').removeClass('disabled');
         
         /**
          * 禁用進階鈕 [←]
          * 1. 最高級數項
          */
-        $(`ul.level_${MAX_LV} > li > div span.-upLv`).addClass('disabled');
+        $(`ul.level_${MAX_LV} > li > div .icon.-upLv`).addClass('disabled');
 
         /**
          * 禁用退階鈕 [→]
@@ -195,9 +193,9 @@ $(function () {
          * 2. 該組為滿階(孩子中有最低級數)
          * 3. 最低級數項
          */
-        $(`ul.level > li:first-child > div span.-downLv,
-            ul.level > li:has(ul.level_${MIN_LV} > li) > div span.-downLv,
-            ul.level_${MIN_LV} > li > div span.-downLv`).addClass('disabled');
+        $(`ul.level > li:first-child > div .icon.-downLv,
+            ul.level > li:has(ul.level_${MIN_LV} > li) > div .icon.-downLv,
+            ul.level_${MIN_LV} > li > div .icon.-downLv`).addClass('disabled');
 
         // bind
         bindLevelBtn();
@@ -208,8 +206,8 @@ $(function () {
          */
         function bindLevelBtn() {
             /** [←] Left Btn 進階 */
-            $('.bi-arrow-left-short').closest('.icon').off('click');
-            $('.bi-arrow-left-short:not(.disabled)').closest('.icon').on('click', function () {
+            $('span.-upLv').off('click.level');
+            $('span.-upLv:not(.disabled)').on('click.level', function () {
                 let $thisLi = $(this).closest('li');
                 let $parentLi = $thisLi.parent().closest('li');
                 let thisLv = getCurrentLevel($thisLi);
@@ -231,8 +229,8 @@ $(function () {
             });
 
             /** [→] Right Btn 退階 */
-            $('.bi-arrow-right-short').closest('.icon').off('click');
-            $('.bi-arrow-right-short:not(.disabled)').closest('.icon').on('click', function () {
+            $('span.-downLv').off('click.level');
+            $('span.-downLv:not(.disabled)').on('click.level', function () {
                 let $thisLi = $(this).closest('li');
                 let $prevLi = $thisLi.prev('li');
                 let thisLv = getCurrentLevel($thisLi);
@@ -263,16 +261,24 @@ $(function () {
 
         for (const lv in UlClass) {
             if (UlClass[lv]) {
-                $('ul.' + UlClass[lv]).sortable({
+                $(`ul.${UlClass[lv]}`).sortable({
                     axis: 'y',
                     placeholder: "placeholder-highlight",
-                    connectWith: '.' + UlClass[lv],
-                    handle: 'span.icon:has(.bi-arrows-move)',
-                    cursor: "move",
-                }).disableSelection();
+                    connectWith: `.${UlClass[lv]}`,
+                    handle: '.icon.-move',
+                    cursor: 'move',
+                });
             }
         }
 
+        // 給 .placeholder-highlight 高度
+        $('ul.level').off('sortstart');
+        $('ul.level').on('sortstart', function (event, ui) {
+            (ui.helper).css('height', `${(ui.item).height()}px`);
+            (ui.placeholder).css('height', `${(ui.item).height()}px`);
+        });
+
+        // 有更新順序時
         $('ul.level').off('sortupdate');
         $('ul.level').on('sortupdate', function () {
             resetAllLevelBtn();

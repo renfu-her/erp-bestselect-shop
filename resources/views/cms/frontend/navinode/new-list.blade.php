@@ -17,216 +17,18 @@
                 <ul class="d-flex align-items-end flex-column level level_1"></ul>
             </div>
 
-            <hr>
-            <ul class="d-flex align-items-end flex-column level level_1">
-                <li class="col-12">
-                    <div class="row mx-0 oneItem -cloneElem">
-                        <div class="form-control input-group col me-2 py-1">
-                            <span class="icon -upLv icon-btn fs-3 text-primary p-0 rounded"
-                                data-bs-toggle="tooltip" title="上階">
-                                <i class="bi bi-arrow-left-short"></i>
-                            </span>
-                            <span class="icon -downLv icon-btn fs-3 text-primary p-0 rounded"
-                                data-bs-toggle="tooltip" title="下階">
-                                <i class="bi bi-arrow-right-short"></i>
-                            </span>
-                            <input type="text" class="border-0 ms-2 py-0 form-control-plaintext" value="" placeholder="請輸入選單名稱，例：女裝或上衣" aria-label="選單名稱">
-                        </div>
-                        <div class="row col-auto py-1">
-                            <a href="#" 
-                                data-bs-toggle="tooltip" title="編輯"
-                                class="icon -edit icon-btn col-auto fs-5 text-primary rounded-circle border-0 p-0">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                            <span class="icon -move icon-btn col-auto fs-5 text-primary rounded-circle border-0 p-0"
-                                data-bs-toggle="tooltip" title="拖曳排序">
-                                <i class="bi bi-arrows-move"></i>
-                            </span>
-                            <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                                data-href="#"
-                                class="icon -del icon-btn col-auto fs-5 text-danger rounded-circle border-0 p-0">
-                                <i class="bi bi-trash"></i>
-                            </a>
-                        </div>
-                    </div>
-                    <ul class="d-flex align-items-end flex-column level level_2">
-                        <li class="col-12">
-                            <div class="row mx-0 oneItem -cloneElem">
-                                <div class="form-control input-group col me-2 py-1">
-                                    <span class="icon -upLv icon-btn fs-3 text-primary p-0 rounded"
-                                        data-bs-toggle="tooltip" title="上階">
-                                        <i class="bi bi-arrow-left-short"></i>
-                                    </span>
-                                    <span class="icon -downLv icon-btn fs-3 text-primary p-0 rounded"
-                                        data-bs-toggle="tooltip" title="下階">
-                                        <i class="bi bi-arrow-right-short"></i>
-                                    </span>
-                                    <input type="text" class="border-0 ms-2 py-0 form-control-plaintext" value="" placeholder="請輸入選單名稱，例：女裝或上衣" aria-label="選單名稱">
-                                </div>
-                                <div class="row col-auto py-1">
-                                    <a href="#" 
-                                        data-bs-toggle="tooltip" title="編輯"
-                                        class="icon -edit icon-btn col-auto fs-5 text-primary rounded-circle border-0 p-0">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </a>
-                                    <span class="icon -move icon-btn col-auto fs-5 text-primary rounded-circle border-0 p-0"
-                                        data-bs-toggle="tooltip" title="拖曳排序">
-                                        <i class="bi bi-arrows-move"></i>
-                                    </span>
-                                    <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                                        data-href="#"
-                                        class="icon -del icon-btn col-auto fs-5 text-danger rounded-circle border-0 p-0">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                </div>
-                            </div>
-                            <ul class="d-flex align-items-end flex-column level level_3">
-                                <li class="col-12">
-                                    <div class="row mx-0 oneItem -cloneElem">
-                                        <div class="form-control input-group col me-2 py-1">
-                                            <span class="icon -upLv icon-btn fs-3 text-primary p-0 rounded"
-                                                data-bs-toggle="tooltip" title="上階">
-                                                <i class="bi bi-arrow-left-short"></i>
-                                            </span>
-                                            <span class="icon -downLv icon-btn fs-3 text-primary p-0 rounded"
-                                                data-bs-toggle="tooltip" title="下階">
-                                                <i class="bi bi-arrow-right-short"></i>
-                                            </span>
-                                            <input type="text" class="border-0 ms-2 py-0 form-control-plaintext" value="" placeholder="請輸入選單名稱，例：女裝或上衣" aria-label="選單名稱">
-                                        </div>
-                                        <div class="row col-auto py-1">
-                                            <a href="#" 
-                                                data-bs-toggle="tooltip" title="編輯"
-                                                class="icon -edit icon-btn col-auto fs-5 text-primary rounded-circle border-0 p-0">
-                                                <i class="bi bi-pencil-square"></i>
-                                            </a>
-                                            <span class="icon -move icon-btn col-auto fs-5 text-primary rounded-circle border-0 p-0"
-                                                data-bs-toggle="tooltip" title="拖曳排序">
-                                                <i class="bi bi-arrows-move"></i>
-                                            </span>
-                                            <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                                                data-href="#"
-                                                class="icon -del icon-btn col-auto fs-5 text-danger rounded-circle border-0 p-0">
-                                                <i class="bi bi-trash"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </li>
-                            </ul>
-                        </li>
-                        <li class="col-12">
-                            <div class="row mx-0 oneItem -cloneElem">
-                                <div class="form-control input-group col me-2 py-1">
-                                    <span class="icon -upLv icon-btn fs-3 text-primary p-0 rounded"
-                                        data-bs-toggle="tooltip" title="上階">
-                                        <i class="bi bi-arrow-left-short"></i>
-                                    </span>
-                                    <span class="icon -downLv icon-btn fs-3 text-primary p-0 rounded"
-                                        data-bs-toggle="tooltip" title="下階">
-                                        <i class="bi bi-arrow-right-short"></i>
-                                    </span>
-                                    <input type="text" class="border-0 ms-2 py-0 form-control-plaintext" value="" placeholder="請輸入選單名稱，例：女裝或上衣" aria-label="選單名稱">
-                                </div>
-                                <div class="row col-auto py-1">
-                                    <a href="#" 
-                                        data-bs-toggle="tooltip" title="編輯"
-                                        class="icon -edit icon-btn col-auto fs-5 text-primary rounded-circle border-0 p-0">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </a>
-                                    <span class="icon -move icon-btn col-auto fs-5 text-primary rounded-circle border-0 p-0"
-                                        data-bs-toggle="tooltip" title="拖曳排序">
-                                        <i class="bi bi-arrows-move"></i>
-                                    </span>
-                                    <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                                        data-href="#"
-                                        class="icon -del icon-btn col-auto fs-5 text-danger rounded-circle border-0 p-0">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                </div>
-                            </div>
-                            <ul class="d-flex align-items-end flex-column level level_3">
-                                <li class="col-12">
-                                    <div class="row mx-0 oneItem -cloneElem">
-                                        <div class="form-control input-group col me-2 py-1">
-                                            <span class="icon -upLv icon-btn fs-3 text-primary p-0 rounded"
-                                                data-bs-toggle="tooltip" title="上階">
-                                                <i class="bi bi-arrow-left-short"></i>
-                                            </span>
-                                            <span class="icon -downLv icon-btn fs-3 text-primary p-0 rounded"
-                                                data-bs-toggle="tooltip" title="下階">
-                                                <i class="bi bi-arrow-right-short"></i>
-                                            </span>
-                                            <input type="text" class="border-0 ms-2 py-0 form-control-plaintext" value="" placeholder="請輸入選單名稱，例：女裝或上衣" aria-label="選單名稱">
-                                        </div>
-                                        <div class="row col-auto py-1">
-                                            <a href="#" 
-                                                data-bs-toggle="tooltip" title="編輯"
-                                                class="icon -edit icon-btn col-auto fs-5 text-primary rounded-circle border-0 p-0">
-                                                <i class="bi bi-pencil-square"></i>
-                                            </a>
-                                            <span class="icon -move icon-btn col-auto fs-5 text-primary rounded-circle border-0 p-0"
-                                                data-bs-toggle="tooltip" title="拖曳排序">
-                                                <i class="bi bi-arrows-move"></i>
-                                            </span>
-                                            <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                                                data-href="#"
-                                                class="icon -del icon-btn col-auto fs-5 text-danger rounded-circle border-0 p-0">
-                                                <i class="bi bi-trash"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
-                <li class="col-12">
-                    <div class="row mx-0 oneItem -cloneElem">
-                        <div class="form-control input-group col me-2 py-1">
-                            <span class="icon -upLv icon-btn fs-3 text-primary p-0 rounded"
-                                data-bs-toggle="tooltip" title="上階">
-                                <i class="bi bi-arrow-left-short"></i>
-                            </span>
-                            <span class="icon -downLv icon-btn fs-3 text-primary p-0 rounded"
-                                data-bs-toggle="tooltip" title="下階">
-                                <i class="bi bi-arrow-right-short"></i>
-                            </span>
-                            <input type="text" class="border-0 ms-2 py-0 form-control-plaintext" value="" placeholder="請輸入選單名稱，例：女裝或上衣" aria-label="選單名稱">
-                        </div>
-                        <div class="row col-auto py-1">
-                            <a href="#" 
-                                data-bs-toggle="tooltip" title="編輯"
-                                class="icon -edit icon-btn col-auto fs-5 text-primary rounded-circle border-0 p-0">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                            <span class="icon -move icon-btn col-auto fs-5 text-primary rounded-circle border-0 p-0"
-                                data-bs-toggle="tooltip" title="拖曳排序">
-                                <i class="bi bi-arrows-move"></i>
-                            </span>
-                            <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                                data-href="#"
-                                class="icon -del icon-btn col-auto fs-5 text-danger rounded-circle border-0 p-0">
-                                <i class="bi bi-trash"></i>
-                            </a>
-                        </div>
-                    </div>
-                    <ul class="d-flex align-items-end flex-column level level_2"></ul>
-                </li>
-            </ul>
-            <hr>
-
             {{-- -cloneElem --}}
-            <div class="row mx-0 oneItem -cloneElem">
-                <div class="form-control input-group col me-2 py-1">
-                    <span class="icon -upLv icon-btn fs-3 text-primary p-0 rounded"
+            <div class="row mx-0 align-items-center oneItem -cloneElem d-none">
+                <div class="form-control d-flex align-items-center col me-2 py-1">
+                    <span class="icon -upLv icon-btn col-auto fs-3 text-primary p-0 rounded"
                         data-bs-toggle="tooltip" title="上階">
                         <i class="bi bi-arrow-left-short"></i>
                     </span>
-                    <span class="icon -downLv icon-btn fs-3 text-primary p-0 rounded"
+                    <span class="icon -downLv icon-btn col-auto fs-3 text-primary p-0 rounded"
                         data-bs-toggle="tooltip" title="下階">
                         <i class="bi bi-arrow-right-short"></i>
                     </span>
-                    <input type="text" name="title" class="border-0 ms-2 py-0 form-control-plaintext" value="" placeholder="請輸入選單名稱，例：女裝或上衣" aria-label="選單名稱">
+                    <div class="ms-2 col fs-5 -title"></div>
                 </div>
                 <div class="row col-auto py-1">
                     <a href="#" 
@@ -247,7 +49,7 @@
             </div>
 
             {{-- 新增鈕 --}}
-            <div class="d-grid gap-2 mt-4">
+            <div class="d-grid gap-2">
                 <button id="addNewItem" type="button" class="btn btn-outline-primary border-dashed" style="font-weight: 500;">
                     <i class="bi bi-plus-circle"></i> 新增
                 </button>
@@ -273,22 +75,12 @@
 @once
     @push('sub-styles')
     <style>
-        .icon-btn.disabled {
-            pointer-events: none;
-            opacity: .5;
-        }
-        /* ===== */
-        .input-group>.form-control-plaintext {
-            position: relative;
-            -ms-flex: 1 1 auto;
-            flex: 1 1 auto;
-            width: 1%;
-            min-width: 0;
-            margin-bottom: 0;
-        }
         ul.level, ul.level li {
             list-style: none;
             padding: 0;
+        }
+        .oneItem .-title {
+            line-height: 1;
         }
         .oneItem .icon {
             width: 30px;
@@ -300,8 +92,6 @@
         /* 間距 */
         ul.level {
             padding: .5rem 0;
-        }
-        ul.level_1 {
             position: relative;
         }
         ul.level:empty {
@@ -316,8 +106,8 @@
         }
         /* 縮排 */
         .level:not(.level_1) > li {
-            padding-left: 2rem;
-            /* width: calc(100% - 1rem); */
+            padding-left: 1rem;
+            width: calc(100% - 1rem);
         }
         .level:not(.level_1) > li > div {
             position: relative;
@@ -330,12 +120,13 @@
             line-height: 40px;
         }
         /* 拖曳預覽框 */
-        .placeholder-highlight {
-            height: 42px;
-            width: 100%;
+        .level > li.placeholder-highlight {
+            height: 40px;
+            width: calc(100% - 2rem);
             margin-bottom: .5rem;
         }
-        ul.level_1 > li.placeholder-highlight {
+        .level.level_1 > li.placeholder-highlight {
+            width: 100%;
             margin-bottom: .75rem;
         }
     </style>
@@ -346,17 +137,9 @@
         const data = @json($dataList);
         console.log(data);
         // loadNaviNode(data, '.-appendClone');
-
-        // 綁定拖曳功能
-        // bindSortableMove($('.sortabled'), {
-        //     axis: 'y',
-        //     activate: function(e, ui) {
-        //         ui.item.children('td:not(:first-of-type)').hide();
-        //     },
-        //     stop: function(e, ui) {
-        //         ui.item.children('td:not(:first-of-type)').show();
-        //     },
-        // });
+        $('#addNewItem').on('click', function () {
+            bindNewItemBtn('.-appendClone');
+        });
 
         // 刪除 btn
         $('#confirm-delete').on('show.bs.modal', function(e) {
