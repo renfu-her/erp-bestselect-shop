@@ -183,12 +183,13 @@ class PurchaseItem extends Model
                 ,'purchase.supplier_name as supplier_nickname'
 
             )
+            ->selectRaw('DATE_FORMAT(purchase.created_at,"%Y-%m-%d") as created_at')
             ->selectRaw('DATE_FORMAT(purchase.scheduled_date,"%Y-%m-%d") as scheduled_date')
-            ->selectRaw('items.price * items.num as total_price')
+            ->selectRaw('FORMAT(items.price / items.num, 2) as single_price')
             ->addSelect(['deposit_num' => $subColumn, 'final_pay_num' => $subColumn2])
             ->whereNull('purchase.deleted_at')
             ->whereNull('items.deleted_at')
-            ->orderBy('id')
+            ->orderByDesc('purchase.created_at')
             ->orderBy('items_id');
 
         if($purchase_sn) {
@@ -319,11 +320,12 @@ class PurchaseItem extends Model
                 ,'purchase.supplier_name as supplier_name'
                 ,'purchase.supplier_nickname as supplier_nickname'
             )
+            ->selectRaw('DATE_FORMAT(purchase.created_at,"%Y-%m-%d") as created_at')
             ->selectRaw('DATE_FORMAT(purchase.scheduled_date,"%Y-%m-%d") as scheduled_date')
-            ->selectRaw('itemtb_new.price * itemtb_new.num as total_price')
+            ->selectRaw('FORMAT(itemtb_new.price / itemtb_new.num, 2) as single_price')
             ->addSelect(['deposit_num' => $subColumn, 'final_pay_num' => $subColumn2])
             ->whereNull('purchase.deleted_at')
-            ->orderBy('purchase.id');
+            ->orderByDesc('purchase.created_at');
 
         if($purchase_sn) {
             $result->where('purchase.sn', '=', $purchase_sn);

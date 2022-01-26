@@ -211,12 +211,12 @@
                                 <th scope="row">{{ $key + 1 }}</th>
                                 <td>{{ $data->sn }}</td>
                                 <td>{{ $data->title }}</td>
-                                <td>{{ $data->scheduled_date }}</td>
+                                <td>{{ $data->created_at }}</td>
                                 <td>{{ $data->deposit_num }}</td>
                                 <td>{{ $data->final_pay_num }}</td>
                                 <td>{{ $data->sku }}</td>
-                                <td>{{ $data->total_price }}</td>
                                 <td>{{ $data->price }}</td>
+                                <td>{{ $data->single_price }}</td>
                                 <td>{{ $data->num }}</td>
                                 <td>{{ $data->purchase_user_name }}</td>
                                 <td>{{ $data->supplier_name }}</td>
