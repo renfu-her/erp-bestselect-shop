@@ -33,7 +33,20 @@ if (!function_exists('getPageCount')) {
 
 if (!function_exists('frontendUrl')) {
     function frontendUrl(FrontendApiUrl $category)
-    { 
+    {
         return env('FRONTEND_URL') . $category->value . "/";
+    }
+}
+
+if (!function_exists('concatStr')) {
+    function concatStr($data)
+    {
+        $arr = [];
+        foreach ($data as $key => $d) {
+            $arr[] = '\\"' . $key . '\\":\\"",' . $d . ',"\\"';
+        }
+
+        return 'CONCAT("[",' . 'GROUP_CONCAT("{' . implode(',', $arr) . '}")' . ',"]")';
+
     }
 }

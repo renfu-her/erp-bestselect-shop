@@ -4,7 +4,11 @@ const colorPlugin = require('@toast-ui/editor-plugin-color-syntax');
 
 
 module.exports = class Editor {
-    
+    /**
+     * 
+     * @param {*} elemId Editor Id
+     * @param {*} options {imageTool: (bool)插入圖片功能, colorTool: (bool)文字顏色功能}
+     */
     static createEditor(elemId, options) {
         options = {
             height: 'auto',
@@ -20,12 +24,11 @@ module.exports = class Editor {
         };
 
         const editor = new TEditor({
+            ...options,
             el: document.querySelector('#' + elemId),
             initialEditType: 'wysiwyg',
             hideModeSwitch: true,
             language: 'zh-TW',
-            height: options.height || 'auto',
-            toolbarItems: options.toolbarItems,
             plugins: (options.colorTool) ? [colorPlugin] : []
         });
         // auto height

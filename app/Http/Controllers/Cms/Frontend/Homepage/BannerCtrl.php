@@ -68,7 +68,11 @@ class BannerCtrl extends Controller
     public function update(Request $request, $id)
     {
         $query = $request->query();
-        Banner::updateBanner($request, $id);
+        $is_del_old_img = false;
+        if ('del' == $request->input('del_img_pc')) {
+            $is_del_old_img = true;
+        }
+        Banner::updateBanner($request, $id, $is_del_old_img);
         wToast(__('Edit finished.'));
         return redirect(Route('cms.homepage.banner.edit', [
             'id' => $id,

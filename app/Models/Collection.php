@@ -20,6 +20,65 @@ class Collection extends Model
             'is_public'
         ];
 
+    /**
+     * @param  string  $id collection primary_id
+//     * @param  int  $amount 分頁數、限制回傳數量（待討論）
+     *
+     * @return array|mixed
+     */
+    public static function getApiCollectionData(string $id)
+    {
+        // data not exist
+        if (!self::where('id', $id)->get()->first()) {
+            return [
+                'status' => 1,
+                'msg' => '查無此商品群組',
+                'data' => [
+                ]
+            ];
+        }
+
+        $queryResult =
+            DB::table('collection')
+                ->where('collection.id', '=', $id)
+            ->leftJoin('collection_prd', 'collection_id_fk', 'collection.id')
+            ->leftJoin('prd_products', 'product_id_fk', '=', 'prd_products.id')
+            ->leftJoin('prd_product_styles', 'prd_products.id', '=', 'prd_product_styles.product_id')
+            ->leftJoin('prd_product_images', 'prd_products.id', '=', 'prd_product_images.product_id')
+            ->where('prd_product_styles.is_active', '=', '1')
+            ->leftJoin('prd_salechannel_style_price', 'prd_salechannel_style_price.style_id', '=', 'prd_product_styles.id')
+            ->whereNotNull('prd_salechannel_style_price.price')
+            ->orderBy('prd_salechannel_style_price.price')
+            ->select(
+                'prd_product_styles.sku',
+                'prd_products.title',
+                'prd_products.id as prd_id',
+                'prd_product_images.url as img_url',
+                'prd_product_styles.in_stock',
+                'prd_salechannel_style_price.origin_price',
+                'prd_salechannel_style_price.price',
+            )
+            ->get()
+            ->groupBy('prd_id')
+            ->toArray();
+
+        $dataList  = array();
+        foreach ($queryResult as $item) {
+            $dataList[] = [
+                'sku'    => $item[0]->sku,
+                'name'   => $item[0]->title,
+                'img'    => $item[0]->img_url,
+                'amount' => $item[0]->in_stock,
+                'price'  => [
+                    'origin' => $item[0]->origin_price,
+                    'sale'   => $item[0]->price
+                ]
+            ];
+        }
+
+        return $dataList;
+    }
+
     public function storeCollectionData(
         string $collection_name,
         string $url,

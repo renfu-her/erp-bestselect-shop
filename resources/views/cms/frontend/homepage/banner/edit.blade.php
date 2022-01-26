@@ -46,16 +46,24 @@
                     <div class="form-check form-check-inline @error('event_type')is-invalid @enderror">
                         <label class="form-check-label">
                             <input class="form-check-input @error('event_type')is-invalid @enderror" name="event_type"
-                                value="{{App\Enums\Homepage\BannerEventType::group()->key}}" type="radio" required
-                                @if (old('event_type', $data->event_type ?? '') == App\Enums\Homepage\BannerEventType::group()->key) checked @endif>
+                                value="{{App\Enums\Homepage\BannerEventType::collection()->key}}" type="radio" required
+                                @if (old('event_type', $data->event_type ?? '') == App\Enums\Homepage\BannerEventType::collection()->key) checked @endif>
                             群組
                         </label>
                     </div>
                     <div class="form-check form-check-inline @error('event_type')is-invalid @enderror">
                         <label class="form-check-label">
                             <input class="form-check-input @error('event_type')is-invalid @enderror" name="event_type"
-                                value="{{App\Enums\Homepage\BannerEventType::url()->key}}" type="radio" required
-                                @if (old('event_type', $data->event_type ?? '') == App\Enums\Homepage\BannerEventType::url()->key) checked @endif>
+                                   value="{{App\Enums\Homepage\BannerEventType::product()->key}}" type="radio" required
+                                   @if (old('event_type', $data->event_type ?? '') == App\Enums\Homepage\BannerEventType::product()->key) checked @endif>
+                            商品
+                        </label>
+                    </div>
+                    <div class="form-check form-check-inline @error('event_type')is-invalid @enderror">
+                        <label class="form-check-label">
+                            <input class="form-check-input @error('event_type')is-invalid @enderror" name="event_type"
+                                   value="{{App\Enums\Homepage\BannerEventType::url()->key}}" type="radio" required
+                                   @if (old('event_type', $data->event_type ?? '') == App\Enums\Homepage\BannerEventType::url()->key) checked @endif>
                             連結
                         </label>
                     </div>
@@ -65,12 +73,12 @@
                 </div>
             </fieldset>
             <div class="col-12 col-sm-6 mb-3">
-                <div class="event_type -group"
-                     @if (old('event_type', $data->event_type ?? '') != App\Enums\Homepage\BannerEventType::group()->key) hidden @endif>
+                <div class="event_type -collection"
+                     @if (old('event_type', $data->event_type ?? '') != App\Enums\Homepage\BannerEventType::collection()->key) hidden @endif>
                     <label class="form-label">橫幅廣告群組 <span class="text-danger">*</span></label>
                     {{-- @if ($event_type === 'group') <select> 加 required @else 加 disabled --}}
                     <select name="event_id" class="form-select"
-                            @if (old('event_type', $data->event_type ?? '') == App\Enums\Homepage\BannerEventType::group()->key) required @else disabled @endif>
+                            @if (old('event_type', $data->event_type ?? '') == App\Enums\Homepage\BannerEventType::collection()->key) required @else disabled @endif>
                         <option value="" @if('' == old('event_id', $data->event_id ?? '')) selected @endif disabled>請選擇</option>
                         @foreach($collectionList as $key => $collection)
                             <option value="{{$collection->id}}" @if($collection->id == old('event_id', $data->event_id ?? '')) selected @endif>{{$collection->name}}</option>
@@ -123,6 +131,7 @@
                                 aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width: 1%"></div>
                         </div>
                         <input type="file" name="img_pc" accept=".jpg,.jpeg,.png,.gif" hidden>
+                        <input type="hidden" name="del_img_pc">
                     </label>
                 </div>
                 <p><mark>圖片尺寸建議：1200x400px，不超過300KB，可上傳JPG/ JPEG/ PNG/ GIF格式</mark></p>
@@ -173,8 +182,9 @@
                     $x.siblings('img').attr('src', '');
                     let img_box = $x.closest('.box');
                     img_box.prop('hidden', true);
-                    img_box.siblings('.browser_box.-plusBtn').prop('hidden', false)
+                    img_box.siblings('.browser_box.-plusBtn').prop('hidden', false);
                     img_box.siblings('input[name="img_pc"]').val('');
+                    img_box.siblings('input[name="del_img_pc"]').val('del');
                 }
             });
 
