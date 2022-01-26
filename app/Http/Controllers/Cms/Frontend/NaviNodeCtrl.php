@@ -49,7 +49,10 @@ class NaviNodeCtrl extends Controller
     public function design()
     {   
        
-        dd(NaviNode::tree());
+        // dd(NaviNode::tree());
+        return view('cms.frontend.navinode.new-list', [
+            'dataList' => NaviNode::tree()
+        ]);
     }
 
     /**

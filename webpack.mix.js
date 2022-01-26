@@ -18,4 +18,5 @@ mix.js('resources/js/app.js', 'public/dist/js')
    .js('resources/js/dashboard.js', 'public/dist/js/dashboard.js')
    .js('resources/js/helpers.js', 'public/dist/js/helpers.js')
    .js('resources/js/components.js', 'public/dist/js/components.js')
+   .js('resources/js/navinode.js', 'public/dist/js/navinode.js')
     .sourceMaps();
