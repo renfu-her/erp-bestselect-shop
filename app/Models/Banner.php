@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Enums\Globals\FrontendApiUrl;
 use App\Enums\Globals\LinkType;
-use App\Enums\Homepage\BannerEventType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -68,21 +67,23 @@ class Banner extends Model
         $event_type = $request->input('event_type');
         $event_id = $request->input('event_id');
         $event_url = $request->input('event_url');
-        if (!BannerEventType::hasKey($event_type)) {
+        if (!FrontendApiUrl::hasKey($event_type)) {
             throw ValidationException::withMessages(['event_error' => '未選擇類型']);
         }
-        if (BannerEventType::none()->key == $event_type) {
-            $request->merge(['event_id' => null]);
-            $request->merge(['event_url' => null]);
-        } else if (BannerEventType::collection()->key == $event_type) {
+        if (FrontendApiUrl::collection()->key == $event_type) {
             $request->merge(['event_url' => null]);
             if (null == $event_id) {
                 throw ValidationException::withMessages(['event_error' => '類型為群組，但未選擇群組']);
             }
-        } else if (BannerEventType::url()->key == $event_type) {
+        } else if (FrontendApiUrl::url()->key == $event_type) {
             $request->merge(['event_id' => null]);
             if (null == $event_url) {
                 throw ValidationException::withMessages(['event_error' => '類型為連結，但未輸入連結']);
+            }
+        } else if (FrontendApiUrl::product()->key == $event_type) {
+            $request->merge(['event_url' => null]);
+            if (null == $event_id) {
+                throw ValidationException::withMessages(['event_error' => '類型為商品，但未選擇商品']);
             }
         }
         return $request;
@@ -218,11 +219,11 @@ class Banner extends Model
         $result = DB::table('idx_banner as banner')
             ->leftJoin('collection', function($join) {
                 $join->on('collection.id', '=', 'banner.event_id');
-                $join->where('banner.event_type', '=', BannerEventType::collection()->key);
+                $join->where('banner.event_type', '=', FrontendApiUrl::collection()->key);
             })
             ->leftJoin('prd_products as products', function($join) {
                 $join->on('products.id', '=', 'banner.event_id');
-                $join->where('banner.event_type', '=', BannerEventType::product()->key);
+                $join->where('banner.event_type', '=', FrontendApiUrl::product()->key);
             })
             ->select(
                 'banner.img_pc as src',

@@ -8,6 +8,7 @@ class FrontendApiUrl extends Enum
 {
     const collection = 'collection';
     const product = 'product';
+    const url = 'url';
 
     public static function getDescription($value): string
     {
@@ -18,6 +19,9 @@ class FrontendApiUrl extends Enum
                 break;
             case self::product:
                 $result = '商品';
+                break;
+            case self::url:
+                $result = '連結';
                 break;
             default:
                 $result = parent::getDescription($value);
