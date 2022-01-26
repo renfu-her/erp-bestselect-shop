@@ -46,24 +46,24 @@
                     <div class="form-check form-check-inline @error('event_type')is-invalid @enderror">
                         <label class="form-check-label">
                             <input class="form-check-input @error('event_type')is-invalid @enderror" name="event_type"
-                                value="{{App\Enums\Homepage\BannerEventType::collection()->key}}" type="radio" required
-                                @if (old('event_type', $data->event_type ?? '') == App\Enums\Homepage\BannerEventType::collection()->key) checked @endif>
+                                value="{{App\Enums\Globals\FrontendApiUrl::collection()->key}}" type="radio" required
+                                @if (old('event_type', $data->event_type ?? '') == App\Enums\Globals\FrontendApiUrl::collection()->key) checked @endif>
                             群組
                         </label>
                     </div>
                     <div class="form-check form-check-inline @error('event_type')is-invalid @enderror">
                         <label class="form-check-label">
                             <input class="form-check-input @error('event_type')is-invalid @enderror" name="event_type"
-                                   value="{{App\Enums\Homepage\BannerEventType::product()->key}}" type="radio" required
-                                   @if (old('event_type', $data->event_type ?? '') == App\Enums\Homepage\BannerEventType::product()->key) checked @endif>
+                                   value="{{App\Enums\Globals\FrontendApiUrl::product()->key}}" type="radio" required
+                                   @if (old('event_type', $data->event_type ?? '') == App\Enums\Globals\FrontendApiUrl::product()->key) checked @endif>
                             商品
                         </label>
                     </div>
                     <div class="form-check form-check-inline @error('event_type')is-invalid @enderror">
                         <label class="form-check-label">
                             <input class="form-check-input @error('event_type')is-invalid @enderror" name="event_type"
-                                   value="{{App\Enums\Homepage\BannerEventType::url()->key}}" type="radio" required
-                                   @if (old('event_type', $data->event_type ?? '') == App\Enums\Homepage\BannerEventType::url()->key) checked @endif>
+                                   value="{{App\Enums\Globals\FrontendApiUrl::url()->key}}" type="radio" required
+                                   @if (old('event_type', $data->event_type ?? '') == App\Enums\Globals\FrontendApiUrl::url()->key) checked @endif>
                             連結
                         </label>
                     </div>
@@ -74,11 +74,11 @@
             </fieldset>
             <div class="col-12 col-sm-6 mb-3">
                 <div class="event_type -collection"
-                     @if (old('event_type', $data->event_type ?? '') != App\Enums\Homepage\BannerEventType::collection()->key) hidden @endif>
+                     @if (old('event_type', $data->event_type ?? '') != App\Enums\Globals\FrontendApiUrl::collection()->key) hidden @endif>
                     <label class="form-label">橫幅廣告群組 <span class="text-danger">*</span></label>
                     {{-- @if ($event_type === 'group') <select> 加 required @else 加 disabled --}}
                     <select name="event_id" class="form-select"
-                            @if (old('event_type', $data->event_type ?? '') == App\Enums\Homepage\BannerEventType::collection()->key) required @else disabled @endif>
+                            @if (old('event_type', $data->event_type ?? '') == App\Enums\Globals\FrontendApiUrl::collection()->key) required @else disabled @endif>
                         <option value="" @if('' == old('event_id', $data->event_id ?? '')) selected @endif disabled>請選擇</option>
                         @foreach($collectionList as $key => $collection)
                             <option value="{{$collection->id}}" @if($collection->id == old('event_id', $data->event_id ?? '')) selected @endif>{{$collection->name}}</option>
@@ -86,12 +86,12 @@
                     </select>
                 </div>
                 <div class="event_type -url"
-                     @if (old('event_type', $data->event_type ?? '') != App\Enums\Homepage\BannerEventType::url()->key) hidden @endif>
+                     @if (old('event_type', $data->event_type ?? '') != App\Enums\Globals\FrontendApiUrl::url()->key) hidden @endif>
                     <label class="form-label">橫幅廣告連結 <span class="text-danger">*</span></label>
                     {{-- @if ($event_type === 'url') <input> 加 required @else 加 disabled --}}
                     <input type="url" name="event_url" class="form-control" placeholder="請輸入連結"
                            value="{{old('event_type', $data->event_url ?? '')}}"
-                           @if (old('event_type', $data->event_type ?? '') == App\Enums\Homepage\BannerEventType::url()->key) required @else disabled @endif>
+                           @if (old('event_type', $data->event_type ?? '') == App\Enums\Globals\FrontendApiUrl::url()->key) required @else disabled @endif>
                 </div>
             </div>
             <fieldset class="col-12 col-sm-6 mb-3">
@@ -138,11 +138,11 @@
                 @error('files')
                 <div class="alert alert-danger" role="alert">{{ $message }}</div>
                 @enderror
+                @error('event_error')
+                <div class="alert alert-danger" role="alert">{{ $message }}</div>
+                @enderror
             </div>
         </div>
-        @error('event_error')
-        <div class="invalid-feedback">{{ $message }}</div>
-        @enderror
     </div>
 
     <div class="col-auto">
