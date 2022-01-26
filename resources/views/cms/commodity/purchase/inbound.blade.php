@@ -159,7 +159,7 @@
                 <thead>
                 <tr>
                     @if(null == $purchaseData->close_date)
-                        <th scope="col" class="text-center">刪除</th>
+                        <th scope="col" class="text-center">取消入庫</th>
                     @endif
                     <th scope="col">入庫日期</th>
                     <th scope="col">商品名稱</th>
@@ -177,12 +177,14 @@
                     <tr>
                         @if(null == $purchaseData->close_date)
                             <th class="text-center">
+                                @if(null == $inbound->deleted_at)
                                 <button type="button"
                                         data-href="{{ Route('cms.purchase.delete_inbound', ['id' => $inbound->inbound_id], true) }}"
                                         data-bs-toggle="modal" data-bs-target="#confirm-delete"
                                         class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                     <i class="bi bi-trash"></i>
                                 </button>
+                                @endif
                             </th>
                         @endif
                         <td>{{ $inbound->inbound_date }}</td>
@@ -192,9 +194,14 @@
                         <td>{{ $inbound->inbound_num }}</td>
                         <td>{{ $inbound->error_num }}</td>
                         <td>{{ $inbound->expiry_date }}</td>
-                        <td style="display: none">{{$status = App\Enums\Purchase\InboundStatus::getDescription($inbound->status)}}</td>
-                        <td @class(['text-danger' => $status === '短缺' || $status === '溢出'])>{{ $status }}</td>
+                        @if(null != $inbound->deleted_at)
+                            <td>取消入庫</td>
+                        @else
+                            <td style="display: none">{{$status = App\Enums\Purchase\InboundStatus::getDescription($inbound->status)}}</td>
+                            <td @class(['text-danger' => $status === '短缺' || $status === '溢出'])>{{ $status }}</td>
+                        @endif
                         <td>{{ $inbound->inbound_memo }}</td>
+
                     </tr>
                 @endforeach
                 </tbody>

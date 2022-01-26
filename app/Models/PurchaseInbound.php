@@ -136,9 +136,11 @@ class PurchaseInbound extends Model
             )
             ->selectRaw('DATE_FORMAT(inbound.expiry_date,"%Y-%m-%d") as expiry_date') //有效期限
             ->selectRaw('DATE_FORMAT(inbound.inbound_date,"%Y-%m-%d") as inbound_date') //入庫日期
-            ->whereNull('inbound.deleted_at')
+            ->selectRaw('DATE_FORMAT(inbound.deleted_at,"%Y-%m-%d") as deleted_at') //刪除日期
+//            ->whereNull('inbound.deleted_at')
             ->whereNotNull('inbound.id')
-            ->where('inbound.purchase_id', '=', $purchase_id);
+            ->where('inbound.purchase_id', '=', $purchase_id)
+            ->orderByDesc('inbound.created_at');
         return $result;
     }
 
