@@ -27,7 +27,7 @@ class NaviNode extends Model
                 'node.level as level',
                 'node.has_child as has_child',
                 'col.name as group_title')
-            ->leftJoin('collection as col', 'node.collection_id', '=', 'col.id')
+            ->leftJoin('collection as col', 'node.event_id', '=', 'col.id')
             ->where('node.parent_id', $parent_id)
             ->orderBy('node.sort');
     }
@@ -62,19 +62,19 @@ class NaviNode extends Model
         return $b;
     }
 
-    public static function createNode($parent_id, $title, $url = null, $collection_id = null, $has_child = 0, $type = "url", $target = "_self")
+    public static function createNode($parent_id, $title, $url = null, $event_id = null, $has_child = 0, $event = "url", $target = "_self")
     {
         $data = ['title' => $title,
             'has_child' => $has_child,
             'parent_id' => $parent_id,
-            'type' => null,
+            'event' => null,
             'url' => null,
-            'collection_id' => null,
+            'event_id' => null,
             'target' => null,
         ];
 
         if ($has_child == 0) {
-            $re = self::hasChildProcess($data, $type, $url, $collection_id, $target);
+            $re = self::hasChildProcess($data, $event, $url, $event_id, $target);
             if ($re) {
                 return $re;
             }
@@ -95,18 +95,18 @@ class NaviNode extends Model
         return ['success' => 1, 'id' => $id];
     }
 
-    public static function updateNode($id, $title, $url = null, $collection_id = null, $has_child = 0, $type = "url", $target = "_self")
+    public static function updateNode($id, $title, $url = null, $event_id = null, $has_child = 0, $event = "url", $target = "_self")
     {
         $data = ['title' => $title,
             'has_child' => $has_child,
-            'type' => null,
+            'event' => null,
             'url' => null,
-            'collection_id' => null,
+            'event_id' => null,
             'target' => null,
         ];
 
         if ($has_child == 0) {
-            $re = self::hasChildProcess($data, $type, $url, $collection_id, $target);
+            $re = self::hasChildProcess($data, $event, $url, $event_id, $target);
             if ($re) {
                 return $re;
             }
@@ -118,23 +118,23 @@ class NaviNode extends Model
         return ['success' => 1];
     }
 
-    private static function hasChildProcess(&$data, $type, $url, $collection_id, $target)
+    private static function hasChildProcess(&$data, $event, $url, $event_id, $target)
     {
-        switch ($type) {
+        switch ($event) {
             case 'url':
                 $data['url'] = $url;
                 break;
             case 'group':
-                $gData = Collection::where('id', $collection_id)->select('url')->get()->first();
+                $gData = Collection::where('id', $event_id)->select('url')->get()->first();
                 if (!$gData) {
                     return ['success' => 0, 'error_msg' => "群組ID無效"];
                 }
                 $data['url'] = $gData->url;
-                $data['collection_id'] = $collection_id;
+                $data['event_id'] = $event_id;
                 break;
         }
 
-        $data['type'] = $type;
+        $data['event'] = $event;
         $data['target'] = $target;
         return null;
     }
@@ -142,7 +142,7 @@ class NaviNode extends Model
     public static function tree($id = 0)
     {
         $sub = DB::table('idx_navi_node as n')
-            ->leftJoin('collection as c', 'n.collection_id', '=', 'c.id')
+            ->leftJoin('collection as c', 'n.event_id', '=', 'c.id')
             ->select('n.*', 'c.name as event_title');
 
         $re = DB::table(DB::raw("({$sub->toSql()}) as lv1"))
@@ -159,7 +159,7 @@ class NaviNode extends Model
             $re->addSelect('lv' . $i . '.url as lv' . $i . '_url');
             $re->addSelect('lv' . $i . '.target as lv' . $i . '_target');
             $re->addSelect('lv' . $i . '.has_child as lv' . $i . '_has_child');
-            $re->addSelect('lv' . $i . '.collection_id as lv' . $i . '_collection_id');
+            $re->addSelect('lv' . $i . '.event_id as lv' . $i . '_event_id');
             $re->addSelect('lv' . $i . '.event_title as lv' . $i . '_event_title', );
         }
 
@@ -206,12 +206,12 @@ class NaviNode extends Model
 
         if ($v->{"lv" . $level . "_has_child"} == 0) {
             $host = "";
-            if ($v->{"lv" . $level . "_collection_id"}) {
-                $re['type'] = "1";
-                $re['id'] = $v->{"lv" . $level . "_collection_id"};
-                $host = FrontendApiUrl::collection() . "/" . ($v->{"lv" . $level . "_collection_id"}) . "/" . ($v->{"lv" . $level . "_event_title"});
+            if ($v->{"lv" . $level . "_event_id"}) {
+                $re['event'] = "1";
+                $re['id'] = $v->{"lv" . $level . "_event_id"};
+                $host = FrontendApiUrl::collection() . "/" . ($v->{"lv" . $level . "_event_id"}) . "/" . ($v->{"lv" . $level . "_event_title"});
             } else {
-                $re['type'] = "2";
+                $re['event'] = "2";
             }
             $re['url'] = $host . $v->{"lv" . $level . "_url"};
             $re['target'] = $v->{"lv" . $level . "_target"};
