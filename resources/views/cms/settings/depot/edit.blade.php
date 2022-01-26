@@ -15,7 +15,7 @@
             <x-b-form-group name="name" title="倉庫名稱" required="true">
                 <input class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name', $data->name ?? '') }}" />
             </x-b-form-group>
-            <x-b-form-group name="sender" title="寄件人" required="true">
+            <x-b-form-group name="sender" title="倉商窗口" required="true">
                 <input class="form-control @error('sender') is-invalid @enderror" name="sender" value="{{ old('sender', $data->sender ?? '') }}" />
             </x-b-form-group>
             <div calss="form-group">

@@ -28,7 +28,7 @@
                     <th scope="col" style="width:10%">#</th>
                     <th scope="col">倉庫名稱</th>
 {{--                    <th scope="col">代碼</th>--}}
-                    <th scope="col">寄件人</th>
+                    <th scope="col">倉商窗口</th>
                     <th scope="col">地址</th>
                     <th scope="col">電話</th>
                     <th scope="col" class="text-center">編輯</th>
