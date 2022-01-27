@@ -103,28 +103,28 @@
                                     <div class="input-group input-group-sm flex-nowrap">
                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                                         <input type="number" class="form-control form-control-sm" name="n_price[]" min="0"
-                                            value="" required />
+                                            value="0" required />
                                     </div>
                                 </td>
                                 <td>
                                     <div class="input-group input-group-sm flex-nowrap">
                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                                         <input type="number" class="form-control form-control-sm" name="n_dealer_price[]"
-                                            min="0" value="" required />
+                                            min="0" value="0" required />
                                     </div>
                                 </td>
                                 <td>
                                     <div class="input-group input-group-sm flex-nowrap">
                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                                         <input type="number" class="form-control form-control-sm" name="n_origin_price[]"
-                                            min="0" value="" required />
+                                            min="0" value="0" required />
                                     </div>
                                 </td>
                                 <td>
                                     <div class="input-group input-group-sm flex-nowrap">
                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                                         <input type="number" class="form-control form-control-sm" name="n_bonus[]" min="0"
-                                            value="" required />
+                                            value="0" required />
                                     </div>
                                 </td>
                                 <td>
@@ -277,7 +277,7 @@
 
             // 新增一條款式
             $('.-newClone').off('click').on('click', function() {
-                Clone_bindCloneBtn($clone);
+                Clone_bindCloneBtn($clone, function () {  });
                 bindCalculate();
             });
             initStyles.forEach(style => {
