@@ -75,6 +75,16 @@ class NaviNodeCtrl extends Controller
         ]);
     }
 
+    public function create2(Request $request, Collection $collection)
+    {
+        return view('cms.frontend.navinode.new-edit', [
+            'method' => 'create',
+            'formAction' => Route('cms.navinode.create2'),
+            'collections' => $collection->get()->toArray(),
+            'breadcrumb_data' => NaviNode::forBreadcrumb(0),
+        ]);
+    }
+
     /**
      * Store a newly created resource in storage.
      *
