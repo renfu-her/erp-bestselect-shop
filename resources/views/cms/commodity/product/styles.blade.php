@@ -102,28 +102,28 @@
                                 <td>
                                     <div class="input-group input-group-sm flex-nowrap">
                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                        <input type="number" class="form-control form-control-sm" name="price[]" min="0"
+                                        <input type="number" class="form-control form-control-sm" name="n_price[]" min="0"
                                             value="" required />
                                     </div>
                                 </td>
                                 <td>
                                     <div class="input-group input-group-sm flex-nowrap">
                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                        <input type="number" class="form-control form-control-sm" name="dealer_price[]"
+                                        <input type="number" class="form-control form-control-sm" name="n_dealer_price[]"
                                             min="0" value="" required />
                                     </div>
                                 </td>
                                 <td>
                                     <div class="input-group input-group-sm flex-nowrap">
                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                        <input type="number" class="form-control form-control-sm" name="origin_price[]"
+                                        <input type="number" class="form-control form-control-sm" name="n_origin_price[]"
                                             min="0" value="" required />
                                     </div>
                                 </td>
                                 <td>
                                     <div class="input-group input-group-sm flex-nowrap">
                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                        <input type="number" class="form-control form-control-sm" name="bonus[]" min="0"
+                                        <input type="number" class="form-control form-control-sm" name="n_bonus[]" min="0"
                                             value="" required />
                                     </div>
                                 </td>
@@ -142,7 +142,7 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <input type="number" class="form-control form-control-sm" name="dividend[]" min="0"
+                                    <input type="number" class="form-control form-control-sm" name="n_dividend[]" min="0"
                                         value="" required>
                                 </td>
                             </tr>
@@ -190,28 +190,28 @@
                                     <td>
                                         <div class="input-group input-group-sm flex-nowrap">
                                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                            <input type="number" class="form-control form-control-sm" name="price[]" min="0"
+                                            <input type="number" class="form-control form-control-sm" name="{{ $prefix }}price[]" min="0"
                                                 value="" required />
                                         </div>
                                     </td>
                                     <td>
                                         <div class="input-group input-group-sm flex-nowrap">
                                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                            <input type="number" class="form-control form-control-sm" name="dealer_price[]"
+                                            <input type="number" class="form-control form-control-sm" name="{{ $prefix }}dealer_price[]"
                                                 min="0" value="" required />
                                         </div>
                                     </td>
                                     <td>
                                         <div class="input-group input-group-sm flex-nowrap">
                                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                            <input type="number" class="form-control form-control-sm" name="origin_price[]"
+                                            <input type="number" class="form-control form-control-sm" name="{{ $prefix }}origin_price[]"
                                                 min="0" value="" required />
                                         </div>
                                     </td>
                                     <td>
                                         <div class="input-group input-group-sm flex-nowrap">
                                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                            <input type="number" class="form-control form-control-sm" name="bonus[]" min="0"
+                                            <input type="number" class="form-control form-control-sm" name="{{ $prefix }}bonus[]" min="0"
                                                 value="" required />
                                         </div>
                                     </td>
@@ -231,7 +231,7 @@
                                         </select>
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control form-control-sm" name="dividend[]" min="0"
+                                        <input type="number" class="form-control form-control-sm" name="{{ $prefix }}dividend[]" min="0"
                                             value="" required>
                                     </td>
                                 </tr>
@@ -305,12 +305,12 @@
             // 計算 獎金 = (售價-經銷價) × BonusRate
             bindCalculate();
             function bindCalculate() {
-                $('input[name="price[]"], input[name="dealer_price[]"]').off('change.bonus')
+                $('input[name$="_price[]"], input[name$="_dealer_price[]"]').off('change.bonus')
                 .on('change.bonus', function () {
                     const $this = $(this);
-                    const price = $this.closest('tr').find('input[name="price[]"]').val() || 0;
-                    const dealer_price = $this.closest('tr').find('input[name="dealer_price[]"]').val() || 0;
-                    $this.closest('tr').find('input[name="bonus[]"]').val(Math.floor((price - dealer_price) * BonusRate));
+                    const price = $this.closest('tr').find('input[name$="_price[]"]').val() || 0;
+                    const dealer_price = $this.closest('tr').find('input[name$="_dealer_price[]"]').val() || 0;
+                    $this.closest('tr').find('input[name$="_bonus[]"]').val(Math.floor((price - dealer_price) * BonusRate));
                 });
             }
 
