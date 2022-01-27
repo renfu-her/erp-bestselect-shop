@@ -123,9 +123,7 @@ class PurchaseSeeder extends Seeder
             $purchaseID1,
             $product_style_id1,
             '2022-12-14 00:00:00',
-            InboundStatus::not_yet()->value,
             null,
-            0,
             0,
             $depot_id,
             $depot_name,
@@ -139,10 +137,8 @@ class PurchaseSeeder extends Seeder
             $purchaseID1,
             $product_style_id1,
             '2022-12-14 00:00:00',
-            InboundStatus::normal()->value,
             '2022-01-05 00:00:00',
             99,
-            1,
             $depot_id,
             $depot_name,
             5,
@@ -154,10 +150,8 @@ class PurchaseSeeder extends Seeder
             $purchaseID1,
             $product_style_id1,
             '2022-12-14 00:00:00',
-            InboundStatus::overflow()->value,
             '2022-01-06 00:00:00',
             1,
-            0,
             $depot_id,
             $depot_name,
             5,
@@ -169,12 +163,6 @@ class PurchaseSeeder extends Seeder
         PurchaseInbound::shippingInbound(
             $purchaseInbound2,
             $sellCount,
-        );
-
-        $errorCount = 1;
-        PurchaseInbound::sendBackInbound(
-            $purchaseInbound2,
-            $errorCount,
         );
     }
 }

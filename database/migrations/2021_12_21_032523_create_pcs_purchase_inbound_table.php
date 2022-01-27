@@ -18,10 +18,8 @@ class CreatePcsPurchaseInboundTable extends Migration
             $table->integer('purchase_id')->comment('採購id');
             $table->integer('product_style_id')->comment('款式product_style_id 帶出款式sku碼');
             $table->dateTime('expiry_date')->nullable()->comment('有效期限');
-            $table->tinyInteger('status')->default(0)->comment('狀態(0:尚未入庫/1:正常/2:短缺/3:溢出)');
             $table->dateTime('inbound_date')->nullable()->comment('入庫日期');
             $table->integer('inbound_num')->default(0)->comment('入庫數量');
-            $table->integer('error_num')->default(0)->comment('異常數量');
             $table->integer('depot_id')->nullable()->comment('倉庫');
             $table->string('depot_name')->nullable()->comment('倉庫名稱');
             $table->integer('inbound_user_id')->nullable()->comment('入庫者');

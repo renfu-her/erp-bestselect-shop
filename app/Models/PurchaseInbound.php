@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Purchase\InboundStatus;
 use App\Enums\Purchase\LogFeatureEvent;
 use App\Enums\Purchase\LogFeature;
 use App\Enums\StockEvent;
@@ -17,16 +18,14 @@ class PurchaseInbound extends Model
     protected $table = 'pcs_purchase_inbound';
     protected $guarded = [];
 
-    public static function createInbound($purchase_id, $product_style_id, $expiry_date = null, $status = 0, $inbound_date = null, $inbound_num = 0, $error_num = 0, $depot_id = null, $depot_name = null, $inbound_user_id = null, $inbound_user_name = null, $memo = null)
+    public static function createInbound($purchase_id, $product_style_id, $expiry_date = null, $inbound_date = null, $inbound_num = 0, $depot_id = null, $depot_name = null, $inbound_user_id = null, $inbound_user_name = null, $memo = null)
     {
         $id = self::create([
             "purchase_id" => $purchase_id,
             "product_style_id" => $product_style_id,
             "expiry_date" => $expiry_date,
-            "status" => $status,
             "inbound_date" => $inbound_date,
             "inbound_num" => $inbound_num,
-            "error_num" => $error_num,
             "depot_id" => $depot_id,
             "depot_name" => $depot_name,
             "inbound_user_id" => $inbound_user_id,
@@ -96,23 +95,6 @@ class PurchaseInbound extends Model
         });
     }
 
-    //使用者退回 更新資料 寫入error_num
-    public static function sendBackInbound($id, $send_back_num = 0)
-    {
-        return DB::transaction(function () use (
-            $id,
-            $send_back_num
-        ) {
-            $inboundData = PurchaseInbound::where('id', '=', $id);
-            $inboundDataGet = $inboundData->get()->first();
-            if (null != $inboundDataGet) {
-                $inboundData
-                    ->update(['error_num' => DB::raw("error_num + $send_back_num")]);
-                PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogFeature::inbound()->value, $id, LogFeatureEvent::inbound_send_back()->value, $send_back_num, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
-            }
-        });
-    }
-
     //歷史入庫
     public static function getInboundList($purchase_id)
     {
@@ -124,9 +106,7 @@ class PurchaseInbound extends Model
                 , 'style.title as style_title' //款式名稱
                 , 'style.sku as style_sku' //款式SKU
                 , 'inbound.id as inbound_id' //入庫ID
-                , 'inbound.status as status' //入庫狀態
                 , 'inbound.inbound_num as inbound_num' //入庫實進數量
-                , 'inbound.error_num as error_num' //入庫異常數量
                 , 'inbound.depot_id as depot_id'  //入庫倉庫ID
                 , 'inbound.depot_name as depot_name'  //入庫倉庫名稱
                 , 'inbound.inbound_user_id as inbound_user_id'  //入庫人員ID
@@ -153,7 +133,6 @@ class PurchaseInbound extends Model
             ->select('inbound.purchase_id as purchase_id'
                 , 'inbound.product_style_id as product_style_id')
             ->selectRaw('sum(inbound.inbound_num) as inbound_num')
-            ->selectRaw('sum(inbound.error_num) as error_num')
             ->groupBy('inbound.purchase_id')
             ->groupBy('inbound.product_style_id');
 
@@ -179,13 +158,12 @@ class PurchaseInbound extends Model
             ->selectRaw('sum(items.num) as num') //採購數量
             ->selectRaw('(inbound.inbound_num) as inbound_num') //已到數量
             ->selectRaw($queryTotalInboundNum.' AS should_enter_num') //應進數量
-            ->selectRaw('('. $queryTotalInboundNum. ' - COALESCE((inbound.error_num), 0))'. ' as error_num') //異常數量
 
             ->selectRaw('(case
-                    when '. $queryTotalInboundNum. ' = 0 then "正常"
-                    when COALESCE((inbound.inbound_num), 0) = 0 then "尚未入庫"
-                    when ('. $queryTotalInboundNum. ' - COALESCE((inbound.error_num), 0)) < 0 then "溢出"
-                    when ('. $queryTotalInboundNum. ' - COALESCE((inbound.error_num), 0)) > 0 then "短缺"
+                    when '. $queryTotalInboundNum. ' = 0 and COALESCE(inbound.inbound_num, 0) <> 0 then "'.InboundStatus::getDescription(InboundStatus::normal()->value).'"
+                    when COALESCE(inbound.inbound_num, 0) = 0 then "'.InboundStatus::getDescription(InboundStatus::not_yet()->value).'"
+                    when COALESCE(sum(items.num), 0) < COALESCE(inbound.inbound_num) then "'.InboundStatus::getDescription(InboundStatus::overflow()->value).'"
+                    when COALESCE(sum(items.num), 0) > COALESCE(inbound.inbound_num) then "'.InboundStatus::getDescription(InboundStatus::shortage()->value).'"
                 end) as inbound_type') //採購狀態
             ->whereNull('purchase.deleted_at')
             ->whereNull('items.deleted_at')
@@ -196,7 +174,6 @@ class PurchaseInbound extends Model
                 , 'styles.title'
                 , 'users.name'
                 , 'inbound.inbound_num'
-                , 'inbound.error_num'
             )
             ->orderBy('purchase.id')
             ->orderBy('items.product_style_id')

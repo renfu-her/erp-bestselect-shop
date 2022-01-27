@@ -27,7 +27,7 @@
                         <td>{{ $overview->sku }}</td>
                         <td>{{ $overview->num }}</td>
                         <td>{{ $overview->inbound_num }}</td>
-                        <td>{{ $overview->error_num }}</td>
+                        <td>{{ $overview->should_enter_num }}</td>
                         <td @class(['text-danger' => $overview->inbound_type === '短缺' || $overview->inbound_type === '溢出'])>{{ $overview->inbound_type }}</td>
                         <td>{{ $overview->user_name }}</td>
                     </tr>
@@ -81,9 +81,7 @@
                             <th scope="col">SKU</th>
                             <th scope="col">應進數量</th>
                             <th scope="col">實進數量</th>
-                            <th scope="col">異常數量</th>
                             <th scope="col">有效期限</th>
-                            <th scope="col">狀態</th>
                             <th scope="col">備註</th>
                         </tr>
                         </thead>
@@ -115,25 +113,10 @@
                                            required/>
                                 </td>
                                 <td>
-                                    <input type="number"
-                                           class="form-control form-control-sm @error('error_num.' . $styleKey) is-invalid @enderror"
-                                           name="error_num[]" value="{{ old('error_num.'. $styleKey, '') }}" min="0"
-                                           required/>
-                                </td>
-                                <td>
                                     <input type="date"
                                            class="form-control form-control-sm @error('expiry_date.' . $styleKey) is-invalid @enderror"
                                            name="expiry_date[]" value="{{ old('expiry_date.'. $styleKey, '') }}"
                                            required/>
-                                </td>
-                                <td>
-                                    <select class="form-select form-select-sm @error('status') is-invalid @enderror"
-                                            name="status[]">
-                                        @foreach (App\Enums\Purchase\InboundStatus::asArray() as $key => $val)
-                                            <option value="{{ $val }}"
-                                                    @if ($val == old('status', '')) selected @endif>{{ App\Enums\Purchase\InboundStatus::getDescription($val) }}</option>
-                                        @endforeach
-                                    </select>
                                 </td>
                                 <td>
                                     <input type="text" class="form-control form-control-sm" name="inbound_memo[]"
@@ -168,9 +151,7 @@
                     <th scope="col">款式名稱</th>
                     <th scope="col">SKU</th>
                     <th scope="col">實進數量</th>
-                    <th scope="col">異常數量</th>
                     <th scope="col">有效期限</th>
-                    <th scope="col">狀態</th>
                     <th scope="col">備註</th>
                 </tr>
                 </thead>
@@ -194,15 +175,12 @@
                         <td>{{ $inbound->style_title }}</td>
                         <td>{{ $inbound->style_sku }}</td>
                         <td>{{ $inbound->inbound_num }}</td>
-                        <td>{{ $inbound->error_num }}</td>
                         <td>{{ $inbound->expiry_date }}</td>
                         @if(null != $inbound->deleted_at)
                             <td>取消入庫</td>
                         @else
-                            <td style="display: none">{{$status = App\Enums\Purchase\InboundStatus::getDescription($inbound->status)}}</td>
-                            <td @class(['text-danger' => $status === '短缺' || $status === '溢出'])>{{ $status }}</td>
+                            <td>{{ $inbound->inbound_memo }}</td>
                         @endif
-                        <td>{{ $inbound->inbound_memo }}</td>
 
                     </tr>
                 @endforeach
