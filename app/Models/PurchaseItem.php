@@ -205,7 +205,7 @@ class PurchaseItem extends Model
             $result->whereIn('purchase.purchase_user_id', $purchase_user_id);
         }
         if ($purchase_sdate && $purchase_edate) {
-            $result->whereBetween('purchase.scheduled_date', [date((string) $purchase_sdate), date((string) $purchase_edate)]);
+            $result->whereBetween('purchase.created_at', [date((string) $purchase_sdate), date((string) $purchase_edate)]);
         }
         if ($supplier_id) {
             $result->where('purchase.supplier_id', '=', $supplier_id);
@@ -334,7 +334,7 @@ class PurchaseItem extends Model
             $result->whereIn('purchase.purchase_user_id', $purchase_user_id);
         }
         if ($purchase_sdate && $purchase_edate) {
-            $result->whereBetween('purchase.scheduled_date', [date((string) $purchase_sdate), date((string) $purchase_edate)]);
+            $result->whereBetween('purchase.created_at', [date((string) $purchase_sdate), date((string) $purchase_edate)]);
         }
         if ($supplier_id) {
             $result->where('purchase.supplier_id', '=', $supplier_id);
