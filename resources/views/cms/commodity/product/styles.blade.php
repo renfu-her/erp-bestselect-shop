@@ -148,39 +148,39 @@
                             </tr>
                             @foreach ($styles as $styleKey => $style)
                                 @php
-                                    $prefix = $style['sku'] ? 'sk_' : 'nsk_';
+                                    $prefix = $style->sku ? 'sk_' : 'nsk_';
                                 @endphp
                                 <tr class="-cloneElem">
                                     <td class="text-center">
                                         <div class="form-check form-switch form-switch-lg">
-                                            <input class="form-check-input" name="active_id[]" value="{{ $style['id'] }}"
-                                                type="checkbox" @if ($style['is_active']) checked @endif>
+                                            <input class="form-check-input" name="active_id[]" value="{{ $style->id }}"
+                                                type="checkbox" @if ($style->is_active) checked @endif>
                                         </div>
                                     </td>
                                     <td class="text-center">
-                                        <button type="button" @if (isset($style['sku'])) disabled @endif
+                                        <button type="button" @if (isset($style->sku)) disabled @endif
                                             class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </td>
                                     <td>
                                         <input type="text" class="form-control form-control-sm -l"
-                                            value="{{ $style['sku'] }}" aria-label="SKU" readonly />
+                                            value="{{ $style->sku }}" aria-label="SKU" readonly />
                                         <input type="hidden" name="{{ $prefix }}style_id[]"
-                                            value="{{ $style['id'] }}">
+                                            value="{{ $style->id }}">
                                     </td>
 
                                     @foreach ($specList as $specKey => $spec)
                                         <td>
-                                            @if (isset($style['sku'])) 
+                                            @if (isset($style->sku)) 
                                                 <div class="form-control form-control-sm" readonly>
-                                                    {{ $style['spec_item' . ($specKey + 1) . '_title'] }}
+                                                    {{ $style->{'spec_item' . ($specKey + 1) . '_title'} }}
                                                 </div>
                                             @else
                                                 <select name="{{ $prefix }}spec{{ $specKey + 1 }}[]" class="form-select form-select-sm" required>
                                                     <option value="" disabled>請選擇</option>
                                                     @foreach ($spec->items as $key => $value)
-                                                        <option value="{{ $value->key }}" @if ($value->key == $style['spec_item' . ($specKey + 1) . '_id']) selected @endif>
+                                                        <option value="{{ $value->key }}" @if ($value->key == $style->{'spec_item' . ($specKey + 1) . '_id'}) selected @endif>
                                                             {{ $value->value }}</option>
                                                     @endforeach
                                                 </select>
@@ -191,35 +191,35 @@
                                         <div class="input-group input-group-sm flex-nowrap">
                                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                                             <input type="number" class="form-control form-control-sm" name="{{ $prefix }}price[]" min="0"
-                                                value="" required />
+                                                value="{{ $style->price }}" required />
                                         </div>
                                     </td>
                                     <td>
                                         <div class="input-group input-group-sm flex-nowrap">
                                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                                             <input type="number" class="form-control form-control-sm" name="{{ $prefix }}dealer_price[]"
-                                                min="0" value="" required />
+                                                min="0" value="{{ $style->dealer_price }}" required />
                                         </div>
                                     </td>
                                     <td>
                                         <div class="input-group input-group-sm flex-nowrap">
                                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                                             <input type="number" class="form-control form-control-sm" name="{{ $prefix }}origin_price[]"
-                                                min="0" value="" required />
+                                                min="0" value="{{ $style->origin_price }}" required />
                                         </div>
                                     </td>
                                     <td>
                                         <div class="input-group input-group-sm flex-nowrap">
                                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                                             <input type="number" class="form-control form-control-sm" name="{{ $prefix }}bonus[]" min="0"
-                                                value="" required />
+                                                value="{{ $style->bonus }}" required />
                                         </div>
                                     </td>
                                     <td>
-                                        <a href="{{ Route('cms.product.edit-stock', ['id' => $data->id, 'sid' => $style['id']]) }}" class="-text -stock">{{ $style['in_stock'] }}</a>
+                                        <a href="{{ Route('cms.product.edit-stock', ['id' => $data->id, 'sid' => $style->id]) }}" class="-text -stock">{{ $style->in_stock }}</a>
                                     </td>
                                     <td>
-                                        <a href="{{ Route('cms.product.edit-stock', ['id' => $data->id, 'sid' => $style['id']]) }}" class="-text -stock">{{ $style['safety_stock'] }}</a>
+                                        <a href="{{ Route('cms.product.edit-stock', ['id' => $data->id, 'sid' => $style->id]) }}" class="-text -stock">{{ $style->safety_stock }}</a>
                                     </td>
                                     <td>
                                         <select name="{{ $prefix }}sold_out_event[]"

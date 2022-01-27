@@ -197,7 +197,8 @@ class ProductCtrl extends Controller
     {
         $product = self::product_data($id);
         $specList = ProductSpec::specList($id);
-        $styles = ProductStyle::where('product_id', $id)->get()->toArray();
+        $styles = ProductStyle::styleList($id)->get()->toArray();
+    
         $init_styles = [];
         if (count($styles) == 0) {
             $init_styles = ProductStyle::createInitStyles($id);

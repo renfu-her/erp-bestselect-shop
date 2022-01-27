@@ -70,6 +70,29 @@ class ProductStyle extends Model
 
     }
 
+    public static function styleList($product_id)
+    {
+
+        $channelSub = DB::table('prd_sale_channels')->select('id', 'code')->where('code', '01');
+
+        $re = DB::table('prd_product_styles as style')
+            ->leftJoin('prd_salechannel_style_price as price', 'style.id', '=', 'price.style_id', 'left outer')
+            ->leftJoin(DB::raw("({$channelSub->toSql()}) as channel"), function ($join) {
+                $join->on('price.sale_channel_id', '=', 'channel.id');
+            })
+            ->mergeBindings($channelSub)
+            ->select('style.*')
+            ->selectRaw('IF(price.dealer_price,price.dealer_price,0) as dealer_price')
+            ->selectRaw('IF(price.origin_price,price.origin_price,0) as origin_price')
+            ->selectRaw('IF(price.price,price.price,0) as price')
+            ->selectRaw('IF(price.bonus,price.bonus,0) as bonus')
+            ->selectRaw('IF(price.dividend,price.dividend,0) as dividend')
+            ->where('style.product_id', $product_id)
+            ->whereNull('style.deleted_at');
+
+        return $re;
+    }
+
     public static function updateStyle($id, $product_id, $item_ids, $otherData = [])
     {
 
@@ -228,7 +251,6 @@ class ProductStyle extends Model
                 usort($data, function ($a, $b) {
                     return $a['qty'] > $b['qty'];
                 });
-
 
                 foreach ($data as $value) {
                     if ($value['qty'] != 0) {
