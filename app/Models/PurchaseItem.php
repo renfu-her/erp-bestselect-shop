@@ -46,7 +46,7 @@ class PurchaseItem extends Model
         }
     }
 
-    public function checkToUpdatePurchaseItemData($itemId, array $purchaseItemReq, $key, string $changeStr, $operator_user_id, $operator_user_name)
+    public static function checkToUpdatePurchaseItemData($itemId, array $purchaseItemReq, $key, string $changeStr, $operator_user_id, $operator_user_name)
     {
         return DB::transaction(function () use ($itemId, $purchaseItemReq, $key, $changeStr, $operator_user_id, $operator_user_name
         ) {
