@@ -1,5 +1,5 @@
 :root {
-  --color-main: #11ACF0;
+  --color-main: #e3793c;
   --color-Admin: #F6CA00;  /* 管理員 */
   --color-User: #59bfe2;   /* 託運商 */
   --color-Deliveryman: #9CBE20;    /* 物流人員 */
@@ -45,6 +45,9 @@ body {
   border-top-right-radius: 0;
 }
 
+.bg-main {
+  background-color: var(--color-main);
+}
 .bg-Admin {
   background-color: var(--color-Admin);
 }

@@ -124,7 +124,6 @@
                 font-size: .94rem;
                 font-weight: 400;
             }
-
         </style>
     @endpush
     @push('sub-scripts')
