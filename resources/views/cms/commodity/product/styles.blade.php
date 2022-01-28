@@ -143,7 +143,7 @@
                                 </td>
                                 <td>
                                     <input type="number" class="form-control form-control-sm" name="n_dividend[]" min="0"
-                                        value="" required>
+                                        value="0" required>
                                 </td>
                             </tr>
                             @foreach ($styles as $styleKey => $style)
@@ -232,7 +232,7 @@
                                     </td>
                                     <td>
                                         <input type="number" class="form-control form-control-sm" name="{{ $prefix }}dividend[]" min="0"
-                                            value="" required>
+                                            value="{{ $style->dividend }}" required>
                                     </td>
                                 </tr>
                             @endforeach
