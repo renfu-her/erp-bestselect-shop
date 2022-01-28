@@ -17,7 +17,8 @@ class CreateDepotTable extends Migration
             $table->id();
             $table->string('name')->comment('倉庫名稱');
 //            $table->string('sn')->comment('代碼');
-            $table->string('sender')->comment('寄件人');
+            $table->boolean('can_tally')->default(0)->comment('能否理貨倉');
+            $table->string('sender')->comment('倉商窗口');
             $table->string('address')->comment('地址');
             $table->string('tel')->comment('電話');
             $table->integer('city_id');

@@ -305,7 +305,8 @@ header .navbar-member .dropdown-item {
   left: 50%;
   transition: 0s;
 }
-.icon-btn:disabled {
+.icon-btn:disabled,
+.icon-btn.disabled {
   pointer-events: none;
   opacity: .5;
 }

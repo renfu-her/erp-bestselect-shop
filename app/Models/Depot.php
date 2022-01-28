@@ -14,6 +14,7 @@ class Depot extends Model
     protected $fillable = [
         'name',
         'sender',
+        'can_tally',
         'address',
         'tel',
         'city_id',

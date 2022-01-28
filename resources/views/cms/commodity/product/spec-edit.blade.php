@@ -89,8 +89,8 @@
 
                 </div>
                 @if (!$data->spec_locked)
-                    <div class="d-grid gap-2 border-top -newSpecBtnBox">
-                        <button type="button" class="btn btn-outline-primary border-dashed mt-4 -newSpec"
+                    <div class="d-grid gap-2 border-top pt-4 -newSpecBtnBox">
+                        <button type="button" class="btn btn-outline-primary border-dashed -newSpec"
                             style="font-weight: 500;">
                             <i class="bi bi-plus-circle"></i> 新增規格
                         </button>

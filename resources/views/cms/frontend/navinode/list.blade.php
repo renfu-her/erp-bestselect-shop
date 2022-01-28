@@ -1,14 +1,15 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">選單列表設定(工程版)<a href="{{ route('cms.navinode.new-index') }}" style="display: inline-block;width:40px;height:40px"></a></h2>
-    @if (!is_null($prev))
-        <div class="col mb-4">
+    @if (is_null($prev))
+        <h2 class="d-flex mb-4">選單列表設定(工程版)<a href="{{ route('cms.navinode.new-index') }}" style="display: inline-block;width:40px;height:35px"></a></h2>
+    @else
+        <div class="d-flex align-items-center mb-4">
             <a href="{{ Route('cms.navinode.index', ['level' => $prev]) }}" class="btn btn-primary">
                 <i class="bi bi-arrow-left"></i> 返回上一階層
-            </a>
-
+            </a><a href="{{ route('cms.navinode.new-index') }}" style="display: inline-block;width:40px;height:35px"></a>
         </div>
     @endif
+
     <form method="GET" action="{{ Route('cms.navinode.sort', ['level' => $level]) }}">
         <div class="card shadow p-4 mb-4">
             <div class="col mb-4">

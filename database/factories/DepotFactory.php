@@ -19,6 +19,7 @@ class DepotFactory extends Factory
         return [
             'name' => $this->faker->companySuffix . '倉庫',
             'sender' => $this->faker->name,
+            'can_tally' => '0',
             'address' => '300 新竹市東區忠孝西路30號',
             'tel' => $this->faker->phoneNumber,
             'city_id' => 73,

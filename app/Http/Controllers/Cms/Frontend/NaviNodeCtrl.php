@@ -49,7 +49,10 @@ class NaviNodeCtrl extends Controller
     public function design()
     {   
        
-        dd(NaviNode::tree());
+        // dd(NaviNode::tree());
+        return view('cms.frontend.navinode.new-list', [
+            'dataList' => NaviNode::tree()
+        ]);
     }
 
     /**
@@ -92,7 +95,7 @@ class NaviNodeCtrl extends Controller
         }
         $this->vali($request, $d, $level);
 
-        $re = NaviNode::createNode($parent_id, $d['title'], $d['url'], $d['collection_id'], $d['has_child'], $d['type'], $d['target']);
+        $re = NaviNode::createNode($parent_id, $d['title'], $d['url'], $d['event_id'], $d['has_child'], $d['event'], $d['target']);
         if (!$re['success']) {
             return redirect()->back()->withErrors(['status' => $re['error_msg']]);
         }
@@ -117,8 +120,8 @@ class NaviNodeCtrl extends Controller
         $data = request()->all();
 
         $d['url'] = null;
-        $d['collection_id'] = null;
-        $d['type'] = null;
+        $d['event_id'] = null;
+        $d['event'] = null;
         $d['url'] = null;
         $d['target'] = null;
         $d['has_child'] = isset($data['has_child']) ? $data['has_child'] : 0;
@@ -131,13 +134,13 @@ class NaviNodeCtrl extends Controller
         if ($d['has_child'] == 0) {
 
             $request->validate([
-                'type' => ['required', 'in:url,group'],
+                'event' => ['required', 'in:url,group'],
                 'target' => ['required', 'in:_self,_blank'],
             ]);
-            $d['type'] = $data['type'];
+            $d['event'] = $data['event'];
             $d['target'] = $data['target'];
 
-            switch ($d['type']) {
+            switch ($d['event']) {
                 case 'url':
                     $request->validate([
                         'url' => ['required'],
@@ -146,10 +149,10 @@ class NaviNodeCtrl extends Controller
                     break;
                 case 'group':
                     $request->validate([
-                        'collection_id' => ['required'],
+                        'event_id' => ['required'],
                     ]);
 
-                    $d['collection_id'] = $data['collection_id'];
+                    $d['event_id'] = $data['event_id'];
 
                     break;
             }
@@ -207,7 +210,7 @@ class NaviNodeCtrl extends Controller
 
         $this->vali($request, $d, $level);
 
-        $re = NaviNode::updateNode($id, $d['title'], $d['url'], $d['collection_id'], $d['has_child'], $d['type'], $d['target']);
+        $re = NaviNode::updateNode($id, $d['title'], $d['url'], $d['event_id'], $d['has_child'], $d['event'], $d['target']);
         if (!$re['success']) {
             return redirect()->back()->withErrors(['status' => $re['error_msg']]);
         }

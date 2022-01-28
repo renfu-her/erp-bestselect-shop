@@ -29,6 +29,7 @@ class DepotTest extends TestCase
         Depot::where('id', '=', '1')->update([
             'name'     => '喜鴻新竹',
             'sender'      => 'yoyo',
+            'can_tally'      => 0,
             'addr'      => '忠孝西路30號',
             'city_id'   => 73,
             'region_id' => 74,

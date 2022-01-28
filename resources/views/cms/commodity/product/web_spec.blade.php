@@ -29,8 +29,8 @@
             </div>
         </div>
         <!-- 新增鈕 -->
-        <div>
-            <button type="button" class="btn btn-outline-primary border-dashed w-100 -newSpec" style="font-weight: 500;">
+        <div class="d-grid gap-2">
+            <button type="button" class="btn btn-outline-primary border-dashed -newSpec" style="font-weight: 500;">
                 <i class="bi bi-plus-circle"></i> 新增
             </button>
         </div>

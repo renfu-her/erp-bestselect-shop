@@ -28,7 +28,8 @@
                     <th scope="col" style="width:10%">#</th>
                     <th scope="col">倉庫名稱</th>
 {{--                    <th scope="col">代碼</th>--}}
-                    <th scope="col">寄件人</th>
+                    <th scope="col">倉商窗口</th>
+                    <th scope="col">理貨倉</th>
                     <th scope="col">地址</th>
                     <th scope="col">電話</th>
                     <th scope="col" class="text-center">編輯</th>
@@ -42,6 +43,7 @@
                         <td>{{ $data->name }}</td>
 {{--                        <td>{{ $data->sn }}</td>--}}
                         <td>{{ $data->sender }}</td>
+                        <td>{{ $data->can_tally ? '是' : '否' }}</td>
                         <td>{{ $data->address }}</td>
                         <td>{{ $data->tel }}</td>
                         <td class="text-center">

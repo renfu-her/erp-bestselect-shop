@@ -1,3 +1,4 @@
+
 (function () {
     'use strict'
 
@@ -108,34 +109,22 @@
      *  placeholder: 'placeholder-highlight mb-2',
      * });
      */
-    function bindSortableMove($elems, {
-        destroy = true,
-        axis = false,
-        handle = '.icon.-move',
-        items = '.sortabled_box',
-        placeholder = 'placeholder-highlight',
-        forcePlaceholderSize = false,
-        activate = function (e, ui) {  },
-        sort = function (e, ui) {  },
-        start = function (e, ui) {  },
-        stop = function (e, ui) {  },
-        update = function (e, ui) {  }
-    } = {}) {
-        if (destroy) {
+    function bindSortableMove($elems, options) {
+        options = {
+            needDestroy: true,
+            cursor: 'move',
+            destroy: true,
+            axis: false,
+            handle: '.icon.-move',
+            items: '.sortabled_box',
+            placeholder: 'placeholder-highlight',
+            ...options
+        };
+        if (options.needDestroy) {
             $elems.filter('.ui-sortable').sortable('destroy');
         }
         $elems.sortable({
-            axis,
-            cursor: 'move',
-            handle,
-            items,
-            placeholder,
-            forcePlaceholderSize,
-            activate,
-            sort,
-            start,
-            stop,
-            update
+            ...options
         });
     }
 
