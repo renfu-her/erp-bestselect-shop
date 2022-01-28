@@ -195,6 +195,7 @@ class ProductCtrl extends Controller
      */
     public function editStyle($id)
     {
+       
         $product = self::product_data($id);
         $specList = ProductSpec::specList($id);
         $styles = ProductStyle::styleList($id)->get()->toArray();

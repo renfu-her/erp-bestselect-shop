@@ -70,6 +70,23 @@ class ProductStyle extends Model
 
     }
 
+    /**
+     * subquery 範例
+     */
+
+    public static function ttt()
+    {
+        $usb = DB::table('prd_products')->select('title')->where('prd_products.id', DB::raw('style.id'));
+        return DB::table('prd_product_styles as style')
+            ->select('style.*')
+            ->selectRaw(DB::raw("({$usb->toSql()}) as p_title"))
+            ->mergeBindings($usb); 
+    }
+
+    /**
+     * 款式列表與其價格
+     */
+
     public static function styleList($product_id)
     {
 
@@ -92,6 +109,14 @@ class ProductStyle extends Model
 
         return $re;
     }
+
+    /**
+     * 更新款式
+     * @param int $id
+     * @param int $product_id
+     * @param array $item_ids 規格資料
+     * @param array $otherData 其他規格
+     */
 
     public static function updateStyle($id, $product_id, $item_ids, $otherData = [])
     {
