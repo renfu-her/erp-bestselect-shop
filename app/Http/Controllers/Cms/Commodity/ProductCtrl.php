@@ -195,9 +195,11 @@ class ProductCtrl extends Controller
      */
     public function editStyle($id)
     {
+
         $product = self::product_data($id);
         $specList = ProductSpec::specList($id);
-        $styles = ProductStyle::where('product_id', $id)->get()->toArray();
+        $styles = ProductStyle::styleList($id)->get()->toArray();
+
         $init_styles = [];
         if (count($styles) == 0) {
             $init_styles = ProductStyle::createInitStyles($id);
@@ -215,8 +217,40 @@ class ProductCtrl extends Controller
 
     public function storeStyle(Request $request, $id)
     {
+        /*
+
+        $request->validate([
+        'nsk_price' => 'required|array',
+        'nsk_price.*' => 'required|numeric',
+        'nsk_dealer_price' => 'required|array',
+        'nsk_dealer_price.*' => 'required|numeric',
+        'nsk_origin_price' => 'required|array',
+        'nsk_origin_price.*' => 'required|numeric',
+        'nsk_bonus' => 'required|array',
+        'nsk_bonus.*' => 'required|numeric',
+        'sk_price' => 'required|array',
+        'sk_price.*' => 'required|numeric',
+        'sk_dealer_price' => 'required|array',
+        'sk_dealer_price.*' => 'required|numeric',
+        'sk_origin_price' => 'required|array',
+        'sk_origin_price.*' => 'required|numeric',
+        'sk_bonus' => 'required|array',
+        'sk_bonus.*' => 'required|numeric',
+        'n_price' => 'required|array',
+        'n_price.*' => 'required|numeric',
+        'n_dealer_price' => 'required|array',
+        'n_dealer_price.*' => 'required|numeric',
+        'n_origin_price' => 'required|array',
+        'n_origin_price.*' => 'required|numeric',
+        'n_bonus' => 'required|array',
+        'n_bonus.*' => 'required|numeric',
+
+        ]);
+         */
 
         $specCount = DB::table('prd_product_spec')->where('product_id', $id)->count();
+        $sale_id = (SaleChannel::where('code', '01')->select('id')->get()->first())->id;
+
         $d = $request->all();
         if (isset($d['nsk_style_id'])) {
             foreach ($d['nsk_style_id'] as $key => $value) {
@@ -232,6 +266,7 @@ class ProductCtrl extends Controller
 
                 //  ProductStyle::where('id', $value)->whereNull('sku')->update($updateData);
                 ProductStyle::updateStyle($value, $id, $itemIds, $updateData);
+                SaleChannel::changePrice($sale_id, $value, $d['nsk_dealer_price'][$key], $d['nsk_price'][$key], $d['nsk_origin_price'][$key], $d['nsk_bonus'][$key], $d['nsk_dividend'][$key]);
             }
         }
 
@@ -240,6 +275,8 @@ class ProductCtrl extends Controller
                 $updateData = [];
                 $updateData['sold_out_event'] = $d['sk_sold_out_event'][$key];
                 ProductStyle::where('id', $value)->whereNotNull('sku')->update($updateData);
+                SaleChannel::changePrice($sale_id, $value, $d['sk_dealer_price'][$key], $d['sk_price'][$key], $d['sk_origin_price'][$key], $d['sk_bonus'][$key], $d['sk_dividend'][$key]);
+
             }
         }
 
@@ -257,7 +294,8 @@ class ProductCtrl extends Controller
                     }
                 }
 
-                ProductStyle::createStyle($id, $updateData);
+                $sid = ProductStyle::createStyle($id, $updateData);
+                SaleChannel::changePrice($sale_id, $sid, $d['n_dealer_price'][$i], $d['n_price'][$i], $d['n_origin_price'][$i], $d['n_bonus'][$i], $d['n_dividend'][$i]);
 
             }
         }
@@ -470,7 +508,7 @@ class ProductCtrl extends Controller
      */
     public function editWebDesc($id)
     {
-        
+
         $product = self::product_data($id);
         return view('cms.commodity.product.web_desciption', [
             'product' => $product,
@@ -559,8 +597,8 @@ class ProductCtrl extends Controller
     public function editCombo($id)
     {
         $product = self::product_data($id);
-        $styles = ProductStyle::where('product_id', $id)->get()->toArray();
-
+        $styles = ProductStyle::styleList($id)->get()->toArray();
+      
         return view('cms.commodity.product.combo', [
             'product' => $product,
             'styles' => $styles,
@@ -570,11 +608,16 @@ class ProductCtrl extends Controller
 
     public function updateCombo(Request $request, $id)
     {
+        
         $d = $request->all();
+        $sale_id = (SaleChannel::where('code', '01')->select('id')->get()->first())->id;
+       
         if (isset($d['sid'])) {
             for ($i = 0; $i < count($d['sid']); $i++) {
                 if (isset($d['sold_out_event'][$i])) {
                     ProductStyle::where('id', $d['sid'][$i])->update(['sold_out_event' => $d['sold_out_event'][$i]]);
+                    
+                    SaleChannel::changePrice($sale_id, $d['sid'][$i], $d['dealer_price'][$i], $d['price'][$i], $d['origin_price'][$i], $d['bonus'][$i], $d['dividend'][$i]);
                 }
             }
         }
