@@ -39,7 +39,7 @@ class PurchaseItem extends Model
                     "memo" => $newData['memo']
                 ])->id;
 
-                PurchaseLog::stockChange($id, $newData['product_style_id'], LogFeature::style()->value, $id, LogFeatureEvent::style_add()->value, $newData['num'], null, $operator_user_id, $operator_user_name);
+                PurchaseLog::stockChange($newData['purchase_id'], $newData['product_style_id'], LogFeature::style()->value, $id, LogFeatureEvent::style_add()->value, $newData['num'], null, $operator_user_id, $operator_user_name);
                 return $id;
             });
         } else {
@@ -80,13 +80,13 @@ class PurchaseItem extends Model
         });
     }
 
-    public static function deleteItems(array $del_item_id_arr, $operator_user_id, $operator_user_name) {
+    public static function deleteItems($purchase_id, array $del_item_id_arr, $operator_user_id, $operator_user_name) {
         if (0 < count($del_item_id_arr)) {
-            return DB::transaction(function () use ($del_item_id_arr, $operator_user_id, $operator_user_name
+            return DB::transaction(function () use ($purchase_id, $del_item_id_arr, $operator_user_id, $operator_user_name
             ) {
                 PurchaseItem::whereIn('id', $del_item_id_arr)->delete();
                 foreach ($del_item_id_arr as $del_id) {
-                    PurchaseLog::stockChange($del_id, null, LogFeature::style()->value, $del_id, LogFeatureEvent::style_del()->value, null, null, $operator_user_id, $operator_user_name);
+                    PurchaseLog::stockChange($purchase_id, null, LogFeature::style()->value, $del_id, LogFeatureEvent::style_del()->value, null, null, $operator_user_id, $operator_user_name);
                 }
             });
         }

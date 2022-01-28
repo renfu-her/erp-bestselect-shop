@@ -20,10 +20,9 @@
                          <td>{{$data->created_at}}</td>
                          <td>{{App\Enums\Purchase\LogFeatureEvent::getDescription($data->event)}}
                              @if($data->feature == App\Enums\Purchase\LogFeature::style()->key)
-                                 {{$data->title}}
-                             @endif
-                             @if($data->feature == App\Enums\Purchase\LogFeature::inbound()->key)
-                                 {{$data->title}} 數量:{{$data->qty}}
+                                 {{$data->title}} @if(isset($data->qty)) 數量:{{$data->qty}} @endif
+                             @elseif($data->feature == App\Enums\Purchase\LogFeature::inbound()->key)
+                                 {{$data->title}} @if(isset($data->qty)) 數量:{{$data->qty}} @endif
                              @endif
                          </td>
                          <td>{{$data->user_name}}</td>

@@ -266,11 +266,12 @@ class PurchaseCtrl extends Controller
         $changeStr = '';
         $changeStr .= Purchase::checkToUpdatePurchaseData($id, $purchaseReq, $changeStr, $request->user()->id, $request->user()->name);
 
+        $purchaseGet = Purchase::where('id', '=', $id)->get()->first();
         //刪除現有款式
         if (isset($request['del_item_id']) && null != $request['del_item_id']) {
             $changeStr .= 'delete purchaseItem id:' . $request['del_item_id'];
             $del_item_id_arr = explode(",", $request['del_item_id']);
-            PurchaseItem::deleteItems($del_item_id_arr, $request->user()->id, $request->user()->name);
+            PurchaseItem::deleteItems($purchaseGet->id, $del_item_id_arr, $request->user()->id, $request->user()->name);
         }
 
         if (isset($purchaseItemReq['item_id'])) {
