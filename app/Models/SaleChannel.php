@@ -97,6 +97,7 @@ class SaleChannel extends Model
 
     public static function changePrice($sale_id, $style_id, $dealer_price, $price, $origin_price, $bonus, $dividend)
     {
+
         return DB::transaction(function () use ($sale_id, $style_id, $dealer_price, $price, $origin_price, $bonus, $dividend) {
             $tableName = 'prd_salechannel_style_price';
             $updateData = ['dealer_price' => $dealer_price,
@@ -110,16 +111,19 @@ class SaleChannel extends Model
                 ->where('sale_channel_id', $sale_id)
                 ->get()
                 ->first()) {
+
                 DB::table($tableName)
                     ->insert(array_merge(['style_id' => $style_id,
                         'sale_channel_id' => $sale_id,
                     ], $updateData));
             } else {
+
                 DB::table($tableName)
                     ->where('style_id', $style_id)
                     ->where('sale_channel_id', $sale_id)
                     ->update($updateData);
             }
+
         });
     }
 }
