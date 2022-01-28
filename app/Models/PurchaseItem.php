@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class PurchaseItem extends Model
 {
@@ -82,13 +83,20 @@ class PurchaseItem extends Model
 
     public static function deleteItems($purchase_id, array $del_item_id_arr, $operator_user_id, $operator_user_name) {
         if (0 < count($del_item_id_arr)) {
-            return DB::transaction(function () use ($purchase_id, $del_item_id_arr, $operator_user_id, $operator_user_name
-            ) {
-                PurchaseItem::whereIn('id', $del_item_id_arr)->delete();
-                foreach ($del_item_id_arr as $del_id) {
-                    PurchaseLog::stockChange($purchase_id, null, LogEvent::style()->value, $del_id, LogEventFeature::style_del()->value, null, null, $operator_user_id, $operator_user_name);
-                }
-            });
+            //判斷若其一有到貨 則不可刪除
+            $query = PurchaseItem::whereIn('id', $del_item_id_arr)
+                ->selectRaw('sum(arrived_num) as arrived_num')->get()->first();
+            if (0 < $query->arrived_num) {
+                throw ValidationException::withMessages(['del_error' => '有入庫 不可刪除']);
+            } else {
+                return DB::transaction(function () use ($purchase_id, $del_item_id_arr, $operator_user_id, $operator_user_name
+                ) {
+                    PurchaseItem::whereIn('id', $del_item_id_arr)->delete();
+                    foreach ($del_item_id_arr as $del_id) {
+                        PurchaseLog::stockChange($purchase_id, null, LogEvent::style()->value, $del_id, LogEventFeature::style_del()->value, null, null, $operator_user_id, $operator_user_name);
+                    }
+                });
+            }
         }
     }
 

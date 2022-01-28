@@ -176,8 +176,8 @@
             </div>
         @endif
 
-        @error('item_error')
-        <div class="invalid-feedback">{{ $message }}</div>
+        @error('del_error')
+        <div class="alert alert-danger mt-3">{{ $message }}</div>
         @enderror
 
         <div id="submitDiv">
