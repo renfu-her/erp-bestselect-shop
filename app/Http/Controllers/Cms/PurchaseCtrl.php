@@ -300,7 +300,7 @@ class PurchaseCtrl extends Controller
                 }
             }
         }
-
+        $changeStr = '';
         wToast(__('Edit finished.') . ' ' . $changeStr);
         return redirect(Route('cms.purchase.edit', [
             'id' => $id,
