@@ -217,8 +217,42 @@ class ProductCtrl extends Controller
 
     public function storeStyle(Request $request, $id)
     {
+        /*
+
+        $request->validate([     
+            'nsk_price' => 'required|array',
+            'nsk_price.*' => 'required|numeric',
+            'nsk_dealer_price' => 'required|array',
+            'nsk_dealer_price.*' => 'required|numeric',
+            'nsk_origin_price' => 'required|array',
+            'nsk_origin_price.*' => 'required|numeric',
+            'nsk_bonus' => 'required|array',
+            'nsk_bonus.*' => 'required|numeric',
+            'sk_price' => 'required|array',
+            'sk_price.*' => 'required|numeric',
+            'sk_dealer_price' => 'required|array',
+            'sk_dealer_price.*' => 'required|numeric',
+            'sk_origin_price' => 'required|array',
+            'sk_origin_price.*' => 'required|numeric',
+            'sk_bonus' => 'required|array',
+            'sk_bonus.*' => 'required|numeric',
+            'n_price' => 'required|array',
+            'n_price.*' => 'required|numeric',
+            'n_dealer_price' => 'required|array',
+            'n_dealer_price.*' => 'required|numeric',
+            'n_origin_price' => 'required|array',
+            'n_origin_price.*' => 'required|numeric',
+            'n_bonus' => 'required|array',
+            'n_bonus.*' => 'required|numeric',
+            
+        ]);
+        */
+
+        
 
         $specCount = DB::table('prd_product_spec')->where('product_id', $id)->count();
+        $sale_id = (SaleChannel::where('code','01')->select('id')->get()->first())->id;
+
         $d = $request->all();
         if (isset($d['nsk_style_id'])) {
             foreach ($d['nsk_style_id'] as $key => $value) {
