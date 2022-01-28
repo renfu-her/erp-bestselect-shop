@@ -12,6 +12,9 @@
                 </ul>
             </div>
 
+            <p class="mark m-2 -empty d-none">
+                <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i> 尚無選單
+            </p>
             {{-- 編輯區 --}}
             <div class="-appendClone">
                 <ul class="d-flex align-items-end flex-column level level_1"></ul>
@@ -29,6 +32,7 @@
                         <i class="bi bi-arrow-right-short"></i>
                     </span>
                     <div class="ms-2 col fs-5 -title"></div>
+                    <span class="badge"></span>
                 </div>
                 <div class="row col-auto py-1">
                     <a href="#" 
@@ -48,17 +52,19 @@
                 </div>
             </div>
 
+            {{-- Loading... --}}
+            <div class="d-flex justify-content-center m-5 mt-3 -loading">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+
             {{-- 新增鈕 --}}
             <div class="d-grid gap-2">
-                <button id="addNewItem" type="button" class="btn btn-outline-primary border-dashed" style="font-weight: 500;">
+                <a href="{{ Route('cms.navinode.create2') }}"
+                    class="btn btn-outline-primary border-dashed" style="font-weight: 500;">
                     <i class="bi bi-plus-circle"></i> 新增
-                </button>
-            </div>
-        </div>
-        
-        <div>
-            <div class="col-auto">
-                <button type="submit" class="btn btn-primary px-4" @if (!isset($dataList) || 0 >= count($dataList)) disabled @endif>儲存排序</button>
+                </a>
             </div>
         </div>
     </form>
@@ -134,16 +140,23 @@
     @push('sub-scripts')
     <script src="{{ Asset('dist/js/navinode.js') }}"></script>
     <script>
-        const data = @json($dataList);
-        console.log(data);
-        // loadNaviNode(data, '.-appendClone');
-        $('#addNewItem').on('click', function () {
-            bindNewItemBtn('.-appendClone');
-        });
-
-        // 刪除 btn
-        $('#confirm-delete').on('show.bs.modal', function(e) {
-            $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+        $(function () {
+            const data = @json($dataList);
+            const dataList = data.tree || [];
+            console.log(dataList);
+            if (dataList.length > 0) {
+                $('.-loading').removeClass('d-none');
+                loadNaviNode(dataList, '.-appendClone');
+                $('.-loading, .-empty').addClass('d-none');
+            } else {
+                $('.-empty').removeClass('d-none');
+                $('.-loading').addClass('d-none');
+            }
+            
+            // 刪除 btn
+            $('#confirm-delete').on('show.bs.modal', function(e) {
+                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+            });
         });
     </script>
     @endpush

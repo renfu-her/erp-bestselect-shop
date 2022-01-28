@@ -1,17 +1,15 @@
 $(function () {
-    // const testData = [
-    // {"level":1,"title":"aaa","child":[{"level":2,"title":"bbb","child":[]},{"level":2,"title":"ccc","child":[]}]},
-    // {"level":1,"title":"ddd","child":[{"level":2,"title":"eee","child":[{"level":3,"title":"fff"}]}]},
-    // {"level":1,"title":"ggg","child":[]}];
+    /** 測試資料
     const testData = [
         {"id":1,"level":1,"title":"level1-a","child":[
-            {"id":2,"level":2,"title":"level2-a","type":"2"},
+            {"id":2,"level":2,"title":"level2-a","event":"url"},
             {"id":3,"level":2,"title":"level2-b","child":[
-                {"id":4,"level":3,"title":"level3-a","type":"2"},
-                {"id":5,"level":3,"title":"level3-b","type":"2"},
-                {"id":6,"level":3,"title":"level3-c","type":"2"}]}]},
-        {"id":7,"level":1,"title":"level1-b","type":"2"}];
+                {"id":4,"level":3,"title":"level3-a","event":"url"},
+                {"id":5,"level":3,"title":"level3-b","event":"group"},
+                {"id":6,"level":3,"title":"level3-c","event":"url"}]}]},
+        {"id":7,"level":1,"title":"level1-b","event":"group"}];
     console.log('測試資料: ', testData);
+     */
     /** 定義 ************************************************************** */
     /**
      * @typedef JQuery
@@ -73,49 +71,7 @@ $(function () {
     
     /* ************************************************************************ */
     
-    /** 按鈕: 新增項目 */
-    window.bindNewItemBtn = bindNewItemBtn;
-    function bindNewItemBtn(parent = '') {
-        let newLi = LiCopy.clone();
-        bindDeleteBtn(newLi);
-        
-        $(`${parent} ul.${UlClass[MAX_LV]}`).append(newLi);
-        resetAllLevelBtn();
-        bindSortableBtn();
-    }
-
-    /**  按鈕: 儲存 */
-    $('#menu_save').on('click', function () {
-        let data = [];
-
-        $('.level_1 > li').each(function () {
-            data.push(getOneLiData($(this)));
-        });
-
-        console.log('***** Data:', data);
-
-        /**
-         * 取一組<li>項目資料
-         * @param {JQuery} $li 一組 li 項目
-         * @returns {object} 項目資料，含 {層級數, 選單名稱 [, 子項]}
-         */
-        function getOneLiData($li) {
-            let level = getCurrentLevel($li.closest('ul.level'));
-            let title = $li.children('.oneItem').find('.-title').text();
-            // console.log(level, '--- ', title);
-
-            if ($li.children('ul.level').length) {
-                let child = $li.children('ul.level').children('li').map(function () {
-                    return getOneLiData($(this));
-                }).get();
-                return { level, title, child };
-            } else {
-                return { level, title };
-            }
-        }
-    });
-
-    loadNaviNode(testData, '.-appendClone');
+    // loadNaviNode(testData, '.-appendClone');
     /**
      * 依資料載入主選單
      * @param {Array} data 資料陣列
@@ -128,7 +84,7 @@ $(function () {
             }
         });
         
-        bindDeleteBtn(null, parent);
+        // bindDeleteBtn(null, parent);     // 不做，由form刪除
         resetAllLevelBtn();
         bindSortableBtn();
 
@@ -141,6 +97,9 @@ $(function () {
             let newLi = LiCopy.clone();
             // 改 title
             newLi.find('.oneItem .-title').text(liItem.title);
+            newLi.find('a.-edit').attr('href', `static/${liItem.level}/edit/${liItem.id}`);
+            newLi.find('a.-del').attr('data-href', `static/${liItem.level}/delete/${liItem.id}`);
+
             if (liItem.level < MIN_LV) {
                 // 改 子項的ul level class
                 newLi.children('ul.level').removeClass(AllUlLvClass).addClass(UlClass[liItem.level + 1]);
@@ -149,13 +108,29 @@ $(function () {
                     newLi.children('ul.level').append((liItem.child).map(function (title) {
                         return setOneLiComponent(title);
                     }));
+                } else {
+                    // 類型標籤
+                    setEventBadge(newLi.find('span.badge'), liItem.event);
                 }
             } else {
                 // 最後一階沒子項
                 newLi.children('ul.level').remove();
+                // 類型標籤
+                setEventBadge(newLi.find('span.badge'), liItem.event);
             }
             
             return newLi;
+        }
+        // 設定類型標籤
+        function setEventBadge($badge, type) {
+            switch (type) {
+                case 'url':
+                    $badge.text('網址').addClass('bg-info text-dark');
+                    break;
+                case 'group':
+                    $badge.text('群組').addClass('bg-warning text-dark');
+                    break;
+            }
         }
     }
 
@@ -177,7 +152,6 @@ $(function () {
      * 設定階層按鈕，每次有改變項目層級(排序、新增、刪除)都必須呼叫一次
      * 設定完綁定 click 調階層按鈕 [←] [→]
      */
-    window.resetAllLevelBtn = resetAllLevelBtn;
     function resetAllLevelBtn() {
         $('.oneItem .icon').filter('.-upLv, .-downLv').removeClass('disabled');
         

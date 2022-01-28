@@ -12,6 +12,8 @@ Route::group(['prefix' => 'navinode', 'as' => 'navinode.'], function () {
     Route::get('static/{level?}/delete/{id}', [NaviNodeCtrl::class, 'destroy'])->name('delete');
     Route::get('static/{level?}/sort', [NaviNodeCtrl::class, 'sort'])->name('sort');
     // 設計版
-    Route::get('/design', [NaviNodeCtrl::class, 'design'])->name('new-index');
+    Route::get('design', [NaviNodeCtrl::class, 'design'])->name('new-index');
+    Route::get('design/create', [NaviNodeCtrl::class, 'create2'])->name('create2');
+    Route::post('design/create', [NaviNodeCtrl::class, 'store']);
 
 });
