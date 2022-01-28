@@ -66,7 +66,7 @@ class ProductStyle extends Model
         $data['is_active'] = $is_active;
         $data['title'] = trim($title);
 
-        self::create($data);
+        return self::create($data)->id;
 
     }
 
