@@ -66,7 +66,6 @@
                                 <th scope="col">庫存</th>
                                 <th scope="col">安全庫存</th>
                                 <th scope="col">庫存不足</th>
-                                <th scope="col">喜鴻紅利抵扣</th>
                             </tr>
                         </thead>
                         <tbody class="-appendClone">
@@ -140,10 +139,6 @@
                                         <option value="下架">下架</option>
                                         <option value="預售">預售</option>
                                     </select>
-                                </td>
-                                <td>
-                                    <input type="number" class="form-control form-control-sm" name="n_dividend[]" min="0"
-                                        value="" required>
                                 </td>
                             </tr>
                             @foreach ($styles as $styleKey => $style)
@@ -230,10 +225,6 @@
                                             <option value="預售">預售</option>
                                         </select>
                                     </td>
-                                    <td>
-                                        <input type="number" class="form-control form-control-sm" name="{{ $prefix }}dividend[]" min="0"
-                                            value="" required>
-                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -259,7 +250,7 @@
 @once
     @push('sub-styles')
         <style>
-            table .badge.rounded-pill {
+            table .badge {
                 font-size: .94rem;
                 font-weight: 400;
             }
