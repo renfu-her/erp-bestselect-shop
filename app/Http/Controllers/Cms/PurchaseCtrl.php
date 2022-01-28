@@ -326,7 +326,24 @@ class PurchaseCtrl extends Controller
 
     //結案
     public function close(Request $request, $id) {
-        Purchase::close($id, $request->user()->id, $request->user()->name);
+        $inboundOverviewList = PurchaseInbound::getOverviewInboundList($id)->get()->toArray();
+        $errmsg = '';
+        if (0 < $inboundOverviewList) {
+            foreach ($inboundOverviewList as $key => $data) {
+                if (0 < $data->should_enter_num) {
+                    $errmsg = '請檢察是否有款式尚未入庫';
+                    break;
+                }
+            }
+        } else {
+            $errmsg = '未加入商品款式';
+        }
+        if ('' != $errmsg) {
+            throw ValidationException::withMessages(['close_error' => $errmsg]);
+        } else {
+            Purchase::close($id, $request->user()->id, $request->user()->name);
+        }
+
         wToast(__('Close finished.'));
         return redirect(Route('cms.purchase.inbound', [
             'id' => $id,
@@ -335,13 +352,16 @@ class PurchaseCtrl extends Controller
 
     public function inbound(Request $request, $id) {
         $purchaseData = Purchase::getPurchase($id)->first();
+        $purchaseItemList = PurchaseItem::getDataForInbound($id)->get()->toArray();
         $inboundList = PurchaseInbound::getInboundList($id)->get()->toArray();
         $inboundOverviewList = PurchaseInbound::getOverviewInboundList($id)->get()->toArray();
 
+//        dd($inboundOverviewList);
         $depotList = Depot::all()->toArray();
         return view('cms.commodity.purchase.inbound', [
             'purchaseData' => $purchaseData,
             'id' => $id,
+            'purchaseItemList' => $purchaseItemList,
             'inboundList' => $inboundList,
             'inboundOverviewList' => $inboundOverviewList,
             'depotList' => $depotList,
@@ -355,6 +375,7 @@ class PurchaseCtrl extends Controller
     {
         $request->validate([
             'depot_id' => 'required|numeric',
+            'purchase_item_id.*' => 'required|numeric',
             'product_style_id.*' => 'required|numeric',
             'inbound_date.*' => 'required|string',
             'inbound_num.*' => 'required|numeric|min:1',
@@ -363,7 +384,7 @@ class PurchaseCtrl extends Controller
             'expiry_date.*' => 'required|string',
         ]);
         $depot_id = $request->input('depot_id');
-        $inboundItemReq = $request->only('product_style_id', 'inbound_date', 'inbound_num', 'error_num', 'inbound_memo', 'status', 'expiry_date', 'inbound_memo');
+        $inboundItemReq = $request->only('purchase_item_id', 'product_style_id', 'inbound_date', 'inbound_num', 'error_num', 'inbound_memo', 'status', 'expiry_date', 'inbound_memo');
 
         if (isset($inboundItemReq['product_style_id'])) {
             $depot = Depot::where('id', '=', $depot_id)->get()->first();
@@ -371,6 +392,7 @@ class PurchaseCtrl extends Controller
 
                 $purchaseInboundID = PurchaseInbound::createInbound(
                     $id,
+                    $inboundItemReq['purchase_item_id'][$key],
                     $inboundItemReq['product_style_id'][$key],
                     $inboundItemReq['expiry_date'][$key],
                     $inboundItemReq['inbound_date'][$key],

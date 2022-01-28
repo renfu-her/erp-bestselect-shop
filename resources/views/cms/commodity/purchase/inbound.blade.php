@@ -35,6 +35,9 @@
                 </tbody>
             </table>
         </div>
+        @error('close_error')
+        <div class="alert alert-danger mt-3">{{ $message }}</div>
+        @enderror
     </div>
 
     @if(null == $purchaseData->close_date)
@@ -76,8 +79,7 @@
                         <tr>
                             <th scope="col" class="text-center">刪除</th>
                             <th scope="col">入庫日期</th>
-                            <th scope="col">商品</th>
-                            <th scope="col">款式</th>
+                            <th scope="col">商品款式</th>
                             <th scope="col">SKU</th>
                             <th scope="col">應進數量</th>
                             <th scope="col">實進數量</th>
@@ -86,13 +88,15 @@
                         </tr>
                         </thead>
                         <tbody class="-appendClone">
-                        @foreach (old('product_style_id', $inboundOverviewList ?? []) as $styleKey => $styleVal)
+                        @foreach (old('product_style_id', $purchaseItemList ?? []) as $styleKey => $styleVal)
                             <tr class="-cloneElem">
                                 <th class="text-center">
                                     <button type="button"
                                             class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                         <i class="bi bi-trash"></i>
                                     </button>
+                                    <input type="hidden" name="purchase_item_id[]"
+                                           value="{{ old('purchase_item_id.'. $styleKey, $styleVal->id?? '') }}">
                                     <input type="hidden" name="product_style_id[]"
                                            value="{{ old('product_style_id.'. $styleKey, $styleVal->product_style_id?? '') }}">
                                 </th>
@@ -102,8 +106,7 @@
                                            name="inbound_date[]"
                                            value="{{ old('inbound_date.'. $styleKey, date('Y-m-d')) }}" required/>
                                 </td>
-                                <td data-td="product_title">{{ old('product_title.'. $styleKey, $styleVal->product_title?? '') }}</td>
-                                <td data-td="style_title">{{ old('style_title.'. $styleKey, $styleVal->style_title?? '') }}</td>
+                                <td data-td="title">{{ old('title.'. $styleKey, $styleVal->title?? '') }}</td>
                                 <td data-td="sku">{{ old('sku.'. $styleKey, $styleVal->sku?? '') }}</td>
                                 <td data-td="should_enter_num">{{ old('should_enter_num.'. $styleKey, $styleVal->should_enter_num?? '') }}</td>
                                 <td>

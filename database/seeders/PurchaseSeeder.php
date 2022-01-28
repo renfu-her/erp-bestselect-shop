@@ -121,6 +121,7 @@ class PurchaseSeeder extends Seeder
 
         $purchaseInbound1 = PurchaseInbound::createInbound(
             $purchaseID1,
+            $purchaseItemID1,
             $product_style_id1,
             '2022-12-14 00:00:00',
             null,
@@ -135,6 +136,7 @@ class PurchaseSeeder extends Seeder
 
         $purchaseInbound2 = PurchaseInbound::createInbound(
             $purchaseID1,
+            $purchaseItemID1,
             $product_style_id1,
             '2022-12-14 00:00:00',
             '2022-01-05 00:00:00',
@@ -148,6 +150,7 @@ class PurchaseSeeder extends Seeder
         PurchaseInbound::delInbound($purchaseInbound1, $user_id_5);
         $purchaseInbound3 = PurchaseInbound::createInbound(
             $purchaseID1,
+            $purchaseItemID1,
             $product_style_id1,
             '2022-12-14 00:00:00',
             '2022-01-06 00:00:00',
