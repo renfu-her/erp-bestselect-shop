@@ -223,7 +223,7 @@ class PurchaseItem extends Model
             ->addSelect(['deposit_num' => $subColumn, 'final_pay_num' => $subColumn2])
             ->whereNull('purchase.deleted_at')
             ->whereNull('items.deleted_at')
-            ->orderByDesc('purchase.created_at')
+            ->orderByDesc('purchase.id')
             ->orderBy('items_id');
 
         if($purchase_sn) {
@@ -395,7 +395,7 @@ class PurchaseItem extends Model
                 end) as inbound_status')
             ->addSelect(['deposit_num' => $subColumn, 'final_pay_num' => $subColumn2])
             ->whereNull('purchase.deleted_at')
-            ->orderByDesc('purchase.created_at');
+            ->orderByDesc('purchase.id');
 
         if($purchase_sn) {
             $result->where('purchase.sn', '=', $purchase_sn);
