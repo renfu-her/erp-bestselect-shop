@@ -190,12 +190,15 @@
                         <th scope="col">採購單號</th>
                         <th scope="col">商品名稱</th>
                         <th scope="col">採購日期</th>
+                        <th scope="col">入庫狀態</th>
                         <th scope="col">訂金單號</th>
                         <th scope="col">尾款單號</th>
                         <th scope="col">SKU</th>
                         <th scope="col">總價</th>
                         <th scope="col">單價</th>
                         <th scope="col">數量</th>
+                        <th scope="col">入庫數量</th>
+                        <th scope="col">異常數量</th>
                         <th scope="col">採購人員</th>
                         <th scope="col">廠商</th>
                         <th scope="col">發票號碼</th>
@@ -212,12 +215,15 @@
                                 <td>{{ $data->sn }}</td>
                                 <td>{{ $data->title }}</td>
                                 <td>{{ $data->created_at }}</td>
+                                <td>{{ $data->inbound_status }}</td>
                                 <td>{{ $data->deposit_num }}</td>
                                 <td>{{ $data->final_pay_num }}</td>
                                 <td>{{ $data->sku }}</td>
                                 <td>{{ $data->price }}</td>
                                 <td>{{ $data->single_price }}</td>
                                 <td>{{ $data->num }}</td>
+                                <td>{{ $data->arrived_num }}</td>
+                                <td>{{ $data->error_num }}</td>
                                 <td>{{ $data->purchase_user_name }}</td>
                                 <td>{{ $data->supplier_name }}</td>
                                 <td>{{ $data->invoice_num }}</td>

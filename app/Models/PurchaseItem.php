@@ -213,6 +213,7 @@ class PurchaseItem extends Model
             ->selectRaw('DATE_FORMAT(purchase.created_at,"%Y-%m-%d") as created_at')
             ->selectRaw('DATE_FORMAT(purchase.scheduled_date,"%Y-%m-%d") as scheduled_date')
             ->selectRaw('FORMAT(items.price / items.num, 2) as single_price')
+            ->selectRaw('(items.num - items.arrived_num) as error_num')
             ->selectRaw('(case
                     when '. $query_not_yet. ' then "'. InboundStatus::getDescription(InboundStatus::not_yet()->value). '"
                     when '. $query_normal. ' then "'. InboundStatus::getDescription(InboundStatus::normal()->value). '"
@@ -266,6 +267,7 @@ class PurchaseItem extends Model
         $result->mergeBindings($subColumn);
         $result->mergeBindings($subColumn2);
         $result2->mergeBindings($result);
+
         return $result2;
     }
 
@@ -384,6 +386,7 @@ class PurchaseItem extends Model
             ->selectRaw('DATE_FORMAT(purchase.created_at,"%Y-%m-%d") as created_at')
             ->selectRaw('DATE_FORMAT(purchase.scheduled_date,"%Y-%m-%d") as scheduled_date')
             ->selectRaw('FORMAT(itemtb_new.price / itemtb_new.num, 2) as single_price')
+            ->selectRaw('(itemtb_new.num - itemtb_new.arrived_num) as error_num')
             ->selectRaw('(case
                     when '. $query_not_yet. ' then "'. InboundStatus::getDescription(InboundStatus::not_yet()->value). '"
                     when '. $query_normal. ' then "'. InboundStatus::getDescription(InboundStatus::normal()->value). '"
@@ -429,6 +432,7 @@ class PurchaseItem extends Model
         $result->mergeBindings($subColumn);
         $result->mergeBindings($subColumn2);
         $result2->mergeBindings($result);
+
         return $result2;
     }
 }
