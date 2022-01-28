@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use App\Enums\Purchase\InboundStatus;
-use App\Enums\Purchase\LogFeature;
-use App\Enums\Purchase\LogFeatureEvent;
+use App\Enums\Purchase\LogEvent;
+use App\Enums\Purchase\LogEventFeature;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -39,7 +39,7 @@ class PurchaseItem extends Model
                     "memo" => $newData['memo']
                 ])->id;
 
-                PurchaseLog::stockChange($newData['purchase_id'], $newData['product_style_id'], LogFeature::style()->value, $id, LogFeatureEvent::style_add()->value, $newData['num'], null, $operator_user_id, $operator_user_name);
+                PurchaseLog::stockChange($newData['purchase_id'], $newData['product_style_id'], LogEvent::style()->value, $id, LogEventFeature::style_add()->value, $newData['num'], null, $operator_user_id, $operator_user_name);
                 return $id;
             });
         } else {
@@ -68,7 +68,7 @@ class PurchaseItem extends Model
                     } else if($dirtykey == 'memo') {
                         $event = '修改備註';
                     }
-                    PurchaseLog::stockChange($purchaseItem->purchase_id, $purchaseItem->product_style_id, LogFeature::style()->value, $itemId, LogFeatureEvent::style_change_data()->value, $dirtyval, $event, $operator_user_id, $operator_user_name);
+                    PurchaseLog::stockChange($purchaseItem->purchase_id, $purchaseItem->product_style_id, LogEvent::style()->value, $itemId, LogEventFeature::style_change_data()->value, $dirtyval, $event, $operator_user_id, $operator_user_name);
                 }
                 PurchaseItem::where('id', $itemId)->update([
                     "price" => $purchaseItemReq['price'][$key],
@@ -86,7 +86,7 @@ class PurchaseItem extends Model
             ) {
                 PurchaseItem::whereIn('id', $del_item_id_arr)->delete();
                 foreach ($del_item_id_arr as $del_id) {
-                    PurchaseLog::stockChange($purchase_id, null, LogFeature::style()->value, $del_id, LogFeatureEvent::style_del()->value, null, null, $operator_user_id, $operator_user_name);
+                    PurchaseLog::stockChange($purchase_id, null, LogEvent::style()->value, $del_id, LogEventFeature::style_del()->value, null, null, $operator_user_id, $operator_user_name);
                 }
             });
         }

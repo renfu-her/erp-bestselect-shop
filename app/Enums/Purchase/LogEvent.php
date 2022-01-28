@@ -4,7 +4,7 @@ namespace App\Enums\Purchase;
 
 use BenSampo\Enum\Enum;
 
-class LogFeature extends Enum
+class LogEvent extends Enum
 {
     //採購、入庫、付款
     const purchase = 'purchase';

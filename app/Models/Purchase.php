@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use App\Enums\Purchase\LogFeature;
-use App\Enums\Purchase\LogFeatureEvent;
+use App\Enums\Purchase\LogEvent;
+use App\Enums\Purchase\LogEventFeature;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -42,7 +42,7 @@ class Purchase extends Model
                 'memo' => $memo,
             ])->id;
 
-            PurchaseLog::stockChange($id, null, LogFeature::purchase()->value, $id, LogFeatureEvent::pcs_add()->value, null, null, $purchase_user_id, $purchase_user_name);
+            PurchaseLog::stockChange($id, null, LogEvent::purchase()->value, $id, LogEventFeature::pcs_add()->value, null, null, $purchase_user_id, $purchase_user_name);
 
             return $id;
         });
@@ -67,7 +67,7 @@ class Purchase extends Model
                 } else if($key == 'scheduled_date') {
                     $event = '修改廠商預計進貨日期';
                 }
-                PurchaseLog::stockChange($id, null, LogFeature::purchase()->value, $id, LogFeatureEvent::pcs_change_data()->value, null, $event, $operator_user_id, $operator_user_name);
+                PurchaseLog::stockChange($id, null, LogEvent::purchase()->value, $id, LogEventFeature::pcs_change_data()->value, null, $event, $operator_user_id, $operator_user_name);
             }
             Purchase::where('id', $id)->update([
                 "supplier_id" => $purchaseReq['supplier'],
@@ -81,13 +81,13 @@ class Purchase extends Model
     public static function del($id, $operator_user_id, $operator_user_name) {
         //判斷若有入庫、付款單 則不可刪除
         Purchase::where('id', '=', $id)->delete();
-        PurchaseLog::stockChange($id, null, LogFeature::purchase()->value, $id, LogFeatureEvent::pcs_del()->value, null, null, $operator_user_id, $operator_user_name);
+        PurchaseLog::stockChange($id, null, LogEvent::purchase()->value, $id, LogEventFeature::pcs_del()->value, null, null, $operator_user_id, $operator_user_name);
     }
 
     //結案
     public static function close($id, $operator_user_id, $operator_user_name) {
         Purchase::where('id', $id)->update(['close_date' => date('Y-m-d H:i:s')]);
-        PurchaseLog::stockChange($id, null, LogFeature::purchase()->value, $id, LogFeatureEvent::pcs_close()->value, null, null, $operator_user_id, $operator_user_name);
+        PurchaseLog::stockChange($id, null, LogEvent::purchase()->value, $id, LogEventFeature::pcs_close()->value, null, null, $operator_user_id, $operator_user_name);
     }
 
     //起日 訖日 是否含已結單 發票號碼

@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use App\Enums\Purchase\InboundStatus;
-use App\Enums\Purchase\LogFeatureEvent;
-use App\Enums\Purchase\LogFeature;
+use App\Enums\Purchase\LogEventFeature;
+use App\Enums\Purchase\LogEvent;
 use App\Enums\StockEvent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -37,7 +37,7 @@ class PurchaseInbound extends Model
         //入庫 新增入庫數量
         //寫入ProductStock
         PurchaseItem::updateArrivedNum($purchase_item_id, $inbound_num);
-        PurchaseLog::stockChange($purchase_id, $product_style_id, LogFeature::inbound()->value, $id, LogFeatureEvent::inbound_add()->value, $inbound_num, null, $inbound_user_id, $inbound_user_name);
+        PurchaseLog::stockChange($purchase_id, $product_style_id, LogEvent::inbound()->value, $id, LogEventFeature::inbound_add()->value, $inbound_num, null, $inbound_user_id, $inbound_user_name);
         ProductStock::stockChange($product_style_id, $inbound_num, StockEvent::inbound()->value, $id, null, true);
 
         return $id;
@@ -70,8 +70,8 @@ class PurchaseInbound extends Model
                 } else {
                     $qty = $inboundDataGet->inbound_num * -1;
                     PurchaseItem::updateArrivedNum($inboundDataGet->purchase_item_id, $qty);
-                    PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogFeature::inbound()->value, $id, LogFeatureEvent::inbound_del()->value, $qty, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
-                    ProductStock::stockChange($inboundDataGet->product_style_id, $qty, StockEvent::inbound_del()->value, $id, $inboundDataGet->inbound_user_name . LogFeatureEvent::inbound_del()->getDescription(LogFeatureEvent::inbound_del()->value), true);
+                    PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogEvent::inbound()->value, $id, LogEventFeature::inbound_del()->value, $qty, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
+                    ProductStock::stockChange($inboundDataGet->product_style_id, $qty, StockEvent::inbound_del()->value, $id, $inboundDataGet->inbound_user_name . LogEventFeature::inbound_del()->getDescription(LogEventFeature::inbound_del()->value), true);
                     $inboundData->delete();
                 }
             }
@@ -93,7 +93,7 @@ class PurchaseInbound extends Model
                 } else {
                     PurchaseInbound::where('id', $id)
                         ->update(['sale_num' => DB::raw("sale_num + $sale_num")]);
-                    PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogFeature::inbound()->value, $id, LogFeatureEvent::inbound_shipping()->value, $sale_num, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
+                    PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogEvent::inbound()->value, $id, LogEventFeature::inbound_shipping()->value, $sale_num, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
                 }
             }
         });

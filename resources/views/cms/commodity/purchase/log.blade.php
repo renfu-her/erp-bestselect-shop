@@ -18,10 +18,10 @@
                  @foreach ($purchaseLog as $key =>$data)
                      <tr>
                          <td>{{$data->created_at}}</td>
-                         <td>{{App\Enums\Purchase\LogFeatureEvent::getDescription($data->event)}}
-                             @if($data->feature == App\Enums\Purchase\LogFeature::style()->key)
+                         <td>{{App\Enums\Purchase\LogEventFeature::getDescription($data->feature)}}
+                             @if($data->event == App\Enums\Purchase\LogEvent::style()->key)
                                  {{$data->title}} @if(isset($data->qty)) 數量:{{$data->qty}} @endif
-                             @elseif($data->feature == App\Enums\Purchase\LogFeature::inbound()->key)
+                             @elseif($data->event == App\Enums\Purchase\LogEvent::inbound()->key)
                                  {{$data->title}} @if(isset($data->qty)) 數量:{{$data->qty}} @endif
                              @endif
                          </td>

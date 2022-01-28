@@ -9,7 +9,7 @@ use BenSampo\Enum\Enum;
  * @method static static OptionTwo()
  * @method static static OptionThree()
  */
-final class LogFeatureEvent extends Enum
+final class LogEventFeature extends Enum
 {
     //採購
     const pcs_add = 'pcs_add';
