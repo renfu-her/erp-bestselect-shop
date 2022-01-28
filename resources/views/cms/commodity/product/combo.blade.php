@@ -30,7 +30,6 @@
                             </th>
                             <th scope="col">庫存</th>
                             <th scope="col">安全庫存</th>
-                            <th scope="col">庫存不足</th>
                             <th scope="col">喜鴻紅利抵扣</th>
                         </tr>
                     </thead>
@@ -40,71 +39,71 @@
                                 <td class="text-center">
                                     <div class="form-check form-switch form-switch-lg">
                                         <input class="form-check-input" type="checkbox" name="active_id[]"
-                                            value="{{ $style['id'] }}" @if ($style['is_active'] == '1')checked @endif>
+                                            value="{{ $style->id }}" @if ($style->is_active == '1')checked @endif>
                                     </div>
                                 </td>
                                 <td class="text-center">
-                                    @if (isset($style['sku']))
+                                    @if (isset($style->sku))
                                         <a type="button" data-bs-toggle="tooltip" title="內容明細"
-                                            href="{{ Route('cms.product.edit-combo-prod', ['id' => $product->id, 'sid' => $style['id']]) }}"
+                                            href="{{ Route('cms.product.edit-combo-prod', ['id' => $product->id, 'sid' => $style->id]) }}"
                                             class="icon icon-btn fs-5 text-primary rounded-circle border-0 p-0">
                                             <i class="bi bi-card-list"></i>
                                         </a>
                                     @else
                                         <a type="button" data-bs-toggle="tooltip" title="編輯"
-                                            href="{{ Route('cms.product.edit-combo-prod', ['id' => $product->id, 'sid' => $style['id']]) }}"
+                                            href="{{ Route('cms.product.edit-combo-prod', ['id' => $product->id, 'sid' => $style->id]) }}"
                                             class="icon icon-btn fs-5 text-primary rounded-circle border-0 p-0">
                                             <i class="bi bi-pencil-square"></i>
                                         </a>
                                     @endif
                                 </td>
                                 <td class="text-center">
-                                    <button type="button" @if (isset($style['sku'])) disabled @endif
+                                    <button type="button" @if (isset($style->sku)) disabled @endif
                                         class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </td>
                                 <td>
-                                    {{ $style['title'] }}
+                                    {{ $style->title }}
                                 </td>
                                 <td>
                                     <input type="text" class="form-control form-control-sm -l" aria-label="SKU"
-                                        value="{{ $style['sku'] }}" readonly />
-                                    <input type="hidden" name="sid[]" value="{{ $style['id'] }}">
+                                        value="{{ $style->sku }}" readonly />
+                                    <input type="hidden" name="sid[]" value="{{ $style->id }}">
                                 </td>
                                 <td>
                                     <div class="input-group input-group-sm flex-nowrap">
                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                                         <input type="number" class="form-control form-control-sm" name="price[]" min="0"
-                                            value="0" required />
+                                            value="{{ $style->price }}" required />
                                     </div>
                                 </td>
                                 <td>
                                     <div class="input-group input-group-sm flex-nowrap">
                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                                         <input type="number" class="form-control form-control-sm" name="dealer_price[]"
-                                            min="0" value="0" required />
+                                            min="0" value="{{ $style->dealer_price }}" required />
                                     </div>
                                 </td>
                                 <td>
                                     <div class="input-group input-group-sm flex-nowrap">
                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                                         <input type="number" class="form-control form-control-sm" name="origin_price[]"
-                                            min="0" value="0" required />
+                                            min="0" value="{{ $style->origin_price }}" required />
                                     </div>
                                 </td>
                                 <td>
                                     <div class="input-group input-group-sm flex-nowrap">
                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                                         <input type="number" class="form-control form-control-sm" name="bonus[]" min="0"
-                                            value="0" required />
+                                            value="{{ $style->bonus }}" required />
                                     </div>
                                 </td>
                                 <td>
-                                    <a href="#" class="-text -stock">{{ $style['safety_stock'] }}</a>
+                                    <a href="#" class="-text -stock">{{ $style->safety_stock }}</a>
                                 </td>
                                 <td>
-                                    <a href="#" class="-text -stock">{{ $style['in_stock'] }}</a>
+                                    <a href="#" class="-text -stock">{{ $style->in_stock }}</a>
                                 </td>
                                 <td>
                                     <select name="sold_out_event[]" class="form-select form-select-sm">
@@ -116,7 +115,7 @@
                                 </td>
                                 <td>
                                     <input type="number" class="form-control form-control-sm" name="dividend[]" min="0"
-                                        value="" required>
+                                        value="{{ $style->dividend }}" required>
                                 </td>
                             </tr>
                         @endforeach

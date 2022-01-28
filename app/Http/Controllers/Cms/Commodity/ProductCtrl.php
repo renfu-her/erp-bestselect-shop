@@ -294,9 +294,8 @@ class ProductCtrl extends Controller
                     }
                 }
 
-               $sid = ProductStyle::createStyle($id, $updateData);
-               SaleChannel::changePrice($sale_id, $sid, $d['n_dealer_price'][$i], $d['n_price'][$i], $d['n_origin_price'][$i], $d['n_bonus'][$i], $d['n_dividend'][$i]);
-
+                $sid = ProductStyle::createStyle($id, $updateData);
+                SaleChannel::changePrice($sale_id, $sid, $d['n_dealer_price'][$i], $d['n_price'][$i], $d['n_origin_price'][$i], $d['n_bonus'][$i], $d['n_dividend'][$i]);
 
             }
         }
@@ -598,8 +597,8 @@ class ProductCtrl extends Controller
     public function editCombo($id)
     {
         $product = self::product_data($id);
-        $styles = ProductStyle::where('product_id', $id)->get()->toArray();
-
+        $styles = ProductStyle::styleList($id)->get()->toArray();
+      
         return view('cms.commodity.product.combo', [
             'product' => $product,
             'styles' => $styles,
@@ -609,11 +608,16 @@ class ProductCtrl extends Controller
 
     public function updateCombo(Request $request, $id)
     {
+        
         $d = $request->all();
+        $sale_id = (SaleChannel::where('code', '01')->select('id')->get()->first())->id;
+       
         if (isset($d['sid'])) {
             for ($i = 0; $i < count($d['sid']); $i++) {
                 if (isset($d['sold_out_event'][$i])) {
                     ProductStyle::where('id', $d['sid'][$i])->update(['sold_out_event' => $d['sold_out_event'][$i]]);
+                    
+                    SaleChannel::changePrice($sale_id, $d['sid'][$i], $d['dealer_price'][$i], $d['price'][$i], $d['origin_price'][$i], $d['bonus'][$i], $d['dividend'][$i]);
                 }
             }
         }
