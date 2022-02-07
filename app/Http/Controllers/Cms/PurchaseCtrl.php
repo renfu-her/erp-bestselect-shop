@@ -419,9 +419,13 @@ class PurchaseCtrl extends Controller
         $purchase_id = '';
         if (null != $inboundDataGet) {
             $purchase_id = $inboundDataGet->purchase_id;
-            PurchaseInbound::delInbound($id, $request->user()->id);
+            if (0 < $inboundDataGet->sale_num) {
+                wToast('已有售出紀錄 無法刪除');
+            } else {
+                PurchaseInbound::delInbound($id, $request->user()->id);
+                wToast(__('Delete finished.'));
+            }
         }
-        wToast(__('Delete finished.'));
         return redirect(Route('cms.purchase.inbound', [
             'id' => $purchase_id,
         ]));

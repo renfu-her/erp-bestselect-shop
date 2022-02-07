@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class PurchaseItem extends Model
 {
@@ -82,13 +83,20 @@ class PurchaseItem extends Model
 
     public static function deleteItems($purchase_id, array $del_item_id_arr, $operator_user_id, $operator_user_name) {
         if (0 < count($del_item_id_arr)) {
-            return DB::transaction(function () use ($purchase_id, $del_item_id_arr, $operator_user_id, $operator_user_name
-            ) {
-                PurchaseItem::whereIn('id', $del_item_id_arr)->delete();
-                foreach ($del_item_id_arr as $del_id) {
-                    PurchaseLog::stockChange($purchase_id, null, LogEvent::style()->value, $del_id, LogEventFeature::style_del()->value, null, null, $operator_user_id, $operator_user_name);
-                }
-            });
+            //判斷若其一有到貨 則不可刪除
+            $query = PurchaseItem::whereIn('id', $del_item_id_arr)
+                ->selectRaw('sum(arrived_num) as arrived_num')->get()->first();
+            if (0 < $query->arrived_num) {
+                throw ValidationException::withMessages(['del_error' => '有入庫 不可刪除']);
+            } else {
+                return DB::transaction(function () use ($purchase_id, $del_item_id_arr, $operator_user_id, $operator_user_name
+                ) {
+                    PurchaseItem::whereIn('id', $del_item_id_arr)->delete();
+                    foreach ($del_item_id_arr as $del_id) {
+                        PurchaseLog::stockChange($purchase_id, null, LogEvent::style()->value, $del_id, LogEventFeature::style_del()->value, null, null, $operator_user_id, $operator_user_name);
+                    }
+                });
+            }
         }
     }
 
@@ -213,6 +221,7 @@ class PurchaseItem extends Model
             ->selectRaw('DATE_FORMAT(purchase.created_at,"%Y-%m-%d") as created_at')
             ->selectRaw('DATE_FORMAT(purchase.scheduled_date,"%Y-%m-%d") as scheduled_date')
             ->selectRaw('FORMAT(items.price / items.num, 2) as single_price')
+            ->selectRaw('(items.num - items.arrived_num) as error_num')
             ->selectRaw('(case
                     when '. $query_not_yet. ' then "'. InboundStatus::getDescription(InboundStatus::not_yet()->value). '"
                     when '. $query_normal. ' then "'. InboundStatus::getDescription(InboundStatus::normal()->value). '"
@@ -222,7 +231,7 @@ class PurchaseItem extends Model
             ->addSelect(['deposit_num' => $subColumn, 'final_pay_num' => $subColumn2])
             ->whereNull('purchase.deleted_at')
             ->whereNull('items.deleted_at')
-            ->orderByDesc('purchase.created_at')
+            ->orderByDesc('purchase.id')
             ->orderBy('items_id');
 
         if($purchase_sn) {
@@ -266,6 +275,7 @@ class PurchaseItem extends Model
         $result->mergeBindings($subColumn);
         $result->mergeBindings($subColumn2);
         $result2->mergeBindings($result);
+
         return $result2;
     }
 
@@ -384,6 +394,7 @@ class PurchaseItem extends Model
             ->selectRaw('DATE_FORMAT(purchase.created_at,"%Y-%m-%d") as created_at')
             ->selectRaw('DATE_FORMAT(purchase.scheduled_date,"%Y-%m-%d") as scheduled_date')
             ->selectRaw('FORMAT(itemtb_new.price / itemtb_new.num, 2) as single_price')
+            ->selectRaw('(itemtb_new.num - itemtb_new.arrived_num) as error_num')
             ->selectRaw('(case
                     when '. $query_not_yet. ' then "'. InboundStatus::getDescription(InboundStatus::not_yet()->value). '"
                     when '. $query_normal. ' then "'. InboundStatus::getDescription(InboundStatus::normal()->value). '"
@@ -392,7 +403,7 @@ class PurchaseItem extends Model
                 end) as inbound_status')
             ->addSelect(['deposit_num' => $subColumn, 'final_pay_num' => $subColumn2])
             ->whereNull('purchase.deleted_at')
-            ->orderByDesc('purchase.created_at');
+            ->orderByDesc('purchase.id');
 
         if($purchase_sn) {
             $result->where('purchase.sn', '=', $purchase_sn);
@@ -429,6 +440,7 @@ class PurchaseItem extends Model
         $result->mergeBindings($subColumn);
         $result->mergeBindings($subColumn2);
         $result2->mergeBindings($result);
+
         return $result2;
     }
 }
