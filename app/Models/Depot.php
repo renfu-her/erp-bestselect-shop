@@ -21,4 +21,17 @@ class Depot extends Model
         'region_id',
         'addr',
     ];
+
+    //判斷倉庫是否需理貨
+    public static function can_tally($id) {
+        $depotData = Depot::where('id', '=', $id);
+        $depotDataGet = $depotData->get()->first();
+        $can_tally = false;
+        if (null != $depotDataGet) {
+            if (1 == $depotDataGet->can_tally) {
+                $can_tally = true;
+            }
+        }
+        return $can_tally;
+    }
 }

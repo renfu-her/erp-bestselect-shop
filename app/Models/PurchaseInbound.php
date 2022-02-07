@@ -20,27 +20,44 @@ class PurchaseInbound extends Model
 
     public static function createInbound($purchase_id, $purchase_item_id, $product_style_id, $expiry_date = null, $inbound_date = null, $inbound_num = 0, $depot_id = null, $depot_name = null, $inbound_user_id = null, $inbound_user_name = null, $memo = null)
     {
-        $id = self::create([
-            "purchase_id" => $purchase_id,
-            "purchase_item_id" => $purchase_item_id,
-            "product_style_id" => $product_style_id,
-            "expiry_date" => $expiry_date,
-            "inbound_date" => $inbound_date,
-            "inbound_num" => $inbound_num,
-            "depot_id" => $depot_id,
-            "depot_name" => $depot_name,
-            "inbound_user_id" => $inbound_user_id,
-            "inbound_user_name" => $inbound_user_name,
-            "memo" => $memo
-        ])->id;
+        $can_tally = Depot::can_tally($depot_id);
 
-        //入庫 新增入庫數量
-        //寫入ProductStock
-        PurchaseItem::updateArrivedNum($purchase_item_id, $inbound_num);
-        PurchaseLog::stockChange($purchase_id, $product_style_id, LogEvent::inbound()->value, $id, LogEventFeature::inbound_add()->value, $inbound_num, null, $inbound_user_id, $inbound_user_name);
-        ProductStock::stockChange($product_style_id, $inbound_num, StockEvent::inbound()->value, $id, null, true);
+        return DB::transaction(function () use (
+            $purchase_id
+            , $purchase_item_id
+            , $product_style_id
+            , $expiry_date
+            , $inbound_date
+            , $inbound_num
+            , $depot_id
+            , $depot_name
+            , $inbound_user_id
+            , $inbound_user_name
+            , $memo
+            , $can_tally
+        ) {
+            $id = self::create([
+                "purchase_id" => $purchase_id,
+                "purchase_item_id" => $purchase_item_id,
+                "product_style_id" => $product_style_id,
+                "expiry_date" => $expiry_date,
+                "inbound_date" => $inbound_date,
+                "inbound_num" => $inbound_num,
+                "depot_id" => $depot_id,
+                "depot_name" => $depot_name,
+                "inbound_user_id" => $inbound_user_id,
+                "inbound_user_name" => $inbound_user_name,
+                "memo" => $memo
+            ])->id;
 
-        return $id;
+            //入庫 新增入庫數量
+            //寫入ProductStock
+            PurchaseItem::updateArrivedNum($purchase_item_id, $inbound_num, $can_tally);
+            PurchaseLog::stockChange($purchase_id, $product_style_id, LogEvent::inbound()->value, $id, LogEventFeature::inbound_add()->value, $inbound_num, null, $inbound_user_id, $inbound_user_name);
+            ProductStock::stockChange($product_style_id, $inbound_num, StockEvent::inbound()->value, $id, null, true, $can_tally);
+
+            return $id;
+        });
     }
 
     //取消入庫 刪除資料
@@ -53,6 +70,7 @@ class PurchaseInbound extends Model
             $inboundData = PurchaseInbound::where('id', '=', $id);
             $inboundDataGet = $inboundData->get()->first();
             if (null != $inboundDataGet) {
+
                 //刪除
                 //判斷是否已結單 有則不能刪
                 $purchaseData = DB::table('pcs_purchase as purchase')
@@ -68,10 +86,13 @@ class PurchaseInbound extends Model
                 else if (is_numeric($inboundDataGet->sale_num) && 0 < $inboundDataGet->sale_num) {
                     return ['success' => 0, 'error_msg' => 'inbound already sell'];
                 } else {
+                    $can_tally = Depot::can_tally($inboundDataGet->depot_id);
+                    //判斷若為理貨倉 則採購款式 已到貨 ++; 採購款式 理貨 ++; product_style in_stock ++
+                    //否則採購款式 已到貨 ++
                     $qty = $inboundDataGet->inbound_num * -1;
-                    PurchaseItem::updateArrivedNum($inboundDataGet->purchase_item_id, $qty);
+                    PurchaseItem::updateArrivedNum($inboundDataGet->purchase_item_id, $qty, $can_tally);
                     PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogEvent::inbound()->value, $id, LogEventFeature::inbound_del()->value, $qty, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
-                    ProductStock::stockChange($inboundDataGet->product_style_id, $qty, StockEvent::inbound_del()->value, $id, $inboundDataGet->inbound_user_name . LogEventFeature::inbound_del()->getDescription(LogEventFeature::inbound_del()->value), true);
+                    ProductStock::stockChange($inboundDataGet->product_style_id, $qty, StockEvent::inbound_del()->value, $id, $inboundDataGet->inbound_user_name . LogEventFeature::inbound_del()->getDescription(LogEventFeature::inbound_del()->value), true, $can_tally);
                     $inboundData->delete();
                 }
             }

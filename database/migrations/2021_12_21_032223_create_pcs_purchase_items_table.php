@@ -22,6 +22,7 @@ class CreatePcsPurchaseItemsTable extends Migration
             $table->string('price')->comment('單價');
             $table->integer('num')->comment('數量');
             $table->integer('arrived_num')->default(0)->comment('到貨數量');
+            $table->integer('tally_num')->default(0)->comment('理貨數量');
             $table->integer('temp_id')->nullable()->comment('溫層對應id');
             $table->string('memo')->nullable()->comment('備註');
             $table->timestamps();

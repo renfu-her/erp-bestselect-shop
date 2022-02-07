@@ -101,11 +101,16 @@ class PurchaseItem extends Model
     }
 
     //更新到貨數量
-    public static function updateArrivedNum($id, $addnum) {
-        return DB::transaction(function () use ($id, $addnum
+    public static function updateArrivedNum($id, $addnum, $can_tally = false) {
+        return DB::transaction(function () use ($id, $addnum, $can_tally
         ) {
+            $updateArr = [];
+            $updateArr['arrived_num'] = DB::raw("arrived_num + $addnum");
+            if (true == $can_tally) {
+                $updateArr['tally_num'] = DB::raw("tally_num + $addnum");
+            }
             PurchaseItem::where('id', $id)
-                ->update(['arrived_num' => DB::raw("arrived_num + $addnum")]);
+                ->update($updateArr);
         });
     }
 

@@ -13,7 +13,7 @@ class ProductStock extends Model
     protected $table = 'prd_stock_log';
     protected $guarded = [];
 
-    public static function stockChange($product_style_id, $qty, $event, $event_id = null, $note = null, $is_inbound = false)
+    public static function stockChange($product_style_id, $qty, $event, $event_id = null, $note = null, $is_inbound = false, $inbound_can_tally = false)
     {
 
         if (!is_numeric($qty)) {
@@ -28,7 +28,7 @@ class ProductStock extends Model
             return ['success' => 0, 'error_msg' => 'style not exists'];
         }
 
-        return DB::transaction(function () use ($product_style_id, $qty, $event, $event_id, $note, $is_inbound) {
+        return DB::transaction(function () use ($product_style_id, $qty, $event, $event_id, $note, $is_inbound, $inbound_can_tally) {
             $style = ProductStyle::where('id', $product_style_id)->select('id','in_stock')->get()->first();
             if ($style['in_stock'] + $qty < 0) {
                 return ['success' => 0, 'error_msg' => '數量超出範圍'];
@@ -42,10 +42,13 @@ class ProductStock extends Model
                 if (false == $is_inbound) {
                     $product_style->update(['in_stock' => DB::raw("in_stock + $qty")]);
                 } else {
-                    $product_style->update([
-                        'total_inbound' => DB::raw("total_inbound + $qty")
-                        , 'in_stock' => DB::raw("in_stock + $qty")
-                    ]);
+                    $updateArr = [];
+                    $updateArr['total_inbound'] = DB::raw("total_inbound + $qty");
+                    //入庫時判斷倉庫需理貨 則再加到in_stock
+                    if ($inbound_can_tally) {
+                        $updateArr['in_stock'] = DB::raw("in_stock + $qty");
+                    }
+                    $product_style->update($updateArr);
                 }
             }
 
