@@ -70,6 +70,35 @@ $(function () {
     }
     
     /* ************************************************************************ */
+
+    /**
+     * 取一組<li>項目資料
+     * @param {JQuery} $li 一組 li 項目
+     * @returns {object} 項目資料 {id, level:層級數, title:名稱, event: url|group [, 子項]}
+     */
+    window.getNaviOneNode = getOneLiData;
+    function getOneLiData($li) {
+        let id = Number($li.children('.oneItem').find('input[name="id"]').val());
+        let level = getCurrentLevel($li.closest('ul.level'));
+        let title = $li.children('.oneItem').find('.-title').text();
+        let event = null;
+        if ($li.children('.oneItem').find('span.badge').hasClass('bg-info')) {
+            event = 'url';
+        }
+        if ($li.children('.oneItem').find('span.badge').hasClass('bg-warning')) {
+            event = 'group';
+        }
+        // console.log(level, '--- ', title);
+
+        if ($li.children('ul.level').children('li').length) {
+            let child = $li.children('ul.level').children('li').map(function () {
+                return getOneLiData($(this));
+            }).get();
+            return { id, level, title, event, child };
+        } else {
+            return { id, level, title, event };
+        }
+    }
     
     // loadNaviNode(testData, '.-appendClone');
     /**
@@ -97,8 +126,10 @@ $(function () {
             let newLi = LiCopy.clone();
             // 改 title
             newLi.find('.oneItem .-title').text(liItem.title);
+            newLi.find('input[name="id"]').val(liItem.id);
             newLi.find('a.-edit').attr('href', `static/${liItem.level}/edit/${liItem.id}`);
-            newLi.find('a.-del').attr('data-href', `static/${liItem.level}/delete/${liItem.id}`);
+            newLi.find('span.-del').data('id', liItem.id);
+            setEventBadge(newLi.find('span.badge'), liItem.event);
 
             if (liItem.level < MIN_LV) {
                 // 改 子項的ul level class
@@ -108,15 +139,16 @@ $(function () {
                     newLi.children('ul.level').append((liItem.child).map(function (title) {
                         return setOneLiComponent(title);
                     }));
+                    newLi.find('span.badge').addClass('d-none');
                 } else {
                     // 類型標籤
-                    setEventBadge(newLi.find('span.badge'), liItem.event);
+                    newLi.find('span.badge').removeClass('d-none');
                 }
             } else {
                 // 最後一階沒子項
                 newLi.children('ul.level').remove();
                 // 類型標籤
-                setEventBadge(newLi.find('span.badge'), liItem.event);
+                newLi.find('span.badge').removeClass('d-none');
             }
             
             return newLi;
@@ -130,6 +162,8 @@ $(function () {
                 case 'group':
                     $badge.text('群組').addClass('bg-warning text-dark');
                     break;
+                default:
+                    $badge.text('未設定').css('background-color', 'var(--bs-gray-500)');
             }
         }
     }
@@ -139,11 +173,18 @@ $(function () {
     /**
      * 綁定事件: click 刪除鈕
      * @param {JQuery} $li 一組 li 項目
+     * @param {string} parent li 的父項
+     * @param {Function} parent li 的父項
      */
-    function bindDeleteBtn($li, parent = '') {
+    window.bindNaviDelBtn = bindDeleteBtn;
+    function bindDeleteBtn($li = null, parent = '', beforeFn = null) {
         let $target = $li || $(`${parent} ul.${UlClass[MAX_LV]}`);
         $target.find('.oneItem .icon.-del').off('click').on('click', function () {
-            $(this).closest('li').remove();
+            const $that = $(this);
+            if (typeof beforeFn === 'function') {
+                beforeFn($that);
+            }
+            $that.closest('li').remove();
             resetAllLevelBtn();
         });
     }
@@ -173,7 +214,13 @@ $(function () {
 
         // bind
         bindLevelBtn();
-            
+
+        $('div.oneItem').find('span.badge').removeClass('d-none');
+        /**
+         * 隱藏類型標籤 span.badge
+         * 1. 有子項
+         */
+        $('div.oneItem').closest('ul.level').prev('div.oneItem').find('span.badge').addClass('d-none');
 
         /**
          * 綁定事件: click 調階層按鈕 [←] [→]
