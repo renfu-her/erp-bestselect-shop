@@ -32,6 +32,7 @@
                         <i class="bi bi-arrow-right-short"></i>
                     </span>
                     <div class="ms-2 col fs-5 -title"></div>
+                    <input type="hidden" name="id">
                     <span class="badge"></span>
                 </div>
                 <div class="row col-auto py-1">
@@ -44,11 +45,10 @@
                         data-bs-toggle="tooltip" title="拖曳排序">
                         <i class="bi bi-arrows-move"></i>
                     </span>
-                    <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                        data-href="#"
-                        class="icon -del icon-btn col-auto fs-5 text-danger rounded-circle border-0 p-0">
+                    <span class="icon -del icon-btn col-auto fs-5 text-danger rounded-circle border-0 p-0"
+                        data-bs-toggle="tooltip" title="刪除">
                         <i class="bi bi-trash"></i>
-                    </a>
+                    </span>
                 </div>
             </div>
 
@@ -65,6 +65,12 @@
                     class="btn btn-outline-primary border-dashed" style="font-weight: 500;">
                     <i class="bi bi-plus-circle"></i> 新增
                 </a>
+            </div>
+        </div>
+        <div>
+            <div class="col-auto">
+                <input type="hidden" name="del_id">
+                <button type="button" id="navi_save" class="btn btn-primary px-4">儲存</button>
             </div>
         </div>
     </form>
@@ -154,8 +160,28 @@
             }
             
             // 刪除 btn
-            $('#confirm-delete').on('show.bs.modal', function(e) {
-                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+            let del_id = [];
+            // $('#confirm-delete').on('show.bs.modal', function(e) {
+            //     $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+            // });
+            bindNaviDelBtn(null, '', function ($del) {
+                const id = $del.closest('.oneItem').find('span.-del').data('id');
+                if (id) {
+                    del_id.push(id);
+                    $('input[name="del_id"]').val(del_id.toString());
+                }
+            });
+
+            // 按鈕: 儲存
+            $('#navi_save').on('click', function () {
+                let data = [];
+
+                $('.level_1 > li').each(function (index, element) {
+                    // element == this
+                    data.push(getNaviOneNode($(element)));
+                });
+
+                console.log('*Data:', data);
             });
         });
     </script>
