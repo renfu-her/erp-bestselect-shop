@@ -26,6 +26,11 @@ return
                 "controller_name" => "ComboPurchaseCtrl",
                 "route_name" => "cms.combo-purchase.index",
             ],
+            [
+                "title" => "訂單管理",
+                "controller_name" => "OrderCtrl",
+                "route_name" => "cms.order.index",
+            ],
         ],
     ],
     [
