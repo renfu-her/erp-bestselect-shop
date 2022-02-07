@@ -64,7 +64,7 @@ class OrderCtrl extends Controller
     public function edit($id)
     {
         $sn = '21111801';   // 等有值改
-        return view('cms.commodity.order.list', [
+        return view('cms.commodity.order.edit', [
             'method' => 'edit',
             'sn' => $sn,
             'breadcrumb_data' => $sn]);
