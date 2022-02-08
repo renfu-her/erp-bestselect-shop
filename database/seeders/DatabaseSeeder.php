@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             permissionSeeder::class,
             PageAuthSeeder::class,
             UserSeeder::class,
+            DepotSeeder::class,
             SupplierSeeder::class,
             TempsSeeder::class,
             ShipmentSeeder::class,
