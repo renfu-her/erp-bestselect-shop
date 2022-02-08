@@ -60,7 +60,7 @@
                             <option value="" selected disabled>請選擇</option>
                             @foreach ($depotList as $depotItem)
                                 <option value="{{ $depotItem['id'] }}">
-                                    {{ $depotItem['name'] }}
+                                    {{ $depotItem['name'] }} {{ $depotItem['can_tally'] ? '(理貨倉)' : '(非理貨倉)' }}
                                 </option>
                             @endforeach
                         </select>
