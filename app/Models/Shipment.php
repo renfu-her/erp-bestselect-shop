@@ -71,7 +71,7 @@ class Shipment extends Model
         string $name,
         string $temps,
         string $method,
-        string $note
+        $note
     ) {
         $tempsId = Temps::findTempsIdByName($temps);
         $methodId = ShipmentMethod::findShipmentMethodIdByName($method);
@@ -102,7 +102,7 @@ class Shipment extends Model
         string $name,
         string $temps,
         string $method,
-        string $note
+        $note
     ) {
         $tempsId = Temps::findTempsIdByName($temps);
         $methodId = ShipmentMethod::findShipmentMethodIdByName($method);

@@ -60,7 +60,7 @@
                             @endforeach
                         </div>
                     </x-b-form-group>
-                    <x-b-form-group name="note" title="說明" required="true">
+                    <x-b-form-group name="note" title="說明" required="false">
                         <textarea name="note" class="form-control" placeholder="請輸入物流說明"
                             rows="6">{{ old('note', $note ?? '') }}</textarea>
                     </x-b-form-group>
