@@ -30,7 +30,8 @@
                                             type="radio"
                                             required
                                             readonly
-                                            @if ($method == 'edit' && $temps_data->temps == $dataList[0]->temps)
+                                            @if ($method == 'edit' &&
+                                                old('temps', $dataList[0]->temps ?? '') == $temps_data->temps)
                                                 checked
                                             @endif
                                         > {{ $temps_data->temps }}
@@ -49,7 +50,8 @@
                                             value="{{ $shipMethod->method }}"
                                             type="radio"
                                             required
-                                            @if ($method == 'edit' && $dataList[0]->method == $shipMethod->method)
+                                            @if ($method == 'edit' &&
+                                                old('method', $dataList[0]->method ?? '') == $shipMethod->method)
                                                 checked
                                                 @endif
                                         > {{ $shipMethod->method }}
