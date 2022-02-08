@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cms;
 
 use App\Http\Controllers\Controller;
 use App\Models\Shipment;
+use App\Models\ShipmentCategory;
 use App\Models\ShipmentGroup;
 use App\Models\ShipmentMethod;
 use App\Models\Temps;
@@ -55,6 +56,7 @@ class ShipmentCtrl extends Controller
         return view('cms.settings.shipment.edit', [
             'method'      => 'create',
             'formAction'  => Route('cms.shipment.create'),
+            'shipCategories' => ShipmentCategory::all(),
             'shipTemps'   => Temps::all(),
             'shipMethods' => ShipmentMethod::all()->unique('method'),
         ]);
@@ -72,6 +74,7 @@ class ShipmentCtrl extends Controller
             'name' => ['required',
                        'string',
                        'unique:App\Models\ShipmentGroup'],
+            'category' => 'required|string',
             'temps' => 'required|string',
             'method' => 'required|string',
             'is_above.*' => 'required|string',
@@ -87,6 +90,7 @@ class ShipmentCtrl extends Controller
 
         $shipment->storeShipRule(
             $dataField['ruleNumArray'],
+            $dataField['category'],
             $dataField['name'],
             $dataField['temps'],
             $dataField['method'],
@@ -123,6 +127,7 @@ class ShipmentCtrl extends Controller
             'dataList'    => $dataList,
             'method'      => 'edit',
             'formAction'  => Route('cms.shipment.edit', $groupId),
+            'shipCategories' => ShipmentCategory::all()->unique('category'),
             'shipName'    => $dataList[0]->name,
             'note'        => $dataList[0]->note,
             'shipTemps'   => Temps::all(),
@@ -146,6 +151,7 @@ class ShipmentCtrl extends Controller
                                 ->id;
 
         $request->validate([
+            'category' => 'required|string',
             'name' => ['required',
                        'string',
                        Rule::unique('shi_group')->ignore($ignoreId)],
@@ -165,6 +171,7 @@ class ShipmentCtrl extends Controller
         $shipment->updateShipRule(
             $groupId,
             $dataField['ruleNumArray'],
+            $dataField['category'],
             $dataField['name'],
             $dataField['temps'],
             $dataField['method'],

@@ -14,4 +14,12 @@ class ShipmentCategory extends Model
     protected $fillable = [
         'category'
     ];
+
+    public static function findCategoryIdByName(string $category)
+    {
+        return self::where('category', '=', $category)
+            ->select('id')
+            ->get()
+            ->first()->id;
+    }
 }
