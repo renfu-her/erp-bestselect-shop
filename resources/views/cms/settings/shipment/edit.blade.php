@@ -310,7 +310,7 @@
                     minPriceElem.removeClass('bg-danger');
                     maxPriceElem.removeClass('bg-danger');
 
-                    if (minPriceElem.val() > maxPriceElem.val()) {
+                    if (parseInt(minPriceElem.val()) > parseInt(maxPriceElem.val())) {
                         toast.show('「最多消費金額」不能少於「最少消費金額」', {title: '錯誤訊息', type: 'danger'});
                         minPriceElem.addClass('bg-danger');
                         maxPriceElem.addClass('bg-danger');
