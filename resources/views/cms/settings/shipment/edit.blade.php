@@ -293,6 +293,14 @@
             submitElem.submit(function (event) {
                 var allMinMaxPrice = [];
 
+                //把最後一列的「最多消費金額」強制設定成跟「最少消費金額」一樣，避免發生「最多」少於「最少」的狀況
+                let lastIsAboveElem = $('tbody > tr:nth-last-child(1) select[name="is_above[]"]');
+                let minPrice1 = lastIsAboveElem.parent().prev().prev().find('input[name="min_price[]"]').val();
+                if (lastIsAboveElem.val() === 'true') {
+                    lastIsAboveElem.parent().next().find('input[name="max_price[]"]').attr('type', 'hidden');
+                    lastIsAboveElem.parent().next().find('input[name="max_price[]"]').val(minPrice1);
+                }
+
                 //「最多消費金額」不能少於「最少消費金額」
                 $('tbody > tr').each(function (index, item) {
                     let minPriceElem = $(item).find('input[name="min_price[]"]');
