@@ -18,6 +18,13 @@ class CreateShipmentTempsTable extends Migration
             $table->string('temps')->comment('運送溫度');
             $table->timestamps();
         });
+
+        Schema::table('shi_group', function (Blueprint $table) {
+            $table->after('name', function ($tb) {
+                $tb->unsignedBigInteger('temps_fk')->comment('運送溫度名稱,foreign key');
+                $tb->foreign('temps_fk')->references('id')->on('shi_temps');
+            });
+        });
     }
 
     /**
@@ -27,6 +34,10 @@ class CreateShipmentTempsTable extends Migration
      */
     public function down()
     {
+        Schema::table('shi_group', function (Blueprint $table) {
+            $table->dropForeign('shi_group_temps_fk_foreign');
+            $table->dropColumn('temps_fk');
+        });
         Schema::dropIfExists('shi_temps');
     }
 }

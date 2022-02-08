@@ -12,7 +12,10 @@ class ShipmentGroup extends Model
     protected $table = 'shi_group';
 
     protected $fillable = [
-        'name'
+        'name',
+        'temps_fk',
+        'method',
+        'note',
     ];
 
 }

@@ -55,7 +55,7 @@ class ShipmentCtrl extends Controller
             'method'      => 'create',
             'formAction'  => Route('cms.shipment.create'),
             'shipTemps'   => Temps::all(),
-            'shipMethods' => Shipment::all()->unique('method'),
+            'shipMethods' => ShipmentGroup::all()->unique('method'),
         ]);
         //
     }
@@ -125,7 +125,7 @@ class ShipmentCtrl extends Controller
             'shipName'    => $dataList[0]->name,
             'note'        => $dataList[0]->note,
             'shipTemps'   => Temps::all(),
-            'shipMethods' => Shipment::all()->unique('method'),
+            'shipMethods' => ShipmentGroup::all()->unique('method'),
         ]);
         //
     }

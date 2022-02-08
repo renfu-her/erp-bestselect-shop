@@ -16,7 +16,8 @@ class CreateShipmentGroupTable extends Migration
         Schema::create('shi_group', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique()->comment('快遞物流名稱');
-//            $table->unsignedBigInteger('shipment_group_id_fk');
+            $table->string('method')->comment('出貨方式');
+            $table->string('note')->nullable()->comment('說明');
             $table->timestamps();
         });
     }

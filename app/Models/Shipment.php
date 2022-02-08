@@ -14,9 +14,6 @@ class Shipment extends Model
     protected $table = 'shi_rule';
     protected $fillable = [
         'group_id_fk',
-        'temps_fk',
-        'method',
-        'note',
         'min_price',
         'max_price',
         'dlv_fee',
@@ -78,15 +75,15 @@ class Shipment extends Model
         $tempsId = Temps::findTempsIdByName($temps);
 
         $groupId = ShipmentGroup::create([
-                    'name' => $name
+                    'name' => $name,
+                    'temps_fk' => $tempsId,
+                    'method' => $method,
+                    'note' => $note
                 ])->id;
 
         for ($i =0; $i < count($ruleNumArray); $i++) {
             self::create([
                 'group_id_fk' => $groupId,
-                'temps_fk' => $tempsId,
-                'method' => $method,
-                'note' => $note,
                 'min_price' => $ruleNumArray[$i]['min_price'],
                 'max_price' => $ruleNumArray[$i]['max_price'],
                 'dlv_fee' => $ruleNumArray[$i]['dlv_fee'],
@@ -108,16 +105,18 @@ class Shipment extends Model
         $tempsId = Temps::findTempsIdByName($temps);
 
         ShipmentGroup::where('id', '=', $groupId)
-                    ->update(['name' => $name]);
+                    ->update([
+                        'name' => $name,
+                        'temps_fk' => $tempsId,
+                        'method' => $method,
+                        'note' => $note
+                    ]);
         self::where('group_id_fk', '=', $groupId)
             ->delete();
 
         for ($i =0; $i < count($ruleNumArray); $i++) {
             self::insert([
                 'group_id_fk' => $groupId,
-                'temps_fk' => $tempsId,
-                'method' => $method,
-                'note' => $note,
                 'min_price' => $ruleNumArray[$i]['min_price'],
                 'max_price' => $ruleNumArray[$i]['max_price'],
                 'dlv_fee' => $ruleNumArray[$i]['dlv_fee'],
@@ -133,7 +132,7 @@ class Shipment extends Model
         return DB::table('shi_group as group')
             ->where('group.id', '=', $groupId)
             ->join('shi_rule', 'group.id', '=', 'group_id_fk')
-            ->join('shi_temps as _temps', '_temps.id', '=', 'shi_rule.temps_fk')
+            ->join('shi_temps as _temps', '_temps.id', '=', 'group.temps_fk')
             ->get();
     }
 
