@@ -121,7 +121,7 @@ class PurchaseInbound extends Model
     }
 
     //歷史入庫
-    public static function getInboundList($purchase_id)
+    public static function getInboundList($param)
     {
         $result = DB::table('pcs_purchase_inbound as inbound')
             ->leftJoin('prd_product_styles as style', 'style.id', '=', 'inbound.product_style_id')
@@ -135,17 +135,28 @@ class PurchaseInbound extends Model
                 , 'inbound.depot_id as depot_id'  //入庫倉庫ID
                 , 'inbound.depot_name as depot_name'  //入庫倉庫名稱
                 , 'inbound.inbound_user_id as inbound_user_id'  //入庫人員ID
-                , 'inbound.inbound_user_name as user_name' //入庫人員名稱
-                , 'inbound.close_date as close_date'
+                , 'inbound.inbound_user_name as inbound_user_name' //入庫人員名稱
+                , 'inbound.close_date as inbound_close_date'
                 , 'inbound.memo as inbound_memo' //入庫備註
             )
             ->selectRaw('DATE_FORMAT(inbound.expiry_date,"%Y-%m-%d") as expiry_date') //有效期限
             ->selectRaw('DATE_FORMAT(inbound.inbound_date,"%Y-%m-%d") as inbound_date') //入庫日期
             ->selectRaw('DATE_FORMAT(inbound.deleted_at,"%Y-%m-%d") as deleted_at') //刪除日期
-//            ->whereNull('inbound.deleted_at')
-            ->whereNotNull('inbound.id')
-            ->where('inbound.purchase_id', '=', $purchase_id)
-            ->orderByDesc('inbound.created_at');
+            ->whereNotNull('inbound.id');
+        if (isset($param['purchase_id'])) {
+            $result->where('inbound.purchase_id', '=', $param['purchase_id']);
+        }
+        if (isset($param['keyword'])) {
+            $keyword = $param['keyword'];
+            $result->where(function ($q) use ($keyword) {
+                if ($keyword) {
+                    $q->where('product.title', 'like', "%$keyword%");
+                    $q->orWhere('style.title', 'like', "%$keyword%");
+                    $q->orWhere('style.sku', 'like', "%$keyword%");
+                }
+            });
+        }
+        $result->orderByDesc('inbound.created_at');
         return $result;
     }
 

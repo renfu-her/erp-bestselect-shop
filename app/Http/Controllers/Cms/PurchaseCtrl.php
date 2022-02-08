@@ -354,10 +354,9 @@ class PurchaseCtrl extends Controller
     public function inbound(Request $request, $id) {
         $purchaseData = Purchase::getPurchase($id)->first();
         $purchaseItemList = PurchaseItem::getDataForInbound($id)->get()->toArray();
-        $inboundList = PurchaseInbound::getInboundList($id)->get()->toArray();
+        $inboundList = PurchaseInbound::getInboundList(['purchase_id' => $id])->get()->toArray();
         $inboundOverviewList = PurchaseInbound::getOverviewInboundList($id)->get()->toArray();
 
-//        dd($inboundOverviewList);
         $depotList = Depot::all()->toArray();
         return view('cms.commodity.purchase.inbound', [
             'purchaseData' => $purchaseData,
