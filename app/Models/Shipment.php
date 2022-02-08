@@ -11,12 +11,9 @@ class Shipment extends Model
 {
     use HasFactory;
 
-    protected $table = 'shipment';
+    protected $table = 'shi_rule';
     protected $fillable = [
         'group_id_fk',
-        'temps_fk',
-        'method',
-        'note',
         'min_price',
         'max_price',
         'dlv_fee',
@@ -27,8 +24,9 @@ class Shipment extends Model
 
     public function getShipmentList()
     {
-        return DB::table('shipment')->join('shipment_group as group', 'group_id_fk', '=', 'group.id')
-                                        ->join('shipment_temps', 'temps_fk', '=', 'shipment_temps.id')
+        return DB::table('shi_rule')->join('shi_group as group', 'group_id_fk', '=', 'group.id')
+                                        ->join('shi_temps', 'temps_fk', '=', 'shi_temps.id')
+                                        ->join('shi_method', 'group.method_fk', '=', 'shi_method.id')
                                         ->orderBy('group.id')
                                         ->orderBy('min_price');
     }
@@ -73,20 +71,21 @@ class Shipment extends Model
         string $name,
         string $temps,
         string $method,
-        string $note
+        $note
     ) {
         $tempsId = Temps::findTempsIdByName($temps);
+        $methodId = ShipmentMethod::findShipmentMethodIdByName($method);
 
         $groupId = ShipmentGroup::create([
-                    'name' => $name
+                    'name' => $name,
+                    'temps_fk' => $tempsId,
+                    'method_fk' => $methodId,
+                    'note' => $note
                 ])->id;
 
         for ($i =0; $i < count($ruleNumArray); $i++) {
             self::create([
                 'group_id_fk' => $groupId,
-                'temps_fk' => $tempsId,
-                'method' => $method,
-                'note' => $note,
                 'min_price' => $ruleNumArray[$i]['min_price'],
                 'max_price' => $ruleNumArray[$i]['max_price'],
                 'dlv_fee' => $ruleNumArray[$i]['dlv_fee'],
@@ -103,21 +102,24 @@ class Shipment extends Model
         string $name,
         string $temps,
         string $method,
-        string $note
+        $note
     ) {
         $tempsId = Temps::findTempsIdByName($temps);
+        $methodId = ShipmentMethod::findShipmentMethodIdByName($method);
 
         ShipmentGroup::where('id', '=', $groupId)
-                    ->update(['name' => $name]);
+                    ->update([
+                        'name' => $name,
+                        'temps_fk' => $tempsId,
+                        'method_fk' => $methodId,
+                        'note' => $note
+                    ]);
         self::where('group_id_fk', '=', $groupId)
             ->delete();
 
         for ($i =0; $i < count($ruleNumArray); $i++) {
             self::insert([
                 'group_id_fk' => $groupId,
-                'temps_fk' => $tempsId,
-                'method' => $method,
-                'note' => $note,
                 'min_price' => $ruleNumArray[$i]['min_price'],
                 'max_price' => $ruleNumArray[$i]['max_price'],
                 'dlv_fee' => $ruleNumArray[$i]['dlv_fee'],
@@ -130,10 +132,11 @@ class Shipment extends Model
 
     public function getEditShipmentData(int $groupId)
     {
-        return DB::table('shipment_group as group')
+        return DB::table('shi_group as group')
             ->where('group.id', '=', $groupId)
-            ->join('shipment', 'group.id', '=', 'group_id_fk')
-            ->join('shipment_temps as _temps', '_temps.id', '=', 'shipment.temps_fk')
+            ->join('shi_rule', 'group.id', '=', 'group_id_fk')
+            ->join('shi_temps as _temps', '_temps.id', '=', 'group.temps_fk')
+            ->join('shi_method', 'group.method_fk', '=', 'shi_method.id')
             ->get();
     }
 

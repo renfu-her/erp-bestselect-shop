@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateShipmentTempsTable extends Migration
+class CreateShipmentMethodTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,16 +13,16 @@ class CreateShipmentTempsTable extends Migration
      */
     public function up()
     {
-        Schema::create('shi_temps', function (Blueprint $table) {
+        Schema::create('shi_method', function (Blueprint $table) {
             $table->id();
-            $table->string('temps')->comment('運送溫度');
+            $table->string('method')->unique()->comment('出貨方式');
             $table->timestamps();
         });
 
         Schema::table('shi_group', function (Blueprint $table) {
             $table->after('name', function ($tb) {
-                $tb->unsignedBigInteger('temps_fk')->comment('運送溫度名稱,foreign key');
-                $tb->foreign('temps_fk')->references('id')->on('shi_temps');
+                $tb->unsignedBigInteger('method_fk')->comment('出貨方式,foreign key');
+                $tb->foreign('method_fk')->references('id')->on('shi_method');
             });
         });
     }
@@ -35,9 +35,9 @@ class CreateShipmentTempsTable extends Migration
     public function down()
     {
         Schema::table('shi_group', function (Blueprint $table) {
-            $table->dropForeign('shi_group_temps_fk_foreign');
-            $table->dropColumn('temps_fk');
+            $table->dropForeign('shi_group_method_fk_foreign');
+            $table->dropColumn('method_fk');
         });
-        Schema::dropIfExists('shi_temps');
+        Schema::dropIfExists('shi_method');
     }
 }

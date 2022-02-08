@@ -30,7 +30,8 @@
                                             type="radio"
                                             required
                                             readonly
-                                            @if ($method == 'edit' && $temps_data->temps == $dataList[0]->temps)
+                                            @if ($method == 'edit' &&
+                                                old('temps', $dataList[0]->temps ?? '') == $temps_data->temps)
                                                 checked
                                             @endif
                                         > {{ $temps_data->temps }}
@@ -49,7 +50,8 @@
                                             value="{{ $shipMethod->method }}"
                                             type="radio"
                                             required
-                                            @if ($method == 'edit' && $dataList[0]->method == $shipMethod->method)
+                                            @if ($method == 'edit' &&
+                                                old('method', $dataList[0]->method ?? '') == $shipMethod->method)
                                                 checked
                                                 @endif
                                         > {{ $shipMethod->method }}
@@ -58,7 +60,7 @@
                             @endforeach
                         </div>
                     </x-b-form-group>
-                    <x-b-form-group name="note" title="說明" required="true">
+                    <x-b-form-group name="note" title="說明" required="false">
                         <textarea name="note" class="form-control" placeholder="請輸入物流說明"
                             rows="6">{{ old('note', $note ?? '') }}</textarea>
                     </x-b-form-group>
@@ -259,6 +261,7 @@
                 $('select[name="is_above[]"]', $newShipRuleElem).val('true');
                 $('input[name="max_price[]"]', $newShipRuleElem).attr('type', 'hidden');
                 $('input[name="max_price[]"]', $newShipRuleElem).attr('value', lastMaxPrice);
+                $('input[name="min_price[]"]', $newShipRuleElem).prop('readonly', false);
                 // $('input[name="max_price[]"]', $newShipRuleElem).prop('readonly', true);
                 $('input[name="dlv_fee[]"]', $newShipRuleElem).val('');
                 $('input[name="dlv_cost[]"]', $newShipRuleElem).val('');
@@ -291,6 +294,14 @@
             submitElem.submit(function (event) {
                 var allMinMaxPrice = [];
 
+                //把最後一列的「最多消費金額」強制設定成跟「最少消費金額」一樣，避免發生「最多」少於「最少」的狀況
+                let lastIsAboveElem = $('tbody > tr:nth-last-child(1) select[name="is_above[]"]');
+                let minPrice1 = lastIsAboveElem.parent().prev().prev().find('input[name="min_price[]"]').val();
+                if (lastIsAboveElem.val() === 'true') {
+                    lastIsAboveElem.parent().next().find('input[name="max_price[]"]').attr('type', 'hidden');
+                    lastIsAboveElem.parent().next().find('input[name="max_price[]"]').val(minPrice1);
+                }
+
                 //「最多消費金額」不能少於「最少消費金額」
                 $('tbody > tr').each(function (index, item) {
                     let minPriceElem = $(item).find('input[name="min_price[]"]');
@@ -300,7 +311,7 @@
                     minPriceElem.removeClass('bg-danger');
                     maxPriceElem.removeClass('bg-danger');
 
-                    if (minPriceElem.val() > maxPriceElem.val()) {
+                    if (parseInt(minPriceElem.val()) > parseInt(maxPriceElem.val())) {
                         toast.show('「最多消費金額」不能少於「最少消費金額」', {title: '錯誤訊息', type: 'danger'});
                         minPriceElem.addClass('bg-danger');
                         maxPriceElem.addClass('bg-danger');

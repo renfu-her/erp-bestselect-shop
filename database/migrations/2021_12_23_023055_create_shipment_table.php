@@ -13,23 +13,18 @@ class CreateShipmentTable extends Migration
      */
     public function up()
     {
-        Schema::create('shipment', function (Blueprint $table) {
+        Schema::create('shi_rule', function (Blueprint $table) {
             $table->id();
 
             $table->unsignedBigInteger('group_id_fk')->comment('快遞物流名稱group id,foreign key');
-            $table->foreign('group_id_fk')->references('id')->on('shipment_group');
-
-            $table->unsignedBigInteger('temps_fk')->comment('運送溫度名稱,foreign key');
-            $table->foreign('temps_fk')->references('id')->on('shipment_temps');
+            $table->foreign('group_id_fk')->references('id')->on('shi_group');
 
             $table->integer('min_price')->comment('最少消費金額');
             $table->integer('max_price')->comment('最多消費金額');
             $table->integer('dlv_fee')->comment('運費');
             $table->integer('dlv_cost')->nullable()->comment('成本');
             $table->integer('at_most')->nullable()->comment('最多件數');
-            $table->string('method')->comment('出貨方式');
             $table->string('is_above')->comment('以上,未滿');
-            $table->string('note')->nullable()->comment('說明');
             $table->timestamps();
         });
     }
@@ -41,6 +36,6 @@ class CreateShipmentTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('shipment');
+        Schema::dropIfExists('shi_rule');
     }
 }
