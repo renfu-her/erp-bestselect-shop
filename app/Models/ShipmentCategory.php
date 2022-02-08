@@ -5,18 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ShipmentGroup extends Model
+class ShipmentCategory extends Model
 {
     use HasFactory;
 
-    protected $table = 'shi_group';
+    protected $table = 'shi_category';
 
     protected $fillable = [
-        'category_fk',
-        'name',
-        'temps_fk',
-        'method_fk',
-        'note',
+        'category'
     ];
-
 }
