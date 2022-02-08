@@ -21,8 +21,9 @@ class CreatePrdSupplierTable extends Migration
             $table->string('contact_tel')->comment('聯絡電話');
             $table->string('contact_address')->comment('聯絡地址');
             $table->string('contact_person')->comment('廠商窗口');
-            $table->string('email')->comment('電子郵件');
+            $table->string('email')->nullable()->comment('電子郵件');
             $table->string('memo')->nullable()->comment('備註');
+            $table->tinyInteger('def_paytype')->comment('預設付款方式 0:現金 1:支票 2:匯款 3:外幣 4:應付帳款 5:其他');
             $table->timestamps();
             $table->softDeletes();
         });
