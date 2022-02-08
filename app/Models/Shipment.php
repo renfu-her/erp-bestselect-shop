@@ -26,6 +26,7 @@ class Shipment extends Model
     {
         return DB::table('shi_rule')->join('shi_group as group', 'group_id_fk', '=', 'group.id')
                                         ->join('shi_temps', 'temps_fk', '=', 'shi_temps.id')
+                                        ->join('shi_method', 'group.method_fk', '=', 'shi_method.id')
                                         ->orderBy('group.id')
                                         ->orderBy('min_price');
     }
@@ -73,11 +74,12 @@ class Shipment extends Model
         string $note
     ) {
         $tempsId = Temps::findTempsIdByName($temps);
+        $methodId = ShipmentMethod::findShipmentMethodIdByName($method);
 
         $groupId = ShipmentGroup::create([
                     'name' => $name,
                     'temps_fk' => $tempsId,
-                    'method' => $method,
+                    'method_fk' => $methodId,
                     'note' => $note
                 ])->id;
 
@@ -103,12 +105,13 @@ class Shipment extends Model
         string $note
     ) {
         $tempsId = Temps::findTempsIdByName($temps);
+        $methodId = ShipmentMethod::findShipmentMethodIdByName($method);
 
         ShipmentGroup::where('id', '=', $groupId)
                     ->update([
                         'name' => $name,
                         'temps_fk' => $tempsId,
-                        'method' => $method,
+                        'method_fk' => $methodId,
                         'note' => $note
                     ]);
         self::where('group_id_fk', '=', $groupId)
@@ -133,6 +136,7 @@ class Shipment extends Model
             ->where('group.id', '=', $groupId)
             ->join('shi_rule', 'group.id', '=', 'group_id_fk')
             ->join('shi_temps as _temps', '_temps.id', '=', 'group.temps_fk')
+            ->join('shi_method', 'group.method_fk', '=', 'shi_method.id')
             ->get();
     }
 

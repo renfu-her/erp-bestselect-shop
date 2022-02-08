@@ -14,7 +14,7 @@ class ShipmentGroup extends Model
     protected $fillable = [
         'name',
         'temps_fk',
-        'method',
+        'method_fk',
         'note',
     ];
 

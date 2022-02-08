@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Shipment;
 use App\Models\ShipmentGroup;
+use App\Models\ShipmentMethod;
 use App\Models\Temps;
 use Illuminate\Database\Seeder;
 
@@ -16,34 +17,37 @@ class ShipmentSeeder extends Seeder
      */
     public function run()
     {
+        $bestMethodId = ShipmentMethod::create(['method' => '喜鴻出貨'])->id;
+        $otherMethodId = ShipmentMethod::create(['method' => '廠商出貨'])->id;
+
         $bestFreezeGroupId = ShipmentGroup::create([
                                 'name' => 'BEST-宅配',
                                 'temps_fk' => Temps::findTempsIdByName('冷凍'),
-                                'method' => '喜鴻出貨',
+                                'method_fk' => $bestMethodId,
                                 'note' => '不含箱子費用、不含離島地區',
                             ])->id;
         $best990GroupId = ShipmentGroup::create([
                             'name' => 'BEST-宅配990免運',
                             'temps_fk' => Temps::findTempsIdByName('常溫'),
-                            'method' => '喜鴻出貨',
+                            'method_fk' => $bestMethodId,
                             'note' => '不含箱子費用、不含離島地區',
                         ])->id;
         $familyGroupId = ShipmentGroup::create([
                             'name' => '全家店到店',
                             'temps_fk' => Temps::findTempsIdByName('常溫'),
-                            'method' => '廠商出貨',
+                            'method_fk' => $otherMethodId,
                             'note' => '限本島、不含離島地區',
                         ])->id;
         $freeRefrigeShipmentGroupId = ShipmentGroup::create([
                                         'name' => '宅配免運費',
                                         'temps_fk' => Temps::findTempsIdByName('冷藏'),
-                                        'method' => '廠商出貨',
+                                        'method_fk' => $otherMethodId,
                                         'note' => '不含箱子費用、不含離島地區',
                                     ])->id;
         $taipeiNormalGroupId = ShipmentGroup::create([
                                 'name' => '台北公司自取',
                                 'temps_fk' => Temps::findTempsIdByName('常溫'),
-                                'method' => '喜鴻出貨',
+                                'method_fk' => $bestMethodId,
                                 'note' => '不含箱子費用、不含離島地區',
                             ])->id;
 

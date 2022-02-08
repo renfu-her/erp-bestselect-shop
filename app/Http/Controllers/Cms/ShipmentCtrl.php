@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Cms;
 use App\Http\Controllers\Controller;
 use App\Models\Shipment;
 use App\Models\ShipmentGroup;
+use App\Models\ShipmentMethod;
 use App\Models\Temps;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
@@ -55,7 +56,7 @@ class ShipmentCtrl extends Controller
             'method'      => 'create',
             'formAction'  => Route('cms.shipment.create'),
             'shipTemps'   => Temps::all(),
-            'shipMethods' => ShipmentGroup::all()->unique('method'),
+            'shipMethods' => ShipmentMethod::all()->unique('method'),
         ]);
         //
     }
@@ -125,7 +126,7 @@ class ShipmentCtrl extends Controller
             'shipName'    => $dataList[0]->name,
             'note'        => $dataList[0]->note,
             'shipTemps'   => Temps::all(),
-            'shipMethods' => ShipmentGroup::all()->unique('method'),
+            'shipMethods' => ShipmentMethod::all()->unique('method'),
         ]);
         //
     }
