@@ -261,6 +261,7 @@
                 $('select[name="is_above[]"]', $newShipRuleElem).val('true');
                 $('input[name="max_price[]"]', $newShipRuleElem).attr('type', 'hidden');
                 $('input[name="max_price[]"]', $newShipRuleElem).attr('value', lastMaxPrice);
+                $('input[name="min_price[]"]', $newShipRuleElem).prop('readonly', false);
                 // $('input[name="max_price[]"]', $newShipRuleElem).prop('readonly', true);
                 $('input[name="dlv_fee[]"]', $newShipRuleElem).val('');
                 $('input[name="dlv_cost[]"]', $newShipRuleElem).val('');
