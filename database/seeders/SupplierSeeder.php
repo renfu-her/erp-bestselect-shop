@@ -24,7 +24,8 @@ class SupplierSeeder extends Seeder
             'contact_address' => '台北市松江路148號8樓之1',
             'contact_person' => '廠商窗口',
             'email' => 'xxx@xxx.com',
-            'memo' => '第一家廠商'
+            'def_paytype' => Payment::cheque()->value,
+            'memo' => '第一家廠商',
         ])->id;
 
         $supplier2 = Supplier::create([
@@ -35,6 +36,7 @@ class SupplierSeeder extends Seeder
             'contact_address' => '新竹市湳雅街311巷14號',
             'contact_person' => '喜多方廠商窗口',
             'email' => 'ooo@ooo.com',
+            'def_paytype' => Payment::cash()->value,
             'memo' => '第二家廠商'
         ])->id;
 
@@ -46,18 +48,14 @@ class SupplierSeeder extends Seeder
         SupplierPayment::create([
             'supplier_id' => $supplier1,
             'type' => Payment::remittance()->value,
-            'bank_cname' => '合作金庫',
-            'bank_code' => '006',
-            'bank_acount' => '喜鴻旅行社',
-            'bank_numer' => '12345678901234',
-        ]);
-        SupplierPayment::create([
-            'supplier_id' => $supplier1,
-            'type' => Payment::remittance()->value,
             'bank_cname' => '喜多金庫',
             'bank_code' => '008',
             'bank_acount' => '喜多方科技有限公司',
             'bank_numer' => '01234123456789',
+        ]);
+        SupplierPayment::create([
+            'supplier_id' => $supplier2,
+            'type' => Payment::cash()->value,
         ]);
     }
 }
