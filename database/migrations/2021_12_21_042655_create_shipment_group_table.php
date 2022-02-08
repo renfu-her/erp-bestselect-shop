@@ -13,7 +13,7 @@ class CreateShipmentGroupTable extends Migration
      */
     public function up()
     {
-        Schema::create('shipment_group', function (Blueprint $table) {
+        Schema::create('shi_group', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique()->comment('快遞物流名稱');
 //            $table->unsignedBigInteger('shipment_group_id_fk');
@@ -28,6 +28,6 @@ class CreateShipmentGroupTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('shipment_group');
+        Schema::dropIfExists('shi_group');
     }
 }

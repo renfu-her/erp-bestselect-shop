@@ -9,7 +9,7 @@ class ShipmentGroup extends Model
 {
     use HasFactory;
 
-    protected $table = 'shipment_group';
+    protected $table = 'shi_group';
 
     protected $fillable = [
         'name'

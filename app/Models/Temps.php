@@ -9,7 +9,7 @@ class Temps extends Model
 {
     use HasFactory;
 
-    protected $table = 'shipment_temps';
+    protected $table = 'shi_temps';
 
     public static function findTempsIdByName(string $tempsName)
     {

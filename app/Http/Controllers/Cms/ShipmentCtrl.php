@@ -147,7 +147,7 @@ class ShipmentCtrl extends Controller
         $request->validate([
             'name' => ['required',
                        'string',
-                       Rule::unique('shipment_group')->ignore($ignoreId)],
+                       Rule::unique('shi_group')->ignore($ignoreId)],
             'temps' => 'required|string',
             'method' => 'required|string',
             'is_above.*' => 'required|string',

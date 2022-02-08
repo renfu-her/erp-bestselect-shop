@@ -13,14 +13,14 @@ class CreateShipmentTable extends Migration
      */
     public function up()
     {
-        Schema::create('shipment', function (Blueprint $table) {
+        Schema::create('shi_rule', function (Blueprint $table) {
             $table->id();
 
             $table->unsignedBigInteger('group_id_fk')->comment('快遞物流名稱group id,foreign key');
-            $table->foreign('group_id_fk')->references('id')->on('shipment_group');
+            $table->foreign('group_id_fk')->references('id')->on('shi_group');
 
             $table->unsignedBigInteger('temps_fk')->comment('運送溫度名稱,foreign key');
-            $table->foreign('temps_fk')->references('id')->on('shipment_temps');
+            $table->foreign('temps_fk')->references('id')->on('shi_temps');
 
             $table->integer('min_price')->comment('最少消費金額');
             $table->integer('max_price')->comment('最多消費金額');
@@ -41,6 +41,6 @@ class CreateShipmentTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('shipment');
+        Schema::dropIfExists('shi_rule');
     }
 }

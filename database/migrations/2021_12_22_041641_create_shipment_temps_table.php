@@ -13,7 +13,7 @@ class CreateShipmentTempsTable extends Migration
      */
     public function up()
     {
-        Schema::create('shipment_temps', function (Blueprint $table) {
+        Schema::create('shi_temps', function (Blueprint $table) {
             $table->id();
             $table->string('temps')->comment('運送溫度');
             $table->timestamps();
@@ -27,6 +27,6 @@ class CreateShipmentTempsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('shipment_temps');
+        Schema::dropIfExists('shi_temps');
     }
 }

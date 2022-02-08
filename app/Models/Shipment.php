@@ -11,7 +11,7 @@ class Shipment extends Model
 {
     use HasFactory;
 
-    protected $table = 'shipment';
+    protected $table = 'shi_rule';
     protected $fillable = [
         'group_id_fk',
         'temps_fk',
@@ -27,8 +27,8 @@ class Shipment extends Model
 
     public function getShipmentList()
     {
-        return DB::table('shipment')->join('shipment_group as group', 'group_id_fk', '=', 'group.id')
-                                        ->join('shipment_temps', 'temps_fk', '=', 'shipment_temps.id')
+        return DB::table('shi_rule')->join('shi_group as group', 'group_id_fk', '=', 'group.id')
+                                        ->join('shi_temps', 'temps_fk', '=', 'shi_temps.id')
                                         ->orderBy('group.id')
                                         ->orderBy('min_price');
     }
@@ -130,10 +130,10 @@ class Shipment extends Model
 
     public function getEditShipmentData(int $groupId)
     {
-        return DB::table('shipment_group as group')
+        return DB::table('shi_group as group')
             ->where('group.id', '=', $groupId)
-            ->join('shipment', 'group.id', '=', 'group_id_fk')
-            ->join('shipment_temps as _temps', '_temps.id', '=', 'shipment.temps_fk')
+            ->join('shi_rule', 'group.id', '=', 'group_id_fk')
+            ->join('shi_temps as _temps', '_temps.id', '=', 'shi_rule.temps_fk')
             ->get();
     }
 
