@@ -154,13 +154,13 @@
                         <th scope="col">訂單編號</th>
                         <th scope="col">出貨單號</th>
                         <th scope="col">訂購日期</th>
-                        <th scope="col">顧客</th>
+                        <th scope="col">購買人</th>
                         <th scope="col">銷售通路</th>
                         <th scope="col">物態</th>
                         <th scope="col">收款單號</th>
                         <th scope="col">客戶物流方式</th>
                         <th scope="col">實際物流</th>
-                        <th scope="col">包裹號碼</th>
+                        <th scope="col">包裹編號</th>
                         <th scope="col">退貨狀態</th>
                         <th scope="col" class="text-center">明細</th>
                     </tr>
