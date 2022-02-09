@@ -11,10 +11,11 @@ use App\Models\ProductSpecItem;
 use App\Models\ProductStyle;
 use App\Models\ProductStyleCombo;
 use App\Models\SaleChannel;
+use App\Models\ShipmentCategory;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Route;
+// use Illuminate\Routing\Route;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
@@ -572,10 +573,30 @@ class ProductCtrl extends Controller
     public function editSetting($id)
     {
         $product = self::product_data($id);
+        $currentShipment = array_map(function($n){
+            return $n->group_id;
+        },Product::shipmentList($id)->get()->toArray());
+      
         return view('cms.commodity.product.settings', [
             'product' => $product,
             'breadcrumb_data' => $product,
+            'shipments' => ShipmentCategory::categoryWithGroup(),
+            'currentShipment'=>$currentShipment
         ]);
+    }
+
+    public function updateSetting(Request $request, $id)
+    {
+
+        $d = $request->all();
+        foreach ($d['category_id'] as $key => $value) {
+            Product::changeShipment($id, $value, $d['group_id'][$key]);
+        }
+
+        wToast('儲存完畢');
+        return redirect()->back();
+
+        //changeShipment
     }
 
     /**
@@ -598,7 +619,7 @@ class ProductCtrl extends Controller
     {
         $product = self::product_data($id);
         $styles = ProductStyle::styleList($id)->get()->toArray();
-      
+
         return view('cms.commodity.product.combo', [
             'product' => $product,
             'styles' => $styles,
@@ -608,15 +629,15 @@ class ProductCtrl extends Controller
 
     public function updateCombo(Request $request, $id)
     {
-        
+
         $d = $request->all();
         $sale_id = (SaleChannel::where('code', '01')->select('id')->get()->first())->id;
-       
+
         if (isset($d['sid'])) {
             for ($i = 0; $i < count($d['sid']); $i++) {
                 if (isset($d['sold_out_event'][$i])) {
                     ProductStyle::where('id', $d['sid'][$i])->update(['sold_out_event' => $d['sold_out_event'][$i]]);
-                    
+
                     SaleChannel::changePrice($sale_id, $d['sid'][$i], $d['dealer_price'][$i], $d['price'][$i], $d['origin_price'][$i], $d['bonus'][$i], $d['dividend'][$i]);
                 }
             }
