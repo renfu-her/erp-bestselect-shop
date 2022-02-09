@@ -14,6 +14,40 @@
             <div class="card-header">@if ($method === 'create') 新增 @else 編輯 @endif 物流運費</div>
             <div class="card-body">
                 <div class="row">
+                    <x-b-form-group name="category" title="物流分類" required="true">
+                        <div class="px-1">
+                            @foreach($shipCategories as $key => $shipCategory)
+                                @if($shipCategory->category === '全家')
+                                    <div class="form-check form-check-inline">
+                                        <label class="form-check-label opacity-50">
+                                            <input class="form-check-input @error('category') is-invalid @enderror"
+                                                   name="category"
+                                                   type="radio"
+                                                   required
+                                                   disabled
+                                            >
+                                            全家(待串接開發)
+                                        </label>
+                                    </div>
+                                @else
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label">
+                                        <input class="form-check-input @error('category') is-invalid @enderror"
+                                               name="category"
+                                               value="{{ $shipCategory->category }}"
+                                               type="radio"
+                                               required
+                                               @if ($method == 'edit' &&
+                                                   old('category', $dataList[0]->category ?? '') == $shipCategory->category)
+                                               checked
+                                            @endif
+                                        > {{ $shipCategory->category }}
+                                    </label>
+                                </div>
+                                @endif
+                            @endforeach
+                        </div>
+                    </x-b-form-group>
                     <x-b-form-group name="name" title="物流名稱" required="true">
                         <input class="form-control @error('name') is-invalid @enderror"
                             name="name" placeholder="請輸入物流名稱"
@@ -87,6 +121,7 @@
                         </thead>
                         <tbody class="-appendClone">
                         @if ($method === 'create')
+{{--                        @if (count(old('min_price', $dataList ?? [])) <= 1)--}}
                             <tr>
                                 <td></td>
                                 <td>

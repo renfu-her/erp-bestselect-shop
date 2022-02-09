@@ -45,6 +45,15 @@ class CreateProductsTable extends Migration
             $table->integer('product_id')->comment('產品id');
             $table->integer('supplier_id')->comment('廠商id');
         });
+
+        Schema::create('prd_product_shipment', function (Blueprint $table) {
+            $table->integer('product_id')->comment('產品id');
+            $table->integer('category_id')->comment('物流id');
+            $table->integer('group_id')->comment('物流群組id');
+
+            $table->unique(['product_id', 'category_id','group_id']);
+
+        });
     }
 
     /**
@@ -57,5 +66,6 @@ class CreateProductsTable extends Migration
         Schema::dropIfExists('prd_products');
         Schema::dropIfExists('prd_product_images');
         Schema::dropIfExists('prd_product_supplier');
+        Schema::dropIfExists('prd_product_shipment');
     }
 }

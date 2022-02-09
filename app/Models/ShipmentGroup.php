@@ -12,6 +12,7 @@ class ShipmentGroup extends Model
     protected $table = 'shi_group';
 
     protected $fillable = [
+        'category_fk',
         'name',
         'temps_fk',
         'method_fk',

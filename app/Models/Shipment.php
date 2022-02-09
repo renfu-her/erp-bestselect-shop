@@ -22,18 +22,21 @@ class Shipment extends Model
         'is_above',
     ];
 
-    public function getShipmentList()
+    public function getShipmentList(int $categoryId = 1)
     {
         return DB::table('shi_rule')->join('shi_group as group', 'group_id_fk', '=', 'group.id')
+                                        ->where('group.category_fk', '=', $categoryId)
                                         ->join('shi_temps', 'temps_fk', '=', 'shi_temps.id')
                                         ->join('shi_method', 'group.method_fk', '=', 'shi_method.id')
-                                        ->orderBy('group.id')
-                                        ->orderBy('min_price');
+                                        ->orderBy('temps_fk')
+                                        ->orderBy('group.name')
+                                        ->orderBy('group.method_fk');
     }
 
     public function getDataFieldFromFormRequest(Request $request)
     {
         $req = $request->all();
+        $category = $req['category'];
         $name = $req['name'];
         $temps = $req['temps'];
         $method = $req['method'];
@@ -58,6 +61,7 @@ class Shipment extends Model
         }
 
         return [
+            'category' => $category,
             'name' => $name ,
             'temps' => $temps ,
             'method' => $method ,
@@ -68,6 +72,7 @@ class Shipment extends Model
 
     public function storeShipRule(
         array $ruleNumArray,
+        string $category,
         string $name,
         string $temps,
         string $method,
@@ -75,8 +80,10 @@ class Shipment extends Model
     ) {
         $tempsId = Temps::findTempsIdByName($temps);
         $methodId = ShipmentMethod::findShipmentMethodIdByName($method);
+        $categoryId = ShipmentCategory::findCategoryIdByName($category);
 
         $groupId = ShipmentGroup::create([
+                    'category_fk' => $categoryId,
                     'name' => $name,
                     'temps_fk' => $tempsId,
                     'method_fk' => $methodId,
@@ -99,6 +106,7 @@ class Shipment extends Model
     public function updateShipRule(
         int $groupId,
         array $ruleNumArray,
+        string $category,
         string $name,
         string $temps,
         string $method,
@@ -106,9 +114,11 @@ class Shipment extends Model
     ) {
         $tempsId = Temps::findTempsIdByName($temps);
         $methodId = ShipmentMethod::findShipmentMethodIdByName($method);
+        $categoryId = ShipmentCategory::findCategoryIdByName($category);
 
         ShipmentGroup::where('id', '=', $groupId)
                     ->update([
+                        'category_fk' => $categoryId,
                         'name' => $name,
                         'temps_fk' => $tempsId,
                         'method_fk' => $methodId,
@@ -134,6 +144,7 @@ class Shipment extends Model
     {
         return DB::table('shi_group as group')
             ->where('group.id', '=', $groupId)
+            ->join('shi_category', 'shi_category.id', '=', 'group.category_fk')
             ->join('shi_rule', 'group.id', '=', 'group_id_fk')
             ->join('shi_temps as _temps', '_temps.id', '=', 'group.temps_fk')
             ->join('shi_method', 'group.method_fk', '=', 'shi_method.id')

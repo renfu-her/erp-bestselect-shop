@@ -313,7 +313,7 @@ class Product extends Model
             ->whereNull('p.deleted_at')
             ->whereNotNull('s.styles')
             ->get()->first();
-      
+
         if (!$re) {
             return;
         }
@@ -325,6 +325,27 @@ class Product extends Model
         }, json_decode($re->imgs));
 
         return $re;
+    }
+
+    public static function changeShipment($product_id, $category_id, $group_id)
+    {
+
+        DB::table('prd_product_shipment')->where('product_id', $product_id)
+            ->where('category_id', $category_id)
+            ->delete();
+        if ($group_id != 0) {
+            DB::table('prd_product_shipment')->insert([
+                'product_id' => $product_id,
+                'category_id' => $category_id,
+                'group_id' => $group_id,
+            ]);
+        }
+
+    }
+
+    public static function shipmentList($product_id)
+    {
+        return DB::table('prd_product_shipment')->where('product_id', $product_id);
     }
 
 }

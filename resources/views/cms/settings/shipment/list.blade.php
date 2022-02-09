@@ -20,7 +20,24 @@
             筆
         </div> --}}
     </div>
-
+    <ul class="nav nav-tabs">
+        @foreach ($categories as $key => $category)
+            @if($category->category === '全家')
+                <li class="nav-item">
+                    <a class="nav-link disabled">
+                        全家(待串接開發)
+                    </a>
+                </li>
+            @else
+                <li class="nav-item">
+                    <a class="nav-link {{ isActive($category->id, $currentCategoryId) }} "
+                       href="{{ Route('cms.shipment.category', ['categoryId' => $category->id], true) }}">
+                        {{ $category->category }}
+                    </a>
+                </li>
+            @endif
+        @endforeach
+    </ul>
     <div class="table-responsive tableOverBox">
         <table class="table table-striped tableList">
             <thead>
@@ -79,7 +96,7 @@
                                     @foreach ($uData->group as $rule)
                                         <tr>
                                             <td>$ {{ number_format($rule->min_price) }} ~
-                                                @if ($rule->is_above == 'true') 以上 
+                                                @if ($rule->is_above == 'true') 以上
                                                 @else $ {{ number_format($rule->max_price) }} @endif
                                             </td>
                                             <td class="text-end">$ {{ number_format($rule->dlv_fee) }}</td>
