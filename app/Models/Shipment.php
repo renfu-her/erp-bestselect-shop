@@ -28,8 +28,9 @@ class Shipment extends Model
                                         ->where('group.category_fk', '=', $categoryId)
                                         ->join('shi_temps', 'temps_fk', '=', 'shi_temps.id')
                                         ->join('shi_method', 'group.method_fk', '=', 'shi_method.id')
-                                        ->orderBy('group.id')
-                                        ->orderBy('min_price');
+                                        ->orderBy('temps_fk')
+                                        ->orderBy('group.name')
+                                        ->orderBy('group.method_fk');
     }
 
     public function getDataFieldFromFormRequest(Request $request)
