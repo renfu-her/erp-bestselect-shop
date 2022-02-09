@@ -39,6 +39,8 @@ class ShipmentCtrl extends Controller
             }
         }
         return view('cms.settings.shipment.list', [
+            'categories' => ShipmentCategory::all(),
+            'currentCategoryId' => 1,
             'dataList'          => $dataList,
             'uniqueDataList'    => $uniqueDataList,
             'data_per_page'     => $data_per_page,
@@ -179,6 +181,33 @@ class ShipmentCtrl extends Controller
         );
 
         return redirect(Route('cms.shipment.index'));
+    }
+
+    public function categorize(Request $request, Shipment $shipment, int $categoryId)
+    {
+        $query = $request->query();
+        $data_per_page = Arr::get($query, 'data_per_page', 10);
+        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
+        $shipList = $shipment->getShipmentList($categoryId);
+        $dataList = $shipList->paginate($data_per_page)->appends($query);
+
+        $uniqueGroupId = array();
+        $uniqueDataList = array();
+        foreach ($dataList as $datum) {
+            if (!in_array($datum->group_id_fk, $uniqueGroupId)) {
+                $uniqueGroupId[] = $datum->group_id_fk;
+                $group = $shipment->getEditShipmentData($datum->group_id_fk);
+                $datum->group = $group;
+                $uniqueDataList[] = $datum;
+            }
+        }
+        return view('cms.settings.shipment.list', [
+            'categories' => ShipmentCategory::all(),
+            'currentCategoryId' => $categoryId,
+            'dataList'          => $dataList,
+            'uniqueDataList'    => $uniqueDataList,
+            'data_per_page'     => $data_per_page,
+        ]);
     }
 
     /**

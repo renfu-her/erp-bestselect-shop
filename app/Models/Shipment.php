@@ -22,9 +22,10 @@ class Shipment extends Model
         'is_above',
     ];
 
-    public function getShipmentList()
+    public function getShipmentList(int $categoryId = 1)
     {
         return DB::table('shi_rule')->join('shi_group as group', 'group_id_fk', '=', 'group.id')
+                                        ->where('group.category_fk', '=', $categoryId)
                                         ->join('shi_temps', 'temps_fk', '=', 'shi_temps.id')
                                         ->join('shi_method', 'group.method_fk', '=', 'shi_method.id')
                                         ->orderBy('group.id')
