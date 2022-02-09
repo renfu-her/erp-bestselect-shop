@@ -22,28 +22,14 @@ class ShipmentCtrl extends Controller
      */
     public function index(Request $request, Shipment $shipment)
     {
-        $query = $request->query();
-        $data_per_page = Arr::get($query, 'data_per_page', 10);
-        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
-        $shipList = $shipment->getShipmentList();
-        $dataList = $shipList->paginate($data_per_page)->appends($query);
+        $shipData = $this->getShipData($request, $shipment);
 
-        $uniqueGroupId = array();
-        $uniqueDataList = array();
-        foreach ($dataList as $datum) {
-            if (!in_array($datum->group_id_fk, $uniqueGroupId)) {
-                $uniqueGroupId[] = $datum->group_id_fk;
-                $group = $shipment->getEditShipmentData($datum->group_id_fk);
-                $datum->group = $group;
-                $uniqueDataList[] = $datum;
-            }
-        }
         return view('cms.settings.shipment.list', [
             'categories' => ShipmentCategory::all(),
-            'currentCategoryId' => 1,
-            'dataList'          => $dataList,
-            'uniqueDataList'    => $uniqueDataList,
-            'data_per_page'     => $data_per_page,
+            'currentCategoryId' => $shipData['currentCategoryId'],
+            'dataList'          => $shipData['dataList'],
+            'uniqueDataList'    => $shipData['uniqueDataList'],
+            'data_per_page'     => $shipData['data_per_page'],
         ]);
         //
     }
@@ -185,6 +171,19 @@ class ShipmentCtrl extends Controller
 
     public function categorize(Request $request, Shipment $shipment, int $categoryId)
     {
+        $shipData = $this->getShipData($request, $shipment, $categoryId);
+
+        return view('cms.settings.shipment.list', [
+            'categories' => ShipmentCategory::all(),
+            'currentCategoryId' => $shipData['currentCategoryId'],
+            'dataList'          => $shipData['dataList'],
+            'uniqueDataList'    => $shipData['uniqueDataList'],
+            'data_per_page'     => $shipData['data_per_page'],
+        ]);
+    }
+
+    public function getShipData(Request $request, Shipment $shipment, int $categoryId = 1)
+    {
         $query = $request->query();
         $data_per_page = Arr::get($query, 'data_per_page', 10);
         $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
@@ -201,13 +200,13 @@ class ShipmentCtrl extends Controller
                 $uniqueDataList[] = $datum;
             }
         }
-        return view('cms.settings.shipment.list', [
-            'categories' => ShipmentCategory::all(),
+
+        return [
             'currentCategoryId' => $categoryId,
-            'dataList'          => $dataList,
-            'uniqueDataList'    => $uniqueDataList,
-            'data_per_page'     => $data_per_page,
-        ]);
+            'data_per_page' => $data_per_page,
+            'dataList' => $dataList,
+            'uniqueDataList' => $uniqueDataList,
+        ];
     }
 
     /**
