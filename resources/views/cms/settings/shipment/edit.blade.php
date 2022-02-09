@@ -17,6 +17,19 @@
                     <x-b-form-group name="category" title="物流分類" required="true">
                         <div class="px-1">
                             @foreach($shipCategories as $key => $shipCategory)
+                                @if($shipCategory->category === '全家')
+                                    <div class="form-check form-check-inline">
+                                        <label class="form-check-label bg-light">
+                                            <input class="form-check-input @error('category') is-invalid @enderror"
+                                                   name="category"
+                                                   type="radio"
+                                                   required
+                                                   disabled
+                                            >
+                                            全家(待串接開發)
+                                        </label>
+                                    </div>
+                                @else
                                 <div class="form-check form-check-inline">
                                     <label class="form-check-label">
                                         <input class="form-check-input @error('category') is-invalid @enderror"
@@ -31,6 +44,7 @@
                                         > {{ $shipCategory->category }}
                                     </label>
                                 </div>
+                                @endif
                             @endforeach
                         </div>
                     </x-b-form-group>
@@ -107,6 +121,7 @@
                         </thead>
                         <tbody class="-appendClone">
                         @if ($method === 'create')
+{{--                        @if (count(old('min_price', $dataList ?? [])) <= 1)--}}
                             <tr>
                                 <td></td>
                                 <td>
