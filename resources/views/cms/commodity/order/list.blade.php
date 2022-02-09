@@ -6,15 +6,15 @@
         <div class="card shadow p-4 mb-4">
             <h6>搜尋條件</h6>
             <div class="row">
-                <div class="col-12 col-sm-6 mb-3">
+                <div class="col-12 col-sm-6 col-xxl-3 mb-3">
                     <label class="form-label">訂單關鍵字</label>
                     <input class="form-control" type="text" name="" placeholder="請輸入訂單編號、出貨單號、訂收件人姓名/電話/地址、商品關鍵字">
                 </div>
-                <div class="col-12 col-sm-6 mb-3">
+                <div class="col-12 col-sm-6 col-xxl-3 mb-3">
                     <label class="form-label">商品負責人</label>
                     <input class="form-control" type="text" name="" placeholder="請輸入商品負責人">
                 </div>
-                <div class="col-12 col-sm-6 mb-3">
+                <div class="col-12 col-sm-6 col-xxl-3 mb-3">
                     <label class="form-label">業務員姓名</label>
                     <select name="" class="-select2 -single form-select" data-placeholder="請單選">
                         <option value="" selected disabled>請選擇</option>
@@ -23,7 +23,7 @@
                         <option value="3">item 3</option>
                     </select>
                 </div>
-                <div class="col-12 col-sm-6 mb-3">
+                <div class="col-12 col-sm-6 col-xxl-3 mb-3">
                     <label class="form-label">分潤人姓名</label>
                     <select name="" class="form-select">
                         <option value="" selected>請選擇採購廠商</option>
@@ -131,11 +131,11 @@
 
     <div class="card shadow p-4 mb-4">
         <div class="row justify-content-end mb-4">
-            {{-- <div class="col">
-                <a href="" class="btn btn-primary">
+            <div class="col">
+                <a href="{{ Route('cms.order.create') }}" class="btn btn-primary">
                     <i class="bi bi-plus-lg"></i> 新增訂單
                 </a>
-            </div> --}}
+            </div>
             <div class="col-auto">
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
@@ -183,7 +183,7 @@
                             <td>36354</td>
                             <td>-</td>
                             <td class="text-center">
-                                <a href="{{ Route('cms.order.edit', ['id' => 1]) }}"
+                                <a href="{{ Route('cms.order.detail', ['id' => 1]) }}"
                                     data-bs-toggle="tooltip" title="明細"
                                     class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-card-list"></i>
@@ -205,7 +205,7 @@
                             <td>33423</td>
                             <td>-</td>
                             <td class="text-center">
-                                <a href="{{ Route('cms.order.edit', ['id' => 1]) }}"
+                                <a href="{{ Route('cms.order.detail', ['id' => 1]) }}"
                                     data-bs-toggle="tooltip" title="明細"
                                     class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-card-list"></i>

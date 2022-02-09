@@ -31,6 +31,7 @@ class OrderCtrl extends Controller
     public function create()
     {
         //
+        return view('cms.commodity.order.edit');
     }
 
     /**
@@ -52,20 +53,19 @@ class OrderCtrl extends Controller
      */
     public function show($id)
     {
-        //
+        // 
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Show the data for order detail.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function detail($id)
     {
         $sn = '21111801';   // 等有值改
-        return view('cms.commodity.order.edit', [
-            'method' => 'edit',
+        return view('cms.commodity.order.detail', [
             'sn' => $sn,
             'breadcrumb_data' => $sn]);
     }

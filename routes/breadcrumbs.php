@@ -144,9 +144,13 @@ Breadcrumbs::for('cms.order.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
     $trail->push('訂單管理', route('cms.order.index'));
 });
-Breadcrumbs::for('cms.order.edit', function (BreadcrumbTrail $trail, $value) {
+Breadcrumbs::for('cms.order.detail', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
     $trail->push('[單號：' . $value . '] 訂單明細');
+});
+Breadcrumbs::for('cms.order.create', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('新增訂單');
 });
 
 /** 
