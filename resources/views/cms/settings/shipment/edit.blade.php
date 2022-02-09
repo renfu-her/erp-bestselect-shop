@@ -19,7 +19,7 @@
                             @foreach($shipCategories as $key => $shipCategory)
                                 @if($shipCategory->category === '全家')
                                     <div class="form-check form-check-inline">
-                                        <label class="form-check-label bg-light">
+                                        <label class="form-check-label opacity-50">
                                             <input class="form-check-input @error('category') is-invalid @enderror"
                                                    name="category"
                                                    type="radio"
