@@ -448,4 +448,20 @@ class PurchaseItem extends Model
 
         return $result2;
     }
+
+    //採購商品負責人列表
+    public static function getPurchaseChargemanList($purchase_id) {
+        $result = DB::table('pcs_purchase_items as items')
+            ->leftJoin('prd_product_styles as styles', 'styles.id', '=', 'items.product_style_id')
+            ->leftJoin('prd_products as products', 'products.id', '=', 'styles.product_id')
+            ->leftJoin('usr_users as users', 'users.id', '=', 'products.user_id')
+            ->select('users.id as user_id'
+                , 'users.name as user_name'
+            )
+            ->where('items.purchase_id', '=',  $purchase_id)
+            ->whereNull('items.deleted_at')
+            ->groupBy('users.id');
+
+        return $result;
+    }
 }

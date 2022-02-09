@@ -14,20 +14,13 @@
             </div>
             <div class="col-12 col-sm-6 mb-3">
                 <label class="form-label">付款單號 <span class="text-danger">*</span></label>
-                <input type="text" name="" class="form-control" value="系統產生" required>
+                <input type="text" name="" class="form-control" value="系統產生" required readonly>
             </div>
             <div class="col-12 col-sm-6 mb-3">
                 <label class="form-label">支付對象 <span class="text-danger">*</span></label>
-                <select class="form-select -select2 -single @error('supplier') is-invalid @enderror"
-                        aria-label="支付對象-採購廠商" required>
-                    <option value="" selected disabled>請選擇</option>
-                    @foreach ($supplierList as $supplierItem)
-                        <option value="{{ $supplierItem->id }}"
-                                @if ($supplierItem->id == old('supplier', $purchaseData->supplier_id ?? '')) selected @endif>
-                            {{ $supplierItem->name }}@if ($supplierItem->nickname)（{{ $supplierItem->nickname }}） @endif
-                        </option>
-                    @endforeach
-                </select>
+
+                <input type="hidden" name="supplier_id" class="form-control" value="{{$purchaseData->supplier_id}}" >
+                <input type="text" name="supplier_name" class="form-control" value="{{$purchaseData->supplier_name}} @if ($purchaseData->supplier_nickname)（{{ $purchaseData->supplier_nickname }}） @endif" readonly>
             </div>
             <div class="col-12 col-sm-6 mb-3">
                 <label class="form-label">類型</label>
@@ -35,10 +28,13 @@
             </div>
             <div class="col-12 col-sm-6 mb-3">
                 <label class="form-label">商品負責人 <span class="text-danger">*</span></label>
-                <select class="form-select -select2 -multiple" multiple name="" data-placeholder="可多選" required>
-                    <option value="1" selected>item 1</option>
-                    <option value="2">item 2</option>
-                    <option value="3" selected>item 3</option>
+                <select class="form-select -select2 -multiple" multiple name="chargeman" data-placeholder="可多選" required disabled>
+                    @foreach ($purchaseChargemanList as $chargemanItem)
+                        <option value="{{ $chargemanItem->user_id }}"
+                                @if ($chargemanItem->user_id == old('chargeman', $chargemanItem->user_id ?? '')) selected @endif>
+                            {{ $chargemanItem->user_name }}
+                        </option>
+                    @endforeach
                 </select>
             </div>
         </div>
@@ -52,49 +48,69 @@
                 <div class="px-1 pt-1">
                     <div class="form-check mb-3">
                         <label class="form-check-label" data-type="現金">
-                            <input class="form-check-input" name="type" value="0" type="radio" required>
+                            <input class="form-check-input" name="paytype" value="0" type="radio" @if('0' == old('paytype.0', $supplier->def_paytype ?? '')) checked @endif>
                         </label>
                     </div>
                     <div class="form-check mb-3">
                         <label class="form-check-label" data-type="外幣">
-                            <input class="form-check-input" name="type" value="3" type="radio" required>
+                            <input class="form-check-input" name="paytype" value="3" type="radio" @if('0' == old('paytype.1', $supplier->def_paytype ?? '')) checked @endif>
                         </label>
                     </div>
                     <div class="form-check mb-3">
                         <label class="form-check-label" data-type="匯款">
-                            <input class="form-check-input" name="type" value="2" type="radio" required>
+                            <input class="form-check-input" name="paytype" value="2" type="radio" @if('2' == old('paytype.2', $supplier->def_paytype ?? '')) checked @endif>
                         </label>
                         <div class="row" style="display: none;">
+                            @php
+                                $remittanceData = null;
+                                foreach ($payList ?? [] as $key => $value) {
+                                    if ('2' == $value['type']) {
+                                        $remittanceData = $value;
+                                        break;
+                                    }
+                                }
+                            @endphp
                             <x-b-form-group name="bank_cname" title="匯款銀行" required="true" class="col-12 col-sm-6">
-                                <input class="form-control @error('bank_cname') is-invalid @enderror" name="bank_cname" value="{{ old('bank_cname', $data->bank_cname ?? '') }}" />
+                                <input class="form-control @error('bank_cname') is-invalid @enderror" name="bank_cname" value="{{ old('bank_cname', $remittanceData['bank_cname'] ?? '') }}" />
                             </x-b-form-group>
                             <x-b-form-group name="bank_code" title="匯款銀行代碼" required="true" class="col-12 col-sm-6">
-                                <input class="form-control @error('bank_code') is-invalid @enderror" name="bank_code" value="{{ old('bank_code', $data->bank_code ?? '') }}" />
+                                <input class="form-control @error('bank_code') is-invalid @enderror" name="bank_code" value="{{ old('bank_code', $remittanceData['bank_code'] ?? '') }}" />
                             </x-b-form-group>
                             <x-b-form-group name="bank_acount" title="匯款戶名" required="true" class="col-12 col-sm-6">
-                                <input class="form-control @error('bank_acount') is-invalid @enderror" name="bank_acount" value="{{ old('bank_acount', $data->bank_acount ?? '') }}" />
+                                <input class="form-control @error('bank_acount') is-invalid @enderror" name="bank_acount" value="{{ old('bank_acount', $remittanceData['bank_acount'] ?? '') }}" />
                             </x-b-form-group>
                             <x-b-form-group name="bank_numer" title="匯款帳號" required="true" class="col-12 col-sm-6">
-                                <input class="form-control @error('bank_numer') is-invalid @enderror" name="bank_numer" value="{{ old('bank_numer', $data->bank_numer ?? '') }}" />
+                                <input class="form-control @error('bank_numer') is-invalid @enderror" name="bank_numer" value="{{ old('bank_numer', $remittanceData['bank_numer'] ?? '') }}" />
                             </x-b-form-group>
                         </div>
                     </div>
                     <div class="form-check mb-3">
                         <label class="form-check-label" data-type="支票">
-                            <input class="form-check-input" name="type" value="1" type="radio" required>
+                            <input class="form-check-input" name="paytype" value="1" type="radio" @if('1' == old('paytype.3', $supplier->def_paytype ?? '')) checked @endif>
                         </label>
                         <div class="row" style="display: none;">
+                            @php
+                                $chequeData = null;
+                                foreach ($payList ?? [] as $key => $value) {
+                                    if ('1' == $value['type']) {
+                                        $chequeData = $value;
+                                        break;
+                                    }
+                                }
+                            @endphp
                             <x-b-form-group name="cheque_payable" title="支票抬頭" required="true" class="col-12">
-                                <input class="form-control @error('cheque_payable') is-invalid @enderror" name="cheque_payable" value="{{ old('cheque_payable', $data->cheque_payable ?? '') }}" />
+                                <input class="form-control @error('cheque_payable') is-invalid @enderror" name="cheque_payable" value="{{ old('cheque_payable', $chequeData['cheque_payable'] ?? '') }}" />
                             </x-b-form-group>
                         </div>
                     </div>
                     <div class="form-check mb-3">
                         <label class="form-check-label" data-type="其他">
-                            <input class="form-check-input" name="type" value="5" type="radio" required>
+                            <input class="form-check-input" name="paytype" value="5" type="radio" @if('5' == old('paytype.4', $supplier->def_paytype ?? '')) checked @endif>
                         </label>
                     </div>
-                    <div class="invalid-feedback">錯誤訊息</div>
+                    @error('paytype')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
             </fieldset>
             <div class="col-12 col-sm-6 mb-3">
@@ -160,11 +176,11 @@
     @push('sub-scripts')
         <script>
             checkType();
-            $('input[name="type"]').on('change', function () {
+            $('input[name="paytype"]').on('change', function () {
                 checkType();
             });
             function checkType() {
-                const $checked = $('input[name="type"]:checked');
+                const $checked = $('input[name="paytype"]:checked');
 
                 $('fieldset.-payType .form-check > .row').hide();
                 $('fieldset.-payType .form-check > .row input').prop({

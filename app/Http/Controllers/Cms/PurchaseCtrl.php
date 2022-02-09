@@ -10,6 +10,7 @@ use App\Models\PurchaseInbound;
 use App\Models\PurchaseItem;
 use App\Models\PurchaseLog;
 use App\Models\Supplier;
+use App\Models\SupplierPayment;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -435,13 +436,26 @@ class PurchaseCtrl extends Controller
      */
     public function payDeposit(Request $request, $id) {
         $purchaseData = Purchase::getPurchase($id)->first();
-        $supplierList = Supplier::getSupplierList()->get();
+        $supplier = Supplier::where('id', '=', $purchaseData->supplier_id)->get()->first();
+        $purchaseChargemanList = PurchaseItem::getPurchaseChargemanList($id)->get();
+
+        $payList = SupplierPayment::where('supplier_id', '=', $purchaseData->supplier_id)->get()->toArray();
+        $payTypeList = [];
+        if (isset($payList)) {
+            foreach ($payList as $key => $value) {
+                array_push($payTypeList, $value['type']);
+            }
+        }
+//        dd($supplier);
 
         return view('cms.commodity.purchase.receipt', [
             'type' => 'deposit',
             'id' => $id,
             'purchaseData' => $purchaseData,
-            'supplierList' => $supplierList,
+            'supplier' => $supplier,
+            'payTypeList' => $payTypeList,
+            'payList' => $payList,
+            'purchaseChargemanList' => $purchaseChargemanList,
             'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
         ]);
     }
