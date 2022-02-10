@@ -15,6 +15,7 @@ class CreateShipmentCategoryTable extends Migration
     {
         Schema::create('shi_category', function (Blueprint $table) {
             $table->id();
+            $table->string('code')->unique()->comment('物流分類的英文代號');
             $table->string('category')->unique()->comment('物流分類');
             $table->timestamps();
         });

@@ -18,9 +18,12 @@ class ShipmentSeeder extends Seeder
      */
     public function run()
     {
-        $shipmentCategoryHomeDeliveryId = ShipmentCategory::create(['category' => '宅配'])->id;
-        $shipmentCategorySelfTakeId = ShipmentCategory::create(['category' => '自取'])->id;
-        $shipmentCategoryFamilyId = ShipmentCategory::create(['category' => '全家'])->id;
+        $shipmentCategoryHomeDeliveryId = ShipmentCategory::create(['code' => 'deliver',
+                                                                    'category' => '宅配'])->id;
+        $shipmentCategorySelfTakeId = ShipmentCategory::create(['code' => 'pickup',
+                                                                'category' => '自取'])->id;
+        $shipmentCategoryFamilyId = ShipmentCategory::create(['code' => 'family',
+                                                              'category' => '全家'])->id;
         $bestMethodId = ShipmentMethod::create(['method' => '喜鴻出貨'])->id;
         $otherMethodId = ShipmentMethod::create(['method' => '廠商出貨'])->id;
 
