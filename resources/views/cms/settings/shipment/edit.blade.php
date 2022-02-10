@@ -29,6 +29,7 @@
                                             全家(待串接開發)
                                         </label>
                                     </div>
+                                @elseif($shipCategory->category === '自取')
                                 @else
                                 <div class="form-check form-check-inline">
                                     <label class="form-check-label">

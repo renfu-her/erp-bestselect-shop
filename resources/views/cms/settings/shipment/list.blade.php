@@ -28,6 +28,7 @@
                         全家(待串接開發)
                     </a>
                 </li>
+            @elseif($category->category === '自取')
             @else
                 <li class="nav-item">
                     <a class="nav-link {{ isActive($category->id, $currentCategoryId) }} "
