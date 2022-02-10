@@ -29,6 +29,7 @@
                     <th scope="col">倉庫名稱</th>
 {{--                    <th scope="col">代碼</th>--}}
                     <th scope="col">倉商窗口</th>
+                    <th scope="col">自取服務</th>
                     <th scope="col">理貨倉</th>
                     <th scope="col">地址</th>
                     <th scope="col">電話</th>
@@ -43,6 +44,7 @@
                         <td>{{ $data->name }}</td>
 {{--                        <td>{{ $data->sn }}</td>--}}
                         <td>{{ $data->sender }}</td>
+                        <td>{{ $data->can_pickup ? '開放' : '關閉' }}</td>
                         <td>{{ $data->can_tally ? '是' : '否' }}</td>
                         <td>{{ $data->address }}</td>
                         <td>{{ $data->tel }}</td>

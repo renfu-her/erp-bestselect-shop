@@ -60,6 +60,7 @@ class DepotCtrl extends Controller
         $request->validate([
             'name' => 'required|string',
             'sender' => 'required|string',
+            'can_pickup' => 'required|string',
             'can_tally' => 'required|string',
             'addr' => 'required|string',
             'city_id' => 'required|numeric',
@@ -72,6 +73,7 @@ class DepotCtrl extends Controller
         Depot::create([
             'name'     => $v['name'],
             'sender'      => $v['sender'],
+            'can_pickup' => $v['can_pickup'],
             'can_tally' => $v['can_tally'],
             'addr'      => $v['addr'],
             'city_id'   => $v['city_id'],
@@ -135,6 +137,7 @@ class DepotCtrl extends Controller
         $request->validate([
             'name' => 'required|string',
             'sender' => 'required|string',
+            'can_pickup' => 'required|string',
             'can_tally' => 'required|string',
             'addr' => 'required|string',
             'city_id' => 'required|numeric',
@@ -146,6 +149,7 @@ class DepotCtrl extends Controller
         $d = $request->only(
             'name',
             'sender',
+            'can_pickup',
             'can_tally',
             'addr',
             'city_id',

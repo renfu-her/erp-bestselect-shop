@@ -18,6 +18,7 @@ class DepotSeeder extends Seeder
                 'name'     => '集運本倉',
                 'sender'      => '倉管理者',
                 'can_tally' => '1',
+                'can_pickup' => '1',
                 'addr'      => '松江路148號8樓之1',
                 'city_id'   => '1',
                 'region_id' => '4',

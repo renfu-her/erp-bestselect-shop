@@ -16,6 +16,41 @@
                 <input class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name', $data->name ?? '') }}" />
             </x-b-form-group>
 
+            <x-b-form-group name="can_pickup" title="開放自取" required="true">
+                <div class="px-1">
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label">
+                            開放
+                            <input class="form-check-input @error('can_pickup') is-invalid @enderror"
+                                   value="1"
+                                   name="can_pickup"
+                                   type="radio"
+                                   required
+                                   @if ($method === 'edit'
+                                        && $data->can_pickup )
+                                   checked
+                                @endif
+                            >
+                        </label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label">
+                            關閉
+                            <input class="form-check-input @error('can_pickup') is-invalid @enderror"
+                                   value="0"
+                                   name="can_pickup"
+                                   type="radio"
+                                   required
+                                   @if ($method === 'create' ||
+                                        ($method === 'edit' && !$data->can_pickup))
+                                   checked
+                                @endif
+                            >
+                        </label>
+                    </div>
+                </div>
+            </x-b-form-group>
+
             <x-b-form-group name="can_tally" title="理貨倉" required="true">
                 <div class="px-1">
                     <div class="form-check form-check-inline">
