@@ -31,6 +31,20 @@
             <h6>物流綁定</h6>
             <div>
                 @foreach ($shipments as $key => $value)
+                    @if($value->category === '全家')
+                        <div class="col-12 col-sm-6 mb-3">
+                            <input type="hidden" name="category_id[]" value={{ $value->id }}>
+                            <label class="form-label">全家(待串接開發)</label>
+                            <select name="group_id[]" class="form-select" disabled>
+                                <option value="0">無</option>
+                                @foreach ($value->groupConcat as $key2 => $group)
+                                    <option value="{{ $group->id }}" @if(in_array($group->id,$currentShipment)) selected @endif>{{ $group->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @elseif($value->category === '自取')
+
+                    @else
                     <div class="col-12 col-sm-6 mb-3">
                         <input type="hidden" name="category_id[]" value={{ $value->id }}>
                         <label class="form-label">{{ $value->category }}</label>
@@ -41,6 +55,7 @@
                             @endforeach
                         </select>
                     </div>
+                    @endif
                 @endforeach
             </div>
         </div>
