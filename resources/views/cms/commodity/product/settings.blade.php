@@ -36,7 +36,7 @@
                         <label class="form-label">{{ $value->category }}</label>
                         <select name="group_id[]" class="form-select">
                             <option value="0">無</option>
-                            @foreach ($value->groups as $key2 => $group)
+                            @foreach ($value->groupConcat as $key2 => $group)
                                 <option value="{{ $group->id }}" @if(in_array($group->id,$currentShipment)) selected @endif>{{ $group->name }}</option>
                             @endforeach
                         </select>

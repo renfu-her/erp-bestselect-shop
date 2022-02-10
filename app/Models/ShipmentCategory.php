@@ -34,21 +34,21 @@ class ShipmentCategory extends Model
 
         $groupQuery = DB::table('shi_group as g')
             ->select('g.category_fk')
-            ->selectRaw($concatString . ' as groups')
+            ->selectRaw($concatString . ' as groupConcat')
             ->groupBy('g.category_fk');
 
         $categoryQuery = DB::table('shi_category as ca')
             ->leftJoin(DB::raw("({$groupQuery->toSql()}) as g"), function ($join) {
                 $join->on('ca.id', '=', 'g.category_fk');
             })
-            ->select('id', 'category', 'groups')
+            ->select('id', 'category', 'groupConcat')
             ->mergeBindings($groupQuery)
             ->orderBy('ca.id');
 
         $re = $categoryQuery->get()->toArray();
 
         foreach ($re as $key => $value) {
-            $re[$key]->groups = json_decode($value->groups);
+            $re[$key]->groupConcat = json_decode($value->groupConcat);
         }
 
         return $re;
