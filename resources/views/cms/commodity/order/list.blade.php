@@ -175,8 +175,8 @@
                             <td>官網</td>
                             <td class="text-success">待配送</td>
                             <td>
-                                <span>46456456</span>
-                                <span>77987979</span>
+                                <span class="d-block lh-sm">46456456</span>
+                                <span class="d-block lh-sm">77987979</span>
                             </td>
                             <td>自取</td>
                             <td>宅配</td>
@@ -198,7 +198,7 @@
                             <td>官網</td>
                             <td class="text-success">待配送</td>
                             <td>
-                                <span>4545646</span>
+                                <span class="d-block lh-sm">4545646</span>
                             </td>
                             <td>宅配</td>
                             <td>宅配</td>
@@ -225,14 +225,6 @@
     </div>
 @endsection
 @once
-    @push('sub-styles')
-    <style>
-        td > span {
-            display: block;
-            line-height: 1.3;
-        }
-    </style>
-    @endpush
     @push('sub-scripts')
         <script>
             // 顯示筆數

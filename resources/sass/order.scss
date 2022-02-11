@@ -1,0 +1,53 @@
+@import 'variables';
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+
+.-detail {
+    border-top-width: 5px;
+    border-top-color: #415583;
+
+    // 常溫 .-detail-warning / 冷凍 .-detail-primary / 冷藏 .-detail-success
+    &.-detail-success {  /* 冷藏 */
+        border-top-color: $success;
+    }
+    &.-detail-primary {  /* 冷凍 */
+        border-top-color: $info;
+    }
+    &.-detail-warning {  /* 常溫 */
+        border-top-color: $warning;
+    }
+}
+
+.card {
+    dl:last-child {
+        margin-bottom: 0;
+    }
+    dl dt {
+        font-size: 14px;
+        font-weight: lighter;
+        color: $gray-700;
+    }
+    dl dd {
+        margin-bottom: 0;
+        font-weight: 500;
+
+        & > span:not(:last-child)::after {
+            content: ",";
+        }
+    }
+    .card-body {
+        .table {
+            & > * {
+                border-top-width: 1px;
+            }
+            & > thead > * > * {
+                font-size: 15px;
+                font-weight: normal;
+            }
+        }
+        .tableList > :not(caption) > * > * {
+            line-height: 38px;
+        }
+    }
+}
+

@@ -370,15 +370,15 @@
         <div class="card shadow p-4 mb-4">
             <h6>訂單總覽</h6>
             <div class="table-responsive">
-                <table class="table table-bordered text-center align-middle">
+                <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
                     <tbody>
                         <tr class="table-light">
-                            <td>小計</td>
-                            <td>折扣</td>
-                            <td>折扣後<br>（不含運）</td>
-                            <td>運費</td>
-                            <td>總金額</td>
-                            <td>預計可獲得<a href="#" class="-text d-block">紅利積點</a></td>
+                            <td class="col-2">小計</td>
+                            <td class="col-2">折扣</td>
+                            <td class="col-2 lh-sm">折扣後 <br class="d-xxl-none">(不含運)</td>
+                            <td class="col-2">運費</td>
+                            <td class="col-2">總金額</td>
+                            <td class="col-2 lh-sm">預計獲得<a href="#" class="-text d-block d-xxl-inline">紅利積點</a></td>
                         </tr>
                         <tr>
                             <td>$ 550</td>
@@ -386,6 +386,34 @@
                             <td>$ 440</td>
                             <td>$ 325</td>
                             <td class="fw-bold">$ 765</td>
+                            <td>7</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="table table-bordered table-sm text-center align-middle d-table d-sm-none">
+                    <tbody>
+                        <tr>
+                            <td class="col-7 table-light">小計</td>
+                            <td>$ 550</td>
+                        </tr>
+                        <tr>
+                            <td class="col-7 table-light">折扣</td>
+                            <td class="text-danger">- $ 110</td>
+                        </tr>
+                        <tr>
+                            <td class="col-7 table-light lh-sm">折扣後 (不含運)</td>
+                            <td>$ 440</td>
+                        </tr>
+                        <tr>
+                            <td class="col-7 table-light">運費</td>
+                            <td>$ 325</td>
+                        </tr>
+                        <tr>
+                            <td class="col-7 table-light">總金額</td>
+                            <td class="fw-bold">$ 765</td>
+                        </tr>
+                        <tr>
+                            <td class="col-7 table-light lh-sm">預計獲得<a href="#" class="-text">紅利積點</a></td>
                             <td>7</td>
                         </tr>
                     </tbody>
@@ -404,50 +432,10 @@
 
 @endsection
 @once
-@push('sub-styles')
+    @push('sub-styles')
+    <link rel="stylesheet" href="{{ Asset('dist/css/order.css') }}">
     <style>
-        .-detail {
-            border-top-width: 5px;
-        }
-        .-detail-success {  /* 冷藏 */
-            border-top-color: var(--bs-success);
-        }
-        .-detail-primary {  /* 冷凍 */
-            border-top-color: var(--bs-info);
-        }
-        .-detail-warning {  /* 常溫 */
-            border-top-color: var(--bs-warning);
-        }
-        .card dl dt {
-            font-size: 14px;
-            font-weight: lighter;
-            color: var(--bs-gray-700);
-        }
-        .card dl dd {
-            margin-bottom: 0;
-            font-weight: 500;
-        }
-        .card dl:last-child {
-            margin-bottom: 0;
-        }
-        .card dl dd > span:not(:last-child)::after {
-            content: ",";
-        }
-        .card-body .table > * {
-            border-top-width: 1px;
-        }
-        .card-body .table > thead > * > * {
-            font-size: 15px;
-            font-weight: normal;
-        }
-        .card-body .tableList > :not(caption) > * > * {
-            line-height: 38px;
-        }
-        .table.table-bordered tr.table-light td {
-            width: calc(100% / 6);
-            line-height: 1.2;
-        }
-        .table.table-bordered tr:last-child {
+        .table.table-bordered:not(.table-sm ) tr:not(.table-light) {
             height: 70px;
         }
     </style>

@@ -327,7 +327,7 @@
                                             </label>
                                         </div>
                                         <div class="form-check form-check-inline">
-                                            <label class="form-check-label">
+                                            <label class="form-check-label opacity-50">
                                                 <input class="form-check-input" name="checkbox" type="checkbox" disabled>
                                                 Disabled
                                             </label>
@@ -350,7 +350,7 @@
                                             </label>
                                         </div>
                                         <div class="form-check form-check-inline">
-                                            <label class="form-check-label">
+                                            <label class="form-check-label opacity-50">
                                                 <input class="form-check-input" name="radio" type="radio" disabled>
                                                 Disabled
                                             </label>
