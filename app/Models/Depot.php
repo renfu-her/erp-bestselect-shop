@@ -35,4 +35,12 @@ class Depot extends Model
         }
         return $can_tally;
     }
+
+    public static function getAllSelfPickup()
+    {
+        return self::where('can_pickup', '=', 1)
+                    ->select('id', 'name')
+                    ->orderBy('name', 'desc')
+                    ->get();
+    }
 }

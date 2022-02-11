@@ -26,5 +26,28 @@ class DepotSeeder extends Seeder
                 'address' => '104 台北市中山區松江路148號8樓之1',
             ])->id;
 
+        Depot::create([
+            'name'     => '咖啡．候機室-新竹2號店',
+            'sender'      => '倉管理者',
+            'can_tally' => '0',
+            'can_pickup' => '1',
+            'addr'      => '光復路',
+            'city_id'   => '73',
+            'region_id' => '74',
+            'tel'       => '035456196',
+            'address' => '300 新竹市東區光復路一段360-8號',
+        ]);
+
+        Depot::create([
+            'name'     => '咖啡．候機室-台南3號店',
+            'sender'      => '倉管理者',
+            'can_tally' => '0',
+            'can_pickup' => '1',
+            'addr'      => '大同路',
+            'city_id'   => '238',
+            'region_id' => '241',
+            'tel'       => '062988978',
+            'address' => '702 台南市南區大同路一段231號',
+        ]);
     }
 }

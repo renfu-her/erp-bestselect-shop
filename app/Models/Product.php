@@ -343,9 +343,32 @@ class Product extends Model
 
     }
 
+    public static function changePickup(int $product_id, array $depot_id_array)
+    {
+        if (DB::table('prd_pickup')->where('product_id_fk', $product_id)->get()->first()) {
+            DB::table('prd_pickup')
+                ->where('product_id_fk', $product_id)
+                ->delete();
+        }
+
+        if (count($depot_id_array) > 0) {
+            foreach ($depot_id_array as $depot_id) {
+                DB::table('prd_pickup')
+                    ->insert([
+                        'product_id_fk' => $product_id,
+                        'depot_id_fk'   => $depot_id
+                    ]);
+            }
+        }
+    }
+
     public static function shipmentList($product_id)
     {
         return DB::table('prd_product_shipment')->where('product_id', $product_id);
     }
 
+    public static function pickupList($product_id)
+    {
+        return DB::table('prd_pickup')->where('product_id_fk', $product_id);
+    }
 }
