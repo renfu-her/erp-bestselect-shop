@@ -76,13 +76,6 @@ class Customer extends Authenticatable
     }
 
     /**
-     * @param  array  $query
-     * @param $company_id
-     * @param  int  $per_page  records in pagination
-     *
-     * @return array [LengthAwarePaginator|array]
-     */
-    /**
      * @param array $query
      * @param int $per_page pagination
      * @return array [LengthAwarePaginator|array]
