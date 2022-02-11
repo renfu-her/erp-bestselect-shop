@@ -33,7 +33,7 @@
                 @foreach ($shipments as $key => $value)
                     @if($value->category === '全家')
                         <div class="col-12 col-sm-6 mb-3">
-                            <input type="hidden" name="category_id[]" value={{ $value->id }}>
+{{--                            <input type="hidden" name="category_id[]" value={{ $value->id }}>--}}
                             <label class="form-label">全家(待串接開發)</label>
                             <select name="group_id[]" class="form-select" disabled>
                                 <option value="0">無</option>
@@ -57,6 +57,15 @@
                     </div>
                     @endif
                 @endforeach
+
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">自取</label>
+                    <select name="depot_id[]" class="form-select -select2 -multiple" data-placeholder="請選擇門市（可複選）" multiple hidden>
+                        @foreach ($allPickup as $key => $depot)
+                            <option value="{{ $depot->id }}" @if(in_array($depot->id,$currentPickup)) selected @endif>{{ $depot->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
         </div>
         <div>
