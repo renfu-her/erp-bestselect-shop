@@ -57,8 +57,6 @@ Route::get('/tokens/customer', function (Request $request) {
     $costomer = Customer::where('id', 2)->get()->first();
     $token = $costomer->createToken('eee');
     return ['token' => $token->plainTextToken];
-
-    return $asdf;
 });
 
 Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => ['auth:sanctum', 'identity.api.customer']], function () {
