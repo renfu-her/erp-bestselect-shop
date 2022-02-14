@@ -12,8 +12,10 @@
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">訂購客戶</label>
                     <select name="customer_id" class=" form-select -select2 -single" data-placeholder="請選擇訂購客戶">
-                        <option value="1">陳小華</option>
-                        <option value="2" selected>王曉明</option>
+                        @foreach ($customers as $customer)
+                            <option value="{{ $customer->id }}" @if ($customer->id == $customer_id) selected @endif>
+                                {{ $customer->name }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
@@ -22,8 +24,7 @@
                 </div>
             </div>
             <div class="">
-                <button id="addProductBtn" type="button"
-                        class="btn btn-primary" style="font-weight: 500;">
+                <button id="addProductBtn" type="button" class="btn btn-primary" style="font-weight: 500;">
                     加入商品
                 </button>
             </div>
@@ -52,7 +53,7 @@
                             <tr class="-cloneElem --selectedP">
                                 <th>
                                     <button type="button"
-                                            class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                     <input type="hidden" name="product_id[]" value="">
@@ -63,8 +64,7 @@
                                 <td data-td="title"><a href="#" class="-text"></a></td>
                                 <td class="text-center" data-td="price">$0</td>
                                 <td>
-                                    <x-b-qty-adjuster name="qty[]" min="1"
-                                        max="" size="sm" minus="減少" plus="增加">
+                                    <x-b-qty-adjuster name="qty[]" min="1" max="" size="sm" minus="減少" plus="增加">
                                     </x-b-qty-adjuster>
                                 </td>
                                 <td class="text-end" data-td="subtotal">$0</td>
@@ -127,7 +127,7 @@
                             <tr>
                                 <th>
                                     <button type="button"
-                                            class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                     <input type="hidden" name="product_id[]" value="">
@@ -138,8 +138,7 @@
                                 <td><a href="#" class="-text">【春一枝】天然水果手作冰棒</a></td>
                                 <td class="text-center">$100</td>
                                 <td>
-                                    <x-b-qty-adjuster name="qty[]" min="1"
-                                        max="" size="sm" minus="減少" plus="增加">
+                                    <x-b-qty-adjuster name="qty[]" min="1" max="" size="sm" minus="減少" plus="增加">
                                     </x-b-qty-adjuster>
                                 </td>
                                 <td class="text-end">$200</td>
@@ -147,7 +146,7 @@
                             <tr>
                                 <th>
                                     <button type="button"
-                                            class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                     <input type="hidden" name="product_id[]" value="">
@@ -155,11 +154,10 @@
                                     <input type="hidden" name="shipment_type[]" value="">
                                     <input type="hidden" name="shipment_event_id[]" value="">
                                 </th>
-                                <td	data-td="title"><a href="#" class="-text">紐西蘭冰河帝王鮭魚片（冷煙燻）-(200g/盒)</a></td>
+                                <td data-td="title"><a href="#" class="-text">紐西蘭冰河帝王鮭魚片（冷煙燻）-(200g/盒)</a></td>
                                 <td class="text-center" data-td="price">$150</td>
                                 <td>
-                                    <x-b-qty-adjuster name="qty[]" min="1"
-                                        max="" size="sm" minus="減少" plus="增加">
+                                    <x-b-qty-adjuster name="qty[]" min="1" max="" size="sm" minus="減少" plus="增加">
                                     </x-b-qty-adjuster>
                                 </td>
                                 <td class="text-end" data-td="subtotal">$150</td>
@@ -198,14 +196,13 @@
         </div>
 
         @error('del_error')
-        <div class="alert alert-danger mt-3">{{ $message }}</div>
+            <div class="alert alert-danger mt-3">{{ $message }}</div>
         @enderror
 
         <div id="submitDiv">
             <div class="col-auto">
                 <button type="submit" class="btn btn-primary px-4">建立</button>
-                <a href="{{ Route('cms.order.index') }}" class="btn btn-outline-primary px-4"
-                   role="button">返回列表</a>
+                <a href="{{ Route('cms.order.index') }}" class="btn btn-outline-primary px-4" role="button">返回列表</a>
             </div>
         </div>
     </form>
@@ -232,12 +229,12 @@
             <div class="table-responsive">
                 <table class="table table-hover tableList">
                     <thead>
-                    <tr>
-                        <th scope="col">商品名稱</th>
-                        <th scope="col">款式</th>
-                        <th scope="col">SKU</th>
-                        <th scope="col">加入購物車</th>
-                    </tr>
+                        <tr>
+                            <th scope="col">商品名稱</th>
+                            <th scope="col">款式</th>
+                            <th scope="col">SKU</th>
+                            <th scope="col">加入購物車</th>
+                        </tr>
                     </thead>
                     <tbody class="-appendClone --product">
                         <tr class="-cloneElem d-none">
@@ -266,18 +263,21 @@
 @endsection
 @once
     @push('sub-styles')
-    <link rel="stylesheet" href="{{ Asset('dist/css/order.css') }}">
-    <style>
-        .-detail-success .badge.-badge::after {
-            content: "冷藏";
-        }
-        .-detail-primary .badge.-badge::after {
-            content: "冷凍";
-        }
-        .-detail-warning .badge.-badge::after {
-            content: "常溫";
-        }
-    </style>
+        <link rel="stylesheet" href="{{ Asset('dist/css/order.css') }}">
+        <style>
+            .-detail-success .badge.-badge::after {
+                content: "冷藏";
+            }
+
+            .-detail-primary .badge.-badge::after {
+                content: "冷凍";
+            }
+
+            .-detail-warning .badge.-badge::after {
+                content: "常溫";
+            }
+
+        </style>
     @endpush
     @push('sub-scripts')
         <script>
@@ -299,7 +299,7 @@
                 // ship_id: '物流ID'
             };
             // 購物車資料
-            let productStyleId = [];   // 樣式ID
+            let productStyleId = []; // 樣式ID
             let cart = {
                 // '物流ID': {
                 //     type: '物流類型',
@@ -318,13 +318,15 @@
             let delItemOption = {
                 appendClone: '.-appendClone.--selectedP',
                 cloneElem: '.-cloneElem.--selectedP',
-                beforeDelFn: function ({$this}) {
+                beforeDelFn: function({
+                    $this
+                }) {
                     const product_style_id = $this.siblings('input[name="product_style_id[]"]').val();
                     if (product_style_id) {
                         // call del API
                     }
                 },
-                checkFn: function () {
+                checkFn: function() {
                     if ($('.-cloneElem.--selectedP').length) {
                         $('button[type="submit"]').prop('disabled', false);
                     }
@@ -342,17 +344,17 @@
 
             // 加入商品、搜尋商品
             $('#addProductBtn, #addProduct .-searchBar button')
-                .off('click').on('click', function (e) {
-                productStyleId = [];
-                selectedProduct = {};
-                // 檢查重複
-                $('.-cloneElem.--selectedP input[name="product_style_id[]"]').each(function (index, element) {
-                    productStyleId.push($(element).val());
+                .off('click').on('click', function(e) {
+                    productStyleId = [];
+                    selectedProduct = {};
+                    // 檢查重複
+                    $('.-cloneElem.--selectedP input[name="product_style_id[]"]').each(function(index, element) {
+                        productStyleId.push($(element).val());
+                    });
+                    if (getProductList(1) && $(this).attr('id') === 'addProductBtn') {
+                        addProductModal.show();
+                    }
                 });
-                if (getProductList(1) && $(this).attr('id') === 'addProductBtn') {
-                    addProductModal.show();
-                }
-            });
 
             // 商品清單 API
             function getProductList(page) {
@@ -363,7 +365,10 @@
                 };
 
                 if (!Data.orderer_id) {
-                    toast.show('請先選擇訂購客戶。', {type: 'warning', title: '客戶未選取'});
+                    toast.show('請先選擇訂購客戶。', {
+                        type: 'warning',
+                        title: '客戶未選取'
+                    });
                     return false;
                 } else {
                     $('#addProduct tbody.-appendClone.--product').empty();
@@ -377,7 +382,8 @@
                             const res = result.data;
                             if (res.status === '0' && res.data && res.data.length) {
                                 $('.-emptyData').hide();
-                                (res.data).forEach(prod => {
+                                (res.data)
+                                .forEach(prod => {
                                     createOneProduct(prod);
                                 });
 
@@ -391,8 +397,8 @@
                                 $('#addProduct .-emptyData').show();
                             }
                         }).catch((err) => {
-                        console.log(err);
-                    });
+                            console.log(err);
+                        });
 
                     return true;
 
@@ -423,7 +429,7 @@
 
             // 紀錄 checked product
             function catchCheckedProduct() {
-                $('#addProduct tbody input[data-td="p_id"]').each(function (index, element) {
+                $('#addProduct tbody input[data-td="p_id"]').each(function(index, element) {
                     // element == this
                     const sku = $(element).parent('th').siblings('[data-td="sku"]').text();
                     const idx = selectedStyleId.indexOf(sku);
@@ -448,7 +454,7 @@
             }
 
             // btn - 加入採購清單
-            $('#addProduct .btn-ok').off('click').on('click', function () {
+            $('#addProduct .btn-ok').off('click').on('click', function() {
                 selectedProduct.forEach(p => {
                     if (!$(`tr.-cloneElem.--selectedP button[data-id="${p.id}"]`).length) {
                         createOneSelected(p);
@@ -463,7 +469,7 @@
 
                 // 加入採購單 - 加入一個商品
                 function createOneSelected(p) {
-                    Clone_bindCloneBtn($selectedClone, function (cloneElem) {
+                    Clone_bindCloneBtn($selectedClone, function(cloneElem) {
                         cloneElem.find('input').val('');
                         // cloneElem.find('input[name="item_id[]"]').remove();
                         cloneElem.find('.-del').attr('data-id', null);
@@ -480,7 +486,7 @@
                 }
             });
             // 關閉Modal時，清空值
-            $('#addProduct').on('hidden.bs.modal', function (e) {
+            $('#addProduct').on('hidden.bs.modal', function(e) {
                 selectedStyleId = [];
                 selectedProduct = [];
                 $('#addProduct .-searchBar input').val('');
@@ -494,4 +500,3 @@
         </script>
     @endpush
 @endonce
-

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
+use App\Models\OrderCart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
@@ -15,6 +17,7 @@ class OrderCtrl extends Controller
      */
     public function index(Request $request)
     {
+
         $query = $request->query();
         $page = Arr::get($query, 'data_per_page', 10);
 
@@ -28,10 +31,23 @@ class OrderCtrl extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
-        return view('cms.commodity.order.edit');
+        // dd(get_class($request->user()));
+        // OrderCart::productAdd(1, get_class($request->user()), 1, 1, 1, 1, 1);
+       // $items = OrderCart::productList($request->user()->id, get_class($request->user()))->get()->toArray();
+
+        $customer_id = $request->user()->customer_id;
+
+      
+          //  $customer_id = $items[0]->customer_id;
+        
+
+        return view('cms.commodity.order.edit', [
+          //  'items' => $items,
+            'customer_id' => $customer_id,
+            'customers' => Customer::get(),
+        ]);
     }
 
     /**
@@ -53,7 +69,7 @@ class OrderCtrl extends Controller
      */
     public function show($id)
     {
-        // 
+        //
     }
 
     /**
@@ -64,7 +80,7 @@ class OrderCtrl extends Controller
      */
     public function detail($id)
     {
-        $sn = '21111801';   // 等有值改
+        $sn = '21111801'; // 等有值改
         return view('cms.commodity.order.detail', [
             'sn' => $sn,
             'breadcrumb_data' => $sn]);
