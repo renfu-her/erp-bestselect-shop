@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Http\MenuTreeTrait;
+use App\Enums\Customer\Identity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
-use Spatie\Permission\Traits\HasRoles;
 
 class Customer extends Authenticatable
 {
@@ -68,10 +67,28 @@ class Customer extends Authenticatable
             'api_token' => Str::random(80),
         ])->id;
 
+        //創建消費者時，直接給一消費者身分
+        CustomerIdentity::createData($id, Identity::customer()->value);
+
 //        self::where('id', '=', $id)->get()->first()->givePermissionTo($permission_id);
 //        self::where('id', '=', $id)->get()->first()->assignRole($role_id);
 
         return $id;
+    }
+
+    //綁定消費者
+    public static function bindCustomer($user_id, $customer_id) {
+        $user = User::where('id', $user_id)->get()->first();
+        $customer = Customer::where('id', $customer_id)->get()->first();
+        if (null != $user && null != $customer) {
+            return DB::transaction(function () use ($user_id, $customer_id
+            ) {
+                User::where('id', $user_id)->update([
+                    'customer_id' => $customer_id,
+                ]);
+                return $user_id;
+            });
+        }
     }
 
     /**
