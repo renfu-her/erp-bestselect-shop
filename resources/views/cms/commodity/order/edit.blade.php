@@ -64,7 +64,8 @@
                                 <td data-td="title"><a href="#" class="-text"></a></td>
                                 <td class="text-center" data-td="price">$0</td>
                                 <td>
-                                    <x-b-qty-adjuster name="qty[]" min="1" max="" size="sm" minus="減少" plus="增加">
+                                    <x-b-qty-adjuster name="qty[]" value="1" min="1"
+                                        size="sm" minus="減少" plus="增加">
                                     </x-b-qty-adjuster>
                                 </td>
                                 <td class="text-end" data-td="subtotal">$0</td>
@@ -138,7 +139,8 @@
                                 <td><a href="#" class="-text">【春一枝】天然水果手作冰棒</a></td>
                                 <td class="text-center">$100</td>
                                 <td>
-                                    <x-b-qty-adjuster name="qty[]" min="1" max="" size="sm" minus="減少" plus="增加">
+                                    <x-b-qty-adjuster name="qty[]" value="1" min="1"
+                                        size="sm" minus="減少" plus="增加">
                                     </x-b-qty-adjuster>
                                 </td>
                                 <td class="text-end">$200</td>
@@ -157,7 +159,8 @@
                                 <td data-td="title"><a href="#" class="-text">紐西蘭冰河帝王鮭魚片（冷煙燻）-(200g/盒)</a></td>
                                 <td class="text-center" data-td="price">$150</td>
                                 <td>
-                                    <x-b-qty-adjuster name="qty[]" min="1" max="" size="sm" minus="減少" plus="增加">
+                                    <x-b-qty-adjuster name="qty[]" value="1" min="1"
+                                        size="sm" minus="減少" plus="增加">
                                     </x-b-qty-adjuster>
                                 </td>
                                 <td class="text-end" data-td="subtotal">$150</td>
@@ -296,12 +299,14 @@
                 // name: '商品名稱',
                 // price: '單價',
                 // qty: '數量',
+                // stock: '庫存',
                 // ship_id: '物流ID'
             };
             // 購物車資料
             let productStyleId = []; // 樣式ID
-            let cart = {
+            let myCart = {
                 // '物流ID': {
+                //     name: '物流名稱',
                 //     type: '物流類型',
                 //     temp: '溫層',
                 //     fee: '運費',
@@ -314,13 +319,13 @@
             const $cardClone = $('.-detail.d-none').clone();
             $('.-detail.d-none').remove();
 
+            bindAdjusterBtn();
+
             /*** 刪除商品 ***/
             let delItemOption = {
                 appendClone: '.-appendClone.--selectedP',
                 cloneElem: '.-cloneElem.--selectedP',
-                beforeDelFn: function({
-                    $this
-                }) {
+                beforeDelFn: function({$this}) {
                     const product_style_id = $this.siblings('input[name="product_style_id[]"]').val();
                     if (product_style_id) {
                         // call del API
@@ -345,12 +350,12 @@
             // 加入商品、搜尋商品
             $('#addProductBtn, #addProduct .-searchBar button')
                 .off('click').on('click', function(e) {
-                    productStyleId = [];
+                    // productStyleId = [];
                     selectedProduct = {};
-                    // 檢查重複
-                    $('.-cloneElem.--selectedP input[name="product_style_id[]"]').each(function(index, element) {
-                        productStyleId.push($(element).val());
-                    });
+                    // // 檢查重複
+                    // $('.-cloneElem.--selectedP input[name="product_style_id[]"]').each(function(index, element) {
+                    //     productStyleId.push($(element).val());
+                    // });
                     if (getProductList(1) && $(this).attr('id') === 'addProductBtn') {
                         addProductModal.show();
                     }
@@ -365,17 +370,14 @@
                 };
 
                 if (!Data.orderer_id) {
-                    toast.show('請先選擇訂購客戶。', {
-                        type: 'warning',
-                        title: '客戶未選取'
-                    });
+                    toast.show('請先選擇訂購客戶。', { type: 'warning', title: '客戶未選取' });
                     return false;
                 } else {
                     $('#addProduct tbody.-appendClone.--product').empty();
                     $('#addProduct #pageSum').text('');
                     $('#addProduct .page-item:not(:first-child, :last-child)').remove();
                     $('#addProduct nav').hide();
-                    $('#addProduct .-checkedNum').text(`已添加 ${selectedStyleId.length} 件商品`);
+                    $('#addProduct .-checkedNum').text(`已添加 ${productStyleId.length} 件商品`);
 
                     axios.post(_URL, Data)
                         .then((result) => {
@@ -405,11 +407,7 @@
                     // 商品列表
                     function createOneProduct(p) {
                         let addBtn = '';
-                        if (selectedStyleId.indexOf((p.sku).toString()) < 0) {
-                            addBtn = `<span data-bs-toggle="tooltip" title="加入購物車" data-pid="${p.id}"
-                                class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                <i class="bi bi-plus-circle"></i>
-                            </span>`;
+                        if (productStyleId.indexOf((p.sku).toString()) < 0) {
                             addBtn = `<button type="button" class="btn btn-outline-primary" data-pid="${p.id}">
                                 <i class="bi bi-plus-circle"></i> 加入
                             </button>`;
@@ -432,10 +430,10 @@
                 $('#addProduct tbody input[data-td="p_id"]').each(function(index, element) {
                     // element == this
                     const sku = $(element).parent('th').siblings('[data-td="sku"]').text();
-                    const idx = selectedStyleId.indexOf(sku);
+                    const idx = productStyleId.indexOf(sku);
                     if ($(element).prop('checked')) {
                         if (idx < 0) {
-                            selectedStyleId.push(sku);
+                            productStyleId.push(sku);
                             selectedProduct.push({
                                 id: $(element).val(),
                                 name: $(element).parent('th').siblings('[data-td="name"]').text(),
@@ -445,7 +443,7 @@
                         }
                     } else {
                         if (idx >= 0) {
-                            selectedStyleId.splice(idx, 1);
+                            productStyleId.splice(idx, 1);
                             selectedProduct.splice(idx, 1);
                         }
                     }
@@ -487,7 +485,7 @@
             });
             // 關閉Modal時，清空值
             $('#addProduct').on('hidden.bs.modal', function(e) {
-                selectedStyleId = [];
+                productStyleId = [];
                 selectedProduct = [];
                 $('#addProduct .-searchBar input').val('');
                 $('#addProduct tbody.-appendClone.--product').empty();
@@ -497,6 +495,25 @@
                 $('#addProduct .-checkedNum').text('已選取 0 件商品');
                 $('.-emptyData').hide();
             });
+
+            // 綁定 計數器按鈕
+            function bindAdjusterBtn() {
+                // +/- btn
+                $('button.-minus, button.-plus').off('click.adjust').on('click.adjust', function() {
+                    const $qty = $(this).siblings('input[name="qty[]"]');
+                    const min = Number($qty.attr('min'));
+                    const max = Number($qty.attr('max'));
+                    const m_qty = Number($qty.val());
+                    if ($(this).hasClass('-minus')) {
+                        (m_qty > min || isNaN(min)) ? $qty.val(m_qty - 1) : $qty.val(min);
+                    }
+                    if ($(this).hasClass('-plus')) {
+                        (m_qty < max || isNaN(max)) ? $qty.val(m_qty + 1) : $qty.val(max);
+                    }
+                    // countStock();
+                });
+            }
+            
         </script>
     @endpush
 @endonce

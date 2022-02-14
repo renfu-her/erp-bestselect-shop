@@ -7,7 +7,7 @@
         @if (isset($minus)) data-bs-toggle="tooltip" title="{{ $minus }}" @endif>
         <i class="bi bi-dash-lg"></i>
     </button>
-    <input type="number" name="{{ $name }}" value="0" 
+    <input type="number" name="{{ $name }}" value="{{ $value }}" 
         class="form-control text-center @error($name) is-invalid @enderror"
         @if (isset($min)) min="{{ $min }}" @endif 
         @if (isset($max)) max="{{ $max }}" @endif>
