@@ -15,12 +15,16 @@ class CreateCartTable extends Migration
     {
         Schema::create('ord_cart', function (Blueprint $table) {
             $table->id();
+            $table->integer('model_id')->comment('購物車擁有者');
+            $table->string('model')->comment('model');
             $table->integer('product_id')->comment('商品id');
             $table->integer('product_style_id')->comment('款式id');
-            $table->integer('customer_id')->comment('消費這id');
+            $table->integer('customer_id')->comment('消費者id');
             $table->integer('qty')->comment('數量');
             $table->string('shipment_type')->comment('物流方式');
             $table->integer('shipment_event_id')->nullable()->comment('物流子項id');
+
+            $table->unique(['model_id', 'model', 'product_style_id']);
         });
     }
 
