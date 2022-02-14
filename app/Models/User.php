@@ -62,8 +62,15 @@ class User extends Authenticatable
         return $this->getMenuTree(true, include 'userMenu.php');
     }
 
-    public static function createUser($name, $account, $email, $password, $permission_id = [], $role_id = [])
+    public static function createUser($name, $account, $email, $password, $permission_id = [], $role_id = [], $customer_id = null)
     {
+        //檢查是否有此消費者ID
+        if (null != $customer_id) {
+            $customer = Customer::where('id', $customer_id)->get()->first();
+            if (null == $customer) {
+                $customer_id = null;
+            }
+        }
         $id = self::create([
             'name' => $name,
             'email' => $email,
@@ -71,6 +78,7 @@ class User extends Authenticatable
             'password' => Hash::make($password),
             'uuid' => Str::uuid(),
             'api_token' => Str::random(80),
+            'customer_id' => $customer_id,
         ])->id;
 
         self::where('id', '=', $id)->get()->first()->givePermissionTo($permission_id);

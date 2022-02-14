@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Cms;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -43,7 +44,8 @@ class UserCtrl extends Controller
             'formAction'     => Route('cms.user.create'),
             'permissions'    => Permission::getPermissionGroups('user'),
             'roles'          => Role::roleList('user'),
-            'is_super_admin' => Auth::user()->hasrole('Super Admin')
+            'is_super_admin' => Auth::user()->hasrole('Super Admin'),
+            'customer_list'         => Customer::all(),
         ]);
     }
 
@@ -59,9 +61,10 @@ class UserCtrl extends Controller
         $request->validate([
             'password' => 'confirmed|min:4', 'name' => 'required|string',
             'account'  => ['required', 'unique:App\Models\User'],
+            'customer_id'  => 'required|numeric',
         ]);
 
-        $uData = $request->only('account', 'name', 'password');
+        $uData = $request->only('account', 'name', 'password', 'customer_id');
 
         $permission_id = [];
         $role_id = [];
@@ -80,7 +83,8 @@ class UserCtrl extends Controller
             null,
             $uData['password'],
             $permission_id,
-            $role_id
+            $role_id,
+            $uData['customer_id'],
         );
         wToast('新增完成');
         return redirect(Route('cms.user.index'));
@@ -135,7 +139,8 @@ class UserCtrl extends Controller
             'permissions'    => Permission::getPermissionGroups('user'),
             'permission_id'  => $permission_id,
             'roles'          => Role::roleList('user'), 'role_ids' => $role_ids,
-            'is_super_admin' => Auth::user()->hasrole('Super Admin')
+            'is_super_admin' => Auth::user()->hasrole('Super Admin'),
+            'customer_list'         => Customer::all(),
         ]);
     }
 
@@ -152,10 +157,11 @@ class UserCtrl extends Controller
         //
         $request->validate([
             'password' => 'confirmed|min:4|nullable',
-            'name'     => 'required|string', 'role_id' => 'array'
+            'name'     => 'required|string', 'role_id' => 'array',
+            'customer_id'  => 'required|numeric',
         ]);
 
-        $userData = $request->only('name');
+        $userData = $request->only('name', 'customer_id');
         $perData = $request->input('permission_id');
         $role_ids = $request->input('role_id');
 

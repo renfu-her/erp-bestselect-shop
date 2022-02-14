@@ -35,6 +35,18 @@
                     <input class="form-control @error('password_confirmation') is-invalid @enderror" type="password"
                            name="password_confirmation" value=""/>
                 </x-b-form-group>
+                <x-b-form-group name="customer_id" title="綁定消費者帳號">
+                    <select id="customer_id" name="customer_id" class="form-select -select2 -single @error('customer_id') is-invalid @enderror"
+                            aria-label="綁定消費者帳號">
+                        <option value="" selected disabled>請選擇</option>
+                        @foreach ($customer_list as $customer)
+                            <option value="{{ $customer->id }}"
+                                    @if ($customer->id == old('customer_id', $data->customer_id ?? '')) selected @endif>
+                                {{ $customer->name }} {{ $customer->email }}
+                            </option>
+                        @endforeach
+                    </select>
+                </x-b-form-group>
 
                 @if ($method === 'edit')
                     <input type='hidden' name='id' value="{{ old('id', $id) }}"/>
