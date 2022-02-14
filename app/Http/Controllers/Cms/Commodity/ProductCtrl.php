@@ -573,6 +573,8 @@ class ProductCtrl extends Controller
      */
     public function editSetting($id)
     {
+        
+
         $product = self::product_data($id);
         $currentShipment = array_map(function($n){
             return $n->group_id;

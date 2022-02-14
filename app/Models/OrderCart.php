@@ -13,9 +13,9 @@ class OrderCart extends Model
     protected $guarded = [];
     public $timestamps = false;
 
-    public static function productAdd($model_id, $model, $customer_id, $product_id, $product_style_id, $qty, $shipment_type, $shipment_event_id = null)
+    public static function productAdd($customer_id, $product_id, $product_style_id, $qty, $shipment_type, $shipment_event_id = null)
     {
-        if (!self::where('model_id', $model_id)->where('model', $model)->where('product_style_id', $product_style_id)->get()->first()) {
+        if (!self::where('customer_id', $customer_id)->where('product_style_id', $product_style_id)->get()->first()) {
             self::create([
                 'customer_id' => $customer_id,
                 'product_id' => $product_id,
@@ -23,8 +23,6 @@ class OrderCart extends Model
                 'qty' => $qty,
                 'shipment_type' => $shipment_type,
                 'shipment_event_id' => $shipment_event_id,
-                'model_id' => $model_id,
-                'model' => $model,
             ]);
         }
     }
@@ -39,7 +37,7 @@ class OrderCart extends Model
         self::where('id', $id)->update(['qty' => $qty]);
     }
 
-    public static function productList($model_id, $model)
+    public static function productList($customer_id)
     {
         $productSubQuery = DB::table('prd_product_styles as style')
             ->leftJoin('prd_salechannel_style_price as price', 'style.id', '=', 'price.style_id')
@@ -51,10 +49,9 @@ class OrderCart extends Model
             ->leftJoin(DB::raw("({$productSubQuery->toSql()}) as style"), function ($join) {
                 $join->on('cart.product_style_id', '=', 'style.style_id');
             })
-            ->select('cart.id as id','cart.customer_id as customer_id', 'product_title', 'product_style_title', 'price', 'shipment_type', 'shipment_event_id')
+            ->select('cart.id as id', 'cart.customer_id as customer_id', 'product_title', 'product_style_title', 'price', 'shipment_type', 'shipment_event_id')
             ->mergeBindings($productSubQuery)
-            ->where('cart.model_id', $model_id)
-            ->where('cart.model', $model);
+            ->where('cart.customer_id', $customer_id);
 
         // dd($cart->get()->toArray());
         return $cart;

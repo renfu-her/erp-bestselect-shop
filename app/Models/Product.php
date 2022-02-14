@@ -190,7 +190,7 @@ class Product extends Model
 
         $re = DB::table('prd_products as p')
             ->leftJoin('prd_product_styles as s', 'p.id', '=', 's.product_id')
-            ->select('s.id', 's.sku', 'p.title as product_title', 's.title as spec', 's.in_stock', 's.safety_stock')
+            ->select('s.id', 's.sku', 'p.title as product_title', 'p.id as product_id', 's.title as spec', 's.in_stock', 's.safety_stock')
             ->selectRaw('CASE p.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title')
             ->whereNotNull('s.sku')
             ->where(function ($q) use ($keyword) {
@@ -356,7 +356,7 @@ class Product extends Model
                 DB::table('prd_pickup')
                     ->insert([
                         'product_id_fk' => $product_id,
-                        'depot_id_fk'   => $depot_id
+                        'depot_id_fk' => $depot_id,
                     ]);
             }
         }
@@ -370,5 +370,70 @@ class Product extends Model
     public static function pickupList($product_id)
     {
         return DB::table('prd_pickup')->where('product_id_fk', $product_id);
+    }
+
+    public static function getShipment($product_id, $code = "deliver")
+    {
+        $concatString = concatStr([
+            'id' => 'rule.id',
+            'min_price' => 'rule.min_price',
+            'max_price' => 'rule.max_price',
+            'dlv_fee' => 'rule.dlv_fee',
+            'at_most' => 'rule.at_most',
+            'is_above' => 'rule.is_above']);
+
+        $ruleSubQuery = DB::table('shi_rule as rule')
+            ->select('rule.group_id_fk as group_id')
+            ->selectRaw($concatString . ' as rules')
+            ->groupBy('rule.group_id_fk');
+
+        $re = DB::table('prd_product_shipment as ps')
+            ->leftJoin('shi_category as category', 'ps.category_id', '=', 'category.id')
+            ->leftJoin('shi_group as g', 'ps.group_id', '=', 'g.id')
+            ->leftJoin(DB::raw("({$ruleSubQuery->toSql()}) as rule"), function ($join) {
+                $join->on('ps.group_id', '=', 'rule.group_id');
+            })
+            ->select('category.code as event', 'category.category', 'g.id as group_id', 'g.name as group_name', 'rule.rules')
+            ->mergeBindings($ruleSubQuery)
+            ->where('ps.product_id', $product_id)
+            ->where('code', $code);
+
+        return $re;
+
+    }
+
+    public static function getPickup($product_id)
+    {
+        $pick_up = DB::table('prd_pickup as pick_up')
+            ->leftJoin('depot', 'depot.id', '=', 'pick_up.depot_id_fk')
+            ->select('pick_up.id', 'depot.name as depot_name', )
+            ->whereNull('depot.deleted_at')
+            ->where('pick_up.product_id_fk', $product_id);
+
+        return $pick_up;
+    }
+
+    public static function getProductShipments($product_id)
+    {
+        $delivery = self::getShipment($product_id)->get()->first();
+
+        if ($delivery) {
+            $delivery->rules = json_decode($delivery->rules);
+            $arr[$delivery->event] = $delivery;
+        }
+       
+        $pickup = self::getPickup($product_id)->get()->toArray();
+        if($pickup){
+            $arr['pickup'] =[
+                'event'=>'pickup',
+                'category'=>'自取',
+                'depots'=>$pickup
+            ];
+        }
+
+        return $arr;
+      
+        
+
     }
 }
