@@ -64,4 +64,23 @@ class ProductCtrl extends Controller
         return response()->json($re);
     }
 
+    public function getProductShipment(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+               'product_id' => ['required'],
+        
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'E01',
+                'message' => $validator->messages(),
+            ]);
+        }
+
+        return response()->json(['status' => '0', 'data' => Product::getProductShipments($request->input('product_id'))]);
+    }
+
+    // Product::getProductShipments($id);
+
 }
