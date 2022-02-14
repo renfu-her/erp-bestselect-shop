@@ -2,19 +2,31 @@
 @import '~bootstrap/scss/functions';
 @import '~bootstrap/scss/variables';
 
+$detail-border-scale: -35%;
+$detail-badge-scale: $table-bg-scale;
+@mixin detail-variants($state, $value) {
+    &.-detail-#{$state} {
+        border-top-color: shift-color($value, $detail-border-scale);
+
+        .badge.-badge {
+            background-color: shift-color($value, $detail-badge-scale);
+        }
+    }
+}
+
 .-detail {
     border-top-width: 5px;
     border-top-color: #415583;
+    .badge.-badge {
+        color: $color-text-dark;
+        font-weight: 500;
+        background-color: shift-color(#415583, $detail-badge-scale);
+        display: block;
+    }
 
     // 常溫 .-detail-warning / 冷凍 .-detail-primary / 冷藏 .-detail-success
-    &.-detail-success {  /* 冷藏 */
-        border-top-color: $success;
-    }
-    &.-detail-primary {  /* 冷凍 */
-        border-top-color: $info;
-    }
-    &.-detail-warning {  /* 常溫 */
-        border-top-color: $warning;
+    @each $state, $value in $theme-colors {
+        @include detail-variants($state, $value);
     }
 }
 
@@ -47,6 +59,9 @@
         }
         .tableList > :not(caption) > * > * {
             line-height: 38px;
+        }
+        .tableList .input-group > input.form-control {
+            min-width: 50px;
         }
     }
 }

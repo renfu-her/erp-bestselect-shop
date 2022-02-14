@@ -1,5 +1,5 @@
 <div @class([
-    'input-group has-validation',
+    'input-group has-validation flex-nowrap',
     'input-group-lg' => $size === 'lg',
     'input-group-sm' => $size === 'sm'
 ])>

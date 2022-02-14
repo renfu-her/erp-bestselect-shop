@@ -135,7 +135,7 @@
                     </div>
                     <div class="col">
                         <dt>消費者物流費用</dt>
-                        <dd>$ 100</dd>
+                        <dd>$100</dd>
                     </div>
                 </dl>
             </div>
@@ -155,16 +155,16 @@
                             <tr>
                                 <td><a href="#" class="-text">【KINYO】2.4GHz無線鍵鼠組</a></td>
                                 <td>1232</td>
-                                <td>$ 50</td>
+                                <td>$50</td>
                                 <td>2</td>
-                                <td>$ 100</td>
+                                <td>$100</td>
                             </tr>
                             <tr>
                                 <td><a href="#" class="-text">【YADOMA】菌立撤 360度撤菌隨手噴 100mL</a></td>
                                 <td>1333</td>
-                                <td>$ 100</td>
+                                <td>$100</td>
                                 <td>1</td>
-                                <td>$ 100</td>
+                                <td>$100</td>
                             </tr>
                         </tbody>
                     </table>
@@ -192,13 +192,13 @@
                                 <td>金額</td>
                                 <td>滿額贈</td>
                                 <td>-</td>
-                                <td class="text-danger">- $ 50</td>
+                                <td class="text-danger">- $50</td>
                             </tr>
                             <tr>
                                 <td>優惠劵</td>
                                 <td>優惠劵序號</td>
                                 <td>-</td>
-                                <td class="text-danger">- $ 60</td>
+                                <td class="text-danger">- $60</td>
                             </tr>
                         </tbody>
                     </table>
@@ -255,7 +255,7 @@
                     </div>
                     <div class="col">
                         <dt>消費者物流費用</dt>
-                        <dd>$ 150</dd>
+                        <dd>$150</dd>
                     </div>
                 </dl>
             </div>
@@ -275,16 +275,16 @@
                             <tr>
                                 <td><a href="#" class="-text">【春一枝】天然水果手作冰棒</a></td>
                                 <td>6543</td>
-                                <td>$ 100</td>
+                                <td>$100</td>
                                 <td>2</td>
-                                <td>$ 200</td>
+                                <td>$200</td>
                             </tr>
                             <tr>
                                 <td><a href="#" class="-text">紐西蘭冰河帝王鮭魚片（冷煙燻）-(200g/盒)</a></td>
                                 <td>4561</td>
-                                <td>$ 150</td>
+                                <td>$150</td>
                                 <td>1</td>
-                                <td>$ 150</td>
+                                <td>$150</td>
                             </tr>
                         </tbody>
                     </table>
@@ -360,7 +360,7 @@
                     </div>
                     <div class="col">
                         <dt>消費者物流費用</dt>
-                        <dd>$ 150</dd>
+                        <dd>$150</dd>
                     </div>
                 </dl>
             </div>
@@ -381,11 +381,11 @@
                             <td class="col-2 lh-sm">預計獲得<a href="#" class="-text d-block d-xxl-inline">紅利積點</a></td>
                         </tr>
                         <tr>
-                            <td>$ 550</td>
-                            <td class="text-danger">- $ 110</td>
-                            <td>$ 440</td>
-                            <td>$ 325</td>
-                            <td class="fw-bold">$ 765</td>
+                            <td>$550</td>
+                            <td class="text-danger">- $110</td>
+                            <td>$440</td>
+                            <td>$325</td>
+                            <td class="fw-bold">$765</td>
                             <td>7</td>
                         </tr>
                     </tbody>
@@ -394,23 +394,23 @@
                     <tbody>
                         <tr>
                             <td class="col-7 table-light">小計</td>
-                            <td>$ 550</td>
+                            <td>$550</td>
                         </tr>
                         <tr>
                             <td class="col-7 table-light">折扣</td>
-                            <td class="text-danger">- $ 110</td>
+                            <td class="text-danger">- $110</td>
                         </tr>
                         <tr>
                             <td class="col-7 table-light lh-sm">折扣後 (不含運)</td>
-                            <td>$ 440</td>
+                            <td>$440</td>
                         </tr>
                         <tr>
                             <td class="col-7 table-light">運費</td>
-                            <td>$ 325</td>
+                            <td>$325</td>
                         </tr>
                         <tr>
                             <td class="col-7 table-light">總金額</td>
-                            <td class="fw-bold">$ 765</td>
+                            <td class="fw-bold">$765</td>
                         </tr>
                         <tr>
                             <td class="col-7 table-light lh-sm">預計獲得<a href="#" class="-text">紅利積點</a></td>

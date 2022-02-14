@@ -11,7 +11,7 @@
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">訂購客戶</label>
-                    <select name="orderer" class=" form-select -select2 -single" data-placeholder="請選擇訂購客戶">
+                    <select name="customer_id" class=" form-select -select2 -single" data-placeholder="請選擇訂購客戶">
                         <option value="1">陳小華</option>
                         <option value="2" selected>王曉明</option>
                     </select>
@@ -29,21 +29,98 @@
             </div>
         </div>
 
-        <div class="card shadow mb-4 -detail">
-            <div class="card-header px-4 d-flex align-items-center bg-white">
-                <strong class="flex-grow-1 mb-0">GGC-00455-225冷凍宅配</strong>
+        {{-- 常溫 .-detail-warning / 冷凍 .-detail-primary / 冷藏 .-detail-success --}}
+        <div class="card shadow mb-4 -detail d-none">
+            <div class="card-header px-4 d-flex align-items-center bg-white border-bottom-0">
+                <strong class="flex-grow-1 mb-0" data-id=""></strong>
+                <span class="badge -badge fs-6"></span>
             </div>
+            {{-- 商品列表 --}}
             <div class="card-body px-4 py-0">
                 <div class="table-responsive tableOverBox">
                     <table class="table tableList table-sm mb-0">
                         <thead class="table-light text-secondary">
                             <tr>
-                                <th scope="col">刪除</th>
+                                <th scope="col" class="col-1 text-center">刪除</th>
                                 <th scope="col">商品名稱</th>
-                                <th scope="col">SKU</th>
-                                <th scope="col">單價</th>
-                                <th scope="col">數量</th>
-                                <th scope="col">小計</th>
+                                <th scope="col" class="col-2 text-center">單價</th>
+                                <th scope="col" class="col-2 text-center">數量</th>
+                                <th scope="col" class="col-2 text-end">小計</th>
+                            </tr>
+                        </thead>
+                        <tbody class="-appendClone --selectedP">
+                            <tr class="-cloneElem --selectedP">
+                                <th>
+                                    <button type="button"
+                                            class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                    <input type="hidden" name="product_id[]" value="">
+                                    <input type="hidden" name="product_style_id[]" value="">
+                                    <input type="hidden" name="shipment_type[]" value="">
+                                    <input type="hidden" name="shipment_event_id[]" value="">
+                                </th>
+                                <td data-td="title"><a href="#" class="-text"></a></td>
+                                <td class="text-center" data-td="price">$0</td>
+                                <td>
+                                    <x-b-qty-adjuster name="qty[]" min="1"
+                                        max="" size="sm" minus="減少" plus="增加">
+                                    </x-b-qty-adjuster>
+                                </td>
+                                <td class="text-end" data-td="subtotal">$0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {{-- 優惠列表 --}}
+            {{-- <div class="card-body px-4 py-0">
+                <div class="table-responsive tableOverBox">
+                    <table class="table tableList table-sm mb-0">
+                        <thead class="table-light text-secondary">
+                            <tr>
+                                <th scope="col">優惠類型</th>
+                                <th scope="col">優惠名稱</th>
+                                <th scope="col">贈品</th>
+                                <th scope="col">金額</th>
+                            </tr>
+                        </thead>
+                        <tbody class="-appendClone">
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div> --}}
+            {{-- 運費 --}}
+            <div class="card-body px-4 py-2 border-top">
+                <div class="d-flex lh-lg">
+                    <div scope="col" class="col">運費</div>
+                    <div class="co-auto" data-td="dlv_fee">$0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow mb-4 -detail -detail-primary">
+            <div class="card-header px-4 d-flex align-items-center bg-white border-bottom-0">
+                <strong class="flex-grow-1 mb-0">GGC-00455-225冷凍宅配</strong>
+                <span class="badge -badge fs-6"></span>
+            </div>
+            {{-- 商品列表 --}}
+            <div class="card-body px-4 py-0">
+                <div class="table-responsive tableOverBox">
+                    <table class="table tableList table-sm mb-0">
+                        <thead class="table-light text-secondary">
+                            <tr>
+                                <th scope="col" class="col-1 text-center">刪除</th>
+                                <th scope="col">商品名稱</th>
+                                <th scope="col" class="col-2 text-center">單價</th>
+                                <th scope="col" class="col-2 text-center">數量</th>
+                                <th scope="col" class="col-2 text-end">小計</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -53,14 +130,19 @@
                                             class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                         <i class="bi bi-trash"></i>
                                     </button>
-                                    <input type="hidden" name="name[]" value="">
-                                    <input type="hidden" name="sku[]" value="">
+                                    <input type="hidden" name="product_id[]" value="">
+                                    <input type="hidden" name="product_style_id[]" value="">
+                                    <input type="hidden" name="shipment_type[]" value="">
+                                    <input type="hidden" name="shipment_event_id[]" value="">
                                 </th>
                                 <td><a href="#" class="-text">【春一枝】天然水果手作冰棒</a></td>
-                                <td>6543</td>
-                                <td>$ 100</td>
-                                <td>2</td>
-                                <td>$ 200</td>
+                                <td class="text-center">$100</td>
+                                <td>
+                                    <x-b-qty-adjuster name="qty[]" min="1"
+                                        max="" size="sm" minus="減少" plus="增加">
+                                    </x-b-qty-adjuster>
+                                </td>
+                                <td class="text-end">$200</td>
                             </tr>
                             <tr>
                                 <th>
@@ -68,20 +150,26 @@
                                             class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                         <i class="bi bi-trash"></i>
                                     </button>
-                                    <input type="hidden" name="name[]" value="">
-                                    <input type="hidden" name="sku[]" value="">
+                                    <input type="hidden" name="product_id[]" value="">
+                                    <input type="hidden" name="product_style_id[]" value="">
+                                    <input type="hidden" name="shipment_type[]" value="">
+                                    <input type="hidden" name="shipment_event_id[]" value="">
                                 </th>
-                                <td><a href="#" class="-text">紐西蘭冰河帝王鮭魚片（冷煙燻）-(200g/盒)</a></td>
-                                <td>4561</td>
-                                <td>$ 150</td>
-                                <td>1</td>
-                                <td>$ 150</td>
+                                <td	data-td="title"><a href="#" class="-text">紐西蘭冰河帝王鮭魚片（冷煙燻）-(200g/盒)</a></td>
+                                <td class="text-center" data-td="price">$150</td>
+                                <td>
+                                    <x-b-qty-adjuster name="qty[]" min="1"
+                                        max="" size="sm" minus="減少" plus="增加">
+                                    </x-b-qty-adjuster>
+                                </td>
+                                <td class="text-end" data-td="subtotal">$150</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-            <div class="card-body px-4 py-0 border-bottom">
+            {{-- 優惠列表 --}}
+            {{-- <div class="card-body px-4 py-0">
                 <div class="table-responsive tableOverBox">
                     <table class="table tableList table-sm mb-0">
                         <thead class="table-light text-secondary">
@@ -99,18 +187,13 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
-            <div class="card-body px-4">
-                <dl class="row mb-0">
-                    <div class="col">
-                        <dt>溫層</dt>
-                        <dd>冷凍</dd>
-                    </div>
-                    <div class="col-3">
-                        <dt>消費者物流費用</dt>
-                        <dd>$ 150</dd>
-                    </div>
-                </dl>
+            </div> --}}
+            {{-- 運費 --}}
+            <div class="card-body px-4 py-2 border-top">
+                <div class="d-flex lh-lg">
+                    <div scope="col" class="col">運費</div>
+                    <div class="co-auto" data-td="dlv_fee">$100</div>
+                </div>
             </div>
         </div>
 
@@ -185,7 +268,15 @@
     @push('sub-styles')
     <link rel="stylesheet" href="{{ Asset('dist/css/order.css') }}">
     <style>
-        
+        .-detail-success .badge.-badge::after {
+            content: "冷藏";
+        }
+        .-detail-primary .badge.-badge::after {
+            content: "冷凍";
+        }
+        .-detail-warning .badge.-badge::after {
+            content: "常溫";
+        }
     </style>
     @endpush
     @push('sub-scripts')
@@ -199,22 +290,38 @@
             let addProductModal = new bootstrap.Modal(document.getElementById('addProduct'));
             let prodPages = new Pagination($('#addProduct .-pages'));
             /*** 選取商品 ***/
-            let selectedProductSku = [];
-            let selectedProduct = [];
+            let selectedProduct = {
+                // pid: '產品ID',
+                // sid: '樣式ID',
+                // name: '商品名稱',
+                // price: '單價',
+                // qty: '數量',
+                // ship_id: '物流ID'
+            };
+            // 購物車資料
+            let productStyleId = [];   // 樣式ID
+            let cart = {
+                // '物流ID': {
+                //     type: '物流類型',
+                //     temp: '溫層',
+                //     fee: '運費',
+                //     products: ['商品']
+                // }
+            };
             // clone 項目
-            const $selectedClone = $('.-cloneElem.--selectedP.d-none').clone();
-            $('.-cloneElem.d-none').remove();
+            const $selectedClone = $('.-detail.d-none .-cloneElem.--selectedP').clone();
+            $('.-detail.d-none .-appendClone.--selectedP').empty();
+            const $cardClone = $('.-detail.d-none').clone();
+            $('.-detail.d-none').remove();
 
             /*** 刪除商品 ***/
-            let del_item_id = [];
             let delItemOption = {
                 appendClone: '.-appendClone.--selectedP',
                 cloneElem: '.-cloneElem.--selectedP',
                 beforeDelFn: function ({$this}) {
-                    const item_id = $this.siblings('input[name="item_id[]"]').val();
-                    if (item_id) {
-                        del_item_id.push(item_id);
-                        $('input[name="del_item_id"]').val(del_item_id.toString());
+                    const product_style_id = $this.siblings('input[name="product_style_id[]"]').val();
+                    if (product_style_id) {
+                        // call del API
                     }
                 },
                 checkFn: function () {
@@ -236,11 +343,11 @@
             // 加入商品、搜尋商品
             $('#addProductBtn, #addProduct .-searchBar button')
                 .off('click').on('click', function (e) {
-                selectedProductSku = [];
-                selectedProduct = [];
+                productStyleId = [];
+                selectedProduct = {};
                 // 檢查重複
-                $('.-cloneElem.--selectedP input[name="sku[]"]').each(function (index, element) {
-                    selectedProductSku.push($(element).val());
+                $('.-cloneElem.--selectedP input[name="product_style_id[]"]').each(function (index, element) {
+                    productStyleId.push($(element).val());
                 });
                 if (getProductList(1) && $(this).attr('id') === 'addProductBtn') {
                     addProductModal.show();
@@ -252,7 +359,7 @@
                 let _URL = `${Laravel.apiUrl.productStyles}?page=${page}`;
                 let Data = {
                     keyword: $('#addProduct .-searchBar input').val(),
-                    orderer_id: $('select[name="orderer"]').val()
+                    orderer_id: $('select[name="customer_id"]').val()
                 };
 
                 if (!Data.orderer_id) {
@@ -263,7 +370,7 @@
                     $('#addProduct #pageSum').text('');
                     $('#addProduct .page-item:not(:first-child, :last-child)').remove();
                     $('#addProduct nav').hide();
-                    $('#addProduct .-checkedNum').text(`已添加 ${selectedProductSku.length} 件商品`);
+                    $('#addProduct .-checkedNum').text(`已添加 ${selectedStyleId.length} 件商品`);
 
                     axios.post(_URL, Data)
                         .then((result) => {
@@ -292,7 +399,7 @@
                     // 商品列表
                     function createOneProduct(p) {
                         let addBtn = '';
-                        if (selectedProductSku.indexOf((p.sku).toString()) < 0) {
+                        if (selectedStyleId.indexOf((p.sku).toString()) < 0) {
                             addBtn = `<span data-bs-toggle="tooltip" title="加入購物車" data-pid="${p.id}"
                                 class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                 <i class="bi bi-plus-circle"></i>
@@ -319,10 +426,10 @@
                 $('#addProduct tbody input[data-td="p_id"]').each(function (index, element) {
                     // element == this
                     const sku = $(element).parent('th').siblings('[data-td="sku"]').text();
-                    const idx = selectedProductSku.indexOf(sku);
+                    const idx = selectedStyleId.indexOf(sku);
                     if ($(element).prop('checked')) {
                         if (idx < 0) {
-                            selectedProductSku.push(sku);
+                            selectedStyleId.push(sku);
                             selectedProduct.push({
                                 id: $(element).val(),
                                 name: $(element).parent('th').siblings('[data-td="name"]').text(),
@@ -332,7 +439,7 @@
                         }
                     } else {
                         if (idx >= 0) {
-                            selectedProductSku.splice(idx, 1);
+                            selectedStyleId.splice(idx, 1);
                             selectedProduct.splice(idx, 1);
                         }
                     }
@@ -374,7 +481,7 @@
             });
             // 關閉Modal時，清空值
             $('#addProduct').on('hidden.bs.modal', function (e) {
-                selectedProductSku = [];
+                selectedStyleId = [];
                 selectedProduct = [];
                 $('#addProduct .-searchBar input').val('');
                 $('#addProduct tbody.-appendClone.--product').empty();
