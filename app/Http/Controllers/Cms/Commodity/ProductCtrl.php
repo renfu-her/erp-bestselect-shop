@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Depot;
 use App\Models\Product;
 use App\Models\ProductImg;
 use App\Models\ProductSpec;
@@ -576,10 +577,16 @@ class ProductCtrl extends Controller
         $currentShipment = array_map(function($n){
             return $n->group_id;
         },Product::shipmentList($id)->get()->toArray());
-      
+
+        $currentPickup = array_map(function($n){
+            return $n->depot_id_fk;
+        },Product::pickupList($id)->get()->toArray());
+
         return view('cms.commodity.product.settings', [
             'product' => $product,
             'breadcrumb_data' => $product,
+            'allPickup' => Depot::getAllSelfPickup(),
+            'currentPickup' => $currentPickup,
             'shipments' => ShipmentCategory::categoryWithGroup(),
             'currentShipment'=>$currentShipment
         ]);
@@ -592,6 +599,9 @@ class ProductCtrl extends Controller
         foreach ($d['category_id'] as $key => $value) {
             Product::changeShipment($id, $value, $d['group_id'][$key]);
         }
+
+        $depot_ids = $d['depot_id'] ?? [];
+        Product::changePickup($id, $depot_ids);
 
         wToast('儲存完畢');
         return redirect()->back();

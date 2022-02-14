@@ -20,6 +20,7 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique()->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->unsignedBigInteger('customer_id')->nullable()->comment('管理者自己的消費者 customer_id');
             $table->string('api_token')->nullable()->default(null);
             $table->uuid('uuid');
             $table->rememberToken();

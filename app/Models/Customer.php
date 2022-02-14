@@ -15,8 +15,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 class Customer extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles, SoftDeletes;
-    use MenuTreeTrait;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     protected $table = 'usr_customers';
     public $userType = 'customer';
@@ -75,13 +74,6 @@ class Customer extends Authenticatable
         return $id;
     }
 
-    /**
-     * @param  array  $query
-     * @param $company_id
-     * @param  int  $per_page  records in pagination
-     *
-     * @return array [LengthAwarePaginator|array]
-     */
     /**
      * @param array $query
      * @param int $per_page pagination
