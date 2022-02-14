@@ -286,7 +286,7 @@ Breadcrumbs::for('cms.navinode.create', function ($trail, $value) {
     $trail->push('新增');
 });
 Breadcrumbs::for('cms.navinode.edit', function ($trail, $value) {
-    $trail->parent('cms.navinode.index',$value['level']); 
+    $trail->parent('cms.navinode.index',$value['level']);
     $trail->push('編輯');
     $trail->push($value['title']);
 });
@@ -344,6 +344,20 @@ Breadcrumbs::for('cms.permission.child-create', function (BreadcrumbTrail $trail
 });
 Breadcrumbs::for('cms.permission.child-edit', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.permission.child', $value);
+    $trail->push('編輯');
+});
+
+// 消費者帳號管理
+Breadcrumbs::for('cms.customer.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('消費者帳號管理', route('cms.user.index'));
+});
+Breadcrumbs::for('cms.customer.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.customer.index');
+    $trail->push('新增');
+});
+Breadcrumbs::for('cms.customer.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.customer.index');
     $trail->push('編輯');
 });
 

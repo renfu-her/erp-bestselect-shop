@@ -107,6 +107,11 @@ return
                 "controller_name" => "PermissionCtrl",
                 "route_name" => "cms.permission.index",
             ],
+            [
+                "title" => "消費者帳號管理",
+                "controller_name" => "CustomerCtrl",
+                "route_name" => "cms.customer.index",
+            ],
         ],
     ],
 ];

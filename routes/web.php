@@ -38,6 +38,7 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/SaleChannel.php');
     require base_path('routes/cms/Shipment.php');
     require base_path('routes/cms/User.php');
+    require base_path('routes/cms/Customer.php');
     require base_path('routes/cms/Role.php');
     require base_path('routes/cms/Permission.php');
     require base_path('routes/cms/Purchase.php');
