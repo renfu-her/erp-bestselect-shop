@@ -15,9 +15,9 @@ class CreateUsrCustomersTable extends Migration
     {
         Schema::create('usr_customers', function (Blueprint $table) {
             $table->id()->comment('消費者ID');
-            $table->string('email')->unique()->nullable()->comment('email');
+            $table->string('email')->unique()->comment('email');
             $table->timestamp('email_verified_at')->nullable()->comment('email驗證');
-            $table->string('name')->comment('姓名');
+            $table->string('name')->nullable()->comment('姓名');
 
             $table->string('phone')->nullable()->comment('手機');
             $table->string('address')->nullable()->comment('地址');

@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Http\MenuTreeTrait;
+use App\Enums\Customer\Identity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
-use Spatie\Permission\Traits\HasRoles;
 
 class Customer extends Authenticatable
 {
@@ -24,6 +23,18 @@ class Customer extends Authenticatable
     const NO_ROLE_PERMISSION = '2';
 
     protected $guarded = ['email'];
+    protected $fillable = [
+        'email',
+        'email_verified_at',
+        'name',
+        'phone',
+        'address',
+        'birthday',
+        'acount_status',
+        'bind_customer_id',
+        'password',
+        'api_token',
+    ];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -56,7 +67,8 @@ class Customer extends Authenticatable
         , $permission_id = [], $role_id = []
     )
     {
-        $id = self::create([
+//        dd($email);
+        $id = Customer::create([
             'name' => $name,
             'email' => $email,
             'phone' => $phone,
@@ -68,10 +80,33 @@ class Customer extends Authenticatable
             'api_token' => Str::random(80),
         ])->id;
 
+        //創建消費者時，直接給一消費者身分
+        CustomerIdentity::createData($id, Identity::customer()->value);
+
 //        self::where('id', '=', $id)->get()->first()->givePermissionTo($permission_id);
 //        self::where('id', '=', $id)->get()->first()->assignRole($role_id);
 
         return $id;
+    }
+
+    //綁定消費者
+    public static function bindCustomer($user_id, $customer_id) {
+        $user = User::where('id', $user_id)->get()->first();
+        $customer = Customer::where('id', $customer_id)->get()->first();
+        if (null != $user && null != $customer) {
+            return DB::transaction(function () use ($user_id, $customer_id
+            ) {
+                User::where('id', $user_id)->update([
+                    'customer_id' => $customer_id,
+                ]);
+                return $user_id;
+            });
+        }
+    }
+
+    public static function deleteById(int $id)
+    {
+        Customer::where('id', $id)->delete();
     }
 
     /**
@@ -84,22 +119,6 @@ class Customer extends Authenticatable
     {
         $admin = new Customer();
         $admin_table = DB::table($admin->getTable());
-        if (isset($query['roles']) && $query['roles']) {
-            if ($query['roles'] == self::HAS_ROLE_PERMISSION) {
-                $admin_table->join('per_model_has_roles', 'id', '=', 'model_id')
-                    ->where('model_type', '=', get_class($admin));
-            } elseif ($query['roles'] == self::NO_ROLE_PERMISSION) {
-                $data = DB::table('per_model_has_roles')->where('model_type', '=', get_class($admin))
-                    ->select('model_id')
-                    ->get()
-                    ->toArray();
-                $assigned_roles = array();
-                foreach ($data as $key => $datum) {
-                    $assigned_roles[$key] = $datum->model_id;
-                }
-                $admin_table->whereNotIn('id', $assigned_roles);
-            }
-        }
 
         if (isset($query['name']) && $query['name']) {
             $admin_table->where('name', 'like', "%{$query['name']}%");
@@ -109,27 +128,11 @@ class Customer extends Authenticatable
             $admin_table->where('email', 'like', "%{$query['email']}%");
         }
 
+        $admin_table->whereNull('deleted_at');
         $admins = $admin_table->paginate($per_page)->appends($query);
 
-        $admin_data = array();
-        foreach ($admins as $x) {
-            $admin_data[] = $x;
-        }
-        $total_data = array();
-        foreach ($admin_data as $admin) {
-            array_push($total_data, [
-                'id' => $admin->id,
-                'name' => $admin->name,
-                'email' => $admin->email,
-                'api_token' => $admin->api_token,
-                'is_master' => (isset($admin->is_master) && $admin->is_master) ? 1 : 0,
-                'role' => Role::getUserRoles($admin->id, 'admin'),
-            ]);
-        }
-
         return [
-            'dataList' => $total_data,
-            'account' => $admins,
+            'dataList' => $admins,
         ];
     }
 }

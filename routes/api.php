@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Web\NaviCtrl;
+use App\Models\Customer;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -31,7 +32,7 @@ Route::get('/tokens/create', function (Request $request) {
     return ['token' => $token->plainTextToken];
 });
 
-Route::group(['prefix' => 'user', 'as' => 'user.', 'middleware' => 'auth:sanctum'], function () {
+Route::group(['prefix' => 'user', 'as' => 'user.', 'middleware' => ['auth:sanctum', 'auth.identity.api.customer']], function () {
     Route::get('/tokens/delete-all', function (Request $request) {
         // $token = $request->user()->createToken($request->token_name);
         // dd($request->token_name);
@@ -48,6 +49,18 @@ Route::group(['prefix' => 'user', 'as' => 'user.', 'middleware' => 'auth:sanctum
 
     Route::get('/user', function (Request $request) {
 
+        return $request->user();
+    });
+});
+
+Route::get('/tokens/customer', function (Request $request) {
+    $costomer = Customer::where('id', 2)->get()->first();
+    $token = $costomer->createToken('eee');
+    return ['token' => $token->plainTextToken];
+});
+
+Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => ['auth:sanctum', 'identity.api.customer']], function () {
+    Route::get('/customer', function (Request $request) {
         return $request->user();
     });
 });

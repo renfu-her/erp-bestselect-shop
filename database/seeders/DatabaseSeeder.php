@@ -25,7 +25,7 @@ class DatabaseSeeder extends Seeder
             ShipmentSeeder::class,
             SaleChannelSeeder::class,
             ProductSeeder::class,
-//            PurchaseSeeder::class,
+            PurchaseSeeder::class,
             naviNodeSeeder::class
         ]);
     }

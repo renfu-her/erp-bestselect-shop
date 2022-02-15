@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Enums\Purchase\InboundStatus;
 use App\Models\PayingOrder;
+use App\Models\ProductStyle;
 use App\Models\Purchase;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseItem;
@@ -43,14 +43,15 @@ class PurchaseSeeder extends Seeder
         $operator_user_id = 5;
         $operator_user_name = '之谷';
 
-        $product_style_id1 = 1;
-        $product_style_id2 = 2;
+        $product_style1 = ProductStyle::where('id', 1)->get()->first();
+        $product_style2 = ProductStyle::where('id', 2)->get()->first();
+
         $purchaseItemID1 = PurchaseItem::createPurchase(
             [
                 'purchase_id' => $purchaseID1,
-                'product_style_id' => $product_style_id1,
-                'title' => '測試商品-M',
-                'sku' => 'P22010600101',
+                'product_style_id' => $product_style1->id,
+                'title' => '測試商品-'.$product_style1->title,
+                'sku' => $product_style1->sku,
                 'price' => '11',
                 'num' => 10,
                 'temp_id' => null,
@@ -62,9 +63,9 @@ class PurchaseSeeder extends Seeder
         $purchaseItemID2 = PurchaseItem::createPurchase(
             [
                 'purchase_id' => $purchaseID1,
-                'product_style_id' => $product_style_id1,
-                'title' => '測試商品-X',
-                'sku' => 'P22010600102',
+                'product_style_id' => $product_style2->id,
+                'title' => '測試商品-'.$product_style2->title,
+                'sku' => $product_style2->sku,
                 'price' => '12',
                 'num' => 10,
                 'temp_id' => null,
@@ -76,13 +77,13 @@ class PurchaseSeeder extends Seeder
         PurchaseItem::createPurchase(
             [
                 'purchase_id' => $purchaseID2,
-                'product_style_id' => $product_style_id1,
-                'title' => '測試商品-M',
-                'sku' => 'P22010600101',
+                'product_style_id' => $product_style1->id,
+                'title' => '測試商品-'.$product_style1->title,
+                'sku' => $product_style1->sku,
                 'price' => '13',
                 'num' => 10,
                 'temp_id' => null,
-                'memo' => null
+                'memo' => '第三筆款式'
             ],
             $operator_user_id,
             $operator_user_name
@@ -122,10 +123,10 @@ class PurchaseSeeder extends Seeder
         $purchaseInbound1 = PurchaseInbound::createInbound(
             $purchaseID1,
             $purchaseItemID1,
-            $product_style_id1,
+            $product_style1->id,
             '2022-12-14 00:00:00',
             null,
-            0,
+            5,
             $depot_id,
             $depot_name,
             $user_id_5,
@@ -137,7 +138,7 @@ class PurchaseSeeder extends Seeder
         $purchaseInbound2 = PurchaseInbound::createInbound(
             $purchaseID1,
             $purchaseItemID1,
-            $product_style_id1,
+            $product_style1->id,
             '2022-12-14 00:00:00',
             '2022-01-05 00:00:00',
             99,
@@ -151,7 +152,7 @@ class PurchaseSeeder extends Seeder
         $purchaseInbound3 = PurchaseInbound::createInbound(
             $purchaseID1,
             $purchaseItemID1,
-            $product_style_id1,
+            $product_style1->id,
             '2022-12-14 00:00:00',
             '2022-01-06 00:00:00',
             1,
