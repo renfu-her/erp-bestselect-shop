@@ -1,0 +1,655 @@
+@extends('layouts.main')
+@section('sub-content')
+    <h2 class="mb-3">新增訂單</h2>
+
+    <form id="form1" method="post" action="">
+        @method('POST')
+        @csrf
+
+        <div class="card shadow p-4 mb-4">
+            <h6><span class="badge -step">第一步</span>添加購物車</h6>
+            <div class="row">
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">訂購客戶</label>
+                    <select name="customer_id" class=" form-select -select2 -single" data-placeholder="請選擇訂購客戶">
+                        @foreach ($customers as $customer)
+                            <option value="{{ $customer->id }}" @if ($customer->id == $customer_id) selected @endif>
+                                {{ $customer->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">客戶身分</label>
+                    <div class="form-control" readonly>客戶尚未選取/員工</div>
+                </div>
+            </div>
+            <div class="">
+                <button id="addProductBtn" type="button" class="btn btn-primary" style="font-weight: 500;">
+                    加入商品
+                </button>
+            </div>
+        </div>
+
+        {{-- 常溫 .-detail-warning / 冷凍 .-detail-primary / 冷藏 .-detail-success --}}
+        <div class="card shadow mb-4 -detail d-none">
+            <div class="card-header px-4 d-flex align-items-center bg-white border-bottom-0">
+                <strong class="flex-grow-1 mb-0" data-id=""></strong>
+                <span class="badge -badge fs-6"></span>
+            </div>
+            {{-- 商品列表 --}}
+            <div class="card-body px-4 py-0">
+                <div class="table-responsive tableOverBox">
+                    <table class="table tableList table-sm mb-0">
+                        <thead class="table-light text-secondary">
+                            <tr>
+                                <th scope="col" class="col-1 text-center">刪除</th>
+                                <th scope="col">商品名稱</th>
+                                <th scope="col" class="col-2 text-center">單價</th>
+                                <th scope="col" class="col-2 text-center">數量</th>
+                                <th scope="col" class="col-2 text-end">小計</th>
+                            </tr>
+                        </thead>
+                        <tbody class="-appendClone --selectedP">
+                            <tr class="-cloneElem --selectedP">
+                                <th>
+                                    <button type="button"
+                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                    <input type="hidden" name="product_id[]" value="">
+                                    <input type="hidden" name="product_style_id[]" value="">
+                                    <input type="hidden" name="shipment_type[]" value="">
+                                    <input type="hidden" name="shipment_event_id[]" value="">
+                                </th>
+                                <td data-td="title"><a href="#" class="-text"></a></td>
+                                <td class="text-center" data-td="price">$0</td>
+                                <td>
+                                    <x-b-qty-adjuster name="qty[]" value="1" min="1"
+                                        size="sm" minus="減少" plus="增加">
+                                    </x-b-qty-adjuster>
+                                </td>
+                                <td class="text-end" data-td="subtotal">$0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {{-- 優惠列表 --}}
+            {{-- <div class="card-body px-4 py-0">
+                <div class="table-responsive tableOverBox">
+                    <table class="table tableList table-sm mb-0">
+                        <thead class="table-light text-secondary">
+                            <tr>
+                                <th scope="col">優惠類型</th>
+                                <th scope="col">優惠名稱</th>
+                                <th scope="col">贈品</th>
+                                <th scope="col">金額</th>
+                            </tr>
+                        </thead>
+                        <tbody class="-appendClone">
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div> --}}
+            {{-- 運費 --}}
+            <div class="card-body px-4 py-2 border-top">
+                <div class="d-flex lh-lg">
+                    <div scope="col" class="col">運費</div>
+                    <div class="co-auto" data-td="dlv_fee">$0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow mb-4 -detail -detail-primary">
+            <div class="card-header px-4 d-flex align-items-center bg-white border-bottom-0">
+                <strong class="flex-grow-1 mb-0">GGC-00455-225冷凍宅配</strong>
+                <span class="badge -badge fs-6"></span>
+            </div>
+            {{-- 商品列表 --}}
+            <div class="card-body px-4 py-0">
+                <div class="table-responsive tableOverBox">
+                    <table class="table tableList table-sm mb-0">
+                        <thead class="table-light text-secondary">
+                            <tr>
+                                <th scope="col" class="col-1 text-center">刪除</th>
+                                <th scope="col">商品名稱</th>
+                                <th scope="col" class="col-2 text-center">單價</th>
+                                <th scope="col" class="col-2 text-center">數量</th>
+                                <th scope="col" class="col-2 text-end">小計</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>
+                                    <button type="button"
+                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                    <input type="hidden" name="product_id[]" value="">
+                                    <input type="hidden" name="product_style_id[]" value="">
+                                    <input type="hidden" name="shipment_type[]" value="">
+                                    <input type="hidden" name="shipment_event_id[]" value="">
+                                </th>
+                                <td><a href="#" class="-text">【春一枝】天然水果手作冰棒</a></td>
+                                <td class="text-center">$100</td>
+                                <td>
+                                    <x-b-qty-adjuster name="qty[]" value="1" min="1"
+                                        size="sm" minus="減少" plus="增加">
+                                    </x-b-qty-adjuster>
+                                </td>
+                                <td class="text-end">$200</td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <button type="button"
+                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                    <input type="hidden" name="product_id[]" value="">
+                                    <input type="hidden" name="product_style_id[]" value="">
+                                    <input type="hidden" name="shipment_type[]" value="">
+                                    <input type="hidden" name="shipment_event_id[]" value="">
+                                </th>
+                                <td data-td="title"><a href="#" class="-text">紐西蘭冰河帝王鮭魚片（冷煙燻）-(200g/盒)</a></td>
+                                <td class="text-center" data-td="price">$150</td>
+                                <td>
+                                    <x-b-qty-adjuster name="qty[]" value="1" min="1"
+                                        size="sm" minus="減少" plus="增加">
+                                    </x-b-qty-adjuster>
+                                </td>
+                                <td class="text-end" data-td="subtotal">$150</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {{-- 優惠列表 --}}
+            {{-- <div class="card-body px-4 py-0">
+                <div class="table-responsive tableOverBox">
+                    <table class="table tableList table-sm mb-0">
+                        <thead class="table-light text-secondary">
+                            <tr>
+                                <th scope="col">優惠類型</th>
+                                <th scope="col">優惠名稱</th>
+                                <th scope="col">贈品</th>
+                                <th scope="col">金額</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div> --}}
+            {{-- 運費 --}}
+            <div class="card-body px-4 py-2 border-top">
+                <div class="d-flex lh-lg">
+                    <div scope="col" class="col">運費</div>
+                    <div class="co-auto" data-td="dlv_fee">$100</div>
+                </div>
+            </div>
+        </div>
+
+        @error('del_error')
+            <div class="alert alert-danger mt-3">{{ $message }}</div>
+        @enderror
+
+        <div id="submitDiv">
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary px-4">建立</button>
+                <a href="{{ Route('cms.order.index') }}" class="btn btn-outline-primary px-4" role="button">返回列表</a>
+            </div>
+        </div>
+    </form>
+
+    {{-- 商品清單 --}}
+    <x-b-modal id="addProduct" cancelBtn="false" size="modal-xl modal-fullscreen-lg-down">
+        <x-slot name="title">選擇商品</x-slot>
+        <x-slot name="body">
+            <div class="input-group mb-3 -searchBar">
+                <input type="text" class="form-control" placeholder="請輸入名稱或SKU" aria-label="搜尋條件">
+                <button class="btn btn-primary" type="button">搜尋商品</button>
+            </div>
+            {{-- <div class="row justify-content-end mb-2">
+                <div class="col-auto">
+                    顯示
+                    <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
+                        @foreach (config('global.dataPerPage') as $value)
+                            <option value="{{ $value }}">{{ $value }}</option>
+                        @endforeach
+                    </select>
+                    筆
+                </div>
+            </div> --}}
+            <div class="table-responsive">
+                <table class="table table-hover tableList">
+                    <thead>
+                        <tr>
+                            <th scope="col">商品名稱</th>
+                            <th scope="col">款式</th>
+                            <th scope="col">SKU</th>
+                            <th scope="col">價格</th>
+                            <th scope="col">加入購物車</th>
+                        </tr>
+                    </thead>
+                    <tbody class="-appendClone --product">
+                        <tr class="-cloneElem d-none">
+                            <td>【喜鴻嚴選】咖啡候機室(10入/盒)</td>
+                            <td>綜合口味</td>
+                            <td>AA2590</td>
+                            <td>$100</td>
+                            <td>
+                                <button type="button" class="btn btn-outline-primary -add" data-idx="">
+                                    <i class="bi bi-plus-circle"></i> 加入
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col d-flex justify-content-end align-items-center flex-wrap -pages"></div>
+            <div class="alert alert-secondary mx-3 mb-0 -emptyData" style="display: none;" role="alert">
+                查無商品！
+            </div>
+        </x-slot>
+        <x-slot name="foot">
+            <span class="me-3 -checkedNum">已添加 0 件商品</span>
+        </x-slot>
+    </x-b-modal>
+
+    {{-- 物流選擇 --}}
+    <x-b-modal id="setShipment" cancelBtn="false" size="">
+        <x-slot name="title">選擇物流</x-slot>
+        <x-slot name="body">
+            <figure>
+                <blockquote class="blockquote"><h6 class="fs-5"></h6></blockquote>
+                <figcaption class="blockquote-footer"></figcaption>
+            </figure>
+            <div>
+                <fieldset class="col-12">
+                    <div class="ps-1 pe-3"></div>
+                </fieldset>
+            </div>
+        </x-slot>
+        <x-slot name="foot">
+            <button class="btn btn-secondary" data-bs-target="#addProduct" data-bs-toggle="modal" data-bs-dismiss="modal">返回列表</button>
+            <button type="button" class="btn btn-primary btn-ok">加入購物車</button>
+        </x-slot>
+    </x-b-modal>
+@endsection
+@once
+    @push('sub-styles')
+        <link rel="stylesheet" href="{{ Asset('dist/css/order.css') }}">
+        <style>
+            .-detail-success .badge.-badge::after {
+                content: "冷藏";
+            }
+
+            .-detail-primary .badge.-badge::after {
+                content: "冷凍";
+            }
+
+            .-detail-warning .badge.-badge::after {
+                content: "常溫";
+            }
+
+        </style>
+    @endpush
+    @push('sub-scripts')
+        <script>
+            // 儲存前設定name
+            $('#form1').submit(function(e) {
+                $('input:hidden[name="supplier"]').val($('#supplier').val());
+            });
+        </script>
+        <script>
+            let addProductModal = new bootstrap.Modal(document.getElementById('addProduct'));
+            let setShipmentModal = new bootstrap.Modal(document.getElementById('setShipment'));
+            let prodPages = new Pagination($('#addProduct .-pages'));
+            /*** 選取 ***/
+            // 商品
+            let selectedProduct = {
+                // pid: '產品ID',
+                // sid: '樣式ID',
+                // name: '商品名稱',
+                // spec: '樣式',
+                // sku: 'SKU',
+                // price: '單價',
+                // stock: '庫存',
+            };
+            // 物流
+            let selectShip = {};
+            /** ********* **/
+            // 購物車資料
+            let productStyleId = []; // 樣式ID
+            let myCart = {
+                // '物流ID': {
+                //     name: '物流名稱',
+                //     type: '物流類型',
+                //     temp: '溫層',
+                //     fee: '運費',
+                //     products: ['商品']
+                // }
+            };
+            // clone 項目
+            const $selectedClone = $('.-detail.d-none .-cloneElem.--selectedP').clone();
+            $('.-detail.d-none .-appendClone.--selectedP').empty();
+            const $cardClone = $('.-detail.d-none').clone();
+            $('.-detail.d-none').remove();
+
+            bindAdjusterBtn();
+
+            /*** 刪除商品 ***/
+            let delItemOption = {
+                appendClone: '.-appendClone.--selectedP',
+                cloneElem: '.-cloneElem.--selectedP',
+                beforeDelFn: function({$this}) {
+                    const product_style_id = $this.siblings('input[name="product_style_id[]"]').val();
+                    if (product_style_id) {
+                        // call del API
+                    }
+                },
+                checkFn: function() {
+                    if ($('.-cloneElem.--selectedP').length) {
+                        $('button[type="submit"]').prop('disabled', false);
+                    }
+                    // 無商品不可儲存
+                    if (!$('.-cloneElem.--selectedP').length) {
+                        $('button[type="submit"]').prop('disabled', true);
+                    }
+                }
+            };
+            Clone_bindDelElem($('.-cloneElem.--selectedP .-del'), delItemOption);
+            // 無商品不可儲存
+            if (!$('.-cloneElem.--selectedP').length) {
+                $('button[type="submit"]').prop('disabled', true);
+            }
+
+            // 加入商品、搜尋商品
+            $('#addProductBtn, #addProduct .-searchBar button')
+                .off('click').on('click', function(e) {
+                    // productStyleId = [];
+                    // // 檢查重複
+                    // $('.-cloneElem.--selectedP input[name="product_style_id[]"]').each(function(index, element) {
+                    //     productStyleId.push($(element).val());
+                    // });
+                    if ($(this).attr('id') === 'addProductBtn') {
+                        selectedProduct = {};
+                        addProductModal.show();
+                    } else {
+                        getProductList(1);
+                    }
+                });
+
+            // 開啟商品列表視窗
+            $('#addProduct').on('show.bs.modal', function () {
+                selectedProduct = {};
+                getProductList(1);
+            });
+            // 商品清單 API
+            function getProductList(page) {
+                let _URL = `${Laravel.apiUrl.productStyles}?page=${page}`;
+                let Data = {
+                    price: 1
+                };
+
+                if (!Data.price) {
+                    toast.show('請先選擇訂購客戶。', { type: 'warning', title: '客戶未選取' });
+                    return false;
+                } else {
+                    $('#addProduct tbody.-appendClone.--product').empty();
+                    $('#addProduct #pageSum').text('');
+                    $('#addProduct .page-item:not(:first-child, :last-child)').remove();
+                    $('#addProduct nav').hide();
+                    $('#addProduct .-checkedNum').text(`已添加 ${productStyleId.length} 件商品`);
+
+                    axios.post(_URL, Data)
+                        .then((result) => {
+                            const res = result.data;
+                            const prodData = res.data;
+                            if (res.status === '0' && prodData && prodData.length) {
+                                $('.-emptyData').hide();
+                                prodData.forEach((prod, i) => {
+                                    createOneProduct(prod, i);
+                                });
+
+                                // bind 加入btn
+                                $('#addProduct .-appendClone.--product .-add').on('click', function () {
+                                    const idx = Number($(this).attr('data-idx'));
+                                    setProduct(prodData[idx]);
+
+                                    // 關閉商品懸浮視窗
+                                    addProductModal.hide();
+                                    // 開啟物流選擇視窗
+                                    setShipmentModal.show();
+                                });
+
+                                // 產生分頁
+                                prodPages.create(res.current_page, {
+                                    totalData: res.total,
+                                    totalPages: res.last_page,
+                                    changePageFn: getProductList
+                                });
+                            } else {
+                                $('#addProduct .-emptyData').show();
+                            }
+                        }).catch((err) => {
+                            console.log(err);
+                        });
+
+                    return true;
+
+                    // 商品列表
+                    function createOneProduct(p, i) {
+                        let addBtn = '', typeTag = '';
+
+                        if (p.in_stock <= 0) {
+                            addBtn = `<span class="text-muted">缺貨</span>`;
+                        } else if (productStyleId.indexOf((p.id).toString()) < 0) {
+                            addBtn = `<button type="button" class="btn btn-outline-primary -add" data-idx="${i}">
+                                <i class="bi bi-plus-circle"></i> 加入
+                            </button>`;
+                        } else {
+                            addBtn = `<span class="text-muted">已加入</span>`;
+                        }
+                        if (p.type_title === '組合包商品') {
+                            typeTag = '<span class="badge bg-warning text-dark">組合包</span>';
+                        } else {
+                            typeTag = '<span class="badge bg-success">一般</span>';
+                        }
+
+                        let $tr = $(`<tr>
+                            <td>${typeTag} ${p.product_title}</td>
+                            <td>${p.spec || ''}</td>
+                            <td>${p.sku}</td>
+                            <td>$${p.price}</td>
+                            <td>${addBtn}</td>
+                        </tr>`);
+                        $('#addProduct .-appendClone.--product').append($tr);
+                    }
+
+                    // 選擇商品
+                    function setProduct(p) {
+                        selectedProduct = {
+                            pid: p.product_id,
+                            sid: p.id,
+                            name: p.product_title,
+                            spec: p.spec,
+                            sku: p.sku,
+                            price: p.price,
+                            stock: p.in_stock
+                        };
+                    }
+                }
+            }
+
+            // 開啟物流選擇視窗
+            $('#setShipment').on('show.bs.modal', function () {
+                $('#setShipment blockquote h6').text(`${selectedProduct.name} [${selectedProduct.spec}]`);
+                $('#setShipment figcaption').text(selectedProduct.sku);
+                $('#setShipment fieldset > div').empty();
+                getShpmentData(selectedProduct.pid);
+            });
+            // 物流 API
+            function getShpmentData(pid) {
+                let _URL = `${Laravel.apiUrl.productShipments}`;
+                let Data = {
+                    product_id: pid
+                };
+
+                axios.post(_URL, Data)
+                    .then((result) => {
+                        const res = result.data;
+                        const shipData = res.data;
+
+                        if (res.status === "0" && shipData) {
+                            // 宅配
+                            if (shipData.deliver) {
+                                $('#setShipment fieldset > div').append(`
+                                    <div class="form-check mb-3">
+                                        <label class="form-check-label">
+                                            <input class="form-check-input" name="radio" type="radio" >
+                                            ${shipData.deliver.category}
+                                        </label>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="form-control" readonly>${shipData.deliver.group_name}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `);
+                            }
+                            // 自取
+                            if (shipData.pickup) {
+                                $('#setShipment fieldset > div').append(`
+                                    <div class="form-check mb-3">
+                                        <label class="form-check-label">
+                                            <input class="form-check-input" name="radio" type="radio">
+                                            ${shipData.pickup.category}
+                                        </label>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <select name="depots" class="form-select">
+                                                    ${depotsOpts(shipData.pickup.depots)}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `);
+
+                                function depotsOpts(depots) {
+                                    let opts = '';
+                                    depots.forEach(d => {
+                                        opts += `<option value="${d.id}">${d.depot_name}</option>`;
+                                    });
+                                    return opts;
+                                }
+                            }
+                        }
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
+            }
+
+            // 紀錄 checked product
+            function catchCheckedProduct() {
+                $('#addProduct tbody input[data-td="p_id"]').each(function(index, element) {
+                    // element == this
+                    const sku = $(element).parent('th').siblings('[data-td="sku"]').text();
+                    const idx = productStyleId.indexOf(sku);
+                    if ($(element).prop('checked')) {
+                        if (idx < 0) {
+                            productStyleId.push(sku);
+                            selectedProduct.push({
+                                id: $(element).val(),
+                                name: $(element).parent('th').siblings('[data-td="name"]').text(),
+                                sku: sku,
+                                spec: $(element).parent('th').siblings('[data-td="spec"]').text()
+                            });
+                        }
+                    } else {
+                        if (idx >= 0) {
+                            productStyleId.splice(idx, 1);
+                            selectedProduct.splice(idx, 1);
+                        }
+                    }
+
+                });
+            }
+
+            // btn - 加入購物車
+            $('#setShipment .btn-ok').off('click').on('click', function() {
+                selectedProduct.forEach(p => {
+                    if (!$(`tr.-cloneElem.--selectedP button[data-id="${p.id}"]`).length) {
+                        createOneSelected(p);
+                    }
+                });
+                if ($('.-cloneElem.--selectedP').length) {
+                    $('#supplier').prop('disabled', true);
+                }
+
+                // 關閉懸浮視窗
+                setShipmentModal.hide();
+
+                // 加入採購單 - 加入一個商品
+                function createOneSelected(p) {
+                    Clone_bindCloneBtn($selectedClone, function(cloneElem) {
+                        cloneElem.find('input').val('');
+                        // cloneElem.find('input[name="item_id[]"]').remove();
+                        cloneElem.find('.-del').attr('data-id', null);
+                        cloneElem.find('td[data-td]').text('');
+                        cloneElem.find('.is-invalid').removeClass('is-invalid');
+                        if (p) {
+                            cloneElem.find('input[name="product_style_id[]"]').val(p.id);
+                            cloneElem.find('input[name="name[]"]').val(`${p.name}-${p.spec}`);
+                            cloneElem.find('input[name="sku[]"]').val(p.sku);
+                            cloneElem.find('td[data-td="name"]').text(`${p.name}-${p.spec}`);
+                            cloneElem.find('td[data-td="sku"]').text(p.sku);
+                        }
+                    }, delItemOption);
+                }
+            });
+
+            // 關閉Modal時，清空值
+            $('#addProduct').on('hidden.bs.modal', function(e) {
+                // productStyleId = [];
+                selectedProduct = {};
+                $('#addProduct .-searchBar input').val('');
+                $('#addProduct tbody.-appendClone.--product').empty();
+                $('#addProduct #pageSum').text('');
+                $('#addProduct .page-item:not(:first-child, :last-child)').remove();
+                $('#addProduct nav').hide();
+                $('#addProduct .-checkedNum').text('已添加 0 件商品');
+                $('.-emptyData').hide();
+            });
+
+            // 綁定 計數器按鈕
+            function bindAdjusterBtn() {
+                // +/- btn
+                $('button.-minus, button.-plus').off('click.adjust').on('click.adjust', function() {
+                    const $qty = $(this).siblings('input[name="qty[]"]');
+                    const min = Number($qty.attr('min'));
+                    const max = Number($qty.attr('max'));
+                    const m_qty = Number($qty.val());
+                    if ($(this).hasClass('-minus')) {
+                        (m_qty > min || isNaN(min)) ? $qty.val(m_qty - 1) : $qty.val(min);
+                    }
+                    if ($(this).hasClass('-plus')) {
+                        (m_qty < max || isNaN(max)) ? $qty.val(m_qty + 1) : $qty.val(max);
+                    }
+                    // countStock();
+                });
+            }
+            
+        </script>
+    @endpush
+@endonce

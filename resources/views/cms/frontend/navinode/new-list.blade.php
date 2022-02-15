@@ -160,7 +160,7 @@
             }
             
             // 刪除 btn
-            let del_id = [];
+            let del_id = [];    // 目前無紀錄子項id
             // $('#confirm-delete').on('show.bs.modal', function(e) {
             //     $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
             // });

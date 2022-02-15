@@ -573,14 +573,15 @@ class ProductCtrl extends Controller
      */
     public function editSetting($id)
     {
-        $product = self::product_data($id);
-        $currentShipment = array_map(function($n){
-            return $n->group_id;
-        },Product::shipmentList($id)->get()->toArray());
 
-        $currentPickup = array_map(function($n){
+        $product = self::product_data($id);
+        $currentShipment = array_map(function ($n) {
+            return $n->group_id;
+        }, Product::shipmentList($id)->get()->toArray());
+
+        $currentPickup = array_map(function ($n) {
             return $n->depot_id_fk;
-        },Product::pickupList($id)->get()->toArray());
+        }, Product::pickupList($id)->get()->toArray());
 
         return view('cms.commodity.product.settings', [
             'product' => $product,
@@ -588,7 +589,7 @@ class ProductCtrl extends Controller
             'allPickup' => Depot::getAllSelfPickup(),
             'currentPickup' => $currentPickup,
             'shipments' => ShipmentCategory::categoryWithGroup(),
-            'currentShipment'=>$currentShipment
+            'currentShipment' => $currentShipment,
         ]);
     }
 

@@ -16,7 +16,7 @@ class ProductCtrl extends Controller
 
         $validator = Validator::make($request->all(), [
             //   'supplier_id' => ['required'],
-            //'title' => 'required|string',
+            'price' => 'numeric',
         ]);
 
         if ($validator->fails()) {
@@ -25,12 +25,23 @@ class ProductCtrl extends Controller
                 'message' => $validator->messages(),
             ]);
         }
-        // Arr::get($d, 'supplier_id',''),
         $d = $request->all();
+        $options = [];
+        if (isset($d['price'])) {
+            $options['price'] = $d['price'];
+        }
+        if (isset($d['supplier_id'])) {
+            $options['supplier'] = ['condition' => $d['supplier_id']];
+        }
+
+        // Arr::get($d, 'supplier_id',''),
+
         $re = Product::productStyleList(
             Arr::get($d, 'keyword', ''),
             Arr::get($d, 'type', ''),
-            ['supplier' => ['condition' => Arr::get($d, 'supplier_id', '')]]
+            [],
+            $options,
+
         )->paginate(10)->toArray();
         $re['status'] = '0';
         //   $re['data'] = json_decode(json_encode($re['data']), true);
@@ -63,5 +74,24 @@ class ProductCtrl extends Controller
         //   $re['data'] = json_decode(json_encode($re['data']), true);
         return response()->json($re);
     }
+
+    public function getProductShipment(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'product_id' => ['required'],
+
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'E01',
+                'message' => $validator->messages(),
+            ]);
+        }
+
+        return response()->json(['status' => '0', 'data' => Product::getProductShipments($request->input('product_id'))]);
+    }
+
+    // Product::getProductShipments($id);
 
 }
