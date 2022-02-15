@@ -396,10 +396,11 @@ class Product extends Model
         $re = DB::table('prd_product_shipment as ps')
             ->leftJoin('shi_category as category', 'ps.category_id', '=', 'category.id')
             ->leftJoin('shi_group as g', 'ps.group_id', '=', 'g.id')
+            ->leftJoin('shi_temps as temp', 'g.temps_fk', '=', 'temp.id')
             ->leftJoin(DB::raw("({$ruleSubQuery->toSql()}) as rule"), function ($join) {
                 $join->on('ps.group_id', '=', 'rule.group_id');
             })
-            ->select('category.code as event', 'category.category', 'g.id as group_id', 'g.name as group_name', 'rule.rules')
+            ->select('category.code as event', 'category.category', 'g.id as group_id', 'g.name as group_name','temp.temps', 'rule.rules')
             ->mergeBindings($ruleSubQuery)
             ->where('ps.product_id', $product_id)
             ->where('code', $code);
