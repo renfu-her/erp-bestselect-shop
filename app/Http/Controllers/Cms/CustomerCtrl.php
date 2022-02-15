@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Cms;
 
 use App\Http\Controllers\Controller;
+use App\Models\Addr;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -30,13 +31,20 @@ class CustomerCtrl extends Controller
      *
      * @return Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+        $recentCity = $request->old('city_id');
+        $regions = [];
+        if ($recentCity) {
+            $regions = Addr::getRegions($recentCity);
+        }
 
         return view('cms.admin.customer.edit', [
             'method'         => 'create',
             'formAction'     => Route('cms.customer.create'),
+            'customer_list'  => Customer::all(),
+            'citys' => Addr::getCitys(),
+            'regions' => $regions
         ]);
     }
 
@@ -54,9 +62,28 @@ class CustomerCtrl extends Controller
             'email'  => ['required', 'unique:App\Models\Customer'],
         ]);
 
-        $uData = $request->only('email', 'name', 'password');
+        $uData = $request->only('email', 'name', 'password'
+            , 'phone', 'birthday', 'acount_status', 'bind_customer_id'
+            , 'address', 'city_id', 'region_id', 'addr'
+        );
 
-        Customer::createCustomer($uData['name'], $uData['email'], $uData['password']);
+        $address = null;
+        if (is_numeric($uData['region_id'])) {
+            $address = Addr::fullAddr($uData['region_id'], $uData['addr']);
+        }
+
+        Customer::createCustomer($uData['name']
+            , $uData['email']
+            , $uData['password']
+            , $uData['phone'] ?? null
+            , $uData['birthday'] ?? null
+            , $uData['acount_status'] ?? 0
+            , $uData['bind_customer_id'] ?? null
+            , $address
+            , is_numeric($uData['city_id']) ? $uData['city_id'] : null
+            , is_numeric($uData['region_id']) ? $uData['region_id'] : null
+            , $uData['addr'] ?? null
+        );
 
         wToast('新增完成');
         return redirect(Route('cms.customer.index'));
@@ -81,18 +108,27 @@ class CustomerCtrl extends Controller
      *
      * @return Response
      */
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
-        $data = Customer::where('id', '=', $id)->get()->first();
+        $data = Customer::getCustomer($id)->get()->first();
         if (!$data) {
             return abort(404);
         }
-
+        $recentCity = $request->old('city_id');
+        $regions = [];
+        if ($recentCity) {
+            $regions = Addr::getRegions($recentCity);
+        } else {
+            $regions = Addr::getRegions($data['city_id']);
+        }
 
         return view('cms.admin.customer.edit', [
             'method'         => 'edit', 'id' => $id,
             'formAction'     => Route('cms.customer.edit', ['id' => $id]),
             'data'           => $data,
+            'customer_list'  => Customer::all(),
+            'citys'          => Addr::getCitys(),
+            'regions'        => $regions
         ]);
     }
 
@@ -106,23 +142,38 @@ class CustomerCtrl extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
-        $request->validate([
-            'password' => 'confirmed|min:4|nullable',
-            'name'     => 'required|string', 'role_id' => 'array'
-        ]);
+        $uData = $request->only('email', 'name'
+            , 'phone', 'birthday', 'acount_status', 'bind_customer_id'
+            , 'address', 'city_id', 'region_id', 'addr'
+        );
 
-        $customerData = $request->only('name');
-
-        $password = $request->input('password');
-        if ($password) {
-            $customerData['password'] = Hash::make($password);
+        $address = null;
+        if (is_numeric($uData['region_id'])) {
+            $address = Addr::fullAddr($uData['region_id'], $uData['addr']);
         }
 
-        Customer::where('id', $id)->update($customerData);
+        $updateArr = [
+            'name' => $uData['name'],
+            'phone' => $uData['phone'],
+            'birthday' => $uData['birthday'] ?? null,
+            'address' => $address,
+            'city_id' => is_numeric($uData['city_id']) ? $uData['city_id'] : null,
+            'region_id' => is_numeric($uData['region_id']) ? $uData['region_id'] : null,
+            'addr' => $uData['addr'] ?? null,
+            'bind_customer_id' => $uData['bind_customer_id'] ?? null,
+        ];
+        $password = $request->input('password');
+        if ($password) {
+            $updateArr['password'] = Hash::make($password);
+        }
+        $acount_status = $request->input('acount_status');
+        if (0 == $acount_status || 1 == $acount_status) {
+            $updateArr['acount_status'] = $acount_status;
+        }
+        Customer::where('id', $id)->update($updateArr);
 
         wToast('檔案更新完成');
-        return redirect(Route('cms.customer.index'));
+        return redirect(Route('cms.customer.edit', ['id' => $id]));
     }
 
     /**

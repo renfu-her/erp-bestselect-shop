@@ -20,7 +20,10 @@ class CreateUsrCustomersTable extends Migration
             $table->string('name')->nullable()->comment('姓名');
 
             $table->string('phone')->nullable()->comment('手機');
-            $table->string('address')->nullable()->comment('地址');
+            $table->string('address')->nullable()->comment('詳細地址');
+            $table->integer('city_id')->nullable()->comment('城市ID');
+            $table->integer('region_id')->nullable()->comment('區域ID');
+            $table->string('addr')->nullable()->comment('簡易地址');
             $table->timestamp('birthday')->nullable()->comment('生日');
 
             $table->tinyInteger('acount_status')->default(0)->comment('帳號狀態 0:未開通 1:開通');

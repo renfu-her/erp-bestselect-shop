@@ -15,6 +15,26 @@
                 @if ($method === 'create') 新增 @else 編輯 @endif 帳號
             </div>
             <div class="card-body">
+                <x-b-form-group name="can_pickup" title="開通狀態">
+                    <div class="px-1">
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                關閉
+                                <input class="form-check-input @error('acount_status') is-invalid @enderror"
+                                       value="0" name="acount_status" type="radio"
+                                       @if ($method === 'create' || ($method === 'edit' && !$data->acount_status)) checked @endif >
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                開放
+                                <input class="form-check-input @error('acount_status') is-invalid @enderror"
+                                       value="1" name="acount_status" type="radio"
+                                       @if ($method === 'edit' && $data->acount_status ) checked @endif >
+                            </label>
+                        </div>
+                    </div>
+                </x-b-form-group>
                 <x-b-form-group name="name" title="姓名" required="true">
                     <input class="form-control @error('name') is-invalid @enderror" name="name"
                            value="{{ old('name', $data->name ?? '') }}"/>
@@ -35,13 +55,75 @@
                     <input class="form-control @error('password_confirmation') is-invalid @enderror" type="password"
                            name="password_confirmation" value=""/>
                 </x-b-form-group>
+                <x-b-form-group name="phone" title="手機">
+                    <input class="form-control @error('phone') is-invalid @enderror"
+                           name="phone" value="{{ old('phone', $data->phone ?? '') }}"/>
+                </x-b-form-group>
 
+                <div calss="form-group">
+                    <label class="col-form-label">
+                        地址
+                    </label>
+                    <div class="input-group has-validation">
+                        <select class="form-select @error('city_id') is-invalid @enderror" style="max-width:20%"
+                                id="city_id" name="city_id">
+                            <option>請選擇</option>
+                            @foreach ($citys as $city)
+                                <option value="{{ $city['city_id'] }}"
+                                        @if (old('city_id', $data->city_id ?? '') == $city['city_id']) selected @endif>{{ $city['city_title'] }}</option>
+                            @endforeach
+                        </select>
+                        <select class="form-select @error('region_id') is-invalid @enderror" style="max-width:20%"
+                                id="region_id" name="region_id">
+                            <option>請選擇</option>
+                            @foreach ($regions as $region)
+                                <option value="{{ $region['region_id'] }}"
+                                        @if (old('region_id', $data->region_id ?? '') == $region['region_id']) selected @endif>{{ $region['region_title'] }}</option>
+                            @endforeach
+                        </select>
+                        <input name="addr" type="text" class="form-control @error('addr') is-invalid @enderror"
+                               value="{{ old('addr', $data->addr ?? '') }}">
+                        <button class="btn btn-outline-success" type="button" id="format_btn">格式化</button>
+                        <div class="invalid-feedback">
+                            @error('city_id')
+                            {{ $message }}
+                            @enderror
+                            @error('region_id')
+                            {{ $message }}
+                            @enderror
+                            @error('addr')
+                            {{ $message }}
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+                <x-b-form-group name="birthday" title="生日">
+                    <input class="form-control @error('birthday') is-invalid @enderror" type="date"
+                           name="birthday" value="{{ old('birthday', $data->birthday ?? '') }}"/>
+                </x-b-form-group>
+
+                <x-b-form-group name="customer_id" title="綁定消費者帳號">
+                    <select id="bind_customer_id" name="bind_customer_id"
+                            class="form-select -select2 -single @error('bind_customer_id') is-invalid @enderror"
+                            aria-label="綁定消費者帳號">
+                        <option value="" selected disabled>請選擇</option>
+                        @foreach ($customer_list as $customer)
+                            <option value="{{ $customer->id }}"
+                                    @if ($customer->id == old('customer_id', $data->bind_customer_id ?? '')) selected @endif>
+                                {{ $customer->name }} {{ $customer->email }}
+                            </option>
+                        @endforeach
+                    </select>
+                </x-b-form-group>
                 @if ($method === 'edit')
                     <input type='hidden' name='id' value="{{ old('id', $id) }}"/>
                 @endif
                 @error('id')
                 <div class="alert alert-danger mt-3">{{ $message }}</div>
                 @enderror
+                @if($errors->any())
+                    {{ implode('', $errors->all('<div>:message</div>')) }}
+                @endif
             </div>
         </div>
 
@@ -54,6 +136,39 @@
 @once
     @push('sub-scripts')
         <script>
+            let cityElem = $('#city_id');
+            let regionElem = $('#region_id')
+            let addrInputElem = $('input[name=addr]');
+
+            cityElem.on('change', function (e) {
+                getRegionsAction($(this).val());
+            });
+
+            function getRegionsAction(city_id, region_id) {
+                Addr.getRegions(city_id)
+                    .then(re => {
+                        Elem.renderSelect(regionElem, re.datas, {
+                            default: region_id,
+                            key: 'region_id',
+                            value: 'region_title'
+                        });
+                    });
+            }
+
+            $('#format_btn').on('click', function (e) {
+                let addr = addrInputElem.val();
+
+                if (addr) {
+                    Addr.addrFormating(addr).then(re => {
+                        addrInputElem.val(re.data.addr);
+                        if (re.data.city_id) {
+                            cityElem.val(re.data.city_id);
+                            getRegionsAction(re.data.city_id, re.data.region_id);
+
+                        }
+                    });
+                }
+            });
         </script>
     @endpush
 @endonce
