@@ -20,7 +20,7 @@
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">客戶身分</label>
-                    <div class="input-group-text">客戶尚未選取/員工</div>
+                    <div class="form-control" readonly>客戶尚未選取/員工</div>
                 </div>
             </div>
             <div class="">
@@ -212,7 +212,7 @@
 
     {{-- 商品清單 --}}
     <x-b-modal id="addProduct" cancelBtn="false" size="modal-xl modal-fullscreen-lg-down">
-        <x-slot name="title">選取商品加入購物車</x-slot>
+        <x-slot name="title">選擇商品</x-slot>
         <x-slot name="body">
             <div class="input-group mb-3 -searchBar">
                 <input type="text" class="form-control" placeholder="請輸入名稱或SKU" aria-label="搜尋條件">
@@ -236,19 +236,20 @@
                             <th scope="col">商品名稱</th>
                             <th scope="col">款式</th>
                             <th scope="col">SKU</th>
+                            <th scope="col">價格</th>
                             <th scope="col">加入購物車</th>
                         </tr>
                     </thead>
                     <tbody class="-appendClone --product">
                         <tr class="-cloneElem d-none">
-                            <td data-td="name">【喜鴻嚴選】咖啡候機室(10入/盒)</td>
-                            <td data-td="spec">綜合口味</td>
-                            <td data-td="sku">AA2590</td>
+                            <td>【喜鴻嚴選】咖啡候機室(10入/盒)</td>
+                            <td>綜合口味</td>
+                            <td>AA2590</td>
+                            <td>$100</td>
                             <td>
-                                <span data-bs-toggle="tooltip" title="加入購物車" data-pid=""
-                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                    <i class="bi bi-plus-circle"></i>
-                                </span>
+                                <button type="button" class="btn btn-outline-primary -add" data-idx="">
+                                    <i class="bi bi-plus-circle"></i> 加入
+                                </button>
                             </td>
                         </tr>
                     </tbody>
@@ -261,6 +262,26 @@
         </x-slot>
         <x-slot name="foot">
             <span class="me-3 -checkedNum">已添加 0 件商品</span>
+        </x-slot>
+    </x-b-modal>
+
+    {{-- 物流選擇 --}}
+    <x-b-modal id="setShipment" cancelBtn="false" size="">
+        <x-slot name="title">選擇物流</x-slot>
+        <x-slot name="body">
+            <figure>
+                <blockquote class="blockquote"><h6 class="fs-5"></h6></blockquote>
+                <figcaption class="blockquote-footer"></figcaption>
+            </figure>
+            <div>
+                <fieldset class="col-12">
+                    <div class="ps-1 pe-3"></div>
+                </fieldset>
+            </div>
+        </x-slot>
+        <x-slot name="foot">
+            <button class="btn btn-secondary" data-bs-target="#addProduct" data-bs-toggle="modal" data-bs-dismiss="modal">返回列表</button>
+            <button type="button" class="btn btn-primary btn-ok">加入購物車</button>
         </x-slot>
     </x-b-modal>
 @endsection
@@ -291,17 +312,22 @@
         </script>
         <script>
             let addProductModal = new bootstrap.Modal(document.getElementById('addProduct'));
+            let setShipmentModal = new bootstrap.Modal(document.getElementById('setShipment'));
             let prodPages = new Pagination($('#addProduct .-pages'));
-            /*** 選取商品 ***/
+            /*** 選取 ***/
+            // 商品
             let selectedProduct = {
                 // pid: '產品ID',
                 // sid: '樣式ID',
                 // name: '商品名稱',
+                // spec: '樣式',
+                // sku: 'SKU',
                 // price: '單價',
-                // qty: '數量',
                 // stock: '庫存',
-                // ship_id: '物流ID'
             };
+            // 物流
+            let selectShip = {};
+            /** ********* **/
             // 購物車資料
             let productStyleId = []; // 樣式ID
             let myCart = {
@@ -351,25 +377,31 @@
             $('#addProductBtn, #addProduct .-searchBar button')
                 .off('click').on('click', function(e) {
                     // productStyleId = [];
-                    selectedProduct = {};
                     // // 檢查重複
                     // $('.-cloneElem.--selectedP input[name="product_style_id[]"]').each(function(index, element) {
                     //     productStyleId.push($(element).val());
                     // });
-                    if (getProductList(1) && $(this).attr('id') === 'addProductBtn') {
+                    if ($(this).attr('id') === 'addProductBtn') {
+                        selectedProduct = {};
                         addProductModal.show();
+                    } else {
+                        getProductList(1);
                     }
                 });
 
+            // 開啟商品列表視窗
+            $('#addProduct').on('show.bs.modal', function () {
+                selectedProduct = {};
+                getProductList(1);
+            });
             // 商品清單 API
             function getProductList(page) {
                 let _URL = `${Laravel.apiUrl.productStyles}?page=${page}`;
                 let Data = {
-                    keyword: $('#addProduct .-searchBar input').val(),
-                    orderer_id: $('select[name="customer_id"]').val()
+                    price: 1
                 };
 
-                if (!Data.orderer_id) {
+                if (!Data.price) {
                     toast.show('請先選擇訂購客戶。', { type: 'warning', title: '客戶未選取' });
                     return false;
                 } else {
@@ -382,11 +414,22 @@
                     axios.post(_URL, Data)
                         .then((result) => {
                             const res = result.data;
-                            if (res.status === '0' && res.data && res.data.length) {
+                            const prodData = res.data;
+                            if (res.status === '0' && prodData && prodData.length) {
                                 $('.-emptyData').hide();
-                                (res.data)
-                                .forEach(prod => {
-                                    createOneProduct(prod);
+                                prodData.forEach((prod, i) => {
+                                    createOneProduct(prod, i);
+                                });
+
+                                // bind 加入btn
+                                $('#addProduct .-appendClone.--product .-add').on('click', function () {
+                                    const idx = Number($(this).attr('data-idx'));
+                                    setProduct(prodData[idx]);
+
+                                    // 關閉商品懸浮視窗
+                                    addProductModal.hide();
+                                    // 開啟物流選擇視窗
+                                    setShipmentModal.show();
                                 });
 
                                 // 產生分頁
@@ -405,24 +448,116 @@
                     return true;
 
                     // 商品列表
-                    function createOneProduct(p) {
-                        let addBtn = '';
-                        if (productStyleId.indexOf((p.sku).toString()) < 0) {
-                            addBtn = `<button type="button" class="btn btn-outline-primary" data-pid="${p.id}">
+                    function createOneProduct(p, i) {
+                        let addBtn = '', typeTag = '';
+
+                        if (p.in_stock <= 0) {
+                            addBtn = `<span class="text-muted">缺貨</span>`;
+                        } else if (productStyleId.indexOf((p.id).toString()) < 0) {
+                            addBtn = `<button type="button" class="btn btn-outline-primary -add" data-idx="${i}">
                                 <i class="bi bi-plus-circle"></i> 加入
                             </button>`;
                         } else {
                             addBtn = `<span class="text-muted">已加入</span>`;
                         }
+                        if (p.type_title === '組合包商品') {
+                            typeTag = '<span class="badge bg-warning text-dark">組合包</span>';
+                        } else {
+                            typeTag = '<span class="badge bg-success">一般</span>';
+                        }
+
                         let $tr = $(`<tr>
-                            <td data-td="name">${p.product_title}</td>
-                            <td data-td="spec">${p.spec || ''}</td>
-                            <td data-td="sku">${p.sku}</td>
+                            <td>${typeTag} ${p.product_title}</td>
+                            <td>${p.spec || ''}</td>
+                            <td>${p.sku}</td>
+                            <td>$${p.price}</td>
                             <td>${addBtn}</td>
                         </tr>`);
                         $('#addProduct .-appendClone.--product').append($tr);
                     }
+
+                    // 選擇商品
+                    function setProduct(p) {
+                        selectedProduct = {
+                            pid: p.product_id,
+                            sid: p.id,
+                            name: p.product_title,
+                            spec: p.spec,
+                            sku: p.sku,
+                            price: p.price,
+                            stock: p.in_stock
+                        };
+                    }
                 }
+            }
+
+            // 開啟物流選擇視窗
+            $('#setShipment').on('show.bs.modal', function () {
+                $('#setShipment blockquote h6').text(`${selectedProduct.name} [${selectedProduct.spec}]`);
+                $('#setShipment figcaption').text(selectedProduct.sku);
+                $('#setShipment fieldset > div').empty();
+                getShpmentData(selectedProduct.pid);
+            });
+            // 物流 API
+            function getShpmentData(pid) {
+                let _URL = `${Laravel.apiUrl.productShipments}`;
+                let Data = {
+                    product_id: pid
+                };
+
+                axios.post(_URL, Data)
+                    .then((result) => {
+                        const res = result.data;
+                        const shipData = res.data;
+
+                        if (res.status === "0" && shipData) {
+                            // 宅配
+                            if (shipData.deliver) {
+                                $('#setShipment fieldset > div').append(`
+                                    <div class="form-check mb-3">
+                                        <label class="form-check-label">
+                                            <input class="form-check-input" name="radio" type="radio" >
+                                            ${shipData.deliver.category}
+                                        </label>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="form-control" readonly>${shipData.deliver.group_name}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `);
+                            }
+                            // 自取
+                            if (shipData.pickup) {
+                                $('#setShipment fieldset > div').append(`
+                                    <div class="form-check mb-3">
+                                        <label class="form-check-label">
+                                            <input class="form-check-input" name="radio" type="radio">
+                                            ${shipData.pickup.category}
+                                        </label>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <select name="depots" class="form-select">
+                                                    ${depotsOpts(shipData.pickup.depots)}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `);
+
+                                function depotsOpts(depots) {
+                                    let opts = '';
+                                    depots.forEach(d => {
+                                        opts += `<option value="${d.id}">${d.depot_name}</option>`;
+                                    });
+                                    return opts;
+                                }
+                            }
+                        }
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
             }
 
             // 紀錄 checked product
@@ -451,8 +586,8 @@
                 });
             }
 
-            // btn - 加入採購清單
-            $('#addProduct .btn-ok').off('click').on('click', function() {
+            // btn - 加入購物車
+            $('#setShipment .btn-ok').off('click').on('click', function() {
                 selectedProduct.forEach(p => {
                     if (!$(`tr.-cloneElem.--selectedP button[data-id="${p.id}"]`).length) {
                         createOneSelected(p);
@@ -463,7 +598,7 @@
                 }
 
                 // 關閉懸浮視窗
-                addProductModal.hide();
+                setShipmentModal.hide();
 
                 // 加入採購單 - 加入一個商品
                 function createOneSelected(p) {
@@ -483,16 +618,17 @@
                     }, delItemOption);
                 }
             });
+
             // 關閉Modal時，清空值
             $('#addProduct').on('hidden.bs.modal', function(e) {
-                productStyleId = [];
-                selectedProduct = [];
+                // productStyleId = [];
+                selectedProduct = {};
                 $('#addProduct .-searchBar input').val('');
                 $('#addProduct tbody.-appendClone.--product').empty();
                 $('#addProduct #pageSum').text('');
                 $('#addProduct .page-item:not(:first-child, :last-child)').remove();
                 $('#addProduct nav').hide();
-                $('#addProduct .-checkedNum').text('已選取 0 件商品');
+                $('#addProduct .-checkedNum').text('已添加 0 件商品');
                 $('.-emptyData').hide();
             });
 
