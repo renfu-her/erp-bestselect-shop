@@ -267,6 +267,12 @@ class Product extends Model
             }
         }
 
+        if (isset($options['price'])) {
+            $re->leftJoin('prd_salechannel_style_price as price', 's.id', '=', 'price.style_id')
+                ->addSelect('price.price')
+                ->where('price.sale_channel_id', $options['price']);
+        }
+
         return $re;
 
     }
@@ -421,19 +427,17 @@ class Product extends Model
             $delivery->rules = json_decode($delivery->rules);
             $arr[$delivery->event] = $delivery;
         }
-       
+
         $pickup = self::getPickup($product_id)->get()->toArray();
-        if($pickup){
-            $arr['pickup'] =[
-                'event'=>'pickup',
-                'category'=>'自取',
-                'depots'=>$pickup
+        if ($pickup) {
+            $arr['pickup'] = [
+                'event' => 'pickup',
+                'category' => '自取',
+                'depots' => $pickup,
             ];
         }
 
         return $arr;
-      
-        
 
     }
 }
