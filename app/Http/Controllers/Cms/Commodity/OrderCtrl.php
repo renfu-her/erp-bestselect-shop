@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use App\Models\Order;
 use App\Models\OrderCart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -17,7 +18,8 @@ class OrderCtrl extends Controller
      */
     public function index(Request $request)
     {
-
+        $re = Order::createOrderFromData([]);
+        dd($re);
         $query = $request->query();
         $page = Arr::get($query, 'data_per_page', 10);
 
