@@ -422,12 +422,12 @@ class Product extends Model
     public static function getProductShipments($product_id)
     {
         $delivery = self::getShipment($product_id)->get()->first();
-
+        $arr = [];
         if ($delivery) {
             $delivery->rules = json_decode($delivery->rules);
             $arr[$delivery->event] = $delivery;
         }
-
+        
         $pickup = self::getPickup($product_id)->get()->toArray();
         if ($pickup) {
             $arr['pickup'] = [
