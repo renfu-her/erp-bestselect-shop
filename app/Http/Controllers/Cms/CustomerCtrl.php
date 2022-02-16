@@ -7,6 +7,7 @@ use App\Models\Addr;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 
 class CustomerCtrl extends Controller
@@ -19,10 +20,16 @@ class CustomerCtrl extends Controller
     public function index(Request $request)
     {
         $query = $request->query();
+
+        $name = Arr::get($query, 'name', '');
+        $email = Arr::get($query, 'email', '');
         $customer = Customer::getCustomerBySearch($query);
 
         return view('cms.admin.customer.list', [
-                "dataList" => $customer['dataList']
+            'name' => $name,
+            'email' => $email,
+            "dataList" => $customer['dataList']
+            , 'formAction' => Route('cms.customer.index'),
         ]);
     }
 

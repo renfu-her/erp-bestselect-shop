@@ -1,7 +1,26 @@
 @extends('layouts.main')
 @section('sub-content')
     <h2 class="mb-4">消費者帳號管理</h2>
-{{--    <x-b-search-account></x-b-search-account>--}}
+    <form id="search" action="{{ $formAction }}" method="GET">
+        <div class="card shadow p-4 mb-4">
+            <h6>搜尋條件</h6>
+            <div class="row">
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">姓名</label>
+                    <input class="form-control" type="text" name="name" placeholder="請輸入姓名" value="{{$name}}"
+                           aria-label="姓名">
+                </div>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">Email</label>
+                    <input class="form-control" type="text" name="email" placeholder="請輸入Email" value="{{$email}}"
+                           aria-label="Email">
+                </div>
+            </div>
+            <div class="col">
+                <button type="submit" class="btn btn-primary px-4">搜尋</button>
+            </div>
+        </div>
+    </form>
     <div class="card shadow p-4 mb-4">
         <div class="col mb-4">
             @can('cms.customer.create')
