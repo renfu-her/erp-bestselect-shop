@@ -426,14 +426,14 @@ class Product extends Model
         $arr = [];
         if ($delivery) {
             $delivery->rules = json_decode($delivery->rules);
-            $arr[$delivery->event] = $delivery;
+            $arr[$delivery->category] = $delivery;
         }
 
         $pickup = self::getPickup($product_id)->get()->toArray();
         if ($pickup) {
             $arr['pickup'] = [
-                'event' => 'pickup',
-                'category' => '自取',
+                'category' => 'pickup',
+                'category_name' => '自取',
                 'depots' => $pickup,
             ];
         }
