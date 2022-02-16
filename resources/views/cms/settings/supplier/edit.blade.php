@@ -405,6 +405,7 @@
             const typeCheckbox = $('label.form-check-label[data-type] input[type="checkbox"]');
 
             const invoiceShipCheckbox = $('input[name="invoice_ship_fk"]');
+            const invoiceShipChecked = $('input[name="invoice_ship_fk"]:checked');
             const invoiceShipEmail = $('.invoice_email');
 
             const invoiceDateCheckbox = $('input[name="invoice_date_fk"]');
@@ -450,10 +451,10 @@
 
             //首次讀取時，隱藏不必要欄位
             //發票寄送：郵寄
-            if (invoiceShipCheckbox.val() === '1') {
+            if (invoiceShipChecked.val() === '1') {
                 invoiceShipEmail.hide();
                 //發票寄送：電子檔
-            } else if(invoiceShipCheckbox.val() === '2') {
+            } else if(invoiceShipChecked.val() === '2') {
                 invoiceShipEmail.show();
             }
             //發票寄送方式
