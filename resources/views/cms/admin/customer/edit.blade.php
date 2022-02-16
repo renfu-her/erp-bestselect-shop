@@ -15,7 +15,7 @@
                 @if ($method === 'create') 新增 @else 編輯 @endif 帳號
             </div>
             <div class="card-body">
-                <x-b-form-group name="can_pickup" title="開通狀態">
+                <x-b-form-group name="acount_status" title="開通狀態">
                     <div class="px-1">
                         <div class="form-check form-check-inline">
                             <label class="form-check-label">
@@ -39,7 +39,7 @@
                     <input class="form-control @error('name') is-invalid @enderror" name="name"
                            value="{{ old('name', $data->name ?? '') }}"/>
                 </x-b-form-group>
-                <x-b-form-group name="account" title="帳號" required="true">
+                <x-b-form-group name="email" title="帳號" required="true">
                     @if ($method === 'create')
                         <input class="form-control @error('email') is-invalid @enderror" name="email"
                                value="{{ old('email', $data->email ?? '') }}"/>
@@ -102,7 +102,7 @@
                            name="birthday" value="{{ old('birthday', $data->birthday ?? '') }}"/>
                 </x-b-form-group>
 
-                <x-b-form-group name="customer_id" title="綁定消費者帳號">
+                <x-b-form-group name="bind_customer_id" title="綁定消費者帳號">
                     <select id="bind_customer_id" name="bind_customer_id"
                             class="form-select -select2 -single @error('bind_customer_id') is-invalid @enderror"
                             aria-label="綁定消費者帳號">
@@ -121,9 +121,6 @@
                 @error('id')
                 <div class="alert alert-danger mt-3">{{ $message }}</div>
                 @enderror
-                @if($errors->any())
-                    {{ implode('', $errors->all('<div>:message</div>')) }}
-                @endif
             </div>
         </div>
 
