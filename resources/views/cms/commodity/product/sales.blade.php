@@ -11,9 +11,9 @@
             <thead>
                 <tr>
                     <th scope="col" class="text-center">庫存管理</th>
-                    <!--
+                    
                     <th scope="col" class="text-center">價格管理</th>
-                    -->
+                    
                     <th scope="col">規格</th>
                     <th scope="col">SKU</th>
                    
@@ -29,14 +29,14 @@
                                 <i class="bi bi-box-seam"></i>
                             </a>
                         </td>
-                        <!--
+                        
                         <td class="text-center">
                             <a href="{{ Route('cms.product.edit-price', ['id' => $style['product_id'], 'sid' => $style['id']]) }}"
                                 class="icon -del icon-btn fs-5 text-primary rounded-circle border-0 p-0">
                                 <i class="bi bi-tags"></i>
                             </a>
                         </td>
-                    -->
+                    
                         <td>{{ $style['title'] }}</td>
                         <td>{{ $style['sku'] }}</td>          
                         <td>{{ $style['in_stock'] }}</td>

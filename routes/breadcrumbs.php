@@ -10,7 +10,9 @@ Breadcrumbs::for('cms.dashboard', function (BreadcrumbTrail $trail) {
     $trail->push('Home', route('cms.dashboard'));
 });
 
-/** 進銷存退 */
+/** 
+ * 進銷存退 
+ **/
 
 // 商品管理
 Breadcrumbs::for('cms.product.index', function (BreadcrumbTrail $trail) {
@@ -137,7 +139,24 @@ Breadcrumbs::for('cms.combo-purchase.edit', function (BreadcrumbTrail $trail, $v
     $trail->push('[【' . $value['product']->title . '】' . $value['style']->title . '] 組裝/拆包');
 });
 
-/** 設定 */
+// 訂單管理
+Breadcrumbs::for('cms.order.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('訂單管理', route('cms.order.index'));
+});
+Breadcrumbs::for('cms.order.detail', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('[單號：' . $value . '] 訂單明細');
+});
+Breadcrumbs::for('cms.order.create', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('新增訂單');
+});
+
+/** 
+ * 設定 
+ **/
+
 //款式設定
 Breadcrumbs::for('cms.spec.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
@@ -223,7 +242,9 @@ Breadcrumbs::for('cms.shipment.edit', function (BreadcrumbTrail $trail) {
 });
 
 
-/** 官網設定 */
+/** 
+ * 官網設定 
+ **/
 
 //首頁設定-導覽列
 Breadcrumbs::for('cms.homepage.navbar.index', function (BreadcrumbTrail $trail) {
@@ -291,7 +312,9 @@ Breadcrumbs::for('cms.navinode.edit', function ($trail, $value) {
     $trail->push($value['title']);
 });
 
-/** 帳號管理 */
+/** 
+ * 帳號管理 
+ **/
 
 // 員工帳號管理
 Breadcrumbs::for('cms.user.index', function (BreadcrumbTrail $trail) {

@@ -1,0 +1,68 @@
+@import 'variables';
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+
+$detail-border-scale: -35%;
+$detail-badge-scale: $table-bg-scale;
+@mixin detail-variants($state, $value) {
+    &.-detail-#{$state} {
+        border-top-color: shift-color($value, $detail-border-scale);
+
+        .badge.-badge {
+            background-color: shift-color($value, $detail-badge-scale);
+        }
+    }
+}
+
+.-detail {
+    border-top-width: 5px;
+    border-top-color: #415583;
+    .badge.-badge {
+        color: $color-text-dark;
+        font-weight: 500;
+        background-color: shift-color(#415583, $detail-badge-scale);
+        display: block;
+    }
+
+    // 常溫 .-detail-warning / 冷凍 .-detail-primary / 冷藏 .-detail-success
+    @each $state, $value in $theme-colors {
+        @include detail-variants($state, $value);
+    }
+}
+
+.card {
+    dl:last-child {
+        margin-bottom: 0;
+    }
+    dl dt {
+        font-size: 14px;
+        font-weight: lighter;
+        color: $gray-700;
+    }
+    dl dd {
+        margin-bottom: 0;
+        font-weight: 500;
+
+        & > span:not(:last-child)::after {
+            content: ",";
+        }
+    }
+    .card-body {
+        .table {
+            & > * {
+                border-top-width: 1px;
+            }
+            & > thead > * > * {
+                font-size: 15px;
+                font-weight: normal;
+            }
+        }
+        .tableList > :not(caption) > * > * {
+            line-height: 38px;
+        }
+        .tableList .input-group > input.form-control {
+            min-width: 50px;
+        }
+    }
+}
+
