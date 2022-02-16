@@ -4,29 +4,24 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class Order extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
     protected $table = 'ord_orders';
     protected $guarded = [];
 
-    public static function createOrderFromData($data)
+    public static function createOrder($data)
     {
-        $data = [[
-            'product_id' => 1,
-            'product_style_id' => 1,
-            'customer_id' => 1,
-            'qty' => 10,
-            'shipment_type' => 'deliver',
-            'shipment_event_id' => 1,
-        ],
+        $data = [
             [
                 'product_id' => 1,
                 'product_style_id' => 1,
                 'customer_id' => 1,
-                'qty' => 2,
-                'shipment_type' => 'pickup',
+                'qty' => 10,
+                'shipment_type' => 'deliver',
                 'shipment_event_id' => 1,
             ],
             [
@@ -37,88 +32,97 @@ class Order extends Model
                 'shipment_type' => 'pickup',
                 'shipment_event_id' => 2,
             ],
+            [
+                'product_id' => 1,
+                'product_style_id' => 1,
+                'customer_id' => 1,
+                'qty' => 2,
+                'shipment_type' => 'pickup',
+                'shipment_event_id' => 3,
+            ],
         ];
 
-        $shipmentGroup = [];
-        $shipmentKeys = [];
-        foreach ($data as $value) {
-            $style = Product::productStyleList(null, null, null, ['price' => 1])->where('s.id', $value['product_style_id'])
-                ->get()->first();
+        return DB::transaction(function () use ($data) {
+            $order = OrderCart::cartFormater($data);
 
-            if (!$style) {
-                return ['success' => 0, 'message' => '查無此商品 style_id:' . $value['product_style_id']];
-            }
-            if ($value['qty'] > $style->in_stock) {
-                return ['success' => 0, 'message' => '購買超過上限 style_id:' . $value['product_style_id']];
+            if ($order['success'] != 1) {
+                DB::rollBack();
+                return $order;
             }
 
-            switch ($value['shipment_type']) {
-                case 'pickup':
-                    $shipment = Product::getPickup($value['product_id'])->where('pick_up.id', $value['shipment_event_id'])->get()->first();
-                    if (!$shipment) {
-                        return ['success' => 0, 'message' => '無運送方式 style_id:' . $value['product_style_id']];
+            // createOrder
+            $order_sn = date("Ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
+                    ->withTrashed()
+                    ->get()
+                    ->count()) + 1, 3, '0', STR_PAD_LEFT);
+
+            // dd($order['shipments']);
+            $order_id = self::create([
+                "order_sn" => $order_sn,
+                "sale_channel_id" => 1,
+                "payment_method" => 1,
+                "email" => 'hayashi0126@gmail.com',
+                "total_price" => $order['total_price'],
+            ])->id;
+
+            //   dd($order);
+            foreach ($order['shipments'] as $value) {
+                $sub_order_sn = $order_sn . str_pad((DB::table('ord_sub_orders')->where('order_id', $order_id)
+                        ->get()
+                        ->count()) + 1, 2, '0', STR_PAD_LEFT);
+
+                $insertData = [
+                    'order_id' => $order_id,
+                    'order_sn' => $sub_order_sn,
+                    'ship_category' => $value->category,
+                    'ship_category_name' => $value->category_name,
+                    'dlv_fee' => $value->dlv_fee,
+                    'total_price' => $value->totalPrice,
+                    'status' => '',
+                ];
+
+                switch ($value->category) {
+                    case 'deliver':
+                        // dd( $value['use_role']);
+                        $insertData['ship_event_id'] = $value->group_id;
+                        $insertData['ship_event'] = $value->group_name;
+                        $insertData['ship_temp'] = $value->temps;
+                        $insertData['ship_temp_id'] = $value->temp_id;
+                        $insertData['ship_rule_id'] = $value->use_rule->id;
+                        break;
+                    case 'pickup':
+                        $insertData['ship_event_id'] = $value->id;
+                        $insertData['ship_event'] = $value->depot_name;
+                        break;
+
+                }
+
+                $subOrderId = DB::table('ord_sub_orders')->insertGetId($insertData);
+
+                foreach ($value->products as $product) {
+
+                    $reStock = ProductStock::stockChange($product->id, $product->qty * -1, 'order', $order_id, $product->sku . "新增訂單");
+                    if ($reStock['success'] == 0) {
+                        DB::rollBack();
+                        return $reStock;
                     }
+                    DB::table('ord_items')->insert([
+                        'order_id' => $order_id,
+                        'sub_order_id' => $subOrderId,
+                        'sku' => $product->sku,
+                        'product_title' => $product->product_title . $product->spec,
+                        'price' => $product->price,
+                        'qty' => $product->qty,
+                        'total_price' => $product->total_price,
+                    ]);
 
-                    break;
-                case 'deliver':
-                    $shipment = Product::getShipment($value['product_id'])->where('g.id', $value['product_style_id'])->get()->first();
-                    if (!$shipment) {
-                        return ['success' => 0, 'message' => '無運送方式 style_id:' . $value['product_style_id']];
-                    }
-                    $shipment->rules = json_decode($shipment->rules);
+                }
+              
+                return ['success' => '1', 'order_id' => $order_id];
 
-                    break;
-                default:
-                    return ['success' => 0, 'message' => '無運送方式 style_id:' . $value['product_style_id']];
             }
-
-            $groupKey = $value['shipment_type'] . '-' . $value['shipment_event_id'];
-            if (!in_array($groupKey, $shipmentKeys)) {
-                $shipmentKeys[] = $groupKey;
-                $shipment->products = [];
-                $shipment->totalPrice = 0;
-                $shipment->event = $value['shipment_type'];
-                $shipmentGroup[] = $shipment;
-            }
-
-            $idx = array_search($groupKey, $shipmentKeys);
-            $style->shipment_type = $value['shipment_type'];
-            $style->qty = $value['qty'];
-            $style->dlv_fee = 0;
-            $style->total_price = $value['qty'] * $style->price;
-            $shipmentGroup[$idx]->products[] = $style;
-            $shipmentGroup[$idx]->totalPrice += $style->total_price;
-
-        }
-        foreach ($shipmentGroup as $key => $ship) {
-
-            switch ($ship->event) {
-                case "deliver":
-                    foreach ($ship->rules as $rule) {
-                        $use_rule = false;
-                        if ($rule->is_above == 'false') {
-                            if ($ship->totalPrice >= $rule->min_price && $ship->totalPrice < $rule->max_price) {
-                                $shipmentGroup[$key]->dlv_fee = $rule->dlv_fee;
-                                $use_rule = $rule;
-                            }
-                        } else {
-                            if ($ship->totalPrice >= $rule->max_price) {
-                                $shipmentGroup[$key]->dlv_fee = $rule->dlv_fee;
-                                $use_rule = $rule;
-
-                            }
-                        }
-
-                        if ($use_rule) {
-                            $shipmentGroup[$key]->use_rule = $use_rule;
-                            break;
-                        }
-                    }
-                    break;
-            }
-        }
-
-        dd($shipmentGroup);
+        });
 
     }
+
 }

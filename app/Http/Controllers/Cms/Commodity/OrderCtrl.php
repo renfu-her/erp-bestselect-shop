@@ -18,8 +18,8 @@ class OrderCtrl extends Controller
      */
     public function index(Request $request)
     {
-        $re = Order::createOrderFromData([]);
-        dd($re);
+        /*  $re = Order::createOrder([]);
+        dd($re);*/
         $query = $request->query();
         $page = Arr::get($query, 'data_per_page', 10);
 
