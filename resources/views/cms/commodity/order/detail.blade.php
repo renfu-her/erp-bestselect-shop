@@ -112,10 +112,10 @@
         </div>
 
         {{-- @foreach ($子明細單 as $item) --}}
-        {{-- 常溫 .-detail-warning / 冷凍 .-detail-primary / 冷藏 .-detail-success --}}
+        {{-- 宅配 .-detail-primary / 自取 .-detail-warning / 超取 .-detail-success --}}
         <div class="card shadow mb-4 -detail -detail-warning">
             <div class="card-header px-4 py-3 d-flex align-items-center bg-white">
-                <strong class="flex-grow-1 mb-0">BEST-宅配990免運</strong>
+                <strong class="flex-grow-1 mb-0">台北公司自取</strong>
                 <button type="button" class="btn btn-primary -in-header">列印銷貨單</button>
                 <button type="button" class="btn btn-primary -in-header">列印出貨單</button>
             </div>
@@ -123,7 +123,7 @@
                 <dl class="row mb-0">
                     <div class="col">
                         <dt>溫層</dt>
-                        <dd>常溫</dd>
+                        <dd>-</dd>
                     </div>
                     <div class="col">
                         <dt>訂單編號</dt>
@@ -135,7 +135,7 @@
                     </div>
                     <div class="col">
                         <dt>消費者物流費用</dt>
-                        <dd>$100</dd>
+                        <dd>$0</dd>
                     </div>
                 </dl>
             </div>
@@ -217,7 +217,7 @@
                     </div>
                     <div class="col">
                         <dt>實際物流</dt>
-                        <dd>宅配</dd>
+                        <dd>自取</dd>
                     </div>
                     <div class="col">
                         <dt>包裹編號</dt>
@@ -340,7 +340,7 @@
 
         <div class="card shadow mb-4 -detail -detail-success">
             <div class="card-header px-4 py-3 d-flex align-items-center bg-white">
-                <strong class="flex-grow-1 mb-0">ACG-06644-555冷藏宅配</strong>
+                <strong class="flex-grow-1 mb-0">全家超商取貨</strong>
                 <button type="button" class="btn btn-primary -in-header">列印銷貨單</button>
                 <button type="button" class="btn btn-primary -in-header">列印出貨單</button>
             </div>
