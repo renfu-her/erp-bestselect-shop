@@ -88,7 +88,8 @@ class Customer extends Authenticatable
             $arr['acount_status'] = $acount_status;
         }
 //        dd($arr);
-        $id = Customer::create($arr)->id;
+        $customer = Customer::create($arr);
+        $id = $customer->id;
 
         //創建消費者時，直接給一消費者身分
         CustomerIdentity::createData($id, Identity::customer()->value);
