@@ -13,4 +13,7 @@ class BalanceSheet extends Model
     use HasFactory;
 
     protected $table = 'acc_balance_sheet';
+    protected $fillable = [
+        'name'
+    ];
 }
