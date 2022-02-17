@@ -13,6 +13,18 @@ class Order extends Model
     protected $table = 'ord_orders';
     protected $guarded = [];
 
+    public static function orderList()
+    {
+        $order = DB::table('ord_orders as order')
+            ->select('order.order_sn', 'customer.name', 'sale.title as sale_title')
+            ->selectRaw('DATE_FORMAT(order.created_at,"%Y-%m-%d") as order_date')
+            ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
+            ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id');
+            
+        return $order;
+        //   dd($order->get()->toArray());
+    }
+
     public static function createOrder($data)
     {
         $data = [
@@ -42,13 +54,21 @@ class Order extends Model
             ],
         ];
 
-        return DB::transaction(function () use ($data) {
+        $userAddress = [
+            ['name' => 'hans', 'phone' => '0123313', 'address' => '桃園市八德區永福街', 'type' => 'reciver'],
+            ['name' => 'hans', 'phone' => '0123313', 'address' => '桃園市八德區永福街', 'type' => 'orderer'],
+            ['name' => 'hans', 'phone' => '0123313', 'address' => '桃園市八德區永福街', 'type' => 'sender'],
+        ];
+
+        return DB::transaction(function () use ($data, $userAddress) {
             $order = OrderCart::cartFormater($data);
 
             if ($order['success'] != 1) {
                 DB::rollBack();
                 return $order;
             }
+
+            // dd($order);
 
             // createOrder
             $order_sn = date("Ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
@@ -65,6 +85,26 @@ class Order extends Model
                 "total_price" => $order['total_price'],
             ])->id;
 
+            foreach ($userAddress as $key => $user) {
+                $addr = Addr::addrFormating($user['address']);
+                if (!$addr->city_id) {
+                    DB::rollBack();
+                    return ['success' => '0', 'message' => 'address format error'];
+                }
+                $userAddress[$key]['city_id'] = $addr->city_id;
+                $userAddress[$key]['city_title'] = $addr->city_title;
+                $userAddress[$key]['region_id'] = $addr->region_id;
+                $userAddress[$key]['region_title'] = $addr->region_title;
+                $userAddress[$key]['zipcode'] = $addr->zipcode;
+                $userAddress[$key]['addr'] = $addr->addr;
+                $userAddress[$key]['order_id'] = $order_id;
+            }
+            try {
+                DB::table('ord_address')->insert($userAddress);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return ['success' => '0', 'message' => 'address format error'];
+            }
             //   dd($order);
             foreach ($order['shipments'] as $value) {
                 $sub_order_sn = $order_sn . str_pad((DB::table('ord_sub_orders')->where('order_id', $order_id)
@@ -117,10 +157,10 @@ class Order extends Model
                     ]);
 
                 }
-              
-                return ['success' => '1', 'order_id' => $order_id];
 
             }
+
+            return ['success' => '1', 'order_id' => $order_id];
         });
 
     }
