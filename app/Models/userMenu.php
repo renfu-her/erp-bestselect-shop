@@ -93,6 +93,35 @@ return
         ],
     ],
     [
+        "title" => "總帳會計",
+        "icon" => "bi-journal-text",
+        "menu_id" => "4",
+        "child" => [
+            [
+                "title" => "會計科目",
+                "controller_name" => "BookkeepingCtrl",
+                "route_name" => "cms.bookkeeping.index",
+            ],
+        ],
+    ],
+    [
+        "title" => "會計設定",
+        "icon" => "bi-bar-chart-steps",
+        "menu_id" => "5",
+        "child" => [
+            [
+                "title" => "會計分類",
+                "controller_name" => "BalanceSheetCtrl",
+                "route_name" => "cms.balance_sheet.index",
+            ],
+            [
+                "title" => "科目類別",
+                "controller_name" => "IncomeStatementCtrl",
+                "route_name" => "cms.income_statement.index",
+            ],
+        ],
+    ],
+    [
         "title" => "帳號管理",
         "icon" => "bi-person-circle",
         "menu_id" => "4",
