@@ -193,6 +193,69 @@ return [
         ],
     ],
     [
+        "unit" => "會計科目",
+        "permissions" => [
+            [
+                "cms.bookkeeping.index",
+                "瀏覽",
+            ],
+            [
+                "cms.bookkeeping.create",
+                "新增",
+            ],
+            [
+                "cms.bookkeeping.edit",
+                "編輯",
+            ],
+            [
+                "cms.bookkeeping.delete",
+                "刪除",
+            ],
+        ],
+    ],
+    [
+        "unit" => "會計分類",
+        "permissions" => [
+            [
+                "cms.balance_sheet.index",
+                "瀏覽",
+            ],
+            [
+                "cms.balance_sheet.create",
+                "新增",
+            ],
+//            [
+//                "cms.balance_sheet.edit",
+//                "編輯",
+//            ],
+//            [
+//                "cms.balance_sheet.delete",
+//                "刪除",
+//            ],
+        ],
+    ],
+    [
+        "unit" => "科目類別",
+        "permissions" => [
+            [
+                "cms.income_statement.index",
+                "瀏覽",
+            ],
+            [
+                "cms.income_statement.create",
+                "新增",
+            ],
+//            [
+//                "cms.income_statement.edit",
+//                "編輯",
+//            ],
+//            [
+//                "cms.income_statement.delete",
+//                "刪除",
+//            ],
+        ],
+    ],
+    [
         "unit" => "員工帳號管理",
         "permissions" => [
             [
