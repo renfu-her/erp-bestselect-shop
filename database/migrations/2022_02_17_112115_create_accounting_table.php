@@ -15,14 +15,14 @@ class CreateAccountingTable extends Migration
     {
         Schema::create('acc_balance_sheet', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 128);
+            $table->string('name', 128)->unique()->comment('會計分類名稱');
             $table->softDeletes();
             $table->timestamps();
         });
 
         Schema::create('acc_income_statement', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 128);
+            $table->string('name', 128)->unique()->comment('科目類別名稱');
             $table->softDeletes();
             $table->timestamps();
         });

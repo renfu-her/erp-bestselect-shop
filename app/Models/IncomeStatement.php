@@ -13,4 +13,7 @@ class IncomeStatement extends Model
     use HasFactory;
 
     protected $table = 'acc_income_statement';
+    protected $fillable = [
+        'name'
+    ];
 }
