@@ -66,7 +66,7 @@ class CustomerCtrl extends Controller
     {
         $request->validate([
             'password' => 'confirmed|min:4', 'name' => 'required|string',
-            'email'  => ['required', 'unique:App\Models\Customer'],
+            'email'  => ['required', 'email:rfc,dns', 'unique:App\Models\Customer'],
         ]);
 
         $uData = $request->only('email', 'name', 'password'
