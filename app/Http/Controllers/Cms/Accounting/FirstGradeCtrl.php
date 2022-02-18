@@ -57,7 +57,8 @@ class FirstGradeCtrl extends Controller
         ]);
 
         FirstGrade::create([
-            'name' => $request->input('name')
+            'name' => $request->input('name'),
+            'has_next_grade' => 0,
         ]);
         return redirect(Route('cms.first_grade.index'));
     }
