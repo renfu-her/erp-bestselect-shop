@@ -54,6 +54,109 @@ class AccountingSeeder extends Seeder
             'acc_company_fk' => '1',
             'income_statement_fk' => '1'
             ]);
-        //
+
+        DB::table('acc_second_grade')->insert([
+            'code' => '11',
+            'has_next_grade' => 1,
+            'name' => '流動資產',
+            'acc_company_fk' => 1,
+            'first_grade_fk' => 1,
+            'income_statement_fk' => 1
+        ]);
+        DB::table('acc_second_grade')->insert([
+            'code' => '12',
+            'has_next_grade' => 1,
+            'name' => '固定資產',
+            'acc_company_fk' => 1,
+            'first_grade_fk' => 1,
+            'income_statement_fk' => 1
+        ]);
+        DB::table('acc_second_grade')->insert([
+            'code' => '21',
+            'has_next_grade' => 1,
+            'name' => '流動負債',
+//            'acc_company_fk' => 1,
+            'first_grade_fk' => 2,
+//            'income_statement_fk' => 1
+        ]);
+        DB::table('acc_second_grade')->insert([
+            'code' => '22',
+            'has_next_grade' => 0,
+            'name' => '長期負債',
+            'acc_company_fk' => 1,
+            'first_grade_fk' => 2,
+            'income_statement_fk' => 1
+        ]);
+
+        DB::table('acc_third_grade')->insert([
+            'code' => '1101',
+            'has_next_grade' => 0,
+            'name' => '現金',
+            'acc_company_fk' => 1,
+            'second_grade_fk' => 1,
+            'income_statement_fk' => 1
+        ]);
+        DB::table('acc_third_grade')->insert([
+            'code' => '1102',
+            'has_next_grade' => 1,
+            'name' => '銀行存款',
+            'acc_company_fk' => 1,
+            'second_grade_fk' => 1,
+            'income_statement_fk' => 1
+        ]);
+        DB::table('acc_third_grade')->insert([
+            'code' => '1201',
+            'has_next_grade' => 0,
+            'name' => '生財器具',
+            'acc_company_fk' => 1,
+            'second_grade_fk' => 2,
+            'income_statement_fk' => 1
+        ]);
+        DB::table('acc_third_grade')->insert([
+            'code' => '2101',
+            'has_next_grade' => 0,
+            'name' => '應付票據',
+            'acc_company_fk' => 1,
+            'second_grade_fk' => 3,
+            'income_statement_fk' => 1
+        ]);
+        DB::table('acc_third_grade')->insert([
+            'code' => '2102',
+            'has_next_grade' => 0,
+            'name' => '應付帳款',
+            'acc_company_fk' => 1,
+            'second_grade_fk' => 3,
+            'income_statement_fk' => 1
+        ]);
+
+        DB::table('acc_fourth_grade')->insert([
+            'code' => '11020001',
+            'name' => '銀行存款-合庫長春公司戶A',
+            'acc_company_fk' => 1,
+            'third_grade_fk' => 2,
+            'income_statement_fk' => 1,
+        ]);
+        DB::table('acc_fourth_grade')->insert([
+            'code' => '11020002',
+            'name' => '銀行存款-合庫長春公司戶B',
+            'acc_company_fk' => 1,
+            'third_grade_fk' => 2,
+            'income_statement_fk' => 1,
+        ]);
+        DB::table('acc_fourth_grade')->insert([
+            'code' => '21020001',
+            'name' => '應付帳款-其他',
+            'acc_company_fk' => 1,
+            'third_grade_fk' => 4,
+            'income_statement_fk' => 1,
+            'note_1' => '2014/8/31以前應付帳款轉用'
+        ]);
+        DB::table('acc_fourth_grade')->insert([
+            'code' => '21020002',
+            'name' => '應付帳款-茶衣創意',
+            'acc_company_fk' => 1,
+            'third_grade_fk' => 4,
+            'income_statement_fk' => 1,
+        ]);
     }
 }
