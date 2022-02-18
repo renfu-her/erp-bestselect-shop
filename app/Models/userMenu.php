@@ -99,8 +99,8 @@ return
         "child" => [
             [
                 "title" => "會計科目",
-                "controller_name" => "BookkeepingCtrl",
-                "route_name" => "cms.bookkeeping.index",
+                "controller_name" => "GeneralLedgerCtrl",
+                "route_name" => "cms.general_ledger.index",
             ],
         ],
     ],

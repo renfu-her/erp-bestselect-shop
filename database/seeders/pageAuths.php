@@ -196,19 +196,19 @@ return [
         "unit" => "會計科目",
         "permissions" => [
             [
-                "cms.bookkeeping.index",
+                "cms.general_ledger.index",
                 "瀏覽",
             ],
             [
-                "cms.bookkeeping.create",
+                "cms.general_ledger.create",
                 "新增",
             ],
             [
-                "cms.bookkeeping.edit",
+                "cms.general_ledger.edit",
                 "編輯",
             ],
             [
-                "cms.bookkeeping.delete",
+                "cms.general_ledger.delete",
                 "刪除",
             ],
         ],
