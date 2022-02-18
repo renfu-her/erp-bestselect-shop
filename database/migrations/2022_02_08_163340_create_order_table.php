@@ -18,8 +18,6 @@ class CreateOrderTable extends Migration
             $table->string('order_sn', 20)->comment('訂單流水號');
             $table->string('email', 100)->comment('訂購者email');
             $table->integer('sale_channel_id')->comment('銷售通路id');
-            $table->string('payment_method', 10)->comment('付款方式');
-            $table->integer('payment_sn')->nullable()->comment('付款流水號');
             $table->string('status', 20)->nullable()->comment('訂單狀態');
             $table->integer('rcode')->nullable()->comment('rcode消費者id');
             $table->integer('total_price')->comment('總金額');
@@ -73,11 +71,7 @@ class CreateOrderTable extends Migration
             $table->unique(['order_id', 'type']);
         });
 
-        Schema::create('ord_payment_methods', function (Blueprint $table) {
-            $table->id();
-            $table->string('title', 10)->comment('付款方式');
-            $table->string('code', 10)->comment('代碼');
-        });
+      
 
         Schema::create('ord_order_status', function (Blueprint $table) {
             $table->id();
@@ -100,7 +94,6 @@ class CreateOrderTable extends Migration
         Schema::dropIfExists('ord_sub_orders');
         Schema::dropIfExists('ord_items');
         Schema::dropIfExists('ord_address');
-        Schema::dropIfExists('ord_payment_methods');
         Schema::dropIfExists('ord_order_status');
 
     }

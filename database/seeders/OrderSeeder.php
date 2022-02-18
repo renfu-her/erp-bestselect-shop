@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Order;
-use App\Models\OrderPaymentMethod;
 use App\Models\Product;
 use Illuminate\Database\Seeder;
 
@@ -19,12 +18,6 @@ class OrderSeeder extends Seeder
         //
         Product::changePickup(1, [1, 2, 3]);
         Product::changeShipment(1, 1, 1);
-
-        OrderPaymentMethod::insert([
-            ['title' => '現金', 'code' => 'cash'],
-            ['title' => '信用卡', 'code' => 'credit'],
-            ['title' => '匯款', 'code' => 'remit'],
-        ]);
 
         $address = [
             ['name' => 'hans', 'phone' => '0123313', 'address' => '桃園市八德區永福街', 'type' => 'reciver'],
@@ -59,6 +52,6 @@ class OrderSeeder extends Seeder
             ],
         ];
 
-        dd(Order::createOrder('hayashi0126@gmail.com', 1, 'cash', $address, $items));
+        dd(Order::createOrder('hayashi0126@gmail.com', 1, $address, $items));
     }
 }

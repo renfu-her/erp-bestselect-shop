@@ -26,10 +26,10 @@ class Order extends Model
         //   dd($order->get()->toArray());
     }
 
-    public static function createOrder($email, $sale_channel_id, $payment_method, $address, $items)
+    public static function createOrder($email, $sale_channel_id, $address, $items)
     {
 
-        return DB::transaction(function () use ($email, $sale_channel_id, $payment_method, $address, $items) {
+        return DB::transaction(function () use ($email, $sale_channel_id, $address, $items) {
             $order = OrderCart::cartFormater($items);
 
             if ($order['success'] != 1) {
@@ -45,7 +45,6 @@ class Order extends Model
             $order_id = self::create([
                 "order_sn" => $order_sn,
                 "sale_channel_id" => $sale_channel_id,
-                "payment_method" => $payment_method,
                 "email" => $email,
                 "total_price" => $order['total_price'],
             ])->id;
