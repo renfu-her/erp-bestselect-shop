@@ -51,5 +51,5 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/Order.php');
     require base_path('routes/cms/Bookkeeping.php');
     require base_path('routes/cms/IncomeStatement.php');
-    require base_path('routes/cms/BalanceSheet.php');
+    require base_path('routes/cms/FirstGrade.php');
 });

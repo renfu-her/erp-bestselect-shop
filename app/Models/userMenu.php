@@ -112,7 +112,7 @@ return
             [
                 "title" => "會計分類",
                 "controller_name" => "BalanceSheetCtrl",
-                "route_name" => "cms.balance_sheet.index",
+                "route_name" => "cms.first_grade.index",
             ],
             [
                 "title" => "科目類別",

@@ -217,19 +217,19 @@ return [
         "unit" => "會計分類",
         "permissions" => [
             [
-                "cms.balance_sheet.index",
+                "cms.first_grade.index",
                 "瀏覽",
             ],
             [
-                "cms.balance_sheet.create",
+                "cms.first_grade.create",
                 "新增",
             ],
 //            [
-//                "cms.balance_sheet.edit",
+//                "cms.first_grade.edit",
 //                "編輯",
 //            ],
 //            [
-//                "cms.balance_sheet.delete",
+//                "cms.first_grade.delete",
 //                "刪除",
 //            ],
         ],

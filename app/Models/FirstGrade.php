@@ -6,13 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * 會計分類（資產負債表balance sheet的分類方式）
+ * 會計分類(一級科目）
  */
-class BalanceSheet extends Model
+class FirstGrade extends Model
 {
     use HasFactory;
 
-    protected $table = 'acc_balance_sheet';
+    protected $table = 'acc_first_grade';
     protected $fillable = [
         'name'
     ];

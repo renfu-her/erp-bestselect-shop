@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\BalanceSheet;
+use App\Models\FirstGrade;
 use App\Models\IncomeStatement;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -24,35 +24,35 @@ class AccountingSeeder extends Seeder
         IncomeStatement::create(['name' => '非營業費用']);
         IncomeStatement::create(['name' => '非營業收入']);
 
-        BalanceSheet::create([
+        FirstGrade::create([
             'code' => '1',
             'has_next_grade' => 1,
             'name' => '資產',
             'acc_company_fk' => '1',
             'income_statement_fk' => '1'
             ]);
-        BalanceSheet::create([
+        FirstGrade::create([
             'code' => '2',
             'has_next_grade' => 1,
             'name' => '負債',
             'acc_company_fk' => '1',
             'income_statement_fk' => '1'
             ]);
-        BalanceSheet::create([
+        FirstGrade::create([
             'code' => '3',
             'has_next_grade' => 1,
             'name' => '股東權益',
             'acc_company_fk' => '1',
             'income_statement_fk' => '1'
             ]);
-        BalanceSheet::create([
+        FirstGrade::create([
             'code' => '4',
             'has_next_grade' => 0,
             'name' => '股東收益',
             'acc_company_fk' => '1',
             'income_statement_fk' => '1'
             ]);
-        BalanceSheet::create([
+        FirstGrade::create([
             'code' => '5',
             'has_next_grade' => 1,
             'name' => '股東費用',

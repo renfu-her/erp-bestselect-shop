@@ -25,7 +25,7 @@ class CreateAccountingTable extends Migration
             $table->timestamps();
         });
 
-        Schema::create('acc_balance_sheet', function (Blueprint $table) {
+        Schema::create('acc_first_grade', function (Blueprint $table) {
             $table->id()->comment('會計分類（一級科目）');
             $table->string('code')->unique()->comment('科目代碼');
             $table->boolean('has_next_grade')->comment('有無「子科目」（二級科目）? 1:有, 0:無');
@@ -59,7 +59,7 @@ class CreateAccountingTable extends Migration
             $table->foreign('acc_company_fk')->references('id')->on('acc_company');
 
             $table->unsignedBigInteger('first_grade_fk')->comment('會計分類（一級科目）, foreign key');
-            $table->foreign('first_grade_fk')->references('id')->on('acc_balance_sheet');
+            $table->foreign('first_grade_fk')->references('id')->on('acc_first_grade');
 
             $table->unsignedBigInteger('income_statement_fk')->comment('科目類別, foreign key');
             $table->foreign('income_statement_fk')->references('id')->on('acc_income_statement');
@@ -121,7 +121,7 @@ class CreateAccountingTable extends Migration
      */
     public function down()
     {
-        Schema::table('acc_balance_sheet', function (Blueprint $table) {
+        Schema::table('acc_first_grade', function (Blueprint $table) {
             $table->dropForeign(['acc_company_fk']);
             $table->dropColumn('acc_company_fk');
         });
@@ -169,7 +169,7 @@ class CreateAccountingTable extends Migration
         Schema::dropIfExists('acc_third_grade');
         Schema::dropIfExists('acc_second_grade');
 
-        Schema::dropIfExists('acc_balance_sheet');
+        Schema::dropIfExists('acc_first_grade');
         Schema::dropIfExists('acc_income_statement');
     }
 }
