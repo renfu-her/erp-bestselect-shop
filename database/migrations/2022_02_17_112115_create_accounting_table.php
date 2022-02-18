@@ -74,7 +74,6 @@ class CreateAccountingTable extends Migration
             $table->string('code')->unique()->comment('科目代碼');
             $table->boolean('has_next_grade')->comment('有無「子底科目」（四級科目）? 1:有, 0:無');
             $table->string('name', 128)->unique()->comment('子次科目（三級科目）名稱');
-            $table->string('company', 128)->unique()->comment('公司');
 
             $table->unsignedBigInteger('acc_company_fk')->nullable()->default(null)->comment('公司, foreign key');
             $table->foreign('acc_company_fk')->references('id')->on('acc_company');
@@ -95,7 +94,6 @@ class CreateAccountingTable extends Migration
             $table->id()->comment('子底科目（四級科目）');
             $table->string('code')->unique()->comment('科目代碼');
             $table->string('name', 128)->unique()->comment('子底科目（四級科目）名稱');
-            $table->string('company', 128)->unique()->comment('公司');
 
             $table->unsignedBigInteger('acc_company_fk')->nullable()->default(null)->comment('公司, foreign key');
             $table->foreign('acc_company_fk')->references('id')->on('acc_company');
