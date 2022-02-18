@@ -25,35 +25,30 @@ class AccountingSeeder extends Seeder
         IncomeStatement::create(['name' => '非營業收入']);
 
         FirstGrade::create([
-            'code' => '1',
             'has_next_grade' => 1,
             'name' => '資產',
             'acc_company_fk' => '1',
             'income_statement_fk' => '1'
             ]);
         FirstGrade::create([
-            'code' => '2',
             'has_next_grade' => 1,
             'name' => '負債',
             'acc_company_fk' => '1',
             'income_statement_fk' => '1'
             ]);
         FirstGrade::create([
-            'code' => '3',
             'has_next_grade' => 1,
             'name' => '股東權益',
             'acc_company_fk' => '1',
             'income_statement_fk' => '1'
             ]);
         FirstGrade::create([
-            'code' => '4',
             'has_next_grade' => 0,
             'name' => '股東收益',
             'acc_company_fk' => '1',
             'income_statement_fk' => '1'
             ]);
         FirstGrade::create([
-            'code' => '5',
             'has_next_grade' => 1,
             'name' => '股東費用',
             'acc_company_fk' => '1',
