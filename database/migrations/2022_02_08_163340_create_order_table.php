@@ -18,23 +18,22 @@ class CreateOrderTable extends Migration
             $table->string('order_sn', 20)->comment('訂單流水號');
             $table->string('email', 100)->comment('訂購者email');
             $table->integer('sale_channel_id')->comment('銷售通路id');
-            $table->integer('payment_method')->comment('付款方式');
-            $table->integer('payment_id')->nullable()->comment('付款單id,有值完成');
+            $table->string('payment_method', 10)->comment('付款方式');
+            $table->integer('payment_sn')->nullable()->comment('付款流水號');
             $table->string('status', 20)->nullable()->comment('訂單狀態');
             $table->integer('rcode')->nullable()->comment('rcode消費者id');
             $table->integer('total_price')->comment('總金額');
 
-            $table->softDeletes();
             $table->timestamps();
         });
 
         Schema::create('ord_sub_orders', function (Blueprint $table) {
             $table->id();
             $table->integer('order_id')->comment('訂單id');
-            $table->string('order_sn', 20)->comment('訂單流水號');
-            $table->string('ship_sn', 20)->nullable()->comment('物流流水號');
-            $table->string('ship_category', 30)->comment('物流類別');
-            $table->string('ship_category_name', 30)->comment('物流類別');
+            $table->string('sn', 3)->comment('訂單流水號');
+            $table->string('ship_sn', 20)->nullable()->comment('物流單流水號');
+            $table->string('ship_category', 30)->comment('物流代碼');
+            $table->string('ship_category_name', 30)->comment('物流類別名稱');
             $table->string('ship_event', 30)->nullable()->comment('物流子項');
             $table->integer('ship_event_id')->nullable()->comment('物流子項id');
             $table->string('ship_temp', 10)->nullable()->comment('溫層');
@@ -74,7 +73,7 @@ class CreateOrderTable extends Migration
             $table->unique(['order_id', 'type']);
         });
 
-        Schema::create('ord_payments', function (Blueprint $table) {
+        Schema::create('ord_payment_methods', function (Blueprint $table) {
             $table->id();
             $table->string('title', 10)->comment('付款方式');
             $table->string('code', 10)->comment('代碼');
@@ -85,7 +84,7 @@ class CreateOrderTable extends Migration
             $table->string('title');
             $table->string('content')->nullable();
             $table->string('style')->nullable();
-            $table->string('code',3)->nullable();
+            $table->string('code', 3)->nullable();
         });
 
     }
@@ -101,7 +100,7 @@ class CreateOrderTable extends Migration
         Schema::dropIfExists('ord_sub_orders');
         Schema::dropIfExists('ord_items');
         Schema::dropIfExists('ord_address');
-        Schema::dropIfExists('ord_payments');
+        Schema::dropIfExists('ord_payment_methods');
         Schema::dropIfExists('ord_order_status');
 
     }

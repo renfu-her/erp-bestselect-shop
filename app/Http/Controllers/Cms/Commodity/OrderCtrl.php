@@ -18,6 +18,10 @@ class OrderCtrl extends Controller
      */
     public function index(Request $request)
     {
+       // Order::createOrder([]);
+
+      // dd(Order::orderList()->get()->toArray());
+
         $query = $request->query();
         $page = getPageCount(Arr::get($query, 'data_per_page', 10));
         $dataList = Order::orderList()->paginate($page)->appends($query);

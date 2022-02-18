@@ -4,116 +4,81 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
 class Order extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
     protected $table = 'ord_orders';
     protected $guarded = [];
 
     public static function orderList()
     {
         $order = DB::table('ord_orders as order')
-            ->select('order.order_sn', 'customer.name', 'sale.title as sale_title')
+            ->select('order.order_sn', 'customer.name', 'sale.title as sale_title', 'so.ship_category_name',
+                'so.ship_event', 'so.ship_sn', 'so.order_sn as sub_order_sn')
             ->selectRaw('DATE_FORMAT(order.created_at,"%Y-%m-%d") as order_date')
+            ->leftJoin('ord_sub_orders as so', 'order.id', '=', 'so.order_id')
             ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
             ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id');
-            
+
         return $order;
         //   dd($order->get()->toArray());
     }
 
-    public static function createOrder($data)
+    public static function createOrder($email, $sale_channel_id, $payment_method, $address, $items)
     {
-        $data = [
-            [
-                'product_id' => 1,
-                'product_style_id' => 1,
-                'customer_id' => 1,
-                'qty' => 10,
-                'shipment_type' => 'deliver',
-                'shipment_event_id' => 1,
-            ],
-            [
-                'product_id' => 1,
-                'product_style_id' => 1,
-                'customer_id' => 1,
-                'qty' => 2,
-                'shipment_type' => 'pickup',
-                'shipment_event_id' => 2,
-            ],
-            [
-                'product_id' => 1,
-                'product_style_id' => 1,
-                'customer_id' => 1,
-                'qty' => 2,
-                'shipment_type' => 'pickup',
-                'shipment_event_id' => 3,
-            ],
-        ];
 
-        $userAddress = [
-            ['name' => 'hans', 'phone' => '0123313', 'address' => '桃園市八德區永福街', 'type' => 'reciver'],
-            ['name' => 'hans', 'phone' => '0123313', 'address' => '桃園市八德區永福街', 'type' => 'orderer'],
-            ['name' => 'hans', 'phone' => '0123313', 'address' => '桃園市八德區永福街', 'type' => 'sender'],
-        ];
-
-        return DB::transaction(function () use ($data, $userAddress) {
-            $order = OrderCart::cartFormater($data);
+        return DB::transaction(function () use ($email, $sale_channel_id, $payment_method, $address, $items) {
+            $order = OrderCart::cartFormater($items);
 
             if ($order['success'] != 1) {
                 DB::rollBack();
                 return $order;
-            }
-
-            // dd($order);
-
-            // createOrder
+            } 
+            
             $order_sn = date("Ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
-                    ->withTrashed()
                     ->get()
                     ->count()) + 1, 3, '0', STR_PAD_LEFT);
 
             // dd($order['shipments']);
             $order_id = self::create([
                 "order_sn" => $order_sn,
-                "sale_channel_id" => 1,
-                "payment_method" => 1,
-                "email" => 'hayashi0126@gmail.com',
+                "sale_channel_id" => $sale_channel_id,
+                "payment_method" => $payment_method,
+                "email" => $email,
                 "total_price" => $order['total_price'],
             ])->id;
 
-            foreach ($userAddress as $key => $user) {
+            foreach ($address as $key => $user) {
                 $addr = Addr::addrFormating($user['address']);
                 if (!$addr->city_id) {
                     DB::rollBack();
                     return ['success' => '0', 'message' => 'address format error'];
                 }
-                $userAddress[$key]['city_id'] = $addr->city_id;
-                $userAddress[$key]['city_title'] = $addr->city_title;
-                $userAddress[$key]['region_id'] = $addr->region_id;
-                $userAddress[$key]['region_title'] = $addr->region_title;
-                $userAddress[$key]['zipcode'] = $addr->zipcode;
-                $userAddress[$key]['addr'] = $addr->addr;
-                $userAddress[$key]['order_id'] = $order_id;
+                $address[$key]['city_id'] = $addr->city_id;
+                $address[$key]['city_title'] = $addr->city_title;
+                $address[$key]['region_id'] = $addr->region_id;
+                $address[$key]['region_title'] = $addr->region_title;
+                $address[$key]['zipcode'] = $addr->zipcode;
+                $address[$key]['addr'] = $addr->addr;
+                $address[$key]['order_id'] = $order_id;
             }
             try {
-                DB::table('ord_address')->insert($userAddress);
+                DB::table('ord_address')->insert($address);
             } catch (\Exception $e) {
                 DB::rollBack();
                 return ['success' => '0', 'message' => 'address format error'];
             }
             //   dd($order);
             foreach ($order['shipments'] as $value) {
-                $sub_order_sn = $order_sn . str_pad((DB::table('ord_sub_orders')->where('order_id', $order_id)
+                $sub_order_sn = str_pad((DB::table('ord_sub_orders')->where('order_id', $order_id)
                         ->get()
-                        ->count()) + 1, 2, '0', STR_PAD_LEFT);
+                        ->count()) + 1, 3, '0', STR_PAD_LEFT);
 
                 $insertData = [
                     'order_id' => $order_id,
-                    'order_sn' => $sub_order_sn,
+                    'sn' => $sub_order_sn,
                     'ship_category' => $value->category,
                     'ship_category_name' => $value->category_name,
                     'dlv_fee' => $value->dlv_fee,

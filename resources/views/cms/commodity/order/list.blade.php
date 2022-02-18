@@ -166,7 +166,7 @@
                 <tbody>
                     @foreach ($dataList as $key => $data)
                         <tr>
-                            <td>{{ $data->order_sn }}</td>
+                            <td>{{ $data->sub_order_sn }}</td>
                             <td></td>
                             <td>{{ $data->order_date }}</td>
                             <td>{{ $data->name }}</td>
@@ -176,9 +176,9 @@
                                 <span class="d-block lh-sm">46456456</span>
                                 <span class="d-block lh-sm">77987979</span>
                             </td>
-                            <td>自取</td>
-                            <td>宅配</td>
-                            <td>36354</td>
+                            <td>{{ $data->ship_category_name }}</td>
+                            <td>{{ $data->ship_event }}</td>
+                            <td>{{ $data->ship_sn }}</td>
                             <td>-</td>
                             <td class="text-center">
                                 <a href="{{ Route('cms.order.detail', ['id' => 1]) }}" data-bs-toggle="tooltip"
@@ -247,7 +247,7 @@
             // - 銷售通路
 
             let saleChannel = @json($saleChannels);
-           
+
             let selectedChannel = [];
             let Chips_sale = new ChipElem($('#chip-group-sale'));
             Chips_sale.onDelete = function(id) {
