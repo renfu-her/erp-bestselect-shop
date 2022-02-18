@@ -31,10 +31,10 @@ class CreateAccountingTable extends Migration
             $table->boolean('has_next_grade')->comment('有無「子科目」（二級科目）? 1:有, 0:無');
             $table->string('name', 128)->unique()->comment('會計分類名稱');
 
-            $table->unsignedBigInteger('acc_company_fk')->comment('公司, foreign key');
+            $table->unsignedBigInteger('acc_company_fk')->nullable()->default(null)->comment('公司, foreign key');
             $table->foreign('acc_company_fk')->references('id')->on('acc_company');
 
-            $table->unsignedBigInteger('income_statement_fk')->comment('科目類別, foreign key');
+            $table->unsignedBigInteger('income_statement_fk')->nullable()->default(null)->comment('科目類別, foreign key');
             $table->foreign('income_statement_fk')->references('id')->on('acc_income_statement');
 
             $table->softDeletes();
@@ -55,13 +55,13 @@ class CreateAccountingTable extends Migration
             $table->boolean('has_next_grade')->comment('有無「子次科目」（三級科目）? 1:有, 0:無');
             $table->string('name', 128)->unique()->comment('子科目（二級科目）名稱');
 
-            $table->unsignedBigInteger('acc_company_fk')->comment('公司, foreign key');
+            $table->unsignedBigInteger('acc_company_fk')->nullable()->default(null)->comment('公司, foreign key');
             $table->foreign('acc_company_fk')->references('id')->on('acc_company');
 
             $table->unsignedBigInteger('first_grade_fk')->comment('會計分類（一級科目）, foreign key');
             $table->foreign('first_grade_fk')->references('id')->on('acc_first_grade');
 
-            $table->unsignedBigInteger('income_statement_fk')->comment('科目類別, foreign key');
+            $table->unsignedBigInteger('income_statement_fk')->nullable()->default(null)->comment('科目類別, foreign key');
             $table->foreign('income_statement_fk')->references('id')->on('acc_income_statement');
 
             $table->string('note_1')->comment('備註一');
@@ -77,13 +77,13 @@ class CreateAccountingTable extends Migration
             $table->string('name', 128)->unique()->comment('子次科目（三級科目）名稱');
             $table->string('company', 128)->unique()->comment('公司');
 
-            $table->unsignedBigInteger('acc_company_fk')->comment('公司, foreign key');
+            $table->unsignedBigInteger('acc_company_fk')->nullable()->default(null)->comment('公司, foreign key');
             $table->foreign('acc_company_fk')->references('id')->on('acc_company');
 
             $table->unsignedBigInteger('second_grade_fk')->comment('子科目（二級科目）, foreign key');
             $table->foreign('second_grade_fk')->references('id')->on('acc_second_grade');
 
-            $table->unsignedBigInteger('income_statement_fk')->comment('科目類別, foreign key');
+            $table->unsignedBigInteger('income_statement_fk')->nullable()->default(null)->comment('科目類別, foreign key');
             $table->foreign('income_statement_fk')->references('id')->on('acc_income_statement');
 
             $table->string('note_1')->comment('備註一');
@@ -98,13 +98,13 @@ class CreateAccountingTable extends Migration
             $table->string('name', 128)->unique()->comment('子底科目（四級科目）名稱');
             $table->string('company', 128)->unique()->comment('公司');
 
-            $table->unsignedBigInteger('acc_company_fk')->comment('公司, foreign key');
+            $table->unsignedBigInteger('acc_company_fk')->nullable()->default(null)->comment('公司, foreign key');
             $table->foreign('acc_company_fk')->references('id')->on('acc_company');
 
             $table->unsignedBigInteger('third_grade_fk')->comment('子次科目（三級科目）, foreign key');
             $table->foreign('third_grade_fk')->references('id')->on('acc_third_grade');
 
-            $table->unsignedBigInteger('income_statement_fk')->comment('科目類別, foreign key');
+            $table->unsignedBigInteger('income_statement_fk')->nullable()->default(null)->comment('科目類別, foreign key');
             $table->foreign('income_statement_fk')->references('id')->on('acc_income_statement');
 
             $table->string('note_1')->comment('備註一');
