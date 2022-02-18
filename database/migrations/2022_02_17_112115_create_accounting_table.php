@@ -36,6 +36,9 @@ class CreateAccountingTable extends Migration
             $table->unsignedBigInteger('income_statement_fk')->nullable()->default(null)->comment('科目類別, foreign key');
             $table->foreign('income_statement_fk')->references('id')->on('acc_income_statement');
 
+            $table->string('note_1')->nullable()->comment('備註一');
+            $table->string('note_2')->nullable()->comment('備註二');
+
             $table->softDeletes();
 
             $table->timestamps();
@@ -63,8 +66,8 @@ class CreateAccountingTable extends Migration
             $table->unsignedBigInteger('income_statement_fk')->nullable()->default(null)->comment('科目類別, foreign key');
             $table->foreign('income_statement_fk')->references('id')->on('acc_income_statement');
 
-            $table->string('note_1')->comment('備註一');
-            $table->string('note_2')->comment('備註二');
+            $table->string('note_1')->nullable()->comment('備註一');
+            $table->string('note_2')->nullable()->comment('備註二');
             $table->softDeletes();
             $table->timestamps();
         });
@@ -84,8 +87,8 @@ class CreateAccountingTable extends Migration
             $table->unsignedBigInteger('income_statement_fk')->nullable()->default(null)->comment('科目類別, foreign key');
             $table->foreign('income_statement_fk')->references('id')->on('acc_income_statement');
 
-            $table->string('note_1')->comment('備註一');
-            $table->string('note_2')->comment('備註二');
+            $table->string('note_1')->nullable()->comment('備註一');
+            $table->string('note_2')->nullable()->comment('備註二');
             $table->softDeletes();
             $table->timestamps();
         });
@@ -104,8 +107,8 @@ class CreateAccountingTable extends Migration
             $table->unsignedBigInteger('income_statement_fk')->nullable()->default(null)->comment('科目類別, foreign key');
             $table->foreign('income_statement_fk')->references('id')->on('acc_income_statement');
 
-            $table->string('note_1')->comment('備註一');
-            $table->string('note_2')->comment('備註二');
+            $table->string('note_1')->nullable()->comment('備註一');
+            $table->string('note_2')->nullable()->comment('備註二');
             $table->softDeletes();
             $table->timestamps();
         });
