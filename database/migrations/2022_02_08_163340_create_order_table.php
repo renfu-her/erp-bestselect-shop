@@ -15,7 +15,7 @@ class CreateOrderTable extends Migration
     {
         Schema::create('ord_orders', function (Blueprint $table) {
             $table->id();
-            $table->string('order_sn', 20)->comment('訂單流水號');
+            $table->string('sn', 20)->comment('訂單流水號');
             $table->string('email', 100)->comment('訂購者email');
             $table->integer('sale_channel_id')->comment('銷售通路id');
             $table->string('status', 20)->nullable()->comment('訂單狀態');

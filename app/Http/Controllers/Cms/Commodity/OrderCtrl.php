@@ -18,17 +18,20 @@ class OrderCtrl extends Controller
      */
     public function index(Request $request)
     {
-       // Order::createOrder([]);
+        // Order::createOrder([]);
 
-      // dd(Order::orderList()->get()->toArray());
+        // dd(Order::orderList()->get()->toArray());
 
         $query = $request->query();
+        $cond = [];
         $page = getPageCount(Arr::get($query, 'data_per_page', 10));
-        $dataList = Order::orderList()->paginate($page)->appends($query);
-       
+        $cond['keyword'] = Arr::get($query, 'keyword', null);
+        $dataList = Order::orderList($cond['keyword'])->paginate($page)->appends($query);
+
         return view('cms.commodity.order.list', [
             'dataList' => $dataList,
-            'saleChannels' => SaleChannel::select('id','title')->get()->toArray(),
+            'cond' => $cond,
+            'saleChannels' => SaleChannel::select('id', 'title')->get()->toArray(),
             'data_per_page' => $page]);
     }
 
