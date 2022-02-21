@@ -44,11 +44,9 @@
                     <th scope="col">子科目</th>
                     <th scope="col">子次科目</th>
                     <th scope="col">子底科目</th>
-{{--                    TODO 類別 data --}}
                     <th scope="col">類別</th>
                     <th scope="col">備註一</th>
                     <th scope="col">備註二</th>
-{{--                    TODO 公司 data --}}
                     <th scope="col">公司</th>
                 </tr>
                 </thead>
@@ -58,20 +56,20 @@
                         <th>{{ $secondGrade->code . ' ' . $secondGrade->name }}</th>
                         <td></td>
                         <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                        <td>{{ $secondGrade->category }}</td>
+                        <td>{{ $secondGrade->note_1 }}</td>
+                        <td>{{ $secondGrade->note_2 }}</td>
+                        <td>{{ $secondGrade->company }}</td>
                     </tr>
                     @foreach($thirdGrades[$secondKey] as $thirdKey => $thirdGrade)
                         <tr>
                             <th></th>
                             <td>{{ $thirdGrade->code . ' ' . $thirdGrade->name }}</td>
                             <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td>{{ $thirdGrade->category }}</td>
+                            <td>{{ $thirdGrade->note_1 }}</td>
+                            <td>{{ $thirdGrade->note_2 }}</td>
+                            <td>{{ $thirdGrade->company }}</td>
                         </tr>
                         @foreach($fourthGrades[$thirdKey] as $fourthGrade)
                             <tr>
@@ -80,10 +78,10 @@
                                 <td>{{ $fourthGrade->code }}
                                     <br>
                                     {{ ' ' . $fourthGrade->name }}</td>
-                                <td></td>
+                                <td>{{ $fourthGrade->category }}</td>
                                 <td>{{ $fourthGrade->note_1 }}</td>
                                 <td>{{ $fourthGrade->note_2 }}</td>
-                                <td></td>
+                                <td>{{ $fourthGrade->company }}</td>
                             </tr>
                         @endforeach
                     @endforeach
