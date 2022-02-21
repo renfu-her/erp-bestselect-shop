@@ -12,7 +12,7 @@ class SaleChannelCtrl extends Controller
     public function index(Request $request)
     {
         $query = $request->query();
-        $dataList = SaleChannel::saleList()->paginate(10)->appends($query);
+        $dataList = SaleChannel::saleList()->orderBy('is_master', 'DESC')->paginate(10)->appends($query);
         // dd(SaleChannel::saleList()->get()->toArray());
         return view('cms.settings.sale_channel.list', [
             'dataList' => $dataList,

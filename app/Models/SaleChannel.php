@@ -83,7 +83,7 @@ class SaleChannel extends Model
     {
         return DB::table('prd_sale_channels as c')
             ->leftJoin('prd_salechannel_style_price as price', 'c.id', '=', 'price.sale_channel_id', 'left outer')
-            ->select('c.id as sale_id', 'c.title', 'c.is_realtime')
+            ->select('c.id as sale_id', 'c.title', 'c.is_realtime','c.is_master')
             ->selectRaw('IF(price.dealer_price,price.dealer_price,0) as dealer_price')
             ->selectRaw('IF(price.origin_price,price.origin_price,0) as origin_price')
             ->selectRaw('IF(price.price,price.price,0) as price')
@@ -93,7 +93,8 @@ class SaleChannel extends Model
             ->where(function ($q) use ($style_id) {
                 $q->where('price.style_id', $style_id)
                     ->orWhereNull('price.style_id');
-            });
+            })
+            ->orderBy('c.is_master','DESC');
     }
 
     public static function changePrice($sale_id, $style_id, $dealer_price, $price, $origin_price, $bonus, $dividend)

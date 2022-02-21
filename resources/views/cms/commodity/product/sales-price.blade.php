@@ -63,6 +63,7 @@
                         @foreach ($sales as $styleKey => $sale)
                             <tr>
                                 <th scope="row">{{ $sale->title }}
+                                    @if($sale->is_master=='1') * @endif 
                                     <input type="hidden" name="sale_channel_id[]" value="{{ $sale->sale_id }}">
                                 </th>
                                 <td>
@@ -124,14 +125,15 @@
                 font-size: .94rem;
                 font-weight: 400;
             }
+
         </style>
     @endpush
     @push('sub-scripts')
         <script>
             // 獎金%數
-            const BonusRate = 0.97;
+            const BonusRate = @json(App\Enums\Customer\Bonus::bonus()->value);
 
-            $('input[name="price[]"], input[name="dealer_price[]"]').on('change', function () {
+            $('input[name="price[]"], input[name="dealer_price[]"]').on('change', function() {
                 const $this = $(this);
                 const price = $this.closest('tr').find('input[name="price[]"]').val() || 0;
                 const dealer_price = $this.closest('tr').find('input[name="dealer_price[]"]').val() || 0;
