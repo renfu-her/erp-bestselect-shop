@@ -104,4 +104,12 @@ class SaleChannelCtrl extends Controller
         wToast(__('Delete finished.'));
         return redirect(Route('cms.sale_channel.index'));
     }
+
+    public function batchPrice(Request $request, $id)
+    {
+        SaleChannel::batchPrice($id);
+        wToast(__('Edit finished.'));
+        return redirect(Route('cms.sale_channel.index'));
+
+    }
 }

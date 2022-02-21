@@ -155,7 +155,7 @@ class SaleChannel extends Model
 
                 if (!$newPrice) {
                     $price = round($product->price * $currentSale->discount);
-                    $bonus = round($price * Bonus::bonus()->value);
+                    $bonus = round(($price - $product->dealer_price) * Bonus::bonus()->value);
                     DB::table('prd_salechannel_style_price')
                         ->insert([
                             'style_id' => $product->style_id,

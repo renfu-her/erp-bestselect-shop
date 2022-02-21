@@ -9,7 +9,7 @@ use BenSampo\Enum\Enum;
  */
 final class Bonus extends Enum
 {
-    const bonus = 0.05;
+    const bonus = 0.97;
     public static function getDescription($value): string
     {
         $result = '';
