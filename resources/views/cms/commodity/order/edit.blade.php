@@ -526,9 +526,6 @@
                             </button>`;
                         } else {
                             addBtn = `<span class="text-muted">已加入</span>`;
-                            // addBtn = `<button type="button" class="btn btn-outline-primary -add" data-idx="${i}">
-                            //     <i class="bi bi-plus-circle"></i> 加入
-                            // </button>`;
                         }
                         if (p.type_title === '組合包商品') {
                             typeTag = '<span class="badge rounded-pill bg-warning text-dark">組合包</span>';
