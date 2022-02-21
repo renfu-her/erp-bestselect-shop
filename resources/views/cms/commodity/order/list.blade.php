@@ -8,7 +8,7 @@
             <div class="row">
                 <div class="col-12 col-sm-6 col-xxl-3 mb-3">
                     <label class="form-label">訂單關鍵字</label>
-                    <input class="form-control" type="text" name="" placeholder="請輸入訂單編號、出貨單號、訂收件人姓名/電話/地址、商品關鍵字">
+                    <input class="form-control" type="text" value="{{ $cond['keyword'] }}" name="keyword" placeholder="請輸入訂單編號">
                 </div>
                 <div class="col-12 col-sm-6 col-xxl-3 mb-3">
                     <label class="form-label">商品負責人</label>
@@ -166,7 +166,7 @@
                 <tbody>
                     @foreach ($dataList as $key => $data)
                         <tr>
-                            <td>{{ $data->sub_order_sn }}</td>
+                            <td>{{ $data->order_sn }}</td>
                             <td></td>
                             <td>{{ $data->order_date }}</td>
                             <td>{{ $data->name }}</td>
