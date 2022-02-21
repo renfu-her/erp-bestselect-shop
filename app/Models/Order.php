@@ -12,15 +12,20 @@ class Order extends Model
     protected $table = 'ord_orders';
     protected $guarded = [];
 
-    public static function orderList()
+    public static function orderList($keyword = null, $sale_channel_id = null)
     {
         $order = DB::table('ord_orders as order')
-            ->select('order.order_sn', 'customer.name', 'sale.title as sale_title', 'so.ship_category_name',
-                'so.ship_event', 'so.ship_sn', 'so.order_sn as sub_order_sn')
+            ->select('customer.name', 'sale.title as sale_title', 'so.ship_category_name',
+                'so.ship_event', 'so.ship_sn')
             ->selectRaw('DATE_FORMAT(order.created_at,"%Y-%m-%d") as order_date')
+            ->selectRaw('CONCAT(order.sn,"-",so.sn) as order_sn')
             ->leftJoin('ord_sub_orders as so', 'order.id', '=', 'so.order_id')
             ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
             ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id');
+
+        if ($keyword) {
+            $order->where(DB::raw('CONCAT(order.sn,"-",so.sn)'), 'like', "%$keyword%");
+        }
 
         return $order;
         //   dd($order->get()->toArray());
@@ -35,15 +40,15 @@ class Order extends Model
             if ($order['success'] != 1) {
                 DB::rollBack();
                 return $order;
-            } 
-            
+            }
+
             $order_sn = date("Ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
                     ->get()
-                    ->count()) + 1, 3, '0', STR_PAD_LEFT);
+                    ->count()) + 1, 2, '0', STR_PAD_LEFT);
 
             // dd($order['shipments']);
             $order_id = self::create([
-                "order_sn" => $order_sn,
+                "sn" => $order_sn,
                 "sale_channel_id" => $sale_channel_id,
                 "email" => $email,
                 "total_price" => $order['total_price'],
