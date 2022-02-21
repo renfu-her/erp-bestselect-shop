@@ -394,27 +394,27 @@
                     <tbody>
                         <tr>
                             <td class="col-7 table-light">小計</td>
-                            <td>$550</td>
+                            <td class="text-end pe-4">$550</td>
                         </tr>
                         <tr>
                             <td class="col-7 table-light">折扣</td>
-                            <td class="text-danger">- $110</td>
+                            <td class="text-danger text-end pe-4">- $110</td>
                         </tr>
                         <tr>
                             <td class="col-7 table-light lh-sm">折扣後 (不含運)</td>
-                            <td>$440</td>
+                            <td class="text-end pe-4">$440</td>
                         </tr>
                         <tr>
                             <td class="col-7 table-light">運費</td>
-                            <td>$325</td>
+                            <td class="text-end pe-4">$325</td>
                         </tr>
                         <tr>
                             <td class="col-7 table-light">總金額</td>
-                            <td class="fw-bold">$765</td>
+                            <td class="fw-bold text-end pe-4">$765</td>
                         </tr>
                         <tr>
                             <td class="col-7 table-light lh-sm">預計獲得<a href="#" class="-text">紅利積點</a></td>
-                            <td>7</td>
+                            <td class="text-end pe-4">7</td>
                         </tr>
                     </tbody>
                 </table>

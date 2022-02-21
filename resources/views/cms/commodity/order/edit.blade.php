@@ -60,7 +60,6 @@
                                         </button>
                                         <input type="hidden" name="product_id[]" value="">
                                         <input type="hidden" name="product_style_id[]" value="">
-                                        <input type="hidden" name="customer_id[]" value="1">
                                         <input type="hidden" name="shipment_type[]" value="">
                                         <input type="hidden" name="shipment_event_id[]" value="">
                                     </th>
@@ -108,97 +107,47 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div id="category_group_id" class="card shadow mb-4 -detail -detail-primary">
-                <div class="card-header px-4 d-flex align-items-center bg-white border-bottom-0">
-                    <strong class="flex-grow-1 mb-0 -deliver">GGC-00455-225冷凍宅配</strong>
-                    <span class="badge -badge fs-6"></span>
-                </div>
-                {{-- 商品列表 --}}
-                <div class="card-body px-4 py-0">
-                    <div class="table-responsive tableOverBox">
-                        <table class="table tableList table-sm mb-0">
-                            <thead class="table-light text-secondary">
-                                <tr>
-                                    <th scope="col" class="col-1 text-center">刪除</th>
-                                    <th scope="col">商品名稱</th>
-                                    <th scope="col" class="col-2 text-center">單價</th>
-                                    <th scope="col" class="col-2 text-center">數量</th>
-                                    <th scope="col" class="col-2 text-end">小計</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <th>
-                                        <button type="button"
-                                            class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                        <input type="hidden" name="product_id[]" value="">
-                                        <input type="hidden" name="product_style_id[]" value="">
-                                        <input type="hidden" name="shipment_type[]" value="">
-                                        <input type="hidden" name="shipment_event_id[]" value="">
-                                    </th>
-                                    <td><a href="#" class="-text">【春一枝】天然水果手作冰棒</a></td>
-                                    <td class="text-center">$100</td>
-                                    <td>
-                                        <x-b-qty-adjuster name="qty[]" value="1" min="1"
-                                            size="sm" minus="減少" plus="增加">
-                                        </x-b-qty-adjuster>
-                                    </td>
-                                    <td class="text-end">$200</td>
-                                </tr>
-                                <tr>
-                                    <th>
-                                        <button type="button"
-                                            class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                        <input type="hidden" name="product_id[]" value="">
-                                        <input type="hidden" name="product_style_id[]" value="">
-                                        <input type="hidden" name="shipment_type[]" value="">
-                                        <input type="hidden" name="shipment_event_id[]" value="">
-                                    </th>
-                                    <td data-td="title"><a href="#" class="-text">紐西蘭冰河帝王鮭魚片（冷煙燻）-(200g/盒)</a></td>
-                                    <td class="text-center" data-td="price">$150</td>
-                                    <td>
-                                        <x-b-qty-adjuster name="qty[]" value="1" min="1"
-                                            size="sm" minus="減少" plus="增加">
-                                        </x-b-qty-adjuster>
-                                    </td>
-                                    <td class="text-end" data-td="subtotal">$150</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                {{-- 優惠列表 --}}
-                {{-- <div class="card-body px-4 py-0">
-                    <div class="table-responsive tableOverBox">
-                        <table class="table tableList table-sm mb-0">
-                            <thead class="table-light text-secondary">
-                                <tr>
-                                    <th scope="col">優惠類型</th>
-                                    <th scope="col">優惠名稱</th>
-                                    <th scope="col">贈品</th>
-                                    <th scope="col">金額</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>-</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div> --}}
-                {{-- 運費 --}}
-                <div class="card-body px-4 py-2 border-top">
-                    <div class="d-flex lh-lg">
-                        <div scope="col" class="col">運費</div>
-                        <div class="co-auto" data-td="dlv_fee">$100</div>
-                    </div>
-                </div>
+        <div id="Total_price" class="card shadow p-4 mb-4">
+            <h6>應付金額</h6>
+            <div class="table-responsive">
+                <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
+                    <tbody>
+                        <tr class="table-light">
+                            <td class="col-2">商品小計</td>
+                            <td class="col-2">折扣</td>
+                            <td class="col-2">運費</td>
+                            <td class="col-2">總金額</td>
+                        </tr>
+                        <tr>
+                            <td data-td="subtotal">$0</td>
+                            <td data-td="discount" class="text-danger">- $0</td>
+                            <td data-td="dlv_fee">$0</td>
+                            <td data-td="sum" class="fw-bold">$0</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="table table-bordered table-sm text-right align-middle d-table d-sm-none">
+                    <tbody>
+                        <tr>
+                            <td class="col-7 table-light">商品小計</td>
+                            <td class="text-end pe-4" data-td="subtotal">$0</td>
+                        </tr>
+                        <tr>
+                            <td class="col-7 table-light">折扣</td>
+                            <td class="text-danger text-end pe-4" data-td="discount">- $0</td>
+                        </tr>
+                        <tr>
+                            <td class="col-7 table-light">運費</td>
+                            <td class="text-end pe-4" data-td="dlv_fee">$0</td>
+                        </tr>
+                        <tr>
+                            <td class="col-7 table-light">總金額</td>
+                            <td class="fw-bold text-end pe-4" data-td="sum">$0</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -282,6 +231,9 @@
                     <div class="ps-1 pe-3"></div>
                 </fieldset>
             </div>
+            <div class="alert alert-danger" role="alert" hidden>
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>目前未提供物流，請返回列表選擇其他商品
+            </div>
         </x-slot>
         <x-slot name="foot">
             <button class="btn btn-secondary" data-bs-target="#addProduct" data-bs-toggle="modal" data-bs-dismiss="modal">返回列表</button>
@@ -306,6 +258,10 @@
     @endpush
     @push('sub-scripts')
         <script>
+            // 禁用鍵盤 Enter submit
+            $('form').on('keydown', function (e) {
+                return e.key !== 'Enter';
+            });
             // 儲存前設定name
             $('#form1').submit(function(e) {
                 $('input:hidden[name="customer_id"]').val($('#customer').val());
@@ -353,11 +309,12 @@
                 // 'category_[group_id]/category_[depots.id]': {
                 //     id: '物流ID group_id/depots.id',
                 //     name: '物流名稱group_name/depots.depot_name',
-                //     type: '物流類型category',
-                //     temps: '溫層',
-                //     products: ['商品'],
-                //     total: '總金額小記',
-                //     rules: '宅配價格',
+                //     type: '物流類型category: pickup|deliver',
+                //     temps: '溫層: 常溫|冷凍|冷藏',
+                //     products: [商品],
+                //     total: '商品金額小記(不含運)',
+                //     rules: '[宅配價格]',
+                //     dlv_fee: '運費',
                 // }
             };
             // clone 項目
@@ -388,6 +345,8 @@
                         if (myCart[`${type}_${event_id}`].products.length <= 0) {
                             delete myCart[`${type}_${event_id}`];
                             $(`#${type}_${event_id}`).remove();
+                        } else {
+                            sumGroupTotal(`${type}_${event_id}`);
                         }
                     }
                 },
@@ -494,9 +453,9 @@
                             </button>`;
                         }
                         if (p.type_title === '組合包商品') {
-                            typeTag = '<span class="badge bg-warning text-dark">組合包</span>';
+                            typeTag = '<span class="badge rounded-pill bg-warning text-dark">組合包</span>';
                         } else {
-                            typeTag = '<span class="badge bg-success">一般</span>';
+                            typeTag = '<span class="badge rounded-pill bg-success">一般</span>';
                         }
 
                         let $tr = $(`<tr>
@@ -508,7 +467,6 @@
                         </tr>`);
                         $('#addProduct .-appendClone.--product').append($tr);
                     }
-
                     // 選擇商品
                     function setProduct(p) {
                         selectedProduct = {
@@ -545,7 +503,9 @@
                         const res = result.data;
                         const shipData = res.data;
 
-                        if (res.status === "0" && shipData) {
+                        if (res.status === "0") {
+                            $('#setShipment .alert-danger').prop('hidden', true);
+                            $('#setShipment .btn-ok').prop('disabled', false);
                             // 宅配
                             if (shipData.deliver) {
                                 $('#setShipment fieldset > div').append(`
@@ -608,7 +568,7 @@
                                             group_name: $('select[name="temp_depots"] option:selected').text(),
                                             category: shipData.pickup.category,
                                             category_name: shipData.pickup.category_name,
-                                            temps: ''
+                                            temps: null
                                         };
                                         break;
                                     default:
@@ -622,6 +582,16 @@
                                     return false;
                                 }
                             });
+                        } else {
+                            switch (res.status) {
+                                case 'empty':
+                                    $('#setShipment .alert-danger').prop('hidden', false);
+                                    break;
+                            
+                                default:
+                                    break;
+                            }
+                            $('#setShipment .btn-ok').prop('disabled', true);
                         }
                     })
                     .catch((err) => {
@@ -641,7 +611,8 @@
                         temps: selectShip.temps,
                         products: [],
                         total: 0,
-                        rules: selectShip.rules || null
+                        rules: selectShip.rules || null,
+                        dlv_fee: 0
                     };
                     createNewShip(selectShip);
                 }
@@ -662,7 +633,7 @@
                 function createNewShip(s) {
                     let $newCart = $cartClone.clone();
                     $newCart.addClass(`-detail-${EVENT_CLASS[s.category]}`);
-                    $newCart.find('.card-header strong').text(s.group_name).addClass(`-${s.category}`);
+                    $newCart.find('.card-header strong').text(s.group_name);
                     $newCart.attr('id', `${s.category}_${s.group_id}`);
                     if (s.category === 'pickup') { // 自取無價格
                         $newCart.find('div[data-td="dlv_fee"]').text('-');
@@ -682,15 +653,13 @@
                         if (p) {
                             cloneElem.find('input[name="product_id[]"]').val(p.pid);
                             cloneElem.find('input[name="product_style_id[]"]').val(p.sid);
-                            cloneElem.find('input[name="customer_id[]"]').val(1);
-                            cloneElem.find('input[name="qty[]"]').val(1);
                             cloneElem.find('input[name="shipment_type[]"]').val(s.category);
                             cloneElem.find('input[name="shipment_event_id[]"]').val(s.group_id);
+                            cloneElem.find('input[name="qty[]"]').val(1);
                             cloneElem.find('td[data-td="title"]').html(
                                 `<a href="#" class="-text">${p.name}-${p.spec}</a>`
                             );
-                            cloneElem.find('td[data-td="price"]').text(`$${p.price}`);
-                            cloneElem.find('td[data-td="subtotal"]').text(`$${p.price}`);
+                            cloneElem.find('td[data-td="price"], td[data-td="subtotal"]').text(`$${p.price}`);
                             cloneElem.find('input[name="qty[]"]').attr('max', p.stock);
                         }
                     }, cloneProductsOption);
@@ -741,21 +710,36 @@
                         (m_qty < max || isNaN(max)) ? $qty.val(m_qty + 1) : $qty.val(max);
                     }
                     
-                    // 修改 myCart 裡的數量
-                    const $card = $this.closest('.-detail');
-                    const id = $card.attr('id');
-                    const style_id = Number($card.find('input[name="product_style_id[]"]').val());
-                    (myCart[id].products).forEach(p => {
-                        if (p.sid === style_id) {
-                            p.qty = Number($qty.val());
-                        }
-                    });
-                    sumGroupTotal(id);
+                    sumSubtotal($this, $qty.val());
+                });
+                $('input[name="qty[]"]')
+                .off('keydown.adjust').on('keydown.adjust', function (e) {
+                    if (e.key === 'Enter') {
+                        $(this).trigger('change');
+                    }
+                })
+                .off('change.adjust').on('change.adjust', function() {
+                    sumSubtotal($(this), $(this).val());
                 });
             }
 
             /** 計算 **/
-            // 計算群組小計
+            // 計算 單一商品小計
+            function sumSubtotal($this, qty) {
+                // 修改 myCart 裡的數量
+                const $card = $this.closest('.-detail');
+                const id = $card.attr('id');
+                const style_id = Number($card.find('input[name="product_style_id[]"]').val());
+                (myCart[id].products).forEach(p => {
+                    if (p.sid === style_id) {
+                        p.qty = Number(qty);
+                        $this.closest('tr.-cloneElem').find('td[data-td="subtotal"]').text(`$${p.price * p.qty}`);
+                    }
+                });
+
+                sumGroupTotal(id);
+            }
+            // 計算 群組小計
             function sumGroupTotal(group_key) {
                 let total = 0;
                 if (!myCart[group_key]) {
@@ -765,7 +749,44 @@
                         total += (p.price * p.qty);
                     });
                     myCart[group_key].total = total;
+
+                    // 運費
+                    switch (myCart[group_key].type) {
+                        case 'deliver':
+                            for (const rule of myCart[group_key].rules) {
+                                if ((rule.is_above === 'false' && total >= rule.min_price && total < rule.max_price) ||
+                                    (rule.is_above === 'true' && total >= rule.max_price)) {
+                                    myCart[group_key].dlv_fee = Number(rule.dlv_fee);
+                                    break;
+                                }
+                            }
+                            $(`#${group_key} div[data-td="dlv_fee"]`).text(`$${myCart[group_key].dlv_fee}`);
+                            break;
+                        default:
+                            myCart[group_key].dlv_fee = 0;
+                            break;
+                    }
+                    sumAllAmount();
                 }
+            }
+            // 計算 應付金額
+            function sumAllAmount() {
+                // 商品小計
+                let all_total = 0;
+                // 運費
+                let all_dlvFee = 0;
+
+                for (const key in myCart) {
+                    if (Object.hasOwnProperty.call(myCart, key)) {
+                        const cart = myCart[key];
+                        all_dlvFee += cart.dlv_fee;
+                        all_total += cart.total;
+                    }
+                }
+
+                $('#Total_price td[data-td="subtotal"]').text(`$${all_total}`);
+                $('#Total_price td[data-td="dlv_fee"]').text(`$${all_dlvFee}`);
+                $('#Total_price td[data-td="sum"]').text(`$${all_total + all_dlvFee}`);
             }
             
         </script>
