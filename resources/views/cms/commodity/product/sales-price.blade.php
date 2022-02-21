@@ -63,7 +63,11 @@
                         @foreach ($sales as $styleKey => $sale)
                             <tr>
                                 <th scope="row">{{ $sale->title }}
-                                    @if($sale->is_master=='1') * @endif 
+                                    @if ($sale->is_master == '1')
+                                        *
+                                    @else
+                                        <input type="hidden" value="{{ $sale->discount }}">
+                                    @endif
                                     <input type="hidden" name="sale_channel_id[]" value="{{ $sale->sale_id }}">
                                 </th>
                                 <td>
