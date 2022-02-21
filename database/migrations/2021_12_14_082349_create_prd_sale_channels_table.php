@@ -22,7 +22,9 @@ class CreatePrdSaleChannelsTable extends Migration
             $table->tinyInteger('sales_type')->comment('銷售類型');
             $table->tinyInteger('use_coupon')->comment('喜鴻紅利點數');
             $table->tinyInteger('is_realtime')->default(0)->comment('即時與否');
+            $table->tinyInteger('is_master')->default(0)->comment('折扣的基準');
             $table->string('code')->nullable()->comment('代碼');
+            $table->float('discount')->default(1)->comment('折扣');
             $table->timestamps();
             $table->softDeletes();
             $table->unique(['code']);

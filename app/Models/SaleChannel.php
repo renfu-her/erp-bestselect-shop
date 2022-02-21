@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Customer\Bonus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -124,6 +125,48 @@ class SaleChannel extends Model
                     ->update($updateData);
             }
 
+        });
+    }
+
+    public static function batchPrice($sale_id)
+    {
+        DB::transaction(function () use ($sale_id) {
+            $masterSale = self::where('is_master', 1)->select('id')->get()->first();
+            if (!$masterSale) {
+                return;
+            }
+
+            $currentSale = self::where('is_master', '<>', 1)
+                ->where('id', $sale_id)
+                ->select('id', 'discount')
+                ->get()
+                ->first();
+
+            $originProduct = DB::table('prd_salechannel_style_price')
+                ->where('sale_channel_id', $masterSale->id)
+                ->get();
+
+            foreach ($originProduct as $product) {
+                // dd($product);
+                $newPrice = DB::table('prd_salechannel_style_price')
+                    ->where('sale_channel_id', $currentSale->id)
+                    ->where('style_id', $product->style_id)
+                    ->get()->first();
+
+                if (!$newPrice) {
+                    $price = round($product->price * $currentSale->discount);
+                    $bonus = round($price * Bonus::bonus()->value);
+                    DB::table('prd_salechannel_style_price')
+                        ->insert([
+                            'style_id' => $product->style_id,
+                            'sale_channel_id' => $currentSale->id,
+                            'dealer_price' => $product->dealer_price,
+                            'origin_price' => $product->origin_price,
+                            'price' => $price,
+                            'bonus' => $bonus,
+                        ]);
+                }
+            }
         });
     }
 }

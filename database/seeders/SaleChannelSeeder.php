@@ -24,6 +24,7 @@ class SaleChannelSeeder extends Seeder
             'use_coupon' => 0,
             'is_realtime' => 1,
             'code' => '01',
+            'is_master' => 1,
         ]);
 
         SaleChannel::create([
@@ -33,6 +34,7 @@ class SaleChannelSeeder extends Seeder
             'chargeman' => '銷售負責人',
             'sales_type' => 1,
             'use_coupon' => 1,
+            'discount' => 0.9,
         ]);
 
         SaleChannel::changePrice(1, 1, 90, 120, 130, 5, 10);

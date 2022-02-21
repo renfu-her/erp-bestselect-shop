@@ -11,10 +11,9 @@ class SaleChannelCtrl extends Controller
 
     public function index(Request $request)
     {
-        //
         $query = $request->query();
         $dataList = SaleChannel::saleList()->paginate(10)->appends($query);
-       // dd(SaleChannel::saleList()->get()->toArray());
+        // dd(SaleChannel::saleList()->get()->toArray());
         return view('cms.settings.sale_channel.list', [
             'dataList' => $dataList,
         ]);
@@ -41,6 +40,7 @@ class SaleChannelCtrl extends Controller
             'sales_type' => $v['sales_type'],
             'use_coupon' => $v['use_coupon'],
             'is_realtime' => $v['is_realtime'],
+            'discount' => $v['discount'],
         ]);
         wToast(__('Add finished.'));
         return redirect(Route('cms.sale_channel.edit', [
@@ -59,13 +59,14 @@ class SaleChannelCtrl extends Controller
             'chargeman' => 'required|string',
             'sales_type' => 'required|numeric',
             'use_coupon' => 'required|numeric',
+            'discount' => 'required|numeric',
         ]);
     }
 
     //取得欄位資料
     private function getInputValue(Request $request)
     {
-        return $request->only('title', 'contact_person', 'contact_tel', 'chargeman', 'sales_type', 'use_coupon', 'is_realtime');
+        return $request->only('title', 'contact_person', 'contact_tel', 'chargeman', 'sales_type', 'use_coupon', 'is_realtime', 'discount');
     }
 
     public function edit(Request $request, $id)

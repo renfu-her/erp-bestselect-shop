@@ -21,6 +21,7 @@
                     <th scope="col">通路聯絡人</th>
                     <th scope="col">通路聯絡電話</th>
                     <th scope="col">類型</th>
+                    <th scope="col">折扣</th>
                     <th scope="col" class="text-center">編輯</th>
                     <th scope="col" class="text-center">刪除</th>
                 </tr>
@@ -33,6 +34,7 @@
                         <td>{{ $data->contact_person }}</td>
                         <td>{{ $data->contact_tel }}</td>
                         <td>{{ $data->is_realtime_title }}</td>
+                        <td>{{ $data->discount }}</td>
                         <td class="text-center">
 {{--                            @can('admin.sale_channel.edit')--}}
                             <a href="{{ Route('cms.sale_channel.edit', ['id' => $data->id], true) }}"
