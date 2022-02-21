@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\Collection;
 use App\Models\NaviNode;
 use Illuminate\Database\Seeder;
-
 class naviNodeSeeder extends Seeder
 {
     /**
@@ -33,6 +32,8 @@ class naviNodeSeeder extends Seeder
         }
 
         $re = NaviNode::createNode(0, 'level1-b', 'aaa', 1);
+
+
 
     }
 }

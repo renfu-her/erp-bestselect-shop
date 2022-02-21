@@ -1,7 +1,7 @@
 @extends('layouts.main')
 @section('sub-content')
     <h2 class="mb-4">訂單管理</h2>
-    
+
     <form id="search" action="" method="GET">
         <div class="card shadow p-4 mb-4">
             <h6>搜尋條件</h6>
@@ -36,9 +36,9 @@
                     <label class="form-label">訂購日期起訖</label>
                     <div class="input-group has-validation">
                         <input type="date" class="form-control -startDate @error('_sdate') is-invalid @enderror"
-                               name="_sdate" value="" aria-label="訂購起始日期" />
-                        <input type="date" class="form-control -endDate @error('_edate') is-invalid @enderror"
-                               name="_edate" value="" aria-label="訂購結束日期" />
+                            name="_sdate" value="" aria-label="訂購起始日期" />
+                        <input type="date" class="form-control -endDate @error('_edate') is-invalid @enderror" name="_edate"
+                            value="" aria-label="訂購結束日期" />
                         <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
                         <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
                         <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
@@ -46,10 +46,10 @@
                         <button class="btn" data-daysBefore="month" type="button">本月</button>
                         <div class="invalid-feedback">
                             @error('_sdate')
-                            {{ $message }}
+                                {{ $message }}
                             @enderror
                             @error('_edate')
-                            {{ $message }}
+                                {{ $message }}
                             @enderror
                         </div>
                     </div>
@@ -58,9 +58,9 @@
                     <label class="form-label">出貨日期起訖</label>
                     <div class="input-group has-validation">
                         <input type="date" class="form-control -startDate @error('_sdate') is-invalid @enderror"
-                               name="_sdate" value="" aria-label="出貨起始日期" />
-                        <input type="date" class="form-control -endDate @error('_edate') is-invalid @enderror"
-                               name="_edate" value="" aria-label="出貨結束日期" />
+                            name="_sdate" value="" aria-label="出貨起始日期" />
+                        <input type="date" class="form-control -endDate @error('_edate') is-invalid @enderror" name="_edate"
+                            value="" aria-label="出貨結束日期" />
                         <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
                         <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
                         <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
@@ -68,10 +68,10 @@
                         <button class="btn" data-daysBefore="month" type="button">本月</button>
                         <div class="invalid-feedback">
                             @error('_sdate')
-                            {{ $message }}
+                                {{ $message }}
                             @enderror
                             @error('_edate')
-                            {{ $message }}
+                                {{ $message }}
                             @enderror
                         </div>
                     </div>
@@ -84,10 +84,10 @@
                         <select class="form-select" id="status_code" aria-label="物態">
                             <option value="" selected>請選擇</option>
                             {{-- @foreach ($status_codes as $code) --}}
-                                <option value="a01" class="text-success">待配送</option>
-                                <option value="a02" class="text-success">配送中</option>
-                                <option value="a03" class="text-success">已送達</option>
-                                <option value="c00" class="text-danger">未送達</option>
+                            <option value="a01" class="text-success">待配送</option>
+                            <option value="a02" class="text-success">配送中</option>
+                            <option value="a03" class="text-success">已送達</option>
+                            <option value="c00" class="text-danger">未送達</option>
                             {{-- @endforeach --}}
                         </select>
                         <button class="btn btn-outline-secondary" type="button" id="clear_status_code"
@@ -106,12 +106,9 @@
                     <div class="input-group mb-1">
                         <select class="form-select" id="sale_channel" aria-label="銷售通路">
                             <option value="" selected>請選擇</option>
-                            {{-- @foreach ($ as $code) --}}
-                                <option value="1">官網</option>
-                                <option value="2">內網</option>
-                                <option value="3">郵政</option>
-                                <option value="4">蝦皮</option>
-                            {{-- @endforeach --}}
+                            @foreach ($saleChannels as $sale)
+                                <option value="{{ $sale['id'] }}">{{ $sale['title'] }}</option>
+                            @endforeach
                         </select>
                         <button class="btn btn-outline-secondary" type="button" id="clear_sale_channel"
                             data-bs-toggle="tooltip" title="清空">
@@ -140,7 +137,8 @@
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
                     @foreach (config('global.dataPerPage') as $value)
-                        <option value="{{ $value }}" @if ($data_per_page == $value) selected @endif>{{ $value }}</option>
+                        <option value="{{ $value }}" @if ($data_per_page == $value) selected @endif>
+                            {{ $value }}</option>
                     @endforeach
                 </select>
                 筆
@@ -166,53 +164,30 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {{-- @foreach ($dataList as $key => $data) --}}
+                    @foreach ($dataList as $key => $data)
                         <tr>
-                            <td>2112010000</td>
-                            <td>2112010000-1</td>
-                            <td>2021/11/09</td>
-                            <td>施欽元</td>
-                            <td>官網</td>
+                            <td>{{ $data->sub_order_sn }}</td>
+                            <td></td>
+                            <td>{{ $data->order_date }}</td>
+                            <td>{{ $data->name }}</td>
+                            <td>{{ $data->sale_title }}</td>
                             <td class="text-success">待配送</td>
                             <td>
                                 <span class="d-block lh-sm">46456456</span>
                                 <span class="d-block lh-sm">77987979</span>
                             </td>
-                            <td>自取</td>
-                            <td>宅配</td>
-                            <td>36354</td>
+                            <td>{{ $data->ship_category_name }}</td>
+                            <td>{{ $data->ship_event }}</td>
+                            <td>{{ $data->ship_sn }}</td>
                             <td>-</td>
                             <td class="text-center">
-                                <a href="{{ Route('cms.order.detail', ['id' => 1]) }}"
-                                    data-bs-toggle="tooltip" title="明細"
-                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                <a href="{{ Route('cms.order.detail', ['id' => 1]) }}" data-bs-toggle="tooltip"
+                                    title="明細" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-card-list"></i>
                                 </a>
                             </td>
                         </tr>
-                        <tr>
-                            <td>2112010000</td>
-                            <td>2112010000-2</td>
-                            <td>2021/11/09</td>
-                            <td>施欽元</td>
-                            <td>官網</td>
-                            <td class="text-success">待配送</td>
-                            <td>
-                                <span class="d-block lh-sm">4545646</span>
-                            </td>
-                            <td>宅配</td>
-                            <td>宅配</td>
-                            <td>33423</td>
-                            <td>-</td>
-                            <td class="text-center">
-                                <a href="{{ Route('cms.order.detail', ['id' => 1]) }}"
-                                    data-bs-toggle="tooltip" title="明細"
-                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                    <i class="bi bi-card-list"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    {{-- @endforeach --}}
+                    @endforeach
                 </tbody>
             </table>
         </div>
@@ -220,7 +195,7 @@
     <div class="row flex-column-reverse flex-sm-row">
         <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">
             {{-- 頁碼 --}}
-            {{-- <div class="d-flex justify-content-center">{{ $dataList->links() }}</div> --}}
+            <div class="d-flex justify-content-center">{{ $dataList->links() }}</div>
         </div>
     </div>
 @endsection
@@ -235,10 +210,34 @@
 
             // Chip
             // - 物態
-            let statusCode = [{"id":2,"title":"待配送","content":"列印託運單","style":"text-success","code":"a01"},
-                {"id":3,"title":"配送中","content":"收貨時掃描託運單","style":"text-success","code":"a02"},
-                {"id":4,"title":"已送達","content":"拍照上傳簽收單回條","style":"text-success","code":"a03"},
-                {"id":5,"title":"未送達","content":"聯繫不上客人暫回喜鴻","style":"text-danger","code":"c00"}
+            let statusCode = [{
+                    "id": 2,
+                    "title": "待配送",
+                    "content": "列印託運單",
+                    "style": "text-success",
+                    "code": "a01"
+                },
+                {
+                    "id": 3,
+                    "title": "配送中",
+                    "content": "收貨時掃描託運單",
+                    "style": "text-success",
+                    "code": "a02"
+                },
+                {
+                    "id": 4,
+                    "title": "已送達",
+                    "content": "拍照上傳簽收單回條",
+                    "style": "text-success",
+                    "code": "a03"
+                },
+                {
+                    "id": 5,
+                    "title": "未送達",
+                    "content": "聯繫不上客人暫回喜鴻",
+                    "style": "text-danger",
+                    "code": "c00"
+                }
             ];
             let selectedCode = ["a01", "a02", "a03", "c00"];
             let Chips_status = new ChipElem($('#chip-group-status'));
@@ -246,12 +245,10 @@
                 selectedCode.splice(selectedCode.indexOf(code), 1);
             };
             // - 銷售通路
-            let saleChannel = [{"id":1,"title":"官網"},
-                {"id":2,"title":"內網"},
-                {"id":3,"title":"郵政"},
-                {"id":4,"title":"蝦皮"},
-            ];
-            let selectedChannel = [1, 2, 3, 4];
+
+            let saleChannel = @json($saleChannels);
+
+            let selectedChannel = [];
             let Chips_sale = new ChipElem($('#chip-group-sale'));
             Chips_sale.onDelete = function(id) {
                 selectedChannel.splice(selectedChannel.indexOf(id), 1);
@@ -259,6 +256,7 @@
 
             // 初始化
             chipInit();
+
             function chipInit() {
                 // - 物態
                 selectedCode.map(function(code) {

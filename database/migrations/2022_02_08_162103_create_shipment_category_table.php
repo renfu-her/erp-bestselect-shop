@@ -26,6 +26,14 @@ class CreateShipmentCategoryTable extends Migration
                 $tb->foreign('category_fk')->references('id')->on('shi_category');
             });
         });
+
+        Schema::create('shi_status', function (Blueprint $table) {
+            $table->id();
+            $table->string('title');
+            $table->string('content')->nullable();
+            $table->string('style')->nullable();
+            $table->string('code',3)->nullable();
+        });
     }
 
     /**
@@ -40,5 +48,6 @@ class CreateShipmentCategoryTable extends Migration
             $table->dropColumn('category_fk');
         });
         Schema::dropIfExists('shi_category');
+        Schema::dropIfExists('shi_status');
     }
 }

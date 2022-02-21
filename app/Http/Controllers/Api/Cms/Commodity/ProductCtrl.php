@@ -88,8 +88,11 @@ class ProductCtrl extends Controller
                 'message' => $validator->messages(),
             ]);
         }
-
-        return response()->json(['status' => '0', 'data' => Product::getProductShipments($request->input('product_id'))]);
+        $re = Product::getProductShipments($request->input('product_id'));
+        if (count($re) == 0) {
+            return response()->json(['status' => 'empty', 'message' => '無資料']);
+        }
+        return response()->json(['status' => '0', 'data' => $re]);
     }
 
     // Product::getProductShipments($id);
