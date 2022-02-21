@@ -5,160 +5,218 @@
     <form id="form1" method="post" action="">
         @method('POST')
         @csrf
+        <nav class="nav nav-pills nav-fill mb-3">
+            <span class="nav-link active" aria-current="page"><span class="badge -step">第一步</span>添加購物車</span>
+            <span class="nav-link"><span class="badge -step">第二步</span>填寫訂購資訊</span>
+        </nav>
 
-        <div class="card shadow p-4 mb-4">
-            <h6><span class="badge -step">第一步</span>添加購物車</h6>
-            <div class="row">
-                <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">訂購客戶</label>
-                    <select id="customer" class=" form-select -select2 -single" data-placeholder="請選擇訂購客戶">
-                        @foreach ($customers as $customer)
-                            <option value="{{ $customer->id }}" @if ($customer->id == $customer_id) selected @endif>
-                                {{ $customer->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">客戶身分</label>
-                    <input type="hidden" name="customer_id">
-                    <div class="form-control" readonly>客戶尚未選取/員工</div>
-                </div>
-            </div>
-            <div class="">
-                <button id="addProductBtn" type="button" class="btn btn-primary" style="font-weight: 500;">
-                    加入商品
-                </button>
-            </div>
-        </div>
-
-        <div id="MyCart">
-            {{-- 宅配 .-detail-primary / 自取 .-detail-warning / 超取 .-detail-success --}}
-            <div id="" class="card shadow mb-4 -detail d-none">
-                <div class="card-header px-4 d-flex align-items-center bg-white border-bottom-0">
-                    <strong class="flex-grow-1 mb-0"></strong>
-                    <span class="badge -badge fs-6"></span>
-                </div>
-                {{-- 商品列表 --}}
-                <div class="card-body px-4 py-0">
-                    <div class="table-responsive tableOverBox">
-                        <table class="table tableList table-sm mb-0">
-                            <thead class="table-light text-secondary">
-                                <tr>
-                                    <th scope="col" class="col-1 text-center">刪除</th>
-                                    <th scope="col">商品名稱</th>
-                                    <th scope="col" class="col-2 text-center">單價</th>
-                                    <th scope="col" class="col-2 text-center">數量</th>
-                                    <th scope="col" class="col-2 text-end">小計</th>
-                                </tr>
-                            </thead>
-                            <tbody class="-appendClone --selectedP">
-                                <tr class="-cloneElem --selectedP">
-                                    <th>
-                                        <button type="button"
-                                            class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                        <input type="hidden" name="product_id[]" value="">
-                                        <input type="hidden" name="product_style_id[]" value="">
-                                        <input type="hidden" name="shipment_type[]" value="">
-                                        <input type="hidden" name="shipment_event_id[]" value="">
-                                    </th>
-                                    <td data-td="title"><a href="#" class="-text"></a></td>
-                                    <td class="text-center" data-td="price">$0</td>
-                                    <td>
-                                        <x-b-qty-adjuster name="qty[]" value="1" min="1"
-                                            size="sm" minus="減少" plus="增加">
-                                        </x-b-qty-adjuster>
-                                    </td>
-                                    <td class="text-end" data-td="subtotal">$0</td>
-                                </tr>
-                            </tbody>
-                        </table>
+        <div id="STEP_1">
+            <div class="card shadow p-4 mb-4">
+                <div class="row">
+                    <div class="col-12 col-sm-6 mb-3">
+                        <label class="form-label">訂購客戶</label>
+                        <select id="customer" class=" form-select -select2 -single" disabled data-placeholder="請選擇訂購客戶">
+                            @foreach ($customers as $customer)
+                                <option value="{{ $customer->id }}" @if ($customer->id == $customer_id) selected @endif>
+                                    {{ $customer->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-12 col-sm-6 mb-3" hidden>
+                        <label class="form-label">客戶身分</label>
+                        <input type="hidden" name="customer_id">
+                        <div class="form-control" readonly>客戶尚未選取/員工</div>
                     </div>
                 </div>
-                {{-- 優惠列表 --}}
-                {{-- <div class="card-body px-4 py-0">
-                    <div class="table-responsive tableOverBox">
-                        <table class="table tableList table-sm mb-0">
-                            <thead class="table-light text-secondary">
-                                <tr>
-                                    <th scope="col">優惠類型</th>
-                                    <th scope="col">優惠名稱</th>
-                                    <th scope="col">贈品</th>
-                                    <th scope="col">金額</th>
-                                </tr>
-                            </thead>
-                            <tbody class="-appendClone">
-                                <tr>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <div class="">
+                    <button id="addProductBtn" type="button" class="btn btn-primary" style="font-weight: 500;">
+                        加入商品
+                    </button>
+                </div>
+            </div>
+            <div id="MyCart">
+                {{-- 宅配 .-detail-primary / 自取 .-detail-warning / 超取 .-detail-success --}}
+                <div id="" class="card shadow mb-4 -detail d-none">
+                    <div class="card-header px-4 d-flex align-items-center bg-white border-bottom-0">
+                        <strong class="flex-grow-1 mb-0"></strong>
+                        <span class="badge -badge fs-6"></span>
                     </div>
-                </div> --}}
-                {{-- 運費 --}}
-                <div class="card-body px-4 py-2 border-top">
-                    <div class="d-flex lh-lg">
-                        <div scope="col" class="col">運費</div>
-                        <div class="co-auto" data-td="dlv_fee">$0</div>
+                    {{-- 商品列表 --}}
+                    <div class="card-body px-4 py-0">
+                        <div class="table-responsive tableOverBox">
+                            <table class="table tableList table-sm mb-0">
+                                <thead class="table-light text-secondary">
+                                    <tr>
+                                        <th scope="col" class="col-1 text-center">刪除</th>
+                                        <th scope="col">商品名稱</th>
+                                        <th scope="col" class="col-2 text-center">單價</th>
+                                        <th scope="col" class="col-2 text-center">數量</th>
+                                        <th scope="col" class="col-2 text-end">小計</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="-appendClone --selectedP">
+                                    <tr class="-cloneElem --selectedP">
+                                        <th>
+                                            <button type="button"
+                                                class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                            <input type="hidden" name="product_id[]" value="">
+                                            <input type="hidden" name="product_style_id[]" value="">
+                                            <input type="hidden" name="shipment_type[]" value="">
+                                            <input type="hidden" name="shipment_event_id[]" value="">
+                                        </th>
+                                        <td data-td="title"><a href="#" class="-text"></a></td>
+                                        <td class="text-center" data-td="price">$0</td>
+                                        <td>
+                                            <x-b-qty-adjuster name="qty[]" value="1" min="1"
+                                                size="sm" minus="減少" plus="增加">
+                                            </x-b-qty-adjuster>
+                                        </td>
+                                        <td class="text-end" data-td="subtotal">$0</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {{-- 優惠列表 --}}
+                    {{-- <div class="card-body px-4 py-0">
+                        <div class="table-responsive tableOverBox">
+                            <table class="table tableList table-sm mb-0">
+                                <thead class="table-light text-secondary">
+                                    <tr>
+                                        <th scope="col">優惠類型</th>
+                                        <th scope="col">優惠名稱</th>
+                                        <th scope="col">贈品</th>
+                                        <th scope="col">金額</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="-appendClone">
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div> --}}
+                    {{-- 運費 --}}
+                    <div class="card-body px-4 py-2 border-top">
+                        <div class="d-flex lh-lg">
+                            <div scope="col" class="col">運費</div>
+                            <div class="co-auto" data-td="dlv_fee">$0</div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div id="Total_price" class="card shadow p-4 mb-4">
-            <h6>應付金額</h6>
-            <div class="table-responsive">
-                <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
-                    <tbody>
-                        <tr class="table-light">
-                            <td class="col-2">商品小計</td>
-                            <td class="col-2">折扣</td>
-                            <td class="col-2">運費</td>
-                            <td class="col-2">總金額</td>
-                        </tr>
-                        <tr>
-                            <td data-td="subtotal">$0</td>
-                            <td data-td="discount" class="text-danger">- $0</td>
-                            <td data-td="dlv_fee">$0</td>
-                            <td data-td="sum" class="fw-bold">$0</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <table class="table table-bordered table-sm text-right align-middle d-table d-sm-none">
-                    <tbody>
-                        <tr>
-                            <td class="col-7 table-light">商品小計</td>
-                            <td class="text-end pe-4" data-td="subtotal">$0</td>
-                        </tr>
-                        <tr>
-                            <td class="col-7 table-light">折扣</td>
-                            <td class="text-danger text-end pe-4" data-td="discount">- $0</td>
-                        </tr>
-                        <tr>
-                            <td class="col-7 table-light">運費</td>
-                            <td class="text-end pe-4" data-td="dlv_fee">$0</td>
-                        </tr>
-                        <tr>
-                            <td class="col-7 table-light">總金額</td>
-                            <td class="fw-bold text-end pe-4" data-td="sum">$0</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div id="Total_price" class="card shadow p-4 mb-4">
+                <h6>應付金額</h6>
+                <div class="table-responsive">
+                    <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
+                        <tbody>
+                            <tr class="table-light">
+                                <td class="col-2">商品小計</td>
+                                <td class="col-2">折扣</td>
+                                <td class="col-2">運費</td>
+                                <td class="col-2">總金額</td>
+                            </tr>
+                            <tr>
+                                <td data-td="subtotal">$0</td>
+                                <td data-td="discount" class="text-danger">- $0</td>
+                                <td data-td="dlv_fee">$0</td>
+                                <td data-td="sum" class="fw-bold">$0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-bordered table-sm text-right align-middle d-table d-sm-none">
+                        <tbody>
+                            <tr>
+                                <td class="col-7 table-light">商品小計</td>
+                                <td class="text-end pe-4" data-td="subtotal">$0</td>
+                            </tr>
+                            <tr>
+                                <td class="col-7 table-light">折扣</td>
+                                <td class="text-danger text-end pe-4" data-td="discount">- $0</td>
+                            </tr>
+                            <tr>
+                                <td class="col-7 table-light">運費</td>
+                                <td class="text-end pe-4" data-td="dlv_fee">$0</td>
+                            </tr>
+                            <tr>
+                                <td class="col-7 table-light">總金額</td>
+                                <td class="fw-bold text-end pe-4" data-td="sum">$0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
-
-        @error('del_error')
-            <div class="alert alert-danger mt-3">{{ $message }}</div>
-        @enderror
-
-        <div id="submitDiv">
             <div class="col-auto">
-                <button type="submit" class="btn btn-primary px-4">建立</button>
                 <a href="{{ Route('cms.order.index') }}" class="btn btn-outline-primary px-4" role="button">返回列表</a>
+                <button type="button" class="btn btn-primary px-4 -next_step">下一步</button>
+            </div>
+        </div>
+
+        <div id="STEP_2" hidden>
+            <div class="card shadow p-4 mb-4">
+                <h6>購買人</h6>
+                <div class="row">
+                    <div class="col-12 col-sm-6 mb-3">
+                        <label class="form-label">姓名</label>
+                        <input type="text" class="form-control" name="ord_name" placeholder="請輸入購買人姓名">
+                    </div>
+                    <div class="col-12 col-sm-6 mb-3">
+                        <label class="form-label">電話</label>
+                        <input type="tel" class="form-control" name="ord_phone" placeholder="請輸入購買人電話">
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="form-label">地址</label>
+                        <input type="text" class="form-control" name="ord_address" placeholder="請輸入購買人地址">
+                    </div>
+                </div>
+                <h6 class="d-flex align-items-end">收件人 
+                    <label class="small fw-normal text-body ms-3">
+                        <input id="rec_same" class="form-check-input mt-0 me-1" type="checkbox">同購買人
+                    </label>
+                </h6>
+                <div class="row">
+                    <div class="col-12 col-sm-6 mb-3">
+                        <label class="form-label">姓名</label>
+                        <input type="text" class="form-control" name="rec_name" placeholder="請輸入收件人姓名">
+                    </div>
+                    <div class="col-12 col-sm-6 mb-3">
+                        <label class="form-label">電話</label>
+                        <input type="tel" class="form-control" name="rec_phone" placeholder="請輸入收件人電話">
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="form-label">地址</label>
+                        <input type="text" class="form-control" name="rec_address" placeholder="請輸入收件人地址">
+                    </div>
+                </div>
+                <h6 class="d-flex align-items-end">寄件人
+                    <label class="small fw-normal text-body ms-3">
+                        <input id="sed_same" class="form-check-input mt-0 me-1" type="checkbox">同購買人
+                    </label>
+                </h6>
+                <div class="row">
+                    <div class="col-12 col-sm-6 mb-3">
+                        <label class="form-label">姓名</label>
+                        <input type="text" class="form-control" name="sed_name" placeholder="請輸入寄件人姓名">
+                    </div>
+                    <div class="col-12 col-sm-6 mb-3">
+                        <label class="form-label">電話</label>
+                        <input type="tel" class="form-control" name="sed_phone" placeholder="請輸入寄件人電話">
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="form-label">地址</label>
+                        <input type="text" class="form-control" name="sed_address" placeholder="請輸入寄件人地址">
+                    </div>
+                </div>
+            </div>
+            <div class="col-auto">
+                <button type="button" class="btn btn-outline-primary px-4 -prev_step">上一步</button>
+                <button type="submit" class="btn btn-primary px-4">送出訂單</button>
             </div>
         </div>
     </form>
@@ -324,9 +382,11 @@
             $cartClone.removeClass('d-none');
             $('.-detail.d-none').remove();
 
+            /*** init ***/
+            // 計數器
             bindAdjusterBtn();
 
-            /*** 刪除商品 ***/
+            // 刪除商品
             let delProductsOption = {
                 appendClone: '.-appendClone.--selectedP',
                 cloneElem: '.-cloneElem.--selectedP',
@@ -352,19 +412,37 @@
                 },
                 checkFn: function() {
                     if ($('.-cloneElem.--selectedP').length) {
-                        $('button[type="submit"]').prop('disabled', false);
+                        $('#STEP_1 .-next_step').prop('disabled', false);
+                        $('#customer').prop('disabled', true);
                     }
-                    // 無商品不可儲存
+                    // 無商品不可下一步
                     if (!$('.-cloneElem.--selectedP').length) {
-                        $('button[type="submit"]').prop('disabled', true);
+                        $('#STEP_1 .-next_step').prop('disabled', true);
+                        $('#customer').prop('disabled', false);
                     }
                 }
             };
             Clone_bindDelElem($('.-cloneElem.--selectedP .-del'), delProductsOption);
-            // 無商品不可儲存
+            // 無商品不可下一步
             if (!$('.-cloneElem.--selectedP').length) {
-                $('button[type="submit"]').prop('disabled', true);
+                $('#STEP_1 .-next_step').prop('disabled', true);
+                $('#customer').prop('disabled', false);
             }
+
+            // 第一步下一步
+            $('#STEP_1 .-next_step').off('click').on('click', function () {
+                $('#form1 > nav .nav-link:first-child').removeClass('active');
+                $('#form1 > nav .nav-link:last-child').addClass('active');
+                $('#STEP_1').prop('hidden', true);
+                $('#STEP_2').prop('hidden', false);
+            });
+            // 第二步上一步
+            $('#STEP_2 .-prev_step').off('click').on('click', function () {
+                $('#form1 > nav .nav-link:first-child').addClass('active');
+                $('#form1 > nav .nav-link:last-child').removeClass('active');
+                $('#STEP_1').prop('hidden', false);
+                $('#STEP_2').prop('hidden', true);
+            });
 
             // 加入商品、搜尋商品
             $('#addProductBtn, #addProduct .-searchBar button')
@@ -448,9 +526,9 @@
                             </button>`;
                         } else {
                             addBtn = `<span class="text-muted">已加入</span>`;
-                            addBtn = `<button type="button" class="btn btn-outline-primary -add" data-idx="${i}">
-                                <i class="bi bi-plus-circle"></i> 加入
-                            </button>`;
+                            // addBtn = `<button type="button" class="btn btn-outline-primary -add" data-idx="${i}">
+                            //     <i class="bi bi-plus-circle"></i> 加入
+                            // </button>`;
                         }
                         if (p.type_title === '組合包商品') {
                             typeTag = '<span class="badge rounded-pill bg-warning text-dark">組合包</span>';
@@ -577,7 +655,7 @@
                                         break;
                                 }
                                 if (selectShip) {
-                                    addToCart();
+                                    addToCart(selectShip);
                                 } else {
                                     return false;
                                 }
@@ -600,7 +678,7 @@
             }
 
             // 加入購物車
-            function addToCart() {
+            function addToCart(selectShip) {
                 const shipKey = `${selectShip.category}_${selectShip.group_id}`;
                 // 新增一個物流
                 if (!myCart[shipKey]) {
@@ -789,6 +867,24 @@
                 $('#Total_price td[data-td="sum"]').text(`$${all_total + all_dlvFee}`);
             }
             
+        </script>
+        <script>
+            /*** 第二步 ***/
+            // 同購買人
+            $('#rec_same, #sed_same').off('change').on('change', function () {
+                const $this = $(this);
+                const prefix = $this.attr('id').replace(/same/g, '');
+                if ($this.prop('checked')) {
+                    $(`input[name="${prefix}name"]`).val($('input[name="ord_name"]').val());
+                    $(`input[name="${prefix}phone"]`).val($('input[name="ord_phone"]').val());
+                    $(`input[name="${prefix}address"]`).val($('input[name="ord_address"]').val());
+                } else {
+                    // 清空
+                    $(`input[name="${prefix}name"],
+                       input[name="${prefix}phone"],
+                       input[name="${prefix}address"]`).val('');
+                }
+            });
         </script>
     @endpush
 @endonce
