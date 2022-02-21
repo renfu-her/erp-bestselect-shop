@@ -33,8 +33,8 @@ class CreateAccountingTable extends Migration
             $table->unsignedBigInteger('acc_company_fk')->nullable()->default(null)->comment('公司, foreign key');
             $table->foreign('acc_company_fk')->references('id')->on('acc_company');
 
-            $table->unsignedBigInteger('income_statement_fk')->nullable()->default(null)->comment('科目類別, foreign key');
-            $table->foreign('income_statement_fk')->references('id')->on('acc_income_statement');
+            $table->unsignedBigInteger('acc_income_statement_fk')->nullable()->default(null)->comment('科目類別, foreign key');
+            $table->foreign('acc_income_statement_fk')->references('id')->on('acc_income_statement');
 
             $table->string('note_1')->nullable()->comment('備註一');
             $table->string('note_2')->nullable()->comment('備註二');
@@ -63,8 +63,8 @@ class CreateAccountingTable extends Migration
             $table->unsignedBigInteger('first_grade_fk')->comment('會計分類（一級科目）, foreign key');
             $table->foreign('first_grade_fk')->references('id')->on('acc_first_grade');
 
-            $table->unsignedBigInteger('income_statement_fk')->nullable()->default(null)->comment('科目類別, foreign key');
-            $table->foreign('income_statement_fk')->references('id')->on('acc_income_statement');
+            $table->unsignedBigInteger('acc_income_statement_fk')->nullable()->default(null)->comment('科目類別, foreign key');
+            $table->foreign('acc_income_statement_fk')->references('id')->on('acc_income_statement');
 
             $table->string('note_1')->nullable()->comment('備註一');
             $table->string('note_2')->nullable()->comment('備註二');
@@ -84,8 +84,8 @@ class CreateAccountingTable extends Migration
             $table->unsignedBigInteger('second_grade_fk')->comment('子科目（二級科目）, foreign key');
             $table->foreign('second_grade_fk')->references('id')->on('acc_second_grade');
 
-            $table->unsignedBigInteger('income_statement_fk')->nullable()->default(null)->comment('科目類別, foreign key');
-            $table->foreign('income_statement_fk')->references('id')->on('acc_income_statement');
+            $table->unsignedBigInteger('acc_income_statement_fk')->nullable()->default(null)->comment('科目類別, foreign key');
+            $table->foreign('acc_income_statement_fk')->references('id')->on('acc_income_statement');
 
             $table->string('note_1')->nullable()->comment('備註一');
             $table->string('note_2')->nullable()->comment('備註二');
@@ -104,8 +104,8 @@ class CreateAccountingTable extends Migration
             $table->unsignedBigInteger('third_grade_fk')->comment('子次科目（三級科目）, foreign key');
             $table->foreign('third_grade_fk')->references('id')->on('acc_third_grade');
 
-            $table->unsignedBigInteger('income_statement_fk')->nullable()->default(null)->comment('科目類別, foreign key');
-            $table->foreign('income_statement_fk')->references('id')->on('acc_income_statement');
+            $table->unsignedBigInteger('acc_income_statement_fk')->nullable()->default(null)->comment('科目類別, foreign key');
+            $table->foreign('acc_income_statement_fk')->references('id')->on('acc_income_statement');
 
             $table->string('note_1')->nullable()->comment('備註一');
             $table->string('note_2')->nullable()->comment('備註二');
@@ -153,16 +153,16 @@ class CreateAccountingTable extends Migration
         });
 
         Schema::table('acc_fourth_grade', function (Blueprint $table) {
-            $table->dropForeign(['income_statement_fk']);
-            $table->dropColumn('income_statement_fk');
+            $table->dropForeign(['acc_income_statement_fk']);
+            $table->dropColumn('acc_income_statement_fk');
         });
         Schema::table('acc_third_grade', function (Blueprint $table) {
-            $table->dropForeign(['income_statement_fk']);
-            $table->dropColumn('income_statement_fk');
+            $table->dropForeign(['acc_income_statement_fk']);
+            $table->dropColumn('acc_income_statement_fk');
         });
         Schema::table('acc_second_grade', function (Blueprint $table) {
-            $table->dropForeign(['income_statement_fk']);
-            $table->dropColumn('income_statement_fk');
+            $table->dropForeign(['acc_income_statement_fk']);
+            $table->dropColumn('acc_income_statement_fk');
         });
 
         Schema::dropIfExists('acc_fourth_grade');
