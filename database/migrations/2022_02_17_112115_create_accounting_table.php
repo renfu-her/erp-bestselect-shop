@@ -96,6 +96,7 @@ class CreateAccountingTable extends Migration
         Schema::create('acc_fourth_grade', function (Blueprint $table) {
             $table->id()->comment('子底科目（四級科目）');
             $table->string('code')->unique()->comment('科目代碼');
+            $table->boolean('has_next_grade')->default(0)->comment('無下一層');
             $table->string('name', 128)->unique()->comment('子底科目（四級科目）名稱');
 
             $table->unsignedBigInteger('acc_company_fk')->nullable()->default(null)->comment('公司, foreign key');
