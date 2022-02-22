@@ -1,10 +1,10 @@
 <?php
 
 use App\Http\Controllers\Cms\AuthCtrl;
+use App\Http\Controllers\Cms\CustomerResetCtrl;
 use App\Http\Controllers\Cms\DashboardCtrl;
 use App\Http\Controllers\Cms\StyleDemo;
 use Illuminate\Support\Facades\Route;
-use NunoMaduro\Collision\Adapters\Phpunit\Style;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,3 +53,20 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/IncomeStatement.php');
     require base_path('routes/cms/BalanceSheet.php');
 });
+
+
+Route::group(['middleware' => 'guest:customer'], function () {
+    Route::get('/forgot-password', [CustomerResetCtrl::class, 'forgot_password'])->name('password.request');
+    Route::post('/forgot-password', [CustomerResetCtrl::class, 'send_reset_pw_mail'])->name('password.email');
+
+    Route::get('/reset-password/{token?}', [CustomerResetCtrl::class, 'reset_password'])->name('password.reset');
+    Route::post('/reset-password', [CustomerResetCtrl::class, 'reset_password_store'])->name('password.update');
+
+    Route::get('/login-test', function () {
+        return session('status');
+    })->name('login');
+});
+
+
+
+
