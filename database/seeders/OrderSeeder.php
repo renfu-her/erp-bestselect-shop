@@ -52,6 +52,6 @@ class OrderSeeder extends Seeder
             ],
         ];
 
-//        dd(Order::createOrder('hayashi0126@gmail.com', 1, $address, $items));
+        Order::createOrder('hayashi0126@gmail.com', 1, $address, $items);
     }
 }
