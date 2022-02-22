@@ -43,7 +43,7 @@
                                        type="radio"
                                        required
                                        @if ( $method === 'edit' &&
-                                            isset($data) ? ($data->has_next_grade === 1 ? true : false) : false
+                                            isset($data) ? ($data->has_next_grade === 0 ? true : false) : false
                                             )
                                        checked
                                     @endif
