@@ -58,17 +58,19 @@ class GeneralLedgerCtrl extends Controller
      */
     public function create(Request $request)
     {
-        $req = $request->all();
-        $currentUri = Route::getCurrentRoute()->uri;
-        preg_match('/cms\\/general_ledger\\/create\\?currentGrade=(1st|2nd|3rd|4th)$/', $currentUri, $currentGrade);
+        if (isset($request['currentGrade'])){
+            $grade = $request['currentGrade'];
+        }
+        if (isset($request['nextGrade'])){
+            $grade = $request['nextGrade'];
+        }
 
         return view('cms.accounting.general_ledger.edit', [
             'method' => 'create',
             'allCompanies' => DB::table('acc_company')->get(),
             'allCategories' => DB::table('acc_income_statement')->get(),
-            'isFourthGradeExist' => ($req['currentGrade'] === '4th') ? true : false,
-//            'currentGrade' => $req['currentGrade'],
-            'formAction' => Route('cms.general_ledger.store-' . $req['currentGrade']),
+            'isFourthGradeExist' => ($grade === '4th') ? true : false,
+            'formAction' => Route('cms.general_ledger.store-' . $grade),
         ]);
         //
     }
