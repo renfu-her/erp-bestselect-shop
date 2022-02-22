@@ -17,9 +17,9 @@ Route::group(['prefix' => 'general_ledger', 'as' => 'general_ledger.'], function
     Route::get('edit/{id}/3rd', [GeneralLedgerCtrl::class, 'edit'])->name('edit-3rd')->middleware('permission:cms.general_ledger.edit');
     Route::get('edit/{id}/4th', [GeneralLedgerCtrl::class, 'edit'])->name('edit-4th')->middleware('permission:cms.general_ledger.edit');
 
-    Route::post('edit/{id}', [GeneralLedgerCtrl::class, 'update'])->name('update-2nd')->middleware('permission:cms.general_ledger.update');
-    Route::post('edit/{id}', [GeneralLedgerCtrl::class, 'update'])->name('update-3rd')->middleware('permission:cms.general_ledger.update');
-    Route::post('edit/{id}', [GeneralLedgerCtrl::class, 'update'])->name('update-4th')->middleware('permission:cms.general_ledger.update');
+    Route::post('edit/{id}/2nd', [GeneralLedgerCtrl::class, 'update'])->name('update-2nd')->middleware('permission:cms.general_ledger.update');
+    Route::post('edit/{id}/3rd', [GeneralLedgerCtrl::class, 'update'])->name('update-3rd')->middleware('permission:cms.general_ledger.update');
+    Route::post('edit/{id}/4th', [GeneralLedgerCtrl::class, 'update'])->name('update-4th')->middleware('permission:cms.general_ledger.update');
 
     Route::get('show/{id}/2nd', [GeneralLedgerCtrl::class, 'show'])->name('show-2nd')->middleware('permission:cms.general_ledger.show');
     Route::get('show/{id}/3rd', [GeneralLedgerCtrl::class, 'show'])->name('show-3rd')->middleware('permission:cms.general_ledger.show');

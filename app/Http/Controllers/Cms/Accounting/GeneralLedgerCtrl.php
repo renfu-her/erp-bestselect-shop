@@ -141,7 +141,7 @@ class GeneralLedgerCtrl extends Controller
             'allCompanies' => DB::table('acc_company')->get(),
             'allCategories' => DB::table('acc_income_statement')->get(),
             'currentGrade' => $currentGrade[1],
-            'formAction' => ''
+            'formAction' => Route('cms.general_ledger.update-' . $currentGrade[1], ['id' => $id])
             //            'data_per_page' => $data_per_page,
         ]);
     }
