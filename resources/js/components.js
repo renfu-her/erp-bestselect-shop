@@ -412,4 +412,12 @@
         });
     }
 
+    /* 數字千分位 */
+    window.formatNumber = function (n) {
+        n += '';
+        let arr = n.split('.');
+        let re = /(\d{1,3})(?=(\d{3})+$)/g;
+        return arr[0].replace(re, '$1,') + (arr.length > 1 ? '.' + arr[1] : '');
+    }
+
 })();
