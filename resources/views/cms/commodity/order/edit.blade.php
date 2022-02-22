@@ -67,13 +67,13 @@
                                             <input type="hidden" name="shipment_event_id[]" value="">
                                         </th>
                                         <td data-td="title"><a href="#" class="-text"></a></td>
-                                        <td class="text-center" data-td="price">$0</td>
+                                        <td class="text-center" data-td="price">${{ number_format(0) }}</td>
                                         <td>
                                             <x-b-qty-adjuster name="qty[]" value="1" min="1"
                                                 size="sm" minus="減少" plus="增加">
                                             </x-b-qty-adjuster>
                                         </td>
-                                        <td class="text-end" data-td="subtotal">$0</td>
+                                        <td class="text-end" data-td="subtotal">${{ number_format(0) }}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -106,7 +106,7 @@
                     <div class="card-body px-4 py-2 border-top">
                         <div class="d-flex lh-lg">
                             <div scope="col" class="col">運費</div>
-                            <div class="co-auto" data-td="dlv_fee">$0</div>
+                            <div class="co-auto" data-td="dlv_fee">${{ number_format(0) }}</div>
                         </div>
                     </div>
                 </div>
@@ -123,10 +123,10 @@
                                 <td class="col-2">總金額</td>
                             </tr>
                             <tr>
-                                <td data-td="subtotal">$0</td>
-                                <td data-td="discount" class="text-danger">- $0</td>
-                                <td data-td="dlv_fee">$0</td>
-                                <td data-td="sum" class="fw-bold">$0</td>
+                                <td data-td="subtotal">${{ number_format(0) }}</td>
+                                <td data-td="discount" class="text-danger">- ${{ number_format(0) }}</td>
+                                <td data-td="dlv_fee">${{ number_format(0) }}</td>
+                                <td data-td="sum" class="fw-bold">${{ number_format(0) }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -134,19 +134,19 @@
                         <tbody>
                             <tr>
                                 <td class="col-7 table-light">商品小計</td>
-                                <td class="text-end pe-4" data-td="subtotal">$0</td>
+                                <td class="text-end pe-4" data-td="subtotal">${{ number_format(0) }}</td>
                             </tr>
                             <tr>
                                 <td class="col-7 table-light">折扣</td>
-                                <td class="text-danger text-end pe-4" data-td="discount">- $0</td>
+                                <td class="text-danger text-end pe-4" data-td="discount">- ${{ number_format(0) }}</td>
                             </tr>
                             <tr>
                                 <td class="col-7 table-light">運費</td>
-                                <td class="text-end pe-4" data-td="dlv_fee">$0</td>
+                                <td class="text-end pe-4" data-td="dlv_fee">${{ number_format(0) }}</td>
                             </tr>
                             <tr>
                                 <td class="col-7 table-light">總金額</td>
-                                <td class="fw-bold text-end pe-4" data-td="sum">$0</td>
+                                <td class="fw-bold text-end pe-4" data-td="sum">${{ number_format(0) }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -537,7 +537,7 @@
                             <td>${typeTag} ${p.product_title}</td>
                             <td>${p.spec || ''}</td>
                             <td>${p.sku}</td>
-                            <td>$${p.price}</td>
+                            <td>$${formatNumber(p.price)}</td>
                             <td>${addBtn}</td>
                         </tr>`);
                         $('#addProduct .-appendClone.--product').append($tr);
@@ -734,7 +734,7 @@
                             cloneElem.find('td[data-td="title"]').html(
                                 `<a href="#" class="-text">${p.name}-${p.spec}</a>`
                             );
-                            cloneElem.find('td[data-td="price"], td[data-td="subtotal"]').text(`$${p.price}`);
+                            cloneElem.find('td[data-td="price"], td[data-td="subtotal"]').text(`$${formatNumber(p.price)}`);
                             cloneElem.find('input[name="qty[]"]').attr('max', p.stock);
                         }
                     }, cloneProductsOption);
@@ -808,7 +808,7 @@
                 (myCart[id].products).forEach(p => {
                     if (p.sid === style_id) {
                         p.qty = Number(qty);
-                        $this.closest('tr.-cloneElem').find('td[data-td="subtotal"]').text(`$${p.price * p.qty}`);
+                        $this.closest('tr.-cloneElem').find('td[data-td="subtotal"]').text(`$${formatNumber(p.price * p.qty)}`);
                     }
                 });
 
@@ -835,7 +835,7 @@
                                     break;
                                 }
                             }
-                            $(`#${group_key} div[data-td="dlv_fee"]`).text(`$${myCart[group_key].dlv_fee}`);
+                            $(`#${group_key} div[data-td="dlv_fee"]`).text(`$${formatNumber(myCart[group_key].dlv_fee)}`);
                             break;
                         default:
                             myCart[group_key].dlv_fee = 0;
@@ -859,9 +859,9 @@
                     }
                 }
 
-                $('#Total_price td[data-td="subtotal"]').text(`$${all_total}`);
-                $('#Total_price td[data-td="dlv_fee"]').text(`$${all_dlvFee}`);
-                $('#Total_price td[data-td="sum"]').text(`$${all_total + all_dlvFee}`);
+                $('#Total_price td[data-td="subtotal"]').text(`$${formatNumber(all_total)}`);
+                $('#Total_price td[data-td="dlv_fee"]').text(`$${formatNumber(all_dlvFee)}`);
+                $('#Total_price td[data-td="sum"]').text(`$${formatNumber(all_total + all_dlvFee)}`);
             }
             
         </script>
