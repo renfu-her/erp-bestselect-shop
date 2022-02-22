@@ -10,7 +10,7 @@ class GeneralLedger extends Model
 {
     use HasFactory;
 
-    public static function getSecondGradeById(int $firstGradeId)
+    public static function getSecondGradeById($firstGradeId)
     {
         return DB::table('acc_second_grade')
             ->where('first_grade_fk', '=', $firstGradeId)
@@ -28,7 +28,7 @@ class GeneralLedger extends Model
             ->get();
     }
 
-    public static function getThirdGradeById(int $secondGradeId)
+    public static function getThirdGradeById($secondGradeId)
     {
         return DB::table('acc_third_grade')
             ->where('second_grade_fk', '=', $secondGradeId)
@@ -46,7 +46,7 @@ class GeneralLedger extends Model
             ->get();
     }
 
-    public static function getFourthGradeById(int $fourthGradeId)
+    public static function getFourthGradeById($fourthGradeId)
     {
         return DB::table('acc_fourth_grade')
             ->where('third_grade_fk', '=', $fourthGradeId)
