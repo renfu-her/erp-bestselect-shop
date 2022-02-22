@@ -46,7 +46,7 @@
             <h6 class="d-flex align-items-center">售價資訊
                 <button id="batch_price" type="button" class="ms-4 btn btn-sm btn-primary">一鍵產生價格</button>
                 <a class="ms-2" data-bs-toggle="popover" title="一鍵產生價格" data-bs-trigger="focus" tabindex="0"
-                    data-bs-content="以黃底通路為基準，依銷售通路折扣設定批次產生未設定之通路價格（已設定則不更動）"><i class="bi bi-question-circle"></i>
+                    data-bs-content="以黃底通路為基準，一次產生未設定價格 (已設定則不變)：售價=基準價*銷售通路折扣設定 / 經銷價、定價=基準價"><i class="bi bi-question-circle"></i>
                 </a>
             </h6>
             <div class="table-responsive tableOverBox">
@@ -138,7 +138,7 @@
     @push('sub-scripts')
         <script>
             // 獎金%數
-            const BonusRate = @json(round(App\Enums\Customer\Bonus::bonus()->value, 2));
+            const BonusRate = Number((@json(App\Enums\Customer\Bonus::bonus()->value)).toFixed(2));
 
             $('input[name="price[]"], input[name="dealer_price[]"]').on('change', function() {
                 const $this = $(this);
@@ -157,15 +157,21 @@
                     dealer_price: Number($('tr.table-warning input[name="dealer_price[]"]').val()),
                     origin_price: Number($('tr.table-warning input[name="origin_price[]"]').val())
                 };
-                $(`tr:not(.table-warning) input[name="price[]"],
-                   tr:not(.table-warning) input[name="dealer_price[]"],
-                   tr:not(.table-warning) input[name="origin_price[]"]`).val(function(index, value) {
+                $(`tr:not(.table-warning) input[name="price[]"]`).val(function(index, value) {
+                    if (value != '0') {
+                        return value;
+                    } else {
+                        const discount = $(this).closest('tr').data('discount');
+                        return Math.round(BasePrice.price * discount);
+                    }
+                });
+                $(`tr:not(.table-warning) input[name="dealer_price[]"],
+                   tr:not(.table-warning) input[name="origin_price[]"]`).val(function (index, value) {
                     if (value != '0') {
                         return value;
                     } else {
                         const _name = $(this).attr('name').replace('[]', '');
-                        const discount = $(this).closest('tr').data('discount');
-                        return Math.round(BasePrice[_name] * discount);
+                        return BasePrice[_name];
                     }
                 });
                 sumBonus($('tr:not(.table-warning) input[name="bonus[]"]'));
