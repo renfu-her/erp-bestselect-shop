@@ -19,7 +19,7 @@ class CreateCartTable extends Migration
             $table->integer('product_style_id')->comment('款式id');
             $table->integer('customer_id')->comment('消費者id');
             $table->integer('qty')->comment('數量');
-            $table->string('shipment_type')->comment('物流方式');
+            $table->string('shipment_type',20)->comment('物流方式');
             $table->integer('shipment_event_id')->nullable()->comment('物流子項id');
 
             $table->unique(['customer_id', 'product_style_id']);

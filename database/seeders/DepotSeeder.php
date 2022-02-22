@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Depot;
+
 use Illuminate\Database\Seeder;
 
 class DepotSeeder extends Seeder
@@ -49,5 +50,7 @@ class DepotSeeder extends Seeder
             'tel'       => '062988978',
             'address' => '702 台南市南區大同路一段231號',
         ]);
+
+
     }
 }

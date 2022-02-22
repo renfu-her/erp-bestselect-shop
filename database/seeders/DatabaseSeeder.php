@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Order;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -26,6 +27,7 @@ class DatabaseSeeder extends Seeder
             SaleChannelSeeder::class,
             ProductSeeder::class,
             PurchaseSeeder::class,
+            OrderSeeder::class
             AccountingSeeder::class,
             naviNodeSeeder::class
         ]);

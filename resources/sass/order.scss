@@ -24,7 +24,7 @@ $detail-badge-scale: $table-bg-scale;
         display: block;
     }
 
-    // 常溫 .-detail-warning / 冷凍 .-detail-primary / 冷藏 .-detail-success
+    // 宅配 .-detail-primary / 自取 .-detail-warning / 超取 .-detail-success
     @each $state, $value in $theme-colors {
         @include detail-variants($state, $value);
     }
@@ -66,3 +66,6 @@ $detail-badge-scale: $table-bg-scale;
     }
 }
 
+.nav-pills .nav-link.active {
+    background-color: shift-color($component-active-bg, $alert-color-scale);
+}

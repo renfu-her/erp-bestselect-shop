@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
-use App\Models\OrderCart;
+use App\Models\Order;
+use App\Models\SaleChannel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
@@ -17,12 +18,20 @@ class OrderCtrl extends Controller
      */
     public function index(Request $request)
     {
+        // Order::createOrder([]);
+
+        // dd(Order::orderList()->get()->toArray());
 
         $query = $request->query();
-        $page = Arr::get($query, 'data_per_page', 10);
+        $cond = [];
+        $page = getPageCount(Arr::get($query, 'data_per_page', 10));
+        $cond['keyword'] = Arr::get($query, 'keyword', null);
+        $dataList = Order::orderList($cond['keyword'])->paginate($page)->appends($query);
 
         return view('cms.commodity.order.list', [
-            'dataList' => [],
+            'dataList' => $dataList,
+            'cond' => $cond,
+            'saleChannels' => SaleChannel::select('id', 'title')->get()->toArray(),
             'data_per_page' => $page]);
     }
 
@@ -35,16 +44,14 @@ class OrderCtrl extends Controller
     {
         // dd(get_class($request->user()));
         // OrderCart::productAdd(1, get_class($request->user()), 1, 1, 1, 1, 1);
-       // $items = OrderCart::productList($request->user()->id, get_class($request->user()))->get()->toArray();
+        // $items = OrderCart::productList($request->user()->id, get_class($request->user()))->get()->toArray();
 
         $customer_id = $request->user()->customer_id;
 
-      
-          //  $customer_id = $items[0]->customer_id;
-        
+        //  $customer_id = $items[0]->customer_id;
 
         return view('cms.commodity.order.edit', [
-          //  'items' => $items,
+            //  'items' => $items,
             'customer_id' => $customer_id,
             'customers' => Customer::get(),
         ]);

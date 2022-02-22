@@ -6,6 +6,8 @@ use App\Models\Shipment;
 use App\Models\ShipmentCategory;
 use App\Models\ShipmentGroup;
 use App\Models\ShipmentMethod;
+use App\Models\ShipmentStatus;
+
 use App\Models\Temps;
 use Illuminate\Database\Seeder;
 
@@ -19,49 +21,49 @@ class ShipmentSeeder extends Seeder
     public function run()
     {
         $shipmentCategoryHomeDeliveryId = ShipmentCategory::create(['code' => 'deliver',
-                                                                    'category' => '宅配'])->id;
+            'category' => '宅配'])->id;
         $shipmentCategorySelfTakeId = ShipmentCategory::create(['code' => 'pickup',
-                                                                'category' => '自取'])->id;
+            'category' => '自取'])->id;
         $shipmentCategoryFamilyId = ShipmentCategory::create(['code' => 'family',
-                                                              'category' => '全家'])->id;
+            'category' => '全家'])->id;
         $bestMethodId = ShipmentMethod::create(['method' => '喜鴻出貨'])->id;
         $otherMethodId = ShipmentMethod::create(['method' => '廠商出貨'])->id;
 
         $bestFreezeGroupId = ShipmentGroup::create([
-                                'category_fk' => $shipmentCategoryHomeDeliveryId,
-                                'name' => 'BEST-宅配',
-                                'temps_fk' => Temps::findTempsIdByName('冷凍'),
-                                'method_fk' => $bestMethodId,
-                                'note' => '不含箱子費用、不含離島地區',
-                            ])->id;
+            'category_fk' => $shipmentCategoryHomeDeliveryId,
+            'name' => 'BEST-宅配',
+            'temps_fk' => Temps::findTempsIdByName('冷凍'),
+            'method_fk' => $bestMethodId,
+            'note' => '不含箱子費用、不含離島地區',
+        ])->id;
         $best990GroupId = ShipmentGroup::create([
-                            'category_fk' => $shipmentCategoryHomeDeliveryId,
-                            'name' => 'BEST-宅配990免運',
-                            'temps_fk' => Temps::findTempsIdByName('常溫'),
-                            'method_fk' => $bestMethodId,
-                            'note' => '不含箱子費用、不含離島地區',
-                        ])->id;
+            'category_fk' => $shipmentCategoryHomeDeliveryId,
+            'name' => 'BEST-宅配990免運',
+            'temps_fk' => Temps::findTempsIdByName('常溫'),
+            'method_fk' => $bestMethodId,
+            'note' => '不含箱子費用、不含離島地區',
+        ])->id;
         $familyGroupId = ShipmentGroup::create([
-                            'category_fk' => $shipmentCategoryFamilyId,
-                            'name' => '全家店到店',
-                            'temps_fk' => Temps::findTempsIdByName('常溫'),
-                            'method_fk' => $otherMethodId,
-                            'note' => '限本島、不含離島地區',
-                        ])->id;
+            'category_fk' => $shipmentCategoryFamilyId,
+            'name' => '全家店到店',
+            'temps_fk' => Temps::findTempsIdByName('常溫'),
+            'method_fk' => $otherMethodId,
+            'note' => '限本島、不含離島地區',
+        ])->id;
         $freeRefrigeShipmentGroupId = ShipmentGroup::create([
-                                        'category_fk' => $shipmentCategoryHomeDeliveryId,
-                                        'name' => '宅配免運費',
-                                        'temps_fk' => Temps::findTempsIdByName('冷藏'),
-                                        'method_fk' => $otherMethodId,
-                                        'note' => '不含箱子費用、不含離島地區',
-                                    ])->id;
+            'category_fk' => $shipmentCategoryHomeDeliveryId,
+            'name' => '宅配免運費',
+            'temps_fk' => Temps::findTempsIdByName('冷藏'),
+            'method_fk' => $otherMethodId,
+            'note' => '不含箱子費用、不含離島地區',
+        ])->id;
         $taipeiNormalGroupId = ShipmentGroup::create([
-                                'category_fk' => $shipmentCategorySelfTakeId,
-                                'name' => '台北公司自取',
-                                'temps_fk' => Temps::findTempsIdByName('常溫'),
-                                'method_fk' => $bestMethodId,
-                                'note' => '不含箱子費用、不含離島地區',
-                            ])->id;
+            'category_fk' => $shipmentCategorySelfTakeId,
+            'name' => '台北公司自取',
+            'temps_fk' => Temps::findTempsIdByName('常溫'),
+            'method_fk' => $bestMethodId,
+            'note' => '不含箱子費用、不含離島地區',
+        ])->id;
 
 //        BEST-宅配(冷凍)
         Shipment::create([
@@ -135,5 +137,60 @@ class ShipmentSeeder extends Seeder
             'at_most' => 5,
             'is_above' => 'true',
         ]);
+
+        $orderStatus = [
+            [
+                'title' => '理貨中',
+                'content' => '新增託運單',
+                'code' => 'a00',
+                'style' => 'text-success',
+            ],
+            [
+                'title' => '待配送',
+                'content' => '列印託運單',
+                'code' => 'a01',
+                'style' => 'text-success',
+            ],
+            [
+                'title' => '配送中',
+                'content' => '收貨時掃描託運單',
+                'code' => 'a02',
+                'style' => 'text-success',
+            ],
+            [
+                'title' => '已送達',
+                'content' => '拍照上傳簽收單回條',
+                'code' => 'a03',
+                'style' => 'text-success',
+            ],
+            [
+                'title' => '未送達',
+                'content' => '聯繫不上客人暫回喜鴻',
+                'code' => 'c00',
+                'style' => 'text-danger',
+            ],
+            [
+                'title' => '已回倉',
+                'content' => '回到喜鴻',
+                'code' => 'c01',
+                'style' => 'text-danger',
+            ],
+            [
+                'title' => '退回中',
+                'content' => '多次離線不上退回託運商',
+                'code' => 'c02',
+                'style' => 'text-danger',
+            ],
+            [
+                'title' => '已退回',
+                'content' => '貨物已退回託運商並上傳簽收單',
+                'code' => 'c03',
+                'style' => 'text-danger',
+            ],
+        ];
+
+        ShipmentStatus::insert($orderStatus);
+
+
     }
 }

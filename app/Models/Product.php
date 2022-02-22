@@ -396,10 +396,11 @@ class Product extends Model
         $re = DB::table('prd_product_shipment as ps')
             ->leftJoin('shi_category as category', 'ps.category_id', '=', 'category.id')
             ->leftJoin('shi_group as g', 'ps.group_id', '=', 'g.id')
+            ->leftJoin('shi_temps as temp', 'g.temps_fk', '=', 'temp.id')
             ->leftJoin(DB::raw("({$ruleSubQuery->toSql()}) as rule"), function ($join) {
                 $join->on('ps.group_id', '=', 'rule.group_id');
             })
-            ->select('category.code as event', 'category.category', 'g.id as group_id', 'g.name as group_name', 'rule.rules')
+            ->select('category.code as category', 'category.category as category_name', 'g.id as group_id', 'g.name as group_name', 'temp.temps', 'temp.id as temp_id', 'rule.rules')
             ->mergeBindings($ruleSubQuery)
             ->where('ps.product_id', $product_id)
             ->where('code', $code);
@@ -425,14 +426,14 @@ class Product extends Model
         $arr = [];
         if ($delivery) {
             $delivery->rules = json_decode($delivery->rules);
-            $arr[$delivery->event] = $delivery;
+            $arr[$delivery->category] = $delivery;
         }
-        
+
         $pickup = self::getPickup($product_id)->get()->toArray();
         if ($pickup) {
             $arr['pickup'] = [
-                'event' => 'pickup',
-                'category' => '自取',
+                'category' => 'pickup',
+                'category_name' => '自取',
                 'depots' => $pickup,
             ];
         }

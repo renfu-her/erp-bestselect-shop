@@ -217,13 +217,13 @@
                                         地址 <span class="text-danger">*</span>
                                     </label>
                                     <div class="input-group has-validation">
-                                        <select class="form-select @error('city_id') is-invalid @enderror" style="max-width:20%" id="city_id" name="city_id">
+                                        <select id="city_id" class="form-select @error('city_id') is-invalid @enderror" style="max-width:20%" name="city_id">
                                             <option>請選擇</option>
                                             @foreach ($citys as $city)
                                                 <option value="{{ $city['city_id'] }}" >{{ $city['city_title'] }}</option>
                                             @endforeach
                                         </select>
-                                        <select class="form-select @error('region_id') is-invalid @enderror" style="max-width:20%" id="region_id" name="region_id">
+                                        <select id="region_id" class="form-select @error('region_id') is-invalid @enderror" style="max-width:20%" name="region_id">
                                             <option>請選擇</option>
                                             @foreach ($regions as $region)
                                                 <option value="{{ $region['region_id'] }}" >{{ $region['region_title'] }}</option>
@@ -494,8 +494,21 @@
         <script src="{{ Asset('dist/js/helpers.js') }}"></script>
         <script src="{{ Asset('dist/js/components.js') }}"></script>
         <script>
-            window.axios.defaults.headers.common['Accept'] = 'application/json';
+            window.Laravel = {!! json_encode([
+                'apiToken' => auth()->user()->api_token ?? null,
+                'apiUrl' => [
+                    'getRegions' => Route('api.addr.get-regions'),
+                    'addrFormating' => Route('api.addr.formating'),
+                    'productStyles' => Route('api.cms.product.get-product-styles'),
+                    'productList'=>Route('api.cms.product.get-products'),
+                    'productShipments'=>Route('api.cms.product.get-products-shipment')
+                ],
+            ]) !!};
 
+            window.axios.defaults.headers.common['Authorization'] = 'Bearer ' + Laravel.apiToken;
+            window.axios.defaults.headers.common['Accept'] = 'application/json';
+        </script>
+        <script>
             // menu
             $('main > div > div > fieldset[id]').each(function (index, element) {
                 // element == this

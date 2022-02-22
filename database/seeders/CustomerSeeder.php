@@ -14,7 +14,7 @@ class CustomerSeeder extends Seeder
      */
     public function run()
     {
-        Customer::createCustomer('Hans', 'hayashi0126@ittms.com.tw', '12345');
+        Customer::createCustomer('Hans', 'hayashi0126@gmail.com', '12345');
         Customer::createCustomer('小姜', 'program03@ittms.com.tw', '12345');
         Customer::createCustomer('理查', 'richardyuan30@gmail.com', '12345');
         Customer::createCustomer('阿君', 'ccps961032326@gmail.com', '12345');
