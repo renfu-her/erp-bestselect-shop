@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Cms\Accounting;
 
 use App\Http\Controllers\Controller;
-use App\Models\BalanceSheet;
+use App\Models\FirstGrade;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
-class BalanceSheetCtrl extends Controller
+class FirstGradeCtrl extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -20,9 +20,9 @@ class BalanceSheetCtrl extends Controller
         $data_per_page = Arr::get($query, 'data_per_page', 10);
         $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
 
-        $dataList =  BalanceSheet::paginate($data_per_page)->appends($query);
+        $dataList =  FirstGrade::paginate($data_per_page)->appends($query);
 
-        return view('cms.accounting.balance_sheet.list', [
+        return view('cms.accounting.first_grade.list', [
             'dataList' => $dataList,
             'data_per_page' => $data_per_page,
         ]);
@@ -35,9 +35,9 @@ class BalanceSheetCtrl extends Controller
      */
     public function create()
     {
-        return view('cms.accounting.balance_sheet.edit', [
+        return view('cms.accounting.first_grade.edit', [
             'method' => 'create',
-            'formAction' => Route('cms.balance_sheet.create'),
+            'formAction' => Route('cms.first_grade.create'),
         ]);
     }
 
@@ -52,23 +52,25 @@ class BalanceSheetCtrl extends Controller
         $request->validate([
             'name' => ['required',
                         'string',
-                        'unique:App\Models\BalanceSheet'
+                        'unique:App\Models\FirstGrade'
             ]
         ]);
 
-        BalanceSheet::create([
-            'name' => $request->input('name')
+        FirstGrade::create([
+            'name' => $request->input('name'),
+            'has_next_grade' => 0,
         ]);
-        return redirect(Route('cms.balance_sheet.index'));
+        return redirect(Route('cms.first_grade.index'));
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\BalanceSheet  $balanceSheet
+     * @param  \App\Models\FirstGrade  $firstGrade
+     *
      * @return \Illuminate\Http\Response
      */
-    public function show(BalanceSheet $balanceSheet)
+    public function show(FirstGrade $firstGrade)
     {
         //
     }
@@ -76,10 +78,11 @@ class BalanceSheetCtrl extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\BalanceSheet  $balanceSheet
+     * @param  \App\Models\FirstGrade  $firstGrade
+     *
      * @return \Illuminate\Http\Response
      */
-    public function edit(BalanceSheet $balanceSheet)
+    public function edit(FirstGrade $firstGrade)
     {
         //
     }
@@ -88,10 +91,11 @@ class BalanceSheetCtrl extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\BalanceSheet  $balanceSheet
+     * @param  \App\Models\FirstGrade  $firstGrade
+     *
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, BalanceSheet $balanceSheet)
+    public function update(Request $request, FirstGrade $firstGrade)
     {
         //
     }
@@ -99,10 +103,11 @@ class BalanceSheetCtrl extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\BalanceSheet  $balanceSheet
+     * @param  \App\Models\FirstGrade  $firstGrade
+     *
      * @return \Illuminate\Http\Response
      */
-    public function destroy(BalanceSheet $balanceSheet)
+    public function destroy(FirstGrade $firstGrade)
     {
         //
     }

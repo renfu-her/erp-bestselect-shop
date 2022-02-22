@@ -99,8 +99,8 @@ return
         "child" => [
             [
                 "title" => "會計科目",
-                "controller_name" => "BookkeepingCtrl",
-                "route_name" => "cms.bookkeeping.index",
+                "controller_name" => "GeneralLedgerCtrl",
+                "route_name" => "cms.general_ledger.index",
             ],
         ],
     ],
@@ -112,7 +112,7 @@ return
             [
                 "title" => "會計分類",
                 "controller_name" => "BalanceSheetCtrl",
-                "route_name" => "cms.balance_sheet.index",
+                "route_name" => "cms.first_grade.index",
             ],
             [
                 "title" => "科目類別",

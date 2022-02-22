@@ -196,19 +196,19 @@ return [
         "unit" => "會計科目",
         "permissions" => [
             [
-                "cms.bookkeeping.index",
+                "cms.general_ledger.index",
                 "瀏覽",
             ],
             [
-                "cms.bookkeeping.create",
+                "cms.general_ledger.create",
                 "新增",
             ],
             [
-                "cms.bookkeeping.edit",
+                "cms.general_ledger.edit",
                 "編輯",
             ],
             [
-                "cms.bookkeeping.delete",
+                "cms.general_ledger.delete",
                 "刪除",
             ],
         ],
@@ -217,19 +217,19 @@ return [
         "unit" => "會計分類",
         "permissions" => [
             [
-                "cms.balance_sheet.index",
+                "cms.first_grade.index",
                 "瀏覽",
             ],
             [
-                "cms.balance_sheet.create",
+                "cms.first_grade.create",
                 "新增",
             ],
 //            [
-//                "cms.balance_sheet.edit",
+//                "cms.first_grade.edit",
 //                "編輯",
 //            ],
 //            [
-//                "cms.balance_sheet.delete",
+//                "cms.first_grade.delete",
 //                "刪除",
 //            ],
         ],

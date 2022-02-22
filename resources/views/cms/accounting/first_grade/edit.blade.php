@@ -1,7 +1,7 @@
 @extends('layouts.main')
 @section('sub-content')
     <div class="pt-2 mb-3">
-        <a href="{{ Route('cms.balance_sheet.index', [], true) }}" class="btn btn-primary" role="button">
+        <a href="{{ Route('cms.first_grade.index', [], true) }}" class="btn btn-primary" role="button">
             <i class="bi bi-arrow-left"></i> 返回上一頁
         </a>
     </div>
