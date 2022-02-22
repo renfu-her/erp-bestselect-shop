@@ -61,7 +61,7 @@
 
             <div class="col-12 col-sm-4 mb-3 invoice_date">
                 <label class="form-label">使用公司</label>
-                <select class="form-select" aria-label="company" name="company">
+                <select class="form-select @error('acc_company_fk') is-invalid @enderror" aria-label="company" name="acc_company_fk">
                     <option value="">無</option>
                     @foreach($allCompanies as $allCompany)
                         <option
@@ -78,7 +78,7 @@
 
             <div class="col-12 col-sm-4 mb-3 invoice_date">
                 <label class="form-label">類別</label>
-                <select class="form-select" aria-label="category" name="category">
+                <select class="form-select @error('acc_income_statement_fk') is-invalid @enderror" aria-label="category" name="acc_income_statement_fk">
                     <option value="">無</option>
                     @foreach($allCategories as $allCategory)
                         <option
