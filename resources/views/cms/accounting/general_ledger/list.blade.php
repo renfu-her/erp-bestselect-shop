@@ -53,7 +53,11 @@
                 <tbody>
                 @foreach($secondGrades as $secondKey => $secondGrade)
                     <tr>
-                        <th>{{ $secondGrade->code . ' ' . $secondGrade->name }}</th>
+                        <th>
+                            <a href="{{ Route('cms.general_ledger.show-2nd', ['id' => $secondGrade->id]) }}">
+                                {{ $secondGrade->code . ' ' . $secondGrade->name }}
+                            </a>
+                        </th>
                         <td></td>
                         <td></td>
                         <td>{{ $secondGrade->category }}</td>
@@ -64,7 +68,7 @@
                     @foreach($thirdGrades[$secondKey] as $thirdKey => $thirdGrade)
                         <tr>
                             <th></th>
-                            <td>{{ $thirdGrade->code . ' ' . $thirdGrade->name }}</td>
+                            <td><a href="{{ Route('cms.general_ledger.show-3rd', ['id' => $thirdGrade->id]) }}">{{ $thirdGrade->code . ' ' . $thirdGrade->name }}</td>
                             <td></td>
                             <td>{{ $thirdGrade->category }}</td>
                             <td>{{ $thirdGrade->note_1 }}</td>
@@ -75,9 +79,10 @@
                             <tr>
                                 <td></td>
                                 <td></td>
-                                <td>{{ $fourthGrade->code }}
-                                    <br>
-                                    {{ ' ' . $fourthGrade->name }}</td>
+                                <td>
+                                    <a href="{{ Route('cms.general_ledger.show-4th', ['id' => $fourthGrade->id]) }}"> {{ $fourthGrade->code }}
+                                        <br>
+                                        {{ ' ' . $fourthGrade->name }}</a></td>
                                 <td>{{ $fourthGrade->category }}</td>
                                 <td>{{ $fourthGrade->note_1 }}</td>
                                 <td>{{ $fourthGrade->note_2 }}</td>

@@ -7,7 +7,9 @@ use App\Models\FirstGrade;
 use App\Models\GeneralLedger;
 use App\Models\SecondGrade;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 
 class GeneralLedgerCtrl extends Controller
 {
@@ -54,8 +56,20 @@ class GeneralLedgerCtrl extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
+        $req = $request->all();
+        $currentUri = Route::getCurrentRoute()->uri;
+        preg_match('/cms\\/general_ledger\\/create\\?currentGrade=(1st|2nd|3rd|4th)$/', $currentUri, $currentGrade);
+
+        return view('cms.accounting.general_ledger.edit', [
+            'method' => 'create',
+            'allCompanies' => DB::table('acc_company')->get(),
+            'allCategories' => DB::table('acc_income_statement')->get(),
+            'isFourthGradeExist' => ($req['currentGrade'] === '4th') ? true : false,
+//            'currentGrade' => $req['currentGrade'],
+            'formAction' => Route('cms.general_ledger.store-' . $req['currentGrade']),
+        ]);
         //
     }
 
@@ -73,23 +87,61 @@ class GeneralLedgerCtrl extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\GeneralLedger  $generalLedger
      * @return \Illuminate\Http\Response
      */
-    public function show(GeneralLedger $generalLedger)
+    public function show(Request $request, int $id)
     {
-        //
+        $currentUri = Route::getCurrentRoute()->uri;
+        preg_match('/cms\\/general_ledger\\/show\\/{id}\\/(1st|2nd|3rd|4th)$/', $currentUri, $currentGrade);
+
+        $isFourthGradeExist = ($currentGrade[1] == '4th') ? true : false;
+
+        $nextGrade = '';
+        if (!$isFourthGradeExist) {
+            $gradeNameArray = [
+                '1st',
+                '2nd',
+                '3rd',
+                '4th',
+            ];
+            $key = array_search($currentGrade[1], $gradeNameArray);
+            for ($i = 0; $i <= $key; $i++) {
+                $nextGrade = next($gradeNameArray);
+            }
+        }
+
+        return view('cms.accounting.general_ledger.show', [
+            'method' => 'show',
+            'dataList' => GeneralLedger::getDataByGrade($id, $currentGrade[1]),
+            'isFourthGradeExist' => $isFourthGradeExist,
+            'currentGrade' => $currentGrade[1],
+            'nextGrade' => $nextGrade,
+            'formAction' => ''
+            //            'data_per_page' => $data_per_page,
+        ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\GeneralLedger  $generalLedger
+     *
      * @return \Illuminate\Http\Response
      */
-    public function edit(GeneralLedger $generalLedger)
+    public function edit(Request $request, int $id)
     {
-        //
+        $currentUri = Route::getCurrentRoute()->uri;
+        preg_match('/cms\\/general_ledger\\/edit\\/{id}\\/(1st|2nd|3rd|4th)$/', $currentUri, $currentGrade);
+
+        return view('cms.accounting.general_ledger.edit', [
+            'method' => 'edit',
+            'data' => GeneralLedger::getDataByGrade($id, $currentGrade[1])[0],
+            'isFourthGradeExist' => ($currentGrade[1] == '4th') ? true : false,
+            'allCompanies' => DB::table('acc_company')->get(),
+            'allCategories' => DB::table('acc_income_statement')->get(),
+            'currentGrade' => $currentGrade[1],
+            'formAction' => ''
+            //            'data_per_page' => $data_per_page,
+        ]);
     }
 
     /**
