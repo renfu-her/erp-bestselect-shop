@@ -43,7 +43,12 @@
     <form action="" method="POST">
         @csrf
         <div class="card shadow p-4 mb-4">
-            <h6>售價資訊</h6>
+            <h6 class="d-flex align-items-center">售價資訊
+                <button id="batch_price" type="button" class="ms-4 btn btn-sm btn-primary">一鍵產生價格</button>
+                <a class="ms-2" data-bs-toggle="popover" title="一鍵產生價格" data-bs-trigger="focus" tabindex="0"
+                    data-bs-content="以黃底通路為基準，一次產生未設定價格 (已設定則不變)：售價=基準價*銷售通路折扣設定 / 經銷價、定價=基準價"><i class="bi bi-question-circle"></i>
+                </a>
+            </h6>
             <div class="table-responsive tableOverBox">
                 <table class="table tableList table-hover mb-1">
                     <thead>
@@ -54,15 +59,18 @@
                             <th scope="col">定價</th>
                             {{-- <th scope="col">預估成本</th> --}}
                             <th scope="col">獎金
-                                <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="預設：(售價-經銷價) × 0.97"></i>
+                                <i class="bi bi-info-circle" data-bs-toggle="tooltip"
+                                    title="預設：(售價-經銷價) × {{ App\Enums\Customer\Bonus::bonus()->value }}"></i>
                             </th>
                             <th scope="col">喜鴻紅利抵扣</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($sales as $styleKey => $sale)
-                            <tr>
-                                <th scope="row">{{ $sale->title }}
+                            <tr
+                                @if ($sale->is_master == '1') class="table-warning" @else data-discount="{{ $sale->discount }}" @endif>
+                                <th scope="row">
+                                    {{ $sale->title }}
                                     <input type="hidden" name="sale_channel_id[]" value="{{ $sale->sale_id }}">
                                 </th>
                                 <td>
@@ -124,18 +132,49 @@
                 font-size: .94rem;
                 font-weight: 400;
             }
+
         </style>
     @endpush
     @push('sub-scripts')
         <script>
             // 獎金%數
-            const BonusRate = 0.97;
+            const BonusRate = Number((@json(App\Enums\Customer\Bonus::bonus()->value)).toFixed(2));
 
-            $('input[name="price[]"], input[name="dealer_price[]"]').on('change', function () {
+            $('input[name="price[]"], input[name="dealer_price[]"]').on('change', function() {
                 const $this = $(this);
-                const price = $this.closest('tr').find('input[name="price[]"]').val() || 0;
-                const dealer_price = $this.closest('tr').find('input[name="dealer_price[]"]').val() || 0;
-                $this.closest('tr').find('input[name="bonus[]"]').val(Math.floor((price - dealer_price) * BonusRate));
+                sumBonus($this);
+            });
+
+            function sumBonus($target) {
+                const price = $target.closest('tr').find('input[name="price[]"]').val() || 0;
+                const dealer_price = $target.closest('tr').find('input[name="dealer_price[]"]').val() || 0;
+                $target.closest('tr').find('input[name="bonus[]"]').val(Math.floor((price - dealer_price) * BonusRate));
+            }
+
+            $('#batch_price').on('click', function() {
+                const BasePrice = {
+                    price: Number($('tr.table-warning input[name="price[]"]').val()),
+                    dealer_price: Number($('tr.table-warning input[name="dealer_price[]"]').val()),
+                    origin_price: Number($('tr.table-warning input[name="origin_price[]"]').val())
+                };
+                $(`tr:not(.table-warning) input[name="price[]"]`).val(function(index, value) {
+                    if (value != '0') {
+                        return value;
+                    } else {
+                        const discount = $(this).closest('tr').data('discount');
+                        return Math.round(BasePrice.price * discount);
+                    }
+                });
+                $(`tr:not(.table-warning) input[name="dealer_price[]"],
+                   tr:not(.table-warning) input[name="origin_price[]"]`).val(function (index, value) {
+                    if (value != '0') {
+                        return value;
+                    } else {
+                        const _name = $(this).attr('name').replace('[]', '');
+                        return BasePrice[_name];
+                    }
+                });
+                sumBonus($('tr:not(.table-warning) input[name="bonus[]"]'));
             });
         </script>
     @endpush

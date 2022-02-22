@@ -111,6 +111,8 @@
                             <p><ins>[ins] tag - 補充文字</ins></p>
                             <p><code>a.text</code> - <a href="#" class="-text">超連結文字</a></p>
                             <p>[code] tag - 代表 <code>內行程式</code> 文字</p>
+
+                            <p>數字千分位 JS <code>formatNumber(n)</code>：$<span id="thousandths"></span></p>
                         </div>
                     </fieldset>
 
@@ -602,6 +604,9 @@
             Editor.createEditor('editor', {
                 initialValue: '<h2>Header</h2><p>iewo reiu8ud jijh3 dsl</p>'
             });
+
+            // 數字千分位
+            $('#thousandths').text(formatNumber('12345678'));
         </script>
         @stack('sub-scripts')
     @endpush

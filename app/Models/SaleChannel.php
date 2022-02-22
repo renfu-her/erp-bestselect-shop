@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Customer\Bonus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -82,7 +83,7 @@ class SaleChannel extends Model
     {
         return DB::table('prd_sale_channels as c')
             ->leftJoin('prd_salechannel_style_price as price', 'c.id', '=', 'price.sale_channel_id', 'left outer')
-            ->select('c.id as sale_id', 'c.title', 'c.is_realtime')
+            ->select('c.id as sale_id', 'c.title', 'c.is_realtime','c.is_master','c.discount')
             ->selectRaw('IF(price.dealer_price,price.dealer_price,0) as dealer_price')
             ->selectRaw('IF(price.origin_price,price.origin_price,0) as origin_price')
             ->selectRaw('IF(price.price,price.price,0) as price')
@@ -92,7 +93,8 @@ class SaleChannel extends Model
             ->where(function ($q) use ($style_id) {
                 $q->where('price.style_id', $style_id)
                     ->orWhereNull('price.style_id');
-            });
+            })
+            ->orderBy('c.is_master','DESC');
     }
 
     public static function changePrice($sale_id, $style_id, $dealer_price, $price, $origin_price, $bonus, $dividend)
@@ -124,6 +126,48 @@ class SaleChannel extends Model
                     ->update($updateData);
             }
 
+        });
+    }
+
+    public static function batchPrice($sale_id)
+    {
+        DB::transaction(function () use ($sale_id) {
+            $masterSale = self::where('is_master', 1)->select('id')->get()->first();
+            if (!$masterSale) {
+                return;
+            }
+
+            $currentSale = self::where('is_master', '<>', 1)
+                ->where('id', $sale_id)
+                ->select('id', 'discount')
+                ->get()
+                ->first();
+
+            $originProduct = DB::table('prd_salechannel_style_price')
+                ->where('sale_channel_id', $masterSale->id)
+                ->get();
+
+            foreach ($originProduct as $product) {
+                // dd($product);
+                $newPrice = DB::table('prd_salechannel_style_price')
+                    ->where('sale_channel_id', $currentSale->id)
+                    ->where('style_id', $product->style_id)
+                    ->get()->first();
+
+                if (!$newPrice) {
+                    $price = round($product->price * $currentSale->discount);
+                    $bonus = round(($price - $product->dealer_price) * Bonus::bonus()->value);
+                    DB::table('prd_salechannel_style_price')
+                        ->insert([
+                            'style_id' => $product->style_id,
+                            'sale_channel_id' => $currentSale->id,
+                            'dealer_price' => $product->dealer_price,
+                            'origin_price' => $product->origin_price,
+                            'price' => $price,
+                            'bonus' => $bonus,
+                        ]);
+                }
+            }
         });
     }
 }

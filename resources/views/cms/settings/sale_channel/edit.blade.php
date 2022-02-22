@@ -28,6 +28,10 @@
                 <input class="form-control @error('chargeman') is-invalid @enderror" name="chargeman"
                     value="{{ old('chargeman', $data->chargeman ?? '') }}" />
             </x-b-form-group>
+            <x-b-form-group name="chargeman" title="折扣" required="true">
+                <input class="form-control @error('discount') is-invalid @enderror" type="number" max="1" step="0.1" name="discount"
+                    value="{{ old('discount', $data->discount ?? 1) }}" />
+            </x-b-form-group>
             <x-b-form-group name="sales_type" title="銷售類型" required="true">
                 <select class="form-select @error('sales_type') is-invalid @enderror" name="sales_type" id="sales_type">
                     @foreach (App\Enums\SaleChannel\SalesType::asArray() as $key => $val)
