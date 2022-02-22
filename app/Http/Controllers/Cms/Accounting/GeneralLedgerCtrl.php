@@ -150,12 +150,42 @@ class GeneralLedgerCtrl extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\GeneralLedger  $generalLedger
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, GeneralLedger $generalLedger)
+    public function update(Request $request, int $id)
     {
-        //
+        $currentUri = Route::getCurrentRoute()->uri;
+        preg_match('/cms\\/general_ledger\\/edit\\/{id}\\/(1st|2nd|3rd|4th)$/', $currentUri, $currentGrade);
+
+        $request->validate([
+            'name' => 'required|string',
+            'has_next_grade' => 'required|string',
+            'acc_company_fk' => 'required|string',
+            'acc_income_statement_fk' => 'required|string',
+            'note_1' => 'nullable|sting',
+            'note_2' => 'nullable|sting',
+        ]);
+
+        $req = $request->only(
+            'name',
+            'has_next_grade',
+            'acc_company_fk',
+            'acc_income_statement_fk',
+            'note_1',
+            'note_2',
+        );
+
+        $tableNameArray = [
+            '1st' => 'acc_first_grade',
+            '2nd' => 'acc_second_grade',
+            '3rd' => 'acc_third_grade',
+            '4th' => 'acc_fourth_grade',
+        ];
+
+        DB::table($tableNameArray[$currentGrade[1]])
+            ->where('id', '=', $id)
+            ->update($req);
+        return redirect(Route('cms.general_ledger.index'));
     }
 
     /**
