@@ -52,6 +52,11 @@
                         </div>
                     </div>
                 </x-b-form-group>
+            @else
+                <input type="hidden" name="has_next_grade" class="@error('has_next_grade') is-invalid @enderror" value="0">
+                @error('has_next_grade')
+                    {{ $message }}
+                @enderror
             @endif
 
             <div class="col-12 col-sm-4 mb-3 invoice_date">
