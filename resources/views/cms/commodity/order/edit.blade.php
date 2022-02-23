@@ -348,6 +348,8 @@
             .nav-pills .nav-link {
                 border-bottom-left-radius: 0;
                 border-bottom-right-radius: 0;
+                margin-bottom: -0.25rem;
+                padding-bottom: 12px;
             }
             .-detail-primary .badge.-badge::after {
                 content: "宅配";
