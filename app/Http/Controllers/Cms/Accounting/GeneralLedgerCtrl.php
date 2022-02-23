@@ -188,8 +188,8 @@ class GeneralLedgerCtrl extends Controller
         $request->validate([
             'name' => 'required|string',
             'has_next_grade' => 'required|string',
-            'acc_company_fk' => 'required|string',
-            'acc_income_statement_fk' => 'required|string',
+            'acc_company_fk' => 'nullable|string',
+            'acc_income_statement_fk' => 'nullable|string',
             'note_1' => 'nullable|sting',
             'note_2' => 'nullable|sting',
         ]);
