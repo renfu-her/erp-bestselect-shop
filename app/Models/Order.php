@@ -118,6 +118,7 @@ class Order extends Model
                     DB::table('ord_items')->insert([
                         'order_id' => $order_id,
                         'sub_order_id' => $subOrderId,
+                        'product_style_id' => $product->product_style_id,
                         'sku' => $product->sku,
                         'product_title' => $product->product_title . $product->spec,
                         'price' => $product->price,

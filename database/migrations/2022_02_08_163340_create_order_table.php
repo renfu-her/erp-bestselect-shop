@@ -37,6 +37,7 @@ class CreateOrderTable extends Migration
             $table->string('ship_temp', 10)->nullable()->comment('溫層');
             $table->integer('ship_temp_id')->nullable()->comment('溫層id');
             $table->integer('ship_rule_id')->nullable()->comment('減免id');
+            $table->integer('ship_order_id')->nullable()->comment('出貨倉庫id');
             $table->string('dlv_fee')->comment('運費');
             $table->string('status', 20)->comment('訂單狀態');
             $table->integer('total_price')->comment('總費用');
@@ -46,6 +47,7 @@ class CreateOrderTable extends Migration
             $table->id();
             $table->integer('order_id')->comment('訂單id');
             $table->integer('sub_order_id')->comment('sub訂單id');
+            $table->unsignedBigInteger('product_style_id')->comment('商品款式ID');
             $table->string('sku', 20)->comment('商品sku');
             $table->string('product_title', 40)->comment('商品名稱');
             $table->integer('price')->comment('單價');
@@ -71,7 +73,7 @@ class CreateOrderTable extends Migration
             $table->unique(['order_id', 'type']);
         });
 
-      
+
 
         Schema::create('ord_order_status', function (Blueprint $table) {
             $table->id();

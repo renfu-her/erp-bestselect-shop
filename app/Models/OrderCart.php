@@ -82,12 +82,12 @@ class OrderCart extends Model
                     }
 
                     $shipment->category_name = "自取";
-                    
+
 
                     break;
                 case 'deliver':
                     $shipment = Product::getShipment($value['product_id'])->where('g.id', $value['product_style_id'])->get()->first();
-                   
+
                     if (!$shipment) {
                         return ['success' => 0, 'message' => '無運送方式 style_id:' . $value['product_style_id']];
                     }
@@ -109,6 +109,8 @@ class OrderCart extends Model
 
             $idx = array_search($groupKey, $shipmentKeys);
             $style->shipment_type = $value['shipment_type'];
+            $style->product_id = $value['product_id'];
+            $style->product_style_id = $value['product_style_id'];
             $style->qty = $value['qty'];
             $style->dlv_fee = 0;
             $style->total_price = $value['qty'] * $style->price;
