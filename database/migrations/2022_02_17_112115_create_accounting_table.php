@@ -27,6 +27,7 @@ class CreateAccountingTable extends Migration
 
         Schema::create('acc_first_grade', function (Blueprint $table) {
             $table->id()->comment('會計分類（一級科目）');
+            $table->string('code')->unique()->comment('科目代碼');
             $table->boolean('has_next_grade')->comment('有無「子科目」（二級科目）? 1:有, 0:無');
             $table->string('name', 128)->unique()->comment('會計分類名稱');
 
