@@ -5,7 +5,7 @@
     <form id="form1" method="post" action="">
         @method('POST')
         @csrf
-        <nav class="nav nav-pills nav-fill mb-3">
+        <nav class="nav nav-pills nav-fill">
             <span class="nav-link active" aria-current="page"><span class="badge -step">第一步</span>添加購物車</span>
             <span class="nav-link"><span class="badge -step">第二步</span>填寫訂購資訊</span>
         </nav>
@@ -172,6 +172,7 @@
                     </div>
                     <div class="col-12 mb-3">
                         <label class="form-label">地址</label>
+                        <input type="hidden" name="ord_address">
                         <div class="input-group has-validation">
                             <select name="ord_city_id" class="form-select" style="max-width:20%">
                                 <option value="">縣市</option>
@@ -205,6 +206,7 @@
                     </div>
                     <div class="col-12 mb-3">
                         <label class="form-label">地址</label>
+                        <input type="hidden" name="rec_address">
                         <div class="input-group has-validation">
                             <select name="rec_city_id" class="form-select" style="max-width:20%">
                                 <option value="">縣市</option>
@@ -238,6 +240,7 @@
                     </div>
                     <div class="col-12 mb-3">
                         <label class="form-label">地址</label>
+                        <input type="hidden" name="sed_address">
                         <div class="input-group has-validation">
                             <select name="sed_city_id" class="form-select" style="max-width:20%">
                                 <option value="">縣市</option>
@@ -371,6 +374,13 @@
             // 儲存前設定name
             $('#form1').submit(function(e) {
                 $('input:hidden[name="customer_id"]').val($('#customer').val());
+                $('input:hidden[name$="_address"]').val(function () {
+                    const prefix_ = $(this).attr('name').replace('address', '');
+                    const city = $(`select[name="${prefix_}city_id"] option:selected`).text();
+                    const region = $(`select[name="${prefix_}region_id"] option:selected`).text();
+                    const addr = $(`input[name="${prefix_}addr"]`).val();
+                    return city + region + addr;
+                });
             });
         </script>
         <script>
@@ -918,25 +928,25 @@
             // 同購買人
             $('#rec_same, #sed_same').off('change').on('change', function () {
                 const $this = $(this);
-                const prefix = $this.attr('id').replace(/same/g, '');
+                const prefix_ = $this.attr('id').replace(/same/g, '');
                 if ($this.prop('checked')) {
-                    $(`input[name="${prefix}name"]`).val($('input[name="ord_name"]').val());
-                    $(`input[name="${prefix}phone"]`).val($('input[name="ord_phone"]').val());
-                    $(`input[name="${prefix}addr"]`).val($('input[name="ord_addr"]').val());
-                    $(`select[name="${prefix}city_id"]`).val($('select[name="ord_city_id"]').val());
+                    $(`input[name="${prefix_}name"]`).val($('input[name="ord_name"]').val());
+                    $(`input[name="${prefix_}phone"]`).val($('input[name="ord_phone"]').val());
+                    $(`input[name="${prefix_}addr"]`).val($('input[name="ord_addr"]').val());
+                    $(`select[name="${prefix_}city_id"]`).val($('select[name="ord_city_id"]').val());
                     getRegionsAction(
-                        $(`select[name="${prefix}region_id"]`),
+                        $(`select[name="${prefix_}region_id"]`),
                         $('select[name="ord_city_id"]').val(),
                         $('select[name="ord_region_id"]').val()
                     );
                 } else {
                     // 清空
-                    $(`input[name="${prefix}name"],
-                       input[name="${prefix}phone"],
-                       input[name="${prefix}addr"],
-                       select[name="${prefix}city_id"],
-                       select[name="${prefix}region_id"]`).val('');
-                    $(`select[name="${prefix}region_id"]`).html('<option value="">地區</option>');
+                    $(`input[name="${prefix_}name"],
+                       input[name="${prefix_}phone"],
+                       input[name="${prefix_}addr"],
+                       select[name="${prefix_}city_id"],
+                       select[name="${prefix_}region_id"]`).val('');
+                    $(`select[name="${prefix_}region_id"]`).html('<option value="">地區</option>');
                 }
             });
 
