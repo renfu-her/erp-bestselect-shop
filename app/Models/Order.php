@@ -16,7 +16,7 @@ class Order extends Model
     public static function orderList($keyword = null, $sale_channel_id = null)
     {
         $order = DB::table('ord_orders as order')
-            ->select('customer.name', 'sale.title as sale_title', 'so.ship_category_name',
+            ->select('order.id as id','customer.name', 'sale.title as sale_title', 'so.ship_category_name',
                 'so.ship_event', 'so.ship_sn')
             ->selectRaw('DATE_FORMAT(order.created_at,"%Y-%m-%d") as order_date')
             ->selectRaw('so.sn as order_sn')
@@ -37,12 +37,38 @@ class Order extends Model
         $orderQuery = DB::table('ord_orders as order')
             ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
             ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id')
-            ->select('order.sn','order.total_price','order.created_at', 'customer.name', 'customer.email', 'sale.title as sale_title')
-            ->where('order.id',$order_id);
+            ->select('order.sn', 'order.total_price', 'order.created_at', 'customer.name', 'customer.email', 'sale.title as sale_title')
+            ->where('order.id', $order_id);
         self::orderAddress($orderQuery);
 
+        return $orderQuery;
+    }
+
+    public static function subOrderDetail($order_id)
+    {
+        $concatString = concatStr([
+            'product_title' => 'item.product_title',
+            'sku' => 'item.sku',
+            'price' => 'item.price',
+            'qty' => 'item.qty',
+            'total_price' => 'item.total_price']);
+
+        $itemQuery = DB::table('ord_items as item')
+            ->groupBy('item.sub_order_id')
+            ->select('item.sub_order_id')
+            ->selectRaw($concatString . ' as items')
+            ->where('item.order_id', $order_id);
+
+        $orderQuery = DB::table('ord_sub_orders as sub_order')
+            ->leftJoin(DB::raw("({$itemQuery->toSql()}) as i"), function ($join) {
+                $join->on('sub_order.id', '=', 'i.sub_order_id');
+            })
+            ->mergeBindings($itemQuery)
+            ->select('sub_order.*', 'i.items')
+            ->where('order_id', $order_id);
 
         return $orderQuery;
+
     }
 
     private static function orderAddress(&$query)

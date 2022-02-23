@@ -156,17 +156,27 @@ class OrderCtrl extends Controller
      */
     public function detail($id)
     {
+
         $order = Order::orderDetail($id)->get()->first();
+        $subOrder = Order::subOrderDetail($id)->get()->toArray();
+
+
+        foreach ($subOrder as $key => $value) {
+            $subOrder[$key]->items = json_decode($value->items);
+        }
+
+   //  dd($subOrder);
 
         if (!$order) {
             return abort(404);
         }
-     //   dd($order);
+        //   dd($order);
 
-        $sn = $order->sn; 
+        $sn = $order->sn;
         return view('cms.commodity.order.detail', [
             'sn' => $sn,
             'order' => $order,
+            'subOrders' => $subOrder,
             'breadcrumb_data' => $sn]);
     }
 

@@ -7,7 +7,7 @@
         @csrf
 
         @error('id')
-        <div class="alert alert-danger mt-3">{{ $message }}</div>
+            <div class="alert alert-danger mt-3">{{ $message }}</div>
         @enderror
 
         <div class="card shadow p-4 mb-4">
@@ -106,266 +106,151 @@
                 </div>
                 <div class="col-auto" style="width: calc(100%/12*8.5);">
                     <dt>訂單備註</dt>
-                    <dd>(袋處理)</dd>
+                    <dd>(待處理)</dd>
                 </div>
             </dl>
         </div>
+        @php
+            $dlv_fee = 0;
+            $price = 0;
+            
+        @endphp
+        @foreach ($subOrders as $subOrder)
+            {{-- 宅配 .-detail-primary / 自取 .-detail-warning / 超取 .-detail-success --}}
+            @php
+                switch ($subOrder->ship_category) {
+                    case 'deliver':
+                        # code...
+                        $style = '-detail-primary';
+                        break;
+                    case 'pickup':
+                        $style = '.-detail-warning';
+                        # code...
+                        break;
+                }
+                
+                $dlv_fee += $subOrder->dlv_fee;
+                $price += $subOrder->total_price;
+            @endphp
+            <div class="card shadow mb-4 -detail {{ $style }}">
+                <div class="card-header px-4 py-3 d-flex align-items-center bg-white">
+                    <strong class="flex-grow-1 mb-0">{{ $subOrder->ship_event }}</strong>
+                    <button type="button" class="btn btn-primary -in-header">列印銷貨單</button>
+                    <button type="button" class="btn btn-primary -in-header">列印出貨單</button>
+                </div>
+                <div class="card-body px-4">
+                    <dl class="row mb-0">
+                        <div class="col">
+                            <dt>溫層</dt>
+                            <dd>{{ $subOrder->ship_temp }}</dd>
+                        </div>
+                        <div class="col">
+                            <dt>訂單編號</dt>
+                            <dd>{{ $subOrder->sn }}</dd>
+                        </div>
+                        <div class="col">
+                            <dt>出貨單號</dt>
+                            <dd></dd>
+                        </div>
+                        <div class="col">
+                            <dt>消費者物流費用</dt>
+                            <dd>${{ number_format($subOrder->dlv_fee) }}</dd>
+                        </div>
+                    </dl>
+                </div>
+                <div class="card-body px-4 py-0">
+                    <div class="table-responsive tableOverBox">
+                        <table class="table tableList table-sm mb-0">
+                            <thead class="table-light text-secondary">
+                                <tr>
+                                    <th scope="col">商品名稱</th>
+                                    <th scope="col">SKU</th>
+                                    <th scope="col">單價</th>
+                                    <th scope="col">數量</th>
+                                    <th scope="col">小計</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($subOrder->items as $item)
+                                    <tr>
+                                        <td><a href="#" class="-text">{{ $item->product_title }}</a></td>
+                                        <td>{{ $item->sku }}</td>
+                                        <td>${{ number_format($item->price) }}</td>
+                                        <td>{{ $item->qty }}</td>
+                                        <td>${{ number_format($item->total_price) }}</td>
+                                    </tr>
+                                @endforeach
 
-        {{-- @foreach ($子明細單 as $item) --}}
-        {{-- 宅配 .-detail-primary / 自取 .-detail-warning / 超取 .-detail-success --}}
-        <div class="card shadow mb-4 -detail -detail-warning">
-            <div class="card-header px-4 py-3 d-flex align-items-center bg-white">
-                <strong class="flex-grow-1 mb-0">台北公司自取</strong>
-                <button type="button" class="btn btn-primary -in-header">列印銷貨單</button>
-                <button type="button" class="btn btn-primary -in-header">列印出貨單</button>
-            </div>
-            <div class="card-body px-4">
-                <dl class="row mb-0">
-                    <div class="col">
-                        <dt>溫層</dt>
-                        <dd>-</dd>
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="col">
-                        <dt>訂單編號</dt>
-                        <dd>2112010000</dd>
-                    </div>
-                    <div class="col">
-                        <dt>出貨單號</dt>
-                        <dd>2112010000-1</dd>
-                    </div>
-                    <div class="col">
-                        <dt>消費者物流費用</dt>
-                        <dd>${{ number_format(0) }}</dd>
-                    </div>
-                </dl>
-            </div>
-            <div class="card-body px-4 py-0">
-                <div class="table-responsive tableOverBox">
-                    <table class="table tableList table-sm mb-0">
-                        <thead class="table-light text-secondary">
-                            <tr>
-                                <th scope="col">商品名稱</th>
-                                <th scope="col">SKU</th>
-                                <th scope="col">單價</th>
-                                <th scope="col">數量</th>
-                                <th scope="col">小計</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><a href="#" class="-text">【KINYO】2.4GHz無線鍵鼠組</a></td>
-                                <td>1232</td>
-                                <td>${{ number_format(50) }}</td>
-                                <td>2</td>
-                                <td>${{ number_format(100) }}</td>
-                            </tr>
-                            <tr>
-                                <td><a href="#" class="-text">【YADOMA】菌立撤 360度撤菌隨手噴 100mL</a></td>
-                                <td>1333</td>
-                                <td>${{ number_format(100) }}</td>
-                                <td>1</td>
-                                <td>${{ number_format(100) }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                </div>
+                <!--
+                                <div class="card-body px-4 py-0 border-bottom">
+                                    <div class="table-responsive tableOverBox">
+                                        <table class="table tableList table-sm mb-0">
+                                            <thead class="table-light text-secondary">
+                                                <tr>
+                                                    <th scope="col">優惠類型</th>
+                                                    <th scope="col">優惠名稱</th>
+                                                    <th scope="col">贈品</th>
+                                                    <th scope="col">金額</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>贈品</td>
+                                                    <td>-</td>
+                                                    <td>滑鼠墊</td>
+                                                    <td>-</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>金額</td>
+                                                    <td>滿額贈</td>
+                                                    <td>-</td>
+                                                    <td class="text-danger">- ${{ number_format(50) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>優惠劵</td>
+                                                    <td>優惠劵序號</td>
+                                                    <td>-</td>
+                                                    <td class="text-danger">- ${{ number_format(60) }}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            -->
+                <div class="card-header px-4 text-secondary">物流資訊</div>
+                <div class="card-body px-4 pb-4">
+                    <dl class="row">
+                        <div class="col">
+                            <dt>運費付款單</dt>
+                            <dd>(待處理)</dd>
+                        </div>
+                        <div class="col">
+                            <dt>客戶物流方式</dt>
+                            <dd>(待處理)</dd>
+                        </div>
+                        <div class="col">
+                            <dt>實際物流</dt>
+                            <dd>(待處理)</dd>
+                        </div>
+                        <div class="col">
+                            <dt>包裹編號</dt>
+                            <dd>(待處理)</dd>
+                        </div>
+                    </dl>
+                    <dl class="row">
+                        <div class="col">
+                            <dt>物流說明</dt>
+                            <dd>不含箱子費用、不含離島地區</dd>
+                        </div>
+                    </dl>
                 </div>
             </div>
-            <div class="card-body px-4 py-0 border-bottom">
-                <div class="table-responsive tableOverBox">
-                    <table class="table tableList table-sm mb-0">
-                        <thead class="table-light text-secondary">
-                            <tr>
-                                <th scope="col">優惠類型</th>
-                                <th scope="col">優惠名稱</th>
-                                <th scope="col">贈品</th>
-                                <th scope="col">金額</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>贈品</td>
-                                <td>-</td>
-                                <td>滑鼠墊</td>
-                                <td>-</td>
-                            </tr>
-                            <tr>
-                                <td>金額</td>
-                                <td>滿額贈</td>
-                                <td>-</td>
-                                <td class="text-danger">- ${{ number_format(50) }}</td>
-                            </tr>
-                            <tr>
-                                <td>優惠劵</td>
-                                <td>優惠劵序號</td>
-                                <td>-</td>
-                                <td class="text-danger">- ${{ number_format(60) }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="card-header px-4 text-secondary">物流資訊</div>
-            <div class="card-body px-4 pb-4">
-                <dl class="row">
-                    <div class="col">
-                        <dt>運費付款單</dt>
-                        <dd>937103</dd>
-                    </div>
-                    <div class="col">
-                        <dt>客戶物流方式</dt>
-                        <dd>自取</dd>
-                    </div>
-                    <div class="col">
-                        <dt>實際物流</dt>
-                        <dd>自取</dd>
-                    </div>
-                    <div class="col">
-                        <dt>包裹編號</dt>
-                        <dd>36354</dd>
-                    </div>
-                </dl>
-                <dl class="row">
-                    <div class="col">
-                        <dt>物流說明</dt>
-                        <dd>不含箱子費用、不含離島地區</dd>
-                    </div>
-                </dl>
-            </div>
-        </div>
+        @endforeach
 
-        <div class="card shadow mb-4 -detail -detail-primary">
-            <div class="card-header px-4 py-3 d-flex align-items-center bg-white">
-                <strong class="flex-grow-1 mb-0">GGC-00455-225冷凍宅配</strong>
-                <button type="button" class="btn btn-primary -in-header">列印銷貨單</button>
-                <button type="button" class="btn btn-primary -in-header">列印出貨單</button>
-            </div>
-            <div class="card-body px-4">
-                <dl class="row mb-0">
-                    <div class="col">
-                        <dt>溫層</dt>
-                        <dd>冷凍</dd>
-                    </div>
-                    <div class="col">
-                        <dt>訂單編號</dt>
-                        <dd>2112010000</dd>
-                    </div>
-                    <div class="col">
-                        <dt>出貨單號</dt>
-                        <dd>2112010000-2</dd>
-                    </div>
-                    <div class="col">
-                        <dt>消費者物流費用</dt>
-                        <dd>${{ number_format(150) }}</dd>
-                    </div>
-                </dl>
-            </div>
-            <div class="card-body px-4 py-0">
-                <div class="table-responsive tableOverBox">
-                    <table class="table tableList table-sm mb-0">
-                        <thead class="table-light text-secondary">
-                            <tr>
-                                <th scope="col">商品名稱</th>
-                                <th scope="col">SKU</th>
-                                <th scope="col">單價</th>
-                                <th scope="col">數量</th>
-                                <th scope="col">小計</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><a href="#" class="-text">【春一枝】天然水果手作冰棒</a></td>
-                                <td>6543</td>
-                                <td>${{ number_format(100) }}</td>
-                                <td>2</td>
-                                <td>${{ number_format(200) }}</td>
-                            </tr>
-                            <tr>
-                                <td><a href="#" class="-text">紐西蘭冰河帝王鮭魚片（冷煙燻）-(200g/盒)</a></td>
-                                <td>4561</td>
-                                <td>${{ number_format(1500) }}</td>
-                                <td>1</td>
-                                <td>${{ number_format(1500) }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="card-body px-4 py-0 border-bottom">
-                <div class="table-responsive tableOverBox">
-                    <table class="table tableList table-sm mb-0">
-                        <thead class="table-light text-secondary">
-                            <tr>
-                                <th scope="col">優惠類型</th>
-                                <th scope="col">優惠名稱</th>
-                                <th scope="col">贈品</th>
-                                <th scope="col">金額</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>-</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="card-header px-4 text-secondary">物流資訊</div>
-            <div class="card-body px-4 pb-4">
-                <dl class="row">
-                    <div class="col">
-                        <dt>運費付款單</dt>
-                        <dd>937104</dd>
-                    </div>
-                    <div class="col">
-                        <dt>客戶物流方式</dt>
-                        <dd>宅配</dd>
-                    </div>
-                    <div class="col">
-                        <dt>實際物流</dt>
-                        <dd>宅配</dd>
-                    </div>
-                    <div class="col">
-                        <dt>包裹編號</dt>
-                        <dd>33423</dd>
-                    </div>
-                </dl>
-                <dl class="row">
-                    <div class="col">
-                        <dt>物流說明</dt>
-                        <dd>不含箱子費用、不含離島地區</dd>
-                    </div>
-                </dl>
-            </div>
-        </div>
-
-        <div class="card shadow mb-4 -detail -detail-success">
-            <div class="card-header px-4 py-3 d-flex align-items-center bg-white">
-                <strong class="flex-grow-1 mb-0">全家超商取貨</strong>
-                <button type="button" class="btn btn-primary -in-header">列印銷貨單</button>
-                <button type="button" class="btn btn-primary -in-header">列印出貨單</button>
-            </div>
-            <div class="card-body px-4">
-                <dl class="row mb-0">
-                    <div class="col">
-                        <dt>溫層</dt>
-                        <dd>冷藏</dd>
-                    </div>
-                    <div class="col">
-                        <dt>訂單編號</dt>
-                        <dd>2112010000</dd>
-                    </div>
-                    <div class="col">
-                        <dt>出貨單號</dt>
-                        <dd>2112010000-3</dd>
-                    </div>
-                    <div class="col">
-                        <dt>消費者物流費用</dt>
-                        <dd>${{ number_format(150) }}</dd>
-                    </div>
-                </dl>
-            </div>
-        </div>
-        {{-- @endforeach --}}
 
         <div class="card shadow p-4 mb-4">
             <h6>訂單總覽</h6>
@@ -381,66 +266,66 @@
                             <td class="col-2 lh-sm">預計獲得<a href="#" class="-text d-block d-xxl-inline">紅利積點</a></td>
                         </tr>
                         <tr>
-                            <td>${{ number_format(550) }}</td>
-                            <td class="text-danger">- ${{ number_format(110) }}</td>
-                            <td>${{ number_format(440) }}</td>
-                            <td>${{ number_format(325) }}</td>
-                            <td class="fw-bold">${{ number_format(765) }}</td>
-                            <td>7</td>
+                            <td>${{ number_format($price) }}</td>
+                            <td class="text-danger">- ${{ number_format(0) }}</td>
+                            <td>${{ number_format(0) }}</td>
+                            <td>${{ number_format($dlv_fee) }}</td>
+                            <td class="fw-bold">${{ number_format($order->total_price) }}</td>
+                            <td>-</td>
                         </tr>
                     </tbody>
                 </table>
-                <table class="table table-bordered table-sm text-center align-middle d-table d-sm-none">
-                    <tbody>
-                        <tr>
-                            <td class="col-7 table-light">小計</td>
-                            <td class="text-end pe-4">${{ number_format(550) }}</td>
-                        </tr>
-                        <tr>
-                            <td class="col-7 table-light">折扣</td>
-                            <td class="text-danger text-end pe-4">- ${{ number_format(110) }}</td>
-                        </tr>
-                        <tr>
-                            <td class="col-7 table-light lh-sm">折扣後 (不含運)</td>
-                            <td class="text-end pe-4">${{ number_format(440) }}</td>
-                        </tr>
-                        <tr>
-                            <td class="col-7 table-light">運費</td>
-                            <td class="text-end pe-4">${{ number_format(325) }}</td>
-                        </tr>
-                        <tr>
-                            <td class="col-7 table-light">總金額</td>
-                            <td class="fw-bold text-end pe-4">${{ number_format(765) }}</td>
-                        </tr>
-                        <tr>
-                            <td class="col-7 table-light lh-sm">預計獲得<a href="#" class="-text">紅利積點</a></td>
-                            <td class="text-end pe-4">7</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <!--
+                    <table class="table table-bordered table-sm text-center align-middle d-table d-sm-none">
+                        <tbody>
+                            <tr>
+                                <td class="col-7 table-light">小計</td>
+                                <td class="text-end pe-4">${{ number_format(550) }}</td>
+                            </tr>
+                            <tr>
+                                <td class="col-7 table-light">折扣</td>
+                                <td class="text-danger text-end pe-4">- ${{ number_format(110) }}</td>
+                            </tr>
+                            <tr>
+                                <td class="col-7 table-light lh-sm">折扣後 (不含運)</td>
+                                <td class="text-end pe-4">${{ number_format(440) }}</td>
+                            </tr>
+                            <tr>
+                                <td class="col-7 table-light">運費</td>
+                                <td class="text-end pe-4">${{ number_format(325) }}</td>
+                            </tr>
+                            <tr>
+                                <td class="col-7 table-light">總金額</td>
+                                <td class="fw-bold text-end pe-4">${{ number_format($order->total_price) }}</td>
+                            </tr>
+                            <tr>
+                                <td class="col-7 table-light lh-sm">預計獲得<a href="#" class="-text">紅利積點</a></td>
+                                <td class="text-end pe-4">7</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                -->
             </div>
         </div>
 
         <div id="submitDiv">
             <div class="col-auto">
                 <button type="submit" class="btn btn-primary px-4">列印整張訂購單</button>
-                <a href="{{ Route('cms.order.index') }}" class="btn btn-outline-primary px-4"
-                   role="button">返回列表</a>
+                <a href="{{ Route('cms.order.index') }}" class="btn btn-outline-primary px-4" role="button">返回列表</a>
             </div>
         </div>
     </form>
-
 @endsection
 @once
     @push('sub-styles')
-    <link rel="stylesheet" href="{{ Asset('dist/css/order.css') }}">
-    <style>
-        .table.table-bordered:not(.table-sm ) tr:not(.table-light) {
-            height: 70px;
-        }
-    </style>
+        <link rel="stylesheet" href="{{ Asset('dist/css/order.css') }}">
+        <style>
+            .table.table-bordered:not(.table-sm) tr:not(.table-light) {
+                height: 70px;
+            }
+
+        </style>
     @endpush
     @push('sub-scripts')
     @endpush
 @endonce
-
