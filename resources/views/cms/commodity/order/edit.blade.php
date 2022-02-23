@@ -186,7 +186,11 @@
                             <input name="ord_addr" type="text" class="form-control" placeholder="請輸入購買人地址"
                                 value="" required>
                             <button class="btn btn-outline-success -format_addr_btn" type="button">格式化</button>
-                            <div class="invalid-feedback"></div>
+                            <div class="invalid-feedback">
+                                @error('record')
+                                    {{-- 地址錯誤訊息: ord_city_id, ord_region_id, ord_addr --}}
+                                @enderror
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -220,7 +224,11 @@
                             <input name="rec_addr" type="text" class="form-control" placeholder="請輸入收件人地址"
                                 value="" required>
                             <button class="btn btn-outline-success -format_addr_btn" type="button">格式化</button>
-                            <div class="invalid-feedback"></div>
+                            <div class="invalid-feedback">
+                                @error('record')
+                                    {{-- 地址錯誤訊息: rec_city_id, rec_region_id, rec_addr --}}
+                                @enderror
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -254,7 +262,11 @@
                             <input name="sed_addr" type="text" class="form-control" placeholder="請輸入寄件人地址"
                                 value="" required>
                             <button class="btn btn-outline-success -format_addr_btn" type="button">格式化</button>
-                            <div class="invalid-feedback"></div>
+                            <div class="invalid-feedback">
+                                @error('record')
+                                    {{-- 地址錯誤訊息: sed_city_id, sed_region_id, sed_addr --}}
+                                @enderror
+                            </div>
                         </div>
                     </div>
                 </div>
