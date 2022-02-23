@@ -152,7 +152,7 @@ class AccountingSeeder extends Seeder
             'code' => '21020001',
             'name' => '應付帳款-其他',
             'acc_company_fk' => 1,
-            'third_grade_fk' => $thirdGradeId_4,
+            'third_grade_fk' => $thirdGradeId_5,
             'acc_income_statement_fk' => 1,
             'note_1' => '2014/8/31以前應付帳款轉用'
         ]);
@@ -160,7 +160,7 @@ class AccountingSeeder extends Seeder
             'code' => '21020002',
             'name' => '應付帳款-茶衣創意',
             'acc_company_fk' => 1,
-            'third_grade_fk' => $thirdGradeId_4,
+            'third_grade_fk' => $thirdGradeId_5,
             'acc_income_statement_fk' => 1,
         ]);
     }
