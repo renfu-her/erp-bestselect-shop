@@ -77,7 +77,7 @@ return
         "child" => [
             [
                 "title" => "首頁設定",
-                "controller_name" => "HomepageCtrl",
+                "controller_name" => "NavbarCtrl",
                 "route_name" => "cms.homepage.navbar.index",
             ],
             [

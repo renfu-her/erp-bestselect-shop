@@ -18,13 +18,13 @@ class Order extends Model
             ->select('customer.name', 'sale.title as sale_title', 'so.ship_category_name',
                 'so.ship_event', 'so.ship_sn')
             ->selectRaw('DATE_FORMAT(order.created_at,"%Y-%m-%d") as order_date')
-            ->selectRaw('CONCAT(order.sn,"-",so.sn) as order_sn')
+            ->selectRaw('so.sn as order_sn')
             ->leftJoin('ord_sub_orders as so', 'order.id', '=', 'so.order_id')
             ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
             ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id');
 
         if ($keyword) {
-            $order->where(DB::raw('CONCAT(order.sn,"-",so.sn)'), 'like', "%$keyword%");
+            $order->where('so.sn', 'like', "%$keyword%");
         }
 
         return $order;
@@ -76,9 +76,9 @@ class Order extends Model
             }
             //   dd($order);
             foreach ($order['shipments'] as $value) {
-                $sub_order_sn = str_pad((DB::table('ord_sub_orders')->where('order_id', $order_id)
+                $sub_order_sn = $order_sn . "-" . str_pad((DB::table('ord_sub_orders')->where('order_id', $order_id)
                         ->get()
-                        ->count()) + 1, 3, '0', STR_PAD_LEFT);
+                        ->count()) + 1, 2, '0', STR_PAD_LEFT);
 
                 $insertData = [
                     'order_id' => $order_id,

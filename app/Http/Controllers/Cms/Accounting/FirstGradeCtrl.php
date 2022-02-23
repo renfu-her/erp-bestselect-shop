@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cms\Accounting;
 
 use App\Http\Controllers\Controller;
 use App\Models\FirstGrade;
+use App\Models\GeneralLedger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
@@ -56,7 +57,10 @@ class FirstGradeCtrl extends Controller
             ]
         ]);
 
+        $newCode = GeneralLedger::generateCode('', '1');
+
         FirstGrade::create([
+            'code' => strval($newCode),
             'name' => $request->input('name'),
             'has_next_grade' => 0,
         ]);

@@ -10,6 +10,14 @@ class GeneralLedger extends Model
 {
     use HasFactory;
 
+    private const GRADE_TABALE_NAME_ARRAY
+        = [
+            '1' => 'acc_first_grade',
+            '2' => 'acc_second_grade',
+            '3' => 'acc_third_grade',
+            '4' => 'acc_fourth_grade',
+        ];
+
     public static function getSecondGradeById($firstGradeId)
     {
         return DB::table('acc_second_grade')
@@ -67,14 +75,7 @@ class GeneralLedger extends Model
 
     public static function getDataByGrade($id, string $grade)
     {
-        $tabaleNameArray = [
-            '1st' => 'acc_first_grade',
-            '2nd' => 'acc_second_grade',
-            '3rd' => 'acc_third_grade',
-            '4th' => 'acc_fourth_grade',
-        ];
-
-        $tableName = $tabaleNameArray[$grade];
+        $tableName = self::GRADE_TABALE_NAME_ARRAY[$grade[0]];
 
         return DB::table($tableName)
             ->where($tableName . '.id', '=', $id)
@@ -91,5 +92,129 @@ class GeneralLedger extends Model
                 'acc_income_statement.name as category'
             )
             ->get();
+    }
+
+    /**
+     * @
+     * @param  string  $currentCode 現有的科目代碼
+     * @param  string  $newGrade  新的科目代碼是第幾級？（2～4）
+     * 產生新的科目代碼
+     *
+     * @return int 回傳新的科目代碼
+     */
+    public static function generateCode(string $currentCode, string $newGrade)
+    {
+        $newGradeNum = $newGrade[0];
+        $isGenerateInSameGrade = self::getGradeByCode($currentCode) === $newGradeNum;
+
+        $result = '';
+        if ($isGenerateInSameGrade) {
+            if ($newGradeNum === '2') {
+                $result = DB::table(self::GRADE_TABALE_NAME_ARRAY[$newGradeNum])
+                    ->where('code', 'like', substr($currentCode, 0, 1) . '%')
+                    ->select('code')
+                    ->orderByRaw('CONVERT(code, SIGNED) DESC')
+                    ->first();
+            } elseif ($newGradeNum === '3') {
+                $result = DB::table(self::GRADE_TABALE_NAME_ARRAY[$newGradeNum])
+                    ->where('code', 'like', substr($currentCode, 0, 2) . '%')
+                    ->select('code')
+                    ->orderByRaw('CONVERT(code, SIGNED) DESC')
+                    ->first();
+            } elseif ($newGradeNum === '4') {
+                $result = DB::table(self::GRADE_TABALE_NAME_ARRAY[$newGradeNum])
+                    ->where('code', 'like', substr($currentCode, 0, 4) .'%')
+                    ->select('code')
+                    ->orderByRaw('CONVERT(code, SIGNED) DESC')
+                    ->first();
+            }
+        } else {
+            if ($newGradeNum === '3') {
+                $result = DB::table(self::GRADE_TABALE_NAME_ARRAY[$newGradeNum])
+                    ->where('code', 'like', $currentCode . '%')
+                    ->select('code')
+                    ->orderByRaw('CONVERT(code, SIGNED) DESC')
+                    ->first();
+            } elseif ($newGradeNum === '4') {
+                $result = DB::table(self::GRADE_TABALE_NAME_ARRAY[$newGradeNum])
+                    ->where('code', 'like', $currentCode . '%')
+                    ->select('code')
+                    ->orderByRaw('CONVERT(code, SIGNED) DESC')
+                    ->first();
+            }
+        }
+
+        if ($newGrade === '1') {
+            $result = DB::table(self::GRADE_TABALE_NAME_ARRAY[$newGradeNum])
+                ->select('code')
+                ->orderByRaw('CONVERT(code, SIGNED) DESC')
+                ->first();
+        }
+
+        if (is_null($result)) {
+            if ($newGradeNum === '2') {
+                return intval($currentCode . '1');
+            } elseif ($newGradeNum === '3') {
+                return intval($currentCode . '01');
+            } elseif ($newGradeNum === '4') {
+                return intval($currentCode . '0001');
+            }
+        }
+
+        return intval($result->code) + 1;
+    }
+
+    public static function getGradeByCode(string $code)
+    {
+        $codeLength = strlen($code);
+        $currentGrade = '';
+        if ($codeLength === 2) {
+            $currentGrade = '2';
+        } elseif ($codeLength === 4) {
+            $currentGrade = '3';
+        } elseif ($codeLength === 8) {
+            $currentGrade = '4';
+        }
+        return $currentGrade;
+    }
+
+    public static function storeGradeData(array $req, string $grade)
+    {
+        $newCode = self::generateCode($req['code'], $grade);
+        $tableName = self::GRADE_TABALE_NAME_ARRAY[$grade[0]];
+
+        $prevGrade  = strval(intval($grade[0]) - 1);
+        $prevTableName = self::GRADE_TABALE_NAME_ARRAY[$prevGrade];
+        $FOREIGN_KEY_ARRAY = [
+            '1' => 'first_grade_fk',
+            '2' => 'second_grade_fk',
+            '3' => 'third_grade_fk'
+        ];
+
+        $prevCode = '';
+        if (strlen($newCode) === 2) {
+            $prevCode = substr($newCode, 0, 1);
+        } elseif (strlen($newCode) === 4) {
+            $prevCode = substr($newCode, 0, 2);
+        } elseif (strlen($newCode) === 8) {
+            $prevCode = substr($newCode, 0, 4);
+        }
+
+        $prevGradeFk = DB::table($prevTableName)
+            ->where('code', '=', $prevCode)
+            ->select('id')
+            ->get();
+
+        DB::table($tableName)
+            ->insert([
+                'name' => $req['name'],
+                'code' => $newCode,
+                $FOREIGN_KEY_ARRAY[$prevGrade] => $prevGradeFk[0]->id,
+                'has_next_grade' => $req['has_next_grade'],
+                'acc_company_fk' => $req['acc_company_fk'],
+                'acc_income_statement_fk' => $req['acc_income_statement_fk'],
+                'note_1' => $req['note_1'],
+                'note_2' => $req['note_2'],
+            ]);
     }
 }

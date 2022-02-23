@@ -5,7 +5,7 @@
     <form id="form1" method="post" action="">
         @method('POST')
         @csrf
-        <nav class="nav nav-pills nav-fill mb-3">
+        <nav class="nav nav-pills nav-fill">
             <span class="nav-link active" aria-current="page"><span class="badge -step">第一步</span>添加購物車</span>
             <span class="nav-link"><span class="badge -step">第二步</span>填寫訂購資訊</span>
         </nav>
@@ -67,13 +67,13 @@
                                             <input type="hidden" name="shipment_event_id[]" value="">
                                         </th>
                                         <td data-td="title"><a href="#" class="-text"></a></td>
-                                        <td class="text-center" data-td="price">$0</td>
+                                        <td class="text-center" data-td="price">${{ number_format(0) }}</td>
                                         <td>
                                             <x-b-qty-adjuster name="qty[]" value="1" min="1"
                                                 size="sm" minus="減少" plus="增加">
                                             </x-b-qty-adjuster>
                                         </td>
-                                        <td class="text-end" data-td="subtotal">$0</td>
+                                        <td class="text-end" data-td="subtotal">${{ number_format(0) }}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -106,7 +106,7 @@
                     <div class="card-body px-4 py-2 border-top">
                         <div class="d-flex lh-lg">
                             <div scope="col" class="col">運費</div>
-                            <div class="co-auto" data-td="dlv_fee">$0</div>
+                            <div class="co-auto" data-td="dlv_fee">${{ number_format(0) }}</div>
                         </div>
                     </div>
                 </div>
@@ -123,10 +123,10 @@
                                 <td class="col-2">總金額</td>
                             </tr>
                             <tr>
-                                <td data-td="subtotal">$0</td>
-                                <td data-td="discount" class="text-danger">- $0</td>
-                                <td data-td="dlv_fee">$0</td>
-                                <td data-td="sum" class="fw-bold">$0</td>
+                                <td data-td="subtotal">${{ number_format(0) }}</td>
+                                <td data-td="discount" class="text-danger">- ${{ number_format(0) }}</td>
+                                <td data-td="dlv_fee">${{ number_format(0) }}</td>
+                                <td data-td="sum" class="fw-bold">${{ number_format(0) }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -134,19 +134,19 @@
                         <tbody>
                             <tr>
                                 <td class="col-7 table-light">商品小計</td>
-                                <td class="text-end pe-4" data-td="subtotal">$0</td>
+                                <td class="text-end pe-4" data-td="subtotal">${{ number_format(0) }}</td>
                             </tr>
                             <tr>
                                 <td class="col-7 table-light">折扣</td>
-                                <td class="text-danger text-end pe-4" data-td="discount">- $0</td>
+                                <td class="text-danger text-end pe-4" data-td="discount">- ${{ number_format(0) }}</td>
                             </tr>
                             <tr>
                                 <td class="col-7 table-light">運費</td>
-                                <td class="text-end pe-4" data-td="dlv_fee">$0</td>
+                                <td class="text-end pe-4" data-td="dlv_fee">${{ number_format(0) }}</td>
                             </tr>
                             <tr>
                                 <td class="col-7 table-light">總金額</td>
-                                <td class="fw-bold text-end pe-4" data-td="sum">$0</td>
+                                <td class="fw-bold text-end pe-4" data-td="sum">${{ number_format(0) }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -163,16 +163,35 @@
                 <h6>購買人</h6>
                 <div class="row">
                     <div class="col-12 col-sm-6 mb-3">
-                        <label class="form-label">姓名</label>
-                        <input type="text" class="form-control" name="ord_name" placeholder="請輸入購買人姓名">
+                        <label class="form-label">姓名 <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="ord_name" placeholder="請輸入購買人姓名" required>
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
-                        <label class="form-label">電話</label>
-                        <input type="tel" class="form-control" name="ord_phone" placeholder="請輸入購買人電話">
+                        <label class="form-label">電話 <span class="text-danger">*</span></label>
+                        <input type="tel" class="form-control" name="ord_phone" placeholder="請輸入購買人電話" required>
                     </div>
                     <div class="col-12 mb-3">
-                        <label class="form-label">地址</label>
-                        <input type="text" class="form-control" name="ord_address" placeholder="請輸入購買人地址">
+                        <label class="form-label">地址 <span class="text-danger">*</span></label>
+                        <input type="hidden" name="ord_address">
+                        <div class="input-group has-validation">
+                            <select name="ord_city_id" class="form-select" style="max-width:20%" required>
+                                <option value="">縣市</option>
+                                @foreach ($citys as $city)
+                                    <option value="{{ $city['city_id'] }}" >{{ $city['city_title'] }}</option>
+                                @endforeach
+                            </select>
+                            <select name="ord_region_id" class="form-select" style="max-width:20%" required>
+                                <option value="">地區</option>
+                            </select>
+                            <input name="ord_addr" type="text" class="form-control" placeholder="請輸入購買人地址"
+                                value="" required>
+                            <button class="btn btn-outline-success -format_addr_btn" type="button">格式化</button>
+                            <div class="invalid-feedback">
+                                @error('record')
+                                    {{-- 地址錯誤訊息: ord_city_id, ord_region_id, ord_addr --}}
+                                @enderror
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <h6 class="d-flex align-items-end">收件人 
@@ -182,16 +201,35 @@
                 </h6>
                 <div class="row">
                     <div class="col-12 col-sm-6 mb-3">
-                        <label class="form-label">姓名</label>
-                        <input type="text" class="form-control" name="rec_name" placeholder="請輸入收件人姓名">
+                        <label class="form-label">姓名 <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="rec_name" placeholder="請輸入收件人姓名" required>
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
-                        <label class="form-label">電話</label>
-                        <input type="tel" class="form-control" name="rec_phone" placeholder="請輸入收件人電話">
+                        <label class="form-label">電話 <span class="text-danger">*</span></label>
+                        <input type="tel" class="form-control" name="rec_phone" placeholder="請輸入收件人電話" required>
                     </div>
                     <div class="col-12 mb-3">
-                        <label class="form-label">地址</label>
-                        <input type="text" class="form-control" name="rec_address" placeholder="請輸入收件人地址">
+                        <label class="form-label">地址 <span class="text-danger">*</span></label>
+                        <input type="hidden" name="rec_address">
+                        <div class="input-group has-validation">
+                            <select name="rec_city_id" class="form-select" style="max-width:20%" required>
+                                <option value="">縣市</option>
+                                @foreach ($citys as $city)
+                                    <option value="{{ $city['city_id'] }}" >{{ $city['city_title'] }}</option>
+                                @endforeach
+                            </select>
+                            <select name="rec_region_id" class="form-select" style="max-width:20%" required>
+                                <option value="">地區</option>
+                            </select>
+                            <input name="rec_addr" type="text" class="form-control" placeholder="請輸入收件人地址"
+                                value="" required>
+                            <button class="btn btn-outline-success -format_addr_btn" type="button">格式化</button>
+                            <div class="invalid-feedback">
+                                @error('record')
+                                    {{-- 地址錯誤訊息: rec_city_id, rec_region_id, rec_addr --}}
+                                @enderror
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <h6 class="d-flex align-items-end">寄件人
@@ -201,16 +239,35 @@
                 </h6>
                 <div class="row">
                     <div class="col-12 col-sm-6 mb-3">
-                        <label class="form-label">姓名</label>
-                        <input type="text" class="form-control" name="sed_name" placeholder="請輸入寄件人姓名">
+                        <label class="form-label">姓名 <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="sed_name" placeholder="請輸入寄件人姓名" required>
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
-                        <label class="form-label">電話</label>
-                        <input type="tel" class="form-control" name="sed_phone" placeholder="請輸入寄件人電話">
+                        <label class="form-label">電話 <span class="text-danger">*</span></label>
+                        <input type="tel" class="form-control" name="sed_phone" placeholder="請輸入寄件人電話" required>
                     </div>
                     <div class="col-12 mb-3">
-                        <label class="form-label">地址</label>
-                        <input type="text" class="form-control" name="sed_address" placeholder="請輸入寄件人地址">
+                        <label class="form-label">地址 <span class="text-danger">*</span></label>
+                        <input type="hidden" name="sed_address">
+                        <div class="input-group has-validation">
+                            <select name="sed_city_id" class="form-select" style="max-width:20%" required>
+                                <option value="">縣市</option>
+                                @foreach ($citys as $city)
+                                    <option value="{{ $city['city_id'] }}" >{{ $city['city_title'] }}</option>
+                                @endforeach
+                            </select>
+                            <select name="sed_region_id" class="form-select" style="max-width:20%" required>
+                                <option value="">地區</option>
+                            </select>
+                            <input name="sed_addr" type="text" class="form-control" placeholder="請輸入寄件人地址"
+                                value="" required>
+                            <button class="btn btn-outline-success -format_addr_btn" type="button">格式化</button>
+                            <div class="invalid-feedback">
+                                @error('record')
+                                    {{-- 地址錯誤訊息: sed_city_id, sed_region_id, sed_addr --}}
+                                @enderror
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -253,10 +310,10 @@
                     </thead>
                     <tbody class="-appendClone --product">
                         <tr class="-cloneElem d-none">
-                            <td>【喜鴻嚴選】咖啡候機室(10入/盒)</td>
-                            <td>綜合口味</td>
-                            <td>AA2590</td>
-                            <td>$100</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>$0</td>
                             <td>
                                 <button type="button" class="btn btn-outline-primary -add" data-idx="">
                                     <i class="bi bi-plus-circle"></i> 加入
@@ -303,6 +360,12 @@
     @push('sub-styles')
         <link rel="stylesheet" href="{{ Asset('dist/css/order.css') }}">
         <style>
+            .nav-pills .nav-link {
+                border-bottom-left-radius: 0;
+                border-bottom-right-radius: 0;
+                margin-bottom: -0.25rem;
+                padding-bottom: 12px;
+            }
             .-detail-primary .badge.-badge::after {
                 content: "宅配";
             }
@@ -323,6 +386,13 @@
             // 儲存前設定name
             $('#form1').submit(function(e) {
                 $('input:hidden[name="customer_id"]').val($('#customer').val());
+                $('input:hidden[name$="_address"]').val(function () {
+                    const prefix_ = $(this).attr('name').replace('address', '');
+                    const city = $(`select[name="${prefix_}city_id"] option:selected`).text();
+                    const region = $(`select[name="${prefix_}region_id"] option:selected`).text();
+                    const addr = $(`input[name="${prefix_}addr"]`).val();
+                    return city + region + addr;
+                });
             });
         </script>
         <script>
@@ -537,7 +607,7 @@
                             <td>${typeTag} ${p.product_title}</td>
                             <td>${p.spec || ''}</td>
                             <td>${p.sku}</td>
-                            <td>$${p.price}</td>
+                            <td>$${formatNumber(p.price)}</td>
                             <td>${addBtn}</td>
                         </tr>`);
                         $('#addProduct .-appendClone.--product').append($tr);
@@ -734,7 +804,7 @@
                             cloneElem.find('td[data-td="title"]').html(
                                 `<a href="#" class="-text">${p.name}-${p.spec}</a>`
                             );
-                            cloneElem.find('td[data-td="price"], td[data-td="subtotal"]').text(`$${p.price}`);
+                            cloneElem.find('td[data-td="price"], td[data-td="subtotal"]').text(`$${formatNumber(p.price)}`);
                             cloneElem.find('input[name="qty[]"]').attr('max', p.stock);
                         }
                     }, cloneProductsOption);
@@ -808,7 +878,7 @@
                 (myCart[id].products).forEach(p => {
                     if (p.sid === style_id) {
                         p.qty = Number(qty);
-                        $this.closest('tr.-cloneElem').find('td[data-td="subtotal"]').text(`$${p.price * p.qty}`);
+                        $this.closest('tr.-cloneElem').find('td[data-td="subtotal"]').text(`$${formatNumber(p.price * p.qty)}`);
                     }
                 });
 
@@ -835,7 +905,7 @@
                                     break;
                                 }
                             }
-                            $(`#${group_key} div[data-td="dlv_fee"]`).text(`$${myCart[group_key].dlv_fee}`);
+                            $(`#${group_key} div[data-td="dlv_fee"]`).text(`$${formatNumber(myCart[group_key].dlv_fee)}`);
                             break;
                         default:
                             myCart[group_key].dlv_fee = 0;
@@ -859,9 +929,9 @@
                     }
                 }
 
-                $('#Total_price td[data-td="subtotal"]').text(`$${all_total}`);
-                $('#Total_price td[data-td="dlv_fee"]').text(`$${all_dlvFee}`);
-                $('#Total_price td[data-td="sum"]').text(`$${all_total + all_dlvFee}`);
+                $('#Total_price td[data-td="subtotal"]').text(`$${formatNumber(all_total)}`);
+                $('#Total_price td[data-td="dlv_fee"]').text(`$${formatNumber(all_dlvFee)}`);
+                $('#Total_price td[data-td="sum"]').text(`$${formatNumber(all_total + all_dlvFee)}`);
             }
             
         </script>
@@ -870,16 +940,58 @@
             // 同購買人
             $('#rec_same, #sed_same').off('change').on('change', function () {
                 const $this = $(this);
-                const prefix = $this.attr('id').replace(/same/g, '');
+                const prefix_ = $this.attr('id').replace(/same/g, '');
                 if ($this.prop('checked')) {
-                    $(`input[name="${prefix}name"]`).val($('input[name="ord_name"]').val());
-                    $(`input[name="${prefix}phone"]`).val($('input[name="ord_phone"]').val());
-                    $(`input[name="${prefix}address"]`).val($('input[name="ord_address"]').val());
+                    $(`input[name="${prefix_}name"]`).val($('input[name="ord_name"]').val());
+                    $(`input[name="${prefix_}phone"]`).val($('input[name="ord_phone"]').val());
+                    $(`input[name="${prefix_}addr"]`).val($('input[name="ord_addr"]').val());
+                    $(`select[name="${prefix_}city_id"]`).val($('select[name="ord_city_id"]').val());
+                    getRegionsAction(
+                        $(`select[name="${prefix_}region_id"]`),
+                        $('select[name="ord_city_id"]').val(),
+                        $('select[name="ord_region_id"]').val()
+                    );
                 } else {
                     // 清空
-                    $(`input[name="${prefix}name"],
-                       input[name="${prefix}phone"],
-                       input[name="${prefix}address"]`).val('');
+                    $(`input[name="${prefix_}name"],
+                       input[name="${prefix_}phone"],
+                       input[name="${prefix_}addr"],
+                       select[name="${prefix_}city_id"],
+                       select[name="${prefix_}region_id"]`).val('');
+                    $(`select[name="${prefix_}region_id"]`).html('<option value="">地區</option>');
+                }
+            });
+
+            // 格式化地址
+            function getRegionsAction(regionElem, city_id, region_id) {
+                Addr.getRegions(city_id)
+                    .then(re => {
+                        Elem.renderSelect(regionElem, re.datas, {
+                            default: region_id,
+                            key: 'region_id',
+                            value: 'region_title',
+                            defaultOption: '地區'
+                        });
+                    });
+            }
+            $('select[name$="_city_id"]').off('change').on('change', function () {
+                const city_id = $(this).val();
+                const $regionElem = $(this).next('select[name$="_region_id"]');
+                getRegionsAction($regionElem, city_id);
+            });
+            $('.-format_addr_btn').off('click').on('click', function () {
+                const $cityElem = $(this).siblings('select[name$="_city_id"]');
+                const $regionElem = $(this).siblings('select[name$="_region_id"]');
+                const $addrElem = $(this).prev('input[name$="_addr"]');
+                const addr_val = $addrElem.val();
+                if (addr_val) {
+                    Addr.addrFormating(addr_val).then(re => {
+                        $addrElem.val(re.data.addr);
+                        if (re.data.city_id) {
+                            $cityElem.val(re.data.city_id);
+                            getRegionsAction($regionElem, re.data.city_id, re.data.region_id);
+                        }
+                    });
                 }
             });
         </script>

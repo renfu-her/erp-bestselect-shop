@@ -67,6 +67,8 @@ class GeneralLedgerCtrl extends Controller
 
         return view('cms.accounting.general_ledger.edit', [
             'method' => 'create',
+            'currentCode' => $request['code'],
+//            'data' => GeneralLedger::getDataByGrade($id, $currentGrade[1])[0],
             'allCompanies' => DB::table('acc_company')->get(),
             'allCategories' => DB::table('acc_income_statement')->get(),
             'isFourthGradeExist' => ($grade === '4th') ? true : false,
@@ -83,6 +85,32 @@ class GeneralLedgerCtrl extends Controller
      */
     public function store(Request $request)
     {
+        $currentUri = Route::getCurrentRoute()->uri;
+        preg_match('/cms\\/general_ledger\\/create\\/(1st|2nd|3rd|4th)$/', $currentUri, $currentGrade);
+
+        $request->validate([
+            'name' => 'required|string',
+            'code' => 'required|string',
+            'has_next_grade' => 'required|string',
+            'acc_company_fk' => 'nullable|string',
+            'acc_income_statement_fk' => 'nullable|string',
+            'note_1' => 'nullable|string',
+            'note_2' => 'nullable|string',
+        ]);
+
+        $req = $request->only(
+            'name',
+            'code',
+            'has_next_grade',
+            'acc_company_fk',
+            'acc_income_statement_fk',
+            'note_1',
+            'note_2',
+        );
+
+        GeneralLedger::storeGradeData($req, $currentGrade[1]);
+
+        return redirect(Route('cms.general_ledger.index'));
         //
     }
 
@@ -160,8 +188,8 @@ class GeneralLedgerCtrl extends Controller
         $request->validate([
             'name' => 'required|string',
             'has_next_grade' => 'required|string',
-            'acc_company_fk' => 'required|string',
-            'acc_income_statement_fk' => 'required|string',
+            'acc_company_fk' => 'nullable|string',
+            'acc_income_statement_fk' => 'nullable|string',
             'note_1' => 'nullable|sting',
             'note_2' => 'nullable|sting',
         ]);
