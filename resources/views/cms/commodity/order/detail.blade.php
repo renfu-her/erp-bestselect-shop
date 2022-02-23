@@ -15,98 +15,98 @@
             <dl class="row">
                 <div class="col">
                     <dt>訂單編號</dt>
-                    <dd>2112010000</dd>
+                    <dd>{{ $order->sn }}</dd>
                 </div>
                 <div class="col">
                     <dt>訂購時間</dt>
-                    <dd>2021/12/01</dd>
+                    <dd>{{ $order->created_at }}</dd>
                 </div>
                 <div class="col-sm-5">
                     <dt>E-mail</dt>
-                    <dd>abc.def123@gmail.com</dd>
+                    <dd>{{ $order->email }}</dd>
                 </div>
             </dl>
             <dl class="row">
                 <div class="col">
                     <dt>付款方式</dt>
-                    <dd>線上刷卡</dd>
+                    <dd>(待處理)</dd>
                 </div>
                 <div class="col">
                     <dt>付款狀態</dt>
-                    <dd>已完成</dd>
+                    <dd>(待處理)</dd>
                 </div>
                 <div class="col-sm-5">
                     <dt>收款單號</dt>
                     <dd>
-                        <span>46456456</span>
-                        <span>77987979</span>
+                        <span>(待處理)</span>
+                        <span>(待處理)</span>
                     </dd>
                 </div>
             </dl>
             <dl class="row">
                 <div class="col">
                     <dt>購買人姓名</dt>
-                    <dd>施欽元</dd>
+                    <dd>{{ $order->ord_name }}</dd>
                 </div>
                 <div class="col">
                     <dt>購買人電話</dt>
-                    <dd>0912345678</dd>
+                    <dd>{{ $order->ord_phone }}</dd>
                 </div>
                 <div class="col-sm-5">
                     <dt>購買人地址</dt>
-                    <dd>台北市中正區重慶南路一段58號</dd>
+                    <dd>{{ $order->ord_address }}</dd>
                 </div>
             </dl>
             <dl class="row">
                 <div class="col">
                     <dt>收件人姓名</dt>
-                    <dd>王之谷</dd>
+                    <dd>{{ $order->rec_name }}</dd>
                 </div>
                 <div class="col">
                     <dt>收件人電話</dt>
-                    <dd>0998765432</dd>
+                    <dd>{{ $order->rec_phone }}</dd>
                 </div>
                 <div class="col-sm-5">
                     <dt>收件人地址</dt>
-                    <dd>新北市淡水區新市一路三段176號1樓</dd>
+                    <dd>{{ $order->ord_address }}</dd>
                 </div>
             </dl>
             <dl class="row">
                 <div class="col">
                     <dt>統編</dt>
-                    <dd>-</dd>
+                    <dd>(待處理)</dd>
                 </div>
                 <div class="col">
                     <dt>發票類型</dt>
-                    <dd>電子發票</dd>
+                    <dd>(待處理)</dd>
                 </div>
                 <div class="col-5">
                     <dt>發票號碼</dt>
-                    <dd>AU-12345678</dd>
+                    <dd>(待處理)</dd>
                 </div>
             </dl>
             <dl class="row">
                 <div class="col">
                     <dt>推薦業務員</dt>
-                    <dd>王小明-08096</dd>
+                    <dd>(待處理)</dd>
                 </div>
                 <div class="col">
                     <dt>寄件人</dt>
-                    <dd>王小明</dd>
+                    <dd>{{ $order->sed_name }}</dd>
                 </div>
                 <div class="col-sm-5">
                     <dt>寄件人地址</dt>
-                    <dd>台北市松江路148號6樓之2</dd>
+                    <dd>{{ $order->sed_address }}</dd>
                 </div>
             </dl>
             <dl class="row">
                 <div class="col">
                     <dt>銷售通路</dt>
-                    <dd>官網</dd>
+                    <dd>{{ $order->sale_title }}</dd>
                 </div>
                 <div class="col-auto" style="width: calc(100%/12*8.5);">
                     <dt>訂單備註</dt>
-                    <dd>測試測試測試測試測試測試測試測試測試</dd>
+                    <dd>(袋處理)</dd>
                 </div>
             </dl>
         </div>

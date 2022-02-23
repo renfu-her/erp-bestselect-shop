@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Cms\Commodity;
 
+use App\Enums\Order\UserAddrType;
 use App\Http\Controllers\Controller;
+use App\Models\Addr;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\SaleChannel;
-use App\Models\Addr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
@@ -19,6 +20,7 @@ class OrderCtrl extends Controller
      */
     public function index(Request $request)
     {
+
         // Order::createOrder([]);
 
         // dd(Order::orderList()->get()->toArray());
@@ -67,7 +69,72 @@ class OrderCtrl extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $arrVali = [];
+        foreach (UserAddrType::asArray() as $value) {
+            switch ($value) {
+                case 'reciver':
+                    $prefix = 'rec';
+                    break;
+                case 'orderer':
+                    $prefix = 'ord';
+                    break;
+                case 'sender':
+                    $prefix = 'sed';
+                    break;
+            }
+
+            $arrVali[$prefix . '_name'] = 'required';
+            $arrVali[$prefix . '_phone'] = 'required';
+            $arrVali[$prefix . '_city_id'] = 'required';
+            $arrVali[$prefix . '_region_id'] = 'required';
+            $arrVali[$prefix . '_addr'] = 'required';
+            $address[$prefix . '_address'] = 'required';
+
+        }
+
+        $request->validate(array_merge([
+            'customer_id' => 'required',
+            'product_id' => 'required|array',
+            'product_style_id' => 'required|array',
+            'shipment_type' => 'required|array',
+            'shipment_event_id' => 'required|array',
+        ], $arrVali));
+
+        $d = $request->all();
+
+        $customer = Customer::where('id', $d['customer_id'])->get()->first();
+
+        $items = [];
+        foreach ($d['product_style_id'] as $key => $product_style_id) {
+            $items[] = ['product_id' => $d['product_id'][$key],
+                'product_style_id' => $product_style_id,
+                'qty' => $d['qty'][$key],
+                'shipment_type' => $d['shipment_type'][$key],
+                'shipment_event_id' => $d['shipment_event_id'][$key]];
+        }
+
+        $address = [];
+        foreach (UserAddrType::asArray() as $value) {
+            switch ($value) {
+                case 'reciver':
+                    $prefix = 'rec';
+                    break;
+                case 'orderer':
+                    $prefix = 'ord';
+                    break;
+                case 'sender':
+                    $prefix = 'sed';
+                    break;
+            }
+
+            $address[] = ['name' => $d[$prefix . '_name'], 'phone' => $d[$prefix . '_phone'], 'address' => $d[$prefix . '_address'], 'type' => $value];
+
+        }
+
+        $re = Order::createOrder($customer->email, 1, $address, $items);
+        if ($re['success'] == '1') {
+            return redirect(route('cms.order.index'));
+        }
     }
 
     /**
@@ -89,9 +156,17 @@ class OrderCtrl extends Controller
      */
     public function detail($id)
     {
-        $sn = '21111801'; // 等有值改
+        $order = Order::orderDetail($id)->get()->first();
+
+        if (!$order) {
+            return abort(404);
+        }
+     //   dd($order);
+
+        $sn = $order->sn; 
         return view('cms.commodity.order.detail', [
             'sn' => $sn,
+            'order' => $order,
             'breadcrumb_data' => $sn]);
     }
 

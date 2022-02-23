@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Order\UserAddrType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -29,6 +30,46 @@ class Order extends Model
 
         return $order;
         //   dd($order->get()->toArray());
+    }
+
+    public static function orderDetail($order_id)
+    {
+        $orderQuery = DB::table('ord_orders as order')
+            ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
+            ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id')
+            ->select('order.sn','order.total_price','order.created_at', 'customer.name', 'customer.email', 'sale.title as sale_title')
+            ->where('order.id',$order_id);
+        self::orderAddress($orderQuery);
+
+
+        return $orderQuery;
+    }
+
+    private static function orderAddress(&$query)
+    {
+        foreach (UserAddrType::asArray() as $value) {
+            $query->leftJoin('ord_address as ' . $value, function ($q) use ($value) {
+                $q->on('order.id', '=', $value . '.order_id')
+                    ->where($value . '.type', '=', $value);
+            });
+            switch ($value) {
+                case UserAddrType::reciver()->value:
+                    $prefix = 'rec_';
+                    break;
+                case UserAddrType::orderer()->value:
+                    $prefix = 'ord_';
+                    break;
+                case UserAddrType::sender()->value:
+                    $prefix = 'sed_';
+                    break;
+            }
+
+            $query->addSelect($value . '.name as ' . $prefix . 'name');
+            $query->addSelect($value . '.address as ' . $prefix . 'address');
+            $query->addSelect($value . '.phone as ' . $prefix . 'phone');
+            $query->addSelect($value . '.zipcode as ' . $prefix . 'zipcode');
+
+        }
     }
 
     public static function createOrder($email, $sale_channel_id, $address, $items)
