@@ -12,6 +12,9 @@
         <form class="card-body" method="post" action="{{ $formAction }}">
             @method('POST')
             @csrf
+            @if($method === 'create')
+                <input type="hidden" name="code" class="@error('code') is-invalid @enderror" value="{{ $currentCode ?? '' }}">
+            @endif
             <x-b-form-group name="name" title="會計科目名稱" required="true">
                 <input class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name', (isset($data) ? ($data->name ?? ''): '')) }}" />
             </x-b-form-group>

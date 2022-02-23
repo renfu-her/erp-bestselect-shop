@@ -8,7 +8,7 @@
             <i class="bi bi-arrow-left"></i> 返回會計科目列表
         </a>
         @if($isFourthGradeExist === false && $dataList[0]->has_next_grade === 1)
-            <a href="{{ Route('cms.general_ledger.create', ['nextGrade' => $nextGrade], true) }}"
+            <a href="{{ Route('cms.general_ledger.create', ['nextGrade' => $nextGrade, 'code' => $dataList[0]->code], true) }}"
                class="btn btn-outline-primary px-4">
                 <i class="bi"></i> 新增下層會計科目
             </a>
@@ -65,7 +65,7 @@
             </table>
         </div>
 
-        <a class="btn" href="{{ Route('cms.general_ledger.create', ['currentGrade' => $currentGrade], true) }}">
+        <a class="btn" href="{{ Route('cms.general_ledger.create', ['currentGrade' => $currentGrade, 'code' => $dataList[0]->code], true) }}">
             <div class="d-grid mt-3">
                 <button id="addProductBtn"
                         type="button"
