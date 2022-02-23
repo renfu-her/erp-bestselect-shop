@@ -92,8 +92,8 @@ class GeneralLedgerCtrl extends Controller
             'name' => 'required|string',
             'code' => 'required|string',
             'has_next_grade' => 'required|string',
-            'acc_company_fk' => 'required|string',
-            'acc_income_statement_fk' => 'required|string',
+            'acc_company_fk' => 'nullable|string',
+            'acc_income_statement_fk' => 'nullable|string',
             'note_1' => 'nullable|string',
             'note_2' => 'nullable|string',
         ]);
