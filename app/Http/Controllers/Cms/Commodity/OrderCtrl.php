@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\SaleChannel;
+use App\Models\Addr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
@@ -48,12 +49,13 @@ class OrderCtrl extends Controller
 
         $customer_id = $request->user()->customer_id;
 
-        //  $customer_id = $items[0]->customer_id;
+        $citys = Addr::getCitys();
 
         return view('cms.commodity.order.edit', [
             //  'items' => $items,
             'customer_id' => $customer_id,
             'customers' => Customer::get(),
+            'citys' => $citys,
         ]);
     }
 

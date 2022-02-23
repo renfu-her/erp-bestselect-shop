@@ -6,7 +6,7 @@ module.exports = class Elem {
         let _default = options.default ? options.default : "";
         let _key = options.key ? options.key : "key";
         let _value = options.value ? options.value : "value";
-        let _defaultOption = options.defaultOption ? options.defaultOption : "";
+        let _defaultOption = options.defaultOption ? options.defaultOption : "請選擇";
         let output = arrVal
             .map((v) => {
                 let selected = v[_key] == _default ? "selected" : "";

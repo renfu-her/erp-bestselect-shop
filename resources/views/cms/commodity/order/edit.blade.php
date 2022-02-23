@@ -10,7 +10,7 @@
             <span class="nav-link"><span class="badge -step">第二步</span>填寫訂購資訊</span>
         </nav>
 
-        <div id="STEP_1">
+        <div id="STEP_1" hidden>
             <div class="card shadow p-4 mb-4">
                 <div class="row">
                     <div class="col-12 col-sm-6 mb-3">
@@ -158,7 +158,7 @@
             </div>
         </div>
 
-        <div id="STEP_2" hidden>
+        <div id="STEP_2">
             <div class="card shadow p-4 mb-4">
                 <h6>購買人</h6>
                 <div class="row">
@@ -172,7 +172,21 @@
                     </div>
                     <div class="col-12 mb-3">
                         <label class="form-label">地址</label>
-                        <input type="text" class="form-control" name="ord_address" placeholder="請輸入購買人地址">
+                        <div class="input-group has-validation">
+                            <select name="ord_city_id" class="form-select" style="max-width:20%">
+                                <option value="">縣市</option>
+                                @foreach ($citys as $city)
+                                    <option value="{{ $city['city_id'] }}" >{{ $city['city_title'] }}</option>
+                                @endforeach
+                            </select>
+                            <select name="ord_region_id" class="form-select" style="max-width:20%">
+                                <option value="">地區</option>
+                            </select>
+                            <input name="ord_addr" type="text" class="form-control" placeholder="請輸入購買人地址"
+                                value="">
+                            <button class="btn btn-outline-success -format_addr_btn" type="button">格式化</button>
+                            <div class="invalid-feedback"></div>
+                        </div>
                     </div>
                 </div>
                 <h6 class="d-flex align-items-end">收件人 
@@ -191,7 +205,21 @@
                     </div>
                     <div class="col-12 mb-3">
                         <label class="form-label">地址</label>
-                        <input type="text" class="form-control" name="rec_address" placeholder="請輸入收件人地址">
+                        <div class="input-group has-validation">
+                            <select name="rec_city_id" class="form-select" style="max-width:20%">
+                                <option value="">縣市</option>
+                                @foreach ($citys as $city)
+                                    <option value="{{ $city['city_id'] }}" >{{ $city['city_title'] }}</option>
+                                @endforeach
+                            </select>
+                            <select name="rec_region_id" class="form-select" style="max-width:20%">
+                                <option value="">地區</option>
+                            </select>
+                            <input name="rec_addr" type="text" class="form-control" placeholder="請輸入收件人地址"
+                                value="">
+                            <button class="btn btn-outline-success -format_addr_btn" type="button">格式化</button>
+                            <div class="invalid-feedback"></div>
+                        </div>
                     </div>
                 </div>
                 <h6 class="d-flex align-items-end">寄件人
@@ -210,7 +238,21 @@
                     </div>
                     <div class="col-12 mb-3">
                         <label class="form-label">地址</label>
-                        <input type="text" class="form-control" name="sed_address" placeholder="請輸入寄件人地址">
+                        <div class="input-group has-validation">
+                            <select name="sed_city_id" class="form-select" style="max-width:20%">
+                                <option value="">縣市</option>
+                                @foreach ($citys as $city)
+                                    <option value="{{ $city['city_id'] }}" >{{ $city['city_title'] }}</option>
+                                @endforeach
+                            </select>
+                            <select name="sed_region_id" class="form-select" style="max-width:20%">
+                                <option value="">地區</option>
+                            </select>
+                            <input name="sed_addr" type="text" class="form-control" placeholder="請輸入寄件人地址"
+                                value="">
+                            <button class="btn btn-outline-success -format_addr_btn" type="button">格式化</button>
+                            <div class="invalid-feedback"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -874,12 +916,54 @@
                 if ($this.prop('checked')) {
                     $(`input[name="${prefix}name"]`).val($('input[name="ord_name"]').val());
                     $(`input[name="${prefix}phone"]`).val($('input[name="ord_phone"]').val());
-                    $(`input[name="${prefix}address"]`).val($('input[name="ord_address"]').val());
+                    $(`input[name="${prefix}addr"]`).val($('input[name="ord_addr"]').val());
+                    $(`select[name="${prefix}city_id"]`).val($('select[name="ord_city_id"]').val());
+                    getRegionsAction(
+                        $(`select[name="${prefix}region_id"]`),
+                        $('select[name="ord_city_id"]').val(),
+                        $('select[name="ord_region_id"]').val()
+                    );
                 } else {
                     // 清空
                     $(`input[name="${prefix}name"],
                        input[name="${prefix}phone"],
-                       input[name="${prefix}address"]`).val('');
+                       input[name="${prefix}addr"],
+                       select[name="${prefix}city_id"],
+                       select[name="${prefix}region_id"]`).val('');
+                    $(`select[name="${prefix}region_id"]`).html('<option value="">地區</option>');
+                }
+            });
+
+            // 格式化地址
+            function getRegionsAction(regionElem, city_id, region_id) {
+                Addr.getRegions(city_id)
+                    .then(re => {
+                        Elem.renderSelect(regionElem, re.datas, {
+                            default: region_id,
+                            key: 'region_id',
+                            value: 'region_title',
+                            defaultOption: '地區'
+                        });
+                    });
+            }
+            $('select[name$="_city_id"]').off('change').on('change', function () {
+                const city_id = $(this).val();
+                const $regionElem = $(this).next('select[name$="_region_id"]');
+                getRegionsAction($regionElem, city_id);
+            });
+            $('.-format_addr_btn').off('click').on('click', function () {
+                const $cityElem = $(this).siblings('select[name$="_city_id"]');
+                const $regionElem = $(this).siblings('select[name$="_region_id"]');
+                const $addrElem = $(this).prev('input[name$="_addr"]');
+                const addr_val = $addrElem.val();
+                if (addr_val) {
+                    Addr.addrFormating(addr_val).then(re => {
+                        $addrElem.val(re.data.addr);
+                        if (re.data.city_id) {
+                            $cityElem.val(re.data.city_id);
+                            getRegionsAction($regionElem, re.data.city_id, re.data.region_id);
+                        }
+                    });
                 }
             });
         </script>

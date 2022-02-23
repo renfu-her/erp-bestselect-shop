@@ -541,31 +541,32 @@
             });
 
             // 格式化地址
-            let cityElem = $('#city_id');
-            let regionElem = $('#region_id')
-            let addrInputElem = $('input[name=addr]');
-            cityElem.on('change', function(e) {
-                getRegionsAction($(this).val());
-            });
-            function getRegionsAction(city_id, region_id) {
+            function getRegionsAction(regionElem, city_id, region_id) {
                 Addr.getRegions(city_id)
                     .then(re => {
                         Elem.renderSelect(regionElem, re.datas, {
                             default: region_id,
                             key: 'region_id',
-                            value: 'region_title'
+                            value: 'region_title',
+                            defaultOption: '請選擇'
                         });
                     });
             }
+            $('#city_id').on('change', function(e) {
+                const $regionElem = $(this).next('select[name="region_id"]');
+                getRegionsAction($regionElem, $(this).val());
+            });
             $('#format_btn').on('click', function(e) {
-                let addr = addrInputElem.val();
-
-                if (addr) {
-                    Addr.addrFormating(addr).then(re => {
-                        addrInputElem.val(re.data.addr);
+                const $cityElem = $(this).siblings('select[name="city_id"]');
+                const $regionElem = $(this).siblings('select[name="region_id"]');
+                const $addrElem = $(this).prev('input[name$="_addr"]');
+                const addr_val = $addrElem.val();
+                if (addr_val) {
+                    Addr.addrFormating(addr_val).then(re => {
+                        $addrElem.val(re.data.addr);
                         if (re.data.city_id) {
-                            cityElem.val(re.data.city_id);
-                            getRegionsAction(re.data.city_id, re.data.region_id);
+                            $cityElem.val(re.data.city_id);
+                            getRegionsAction($regionElem, re.data.city_id, re.data.region_id);
 
                         }
                     });
