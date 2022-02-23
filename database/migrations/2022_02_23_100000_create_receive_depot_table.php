@@ -30,6 +30,6 @@ class CreateReceiveDepotTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('usr_customer_identity');
+        Schema::dropIfExists('receive_depot');
     }
 }
