@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Cms\Accounting;
 
 use App\Http\Controllers\Controller;
 use App\Models\FirstGrade;
+use App\Models\GeneralLedger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
 
 class FirstGradeCtrl extends Controller
 {
@@ -57,13 +57,10 @@ class FirstGradeCtrl extends Controller
             ]
         ]);
 
-        $latestID = DB::table('acc_first_grade')
-            ->select('code')
-            ->orderByRaw('CONVERT(code, SIGNED) DESC')
-            ->first();
+        $newCode = GeneralLedger::generateCode('', '1');
 
         FirstGrade::create([
-            'code' => strval(intval($latestID->code) + 1),
+            'code' => strval($newCode),
             'name' => $request->input('name'),
             'has_next_grade' => 0,
         ]);

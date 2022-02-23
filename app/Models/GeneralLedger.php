@@ -144,6 +144,13 @@ class GeneralLedger extends Model
             }
         }
 
+        if ($newGrade === '1') {
+            $result = DB::table(self::GRADE_TABALE_NAME_ARRAY[$newGradeNum])
+                ->select('code')
+                ->orderByRaw('CONVERT(code, SIGNED) DESC')
+                ->first();
+        }
+
         if (is_null($result)) {
             if ($newGradeNum === '2') {
                 return intval($currentCode . '1');
