@@ -345,6 +345,10 @@
     @push('sub-styles')
         <link rel="stylesheet" href="{{ Asset('dist/css/order.css') }}">
         <style>
+            .nav-pills .nav-link {
+                border-bottom-left-radius: 0;
+                border-bottom-right-radius: 0;
+            }
             .-detail-primary .badge.-badge::after {
                 content: "宅配";
             }
