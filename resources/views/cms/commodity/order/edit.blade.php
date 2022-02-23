@@ -2,7 +2,7 @@
 @section('sub-content')
     <h2 class="mb-3">新增訂單</h2>
 
-    <form id="form1" method="post" action="">
+    <form id="form1" method="post" action="{{ route('cms.order.create') }}">
         @method('POST')
         @csrf
         <nav class="nav nav-pills nav-fill">

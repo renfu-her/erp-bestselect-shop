@@ -181,7 +181,7 @@
                             <td>{{ $data->ship_sn }}</td>
                             <td>-</td>
                             <td class="text-center">
-                                <a href="{{ Route('cms.order.detail', ['id' => 1]) }}" data-bs-toggle="tooltip"
+                                <a href="{{ Route('cms.order.detail', ['id' => $data->id]) }}" data-bs-toggle="tooltip"
                                     title="明細" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-card-list"></i>
                                 </a>
