@@ -10,8 +10,8 @@ Breadcrumbs::for('cms.dashboard', function (BreadcrumbTrail $trail) {
     $trail->push('Home', route('cms.dashboard'));
 });
 
-/** 
- * 進銷存退 
+/**
+ * 進銷存退
  **/
 
 // 商品管理
@@ -153,8 +153,8 @@ Breadcrumbs::for('cms.order.create', function (BreadcrumbTrail $trail, $value) {
     $trail->push('新增訂單');
 });
 
-/** 
- * 設定 
+/**
+ * 設定
  **/
 
 //款式設定
@@ -242,8 +242,8 @@ Breadcrumbs::for('cms.shipment.edit', function (BreadcrumbTrail $trail) {
 });
 
 
-/** 
- * 官網設定 
+/**
+ * 官網設定
  **/
 
 //首頁設定-導覽列
@@ -312,8 +312,8 @@ Breadcrumbs::for('cms.navinode.edit', function ($trail, $value) {
     $trail->push($value['title']);
 });
 
-/** 
- * 帳號管理 
+/**
+ * 帳號管理
  **/
 
 // 員工帳號管理
@@ -328,6 +328,60 @@ Breadcrumbs::for('cms.user.create', function (BreadcrumbTrail $trail) {
 Breadcrumbs::for('cms.user.edit', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.user.index');
     $trail->push('編輯');
+});
+
+//會計分類
+Breadcrumbs::for('cms.first_grade.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('會計分類', route('cms.first_grade.index'));
+});
+Breadcrumbs::for('cms.first_grade.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('會計分類', route('cms.first_grade.create'));
+});
+
+//科目類別
+Breadcrumbs::for('cms.income_statement.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('科目類別', route('cms.income_statement.index'));
+});
+Breadcrumbs::for('cms.income_statement.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('科目類別', route('cms.income_statement.create'));
+});
+
+// 會計科目
+Breadcrumbs::for('cms.general_ledger.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('會計科目', route('cms.general_ledger.index'));
+});
+Breadcrumbs::for('cms.general_ledger.show-2nd', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('會計科目', route('cms.general_ledger.index'));
+});
+Breadcrumbs::for('cms.general_ledger.show-3rd', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('會計科目', route('cms.general_ledger.index'));
+});
+Breadcrumbs::for('cms.general_ledger.show-4th', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('會計科目', route('cms.general_ledger.index'));
+});
+Breadcrumbs::for('cms.general_ledger.edit-2nd', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('會計科目', route('cms.general_ledger.index'));
+});
+Breadcrumbs::for('cms.general_ledger.edit-3rd', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('會計科目', route('cms.general_ledger.index'));
+});
+Breadcrumbs::for('cms.general_ledger.edit-4th', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('會計科目', route('cms.general_ledger.index'));
+});
+Breadcrumbs::for('cms.general_ledger.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('會計科目', route('cms.general_ledger.index'));
 });
 
 // 角色管理
