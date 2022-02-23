@@ -10,7 +10,7 @@
             <span class="nav-link"><span class="badge -step">第二步</span>填寫訂購資訊</span>
         </nav>
 
-        <div id="STEP_1" hidden>
+        <div id="STEP_1">
             <div class="card shadow p-4 mb-4">
                 <div class="row">
                     <div class="col-12 col-sm-6 mb-3">
@@ -158,7 +158,7 @@
             </div>
         </div>
 
-        <div id="STEP_2">
+        <div id="STEP_2" hidden>
             <div class="card shadow p-4 mb-4">
                 <h6>購買人</h6>
                 <div class="row">
@@ -295,10 +295,10 @@
                     </thead>
                     <tbody class="-appendClone --product">
                         <tr class="-cloneElem d-none">
-                            <td>【喜鴻嚴選】咖啡候機室(10入/盒)</td>
-                            <td>綜合口味</td>
-                            <td>AA2590</td>
-                            <td>$100</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>$0</td>
                             <td>
                                 <button type="button" class="btn btn-outline-primary -add" data-idx="">
                                     <i class="bi bi-plus-circle"></i> 加入
