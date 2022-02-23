@@ -28,7 +28,7 @@ class CreateOrderTable extends Migration
         Schema::create('ord_sub_orders', function (Blueprint $table) {
             $table->id();
             $table->integer('order_id')->comment('訂單id');
-            $table->string('sn', 3)->comment('訂單流水號');
+            $table->string('sn', 20)->comment('訂單流水號');
             $table->string('ship_sn', 20)->nullable()->comment('物流單流水號');
             $table->string('ship_category', 30)->comment('物流代碼');
             $table->string('ship_category_name', 30)->comment('物流類別名稱');
