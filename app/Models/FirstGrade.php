@@ -14,6 +14,7 @@ class FirstGrade extends Model
 
     protected $table = 'acc_first_grade';
     protected $fillable = [
+        'code',
         'name',
         'has_next_grade',
         'acc_company_fk',

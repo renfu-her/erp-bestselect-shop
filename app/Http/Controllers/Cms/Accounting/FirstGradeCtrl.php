@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\FirstGrade;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 
 class FirstGradeCtrl extends Controller
 {
@@ -56,7 +57,13 @@ class FirstGradeCtrl extends Controller
             ]
         ]);
 
+        $latestID = DB::table('acc_first_grade')
+            ->select('code')
+            ->orderByRaw('CONVERT(code, SIGNED) DESC')
+            ->first();
+
         FirstGrade::create([
+            'code' => strval(intval($latestID->code) + 1),
             'name' => $request->input('name'),
             'has_next_grade' => 0,
         ]);
