@@ -77,6 +77,9 @@
                         </option>
                     @endforeach
                 </select>
+                @error('acc_company_fk')
+                    <div class="alert alert-danger mt-3">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="col-12 col-sm-4 mb-3 invoice_date">
@@ -94,6 +97,9 @@
                         </option>
                     @endforeach
                 </select>
+                @error('acc_income_statement_fk')
+                    <div class="alert alert-danger mt-3">{{ $message }}</div>
+                @enderror
             </div>
 
             <x-b-form-group name="note_1" title="備註一" required="false">
