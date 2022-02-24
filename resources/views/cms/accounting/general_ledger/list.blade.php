@@ -11,7 +11,7 @@
 
 <form id="actionForms">
     @csrf
-    <div class="card shadow p-4 mb-4">
+    <div class=" p-4 mb-4">
 {{--        <div class="row justify-content-end mb-4">--}}
 {{--            <div class="col-auto">--}}
 {{--                顯示--}}
@@ -25,7 +25,7 @@
 {{--        </div>--}}
 
         <div class="table-responsive tableOverBox">
-            <table class="table table-bordered tableList">
+            <table class="table table-bordered border-secondary tableList">
                 <thead>
                 <tr>
                     <th scope="col">會計分類</th>
