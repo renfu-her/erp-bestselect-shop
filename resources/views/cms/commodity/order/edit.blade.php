@@ -440,8 +440,6 @@
             });
         </script>
         <script>
-            //超買ＩＤ
-            let overbought_id = @json($overbought_id);
             let addProductModal = new bootstrap.Modal(document.getElementById('addProduct'), {
                 backdrop: 'static',
                 keyboard: false
@@ -541,6 +539,8 @@
                 }
             };
 
+            //超買ID
+            const overbought_id = @json($overbought_id);
             // 購物車
             const oldCart = @json($cart);
             console.log(oldCart);
@@ -882,13 +882,20 @@
                             cloneElem.find('input[name="product_style_id[]"]').val(p.sid);
                             cloneElem.find('input[name="shipment_type[]"]').val(s.category);
                             cloneElem.find('input[name="shipment_event_id[]"]').val(s.group_id);
-                            cloneElem.find('input[name="qty[]"]').val(p.qty);
                             cloneElem.find('td[data-td="title"]').html(
                                 `<a href="#" class="-text">${p.name}-${p.spec}</a>`
                             );
                             cloneElem.find('td[data-td="price"]').text(`${formatNumber(p.price)}`);
                             cloneElem.find('td[data-td="subtotal"]').text(`${formatNumber(p.price * p.qty)}`);
-                            cloneElem.find('input[name="qty[]"]').attr('max', p.stock);
+                            let $qty = cloneElem.find('input[name="qty[]"]');
+                            $qty.val(p.qty);
+                            $qty.attr('max', p.stock);
+                            // 超賣
+                            if (p.sid == overbought_id) {
+                                $qty.addClass('is-invalid');
+                                $qty.closest('.input-group').addClass('is-invalid');
+                                $qty.closest('.input-group').next('.invalid-feedback').text(`剩餘庫存：${p.stock}`);
+                            }
                         }
                     }, options);
                     // bind click
