@@ -60,12 +60,13 @@ class OrderCtrl extends Controller
             }
 
             $cart = OrderCart::cartFormater($oldData, false);
+          //  dd($cart);
         }
 
         $customer_id = $request->user()->customer_id;
 
         $citys = Addr::getCitys();
-
+       
         return view('cms.commodity.order.edit', [
             //  'items' => $items,
             'customer_id' => $customer_id,
@@ -112,7 +113,7 @@ class OrderCtrl extends Controller
             'product_style_id' => 'required|array',
             'shipment_type' => 'required|array',
             'shipment_event_id' => 'required|array',
-           // 'ggg' => 'required',
+            'ggg' => 'required',
         ], $arrVali));
 
         $d = $request->all();

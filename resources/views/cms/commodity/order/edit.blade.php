@@ -467,6 +467,7 @@
             /*** init ***/
             // 購物車
             const oldCart = [];     // 舊值寫這
+            const heheCart = @json($cart);
             if (oldCart.length) {
                 for (const cart of oldCart) {
                     const old_prod = {
