@@ -21,11 +21,11 @@ class GeneralLedgerCtrl extends Controller
     public function index(Request $request)
     {
         $query = $request->query();
-        $data_per_page = Arr::get($query, 'data_per_page', 10);
-        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
 
         $currentFirstGradeId = Arr::get($query, 'firstGrade', 1);
         $currentFirstGradeId = is_numeric($currentFirstGradeId) ? $currentFirstGradeId : 1;
+//        $data_per_page = Arr::get($query, 'data_per_page', 10);
+//        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
 
         $firstGrades = GeneralLedger::getAllFirstGrade();
         $totalGrades = array();
@@ -44,7 +44,7 @@ class GeneralLedgerCtrl extends Controller
         return view('cms.accounting.general_ledger.list', [
             'totalGrades' => $totalGrades,
             'currentFirstGradeId' => $currentFirstGradeId,
-            'data_per_page' => $data_per_page,
+//            'data_per_page' => $data_per_page,
         ]);
     }
 
