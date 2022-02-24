@@ -69,8 +69,7 @@
                                         <td data-td="title"><a href="#" class="-text"></a></td>
                                         <td class="text-center" data-td="price">${{ number_format(0) }}</td>
                                         <td>
-                                            <x-b-qty-adjuster name="qty[]" value="1" min="1"
-                                                size="sm" minus="減少" plus="增加">
+                                            <x-b-qty-adjuster name="qty[]" value="1" min="1" size="sm" minus="減少" plus="增加">
                                             </x-b-qty-adjuster>
                                         </td>
                                         <td class="text-end" data-td="subtotal">${{ number_format(0) }}</td>
@@ -164,11 +163,13 @@
                 <div class="row">
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">姓名 <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control"  name="ord_name" placeholder="請輸入購買人姓名" required>
+                        <input type="text" class="form-control" value="{{ old('ord_name') }}" name="ord_name"
+                            placeholder="請輸入購買人姓名" required>
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">電話 <span class="text-danger">*</span></label>
-                        <input type="tel" class="form-control" name="ord_phone" placeholder="請輸入購買人電話" required>
+                        <input type="tel" class="form-control" value="{{ old('ord_phone') }}" name="ord_phone"
+                            placeholder="請輸入購買人電話" required>
                     </div>
                     <div class="col-12 mb-3">
                         <label class="form-label">地址 <span class="text-danger">*</span></label>
@@ -177,14 +178,14 @@
                             <select name="ord_city_id" class="form-select" style="max-width:20%" required>
                                 <option value="">縣市</option>
                                 @foreach ($citys as $city)
-                                    <option value="{{ $city['city_id'] }}" >{{ $city['city_title'] }}</option>
+                                    <option value="{{ $city['city_id'] }}"  @if($city['city_id'] == old('ord_city_id')) selected @endif >{{ $city['city_title'] }}</option>
                                 @endforeach
                             </select>
                             <select name="ord_region_id" class="form-select" style="max-width:20%" required>
                                 <option value="">地區</option>
                             </select>
                             <input name="ord_addr" type="text" class="form-control" placeholder="請輸入購買人地址"
-                                value="" required>
+                                value="{{ old('ord_addr') }}" required>
                             <button class="btn btn-outline-success -format_addr_btn" type="button">格式化</button>
                             <div class="invalid-feedback">
                                 @error('record')
@@ -194,19 +195,21 @@
                         </div>
                     </div>
                 </div>
-                <h6 class="d-flex align-items-end">收件人 
+                <h6 class="d-flex align-items-end">收件人
                     <label class="small fw-normal text-body ms-3">
-                        <input id="rec_same" class="form-check-input mt-0 me-1" type="checkbox">同購買人
+                        <input id="rec_same" value="{{ old("rec_same") }}" class="form-check-input mt-0 me-1" type="checkbox">同購買人
                     </label>
                 </h6>
                 <div class="row">
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">姓名 <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="rec_name" placeholder="請輸入收件人姓名" required>
+                        <input type="text" class="form-control" value="{{ old('rec_name') }}" name="rec_name"
+                            placeholder="請輸入收件人姓名" required>
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">電話 <span class="text-danger">*</span></label>
-                        <input type="tel" class="form-control" name="rec_phone" placeholder="請輸入收件人電話" required>
+                        <input type="tel" class="form-control" value="{{ old('rec_phone') }}" name="rec_phone"
+                            placeholder="請輸入收件人電話" required>
                     </div>
                     <div class="col-12 mb-3">
                         <label class="form-label">地址 <span class="text-danger">*</span></label>
@@ -215,14 +218,14 @@
                             <select name="rec_city_id" class="form-select" style="max-width:20%" required>
                                 <option value="">縣市</option>
                                 @foreach ($citys as $city)
-                                    <option value="{{ $city['city_id'] }}" >{{ $city['city_title'] }}</option>
+                                    <option value="{{ $city['city_id'] }}"  @if($city['city_id'] == old('rec_city_id')) selected @endif >{{ $city['city_title'] }}</option>
                                 @endforeach
                             </select>
                             <select name="rec_region_id" class="form-select" style="max-width:20%" required>
                                 <option value="">地區</option>
                             </select>
                             <input name="rec_addr" type="text" class="form-control" placeholder="請輸入收件人地址"
-                                value="" required>
+                                value="{{ old('rec_addr') }}" required>
                             <button class="btn btn-outline-success -format_addr_btn" type="button">格式化</button>
                             <div class="invalid-feedback">
                                 @error('record')
@@ -240,11 +243,11 @@
                 <div class="row">
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">姓名 <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="sed_name" placeholder="請輸入寄件人姓名" required>
+                        <input type="text" class="form-control"  value="{{ old('sed_name') }}" name="sed_name" placeholder="請輸入寄件人姓名" required>
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">電話 <span class="text-danger">*</span></label>
-                        <input type="tel" class="form-control" name="sed_phone" placeholder="請輸入寄件人電話" required>
+                        <input type="tel" class="form-control"  value="{{ old('sed_phone') }}" name="sed_phone" placeholder="請輸入寄件人電話" required>
                     </div>
                     <div class="col-12 mb-3">
                         <label class="form-label">地址 <span class="text-danger">*</span></label>
@@ -253,14 +256,14 @@
                             <select name="sed_city_id" class="form-select" style="max-width:20%" required>
                                 <option value="">縣市</option>
                                 @foreach ($citys as $city)
-                                    <option value="{{ $city['city_id'] }}" >{{ $city['city_title'] }}</option>
+                                    <option value="{{ $city['city_id'] }}" @if($city['city_id'] == old('sed_city_id')) selected @endif>{{ $city['city_title'] }}</option>
                                 @endforeach
                             </select>
                             <select name="sed_region_id" class="form-select" style="max-width:20%" required>
                                 <option value="">地區</option>
                             </select>
-                            <input name="sed_addr" type="text" class="form-control" placeholder="請輸入寄件人地址"
-                                value="" required>
+                            <input name="sed_addr" type="text" class="form-control" placeholder="請輸入寄件人地址" value="{{ old('sed_addr') }}"
+                                required>
                             <button class="btn btn-outline-success -format_addr_btn" type="button">格式化</button>
                             <div class="invalid-feedback">
                                 @error('record')
@@ -338,7 +341,9 @@
         <x-slot name="title">選擇物流</x-slot>
         <x-slot name="body">
             <figure>
-                <blockquote class="blockquote"><h6 class="fs-5"></h6></blockquote>
+                <blockquote class="blockquote">
+                    <h6 class="fs-5"></h6>
+                </blockquote>
                 <figcaption class="blockquote-footer"></figcaption>
             </figure>
             <div>
@@ -351,7 +356,8 @@
             </div>
         </x-slot>
         <x-slot name="foot">
-            <button class="btn btn-secondary" data-bs-target="#addProduct" data-bs-toggle="modal" data-bs-dismiss="modal">返回列表</button>
+            <button class="btn btn-secondary" data-bs-target="#addProduct" data-bs-toggle="modal"
+                data-bs-dismiss="modal">返回列表</button>
             <button type="button" class="btn btn-primary btn-ok">加入購物車</button>
         </x-slot>
     </x-b-modal>
@@ -366,27 +372,31 @@
                 margin-bottom: -0.25rem;
                 padding-bottom: 12px;
             }
+
             .-detail-primary .badge.-badge::after {
                 content: "宅配";
             }
+
             .-detail-warning .badge.-badge::after {
                 content: "自取";
             }
+
             .-detail-success .badge.-badge::after {
                 content: "超取";
             }
+
         </style>
     @endpush
     @push('sub-scripts')
         <script>
             // 禁用鍵盤 Enter submit
-            $('form').on('keydown', function (e) {
+            $('form').on('keydown', function(e) {
                 return e.key !== 'Enter';
             });
             // 儲存前設定name
             $('#form1').submit(function(e) {
                 $('input:hidden[name="customer_id"]').val($('#customer').val());
-                $('input:hidden[name$="_address"]').val(function () {
+                $('input:hidden[name$="_address"]').val(function() {
                     const prefix_ = $(this).attr('name').replace('address', '');
                     const city = $(`select[name="${prefix_}city_id"] option:selected`).text();
                     const region = $(`select[name="${prefix_}region_id"] option:selected`).text();
@@ -407,7 +417,9 @@
             let prodPages = new Pagination($('#addProduct .-pages'));
             // 物流方式
             const EVENT_CLASS = {
-                'deliver': 'primary', 'pickup': 'warning', 'family': 'success'
+                'deliver': 'primary',
+                'pickup': 'warning',
+                'family': 'success'
             };
             /*** 選取 ***/
             // 商品
@@ -433,7 +445,7 @@
             /** ********* **/
             // 購物車資料
             let productStyleId = []; // 樣式ID
-            let myCart = {      // 購物車
+            let myCart = { // 購物車
                 // 'category_[group_id]/category_[depots.id]': {
                 //     id: '物流ID group_id/depots.id',
                 //     name: '物流名稱group_name/depots.depot_name',
@@ -460,7 +472,9 @@
             let delProductsOption = {
                 appendClone: '.-appendClone.--selectedP',
                 cloneElem: '.-cloneElem.--selectedP',
-                beforeDelFn: function({$this}) {
+                beforeDelFn: function({
+                    $this
+                }) {
                     const product_style_id = Number($this.siblings('input[name="product_style_id[]"]').val());
                     let index = productStyleId.indexOf(product_style_id);
                     if (product_style_id && index >= 0) {
@@ -469,8 +483,9 @@
                         // 刪購物車
                         const type = $this.siblings('input[name="shipment_type[]"]').val();
                         const event_id = $this.siblings('input[name="shipment_event_id[]"]').val();
-                        myCart[`${type}_${event_id}`].products = 
-                        (myCart[`${type}_${event_id}`].products).filter(p => p.sid !== product_style_id);
+                        myCart[`${type}_${event_id}`].products =
+                            (myCart[`${type}_${event_id}`].products)
+                            .filter(p => p.sid !== product_style_id);
                         // 檢查若該物流沒商品，則刪除該物流
                         if (myCart[`${type}_${event_id}`].products.length <= 0) {
                             delete myCart[`${type}_${event_id}`];
@@ -500,14 +515,14 @@
             }
 
             // 第一步下一步
-            $('#STEP_1 .-next_step').off('click').on('click', function () {
+            $('#STEP_1 .-next_step').off('click').on('click', function() {
                 $('#form1 > nav .nav-link:first-child').removeClass('active');
                 $('#form1 > nav .nav-link:last-child').addClass('active');
                 $('#STEP_1').prop('hidden', true);
                 $('#STEP_2').prop('hidden', false);
             });
             // 第二步上一步
-            $('#STEP_2 .-prev_step').off('click').on('click', function () {
+            $('#STEP_2 .-prev_step').off('click').on('click', function() {
                 $('#form1 > nav .nav-link:first-child').addClass('active');
                 $('#form1 > nav .nav-link:last-child').removeClass('active');
                 $('#STEP_1').prop('hidden', false);
@@ -530,7 +545,7 @@
                 });
 
             // 開啟商品列表視窗
-            $('#addProduct').on('show.bs.modal', function () {
+            $('#addProduct').on('show.bs.modal', function() {
                 selectedProduct = {};
                 getProductList(1);
             });
@@ -544,7 +559,10 @@
                 resetAddProductModal();
 
                 if (!Data.price) {
-                    toast.show('請先選擇訂購客戶。', { type: 'warning', title: '客戶未選取' });
+                    toast.show('請先選擇訂購客戶。', {
+                        type: 'warning',
+                        title: '客戶未選取'
+                    });
                     return false;
                 } else {
                     axios.post(_URL, Data)
@@ -558,7 +576,7 @@
                                 });
 
                                 // bind 加入btn
-                                $('#addProduct .-appendClone.--product .-add').on('click', function () {
+                                $('#addProduct .-appendClone.--product .-add').on('click', function() {
                                     const idx = Number($(this).attr('data-idx'));
                                     setProduct(prodData[idx]);
 
@@ -585,7 +603,8 @@
 
                     // 商品列表
                     function createOneProduct(p, i) {
-                        let addBtn = '', typeTag = '';
+                        let addBtn = '',
+                            typeTag = '';
 
                         if (p.in_stock <= 0) {
                             addBtn = `<span class="text-muted">缺貨</span>`;
@@ -606,7 +625,7 @@
                             <td>${typeTag} ${p.product_title}</td>
                             <td>${p.spec || ''}</td>
                             <td>${p.sku}</td>
-                            <td>$${formatNumber(p.price)}</td>
+                            <td>${formatNumber(p.price)}</td>
                             <td>${addBtn}</td>
                         </tr>`);
                         $('#addProduct .-appendClone.--product').append($tr);
@@ -628,7 +647,7 @@
             }
 
             // 開啟物流選擇視窗
-            $('#setShipment').on('show.bs.modal', function () {
+            $('#setShipment').on('show.bs.modal', function() {
                 selectShip = {};
                 resetSetShipmentModal();
                 $('#setShipment blockquote h6').text(`${selectedProduct.name} [${selectedProduct.spec}]`);
@@ -684,6 +703,7 @@
                                         </div>
                                     </div>
                                 `);
+
                                 function depotsOpts(depots) {
                                     let opts = '';
                                     depots.forEach(d => {
@@ -696,7 +716,7 @@
                             // bind btn - 加入購物車
                             $('#setShipment .btn-ok').off('click').on('click', function() {
                                 const type = $('#setShipment input[name="temp_type"]:checked').val();
-                                
+
                                 switch (type) {
                                     case 'deliver':
                                         selectShip = shipData.deliver;
@@ -708,7 +728,8 @@
                                             break;
                                         }
                                         selectShip = {
-                                            group_id: Number($('select[name="temp_depots"]').val()) || $('select[name="temp_depots"]').val(),
+                                            group_id: Number($('select[name="temp_depots"]').val()) || $(
+                                                'select[name="temp_depots"]').val(),
                                             group_name: $('select[name="temp_depots"] option:selected').text(),
                                             category: shipData.pickup.category,
                                             category_name: shipData.pickup.category_name,
@@ -731,7 +752,7 @@
                                 case 'empty':
                                     $('#setShipment .alert-danger').prop('hidden', false);
                                     break;
-                            
+
                                 default:
                                     break;
                             }
@@ -765,7 +786,7 @@
                 (myCart[shipKey].products).push(selectedProduct);
                 createOneSelected(selectedProduct, selectShip);
                 sumGroupTotal(shipKey);
-                
+
                 if ($('.-cloneElem.--selectedP').length) {
                     $('#customer').prop('disabled', true);
                 }
@@ -803,7 +824,8 @@
                             cloneElem.find('td[data-td="title"]').html(
                                 `<a href="#" class="-text">${p.name}-${p.spec}</a>`
                             );
-                            cloneElem.find('td[data-td="price"], td[data-td="subtotal"]').text(`$${formatNumber(p.price)}`);
+                            cloneElem.find('td[data-td="price"], td[data-td="subtotal"]').text(
+                                `${formatNumber(p.price)}`);
                             cloneElem.find('input[name="qty[]"]').attr('max', p.stock);
                         }
                     }, cloneProductsOption);
@@ -848,30 +870,30 @@
                     const max = Number($qty.attr('max'));
                     const m_qty = Number($qty.val());
                     if ($this.hasClass('-minus')) {
-                        (m_qty > min || isNaN(min)) ? $qty.val(m_qty - 1) : $qty.val(min);
+                        (m_qty > min || isNaN(min)) ? $qty.val(m_qty - 1): $qty.val(min);
                     }
                     if ($this.hasClass('-plus')) {
-                        (m_qty < max || isNaN(max)) ? $qty.val(m_qty + 1) : $qty.val(max);
+                        (m_qty < max || isNaN(max)) ? $qty.val(m_qty + 1): $qty.val(max);
                     }
-                    
+
                     sumSubtotal($this, $qty.val());
                 });
                 $('input[name="qty[]"]')
-                .off('keydown.adjust').on('keydown.adjust', function (e) {
-                    if (e.key === 'Enter') {
-                        $(this).trigger('change');
-                    }
-                })
-                .off('change.adjust').on('change.adjust', function() {
-                    const $this = $(this);
-                    let qty = Number($this.val());
-                    const min = Number($this.attr('min'));
-                    const max = Number($this.attr('max'));
-                    qty = (qty < min) ? min : ((qty > max) ? max : qty);
-                    $this.val(qty);
-                    
-                    sumSubtotal($this, qty);
-                });
+                    .off('keydown.adjust').on('keydown.adjust', function(e) {
+                        if (e.key === 'Enter') {
+                            $(this).trigger('change');
+                        }
+                    })
+                    .off('change.adjust').on('change.adjust', function() {
+                        const $this = $(this);
+                        let qty = Number($this.val());
+                        const min = Number($this.attr('min'));
+                        const max = Number($this.attr('max'));
+                        qty = (qty < min) ? min : ((qty > max) ? max : qty);
+                        $this.val(qty);
+
+                        sumSubtotal($this, qty);
+                    });
             }
 
             /** 計算 **/
@@ -884,7 +906,8 @@
                 (myCart[id].products).forEach(p => {
                     if (p.sid === style_id) {
                         p.qty = Number(qty);
-                        $this.closest('tr.-cloneElem').find('td[data-td="subtotal"]').text(`$${formatNumber(p.price * p.qty)}`);
+                        $this.closest('tr.-cloneElem').find('td[data-td="subtotal"]').text(
+                            `${formatNumber(p.price * p.qty)}`);
                     }
                 });
 
@@ -911,7 +934,7 @@
                                     break;
                                 }
                             }
-                            $(`#${group_key} div[data-td="dlv_fee"]`).text(`$${formatNumber(myCart[group_key].dlv_fee)}`);
+                            $(`#${group_key} div[data-td="dlv_fee"]`).text(`${formatNumber(myCart[group_key].dlv_fee)}`);
                             break;
                         default:
                             myCart[group_key].dlv_fee = 0;
@@ -935,16 +958,15 @@
                     }
                 }
 
-                $('#Total_price td[data-td="subtotal"]').text(`$${formatNumber(all_total)}`);
-                $('#Total_price td[data-td="dlv_fee"]').text(`$${formatNumber(all_dlvFee)}`);
-                $('#Total_price td[data-td="sum"]').text(`$${formatNumber(all_total + all_dlvFee)}`);
+                $('#Total_price td[data-td="subtotal"]').text(`${formatNumber(all_total)}`);
+                $('#Total_price td[data-td="dlv_fee"]').text(`${formatNumber(all_dlvFee)}`);
+                $('#Total_price td[data-td="sum"]').text(`${formatNumber(all_total + all_dlvFee)}`);
             }
-            
         </script>
         <script>
             /*** 第二步 ***/
             // 同購買人
-            $('#rec_same, #sed_same').off('change').on('change', function () {
+            $('#rec_same, #sed_same').off('change').on('change', function() {
                 const $this = $(this);
                 const prefix_ = $this.attr('id').replace(/same/g, '');
                 if ($this.prop('checked')) {
@@ -980,12 +1002,12 @@
                         });
                     });
             }
-            $('select[name$="_city_id"]').off('change').on('change', function () {
+            $('select[name$="_city_id"]').off('change').on('change', function() {
                 const city_id = $(this).val();
                 const $regionElem = $(this).next('select[name$="_region_id"]');
                 getRegionsAction($regionElem, city_id);
             });
-            $('.-format_addr_btn').off('click').on('click', function () {
+            $('.-format_addr_btn').off('click').on('click', function() {
                 const $cityElem = $(this).siblings('select[name$="_city_id"]');
                 const $regionElem = $(this).siblings('select[name$="_region_id"]');
                 const $addrElem = $(this).prev('input[name$="_addr"]');
