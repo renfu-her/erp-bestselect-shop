@@ -58,7 +58,7 @@ class OrderCart extends Model
 
     }
 
-    public static function cartFormater($data)
+    public static function cartFormater($data, $checkInStock = true)
     {
         $shipmentGroup = [];
         $shipmentKeys = [];
@@ -70,8 +70,10 @@ class OrderCart extends Model
             if (!$style) {
                 return ['success' => 0, 'message' => '查無此商品 style_id:' . $value['product_style_id']];
             }
-            if ($value['qty'] > $style->in_stock) {
-                return ['success' => 0, 'message' => '購買超過上限 style_id:' . $value['product_style_id']];
+            if ($checkInStock) {
+                if ($value['qty'] > $style->in_stock) {
+                    return ['success' => 0, 'message' => '購買超過上限 style_id:' . $value['product_style_id']];
+                }
             }
 
             switch ($value['shipment_type']) {
@@ -82,12 +84,11 @@ class OrderCart extends Model
                     }
 
                     $shipment->category_name = "自取";
-                    
 
                     break;
                 case 'deliver':
                     $shipment = Product::getShipment($value['product_id'])->where('g.id', $value['product_style_id'])->get()->first();
-                   
+
                     if (!$shipment) {
                         return ['success' => 0, 'message' => '無運送方式 style_id:' . $value['product_style_id']];
                     }

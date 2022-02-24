@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Addr;
 use App\Models\Customer;
 use App\Models\Order;
+use App\Models\OrderCart;
 use App\Models\SaleChannel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -45,9 +46,21 @@ class OrderCtrl extends Controller
      */
     public function create(Request $request)
     {
-        // dd(get_class($request->user()));
-        // OrderCart::productAdd(1, get_class($request->user()), 1, 1, 1, 1, 1);
-        // $items = OrderCart::productList($request->user()->id, get_class($request->user()))->get()->toArray();
+        $cart = null;
+        if (old('product_style_id')) {
+            $oldData = [];
+            foreach (old('product_style_id') as $key => $v) {
+                $oldData[] = [
+                    'product_id' => old('product_id')[$key],
+                    'product_style_id' => $v,
+                    'shipment_type' => old('shipment_type')[$key],
+                    'shipment_event_id' => old('shipment_event_id')[$key],
+                    'qty' => old('qty')[$key],
+                ];
+            }
+
+            $cart = OrderCart::cartFormater($oldData, false);
+        }
 
         $customer_id = $request->user()->customer_id;
 
@@ -58,6 +71,7 @@ class OrderCtrl extends Controller
             'customer_id' => $customer_id,
             'customers' => Customer::get(),
             'citys' => $citys,
+            'cart' => $cart,
         ]);
     }
 
@@ -98,6 +112,7 @@ class OrderCtrl extends Controller
             'product_style_id' => 'required|array',
             'shipment_type' => 'required|array',
             'shipment_event_id' => 'required|array',
+            'ggg' => 'required',
         ], $arrVali));
 
         $d = $request->all();
@@ -163,12 +178,11 @@ class OrderCtrl extends Controller
         $order = Order::orderDetail($id)->get()->first();
         $subOrder = Order::subOrderDetail($id)->get()->toArray();
 
-
         foreach ($subOrder as $key => $value) {
             $subOrder[$key]->items = json_decode($value->items);
         }
 
-   //  dd($subOrder);
+        //  dd($subOrder);
 
         if (!$order) {
             return abort(404);
