@@ -164,7 +164,7 @@
                 <div class="row">
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">姓名 <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="ord_name" placeholder="請輸入購買人姓名" required>
+                        <input type="text" class="form-control"  name="ord_name" placeholder="請輸入購買人姓名" required>
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">電話 <span class="text-danger">*</span></label>
@@ -863,7 +863,14 @@
                     }
                 })
                 .off('change.adjust').on('change.adjust', function() {
-                    sumSubtotal($(this), $(this).val());
+                    const $this = $(this);
+                    let qty = Number($this.val());
+                    const min = Number($this.attr('min'));
+                    const max = Number($this.attr('max'));
+                    qty = (qty < min) ? min : ((qty > max) ? max : qty);
+                    $this.val(qty);
+                    
+                    sumSubtotal($this, qty);
                 });
             }
 

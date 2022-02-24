@@ -133,8 +133,11 @@ class OrderCtrl extends Controller
 
         $re = Order::createOrder($customer->email, 1, $address, $items);
         if ($re['success'] == '1') {
+            wToast('訂單新增成功');
             return redirect(route('cms.order.index'));
         }
+
+        return redirect()->back();
     }
 
     /**

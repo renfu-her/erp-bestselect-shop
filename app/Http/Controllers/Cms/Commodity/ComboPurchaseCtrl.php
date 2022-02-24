@@ -113,7 +113,7 @@ class ComboPurchaseCtrl extends Controller
 
         $qty = $request->input('qty');
         $re = ProductStock::comboProcess($id, $qty);
-
+       
         if (!$re['success']) {
             return redirect()->back()->withErrors(['qty' => $re['error_msg']]);
         }
