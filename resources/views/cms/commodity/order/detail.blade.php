@@ -116,23 +116,15 @@
             
         @endphp
         @foreach ($subOrders as $subOrder)
-            {{-- 宅配 .-detail-primary / 自取 .-detail-warning / 超取 .-detail-success --}}
             @php
-                switch ($subOrder->ship_category) {
-                    case 'deliver':
-                        # code...
-                        $style = '-detail-primary';
-                        break;
-                    case 'pickup':
-                        $style = '.-detail-warning';
-                        # code...
-                        break;
-                }
-                
                 $dlv_fee += $subOrder->dlv_fee;
                 $price += $subOrder->total_price;
             @endphp
-            <div class="card shadow mb-4 -detail {{ $style }}">
+            {{-- 宅配 .-detail-primary / 自取 .-detail-warning / 超取 .-detail-success --}}
+            <div @class(['card shadow mb-4 -detail',
+                '-detail-primary' => $subOrder->ship_category === 'deliver',
+                '-detail-warning' => $subOrder->ship_category === 'pickup'
+                ])>
                 <div class="card-header px-4 py-3 d-flex align-items-center bg-white">
                     <strong class="flex-grow-1 mb-0">{{ $subOrder->ship_event }}</strong>
                     <button type="button" class="btn btn-primary -in-header">列印銷貨單</button>
@@ -150,7 +142,7 @@
                         </div>
                         <div class="col">
                             <dt>出貨單號</dt>
-                            <dd></dd>
+                            <dd>(待處理)</dd>
                         </div>
                         <div class="col">
                             <dt>消費者物流費用</dt>
@@ -180,48 +172,47 @@
                                         <td>${{ number_format($item->total_price) }}</td>
                                     </tr>
                                 @endforeach
-
                             </tbody>
                         </table>
                     </div>
                 </div>
-                <!--
-                                <div class="card-body px-4 py-0 border-bottom">
-                                    <div class="table-responsive tableOverBox">
-                                        <table class="table tableList table-sm mb-0">
-                                            <thead class="table-light text-secondary">
-                                                <tr>
-                                                    <th scope="col">優惠類型</th>
-                                                    <th scope="col">優惠名稱</th>
-                                                    <th scope="col">贈品</th>
-                                                    <th scope="col">金額</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>贈品</td>
-                                                    <td>-</td>
-                                                    <td>滑鼠墊</td>
-                                                    <td>-</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>金額</td>
-                                                    <td>滿額贈</td>
-                                                    <td>-</td>
-                                                    <td class="text-danger">- ${{ number_format(50) }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>優惠劵</td>
-                                                    <td>優惠劵序號</td>
-                                                    <td>-</td>
-                                                    <td class="text-danger">- ${{ number_format(60) }}</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            -->
-                <div class="card-header px-4 text-secondary">物流資訊</div>
+                
+                {{-- <div class="card-body px-4 py-0" hidden>
+                    <div class="table-responsive tableOverBox">
+                        <table class="table tableList table-sm mb-0">
+                            <thead class="table-light text-secondary">
+                                <tr>
+                                    <th scope="col">優惠類型</th>
+                                    <th scope="col">優惠名稱</th>
+                                    <th scope="col">贈品</th>
+                                    <th scope="col">金額</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>贈品</td>
+                                    <td>-</td>
+                                    <td>滑鼠墊</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>金額</td>
+                                    <td>滿額贈</td>
+                                    <td>-</td>
+                                    <td class="text-danger">- ${{ number_format(50) }}</td>
+                                </tr>
+                                <tr>
+                                    <td>優惠劵</td>
+                                    <td>優惠劵序號</td>
+                                    <td>-</td>
+                                    <td class="text-danger">- ${{ number_format(60) }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div> --}}
+                
+                <div class="card-header px-4 text-secondary border-top">物流資訊</div>
                 <div class="card-body px-4 pb-4">
                     <dl class="row">
                         <div class="col">
@@ -268,43 +259,41 @@
                         <tr>
                             <td>${{ number_format($price) }}</td>
                             <td class="text-danger">- ${{ number_format(0) }}</td>
-                            <td>${{ number_format(0) }}</td>
+                            <td>${{ number_format($price - 0) }}</td>
                             <td>${{ number_format($dlv_fee) }}</td>
                             <td class="fw-bold">${{ number_format($order->total_price) }}</td>
                             <td>-</td>
                         </tr>
                     </tbody>
                 </table>
-                <!--
-                    <table class="table table-bordered table-sm text-center align-middle d-table d-sm-none">
-                        <tbody>
-                            <tr>
-                                <td class="col-7 table-light">小計</td>
-                                <td class="text-end pe-4">${{ number_format(550) }}</td>
-                            </tr>
-                            <tr>
-                                <td class="col-7 table-light">折扣</td>
-                                <td class="text-danger text-end pe-4">- ${{ number_format(110) }}</td>
-                            </tr>
-                            <tr>
-                                <td class="col-7 table-light lh-sm">折扣後 (不含運)</td>
-                                <td class="text-end pe-4">${{ number_format(440) }}</td>
-                            </tr>
-                            <tr>
-                                <td class="col-7 table-light">運費</td>
-                                <td class="text-end pe-4">${{ number_format(325) }}</td>
-                            </tr>
-                            <tr>
-                                <td class="col-7 table-light">總金額</td>
-                                <td class="fw-bold text-end pe-4">${{ number_format($order->total_price) }}</td>
-                            </tr>
-                            <tr>
-                                <td class="col-7 table-light lh-sm">預計獲得<a href="#" class="-text">紅利積點</a></td>
-                                <td class="text-end pe-4">7</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                -->
+                <table class="table table-bordered table-sm text-center align-middle d-table d-sm-none">
+                    <tbody>
+                        <tr>
+                            <td class="col-7 table-light">小計</td>
+                            <td class="text-end pe-4">${{ number_format($price) }}</td>
+                        </tr>
+                        <tr>
+                            <td class="col-7 table-light">折扣</td>
+                            <td class="text-danger text-end pe-4">- ${{ number_format(0) }}</td>
+                        </tr>
+                        <tr>
+                            <td class="col-7 table-light lh-sm">折扣後 (不含運)</td>
+                            <td class="text-end pe-4">${{ number_format($price - 0) }}</td>
+                        </tr>
+                        <tr>
+                            <td class="col-7 table-light">運費</td>
+                            <td class="text-end pe-4">${{ number_format($dlv_fee) }}</td>
+                        </tr>
+                        <tr>
+                            <td class="col-7 table-light">總金額</td>
+                            <td class="fw-bold text-end pe-4">${{ number_format($order->total_price) }}</td>
+                        </tr>
+                        <tr>
+                            <td class="col-7 table-light lh-sm">預計獲得<a href="#" class="-text">紅利積點</a></td>
+                            <td class="text-end pe-4">-</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 

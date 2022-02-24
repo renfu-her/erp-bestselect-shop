@@ -59,9 +59,15 @@ $detail-badge-scale: $table-bg-scale;
         }
         .tableList > :not(caption) > * > * {
             line-height: 38px;
+            .invalid-feedback {
+                line-height: var(--bs-body-line-height);
+            }
         }
         .tableList .input-group > input.form-control {
             min-width: 50px;
+            &.is-invalid {
+                min-width: 80px;
+            }
         }
     }
 }
