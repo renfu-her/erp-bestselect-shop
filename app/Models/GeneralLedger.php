@@ -90,10 +90,10 @@ class GeneralLedger extends Model
         return json_decode(json_encode($stdResult), true);
     }
 
-    public static function getFourthGradeById($fourthGradeId)
+    public static function getFourthGradeById($thirdGradeId)
     {
          $stdResult = DB::table('acc_fourth_grade')
-            ->where('third_grade_fk', '=', $fourthGradeId)
+            ->where('third_grade_fk', '=', $thirdGradeId)
             ->leftJoin('acc_company', 'acc_company_fk', '=', 'acc_company.id')
             ->leftJoin('acc_income_statement', 'acc_income_statement_fk', '=', 'acc_income_statement.id')
             ->select(
