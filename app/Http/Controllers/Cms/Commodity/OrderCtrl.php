@@ -60,19 +60,35 @@ class OrderCtrl extends Controller
             }
 
             $cart = OrderCart::cartFormater($oldData, false);
-          //  dd($cart);
+            //  dd($cart);
+        }
+
+        $regions = [
+            'sed' => [],
+            'ord' => [],
+            'rec' => [],
+        ];
+
+        if (old('sed_city_id')) {
+            $regions['sed'] = Addr::getRegions(old('sed_city_id'));
+        }
+        if (old('ord_city_id')) {
+            $regions['ord'] = Addr::getRegions(old('ord_city_id'));
+        }
+        if (old('rec_city_id')) {
+            $regions['rec'] = Addr::getRegions(old('rec_city_id'));
         }
 
         $customer_id = $request->user()->customer_id;
 
         $citys = Addr::getCitys();
-       
+        //    dd($citys);
         return view('cms.commodity.order.edit', [
-            //  'items' => $items,
             'customer_id' => $customer_id,
             'customers' => Customer::get(),
             'citys' => $citys,
             'cart' => $cart,
+            'regions' => $regions,
         ]);
     }
 
