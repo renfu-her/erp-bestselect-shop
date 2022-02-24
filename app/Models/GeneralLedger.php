@@ -18,6 +18,30 @@ class GeneralLedger extends Model
             '4' => 'acc_fourth_grade',
         ];
 
+    public static function getAllFirstGrade()
+    {
+        $stdResult = DB::table('acc_first_grade')
+            ->leftJoin('acc_company', 'acc_company_fk', '=', 'acc_company.id')
+            ->leftJoin('acc_income_statement', 'acc_income_statement_fk', '=', 'acc_income_statement.id')
+            ->select(
+                'acc_first_grade.id',
+                'acc_first_grade.code',
+                'acc_first_grade.has_next_grade',
+                'acc_first_grade.name',
+                'acc_first_grade.note_1',
+                'acc_first_grade.note_2',
+                'acc_company.company',
+                'acc_income_statement.name as category'
+            )
+            ->get();
+
+        if (!$stdResult) {
+            return array();
+        }
+
+        return json_decode(json_encode($stdResult), true);
+    }
+
     public static function getSecondGradeById($firstGradeId)
     {
         $stdResult = DB::table('acc_second_grade')
@@ -125,7 +149,12 @@ class GeneralLedger extends Model
 
         $result = '';
         if ($isGenerateInSameGrade) {
-            if ($newGradeNum === '2') {
+            if ($newGradeNum === '1') {
+                $result = DB::table(self::GRADE_TABALE_NAME_ARRAY[$newGradeNum])
+                    ->select('code')
+                    ->orderByRaw('CONVERT(code, SIGNED) DESC')
+                    ->first();
+            } elseif ($newGradeNum === '2') {
                 $result = DB::table(self::GRADE_TABALE_NAME_ARRAY[$newGradeNum])
                     ->where('code', 'like', substr($currentCode, 0, 1) . '%')
                     ->select('code')
@@ -145,7 +174,13 @@ class GeneralLedger extends Model
                     ->first();
             }
         } else {
-            if ($newGradeNum === '3') {
+            if ($newGradeNum === '2') {
+                $result = DB::table(self::GRADE_TABALE_NAME_ARRAY[$newGradeNum])
+                    ->where('code', 'like', $currentCode . '%')
+                    ->select('code')
+                    ->orderByRaw('CONVERT(code, SIGNED) DESC')
+                    ->first();
+            } elseif ($newGradeNum === '3') {
                 $result = DB::table(self::GRADE_TABALE_NAME_ARRAY[$newGradeNum])
                     ->where('code', 'like', $currentCode . '%')
                     ->select('code')
@@ -168,7 +203,9 @@ class GeneralLedger extends Model
         }
 
         if (is_null($result)) {
-            if ($newGradeNum === '2') {
+            if ($newGradeNum === '1') {
+                return intval('1');
+            } elseif ($newGradeNum === '2') {
                 return intval($currentCode . '1');
             } elseif ($newGradeNum === '3') {
                 return intval($currentCode . '01');
@@ -184,7 +221,9 @@ class GeneralLedger extends Model
     {
         $codeLength = strlen($code);
         $currentGrade = '';
-        if ($codeLength === 2) {
+        if ($codeLength === 1) {
+            $currentGrade = '1';
+        } elseif ($codeLength === 2) {
             $currentGrade = '2';
         } elseif ($codeLength === 4) {
             $currentGrade = '3';
@@ -199,8 +238,10 @@ class GeneralLedger extends Model
         $newCode = self::generateCode($req['code'], $grade);
         $tableName = self::GRADE_TABALE_NAME_ARRAY[$grade[0]];
 
-        $prevGrade  = strval(intval($grade[0]) - 1);
-        $prevTableName = self::GRADE_TABALE_NAME_ARRAY[$prevGrade];
+        if (strlen($newCode) > 1) {
+            $prevGrade  = strval(intval($grade[0]) - 1);
+            $prevTableName = self::GRADE_TABALE_NAME_ARRAY[$prevGrade];
+        }
         $FOREIGN_KEY_ARRAY = [
             '1' => 'first_grade_fk',
             '2' => 'second_grade_fk',
@@ -216,21 +257,25 @@ class GeneralLedger extends Model
             $prevCode = substr($newCode, 0, 4);
         }
 
-        $prevGradeFk = DB::table($prevTableName)
-            ->where('code', '=', $prevCode)
-            ->select('id')
-            ->get();
+        $insertData = [
+            'name' => $req['name'],
+            'code' => $newCode,
+            'has_next_grade' => $req['has_next_grade'],
+            'acc_company_fk' => $req['acc_company_fk'],
+            'acc_income_statement_fk' => $req['acc_income_statement_fk'],
+            'note_1' => $req['note_1'],
+            'note_2' => $req['note_2'],
+        ];
+
+        if (strlen($newCode) > 1) {
+            $prevGradeFk = DB::table($prevTableName)
+                ->where('code', '=', $prevCode)
+                ->select('id')
+                ->get();
+            $insertData[$FOREIGN_KEY_ARRAY[$prevGrade]] = $prevGradeFk[0]->id;
+        }
 
         DB::table($tableName)
-            ->insert([
-                'name' => $req['name'],
-                'code' => $newCode,
-                $FOREIGN_KEY_ARRAY[$prevGrade] => $prevGradeFk[0]->id,
-                'has_next_grade' => $req['has_next_grade'],
-                'acc_company_fk' => $req['acc_company_fk'],
-                'acc_income_statement_fk' => $req['acc_income_statement_fk'],
-                'note_1' => $req['note_1'],
-                'note_2' => $req['note_2'],
-            ]);
+            ->insert($insertData);
     }
 }

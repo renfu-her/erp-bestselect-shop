@@ -355,6 +355,10 @@ Breadcrumbs::for('cms.general_ledger.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
     $trail->push('會計科目', route('cms.general_ledger.index'));
 });
+Breadcrumbs::for('cms.general_ledger.show-1st', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('會計科目', route('cms.general_ledger.index'));
+});
 Breadcrumbs::for('cms.general_ledger.show-2nd', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
     $trail->push('會計科目', route('cms.general_ledger.index'));
@@ -364,6 +368,10 @@ Breadcrumbs::for('cms.general_ledger.show-3rd', function (BreadcrumbTrail $trail
     $trail->push('會計科目', route('cms.general_ledger.index'));
 });
 Breadcrumbs::for('cms.general_ledger.show-4th', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('會計科目', route('cms.general_ledger.index'));
+});
+Breadcrumbs::for('cms.general_ledger.edit-1st', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
     $trail->push('會計科目', route('cms.general_ledger.index'));
 });

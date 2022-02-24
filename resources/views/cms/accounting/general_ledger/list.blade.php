@@ -9,19 +9,6 @@
         </div>
 </form>
 
-<ul class="nav pm_navbar">
-    @foreach($firstGrades as $firstGrade)
-        <li class="nav-item">
-            <a class="nav-link {{ isActive($firstGrade->id, $currentFirstGradeId) }} "
-                                   href="{{ Route('cms.general_ledger.index', ['firstGrade' => $firstGrade->id], true) }}"
-            >
-                {{ $firstGrade->name }}
-            </a>
-        </li>
-    @endforeach
-</ul>
-<hr class="narbarBottomLine mb-3">
-
 <form id="actionForms">
     @csrf
     <div class="card shadow p-4 mb-4">
@@ -41,6 +28,7 @@
             <table class="table table-bordered tableList">
                 <thead>
                 <tr>
+                    <th scope="col">會計分類</th>
                     <th scope="col">子科目</th>
                     <th scope="col">子次科目</th>
                     <th scope="col">子底科目</th>
@@ -51,45 +39,64 @@
                 </tr>
                 </thead>
                 <tbody>
-                @foreach($totalGrades ?? [] as $secondKey => $secondGrade)
+                @foreach($totalGrades ?? [] as $firstGrade)
                     <tr>
                         <th>
-                            <a href="{{ Route('cms.general_ledger.show-2nd', ['id' => $secondGrade['id']]) }}">
-                                {{ $secondGrade['code'] . ' ' . $secondGrade['name'] }}
+                            <a href="{{ Route('cms.general_ledger.show-1st', ['id' => $firstGrade['id']]) }}">
+                                {{ $firstGrade['code'] . ' ' . $firstGrade['name'] }}
                             </a>
                         </th>
                         <td></td>
                         <td></td>
-                        <td>{{ $secondGrade['category'] }}</td>
-                        <td>{{ $secondGrade['note_1'] }}</td>
-                        <td>{{ $secondGrade['note_2'] }}</td>
-                        <td>{{ $secondGrade['company'] }}</td>
+                        <td></td>
+                        <td>{{ $firstGrade['category'] }}</td>
+                        <td>{{ $firstGrade['note_1'] }}</td>
+                        <td>{{ $firstGrade['note_2'] }}</td>
+                        <td>{{ $firstGrade['company'] }}</td>
                     </tr>
-                    @foreach($secondGrade['third'] ?? [] as $thirdKey => $thirdGrade)
+                    @foreach($firstGrade['second'] ?? [] as $secondKey => $secondGrade)
                         <tr>
                             <th></th>
                             <td>
-                                <a href="{{ Route('cms.general_ledger.show-3rd', ['id' => $thirdGrade['id']]) }}">{{ $thirdGrade['code'] . ' ' . $thirdGrade['name'] }}
+                                <a href="{{ Route('cms.general_ledger.show-2nd', ['id' => $secondGrade['id']]) }}">
+                                    {{ $secondGrade['code'] . ' ' . $secondGrade['name'] }}
+                                </a>
                             </td>
                             <td></td>
-                            <td>{{ $thirdGrade['category'] }}</td>
-                            <td>{{ $thirdGrade['note_1'] }}</td>
-                            <td>{{ $thirdGrade['note_2'] }}</td>
-                            <td>{{ $thirdGrade['company'] }}</td>
+                            <td></td>
+                            <td>{{ $secondGrade['category'] }}</td>
+                            <td>{{ $secondGrade['note_1'] }}</td>
+                            <td>{{ $secondGrade['note_2'] }}</td>
+                            <td>{{ $secondGrade['company'] }}</td>
                         </tr>
-                        @foreach($thirdGrade['fourth'] ?? [] as $fourthGrade)
+                        @foreach($secondGrade['third'] ?? [] as $thirdKey => $thirdGrade)
                             <tr>
-                                <td></td>
+                                <th></th>
                                 <td></td>
                                 <td>
-                                    <a href="{{ Route('cms.general_ledger.show-4th', ['id' => $fourthGrade['id']]) }}"> {{ $fourthGrade['code'] }}
-                                        <br>
-                                        {{ ' ' . $fourthGrade['name'] }}</a></td>
-                                <td>{{ $fourthGrade['category'] }}</td>
-                                <td>{{ $fourthGrade['note_1'] }}</td>
-                                <td>{{ $fourthGrade['note_2'] }}</td>
-                                <td>{{ $fourthGrade['company'] }}</td>
+                                    <a href="{{ Route('cms.general_ledger.show-3rd', ['id' => $thirdGrade['id']]) }}">{{ $thirdGrade['code'] . ' ' . $thirdGrade['name'] }}
+                                </td>
+                                <td></td>
+                                <td>{{ $thirdGrade['category'] }}</td>
+                                <td>{{ $thirdGrade['note_1'] }}</td>
+                                <td>{{ $thirdGrade['note_2'] }}</td>
+                                <td>{{ $thirdGrade['company'] }}</td>
                             </tr>
+                            @foreach($thirdGrade['fourth'] ?? [] as $fourthGrade)
+                                <tr>
+                                    <th></th>
+                                    <td></td>
+                                    <td></td>
+                                    <td>
+                                        <a href="{{ Route('cms.general_ledger.show-4th', ['id' => $fourthGrade['id']]) }}"> {{ $fourthGrade['code'] }}
+                                            <br>
+                                            {{ ' ' . $fourthGrade['name'] }}</a></td>
+                                    <td>{{ $fourthGrade['category'] }}</td>
+                                    <td>{{ $fourthGrade['note_1'] }}</td>
+                                    <td>{{ $fourthGrade['note_2'] }}</td>
+                                    <td>{{ $fourthGrade['company'] }}</td>
+                                </tr>
+                            @endforeach
                         @endforeach
                     @endforeach
                 @endforeach
