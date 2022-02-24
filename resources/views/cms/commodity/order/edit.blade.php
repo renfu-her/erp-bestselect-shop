@@ -421,8 +421,8 @@
                 $('input:hidden[name="customer_id"]').val($('#customer').val());
                 $('input:hidden[name$="_address"]').val(function() {
                     const prefix_ = $(this).attr('name').replace('address', '');
-                    const city = $(`select[name="${prefix_}city_id"] option:selected`).text();
-                    const region = $(`select[name="${prefix_}region_id"] option:selected`).text();
+                    const city = $(`select[name="${prefix_}city_id"] option:selected`).text().trim();
+                    const region = $(`select[name="${prefix_}region_id"] option:selected`).text().trim();
                     const addr = $(`input[name="${prefix_}addr"]`).val();
                     return city + region + addr;
                 });
@@ -778,7 +778,7 @@
                                         selectShip = {
                                             group_id: Number($('select[name="temp_depots"]').val()) || $(
                                                 'select[name="temp_depots"]').val(),
-                                            group_name: $('select[name="temp_depots"] option:selected').text(),
+                                            group_name: $('select[name="temp_depots"] option:selected').text().trim(),
                                             category: shipData.pickup.category,
                                             category_name: shipData.pickup.category_name,
                                             temps: null
