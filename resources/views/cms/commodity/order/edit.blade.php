@@ -863,7 +863,14 @@
                     }
                 })
                 .off('change.adjust').on('change.adjust', function() {
-                    sumSubtotal($(this), $(this).val());
+                    const $this = $(this);
+                    let qty = Number($this.val());
+                    const min = Number($this.attr('min'));
+                    const max = Number($this.attr('max'));
+                    qty = (qty < min) ? min : ((qty > max) ? max : qty);
+                    $this.val(qty);
+                    
+                    sumSubtotal($this, qty);
                 });
             }
 
