@@ -27,25 +27,20 @@ class GeneralLedgerCtrl extends Controller
         $currentFirstGradeId = Arr::get($query, 'firstGrade', 1);
         $currentFirstGradeId = is_numeric($currentFirstGradeId) ? $currentFirstGradeId : 1;
 
+        $totalGrades = array();
         $secondGrades = GeneralLedger::getSecondGradeById($currentFirstGradeId);
 
-        $thirdGrades = array();
         foreach ($secondGrades as $secondGrade) {
-            $thirdGrades[] = GeneralLedger::getThirdGradeById($secondGrade->id);
-        }
-
-        $fourthGrades = array();
-        foreach ($thirdGrades as $thirdGrade) {
-            foreach ($thirdGrade as $thirdGradeId) {
-                $fourthGrades[] = GeneralLedger::getFourthGradeById($thirdGradeId->id);
+            foreach (GeneralLedger::getThirdGradeById($secondGrade['id']) as $thirdGrade) {
+                $thirdGrade['fourth'] = GeneralLedger::getFourthGradeById($thirdGrade['id']);
+                $secondGrade['third'][] = $thirdGrade;
             }
+            $totalGrades[] = $secondGrade;
         }
 
         return view('cms.accounting.general_ledger.list', [
+            'totalGrades' => $totalGrades,
             'firstGrades' => FirstGrade::all(),
-            'secondGrades' => $secondGrades,
-            'thirdGrades' => $thirdGrades,
-            'fourthGrades' => $fourthGrades,
             'currentFirstGradeId' => $currentFirstGradeId,
             'data_per_page' => $data_per_page,
         ]);

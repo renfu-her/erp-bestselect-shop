@@ -51,42 +51,44 @@
                 </tr>
                 </thead>
                 <tbody>
-                @foreach($secondGrades as $secondKey => $secondGrade)
+                @foreach($totalGrades ?? [] as $secondKey => $secondGrade)
                     <tr>
                         <th>
-                            <a href="{{ Route('cms.general_ledger.show-2nd', ['id' => $secondGrade->id]) }}">
-                                {{ $secondGrade->code . ' ' . $secondGrade->name }}
+                            <a href="{{ Route('cms.general_ledger.show-2nd', ['id' => $secondGrade['id']]) }}">
+                                {{ $secondGrade['code'] . ' ' . $secondGrade['name'] }}
                             </a>
                         </th>
                         <td></td>
                         <td></td>
-                        <td>{{ $secondGrade->category }}</td>
-                        <td>{{ $secondGrade->note_1 }}</td>
-                        <td>{{ $secondGrade->note_2 }}</td>
-                        <td>{{ $secondGrade->company }}</td>
+                        <td>{{ $secondGrade['category'] }}</td>
+                        <td>{{ $secondGrade['note_1'] }}</td>
+                        <td>{{ $secondGrade['note_2'] }}</td>
+                        <td>{{ $secondGrade['company'] }}</td>
                     </tr>
-                    @foreach($thirdGrades[$secondKey] as $thirdKey => $thirdGrade)
+                    @foreach($secondGrade['third'] ?? [] as $thirdKey => $thirdGrade)
                         <tr>
                             <th></th>
-                            <td><a href="{{ Route('cms.general_ledger.show-3rd', ['id' => $thirdGrade->id]) }}">{{ $thirdGrade->code . ' ' . $thirdGrade->name }}</td>
+                            <td>
+                                <a href="{{ Route('cms.general_ledger.show-3rd', ['id' => $thirdGrade['id']]) }}">{{ $thirdGrade['code'] . ' ' . $thirdGrade['name'] }}
+                            </td>
                             <td></td>
-                            <td>{{ $thirdGrade->category }}</td>
-                            <td>{{ $thirdGrade->note_1 }}</td>
-                            <td>{{ $thirdGrade->note_2 }}</td>
-                            <td>{{ $thirdGrade->company }}</td>
+                            <td>{{ $thirdGrade['category'] }}</td>
+                            <td>{{ $thirdGrade['note_1'] }}</td>
+                            <td>{{ $thirdGrade['note_2'] }}</td>
+                            <td>{{ $thirdGrade['company'] }}</td>
                         </tr>
-                        @foreach($fourthGrades[$thirdKey] as $fourthGrade)
+                        @foreach($thirdGrade['fourth'] ?? [] as $fourthGrade)
                             <tr>
                                 <td></td>
                                 <td></td>
                                 <td>
-                                    <a href="{{ Route('cms.general_ledger.show-4th', ['id' => $fourthGrade->id]) }}"> {{ $fourthGrade->code }}
+                                    <a href="{{ Route('cms.general_ledger.show-4th', ['id' => $fourthGrade['id']]) }}"> {{ $fourthGrade['code'] }}
                                         <br>
-                                        {{ ' ' . $fourthGrade->name }}</a></td>
-                                <td>{{ $fourthGrade->category }}</td>
-                                <td>{{ $fourthGrade->note_1 }}</td>
-                                <td>{{ $fourthGrade->note_2 }}</td>
-                                <td>{{ $fourthGrade->company }}</td>
+                                        {{ ' ' . $fourthGrade['name'] }}</a></td>
+                                <td>{{ $fourthGrade['category'] }}</td>
+                                <td>{{ $fourthGrade['note_1'] }}</td>
+                                <td>{{ $fourthGrade['note_2'] }}</td>
+                                <td>{{ $fourthGrade['company'] }}</td>
                             </tr>
                         @endforeach
                     @endforeach
