@@ -29,7 +29,12 @@ class ProductStock extends Model
         }
 
         return DB::transaction(function () use ($product_style_id, $qty, $event, $event_id, $note, $is_inbound, $inbound_can_tally) {
-            $style = ProductStyle::where('id', $product_style_id)->select('id','in_stock')->get()->first();
+            $style = ProductStyle::where('id', $product_style_id)->select('id');
+            if ($event == 'order') {
+                $style->selectRaw('in_stock + overbought as in_stock');
+            }
+            $style = $style->get()->first();
+
             if ($style['in_stock'] + $qty < 0) {
                 return ['success' => 0, 'error_msg' => '數量超出範圍'];
             }
