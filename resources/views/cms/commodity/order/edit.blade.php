@@ -34,6 +34,11 @@
                     </button>
                 </div>
             </div>
+            <div id="Loading_spinner" class="d-flex justify-content-center mb-4" hidden>
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
             <div id="MyCart">
                 {{-- 宅配 .-detail-primary / 自取 .-detail-warning / 超取 .-detail-success --}}
                 <div id="" class="card shadow mb-4 -detail d-none">
@@ -571,6 +576,7 @@
             }
             // 計數器
             bindAdjusterBtn();
+            $('#Loading_spinner').removeClass('d-flex');
 
             // 刪除商品
             Clone_bindDelElem($('.-cloneElem.--selectedP .-del'), cloneProductsOption);
