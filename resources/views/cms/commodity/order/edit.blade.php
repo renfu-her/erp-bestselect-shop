@@ -204,8 +204,7 @@
                 </div>
                 <h6 class="d-flex align-items-end">收件人
                     <label class="small fw-normal text-body ms-3">
-                        <input id="rec_same" value="{{ old('rec_same') }}" class="form-check-input mt-0 me-1"
-                            type="checkbox">同購買人
+                        <input id="rec_same" class="form-check-input mt-0 me-1" type="checkbox">同購買人
                     </label>
                 </h6>
                 <div class="row">
@@ -532,7 +531,7 @@
             // 購物車
             const oldCart = @json($cart);
             console.log(oldCart);
-            if (oldCart && oldCart.shipments.length) {
+            if (oldCart && oldCart.success && oldCart.shipments.length) {
                 for (const ship of oldCart.shipments) {
                     const old_ship = {
                         category: ship.category,
