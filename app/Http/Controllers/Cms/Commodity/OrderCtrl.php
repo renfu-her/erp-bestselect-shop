@@ -112,7 +112,7 @@ class OrderCtrl extends Controller
             'product_style_id' => 'required|array',
             'shipment_type' => 'required|array',
             'shipment_event_id' => 'required|array',
-            'ggg' => 'required',
+           // 'ggg' => 'required',
         ], $arrVali));
 
         $d = $request->all();
