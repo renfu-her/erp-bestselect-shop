@@ -168,7 +168,7 @@ class OrderCtrl extends Controller
             $address[] = ['name' => $d[$prefix . '_name'], 'phone' => $d[$prefix . '_phone'], 'address' => $d[$prefix . '_address'], 'type' => $value];
 
         }
-        $items[0]['qty'] = 990;
+        
         $re = Order::createOrder($customer->email, 1, $address, $items);
         if ($re['success'] == '1') {
             wToast('訂單新增成功');
