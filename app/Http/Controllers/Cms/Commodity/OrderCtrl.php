@@ -60,8 +60,13 @@ class OrderCtrl extends Controller
             }
 
             $cart = OrderCart::cartFormater($oldData, false);
-            //  dd($cart);
+            if ($cart['success'] != 1) {
+                dd($cart);
+            }
+
         }
+
+        $overbought_id = old('overbought_id');
 
         $regions = [
             'sed' => [],
@@ -89,6 +94,7 @@ class OrderCtrl extends Controller
             'citys' => $citys,
             'cart' => $cart,
             'regions' => $regions,
+            'overbought_id' => $overbought_id,
         ]);
     }
 
@@ -100,6 +106,7 @@ class OrderCtrl extends Controller
      */
     public function store(Request $request)
     {
+
         $arrVali = [];
         foreach (UserAddrType::asArray() as $value) {
             switch ($value) {
@@ -129,7 +136,6 @@ class OrderCtrl extends Controller
             'product_style_id' => 'required|array',
             'shipment_type' => 'required|array',
             'shipment_event_id' => 'required|array',
-            'ggg' => 'required',
         ], $arrVali));
 
         $d = $request->all();
@@ -162,14 +168,38 @@ class OrderCtrl extends Controller
             $address[] = ['name' => $d[$prefix . '_name'], 'phone' => $d[$prefix . '_phone'], 'address' => $d[$prefix . '_address'], 'type' => $value];
 
         }
-
+        $items[0]['qty'] = 990;
         $re = Order::createOrder($customer->email, 1, $address, $items);
         if ($re['success'] == '1') {
             wToast('訂單新增成功');
             return redirect(route('cms.order.index'));
         }
+        $errors = [];
+        $addInput = [];
+        if (isset($re['event'])) {
+            switch ($re['event']) {
+                case "address":
+                    switch ($re['event_id']) {
+                        case UserAddrType::orderer()->value:
+                            $errors['ord_address'] = "格式錯誤";
+                            break;
+                        case UserAddrType::reciver()->value:
+                            $errors['rec_address'] = "格式錯誤";
+                            break;
+                        case UserAddrType::sender()->value:
+                            $errors['sed_address'] = "格式錯誤";
+                            break;
+                        default:
+                            $errors['record'] = "格式錯誤";
+                    }
+                    break;
+                case "product":
+                    $addInput['overbought_id'] = $re['event_id'];
+                    break;
+            }
+        }
 
-        return redirect()->back();
+        return redirect()->back()->withInput(array_merge($request->input(), $addInput))->withErrors($errors);
     }
 
     /**

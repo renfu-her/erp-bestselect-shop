@@ -196,7 +196,12 @@
                             <button class="btn btn-outline-success -format_addr_btn" type="button">格式化</button>
                             <div class="invalid-feedback">
                                 @error('record')
+                               
+                                    {{ $message }}
                                     {{-- 地址錯誤訊息: ord_city_id, ord_region_id, ord_addr --}}
+                                @enderror
+                                @error('ord_address')
+                                    {{ $message }}
                                 @enderror
                             </div>
                         </div>
@@ -245,6 +250,9 @@
                                 @error('record')
                                     {{-- 地址錯誤訊息: rec_city_id, rec_region_id, rec_addr --}}
                                 @enderror
+                                @error('rec_address')
+                                    {{ $message }}
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -291,6 +299,9 @@
                             <div class="invalid-feedback">
                                 @error('record')
                                     {{-- 地址錯誤訊息: sed_city_id, sed_region_id, sed_addr --}}
+                                @enderror
+                                @error('sed_address')
+                                    {{ $message }}
                                 @enderror
                             </div>
                         </div>
@@ -429,6 +440,8 @@
             });
         </script>
         <script>
+            //超買ＩＤ
+            let overbought_id = @json($overbought_id);
             let addProductModal = new bootstrap.Modal(document.getElementById('addProduct'), {
                 backdrop: 'static',
                 keyboard: false
@@ -778,7 +791,8 @@
                                         selectShip = {
                                             group_id: Number($('select[name="temp_depots"]').val()) || $(
                                                 'select[name="temp_depots"]').val(),
-                                            group_name: $('select[name="temp_depots"] option:selected').text().trim(),
+                                            group_name: $('select[name="temp_depots"] option:selected').text()
+                                                .trim(),
                                             category: shipData.pickup.category,
                                             category_name: shipData.pickup.category_name,
                                             temps: null
