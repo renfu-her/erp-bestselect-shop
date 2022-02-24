@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Addr;
 use App\Models\Customer;
 use App\Models\Order;
+use App\Models\OrderCart;
 use App\Models\SaleChannel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -45,19 +46,55 @@ class OrderCtrl extends Controller
      */
     public function create(Request $request)
     {
-        // dd(get_class($request->user()));
-        // OrderCart::productAdd(1, get_class($request->user()), 1, 1, 1, 1, 1);
-        // $items = OrderCart::productList($request->user()->id, get_class($request->user()))->get()->toArray();
+        $cart = null;
+        if (old('product_style_id')) {
+            $oldData = [];
+            foreach (old('product_style_id') as $key => $v) {
+                $oldData[] = [
+                    'product_id' => old('product_id')[$key],
+                    'product_style_id' => $v,
+                    'shipment_type' => old('shipment_type')[$key],
+                    'shipment_event_id' => old('shipment_event_id')[$key],
+                    'qty' => old('qty')[$key],
+                ];
+            }
+
+            $cart = OrderCart::cartFormater($oldData, false);
+            if ($cart['success'] != 1) {
+                dd($cart);
+            }
+
+        }
+
+        $overbought_id = old('overbought_id');
+
+        $regions = [
+            'sed' => [],
+            'ord' => [],
+            'rec' => [],
+        ];
+
+        if (old('sed_city_id')) {
+            $regions['sed'] = Addr::getRegions(old('sed_city_id'));
+        }
+        if (old('ord_city_id')) {
+            $regions['ord'] = Addr::getRegions(old('ord_city_id'));
+        }
+        if (old('rec_city_id')) {
+            $regions['rec'] = Addr::getRegions(old('rec_city_id'));
+        }
 
         $customer_id = $request->user()->customer_id;
 
         $citys = Addr::getCitys();
-
+        //    dd($citys);
         return view('cms.commodity.order.edit', [
-            //  'items' => $items,
             'customer_id' => $customer_id,
             'customers' => Customer::get(),
             'citys' => $citys,
+            'cart' => $cart,
+            'regions' => $regions,
+            'overbought_id' => $overbought_id,
         ]);
     }
 
@@ -69,6 +106,7 @@ class OrderCtrl extends Controller
      */
     public function store(Request $request)
     {
+
         $arrVali = [];
         foreach (UserAddrType::asArray() as $value) {
             switch ($value) {
@@ -130,14 +168,38 @@ class OrderCtrl extends Controller
             $address[] = ['name' => $d[$prefix . '_name'], 'phone' => $d[$prefix . '_phone'], 'address' => $d[$prefix . '_address'], 'type' => $value];
 
         }
-
+        
         $re = Order::createOrder($customer->email, 1, $address, $items);
         if ($re['success'] == '1') {
             wToast('訂單新增成功');
             return redirect(route('cms.order.index'));
         }
+        $errors = [];
+        $addInput = [];
+        if (isset($re['event'])) {
+            switch ($re['event']) {
+                case "address":
+                    switch ($re['event_id']) {
+                        case UserAddrType::orderer()->value:
+                            $errors['ord_address'] = "格式錯誤";
+                            break;
+                        case UserAddrType::reciver()->value:
+                            $errors['rec_address'] = "格式錯誤";
+                            break;
+                        case UserAddrType::sender()->value:
+                            $errors['sed_address'] = "格式錯誤";
+                            break;
+                        default:
+                            $errors['record'] = "格式錯誤";
+                    }
+                    break;
+                case "product":
+                    $addInput['overbought_id'] = $re['event_id'];
+                    break;
+            }
+        }
 
-        return redirect()->back();
+        return redirect()->back()->withInput(array_merge($request->input(), $addInput))->withErrors($errors);
     }
 
     /**
@@ -163,12 +225,11 @@ class OrderCtrl extends Controller
         $order = Order::orderDetail($id)->get()->first();
         $subOrder = Order::subOrderDetail($id)->get()->toArray();
 
-
         foreach ($subOrder as $key => $value) {
             $subOrder[$key]->items = json_decode($value->items);
         }
 
-   //  dd($subOrder);
+        //  dd($subOrder);
 
         if (!$order) {
             return abort(404);

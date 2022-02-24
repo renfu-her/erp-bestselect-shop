@@ -16,7 +16,7 @@ class Order extends Model
     public static function orderList($keyword = null, $sale_channel_id = null)
     {
         $order = DB::table('ord_orders as order')
-            ->select('order.id as id','customer.name', 'sale.title as sale_title', 'so.ship_category_name',
+            ->select('order.id as id', 'customer.name', 'sale.title as sale_title', 'so.ship_category_name',
                 'so.ship_event', 'so.ship_sn')
             ->selectRaw('DATE_FORMAT(order.created_at,"%Y-%m-%d") as order_date')
             ->selectRaw('so.sn as order_sn')
@@ -122,10 +122,11 @@ class Order extends Model
             ])->id;
 
             foreach ($address as $key => $user) {
+
                 $addr = Addr::addrFormating($user['address']);
                 if (!$addr->city_id) {
                     DB::rollBack();
-                    return ['success' => '0', 'message' => 'address format error'];
+                    return ['success' => '0', 'error_msg' => 'address format error', 'event' => 'address', 'event_id' => $user['type']];
                 }
                 $address[$key]['city_id'] = $addr->city_id;
                 $address[$key]['city_title'] = $addr->city_title;
@@ -139,7 +140,7 @@ class Order extends Model
                 DB::table('ord_address')->insert($address);
             } catch (\Exception $e) {
                 DB::rollBack();
-                return ['success' => '0', 'message' => 'address format error'];
+                return ['success' => '0', 'error_msg' => 'address format error', 'event' => 'address','event_id'=>''];
             }
             //   dd($order);
             foreach ($order['shipments'] as $value) {

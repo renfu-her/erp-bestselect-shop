@@ -1,7 +1,13 @@
+@error($name) 
+@php
+    $isInvalid = true;
+@endphp
+@enderror
 <div @class([
-    'input-group has-validation flex-nowrap',
+    'input-group flex-nowrap',
     'input-group-lg' => $size === 'lg',
-    'input-group-sm' => $size === 'sm'
+    'input-group-sm' => $size === 'sm',
+    'is-invalid' => $isInvalid ?? false
 ])>
     <button class="btn btn-outline-primary -minus" type="button" 
         @if (isset($minus)) data-bs-toggle="tooltip" title="{{ $minus }}" @endif>
@@ -15,9 +21,9 @@
         @if (isset($plus)) data-bs-toggle="tooltip" title="{{ $plus }}" @endif>
         <i class="bi bi-plus-lg"></i>
     </button>
-    <div class="invalid-feedback text-center">
-        @error($name)
-            {{ $message }}
-        @enderror
-    </div>
+</div>
+<div class="invalid-feedback text-center">
+    @error($name)
+        {{ $message }}
+    @enderror
 </div>
