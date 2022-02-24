@@ -465,6 +465,31 @@
             $('.-detail.d-none').remove();
 
             /*** init ***/
+            // 購物車
+            const oldCart = [];     // 舊值寫這
+            if (oldCart.length) {
+                for (const cart of oldCart) {
+                    const old_prod = {
+                        pid: cart.product_id,
+                        sid: cart.product_style_id,
+                        name: '商品名稱',
+                        spec: '樣式',
+                        sku: 'sku',
+                        price: 0,
+                        stock: 0,
+                        qty: 1
+                    };
+                    const old_ship = {
+                        category: '物流類型',
+                        category_name: '物流類型中文',
+                        group_id: '物流ID',
+                        group_name: '物流名稱',
+                        temps: '溫層',
+                        rules: '宅配價格',
+                    };
+                    addToCart(old_ship, old_prod);
+                }
+            }
             // 計數器
             bindAdjusterBtn();
 
@@ -514,14 +539,14 @@
                 $('#customer').prop('disabled', false);
             }
 
-            // 第一步下一步
+            // 第一步-下一步
             $('#STEP_1 .-next_step').off('click').on('click', function() {
                 $('#form1 > nav .nav-link:first-child').removeClass('active');
                 $('#form1 > nav .nav-link:last-child').addClass('active');
                 $('#STEP_1').prop('hidden', true);
                 $('#STEP_2').prop('hidden', false);
             });
-            // 第二步上一步
+            // 第二步-上一步
             $('#STEP_2 .-prev_step').off('click').on('click', function() {
                 $('#form1 > nav .nav-link:first-child').addClass('active');
                 $('#form1 > nav .nav-link:last-child').removeClass('active');
@@ -532,11 +557,6 @@
             // 加入商品、搜尋商品
             $('#addProductBtn, #addProduct .-searchBar button')
                 .off('click').on('click', function(e) {
-                    // productStyleId = [];
-                    // // 檢查重複
-                    // $('.-cloneElem.--selectedP input[name="product_style_id[]"]').each(function(index, element) {
-                    //     productStyleId.push($(element).val());
-                    // });
                     if ($(this).attr('id') === 'addProductBtn') {
                         addProductModal.show();
                     } else {
@@ -742,7 +762,7 @@
                                         break;
                                 }
                                 if (selectShip) {
-                                    addToCart(selectShip);
+                                    addToCart(selectShip, selectedProduct);
                                 } else {
                                     return false;
                                 }
@@ -765,7 +785,7 @@
             }
 
             // 加入購物車
-            function addToCart(selectShip) {
+            function addToCart(selectShip, selectedProduct) {
                 const shipKey = `${selectShip.category}_${selectShip.group_id}`;
                 // 新增一個物流
                 if (!myCart[shipKey]) {
@@ -896,7 +916,7 @@
                     });
             }
 
-            /** 計算 **/
+            /*** 計算 ***/
             // 計算 單一商品小計
             function sumSubtotal($this, qty) {
                 // 修改 myCart 裡的數量
