@@ -62,7 +62,7 @@ class FirstGradeCtrl extends Controller
             ->select('code')
             ->orderByRaw('CONVERT(code, SIGNED) DESC')
             ->first();
-        $newCode = GeneralLedger::generateCode($latestFirstGradeCode->code, '1st');
+        $newCode = GeneralLedger::generateCode($latestFirstGradeCode->code, '1');
 
         FirstGrade::create([
             'code' => strval($newCode),

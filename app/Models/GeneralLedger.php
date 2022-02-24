@@ -115,7 +115,7 @@ class GeneralLedger extends Model
 
     public static function getDataByGrade($id, string $grade)
     {
-        $tableName = self::GRADE_TABALE_NAME_ARRAY[$grade[0]];
+        $tableName = self::GRADE_TABALE_NAME_ARRAY[$grade];
 
         return DB::table($tableName)
             ->where($tableName . '.id', '=', $id)
@@ -137,14 +137,14 @@ class GeneralLedger extends Model
     /**
      * @
      * @param  string  $currentCode 現有的科目代碼
-     * @param  string  $newGrade  新的科目代碼是第幾級？ [1st, 2nd, 3rd, 4th]
+     * @param  string  $newGrade  新的科目代碼是第幾級？ [1, 2, 3, 4]
      * 產生新的科目代碼
      *
      * @return int 回傳新的科目代碼
      */
     public static function generateCode(string $currentCode, string $newGrade)
     {
-        $newGradeNum = $newGrade[0];
+        $newGradeNum = $newGrade;
         $isGenerateInSameGrade = self::getGradeByCode($currentCode) === $newGradeNum;
 
         $result = '';
@@ -229,10 +229,10 @@ class GeneralLedger extends Model
     public static function storeGradeData(array $req, string $grade)
     {
         $newCode = self::generateCode($req['code'], $grade);
-        $tableName = self::GRADE_TABALE_NAME_ARRAY[$grade[0]];
+        $tableName = self::GRADE_TABALE_NAME_ARRAY[$grade];
 
         if (strlen($newCode) > 1) {
-            $prevGrade  = strval(intval($grade[0]) - 1);
+            $prevGrade  = strval(intval($grade) - 1);
             $prevTableName = self::GRADE_TABALE_NAME_ARRAY[$prevGrade];
         }
         $FOREIGN_KEY_ARRAY = [

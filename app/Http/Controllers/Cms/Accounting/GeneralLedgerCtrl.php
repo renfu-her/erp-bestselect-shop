@@ -105,7 +105,7 @@ class GeneralLedgerCtrl extends Controller
             'note_2',
         );
 
-        GeneralLedger::storeGradeData($req, $currentGrade[1]);
+        GeneralLedger::storeGradeData($req, $currentGrade[1][0]);
 
         return redirect(Route('cms.general_ledger.index'));
         //
@@ -139,7 +139,7 @@ class GeneralLedgerCtrl extends Controller
 
         return view('cms.accounting.general_ledger.show', [
             'method' => 'show',
-            'dataList' => GeneralLedger::getDataByGrade($id, $currentGrade[1]),
+            'dataList' => GeneralLedger::getDataByGrade($id, $currentGrade[1][0]),
             'isFourthGradeExist' => $isFourthGradeExist,
             'currentGrade' => $currentGrade[1],
             'nextGrade' => $nextGrade,
@@ -161,7 +161,7 @@ class GeneralLedgerCtrl extends Controller
 
         return view('cms.accounting.general_ledger.edit', [
             'method' => 'edit',
-            'data' => GeneralLedger::getDataByGrade($id, $currentGrade[1])[0],
+            'data' => GeneralLedger::getDataByGrade($id, $currentGrade[1][0])[0],
             'isFourthGradeExist' => ($currentGrade[1] == '4th') ? true : false,
             'allCompanies' => DB::table('acc_company')->get(),
             'allCategories' => DB::table('acc_income_statement')->get(),
