@@ -137,7 +137,7 @@ class GeneralLedger extends Model
     /**
      * @
      * @param  string  $currentCode 現有的科目代碼
-     * @param  string  $newGrade  新的科目代碼是第幾級？（2～4）
+     * @param  string  $newGrade  新的科目代碼是第幾級？ [1st, 2nd, 3rd, 4th]
      * 產生新的科目代碼
      *
      * @return int 回傳新的科目代碼
@@ -193,13 +193,6 @@ class GeneralLedger extends Model
                     ->orderByRaw('CONVERT(code, SIGNED) DESC')
                     ->first();
             }
-        }
-
-        if ($newGrade === '1') {
-            $result = DB::table(self::GRADE_TABALE_NAME_ARRAY[$newGradeNum])
-                ->select('code')
-                ->orderByRaw('CONVERT(code, SIGNED) DESC')
-                ->first();
         }
 
         if (is_null($result)) {
