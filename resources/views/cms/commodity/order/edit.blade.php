@@ -465,37 +465,8 @@
             $('.-detail.d-none').remove();
 
             /*** init ***/
-            // 購物車
-            const oldCart = [];     // 舊值寫這
-            const heheCart = @json($cart);
-            if (oldCart.length) {
-                for (const cart of oldCart) {
-                    const old_prod = {
-                        pid: cart.product_id,
-                        sid: cart.product_style_id,
-                        name: '商品名稱',
-                        spec: '樣式',
-                        sku: 'sku',
-                        price: 0,
-                        stock: 0,
-                        qty: 1
-                    };
-                    const old_ship = {
-                        category: '物流類型',
-                        category_name: '物流類型中文',
-                        group_id: '物流ID',
-                        group_name: '物流名稱',
-                        temps: '溫層',
-                        rules: '宅配價格',
-                    };
-                    addToCart(old_ship, old_prod);
-                }
-            }
-            // 計數器
-            bindAdjusterBtn();
-
-            // 刪除商品
-            let delProductsOption = {
+            // clone opt
+            let cloneProductsOption = {
                 appendClone: '.-appendClone.--selectedP',
                 cloneElem: '.-cloneElem.--selectedP',
                 beforeDelFn: function({
@@ -533,7 +504,40 @@
                     }
                 }
             };
-            Clone_bindDelElem($('.-cloneElem.--selectedP .-del'), delProductsOption);
+
+            // 購物車
+            const oldCart = @json($cart);
+            console.log(oldCart);
+            if (oldCart && oldCart.shipments.length) {
+                for (const ship of oldCart.shipments) {
+                    const old_ship = {
+                        category: ship.category,
+                        category_name: ship.category_name,
+                        group_id: ship.group_id,
+                        group_name: ship.group_name,
+                        temps: ship.temps,
+                        rules: ship.rules || null,
+                    };
+                    for (const prod of ship.products) {
+                        const old_prod = {
+                            pid: prod.product_id,
+                            sid: prod.id,
+                            name: prod.product_title,
+                            spec: prod.spec,
+                            sku: prod.sku,
+                            price: prod.price,
+                            stock: prod.in_stock,
+                            qty: Number(prod.qty) || 1
+                        };
+                        addToCart(old_ship, old_prod);
+                    }
+                }
+            }
+            // 計數器
+            bindAdjusterBtn();
+
+            // 刪除商品
+            Clone_bindDelElem($('.-cloneElem.--selectedP .-del'), cloneProductsOption);
             // 無商品不可下一步
             if (!$('.-cloneElem.--selectedP').length) {
                 $('#STEP_1 .-next_step').prop('disabled', true);
@@ -670,9 +674,6 @@
             // 開啟物流選擇視窗
             $('#setShipment').on('show.bs.modal', function() {
                 selectShip = {};
-                resetSetShipmentModal();
-                $('#setShipment blockquote h6').text(`${selectedProduct.name} [${selectedProduct.spec}]`);
-                $('#setShipment figcaption').text(selectedProduct.sku);
                 getShpmentData(selectedProduct.pid);
             });
             // 物流 API
@@ -681,6 +682,9 @@
                 let Data = {
                     product_id: pid
                 };
+                resetSetShipmentModal();
+                $('#setShipment blockquote h6').text(`${selectedProduct.name} [${selectedProduct.spec}]`);
+                $('#setShipment figcaption').text(selectedProduct.sku);
 
                 axios.post(_URL, Data)
                     .then((result) => {
@@ -828,8 +832,8 @@
                 }
                 // 加入一個商品
                 function createOneSelected(p, s) {
-                    const cloneProductsOption = {
-                        ...delProductsOption,
+                    const options = {
+                        ...cloneProductsOption,
                         appendClone: `#${s.category}_${s.group_id} .-appendClone.--selectedP`
                     };
                     Clone_bindCloneBtn($selectedClone, function(cloneElem) {
@@ -841,15 +845,15 @@
                             cloneElem.find('input[name="product_style_id[]"]').val(p.sid);
                             cloneElem.find('input[name="shipment_type[]"]').val(s.category);
                             cloneElem.find('input[name="shipment_event_id[]"]').val(s.group_id);
-                            cloneElem.find('input[name="qty[]"]').val(1);
+                            cloneElem.find('input[name="qty[]"]').val(p.qty);
                             cloneElem.find('td[data-td="title"]').html(
                                 `<a href="#" class="-text">${p.name}-${p.spec}</a>`
                             );
-                            cloneElem.find('td[data-td="price"], td[data-td="subtotal"]').text(
-                                `${formatNumber(p.price)}`);
+                            cloneElem.find('td[data-td="price"]').text(`${formatNumber(p.price)}`);
+                            cloneElem.find('td[data-td="subtotal"]').text(`${formatNumber(p.price * p.qty)}`);
                             cloneElem.find('input[name="qty[]"]').attr('max', p.stock);
                         }
-                    }, cloneProductsOption);
+                    }, options);
                     // bind click
                     bindAdjusterBtn();
                 }
@@ -878,6 +882,8 @@
             function resetSetShipmentModal() {
                 $('#setShipment blockquote h6, #setShipment figcaption').text('');
                 $('#setShipment fieldset > div').empty();
+                $('#setShipment .alert-danger').prop('hidden', true);
+                $('#setShipment .btn-ok').prop('disabled', false);
                 console.log(myCart);
             }
 
