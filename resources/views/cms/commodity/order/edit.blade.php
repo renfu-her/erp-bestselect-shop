@@ -523,7 +523,6 @@
                     //     productStyleId.push($(element).val());
                     // });
                     if ($(this).attr('id') === 'addProductBtn') {
-                        selectedProduct = {};
                         addProductModal.show();
                     } else {
                         getProductList(1);
@@ -533,7 +532,6 @@
             // 開啟商品列表視窗
             $('#addProduct').on('show.bs.modal', function () {
                 selectedProduct = {};
-                resetAddProductModal();
                 getProductList(1);
             });
             // 商品清單 API
@@ -543,6 +541,7 @@
                     keyword: $('#addProduct .-searchBar input').val(),
                     price: 1
                 };
+                resetAddProductModal();
 
                 if (!Data.price) {
                     toast.show('請先選擇訂購客戶。', { type: 'warning', title: '客戶未選取' });
