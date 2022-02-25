@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Cms\Accounting;
+namespace App\Http\Controllers\Cms\GeneralLedger;
 
 use App\Http\Controllers\Controller;
 use App\Models\FirstGrade;
@@ -28,7 +28,7 @@ class GeneralLedgerCtrl extends Controller
 //        $currentFirstGradeId = Arr::get($query, 'firstGrade', 1);
 //        $currentFirstGradeId = is_numeric($currentFirstGradeId) ? $currentFirstGradeId : 1;
 
-        return view('cms.accounting.general_ledger.list', [
+        return view('cms.general_ledger.gl.list', [
             'totalGrades' => $totalGrades,
 //            'currentFirstGradeId' => $currentFirstGradeId,
 //            'data_per_page' => $data_per_page,
@@ -49,7 +49,7 @@ class GeneralLedgerCtrl extends Controller
             $grade = $request['nextGrade'];
         }
 
-        return view('cms.accounting.general_ledger.edit', [
+        return view('cms.general_ledger.gl.edit', [
             'method' => 'create',
             'currentCode' => $request['code'],
 //            'data' => GeneralLedger::getDataByGrade($id, $currentGrade[1])[0],
@@ -124,7 +124,7 @@ class GeneralLedgerCtrl extends Controller
             }
         }
 
-        return view('cms.accounting.general_ledger.show', [
+        return view('cms.general_ledger.gl.show', [
             'method' => 'show',
             'dataList' => GeneralLedger::getDataByGrade($id, $currentGrade[1][0]),
             'isFourthGradeExist' => $isFourthGradeExist,
@@ -146,7 +146,7 @@ class GeneralLedgerCtrl extends Controller
         $currentUri = Route::getCurrentRoute()->uri;
         preg_match('/cms\\/general_ledger\\/edit\\/{id}\\/(1st|2nd|3rd|4th)$/', $currentUri, $currentGrade);
 
-        return view('cms.accounting.general_ledger.edit', [
+        return view('cms.general_ledger.gl.edit', [
             'method' => 'edit',
             'data' => GeneralLedger::getDataByGrade($id, $currentGrade[1][0])[0],
             'isFourthGradeExist' => ($currentGrade[1] == '4th') ? true : false,

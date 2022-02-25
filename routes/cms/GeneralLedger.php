@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Cms\Accounting\GeneralLedgerCtrl;
+use App\Http\Controllers\Cms\GeneralLedger\GeneralLedgerCtrl;
 
 Route::group(['prefix' => 'general_ledger', 'as' => 'general_ledger.'], function () {
     Route::get('', [GeneralLedgerCtrl::class, 'index'])->name('index')->middleware('permission:cms.general_ledger.index');
