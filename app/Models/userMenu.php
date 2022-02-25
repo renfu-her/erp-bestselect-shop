@@ -137,6 +137,11 @@ return
                 "route_name" => "cms.user.index",
             ],
             [
+                "title" => "消費者帳號管理",
+                "controller_name" => "CustomerCtrl",
+                "route_name" => "cms.customer.index",
+            ],
+            [
                 "title" => "角色管理",
                 "controller_name" => "RoleCtrl",
                 "route_name" => "cms.role.index",
@@ -145,11 +150,6 @@ return
                 "title" => "頁面權限管理",
                 "controller_name" => "PermissionCtrl",
                 "route_name" => "cms.permission.index",
-            ],
-            [
-                "title" => "消費者帳號管理",
-                "controller_name" => "CustomerCtrl",
-                "route_name" => "cms.customer.index",
             ],
         ],
     ],
