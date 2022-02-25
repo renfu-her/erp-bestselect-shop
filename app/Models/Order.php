@@ -37,7 +37,7 @@ class Order extends Model
         $orderQuery = DB::table('ord_orders as order')
             ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
             ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id')
-            ->select('order.sn', 'order.total_price', 'order.created_at', 'customer.name', 'customer.email', 'sale.title as sale_title')
+            ->select('order.sn', 'order.note', 'order.status', 'order.total_price', 'order.created_at', 'customer.name', 'customer.email', 'sale.title as sale_title')
             ->where('order.id', $order_id);
         self::orderAddress($orderQuery);
 
@@ -98,10 +98,10 @@ class Order extends Model
         }
     }
 
-    public static function createOrder($email, $sale_channel_id, $address, $items)
+    public static function createOrder($email, $sale_channel_id, $address, $items, $note = null)
     {
 
-        return DB::transaction(function () use ($email, $sale_channel_id, $address, $items) {
+        return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $note) {
             $order = OrderCart::cartFormater($items);
 
             if ($order['success'] != 1) {
@@ -119,6 +119,7 @@ class Order extends Model
                 "sale_channel_id" => $sale_channel_id,
                 "email" => $email,
                 "total_price" => $order['total_price'],
+                'note' => $note,
             ])->id;
 
             foreach ($address as $key => $user) {
@@ -140,7 +141,7 @@ class Order extends Model
                 DB::table('ord_address')->insert($address);
             } catch (\Exception $e) {
                 DB::rollBack();
-                return ['success' => '0', 'error_msg' => 'address format error', 'event' => 'address','event_id'=>''];
+                return ['success' => '0', 'error_msg' => 'address format error', 'event' => 'address', 'event_id' => ''];
             }
             //   dd($order);
             foreach ($order['shipments'] as $value) {
@@ -196,6 +197,8 @@ class Order extends Model
                 }
 
             }
+
+            OrderFlow::changeOrderStatus($order_id, 'O01');
 
             return ['success' => '1', 'order_id' => $order_id];
         });
