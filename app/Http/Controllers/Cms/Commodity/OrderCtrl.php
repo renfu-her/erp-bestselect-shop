@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\OrderCart;
 use App\Models\OrderStatus;
 use App\Models\SaleChannel;
+use App\Models\ShipmentStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
@@ -28,17 +29,34 @@ class OrderCtrl extends Controller
         // dd(Order::orderList()->get()->toArray());
 
         $query = $request->query();
-
+        //   dd($query);
         $cond = [];
         $page = getPageCount(Arr::get($query, 'data_per_page', 10));
         $cond['keyword'] = Arr::get($query, 'keyword', null);
         $cond['order_status'] = Arr::get($query, 'order_status', []);
+        $cond['shipment_status'] = Arr::get($query, 'shipment_status', []);
         $cond['sale_channel_id'] = Arr::get($query, 'sale_channel_id', []);
-        
+        $cond['order_sdate'] = Arr::get($query, 'order_sdate', null);
+        $cond['order_edate'] = Arr::get($query, 'order_edate', null);
+
+        $order_date = null;
+        if ($cond['order_sdate'] && $cond['order_edate']) {
+            $order_date = [$cond['order_sdate'], $cond['order_edate']];
+        }
+
         if (gettype($cond['order_status']) == 'string') {
             $cond['order_status'] = explode(',', $cond['order_status']);
+        } else {
+            $cond['order_status'] = [];
         }
-        $dataList = Order::orderList($cond['keyword'], $cond['order_status'], $cond['sale_channel_id'])
+
+        if (gettype($cond['shipment_status']) == 'string') {
+            $cond['shipment_status'] = explode(',', $cond['shipment_status']);
+        } else {
+            $cond['shipment_status'] = [];
+        }
+
+        $dataList = Order::orderList($cond['keyword'], $cond['order_status'], $cond['sale_channel_id'], $order_date)
             ->paginate($page)->appends($query);
 
         // dd(OrderStatus::select('code as id','title')->toBase()->get()->toArray());
@@ -46,6 +64,7 @@ class OrderCtrl extends Controller
             'dataList' => $dataList,
             'cond' => $cond,
             'orderStatus' => OrderStatus::select('code as id', 'title')->toBase()->get(),
+            'shipmentStatus' => ShipmentStatus::select('code as id', 'title')->toBase()->get(),
             'saleChannels' => SaleChannel::select('id', 'title')->get()->toArray(),
             'data_per_page' => $page]);
     }

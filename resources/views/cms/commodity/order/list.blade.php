@@ -36,10 +36,10 @@
                 <div class="col-12 col-xxl-6 mb-3">
                     <label class="form-label">訂購日期起訖</label>
                     <div class="input-group has-validation">
-                        <input type="date" class="form-control -startDate @error('_sdate') is-invalid @enderror"
-                            name="_sdate" value="" aria-label="訂購起始日期" />
-                        <input type="date" class="form-control -endDate @error('_edate') is-invalid @enderror" name="_edate"
-                            value="" aria-label="訂購結束日期" />
+                        <input type="date" class="form-control -startDate @error('order_sdate') is-invalid @enderror"
+                            name="order_sdate" value="{{ $cond['order_sdate'] }}" aria-label="訂購起始日期" />
+                        <input type="date" class="form-control -endDate @error('order_edate') is-invalid @enderror"
+                            name="order_edate" value="{{ $cond['order_edate'] }}" aria-label="訂購結束日期" />
                         <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
                         <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
                         <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
@@ -84,12 +84,10 @@
                     <div class="input-group mb-1">
                         <select class="form-select" id="shipment_status" aria-label="物態">
                             <option value="" selected>請選擇</option>
-                            {{-- @foreach ($shipment_statuss as $code) --}}
-                            <option value="a01" class="text-success">待配送</option>
-                            <option value="a02" class="text-success">配送中</option>
-                            <option value="a03" class="text-success">已送達</option>
-                            <option value="c00" class="text-danger">未送達</option>
-                            {{-- @endforeach --}}
+                            @foreach ($shipmentStatus as $sStatus)
+                                <option value="{{ $sStatus->id }}" class="text-success">{{ $sStatus->title }}</option>
+                            @endforeach
+
                         </select>
                         <button class="btn btn-outline-secondary" type="button" id="clear_shipment_status"
                             data-bs-toggle="tooltip" title="清空">
@@ -124,7 +122,8 @@
                     <select name="sale_channel_id[]" multiple class="-select2 -multiple form-select"
                         data-placeholder="請選擇銷售通路">
                         @foreach ($saleChannels as $sale)
-                            <option value="{{ $sale['id'] }}">{{ $sale['title'] }}</option>
+                            <option value="{{ $sale['id'] }}" @if (in_array($sale['id'], $cond['sale_channel_id'])) selected @endif>
+                                {{ $sale['title'] }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -219,37 +218,12 @@
             });
 
             // Chip
+
             // - 物態
-            let shipmentStatus = [{
-                    "id": 2,
-                    "title": "待配送",
-                    "content": "列印託運單",
-                    "style": "text-success",
-                    "code": "a01"
-                },
-                {
-                    "id": 3,
-                    "title": "配送中",
-                    "content": "收貨時掃描託運單",
-                    "style": "text-success",
-                    "code": "a02"
-                },
-                {
-                    "id": 4,
-                    "title": "已送達",
-                    "content": "拍照上傳簽收單回條",
-                    "style": "text-success",
-                    "code": "a03"
-                },
-                {
-                    "id": 5,
-                    "title": "未送達",
-                    "content": "聯繫不上客人暫回喜鴻",
-                    "style": "text-danger",
-                    "code": "c00"
-                }
-            ];
-            let selectedShipment = ["a01", "a02", "a03", "c00"];
+            let shipmentStatus = @json($shipmentStatus);
+
+
+            let selectedShipment = @json($cond['shipment_status']);
             let Chips_shipment = new ChipElem($('#chip-group-shipment'));
             Chips_shipment.onDelete = function(code) {
                 selectedShipment.splice(selectedShipment.indexOf(code), 1);
@@ -268,9 +242,9 @@
             function chipInit() {
                 // - 物態
                 selectedShipment.map(function(code) {
-                    return shipmentStatus[shipmentStatus.map((v) => v.code).indexOf(code)] || false;
+                    return shipmentStatus[shipmentStatus.map((v) => v.id).indexOf(code)];
                 }).forEach(function(code) {
-                    if (code) Chips_shipment.add(code.code, code.title);
+                    Chips_shipment.add(code.id, code.title);
                 });
                 // - 訂單狀態
                 selectedOrder.map(function(id) {
@@ -287,8 +261,8 @@
 
                 switch (id) {
                     case 'shipment_status':
-                        let code = shipmentStatus[shipmentStatus.map((v) => v.code).indexOf(val)] || {};
-                        chipChangeEvent(selectedShipment, Chips_shipment, code.code, code.title);
+                        let code = shipmentStatus[shipmentStatus.map((v) => v.id).indexOf(val)] || {};
+                        chipChangeEvent(selectedShipment, Chips_shipment, code.id, code.title);
                         break;
                     case 'order_status':
                         let channel = orderStatus[orderStatus.map((v) => v.id).indexOf(val)] || {};
