@@ -13,8 +13,10 @@ class Order extends Model
     protected $table = 'ord_orders';
     protected $guarded = [];
 
-    public static function orderList($keyword = null, $order_status = null, $sale_channel_id = null)
-    {
+    public static function orderList($keyword = null,
+        $order_status = null,
+        $sale_channel_id = null,
+        $order_date = null) {
         $order = DB::table('ord_orders as order')
             ->select('order.id as id', 'customer.name', 'sale.title as sale_title', 'so.ship_category_name',
                 'so.ship_event', 'so.ship_sn')
@@ -41,6 +43,14 @@ class Order extends Model
                 $order->whereIn('order.status_code', $order_status);
             } else {
                 $order->where('order.status_code', $order_status);
+            }
+        }
+
+        if ($order_date) {
+            if (gettype($order_date) == 'array' && count($order_date) == 2) {
+                $sDate = date('Y-m-d 00:00:00', strtotime($order_date[0]));
+                $eDate = date('Y-m-d 23:59:59', strtotime($order_date[1]));
+                $order->whereBetween('order.created_at', [$sDate, $eDate]);
             }
         }
 
