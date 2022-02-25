@@ -33,7 +33,6 @@ class OrderCtrl extends Controller
         $cond['keyword'] = Arr::get($query, 'keyword', null);
         $cond['order_status'] = Arr::get($query, 'order_status', []);
         $cond['sale_channel_id'] = Arr::get($query, 'sale_channel_id', []);
-        dd($query);
         if (gettype($cond['order_status']) == 'string') {
             $cond['order_status'] = explode(',', $cond['order_status']);
         }
