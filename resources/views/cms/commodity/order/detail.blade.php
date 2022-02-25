@@ -127,7 +127,7 @@
                 ])>
                 <div class="card-header px-4 py-3 d-flex align-items-center bg-white">
                     <strong class="flex-grow-1 mb-0">{{ $subOrder->ship_event }}</strong>
-                    <a class="btn btn-success -in-header" href="{{ Route('cms.delivery.create', null, true) }}">出貨審核</a>
+                    <a class="btn btn-success -in-header" href="{{ Route('cms.delivery.create', [$subOrder->id], true) }}">出貨審核</a>
                     <button type="button" class="btn btn-primary -in-header">列印銷貨單</button>
                     <button type="button" class="btn btn-primary -in-header">列印出貨單</button>
                 </div>
