@@ -106,7 +106,7 @@
                 </div>
                 <div class="col-auto" style="width: calc(100%/12*8.5);">
                     <dt>訂單備註</dt>
-                    <dd>(待處理)</dd>
+                    <dd>{{ $order->note }}</dd>
                 </div>
             </dl>
         </div>
