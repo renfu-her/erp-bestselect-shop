@@ -8,7 +8,8 @@
             <div class="row">
                 <div class="col-12 col-sm-6 col-xxl-3 mb-3">
                     <label class="form-label">訂單關鍵字</label>
-                    <input class="form-control" type="text" value="{{ $cond['keyword'] }}" name="keyword" placeholder="請輸入訂單編號">
+                    <input class="form-control" type="text" value="{{ $cond['keyword'] }}" name="keyword"
+                        placeholder="請輸入訂單編號">
                 </div>
                 {{-- <div class="col-12 col-sm-6 col-xxl-3 mb-3">
                     <label class="form-label">商品負責人</label>
@@ -106,11 +107,9 @@
                     <div class="input-group mb-1">
                         <select class="form-select" id="order_status" aria-label="訂單狀態">
                             <option value="" selected>請選擇</option>
-                            <option value="1">待付款</option>
-                            <option value="2">待出貨</option>
-                            <option value="3">待收穫</option>
-                            <option value="4">完成</option>
-                            <option value="5">取消</option>
+                            @foreach ($orderStatus as $key => $oStatus)
+                                <option value="{{ $oStatus->id }}">{{ $oStatus->title }}</option>
+                            @endforeach
                         </select>
                         <button class="btn btn-outline-secondary" type="button" id="clear_order_status"
                             data-bs-toggle="tooltip" title="清空">
@@ -122,7 +121,8 @@
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">銷售通路</label>
-                    <select name="sale_channel_id" id="select2-multiple" multiple class="-select2 -multiple form-select" data-placeholder="可多選">
+                    <select name="sale_channel_id" id="select2-multiple" multiple class="-select2 -multiple form-select"
+                        data-placeholder="可多選">
                         @foreach ($saleChannels as $sale)
                             <option value="{{ $sale['id'] }}">{{ $sale['title'] }}</option>
                         @endforeach
@@ -255,29 +255,9 @@
                 selectedShipment.splice(selectedShipment.indexOf(code), 1);
             };
             // - 訂單狀態
-            let orderStatus = [
-                {
-                    "id": 1,
-                    "title": "待付款"
-                },
-                {
-                    "id": 2,
-                    "title": "待出貨"
-                },
-                {
-                    "id": 3,
-                    "title": "待收穫"
-                },
-                {
-                    "id": 4,
-                    "title": "完成"
-                },
-                {
-                    "id": 5,
-                    "title": "取消"
-                },
-            ];
-            let selectedOrder = [1, 2, 3, 4];
+            let orderStatus = @json($orderStatus);
+
+            let selectedOrder = @json($cond['order_status']);
             let Chips_order = new ChipElem($('#chip-group-order'));
             Chips_order.onDelete = function(id) {
                 selectedOrder.splice(selectedOrder.indexOf(id), 1);
@@ -295,7 +275,7 @@
                 });
                 // - 訂單狀態
                 selectedOrder.map(function(id) {
-                    return orderStatus[orderStatus.map((v) => v.id).indexOf(+id)];
+                    return orderStatus[orderStatus.map((v) => v.id).indexOf(id)];
                 }).forEach(function(status) {
                     Chips_order.add(status.id, status.title);
                 });
@@ -312,7 +292,7 @@
                         chipChangeEvent(selectedShipment, Chips_shipment, code.code, code.title);
                         break;
                     case 'order_status':
-                        let channel = orderStatus[orderStatus.map((v) => v.id).indexOf(+val)] || {};
+                        let channel = orderStatus[orderStatus.map((v) => v.id).indexOf(val)] || {};
                         chipChangeEvent(selectedOrder, Chips_order, channel.id, channel.title);
                         break;
                 }
@@ -329,7 +309,7 @@
             // 送出前存值
             $('#search').on('submit', function(e) {
                 $('input[name="shipment_status"]').val(selectedShipment);
-                $('input[name=selected_channel]').val(selectedOrder);
+                $('input[name=order_status]').val(selectedOrder);
             });
             // 清空
             $('#clear_shipment_status').on('click', function(e) {

@@ -13,7 +13,7 @@ class Order extends Model
     protected $table = 'ord_orders';
     protected $guarded = [];
 
-    public static function orderList($keyword = null, $sale_channel_id = null)
+    public static function orderList($keyword = null, $order_status = [], $sale_channel_id = null)
     {
         $order = DB::table('ord_orders as order')
             ->select('order.id as id', 'customer.name', 'sale.title as sale_title', 'so.ship_category_name',
@@ -26,6 +26,10 @@ class Order extends Model
 
         if ($keyword) {
             $order->where('so.sn', 'like', "%$keyword%");
+        }
+
+        if ($order_status) {  
+            $order->whereIn('order.status_code', $order_status);
         }
 
         return $order;
