@@ -32,8 +32,8 @@
                     <dd>(待處理)</dd>
                 </div>
                 <div class="col">
-                    <dt>付款狀態</dt>
-                    <dd>(待處理)</dd>
+                    <dt>狀態</dt>
+                    <dd>{{ $order->status }}</dd>
                 </div>
                 <div class="col-sm-5">
                     <dt>收款單號</dt>
@@ -106,7 +106,7 @@
                 </div>
                 <div class="col-auto" style="width: calc(100%/12*8.5);">
                     <dt>訂單備註</dt>
-                    <dd>(待處理)</dd>
+                    <dd>{{ $order->note }}</dd>
                 </div>
             </dl>
         </div>
@@ -222,7 +222,7 @@
                         </div>
                         <div class="col">
                             <dt>客戶物流方式</dt>
-                            <dd>(待處理)</dd>
+                            <dd>{{ $subOrder->ship_event }}</dd>
                         </div>
                         <div class="col">
                             <dt>實際物流</dt>
@@ -230,6 +230,10 @@
                         </div>
                         <div class="col">
                             <dt>包裹編號</dt>
+                            <dd>(待處理)</dd>
+                        </div>
+                        <div class="col">
+                            <dt>物態</dt>
                             <dd>(待處理)</dd>
                         </div>
                     </dl>
