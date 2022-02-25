@@ -75,5 +75,7 @@ class CreateReceiveDepotTable extends Migration
     {
         Schema::dropIfExists('dlv_delivery');
         Schema::dropIfExists('dlv_receive_depot');
+        Schema::dropIfExists('dlv_logistic_status');
+        Schema::dropIfExists('dlv_logistic_flow');
     }
 }
