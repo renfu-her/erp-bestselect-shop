@@ -312,6 +312,12 @@
                         </div>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <label class="form-label mt-3">備註</label>
+                        <textarea name="note" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
             </div>
             <div class="col-auto">
                 <button type="button" class="btn btn-outline-primary px-4 -prev_step">上一步</button>
@@ -429,7 +435,7 @@
     @push('sub-scripts')
         <script>
             // 禁用鍵盤 Enter submit
-            $('form').on('keydown', function(e) {
+            $('form').on('keydown', ':input:not(textarea)', function(e) {
                 return e.key !== 'Enter';
             });
             // 儲存前設定name
