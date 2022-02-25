@@ -29,7 +29,8 @@ class DatabaseSeeder extends Seeder
             PurchaseSeeder::class,
             OrderSeeder::class,
             AccountingSeeder::class,
-            naviNodeSeeder::class
+            naviNodeSeeder::class,
+            DeliverySeeder::class
         ]);
     }
 }

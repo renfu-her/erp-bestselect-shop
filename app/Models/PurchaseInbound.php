@@ -76,7 +76,7 @@ class PurchaseInbound extends Model
                 $purchaseData = DB::table('pcs_purchase as purchase')
                     ->leftJoin('pcs_purchase_inbound as inbound', 'inbound.purchase_id', '=', 'purchase.id')
                     ->select('purchase.close_date as close_date')
-                    ->where('purchase.id', '', $inboundDataGet->purchase_id)
+                    ->where('purchase.id', '=', $inboundDataGet->purchase_id)
                     ->get()->first();
                 if (null != $purchaseData && null != $purchaseData->close_date) {
                     return ['success' => 0, 'error_msg' => 'purchase already close, so cant be delete'];
@@ -156,6 +156,10 @@ class PurchaseInbound extends Model
                 }
             });
         }
+
+        if (isset($param['product_style_id'])) {
+            $result->where('inbound.product_style_id', '=', $param['product_style_id']);
+        }
         $result->orderByDesc('inbound.created_at');
         return $result;
     }
@@ -222,6 +226,63 @@ class PurchaseInbound extends Model
             ->leftJoin('pcs_purchase_inbound as inbound', 'inbound.purchase_id', '=', 'purchase.id')
             ->whereNull('purchase.deleted_at')
             ->where('purchase.id', '=', $id);
+        return $result;
+    }
+
+
+    /**
+     * 取得可入庫單 可出貨列表
+     * @param $param [product_style_id]
+     * @param false $showNegativeVal 顯示負值 若為true 則只顯示大於1的數量 預設為false 不顯示
+     * @return \Illuminate\Database\Query\Builder
+     */
+    public static function getSelectInboundList($param, $showNegativeVal = false) {
+        $receive_depotQuerySub = DB::table('dlv_receive_depot')
+            ->select('dlv_receive_depot.inbound_id as inbound_id'
+                , 'dlv_receive_depot.product_style_id as product_style_id'
+                , 'dlv_receive_depot.product_title as product_title'
+            )
+            ->selectRaw('sum(dlv_receive_depot.qty) as qty')
+            ->where('dlv_receive_depot.is_setup' , '=', 0)
+            ->whereNull('dlv_receive_depot.deleted_at')
+            ->groupBy('dlv_receive_depot.inbound_id')
+            ->groupBy('dlv_receive_depot.product_style_id')
+            ->groupBy('dlv_receive_depot.product_title');
+
+        $calc_qty = '(inbound.inbound_num - inbound.sale_num - tb_rd.qty)';
+        $result = DB::table('pcs_purchase_inbound as inbound')
+            ->leftJoin('prd_product_styles as style', 'style.id', '=', 'inbound.product_style_id')
+            ->leftJoin('prd_products as product', 'product.id', '=', 'style.product_id')
+            ->leftJoin(DB::raw("({$receive_depotQuerySub->toSql()}) as tb_rd"), function ($join) {
+                $join->on('tb_rd.inbound_id', '=', 'inbound.id');
+            })
+            ->select('inbound.purchase_id as purchase_id' //採購ID
+                , 'product.title as product_title' //商品名稱
+                , 'style.title as style_title' //款式名稱
+                , 'style.sku as style_sku' //款式SKU
+                , 'inbound.id as inbound_id' //入庫ID
+                , 'inbound.product_style_id as product_style_id'
+                , 'inbound.depot_id as depot_id'  //入庫倉庫ID
+                , 'inbound.depot_name as depot_name'  //入庫倉庫名稱
+                , 'inbound.inbound_user_id as inbound_user_id'  //入庫人員ID
+                , 'inbound.inbound_user_name as inbound_user_name' //入庫人員名稱
+                , 'inbound.close_date as inbound_close_date'
+                , 'inbound.memo as inbound_memo' //入庫備註
+            )
+            ->selectRaw($calc_qty.' as qty') //可出庫數量
+            ->selectRaw('DATE_FORMAT(inbound.expiry_date,"%Y-%m-%d") as expiry_date') //有效期限
+            ->selectRaw('DATE_FORMAT(inbound.inbound_date,"%Y-%m-%d") as inbound_date') //入庫日期
+            ->selectRaw('DATE_FORMAT(inbound.deleted_at,"%Y-%m-%d") as deleted_at') //刪除日期
+            ->whereNotNull('inbound.id')
+            ->mergeBindings($receive_depotQuerySub);
+
+        if (isset($param['product_style_id'])) {
+            $result->where('inbound.product_style_id', '=', $param['product_style_id']);
+        }
+        if (false == $showNegativeVal) {
+            $result->where(DB::raw($calc_qty), '>', 0);
+        }
+        $result->orderBy('inbound.expiry_date');
         return $result;
     }
 }
