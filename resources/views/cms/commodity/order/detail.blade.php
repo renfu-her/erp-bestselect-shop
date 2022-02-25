@@ -113,7 +113,7 @@
         @php
             $dlv_fee = 0;
             $price = 0;
-            
+
         @endphp
         @foreach ($subOrders as $subOrder)
             @php
@@ -127,7 +127,7 @@
                 ])>
                 <div class="card-header px-4 py-3 d-flex align-items-center bg-white">
                     <strong class="flex-grow-1 mb-0">{{ $subOrder->ship_event }}</strong>
-                    <button type="button" class="btn btn-success -in-header">審核</button>
+                    <a class="btn btn-success -in-header" href="{{ Route('cms.delivery.create', null, true) }}">出貨審核</a>
                     <button type="button" class="btn btn-primary -in-header">列印銷貨單</button>
                     <button type="button" class="btn btn-primary -in-header">列印出貨單</button>
                 </div>
@@ -177,7 +177,7 @@
                         </table>
                     </div>
                 </div>
-                
+
                 {{-- <div class="card-body px-4 py-0" hidden>
                     <div class="table-responsive tableOverBox">
                         <table class="table tableList table-sm mb-0">
@@ -212,7 +212,7 @@
                         </table>
                     </div>
                 </div> --}}
-                
+
                 <div class="card-header px-4 text-secondary border-top">物流資訊</div>
                 <div class="card-body px-4 pb-4">
                     <dl class="row">
