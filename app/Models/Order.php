@@ -13,7 +13,7 @@ class Order extends Model
     protected $table = 'ord_orders';
     protected $guarded = [];
 
-    public static function orderList($keyword = null, $sale_channel_id = null)
+    public static function orderList($keyword = null, $order_status = null, $sale_channel_id = null)
     {
         $order = DB::table('ord_orders as order')
             ->select('order.id as id', 'customer.name', 'sale.title as sale_title', 'so.ship_category_name',
@@ -26,6 +26,22 @@ class Order extends Model
 
         if ($keyword) {
             $order->where('so.sn', 'like', "%$keyword%");
+        }
+
+        if ($sale_channel_id) {
+            if (gettype($sale_channel_id) == 'array') {
+                $order->whereIn('order.sale_channel_id', $sale_channel_id);
+            } else {
+                $order->where('order.sale_channel_id', $sale_channel_id);
+            }
+        }
+
+        if ($order_status) {
+            if (gettype($order_status) == 'array') {
+                $order->whereIn('order.status_code', $order_status);
+            } else {
+                $order->where('order.status_code', $order_status);
+            }
         }
 
         return $order;
@@ -44,7 +60,7 @@ class Order extends Model
         return $orderQuery;
     }
 
-    public static function subOrderDetail($order_id)
+    public static function subOrderDetail($order_id, $sub_order_id = null)
     {
         $concatString = concatStr([
             'product_title' => 'item.product_title',
@@ -59,6 +75,10 @@ class Order extends Model
             ->selectRaw($concatString . ' as items')
             ->where('item.order_id', $order_id);
 
+        if ($sub_order_id) {
+            $itemQuery->where('item.sub_order_id', $sub_order_id);
+        }
+
         $orderQuery = DB::table('ord_sub_orders as sub_order')
             ->leftJoin(DB::raw("({$itemQuery->toSql()}) as i"), function ($join) {
                 $join->on('sub_order.id', '=', 'i.sub_order_id');
@@ -66,6 +86,10 @@ class Order extends Model
             ->mergeBindings($itemQuery)
             ->select('sub_order.*', 'i.items')
             ->where('order_id', $order_id);
+
+        if ($sub_order_id) {
+            $orderQuery->where('sub_order.id', $sub_order_id);
+        }
 
         return $orderQuery;
 

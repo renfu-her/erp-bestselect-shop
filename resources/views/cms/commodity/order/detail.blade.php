@@ -32,7 +32,7 @@
                     <dd>(待處理)</dd>
                 </div>
                 <div class="col">
-                    <dt>狀態</dt>
+                    <dt>訂單狀態</dt>
                     <dd>{{ $order->status }}</dd>
                 </div>
                 <div class="col-sm-5">
@@ -232,13 +232,13 @@
                             <dt>包裹編號</dt>
                             <dd>(待處理)</dd>
                         </div>
+                    </dl>
+                    <dl class="row">
                         <div class="col">
                             <dt>物態</dt>
                             <dd>(待處理)</dd>
                         </div>
-                    </dl>
-                    <dl class="row">
-                        <div class="col">
+                        <div class="col-9">
                             <dt>物流說明</dt>
                             <dd>不含箱子費用、不含離島地區</dd>
                         </div>
