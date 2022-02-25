@@ -159,6 +159,7 @@
                 <thead>
                     <tr>
                         <th scope="col">訂單編號</th>
+                        <th scope="col">訂單狀態</th>
                         <th scope="col">出貨單號</th>
                         <th scope="col">訂購日期</th>
                         <th scope="col">購買人</th>
@@ -176,6 +177,7 @@
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <td>{{ $data->order_sn }}</td>
+                            <td>{{ $data->order_status }}</td>
                             <td></td>
                             <td>{{ $data->order_date }}</td>
                             <td>{{ $data->name }}</td>

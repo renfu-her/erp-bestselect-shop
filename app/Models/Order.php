@@ -18,7 +18,7 @@ class Order extends Model
         $sale_channel_id = null,
         $order_date = null) {
         $order = DB::table('ord_orders as order')
-            ->select('order.id as id', 'customer.name', 'sale.title as sale_title', 'so.ship_category_name',
+            ->select('order.id as id','order.status as order_status', 'customer.name', 'sale.title as sale_title', 'so.ship_category_name',
                 'so.ship_event', 'so.ship_sn')
             ->selectRaw('DATE_FORMAT(order.created_at,"%Y-%m-%d") as order_date')
             ->selectRaw('so.sn as order_sn')
