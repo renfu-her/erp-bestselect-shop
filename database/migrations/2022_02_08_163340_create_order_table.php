@@ -107,6 +107,7 @@ class CreateOrderTable extends Migration
         Schema::dropIfExists('ord_items');
         Schema::dropIfExists('ord_address');
         Schema::dropIfExists('ord_order_status');
+        Schema::dropIfExists('ord_order_flow');
 
     }
 }
