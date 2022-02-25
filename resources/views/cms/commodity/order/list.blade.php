@@ -77,46 +77,56 @@
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label" for="status_code">物態
+                    <label class="form-label" for="shipment_status">物態
                         {{-- <i class="bi bi-question-circle" data-bs-toggle="modal" data-bs-target="#status_info"></i> --}}
                     </label>
                     <div class="input-group mb-1">
-                        <select class="form-select" id="status_code" aria-label="物態">
+                        <select class="form-select" id="shipment_status" aria-label="物態">
                             <option value="" selected>請選擇</option>
-                            {{-- @foreach ($status_codes as $code) --}}
+                            {{-- @foreach ($shipment_statuss as $code) --}}
                             <option value="a01" class="text-success">待配送</option>
                             <option value="a02" class="text-success">配送中</option>
                             <option value="a03" class="text-success">已送達</option>
                             <option value="c00" class="text-danger">未送達</option>
                             {{-- @endforeach --}}
                         </select>
-                        <button class="btn btn-outline-secondary" type="button" id="clear_status_code"
+                        <button class="btn btn-outline-secondary" type="button" id="clear_shipment_status"
                             data-bs-toggle="tooltip" title="清空">
                             <i class="bi bi-x-lg"></i>
                         </button>
                     </div>
-                    <input type="hidden" name="selected_code" />
-                    <div id="chip-group-status" class="d-flex flex-wrap bd-highlight chipGroup"></div>
+                    <input type="hidden" name="shipment_status" />
+                    <div id="chip-group-shipment" class="d-flex flex-wrap bd-highlight chipGroup"></div>
 
-                    <!-- Modal -->
+                    <!-- Modal 說明 -->
                     {{-- <x-b-modal-status id="status_info"></x-b-modal-status> --}}
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label" for="sale_channel">銷售通路</label>
+                    <label class="form-label" for="order_status">訂單狀態</label>
                     <div class="input-group mb-1">
-                        <select class="form-select" id="sale_channel" aria-label="銷售通路">
+                        <select class="form-select" id="order_status" aria-label="訂單狀態">
                             <option value="" selected>請選擇</option>
-                            @foreach ($saleChannels as $sale)
-                                <option value="{{ $sale['id'] }}">{{ $sale['title'] }}</option>
-                            @endforeach
+                            <option value="1">待付款</option>
+                            <option value="2">待出貨</option>
+                            <option value="3">待收穫</option>
+                            <option value="4">完成</option>
+                            <option value="5">取消</option>
                         </select>
-                        <button class="btn btn-outline-secondary" type="button" id="clear_sale_channel"
+                        <button class="btn btn-outline-secondary" type="button" id="clear_order_status"
                             data-bs-toggle="tooltip" title="清空">
                             <i class="bi bi-x-lg"></i>
                         </button>
                     </div>
-                    <input type="hidden" name="selected_channel" />
-                    <div id="chip-group-sale" class="d-flex flex-wrap bd-highlight chipGroup"></div>
+                    <input type="hidden" name="order_status" />
+                    <div id="chip-group-order" class="d-flex flex-wrap bd-highlight chipGroup"></div>
+                </div>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">銷售通路</label>
+                    <select name="sale_channel_id" id="select2-multiple" multiple class="-select2 -multiple form-select" data-placeholder="可多選">
+                        @foreach ($saleChannels as $sale)
+                            <option value="{{ $sale['id'] }}">{{ $sale['title'] }}</option>
+                        @endforeach
+                    </select>
                 </div>
             </div>
             <div class="col">
@@ -210,7 +220,7 @@
 
             // Chip
             // - 物態
-            let statusCode = [{
+            let shipmentStatus = [{
                     "id": 2,
                     "title": "待配送",
                     "content": "列印託運單",
@@ -239,19 +249,38 @@
                     "code": "c00"
                 }
             ];
-            let selectedCode = ["a01", "a02", "a03", "c00"];
-            let Chips_status = new ChipElem($('#chip-group-status'));
-            Chips_status.onDelete = function(code) {
-                selectedCode.splice(selectedCode.indexOf(code), 1);
+            let selectedShipment = ["a01", "a02", "a03", "c00"];
+            let Chips_shipment = new ChipElem($('#chip-group-shipment'));
+            Chips_shipment.onDelete = function(code) {
+                selectedShipment.splice(selectedShipment.indexOf(code), 1);
             };
-            // - 銷售通路
-
-            let saleChannel = @json($saleChannels);
-
-            let selectedChannel = [];
-            let Chips_sale = new ChipElem($('#chip-group-sale'));
-            Chips_sale.onDelete = function(id) {
-                selectedChannel.splice(selectedChannel.indexOf(id), 1);
+            // - 訂單狀態
+            let orderStatus = [
+                {
+                    "id": 1,
+                    "title": "待付款"
+                },
+                {
+                    "id": 2,
+                    "title": "待出貨"
+                },
+                {
+                    "id": 3,
+                    "title": "待收穫"
+                },
+                {
+                    "id": 4,
+                    "title": "完成"
+                },
+                {
+                    "id": 5,
+                    "title": "取消"
+                },
+            ];
+            let selectedOrder = [1, 2, 3, 4];
+            let Chips_order = new ChipElem($('#chip-group-order'));
+            Chips_order.onDelete = function(id) {
+                selectedOrder.splice(selectedOrder.indexOf(id), 1);
             };
 
             // 初始化
@@ -259,32 +288,32 @@
 
             function chipInit() {
                 // - 物態
-                selectedCode.map(function(code) {
-                    return statusCode[statusCode.map((v) => v.code).indexOf(code)];
+                selectedShipment.map(function(code) {
+                    return shipmentStatus[shipmentStatus.map((v) => v.code).indexOf(code)];
                 }).forEach(function(code) {
-                    Chips_status.add(code.code, code.title);
+                    Chips_shipment.add(code.code, code.title);
                 });
-                // - 銷售通路
-                selectedChannel.map(function(id) {
-                    return saleChannel[saleChannel.map((v) => v.id).indexOf(+id)];
-                }).forEach(function(channel) {
-                    Chips_sale.add(channel.id, channel.title);
+                // - 訂單狀態
+                selectedOrder.map(function(id) {
+                    return orderStatus[orderStatus.map((v) => v.id).indexOf(+id)];
+                }).forEach(function(status) {
+                    Chips_order.add(status.id, status.title);
                 });
             }
 
             // 綁定事件
-            $('#status_code, #sale_channel').off('change.chips').on('change.chips', function(e) {
+            $('#shipment_status, #order_status').off('change.chips').on('change.chips', function(e) {
                 const id = $(this).attr('id');
                 const val = $(this).val();
 
                 switch (id) {
-                    case 'status_code':
-                        let code = statusCode[statusCode.map((v) => v.code).indexOf(val)] || {};
-                        chipChangeEvent(selectedCode, Chips_status, code.code, code.title);
+                    case 'shipment_status':
+                        let code = shipmentStatus[shipmentStatus.map((v) => v.code).indexOf(val)] || {};
+                        chipChangeEvent(selectedShipment, Chips_shipment, code.code, code.title);
                         break;
-                    case 'sale_channel':
-                        let channel = saleChannel[saleChannel.map((v) => v.id).indexOf(+val)] || {};
-                        chipChangeEvent(selectedChannel, Chips_sale, channel.id, channel.title);
+                    case 'order_status':
+                        let channel = orderStatus[orderStatus.map((v) => v.id).indexOf(+val)] || {};
+                        chipChangeEvent(selectedOrder, Chips_order, channel.id, channel.title);
                         break;
                 }
 
@@ -299,18 +328,18 @@
             });
             // 送出前存值
             $('#search').on('submit', function(e) {
-                $('input[name=selected_code]').val(selectedCode);
-                $('input[name=selected_channel]').val(selectedChannel);
+                $('input[name="shipment_status"]').val(selectedShipment);
+                $('input[name=selected_channel]').val(selectedOrder);
             });
             // 清空
-            $('#clear_status_code').on('click', function(e) {
-                selectedCode = [];
-                Chips_status.clear();
+            $('#clear_shipment_status').on('click', function(e) {
+                selectedShipment = [];
+                Chips_shipment.clear();
                 e.preventDefault();
             });
-            $('#clear_sale_channel').on('click', function(e) {
-                selectedChannel = [];
-                Chips_sale.clear();
+            $('#clear_order_status').on('click', function(e) {
+                selectedOrder = [];
+                Chips_order.clear();
                 e.preventDefault();
             });
         </script>
