@@ -8,6 +8,7 @@ use App\Models\Addr;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\OrderCart;
+use App\Models\OrderStatus;
 use App\Models\SaleChannel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -27,14 +28,24 @@ class OrderCtrl extends Controller
         // dd(Order::orderList()->get()->toArray());
 
         $query = $request->query();
+
         $cond = [];
         $page = getPageCount(Arr::get($query, 'data_per_page', 10));
         $cond['keyword'] = Arr::get($query, 'keyword', null);
-        $dataList = Order::orderList($cond['keyword'])->paginate($page)->appends($query);
+        $cond['order_status'] = Arr::get($query, 'order_status', []);
+        $cond['sale_channel_id'] = Arr::get($query, 'sale_channel_id', []);
+        
+        if (gettype($cond['order_status']) == 'string') {
+            $cond['order_status'] = explode(',', $cond['order_status']);
+        }
+        $dataList = Order::orderList($cond['keyword'], $cond['order_status'], $cond['sale_channel_id'])
+            ->paginate($page)->appends($query);
 
+        // dd(OrderStatus::select('code as id','title')->toBase()->get()->toArray());
         return view('cms.commodity.order.list', [
             'dataList' => $dataList,
             'cond' => $cond,
+            'orderStatus' => OrderStatus::select('code as id', 'title')->toBase()->get(),
             'saleChannels' => SaleChannel::select('id', 'title')->get()->toArray(),
             'data_per_page' => $page]);
     }
@@ -106,7 +117,7 @@ class OrderCtrl extends Controller
      */
     public function store(Request $request)
     {
-       // dd($_POST);
+        // dd($_POST);
         $arrVali = [];
         foreach (UserAddrType::asArray() as $value) {
             switch ($value) {
