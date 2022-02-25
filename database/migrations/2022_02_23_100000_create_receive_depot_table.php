@@ -22,7 +22,8 @@ class CreateReceiveDepotTable extends Migration
             $table->unsignedBigInteger('temp_id')->comment('溫層id');
             $table->string('temp_name', 10)->comment('溫層');
             $table->string('logistic_method', 10)->comment('物流分類 宅配/自取');
-            $table->string('logistic_status', 10)->nullable()->comment('物流狀態 檢貨中/理貨中/待配送');
+            $table->string('logistic_status_code', 20)->nullable()->comment('物流狀態代碼');
+            $table->string('logistic_status', 20)->nullable()->comment('物流狀態 檢貨中/理貨中/待配送');
             $table->unsignedBigInteger('ship_depot_id')->nullable()->comment('出貨倉庫id');
             $table->string('ship_depot_name', 20)->nullable()->comment('出貨倉庫名稱');
             $table->string('memo')->nullable()->comment('備註');
@@ -43,6 +44,24 @@ class CreateReceiveDepotTable extends Migration
             $table->dateTime('expiry_date')->nullable()->comment('有效期限');
             $table->boolean('is_setup')->default(0)->comment('是否成立 0:否 / 1:是');
             $table->softDeletes();
+        });
+
+        Schema::create('dlv_logistic_status', function (Blueprint $table) {
+            $table->id();
+            $table->string('title', 15)->comment('名稱');
+            $table->string('content', 40)->comment('解說')->nullable();
+            $table->string('style', 20)->comment('樣式')->nullable();
+            $table->string('code', 15)->comment('代碼');
+
+            $table->unique(['code']);
+        });
+
+        Schema::create('dlv_logistic_flow', function (Blueprint $table) {
+            $table->id();
+            $table->integer('delivery_id')->comment('訂單id');
+            $table->string('status', 15)->comment('狀態名稱');
+            $table->string('status_code', 15)->comment('代碼');
+            $table->timestamps();
         });
     }
 

@@ -14,7 +14,7 @@ class Delivery extends Model
     protected $table = 'dlv_delivery';
     protected $guarded = [];
 
-    public static function setData($id = null, $event, $event_id, $event_sn, $temp_id, $temp_name, $logistic_method, $logistic_status, $ship_depot_id, $ship_depot_name, $memo = null)
+    public static function setData($id = null, $event, $event_id, $event_sn, $temp_id, $temp_name, $logistic_method, $logistic_status, $logistic_status_code, $ship_depot_id, $ship_depot_name, $memo = null)
     {
         $data = null;
         $dataGet = null;
@@ -38,12 +38,13 @@ class Delivery extends Model
                 'temp_name' => $temp_name,
                 'logistic_method' => $logistic_method,
                 'logistic_status' => $logistic_status,
+                'logistic_status_code' => $logistic_status_code,
                 'ship_depot_id' => $ship_depot_id,
                 'ship_depot_name' => $ship_depot_name,
                 'memo' => $memo,
             ])->id;
 //        } else {
-//            $result = DB::transaction(function () use ($data, $dataGet, $event, $event_id, $event_sn, $temp_id, $temp_name, $logistic_method, $logistic_status, $ship_depot_id, $ship_depot_name, $$memo
+//            $result = DB::transaction(function () use ($data, $dataGet, $event, $event_id, $event_sn, $temp_id, $temp_name, $logistic_method, $logistic_status, $logistic_status_code, $ship_depot_id, $ship_depot_name, $$memo
 //            ) {
 //                $data->update([
 //                    'event' => $event,
@@ -53,6 +54,7 @@ class Delivery extends Model
 //                    'temp_name' => $temp_name,
 //                    'logistic_method' => $logistic_method,
 //                    'logistic_status' => $logistic_status,
+//                    'logistic_status_code' => $logistic_status_code,
 //                    'ship_depot_id' => $ship_depot_id,
 //                    'ship_depot_name' => $ship_depot_name,
 //                    'memo' => $memo,
