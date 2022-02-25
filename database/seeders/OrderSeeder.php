@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class OrderSeeder extends Seeder
 {
@@ -16,6 +17,40 @@ class OrderSeeder extends Seeder
     public function run()
     {
         //
+        DB::table('ord_order_status')->insert([
+            [
+                'title' => '新增',
+                'content' => '新增訂單',
+                'code' => 'O01',
+            ],
+            [
+                'title' => '訂單取消',
+                'content' => '',
+                'code' => 'O02',
+            ],
+            [
+                'title' => '已結案',
+                'content' => '',
+                'code' => 'O03',
+            ],
+            [
+                'title' => '已收款',
+                'content' => '已收錢但會計未確認',
+                'code' => 'P01',
+            ],
+            [
+                'title' => '已入款',
+                'content' => '會計已確定收到款項',
+                'code' => 'P02',
+            ],
+            [
+                'title' => '刪除收款單',
+                'content' => '把收款單刪掉',
+                'code' => 'P03',
+            ],
+
+        ]);
+
         Product::changePickup(1, [1, 2, 3]);
         Product::changeShipment(1, 1, 1);
 
@@ -52,6 +87,6 @@ class OrderSeeder extends Seeder
             ],
         ];
 
-        Order::createOrder('hayashi0126@gmail.com', 1, $address, $items);
+        Order::createOrder('hayashi0126@gmail.com', 1, $address, $items, '備註');
     }
 }

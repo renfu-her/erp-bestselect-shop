@@ -113,13 +113,81 @@ class GeneralLedger extends Model
         return json_decode(json_encode($stdResult), true);
     }
 
-    public static function getDataByGrade($id, string $grade)
+    /**
+     *
+     * 取得1~4層級科目的所有資料
+     *
+     * @return array[][][][]
+     * 第一級科目[]
+     *     second[]
+     *         third[]
+     *             fourth[]
+     */
+    public static function getAllGradesData()
     {
-        $tableName = self::GRADE_TABALE_NAME_ARRAY[$grade[0]];
+        $firstGrades = self::getAllFirstGrade();
+        $totalGrades = array();
 
-        return DB::table($tableName)
-            ->where($tableName . '.id', '=', $id)
-            ->leftJoin('acc_company', 'acc_company_fk', '=', 'acc_company.id')
+        foreach ($firstGrades as $firstGrade) {
+            foreach (self::getSecondGradeById($firstGrade['id']) as $secondGrade) {
+                foreach (self::getThirdGradeById($secondGrade['id']) as $thirdGrade) {
+                    $thirdGrade['fourth'] = self::getFourthGradeById($thirdGrade['id']);
+                    $secondGrade['third'][] = $thirdGrade;
+                }
+                $firstGrade['second'][] = $secondGrade;
+            }
+            $totalGrades[] = $firstGrade;
+        }
+
+        return $totalGrades;
+    }
+
+    /**
+     * 取得某層級科目的所有資料
+     * 第1級科目（母科目、會計分類）
+     * 第2級科目（子科目）
+     * 第3級科目（子次科目）
+     * 第4級科目（子底科目）
+     * @param  int  $grade  取得哪一層級科目的所有資料？ 1,2,3,4。   參數0：代表取得所有（1～4）級科目資料
+     *
+     * @return array 若無資料則回傳empty array[]
+     * 參數0: 所有級的科目資料回傳格式 array[][][][]
+     * 第一級科目[]
+     *     second[]
+     *         third[]
+     *             fourth[]
+     *
+     */
+    public static function getGradeData(int $grade)
+    {
+        if ($grade === 0) {
+            return self::getAllGradesData();
+        } else {
+            $stdResult = self::getDataByGrade(1, strval($grade), true);
+            if (!$stdResult) {
+                return array();
+            }
+            return json_decode(json_encode($stdResult), true);
+        }
+    }
+
+    /**
+     * @param  int|string $id 層級科目table 的 primary_id
+     * @param  string  $grade 1,2,3,4 層級科目
+     * @param  bool  $all 是否取得該層級科目的所有資料?
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public static function getDataByGrade($id = 1, string $grade = '1', bool $all = false)
+    {
+        $tableName = self::GRADE_TABALE_NAME_ARRAY[$grade];
+
+        $query = DB::table($tableName);
+        if (!$all) {
+            $query = $query->where($tableName . '.id', '=', $id);
+        }
+
+        return $query->leftJoin('acc_company', 'acc_company_fk', '=', 'acc_company.id')
             ->leftJoin('acc_income_statement', 'acc_income_statement_fk', '=', 'acc_income_statement.id')
             ->select(
                 $tableName . '.id',
@@ -137,14 +205,14 @@ class GeneralLedger extends Model
     /**
      * @
      * @param  string  $currentCode 現有的科目代碼
-     * @param  string  $newGrade  新的科目代碼是第幾級？ [1st, 2nd, 3rd, 4th]
+     * @param  string  $newGrade  新的科目代碼是第幾級？ [1, 2, 3, 4]
      * 產生新的科目代碼
      *
      * @return int 回傳新的科目代碼
      */
     public static function generateCode(string $currentCode, string $newGrade)
     {
-        $newGradeNum = $newGrade[0];
+        $newGradeNum = $newGrade;
         $isGenerateInSameGrade = self::getGradeByCode($currentCode) === $newGradeNum;
 
         $result = '';
@@ -229,10 +297,10 @@ class GeneralLedger extends Model
     public static function storeGradeData(array $req, string $grade)
     {
         $newCode = self::generateCode($req['code'], $grade);
-        $tableName = self::GRADE_TABALE_NAME_ARRAY[$grade[0]];
+        $tableName = self::GRADE_TABALE_NAME_ARRAY[$grade];
 
         if (strlen($newCode) > 1) {
-            $prevGrade  = strval(intval($grade[0]) - 1);
+            $prevGrade  = strval(intval($grade) - 1);
             $prevTableName = self::GRADE_TABALE_NAME_ARRAY[$prevGrade];
         }
         $FOREIGN_KEY_ARRAY = [

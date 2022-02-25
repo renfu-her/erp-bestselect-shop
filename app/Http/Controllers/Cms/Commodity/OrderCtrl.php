@@ -106,7 +106,7 @@ class OrderCtrl extends Controller
      */
     public function store(Request $request)
     {
-
+       // dd($_POST);
         $arrVali = [];
         foreach (UserAddrType::asArray() as $value) {
             switch ($value) {
@@ -168,8 +168,8 @@ class OrderCtrl extends Controller
             $address[] = ['name' => $d[$prefix . '_name'], 'phone' => $d[$prefix . '_phone'], 'address' => $d[$prefix . '_address'], 'type' => $value];
 
         }
-        
-        $re = Order::createOrder($customer->email, 1, $address, $items);
+
+        $re = Order::createOrder($customer->email, 1, $address, $items, $d['note']);
         if ($re['success'] == '1') {
             wToast('訂單新增成功');
             return redirect(route('cms.order.index'));

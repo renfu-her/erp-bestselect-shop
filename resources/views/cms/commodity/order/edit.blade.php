@@ -34,6 +34,11 @@
                     </button>
                 </div>
             </div>
+            <div id="Loading_spinner" class="d-flex justify-content-center mb-4" hidden>
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
             <div id="MyCart">
                 {{-- 宅配 .-detail-primary / 自取 .-detail-warning / 超取 .-detail-success --}}
                 <div id="" class="card shadow mb-4 -detail d-none">
@@ -307,6 +312,12 @@
                         </div>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <label class="form-label mt-3">備註</label>
+                        <textarea name="note" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
             </div>
             <div class="col-auto">
                 <button type="button" class="btn btn-outline-primary px-4 -prev_step">上一步</button>
@@ -424,7 +435,7 @@
     @push('sub-scripts')
         <script>
             // 禁用鍵盤 Enter submit
-            $('form').on('keydown', function(e) {
+            $('form').on('keydown', ':input:not(textarea)', function(e) {
                 return e.key !== 'Enter';
             });
             // 儲存前設定name
@@ -571,6 +582,7 @@
             }
             // 計數器
             bindAdjusterBtn();
+            $('#Loading_spinner').removeClass('d-flex');
 
             // 刪除商品
             Clone_bindDelElem($('.-cloneElem.--selectedP .-del'), cloneProductsOption);
