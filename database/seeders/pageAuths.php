@@ -326,4 +326,25 @@ return [
             ],
         ],
     ],
+    [
+        "unit" => "出貨管理",
+        "permissions" => [
+            [
+                "cms.delivery.index",
+                "瀏覽",
+            ],
+            [
+                "cms.delivery.create",
+                "新增",
+            ],
+            [
+                "cms.delivery.edit",
+                "編輯",
+            ],
+            [
+                "cms.delivery.delete",
+                "刪除",
+            ],
+        ],
+    ],
 ];

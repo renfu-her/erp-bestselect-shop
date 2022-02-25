@@ -31,6 +31,11 @@ return
                 "controller_name" => "OrderCtrl",
                 "route_name" => "cms.order.index",
             ],
+            [
+                "title" => "出貨管理",
+                "controller_name" => "DeliveryCtrl",
+                "route_name" => "cms.delivery.index",
+            ],
         ],
     ],
     [
