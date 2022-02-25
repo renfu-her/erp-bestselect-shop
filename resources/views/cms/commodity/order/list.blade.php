@@ -121,8 +121,8 @@
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">銷售通路</label>
-                    <select name="sale_channel_id" id="select2-multiple" multiple class="-select2 -multiple form-select"
-                        data-placeholder="可多選">
+                    <select name="sale_channel_id[]" multiple class="-select2 -multiple form-select"
+                        data-placeholder="請選擇銷售通路">
                         @foreach ($saleChannels as $sale)
                             <option value="{{ $sale['id'] }}">{{ $sale['title'] }}</option>
                         @endforeach
@@ -256,8 +256,7 @@
             };
             // - 訂單狀態
             let orderStatus = @json($orderStatus);
-
-            let selectedOrder = @json($cond['order_status']);
+            let selectedOrder = @json($cond['order_status']) || [];
             let Chips_order = new ChipElem($('#chip-group-order'));
             Chips_order.onDelete = function(id) {
                 selectedOrder.splice(selectedOrder.indexOf(id), 1);
