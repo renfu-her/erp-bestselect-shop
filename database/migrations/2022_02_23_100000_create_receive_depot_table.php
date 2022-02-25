@@ -39,6 +39,7 @@ class CreateReceiveDepotTable extends Migration
             $table->unsignedBigInteger('depot_id')->comment('收貨倉庫ID');
             $table->string('depot_name', 30)->comment('收貨倉庫名稱');
             $table->unsignedBigInteger('product_style_id')->comment('商品款式ID');
+            $table->string('sku', 20)->comment('商品sku');
             $table->string('product_title', 40)->comment('商品名稱');
             $table->integer('qty')->comment('數量');
             $table->dateTime('expiry_date')->nullable()->comment('有效期限');

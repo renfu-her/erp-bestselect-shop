@@ -133,6 +133,7 @@ class DeliverySeeder extends Seeder
             $inbound_2->depot_id,
             $inbound_2->depot_name,
             $product_style_id,
+            $inbound_2->style_sku,
             $inbound_2->product_title. '-'. $inbound_2->style_title,
             4,
             $inbound_2->expiry_date);

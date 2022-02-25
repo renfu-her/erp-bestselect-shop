@@ -14,7 +14,7 @@ class ReceiveDepot extends Model
     public $timestamps = false;
     protected $guarded = [];
 
-    public static function setData($id = null, $delivery_id, $freebies, $inbound_id, $depot_id, $depot_name, $product_style_id, $product_title, $qty, $expiry_date)
+    public static function setData($id = null, $delivery_id, $freebies, $inbound_id, $depot_id, $depot_name, $product_style_id, $sku, $product_title, $qty, $expiry_date)
     {
         $data = null;
         $dataGet = null;
@@ -31,12 +31,13 @@ class ReceiveDepot extends Model
                 'depot_id' => $depot_id,
                 'depot_name' => $depot_name,
                 'product_style_id' => $product_style_id,
+                'sku' => $sku,
                 'product_title' => $product_title,
                 'qty' => $qty,
                 'expiry_date' => $expiry_date,
             ])->id;
         } else {
-            $result = DB::transaction(function () use ($data, $dataGet, $freebies, $inbound_id, $depot_id, $depot_name, $product_style_id, $product_title, $qty, $expiry_date
+            $result = DB::transaction(function () use ($data, $dataGet, $freebies, $inbound_id, $depot_id, $depot_name, $product_style_id, $sku, $product_title, $qty, $expiry_date
             ) {
                 $data->update([
                     'freebies' => $freebies,
@@ -44,6 +45,7 @@ class ReceiveDepot extends Model
                     'depot_id' => $depot_id,
                     'depot_name' => $depot_name,
                     'product_style_id' => $product_style_id,
+                    'sku' => $sku,
                     'product_title' => $product_title,
                     'qty' => $qty,
                     'expiry_date' => $expiry_date,
