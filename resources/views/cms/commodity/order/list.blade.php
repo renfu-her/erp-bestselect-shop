@@ -255,7 +255,7 @@
                 selectedShipment.splice(selectedShipment.indexOf(code), 1);
             };
             // - 訂單狀態
-            let orderStatus = @json($orderStatus);
+            let orderStatus = @json($orderStatus) || [];
             let selectedOrder = @json($cond['order_status']) || [];
             let Chips_order = new ChipElem($('#chip-group-order'));
             Chips_order.onDelete = function(id) {
@@ -268,15 +268,15 @@
             function chipInit() {
                 // - 物態
                 selectedShipment.map(function(code) {
-                    return shipmentStatus[shipmentStatus.map((v) => v.code).indexOf(code)];
+                    return shipmentStatus[shipmentStatus.map((v) => v.code).indexOf(code)] || false;
                 }).forEach(function(code) {
-                    Chips_shipment.add(code.code, code.title);
+                    if (code) Chips_shipment.add(code.code, code.title);
                 });
                 // - 訂單狀態
                 selectedOrder.map(function(id) {
-                    return orderStatus[orderStatus.map((v) => v.id).indexOf(id)];
+                    return orderStatus[orderStatus.map((v) => v.id).indexOf(id)] || false;
                 }).forEach(function(status) {
-                    Chips_order.add(status.id, status.title);
+                    if (status) Chips_order.add(status.id, status.title);
                 });
             }
 
@@ -308,7 +308,7 @@
             // 送出前存值
             $('#search').on('submit', function(e) {
                 $('input[name="shipment_status"]').val(selectedShipment);
-                $('input[name=order_status]').val(selectedOrder);
+                $('input[name="order_status"]').val(selectedOrder);
             });
             // 清空
             $('#clear_shipment_status').on('click', function(e) {
