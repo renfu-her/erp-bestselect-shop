@@ -58,7 +58,7 @@ class OrderCart extends Model
 
     }
 
-    public static function cartFormater($data)
+    public static function cartFormater($data, $checkInStock = true)
     {
         $shipmentGroup = [];
         $shipmentKeys = [];
@@ -68,34 +68,35 @@ class OrderCart extends Model
                 ->get()->first();
 
             if (!$style) {
-                return ['success' => 0, 'message' => '查無此商品 style_id:' . $value['product_style_id']];
+                return ['success' => 0, 'error_msg' => '查無此商品', 'event' => 'product', 'event_id' => $value['product_style_id']];
             }
-            if ($value['qty'] > $style->in_stock) {
-                return ['success' => 0, 'message' => '購買超過上限 style_id:' . $value['product_style_id']];
+            if ($checkInStock) {
+                if ($value['qty'] > $style->in_stock) {
+                    return ['success' => 0, 'error_msg' => '購買超過上限', 'event' => 'product', 'event_id' => $value['product_style_id']];
+                }
             }
 
             switch ($value['shipment_type']) {
                 case 'pickup':
                     $shipment = Product::getPickup($value['product_id'])->where('pick_up.id', $value['shipment_event_id'])->get()->first();
                     if (!$shipment) {
-                        return ['success' => 0, 'message' => '無運送方式 style_id:' . $value['product_style_id']];
+                        return ['success' => 0, 'error_msg' => '無運送方式', 'event' => 'product', 'event_id' => $value['product_style_id']];
                     }
 
                     $shipment->category_name = "自取";
-
 
                     break;
                 case 'deliver':
                     $shipment = Product::getShipment($value['product_id'])->where('g.id', $value['product_style_id'])->get()->first();
 
                     if (!$shipment) {
-                        return ['success' => 0, 'message' => '無運送方式 style_id:' . $value['product_style_id']];
+                        return ['success' => 0, 'error_msg' => '無運送方式', 'event' => 'product', 'event_id' => $value['product_style_id']];
                     }
                     $shipment->rules = json_decode($shipment->rules);
 
                     break;
                 default:
-                    return ['success' => 0, 'message' => '無運送方式 style_id:' . $value['product_style_id']];
+                    return ['success' => 0, 'error_msg' => '無運送方式', 'event' => 'product', 'event_id' => $value['product_style_id']];
             }
 
             $groupKey = $value['shipment_type'] . '-' . $value['shipment_event_id'];
@@ -158,3 +159,4 @@ class OrderCart extends Model
     }
 
 }
+

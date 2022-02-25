@@ -29,9 +29,16 @@ class ProductStock extends Model
         }
 
         return DB::transaction(function () use ($product_style_id, $qty, $event, $event_id, $note, $is_inbound, $inbound_can_tally) {
-            $style = ProductStyle::where('id', $product_style_id)->select('id','in_stock')->get()->first();
+            $style = ProductStyle::where('id', $product_style_id)->select('id');
+            if ($event == 'order') {
+                $style->selectRaw('in_stock + overbought as in_stock');
+            } else {
+                $style->addSelect('in_stock');
+            }
+            $style = $style->get()->first();
+
             if ($style['in_stock'] + $qty < 0) {
-                return ['success' => 0, 'error_msg' => '數量超出範圍'];
+                return ['success' => 0, 'error_msg' => '數量超出範圍', 'event' => 'stock', 'event_id' => $product_style_id];
             }
 
             $product_style = ProductStyle::where('id', $product_style_id);
@@ -76,6 +83,7 @@ class ProductStock extends Model
 
             foreach ($combos as $combo) {
                 $_qty = $qty * -1 * $combo['qty'];
+                print_r($_qty);
                 $re = self::stockChange($combo['product_style_child_id'], $_qty, 'combo', $style_id);
                 if (!$re['success']) {
                     DB::rollBack();

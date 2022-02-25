@@ -10,7 +10,7 @@
                     <label class="form-label">訂單關鍵字</label>
                     <input class="form-control" type="text" value="{{ $cond['keyword'] }}" name="keyword" placeholder="請輸入訂單編號">
                 </div>
-                <div class="col-12 col-sm-6 col-xxl-3 mb-3">
+                {{-- <div class="col-12 col-sm-6 col-xxl-3 mb-3">
                     <label class="form-label">商品負責人</label>
                     <input class="form-control" type="text" name="" placeholder="請輸入商品負責人">
                 </div>
@@ -22,7 +22,7 @@
                         <option value="2">item 2</option>
                         <option value="3">item 3</option>
                     </select>
-                </div>
+                </div> --}}
                 <div class="col-12 col-sm-6 col-xxl-3 mb-3">
                     <label class="form-label">分潤人姓名</label>
                     <select name="" class="form-select">
@@ -181,7 +181,7 @@
                             <td>{{ $data->ship_sn }}</td>
                             <td>-</td>
                             <td class="text-center">
-                                <a href="{{ Route('cms.order.detail', ['id' => 1]) }}" data-bs-toggle="tooltip"
+                                <a href="{{ Route('cms.order.detail', ['id' => $data->id]) }}" data-bs-toggle="tooltip"
                                     title="明細" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-card-list"></i>
                                 </a>

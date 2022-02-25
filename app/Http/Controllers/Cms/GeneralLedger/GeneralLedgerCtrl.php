@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Cms\Accounting;
+namespace App\Http\Controllers\Cms\GeneralLedger;
 
 use App\Http\Controllers\Controller;
 use App\Models\FirstGrade;
@@ -20,34 +20,18 @@ class GeneralLedgerCtrl extends Controller
      */
     public function index(Request $request)
     {
-        $query = $request->query();
-        $data_per_page = Arr::get($query, 'data_per_page', 10);
-        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
+        $totalGrades = GeneralLedger::getGradeData(0);
+//        $query = $request->query();
+//        $data_per_page = Arr::get($query, 'data_per_page', 10);
+//        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
+//
+//        $currentFirstGradeId = Arr::get($query, 'firstGrade', 1);
+//        $currentFirstGradeId = is_numeric($currentFirstGradeId) ? $currentFirstGradeId : 1;
 
-        $currentFirstGradeId = Arr::get($query, 'firstGrade', 1);
-        $currentFirstGradeId = is_numeric($currentFirstGradeId) ? $currentFirstGradeId : 1;
-
-        $secondGrades = GeneralLedger::getSecondGradeById($currentFirstGradeId);
-
-        $thirdGrades = array();
-        foreach ($secondGrades as $secondGrade) {
-            $thirdGrades[] = GeneralLedger::getThirdGradeById($secondGrade->id);
-        }
-
-        $fourthGrades = array();
-        foreach ($thirdGrades as $thirdGrade) {
-            foreach ($thirdGrade as $thirdGradeId) {
-                $fourthGrades[] = GeneralLedger::getFourthGradeById($thirdGradeId->id);
-            }
-        }
-
-        return view('cms.accounting.general_ledger.list', [
-            'firstGrades' => FirstGrade::all(),
-            'secondGrades' => $secondGrades,
-            'thirdGrades' => $thirdGrades,
-            'fourthGrades' => $fourthGrades,
-            'currentFirstGradeId' => $currentFirstGradeId,
-            'data_per_page' => $data_per_page,
+        return view('cms.general_ledger.gl.list', [
+            'totalGrades' => $totalGrades,
+//            'currentFirstGradeId' => $currentFirstGradeId,
+//            'data_per_page' => $data_per_page,
         ]);
     }
 
@@ -65,7 +49,7 @@ class GeneralLedgerCtrl extends Controller
             $grade = $request['nextGrade'];
         }
 
-        return view('cms.accounting.general_ledger.edit', [
+        return view('cms.general_ledger.gl.edit', [
             'method' => 'create',
             'currentCode' => $request['code'],
 //            'data' => GeneralLedger::getDataByGrade($id, $currentGrade[1])[0],
@@ -108,7 +92,7 @@ class GeneralLedgerCtrl extends Controller
             'note_2',
         );
 
-        GeneralLedger::storeGradeData($req, $currentGrade[1]);
+        GeneralLedger::storeGradeData($req, $currentGrade[1][0]);
 
         return redirect(Route('cms.general_ledger.index'));
         //
@@ -140,9 +124,9 @@ class GeneralLedgerCtrl extends Controller
             }
         }
 
-        return view('cms.accounting.general_ledger.show', [
+        return view('cms.general_ledger.gl.show', [
             'method' => 'show',
-            'dataList' => GeneralLedger::getDataByGrade($id, $currentGrade[1]),
+            'dataList' => GeneralLedger::getDataByGrade($id, $currentGrade[1][0]),
             'isFourthGradeExist' => $isFourthGradeExist,
             'currentGrade' => $currentGrade[1],
             'nextGrade' => $nextGrade,
@@ -162,9 +146,9 @@ class GeneralLedgerCtrl extends Controller
         $currentUri = Route::getCurrentRoute()->uri;
         preg_match('/cms\\/general_ledger\\/edit\\/{id}\\/(1st|2nd|3rd|4th)$/', $currentUri, $currentGrade);
 
-        return view('cms.accounting.general_ledger.edit', [
+        return view('cms.general_ledger.gl.edit', [
             'method' => 'edit',
-            'data' => GeneralLedger::getDataByGrade($id, $currentGrade[1])[0],
+            'data' => GeneralLedger::getDataByGrade($id, $currentGrade[1][0])[0],
             'isFourthGradeExist' => ($currentGrade[1] == '4th') ? true : false,
             'allCompanies' => DB::table('acc_company')->get(),
             'allCategories' => DB::table('acc_income_statement')->get(),

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Order\UserAddrType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -15,7 +16,7 @@ class Order extends Model
     public static function orderList($keyword = null, $sale_channel_id = null)
     {
         $order = DB::table('ord_orders as order')
-            ->select('customer.name', 'sale.title as sale_title', 'so.ship_category_name',
+            ->select('order.id as id', 'customer.name', 'sale.title as sale_title', 'so.ship_category_name',
                 'so.ship_event', 'so.ship_sn')
             ->selectRaw('DATE_FORMAT(order.created_at,"%Y-%m-%d") as order_date')
             ->selectRaw('so.sn as order_sn')
@@ -31,10 +32,76 @@ class Order extends Model
         //   dd($order->get()->toArray());
     }
 
-    public static function createOrder($email, $sale_channel_id, $address, $items)
+    public static function orderDetail($order_id)
+    {
+        $orderQuery = DB::table('ord_orders as order')
+            ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
+            ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id')
+            ->select('order.sn', 'order.note', 'order.status', 'order.total_price', 'order.created_at', 'customer.name', 'customer.email', 'sale.title as sale_title')
+            ->where('order.id', $order_id);
+        self::orderAddress($orderQuery);
+
+        return $orderQuery;
+    }
+
+    public static function subOrderDetail($order_id)
+    {
+        $concatString = concatStr([
+            'product_title' => 'item.product_title',
+            'sku' => 'item.sku',
+            'price' => 'item.price',
+            'qty' => 'item.qty',
+            'total_price' => 'item.total_price']);
+
+        $itemQuery = DB::table('ord_items as item')
+            ->groupBy('item.sub_order_id')
+            ->select('item.sub_order_id')
+            ->selectRaw($concatString . ' as items')
+            ->where('item.order_id', $order_id);
+
+        $orderQuery = DB::table('ord_sub_orders as sub_order')
+            ->leftJoin(DB::raw("({$itemQuery->toSql()}) as i"), function ($join) {
+                $join->on('sub_order.id', '=', 'i.sub_order_id');
+            })
+            ->mergeBindings($itemQuery)
+            ->select('sub_order.*', 'i.items')
+            ->where('order_id', $order_id);
+
+        return $orderQuery;
+
+    }
+
+    private static function orderAddress(&$query)
+    {
+        foreach (UserAddrType::asArray() as $value) {
+            $query->leftJoin('ord_address as ' . $value, function ($q) use ($value) {
+                $q->on('order.id', '=', $value . '.order_id')
+                    ->where($value . '.type', '=', $value);
+            });
+            switch ($value) {
+                case UserAddrType::reciver()->value:
+                    $prefix = 'rec_';
+                    break;
+                case UserAddrType::orderer()->value:
+                    $prefix = 'ord_';
+                    break;
+                case UserAddrType::sender()->value:
+                    $prefix = 'sed_';
+                    break;
+            }
+
+            $query->addSelect($value . '.name as ' . $prefix . 'name');
+            $query->addSelect($value . '.address as ' . $prefix . 'address');
+            $query->addSelect($value . '.phone as ' . $prefix . 'phone');
+            $query->addSelect($value . '.zipcode as ' . $prefix . 'zipcode');
+
+        }
+    }
+
+    public static function createOrder($email, $sale_channel_id, $address, $items, $note = null)
     {
 
-        return DB::transaction(function () use ($email, $sale_channel_id, $address, $items) {
+        return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $note) {
             $order = OrderCart::cartFormater($items);
 
             if ($order['success'] != 1) {
@@ -52,13 +119,15 @@ class Order extends Model
                 "sale_channel_id" => $sale_channel_id,
                 "email" => $email,
                 "total_price" => $order['total_price'],
+                'note' => $note,
             ])->id;
 
             foreach ($address as $key => $user) {
+
                 $addr = Addr::addrFormating($user['address']);
                 if (!$addr->city_id) {
                     DB::rollBack();
-                    return ['success' => '0', 'message' => 'address format error'];
+                    return ['success' => '0', 'error_msg' => 'address format error', 'event' => 'address', 'event_id' => $user['type']];
                 }
                 $address[$key]['city_id'] = $addr->city_id;
                 $address[$key]['city_title'] = $addr->city_title;
@@ -72,7 +141,7 @@ class Order extends Model
                 DB::table('ord_address')->insert($address);
             } catch (\Exception $e) {
                 DB::rollBack();
-                return ['success' => '0', 'message' => 'address format error'];
+                return ['success' => '0', 'error_msg' => 'address format error', 'event' => 'address', 'event_id' => ''];
             }
             //   dd($order);
             foreach ($order['shipments'] as $value) {
@@ -129,6 +198,8 @@ class Order extends Model
                 }
 
             }
+
+            OrderFlow::changeOrderStatus($order_id, 'O01');
 
             return ['success' => '1', 'order_id' => $order_id];
         });

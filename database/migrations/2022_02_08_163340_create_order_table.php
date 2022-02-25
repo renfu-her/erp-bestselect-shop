@@ -18,10 +18,11 @@ class CreateOrderTable extends Migration
             $table->string('sn', 20)->comment('訂單流水號');
             $table->string('email', 100)->comment('訂購者email');
             $table->integer('sale_channel_id')->comment('銷售通路id');
+            $table->string('status_code', 20)->nullable()->comment('訂單狀態代碼');
             $table->string('status', 20)->nullable()->comment('訂單狀態');
             $table->integer('rcode')->nullable()->comment('rcode消費者id');
             $table->integer('total_price')->comment('總金額');
-
+            $table->string('note')->nullable()->comment('備註');
             $table->timestamps();
         });
 
@@ -37,10 +38,11 @@ class CreateOrderTable extends Migration
             $table->string('ship_temp', 10)->nullable()->comment('溫層');
             $table->integer('ship_temp_id')->nullable()->comment('溫層id');
             $table->integer('ship_rule_id')->nullable()->comment('減免id');
-            $table->integer('ship_order_id')->nullable()->comment('出貨倉庫id');
             $table->string('dlv_fee')->comment('運費');
             $table->string('status', 20)->comment('訂單狀態');
             $table->integer('total_price')->comment('總費用');
+            $table->string('statu', 10)->nullable()->comment('物流狀態');
+            $table->string('statu_code', 10)->nullable()->comment('物流狀態代碼');
         });
 
         Schema::create('ord_items', function (Blueprint $table) {
@@ -73,14 +75,22 @@ class CreateOrderTable extends Migration
             $table->unique(['order_id', 'type']);
         });
 
-
-
         Schema::create('ord_order_status', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->string('content')->nullable();
-            $table->string('style')->nullable();
-            $table->string('code', 3)->nullable();
+            $table->string('title', 15)->comment('名稱');
+            $table->string('content', 40)->comment('解說')->nullable();
+            $table->string('style', 20)->comment('樣式')->nullable();
+            $table->string('code', 15)->comment('代碼');
+
+            $table->unique(['code']);
+        });
+
+        Schema::create('ord_order_flow', function (Blueprint $table) {
+            $table->id();
+            $table->integer('order_id')->comment('訂單id');
+            $table->string('status', 15)->comment('狀態名稱');
+            $table->string('status_code', 15)->comment('代碼');
+            $table->timestamps();
         });
 
     }
@@ -100,3 +110,4 @@ class CreateOrderTable extends Migration
 
     }
 }
+
