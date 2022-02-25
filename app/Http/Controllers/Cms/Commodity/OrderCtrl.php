@@ -32,11 +32,16 @@ class OrderCtrl extends Controller
         $page = getPageCount(Arr::get($query, 'data_per_page', 10));
         $cond['keyword'] = Arr::get($query, 'keyword', null);
         $cond['order_status'] = Arr::get($query, 'order_status', []);
+        $cond['sale_channel_id'] = Arr::get($query, 'sale_channel_id', []);
+        dd($query);
         if (gettype($cond['order_status']) == 'string') {
             $cond['order_status'] = explode(',', $cond['order_status']);
         }
         $dataList = Order::orderList($cond['keyword'], $cond['order_status'])
             ->paginate($page)->appends($query);
+
+
+        
         // dd(OrderStatus::select('code as id','title')->toBase()->get()->toArray());
         return view('cms.commodity.order.list', [
             'dataList' => $dataList,
