@@ -19,7 +19,6 @@
                     <th scope="col">姓名</th>
                     <th scope="col">帳號</th>
                     <th scope="col">角色設定狀況</th>
-                    <th scope="col">api token</th>
                     @can('cms.user.edit')
                         <th scope="col" class="text-center">編輯</th>
                     @endcan
@@ -37,7 +36,6 @@
                         <td @class(['text-danger' => count($data['role']) < 1])>
                             @if(count($data['role']) >= 1) 已設定角色 @else 未設定角色 @endif
                         </td>
-                        <td>{{ $data['api_token'] }}</td>
                         <td class="text-center">
                             @can('cms.user.edit')
                                 <a href="{{ Route('cms.user.edit', ['id' => $data['id']], true) }}"

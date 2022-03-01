@@ -23,13 +23,13 @@ class CustomerCtrl extends Controller
 
         $name = Arr::get($query, 'name', '');
         $email = Arr::get($query, 'email', '');
-        $customer = Customer::getCustomerBySearch($query);
+        $customer = Customer::getCustomerBySearch($name)->paginate(10)->appends($query);
 
         return view('cms.admin.customer.list', [
             'name' => $name,
             'email' => $email,
-            "dataList" => $customer['dataList']
-            , 'formAction' => Route('cms.customer.index'),
+            "dataList" => $customer,
+            'formAction' => Route('cms.customer.index'),
         ]);
     }
 
@@ -47,11 +47,11 @@ class CustomerCtrl extends Controller
         }
 
         return view('cms.admin.customer.edit', [
-            'method'         => 'create',
-            'formAction'     => Route('cms.customer.create'),
-            'customer_list'  => Customer::all(),
+            'method' => 'create',
+            'formAction' => Route('cms.customer.create'),
+            'customer_list' => Customer::all(),
             'citys' => Addr::getCitys(),
-            'regions' => $regions
+            'regions' => $regions,
         ]);
     }
 
@@ -66,7 +66,7 @@ class CustomerCtrl extends Controller
     {
         $request->validate([
             'password' => 'confirmed|min:4', 'name' => 'required|string',
-            'email'  => ['required', 'email:rfc,dns', 'unique:App\Models\Customer'],
+            'email' => ['required', 'email:rfc,dns', 'unique:App\Models\Customer'],
         ]);
 
         $uData = $request->only('email', 'name', 'password'
@@ -130,12 +130,12 @@ class CustomerCtrl extends Controller
         }
 
         return view('cms.admin.customer.edit', [
-            'method'         => 'edit', 'id' => $id,
-            'formAction'     => Route('cms.customer.edit', ['id' => $id]),
-            'data'           => $data,
-            'customer_list'  => Customer::all(),
-            'citys'          => Addr::getCitys(),
-            'regions'        => $regions
+            'method' => 'edit', 'id' => $id,
+            'formAction' => Route('cms.customer.edit', ['id' => $id]),
+            'data' => $data,
+            'customer_list' => Customer::all(),
+            'citys' => Addr::getCitys(),
+            'regions' => $regions,
         ]);
     }
 

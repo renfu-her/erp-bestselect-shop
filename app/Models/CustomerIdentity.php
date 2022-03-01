@@ -13,29 +13,19 @@ class CustomerIdentity extends Model
     protected $table = 'usr_customer_identity';
     protected $guarded = [];
 
-    public static function createData($customer_id, $identity, $sn = null, $level = null, $can_bind = 0)
+    public static function createData($customer_id, $identity_id, $sn = null, $level = null, $can_bind = 0)
     {
         $CIdata = CustomerIdentity::where('customer_id', $customer_id)
-            ->where('identity', $identity);
-        $CIdataGet = $CIdata->get()->first();
-        if (null == $CIdataGet) {
+            ->where('identity_id', $identity_id)->get()->first();
+
+        if (!$CIdata) {
             return CustomerIdentity::create([
                 'customer_id' => $customer_id,
-                'identity' => $identity,
+                'identity_id' => $identity_id,
                 'sn' => $sn,
                 'level' => $level,
                 'can_bind' => $can_bind,
             ])->id;
-        } else {
-            return DB::transaction(function () use ($CIdata, $CIdataGet, $customer_id, $identity, $sn, $level, $can_bind
-            ) {
-                $CIdata->update([
-                    'sn' => $sn,
-                    'level' => $level,
-                    'can_bind' => $can_bind,
-                ]);
-                return $CIdataGet->id;
-            });
         }
     }
 
@@ -45,8 +35,7 @@ class CustomerIdentity extends Model
             ->where('identity', $identity);
         $CIdataGet = $CIdata->get()->first();
         if (null != $CIdataGet) {
-            return DB::transaction(function () use ($CIdata, $CIdataGet, $can_bind
-            ) {
+            return DB::transaction(function () use ($CIdata, $CIdataGet, $can_bind) {
                 $CIdata->update([
                     'can_bind' => $can_bind,
                 ]);

@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\Customer\Identity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -45,9 +44,9 @@ class Customer extends Authenticatable
      * @var array
      */
     protected $hidden = [
-            'password',
-            'remember_token',
-        ];
+        'password',
+        'remember_token',
+    ];
 
     /**
      * The attributes that should be cast.
@@ -55,21 +54,13 @@ class Customer extends Authenticatable
      * @var array
      */
     protected $casts = [
-            'email_verified_at' => 'datetime',
-        ];
-
-    const CUSTOMER_TREE_MENU = [];
-
-    public function menuTree(): array
-    {
-        return $this->getMenuTree(true, self::CUSTOMER_TREE_MENU);
-    }
+        'email_verified_at' => 'datetime',
+    ];
 
     public static function createCustomer($name, $email, $password
         , $phone = null, $birthday = null, $acount_status = 0, $bind_customer_id = null
         , $address = null, $city_id = null, $region_id = null, $addr = null
-    )
-    {
+    ) {
         $arr = [
             'name' => $name,
             'email' => $email,
@@ -92,7 +83,8 @@ class Customer extends Authenticatable
         $id = $customer->id;
 
         //創建消費者時，直接給一消費者身分
-        CustomerIdentity::createData($id, Identity::customer()->value);
+        $identity = DB::table('usr_identity')->where('code', 'customer')->get()->first();
+        CustomerIdentity::createData($id, $identity->id);
 
 //        self::where('id', '=', $id)->get()->first()->givePermissionTo($permission_id);
 //        self::where('id', '=', $id)->get()->first()->assignRole($role_id);
@@ -101,7 +93,8 @@ class Customer extends Authenticatable
     }
 
     //綁定消費者
-    public static function bindCustomer($user_id, $customer_id) {
+    public static function bindCustomer($user_id, $customer_id)
+    {
         $user = User::where('id', $user_id)->get()->first();
         $customer = Customer::where('id', $customer_id)->get()->first();
         if (null != $user && null != $customer) {
@@ -148,27 +141,23 @@ class Customer extends Authenticatable
     /**
      * @param array $query
      * @param int $per_page pagination
-     * @return array [LengthAwarePaginator|array]
+
      */
-    #[ArrayShape(['dataList' => "array", 'account' => "\Illuminate\Contracts\Pagination\LengthAwarePaginator"])]
-    public static function getCustomerBySearch(array $query, int $per_page = 10): array
+
+    public static function getCustomerBySearch($keyword)
     {
         $admin = new Customer();
         $admin_table = DB::table($admin->getTable());
 
-        if (isset($query['name']) && $query['name']) {
-            $admin_table->where('name', 'like', "%{$query['name']}%");
-        }
-
-        if (isset($query['email']) && $query['email']) {
-            $admin_table->where('email', 'like', "%{$query['email']}%");
+        if ($keyword) {
+            $admin_table->where(function ($q) use ($keyword) {
+                $q->where('name', 'like', "%$keyword%")
+                    ->orWhere('email', 'like', "%$keyword%");
+            });
         }
 
         $admin_table->whereNull('deleted_at');
-        $admins = $admin_table->paginate($per_page)->appends($query);
+        return $admin_table;
 
-        return [
-            'dataList' => $admins,
-        ];
     }
 }

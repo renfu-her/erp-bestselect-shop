@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Customer;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class CustomerSeeder extends Seeder
 {
@@ -14,6 +15,18 @@ class CustomerSeeder extends Seeder
      */
     public function run()
     {
+
+        DB::table('usr_identity')->insert([[
+            'title' => '消費者',
+            'code' => 'customer',
+        ], [
+            'title' => '喜鴻員工',
+            'code' => 'employee',
+        ], [
+            'title' => '企業會員',
+            'code' => 'company',
+        ]]);
+
         Customer::createCustomer('Hans', 'hayashi0126@gmail.com', '12345');
         Customer::createCustomer('小姜', 'program03@ittms.com.tw', '12345');
         Customer::createCustomer('理查', 'richardyuan30@gmail.com', '12345');
