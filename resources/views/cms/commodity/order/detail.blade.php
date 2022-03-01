@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-3">訂單編號-{{ $sn }}</h2>
+    <h2 class="mb-3">#{{ $sn }} 訂單明細</h2>
 
     <form id="form1" method="post" action="">
         @method('POST')
@@ -317,7 +317,6 @@
             .table.table-bordered:not(.table-sm) tr:not(.table-light) {
                 height: 70px;
             }
-
         </style>
     @endpush
     @push('sub-scripts')

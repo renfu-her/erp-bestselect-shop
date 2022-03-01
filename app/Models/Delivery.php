@@ -15,7 +15,7 @@ class Delivery extends Model
     protected $table = 'dlv_delivery';
     protected $guarded = [];
 
-    private static function getData($event, $event_id) {
+    public static function getData($event, $event_id) {
         $data = null;
         if (null != $event_id) {
             if (Event::order()->value == $event) {
