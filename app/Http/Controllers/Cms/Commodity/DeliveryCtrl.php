@@ -35,8 +35,11 @@ class DeliveryCtrl extends Controller
         $ord_items_arr = null;
         if (null != $ord_items && 0 < count($ord_items)) {
             $receiveDepotList = ReceiveDepot::getDeliveryWithReceiveDepotList(Event::order()->value, $sub_order_id, $delivery_id)->get();
+            $ord_items_arr = $ord_items->toArray();
+            foreach ($ord_items_arr as $ord_key => $ord_item) {
+                $ord_items_arr[$ord_key]->receive_depot = [];
+            }
             if (0 < count($receiveDepotList)) {
-                $ord_items_arr = $ord_items->toArray();
                 $receiveDepotList_arr = $receiveDepotList->toArray();
                 foreach ($ord_items_arr as $ord_key => $ord_item) {
                     $ord_items_arr[$ord_key]->receive_depot = [];
