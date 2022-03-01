@@ -10,7 +10,7 @@ class GeneralLedger extends Model
 {
     use HasFactory;
 
-    private const GRADE_TABALE_NAME_ARRAY
+    public const GRADE_TABALE_NAME_ARRAY
         = [
             '1' => 'acc_first_grade',
             '2' => 'acc_second_grade',
@@ -172,9 +172,9 @@ class GeneralLedger extends Model
     }
 
     /**
-     * @param  int|string $id 層級科目table 的 primary_id
-     * @param  string  $grade 1,2,3,4 層級科目
-     * @param  bool  $all 是否取得該層級科目的所有資料?
+     * @param  int|string  $id  層級科目table 的 primary_id
+     * @param  string  $grade  1,2,3,4 層級科目
+     * @param  bool  $all  是否取得該層級科目的所有資料?
      *
      * @return \Illuminate\Support\Collection
      */
