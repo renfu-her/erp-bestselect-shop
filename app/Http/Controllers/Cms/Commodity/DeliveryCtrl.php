@@ -19,6 +19,7 @@ class DeliveryCtrl extends Controller
     {
         $sub_order = DB::table('ord_sub_orders')->where('ord_sub_orders.id', $sub_order_id)->get()->first();
 
+        // 出貨單號ID
         $delivery_id = Delivery::createData(
             Event::order()->value
             , $sub_order->id
@@ -28,7 +29,9 @@ class DeliveryCtrl extends Controller
             , $sub_order->ship_category
             , $sub_order->ship_category_name);
 
+        // 子訂單的商品列表
         $ord_items = DB::table('ord_items')->where('ord_items.sub_order_id', $sub_order_id)->get();
+        // 子訂單的入庫資料
         $ord_items_arr = null;
         if (null != $ord_items && 0 < count($ord_items)) {
             $receiveDepotList = ReceiveDepot::getDeliveryWithReceiveDepotList(Event::order()->value, $sub_order_id, $delivery_id)->get();
@@ -47,9 +50,11 @@ class DeliveryCtrl extends Controller
             }
         }
 
-        dd($ord_items_arr);
-
-        return 'create'.$sub_order_id;
+        return view('cms.commodity.delivery.edit', [
+            'sub_order_id' => $sub_order_id,
+            'ord_items' => $ord_items,
+            'ord_items_arr' => $ord_items_arr
+        ]);
     }
 
     public function store(Request $request, int $sub_order_id)
