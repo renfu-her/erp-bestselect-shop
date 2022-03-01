@@ -102,4 +102,39 @@ class ReceiveDepot extends Model
             $query->where('rcv_depot.sub_order_id', '=', $sub_order_id);
         }
     }
+
+    //取得出貨列表
+    public static function getDeliveryWithReceiveDepotList($event, $event_id, $delivery_id)
+    {
+        $data = Delivery::getData($event, $event_id);
+        $dataGet = null;
+        if (null != $data) {
+            $dataGet = $data->get()->first();
+        }
+        $result = null;
+        if (null != $dataGet) {
+            $result = DB::table('dlv_delivery as delivery')
+                ->leftJoin('dlv_receive_depot as rcv_depot', 'rcv_depot.delivery_id', '=', 'delivery.id')
+                ->select('delivery.sn as delivery_sn'
+                    , 'rcv_depot.delivery_id as delivery_id'
+                    , 'rcv_depot.id as id'
+                    , 'rcv_depot.freebies as freebies'
+                    , 'rcv_depot.inbound_id as inbound_id'
+                    , 'rcv_depot.depot_id as depot_id'
+                    , 'rcv_depot.depot_name as depot_name'
+                    , 'rcv_depot.product_style_id as product_style_id'
+                    , 'rcv_depot.sku as sku'
+                    , 'rcv_depot.product_title as product_title'
+                    , 'rcv_depot.qty as qty'
+                    , 'rcv_depot.expiry_date as expiry_date'
+                    , 'rcv_depot.is_setup as is_setup'
+                )
+                ->where('delivery.event', $event)
+                ->where('delivery.event_id', $event_id)
+                ->where('rcv_depot.delivery_id', $delivery_id)
+                ->whereNull('rcv_depot.deleted_at')
+                ->orderBy('rcv_depot.id');
+        }
+        return $result;
+    }
 }

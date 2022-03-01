@@ -52,6 +52,8 @@ class Delivery extends Model
                 'ship_category_name' => $ship_category_name,
                 'memo' => $memo,
             ])->id;
+        } else {
+            $result = $dataGet->id;
         }
         return $result;
     }
