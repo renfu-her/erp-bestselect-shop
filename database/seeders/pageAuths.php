@@ -338,10 +338,6 @@ return [
                 "新增",
             ],
             [
-                "cms.delivery.edit",
-                "編輯",
-            ],
-            [
                 "cms.delivery.delete",
                 "刪除",
             ],
