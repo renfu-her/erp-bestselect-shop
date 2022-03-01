@@ -51,6 +51,7 @@ class DeliveryCtrl extends Controller
         }
 
         return view('cms.commodity.delivery.edit', [
+            'sn' => $sub_order->sn,
             'sub_order_id' => $sub_order_id,
             'ord_items' => $ord_items,
             'ord_items_arr' => $ord_items_arr
