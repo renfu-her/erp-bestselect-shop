@@ -21,11 +21,13 @@ class CreateReceiveDepotTable extends Migration
             $table->string('event_sn', 20)->comment('單號');
             $table->unsignedBigInteger('temp_id')->comment('溫層id');
             $table->string('temp_name', 10)->comment('溫層');
-            $table->string('logistic_method', 10)->comment('物流分類 宅配/自取');
-            $table->string('logistic_status_code', 20)->nullable()->comment('物流狀態代碼');
-            $table->string('logistic_status', 20)->nullable()->comment('物流狀態 檢貨中/理貨中/待配送');
+            $table->string('ship_category', 30)->comment('物流代碼');
+            $table->string('ship_category_name', 30)->comment('物流類別名稱');
             $table->unsignedBigInteger('ship_depot_id')->nullable()->comment('出貨倉庫id');
             $table->string('ship_depot_name', 20)->nullable()->comment('出貨倉庫名稱');
+
+            $table->string('logistic_status_code', 20)->nullable()->comment('物流狀態代碼');
+            $table->string('logistic_status', 20)->nullable()->comment('物流狀態 檢貨中/理貨中/待配送');
             $table->string('memo')->nullable()->comment('備註');
             $table->timestamps();
             $table->softDeletes();
