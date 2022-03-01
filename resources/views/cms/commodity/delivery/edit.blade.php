@@ -69,5 +69,12 @@
                 </table>
             </div>
         </div>
+        
+        <div id="submitDiv">
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary px-4">送出審核</button>
+                <a href="{{ Route('cms.order.detail', ['id' => $order_id]) }}" class="btn btn-outline-primary px-4" role="button">前往訂單明細</a>
+            </div>
+        </div>
     </form>
 @endsection
