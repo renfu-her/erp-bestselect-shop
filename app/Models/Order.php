@@ -223,7 +223,7 @@ class Order extends Model
                         'sub_order_id' => $subOrderId,
                         'product_style_id' => $product->product_style_id,
                         'sku' => $product->sku,
-                        'product_title' => $product->product_title . $product->spec,
+                        'product_title' => $product->product_title .'-'. $product->spec,
                         'price' => $product->price,
                         'qty' => $product->qty,
                         'total_price' => $product->total_price,
