@@ -249,7 +249,8 @@ class PurchaseInbound extends Model
             ->groupBy('dlv_receive_depot.product_style_id')
             ->groupBy('dlv_receive_depot.product_title');
 
-        $calc_qty = '(inbound.inbound_num - inbound.sale_num - tb_rd.qty)';
+        $calc_qty = '(case when tb_rd.qty is null then inbound.inbound_num - inbound.sale_num
+       else inbound.inbound_num - inbound.sale_num - tb_rd.qty end)';
         $result = DB::table('pcs_purchase_inbound as inbound')
             ->leftJoin('prd_product_styles as style', 'style.id', '=', 'inbound.product_style_id')
             ->leftJoin('prd_products as product', 'product.id', '=', 'style.product_id')
@@ -268,12 +269,16 @@ class PurchaseInbound extends Model
                 , 'inbound.inbound_user_name as inbound_user_name' //入庫人員名稱
                 , 'inbound.close_date as inbound_close_date'
                 , 'inbound.memo as inbound_memo' //入庫備註
+                , 'inbound.inbound_num as inbound_num'
+                , 'inbound.sale_num as sale_num'
+                , 'tb_rd.qty as tb_rd_qty'
             )
             ->selectRaw($calc_qty.' as qty') //可出庫數量
             ->selectRaw('DATE_FORMAT(inbound.expiry_date,"%Y-%m-%d") as expiry_date') //有效期限
             ->selectRaw('DATE_FORMAT(inbound.inbound_date,"%Y-%m-%d") as inbound_date') //入庫日期
             ->selectRaw('DATE_FORMAT(inbound.deleted_at,"%Y-%m-%d") as deleted_at') //刪除日期
             ->whereNotNull('inbound.id')
+            ->whereNull('inbound.deleted_at')
             ->mergeBindings($receive_depotQuerySub);
 
         if (isset($param['product_style_id'])) {
