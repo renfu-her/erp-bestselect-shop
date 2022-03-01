@@ -38,6 +38,7 @@ class CreateReceiveDepotTable extends Migration
             $table->unsignedBigInteger('delivery_id')->comment('出貨單ID');
             $table->boolean('freebies')->default(0)->comment('贈品類型 0:一般 / 1:贈品');
             $table->unsignedBigInteger('inbound_id')->comment('入庫單ID');
+            $table->string('inbound_sn', 20)->comment('入庫單SN');
             $table->unsignedBigInteger('depot_id')->comment('收貨倉庫ID');
             $table->string('depot_name', 30)->comment('收貨倉庫名稱');
             $table->unsignedBigInteger('product_style_id')->comment('商品款式ID');

@@ -127,6 +127,7 @@ class DeliverySeeder extends Seeder
             $delivery_id1,
             0,
             $inbound_2->inbound_id,
+            $inbound_2->inbound_sn,
             $inbound_2->depot_id,
             $inbound_2->depot_name,
             $product_style_id,
