@@ -136,6 +136,7 @@ class PurchaseInbound extends Model
             ->select('inbound.purchase_id as purchase_id' //採購ID
                 , 'product.title as product_title' //商品名稱
                 , 'style.title as style_title' //款式名稱
+                , 'style.id as product_style_id' //款式id
                 , 'style.sku as style_sku' //款式SKU
                 , 'inbound.id as inbound_id' //入庫ID
                 , 'inbound.sn as inbound_sn' //入庫sn
