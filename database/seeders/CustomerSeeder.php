@@ -19,12 +19,15 @@ class CustomerSeeder extends Seeder
         DB::table('usr_identity')->insert([[
             'title' => '消費者',
             'code' => 'customer',
+            'can_bind' => 1,
         ], [
             'title' => '喜鴻員工',
             'code' => 'employee',
+            'can_bind' => 1,
         ], [
             'title' => '企業會員',
             'code' => 'company',
+            'can_bind' => 0,
         ]]);
 
         Customer::createCustomer('Hans', 'hayashi0126@gmail.com', '12345');

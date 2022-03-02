@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Cms\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -46,10 +47,13 @@ class UserMntCtrl extends Controller
     public function customerBinding(Request $request)
     {
 
+        $customer = Customer::where('id', $request->user()->customer_id)->get()->first();
+
         return view('cms.admin.maintenance.bind', [
             'method' => 'edit',
             'formAction' => Route("cms.usermnt.customer-binding"),
             'data' => $request->user(),
+            'customer' => $customer,
         ]);
     }
 

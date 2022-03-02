@@ -13,12 +13,16 @@ class CustomerIdentity extends Model
     protected $table = 'usr_customer_identity';
     protected $guarded = [];
 
-    public static function add($customer_id, $identity_code, $sn = null, $level = null, $can_bind = 0)
+    public static function add($customer_id, $identity_code, $sn = null, $level = null, $can_bind = null)
     {
         $identity = DB::table('usr_identity')->where('code', $identity_code)->get()->first();
 
         $CIdata = CustomerIdentity::where('customer_id', $customer_id)
             ->where('identity_id', $identity->id)->get()->first();
+
+        if (is_null($can_bind)) {
+            $can_bind = $identity->can_bind;
+        }
 
         if (!$CIdata) {
             return CustomerIdentity::create([

@@ -29,6 +29,7 @@ class CreateUsrCustomerIdentityTable extends Migration
             $table->id();
             $table->string('title')->comment('身份別 員工/企業/同業/團購/消費者');
             $table->string('code')->nullable()->comment('識別碼');
+            $table->integer('can_bind')->default(0)->comment('可否被綁 0:否 1:是');
             $table->unique(['code']);
         });
 

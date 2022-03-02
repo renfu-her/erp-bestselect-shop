@@ -148,6 +148,8 @@ class User extends Authenticatable
         $customer = Customer::where('email', $email)->select('id')->get()->first();
         if ($customer) {
             User::where('id', $user_id)->update(['customer_id' => $customer->id]);
+            CustomerIdentity::add($customer->id, 'employee');
+
         }
     }
 
