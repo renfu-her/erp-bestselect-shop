@@ -3,7 +3,7 @@
     <h2 class="mb-3">採購單 {{ $purchaseData->purchase_sn }}</h2>
     <x-b-pch-navi :id="$id"></x-b-pch-navi>
 
-
+    <form action="{{ $formAction }}" method="get">
     <div class="card shadow p-4 mb-4">
     @if ($type === 'deposit')
         <h6>訂金付款項目</h6>
@@ -51,7 +51,7 @@
                 role="button">取消</a>
         </div>
     </div>
-
+    </form>
 @endsection
 @once
     @push('sub-styles')

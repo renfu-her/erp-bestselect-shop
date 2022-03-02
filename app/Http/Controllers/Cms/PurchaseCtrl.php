@@ -432,6 +432,22 @@ class PurchaseCtrl extends Controller
     }
 
     /**
+     * @param  Request  $request
+     * @param  int  $id
+     * 付款單
+     * @return void
+     */
+    public function payOrder(Request $request, int $id)
+    {
+        $purchaseData = Purchase::getPurchase($id)->first();
+        return view('cms.commodity.purchase.pay_order', [
+            'id' => $id,
+            'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
+            'formAction' => Route('cms.purchase.index', ['id' => $id,]),
+        ]);
+    }
+
+    /**
      * 新增訂金付款單
      */
     public function payDeposit(Request $request, $id) {
@@ -457,6 +473,7 @@ class PurchaseCtrl extends Controller
             'payList' => $payList,
             'purchaseChargemanList' => $purchaseChargemanList,
             'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
+            'formAction' => Route('cms.purchase.pay-order', ['id' => $id,]),
         ]);
     }
 
