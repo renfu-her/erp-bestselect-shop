@@ -36,7 +36,7 @@ class OrderItem extends Model
                 , 'ord_items.order_id AS order_id'
                 , 'ord_items.sub_order_id AS sub_order_id'
                 , 'ord_items.product_title AS combo_product_title'
-                , 'tb_combo.id AS prd_product_style_id'
+                , 'tb_combo.id AS product_style_id'
                 , 'tb_combo.product_id'
                 , 'tb_combo.sku'
             )
@@ -55,7 +55,7 @@ class OrderItem extends Model
                 , 'ord_items.order_id AS order_id'
                 , 'ord_items.sub_order_id AS sub_order_id'
                 , 'ord_items.product_title'
-                , 'prd_product_styles.id  AS prd_product_style_id'
+                , 'prd_product_styles.id  AS product_style_id'
                 , 'prd_product_styles.product_id'
                 , 'prd_product_styles.sku'
             )
@@ -75,7 +75,7 @@ class OrderItem extends Model
                 , 'tb_ship.qty as total_qty'
                 , 'tb_ship.combo_product_title'
                 , 'tb_ship.product_title'
-                , 'tb_ship.prd_product_style_id'
+                , 'tb_ship.product_style_id'
                 , 'tb_ship.product_id'
                 , 'tb_ship.sku'
                 , 'tb_ship.type'
