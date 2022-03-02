@@ -20,9 +20,9 @@
                         @foreach ($ord_items_arr as $key => $ord)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
-                            <td>{{ $ord->product_title }}</td>
+                            <td>{{ $ord->product_title }}@if('' != $ord->combo_product_title) {{$ord->combo_product_title}} @endif</td>
                             <td>{{ $ord->sku }}</td>
-                            <td>(待處理)</td>
+                            <td>@if('' != $ord->combo_product_title) 組合包 @else 一般商品 @endif</td>
                             <td>{{ number_format($ord->qty) }}</td>
                             <td>
                                 <input type="number" value="1" class="form-control form-control-sm text-center">
@@ -69,7 +69,7 @@
                 </table>
             </div>
         </div>
-        
+
         <div id="submitDiv">
             <div class="col-auto">
                 <button type="submit" class="btn btn-primary px-4">送出審核</button>

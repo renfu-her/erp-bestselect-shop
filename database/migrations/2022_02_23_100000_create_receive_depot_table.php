@@ -36,6 +36,7 @@ class CreateReceiveDepotTable extends Migration
         Schema::create('dlv_receive_depot', function (Blueprint $table) {
             $table->id()->comment('收貨倉ID');
             $table->unsignedBigInteger('delivery_id')->comment('出貨單ID');
+            $table->unsignedBigInteger('event_item_id')->nullable()->comment('事件物品ID');
             $table->boolean('freebies')->default(0)->comment('贈品類型 0:一般 / 1:贈品');
             $table->unsignedBigInteger('inbound_id')->comment('入庫單ID');
             $table->string('inbound_sn', 20)->comment('入庫單SN');
