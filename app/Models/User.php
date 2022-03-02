@@ -30,13 +30,13 @@ class User extends Authenticatable
      * @var string[]
      */
     protected $fillable = [
-            'name',
-            'account',
-            'email',
-            'password',
-            'uuid',
-            'api_token'
-        ];
+        'name',
+        'account',
+        'email',
+        'password',
+        'uuid',
+        'api_token',
+    ];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -44,9 +44,9 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-            'password',
-            'remember_token',
-        ];
+        'password',
+        'remember_token',
+    ];
 
     /**
      * The attributes that should be cast.
@@ -54,8 +54,8 @@ class User extends Authenticatable
      * @var array
      */
     protected $casts = [
-            'email_verified_at' => 'datetime',
-        ];
+        'email_verified_at' => 'datetime',
+    ];
 
     public function menuTree(): array
     {
@@ -134,12 +134,46 @@ class User extends Authenticatable
                 'id' => $user->id, 'name' => $user->name,
                 'account' => $user->account, 'api_token' => $user->api_token,
                 'is_master' => (isset($user->is_master) && $user->is_master) ? 1
-                    : 0, 'role' => Role::getUserRoles($user->id, 'user')
+                : 0, 'role' => Role::getUserRoles($user->id, 'user'),
             ];
         }
 
         return [
-            'dataList' => $total_data, 'account' => $users
+            'dataList' => $total_data, 'account' => $users,
         ];
+    }
+
+    public static function customerBinding($user_id, $email)
+    {
+        $customer = Customer::where('email', $email)->select('id')->get()->first();
+        if ($customer) {
+            User::where('id', $user_id)->update(['customer_id' => $customer->id]);
+        }
+    }
+
+    public static function checkCustomerBinded($email)
+    {
+        $customer = Customer::where('email', $email)->get()->first();
+
+        if (!$customer) {
+            return [
+                'success' => '0',
+                'error_msg' => '無消費者資料',
+                'code' => 'no_data',
+            ];
+        }
+
+        if (self::where('customer_id', $customer->id)->get()->first()) {
+            return [
+                'success' => '0',
+                'error_msg' => '已被綁定',
+                'code' => 'binded',
+            ];
+        }
+
+        return [
+            'success' => '1',
+        ];
+
     }
 }

@@ -83,8 +83,8 @@ class Customer extends Authenticatable
         $id = $customer->id;
 
         //創建消費者時，直接給一消費者身分
-        $identity = DB::table('usr_identity')->where('code', 'customer')->get()->first();
-        CustomerIdentity::createData($id, $identity->id);
+       // $identity = DB::table('usr_identity')->where('code', 'customer')->get()->first();
+        CustomerIdentity::add($id, 'customer');
 
 //        self::where('id', '=', $id)->get()->first()->givePermissionTo($permission_id);
 //        self::where('id', '=', $id)->get()->first()->assignRole($role_id);
