@@ -45,7 +45,9 @@ class DeliveryCtrl extends Controller
                 foreach ($ord_items_arr as $ord_key => $ord_item) {
                     $ord_items_arr[$ord_key]->receive_depot = [];
                     foreach ($receiveDepotList_arr as $revd_key => $revd_item) {
-                        if ($ord_items_arr[$ord_key]->item_id == $revd_item->event_item_id) {
+                        if ($ord_items_arr[$ord_key]->item_id == $revd_item->event_item_id
+                            && $ord_items_arr[$ord_key]->product_style_id == $revd_item->product_style_id
+                        ) {
                             array_push($ord_items_arr[$ord_key]->receive_depot, $receiveDepotList_arr[$revd_key]);
                             unset($receiveDepotList_arr[$revd_key]);
                         }
@@ -53,7 +55,6 @@ class DeliveryCtrl extends Controller
                 }
             }
         }
-//        dd($ord_items);
 
         return view('cms.commodity.delivery.edit', [
             'sn' => $sub_order->sn,
