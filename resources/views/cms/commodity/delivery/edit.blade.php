@@ -44,9 +44,9 @@
                                     <tbody class="border-top-0">
                                         @foreach ($ord->receive_depot as $rec)
                                         <tr>
-                                            <td>(待處理)</td>
+                                            <td>{{ $rec->inbound_sn }}</td>
                                             <td>{{ $rec->depot_name }}</td>
-                                            <td class="text-center">(待處理)</td>
+                                            <td class="text-center">(庫存將在選擇頁顯示)</td>
                                             <td class="text-center">
                                                 <input type="number" value="{{ $rec->qty }}" class="form-control form-control-sm text-center">
                                             </td>

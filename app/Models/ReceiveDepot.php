@@ -124,6 +124,7 @@ class ReceiveDepot extends Model
                     , 'rcv_depot.event_item_id as event_item_id'
                     , 'rcv_depot.freebies as freebies'
                     , 'rcv_depot.inbound_id as inbound_id'
+                    , 'rcv_depot.inbound_sn as inbound_sn'
                     , 'rcv_depot.depot_id as depot_id'
                     , 'rcv_depot.depot_name as depot_name'
                     , 'rcv_depot.product_style_id as product_style_id'
