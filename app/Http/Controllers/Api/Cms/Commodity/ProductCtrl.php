@@ -95,6 +95,8 @@ class ProductCtrl extends Controller
         return response()->json(['status' => '0', 'data' => $re]);
     }
 
+    
+
     // Product::getProductShipments($id);
 
 }

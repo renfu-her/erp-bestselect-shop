@@ -77,7 +77,7 @@ class OrderCtrl extends Controller
      */
     public function create(Request $request)
     {
-        CustomerIdentity::getSalechannels('a');
+
         $cart = null;
         if (old('product_style_id')) {
             $oldData = [];
@@ -117,6 +117,11 @@ class OrderCtrl extends Controller
         }
 
         $customer_id = $request->user()->customer_id;
+        if ($customer_id) {
+            $salechannels = CustomerIdentity::getSalechannels($customer_id, [1])->get()->toArray();
+        } else {
+            $salechannels = [];
+        }
 
         $citys = Addr::getCitys();
         //    dd($citys);
@@ -127,6 +132,7 @@ class OrderCtrl extends Controller
             'cart' => $cart,
             'regions' => $regions,
             'overbought_id' => $overbought_id,
+            'salechannels' => $salechannels,
         ]);
     }
 
