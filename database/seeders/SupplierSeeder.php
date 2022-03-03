@@ -67,11 +67,51 @@ class SupplierSeeder extends Seeder
             'memo' => '第一家廠商',
         ])->id;
 
+        $supplier2 = Supplier::create([
+            'name' => '茶衣創意行銷有限公司',
+            'nickname' => '茶衣創意',
+            'vat_no' => '27519267',
+            'postal_code' => 414,
+            'contact_tel' => '04-23350441',
+            'contact_address' => '臺中市烏日區南里里溪南路三段117號1樓',
+            'contact_person' => '林碧卿',
+            'job' => '業務',
+            'extension' => '123',
+            'fax' => '04-1234-5678',
+            'mobile_line' => 'sense',
+            'invoice_address' => '臺中市烏日區南里里溪南路三段117號1樓',
+            'invoice_postal_code' => 414,
+            'invoice_recipient' => '王大明',
+            'invoice_email' => 'mac.sense@msa.hinet.net',
+            'invoice_phone' => '04-23350441',
+            'invoice_date' => 20,
+            'invoice_ship_fk' => '1',
+            'invoice_date_fk' => '2',
+            'shipping_address' => '臺中市烏日區南里里溪南路三段117號1樓',
+            'shipping_postal_code' => 414,
+            'shipping_recipient' => '陳小華',
+            'shipping_phone' => '04-216-7121',
+            'shipping_method_fk' => '1',
+            'pay_date' => '2022-04-15 00:00:00',
+            'account_fk' => '2',
+            'account_date' => 15,
+            'request_data' => '無',
+            'email' => 'mac.sense@hinet.com',
+            'def_paytype' => Payment::cheque()->value,
+            'memo' => '',
+        ])->id;
+
         SupplierPayment::create([
             'supplier_id' => $supplier1,
             'type' => Payment::cheque()->value,
             'cheque_payable' => '第一筆支票抬頭',
         ]);
+        SupplierPayment::create([
+            'supplier_id' => $supplier2,
+            'type' => Payment::cheque()->value,
+            'cheque_payable' => '支票抬頭',
+        ]);
+
         SupplierPayment::create([
             'supplier_id' => $supplier1,
             'type' => Payment::remittance()->value,
@@ -79,6 +119,14 @@ class SupplierSeeder extends Seeder
             'bank_code' => '008',
             'bank_acount' => '喜鴻國際有限公司',
             'bank_numer' => '01234123456789',
+        ]);
+        SupplierPayment::create([
+            'supplier_id' => $supplier2,
+            'type' => Payment::remittance()->value,
+            'bank_cname' => '合作金庫長春分行',
+            'bank_code' => '006',
+            'bank_acount' => '喜鴻旅行社有限公司',
+            'bank_numer' => '0844-717-214289',
         ]);
     }
 }

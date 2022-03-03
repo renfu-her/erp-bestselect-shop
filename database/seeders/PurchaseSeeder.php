@@ -20,11 +20,12 @@ class PurchaseSeeder extends Seeder
     public function run()
     {
         $supplier = Supplier::where('id', '=', 1)->get()->first();
+        $supplier2 = Supplier::where('id', '=', 2)->get()->first();
 
         $purchaseID1 = Purchase::createPurchase(
-            $supplier->id,
-            $supplier->name,
-            $supplier->nickname,
+            $supplier2->id,
+            $supplier2->name,
+            $supplier2->nickname,
             5,
             '之谷',
             '2021-12-22 00:00:00',
@@ -36,7 +37,7 @@ class PurchaseSeeder extends Seeder
             $supplier->name,
             $supplier->nickname,
             6,
-            '之谷',
+            '小明',
             '2021-12-23 00:00:00',
             null,
         );
