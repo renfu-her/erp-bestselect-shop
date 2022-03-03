@@ -46,6 +46,7 @@ class PurchaseSeeder extends Seeder
 
         $product_style1 = ProductStyle::where('id', 1)->get()->first();
         $product_style2 = ProductStyle::where('id', 2)->get()->first();
+        $product_style3 = ProductStyle::where('id', 3)->get()->first();
 
         $purchaseItemID1 = PurchaseItem::createPurchase(
             [
@@ -85,6 +86,20 @@ class PurchaseSeeder extends Seeder
                 'num' => 10,
                 'temp_id' => null,
                 'memo' => '第三筆款式'
+            ],
+            $operator_user_id,
+            $operator_user_name
+        );
+        $purchaseItemID3 = PurchaseItem::createPurchase(
+            [
+                'purchase_id' => $purchaseID1,
+                'product_style_id' => $product_style3->id,
+                'title' => '測試商品-'.$product_style3->title,
+                'sku' => $product_style3->sku,
+                'price' => '13',
+                'num' => 13,
+                'temp_id' => null,
+                'memo' => null
             ],
             $operator_user_id,
             $operator_user_name
@@ -157,6 +172,33 @@ class PurchaseSeeder extends Seeder
             '2022-12-14 00:00:00',
             '2022-01-06 00:00:00',
             1,
+            $depot_id,
+            $depot_name,
+            5,
+            $user_name_5,
+            '退換貨',
+        );
+
+        $purchaseInbound4 = PurchaseInbound::createInbound(
+            $purchaseID2,
+            $purchaseItemID2,
+            $product_style2->id,
+            '2022-11-14 00:00:00',
+            '2022-02-03 00:00:00',
+            25,
+            $depot_id,
+            $depot_name,
+            5,
+            $user_name_5,
+            '退換貨',
+        );
+        $purchaseInbound5 = PurchaseInbound::createInbound(
+            $purchaseID1,
+            $purchaseItemID3,
+            $product_style3->id,
+            '2022-11-14 00:00:00',
+            '2022-02-03 00:00:00',
+            26,
             $depot_id,
             $depot_name,
             5,
