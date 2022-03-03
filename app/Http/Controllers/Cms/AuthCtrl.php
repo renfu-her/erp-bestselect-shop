@@ -36,6 +36,7 @@ class AuthCtrl extends Controller
         ]);
 
         $credentials = $request->only('account', 'password');
+        $credentials['company_code'] = config('global.company_code');
         $remember_me = (!empty($request->remember_me)) ? true : false;
 
         if (Auth::guard('user')->attempt($credentials, $remember_me)) {
@@ -43,7 +44,7 @@ class AuthCtrl extends Controller
         } else {
             return redirect(Route('cms.login'))
                 ->withErrors([
-                    'login-error' => __('auth.failed')
+                    'login-error' => __('auth.failed'),
                 ]);
         }
     }

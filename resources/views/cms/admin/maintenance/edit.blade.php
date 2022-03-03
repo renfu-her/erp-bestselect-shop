@@ -1,7 +1,7 @@
 @extends('layouts.main')
 @section('sub-content')
     <div class="pt-2 mb-3">
-        <a href="{{ Route("$userType.dashboard", [], true) }}" class="btn btn-primary" role="button">
+        <a href="{{ Route("cms.dashboard", [], true) }}" class="btn btn-primary" role="button">
             <i class="bi bi-arrow-left"></i> 返回首頁
         </a>
     </div>

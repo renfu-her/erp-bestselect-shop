@@ -18,5 +18,6 @@ return [
         'Friday' => '星期五',
         'Saturday' => '星期六',
         'Sunday' => '星期日',
-    ]
+    ],
+    'company_code' => 'C000061',
 ];
