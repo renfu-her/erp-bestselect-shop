@@ -78,7 +78,7 @@ class OrderCart extends Model
 
             switch ($value['shipment_type']) {
                 case 'pickup':
-                    $shipment = Product::getPickup($value['product_id'])->where('pick_up.id', $value['shipment_event_id'])->get()->first();
+                    $shipment = Product::getPickup($value['product_id'])->where('depot.id', $value['shipment_event_id'])->get()->first();
                     if (!$shipment) {
                         return ['success' => 0, 'error_msg' => '無運送方式', 'event' => 'product', 'event_id' => $value['product_style_id']];
                     }
