@@ -6,6 +6,7 @@ use App\Enums\Order\UserAddrType;
 use App\Http\Controllers\Controller;
 use App\Models\Addr;
 use App\Models\Customer;
+use App\Models\CustomerIdentity;
 use App\Models\Order;
 use App\Models\OrderCart;
 use App\Models\OrderStatus;
@@ -76,6 +77,7 @@ class OrderCtrl extends Controller
      */
     public function create(Request $request)
     {
+        CustomerIdentity::getSalechannels('a');
         $cart = null;
         if (old('product_style_id')) {
             $oldData = [];

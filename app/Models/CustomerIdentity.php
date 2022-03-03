@@ -51,4 +51,17 @@ class CustomerIdentity extends Model
             });
         }
     }
+
+    public static function getSalechannels($customer_id)
+    {
+
+        $sale = DB::table('usr_customer_identity as ci')
+            ->leftJoin('usr_identity as identity', 'ci.identity_id', '=', 'identity.id')
+            ->leftJoin('usr_identity_salechannel as isa', 'identity.id', '=', 'isa.identity_id')
+            ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'isa.sale_channel_id')
+            ->select('sale.id as sale_channel_id', 'sale.title as sale_channel_title')
+            ->where('ci.customer_id', $customer_id);
+
+        return $sale;
+    }
 }
