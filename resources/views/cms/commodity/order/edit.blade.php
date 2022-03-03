@@ -624,8 +624,8 @@
             });
             // 商品清單 API
             function getProductList(page) {
-                let _URL = `${Laravel.apiUrl.productStyles}?page=${page}`;
-                let Data = {
+                const _URL = `${Laravel.apiUrl.productStyles}?page=${page}`;
+                const Data = {
                     keyword: $('#addProduct .-searchBar input').val(),
                     price: 1
                 };
@@ -726,8 +726,8 @@
             });
             // 物流 API
             function getShpmentData(pid) {
-                let _URL = `${Laravel.apiUrl.productShipments}`;
-                let Data = {
+                const _URL = `${Laravel.apiUrl.productShipments}`;
+                const Data = {
                     product_id: pid
                 };
                 resetSetShipmentModal();
@@ -924,7 +924,7 @@
                 resetSetShipmentModal();
             });
 
-            // 清空商品Modal
+            // 清空商品 Modal
             function resetAddProductModal() {
                 $('#addProduct .-searchBar input').val('');
                 $('#addProduct tbody.-appendClone.--product').empty();
@@ -934,7 +934,7 @@
                 $('#addProduct .-checkedNum').text(`已添加 ${productStyleId.length} 件商品`);
                 $('.-emptyData').hide();
             }
-            // 清空物流Modal
+            // 清空物流 Modal
             function resetSetShipmentModal() {
                 $('#setShipment blockquote h6, #setShipment figcaption').text('');
                 $('#setShipment fieldset > div').empty();
