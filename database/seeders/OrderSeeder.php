@@ -92,14 +92,6 @@ class OrderSeeder extends Seeder
                 'shipment_type' => 'pickup',
                 'shipment_event_id' => 3,
             ],
-            [
-                'product_id' => 2,
-                'product_style_id' => 4,
-                'customer_id' => 1,
-                'qty' => 2,
-                'shipment_type' => 'deliver',
-                'shipment_event_id' => 1,
-            ],
         ];
 
         $val = Order::createOrder('hayashi0126@gmail.com', 1, $address, $items, '備註');
