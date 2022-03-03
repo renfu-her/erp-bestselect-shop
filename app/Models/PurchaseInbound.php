@@ -36,7 +36,14 @@ class PurchaseInbound extends Model
             , $memo
             , $can_tally
         ) {
+
+            $sn = date("ymd") . str_pad((PurchaseInbound::whereDate('created_at', '=', date('Y-m-d'))
+                        ->withTrashed()
+                        ->get()
+                        ->count()) + 1, 3, '0', STR_PAD_LEFT);
+
             $id = self::create([
+                'sn' => $sn,
                 "purchase_id" => $purchase_id,
                 "purchase_item_id" => $purchase_item_id,
                 "product_style_id" => $product_style_id,
@@ -129,8 +136,10 @@ class PurchaseInbound extends Model
             ->select('inbound.purchase_id as purchase_id' //採購ID
                 , 'product.title as product_title' //商品名稱
                 , 'style.title as style_title' //款式名稱
+                , 'style.id as product_style_id' //款式id
                 , 'style.sku as style_sku' //款式SKU
                 , 'inbound.id as inbound_id' //入庫ID
+                , 'inbound.sn as inbound_sn' //入庫sn
                 , 'inbound.inbound_num as inbound_num' //入庫實進數量
                 , 'inbound.depot_id as depot_id'  //入庫倉庫ID
                 , 'inbound.depot_name as depot_name'  //入庫倉庫名稱
@@ -262,6 +271,7 @@ class PurchaseInbound extends Model
                 , 'style.title as style_title' //款式名稱
                 , 'style.sku as style_sku' //款式SKU
                 , 'inbound.id as inbound_id' //入庫ID
+                , 'inbound.sn as inbound_sn' //入庫sn
                 , 'inbound.product_style_id as product_style_id'
                 , 'inbound.depot_id as depot_id'  //入庫倉庫ID
                 , 'inbound.depot_name as depot_name'  //入庫倉庫名稱

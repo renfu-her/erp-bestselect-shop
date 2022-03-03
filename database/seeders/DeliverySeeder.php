@@ -125,8 +125,10 @@ class DeliverySeeder extends Seeder
         $ReceiveDepot_id2 = ReceiveDepot::setData(
             null,
             $delivery_id1,
+            null,
             0,
             $inbound_2->inbound_id,
+            $inbound_2->inbound_sn,
             $inbound_2->depot_id,
             $inbound_2->depot_name,
             $product_style_id,

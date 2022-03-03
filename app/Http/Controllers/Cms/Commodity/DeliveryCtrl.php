@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Cms\Commodity;
 use App\Enums\Delivery\Event;
 use App\Http\Controllers\Controller;
 use App\Models\Delivery;
+use App\Models\OrderItem;
 use App\Models\ReceiveDepot;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -30,7 +31,7 @@ class DeliveryCtrl extends Controller
             , $sub_order->ship_category_name);
 
         // 子訂單的商品列表
-        $ord_items = DB::table('ord_items')->where('ord_items.sub_order_id', $sub_order_id)->get();
+        $ord_items = OrderItem::getShipItem($sub_order_id)->get();
         // 子訂單的入庫資料
         $ord_items_arr = null;
         if (null != $ord_items && 0 < count($ord_items)) {
@@ -44,7 +45,9 @@ class DeliveryCtrl extends Controller
                 foreach ($ord_items_arr as $ord_key => $ord_item) {
                     $ord_items_arr[$ord_key]->receive_depot = [];
                     foreach ($receiveDepotList_arr as $revd_key => $revd_item) {
-                        if ($ord_items_arr[$ord_key]->product_style_id == $revd_item->product_style_id) {
+                        if ($ord_items_arr[$ord_key]->item_id == $revd_item->event_item_id
+                            && $ord_items_arr[$ord_key]->product_style_id == $revd_item->product_style_id
+                        ) {
                             array_push($ord_items_arr[$ord_key]->receive_depot, $receiveDepotList_arr[$revd_key]);
                             unset($receiveDepotList_arr[$revd_key]);
                         }
