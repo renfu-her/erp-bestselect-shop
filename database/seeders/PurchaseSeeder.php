@@ -36,17 +36,30 @@ class PurchaseSeeder extends Seeder
             $supplier->id,
             $supplier->name,
             $supplier->nickname,
-            6,
-            '小明',
+            2,
+            '小姜',
             '2021-12-23 00:00:00',
             null,
         );
+
+        $purchaseID3 = Purchase::createPurchase(
+            $supplier2->id,
+            $supplier2->name,
+            $supplier2->nickname,
+            2,
+            '小姜',
+            '2021-03-23 00:00:00',
+            null,
+        );
+
         $operator_user_id = 5;
         $operator_user_name = '之谷';
 
         $product_style1 = ProductStyle::where('id', 1)->get()->first();
         $product_style2 = ProductStyle::where('id', 2)->get()->first();
         $product_style3 = ProductStyle::where('id', 3)->get()->first();
+        $product_style4 = ProductStyle::where('id', 7)->get()->first();
+        $product_style5 = ProductStyle::where('id', 8)->get()->first();
 
         $purchaseItemID1 = PurchaseItem::createPurchase(
             [
@@ -105,8 +118,41 @@ class PurchaseSeeder extends Seeder
             $operator_user_name
         );
 
+        $purchaseItemID4 = PurchaseItem::createPurchase(
+            [
+                'purchase_id' => $purchaseID3,
+                'product_style_id' => $product_style2->id,
+                'title' => '測試商品-'.$product_style2->title,
+                'sku' => $product_style2->sku,
+                'price' => '9900',
+                'num' => 100,
+                'temp_id' => null,
+                'memo' => '遊輪販售專用'
+            ],
+            $operator_user_id,
+            $operator_user_name
+        );
+        $purchaseItemID5 = PurchaseItem::createPurchase(
+            [
+                'purchase_id' => $purchaseID3,
+                'product_style_id' => $product_style5->id,
+                'title' => '茶葉金禮盒-'.$product_style5->title,
+                'sku' => $product_style5->sku,
+                'price' => '21750',
+                'num' => 250,
+                'temp_id' => null,
+                'memo' => '節慶送禮'
+            ],
+            $operator_user_id,
+            $operator_user_name
+        );
+
+        //承辦人yoyo的user id
+        $undertakerUserId = 7;
+
         PayingOrder::createPayingOrder(
             $purchaseID1,
+            $undertakerUserId,
             0,
             '中信銀行',
             '822',
@@ -119,6 +165,7 @@ class PurchaseSeeder extends Seeder
         );
         PayingOrder::createPayingOrder(
             $purchaseID1,
+            $undertakerUserId,
             1,
             '中信銀行',
             '822',
@@ -130,7 +177,9 @@ class PurchaseSeeder extends Seeder
             '第二筆備註 尾款'
         );
 
+        $user_id_3 = 3;
         $user_id_5 = 5;
+        $user_name_3 = '理查';
         $user_name_5 = '之谷';
         $depot_id = 1;
         $depot_name = '集運本倉';
@@ -203,6 +252,32 @@ class PurchaseSeeder extends Seeder
             $depot_name,
             5,
             $user_name_5,
+            '退換貨',
+        );
+        $purchaseInbound6 = PurchaseInbound::createInbound(
+            $purchaseID3,
+            $purchaseItemID4,
+            $product_style2->id,
+            '2022-11-14 00:00:00',
+            '2022-02-03 00:00:00',
+            35,
+            $depot_id,
+            $depot_name,
+            $user_id_3,
+            $user_name_3,
+            '退換貨',
+        );
+        $purchaseInbound7 = PurchaseInbound::createInbound(
+            $purchaseID3,
+            $purchaseItemID5,
+            $product_style5->id,
+            '2022-09-15 00:00:00',
+            '2022-03-14 00:00:00',
+            45,
+            $depot_id,
+            $depot_name,
+            $user_id_3,
+            $user_name_3,
             '退換貨',
         );
 
