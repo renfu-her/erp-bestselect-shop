@@ -41,11 +41,11 @@
                         <dd></dd>
                     </div>
                     <div class="col">
-                        <dt>電話：02-412-8618</dt>
+                        <dt>電話：02-2563-7600</dt>
                         <dd></dd>
                     </div>
                     <div class="col">
-                        <dt>傳真：02-412-8688</dt>
+                        <dt>傳真：02-2571-1377</dt>
                         <dd></dd>
                     </div>
                 </dl>

@@ -12,7 +12,11 @@
 
         <div class="card mb-4">
             <div class="card-header">
-                @if ($method === 'create') 新增 @else 編輯 @endif 帳號
+                @if ($method === 'create')
+                    新增
+                @else
+                    編輯
+                @endif 帳號
             </div>
             <div class="card-body">
                 <x-b-form-group name="acount_status" title="開通狀態">
@@ -20,44 +24,42 @@
                         <div class="form-check form-check-inline">
                             <label class="form-check-label">
                                 關閉
-                                <input class="form-check-input @error('acount_status') is-invalid @enderror"
-                                       value="0" name="acount_status" type="radio"
-                                       @if ($method === 'create' || ($method === 'edit' && !$data->acount_status)) checked @endif >
+                                <input class="form-check-input @error('acount_status') is-invalid @enderror" value="0"
+                                    name="acount_status" type="radio" @if ($method === 'create' || ($method === 'edit' && !$data->acount_status)) checked @endif>
                             </label>
                         </div>
                         <div class="form-check form-check-inline">
                             <label class="form-check-label">
                                 開放
-                                <input class="form-check-input @error('acount_status') is-invalid @enderror"
-                                       value="1" name="acount_status" type="radio"
-                                       @if ($method === 'edit' && $data->acount_status ) checked @endif >
+                                <input class="form-check-input @error('acount_status') is-invalid @enderror" value="1"
+                                    name="acount_status" type="radio" @if ($method === 'edit' && $data->acount_status) checked @endif>
                             </label>
                         </div>
                     </div>
                 </x-b-form-group>
                 <x-b-form-group name="name" title="姓名" required="true">
                     <input class="form-control @error('name') is-invalid @enderror" name="name"
-                           value="{{ old('name', $data->name ?? '') }}"/>
+                        value="{{ old('name', $data->name ?? '') }}" />
                 </x-b-form-group>
                 <x-b-form-group name="email" title="帳號" required="true">
                     @if ($method === 'create')
                         <input class="form-control @error('email') is-invalid @enderror" name="email"
-                               value="{{ old('email', $data->email ?? '') }}"/>
+                            value="{{ old('email', $data->email ?? '') }}" />
                     @else
                         <div class="col-form-label">{{ $data->email ?? '' }}</div>
                     @endif
                 </x-b-form-group>
-                <x-b-form-group name="password" title="密碼" required="{{ ($method === 'create') ? 'true' : 'false' }}">
-                    <input class="form-control @error('password') is-invalid @enderror" type="password"
-                           name="password" value=""/>
+                <x-b-form-group name="password" title="密碼" required="{{ $method === 'create' ? 'true' : 'false' }}">
+                    <input class="form-control @error('password') is-invalid @enderror" type="password" name="password"
+                        value="" />
                 </x-b-form-group>
                 <x-b-form-group name="password_confirmation" title="密碼確認">
                     <input class="form-control @error('password_confirmation') is-invalid @enderror" type="password"
-                           name="password_confirmation" value=""/>
+                        name="password_confirmation" value="" />
                 </x-b-form-group>
                 <x-b-form-group name="phone" title="手機">
-                    <input class="form-control @error('phone') is-invalid @enderror"
-                           name="phone" value="{{ old('phone', $data->phone ?? '') }}"/>
+                    <input class="form-control @error('phone') is-invalid @enderror" name="phone"
+                        value="{{ old('phone', $data->phone ?? '') }}" />
                 </x-b-form-group>
 
                 <div calss="form-group">
@@ -66,69 +68,71 @@
                     </label>
                     <div class="input-group has-validation">
                         <select class="form-select @error('city_id') is-invalid @enderror" style="max-width:20%"
-                                id="city_id" name="city_id">
+                            id="city_id" name="city_id">
                             <option>請選擇</option>
                             @foreach ($citys as $city)
-                                <option value="{{ $city['city_id'] }}"
-                                        @if (old('city_id', $data->city_id ?? '') == $city['city_id']) selected @endif>{{ $city['city_title'] }}</option>
+                                <option value="{{ $city['city_id'] }}" @if (old('city_id', $data->city_id ?? '') == $city['city_id']) selected @endif>
+                                    {{ $city['city_title'] }}</option>
                             @endforeach
                         </select>
                         <select class="form-select @error('region_id') is-invalid @enderror" style="max-width:20%"
-                                id="region_id" name="region_id">
+                            id="region_id" name="region_id">
                             <option>請選擇</option>
                             @foreach ($regions as $region)
                                 <option value="{{ $region['region_id'] }}"
-                                        @if (old('region_id', $data->region_id ?? '') == $region['region_id']) selected @endif>{{ $region['region_title'] }}</option>
+                                    @if (old('region_id', $data->region_id ?? '') == $region['region_id']) selected @endif>{{ $region['region_title'] }}
+                                </option>
                             @endforeach
                         </select>
                         <input name="addr" type="text" class="form-control @error('addr') is-invalid @enderror"
-                               value="{{ old('addr', $data->addr ?? '') }}">
+                            value="{{ old('addr', $data->addr ?? '') }}">
                         <button class="btn btn-outline-success" type="button" id="format_btn">格式化</button>
                         <div class="invalid-feedback">
                             @error('city_id')
-                            {{ $message }}
+                                {{ $message }}
                             @enderror
                             @error('region_id')
-                            {{ $message }}
+                                {{ $message }}
                             @enderror
                             @error('addr')
-                            {{ $message }}
+                                {{ $message }}
                             @enderror
                         </div>
                     </div>
                 </div>
                 <x-b-form-group name="birthday" title="生日">
-                    <input class="form-control @error('birthday') is-invalid @enderror" type="date"
-                           name="birthday" value="{{ old('birthday', $data->birthday ?? '') }}"/>
+                    <input class="form-control @error('birthday') is-invalid @enderror" type="date" name="birthday"
+                        value="{{ old('birthday', $data->birthday ?? '') }}" />
                 </x-b-form-group>
 
                 <x-b-form-group name="bind_customer_id" title="綁定消費者帳號">
                     <select id="bind_customer_id" name="bind_customer_id"
-                            class="form-select -select2 -single @error('bind_customer_id') is-invalid @enderror"
-                            aria-label="綁定消費者帳號">
+                        class="form-select -select2 -single @error('bind_customer_id') is-invalid @enderror"
+                        aria-label="綁定消費者帳號">
                         <option value="" selected disabled>請選擇</option>
                         @foreach ($customer_list as $customer)
-                            <option value="{{ $customer->id }}"
-                                    @if ($customer->id == old('customer_id', $data->bind_customer_id ?? '')) selected @endif>
+                            <option value="{{ $customer->id }}" @if ($customer->id == old('customer_id', $data->bind_customer_id ?? '')) selected @endif>
                                 {{ $customer->name }} {{ $customer->email }}
                             </option>
                         @endforeach
                     </select>
                 </x-b-form-group>
                 @if ($method === 'edit')
-                    <input type='hidden' name='id' value="{{ old('id', $id) }}"/>
+                    <input type='hidden' name='id' value="{{ old('id', $id) }}" />
                 @endif
                 @error('id')
-                <div class="alert alert-danger mt-3">{{ $message }}</div>
+                    <div class="alert alert-danger mt-3">{{ $message }}</div>
                 @enderror
             </div>
         </div>
 
         <div class="d-flex justify-content-end">
+            @if (isset($bind))
+                <input type="hidden" name="bind" value="{{ $bind }}">
+            @endif
             <button type="submit" class="btn btn-primary px-4">儲存</button>
         </div>
     </form>
-
 @endsection
 @once
     @push('sub-scripts')
@@ -137,7 +141,7 @@
             let regionElem = $('#region_id')
             let addrInputElem = $('input[name=addr]');
 
-            cityElem.on('change', function (e) {
+            cityElem.on('change', function(e) {
                 getRegionsAction($(this).val());
             });
 
@@ -152,7 +156,7 @@
                     });
             }
 
-            $('#format_btn').on('click', function (e) {
+            $('#format_btn').on('click', function(e) {
                 let addr = addrInputElem.val();
 
                 if (addr) {

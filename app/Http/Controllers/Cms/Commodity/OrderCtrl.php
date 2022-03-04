@@ -6,6 +6,7 @@ use App\Enums\Order\UserAddrType;
 use App\Http\Controllers\Controller;
 use App\Models\Addr;
 use App\Models\Customer;
+use App\Models\CustomerIdentity;
 use App\Models\Order;
 use App\Models\OrderCart;
 use App\Models\OrderStatus;
@@ -76,6 +77,7 @@ class OrderCtrl extends Controller
      */
     public function create(Request $request)
     {
+
         $cart = null;
         if (old('product_style_id')) {
             $oldData = [];
@@ -115,6 +117,11 @@ class OrderCtrl extends Controller
         }
 
         $customer_id = $request->user()->customer_id;
+        if ($customer_id) {
+            $salechannels = CustomerIdentity::getSalechannels($customer_id, [1])->get()->toArray();
+        } else {
+            $salechannels = [];
+        }
 
         $citys = Addr::getCitys();
         //    dd($citys);
@@ -125,6 +132,7 @@ class OrderCtrl extends Controller
             'cart' => $cart,
             'regions' => $regions,
             'overbought_id' => $overbought_id,
+            'salechannels' => $salechannels,
         ]);
     }
 

@@ -61,7 +61,7 @@ class UserCtrl extends Controller
         $request->validate([
             'password' => 'confirmed|min:4', 'name' => 'required|string',
             'account'  => ['required', 'unique:App\Models\User'],
-            'customer_id'  => 'required|numeric',
+            
         ]);
 
         $uData = $request->only('account', 'name', 'password', 'customer_id');
@@ -84,7 +84,6 @@ class UserCtrl extends Controller
             $uData['password'],
             $permission_id,
             $role_id,
-            $uData['customer_id'],
         );
         wToast('新增完成');
         return redirect(Route('cms.user.index'));

@@ -68,6 +68,18 @@ class ProductSeeder extends Seeder
 
       // dd(ProductStock::comboProcess(3,-130));
 
+        //新增:茶葉金禮盒
+        $re1 = Product::createProduct('茶葉金禮盒', 6, 1, 'p', '茶湯色澤迷人濃郁，入口清香、後韻回甘', null, '純正台灣茶葉', null, null, [2], 1);
+        Product::setProductSpec($re1['id'], 3);
+        ProductSpecItem::createItems($re1['id'], 3, '藍');
+        ProductSpecItem::createItems($re1['id'], 3, '橙');
+        ProductSpecItem::createItems($re1['id'], 3, '黑');
+        $styleId_1 = ProductStyle::createStyle($re1['id'], [10]);
+        $styleId_2 = ProductStyle::createStyle($re1['id'], [11]);
+        $styleId_3 = ProductStyle::createStyle($re1['id'], [12]);
+        ProductStyle::createSku($re1['id'], $styleId_1);
+        ProductStyle::createSku($re1['id'], $styleId_2);
+        ProductStyle::createSku($re1['id'], $styleId_3);
 
     }
 }

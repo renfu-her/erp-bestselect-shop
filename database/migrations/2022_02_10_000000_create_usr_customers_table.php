@@ -34,6 +34,7 @@ class CreateUsrCustomersTable extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+        
     }
 
     /**

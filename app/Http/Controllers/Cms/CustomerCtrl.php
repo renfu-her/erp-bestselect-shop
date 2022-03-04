@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Cms;
 use App\Http\Controllers\Controller;
 use App\Models\Addr;
 use App\Models\Customer;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
@@ -20,16 +21,15 @@ class CustomerCtrl extends Controller
     public function index(Request $request)
     {
         $query = $request->query();
-
         $name = Arr::get($query, 'name', '');
         $email = Arr::get($query, 'email', '');
-        $customer = Customer::getCustomerBySearch($query);
+        $customer = Customer::getCustomerBySearch($name)->paginate(10)->appends($query);
 
         return view('cms.admin.customer.list', [
             'name' => $name,
             'email' => $email,
-            "dataList" => $customer['dataList']
-            , 'formAction' => Route('cms.customer.index'),
+            "dataList" => $customer,
+            'formAction' => Route('cms.customer.index'),
         ]);
     }
 
@@ -40,18 +40,28 @@ class CustomerCtrl extends Controller
      */
     public function create(Request $request)
     {
+        $query = $request->query();
+
         $recentCity = $request->old('city_id');
+        $bind = Arr::get($query, 'bind');
+        $data = [];
+        if ($bind) {
+            $data = $request->user();
+        }
+
         $regions = [];
         if ($recentCity) {
             $regions = Addr::getRegions($recentCity);
         }
 
         return view('cms.admin.customer.edit', [
-            'method'         => 'create',
-            'formAction'     => Route('cms.customer.create'),
-            'customer_list'  => Customer::all(),
+            'method' => 'create',
+            'formAction' => Route('cms.customer.create'),
+            'customer_list' => Customer::all(),
             'citys' => Addr::getCitys(),
-            'regions' => $regions
+            'regions' => $regions,
+            'bind' => $bind,
+            'data' => $data,
         ]);
     }
 
@@ -66,7 +76,7 @@ class CustomerCtrl extends Controller
     {
         $request->validate([
             'password' => 'confirmed|min:4', 'name' => 'required|string',
-            'email'  => ['required', 'email:rfc,dns', 'unique:App\Models\Customer'],
+            'email' => ['required', 'email:rfc,dns', 'unique:App\Models\Customer'],
         ]);
 
         $uData = $request->only('email', 'name', 'password'
@@ -91,6 +101,12 @@ class CustomerCtrl extends Controller
             , is_numeric($uData['region_id']) ? $uData['region_id'] : null
             , $uData['addr'] ?? null
         );
+
+        if ($request->input('bind') == '1') {
+            User::customerBinding($request->user()->id, $uData['email']);
+            wToast('新增並綁定完成');
+            return redirect(Route('cms.usermnt.customer-binding'));
+        }
 
         wToast('新增完成');
         return redirect(Route('cms.customer.index'));
@@ -130,12 +146,12 @@ class CustomerCtrl extends Controller
         }
 
         return view('cms.admin.customer.edit', [
-            'method'         => 'edit', 'id' => $id,
-            'formAction'     => Route('cms.customer.edit', ['id' => $id]),
-            'data'           => $data,
-            'customer_list'  => Customer::all(),
-            'citys'          => Addr::getCitys(),
-            'regions'        => $regions
+            'method' => 'edit', 'id' => $id,
+            'formAction' => Route('cms.customer.edit', ['id' => $id]),
+            'data' => $data,
+            'customer_list' => Customer::all(),
+            'citys' => Addr::getCitys(),
+            'regions' => $regions,
         ]);
     }
 
