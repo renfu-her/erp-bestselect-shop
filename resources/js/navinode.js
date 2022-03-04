@@ -127,7 +127,7 @@ $(function () {
             // 改 title
             newLi.find('.oneItem .-title').text(liItem.title);
             newLi.find('input[name="id"]').val(liItem.id);
-            newLi.find('a.-edit').attr('href', `static/${liItem.level}/edit/${liItem.id}`);
+            newLi.find('a.-edit').attr('href', `navinode/edit/${liItem.id}`);
             newLi.find('span.-del').data('id', liItem.id);
             setEventBadge(newLi.find('span.badge'), liItem.event);
 

@@ -197,7 +197,7 @@ class NaviNode extends Model
         }
 
         $tree = self::_array_values($tree);
-       
+
         return ['ids' => $ids, 'tree' => $tree];
     }
 
@@ -265,6 +265,26 @@ class NaviNode extends Model
 
         self::cacheProcess();
 
+    }
+
+    public static function updateMultiLevel($childs, $parent_id = 0, $level = 0)
+    {
+       
+        $level++;
+        foreach ($childs as $key => $child) {
+
+            self::where('id', $child->id)->update([
+                'parent_id' => $parent_id,
+                'level' => $level,
+                'sort' => $key * 10,
+            ]);
+
+            if (isset($child->child)) {
+
+                self::updateMultiLevel($child->child, $child->id, $child->level);
+            }
+
+        }
     }
 
     public static function cacheProcess()

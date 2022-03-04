@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Cms\Frontend;
 
-use App\Enums\Globals\FrontendApiUrl;
 use App\Http\Controllers\Controller;
 use App\Models\Collection;
 use App\Models\NaviNode;
@@ -15,43 +14,45 @@ class NaviNodeCtrl extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    /*
     public function index(Request $request, $level = 0)
     {
 
-       // dd(NaviNode::tree(0));
-        $parent_id = 0;
-        $prev = null;
-        if ($level) {
-            $match = [];
-            preg_match("/-(\d{1,})$/", $level, $match);
+    // dd(NaviNode::tree(0));
+    $parent_id = 0;
+    $prev = null;
+    if ($level) {
+    $match = [];
+    preg_match("/-(\d{1,})$/", $level, $match);
 
-            if (!isset($match[1])) {
-                return abort(404);
-            }
-            $parent_id = $match[1];
-            $prev = preg_replace("/-(\d{1,})$/", "", $level);
-        }
-        //  dd(NaviNode::nodeList($parent_id)->get()->toArray());
-        return view('cms.frontend.navinode.list', [
-            'dataList' => NaviNode::nodeList($parent_id)->get()->toArray(),
-            'level' => $level,
-            'prev' => $prev,
-            'breadcrumb_data' => NaviNode::forBreadcrumb($level),
-        ],
-        );
+    if (!isset($match[1])) {
+    return abort(404);
     }
-
+    $parent_id = $match[1];
+    $prev = preg_replace("/-(\d{1,})$/", "", $level);
+    }
+    //  dd(NaviNode::nodeList($parent_id)->get()->toArray());
+    return view('cms.frontend.navinode.list', [
+    'dataList' => NaviNode::nodeList($parent_id)->get()->toArray(),
+    'level' => $level,
+    'prev' => $prev,
+    'breadcrumb_data' => NaviNode::forBreadcrumb($level),
+    ],
+    );
+    }
+     */
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function design()
-    {   
-       
+    public function index()
+    {
+
         // dd(NaviNode::tree());
         return view('cms.frontend.navinode.new-list', [
-            'dataList' => NaviNode::tree()
+            'dataList' => NaviNode::tree(),
+            'breadcrumb_data' => [],
         ]);
     }
 
@@ -111,17 +112,19 @@ class NaviNodeCtrl extends Controller
         }
 
         wToast('更新完成');
-        return redirect(route('cms.navinode.index', ['level' => $level]));
+        return redirect(route('cms.navinode.index'));
 
     }
 
     public function vali($request, &$d = [], $level)
     {
-        $currentLevel = count(explode('-', $level));
+
+        // $currentLevel = count(explode('-', $level));
         $valuRule = [
             'title' => ['required', 'string'],
         ];
-        if ($currentLevel != 3) {
+
+        if ($level != 3) {
             $valuRule['has_child'] = 'required|in:0,1';
         };
 
@@ -137,7 +140,7 @@ class NaviNodeCtrl extends Controller
         $d['has_child'] = isset($data['has_child']) ? $data['has_child'] : 0;
         $d['title'] = $data['title'];
 
-        if ($currentLevel >= 3) {
+        if ($level >= 3) {
             $d['has_child'] = 0;
         }
 
@@ -187,7 +190,7 @@ class NaviNodeCtrl extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(Request $request, Collection $collection, $level = 0, $id)
+    public function edit(Request $request, Collection $collection, $id)
     {
         $data = NaviNode::where('id', $id)->get()->first();
 
@@ -195,16 +198,16 @@ class NaviNodeCtrl extends Controller
             return abort(404);
         }
 
-        $currentLevel = count(explode('-', $level));
-
+        // $currentLevel = count(explode('-', $level));
+       
         return view('cms.frontend.navinode.edit', [
             'data' => $data,
             'method' => 'edit',
-            'level' => $level,
-            'currentLevel' => $currentLevel,
-            'formAction' => Route('cms.navinode.edit', ['level' => $level, 'id' => $id]),
+            'level' => $data->level,
+            'currentLevel' => $data->level,
+            'formAction' => Route('cms.navinode.edit', ['id' => $id]),
             'collections' => $collection->get()->toArray(),
-            'breadcrumb_data' => ['level' => NaviNode::forBreadcrumb($level), 'title' => $data->title],
+            'breadcrumb_data' => [],
         ]);
     }
 
@@ -215,10 +218,10 @@ class NaviNodeCtrl extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $level = 0, $id)
+    public function update(Request $request, $id)
     {
-
-        $this->vali($request, $d, $level);
+        $node = NaviNode::where('id', $id)->get()->first();
+        $this->vali($request, $d, $node->level);
 
         $re = NaviNode::updateNode($id, $d['title'], $d['url'], $d['event_id'], $d['has_child'], $d['event'], $d['target']);
         if (!$re['success']) {
@@ -226,7 +229,21 @@ class NaviNodeCtrl extends Controller
         }
 
         wToast('更新完成');
-        return redirect(route('cms.navinode.index', ['level' => $level]));
+        return redirect(route('cms.navinode.index'));
+    }
+
+    public function updateLevel(Request $request)
+    {
+        $d = $request->all();
+
+        $data = json_decode($d['data']);
+        //  dd($data);
+        NaviNode::updateMultiLevel($data);
+        NaviNode::cacheProcess();
+        //  dd(NaviNode::tree());
+        wToast('變更完成');
+        return redirect()->back();
+
     }
 
     /**

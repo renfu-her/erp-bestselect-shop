@@ -300,21 +300,22 @@ Breadcrumbs::for('cms.collection.edit', function (BreadcrumbTrail $trail) {
 });
 
 // 選單列表設定
-Breadcrumbs::for('cms.navinode.index', function ($trail, $value) {
+Breadcrumbs::for('cms.navinode.index', function ($trail) {
     $trail->parent('cms.dashboard');
     $trail->push('選單列表設定', route('cms.navinode.index'));
+    /*
     foreach ($value as $v) {
         $trail->push($v['title'], route('cms.navinode.index', ['level' => $v['path']]));
-    }
+    }*/
 });
 Breadcrumbs::for('cms.navinode.create', function ($trail, $value) {
     $trail->parent('cms.navinode.index',$value);
     $trail->push('新增');
 });
 Breadcrumbs::for('cms.navinode.edit', function ($trail, $value) {
-    $trail->parent('cms.navinode.index',$value['level']);
+    $trail->parent('cms.navinode.index',[]);
     $trail->push('編輯');
-    $trail->push($value['title']);
+   // $trail->push($value['title']);
 });
 
 /**

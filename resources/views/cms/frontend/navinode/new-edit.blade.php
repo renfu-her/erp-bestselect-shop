@@ -1,7 +1,7 @@
 @extends('layouts.main')
 @section('sub-content')
     <div class="pt-2 mb-3">
-        <a href="{{ route('cms.navinode.new-index') }}" class="btn btn-primary" role="button">
+        <a href="{{ route('cms.navinode.index') }}" class="btn btn-primary" role="button">
             <i class="bi bi-arrow-left"></i> 返回上一頁
         </a>
     </div>
