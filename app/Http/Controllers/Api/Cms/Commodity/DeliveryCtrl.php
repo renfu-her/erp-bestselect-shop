@@ -28,16 +28,18 @@ class DeliveryCtrl extends Controller
             'inbound_id.*' => 'nullable|integer|min:1',
             'qty.*' => 'nullable|integer|min:1',
         ]);
-
-        //刪除子訂單商品的出貨資料
-        ReceiveDepot::where('delivery_id', '=', $delivery_id)
-            ->where('event_item_id', '=', $itemId)
-            ->delete();
-
-        //取得request資料 重新建立該子訂單商品的出貨資料
         $re = [];
         $input = $request->only('freebies', 'inbound_id', 'qty');
+        if (count($input['inbound_id']) != count($input['qty'])) {
+            return [ResponseParam::status()->key => 1, ResponseParam::msg()->key => '各資料個數不同'];
+        }
+
+//        //刪除子訂單商品的出貨資料
+//        ReceiveDepot::where('delivery_id', '=', $delivery_id)
+//            ->where('event_item_id', '=', $itemId)
+//            ->delete();
         if (null != $input['qty'] && 0 < count($input['qty'])) {
+            //取得request資料 重新建立該子訂單商品的出貨資料
             $re = ReceiveDepot::setDatasWithDeliveryIdWithItemId($input, $delivery_id, $itemId);
         }
 
