@@ -24,7 +24,7 @@
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">銷售通路</label>
-                        <select class=" form-select" data-placeholder="銷售通路">
+                        <select id="salechannel" class="form-select">
                             @foreach ($salechannels as $salechannel)
                                 <option value="{{ $salechannel->sale_channel_id }}">
                                     {{ $salechannel->sale_channel_title }}</option>
@@ -441,14 +441,43 @@
     @endpush
     @push('sub-scripts')
         <script>
-            let getChannelUr = @json(route('api.cms.user.get-customer-salechannels'));
+            getSaleChannel();
+            $('#customer').off('change.channel').on('change.channel', function () {
+                getSaleChannel();
+            });
 
-            axios.post(getChannelUr, {
-                    customer_id: 1
-                })
-                .then((result) => {
-                    console.log(result);
-                });
+            // 取得客戶身份
+            function getSaleChannel() {
+                const _URL = @json(route('api.cms.user.get-customer-salechannels'));
+                let Data = {
+                    customer_id: $('#customer').val()
+                };
+                $('#salechannel').empty();
+
+                if (!Data.customer_id) {
+                    toast.show('請先選擇訂購客戶。', {type: 'warning', title: '條件未設'});
+                    return false;
+                } else {
+                    axios.post(_URL, Data)
+                        .then((result) => {
+                            console.log(result);
+                            const res = result.data;
+                            if (res.status === '0' && res.data && res.data.length) {
+                                $('#addProductBtn').prop('disabled', false);
+                                (res.data).forEach(sale => {
+                                    $('#salechannel').append(
+                                        `<option value="${sale.sale_channel_id}">${sale.sale_channel_title}</option>`
+                                    );
+                                });
+                            } else {
+                                $('#addProductBtn').prop('disabled', true);
+                                $('#salechannel').append('<option value="">未綁定身份（無法購物）</option>');
+                            }
+                        }).catch((err) => {
+                            console.error(err);
+                    });
+                }
+            }
 
             // 禁用鍵盤 Enter submit
             $('form').on('keydown', ':input:not(textarea)', function(e) {
@@ -467,10 +496,7 @@
             });
         </script>
         <script>
-            let addProductModal = new bootstrap.Modal(document.getElementById('addProduct'), {
-                backdrop: 'static',
-                keyboard: false
-            });
+            let addProductModal = new bootstrap.Modal(document.getElementById('addProduct'));
             let setShipmentModal = new bootstrap.Modal(document.getElementById('setShipment'), {
                 backdrop: 'static',
                 keyboard: false
@@ -507,8 +533,8 @@
             // 購物車資料
             let productStyleId = []; // 樣式ID
             let myCart = { // 購物車
-                // 'category_[group_id]/category_[depots.id]': {
-                //     id: '物流ID group_id/depots.id',
+                // 'category_[group_id]/category_[depots.depot_id]': {
+                //     id: '物流ID group_id/depots.depot_id',
                 //     name: '物流名稱group_name/depots.depot_name',
                 //     type: '物流類型category: pickup|deliver',
                 //     temps: '溫層: 常溫|冷凍|冷藏',
@@ -570,7 +596,7 @@
             const overbought_id = @json($overbought_id);
             // 購物車
             const oldCart = @json($cart);
-            console.log(oldCart);
+            // console.log(oldCart);
             if (oldCart && oldCart.success && oldCart.shipments.length) {
                 for (const ship of oldCart.shipments) {
                     const old_ship = {
@@ -640,17 +666,18 @@
             });
             // 商品清單 API
             function getProductList(page) {
-                let _URL = `${Laravel.apiUrl.productStyles}?page=${page}`;
-                let Data = {
+                const _URL = `${Laravel.apiUrl.productStyles}?page=${page}`;
+                const Data = {
                     keyword: $('#addProduct .-searchBar input').val(),
-                    price: 1
+                    price: 1,
+                    salechannel_id: $('#salechannel').val()
                 };
                 resetAddProductModal();
 
                 if (!Data.price) {
-                    toast.show('請先選擇訂購客戶。', {
-                        type: 'warning',
-                        title: '客戶未選取'
+                    toast.show('客戶未綁定身份，無法訂購。', {
+                        type: 'danger',
+                        title: '無法訂購'
                     });
                     return false;
                 } else {
@@ -742,8 +769,8 @@
             });
             // 物流 API
             function getShpmentData(pid) {
-                let _URL = `${Laravel.apiUrl.productShipments}`;
-                let Data = {
+                const _URL = `${Laravel.apiUrl.productShipments}`;
+                const Data = {
                     product_id: pid
                 };
                 resetSetShipmentModal();
@@ -796,7 +823,7 @@
                                 function depotsOpts(depots) {
                                     let opts = '';
                                     depots.forEach(d => {
-                                        opts += `<option value="${d.id}">${d.depot_name}</option>`;
+                                        opts += `<option value="${d.depot_id}">${d.depot_name}</option>`;
                                     });
                                     return opts;
                                 }
@@ -940,7 +967,7 @@
                 resetSetShipmentModal();
             });
 
-            // 清空商品Modal
+            // 清空商品 Modal
             function resetAddProductModal() {
                 $('#addProduct .-searchBar input').val('');
                 $('#addProduct tbody.-appendClone.--product').empty();
@@ -950,13 +977,13 @@
                 $('#addProduct .-checkedNum').text(`已添加 ${productStyleId.length} 件商品`);
                 $('.-emptyData').hide();
             }
-            // 清空物流Modal
+            // 清空物流 Modal
             function resetSetShipmentModal() {
                 $('#setShipment blockquote h6, #setShipment figcaption').text('');
                 $('#setShipment fieldset > div').empty();
                 $('#setShipment .alert-danger').prop('hidden', true);
                 $('#setShipment .btn-ok').prop('disabled', false);
-                console.log(myCart);
+                // console.log(myCart);
             }
 
             // 綁定 計數器按鈕

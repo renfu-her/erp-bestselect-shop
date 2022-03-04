@@ -29,6 +29,7 @@ class CreateReceiveDepotTable extends Migration
             $table->string('logistic_status_code', 20)->nullable()->comment('物流狀態代碼');
             $table->string('logistic_status', 20)->nullable()->comment('物流狀態 檢貨中/理貨中/待配送');
             $table->string('memo')->nullable()->comment('備註');
+            $table->dateTime('close_date')->nullable()->comment('結單日期');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -47,7 +48,7 @@ class CreateReceiveDepotTable extends Migration
             $table->string('product_title', 40)->comment('商品名稱');
             $table->integer('qty')->comment('數量');
             $table->dateTime('expiry_date')->nullable()->comment('有效期限');
-            $table->boolean('is_setup')->default(0)->comment('是否成立 0:否 / 1:是');
+            $table->dateTime('close_date')->nullable()->comment('結單日期');
             $table->softDeletes();
         });
 

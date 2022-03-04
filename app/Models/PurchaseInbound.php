@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Globals\ResponseParam;
 use App\Enums\Purchase\InboundStatus;
 use App\Enums\Purchase\LogEventFeature;
 use App\Enums\Purchase\LogEvent;
@@ -109,22 +110,26 @@ class PurchaseInbound extends Model
     //售出 更新資料
     public static function shippingInbound($id, $sale_num = 0)
     {
-        return DB::transaction(function () use (
-            $id,
-            $sale_num
-        ) {
-            $inboundData = PurchaseInbound::where('id', '=', $id);
-            $inboundDataGet = $inboundData->get()->first();
-            if (null != $inboundDataGet) {
-                if (($inboundDataGet->inbound_num - $inboundDataGet->sale_num - $sale_num) < 0) {
-                    return ['success' => 0, 'error_msg' => '數量超出範圍'];
-                } else {
-                    PurchaseInbound::where('id', $id)
-                        ->update(['sale_num' => DB::raw("sale_num + $sale_num")]);
-                    PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogEvent::inbound()->value, $id, LogEventFeature::inbound_shipping()->value, $sale_num, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
+        try {
+            return DB::transaction(function () use (
+                $id,
+                $sale_num
+            ) {
+                $inboundData = PurchaseInbound::where('id', '=', $id);
+                $inboundDataGet = $inboundData->get()->first();
+                if (null != $inboundDataGet) {
+                    if (($inboundDataGet->inbound_num - $inboundDataGet->sale_num - $sale_num) < 0) {
+                        throw new \Exception('數量超出範圍');
+                    } else {
+                        PurchaseInbound::where('id', $id)
+                            ->update(['sale_num' => DB::raw("sale_num + $sale_num")]);
+                        PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogEvent::inbound()->value, $id, LogEventFeature::inbound_shipping()->value, $sale_num, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
+                    }
                 }
-            }
-        });
+            });
+        } catch (\Exception $e) {
+            return [ResponseParam::status()->key => 1, ResponseParam::msg()->key => $e->getMessage()];
+        }
     }
 
     //歷史入庫
@@ -168,6 +173,9 @@ class PurchaseInbound extends Model
 
         if (isset($param['product_style_id'])) {
             $result->where('inbound.product_style_id', '=', $param['product_style_id']);
+        }
+        if (isset($param['inbound_id'])) {
+            $result->where('inbound.id', '=', $param['inbound_id']);
         }
         $result->orderByDesc('inbound.created_at');
         return $result;
@@ -252,7 +260,7 @@ class PurchaseInbound extends Model
                 , 'dlv_receive_depot.product_title as product_title'
             )
             ->selectRaw('sum(dlv_receive_depot.qty) as qty')
-            ->where('dlv_receive_depot.is_setup' , '=', 0)
+            ->whereNull('dlv_receive_depot.close_date')
             ->whereNull('dlv_receive_depot.deleted_at')
             ->groupBy('dlv_receive_depot.inbound_id')
             ->groupBy('dlv_receive_depot.product_style_id')
@@ -293,6 +301,10 @@ class PurchaseInbound extends Model
 
         if (isset($param['product_style_id'])) {
             $result->where('inbound.product_style_id', '=', $param['product_style_id']);
+        }
+
+        if (isset($param['inbound_id'])) {
+            $result->where('inbound.id', '=', $param['inbound_id']);
         }
         if (false == $showNegativeVal) {
             $result->where(DB::raw($calc_qty), '>', 0);
