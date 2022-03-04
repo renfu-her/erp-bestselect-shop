@@ -60,6 +60,47 @@ class ReceiveDepot extends Model
         return $result;
     }
 
+    /**
+     * 新增對應的入庫商品款式
+     * @param $input_arr inbound_id:入庫單ID ; qty:數量
+     * @param $delivery_id 出貨單ID
+     * @param $itemId 子訂單對應商品 ord_items id
+     * @return array|mixed|void
+     */
+    public static function setDatasWithDeliveryIdWithItemId($input_arr, $delivery_id, $itemId) {
+        if (null != $input_arr['qty'] && 0 < count($input_arr['qty'])) {
+            try {
+                return DB::transaction(function () use ($delivery_id, $itemId, $input_arr
+                ) {
+                    foreach($input_arr['qty'] as $key => $val) {
+                        $inbound = PurchaseInbound::getSelectInboundList(['inbound_id' => $input_arr['inbound_id'][$key]])->get()->first();
+                        if (null != $inbound) {
+                            if (0 > $inbound->qty - $val) {
+                                throw new \Exception('庫存數量不足');
+                            }
+                            ReceiveDepot::setData(
+                                null,
+                                $delivery_id, //出貨單ID
+                                $itemId, //子訂單商品ID
+                                $input['freebies'][$key] ?? 0, //是否為贈品 0:否
+                                $inbound->inbound_id,
+                                $inbound->inbound_sn,
+                                $inbound->depot_id,
+                                $inbound->depot_name,
+                                $inbound->product_style_id,
+                                $inbound->style_sku,
+                                $inbound->product_title. '-'. $inbound->style_title,
+                                $val, //數量
+                                $inbound->expiry_date);
+                        }
+                    }
+                });
+            } catch (\Exception $e) {
+                return [ResponseParam::status()->key => 1, ResponseParam::msg()->key => $e->getMessage()];
+            }
+        }
+    }
+
     //將收貨資料變更為成立
     public static function setUpData($id) {
         $dataGet = null;
@@ -144,44 +185,4 @@ class ReceiveDepot extends Model
         return $result;
     }
 
-    /**
-     * 新增對應的入庫商品款式
-     * @param $input_arr inbound_id:入庫單ID ; qty:數量
-     * @param $delivery_id 出貨單ID
-     * @param $itemId 子訂單對應商品 ord_items id
-     * @return array|mixed|void
-     */
-    public static function setDatasWithDeliveryIdWithItemId($input_arr, $delivery_id, $itemId) {
-        if (null != $input_arr['qty'] && 0 < count($input_arr['qty'])) {
-            try {
-                return DB::transaction(function () use ($delivery_id, $itemId, $input_arr
-                ) {
-                    foreach($input_arr['qty'] as $key => $val) {
-                        $inbound = PurchaseInbound::getSelectInboundList(['inbound_id' => $input_arr['inbound_id'][$key]])->get()->first();
-                        if (null != $inbound) {
-                            if (0 > $inbound->qty - $val) {
-                                throw new \Exception('庫存數量不足');
-                            }
-                            ReceiveDepot::setData(
-                                null,
-                                $delivery_id, //出貨單ID
-                                $itemId, //子訂單商品ID
-                                $input['freebies'][$key] ?? 0, //是否為贈品 0:否
-                                $inbound->inbound_id,
-                                $inbound->inbound_sn,
-                                $inbound->depot_id,
-                                $inbound->depot_name,
-                                $inbound->product_style_id,
-                                $inbound->style_sku,
-                                $inbound->product_title. '-'. $inbound->style_title,
-                                $val, //數量
-                                $inbound->expiry_date);
-                        }
-                    }
-                });
-            } catch (\Exception $e) {
-                return [ResponseParam::status()->key => 1, ResponseParam::msg()->key => $e->getMessage()];
-            }
-        }
-    }
 }
