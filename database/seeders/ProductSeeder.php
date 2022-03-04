@@ -44,18 +44,26 @@ class ProductSeeder extends Seeder
         ProductSpecItem::createItems($re['id'], 3, '綠');
         ProductSpecItem::createItems($re['id'], 3, '紅');
 
-        ProductStyle::createStyle($re['id'], [4, 1]);
-        ProductStyle::createStyle($re['id'], [2, 5]);
+        $style_id1 = ProductStyle::createStyle($re['id'], [4, 1]);
+        $style_id2 = ProductStyle::createStyle($re['id'], [2, 5]);
+        $style_id3 = ProductStyle::createStyle($re['id'], [3, 6]);
 
-        ProductStyle::createSku($re['id'], 2);
-        ProductStyle::createSku($re['id'], 1);
+        ProductStyle::createSku($re['id'], $style_id1);
+        ProductStyle::createSku($re['id'], $style_id2);
+        ProductStyle::createSku($re['id'], $style_id3);
 
         // ProductStock::stockChange(1, 10, 'purchase');
 
         $re = Product::createProduct('組合包商品', 1, 1, 'c', '組合', null, '組合商品', null, null, null, 1);
-        $id = ProductStyle::createComboStyle($re['id'], '五包組', 1);
-        ProductStyleCombo::createCombo($id, 1, 2);
-        ProductStyleCombo::createCombo($id, 2, 1);
+        $id = ProductStyle::createComboStyle($re['id'], '三包組', 1);
+        ProductStyleCombo::createCombo($id, $style_id1, 2);
+        ProductStyleCombo::createCombo($id, $style_id2, 1);
+
+        $id_2 = ProductStyle::createComboStyle($re['id'], '六包組', 1);
+        ProductStyleCombo::createCombo($id_2, $style_id1, 3);
+        ProductStyleCombo::createCombo($id_2, $style_id3, 3);
+        ProductStyle::createSku($re['id'], $id);
+        ProductStyle::createSku($re['id'], $id_2);
 
 
       // dd(ProductStock::comboProcess(3,-130));

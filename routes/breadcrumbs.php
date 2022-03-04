@@ -118,6 +118,11 @@ Breadcrumbs::for('cms.purchase.pay-final', function (BreadcrumbTrail $trail, $va
     $trail->parent('cms.purchase.edit', $value);
     $trail->push('新增尾款付款單');
 });
+//顯示訂單付款單
+Breadcrumbs::for('cms.purchase.pay-order', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.purchase.edit', $value);
+    $trail->push('訂金付款單');
+});
 // 編輯 - 變更紀錄
 Breadcrumbs::for('cms.purchase.log', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.purchase.index');
@@ -348,6 +353,20 @@ Breadcrumbs::for('cms.income_statement.index', function (BreadcrumbTrail $trail)
 Breadcrumbs::for('cms.income_statement.create', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
     $trail->push('科目類別', route('cms.income_statement.create'));
+});
+
+//收支科目
+Breadcrumbs::for('cms.income_expenditure.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('收支科目', route('cms.income_expenditure.index'));
+});
+Breadcrumbs::for('cms.income_expenditure.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('收支科目', route('cms.income_expenditure.edit'));
+});
+Breadcrumbs::for('cms.income_expenditure.update', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('收支科目', route('cms.income_expenditure.update'));
 });
 
 // 會計科目

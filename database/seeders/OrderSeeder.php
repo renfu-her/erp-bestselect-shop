@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\ProductStock;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -52,7 +53,13 @@ class OrderSeeder extends Seeder
         ]);
 
         Product::changePickup(1, [1, 2, 3]);
+        Product::changePickup(2, [1, 2, 3]);
         Product::changeShipment(1, 1, 1);
+        Product::changeShipment(2, 1, 1);
+
+
+        ProductStock::comboProcess(4, 5);
+        ProductStock::comboProcess(5, 6);
 
         $address = [
             ['name' => 'hans', 'phone' => '0123313', 'address' => '桃園市八德區永福街', 'type' => 'reciver'],
@@ -85,8 +92,17 @@ class OrderSeeder extends Seeder
                 'shipment_type' => 'pickup',
                 'shipment_event_id' => 3,
             ],
+            [
+                'product_id' => 2,
+                'product_style_id' => 4,
+                'customer_id' => 1,
+                'qty' => 2,
+                'shipment_type' => 'pickup',
+                'shipment_event_id' => 3,
+            ],
         ];
 
-        Order::createOrder('hayashi0126@gmail.com', 1, $address, $items, '備註');
+        $val = Order::createOrder('hayashi0126@gmail.com', 1, $address, $items, '備註');
+
     }
 }

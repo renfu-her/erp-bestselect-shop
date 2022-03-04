@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Cms\Commodity;
 use App\Enums\Globals\ResponseParam;
 use App\Http\Controllers\Controller;
 use App\Models\PurchaseInbound;
+use App\Models\ReceiveDepot;
 use Illuminate\Http\Request;
 
 class DeliveryCtrl extends Controller
@@ -18,6 +19,25 @@ class DeliveryCtrl extends Controller
         $re[ResponseParam::status()->key] = '0';
         $re[ResponseParam::msg()->key] = '';
         $re[ResponseParam::data()->key] = $selectInboundList->toArray();
+        return response()->json($re);
+    }
+
+    public static function store(Request $request, $delivery_id, $itemId) {
+        $request->validate([
+            'inbound_id.*' => 'nullable|integer|min:1',
+            'qty.*' => 'nullable|integer|min:1',
+        ]);
+
+        $re = [];
+        $input = $request->only('freebies', 'inbound_id', 'qty');
+        if (null != $input['qty'] && 0 < count($input['qty'])) {
+            $re = ReceiveDepot::setDatasWithDeliveryIdWithItemId($input, $delivery_id, $itemId);
+        }
+
+        if ([] == $re) {
+            $re[ResponseParam::status()->key] = 0;
+            $re[ResponseParam::msg()->key] = '';
+        }
         return response()->json($re);
     }
 }

@@ -124,6 +124,11 @@ return
                 "controller_name" => "IncomeStatementCtrl",
                 "route_name" => "cms.income_statement.index",
             ],
+            [
+                "title" => "收支科目",
+                "controller_name" => "IncomeExpenditureCtrl",
+                "route_name" => "cms.income_expenditure.index",
+            ],
         ],
     ],
     [

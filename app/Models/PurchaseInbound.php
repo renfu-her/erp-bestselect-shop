@@ -169,6 +169,9 @@ class PurchaseInbound extends Model
         if (isset($param['product_style_id'])) {
             $result->where('inbound.product_style_id', '=', $param['product_style_id']);
         }
+        if (isset($param['inbound_id'])) {
+            $result->where('inbound.id', '=', $param['inbound_id']);
+        }
         $result->orderByDesc('inbound.created_at');
         return $result;
     }
@@ -293,6 +296,10 @@ class PurchaseInbound extends Model
 
         if (isset($param['product_style_id'])) {
             $result->where('inbound.product_style_id', '=', $param['product_style_id']);
+        }
+
+        if (isset($param['inbound_id'])) {
+            $result->where('inbound.id', '=', $param['inbound_id']);
         }
         if (false == $showNegativeVal) {
             $result->where(DB::raw($calc_qty), '>', 0);
