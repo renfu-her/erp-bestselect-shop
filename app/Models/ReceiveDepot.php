@@ -81,7 +81,7 @@ class ReceiveDepot extends Model
                             ReceiveDepot::setData(
                                 null,
                                 $delivery_id, //出貨單ID
-                                $itemId, //子訂單商品ID
+                                $itemId ?? null, //子訂單商品ID
                                 $input['freebies'][$key] ?? 0, //是否為贈品 0:否
                                 $inbound->inbound_id,
                                 $inbound->inbound_sn,
@@ -157,7 +157,7 @@ class ReceiveDepot extends Model
     }
 
     //取得出貨列表
-    public static function getDeliveryWithReceiveDepotList($event, $event_id, $delivery_id)
+    public static function getDeliveryWithReceiveDepotList($event, $event_id, $delivery_id, $product_style_id = null)
     {
         $result = DB::table('dlv_delivery as delivery')
             ->leftJoin('dlv_receive_depot as rcv_depot', 'rcv_depot.delivery_id', '=', 'delivery.id')
@@ -180,19 +180,24 @@ class ReceiveDepot extends Model
             ->where('delivery.event', $event)
             ->where('delivery.event_id', $event_id)
             ->where('rcv_depot.delivery_id', $delivery_id)
-            ->whereNull('rcv_depot.deleted_at')
-            ->orderBy('rcv_depot.id');
+            ->whereNull('rcv_depot.deleted_at');
+
+        if (null != $product_style_id) {
+            $result->where('rcv_depot.product_style_id', $product_style_id);
+        }
+
+        $result->orderBy('rcv_depot.id');
         return $result;
     }
 
     //取得子訂單商品列表 與對應的出貨列表
-    public static function getShipItemWithDeliveryWithReceiveDepotList($event, $sub_order_id, $delivery_id) {
+    public static function getShipItemWithDeliveryWithReceiveDepotList($event, $sub_order_id, $delivery_id, $product_style_id = null) {
         // 子訂單的商品列表
         $ord_items = OrderItem::getShipItem($sub_order_id)->get();
         // 子訂單要的出貨資料
         $ord_items_arr = null;
         if (null != $ord_items && 0 < count($ord_items)) {
-            $receiveDepotList = ReceiveDepot::getDeliveryWithReceiveDepotList($event, $sub_order_id, $delivery_id)->get();
+            $receiveDepotList = ReceiveDepot::getDeliveryWithReceiveDepotList($event, $sub_order_id, $delivery_id, $product_style_id)->get();
             $ord_items_arr = $ord_items->toArray();
             foreach ($ord_items_arr as $ord_key => $ord_item) {
                 $ord_items_arr[$ord_key]->receive_depot = [];

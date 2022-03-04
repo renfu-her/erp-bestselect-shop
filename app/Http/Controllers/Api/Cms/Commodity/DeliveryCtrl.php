@@ -12,9 +12,9 @@ use Illuminate\Http\Request;
 class DeliveryCtrl extends Controller
 {
     //
-    public static function getSelectInboundList(Request $request, $product_style_id)
+    public static function getSelectInboundList(Request $request, $productStyleId)
     {
-        $selectInboundList = PurchaseInbound::getSelectInboundList(['product_style_id' => $product_style_id])->get();
+        $selectInboundList = PurchaseInbound::getSelectInboundList(['product_style_id' => $productStyleId])->get();
 
         $re = [];
         $re[ResponseParam::status()->key] = '0';
@@ -23,7 +23,7 @@ class DeliveryCtrl extends Controller
         return response()->json($re);
     }
 
-    public static function store(Request $request, $delivery_id, $itemId) {
+    public static function store(Request $request, $deliveryId, $itemId, $productStyleId = null) {
         $request->validate([
             'inbound_id.*' => 'nullable|integer|min:1',
             'qty.*' => 'nullable|integer|min:1',
@@ -35,17 +35,17 @@ class DeliveryCtrl extends Controller
         }
 
 //        //刪除子訂單商品的出貨資料
-//        ReceiveDepot::where('delivery_id', '=', $delivery_id)
+//        ReceiveDepot::where('delivery_id', '=', $deliveryId)
 //            ->where('event_item_id', '=', $itemId)
 //            ->delete();
         if (null != $input['qty'] && 0 < count($input['qty'])) {
             //取得request資料 重新建立該子訂單商品的出貨資料
-            $re = ReceiveDepot::setDatasWithDeliveryIdWithItemId($input, $delivery_id, $itemId);
+            $re = ReceiveDepot::setDatasWithDeliveryIdWithItemId($input, $deliveryId, $itemId);
         }
 
         if ([] == $re) {
-            $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
-            $ord_items_arr = ReceiveDepot::getShipItemWithDeliveryWithReceiveDepotList($delivery->event, $delivery->event_id, $delivery_id);
+            $delivery = Delivery::where('id', '=', $deliveryId)->get()->first();
+            $ord_items_arr = ReceiveDepot::getShipItemWithDeliveryWithReceiveDepotList($delivery->event, $delivery->event_id, $deliveryId, $productStyleId);
             $re[ResponseParam::status()->key] = 0;
             $re[ResponseParam::msg()->key] = '';
             $re[ResponseParam::data()->key] = $ord_items_arr;
