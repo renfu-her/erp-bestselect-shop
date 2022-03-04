@@ -157,7 +157,7 @@ class ReceiveDepot extends Model
     }
 
     //取得出貨列表
-    public static function getDeliveryWithReceiveDepotList($event, $event_id, $delivery_id, $product_style_id = null)
+    public static function getDeliveryWithReceiveDepotList($event = null, $event_id = null, $delivery_id = null, $product_style_id = null)
     {
         $result = DB::table('dlv_delivery as delivery')
             ->leftJoin('dlv_receive_depot as rcv_depot', 'rcv_depot.delivery_id', '=', 'delivery.id')
@@ -177,11 +177,17 @@ class ReceiveDepot extends Model
                 , 'rcv_depot.expiry_date as expiry_date'
                 , 'rcv_depot.close_date as close_date'
             )
-            ->where('delivery.event', $event)
-            ->where('delivery.event_id', $event_id)
-            ->where('rcv_depot.delivery_id', $delivery_id)
             ->whereNull('rcv_depot.deleted_at');
 
+        if (null != $event) {
+            $result->where('delivery.event', $event);
+        }
+        if (null != $event_id) {
+            $result->where('delivery.event_id', $event_id);
+        }
+        if (null != $delivery_id) {
+            $result->where('rcv_depot.delivery_id', $delivery_id);
+        }
         if (null != $product_style_id) {
             $result->where('rcv_depot.product_style_id', $product_style_id);
         }
