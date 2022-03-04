@@ -1,7 +1,9 @@
 @extends('layouts.main')
 @section('sub-content')
     <h2 class="mb-3">#{{ $sn }} 出貨審核</h2>
-    <form action="">
+    <form method="post" action="{{ $formAction }}">
+        @method('POST')
+        @csrf
         <div class="card shadow p-4 mb-4">
             <h6>商品列表</h6>
             <div class="table-responsive tableOverBox">
@@ -46,11 +48,11 @@
                                             <td>效期</td>
                                         </tr>
                                     </thead>
-                                    <tbody class="border-top-0">
+                                    <tbody class="border-top-0 -appendClone --selectedIB">
                                         @foreach ($ord->receive_depot as $rec)
-                                        <tr>
+                                        <tr class="-cloneElem --selectedIB">
                                             <td class="text-center">
-                                                <button data-id="" class="icon icon-btn fs-5 text-danger rounded-circle border-0 -del">
+                                                <button data-bid="{{ $rec->inbound_id }}" class="icon icon-btn -del fs-5 text-danger rounded-circle border-0">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </td>
@@ -69,7 +71,7 @@
                                                 <input type="hidden" value="{{ $ord->product_style_id }}" 
                                                     data-title="{{ $ord->product_title }}" @if($ord->combo_product_title) data-subtitle="{{$ord->combo_product_title}}" @endif
                                                     data-sku="{{ $ord->sku }}">
-                                                <button type="button" class="btn btn-outline-primary btn-sm border-dashed w-100 -add" style="font-weight: 500;">
+                                                <button data-idx="{{ $key + 1 }}" type="button" class="btn btn-outline-primary btn-sm border-dashed w-100 -add" style="font-weight: 500;">
                                                     <i class="bi bi-plus-circle"></i> 新增
                                                 </button>
                                             </td>
@@ -138,7 +140,7 @@
         </x-slot>
         <x-slot name="foot">
             <span class="me-3 -checkedNum">已選擇 0 筆入庫單</span>
-            <button type="button" class="btn btn-primary btn-ok">加入</button>
+            <button type="button" class="btn btn-primary btn-ok">加入出貨清單</button>
         </x-slot>
     </x-b-modal>
 @endsection
@@ -161,6 +163,45 @@
                 //     qty: '數量',
                 // }
             ];
+            /*** CloneElem ***/
+            // clone 項目
+            const $selectedClone = $(`<tr class="-cloneElem --selectedIB">
+                <td class="text-center">
+                    <button data-bid="" class="icon icon-btn fs-5 text-danger rounded-circle border-0 -del">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+                <td data-td="sn"></td>
+                <td data-td="depot"></td>
+                <td class="text-center">
+                    <input type="text" name="qty[]" value="" class="form-control form-control-sm text-center" readonly>
+                </td>
+                <td data-td="expiry"></td>
+            </tr>`);
+            // 刪除商品
+            let delItemOption = {
+                appendClone: '.-appendClone.--selectedIB',
+                cloneElem: '.-cloneElem.--selectedIB',
+                beforeDelFn: function ({$this}) {
+                    const bid = $this.data();
+                    // call del API
+                },
+                checkFn: function () {
+                    // 無單不可送審
+                    checkSubmit();
+                }
+            };
+            Clone_bindDelElem($('.-cloneElem.--selectedIB .-del'), delItemOption);
+            checkSubmit();
+            // 無單不可送審
+            function checkSubmit() {
+                let chk = true;
+                $('tr.--rece').each(function (index, element) {
+                    // element == this
+                    chk &= $(element).find('.-cloneElem.--selectedIB').length > 0;
+                });
+                $('#submitDiv button[type="submit"]').prop('disabled', !chk);
+            }
             /** ********* **/
 
             sumExportQty();
@@ -175,27 +216,63 @@
                 resetAddInboundModal();
                 // 取舊值
                 $(addBtn).closest('table').find('tbody tr').each(function (index, element) {
-                    selectedInboundId.push($(element).find('button.-del').data('id'));
+                    selectedInboundId.push(Number($(element).find('button.-del').data('bid')));
                     selectedInbound.push({
-                        id: $(element).find('button.-del').data('id'),
+                        id: Number($(element).find('button.-del').data('bid')),
                         sn: $(element).find('td[data-td="sn"]').text(),
                         depot: $(element).find('td[data-td="depot"]').text(),
                         expiry: $(element).find('td[data-td="expiry"]').text(),
                         qty: Number($(element).find('input[name="qty[]"]').val()) || 0
                     });
                 });
+                $('#addInbound .-checkedNum').text(`已選擇 ${selectedInboundId.length} 筆入庫單`);
+                $('#addInbound .btn-ok').data('idx', $(addBtn).data('idx'));
                 getInboundList(addBtn);
             });
             // 關閉入庫列表視窗，清空值
             $('#addInbound').on('hidden.bs.modal', function(e) {
                 resetAddInboundModal();
             });
+
+            // btn - 加入入庫單
+            $('#addInbound .btn-ok').off('click').on('click', function () {
+                const nth = Number($(this).data('idx')) * 2;
+                selectedInbound.forEach(ib => {
+                    if (!$(`#Pord_list tr.--rece:nth-child(${nth}) tr.-cloneElem.--selectedIB button[data-bid="${ib.id}"]`).length) {
+                        createOneSelected(ib);
+                    }
+                });
+
+                sumExportQty();
+                // 關閉懸浮視窗
+                addInboundModal.hide();
+
+                // 加入採購單 - 加入一個商品
+                function createOneSelected(ib) {
+                    const newItemOpt = {
+                        ...delItemOption,
+                        appendClone: `#Pord_list tr.--rece:nth-child(${nth}) .-appendClone.--selectedIB`
+                    };
+                    Clone_bindCloneBtn($selectedClone, function (cloneElem) {
+                        cloneElem.find('input').val('');
+                        cloneElem.find('.-del').attr('data-bid', null);
+                        cloneElem.find('td[data-td]').text('');
+                        if (ib) {
+                            cloneElem.find('.-del').attr('data-bid', ib.id);
+                            cloneElem.find('td[data-td="sn"]').text(ib.sn);
+                            cloneElem.find('td[data-td="depot"]').text(ib.depot);
+                            cloneElem.find('input[name="qty[]"]').val(ib.qty);
+                            cloneElem.find('td[data-td="expiry"]').text(ib.expiry);
+                        }
+                    }, newItemOpt);
+                }
+            });
+
             // 入庫單 API
             function getInboundList(target) {
                 const $input = $(target).prev('input');
                 const id = $input.val();
                 const _URL = `${Laravel.apiUrl.inboundList}/${id}`;
-                console.log(_URL);
                 let title = '';
                 if ($input.data('subtitle')) {
                     title = `[${$input.data('title')}] ${$input.data('subtitle')}`;
@@ -205,7 +282,7 @@
                 $('#addInbound blockquote h6').text(`${title}`);
                 $('#addInbound figcaption').text($input.data('sku'));
 
-                axios.get(_URL)
+                axios.post(_URL)
                     .then((result) => {
                         const res = result.data;
                         const inboData = res.data;
@@ -214,32 +291,45 @@
                             createOneInbound(inbo);
                         });
                         // bind event
+                        // -- 選取
                         $('#addInbound .-appendClone.--inbound input[type="checkbox"]:not(:disabled)')
                             .off('change').on('change', function () {
-                            catchCheckedInbound();
-                            $('#addInbound .-checkedNum').text(`已選擇 ${selectedInboundId.length} 筆入庫單`);
-                        });
+                                catchCheckedInbound($(this));
+                                $('#addInbound .-checkedNum').text(`已選擇 ${selectedInboundId.length} 筆入庫單`);
+                            });
+                        // -- 數量
+                        $('#addInbound .-appendClone.--inbound input[type="number"]')
+                            .off('change').on('change', function () {
+                                const bid = Number($(this).closest('tr').find('input[data-td="ib_id"]').val());
+                                const idx = selectedInboundId.indexOf(bid);
+                                if (idx >= 0) {
+                                    selectedInbound[idx].qty = Number($(this).val());
+                                }
+                            });
                     }).catch((err) => {
                         console.error(err);
                     });
                     
                 // 商品列表
                 function createOneInbound(ib) {
-                    let checked = (selectedInboundId.indexOf((ib.inbound_id).toString()) < 0) ? '' : 'checked disabled';
+                    const idx = selectedInboundId.indexOf(ib.inbound_id);
+                    let checked = (idx < 0) ? '' : 'checked disabled';
+                    let qty = (idx < 0) ? 0 : selectedInbound[idx].qty;
                     let $tr = $(`<tr>
                         <th class="text-center">
                             <input class="form-check-input" type="checkbox" ${checked}
                                 value="${ib.inbound_id}" data-td="ib_id" aria-label="選取入庫單">
                         </th>
-                        <td data-td="sn">(待處理)</td>
+                        <td data-td="sn">${ib.inbound_sn}</td>
                         <td data-td="depot">${ib.depot_name}</td>
                         <td data-td="stock">${ib.qty}</td>
                         <td data-td="expiry">${moment(ib.expiry_date).format('YYYY/MM/DD')}</td>
-                        <td data-td="qty"><input type="number" value="" class="form-control form-control-sm text-center" disabled></td>
+                        <td data-td="qty"><input type="number" value="${qty}" max="${ib.qty}" class="form-control form-control-sm text-center" disabled></td>
                     </tr>`);
                     $('#addInbound .-appendClone.--inbound').append($tr);
                 }
             }
+
             // 清空入庫 Modal
             function resetAddInboundModal() {
                 selectedInbound = [];
@@ -254,33 +344,29 @@
             }
             
             // 紀錄 checked inbound
-            function catchCheckedInbound() {
-                $('#addInbound tbody input[data-td="ib_id"]').each(function (index, element) {
-                    // element == this
-                    const id = $(element).val();
-                    const idx = selectedInboundId.indexOf(id);
-                    const $qty = $(element).closest('tr').find('input[type="number"]');
-                    if ($(element).prop('checked')) {
-                        $qty.prop('disabled', false).val(0);
-                        if (idx < 0) {
-                            selectedInboundId.push(id);
-                            selectedInbound.push({
-                                id: $(element).val(),
-                                sn: $(element).parent('th').siblings('[data-td="sn"]').text(),
-                                depot: $(element).parent('th').siblings('[data-td="depot"]').text(),
-                                expiry: $(element).parent('th').siblings('[data-td="expiry"]').text(),
-                                qty: Number($qty.val()) || 0
-                            });
-                        }
-                    } else {
-                        $qty.prop('disabled', true).val('');
-                        if (idx >= 0) {
-                            selectedInboundId.splice(idx, 1);
-                            selectedInbound.splice(idx, 1);
-                        }
+            function catchCheckedInbound($checkbox) {
+                const bid = Number($($checkbox).val());
+                const idx = selectedInboundId.indexOf(bid);
+                const $qty = $($checkbox).closest('tr').find('input[type="number"]');
+                if ($($checkbox).prop('checked')) {
+                    $qty.prop({ 'disabled': false, 'required': true });
+                    if (idx < 0) {
+                        selectedInboundId.push(bid);
+                        selectedInbound.push({
+                            id: bid,
+                            sn: $($checkbox).parent('th').siblings('[data-td="sn"]').text(),
+                            depot: $($checkbox).parent('th').siblings('[data-td="depot"]').text(),
+                            expiry: $($checkbox).parent('th').siblings('[data-td="expiry"]').text(),
+                            qty: Number($qty.val()) || 0
+                        });
                     }
-
-                });
+                } else {
+                    $qty.prop({ 'disabled': true, 'required': false }).val(0);
+                    if (idx >= 0) {
+                        selectedInboundId.splice(idx, 1);
+                        selectedInbound.splice(idx, 1);
+                    }
+                }
             }
 
             /*** 計算 ***/
