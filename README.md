@@ -56,6 +56,8 @@ POST {host}/api/cms/delivery/store-receive-depot/{出貨單ID deliveryId}/{子�
 
 | request body | -      |      |
 | ------------ | ------ | ---- |
+| inbound_id[]           | array:int | 入庫單ID  |
+| qty[]           | array:int | 數量  |
 
 | response body  | -      |     |
 | -------------- | ------ | --- |
