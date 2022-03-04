@@ -68,7 +68,7 @@
                                     <tfoot class="border-top-0">
                                         <tr>
                                             <td colspan="5">
-                                                <input type="hidden" value="{{ $ord->product_style_id }}" 
+                                                <input type="hidden" value="{{ $ord->product_style_id }}"
                                                     data-title="{{ $ord->product_title }}" @if($ord->combo_product_title) data-subtitle="{{$ord->combo_product_title}}" @endif
                                                     data-sku="{{ $ord->sku }}">
                                                 <button data-idx="{{ $key + 1 }}" type="button" class="btn btn-outline-primary btn-sm border-dashed w-100 -add" style="font-weight: 500;">
@@ -85,7 +85,7 @@
                 </table>
             </div>
         </div>
-        
+
         <div id="submitDiv">
             <div class="col-auto">
                 <button type="submit" class="btn btn-primary px-4">送出審核</button>
@@ -93,7 +93,7 @@
             </div>
         </div>
     </form>
-    
+
     {{-- 入庫清單 --}}
     <x-b-modal id="addInbound" cancelBtn="false" size="modal-xl modal-fullscreen-lg-down">
         <x-slot name="title">選擇入庫單</x-slot>
@@ -205,7 +205,7 @@
             /** ********* **/
 
             sumExportQty();
-            
+
             // 加入入庫單
             $('#Pord_list tbody tr.--rece button.-add').off('click').on('click', function(e) {
                 addInboundModal.show(this);
@@ -272,7 +272,10 @@
             function getInboundList(target) {
                 const $input = $(target).prev('input');
                 const id = $input.val();
-                const _URL = `${Laravel.apiUrl.inboundList}/${id}`;
+                const _URL = `${Laravel.apiUrl.inboundList}`;
+                const Data = {
+                    product_style_id: `${id}`
+                };
                 let title = '';
                 if ($input.data('subtitle')) {
                     title = `[${$input.data('title')}] ${$input.data('subtitle')}`;
@@ -282,7 +285,7 @@
                 $('#addInbound blockquote h6').text(`${title}`);
                 $('#addInbound figcaption').text($input.data('sku'));
 
-                axios.post(_URL)
+                axios.post(_URL, Data)
                     .then((result) => {
                         const res = result.data;
                         const inboData = res.data;
@@ -309,7 +312,7 @@
                     }).catch((err) => {
                         console.error(err);
                     });
-                    
+
                 // 商品列表
                 function createOneInbound(ib) {
                     const idx = selectedInboundId.indexOf(ib.inbound_id);
@@ -342,7 +345,7 @@
                 $('#addInbound .-checkedNum').text(`已選擇 ${selectedInboundId.length} 筆入庫單`);
                 $('#addInbound .-emptyData').hide();
             }
-            
+
             // 紀錄 checked inbound
             function catchCheckedInbound($checkbox) {
                 const bid = Number($($checkbox).val());
