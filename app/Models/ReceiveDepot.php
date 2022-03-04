@@ -82,7 +82,7 @@ class ReceiveDepot extends Model
                                 null,
                                 $delivery_id, //出貨單ID
                                 $itemId ?? null, //子訂單商品ID
-                                $input['freebies'][$key] ?? 0, //是否為贈品 0:否
+                                $input_arr['freebies'][$key] ?? 0, //是否為贈品 0:否
                                 $inbound->inbound_id,
                                 $inbound->inbound_sn,
                                 $inbound->depot_id,
