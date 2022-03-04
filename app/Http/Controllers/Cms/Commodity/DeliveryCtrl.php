@@ -49,7 +49,7 @@ class DeliveryCtrl extends Controller
     {
         $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
         ReceiveDepot::setUpShippingData($delivery_id);
-
+        wToast('儲存完成');
         return redirect(Route('cms.delivery.create', [$delivery->event_id], true));
     }
 
