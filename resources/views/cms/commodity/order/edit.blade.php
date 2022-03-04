@@ -669,7 +669,8 @@
                 const _URL = `${Laravel.apiUrl.productStyles}?page=${page}`;
                 const Data = {
                     keyword: $('#addProduct .-searchBar input').val(),
-                    price: 1    // $('#salechannel').val()
+                    price: 1,
+                    salechannel_id: $('#salechannel').val()
                 };
                 resetAddProductModal();
 
