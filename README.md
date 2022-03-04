@@ -4,6 +4,7 @@
     - [1.1. 入庫單API](#11-入庫單api)
         - [1.1.1. 取得可入庫單 可出貨列表](#111-取得可入庫單可出貨列表)
         - [1.1.2. 新增對應的入庫商品款式](#112-新增對應的入庫商品款式)
+        - [1.1.3. 刪除單筆預計出貨倉資料](#113-刪除單筆預計出貨倉資料)
 
 <!-- /TOC -->
 
@@ -88,3 +89,10 @@ POST {host}/api/cms/delivery/store-receive-depot/{出貨單ID deliveryId}/{子�
 | data.receive_depot.qty | int | 出貨數量    |
 | data.receive_depot.expiry_date | string | 有效日期    |
 | data.receive_depot.close_date | string | 結單日期    |
+
+
+### 1.1.3. 刪除單筆預計出貨倉資料
+
+```
+POST {host}/api/cms/delivery/del-receive-depot/{收貨倉ID receiveDepotId}
+```
