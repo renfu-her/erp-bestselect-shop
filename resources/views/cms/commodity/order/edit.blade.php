@@ -24,7 +24,7 @@
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">銷售通路</label>
-                        <select class=" form-select" data-placeholder="銷售通路">
+                        <select id="salechannel" class="form-select">
                             @foreach ($salechannels as $salechannel)
                                 <option value="{{ $salechannel->sale_channel_id }}">
                                     {{ $salechannel->sale_channel_title }}</option>
@@ -441,14 +441,43 @@
     @endpush
     @push('sub-scripts')
         <script>
-            let getChannelUr = @json(route('api.cms.user.get-customer-salechannels'));
+            getSaleChannel();
+            $('#customer').off('change.channel').on('change.channel', function () {
+                getSaleChannel();
+            });
 
-            axios.post(getChannelUr, {
-                    customer_id: 1
-                })
-                .then((result) => {
-                    console.log(result);
-                });
+            // 取得客戶身份
+            function getSaleChannel() {
+                const _URL = @json(route('api.cms.user.get-customer-salechannels'));
+                let Data = {
+                    customer_id: $('#customer').val()
+                };
+                $('#salechannel').empty();
+
+                if (!Data.customer_id) {
+                    toast.show('請先選擇訂購客戶。', {type: 'warning', title: '條件未設'});
+                    return false;
+                } else {
+                    axios.post(_URL, Data)
+                        .then((result) => {
+                            console.log(result);
+                            const res = result.data;
+                            if (res.status === '0' && res.data && res.data.length) {
+                                $('#addProductBtn').prop('disabled', false);
+                                (res.data).forEach(sale => {
+                                    $('#salechannel').append(
+                                        `<option value="${sale.sale_channel_id}">${sale.sale_channel_title}</option>`
+                                    );
+                                });
+                            } else {
+                                $('#addProductBtn').prop('disabled', true);
+                                $('#salechannel').append('<option value="">未綁定身份（無法購物）</option>');
+                            }
+                        }).catch((err) => {
+                            console.error(err);
+                    });
+                }
+            }
 
             // 禁用鍵盤 Enter submit
             $('form').on('keydown', ':input:not(textarea)', function(e) {
@@ -567,7 +596,7 @@
             const overbought_id = @json($overbought_id);
             // 購物車
             const oldCart = @json($cart);
-            console.log(oldCart);
+            // console.log(oldCart);
             if (oldCart && oldCart.success && oldCart.shipments.length) {
                 for (const ship of oldCart.shipments) {
                     const old_ship = {
@@ -640,14 +669,15 @@
                 const _URL = `${Laravel.apiUrl.productStyles}?page=${page}`;
                 const Data = {
                     keyword: $('#addProduct .-searchBar input').val(),
-                    price: 1
+                    price: 1,
+                    salechannel_id: $('#salechannel').val()
                 };
                 resetAddProductModal();
 
                 if (!Data.price) {
-                    toast.show('請先選擇訂購客戶。', {
-                        type: 'warning',
-                        title: '客戶未選取'
+                    toast.show('客戶未綁定身份，無法訂購。', {
+                        type: 'danger',
+                        title: '無法訂購'
                     });
                     return false;
                 } else {
@@ -953,7 +983,7 @@
                 $('#setShipment fieldset > div').empty();
                 $('#setShipment .alert-danger').prop('hidden', true);
                 $('#setShipment .btn-ok').prop('disabled', false);
-                console.log(myCart);
+                // console.log(myCart);
             }
 
             // 綁定 計數器按鈕
