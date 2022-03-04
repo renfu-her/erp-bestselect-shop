@@ -31,9 +31,11 @@ class DeliveryCtrl extends Controller
             , $sub_order->ship_category
             , $sub_order->ship_category_name);
 
+        $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
         $ord_items_arr = ReceiveDepot::getShipItemWithDeliveryWithReceiveDepotList(Event::order()->value, $sub_order_id, $delivery_id);
 
         return view('cms.commodity.delivery.edit', [
+            'delivery' => $delivery,
             'delivery_id' => $delivery_id,
             'sn' => $sub_order->sn,
             'order_id' => $sub_order->order_id,
