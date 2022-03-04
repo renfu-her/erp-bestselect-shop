@@ -102,18 +102,21 @@ class ReceiveDepot extends Model
     }
 
     //將收貨資料變更為成立
-    public static function setUpData($id) {
+    public static function setUpShippingData($delivery_id) {
         $dataGet = null;
-        if (null != $id) {
-            $data = ReceiveDepot::where('delivery_id', $id);
+        if (null != $delivery_id) {
+            $data = ReceiveDepot::where('delivery_id', $delivery_id);
             $dataGet = $data->get();
         }
         $result = null;
         if (null != $dataGet && 0 < count($dataGet)) {
-            $result = DB::transaction(function () use ($data, $dataGet, $id
+            $result = DB::transaction(function () use ($data, $dataGet, $delivery_id
             ) {
+                $curr_date = date('Y-m-d H:i:s');
+                Delivery::where('id', '=', $delivery_id)->update(['close_date' => $curr_date]);
+
                 $data->update([
-                    'is_setup' => 1,
+                    'close_date' => $curr_date,
                 ]);
 
                 //扣除入庫單庫存
@@ -123,6 +126,11 @@ class ReceiveDepot extends Model
             });
         }
         return $result;
+    }
+
+    public static function deleteById($id)
+    {
+        ReceiveDepot::where('id', $id)->delete();
     }
 
     public static function getDataListWithOrder($order_id = null, $sub_order_id = null) {
@@ -167,7 +175,7 @@ class ReceiveDepot extends Model
                 , 'rcv_depot.product_title as product_title'
                 , 'rcv_depot.qty as qty'
                 , 'rcv_depot.expiry_date as expiry_date'
-                , 'rcv_depot.is_setup as is_setup'
+                , 'rcv_depot.close_date as close_date'
             )
             ->where('delivery.event', $event)
             ->where('delivery.event_id', $event_id)

@@ -33,7 +33,6 @@ class DeliveryCtrl extends Controller
 
         $ord_items_arr = ReceiveDepot::getShipItemWithDeliveryWithReceiveDepotList(Event::order()->value, $sub_order_id, $delivery_id);
 
-//        dd($ord_items_arr);
         return view('cms.commodity.delivery.edit', [
             'delivery_id' => $delivery_id,
             'sn' => $sub_order->sn,
@@ -46,10 +45,16 @@ class DeliveryCtrl extends Controller
 
     public function store(Request $request, int $delivery_id)
     {
-        dd($request->all());
+        $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
+        ReceiveDepot::setUpShippingData($delivery_id);
+
+        return redirect(Route('cms.delivery.create', [$delivery->event_id], true));
     }
 
-    public function destroy(Request $request, int $sub_order_id)
+    public function destroy(Request $request, $deliveryId, int $receiveDepotId)
     {
+        ReceiveDepot::deleteById($receiveDepotId);
+        wToast('刪除完成');
+        return redirect(Route('cms.delivery.create', [$deliveryId], true));
     }
 }
