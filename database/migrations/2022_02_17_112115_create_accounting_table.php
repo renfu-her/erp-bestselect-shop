@@ -16,6 +16,9 @@ class CreateAccountingTable extends Migration
         Schema::create('acc_company', function (Blueprint $table) {
             $table->id()->comment('公司');
             $table->string('company')->unique()->comment('公司名');
+            $table->string('address')->comment('公司地址');
+            $table->string('phone')->comment('公司電話');
+            $table->string('fax')->comment('公司傳真');
         });
 
         Schema::create('acc_income_statement', function (Blueprint $table) {

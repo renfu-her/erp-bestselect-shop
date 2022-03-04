@@ -16,7 +16,12 @@ class AccountingSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('acc_company')->insert(['company' => '喜鴻國際有限公司']);
+        DB::table('acc_company')->insert([
+            'company' => '喜鴻國際有限公司',
+            'address' => '台北市中山區松江路148號6樓之2',
+            'phone' => '02-25637600',
+            'fax' => '02-25711377'
+        ]);
 
         IncomeStatement::create(['name' => '營業收入']);
         IncomeStatement::create(['name' => '營業成本']);
