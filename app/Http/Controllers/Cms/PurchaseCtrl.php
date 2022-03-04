@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Cms;
 
 use App\Http\Controllers\Controller;
 use App\Models\Depot;
-use App\Models\PayingOrders;
+use App\Models\PayingOrder;
 use App\Models\Purchase;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseItem;
@@ -204,7 +204,7 @@ class PurchaseCtrl extends Controller
             return abort(404);
         }
         $isAlreadyFinalPay = false;  // 是否已有尾款單
-        $payingOrderList = PayingOrders::getPayingOrdersWithPurchaseID($id)->get();
+        $payingOrderList = PayingOrder::getPayingOrdersWithPurchaseID($id)->get();
 
         // $depositPayData = null;
         // $finalPayData = null;
@@ -246,7 +246,7 @@ class PurchaseCtrl extends Controller
 
 
         //判斷是否有付款單，有則不可新增刪除商品款式
-        $payingOrderList = PayingOrders::getPayingOrdersWithPurchaseID($id)->get();
+        $payingOrderList = PayingOrder::getPayingOrdersWithPurchaseID($id)->get();
         if (0 < count($payingOrderList)) {
             if (isset($request['del_item_id']) && null != $request['del_item_id']) {
                 throw ValidationException::withMessages(['item_error' => '有付款單，有則不可刪除商品款式']);
@@ -314,7 +314,7 @@ class PurchaseCtrl extends Controller
         //判斷若有入庫、付款單 則不可刪除
         $returnMsg = [];
         $inbounds = PurchaseInbound::inboundList($id)->get()->toArray();
-        $payingOrderList = PayingOrders::getPayingOrdersWithPurchaseID($id)->get();
+        $payingOrderList = PayingOrder::getPayingOrdersWithPurchaseID($id)->get();
         if (null != $inbounds && 0 < count($inbounds) && 0 >= count($payingOrderList)) {
             Purchase::del($id, $request->user()->id, $request->user()->name);
             $returnMsg = __('Delete finished.');
