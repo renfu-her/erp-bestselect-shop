@@ -199,8 +199,7 @@ class NaviNodeCtrl extends Controller
         }
 
         // $currentLevel = count(explode('-', $level));
-       
-        return view('cms.frontend.navinode.edit', [
+        return view('cms.frontend.navinode.new-edit', [
             'data' => $data,
             'method' => 'edit',
             'level' => $data->level,
