@@ -451,10 +451,7 @@
             });
         </script>
         <script>
-            let addProductModal = new bootstrap.Modal(document.getElementById('addProduct'), {
-                backdrop: 'static',
-                keyboard: false
-            });
+            let addProductModal = new bootstrap.Modal(document.getElementById('addProduct'));
             let setShipmentModal = new bootstrap.Modal(document.getElementById('setShipment'), {
                 backdrop: 'static',
                 keyboard: false
@@ -491,8 +488,8 @@
             // 購物車資料
             let productStyleId = []; // 樣式ID
             let myCart = { // 購物車
-                // 'category_[group_id]/category_[depots.id]': {
-                //     id: '物流ID group_id/depots.id',
+                // 'category_[group_id]/category_[depots.depot_id]': {
+                //     id: '物流ID group_id/depots.depot_id',
                 //     name: '物流名稱group_name/depots.depot_name',
                 //     type: '物流類型category: pickup|deliver',
                 //     temps: '溫層: 常溫|冷凍|冷藏',
@@ -780,7 +777,7 @@
                                 function depotsOpts(depots) {
                                     let opts = '';
                                     depots.forEach(d => {
-                                        opts += `<option value="${d.id}">${d.depot_name}</option>`;
+                                        opts += `<option value="${d.depot_id}">${d.depot_name}</option>`;
                                     });
                                     return opts;
                                 }
