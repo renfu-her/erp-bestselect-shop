@@ -37,25 +37,25 @@
                 </dl>
                 <dl class="row">
                     <div class="col">
-                        <dt>地址：台北市中山區松江路148號6樓之2</dt>
+                        <dt>地址：{{ $appliedCompanyData->address }}</dt>
                         <dd></dd>
                     </div>
                     <div class="col">
-                        <dt>電話：02-2563-7600</dt>
+                        <dt>電話：{{ $appliedCompanyData->phone }}</dt>
                         <dd></dd>
                     </div>
                     <div class="col">
-                        <dt>傳真：02-2571-1377</dt>
+                        <dt>傳真：{{ $appliedCompanyData->fax }}</dt>
                         <dd></dd>
                     </div>
                 </dl>
-                <dl class="row mb-4 border-top">
+                <dl class="row mb-0 border-top">
                     <div class="col">
-                        <dt>編號：201562</dt>
+                        <dt>編號：{{ $payingOrderData->sn }}</dt>
                         <dd></dd>
                     </div>
                     <div class="col">
-                        <dt>日期：2022-03-15</dt>
+                        <dt>日期：{{ $payingOrderData->created_at }}</dt>
                         <dd></dd>
                     </div>
                 </dl>
@@ -63,28 +63,32 @@
                     <div class="col">
                         <dt>
                             採購單號：
-                            <a href="{{ Route('cms.purchase.edit', ['id' => $id], true) }}"
-                            >
-
+                            <a href="{{ Route('cms.purchase.edit', ['id' => $id], true) }}">
                                 B20220322
                             </a>
-
                         </dt>
                         <dd></dd>
                     </div>
                 </dl>
                 <dl class="row mb-0">
                     <div class="col">
-                        <dt>支付對象：茶衣創意行銷有限公司</dt>
+                        <dt>支付對象：
+                            <a href="{{ $supplierUrl }}"
+                               target="_blank">
+                                {{ $supplier->name }}
+                                <span class="icon">
+                                    <i class="bi bi-box-arrow-up-right"></i>
+                                </span>
+                            </a>
+                        </dt>
                         <dd></dd>
                     </div>
                     <div class="col">
-                        <dt>承辦人：葉秀盈</dt>
+                        <dt>承辦人：{{ $undertaker }}</dt>
                         <dd></dd>
                     </div>
                 </dl>
             </div>
-
             <div class="card-body px-4 py-2">
                 <div class="table-responsive tableoverbox">
                     <table class="table tablelist table-sm mb-0">
@@ -98,34 +102,58 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td>商品存貨-茶葉金禮盒銘版（茶衣創意）（16.80 * 80）（王小明）</td>
-                            <td>80</td>
-                            <td>16.80</td>
-                            <td>{{ number_format(1344, 2) }}</td>
-                            <td>純ERP系統出貨</td>
-                        </tr>
-                        <tr>
-                            <td>商品存貨-茶葉金禮盒（茶衣創意）（126.00 * 80）（陳小佑）</td>
-                            <td>80</td>
-                            <td>126.00</td>
-                            <td>{{ number_format(10800, 2) }}</td>
-                            <td>12/17國際企業匯出</td>
-                        </tr>
-                        <tr>
-                            <td>付款項目-訂金折抵（8400）-PSG0000452</td>
-                            <td>1</td>
-                            <td>{{ number_format(-8400, 2) }}</td>
-                            <td>{{ number_format(8400, 2) }}</td>
-                            <td></td>
-                        </tr>
-                        <tr class="table-light">
-                            <td>合計：</td>
-                            <td></td>
-                            <td></td>
-                            <td>{{ number_format(6384) }}</td>
-                            <td></td>
-                        </tr>
+                        @if($type === 'deposit')
+                            @foreach($purchaseItemData as $purchaseItem)
+                                <tr>
+                                    <td>{{ $purchaseItem->title }}（負責人：{{ $purchaseItem->name }}）</td>
+                                    <td>{{ $purchaseItem->num }}</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>{{ $purchaseItem->memo }}</td>
+                                </tr>
+                            @endforeach
+                            <tr>
+                                <td>訂金</td>
+                                <td>1</td>
+                                <td>{{ number_format($payingOrderData->price, 2) }}</td>
+                                <td>{{ number_format($payingOrderData->price) }}</td>
+                                <td>摘要：{{ $payingOrderData->summary }}</td>
+                            </tr>
+                            <tr class="table-light">
+                                <td>合計：</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+{{--                                <td>{{ number_format($payingOrderData->price) }}</td>--}}
+                                <td></td>
+                            </tr>
+                        @elseif($type === 'final')
+                            @foreach($purchaseItemData as $purchaseItem)
+                                <tr>
+                                    <td>{{ $purchaseItem->title }}（負責人：{{ $purchaseItem->name }}）</td>
+                                    <td>{{ $purchaseItem->num }}</td>
+                                    <td>{{ number_format($purchaseItem->total_price / $purchaseItem->num, 2) }}</td>
+                                    <td>{{ number_format($purchaseItem->total_price, 2) }}</td>
+                                    <td>{{ $purchaseItem->memo }}</td>
+                                </tr>
+                            @endforeach
+                            <tr>
+                                <td>訂金抵扣（{{ number_format($payingOrderData->price) }}）</td>
+                                <td>1</td>
+                                <td>-{{ number_format($payingOrderData->price, 2) }}</td>
+                                <td>-{{ number_format($payingOrderData->price) }}</td>
+                                <td></td>
+                            </tr>
+                            <tr class="table-light">
+                                <td>合計：</td>
+                                <td></td>
+                                <td></td>
+{{--                                TODO 合計--}}
+                                <td></td>
+{{--                                <td>{{ number_format(6384) }}</td>--}}
+                                <td></td>
+                            </tr>
+                        @endif
                         </tbody>
                     </table>
                 </div>
@@ -146,7 +174,8 @@
                         <dd></dd>
                     </div>
                     <div class="col">
-                        <dt>商品負責人：王小明、陳小佑</dt>
+{{--                        {{ dd($purchaseChargemanList) }}--}}
+                        <dt>商品負責人：{{ $chargemen }}</dt>
                         <dd></dd>
                     </div>
                 </dl>

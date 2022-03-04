@@ -14,6 +14,8 @@ use App\Models\SupplierPayment;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use App\Enums\Purchase\InboundStatus;
 
@@ -434,28 +436,79 @@ class PurchaseCtrl extends Controller
     /**
      * @param  Request  $request
      * @param  int  $id
-     * 付款單
+     * 處理付款單訊息、顯示付款單
      * @return void
      */
     public function payOrder(Request $request, int $id)
     {
+        $val = Validator::make($request->all(), [
+            'summary' => ['required', 'string'],
+            'price' => ['required', 'int', 'min:1'],
+            'memo' => ['nullable', 'string']
+        ]);
+
+        $validatedReq = $val->validated();
+        PayingOrder::createPayingOrder(
+            $id,
+            $request->user()->id,
+            0,
+            $validatedReq['price'],
+            null,
+            $validatedReq['summary'],
+            $validatedReq['memo'],
+        );
+
+        $payingOrderData = PayingOrder::getPayingOrdersWithPurchaseID($id, 0)->get()->first();
+        $purchaseItemData = PurchaseItem::getPurchaseItemsByPurchaseId($id);
+
         $purchaseData = Purchase::getPurchase($id)->first();
+        $supplier = Supplier::where('id', '=', $purchaseData->supplier_id)->get()->first();
+
+        $purchaseChargemanList = PurchaseItem::getPurchaseChargemanList($id)->get();
+        $chargemanListArray = [];
+        foreach ($purchaseChargemanList as $chargemanList) {
+            $chargemanListArray[] = $chargemanList->user_name;
+        }
+        $chargemen = implode(',', $chargemanListArray);
+
+        $undertaker = DB::table('usr_users')
+                        ->where('id', '=', $payingOrderData->usr_users_id)
+                        ->get()
+                        ->first()
+                        ->name;
+
+        //採購單申請公司（系統先預設「喜鴻國際」）
+        $appliedCompanyData = DB::table('acc_company')
+                            ->where('id', '=', 1)
+                            ->get()
+                            ->first();
+
         return view('cms.commodity.purchase.pay_order', [
             'id' => $id,
+//            'type' => 'final',
+            'type' => 'deposit',
             'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
             'formAction' => Route('cms.purchase.index', ['id' => $id,]),
+            'supplierUrl' => Route('cms.supplier.edit', ['id' => $supplier->id,]),
+            'purchaseData' => $purchaseData,
+            'payingOrderData' => $payingOrderData,
+            'purchaseItemData' => $purchaseItemData,
+            'chargemen' => $chargemen,
+            'undertaker' => $undertaker,
+            'appliedCompanyData' => $appliedCompanyData,
+            'supplier' => $supplier,
         ]);
     }
 
     /**
-     * 新增訂金付款單
+     * 設定付款單頁面
      */
     public function payDeposit(Request $request, $id) {
         $purchaseData = Purchase::getPurchase($id)->first();
-        $supplier = Supplier::where('id', '=', $purchaseData->supplier_id)->get()->first();
+//        $supplier = Supplier::where('id', '=', $purchaseData->supplier_id)->get()->first();
         $purchaseChargemanList = PurchaseItem::getPurchaseChargemanList($id)->get();
 
-        $payList = SupplierPayment::where('supplier_id', '=', $purchaseData->supplier_id)->get()->toArray();
+//        $payList = SupplierPayment::where('supplier_id', '=', $purchaseData->supplier_id)->get()->toArray();
         $payTypeList = [];
         if (isset($payList)) {
             foreach ($payList as $key => $value) {
@@ -468,9 +521,9 @@ class PurchaseCtrl extends Controller
             'type' => 'deposit',
             'id' => $id,
             'purchaseData' => $purchaseData,
-            'supplier' => $supplier,
+//            'supplier' => $supplier,
             'payTypeList' => $payTypeList,
-            'payList' => $payList,
+//            'payList' => $payList,
             'purchaseChargemanList' => $purchaseChargemanList,
             'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
             'formAction' => Route('cms.purchase.pay-order', ['id' => $id,]),

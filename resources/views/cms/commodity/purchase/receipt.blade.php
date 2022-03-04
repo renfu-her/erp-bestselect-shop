@@ -10,19 +10,19 @@
         <div class="row">
             <div class="col-12 mb-3">
                 <label class="form-label">摘要 <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" name="" value="訂金" placeholder="訂金">
+                <input type="text" class="form-control" name="summary" value="訂金" placeholder="訂金">
             </div>
             <div class="col-12 mb-3">
                 <label class="form-label">金額 <span class="text-danger">*</span></label>
                 <div class="input-group has-validation">
                     <span class="input-group-text">$</span>
-                    <input type="number" class="form-control" value="" min="1" required>
+                    <input type="number" name="price" class="form-control" value="" min="1" required>
                     <div class="invalid-feedback"></div>
                 </div>
             </div>
             <div class="col-12 mb-3">
                 <label class="form-label">備註 </label>
-                <input type="text" class="form-control" name="" value="" placeholder="備註">
+                <input type="text" class="form-control" name="memo" value="" placeholder="備註">
             </div>
         </div>
     @else

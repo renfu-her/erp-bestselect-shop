@@ -156,6 +156,7 @@ class PurchaseSeeder extends Seeder
             0,
             100,
             '2021-12-13 00:00:00',
+            '訂金測試1',
             '第一筆備註 訂金'
         );
         PayingOrder::createPayingOrder(
@@ -164,6 +165,7 @@ class PurchaseSeeder extends Seeder
             1,
             900,
             '2021-12-14 00:00:00',
+            '訂金測試2',
             '第二筆備註 尾款'
         );
 

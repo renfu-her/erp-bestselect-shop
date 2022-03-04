@@ -19,6 +19,7 @@ class PayingOrder extends Model
         $type,
         $price = null,
         $pay_date = null,
+        $summary = null,
         $memo = null
     ) {
         return DB::transaction(function () use (
@@ -27,6 +28,7 @@ class PayingOrder extends Model
             $type,
             $price,
             $pay_date,
+            $summary,
             $memo
         ) {
             $sn = "B" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
@@ -41,6 +43,7 @@ class PayingOrder extends Model
                 "sn" => $sn,
                 "price" => $price,
                 "pay_date" => $pay_date,
+                'summary' => $summary,
                 "memo" => $memo
             ])->id;
 
@@ -48,18 +51,32 @@ class PayingOrder extends Model
         });
     }
 
-    public static function getPayingOrdersWithPurchaseID($purchase_id)
+    /**
+     * @param $purchase_id
+     * @param  int|null  $payType   0:訂金, 1:尾款 null:訂金跟尾款
+     *
+     * @return \Illuminate\Database\Query\Builder
+     */
+    public static function getPayingOrdersWithPurchaseID($purchase_id, $payType = null)
     {
         $result = DB::table('pcs_paying_orders as paying_order')
-            ->select('paying_order.id as id'
-                , 'paying_order.type as type'
-                , 'paying_order.sn as sn'
-                , 'paying_order.price as price'
+            ->select(
+                'paying_order.id as id',
+                'paying_order.type as type',
+                'paying_order.usr_users_id as usr_users_id',
+                'paying_order.sn as sn',
+                'paying_order.summary as summary',
+                'paying_order.price as price',
             )
             ->selectRaw('DATE_FORMAT(paying_order.pay_date,"%Y-%m-%d") as pay_date')
-
+            ->selectRaw('DATE_FORMAT(paying_order.created_at,"%Y-%m-%d") as created_at')
             ->where('paying_order.purchase_id', '=', $purchase_id)
             ->whereNull('paying_order.deleted_at');
+
+        if (!is_null($payType)) {
+            $result = $result->where('paying_order.type', '=', $payType);
+        }
+
         return $result;
     }
 }
