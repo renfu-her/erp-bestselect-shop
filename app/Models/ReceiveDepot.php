@@ -151,38 +151,61 @@ class ReceiveDepot extends Model
     //取得出貨列表
     public static function getDeliveryWithReceiveDepotList($event, $event_id, $delivery_id)
     {
-        $data = Delivery::getData($event, $event_id);
-        $dataGet = null;
-        if (null != $data) {
-            $dataGet = $data->get()->first();
-        }
-        $result = null;
-        if (null != $dataGet) {
-            $result = DB::table('dlv_delivery as delivery')
-                ->leftJoin('dlv_receive_depot as rcv_depot', 'rcv_depot.delivery_id', '=', 'delivery.id')
-                ->select('delivery.sn as delivery_sn'
-                    , 'rcv_depot.delivery_id as delivery_id'
-                    , 'rcv_depot.id as id'
-                    , 'rcv_depot.event_item_id as event_item_id'
-                    , 'rcv_depot.freebies as freebies'
-                    , 'rcv_depot.inbound_id as inbound_id'
-                    , 'rcv_depot.inbound_sn as inbound_sn'
-                    , 'rcv_depot.depot_id as depot_id'
-                    , 'rcv_depot.depot_name as depot_name'
-                    , 'rcv_depot.product_style_id as product_style_id'
-                    , 'rcv_depot.sku as sku'
-                    , 'rcv_depot.product_title as product_title'
-                    , 'rcv_depot.qty as qty'
-                    , 'rcv_depot.expiry_date as expiry_date'
-                    , 'rcv_depot.is_setup as is_setup'
-                )
-                ->where('delivery.event', $event)
-                ->where('delivery.event_id', $event_id)
-                ->where('rcv_depot.delivery_id', $delivery_id)
-                ->whereNull('rcv_depot.deleted_at')
-                ->orderBy('rcv_depot.id');
-        }
+        $result = DB::table('dlv_delivery as delivery')
+            ->leftJoin('dlv_receive_depot as rcv_depot', 'rcv_depot.delivery_id', '=', 'delivery.id')
+            ->select('delivery.sn as delivery_sn'
+                , 'rcv_depot.delivery_id as delivery_id'
+                , 'rcv_depot.id as id'
+                , 'rcv_depot.event_item_id as event_item_id'
+                , 'rcv_depot.freebies as freebies'
+                , 'rcv_depot.inbound_id as inbound_id'
+                , 'rcv_depot.inbound_sn as inbound_sn'
+                , 'rcv_depot.depot_id as depot_id'
+                , 'rcv_depot.depot_name as depot_name'
+                , 'rcv_depot.product_style_id as product_style_id'
+                , 'rcv_depot.sku as sku'
+                , 'rcv_depot.product_title as product_title'
+                , 'rcv_depot.qty as qty'
+                , 'rcv_depot.expiry_date as expiry_date'
+                , 'rcv_depot.is_setup as is_setup'
+            )
+            ->where('delivery.event', $event)
+            ->where('delivery.event_id', $event_id)
+            ->where('rcv_depot.delivery_id', $delivery_id)
+            ->whereNull('rcv_depot.deleted_at')
+            ->orderBy('rcv_depot.id');
         return $result;
+    }
+
+    //取得子訂單商品列表 與對應的出貨列表
+    public static function getShipItemWithDeliveryWithReceiveDepotList($event, $sub_order_id, $delivery_id) {
+        // 子訂單的商品列表
+        $ord_items = OrderItem::getShipItem($sub_order_id)->get();
+        // 子訂單要的出貨資料
+        $ord_items_arr = null;
+        if (null != $ord_items && 0 < count($ord_items)) {
+            $receiveDepotList = ReceiveDepot::getDeliveryWithReceiveDepotList($event, $sub_order_id, $delivery_id)->get();
+            $ord_items_arr = $ord_items->toArray();
+            foreach ($ord_items_arr as $ord_key => $ord_item) {
+                $ord_items_arr[$ord_key]->receive_depot = [];
+            }
+            if (0 < count($receiveDepotList)) {
+                $receiveDepotList_arr = $receiveDepotList->toArray();
+                foreach ($ord_items_arr as $ord_key => $ord_item) {
+                    $ord_items_arr[$ord_key]->receive_depot = [];
+                    foreach ($receiveDepotList_arr as $revd_key => $revd_item) {
+                        if ($ord_items_arr[$ord_key]->item_id == $revd_item->event_item_id
+                            && $ord_items_arr[$ord_key]->product_style_id == $revd_item->product_style_id
+                        ) {
+                            array_push($ord_items_arr[$ord_key]->receive_depot, $receiveDepotList_arr[$revd_key]);
+                            unset($receiveDepotList_arr[$revd_key]);
+                        }
+                    }
+                }
+            }
+        }
+
+        return $ord_items_arr;
     }
 
 }
