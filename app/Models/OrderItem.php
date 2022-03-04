@@ -91,7 +91,7 @@ class OrderItem extends Model
                 , 'dlv_receive_depot.product_title'
                 , 'dlv_receive_depot.qty'
                 , 'dlv_receive_depot.expiry_date'
-                , 'dlv_receive_depot.is_setup'
+                , 'dlv_receive_depot.close_date'
                 , 'dlv_receive_depot.deleted_at')
             ->whereNull('dlv_receive_depot.deleted_at')
             ->where('tb_ship.sub_order_id', '=', $sub_order_id)
