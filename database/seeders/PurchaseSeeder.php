@@ -154,26 +154,16 @@ class PurchaseSeeder extends Seeder
             $purchaseID1,
             $undertakerUserId,
             0,
-            '中信銀行',
-            '822',
-            'XX商行',
-            '123456789098',
             100,
             '2021-12-13 00:00:00',
-            0,
             '第一筆備註 訂金'
         );
         PayingOrder::createPayingOrder(
             $purchaseID1,
             $undertakerUserId,
             1,
-            '中信銀行',
-            '822',
-            'OO企業社',
-            '987654321012',
             900,
             '2021-12-14 00:00:00',
-            60,
             '第二筆備註 尾款'
         );
 

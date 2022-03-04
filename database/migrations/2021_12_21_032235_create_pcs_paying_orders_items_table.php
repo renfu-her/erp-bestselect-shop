@@ -19,15 +19,8 @@ class CreatePcsPayingOrdersItemsTable extends Migration
             $table->integer('usr_users_id')->comment('承辦人，產生付款單的人id，usr_users foreign key');
             $table->tinyInteger('type')->comment('付款單類型 0:訂金 1:尾款');
 
-            $table->string('bank_cname')->nullable()->comment('匯款銀行');
-            $table->string('bank_code')->nullable()->comment('匯款銀行代碼');
-            $table->string('bank_acount')->nullable()->comment('匯款戶名');
-            $table->string('bank_numer')->nullable()->comment('匯款帳號');
-            $table->string('cheque_payable')->nullable()->comment('支票抬頭');
-
             $table->string('sn')->comment('付款單號');
             $table->string('price')->nullable()->comment('金額');
-            $table->string('logistic_price')->default(0)->comment('物流運費(輸入)(提示無外加運費填0)(預設0)');
 
             $table->dateTime('expecte_pay_date')->nullable()->comment('期望付款日期');
             $table->string('pay_date')->nullable()->comment('付款日期');
