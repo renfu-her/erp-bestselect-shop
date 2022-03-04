@@ -54,6 +54,7 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/IncomeExpenditure.php');
     require base_path('routes/cms/FirstGrade.php');
     require base_path('routes/cms/Delivery.php');
+    require base_path('routes/cms/UserMnt.php');
 });
 
 

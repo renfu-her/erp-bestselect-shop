@@ -22,10 +22,14 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-12 col-sm-6 mb-3" hidden>
-                        <label class="form-label">客戶身分</label>
-                        <input type="hidden" name="customer_id">
-                        <div class="form-control" readonly>客戶尚未選取/員工</div>
+                    <div class="col-12 col-sm-6 mb-3">
+                        <label class="form-label">銷售通路</label>
+                        <select class=" form-select" data-placeholder="銷售通路">
+                            @foreach ($salechannels as $salechannel)
+                                <option value="{{ $salechannel->sale_channel_id }}">
+                                    {{ $salechannel->sale_channel_title }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
                 <div class="">
@@ -142,7 +146,8 @@
                             </tr>
                             <tr>
                                 <td class="col-7 table-light">折扣</td>
-                                <td class="text-danger text-end pe-4" data-td="discount">- ${{ number_format(0) }}</td>
+                                <td class="text-danger text-end pe-4" data-td="discount">- ${{ number_format(0) }}
+                                </td>
                             </tr>
                             <tr>
                                 <td class="col-7 table-light">運費</td>
@@ -192,7 +197,8 @@
                                 <option value="">地區</option>
                                 @foreach ($regions['ord'] as $region)
                                     <option value="{{ $region['region_id'] }}"
-                                        @if ($region['region_id'] == old('ord_region_id')) selected @endif>{{ $region['region_title'] }}
+                                        @if ($region['region_id'] == old('ord_region_id')) selected @endif>
+                                        {{ $region['region_title'] }}
                                     </option>
                                 @endforeach
                             </select>
@@ -201,7 +207,6 @@
                             <button class="btn btn-outline-success -format_addr_btn" type="button">格式化</button>
                             <div class="invalid-feedback">
                                 @error('record')
-                               
                                     {{ $message }}
                                     {{-- 地址錯誤訊息: ord_city_id, ord_region_id, ord_addr --}}
                                 @enderror
@@ -244,7 +249,8 @@
                                 <option value="">地區</option>
                                 @foreach ($regions['rec'] as $region)
                                     <option value="{{ $region['region_id'] }}"
-                                        @if ($region['region_id'] == old('rec_region_id')) selected @endif>{{ $region['region_title'] }}
+                                        @if ($region['region_id'] == old('rec_region_id')) selected @endif>
+                                        {{ $region['region_title'] }}
                                     </option>
                                 @endforeach
                             </select>
@@ -294,7 +300,8 @@
                                 <option value="">地區</option>
                                 @foreach ($regions['sed'] as $region)
                                     <option value="{{ $region['region_id'] }}"
-                                        @if ($region['region_id'] == old('sed_region_id')) selected @endif>{{ $region['region_title'] }}
+                                        @if ($region['region_id'] == old('sed_region_id')) selected @endif>
+                                        {{ $region['region_title'] }}
                                     </option>
                                 @endforeach
                             </select>
@@ -434,6 +441,15 @@
     @endpush
     @push('sub-scripts')
         <script>
+            let getChannelUr = @json(route('api.cms.user.get-customer-salechannels'));
+
+            axios.post(getChannelUr, {
+                    customer_id: 1
+                })
+                .then((result) => {
+                    console.log(result);
+                });
+
             // 禁用鍵盤 Enter submit
             $('form').on('keydown', ':input:not(textarea)', function(e) {
                 return e.key !== 'Enter';

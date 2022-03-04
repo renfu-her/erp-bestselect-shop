@@ -35,10 +35,16 @@
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="memberMenu">
                     <li>
-                        <a class="dropdown-item" href="">
+                        <a class="dropdown-item" href="{{ route('cms.usermnt.edit') }}">
                             <i class="bi bi-person me-1"></i>資料維護
                         </a>
                     </li>
+                    <li>
+                        <a class="dropdown-item" href="{{ route('cms.usermnt.customer-binding') }}">
+                            <i class="bi bi-link-45deg me-1"></i>會員綁定
+                        </a>
+                    </li>
+
                     <li>
                         <hr class="dropdown-divider">
                     </li>
