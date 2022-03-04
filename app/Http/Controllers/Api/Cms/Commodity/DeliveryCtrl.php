@@ -63,4 +63,13 @@ class DeliveryCtrl extends Controller
         }
         return response()->json($re);
     }
+
+    public function destroy(Request $request, int $receiveDepotId)
+    {
+        ReceiveDepot::deleteById($receiveDepotId);
+        $re = [];
+        $re[ResponseParam::status()->key] = '0';
+        $re[ResponseParam::msg()->key] = '';
+        return response()->json($re);
+    }
 }
