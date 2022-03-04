@@ -11,6 +11,21 @@ Breadcrumbs::for('cms.dashboard', function (BreadcrumbTrail $trail) {
 });
 
 /**
+ * Topbar
+ **/
+// 資料維護
+Breadcrumbs::for('cms.usermnt.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('資料維護');
+});
+
+// 會員綁定
+Breadcrumbs::for('cms.usermnt.customer-binding', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('會員綁定');
+});
+
+/**
  * 進銷存退
  **/
 
