@@ -136,7 +136,11 @@ Breadcrumbs::for('cms.purchase.pay-final', function (BreadcrumbTrail $trail, $va
 //顯示訂單付款單
 Breadcrumbs::for('cms.purchase.pay-order', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.purchase.edit', $value);
-    $trail->push('訂金付款單');
+    $trail->push('付款單');
+});
+Breadcrumbs::for('cms.purchase.view-pay-order', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.purchase.edit', $value);
+    $trail->push('付款單');
 });
 // 編輯 - 變更紀錄
 Breadcrumbs::for('cms.purchase.log', function (BreadcrumbTrail $trail, $value) {
