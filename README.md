@@ -98,5 +98,5 @@ POST {host}/api/cms/delivery/store-receive-depot
 ### 1.1.3. 刪除單筆預計出貨倉資料
 
 ```
-POST {host}/api/cms/delivery/del-receive-depot/{收貨倉ID receiveDepotId}
+GET {host}/api/cms/delivery/del-receive-depot/{收貨倉ID receiveDepotId}
 ```
