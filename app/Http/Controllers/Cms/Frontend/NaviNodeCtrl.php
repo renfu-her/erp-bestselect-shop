@@ -62,25 +62,11 @@ class NaviNodeCtrl extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function create(Request $request, Collection $collection, $level = 0)
-    {
-        $currentLevel = count(explode('-', $level));
-
-        return view('cms.frontend.navinode.edit', [
-            'method' => 'create',
-            'level' => $level,
-            'currentLevel' => $currentLevel,
-            'formAction' => Route('cms.navinode.create', ['level' => $level]),
-            'collections' => $collection->get()->toArray(),
-            'breadcrumb_data' => NaviNode::forBreadcrumb($level),
-        ]);
-    }
-
-    public function create2(Request $request, Collection $collection)
+    public function create(Request $request, Collection $collection)
     {
         return view('cms.frontend.navinode.new-edit', [
             'method' => 'create',
-            'formAction' => Route('cms.navinode.create2'),
+            'formAction' => Route('cms.navinode.create'),
             'collections' => $collection->get()->toArray(),
             'breadcrumb_data' => NaviNode::forBreadcrumb(0),
         ]);
@@ -193,7 +179,7 @@ class NaviNodeCtrl extends Controller
     public function edit(Request $request, Collection $collection, $id)
     {
         $data = NaviNode::where('id', $id)->get()->first();
-
+        
         if (!$data) {
             return abort(404);
         }
@@ -235,8 +221,15 @@ class NaviNodeCtrl extends Controller
     {
         $d = $request->all();
 
+        if ($d['del_id']) {
+            $del_id = explode(',', $d['del_id']);
+            if (count($del_id) > 0) {
+                NaviNode::whereIn('id', $del_id)->delete();
+            }
+        }
+
         $data = json_decode($d['data']);
-        //  dd($data);
+
         NaviNode::updateMultiLevel($data);
         NaviNode::cacheProcess();
         //  dd(NaviNode::tree());
@@ -245,32 +238,7 @@ class NaviNodeCtrl extends Controller
 
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Request $request, $level, $id)
-    {
-        //
-        NaviNode::deleteNode($id);
-        wToast('刪除完成');
-        return redirect(route('cms.navinode.index', ['level' => $level]));
+   
 
-    }
-
-    public function sort(Request $request)
-    {
-        $request->validate([
-            'id' => ['required', 'array'],
-            'id.*' => 'numeric',
-        ]);
-
-        $id = $request->input('id');
-
-        NaviNode::sort($id);
-        wToast('排序完成');
-        return redirect()->back();
-    }
+   
 }

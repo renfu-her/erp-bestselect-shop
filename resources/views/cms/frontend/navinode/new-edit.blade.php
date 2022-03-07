@@ -29,20 +29,20 @@
                         <div class="form-check form-check-inline">
                             <label class="form-check-label">
                                 <input class="form-check-input" name="event" type="radio" value="group" required
-                                    @if (old('event', $data->type ?? 'group') == 'group') checked @endif>
+                                    @if (old('event', $data->event ?? 'group') == 'group') checked @endif>
                                 群組
                             </label>
                         </div>
                         <div class="form-check form-check-inline">
                             <label class="form-check-label">
                                 <input class="form-check-input" name="event" type="radio" value="url" required
-                                    @if (old('event', $data->type ?? '') == 'url') checked @endif>
+                                    @if (old('event', $data->event ?? '') == 'url') checked @endif>
                                 網址
                             </label>
                         </div>
                     </div>
                 </x-b-form-group>
-                <div class="menu_type -group" @if (old('event', $data->type ?? 'group') !== 'group') hidden @endif>
+                <div class="menu_type -group" @if (old('event', $data->event ?? 'group') !== 'group') hidden @endif>
                     <x-b-form-group name="event_id" title="群組" required="true">
                         <select class="form-select" name="event_id" aria-label="Default select example"
                             @if (old('event', $data->event ?? 'group') == 'group') required @else disabled @endif>
@@ -57,7 +57,7 @@
                     <x-b-form-group name="url" title="網頁連結" required="true">
                         <input type="url" class="form-control @error('url') is-invalid @enderror" name="url"
                             value="{{ old('url', $data->url ?? '') }}" aria-label="網頁連結" placeholder="請輸入連結"
-                            @if (old('type', $data->type ?? '') == 'url') required @else disabled @endif />
+                            @if (old('type', $data->event ?? '') == 'url') required @else disabled @endif />
                     </x-b-form-group>
                 </div>
                 <x-b-form-group name="target" title="開啟視窗" required="true">

@@ -7,10 +7,12 @@
         <div class="card shadow p-4 mb-4">
             <div>設定主分類和子分類，例如：女裝（主分類）>上衣（子分類）。
                 <ul>
-                    <li>[<i class="bi bi-arrows-move text-primary"></i>]符號：可以拖曳，拉到想要的主分類底下</li>
                     <li>[<i class="bi bi-arrow-right text-primary"></i>]符號：可使分類成為子分類</li>
                     <li>[<i class="bi bi-arrow-left text-primary"></i>]符號：可移出該分類</li>
                     <li>[<i class="bi bi-pencil-square text-primary"></i>]符號：進入選單內容設定群組或連結網址</li>
+                    <li>[<i class="bi bi-arrows-move text-primary"></i>]符號：可以拖曳排序，或拉到想要的主分類底下</li>
+                    <li>[<i class="bi bi-trash text-danger"></i>]符號：刪除分類，含子分類會一起連同刪除</li>
+                    <li class="fst-italic mark">拖曳與刪除需儲存後才生效！</li>
                 </ul>
             </div>
 
@@ -62,7 +64,7 @@
 
             {{-- 新增鈕 --}}
             <div class="d-grid gap-2">
-                <a href="{{ Route('cms.navinode.create2') }}" class="btn btn-outline-primary border-dashed"
+                <a href="{{ Route('cms.navinode.create') }}" class="btn btn-outline-primary border-dashed"
                     style="font-weight: 500;">
                     <i class="bi bi-plus-circle"></i> 新增
                 </a>
@@ -76,15 +78,6 @@
             </div>
         </div>
     </form>
-
-    <!-- Modal -->
-    <x-b-modal id="confirm-delete">
-        <x-slot name="name">刪除確認</x-slot>
-        <x-slot name="body">刪除後將無法復原！確認要刪除？</x-slot>
-        <x-slot name="foot">
-            <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
-        </x-slot>
-    </x-b-modal>
 @endsection
 @once
     @push('sub-styles')
@@ -176,16 +169,16 @@
                 }
 
                 // 刪除 btn
-                let del_id = []; // 目前無紀錄子項id
-                // $('#confirm-delete').on('show.bs.modal', function(e) {
-                //     $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
-                // });
+                let del_id = []; // 包含子項id
                 bindNaviDelBtn(null, '', function($del) {
-                    const id = $del.closest('.oneItem').find('span.-del').data('id');
-                    if (id) {
-                        del_id.push(id);
-                        $('input[name="del_id"]').val(del_id.toString());
-                    }
+                    $del.closest('li.col-12').find('span.-del').each(function (index, element) {
+                        // element == this
+                        const id = $(element).data('id');
+                        if (id) {
+                            del_id.push(id);
+                        }
+                    });
+                    $('input[name="del_id"]').val(del_id.toString());
                 });
 
                 // 按鈕: 儲存
