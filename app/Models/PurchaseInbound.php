@@ -110,7 +110,6 @@ class PurchaseInbound extends Model
     //售出 更新資料
     public static function shippingInbound($id, $sale_num = 0)
     {
-        try {
             return DB::transaction(function () use (
                 $id,
                 $sale_num
@@ -119,17 +118,18 @@ class PurchaseInbound extends Model
                 $inboundDataGet = $inboundData->get()->first();
                 if (null != $inboundDataGet) {
                     if (($inboundDataGet->inbound_num - $inboundDataGet->sale_num - $sale_num) < 0) {
-                        throw new \Exception('數量超出範圍');
+                        return ['success' => 0, 'error_msg' => '入庫單出貨數量超出範圍'];
                     } else {
                         PurchaseInbound::where('id', $id)
                             ->update(['sale_num' => DB::raw("sale_num + $sale_num")]);
-                        PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogEvent::inbound()->value, $id, LogEventFeature::inbound_shipping()->value, $sale_num, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
+                        $reStockChange =PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogEvent::inbound()->value, $id, LogEventFeature::inbound_shipping()->value, $sale_num, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
+                        if ($reStockChange['success'] == 0) {
+                            DB::rollBack();
+                            return $reStockChange;
+                        }
                     }
                 }
             });
-        } catch (\Exception $e) {
-            return [ResponseParam::status()->key => 1, ResponseParam::msg()->key => $e->getMessage()];
-        }
     }
 
     //歷史入庫

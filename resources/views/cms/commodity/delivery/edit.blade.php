@@ -85,7 +85,9 @@
                 </table>
             </div>
         </div>
-
+            @error('error_msg')
+            {{ $message }}
+            @enderror
         <div id="submitDiv">
             <div class="col-auto">
                 <button type="submit" class="btn btn-primary px-4">送出審核</button>

@@ -110,22 +110,25 @@ class ReceiveDepot extends Model
         }
         $result = null;
         if (null != $dataGet && 0 < count($dataGet)) {
-            $result = DB::transaction(function () use ($data, $dataGet, $delivery_id
-            ) {
-                $curr_date = date('Y-m-d H:i:s');
-                Delivery::where('id', '=', $delivery_id)->update(['close_date' => $curr_date]);
+                $result = DB::transaction(function () use ($data, $dataGet, $delivery_id
+                ) {
+                    //扣除入庫單庫存
+                    foreach ($dataGet as $item) {
+                        $reShipIb = PurchaseInbound::shippingInbound($item->inbound_id, $item->qty);
+                        if ($reShipIb['success'] == 0) {
+                            DB::rollBack();
+                            return $reShipIb;
+                        }
+                    }
+                    $curr_date = date('Y-m-d H:i:s');
+                    Delivery::where('id', '=', $delivery_id)->update(['close_date' => $curr_date]);
 
-                $data->update([
-                    'close_date' => $curr_date,
-                ]);
-
-                //扣除入庫單庫存
-                foreach ($dataGet as $item) {
-                    PurchaseInbound::shippingInbound($item->inbound_id, $item->qty);
-                }
-            });
+                    $data->update([
+                        'close_date' => $curr_date,
+                    ]);
+                });
         } else {
-            return [ResponseParam::status()->key => 1, ResponseParam::msg()->key => '無此出貨單'];
+            return ['success' => 0, 'error_msg' => "無此出貨單"];
         }
         return $result;
     }
