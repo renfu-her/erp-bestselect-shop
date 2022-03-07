@@ -68,17 +68,16 @@ class ReceiveDepot extends Model
      * @return array|mixed|void
      */
     public static function setDatasWithDeliveryIdWithItemId($input_arr, $delivery_id, $itemId) {
-        if (null != $input_arr['qty'] && 0 < count($input_arr['qty'])) {
-            try {
-                return DB::transaction(function () use ($delivery_id, $itemId, $input_arr
-                ) {
+            return DB::transaction(function () use ($delivery_id, $itemId, $input_arr
+            ) {
+                if (null != $input_arr['qty'] && 0 < count($input_arr['qty'])) {
                     foreach($input_arr['qty'] as $key => $val) {
                         $inbound = PurchaseInbound::getSelectInboundList(['inbound_id' => $input_arr['inbound_id'][$key]])->get()->first();
                         if (null != $inbound) {
                             if (0 > $inbound->qty - $val) {
-                                throw new \Exception('庫存數量不足');
+                                return ['success' => 0, 'error_msg' => "庫存數量不足"];
                             }
-                            ReceiveDepot::setData(
+                            $reSD = ReceiveDepot::setData(
                                 null,
                                 $delivery_id, //出貨單ID
                                 $itemId ?? null, //子訂單商品ID
@@ -92,13 +91,17 @@ class ReceiveDepot extends Model
                                 $inbound->product_title. '-'. $inbound->style_title,
                                 $val, //數量
                                 $inbound->expiry_date);
+                            if ($reSD['success'] == 0) {
+                                DB::rollBack();
+                                return $reSD;
+                            }
                         }
+                        return ['success' => 1, 'error_msg' => ""];
                     }
-                });
-            } catch (\Exception $e) {
-                return [ResponseParam::status()->key => 1, ResponseParam::msg()->key => $e->getMessage()];
-            }
-        }
+                } else {
+                    return ['success' => 0, 'error_msg' => "未輸入數量"];
+                }
+            });
     }
 
     //將收貨資料變更為成立
@@ -110,22 +113,26 @@ class ReceiveDepot extends Model
         }
         $result = null;
         if (null != $dataGet && 0 < count($dataGet)) {
-            $result = DB::transaction(function () use ($data, $dataGet, $delivery_id
-            ) {
-                $curr_date = date('Y-m-d H:i:s');
-                Delivery::where('id', '=', $delivery_id)->update(['close_date' => $curr_date]);
+                $result = DB::transaction(function () use ($data, $dataGet, $delivery_id
+                ) {
+                    //扣除入庫單庫存
+                    foreach ($dataGet as $item) {
+                        $reShipIb = PurchaseInbound::shippingInbound($item->inbound_id, $item->qty);
+                        if ($reShipIb['success'] == 0) {
+                            DB::rollBack();
+                            return $reShipIb;
+                        }
+                    }
+                    $curr_date = date('Y-m-d H:i:s');
+                    Delivery::where('id', '=', $delivery_id)->update(['close_date' => $curr_date]);
 
-                $data->update([
-                    'close_date' => $curr_date,
-                ]);
-
-                //扣除入庫單庫存
-                foreach ($dataGet as $item) {
-                    PurchaseInbound::shippingInbound($item->inbound_id, $item->qty);
-                }
-            });
+                    $data->update([
+                        'close_date' => $curr_date,
+                    ]);
+                    return ['success' => 1, 'error_msg' => ""];
+                });
         } else {
-            return [ResponseParam::status()->key => 1, ResponseParam::msg()->key => '無此出貨單'];
+            return ['success' => 0, 'error_msg' => "無此出貨單"];
         }
         return $result;
     }

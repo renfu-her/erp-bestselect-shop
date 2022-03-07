@@ -52,10 +52,21 @@ class DeliveryCtrl extends Controller
 
     public function store(Request $request, int $delivery_id)
     {
+        $errors = [];
         $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
-        ReceiveDepot::setUpShippingData($delivery_id);
-        wToast('儲存完成');
-        return redirect(Route('cms.delivery.create', [$delivery->event_id], true));
+        if (null != $delivery->close_date) {
+            $errors['error_msg'] = '不可重複送出審核';
+        } else {
+            $re = ReceiveDepot::setUpShippingData($delivery_id);
+            if ($re['success'] == '1') {
+                wToast('儲存完成');
+                return redirect(Route('cms.delivery.create', [$delivery->event_id], true));
+            }
+            $errors['error_msg'] = $re['error_msg'];
+        }
+
+//        dd($re['error_msg']);
+        return redirect()->back()->withInput()->withErrors($errors);
     }
 
     public function destroy(Request $request, $deliveryId, int $receiveDepotId)
