@@ -491,7 +491,7 @@ class PurchaseCtrl extends Controller
         $purchaseData = Purchase::getPurchase($id)->first();
         $supplier = Supplier::where('id', '=', $purchaseData->supplier_id)->get()->first();
 
-        $purchaseChargemanList = PurchaseItem::getPurchaseChargemanList($id)->get();
+        $purchaseChargemanList = PurchaseItem::getPurchaseChargemanList($id)->get()->unique('user_id');
         $chargemanListArray = [];
         foreach ($purchaseChargemanList as $chargemanList) {
             $chargemanListArray[] = $chargemanList->user_name;
@@ -534,7 +534,7 @@ class PurchaseCtrl extends Controller
     public function payDeposit(Request $request, $id) {
         $purchaseData = Purchase::getPurchase($id)->first();
 //        $supplier = Supplier::where('id', '=', $purchaseData->supplier_id)->get()->first();
-        $purchaseChargemanList = PurchaseItem::getPurchaseChargemanList($id)->get();
+//        $purchaseChargemanList = PurchaseItem::getPurchaseChargemanList($id)->get();
 
 //        $payList = SupplierPayment::where('supplier_id', '=', $purchaseData->supplier_id)->get()->toArray();
         $payTypeList = [];
@@ -552,7 +552,7 @@ class PurchaseCtrl extends Controller
             //            'supplier' => $supplier,
             'payTypeList'           => $payTypeList,
             //            'payList' => $payList,
-            'purchaseChargemanList' => $purchaseChargemanList,
+//            'purchaseChargemanList' => $purchaseChargemanList,
             'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
             'formAction' => Route('cms.purchase.pay-order', ['id' => $id,]),
         ]);

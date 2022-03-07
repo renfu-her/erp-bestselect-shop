@@ -459,8 +459,7 @@ class PurchaseItem extends Model
                 , 'users.name as user_name'
             )
             ->where('items.purchase_id', '=',  $purchase_id)
-            ->whereNull('items.deleted_at')
-            ->groupBy('users.id');
+            ->whereNull('items.deleted_at');
 
         return $result;
     }
