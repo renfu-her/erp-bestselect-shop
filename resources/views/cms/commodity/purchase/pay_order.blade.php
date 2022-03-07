@@ -115,15 +115,15 @@
                             <tr>
                                 <td>訂金</td>
                                 <td>1</td>
-                                <td>{{ number_format($payingOrderData->price, 2) }}</td>
-                                <td>{{ number_format($payingOrderData->price) }}</td>
-                                <td>摘要：{{ $payingOrderData->summary }}</td>
+                                <td>{{ number_format($depositPaymentData->price, 2) }}</td>
+                                <td>{{ number_format($depositPaymentData->price) }}</td>
+                                <td>摘要：{{ $depositPaymentData->summary }}</td>
                             </tr>
                             <tr class="table-light">
                                 <td>合計：</td>
                                 <td></td>
                                 <td></td>
-                                <td>{{ number_format($payingOrderData->price) }}</td>
+                                <td>{{ number_format($depositPaymentData->price) }}</td>
                                 <td></td>
                             </tr>
                         @elseif($type === 'final')
@@ -137,19 +137,17 @@
                                 </tr>
                             @endforeach
                             <tr>
-                                <td>訂金抵扣（訂金付款單號{{ $payingOrderData->sn }}）</td>
+                                <td>訂金抵扣（訂金付款單號{{ $depositPaymentData->sn }}）</td>
                                 <td>1</td>
-                                <td>-{{ number_format($payingOrderData->price, 2) }}</td>
-                                <td>-{{ number_format($payingOrderData->price) }}</td>
+                                <td>-{{ number_format($depositPaymentData->price, 2) }}</td>
+                                <td>-{{ number_format($depositPaymentData->price) }}</td>
                                 <td></td>
                             </tr>
                             <tr class="table-light">
                                 <td>合計：</td>
                                 <td></td>
                                 <td></td>
-{{--                                TODO 合計--}}
-                                <td></td>
-{{--                                <td>{{ number_format(6384) }}</td>--}}
+                                <td>{{ number_format($finalPaymentPrice) }}</td>
                                 <td></td>
                             </tr>
                         @endif

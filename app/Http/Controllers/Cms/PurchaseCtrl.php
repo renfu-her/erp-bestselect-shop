@@ -89,28 +89,28 @@ class PurchaseCtrl extends Controller
         }
 
         return view('cms.commodity.purchase.list', [
-            'startDate' => $startDate,
-            'endDate' => $endDate,
-            'dataList' => $dataList,
-            'data_per_page' => $data_per_page
-            , 'userList' => User::all()
-            , 'depotList' => Depot::all()
-            , 'supplierList' => Supplier::getSupplierList()->get()
+            'startDate'            => $startDate,
+            'endDate'              => $endDate,
+            'dataList'             => $dataList,
+            'data_per_page'        => $data_per_page
+            , 'userList'           => User::all()
+            , 'depotList'          => Depot::all()
+            , 'supplierList'       => Supplier::getSupplierList()->get()
 
-            , 'purchase_sn' => $purchase_sn
-            , 'title' => $title
-            , 'purchase_user_id' => $purchase_user_id
-            , 'purchase_sdate' => $purchase_sdate
-            , 'purchase_edate' => $purchase_edate
-            , 'supplier_id' => $supplier_id
-            , 'depot_id' => $depot_id
-            , 'inbound_user_id' => $inbound_user_id
-            , 'inbound_status' => $inbound_status
+            , 'purchase_sn'        => $purchase_sn
+            , 'title'              => $title
+            , 'purchase_user_id'   => $purchase_user_id
+            , 'purchase_sdate'     => $purchase_sdate
+            , 'purchase_edate'     => $purchase_edate
+            , 'supplier_id'        => $supplier_id
+            , 'depot_id'           => $depot_id
+            , 'inbound_user_id'    => $inbound_user_id
+            , 'inbound_status'     => $inbound_status
             , 'all_inbound_status' => $all_inbound_status
-            , 'inbound_sdate' => $inbound_sdate
-            , 'inbound_edate' => $inbound_edate
-            , 'expire_day' => $expire_day
-            , 'type' => $type
+            , 'inbound_sdate'      => $inbound_sdate
+            , 'inbound_edate'      => $inbound_edate
+            , 'expire_day'         => $expire_day
+            , 'type'               => $type
         ]);
     }
 
@@ -118,9 +118,9 @@ class PurchaseCtrl extends Controller
     {
         $supplierList = Supplier::getSupplierList()->get();
         return view('cms.commodity.purchase.edit', [
-            'method' => 'create',
+            'method'       => 'create',
             'supplierList' => $supplierList,
-            'formAction' => Route('cms.purchase.create'),
+            'formAction'   => Route('cms.purchase.create'),
         ]);
     }
 
@@ -146,14 +146,14 @@ class PurchaseCtrl extends Controller
             foreach ($purchaseItemReq['product_style_id'] as $key => $val) {
                 PurchaseItem::createPurchase(
                     [
-                        'purchase_id' => $purchaseID,
+                        'purchase_id'      => $purchaseID,
                         'product_style_id' => $val,
-                        'title' => $purchaseItemReq['name'][$key],
-                        'sku' => $purchaseItemReq['sku'][$key],
-                        'price' => $purchaseItemReq['price'][$key],
-                        'num' => $purchaseItemReq['num'][$key],
+                        'title'            => $purchaseItemReq['name'][$key],
+                        'sku'              => $purchaseItemReq['sku'][$key],
+                        'price'            => $purchaseItemReq['price'][$key],
+                        'num'              => $purchaseItemReq['num'][$key],
                         'temp_id' => $purchaseItemReq['temp_id'][$key] ?? null,
-                        'memo' => $purchaseItemReq['memo'][$key],
+                        'memo'             => $purchaseItemReq['memo'][$key],
                     ],
                     $request->user()->id, $request->user()->name
                 );
@@ -179,7 +179,7 @@ class PurchaseCtrl extends Controller
 
         wToast(__('Add finished.'));
         return redirect(Route('cms.purchase.edit', [
-            'id' => $purchaseID,
+            'id'    => $purchaseID,
             'query' => $query
         ]));
     }
@@ -188,13 +188,13 @@ class PurchaseCtrl extends Controller
     private function validInputValue(Request $request)
     {
         $request->validate([
-            'supplier' => 'required|numeric',
-            'scheduled_date' => 'required|string',
+            'supplier'           => 'required|numeric',
+            'scheduled_date'     => 'required|string',
             'product_style_id.*' => 'required|numeric',
-            'name.*' => 'required|string',
-            'sku.*' => 'required|string',
-            'price.*' => 'required|numeric',
-            'num.*' => 'required|numeric',
+            'name.*'             => 'required|string',
+            'sku.*'              => 'required|string',
+            'price.*'            => 'required|numeric',
+            'num.*'              => 'required|numeric',
         ]);
     }
 
@@ -237,19 +237,19 @@ class PurchaseCtrl extends Controller
         $supplierList = Supplier::getSupplierList()->get();
 
         return view('cms.commodity.purchase.edit', [
-            'id' => $id,
-            'purchaseData' => $purchaseData,
-            'purchaseItemData' => $purchaseItemData,
+            'id'                        => $id,
+            'purchaseData'              => $purchaseData,
+            'purchaseItemData'          => $purchaseItemData,
             // 'payingOrderData' => $payingOrderList,
-            'hasCreatedDepositPayment' => $hasCreatedDepositPayment,
-            'hasCreatedFinalPayment' => $hasCreatedFinalPayment,
+            'hasCreatedDepositPayment'  => $hasCreatedDepositPayment,
+            'hasCreatedFinalPayment'    => $hasCreatedFinalPayment,
             'hasReceivedDepositPayment' => $hasReceivedDepositPayment,
-            'hasReceivedFinalPayment' => $hasReceivedFinalPayment,
-            'depositPayData' => $depositPayData,
-            'finalPayData' => $finalPayData,
-            'isAlreadyFinalPay' => $isAlreadyFinalPay,
-            'method' => 'edit',
-            'supplierList' => $supplierList,
+            'hasReceivedFinalPayment'   => $hasReceivedFinalPayment,
+            'depositPayData'            => $depositPayData,
+            'finalPayData'              => $finalPayData,
+            'isAlreadyFinalPay'         => $isAlreadyFinalPay,
+            'method'                    => 'edit',
+            'supplierList'              => $supplierList,
             'formAction' => Route('cms.purchase.edit', ['id' => $id]),
             'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
         ]);
@@ -289,7 +289,7 @@ class PurchaseCtrl extends Controller
         $purchaseGet = Purchase::where('id', '=', $id)->get()->first();
         //刪除現有款式
         if (isset($request['del_item_id']) && null != $request['del_item_id']) {
-            $changeStr .= 'delete purchaseItem id:' . $request['del_item_id'];
+            $changeStr .= 'delete purchaseItem id:'.$request['del_item_id'];
             $del_item_id_arr = explode(",", $request['del_item_id']);
             PurchaseItem::deleteItems($purchaseGet->id, $del_item_id_arr, $request->user()->id, $request->user()->name);
         }
@@ -302,18 +302,18 @@ class PurchaseCtrl extends Controller
                 if (null != $itemId) {
                     $changeStr = PurchaseItem::checkToUpdatePurchaseItemData($itemId, $purchaseItemReq, $key, $changeStr, $request->user()->id, $request->user()->name);
                 } else {
-                    $changeStr .= ' add item:' . $purchaseItemReq['name'][$key];
+                    $changeStr .= ' add item:'.$purchaseItemReq['name'][$key];
 
                     PurchaseItem::createPurchase(
                         [
-                            'purchase_id' => $id,
+                            'purchase_id'      => $id,
                             'product_style_id' => $purchaseItemReq['product_style_id'][$key],
-                            'title' => $purchaseItemReq['name'][$key],
-                            'sku' => $purchaseItemReq['sku'][$key],
-                            'price' => $purchaseItemReq['price'][$key],
-                            'num' => $purchaseItemReq['num'][$key],
+                            'title'            => $purchaseItemReq['name'][$key],
+                            'sku'              => $purchaseItemReq['sku'][$key],
+                            'price'            => $purchaseItemReq['price'][$key],
+                            'num'              => $purchaseItemReq['num'][$key],
                             'temp_id' => $purchaseItemReq['temp_id'][$key] ?? null,
-                            'memo' => $purchaseItemReq['memo'][$key],
+                            'memo'             => $purchaseItemReq['memo'][$key],
                         ],
                         $request->user()->id, $request->user()->name
                     );
@@ -321,9 +321,9 @@ class PurchaseCtrl extends Controller
             }
         }
         $changeStr = '';
-        wToast(__('Edit finished.') . ' ' . $changeStr);
+        wToast(__('Edit finished.').' '.$changeStr);
         return redirect(Route('cms.purchase.edit', [
-            'id' => $id,
+            'id'    => $id,
             'query' => $query
         ]));
     }
@@ -379,29 +379,29 @@ class PurchaseCtrl extends Controller
 
         $depotList = Depot::all()->toArray();
         return view('cms.commodity.purchase.inbound', [
-            'purchaseData' => $purchaseData,
-            'id' => $id,
-            'purchaseItemList' => $purchaseItemList,
-            'inboundList' => $inboundList,
+            'purchaseData'        => $purchaseData,
+            'id'                  => $id,
+            'purchaseItemList'    => $purchaseItemList,
+            'inboundList'         => $inboundList,
             'inboundOverviewList' => $inboundOverviewList,
-            'depotList' => $depotList,
+            'depotList'           => $depotList,
             'formAction' => Route('cms.purchase.store_inbound', ['id' => $id,]),
             'formActionClose' => Route('cms.purchase.close', ['id' => $id,]),
-            'breadcrumb_data' => $purchaseData->purchase_sn,
+            'breadcrumb_data'     => $purchaseData->purchase_sn,
         ]);
     }
 
     public function storeInbound(Request $request, $id)
     {
         $request->validate([
-            'depot_id' => 'required|numeric',
+            'depot_id'           => 'required|numeric',
             'purchase_item_id.*' => 'required|numeric',
             'product_style_id.*' => 'required|numeric',
-            'inbound_date.*' => 'required|string',
-            'inbound_num.*' => 'required|numeric|min:1',
-            'error_num.*' => 'required|numeric|min:0',
-            'status.*' => 'required|numeric|min:0',
-            'expiry_date.*' => 'required|string',
+            'inbound_date.*'     => 'required|string',
+            'inbound_num.*'      => 'required|numeric|min:1',
+            'error_num.*'        => 'required|numeric|min:0',
+            'status.*'           => 'required|numeric|min:0',
+            'expiry_date.*'      => 'required|string',
         ]);
         $depot_id = $request->input('depot_id');
         $inboundItemReq = $request->only('purchase_item_id', 'product_style_id', 'inbound_date', 'inbound_num', 'error_num', 'inbound_memo', 'status', 'expiry_date', 'inbound_memo');
@@ -459,10 +459,10 @@ class PurchaseCtrl extends Controller
     public function payOrder(Request $request, int $id)
     {
         $val = Validator::make($request->all(), [
-            'type' => ['required', 'string', 'regex:/^(0|1)$/'],
+            'type'    => ['required', 'string', 'regex:/^(0|1)$/'],
             'summary' => ['required', 'string'],
-            'price' => ['required', 'int', 'min:1'],
-            'memo' => ['nullable', 'string']
+            'price'   => ['required', 'int', 'min:1'],
+            'memo'    => ['nullable', 'string']
         ]);
 
         $validatedReq = $val->validated();
@@ -476,6 +476,13 @@ class PurchaseCtrl extends Controller
                 $validatedReq['summary'],
                 $validatedReq['memo'],
             );
+        }
+
+        $paymentPrice = self::getPaymentPrice($id);
+        if ($paymentPrice['depositPaymentPrice'] > 0) {
+            $depositPaymentData = PayingOrder::getPayingOrdersWithPurchaseID($id, 0)->get()->first();
+        } else {
+            $depositPaymentData = null;
         }
 
         $payingOrderData = PayingOrder::getPayingOrdersWithPurchaseID($id, $validatedReq['type'])->get()->first();
@@ -492,30 +499,32 @@ class PurchaseCtrl extends Controller
         $chargemen = implode(',', $chargemanListArray);
 
         $undertaker = DB::table('usr_users')
-                        ->where('id', '=', $payingOrderData->usr_users_id)
-                        ->get()
-                        ->first()
-                        ->name;
+            ->where('id', '=', $payingOrderData->usr_users_id)
+            ->get()
+            ->first()
+            ->name;
 
         //採購單申請公司（系統先預設「喜鴻國際」）
         $appliedCompanyData = DB::table('acc_company')
-                            ->where('id', '=', 1)
-                            ->get()
-                            ->first();
+            ->where('id', '=', 1)
+            ->get()
+            ->first();
 
         return view('cms.commodity.purchase.pay_order', [
-            'id' => $id,
+            'id'                 => $id,
             'type' => ($validatedReq['type'] === '0') ? 'deposit' : 'final',
             'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
-            'formAction' => Route('cms.purchase.index', ['id' => $id,]),
+            'formAction'         => Route('cms.purchase.index', ['id' => $id,]),
             'supplierUrl' => Route('cms.supplier.edit', ['id' => $supplier->id,]),
-            'purchaseData' => $purchaseData,
-            'payingOrderData' => $payingOrderData,
-            'purchaseItemData' => $purchaseItemData,
-            'chargemen' => $chargemen,
-            'undertaker' => $undertaker,
+            'purchaseData'       => $purchaseData,
+            'payingOrderData'    => $payingOrderData,
+            'depositPaymentData' => $depositPaymentData,
+            'finalPaymentPrice' => $paymentPrice['finalPaymentPrice'],
+            'purchaseItemData'   => $purchaseItemData,
+            'chargemen'          => $chargemen,
+            'undertaker'         => $undertaker,
             'appliedCompanyData' => $appliedCompanyData,
-            'supplier' => $supplier,
+            'supplier'           => $supplier,
         ]);
     }
 
@@ -537,12 +546,12 @@ class PurchaseCtrl extends Controller
 //        dd($supplier);
 
         return view('cms.commodity.purchase.receipt', [
-            'type' => 'deposit',
-            'id' => $id,
-            'purchaseData' => $purchaseData,
-//            'supplier' => $supplier,
-            'payTypeList' => $payTypeList,
-//            'payList' => $payList,
+            'type'                  => 'deposit',
+            'id'                    => $id,
+            'purchaseData'          => $purchaseData,
+            //            'supplier' => $supplier,
+            'payTypeList'           => $payTypeList,
+            //            'payList' => $payList,
             'purchaseChargemanList' => $purchaseChargemanList,
             'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
             'formAction' => Route('cms.purchase.pay-order', ['id' => $id,]),
@@ -556,14 +565,52 @@ class PurchaseCtrl extends Controller
         $purchaseData = Purchase::getPurchase($id)->first();
         $supplierList = Supplier::getSupplierList()->get();
 
+        $paymentPrice = self::getPaymentPrice($id);
+
         return view('cms.commodity.purchase.receipt', [
-            'type' => 'final',
-            'id' => $id,
-            'purchaseData' => $purchaseData,
-            'supplierList' => $supplierList,
+            'type'            => 'final',
+            'id'              => $id,
+            'method' => 'create',
+            'purchaseData'    => $purchaseData,
+            'supplierList'    => $supplierList,
+            'depositPaymentPrice' => $paymentPrice['depositPaymentPrice'],
+            'finalPaymentPrice' => $paymentPrice['finalPaymentPrice'],
+            'totalPrice' => $paymentPrice['totalPrice'],
             'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
             'formAction' => Route('cms.purchase.pay-order', ['id' => $id,]),
         ]);
+    }
+
+    /**
+     * @param  int  $purchaseId
+     * 計算付款單的金額，並回傳
+     * @return array 回傳付款單（訂金、尾款）的金額 array index:depositPaymentPrice, finalPaymentPrice, totalPrice
+     */
+    public function getPaymentPrice(int $purchaseId)
+    {
+        $depositPaymentPrice = 0;
+        $finalPaymentPrice = 0;
+        $totalPrice = 0;
+
+        $purchaseItemData = PurchaseItem::getPurchaseItemsByPurchaseId($purchaseId);
+        foreach ($purchaseItemData as $purchaseItem) {
+            $totalPrice += $purchaseItem->total_price;
+        }
+
+        $depositPaymentOrder = PayingOrder::getPayingOrdersWithPurchaseID($purchaseId, 0)->get()->first();
+        if ($depositPaymentOrder) {
+            $depositPaymentPrice = $depositPaymentOrder->price;
+            $finalPaymentPrice = $totalPrice - $depositPaymentPrice;
+        } else {
+            $depositPaymentPrice = 0;
+            $finalPaymentPrice = $totalPrice;
+        }
+
+        return [
+            'depositPaymentPrice' => $depositPaymentPrice,
+            'finalPaymentPrice'   => $finalPaymentPrice,
+            'totalPrice'          => $totalPrice,
+        ];
     }
 
     /**
@@ -574,9 +621,9 @@ class PurchaseCtrl extends Controller
         $purchaseLog = PurchaseLog::getData($id)->get();
 
         return view('cms.commodity.purchase.log', [
-            'id' => $id,
-            'purchaseData' => $purchaseData,
-            'purchaseLog' => $purchaseLog,
+            'id'              => $id,
+            'purchaseData'    => $purchaseData,
+            'purchaseLog'     => $purchaseLog,
             'breadcrumb_data' => $purchaseData->purchase_sn,
         ]);
     }

@@ -33,13 +33,28 @@
             <input type="hidden" name="type" value="1">
             <div class="col-12 mb-3">
                 <label class="form-label">摘要 <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" name="summary" value="尾款" placeholder="尾款">
+                <input type="text"
+                       class="form-control"
+                       name="summary"
+                       value="尾款金額{{ number_format($finalPaymentPrice) }}（總價{{ number_format($totalPrice) }}-訂金{{ number_format($depositPaymentPrice) }}）"
+                       placeholder="尾款">
             </div>
             <div class="col-12 col-sm-6 mb-3">
-                <label class="form-label">合計 <span class="text-danger">*</span></label>
+                <label class="form-label">金額 <span class="text-danger">*</span></label>
                 <div class="input-group has-validation">
                     <span class="input-group-text">$</span>
-                    <input type="number" name="price" class="form-control" value="" min="1" required>
+                    <input type="number"
+                           name="price"
+                           @if($method === 'create')
+                               disabled
+                           @endif
+                           class="form-control"
+                           value="{{ $finalPaymentPrice }}"
+                           min="1"
+                           required>
+                    @if($method === 'create')
+                        <input type="hidden"  name="price" class="form-control" value="{{ $finalPaymentPrice }}">
+                    @endif
                     <div class="invalid-feedback"></div>
                 </div>
             </div>
