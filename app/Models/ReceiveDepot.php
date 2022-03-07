@@ -124,6 +124,8 @@ class ReceiveDepot extends Model
                     PurchaseInbound::shippingInbound($item->inbound_id, $item->qty);
                 }
             });
+        } else {
+            return [ResponseParam::status()->key => 1, ResponseParam::msg()->key => '無此出貨單'];
         }
         return $result;
     }
