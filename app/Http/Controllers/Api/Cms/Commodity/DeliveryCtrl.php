@@ -52,14 +52,18 @@ class DeliveryCtrl extends Controller
         if (null != $input['qty'] && 0 < count($input['qty'])) {
             //取得request資料 重新建立該子訂單商品的出貨資料
             $re = ReceiveDepot::setDatasWithDeliveryIdWithItemId($input, $delivery_id, $item_id);
+            if ($re['success'] == '1') {
+                $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
+                $ord_items_arr = ReceiveDepot::getShipItemWithDeliveryWithReceiveDepotList($delivery->event, $delivery->event_id, $delivery_id, $product_style_id);
+                $re[ResponseParam::status()->key] = 0;
+                $re[ResponseParam::msg()->key] = '';
+                $re[ResponseParam::data()->key] = $ord_items_arr;
+            }
         }
 
         if ([] == $re) {
-            $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
-            $ord_items_arr = ReceiveDepot::getShipItemWithDeliveryWithReceiveDepotList($delivery->event, $delivery->event_id, $delivery_id, $product_style_id);
-            $re[ResponseParam::status()->key] = 0;
-            $re[ResponseParam::msg()->key] = '';
-            $re[ResponseParam::data()->key] = $ord_items_arr;
+            $re[ResponseParam::status()->key] = 1;
+            $re[ResponseParam::msg()->key] = $re['error_msg'];
         }
         return response()->json($re);
     }
