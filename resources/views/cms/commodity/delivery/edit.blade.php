@@ -124,7 +124,7 @@
                             <th scope="col">倉庫</th>
                             <th scope="col">庫存</th>
                             <th scope="col">效期</th>
-                            <th scope="col" style="width: 10%">數量</th>
+                            <th scope="col" style="width: 10%">預計出貨數量</th>
                         </tr>
                     </thead>
                     <tbody class="-appendClone --inbound">
@@ -135,10 +135,10 @@
                             </th>
                             <td data-td="sn"></td>
                             <td data-td="depot"></td>
-                            <td data-td="qty"></td>
+                            <td data-td="stock"></td>
                             <td data-td="expiry"></td>
                             <td data-td="qty">
-                                <input type="number" value="0" min="1" class="form-control form-control-sm text-center" disabled>
+                                <input type="number" value="0" min="1" max="" class="form-control form-control-sm text-center" disabled>
                             </td>
                         </tr>
                     </tbody>
@@ -246,6 +246,10 @@
 
             // btn - 加入入庫單
             $('#addInbound .btn-ok').off('click').on('click', function () {
+                if (!checkSelectQty()) {
+                    alert('預計出貨數量不合，請檢查！');
+                    return false;
+                }
                 // call API
 
                 const nth = Number($(this).data('idx')) * 2;
@@ -301,6 +305,7 @@
                 un_qty = qty - un_qty;
                 $('#addInbound blockquote div:first-child').text(`訂購數量：${qty}`);
                 $('#addInbound blockquote div:last-child').text(`未選取數量：${un_qty}`);
+                $('#addInbound .btn-ok').data('un_qty', un_qty);
 
                 axios.post(_URL, Data)
                     .then((result) => {
@@ -377,6 +382,8 @@
                 $('#addInbound .-emptyData').hide();
             }
 
+            /*** 計算數量 ***/
+
             // 紀錄 checked inbound
             function catchCheckedInbound($checkbox) {
                 if ($checkbox.prop('disabled')) {
@@ -407,7 +414,20 @@
                 }
             }
 
-            /*** 計算 ***/
+            // 檢查數量
+            function checkSelectQty() {
+                let result = true;
+                let sum = 0;
+                $('#addInbound td[data-td="qty"] input:not(:disabled)').each(function (index, element) {
+                    // element == this
+                    const qty = Number($(element).val());
+                    sum += qty;
+                    result &= (qty >= Number($(element).attr('min')) && qty <= Number($(element).attr('max')));
+                });
+                result &= (sum <= Number($('#addInbound .btn-ok').data('un_qty')));
+                return result;
+            }
+
             // 加總出貨數量
             function sumExportQty() {
                 $('#Pord_list tbody tr.--prod').each(function (index, element) {
