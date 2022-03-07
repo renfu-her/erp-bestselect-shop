@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Delivery;
 use App\Models\PurchaseInbound;
 use App\Models\ReceiveDepot;
+use App\Models\SubOrders;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -19,7 +20,10 @@ class DeliveryCtrl extends Controller
 
     public function create($sub_order_id)
     {
-        $sub_order = DB::table('ord_sub_orders')->where('ord_sub_orders.id', $sub_order_id)->get()->first();
+        $sub_order = SubOrders::getListWithShiGroupById($sub_order_id)->get()->first();
+        if (null == $sub_order) {
+            return abort(404);
+        }
 
         // 出貨單號ID
         $delivery_id = Delivery::createData(
@@ -29,7 +33,8 @@ class DeliveryCtrl extends Controller
             , $sub_order->ship_temp_id
             , $sub_order->ship_temp
             , $sub_order->ship_category
-            , $sub_order->ship_category_name);
+            , $sub_order->ship_category_name
+            , $sub_order->ship_group_id);
 
         $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
         $ord_items_arr = ReceiveDepot::getShipItemWithDeliveryWithReceiveDepotList(Event::order()->value, $sub_order_id, $delivery_id);

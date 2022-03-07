@@ -27,7 +27,7 @@ class Delivery extends Model
 
     //新增資料
     //創建時，將上層資料複製進來
-    public static function createData($event, $event_id, $event_sn, $temp_id, $temp_name, $ship_category, $ship_category_name, $memo = null)
+    public static function createData($event, $event_id, $event_sn, $temp_id, $temp_name, $ship_category, $ship_category_name, $ship_group_id, $memo = null)
     {
         $data = Delivery::getData($event, $event_id);
         $dataGet = null;
@@ -50,6 +50,7 @@ class Delivery extends Model
                 'temp_name' => $temp_name,
                 'ship_category' => $ship_category,
                 'ship_category_name' => $ship_category_name,
+                'ship_group_id' => $ship_group_id,
                 'memo' => $memo,
             ])->id;
         } else {
@@ -109,5 +110,9 @@ class Delivery extends Model
                 Delivery::where('event_id', $event_id)->delete();
             }
         }
+    }
+
+    public static function getList() {
+
     }
 }

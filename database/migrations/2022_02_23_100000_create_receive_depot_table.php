@@ -25,6 +25,7 @@ class CreateReceiveDepotTable extends Migration
             $table->string('ship_category_name', 30)->comment('物流類別名稱');
             $table->unsignedBigInteger('ship_depot_id')->nullable()->comment('出貨倉庫id');
             $table->string('ship_depot_name', 20)->nullable()->comment('出貨倉庫名稱');
+            $table->unsignedBigInteger('ship_group_id')->nullable()->comment('出貨方式id 對應shi_group.id');
 
             $table->string('logistic_status_code', 20)->nullable()->comment('物流狀態代碼');
             $table->string('logistic_status', 20)->nullable()->comment('物流狀態 檢貨中/理貨中/待配送');
