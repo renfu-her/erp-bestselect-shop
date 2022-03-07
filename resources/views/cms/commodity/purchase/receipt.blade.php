@@ -4,6 +4,7 @@
     <x-b-pch-navi :id="$id"></x-b-pch-navi>
 
     <form action="{{ $formAction }}" method="POST">
+    @csrf
     <div class="card shadow p-4 mb-4">
     @if ($type === 'deposit')
         <h6>訂金付款項目</h6>
