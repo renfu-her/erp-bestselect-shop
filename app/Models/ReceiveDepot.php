@@ -57,7 +57,7 @@ class ReceiveDepot extends Model
                 return $dataGet->id;
             });
         }
-        return $result;
+        return ['success' => 1, 'error_msg' => "", 'id' => $result];
     }
 
     /**

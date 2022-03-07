@@ -60,11 +60,22 @@ class PurchaseInbound extends Model
 
             //入庫 新增入庫數量
             //寫入ProductStock
-            PurchaseItem::updateArrivedNum($purchase_item_id, $inbound_num, $can_tally);
-            PurchaseLog::stockChange($purchase_id, $product_style_id, LogEvent::inbound()->value, $id, LogEventFeature::inbound_add()->value, $inbound_num, null, $inbound_user_id, $inbound_user_name);
-            ProductStock::stockChange($product_style_id, $inbound_num, StockEvent::inbound()->value, $id, null, true, $can_tally);
-
-            return $id;
+            $rePcsItemUAN = PurchaseItem::updateArrivedNum($purchase_item_id, $inbound_num, $can_tally);
+            if ($rePcsItemUAN['success'] == 0) {
+                DB::rollBack();
+                return $rePcsItemUAN;
+            }
+            $rePcsLSC = PurchaseLog::stockChange($purchase_id, $product_style_id, LogEvent::inbound()->value, $id, LogEventFeature::inbound_add()->value, $inbound_num, null, $inbound_user_id, $inbound_user_name);
+            if ($rePcsLSC['success'] == 0) {
+                DB::rollBack();
+                return $rePcsLSC;
+            }
+            $rePSSC = ProductStock::stockChange($product_style_id, $inbound_num, StockEvent::inbound()->value, $id, null, true, $can_tally);
+            if ($rePSSC['success'] == 0) {
+                DB::rollBack();
+                return $rePSSC;
+            }
+            return ['success' => 1, 'error_msg' => ""];
         });
     }
 
@@ -98,12 +109,26 @@ class PurchaseInbound extends Model
                     //判斷若為理貨倉 則採購款式 已到貨 ++; 採購款式 理貨 ++; product_style in_stock ++
                     //否則採購款式 已到貨 ++
                     $qty = $inboundDataGet->inbound_num * -1;
-                    PurchaseItem::updateArrivedNum($inboundDataGet->purchase_item_id, $qty, $can_tally);
-                    PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogEvent::inbound()->value, $id, LogEventFeature::inbound_del()->value, $qty, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
-                    ProductStock::stockChange($inboundDataGet->product_style_id, $qty, StockEvent::inbound_del()->value, $id, $inboundDataGet->inbound_user_name . LogEventFeature::inbound_del()->getDescription(LogEventFeature::inbound_del()->value), true, $can_tally);
+                    $rePcsItemUAN = PurchaseItem::updateArrivedNum($inboundDataGet->purchase_item_id, $qty, $can_tally);
+                    if ($rePcsItemUAN['success'] == 0) {
+                        DB::rollBack();
+                        return $rePcsItemUAN;
+                    }
+                    $rePcsLSC = PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogEvent::inbound()->value, $id, LogEventFeature::inbound_del()->value, $qty, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
+                    if ($rePcsLSC['success'] == 0) {
+                        DB::rollBack();
+                        return $rePcsLSC;
+                    }
+                    $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $qty, StockEvent::inbound_del()->value, $id, $inboundDataGet->inbound_user_name . LogEventFeature::inbound_del()->getDescription(LogEventFeature::inbound_del()->value), true, $can_tally);
+                    if ($rePSSC['success'] == 0) {
+                        DB::rollBack();
+                        return $rePSSC;
+                    }
                     $inboundData->delete();
+                    return ['success' => 1, 'error_msg' => ""];
                 }
             }
+            return ['success' => 0, 'error_msg' => "找不到資料"];
         });
     }
 
@@ -129,6 +154,7 @@ class PurchaseInbound extends Model
                         }
                     }
                 }
+                return ['success' => 1, 'error_msg' => ""];
             });
     }
 

@@ -133,7 +133,7 @@ class PurchaseCtrl extends Controller
         $purchaseItemReq = $request->only('product_style_id', 'name', 'sku', 'num', 'price', 'memo');
 
         $supplier = Supplier::where('id', '=', $purchaseReq['supplier'])->get()->first();
-        $purchaseID = Purchase::createPurchase(
+        $rePcs = Purchase::createPurchase(
             $purchaseReq['supplier'],
             $supplier->name,
             $supplier->nickname,
@@ -142,22 +142,36 @@ class PurchaseCtrl extends Controller
             $purchaseReq['scheduled_date'],
         );
 
-        if (isset($purchaseItemReq['product_style_id'])) {
-            foreach ($purchaseItemReq['product_style_id'] as $key => $val) {
-                PurchaseItem::createPurchase(
-                    [
-                        'purchase_id' => $purchaseID,
-                        'product_style_id' => $val,
-                        'title' => $purchaseItemReq['name'][$key],
-                        'sku' => $purchaseItemReq['sku'][$key],
-                        'price' => $purchaseItemReq['price'][$key],
-                        'num' => $purchaseItemReq['num'][$key],
-                        'temp_id' => $purchaseItemReq['temp_id'][$key] ?? null,
-                        'memo' => $purchaseItemReq['memo'][$key],
-                    ],
-                    $request->user()->id, $request->user()->name
-                );
+        $result = null;
+        $result = DB::transaction(function () use ($purchaseItemReq, $rePcs, $request
+        ) {
+            if (isset($purchaseItemReq['product_style_id']) && isset($rePcs['id'])) {
+                foreach ($purchaseItemReq['product_style_id'] as $key => $val) {
+                    $rePcsICP = PurchaseItem::createPurchase(
+                        [
+                            'purchase_id' => $rePcs['id'],
+                            'product_style_id' => $val,
+                            'title' => $purchaseItemReq['name'][$key],
+                            'sku' => $purchaseItemReq['sku'][$key],
+                            'price' => $purchaseItemReq['price'][$key],
+                            'num' => $purchaseItemReq['num'][$key],
+                            'temp_id' => $purchaseItemReq['temp_id'][$key] ?? null,
+                            'memo' => $purchaseItemReq['memo'][$key],
+                        ],
+                        $request->user()->id, $request->user()->name
+                    );
+                    if ($rePcsICP['success'] == 0) {
+                        DB::rollBack();
+                        return $rePcsICP;
+                    }
+                }
             }
+            return ['success' => 1, 'error_msg' => ""];
+        });
+        if ($result['success'] == 0) {
+            wToast($result['error_msg']);
+        } else {
+            wToast(__('Add finished.'));
         }
 
         // //0:先付(訂金) / 1:先付(一次付清) / 2:貨到付款
@@ -177,9 +191,8 @@ class PurchaseCtrl extends Controller
         //     //只有尾款都可填
         // }
 
-        wToast(__('Add finished.'));
         return redirect(Route('cms.purchase.edit', [
-            'id' => $purchaseID,
+            'id' => $rePcs['id'],
             'query' => $query
         ]));
     }
@@ -267,14 +280,18 @@ class PurchaseCtrl extends Controller
         }
 
         $changeStr = '';
-        $changeStr .= Purchase::checkToUpdatePurchaseData($id, $purchaseReq, $changeStr, $request->user()->id, $request->user()->name);
+        $repcsCTPD = Purchase::checkToUpdatePurchaseData($id, $purchaseReq, $changeStr, $request->user()->id, $request->user()->name);
+        $changeStr .= $repcsCTPD['error_msg'];
 
         $purchaseGet = Purchase::where('id', '=', $id)->get()->first();
         //刪除現有款式
         if (isset($request['del_item_id']) && null != $request['del_item_id']) {
             $changeStr .= 'delete purchaseItem id:' . $request['del_item_id'];
             $del_item_id_arr = explode(",", $request['del_item_id']);
-            PurchaseItem::deleteItems($purchaseGet->id, $del_item_id_arr, $request->user()->id, $request->user()->name);
+            $rePcsDI = PurchaseItem::deleteItems($purchaseGet->id, $del_item_id_arr, $request->user()->id, $request->user()->name);
+            if ($rePcsDI['success'] == 0) {
+                $changeStr .= $rePcsDI['error_msg'];
+            }
         }
 
         if (isset($purchaseItemReq['item_id'])) {
@@ -283,7 +300,8 @@ class PurchaseCtrl extends Controller
                 //有值則做更新
                 //itemId = null 代表新資料
                 if (null != $itemId) {
-                    $changeStr = PurchaseItem::checkToUpdatePurchaseItemData($itemId, $purchaseItemReq, $key, $changeStr, $request->user()->id, $request->user()->name);
+                    $result = PurchaseItem::checkToUpdatePurchaseItemData($itemId, $purchaseItemReq, $key, $changeStr, $request->user()->id, $request->user()->name);
+                    $changeStr = $result['error_msg'];
                 } else {
                     $changeStr .= ' add item:' . $purchaseItemReq['name'][$key];
 
@@ -318,8 +336,12 @@ class PurchaseCtrl extends Controller
         $inbounds = PurchaseInbound::inboundList($id)->get()->toArray();
         $payingOrderList = PayingOrder::getPayingOrdersWithPurchaseID($id)->get();
         if (null != $inbounds && 0 < count($inbounds) && 0 >= count($payingOrderList)) {
-            Purchase::del($id, $request->user()->id, $request->user()->name);
-            $returnMsg = __('Delete finished.');
+            $result = Purchase::del($id, $request->user()->id, $request->user()->name);
+            if ($result['success'] == 0) {
+                wToast($result['error_msg']);
+            } else {
+                $returnMsg = __('Delete finished.');
+            }
         } else {
             $returnMsg = '已入庫無法刪除';
         }
@@ -391,24 +413,37 @@ class PurchaseCtrl extends Controller
 
         if (isset($inboundItemReq['product_style_id'])) {
             $depot = Depot::where('id', '=', $depot_id)->get()->first();
-            foreach ($inboundItemReq['product_style_id'] as $key => $val) {
 
-                $purchaseInboundID = PurchaseInbound::createInbound(
-                    $id,
-                    $inboundItemReq['purchase_item_id'][$key],
-                    $inboundItemReq['product_style_id'][$key],
-                    $inboundItemReq['expiry_date'][$key],
-                    $inboundItemReq['inbound_date'][$key],
-                    $inboundItemReq['inbound_num'][$key],
-                    $depot_id,
-                    $depot->name,
-                    $request->user()->id,
-                    $request->user()->name,
-                    $inboundItemReq['inbound_memo'][$key]
-                );
+            $result = DB::transaction(function () use ($inboundItemReq, $id, $depot_id, $depot, $request
+            ) {
+                foreach ($inboundItemReq['product_style_id'] as $key => $val) {
+
+                    $re = PurchaseInbound::createInbound(
+                        $id,
+                        $inboundItemReq['purchase_item_id'][$key],
+                        $inboundItemReq['product_style_id'][$key],
+                        $inboundItemReq['expiry_date'][$key],
+                        $inboundItemReq['inbound_date'][$key],
+                        $inboundItemReq['inbound_num'][$key],
+                        $depot_id,
+                        $depot->name,
+                        $request->user()->id,
+                        $request->user()->name,
+                        $inboundItemReq['inbound_memo'][$key]
+                    );
+                    if ($re['success'] == 0) {
+                        DB::rollBack();
+                        return $re;
+                    }
+                }
+                return ['success' => 1, 'error_msg' => ""];
+            });
+            if ($result['success'] == 0) {
+                wToast($result['error_msg']);
+            } else {
+                wToast(__('Add finished.'));
             }
         }
-        wToast(__('Add finished.'));
         return redirect(Route('cms.purchase.inbound', [
             'id' => $id,
         ]));
@@ -424,8 +459,12 @@ class PurchaseCtrl extends Controller
             if (0 < $inboundDataGet->sale_num) {
                 wToast('已有售出紀錄 無法刪除');
             } else {
-                PurchaseInbound::delInbound($id, $request->user()->id);
-                wToast(__('Delete finished.'));
+                $re = PurchaseInbound::delInbound($id, $request->user()->id);
+                if ($re['success'] == 0) {
+                    wToast($re['error_msg']);
+                } else {
+                    wToast(__('Delete finished.'));
+                }
             }
         }
         return redirect(Route('cms.purchase.inbound', [
