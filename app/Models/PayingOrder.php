@@ -31,7 +31,7 @@ class PayingOrder extends Model
             $summary,
             $memo
         ) {
-            $sn = "B" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
+            $sn = "PSG" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
                         ->withTrashed()
                         ->get()
                         ->count()) + 1, 3, '0', STR_PAD_LEFT);
