@@ -64,7 +64,7 @@
 
             {{-- 新增鈕 --}}
             <div class="d-grid gap-2">
-                <a href="{{ Route('cms.navinode.create2') }}" class="btn btn-outline-primary border-dashed"
+                <a href="{{ Route('cms.navinode.create') }}" class="btn btn-outline-primary border-dashed"
                     style="font-weight: 500;">
                     <i class="bi bi-plus-circle"></i> 新增
                 </a>
