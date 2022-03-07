@@ -205,20 +205,33 @@ class PurchaseCtrl extends Controller
         if (!$purchaseData) {
             return abort(404);
         }
+
+        $hasCreatedDepositPayment = false;
+        $hasCreatedFinalPayment = false;
+
+        //TODO 讀取「付款作業」相關的database table欄位來決定是否以付款, 目前尚未設計， 暫定true
+        $hasReceivedDepositPayment = true;
+        $hasReceivedFinalPayment = true;
+
         $isAlreadyFinalPay = false;  // 是否已有尾款單
+
         $payingOrderList = PayingOrder::getPayingOrdersWithPurchaseID($id)->get();
 
-        // $depositPayData = null;
-        // $finalPayData = null;
+        $depositPayData = null;
+        $finalPayData = null;
         if (0 < count($payingOrderList)) {
             $isAlreadyFinalPay = true;
-            // foreach ($payingOrderList as $payingOrderItem) {
-            //     if ($payingOrderItem->type == 0) {
-            //         $depositPayData = $payingOrderItem;
-            //     } else if ($payingOrderItem->type == 1) {
-            //         $finalPayData = $payingOrderItem;
-            //     }
-            // }
+            foreach ($payingOrderList as $payingOrderItem) {
+                if ($payingOrderItem->type === 0) {
+                    $hasCreatedDepositPayment = true;
+                    $depositPayData = $payingOrderItem;
+                } else {
+                    if ($payingOrderItem->type === 1) {
+                        $hasCreatedFinalPayment = true;
+                        $finalPayData = $payingOrderItem;
+                    }
+                }
+            }
         }
 
         $supplierList = Supplier::getSupplierList()->get();
@@ -228,8 +241,12 @@ class PurchaseCtrl extends Controller
             'purchaseData' => $purchaseData,
             'purchaseItemData' => $purchaseItemData,
             // 'payingOrderData' => $payingOrderList,
-            // 'depositPayData' => $depositPayData,
-            // 'finalPayData' => $finalPayData,
+            'hasCreatedDepositPayment' => $hasCreatedDepositPayment,
+            'hasCreatedFinalPayment' => $hasCreatedFinalPayment,
+            'hasReceivedDepositPayment' => $hasReceivedDepositPayment,
+            'hasReceivedFinalPayment' => $hasReceivedFinalPayment,
+            'depositPayData' => $depositPayData,
+            'finalPayData' => $finalPayData,
             'isAlreadyFinalPay' => $isAlreadyFinalPay,
             'method' => 'edit',
             'supplierList' => $supplierList,
@@ -442,23 +459,26 @@ class PurchaseCtrl extends Controller
     public function payOrder(Request $request, int $id)
     {
         $val = Validator::make($request->all(), [
+            'type' => ['required', 'string', 'regex:/^(0|1)$/'],
             'summary' => ['required', 'string'],
             'price' => ['required', 'int', 'min:1'],
             'memo' => ['nullable', 'string']
         ]);
 
         $validatedReq = $val->validated();
-        PayingOrder::createPayingOrder(
-            $id,
-            $request->user()->id,
-            0,
-            $validatedReq['price'],
-            null,
-            $validatedReq['summary'],
-            $validatedReq['memo'],
-        );
+        if ($request->isMethod('POST')) {
+            PayingOrder::createPayingOrder(
+                $id,
+                $request->user()->id,
+                $validatedReq['type'],
+                $validatedReq['price'],
+                null,
+                $validatedReq['summary'],
+                $validatedReq['memo'],
+            );
+        }
 
-        $payingOrderData = PayingOrder::getPayingOrdersWithPurchaseID($id, 0)->get()->first();
+        $payingOrderData = PayingOrder::getPayingOrdersWithPurchaseID($id, $validatedReq['type'])->get()->first();
         $purchaseItemData = PurchaseItem::getPurchaseItemsByPurchaseId($id);
 
         $purchaseData = Purchase::getPurchase($id)->first();
@@ -485,8 +505,7 @@ class PurchaseCtrl extends Controller
 
         return view('cms.commodity.purchase.pay_order', [
             'id' => $id,
-//            'type' => 'final',
-            'type' => 'deposit',
+            'type' => ($validatedReq['type'] === '0') ? 'deposit' : 'final',
             'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
             'formAction' => Route('cms.purchase.index', ['id' => $id,]),
             'supplierUrl' => Route('cms.supplier.edit', ['id' => $supplier->id,]),
@@ -501,7 +520,7 @@ class PurchaseCtrl extends Controller
     }
 
     /**
-     * 設定付款單頁面
+     * 新增訂金付款單
      */
     public function payDeposit(Request $request, $id) {
         $purchaseData = Purchase::getPurchase($id)->first();
@@ -543,6 +562,7 @@ class PurchaseCtrl extends Controller
             'purchaseData' => $purchaseData,
             'supplierList' => $supplierList,
             'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
+            'formAction' => Route('cms.purchase.pay-order', ['id' => $id,]),
         ]);
     }
 

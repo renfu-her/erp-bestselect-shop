@@ -132,12 +132,12 @@
                                     <td>{{ $purchaseItem->title }}（負責人：{{ $purchaseItem->name }}）</td>
                                     <td>{{ $purchaseItem->num }}</td>
                                     <td>{{ number_format($purchaseItem->total_price / $purchaseItem->num, 2) }}</td>
-                                    <td>{{ number_format($purchaseItem->total_price, 2) }}</td>
+                                    <td>{{ number_format($purchaseItem->total_price) }}</td>
                                     <td>{{ $purchaseItem->memo }}</td>
                                 </tr>
                             @endforeach
                             <tr>
-                                <td>訂金抵扣（{{ number_format($payingOrderData->price) }}）-{{ $payingOrderData->sn }}</td>
+                                <td>訂金抵扣（訂金付款單號{{ $payingOrderData->sn }}）</td>
                                 <td>1</td>
                                 <td>-{{ number_format($payingOrderData->price, 2) }}</td>
                                 <td>-{{ number_format($payingOrderData->price) }}</td>

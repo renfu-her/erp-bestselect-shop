@@ -163,13 +163,35 @@
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">訂金付款單</label>
                         <div class="form-control" readonly>
-                            <a href="{{ Route('cms.purchase.pay-deposit', ['id' => $id], true) }}">新增付款單</a>
+                            @if($hasCreatedDepositPayment)
+                                <a href="{{ Route('cms.purchase.view-pay-order', ['id' => $id, 'type' => '0'], true) }}" >
+                                    付款單號-{{ $depositPayData->sn }}
+                                    @if($hasReceivedDepositPayment)
+                                        （已付完訂金）
+                                    @endif
+                                </a>
+                            @else
+                                <a href="{{ Route('cms.purchase.pay-deposit', ['id' => $id], true) }}">新增付款單</a>
+                            @endif
                         </div>
                     </div>
                     <div class="col-12 col-sm-6 mb-3 ">
                         <label class="form-label">尾款付款單</label>
                         <div class="form-control" readonly>
-                            <a href="{{ Route('cms.purchase.pay-final', ['id' => $id], true) }}">新增付款單</a>
+                            @if($hasCreatedFinalPayment)
+                                <a href="{{ Route('cms.purchase.view-pay-order', ['id' => $id, 'type' => '1'], true) }}">
+                                    付款單號-{{ $finalPayData->sn }}
+                                    @if($hasReceivedFinalPayment)
+                                        （已付完尾款）
+                                    @endif
+                                </a>
+                            @else
+                                @if($hasCreatedDepositPayment && !$hasReceivedDepositPayment)
+                                    尚未收到訂金
+                                @else
+                                    <a href="{{ Route('cms.purchase.pay-final', ['id' => $id], true) }}">新增付款單</a>
+                                @endif
+                            @endif
                         </div>
                     </div>
                 </div>
