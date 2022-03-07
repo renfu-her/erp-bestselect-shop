@@ -52,7 +52,8 @@
                                         @foreach ($ord->receive_depot as $rec)
                                         <tr class="-cloneElem --selectedIB">
                                             <td class="text-center">
-                                                <button data-bid="{{ $rec->inbound_id }}" class="icon icon-btn -del fs-5 text-danger rounded-circle border-0">
+                                                <button data-bid="{{ $rec->inbound_id }}" {{ isset($delivery->close_date) ? 'disabled' : '' }}
+                                                    class="icon icon-btn -del fs-5 text-danger rounded-circle border-0">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </td>
@@ -65,18 +66,20 @@
                                         </tr>
                                         @endforeach
                                     </tbody>
-                                    <tfoot class="border-top-0">
-                                        <tr>
-                                            <td colspan="5">
-                                                <input type="hidden" value="{{ $ord->product_style_id }}"
-                                                    data-title="{{ $ord->product_title }}" @if($ord->combo_product_title) data-subtitle="{{$ord->combo_product_title}}" @endif
-                                                    data-sku="{{ $ord->sku }}">
-                                                <button data-idx="{{ $key + 1 }}" type="button" class="btn btn-outline-primary btn-sm border-dashed w-100 -add" style="font-weight: 500;">
-                                                    <i class="bi bi-plus-circle"></i> 新增
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </tfoot>
+                                    @if (is_null($delivery->close_date))
+                                        <tfoot class="border-top-0">
+                                            <tr>
+                                                <td colspan="5">
+                                                    <input type="hidden" class="-ord" value="{{ $ord->product_style_id }}"
+                                                        data-title="{{ $ord->product_title }}" @if($ord->combo_product_title) data-subtitle="{{$ord->combo_product_title}}" @endif
+                                                        data-sku="{{ $ord->sku }}" data-qty="{{ $ord->qty }}">
+                                                    <button data-idx="{{ $key + 1 }}" type="button" class="btn -add btn-outline-primary btn-sm border-dashed w-100" style="font-weight: 500;">
+                                                        <i class="bi bi-plus-circle"></i> 新增
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    @endif
                                 </table>
                             </td>
                         </tr>
@@ -84,10 +87,12 @@
                     </tbody>
                 </table>
             </div>
-        </div>
             @error('error_msg')
-            {{ $message }}
+                <div class="alert alert-danger" role="alert">
+                    {{ $message }}
+                </div>
             @enderror
+        </div>
         <div id="submitDiv">
             <div class="col-auto">
                 <button type="submit" class="btn btn-primary px-4">送出審核</button>
@@ -96,8 +101,8 @@
         </div>
     </form>
 
-    {{-- 入庫清單 --}}
-    <x-b-modal id="addInbound" cancelBtn="false" size="modal-xl modal-fullscreen-lg-down">
+    {{-- 入庫清單 modal-fullscreen-lg-down --}}
+    <x-b-modal id="addInbound" cancelBtn="false" size="modal-xl">
         <x-slot name="title">選擇入庫單</x-slot>
         <x-slot name="body">
             <div class="table-responsive">
@@ -106,6 +111,10 @@
                         <h6 class="fs-5"></h6>
                     </blockquote>
                     <figcaption class="blockquote-footer mb-2"></figcaption>
+                    <blockquote class="row mb-0">
+                        <div class="col">訂購數量：0</div>
+                        <div class="col text-primary">未選取數量：0</div>
+                    </blockquote>
                 </figure>
                 <table class="table table-hover tableList">
                     <thead>
@@ -115,7 +124,7 @@
                             <th scope="col">倉庫</th>
                             <th scope="col">庫存</th>
                             <th scope="col">效期</th>
-                            <th scope="col" style="width: 10%">數量</th>
+                            <th scope="col" style="width: 10%">預計出貨數量</th>
                         </tr>
                     </thead>
                     <tbody class="-appendClone --inbound">
@@ -126,10 +135,10 @@
                             </th>
                             <td data-td="sn"></td>
                             <td data-td="depot"></td>
-                            <td data-td="qty"></td>
+                            <td data-td="stock"></td>
                             <td data-td="expiry"></td>
-                            <td>
-                                <input type="number" value="0" class="form-control form-control-sm text-center" disabled>
+                            <td data-td="qty">
+                                <input type="number" value="0" min="1" max="" class="form-control form-control-sm text-center" disabled>
                             </td>
                         </tr>
                     </tbody>
@@ -142,7 +151,7 @@
         </x-slot>
         <x-slot name="foot">
             <span class="me-3 -checkedNum">已選擇 0 筆入庫單</span>
-            <button type="button" class="btn btn-primary btn-ok">加入出貨清單</button>
+            <button type="button" class="btn btn-primary btn-ok">加入出貨審核</button>
         </x-slot>
     </x-b-modal>
 @endsection
@@ -159,10 +168,11 @@
             let selectedInbound = [
                 // {
                 //     id: 'ID',
-                //     sn: '單號',
-                //     depot: '倉庫',
-                //     expiry: '效期'
+                //     sn: '單號',  //新值才有
+                //     depot: '倉庫',   //新值才有
+                //     expiry: '效期'   //新值才有
                 //     qty: '數量',
+                //     new: '新值 true',
                 // }
             ];
             /*** CloneElem ***/
@@ -221,10 +231,8 @@
                     selectedInboundId.push(Number($(element).find('button.-del').data('bid')));
                     selectedInbound.push({
                         id: Number($(element).find('button.-del').data('bid')),
-                        sn: $(element).find('td[data-td="sn"]').text(),
-                        depot: $(element).find('td[data-td="depot"]').text(),
-                        expiry: $(element).find('td[data-td="expiry"]').text(),
-                        qty: Number($(element).find('input[name="qty[]"]').val()) || 0
+                        qty: Number($(element).find('input[name="qty[]"]').val()) || 0,
+                        new: false
                     });
                 });
                 $('#addInbound .-checkedNum').text(`已選擇 ${selectedInboundId.length} 筆入庫單`);
@@ -238,9 +246,15 @@
 
             // btn - 加入入庫單
             $('#addInbound .btn-ok').off('click').on('click', function () {
+                if (!checkSelectQty()) {
+                    alert('預計出貨數量不合，請檢查！');
+                    return false;
+                }
+                // call API
+
                 const nth = Number($(this).data('idx')) * 2;
                 selectedInbound.forEach(ib => {
-                    if (!$(`#Pord_list tr.--rece:nth-child(${nth}) tr.-cloneElem.--selectedIB button[data-bid="${ib.id}"]`).length) {
+                    if (ib.new && !$(`#Pord_list tr.--rece:nth-child(${nth}) tr.-cloneElem.--selectedIB button[data-bid="${ib.id}"]`).length) {
                         createOneSelected(ib);
                     }
                 });
@@ -273,27 +287,33 @@
             // 入庫單 API
             function getInboundList(target) {
                 const $input = $(target).prev('input');
-                const id = $input.val();
-                const _URL = `${Laravel.apiUrl.inboundList}`;
+                const sid = $input.val();
+                const _URL = Laravel.apiUrl.inboundList;
                 const Data = {
-                    product_style_id: `${id}`
+                    product_style_id: sid
                 };
                 let title = '';
                 if ($input.data('subtitle')) {
-                    title = `[${$input.data('title')}] ${$input.data('subtitle')}`;
+                    title = `[ ${$input.data('title')} ] ${$input.data('subtitle')}`;
                 } else {
                     title = $input.data('title');
                 }
-                $('#addInbound blockquote h6').text(`${title}`);
+                $('#addInbound blockquote h6').text(title);
                 $('#addInbound figcaption').text($input.data('sku'));
+                const qty = Number($input.data('qty')) || 0;
+                let un_qty = Number($input.data('a_qty')) || 0;
+                un_qty = qty - un_qty;
+                $('#addInbound blockquote div:first-child').text(`訂購數量：${qty}`);
+                $('#addInbound blockquote div:last-child').text(`未選取數量：${un_qty}`);
+                $('#addInbound .btn-ok').data('un_qty', un_qty);
 
                 axios.post(_URL, Data)
                     .then((result) => {
                         const res = result.data;
                         const inboData = res.data;
-                        console.log(inboData);
+                        let auto_count = un_qty;
                         inboData.forEach(inbo => {
-                            createOneInbound(inbo);
+                            auto_count = createOneInbound(inbo, un_qty, auto_count);
                         });
                         // bind event
                         // -- 選取
@@ -316,10 +336,22 @@
                     });
 
                 // 商品列表
-                function createOneInbound(ib) {
+                function createOneInbound(ib, un_qty, auto_count) {
                     const idx = selectedInboundId.indexOf(ib.inbound_id);
-                    let checked = (idx < 0) ? '' : 'checked disabled';
-                    let qty = (idx < 0) ? 0 : selectedInbound[idx].qty;
+                    let checked = '';
+                    let qty = 0;
+                    let max = (un_qty < ib.qty) ? un_qty : ib.qty;
+                    if (idx < 0) {  // 未選
+                        qty = (auto_count < max) ? auto_count : max;
+                        auto_count -= qty;
+                        if (qty > 0 && max > 0) {
+                            checked = 'checked';
+                        }
+                    } else {
+                        checked = 'checked disabled';
+                        qty = selectedInbound[idx].qty;
+                    }
+                    console.log(checked);
                     let $tr = $(`<tr>
                         <th class="text-center">
                             <input class="form-check-input" type="checkbox" ${checked}
@@ -329,9 +361,11 @@
                         <td data-td="depot">${ib.depot_name}</td>
                         <td data-td="stock">${ib.qty}</td>
                         <td data-td="expiry">${moment(ib.expiry_date).format('YYYY/MM/DD')}</td>
-                        <td data-td="qty"><input type="number" value="${qty}" max="${ib.qty}" class="form-control form-control-sm text-center" disabled></td>
+                        <td data-td="qty"><input type="number" value="${qty}" min="1" max="${max}" class="form-control form-control-sm text-center" disabled></td>
                     </tr>`);
                     $('#addInbound .-appendClone.--inbound').append($tr);
+                    catchCheckedInbound($tr.find('input:checkbox'));
+                    return auto_count;
                 }
             }
 
@@ -348,8 +382,13 @@
                 $('#addInbound .-emptyData').hide();
             }
 
+            /*** 計算數量 ***/
+
             // 紀錄 checked inbound
             function catchCheckedInbound($checkbox) {
+                if ($checkbox.prop('disabled')) {
+                    return false;
+                }
                 const bid = Number($($checkbox).val());
                 const idx = selectedInboundId.indexOf(bid);
                 const $qty = $($checkbox).closest('tr').find('input[type="number"]');
@@ -362,7 +401,8 @@
                             sn: $($checkbox).parent('th').siblings('[data-td="sn"]').text(),
                             depot: $($checkbox).parent('th').siblings('[data-td="depot"]').text(),
                             expiry: $($checkbox).parent('th').siblings('[data-td="expiry"]').text(),
-                            qty: Number($qty.val()) || 0
+                            qty: Number($qty.val()) || 0,
+                            new: true
                         });
                     }
                 } else {
@@ -374,7 +414,20 @@
                 }
             }
 
-            /*** 計算 ***/
+            // 檢查數量
+            function checkSelectQty() {
+                let result = true;
+                let sum = 0;
+                $('#addInbound td[data-td="qty"] input:not(:disabled)').each(function (index, element) {
+                    // element == this
+                    const qty = Number($(element).val());
+                    sum += qty;
+                    result &= (qty >= Number($(element).attr('min')) && qty <= Number($(element).attr('max')));
+                });
+                result &= (sum <= Number($('#addInbound .btn-ok').data('un_qty')));
+                return result;
+            }
+
             // 加總出貨數量
             function sumExportQty() {
                 $('#Pord_list tbody tr.--prod').each(function (index, element) {
@@ -384,6 +437,16 @@
                         sum += Number($(el).val()) || 0;
                     });
                     $(element).find('input[name="qty_actual[]"]').val(sum);
+                    // 檢查數量 訂購>=出貨
+                    const $ordInput = $(element).next('tr.--rece').find('input.-ord');
+                    if ($ordInput.length) {
+                        $ordInput.data('a_qty', sum);
+                        if (Number($ordInput.data('qty')) <= sum) {
+                            $ordInput.next('button.-add').prop('disabled', true);
+                        } else {
+                            $ordInput.next('button.-add').prop('disabled', false);
+                        }
+                    }
                 });
             }
         </script>

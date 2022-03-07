@@ -15,7 +15,7 @@
 ### 1.1.1. 取得可入庫單 可出貨列表
 
 ```
-POST {host}/api/cms/delivery/get-select-inbound-list/{款式ID productStyleId}
+POST {host}/api/cms/delivery/get-select-inbound-list
 ```
 
 | request body | -      |      |
