@@ -20,6 +20,7 @@ POST {host}/api/cms/delivery/get-select-inbound-list/{款式ID productStyleId}
 
 | request body | -      |      |
 | ------------ | ------ | ---- |
+| product_style_id            | string |   商品款式ID  |
 
 | response body  | -      |     |
 | -------------- | ------ | --- |
@@ -50,13 +51,16 @@ POST {host}/api/cms/delivery/get-select-inbound-list/{款式ID productStyleId}
 ### 1.1.2. 新增對應的入庫商品款式
 
 ```
-POST {host}/api/cms/delivery/store-receive-depot/{出貨單ID deliveryId}/{子訂單商品ID itemId}/{款式ID 可選 productStyleId?}
+POST {host}/api/cms/delivery/store-receive-depot
 ```
 
 > 款式ID 可選 productStyleId 若有輸入 則回傳時，只回傳相同productStyleId的預計出貨列表 (在一個子訂單商品為組合包時，會有不同productStyleId，用此欄位過濾)
 
 | request body | -      |      |
 | ------------ | ------ | ---- |
+| delivery_id            | string |   出貨單ID  |
+| item_id            | string |   子訂單商品ID  |
+| product_style_id            | string |   款式ID(可選)  |
 | inbound_id[]           | array:int | 入庫單ID  |
 | qty[]           | array:int | 數量  |
 
