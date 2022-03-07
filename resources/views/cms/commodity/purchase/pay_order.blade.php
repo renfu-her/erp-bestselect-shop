@@ -51,7 +51,7 @@
                 </dl>
                 <dl class="row mb-0 border-top">
                     <div class="col">
-                        <dt>編號：{{ $payingOrderData->sn }}</dt>
+                        <dt>付款單號：{{ $payingOrderData->sn }}</dt>
                         <dd></dd>
                     </div>
                     <div class="col">
@@ -64,7 +64,7 @@
                         <dt>
                             採購單號：
                             <a href="{{ Route('cms.purchase.edit', ['id' => $id], true) }}">
-                                B20220322
+                                {{ $purchaseData->purchase_sn }}
                             </a>
                         </dt>
                         <dd></dd>
@@ -94,7 +94,7 @@
                     <table class="table tablelist table-sm mb-0">
                         <thead class="table-light text-secondary">
                         <tr>
-                            <th scope="col">代墊項目</th>
+                            <th scope="col">付款項目</th>
                             <th scope="col">數量</th>
                             <th scope="col">單價</th>
                             <th scope="col">應付金額</th>
@@ -103,15 +103,15 @@
                         </thead>
                         <tbody>
                         @if($type === 'deposit')
-                            @foreach($purchaseItemData as $purchaseItem)
-                                <tr>
-                                    <td>{{ $purchaseItem->title }}（負責人：{{ $purchaseItem->name }}）</td>
-                                    <td>{{ $purchaseItem->num }}</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td>{{ $purchaseItem->memo }}</td>
-                                </tr>
-                            @endforeach
+{{--                            @foreach($purchaseItemData as $purchaseItem)--}}
+{{--                                <tr>--}}
+{{--                                    <td>{{ $purchaseItem->title }}（負責人：{{ $purchaseItem->name }}）</td>--}}
+{{--                                    <td>{{ $purchaseItem->num }}</td>--}}
+{{--                                    <td></td>--}}
+{{--                                    <td></td>--}}
+{{--                                    <td>{{ $purchaseItem->memo }}</td>--}}
+{{--                                </tr>--}}
+{{--                            @endforeach--}}
                             <tr>
                                 <td>訂金</td>
                                 <td>1</td>
@@ -123,8 +123,7 @@
                                 <td>合計：</td>
                                 <td></td>
                                 <td></td>
-                                <td></td>
-{{--                                <td>{{ number_format($payingOrderData->price) }}</td>--}}
+                                <td>{{ number_format($payingOrderData->price) }}</td>
                                 <td></td>
                             </tr>
                         @elseif($type === 'final')
@@ -138,7 +137,7 @@
                                 </tr>
                             @endforeach
                             <tr>
-                                <td>訂金抵扣（{{ number_format($payingOrderData->price) }}）</td>
+                                <td>訂金抵扣（{{ number_format($payingOrderData->price) }}）-{{ $payingOrderData->sn }}</td>
                                 <td>1</td>
                                 <td>-{{ number_format($payingOrderData->price, 2) }}</td>
                                 <td>-{{ number_format($payingOrderData->price) }}</td>
