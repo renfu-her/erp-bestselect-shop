@@ -62,7 +62,7 @@ class DeliveryCtrl extends Controller
         }
 
         if ([] == $re) {
-            $re[ResponseParam::status()->key] = 1;
+            $re[ResponseParam::status()->key] = $re['success'];
             $re[ResponseParam::msg()->key] = $re['error_msg'];
         }
         return response()->json($re);

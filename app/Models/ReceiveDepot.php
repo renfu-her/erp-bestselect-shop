@@ -95,8 +95,8 @@ class ReceiveDepot extends Model
                                 DB::rollBack();
                                 return $reSD;
                             }
-                            return ['success' => 1, 'error_msg' => ""];
                         }
+                        return ['success' => 1, 'error_msg' => ""];
                     }
                 } else {
                     return ['success' => 0, 'error_msg' => "未輸入數量"];
