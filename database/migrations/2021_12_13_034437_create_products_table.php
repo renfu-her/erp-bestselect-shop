@@ -23,6 +23,7 @@ class CreateProductsTable extends Migration
             $table->string('type', 2)->default('p')->comment('商品類別p=商品,c=組合包');
             $table->integer('category_id')->comment('類別名稱id');
             $table->text('desc')->nullable()->comment('商品內容');
+            $table->text('logistic_desc')->nullable()->comment('物流內容');
             $table->integer('user_id')->comment('使用者id');
             $table->dateTime('active_sdate')->nullable()->comment('上架時間起');
             $table->dateTime('active_edate')->nullable()->comment('上架時間終');

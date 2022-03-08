@@ -569,11 +569,28 @@ class ProductCtrl extends Controller
      */
     public function editWebLogis($id)
     {
+        
         $product = self::product_data($id);
         return view('cms.commodity.product.web_logistics', [
             'product' => $product,
             'breadcrumb_data' => $product,
         ]);
+    }
+
+    public function updateWebLogis(Request $request, $id)
+    {
+        $desc = $request->input('logistic_desc');
+
+        if (!$desc) {
+            $desc = '';
+        }
+        
+        Product::where('id', $id)->update(['logistic_desc' => $desc]);
+
+        wToast('儲存完畢');
+
+        return redirect()->back();
+
     }
 
     /**
