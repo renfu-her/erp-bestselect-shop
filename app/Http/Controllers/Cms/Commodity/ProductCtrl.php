@@ -30,13 +30,22 @@ class ProductCtrl extends Controller
     public function index(Request $request)
     {
         $query = $request->query();
-        $page = Arr::get($query, 'data_per_page', 10);
+        $productTypes = [['all', '不限'], ['p', '一般商品'], ['c', '組合包商品']];
+        $page = getPageCount(Arr::get($query, 'data_per_page'));
+        $cond = [];
+        $cond['keyword'] = Arr::get($query, 'keyword');
+        $cond['user'] = Arr::get($query, 'user', true);
+        $cond['product_type'] = Arr::get($query, 'product_type', 'all');
 
-        $products = Product::productList(null, null, ['user' => true])->paginate(5);
+        $products = Product::productList($cond['keyword'], null, ['user' => $cond['user'], 'product_type' => $cond['product_type']])
+            ->paginate($page);
 
         return view('cms.commodity.product.list', [
             'dataList' => $products,
-            'data_per_page' => $page]);
+            'productTypes' => $productTypes,
+            'users' => User::get(),
+            'data_per_page' => $page,
+            'cond' => $cond]);
     }
 
     /**
@@ -341,7 +350,9 @@ class ProductCtrl extends Controller
      */
     public function editSpec($id)
     {
+
         $product = self::product_data($id);
+
         return view('cms.commodity.product.spec-edit', [
             'data' => Product::where('id', $id)->get()->first(),
             'specs' => ProductSpec::get()->toArray(),
