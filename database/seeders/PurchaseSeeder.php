@@ -31,7 +31,7 @@ class PurchaseSeeder extends Seeder
             '2021-12-22 00:00:00',
             '第一筆採購單',
         );
-        $purchaseID1 = 0;
+        $purchaseID1 = null;
         if (isset($purchase1['id'])) {
             $purchaseID1 = $purchase1['id'];
         }
@@ -44,7 +44,7 @@ class PurchaseSeeder extends Seeder
             '2021-12-23 00:00:00',
             null,
         );
-        $purchaseID2 = 0;
+        $purchaseID2 = null;
         if (isset($purchase2['id'])) {
             $purchaseID2 = $purchase2['id'];
         }
@@ -58,7 +58,7 @@ class PurchaseSeeder extends Seeder
             '2021-03-23 00:00:00',
             null,
         );
-        $purchaseID3 = 0;
+        $purchaseID3 = null;
         if (isset($purchase3['id'])) {
             $purchaseID3 = $purchase3['id'];
         }
@@ -86,11 +86,11 @@ class PurchaseSeeder extends Seeder
             $operator_user_id,
             $operator_user_name
         );
-        $purchaseItemID1 = 0;
+        $purchaseItemID1 = null;
         if (isset($purchaseItem1['id'])) {
             $purchaseItemID1 = $purchaseItem1['id'];
         }
-        $purchaseItemID2 = PurchaseItem::createPurchase(
+        $purchaseItem2 = PurchaseItem::createPurchase(
             [
                 'purchase_id' => $purchaseID1,
                 'product_style_id' => $product_style2->id,
@@ -104,7 +104,7 @@ class PurchaseSeeder extends Seeder
             $operator_user_id,
             $operator_user_name
         );
-        $purchaseItemID2 = 0;
+        $purchaseItemID2 = null;
         if (isset($purchaseItem2['id'])) {
             $purchaseItemID2 = $purchaseItem2['id'];
         }
@@ -136,12 +136,12 @@ class PurchaseSeeder extends Seeder
             $operator_user_id,
             $operator_user_name
         );
-        $purchaseItemID3 = 0;
+        $purchaseItemID3 = null;
         if (isset($purchaseItem3['id'])) {
             $purchaseItemID3 = $purchaseItem3['id'];
         }
 
-        $purchaseItemID4 = PurchaseItem::createPurchase(
+        $purchaseItem4 = PurchaseItem::createPurchase(
             [
                 'purchase_id' => $purchaseID3,
                 'product_style_id' => $product_style2->id,
@@ -155,11 +155,11 @@ class PurchaseSeeder extends Seeder
             $operator_user_id,
             $operator_user_name
         );
-        $purchaseItemID4 = 0;
+        $purchaseItemID4 = null;
         if (isset($purchaseItem4['id'])) {
             $purchaseItemID4 = $purchaseItem4['id'];
         }
-        $purchaseItemID5 = PurchaseItem::createPurchase(
+        $purchaseItem5 = PurchaseItem::createPurchase(
             [
                 'purchase_id' => $purchaseID3,
                 'product_style_id' => $product_style5->id,
@@ -173,7 +173,7 @@ class PurchaseSeeder extends Seeder
             $operator_user_id,
             $operator_user_name
         );
-        $purchaseItemID5 = 0;
+        $purchaseItemID5 = null;
         if (isset($purchaseItem5['id'])) {
             $purchaseItemID5 = $purchaseItem5['id'];
         }
@@ -221,7 +221,7 @@ class PurchaseSeeder extends Seeder
             $user_name_5,
             null,
         );
-        $purchaseInboundID1 = 0;
+        $purchaseInboundID1 = null;
         if (isset($purchaseInbound1['id'])) {
             $purchaseInboundID1 = $purchaseInbound1['id'];
         }
@@ -240,7 +240,7 @@ class PurchaseSeeder extends Seeder
             $user_name_5,
             '入庫OK 1物品退換貨',
         );
-        $purchaseInboundID2 = 0;
+        $purchaseInboundID2 = null;
         if (isset($purchaseInbound2['id'])) {
             $purchaseInboundID2 = $purchaseInbound2['id'];
         }

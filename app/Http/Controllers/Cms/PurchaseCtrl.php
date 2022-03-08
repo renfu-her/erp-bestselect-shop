@@ -141,15 +141,19 @@ class PurchaseCtrl extends Controller
             $request->user()->name,
             $purchaseReq['scheduled_date'],
         );
+        $purchaseID = null;
+        if (isset($rePcs['id'])) {
+            $purchaseID = $rePcs['id'];
+        }
 
         $result = null;
         $result = DB::transaction(function () use ($purchaseItemReq, $rePcs, $request
         ) {
-            if (isset($purchaseItemReq['product_style_id']) && isset($rePcs['id'])) {
+            if (isset($purchaseItemReq['product_style_id']) && isset($purchaseID)) {
                 foreach ($purchaseItemReq['product_style_id'] as $key => $val) {
                     $rePcsICP = PurchaseItem::createPurchase(
                         [
-                            'purchase_id' => $rePcs['id'],
+                            'purchase_id' => $purchaseID,
                             'product_style_id' => $val,
                             'title' => $purchaseItemReq['name'][$key],
                             'sku' => $purchaseItemReq['sku'][$key],
