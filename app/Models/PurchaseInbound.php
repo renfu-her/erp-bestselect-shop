@@ -75,7 +75,7 @@ class PurchaseInbound extends Model
                 DB::rollBack();
                 return $rePSSC;
             }
-            return ['success' => 1, 'error_msg' => ""];
+            return ['success' => 1, 'error_msg' => "", 'id' => $id];
         });
     }
 
