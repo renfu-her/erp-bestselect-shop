@@ -11,7 +11,7 @@
                     <li>[<i class="bi bi-pencil-square text-primary"></i>]符號：進入選單內容設定群組或連結網址</li>
                     <li>[<i class="bi bi-arrows-move text-primary"></i>]符號：可以拖曳排序，或拉到想要的主分類底下</li>
                     <li>[<i class="bi bi-trash text-danger"></i>]符號：刪除分類，含子分類會一起連同刪除</li>
-                    <li><span class="text-danger">拖曳與刪除需儲存後才生效！</span></li>
+                    <li><span class="text-danger">刪除或拖曳排序需要儲存後才生效！</span></li>
                 </ul>
             </div>
 
@@ -77,7 +77,7 @@
                 <input type="hidden" name="del_id">
                 <input type="hidden" name="data">
                 <button type="button" id="navi_save" class="btn btn-primary px-4">儲存</button>
-                <mark class="text-danger fst-italic ms-1">* 拖曳與刪除需儲存後才生效唷！</mark>
+                <mark class="text-danger fst-italic ms-1">* 刪除或拖曳排序需要儲存後才生效唷！</mark>
             </div>
         </div>
     </form>
