@@ -26,7 +26,7 @@ class DeliveryCtrl extends Controller
         }
 
         // 出貨單號ID
-        $delivery_id = Delivery::createData(
+        $delivery = Delivery::createData(
             Event::order()->value
             , $sub_order->id
             , $sub_order->sn
@@ -35,6 +35,10 @@ class DeliveryCtrl extends Controller
             , $sub_order->ship_category
             , $sub_order->ship_category_name
             , $sub_order->ship_group_id);
+        $delivery_id = null;
+        if (isset($delivery['id'])) {
+            $delivery_id = $delivery['id'];
+        }
 
         $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
         $ord_items_arr = ReceiveDepot::getShipItemWithDeliveryWithReceiveDepotList(Event::order()->value, $sub_order_id, $delivery_id);

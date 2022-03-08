@@ -53,10 +53,11 @@ class Delivery extends Model
                 'ship_group_id' => $ship_group_id,
                 'memo' => $memo,
             ])->id;
+            return ['success' => 1, 'error_msg' => "", 'id' => $result];
         } else {
             $result = $dataGet->id;
+            return ['success' => 1, 'error_msg' => "", 'id' => $result];
         }
-        return $result;
     }
 
     //更新物流狀態
@@ -75,10 +76,10 @@ class Delivery extends Model
                     'logistic_status' => $logistic_status,
                     'logistic_status_code' => $logistic_status_code,
                 ]);
-                return $dataGet->id;
+                return ['success' => 1, 'error_msg' => "", 'id' => $dataGet->id];
             });
         }
-        return $result;
+        return ['success' => 0, 'error_msg' => "更新失敗 無此物流單"];
     }
 
     //更新出貨倉庫
@@ -97,10 +98,10 @@ class Delivery extends Model
                     'ship_depot_id' => $ship_depot_id,
                     'ship_depot_name' => $ship_depot_name,
                 ]);
-                return $dataGet->id;
+                return ['success' => 1, 'error_msg' => "", 'id' => $dataGet->id];
             });
         }
-        return $result;
+        return ['success' => 0, 'error_msg' => "更新失敗 無此物流單"];
     }
 
     public static function deleteByEventId($event, $event_id)
@@ -110,9 +111,5 @@ class Delivery extends Model
                 Delivery::where('event_id', $event_id)->delete();
             }
         }
-    }
-
-    public static function getList() {
-
     }
 }
