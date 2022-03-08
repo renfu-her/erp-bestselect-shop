@@ -54,7 +54,7 @@ POST {host}/api/cms/delivery/get-select-inbound-list
 POST {host}/api/cms/delivery/store-receive-depot
 ```
 
-> 款式ID 可選 productStyleId 若有輸入 則回傳時，只回傳相同productStyleId的預計出貨列表 (在一個子訂單商品為組合包時，會有不同productStyleId，用此欄位過濾)
+> 款式ID 可選 product_style_id 若有輸入 則回傳時，只回傳相同 product_style_id 的預計出貨列表 (在一個子訂單商品為組合包時，會有不同 product_style_id，用此欄位過濾)
 
 | request body | -      |      |
 | ------------ | ------ | ---- |
