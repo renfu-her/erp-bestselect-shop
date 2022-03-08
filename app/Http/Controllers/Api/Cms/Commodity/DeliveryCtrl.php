@@ -36,9 +36,9 @@ class DeliveryCtrl extends Controller
             'qty.*' => 'nullable|integer|min:1',
         ]);
 
-        $delivery_id = $request->input['delivery_id']?? null;
-        $item_id = $request->input['item_id']?? null;
-        $product_style_id = $request->input['product_style_id']?? null;
+        $delivery_id = $request->input('delivery_id')?? null;
+        $item_id = $request->input('item_id')?? null;
+        $product_style_id = $request->input('product_style_id')?? null;
         $re = [];
         $input = $request->only('freebies', 'inbound_id', 'qty');
         if (count($input['inbound_id']) != count($input['qty'])) {
@@ -51,15 +51,19 @@ class DeliveryCtrl extends Controller
 //            ->delete();
         if (null != $input['qty'] && 0 < count($input['qty'])) {
             //取得request資料 重新建立該子訂單商品的出貨資料
-            $re = ReceiveDepot::setDatasWithDeliveryIdWithItemId($input, $delivery_id, $item_id);
+            $reRDSetDatas = ReceiveDepot::setDatasWithDeliveryIdWithItemId($input, $delivery_id, $item_id);
+            if ($reRDSetDatas['success'] == '1') {
+                $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
+                $ord_items_arr = ReceiveDepot::getShipItemWithDeliveryWithReceiveDepotList($delivery->event, $delivery->event_id, $delivery_id, $product_style_id);
+                $re[ResponseParam::status()->key] = 0;
+                $re[ResponseParam::msg()->key] = '';
+                $re[ResponseParam::data()->key] = $ord_items_arr;
+            }
         }
 
         if ([] == $re) {
-            $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
-            $ord_items_arr = ReceiveDepot::getShipItemWithDeliveryWithReceiveDepotList($delivery->event, $delivery->event_id, $delivery_id, $product_style_id);
-            $re[ResponseParam::status()->key] = 0;
-            $re[ResponseParam::msg()->key] = '';
-            $re[ResponseParam::data()->key] = $ord_items_arr;
+            $re[ResponseParam::status()->key] = $re['success'];
+            $re[ResponseParam::msg()->key] = $re['error_msg'];
         }
         return response()->json($re);
     }

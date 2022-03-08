@@ -42,9 +42,12 @@ class Purchase extends Model
                 'memo' => $memo,
             ])->id;
 
-            PurchaseLog::stockChange($id, null, LogEvent::purchase()->value, $id, LogEventFeature::pcs_add()->value, null, null, $purchase_user_id, $purchase_user_name);
-
-            return $id;
+            $rePcsLSC = PurchaseLog::stockChange($id, null, LogEvent::purchase()->value, $id, LogEventFeature::pcs_add()->value, null, null, $purchase_user_id, $purchase_user_name);
+            if ($rePcsLSC['success'] == 0) {
+                DB::rollBack();
+                return $rePcsLSC;
+            }
+            return ['success' => 1, 'error_msg' => "", 'id' => $id];
         });
     }
 
@@ -58,30 +61,45 @@ class Purchase extends Model
         $purchase->supplier_id = $purchaseReq['supplier'];
         $purchase->scheduled_date = $purchaseReq['scheduled_date'];
 
-        if ($purchase->isDirty()) {
-            foreach ($purchase->getDirty() as $key => $val) {
-                $changeStr .= ' ' . $key . ' change to ' . $val;
-                $event = '';
-                if ($key == 'supplier_id') {
-                    $event = '修改廠商';
-                } else if($key == 'scheduled_date') {
-                    $event = '修改廠商預計進貨日期';
+        return DB::transaction(function () use ($purchase, $id, $purchaseReq, $changeStr
+        ) {
+            if ($purchase->isDirty()) {
+                foreach ($purchase->getDirty() as $key => $val) {
+                    $changeStr .= ' ' . $key . ' change to ' . $val;
+                    $event = '';
+                    if ($key == 'supplier_id') {
+                        $event = '修改廠商';
+                    } else if($key == 'scheduled_date') {
+                        $event = '修改廠商預計進貨日期';
+                    }
+                    $rePcsLSC = PurchaseLog::stockChange($id, null, LogEvent::purchase()->value, $id, LogEventFeature::pcs_change_data()->value, null, $event, $operator_user_id, $operator_user_name);
+                    if ($rePcsLSC['success'] == 0) {
+                        DB::rollBack();
+                        return $rePcsLSC;
+                    }
                 }
-                PurchaseLog::stockChange($id, null, LogEvent::purchase()->value, $id, LogEventFeature::pcs_change_data()->value, null, $event, $operator_user_id, $operator_user_name);
+                Purchase::where('id', $id)->update([
+                    "supplier_id" => $purchaseReq['supplier'],
+                    "scheduled_date" => $purchaseReq['scheduled_date'],
+                ]);
             }
-            Purchase::where('id', $id)->update([
-                "supplier_id" => $purchaseReq['supplier'],
-                "scheduled_date" => $purchaseReq['scheduled_date'],
-            ]);
-        }
-        return $changeStr;
+            return ['success' => 1, 'error_msg' => $changeStr];
+        });
     }
 
     //刪除
     public static function del($id, $operator_user_id, $operator_user_name) {
         //判斷若有入庫、付款單 則不可刪除
-        Purchase::where('id', '=', $id)->delete();
-        PurchaseLog::stockChange($id, null, LogEvent::purchase()->value, $id, LogEventFeature::pcs_del()->value, null, null, $operator_user_id, $operator_user_name);
+        return DB::transaction(function () use ($id, $operator_user_id, $operator_user_name
+        ) {
+            $rePcsLSC = PurchaseLog::stockChange($id, null, LogEvent::purchase()->value, $id, LogEventFeature::pcs_del()->value, null, null, $operator_user_id, $operator_user_name);
+            if ($rePcsLSC['success'] == 0) {
+                DB::rollBack();
+                return $rePcsLSC;
+            }
+            Purchase::where('id', '=', $id)->delete();
+            return ['success' => 1, 'error_msg' => ""];
+        });
     }
 
     //結案
