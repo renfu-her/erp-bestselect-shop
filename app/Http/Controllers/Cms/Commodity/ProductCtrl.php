@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\ProductImg;
 use App\Models\ProductSpec;
 use App\Models\ProductSpecItem;
+use App\Models\ProductSpecList;
 use App\Models\ProductStyle;
 use App\Models\ProductStyleCombo;
 use App\Models\SaleChannel;
@@ -554,11 +555,19 @@ class ProductCtrl extends Controller
      */
     public function editWebSpec($id)
     {
+
         $product = self::product_data($id);
         return view('cms.commodity.product.web_spec', [
             'product' => $product,
+            'lists' => ProductSpecList::where('product_id', $id)->get(),
             'breadcrumb_data' => $product,
         ]);
+    }
+
+    public function updateWebSpec($id)
+    {
+
+        dd($_POST);
     }
 
     /**
@@ -569,7 +578,7 @@ class ProductCtrl extends Controller
      */
     public function editWebLogis($id)
     {
-        
+
         $product = self::product_data($id);
         return view('cms.commodity.product.web_logistics', [
             'product' => $product,
@@ -584,7 +593,7 @@ class ProductCtrl extends Controller
         if (!$desc) {
             $desc = '';
         }
-        
+
         Product::where('id', $id)->update(['logistic_desc' => $desc]);
 
         wToast('儲存完畢');

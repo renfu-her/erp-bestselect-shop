@@ -36,6 +36,7 @@ Route::group(['prefix' => 'product', 'as' => 'product.'], function () {
     Route::post('edit/{id}/web-logis', [ProductCtrl::class, 'updateWebLogis']); //->middleware('permission:cms.product.web-logis');
 
     Route::get('edit/{id}/web-spec', [ProductCtrl::class, 'editWebSpec'])->name('edit-web-spec'); //->middleware('permission:cms.product.web-spec');
+    Route::post('edit/{id}/web-spec', [ProductCtrl::class, 'updateWebSpec']); //->middleware('permission:cms.product.web-spec');
 
     Route::get('edit/{id}/setting', [ProductCtrl::class, 'editSetting'])->name('edit-setting'); //->middleware('permission:cms.product.setting');
     Route::post('edit/{id}/setting', [ProductCtrl::class, 'updateSetting']); //->middleware('permission:cms.product.setting');

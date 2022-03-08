@@ -52,8 +52,15 @@ class CreateProductsTable extends Migration
             $table->integer('category_id')->comment('物流id');
             $table->integer('group_id')->comment('物流群組id');
 
-            $table->unique(['product_id', 'category_id','group_id']);
+            $table->unique(['product_id', 'category_id', 'group_id']);
 
+        });
+
+        Schema::create('prd_speclists', function (Blueprint $table) {
+            $table->id();
+            $table->integer('product_id')->comment('產品id');
+            $table->string('title', 50)->comment('標題');
+            $table->string('content', 100)->comment('內文');
         });
     }
 
