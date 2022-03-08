@@ -44,8 +44,7 @@ class UserCtrl extends Controller
             'formAction'     => Route('cms.user.create'),
             'permissions'    => Permission::getPermissionGroups('user'),
             'roles'          => Role::roleList('user'),
-            'is_super_admin' => Auth::user()->hasrole('Super Admin'),
-            'customer_list'         => Customer::all(),
+            'is_super_admin' => Auth::user()->hasrole('Super Admin')
         ]);
     }
 
@@ -64,7 +63,7 @@ class UserCtrl extends Controller
             
         ]);
 
-        $uData = $request->only('account', 'name', 'password', 'customer_id');
+        $uData = $request->only('account', 'name', 'password');
 
         $permission_id = [];
         $role_id = [];
@@ -139,7 +138,6 @@ class UserCtrl extends Controller
             'permission_id'  => $permission_id,
             'roles'          => Role::roleList('user'), 'role_ids' => $role_ids,
             'is_super_admin' => Auth::user()->hasrole('Super Admin'),
-            'customer_list'         => Customer::all(),
         ]);
     }
 
@@ -157,10 +155,9 @@ class UserCtrl extends Controller
         $request->validate([
             'password' => 'confirmed|min:4|nullable',
             'name'     => 'required|string', 'role_id' => 'array',
-            'customer_id'  => 'required|numeric',
         ]);
 
-        $userData = $request->only('name', 'customer_id');
+        $userData = $request->only('name');
         $perData = $request->input('permission_id');
         $role_ids = $request->input('role_id');
 
