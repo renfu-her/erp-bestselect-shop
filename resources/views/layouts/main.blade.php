@@ -44,7 +44,7 @@
                     'productStyles' => Route('api.cms.product.get-product-styles'),
                     'productList' => Route('api.cms.product.get-products'),
                     'productShipments' => Route('api.cms.product.get-products-shipment'),
-                    'inboundList' => Route('api.cms.delivery.get-select-inbound', ['']),
+                    'inboundList' => Route('api.cms.delivery.get-select-inbound'),
                 ],
             ]) !!};
 

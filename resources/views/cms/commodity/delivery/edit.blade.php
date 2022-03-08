@@ -247,13 +247,14 @@
 
             // btn - 加入入庫單
             $('#addInbound .btn-ok').off('click').on('click', function () {
+                const $okBtn = $(this);
                 if (!checkSelectQty()) {
                     alert('預計出貨數量不合，請檢查！');
                     return false;
                 }
                 // call API
 
-                const nth = Number($(this).data('idx')) * 2;
+                const nth = Number($okBtn.data('idx')) * 2;
                 selectedInbound.forEach(ib => {
                     if (ib.new && !$(`#Pord_list tr.--rece:nth-child(${nth}) tr.-cloneElem.--selectedIB button[data-bid="${ib.id}"]`).length) {
                         createOneSelected(ib);
@@ -309,7 +310,8 @@
                 $('#addInbound .btn-ok').data({
                     'un_qty': un_qty,
                     'delivery_id': $input.data('did'),
-                    'item_id': $input.data('item')
+                    'item_id': $input.data('item'),
+                    'style_id': sid
                 });
 
                 axios.post(_URL, Data)
@@ -374,6 +376,35 @@
                 }
             }
 
+            // 加入出貨審核 API
+            function createReceiveDepot($target) {
+                const _URL = @json(Route('api.cms.delivery.create-receive-depot'));
+                let Data = {
+                    delivery_id: $target.data('delivery_id'),
+                    item_id: $target.data('item_id'),
+                    product_style_id: $target.data('style_id'),
+                    inbound_id: [],
+                    qty: []
+                };
+                $('#addInbound .-appendClone input[type="checkbox"]:checked:not(:disabled)').each(function (index, element) {
+                    // element == this
+                    (Data.inbound_id).push($(element).val());
+                    (Data.qty).push($(element).closest('tr').find('input[type="number"]').val());
+                });
+
+                axios.post(_URL, Data)
+                    .then((result) => {
+                        const res = result.data;
+                        if (res.status === '0') {
+                            
+                        } else {
+                            toast.show(res.msg, { title: '加入錯誤', type: 'danger' });
+                        }
+                    }).catch((err) => {
+                        console.error(err);
+                    });
+            }
+
             // 清空入庫 Modal
             function resetAddInboundModal() {
                 selectedInbound = [];
@@ -425,7 +456,7 @@
                 let sum = 0;
                 $('#addInbound td[data-td="qty"] input:not(:disabled)').each(function (index, element) {
                     // element == this
-                    const qty = Number($(element).val());
+                    const qty = Number($(element).val()) || 0;
                     sum += qty;
                     result &= (qty >= Number($(element).attr('min')) && qty <= Number($(element).attr('max')));
                 });
