@@ -67,14 +67,18 @@ class PurchaseItem extends Model
                 foreach ($purchaseItem->getDirty() as $dirtykey => $dirtyval) {
                     $changeStr .= ' itemID:' . $itemId . ' ' . $dirtykey . ' change to ' . $dirtyval;
                     $event = '';
+                    $logEventFeature = null;
                     if ($dirtykey == 'price') {
                         $event = '修改價錢';
+                        $logEventFeature = LogEventFeature::style_change_price()->value;
                     } else if($dirtykey == 'num') {
                         $event = '修改數量';
+                        $logEventFeature = LogEventFeature::style_change_qty()->value;
                     } else if($dirtykey == 'memo') {
                         $event = '修改備註';
+                        $logEventFeature = LogEventFeature::style_change_memo()->value;
                     }
-                    $rePcsLSC = PurchaseLog::stockChange($purchaseItem->purchase_id, $purchaseItem->product_style_id, LogEvent::style()->value, $itemId, LogEventFeature::style_change_data()->value, $dirtyval, $event, $operator_user_id, $operator_user_name);
+                    $rePcsLSC = PurchaseLog::stockChange($purchaseItem->purchase_id, $purchaseItem->product_style_id, LogEvent::style()->value, $itemId, $logEventFeature, $dirtyval, $event, $operator_user_id, $operator_user_name);
                     if ($rePcsLSC['success'] == 0) {
                         DB::rollBack();
                         return $rePcsLSC;

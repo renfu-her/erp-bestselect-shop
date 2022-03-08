@@ -20,7 +20,7 @@ final class LogEventFeature extends Enum
     //款式
     const style_add = 'style_add';
     const style_del = 'style_del';
-    const style_change_data = 'style_change_data';
+    const style_change_memo = 'style_change_memo';
     const style_change_price = 'style_change_price';
     const style_change_qty = 'style_change_qty';
 
@@ -58,8 +58,8 @@ final class LogEventFeature extends Enum
             case self::style_del:
                 $result = '刪除商品';
                 break;
-            case self::style_change_data:
-                $result = '採購單修改商品內容';
+            case self::style_change_memo:
+                $result = '修改備註';
                 break;
             case self::style_change_qty:
                 $result = '修改數量';
