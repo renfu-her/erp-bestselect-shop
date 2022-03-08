@@ -105,11 +105,11 @@ class Order extends Model
 
     }
 
-    private static function orderAddress(&$query)
+    public static function orderAddress(&$query, $joinTable = 'order', $joinKey = 'order_id')
     {
         foreach (UserAddrType::asArray() as $value) {
-            $query->leftJoin('ord_address as ' . $value, function ($q) use ($value) {
-                $q->on('order.id', '=', $value . '.order_id')
+            $query->leftJoin('ord_address as ' . $value, function ($q) use ($value, $joinTable, $joinKey) {
+                $q->on($joinTable.'.id', '=', $value . '.'. $joinKey)
                     ->where($value . '.type', '=', $value);
             });
             switch ($value) {

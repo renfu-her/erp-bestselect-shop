@@ -5,17 +5,40 @@ namespace App\Http\Controllers\Cms\Commodity;
 use App\Enums\Delivery\Event;
 use App\Http\Controllers\Controller;
 use App\Models\Delivery;
-use App\Models\PurchaseInbound;
+use App\Models\Depot;
+use App\Models\OrderStatus;
 use App\Models\ReceiveDepot;
 use App\Models\SubOrders;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Arr;
 
 class DeliveryCtrl extends Controller
 {
     public function index(Request $request)
     {
-        dd(PurchaseInbound::getInboundList([])->get());
+        $query = $request->query();
+        $cond = [];
+        $cond['event_sn'] = Arr::get($query, 'event_sn', null);
+        $cond['delivery_sn'] = Arr::get($query, 'delivery_sn', null);
+        $cond['receive_depot_id'] = Arr::get($query, 'receive_depot_id', null);
+        $cond['ship_method'] = Arr::get($query, 'ship_method', null);
+        $cond['logistic_status_code'] = Arr::get($query, 'logistic_status_code', null);
+
+        $cond['order_sdate'] = Arr::get($query, 'order_sdate', null);
+        $cond['order_edate'] = Arr::get($query, 'order_edate', null);
+        $cond['delivery_sdate'] = Arr::get($query, 'delivery_sdate', null);
+        $cond['delivery_edate'] = Arr::get($query, 'delivery_edate', null);
+
+        $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 10));
+
+        $delivery = Delivery::getList($cond)->paginate($cond['data_per_page']);
+
+        return view('cms.commodity.delivery.list', [
+            'dataList' => $delivery,
+            'depotList' => Depot::all(),
+            'orderStatus' => OrderStatus::all(),
+            'searchParam' => $cond,
+            'data_per_page' => $cond['data_per_page']]);
     }
 
     public function create($sub_order_id)
