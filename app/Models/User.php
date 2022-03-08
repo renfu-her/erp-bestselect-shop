@@ -36,6 +36,7 @@ class User extends Authenticatable
         'password',
         'uuid',
         'api_token',
+        'company_code'
     ];
 
     /**
@@ -69,6 +70,8 @@ class User extends Authenticatable
         if (!$company_code) {
             $company_code = config('global.company_code');
         }
+
+    //    dd($company_code);
 
         $id = self::create([
             'name' => $name,
