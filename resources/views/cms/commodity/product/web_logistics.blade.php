@@ -27,7 +27,9 @@
     @push('sub-scripts')
         <script>
             let content = @json($product->logistic_desc);
-
+            if (!content) {
+                content = '';
+            }
             Editor.createEditor('editor', {
                 initialValue: content
             });

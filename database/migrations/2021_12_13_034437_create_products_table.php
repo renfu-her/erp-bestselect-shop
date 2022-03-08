@@ -59,6 +59,7 @@ class CreateProductsTable extends Migration
         Schema::create('prd_speclists', function (Blueprint $table) {
             $table->id();
             $table->integer('product_id')->comment('產品id');
+            $table->integer('sort')->comment('順序');
             $table->string('title', 50)->comment('標題');
             $table->string('content', 100)->comment('內文');
         });

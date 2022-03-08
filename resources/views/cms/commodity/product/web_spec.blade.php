@@ -8,28 +8,30 @@
         @csrf
         <div id="specList" class="card shadow p-4 mb-4">
             <h6>規格說明（網頁）</h6>
-            <div class="sortabled mb-3 -appendClone">    
-                <div class="mb-2 row sortabled_box -cloneElem">
-                    <div class="col d-flex flex-column flex-sm-row pe-0">
-                        <div class="col col-sm-5 col-lg-3 px-0 pb-2 pb-sm-0">
-                            <input type="text" class="form-control" maxlength="10" placeholder="請輸入標題。例：材質"
-                                aria-label="規格說明標題">
+            <div class="sortabled mb-3 -appendClone">
+                @foreach ($lists as $list)
+                    <div class="mb-2 row sortabled_box -cloneElem">
+                        <div class="col d-flex flex-column flex-sm-row pe-0">
+                            <div class="col col-sm-5 col-lg-3 px-0 pb-2 pb-sm-0">
+                                <input type="text" name="title[]" class="form-control" maxlength="10" value="{{  $list['title'] }}"
+                                    placeholder="請輸入標題。例：材質" aria-label="規格說明標題">
+                            </div>
+                            <div class="col px-0 px-sm-2 pb-2 pb-sm-0">
+                                <input type="text" name="content[]" value="{{ $list['content'] }}" class="form-control" placeholder="請輸入內文。例：棉 / 聚脂纖維"
+                                    aria-label="規格說明內文">
+                            </div>
                         </div>
-                        <div class="col px-0 px-sm-2 pb-2 pb-sm-0">
-                            <input type="text" class="form-control" placeholder="請輸入內文。例：棉 / 聚脂纖維" aria-label="規格說明內文">
+                        <div class="col-auto d-flex flex-column flex-sm-row ps-0">
+                            <span type="button" class="icon -move icon-btn fs-5 text-primary rounded-circle border-0 p-0">
+                                <i class="bi bi-arrows-move"></i>
+                            </span>
+                            <button type="button" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                <i class="bi bi-trash"></i>
+                            </button>
                         </div>
+                        <div class="w-100 my-2 p-0 dropdown-divider d-block d-sm-none"></div>
                     </div>
-                    <div class="col-auto d-flex flex-column flex-sm-row ps-0">
-                        <span type="button" class="icon -move icon-btn fs-5 text-primary rounded-circle border-0 p-0">
-                            <i class="bi bi-arrows-move"></i>
-                        </span>
-                        <button type="button" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </div>
-                    <div class="w-100 my-2 p-0 dropdown-divider d-block d-sm-none"></div>
-                </div>
-               
+                @endforeach
             </div>
             <!-- 新增鈕 -->
             <div class="d-grid gap-2">

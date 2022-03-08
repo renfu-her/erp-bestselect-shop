@@ -557,17 +557,36 @@ class ProductCtrl extends Controller
     {
 
         $product = self::product_data($id);
+        $lists = ProductSpecList::where('product_id', $id)->orderBy('sort')->get();
+
+        if (count($lists) == 0) {
+            $lists = [['title' => '', 'content' => '']];
+        }
+
         return view('cms.commodity.product.web_spec', [
             'product' => $product,
-            'lists' => ProductSpecList::where('product_id', $id)->get(),
+            'lists' => $lists,
             'breadcrumb_data' => $product,
         ]);
     }
 
-    public function updateWebSpec($id)
+    public function updateWebSpec(Request $request, $id)
     {
 
-        dd($_POST);
+        $d = $request->all();
+
+        $items = [];
+        if (isset($d['title']) && isset($d['content'])) {
+            foreach ($d['title'] as $key => $title) {
+                if ($title && $d['content'][$key]) {
+                    $items[] = ['product_id' => $id, 'sort' => $key, 'title' => $title, 'content' => $d['content'][$key]];
+                }
+            }
+        }
+
+        ProductSpecList::updateItems($id, $items);
+        wToast('儲存成功');
+        return redirect()->back();
     }
 
     /**

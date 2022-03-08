@@ -15,6 +15,7 @@ class ProductSpecList extends Model
     public static function updateItems($product_id, $items = [])
     {
         self::where('product_id', $product_id)->delete();
+       
         self::insert($items);
     }
 
