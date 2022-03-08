@@ -70,9 +70,9 @@
                                         <tfoot class="border-top-0">
                                             <tr>
                                                 <td colspan="5">
-                                                    <input type="hidden" class="-ord" value="{{ $ord->product_style_id }}"
+                                                    <input type="hidden" class="-ord" value="{{ $ord->product_style_id }}" data-sku="{{ $ord->sku }}" 
                                                         data-title="{{ $ord->product_title }}" @if($ord->combo_product_title) data-subtitle="{{$ord->combo_product_title}}" @endif
-                                                        data-sku="{{ $ord->sku }}" data-qty="{{ $ord->qty }}">
+                                                        data-qty="{{ $ord->qty }}" data-did="{{ $delivery_id }}" data-item="{{ $ord->item_id }}">
                                                     <button data-idx="{{ $key + 1 }}" type="button" class="btn -add btn-outline-primary btn-sm border-dashed w-100" style="font-weight: 500;">
                                                         <i class="bi bi-plus-circle"></i> 新增
                                                     </button>
@@ -159,6 +159,7 @@
     @push('sub-styles')
     @endpush
     @push('sub-scripts')
+        <script src="{{ Asset('dist/js/deliveryAudit.js') }}"></script>
         <script>
             let addInboundModal = new bootstrap.Modal(document.getElementById('addInbound'));
             let prodPages = new Pagination($('#addInbound .-pages'));
@@ -305,7 +306,11 @@
                 un_qty = qty - un_qty;
                 $('#addInbound blockquote div:first-child').text(`訂購數量：${qty}`);
                 $('#addInbound blockquote div:last-child').text(`未選取數量：${un_qty}`);
-                $('#addInbound .btn-ok').data('un_qty', un_qty);
+                $('#addInbound .btn-ok').data({
+                    'un_qty': un_qty,
+                    'delivery_id': $input.data('did'),
+                    'item_id': $input.data('item')
+                });
 
                 axios.post(_URL, Data)
                     .then((result) => {
