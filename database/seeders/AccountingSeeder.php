@@ -114,6 +114,14 @@ class AccountingSeeder extends Seeder
             'second_grade_fk' => $secondGradeId_1,
             'acc_income_statement_fk' => 1
         ]);
+        $thirdGradeId_7 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '1103',
+            'has_next_grade' => 1,
+            'name' => '外幣',
+            'acc_company_fk' => 1,
+            'second_grade_fk' => $secondGradeId_1,
+            'acc_income_statement_fk' => 1
+        ]);
         $thirdGradeId_3 = DB::table('acc_third_grade')->insertGetId([
             'code' => '1201',
             'has_next_grade' => 0,
@@ -153,6 +161,18 @@ class AccountingSeeder extends Seeder
             'third_grade_fk' => $thirdGradeId_2,
             'acc_income_statement_fk' => 1,
         ]);
+
+        $currencyArray = include 'currency.php';
+        foreach ($currencyArray as $key => $currency) {
+            DB::table('acc_fourth_grade')->insert([
+                'code'                    => '110300' . str_pad($key +1, 2, '0', STR_PAD_LEFT),
+                'name'                    => '外幣-'. $currency['name'],
+                'acc_company_fk'          => 1,
+                'third_grade_fk'          => $thirdGradeId_7,
+                'acc_income_statement_fk' => 1,
+            ]);
+        }
+
         DB::table('acc_fourth_grade')->insert([
             'code' => '21020001',
             'name' => '應付帳款-其他',

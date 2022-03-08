@@ -156,13 +156,14 @@ class IncomeExpenditureSeeder extends Seeder
         ]);
 
         //外幣
-        foreach (self::CURRENCY as $currencyRate) {
+        $currencyArray = include 'currency.php';
+        foreach ($currencyArray as $currencyRate) {
             DB::table('acc_currency')->insert($currencyRate);
         }
         for ($index = 1; $index <= 13; $index++) {
             DB::table('acc_income_expenditure')->insert([
                 'acc_income_type_fk' => $incomeType_6,
-                'grade_id_fk' => ($index % 4) === 0 ? 1 : ($index % 4),
+                'grade_id_fk' => $index + 2,
                 'acc_currency_fk' => $index,
             ]);
         }
