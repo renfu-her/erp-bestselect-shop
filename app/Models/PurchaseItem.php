@@ -271,6 +271,10 @@ class PurchaseItem extends Model
         $result2 = DB::table(DB::raw("({$result->toSql()}) as tb"))
             ->select('*');
 
+        $result->mergeBindings($subColumn);
+        $result->mergeBindings($subColumn2);
+        $result2->mergeBindings($result);
+
         if ($inbound_status) {
             $arr_status = [];
             if (in_array(InboundStatus::not_yet()->value, $inbound_status)) {
@@ -288,10 +292,6 @@ class PurchaseItem extends Model
 
             $result2->whereIn('inbound_status', $arr_status);
         }
-        $result->mergeBindings($subColumn);
-        $result->mergeBindings($subColumn2);
-        $result2->mergeBindings($result);
-
         return $result2;
     }
 
