@@ -126,6 +126,9 @@ $(function () {
             let newLi = LiCopy.clone();
             // 改 title
             newLi.find('.oneItem .-title').text(liItem.title);
+            if (liItem.sub_title) {
+                newLi.find('.oneItem .-subTitle').text(`[${liItem.sub_title}]`);
+            }
             newLi.find('input[name="id"]').val(liItem.id);
             newLi.find('a.-edit').attr('href', `navinode/edit/${liItem.id}`);
             newLi.find('span.-del').data('id', liItem.id);

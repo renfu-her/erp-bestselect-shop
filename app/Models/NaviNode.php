@@ -164,7 +164,8 @@ class NaviNode extends Model
             $re->addSelect('lv' . $i . '.event_id as lv' . $i . '_event_id');
             $re->addSelect('lv' . $i . '.event as lv' . $i . '_event');
             $re->addSelect('lv' . $i . '.level as lv' . $i . '_level');
-            $re->addSelect('lv' . $i . '.event_title as lv' . $i . '_event_title', );
+            $re->addSelect('lv' . $i . '.event_title as lv' . $i . '_event_title');
+            $re->addSelect('lv' . $i . '.sub_title as lv' . $i . '_sub_title');
         }
 
         $re = $re->where('lv1.parent_id', $id)
@@ -174,6 +175,7 @@ class NaviNode extends Model
             ->mergeBindings($sub)
             ->get()->toArray();
 
+        
         $tree = [];
         $ids = [];
         foreach ($re as $key => $value) {
@@ -207,9 +209,12 @@ class NaviNode extends Model
         $re = [
             'id' => $v->{"lv" . $level . "_id"},
             'title' => $v->{"lv" . $level . "_title"},
+            'sub_title' => $v->{"lv" . $level . "_sub_title"},
             'event' => $v->{"lv" . $level . "_event"},
             'level' => $v->{"lv" . $level . "_level"},
         ];
+
+
 
         if ($v->{"lv" . $level . "_has_child"} == 0) {
             if ($v->{"lv" . $level . "_event_id"}) {
