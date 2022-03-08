@@ -147,7 +147,7 @@ class PurchaseCtrl extends Controller
         }
 
         $result = null;
-        $result = DB::transaction(function () use ($purchaseItemReq, $rePcs, $request
+        $result = DB::transaction(function () use ($purchaseItemReq, $rePcs, $request, $purchaseID
         ) {
             if (isset($purchaseItemReq['product_style_id']) && isset($purchaseID)) {
                 foreach ($purchaseItemReq['product_style_id'] as $key => $val) {
