@@ -49,7 +49,6 @@ class NaviNodeCtrl extends Controller
     public function index()
     {
 
-        // dd(NaviNode::tree());
         return view('cms.frontend.navinode.new-list', [
             'dataList' => NaviNode::tree(),
             'breadcrumb_data' => [],
