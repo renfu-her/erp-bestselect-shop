@@ -126,12 +126,13 @@ class NaviNode extends Model
                 $data['event_id'] = null;
                 break;
             case 'group':
-                $gData = Collection::where('id', $event_id)->select('url')->get()->first();
+                $gData = Collection::where('id', $event_id)->select('url', 'name')->get()->first();
                 if (!$gData) {
                     return ['success' => 0, 'error_msg' => "群組ID無效"];
                 }
                 $data['url'] = $gData->url;
                 $data['event_id'] = $event_id;
+                $data['sub_title'] = $gData->name;
                 break;
         }
 
@@ -269,7 +270,7 @@ class NaviNode extends Model
 
     public static function updateMultiLevel($childs, $parent_id = 0, $level = 0)
     {
-       
+
         $level++;
         foreach ($childs as $key => $child) {
 
