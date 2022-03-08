@@ -74,14 +74,13 @@ class PurchaseItem extends Model
                     } else if($dirtykey == 'num') {
                         $event = '修改數量';
                         $logEventFeature = LogEventFeature::style_change_qty()->value;
-                    } else if($dirtykey == 'memo') {
-                        $event = '修改備註';
-                        $logEventFeature = LogEventFeature::style_change_memo()->value;
                     }
-                    $rePcsLSC = PurchaseLog::stockChange($purchaseItem->purchase_id, $purchaseItem->product_style_id, LogEvent::style()->value, $itemId, $logEventFeature, $dirtyval, $event, $operator_user_id, $operator_user_name);
-                    if ($rePcsLSC['success'] == 0) {
-                        DB::rollBack();
-                        return $rePcsLSC;
+                    if ('' != $event && null != $logEventFeature) {
+                        $rePcsLSC = PurchaseLog::stockChange($purchaseItem->purchase_id, $purchaseItem->product_style_id, LogEvent::style()->value, $itemId, $logEventFeature, $dirtyval, $event, $operator_user_id, $operator_user_name);
+                        if ($rePcsLSC['success'] == 0) {
+                            DB::rollBack();
+                            return $rePcsLSC;
+                        }
                     }
                 }
                 PurchaseItem::where('id', $itemId)->update([

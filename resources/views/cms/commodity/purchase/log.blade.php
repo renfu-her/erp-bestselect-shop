@@ -20,9 +20,16 @@
                          <td>{{$data->created_at}}</td>
                          <td>{{App\Enums\Purchase\LogEventFeature::getDescription($data->feature)}}
                              @if($data->event == App\Enums\Purchase\LogEvent::style()->key)
-                                 {{$data->title}} @if(isset($data->qty)) 改為:{{$data->qty}} @endif
+                                 {{$data->title}}
+                                 @if(isset($data->qty))
+                                     @if($data->feature == App\Enums\Purchase\LogEventFeature::style_change_price()->value) 價錢:{{$data->qty}}
+                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::style_change_qty()->value) 數量:{{$data->qty}}
+                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::style_add()->value)
+                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::style_del()->value)    @endif
+
+                                 @endif
                              @elseif($data->event == App\Enums\Purchase\LogEvent::inbound()->key)
-                                 {{$data->title}} @if(isset($data->qty)) 改為:{{$data->qty}} @endif
+                                 {{$data->title}} @if(isset($data->qty)) 數量:{{$data->qty}} @endif
                              @endif
                          </td>
                          <td>{{$data->user_name}}</td>
