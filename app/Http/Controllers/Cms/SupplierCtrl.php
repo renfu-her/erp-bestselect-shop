@@ -95,7 +95,7 @@ class SupplierCtrl extends Controller
             }
         }
         wToast(__('Add finished.'));
-        return redirect(Route('cms.supplier.edit', [
+        return redirect(Route('cms.supplier.index', [
             'id' => $id,
             'query' => $query
         ]));
@@ -265,7 +265,7 @@ class SupplierCtrl extends Controller
             SupplierPayment::where('supplier_id', '=', $id)->whereIn('type', $del_id_arr)->forceDelete();
         }
         wToast(__('Edit finished.'));
-        return redirect(Route('cms.supplier.edit', [
+        return redirect(Route('cms.supplier.index', [
             'id' => $id,
             'query' => $query
         ]));
