@@ -352,9 +352,9 @@ class ProductCtrl extends Controller
      */
     public function editSpec($id)
     {
-
+        
         $product = self::product_data($id);
-        // dd( ProductSpec::specList($id));
+     //    dd( ProductSpec::specList($id));
         return view('cms.commodity.product.spec-edit', [
             'data' => Product::where('id', $id)->get()->first(),
             'specs' => ProductSpec::get()->toArray(),
@@ -366,7 +366,7 @@ class ProductCtrl extends Controller
 
     public function storeSpec(Request $request, $id)
     {
-        // dd($_POST);
+        dd($_POST);
         $d = $request->all();
         for ($i = 0; $i < 3; $i++) {
             if (isset($d["spec" . $i])) {
