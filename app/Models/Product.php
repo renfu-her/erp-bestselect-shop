@@ -455,4 +455,11 @@ class Product extends Model
         return $arr;
 
     }
+
+    public static function getCollectionsOfProduct($product_id)
+    {
+        return DB::table('collection_prd')->where('product_id_fk', $product_id)
+            ->select('collection_id_fk as collection_id');
+
+    }
 }

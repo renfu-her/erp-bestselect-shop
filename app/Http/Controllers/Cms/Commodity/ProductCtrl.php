@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Collection;
 use App\Models\Depot;
 use App\Models\Product;
 use App\Models\ProductImg;
@@ -353,7 +354,7 @@ class ProductCtrl extends Controller
     {
 
         $product = self::product_data($id);
-
+        // dd( ProductSpec::specList($id));
         return view('cms.commodity.product.spec-edit', [
             'data' => Product::where('id', $id)->get()->first(),
             'specs' => ProductSpec::get()->toArray(),
@@ -365,6 +366,7 @@ class ProductCtrl extends Controller
 
     public function storeSpec(Request $request, $id)
     {
+        // dd($_POST);
         $d = $request->all();
         for ($i = 0; $i < 3; $i++) {
             if (isset($d["spec" . $i])) {
@@ -631,6 +633,11 @@ class ProductCtrl extends Controller
     {
 
         $product = self::product_data($id);
+
+        $collection_ids = array_map(function ($n) {
+            return $n->collection_id;
+        }, Product::getCollectionsOfProduct($id)->get()->toArray());
+
         $currentShipment = array_map(function ($n) {
             return $n->group_id;
         }, Product::shipmentList($id)->get()->toArray());
@@ -646,6 +653,8 @@ class ProductCtrl extends Controller
             'currentPickup' => $currentPickup,
             'shipments' => ShipmentCategory::categoryWithGroup(),
             'currentShipment' => $currentShipment,
+            'collections' => Collection::get(),
+            'collection_ids' => $collection_ids,
         ]);
     }
 
@@ -653,6 +662,9 @@ class ProductCtrl extends Controller
     {
 
         $d = $request->all();
+        $collection = isset($d['collection']) ? $d['collection'] : [];
+
+        Collection::addProductToCollections($id, $collection);
         foreach ($d['category_id'] as $key => $value) {
             Product::changeShipment($id, $value, $d['group_id'][$key]);
         }
