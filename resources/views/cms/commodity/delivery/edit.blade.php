@@ -302,28 +302,33 @@
                 axios.post(_URL, Data)
                     .then((result) => {
                         const res = result.data;
-                        const inboData = res.data;
-                        let auto_count = un_qty;
-                        inboData.forEach(inbo => {
-                            auto_count = createOneInbound(inbo, un_qty, auto_count);
-                        });
-                        $('#addInbound .-checkedNum').text(`已選擇 ${selectedInboundId.length} 筆入庫單`);
-                        // bind event
-                        // -- 選取
-                        $('#addInbound .-appendClone.--inbound input[type="checkbox"]:not(:disabled)')
-                            .off('change').on('change', function () {
-                                catchCheckedInbound($(this));
-                                $('#addInbound .-checkedNum').text(`已選擇 ${selectedInboundId.length} 筆入庫單`);
+                        if (res.status === '0') {
+                            const inboData = res.data;
+                            let auto_count = un_qty;
+                            inboData.forEach(inbo => {
+                                auto_count = createOneInbound(inbo, un_qty, auto_count);
                             });
-                        // -- 數量
-                        $('#addInbound .-appendClone.--inbound input[type="number"]')
-                            .off('change').on('change', function () {
-                                const bid = Number($(this).closest('tr').find('input[data-td="ib_id"]').val());
-                                const idx = selectedInboundId.indexOf(bid);
-                                if (idx >= 0) {
-                                    selectedInbound[idx].qty = Number($(this).val());
-                                }
-                            });
+                            $('#addInbound .-checkedNum').text(`已選擇 ${selectedInboundId.length} 筆入庫單`);
+                            // bind event
+                            // -- 選取
+                            $('#addInbound .-appendClone.--inbound input[type="checkbox"]:not(:disabled)')
+                                .off('change').on('change', function () {
+                                    catchCheckedInbound($(this));
+                                    $('#addInbound .-checkedNum').text(`已選擇 ${selectedInboundId.length} 筆入庫單`);
+                                });
+                            // -- 數量
+                            $('#addInbound .-appendClone.--inbound input[type="number"]')
+                                .off('change').on('change', function () {
+                                    const bid = Number($(this).closest('tr').find('input[data-td="ib_id"]').val());
+                                    const idx = selectedInboundId.indexOf(bid);
+                                    if (idx >= 0) {
+                                        selectedInbound[idx].qty = Number($(this).val());
+                                    }
+                                });
+                        } else {
+                            toast.show(res.msg, { title: '發生錯誤', type: 'danger' });
+                        }
+                        
                     }).catch((err) => {
                         console.error(err);
                         toast.show('發生錯誤', { type: 'danger' });
@@ -384,10 +389,10 @@
                 .then((result) => {
                     const res = result.data;
                     console.log(res);
-                    if (res.status == 0) {
-                        selectedInbound.forEach(ib => {
-                            if (ib.new && !$(`#Pord_list tr.--rece:nth-child(${nth}) tr.-cloneElem.--selectedIB a.-del[data-bid="${ib.id}"]`).length) {
-                                createOneSelected(ib);
+                    if (res.status === '0') {
+                        (res.data).forEach(recDep => {
+                            if (!$(`#Pord_list tr.--rece:nth-child(${nth}) tr.-cloneElem.--selectedIB a.-del[data-rid="${recDep.id}"]`).length) {
+                                createOneSelected(recDep);
                             }
                         });
 
@@ -403,7 +408,7 @@
                 });
 
                 // 加入採購單 - 加入一個商品
-                function createOneSelected(ib) {
+                function createOneSelected(recDep) {
                     const newItemOpt = {
                         ...delItemOption,
                         appendClone: `#Pord_list tr.--rece:nth-child(${nth}) .-appendClone.--selectedIB`
@@ -412,15 +417,15 @@
                         cloneElem.find('input').val('');
                         cloneElem.find('.-del').data({'bid': null, 'rid': null});
                         cloneElem.find('td[data-td]').text('');
-                        if (ib) {
+                        if (recDep) {
                             cloneElem.find('.-del').data({
-                                'bid': ib.id,
-                                'rid': ''
+                                'bid': recDep.inbound_id,
+                                'rid': recDep.id
                             });
-                            cloneElem.find('td[data-td="sn"]').text(ib.sn);
-                            cloneElem.find('td[data-td="depot"]').text(ib.depot);
-                            cloneElem.find('input[name="qty[]"]').val(ib.qty);
-                            cloneElem.find('td[data-td="expiry"]').text(ib.expiry);
+                            cloneElem.find('td[data-td="sn"]').text(recDep.inbound_sn);
+                            cloneElem.find('td[data-td="depot"]').text(recDep.depot_name);
+                            cloneElem.find('input[name="qty[]"]').val(recDep.qty);
+                            cloneElem.find('td[data-td="expiry"]').text(moment(recDep.expiry_date).format('YYYY/MM/DD'));
                         }
                     }, newItemOpt);
                 }
