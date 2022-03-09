@@ -116,7 +116,7 @@ class Delivery extends Model
     public static function getList($param) {
         $query_order = DB::table('ord_orders as order')
             ->leftJoin('ord_sub_orders', 'ord_sub_orders.order_id', '=', 'order.id')
-            ->select('order.id'
+            ->select('order.id as order_id'
                 , 'order.created_at as order_created_at'
                 , 'ord_sub_orders.id as sub_order_id'
             );
@@ -147,8 +147,8 @@ class Delivery extends Model
             ->leftJoinSub($query_receive_depot, 'query_receive_depot', function($join) {
                 $join->on('query_receive_depot.delivery_id', '=', 'delivery.id');
             })
-            ->select('delivery.id'
-                , 'delivery.sn'
+            ->select('delivery.id as delivery_id'
+                , 'delivery.sn as delivery_sn'
                 , 'delivery.event'
                 , 'delivery.event_id'
                 , 'delivery.event_sn'
@@ -174,7 +174,6 @@ class Delivery extends Model
             $query->where('delivery.event_sn', '=', $param['event_sn']);
         }
         if (isset($param['delivery_sn'])) {
-//            dd($param['delivery_sn']);
             $query->where('delivery.sn', '=', $param['delivery_sn']);
         }
         if (isset($param['receive_depot_id'])) {
@@ -192,6 +191,7 @@ class Delivery extends Model
         if (isset($param['delivery_sdate']) && isset($param['delivery_edate'])) {
             $query->whereBetween('delivery.created_at', [date((string) $param['delivery_sdate']), date((string) $param['delivery_edate'])]);
         }
+//        dd($query->get());
         return $query;
     }
 }
