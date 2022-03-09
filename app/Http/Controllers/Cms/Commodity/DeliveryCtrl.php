@@ -93,11 +93,25 @@ class DeliveryCtrl extends Controller
             $errors['error_msg'] = $re['error_msg'];
         }
 
-//        dd($re['error_msg']);
         return redirect()->back()->withInput()->withErrors($errors);
     }
 
-    public function destroy(Request $request, $subOrderId, int $receiveDepotId)
+    public function destroy(Request $request, $event, int $event_id)
+    {
+        $re = Delivery::deleteByEventId($event, $event_id);
+        if ($re['success'] == '1') {
+            wToast('刪除完成');
+        } else {
+            wToast($re['error_msg']);
+        }
+        if ($event == Event::order()->value) {
+            return redirect(Route('cms.order.detail', [$event_id], true));
+        } else {
+            return redirect(Route('cms.order.detail', [$event_id], true));
+        }
+    }
+
+    public function destroy_receive_depot(Request $request, $subOrderId, int $receiveDepotId)
     {
         ReceiveDepot::deleteById($receiveDepotId);
         wToast('刪除完成');

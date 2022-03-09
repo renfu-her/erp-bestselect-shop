@@ -145,8 +145,8 @@ class ReceiveDepot extends Model
         ReceiveDepot::where('id', $id)->delete();
     }
 
-    public static function getDataListWithOrder($order_id = null, $sub_order_id = null) {
-        $query = DB::table('receive_depot as rcv_depot')
+    public static function getDataList($param) {
+        $query = DB::table('dlv_receive_depot as rcv_depot')
             ->select('rcv_depot.id as id'
                 , 'rcv_depot.order_id as order_id'
                 , 'rcv_depot.sub_order_id as sub_order_id'
@@ -158,14 +158,10 @@ class ReceiveDepot extends Model
                 , 'rcv_depot.expiry_date as expiry_date'
             );
 
-        //訂單單號
-        if (null != $order_id) {
-            $query->where('rcv_depot.order_id', '=', $order_id);
+        if (isset($param['delivery_id'])) {
+            $query->where('rcv_depot.delivery_id', '=', $param['delivery_id']);
         }
-        //出貨單號
-        if (null != $sub_order_id) {
-            $query->where('rcv_depot.sub_order_id', '=', $sub_order_id);
-        }
+        return $query;
     }
 
     //取得出貨列表

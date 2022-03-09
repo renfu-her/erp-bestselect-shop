@@ -127,11 +127,20 @@ class Delivery extends Model
 
     public static function deleteByEventId($event, $event_id)
     {
-        if (null != $event_id) {
-            if (Event::order()->value == $event) {
-                Delivery::where('event_id', $event_id)->delete();
+        return DB::transaction(function () use ($event, $event_id
+        ) {
+            $delivery = Delivery::where('event', $event)->where('event_id', $event_id)->orderByDesc('id')->withTrashed();
+            $delivery_get = $delivery->get()->first();
+            if (null == $delivery_get) {
+                return ['success' => 0, 'error_msg' => "無此出貨單"];
+            } else if ($delivery_get->close_date != null) {
+                //若已送出審核 則代表已扣除相應入庫單數量 則不給刪除
+                return ['success' => 0, 'error_msg' => "已送出審核，無法刪除"];
+            } else {
+                $delivery->delete();
+                return ['success' => 1, 'error_msg' => ""];
             }
-        }
+        });
     }
 
     public static function getList($param) {
