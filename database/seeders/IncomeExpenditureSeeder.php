@@ -112,5 +112,9 @@ class IncomeExpenditureSeeder extends Seeder
                 'acc_currency_fk' => $index,
             ]);
         }
+
+        foreach (['付款', '兌現', '押票', '退票', '開票'] as $chequeStatus) {
+            DB::table('acc_cheque_status')->insert(['status' => $chequeStatus]);
+        }
     }
 }
