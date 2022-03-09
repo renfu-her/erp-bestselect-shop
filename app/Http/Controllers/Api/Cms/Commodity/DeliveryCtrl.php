@@ -42,7 +42,7 @@ class DeliveryCtrl extends Controller
         $re = [];
         $input = $request->only('freebies', 'inbound_id', 'qty');
         if (count($input['inbound_id']) != count($input['qty'])) {
-            return [ResponseParam::status()->key => 1, ResponseParam::msg()->key => '各資料個數不同'];
+            return [ResponseParam::status()->key => '1', ResponseParam::msg()->key => '各資料個數不同'];
         }
 
         if (null != $input['qty'] && 0 < count($input['qty'])) {
@@ -51,15 +51,19 @@ class DeliveryCtrl extends Controller
             if ($reRDSetDatas['success'] == '1') {
                 $addIds = $reRDSetDatas['id'];
                 $receiveDepotList = ReceiveDepot::whereIn('id', $addIds)->get();
-                $re[ResponseParam::status()->key] = 0;
+                $re[ResponseParam::status()->key] = '0';
                 $re[ResponseParam::msg()->key] = '';
                 $re[ResponseParam::data()->key] = $receiveDepotList;
+            } else {
+                $re[ResponseParam::status()->key] = '1';
+                $re[ResponseParam::msg()->key] = $reRDSetDatas['error_msg'];
+                $re[ResponseParam::data()->key] = '';
             }
         }
 
         if ([] == $re) {
-            $re[ResponseParam::status()->key] = $re['success'];
-            $re[ResponseParam::msg()->key] = $re['error_msg'];
+            $re[ResponseParam::status()->key] = '';
+            $re[ResponseParam::msg()->key] = '';
         }
         return response()->json($re);
     }
