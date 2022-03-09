@@ -35,7 +35,7 @@
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">物態</label>
                     <select class="form-select -select2 -multiple" multiple name="logistic_status_code[]" aria-label="物態" data-placeholder="多選">
-                        @foreach ($orderStatus as $key => $data)
+                        @foreach ($logisticStatus as $key => $data)
                             <option value="{{ $data->code }}"
                                     @if (in_array($data->code, $searchParam['logistic_status_code'] ?? [])) selected @endif>{{ $data->title }}</option>
                         @endforeach

@@ -6,7 +6,7 @@ use App\Enums\Delivery\Event;
 use App\Http\Controllers\Controller;
 use App\Models\Delivery;
 use App\Models\Depot;
-use App\Models\OrderStatus;
+use App\Models\LogisticStatus;
 use App\Models\ReceiveDepot;
 use App\Models\SubOrders;
 use Illuminate\Http\Request;
@@ -36,7 +36,7 @@ class DeliveryCtrl extends Controller
         return view('cms.commodity.delivery.list', [
             'dataList' => $delivery,
             'depotList' => Depot::all(),
-            'orderStatus' => OrderStatus::all(),
+            'logisticStatus' => LogisticStatus::all(),
             'searchParam' => $cond,
             'data_per_page' => $cond['data_per_page']]);
     }
