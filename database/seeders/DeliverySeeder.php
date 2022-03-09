@@ -5,8 +5,8 @@ namespace Database\Seeders;
 use App\Enums\Delivery\Event;
 use App\Models\Delivery;
 
-use App\Models\PurchaseInbound;
 use App\Models\ReceiveDepot;
+use App\Models\SubOrders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -62,8 +62,24 @@ class DeliverySeeder extends Seeder
             ],
         ]);
 
-        ReceiveDepot::setDatasWithDeliveryIdWithItemId(['inbound_id' => [2], 'qty' => [3]], 1, 3);
-        ReceiveDepot::setDatasWithDeliveryIdWithItemId(['inbound_id' => [2], 'qty' => [1]], 1, 4);
+        $sub_order = SubOrders::getListWithShiGroupById(3)->get()->first();
+
+        $delivery = Delivery::createData(
+            Event::order()->value
+            , $sub_order->id
+            , $sub_order->sn
+            , $sub_order->ship_temp_id
+            , $sub_order->ship_temp
+            , $sub_order->ship_category
+            , $sub_order->ship_category_name
+            , $sub_order->ship_group_id);
+        $delivery_id = null;
+        if (isset($delivery['id'])) {
+            $delivery_id = $delivery['id'];
+        }
+
+        ReceiveDepot::setDatasWithDeliveryIdWithItemId(['inbound_id' => [2], 'qty' => [3]], $delivery_id, 3);
+        ReceiveDepot::setDatasWithDeliveryIdWithItemId(['inbound_id' => [2], 'qty' => [1]], $delivery_id, 4);
 
         //收貨單成立 扣除入庫數量
         //ReceiveDepot::setUpData($delivery_id1);
