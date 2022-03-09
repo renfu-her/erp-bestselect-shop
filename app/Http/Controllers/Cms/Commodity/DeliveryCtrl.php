@@ -87,7 +87,7 @@ class DeliveryCtrl extends Controller
         } else {
             $re = ReceiveDepot::setUpShippingData($delivery_id);
             if ($re['success'] == '1') {
-                wToast('儲存完成');
+                wToast('儲存成功');
                 return redirect(Route('cms.delivery.create', [$delivery->event_id], true));
             }
             $errors['error_msg'] = $re['error_msg'];
@@ -114,7 +114,7 @@ class DeliveryCtrl extends Controller
     public function destroy_receive_depot(Request $request, $subOrderId, int $receiveDepotId)
     {
         ReceiveDepot::deleteById($receiveDepotId);
-        wToast('刪除完成');
+        wToast('刪除成功');
         return redirect(Route('cms.delivery.create', [$subOrderId], true));
     }
 }

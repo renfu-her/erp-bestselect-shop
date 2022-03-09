@@ -13,7 +13,7 @@ if (!function_exists('wToast')) {
             $merged->delay = 3000;
         }
         if (!isset($merged->type)) {
-            $merged->type = 'primary';
+            $merged->type = 'success';
             // 警告錯誤用 danger
         }
         request()->session()->flash('toast_status', $merged);
