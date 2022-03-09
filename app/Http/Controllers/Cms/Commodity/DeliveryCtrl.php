@@ -96,7 +96,8 @@ class DeliveryCtrl extends Controller
         return redirect()->back()->withInput()->withErrors($errors);
     }
 
-    public function destroy(Request $request, $event, int $event_id)
+    //刪除出貨單
+    public function destroy_readyUse(Request $request, $event, int $event_id)
     {
         $re = Delivery::deleteByEventId($event, $event_id);
         if ($re['success'] == '1') {
@@ -111,7 +112,8 @@ class DeliveryCtrl extends Controller
         }
     }
 
-    public function destroy_receive_depot(Request $request, $subOrderId, int $receiveDepotId)
+    //刪除出貨單收貨倉數量
+    public function destroy(Request $request, $subOrderId, int $receiveDepotId)
     {
         ReceiveDepot::deleteById($receiveDepotId);
         wToast('刪除成功');
