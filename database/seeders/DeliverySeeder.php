@@ -73,6 +73,9 @@ class DeliverySeeder extends Seeder
             , $sub_order->ship_category
             , $sub_order->ship_category_name
             , $sub_order->ship_group_id);
+        if ($delivery['success'] == 0) {
+            return $delivery;
+        }
         $delivery_id = null;
         if (isset($delivery['id'])) {
             $delivery_id = $delivery['id'];
