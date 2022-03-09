@@ -255,9 +255,10 @@ class OrderCtrl extends Controller
      * Show the data for order detail.
      *
      * @param  int  $id
+     * @param  int  $subOrderId 若有值 則只顯示該子訂單
      * @return \Illuminate\Http\Response
      */
-    public function detail($id)
+    public function detail($id, $subOrderId = null)
     {
 
         $order = Order::orderDetail($id)->get()->first();
@@ -279,7 +280,9 @@ class OrderCtrl extends Controller
             'sn' => $sn,
             'order' => $order,
             'subOrders' => $subOrder,
-            'breadcrumb_data' => $sn]);
+            'breadcrumb_data' => $sn,
+            'subOrderId' => $subOrderId
+        ]);
     }
 
     /**

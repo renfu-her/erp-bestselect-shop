@@ -121,6 +121,9 @@
                 $price += $subOrder->total_price;
             @endphp
             {{-- 宅配 .-detail-primary / 自取 .-detail-warning / 超取 .-detail-success --}}
+            @if(true == isset($subOrderId) && $subOrder->id != $subOrderId)
+                @continue
+            @endif
             <div @class(['card shadow mb-4 -detail',
                 '-detail-primary' => $subOrder->ship_category === 'deliver',
                 '-detail-warning' => $subOrder->ship_category === 'pickup'
@@ -248,11 +251,12 @@
         @endforeach
 
 
-        <div class="card shadow p-4 mb-4">
-            <h6>訂單總覽</h6>
-            <div class="table-responsive">
-                <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
-                    <tbody>
+        @if(false == isset($subOrderId))
+            <div class="card shadow p-4 mb-4">
+                <h6>訂單總覽</h6>
+                <div class="table-responsive">
+                    <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
+                        <tbody>
                         <tr class="table-light">
                             <td class="col-2">小計</td>
                             <td class="col-2">折扣</td>
@@ -269,10 +273,10 @@
                             <td class="fw-bold">${{ number_format($order->total_price) }}</td>
                             <td>-</td>
                         </tr>
-                    </tbody>
-                </table>
-                <table class="table table-bordered table-sm text-center align-middle d-table d-sm-none">
-                    <tbody>
+                        </tbody>
+                    </table>
+                    <table class="table table-bordered table-sm text-center align-middle d-table d-sm-none">
+                        <tbody>
                         <tr>
                             <td class="col-7 table-light">小計</td>
                             <td class="text-end pe-4">${{ number_format($price) }}</td>
@@ -297,17 +301,22 @@
                             <td class="col-7 table-light lh-sm">預計獲得<a href="#" class="-text">紅利積點</a></td>
                             <td class="text-end pe-4">-</td>
                         </tr>
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
+        @endif
 
-        <div id="submitDiv">
-            <div class="col-auto">
-                <button type="submit" class="btn btn-primary px-4">列印整張訂購單</button>
-                <a href="{{ Route('cms.order.index') }}" class="btn btn-outline-primary px-4" role="button">返回列表</a>
+            <div id="submitDiv">
+                <div class="col-auto">
+                    @if(false == isset($subOrderId))
+                        <button type="submit" class="btn btn-primary px-4">列印整張訂購單</button>
+                        <a href="{{ Route('cms.order.index') }}" class="btn btn-outline-primary px-4" role="button">返回列表</a>
+                    @else
+                        <a href="{{ Route('cms.delivery.index') }}" class="btn btn-outline-primary px-4" role="button">返回列表</a>
+                    @endif
+                </div>
             </div>
-        </div>
     </form>
 @endsection
 @once
