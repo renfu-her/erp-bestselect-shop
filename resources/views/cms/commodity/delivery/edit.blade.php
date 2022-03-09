@@ -52,8 +52,8 @@
                                         @foreach ($ord->receive_depot as $rec)
                                         <tr class="-cloneElem --selectedIB">
                                             <td class="text-center">
-                                                <a href="javascript:void(0)" data-bid="{{ $rec->inbound_id }}" 
-                                                    data-href="{{ Route('cms.delivery.delete', ['deliveryId' => $delivery_id, 'receiveDepotId' => $rec->id], true) }}"
+                                                <a href="javascript:void(0)" 
+                                                    data-bid="{{ $rec->inbound_id }}" data-rid="{{ $rec->id }}"
                                                     data-bs-toggle="modal" data-bs-target="#confirm-delete"
                                                     {{ isset($delivery->close_date) ? 'disabled' : '' }}
                                                     class="icon icon-btn -del fs-5 text-danger rounded-circle border-0">
@@ -177,7 +177,7 @@
             let addInboundModal = new bootstrap.Modal(document.getElementById('addInbound'));
             let prodPages = new Pagination($('#addInbound .-pages'));
             const DeliveryId = @json($delivery_id);
-            const Del_URL = '';
+            const Del_Url = "{{ Route('cms.delivery.delete', ['subOrderId'=>$sub_order_id, 'receiveDepotId'=>'#'], true) }}".replace('#', '');
             /*** 選取 ***/
             // 入庫單
             let selectedInboundId = [];
@@ -195,7 +195,7 @@
             // clone 項目
             const $selectedClone = $(`<tr class="-cloneElem --selectedIB">
                 <td class="text-center">
-                    <a href="javascript:void(0)" data-bid="" data-href=""
+                    <a href="javascript:void(0)" data-bid="" data-rid=""
                         data-bs-toggle="modal" data-bs-target="#confirm-delete"
                         class="icon icon-btn -del fs-5 text-danger rounded-circle border-0">
                         <i class="bi bi-trash"></i>
@@ -230,6 +230,11 @@
             /** ********* **/
 
             sumExportQty();
+
+            // 刪除
+            $('#confirm-delete').on('show.bs.modal', function (e) {
+                $(this).find('.btn-ok').attr('href', Del_Url + $(e.relatedTarget).data('rid'));
+            });
 
             // 加入入庫單
             $('#Pord_list tbody tr.--rece button.-add').off('click').on('click', function(e) {
@@ -373,14 +378,15 @@
                     (Data.inbound_id).push($(element).val());
                     (Data.qty).push($(element).closest('tr').find('input[type="number"]').val());
                 });
+                const nth = Number($target.data('idx')) * 2;
 
                 axios.post(_URL, Data)
                 .then((result) => {
                     const res = result.data;
+                    console.log(res);
                     if (res.status == 0) {
-                        const nth = Number($target.data('idx')) * 2;
                         selectedInbound.forEach(ib => {
-                            if (ib.new && !$(`#Pord_list tr.--rece:nth-child(${nth}) tr.-cloneElem.--selectedIB button[data-bid="${ib.id}"]`).length) {
+                            if (ib.new && !$(`#Pord_list tr.--rece:nth-child(${nth}) tr.-cloneElem.--selectedIB a.-del[data-bid="${ib.id}"]`).length) {
                                 createOneSelected(ib);
                             }
                         });
@@ -404,12 +410,12 @@
                     };
                     Clone_bindCloneBtn($selectedClone, function (cloneElem) {
                         cloneElem.find('input').val('');
-                        cloneElem.find('.-del').attr('data-bid', null);
+                        cloneElem.find('.-del').data({'bid': null, 'rid': null});
                         cloneElem.find('td[data-td]').text('');
                         if (ib) {
                             cloneElem.find('.-del').data({
                                 'bid': ib.id,
-                                'href': Del_URL
+                                'rid': ''
                             });
                             cloneElem.find('td[data-td="sn"]').text(ib.sn);
                             cloneElem.find('td[data-td="depot"]').text(ib.depot);
