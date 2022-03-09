@@ -19,7 +19,7 @@ class CreatePcsPurchaseItemsTable extends Migration
             $table->integer('product_style_id')->comment('款式product_style_id 帶出款式sku碼');
             $table->string('title')->comment('商品名稱');
             $table->string('sku')->comment('sku');
-            $table->string('price')->comment('總價');
+            $table->decimal('price')->comment('總價');
             $table->integer('num')->comment('數量');
             $table->integer('arrived_num')->default(0)->comment('到貨數量');
             $table->integer('tally_num')->default(0)->comment('理貨數量');

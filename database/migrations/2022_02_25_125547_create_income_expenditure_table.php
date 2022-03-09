@@ -23,7 +23,7 @@ class CreateIncomeExpenditureTable extends Migration
         Schema::create('acc_currency', function (Blueprint $table) {
             $table->id()->comment('外幣');
             $table->string('name')->unique()->comment('外幣名稱');
-            $table->float('rate')->comment('外幣匯率');
+            $table->decimal('rate')->comment('外幣匯率');
         });
 
         Schema::create('acc_income_expenditure', function (Blueprint $table) {
