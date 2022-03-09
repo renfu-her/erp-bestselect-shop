@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Collection;
 use App\Models\Depot;
 use App\Models\Product;
 use App\Models\ProductImg;
 use App\Models\ProductSpec;
 use App\Models\ProductSpecItem;
+use App\Models\ProductSpecList;
 use App\Models\ProductStyle;
 use App\Models\ProductStyleCombo;
 use App\Models\SaleChannel;
@@ -30,13 +32,22 @@ class ProductCtrl extends Controller
     public function index(Request $request)
     {
         $query = $request->query();
-        $page = Arr::get($query, 'data_per_page', 10);
+        $productTypes = [['all', '不限'], ['p', '一般商品'], ['c', '組合包商品']];
+        $page = getPageCount(Arr::get($query, 'data_per_page'));
+        $cond = [];
+        $cond['keyword'] = Arr::get($query, 'keyword');
+        $cond['user'] = Arr::get($query, 'user', true);
+        $cond['product_type'] = Arr::get($query, 'product_type', 'all');
 
-        $products = Product::productList(null, null, ['user' => true])->paginate(5);
+        $products = Product::productList($cond['keyword'], null, ['user' => $cond['user'], 'product_type' => $cond['product_type']])
+            ->paginate($page);
 
         return view('cms.commodity.product.list', [
             'dataList' => $products,
-            'data_per_page' => $page]);
+            'productTypes' => $productTypes,
+            'users' => User::get(),
+            'data_per_page' => $page,
+            'cond' => $cond]);
     }
 
     /**
@@ -341,7 +352,9 @@ class ProductCtrl extends Controller
      */
     public function editSpec($id)
     {
+        
         $product = self::product_data($id);
+     //    dd( ProductSpec::specList($id));
         return view('cms.commodity.product.spec-edit', [
             'data' => Product::where('id', $id)->get()->first(),
             'specs' => ProductSpec::get()->toArray(),
@@ -353,6 +366,7 @@ class ProductCtrl extends Controller
 
     public function storeSpec(Request $request, $id)
     {
+        dd($_POST);
         $d = $request->all();
         for ($i = 0; $i < 3; $i++) {
             if (isset($d["spec" . $i])) {
@@ -543,11 +557,38 @@ class ProductCtrl extends Controller
      */
     public function editWebSpec($id)
     {
+
         $product = self::product_data($id);
+        $lists = ProductSpecList::where('product_id', $id)->orderBy('sort')->get();
+
+        if (count($lists) == 0) {
+            $lists = [['title' => '', 'content' => '']];
+        }
+
         return view('cms.commodity.product.web_spec', [
             'product' => $product,
+            'lists' => $lists,
             'breadcrumb_data' => $product,
         ]);
+    }
+
+    public function updateWebSpec(Request $request, $id)
+    {
+
+        $d = $request->all();
+
+        $items = [];
+        if (isset($d['title']) && isset($d['content'])) {
+            foreach ($d['title'] as $key => $title) {
+                if ($title && $d['content'][$key]) {
+                    $items[] = ['product_id' => $id, 'sort' => $key, 'title' => $title, 'content' => $d['content'][$key]];
+                }
+            }
+        }
+
+        ProductSpecList::updateItems($id, $items);
+        wToast('儲存成功');
+        return redirect()->back();
     }
 
     /**
@@ -558,11 +599,28 @@ class ProductCtrl extends Controller
      */
     public function editWebLogis($id)
     {
+
         $product = self::product_data($id);
         return view('cms.commodity.product.web_logistics', [
             'product' => $product,
             'breadcrumb_data' => $product,
         ]);
+    }
+
+    public function updateWebLogis(Request $request, $id)
+    {
+        $desc = $request->input('logistic_desc');
+
+        if (!$desc) {
+            $desc = '';
+        }
+
+        Product::where('id', $id)->update(['logistic_desc' => $desc]);
+
+        wToast('儲存完畢');
+
+        return redirect()->back();
+
     }
 
     /**
@@ -575,6 +633,11 @@ class ProductCtrl extends Controller
     {
 
         $product = self::product_data($id);
+
+        $collection_ids = array_map(function ($n) {
+            return $n->collection_id;
+        }, Product::getCollectionsOfProduct($id)->get()->toArray());
+
         $currentShipment = array_map(function ($n) {
             return $n->group_id;
         }, Product::shipmentList($id)->get()->toArray());
@@ -590,6 +653,8 @@ class ProductCtrl extends Controller
             'currentPickup' => $currentPickup,
             'shipments' => ShipmentCategory::categoryWithGroup(),
             'currentShipment' => $currentShipment,
+            'collections' => Collection::get(),
+            'collection_ids' => $collection_ids,
         ]);
     }
 
@@ -597,6 +662,9 @@ class ProductCtrl extends Controller
     {
 
         $d = $request->all();
+        $collection = isset($d['collection']) ? $d['collection'] : [];
+
+        Collection::addProductToCollections($id, $collection);
         foreach ($d['category_id'] as $key => $value) {
             Product::changeShipment($id, $value, $d['group_id'][$key]);
         }

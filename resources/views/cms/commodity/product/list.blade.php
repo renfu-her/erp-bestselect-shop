@@ -1,43 +1,36 @@
 @extends('layouts.main')
 @section('sub-content')
     <h2 class="mb-4">商品管理</h2>
-    
+
     <form id="search" action="{{ Route('cms.product.index') }}" method="GET">
         <div class="card shadow p-4 mb-4">
             <h6>搜尋條件</h6>
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">商品名稱</label>
-                    <input class="form-control" type="text" name="" placeholder="輸入商品名稱或SKU">
+                    <input class="form-control" type="text" name="keyword" placeholder="輸入商品名稱或SKU">
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">負責人</label>
-                    <select class="form-select -select2 -multiple" multiple name="" aria-label="負責人" data-placeholder="多選">
-                        <option value="1">負責人1</option>
-                        <option value="2">負責人2</option>
+                    <select class="form-select -select2 -multiple" multiple name="user[]" aria-label="負責人"
+                        data-placeholder="多選">
+                        @foreach ($users as $user)
+                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <fieldset class="col-12 mb-3">
                     <legend class="col-form-label p-0 mb-2">類型</legend>
                     <div class="px-1 pt-1">
-                        <div class="form-check form-check-inline">
-                            <label class="form-check-label">
-                                <input class="form-check-input" name="radio1" type="radio" checked>
-                                不限
-                            </label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <label class="form-check-label">
-                                <input class="form-check-input" name="radio1" type="radio">
-                                一般
-                            </label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <label class="form-check-label">
-                                <input class="form-check-input" name="radio1" type="radio">
-                                組合包
-                            </label>
-                        </div>
+                        @foreach ($productTypes as $key => $type)
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="product_type" type="radio"
+                                        value="{{ $type[0] }}" @if ($type[0] == $cond['product_type']) checked @endif>
+                                    {{ $type[1] }}
+                                </label>
+                            </div>
+                        @endforeach
                     </div>
                 </fieldset>
             </div>
@@ -59,7 +52,8 @@
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
                     @foreach (config('global.dataPerPage') as $value)
-                        <option value="{{ $value }}" @if ($data_per_page == $value) selected @endif>{{ $value }}</option>
+                        <option value="{{ $value }}" @if ($data_per_page == $value) selected @endif>
+                            {{ $value }}</option>
                     @endforeach
                 </select>
                 筆
@@ -72,6 +66,7 @@
                     <tr>
                         <th scope="col" style="width:10%">#</th>
                         <th scope="col">商品名稱</th>
+                        <th scope="col">SKU</th>
                         <th scope="col">負責人</th>
                         <th scope="col">類型</th>
                         <th scope="col" class="text-center">編輯</th>
@@ -82,6 +77,7 @@
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td>{{ $data->title }}</td>
+                            <td>{{ $data->sku }}</td>
                             <td>{{ $data->user_name }}</td>
                             <td>{{ $data->type_title }}</td>
                             <td class="text-center">
@@ -115,6 +111,8 @@
     @endpush
     @push('sub-scripts')
         <script>
+            // 阿眉～
+            let selectedUser = @json($cond['user']);
             $('#dataPerPageElem').on('change', function(e) {
                 $('input[name=data_per_page]').val($(this).val());
                 $('#search').submit();

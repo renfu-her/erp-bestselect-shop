@@ -16,7 +16,7 @@ class naviNodeSeeder extends Seeder
     {
         //
 
-        $collection->storeCollectionData('testbbb2aa2', 'url-abbsbbs22', 'aaaa', 'bbbbb', 'y', []);
+        // $collection->storeCollectionData('testbbb2aa2', 'url-abbsbbs22', 'aaaa', 'bbbbb', 'y', []);
 
         $re = NaviNode::createNode(0, 'level1-a', null, null, 1);
 
