@@ -45,19 +45,15 @@ class DeliveryCtrl extends Controller
             return [ResponseParam::status()->key => 1, ResponseParam::msg()->key => '各資料個數不同'];
         }
 
-//        //刪除子訂單商品的出貨資料
-//        ReceiveDepot::where('delivery_id', '=', $deliveryId)
-//            ->where('event_item_id', '=', $itemId)
-//            ->delete();
         if (null != $input['qty'] && 0 < count($input['qty'])) {
             //取得request資料 重新建立該子訂單商品的出貨資料
             $reRDSetDatas = ReceiveDepot::setDatasWithDeliveryIdWithItemId($input, $delivery_id, $item_id);
             if ($reRDSetDatas['success'] == '1') {
-                $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
-                $ord_items_arr = ReceiveDepot::getShipItemWithDeliveryWithReceiveDepotList($delivery->event, $delivery->event_id, $delivery_id, $product_style_id);
+                $addIds = $reRDSetDatas['id'];
+                $receiveDepotList = ReceiveDepot::whereIn('id', $addIds)->get();
                 $re[ResponseParam::status()->key] = 0;
                 $re[ResponseParam::msg()->key] = '';
-                $re[ResponseParam::data()->key] = $ord_items_arr;
+                $re[ResponseParam::data()->key] = $receiveDepotList;
             }
         }
 

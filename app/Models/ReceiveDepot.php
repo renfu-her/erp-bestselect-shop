@@ -71,6 +71,7 @@ class ReceiveDepot extends Model
             return DB::transaction(function () use ($delivery_id, $itemId, $input_arr
             ) {
                 if (null != $input_arr['qty'] && 0 < count($input_arr['qty'])) {
+                    $addIds = [];
                     foreach($input_arr['qty'] as $key => $val) {
                         $inbound = PurchaseInbound::getSelectInboundList(['inbound_id' => $input_arr['inbound_id'][$key]])->get()->first();
                         if (null != $inbound) {
@@ -94,10 +95,12 @@ class ReceiveDepot extends Model
                             if ($reSD['success'] == 0) {
                                 DB::rollBack();
                                 return $reSD;
+                            } else {
+                                array_push($addIds, $reSD['id']);
                             }
                         }
-                        return ['success' => 1, 'error_msg' => ""];
                     }
+                    return ['success' => 1, 'error_msg' => "", 'id' => $addIds];
                 } else {
                     return ['success' => 0, 'error_msg' => "未輸入數量"];
                 }
