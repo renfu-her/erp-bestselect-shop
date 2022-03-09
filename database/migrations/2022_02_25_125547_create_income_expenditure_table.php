@@ -26,6 +26,16 @@ class CreateIncomeExpenditureTable extends Migration
             $table->decimal('rate')->comment('外幣匯率');
         });
 
+        Schema::table('pcs_purchase_items', function (Blueprint $table) {
+            $table->unsignedBigInteger('acc_currency_fk')->nullable()->default(null)->comment('幣別, foreign key');
+            $table->foreign('acc_currency_fk')->references('id')->on('acc_currency');
+        });
+
+        Schema::table('pcs_paying_orders', function (Blueprint $table) {
+            $table->unsignedBigInteger('acc_currency_fk')->nullable()->default(null)->comment('幣別, foreign key');
+            $table->foreign('acc_currency_fk')->references('id')->on('acc_currency');
+        });
+
         Schema::create('acc_income_expenditure', function (Blueprint $table) {
             $table->id()->comment('收支科目設定');
 
@@ -55,6 +65,20 @@ class CreateIncomeExpenditureTable extends Migration
             $table->dropForeign(['acc_currency_fk']);
             $table->dropColumn('acc_currency_fk');
         });
+
+        if (Schema::hasColumns('pcs_purchase_items', ['acc_currency_fk'])) {
+            Schema::table('pcs_purchase_items', function (Blueprint $table) {
+                $table->dropForeign(['acc_currency_fk']);
+                $table->dropColumn('acc_currency_fk');
+            });
+        }
+
+        if (Schema::hasColumns('pcs_paying_orders', ['acc_currency_fk'])) {
+            Schema::table('pcs_paying_orders', function (Blueprint $table) {
+                $table->dropForeign(['acc_currency_fk']);
+                $table->dropColumn('acc_currency_fk');
+            });
+        }
 
         Schema::dropIfExists('acc_income_type');
         Schema::dropIfExists('acc_currency');
