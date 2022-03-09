@@ -176,14 +176,14 @@ class Delivery extends Model
         if (isset($param['delivery_sn'])) {
             $query->where('delivery.sn', '=', $param['delivery_sn']);
         }
-        if (isset($param['receive_depot_id'])) {
-            $query->where('query_receive_depot.depot_id', '=', $param['receive_depot_id']);
+        if (isset($param['receive_depot_id']) && 0 < count($param['receive_depot_id'])) {
+            $query->whereIn('query_receive_depot.depot_id', $param['receive_depot_id']);
         }
-        if (isset($param['ship_method'])) {
-            $query->where('shi_method.method', '=', $param['ship_method']);
+        if (isset($param['ship_method']) && 0 < count($param['ship_method'])) {
+            $query->whereIn('shi_method.method', $param['ship_method']);
         }
-        if (isset($param['logistic_status_code'])) {
-            $query->where('delivery.logistic_status_code', '=', $param['logistic_status_code']);
+        if (isset($param['logistic_status_code']) && 0 < count($param['logistic_status_code'])) {
+            $query->whereIn('delivery.logistic_status_code', $param['logistic_status_code']);
         }
         if (isset($param['order_sdate']) && isset($param['order_edate'])) {
             $query->whereBetween('query_order.order_created_at', [date((string) $param['order_sdate']), date((string) $param['order_edate'])]);
