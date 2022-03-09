@@ -62,9 +62,10 @@ class DeliveryCtrl extends Controller
         if (isset($delivery['id'])) {
             $delivery_id = $delivery['id'];
         }
-
-        $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
-        $ord_items_arr = ReceiveDepot::getShipItemWithDeliveryWithReceiveDepotList(Event::order()->value, $sub_order_id, $delivery_id);
+        if (null != $delivery_id) {
+            $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
+            $ord_items_arr = ReceiveDepot::getShipItemWithDeliveryWithReceiveDepotList(Event::order()->value, $sub_order_id, $delivery_id);
+        }
 
         return view('cms.commodity.delivery.edit', [
             'delivery' => $delivery,

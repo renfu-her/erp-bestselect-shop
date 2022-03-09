@@ -34,8 +34,16 @@ class Delivery extends Model
         if (null != $data) {
             $dataGet = $data->get()->first();
         }
+
+        $logistic_status = LogisticStatus::where('title', '新增');
+        $logistic_status_get = $logistic_status->get()->first();
+        if (null == $logistic_status_get) {
+            return ['success' => 0, 'error_msg' => '無此物流狀態'];
+        }
+
         $result = null;
         if (null == $dataGet) {
+
             $sn = date("ymd") . str_pad((Delivery::whereDate('created_at', '=', date('Y-m-d'))
                         ->withTrashed()
                         ->get()
@@ -53,6 +61,7 @@ class Delivery extends Model
                 'ship_group_id' => $ship_group_id,
                 'memo' => $memo,
             ])->id;
+            Delivery::updateLogisticStatus($event, $result, $logistic_status_get->id);
             return ['success' => 1, 'error_msg' => "", 'id' => $result];
         } else {
             $result = $dataGet->id;
@@ -61,9 +70,11 @@ class Delivery extends Model
     }
 
     //更新物流狀態
-    public static function updateLogisticStatus($event, $event_id, $logistic_status, $logistic_status_id)
+    public static function updateLogisticStatus($event, $event_id, $logistic_status_id)
     {
-        if (!LogisticStatus::where('id', $logistic_status_id)->get()->first()) {
+        $logistic_status = LogisticStatus::where('id', $logistic_status_id);
+        $logistic_status_get = $logistic_status->get()->first();
+        if (null == $logistic_status_get) {
             return ['success' => 0, 'error_msg' => '無此物流狀態'];
         }
 
@@ -74,16 +85,18 @@ class Delivery extends Model
         }
         $result = null;
         if (null != $dataGet) {
-            $result = DB::transaction(function () use ($data, $dataGet, $logistic_status, $logistic_status_id
+            return DB::transaction(function () use ($data, $dataGet, $logistic_status_get
             ) {
                 $data->update([
-                    'logistic_status' => $logistic_status,
-                    'logistic_status_id' => $logistic_status_id,
+                    'logistic_status' => $logistic_status_get->title,
+                    'logistic_status_id' => $logistic_status_get->id,
                 ]);
+                LogisticFlow::changeDeliveryStatus($dataGet->id, $logistic_status_get);
                 return ['success' => 1, 'error_msg' => "", 'id' => $dataGet->id];
             });
+        } else {
+            return ['success' => 0, 'error_msg' => "更新失敗 無此物流單"];
         }
-        return ['success' => 0, 'error_msg' => "更新失敗 無此物流單"];
     }
 
     //更新出貨倉庫
