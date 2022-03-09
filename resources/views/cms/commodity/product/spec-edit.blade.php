@@ -37,7 +37,7 @@
                             <div class="row -appendClone -item">
                                 <div class="col-12 col-sm-6 mb-2 -cloneElem -item">
                                     <div class="input-group has-validation">
-                                        <input class="form-control" value="" type="text" required placeholder="請輸入項目"
+                                        <input class="form-control" value="" name="item_new[]" type="text" required placeholder="請輸入項目"
                                             aria-label="項目">
                                         <button class="btn btn-outline-secondary -del -item" type="button" title="刪除">
                                             <i class="bi bi-x-lg"></i>
@@ -74,7 +74,8 @@
                                 @foreach ($cSpec->items as $item)
                                     <div class="col-12 col-sm-6 mb-2 -cloneElem -item">
                                         <div class="input-group has-validation">
-                                            <input class="form-control" value="{{ $item->value }}" 
+                                            <input type="hidden" name="item_id[]" value="">
+                                            <input class="form-control" name="item_value[]" value="{{ $item->value }}" 
                                                 data-id="{{ $item->key }}" type="text" placeholder="請輸入項目"
                                                 aria-label="項目" @if ($data->spec_locked) disabled @endif>
                                             <button class="btn btn-outline-secondary -del -item" @if ($data->spec_locked) disabled @endif 
@@ -131,8 +132,12 @@
                 clone: '.-cloneElem.-item',
                 del: '.-del.-item'
             };
-            const $cloneSpec = $(`${Spec.clone}:first-child`).clone();
-            const $cloneItem = $(`${Spec.clone}:first-child ${Items.clone}:first-child`).clone();
+            let $cloneSpec = $(`${Spec.clone}:first-child`).clone();
+            let $cloneItem = $(`${Spec.clone}:first-child ${Items.clone}:first-child`).clone();
+            $cloneSpec.find('input[name="item_id[]"]').remove();
+            $cloneSpec.find('input[name="item_value[]"]').attr('name', 'item_new[]');
+            $cloneItem.find('input[name="item_id[]"]').remove();
+            $cloneItem.find('input[name="item_value[]"]').attr('name', 'item_new[]');
             // init
             Clone_bindDelElem($(Spec.del), {
                 appendClone: Spec.append,
@@ -216,7 +221,8 @@
                     // element == this
                     $(element).find('select.-single.-select2, select.-single + input:hidden')
                         .attr('name', `spec${index}`);
-                    $(element).find(`${Items.clone} input`).attr('name', `item${index}[]`);
+                    $(element).find(`${Items.clone} input[name="item_value[]"]`).attr('name', `item_value${index}[]`);
+                    $(element).find(`${Items.clone} input[name="item_new[]"]`).attr('name', `item_new${index}[]`);
                 });
             });
         </script>
