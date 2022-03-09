@@ -22,7 +22,7 @@ $(function () {
     // clone 項目
     const $selectedClone = $(`<tr class="-cloneElem --selectedIB">
         <td class="text-center">
-            <button href="javascript:void(0)" data-bid="" data-rid=""
+            <button type="button" href="javascript:void(0)" data-bid="" data-rid=""
                 data-bs-toggle="modal" data-bs-target="#confirm-delete"
                 class="icon icon-btn -del fs-5 text-danger rounded-circle border-0">
                 <i class="bi bi-trash"></i>
@@ -43,7 +43,8 @@ $(function () {
         checkFn: function () {
             // 無單不可送審
             checkSubmit();
-        }
+        },
+        autoRemove: false
     };
     
     /*** 綁定事件 ***/

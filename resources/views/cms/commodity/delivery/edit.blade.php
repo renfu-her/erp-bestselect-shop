@@ -168,8 +168,6 @@
     </x-b-modal>
 @endsection
 @once
-    @push('sub-styles')
-    @endpush
     @push('sub-scripts')
         <script src="{{ Asset('dist/js/deliveryAudit.js') }}"></script>
         <script>
@@ -182,10 +180,6 @@
             // init
             DvyCheckSubmit(Readonly);
             DvySumExportQty();
-
-            $('form').submit(function () {
-                debugger
-            })
 
             // 刪除
             $('#confirm-delete').on('show.bs.modal', function (e) {
