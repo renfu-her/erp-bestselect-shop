@@ -19,7 +19,7 @@ class Delivery extends Model
         $data = null;
         if (null != $event_id) {
             if (Event::order()->value == $event) {
-                $data = Delivery::where('event_id', $event_id);
+                $data = Delivery::where('event', $event)->where('event_id', $event_id);
             }
         }
         return $data;
@@ -61,7 +61,7 @@ class Delivery extends Model
                 'ship_group_id' => $ship_group_id,
                 'memo' => $memo,
             ])->id;
-            $reDlvUpd = Delivery::updateLogisticStatus($event, $result, $logistic_status_get->id);
+            $reDlvUpd = Delivery::updateLogisticStatus($event, $event_id, $logistic_status_get->id);
             if ($reDlvUpd['success'] == 0) {
                 DB::rollBack();
                 return $reDlvUpd;

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\Cms\Commodity;
 
 use App\Enums\Globals\ResponseParam;
 use App\Http\Controllers\Controller;
-use App\Models\Delivery;
 use App\Models\PurchaseInbound;
 use App\Models\ReceiveDepot;
 use Illuminate\Http\Request;
