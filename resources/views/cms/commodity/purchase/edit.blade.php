@@ -94,7 +94,7 @@
                             <td>
                                 <div class="input-group input-group-sm flex-nowrap">
                                     <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                    <input type="number" class="form-control form-control-sm" name="price[]" min="0" value="" required/>
+                                    <input type="number" class="form-control form-control-sm" name="price[]" min="0" step="0.01" value="" required/>
                                 </div>
                             </td>
                             <td>
@@ -118,13 +118,13 @@
                                 <td data-td="sku">{{ old('sku.'. $psItemKey, $psItemVal['sku']?? '') }}</td>
                                 <td>
                                     <input type="number" class="form-control form-control-sm @error('num.' . $psItemKey) is-invalid @enderror"
-                                           name="num[]" value="{{ old('num.'. $psItemKey, $psItemVal['num']?? '') }}" min="1" required/>
+                                           name="num[]" value="{{ old('num.'. $psItemKey, $psItemVal['num']?? '') }}" min="1" step="0.01" required/>
                                 </td>
                                 <td>
                                     <div class="input-group input-group-sm flex-nowrap">
                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                                         <input type="number" class="form-control form-control-sm @error('price.' . $psItemKey) is-invalid @enderror"
-                                               name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal['price']?? '') }}" min="0" required/>
+                                               name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal['price']?? '') }}" min="0" step="0.01" required/>
                                     </div>
                                 </td>
                                 <td>

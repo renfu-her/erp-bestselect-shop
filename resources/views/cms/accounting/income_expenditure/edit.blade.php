@@ -131,6 +131,8 @@
                                            @if($isViewMode === true)
                                            disabled
                                            @endif
+                                           type="number"
+                                           step="0.01"
                                            value="{{ $currencyOption->rate }}"
                                            placeholder=""
                                            aria-label="Input">
