@@ -191,7 +191,7 @@ class Delivery extends Model
         if (isset($param['delivery_sdate']) && isset($param['delivery_edate'])) {
             $query->whereBetween('delivery.created_at', [date((string) $param['delivery_sdate']), date((string) $param['delivery_edate'])]);
         }
-//        dd($query->get());
+        $query->orderBy('delivery.created_at');
         return $query;
     }
 }
