@@ -96,10 +96,10 @@ class DeliveryCtrl extends Controller
         return redirect()->back()->withInput()->withErrors($errors);
     }
 
-    public function destroy(Request $request, $deliveryId, int $receiveDepotId)
+    public function destroy(Request $request, $subOrderId, int $receiveDepotId)
     {
         ReceiveDepot::deleteById($receiveDepotId);
         wToast('刪除完成');
-        return redirect(Route('cms.delivery.create', [$deliveryId], true));
+        return redirect(Route('cms.delivery.create', [$subOrderId], true));
     }
 }
