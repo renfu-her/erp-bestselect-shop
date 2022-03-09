@@ -6,7 +6,7 @@ use App\Enums\Delivery\Event;
 use App\Http\Controllers\Controller;
 use App\Models\Delivery;
 use App\Models\Depot;
-use App\Models\OrderStatus;
+use App\Models\LogisticStatus;
 use App\Models\ReceiveDepot;
 use App\Models\SubOrders;
 use Illuminate\Http\Request;
@@ -22,7 +22,7 @@ class DeliveryCtrl extends Controller
         $cond['delivery_sn'] = Arr::get($query, 'delivery_sn', null);
         $cond['receive_depot_id'] = Arr::get($query, 'receive_depot_id', []);
         $cond['ship_method'] = Arr::get($query, 'ship_method', null);
-        $cond['logistic_status_code'] = Arr::get($query, 'logistic_status_code', null);
+        $cond['logistic_status_id'] = Arr::get($query, 'logistic_status_id', null);
 
         $cond['order_sdate'] = Arr::get($query, 'order_sdate', null);
         $cond['order_edate'] = Arr::get($query, 'order_edate', null);
@@ -36,7 +36,7 @@ class DeliveryCtrl extends Controller
         return view('cms.commodity.delivery.list', [
             'dataList' => $delivery,
             'depotList' => Depot::all(),
-            'orderStatus' => OrderStatus::all(),
+            'logisticStatus' => LogisticStatus::all(),
             'searchParam' => $cond,
             'data_per_page' => $cond['data_per_page']]);
     }

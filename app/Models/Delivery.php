@@ -61,8 +61,12 @@ class Delivery extends Model
     }
 
     //更新物流狀態
-    public static function updateLogisticStatus($event, $event_id, $logistic_status, $logistic_status_code)
+    public static function updateLogisticStatus($event, $event_id, $logistic_status, $logistic_status_id)
     {
+        if (!LogisticStatus::where('id', $logistic_status_id)->get()->first()) {
+            return ['success' => 0, 'error_msg' => '無此物流狀態'];
+        }
+
         $data = Delivery::getData($event, $event_id);
         $dataGet = null;
         if (null != $data) {
@@ -70,11 +74,11 @@ class Delivery extends Model
         }
         $result = null;
         if (null != $dataGet) {
-            $result = DB::transaction(function () use ($data, $dataGet, $logistic_status, $logistic_status_code
+            $result = DB::transaction(function () use ($data, $dataGet, $logistic_status, $logistic_status_id
             ) {
                 $data->update([
                     'logistic_status' => $logistic_status,
-                    'logistic_status_code' => $logistic_status_code,
+                    'logistic_status_id' => $logistic_status_id,
                 ]);
                 return ['success' => 1, 'error_msg' => "", 'id' => $dataGet->id];
             });
@@ -159,7 +163,7 @@ class Delivery extends Model
                 , 'delivery.ship_depot_id'
                 , 'delivery.ship_depot_name'
                 , 'delivery.ship_group_id'
-                , 'delivery.logistic_status_code'
+                , 'delivery.logistic_status_id'
                 , 'delivery.logistic_status'
                 , 'delivery.memo'
                 , 'delivery.close_date'
@@ -182,8 +186,8 @@ class Delivery extends Model
         if (isset($param['ship_method']) && 0 < count($param['ship_method'])) {
             $query->whereIn('shi_method.method', $param['ship_method']);
         }
-        if (isset($param['logistic_status_code']) && 0 < count($param['logistic_status_code'])) {
-            $query->whereIn('delivery.logistic_status_code', $param['logistic_status_code']);
+        if (isset($param['logistic_status_id']) && 0 < count($param['logistic_status_id'])) {
+            $query->whereIn('delivery.logistic_status_id', $param['logistic_status_id']);
         }
         if (isset($param['order_sdate']) && isset($param['order_edate'])) {
             $query->whereBetween('query_order.order_created_at', [date((string) $param['order_sdate']), date((string) $param['order_edate'])]);
