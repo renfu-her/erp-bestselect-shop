@@ -74,11 +74,11 @@
                                 @foreach ($cSpec->items as $item)
                                     <div class="col-12 col-sm-6 mb-2 -cloneElem -item">
                                         <div class="input-group has-validation">
-                                            <input class="form-control" value="{{ $item->value }}" disabled
+                                            <input class="form-control" value="{{ $item->value }}" 
                                                 data-id="{{ $item->key }}" type="text" placeholder="請輸入項目"
-                                                aria-label="項目">
-                                            <button class="btn btn-outline-secondary -del -item" disabled type="button"
-                                                title="刪除"><i class="bi bi-x-lg"></i></button>
+                                                aria-label="項目" @if ($data->spec_locked) disabled @endif>
+                                            <button class="btn btn-outline-secondary -del -item" @if ($data->spec_locked) disabled @endif 
+                                                type="button" title="刪除"><i class="bi bi-x-lg"></i></button>
                                             <div class="invalid-feedback"></div>
                                         </div>
                                     </div>
