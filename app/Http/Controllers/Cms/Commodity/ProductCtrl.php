@@ -208,11 +208,10 @@ class ProductCtrl extends Controller
      */
     public function editStyle($id)
     {
-
         $product = self::product_data($id);
         $specList = ProductSpec::specList($id);
         $styles = ProductStyle::styleList($id)->get()->toArray();
-
+       // dd($styles);
         $init_styles = [];
         if (count($styles) == 0) {
             $init_styles = ProductStyle::createInitStyles($id);
@@ -369,13 +368,15 @@ class ProductCtrl extends Controller
                 // new
                 if (isset($d["item_new" . $i]) && is_array($d["item_new" . $i])) {
                     foreach ($d["item_new" . $i] as $item) {
-                        ProductSpecItem::createItems($id, $d["spec" . $i], $item);
+                        if ($item != '') {
+                            ProductSpecItem::createItems($id, $d["spec" . $i], $item);
+                        }
                     }
                 }
                 // update
                 if (isset($d["item_id" . $i]) && is_array($d["item_id" . $i])) {
                     foreach ($d["item_id" . $i] as $key => $item_id) {
-                        if (isset($d["item_value" . $i][$key])) {
+                        if (isset($d["item_value" . $i][$key]) && $d["item_value" . $i][$key] != '') {
                             ProductSpecItem::where('id', $item_id)->update([
                                 'title' => $d["item_value" . $i][$key],
                             ]);
@@ -405,6 +406,7 @@ class ProductCtrl extends Controller
      */
     public function editSale($id)
     {
+        
         $product = self::product_data($id);
         $specList = ProductSpec::specList($id);
         $styles = ProductStyle::where('product_id', $id)->get()->toArray();
@@ -476,6 +478,9 @@ class ProductCtrl extends Controller
      */
     public function editPrice($id, $sid)
     {
+       // dd('aa');
+      
+
         $product = Product::productList(null, $id, ['user' => true, 'supplier' => true])->get()->first();
         $style = ProductStyle::where('id', $sid)->get()->first();
         if (!$product || !$style) {
