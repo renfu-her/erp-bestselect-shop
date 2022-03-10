@@ -51,6 +51,11 @@ class CreateIncomeExpenditureTable extends Migration
                 ->comment('支票的狀態：1~5分別是付款、兌現、押票、退票、開票,是 acc_cheque_status的foreign key');
             $table->foreign('cheque_status_fk')->references('id')->on('acc_cheque_status');
         });
+
+        Schema::create('acc_payable_remit', function (Blueprint $table) {
+            $table->id()->comment('匯款');
+            $table->dateTime('remit_date')->comment('匯款日期');
+        });
         Schema::create('acc_income_expenditure', function (Blueprint $table) {
             $table->id()->comment('收支科目設定');
 
@@ -103,6 +108,7 @@ class CreateIncomeExpenditureTable extends Migration
             });
         }
 
+        Schema::dropIfExists('acc_payable_remit');
         Schema::dropIfExists('acc_cheque_status');
         Schema::dropIfExists('acc_income_type');
         Schema::dropIfExists('acc_currency');
