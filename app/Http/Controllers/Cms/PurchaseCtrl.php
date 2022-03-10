@@ -129,7 +129,7 @@ class PurchaseCtrl extends Controller
         $query = $request->query();
         $this->validInputValue($request);
 
-        $purchaseReq = $request->only('supplier', 'scheduled_date');
+        $purchaseReq = $request->only('supplier', 'scheduled_date', 'supplier_sn');
         $purchaseItemReq = $request->only('product_style_id', 'name', 'sku', 'num', 'price', 'memo');
         $purchasePayReq = $request->only('logistics_price', 'logistics_memo', 'invoice_num', 'invoice_date');
 
@@ -138,6 +138,7 @@ class PurchaseCtrl extends Controller
             $purchaseReq['supplier'],
             $supplier->name,
             $supplier->nickname,
+            $purchaseReq['supplier_sn'],
             $request->user()->id,
             $request->user()->name,
             $purchaseReq['scheduled_date'],
@@ -226,6 +227,7 @@ class PurchaseCtrl extends Controller
 //        $purchaseItemData = PurchaseItem::getData($id)->get()->toArray();
         $purchaseItemData = PurchaseItem::getDataWithInbound($id)->get()->toArray();
 
+//        dd($purchaseData->has_tax);
         if (!$purchaseData) {
             return abort(404);
         }
@@ -280,9 +282,10 @@ class PurchaseCtrl extends Controller
         $query = $request->query();
         $this->validInputValue($request);
 
-        $purchaseReq = $request->only('supplier', 'scheduled_date');
+        $taxReq = $request->input('tax');
+        $purchaseReq = $request->only('supplier', 'scheduled_date', 'supplier_sn');
         $purchaseItemReq = $request->only('item_id', 'product_style_id', 'name', 'sku', 'num', 'price', 'memo');
-        $purchasePayReq = $request->only('logistics_price', 'logistics_memo', 'invoice_num', 'invoice_date');
+        $purchasePayReq = $request->only('tax', 'logistics_price', 'logistics_memo', 'invoice_num', 'invoice_date');
 
 
         //判斷是否有付款單，有則不可新增刪除商品款式
@@ -305,7 +308,7 @@ class PurchaseCtrl extends Controller
         }
 
         $changeStr = '';
-        $repcsCTPD = Purchase::checkToUpdatePurchaseData($id, $purchaseReq, $changeStr, $request->user()->id, $request->user()->name, $purchasePayReq);
+        $repcsCTPD = Purchase::checkToUpdatePurchaseData($id, $purchaseReq, $changeStr, $request->user()->id, $request->user()->name, $taxReq, $purchasePayReq);
         $changeStr .= $repcsCTPD['error_msg'];
 
         $purchaseGet = Purchase::where('id', '=', $id)->get()->first();
