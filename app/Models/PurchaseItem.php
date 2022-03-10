@@ -132,6 +132,17 @@ class PurchaseItem extends Model
         return self::where('purchase_id', $purchase_id)->whereNull('deleted_at');
     }
 
+    public static function getDataWithInbound($purchase_id) {
+        $inboundOverviewList = PurchaseInbound::getOverviewInboundList($purchase_id);
+        $query = DB::table('pcs_purchase_items as items')
+            ->leftJoinSub($inboundOverviewList, 'inbound', function($join) {
+                $join->on('inbound.purchase_id', '=', 'items.purchase_id');
+            })
+            ->where('items.purchase_id', $purchase_id)
+            ->whereNull('items.deleted_at');
+        return $query;
+    }
+
     public static function getDataForInbound($purchase_id) {
         $result = DB::table('pcs_purchase_items as items')
             ->select('items.id'

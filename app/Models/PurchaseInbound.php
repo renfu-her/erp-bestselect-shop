@@ -216,6 +216,7 @@ class PurchaseInbound extends Model
             ->select('inbound.purchase_id as purchase_id'
                 , 'inbound.product_style_id as product_style_id')
             ->selectRaw('sum(inbound.inbound_num) as inbound_num')
+            ->selectRaw('GROUP_CONCAT(inbound.inbound_user_name) as inbound_user_name') //入庫人員
             ->groupBy('inbound.purchase_id')
             ->groupBy('inbound.product_style_id');
 
@@ -236,6 +237,7 @@ class PurchaseInbound extends Model
                 , 'products.title as product_title' //商品名稱
                 , 'styles.title as style_title' //款式名稱
                 , 'users.name as user_name' //商品負責人
+                , 'inbound.inbound_user_name as inbound_user_name' //入庫人員
             )
             ->selectRaw('min(items.sku) as sku') //款式SKU
             ->selectRaw('sum(items.num) as num') //採購數量

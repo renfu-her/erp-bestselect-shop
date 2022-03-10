@@ -223,7 +223,9 @@ class PurchaseCtrl extends Controller
     public function edit(Request $request, $id)
     {
         $purchaseData = Purchase::getPurchase($id)->first();
-        $purchaseItemData = PurchaseItem::getData($id)->get()->toArray();
+//        $purchaseItemData = PurchaseItem::getData($id)->get()->toArray();
+        $purchaseItemData = PurchaseItem::getDataWithInbound($id)->get()->toArray();
+
         if (!$purchaseData) {
             return abort(404);
         }

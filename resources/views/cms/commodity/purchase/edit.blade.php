@@ -22,10 +22,9 @@
             <div class="card shadow p-4 mb-4">
                 <h6>基本資訊</h6>
                 <div class="row">
-                    <div class="col-12 col-sm-6 mb-3">
-                        <label class="form-label">新增人員</label>
-                        <input class="form-control" name="" type="text" placeholder="請輸入新增採購單人員" aria-label="新增人員">
-                    </div>
+                    <x-b-form-group name="account" title="新增人員" required="true">
+                        <div class="col-form-label">{{ $purchaseData->user_name ?? '' }}</div>
+                    </x-b-form-group>
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">狀態</label>
                         <select class="form-select" name="" aria-label="狀態">
@@ -90,7 +89,7 @@
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">廠商預計進貨日期 <span class="text-danger">*</span></label>
                     <div class="input-group has-validation">
-                        <input type="date" id="date" name="scheduled_date"
+                        <input type="date" id="scheduled_date" name="scheduled_date"
                                value="{{ old('scheduled_date', $purchaseData->scheduled_date  ?? '') }}"
                                class="form-control @error('scheduled_date') is-invalid @enderror" aria-label="廠商預計進貨日期"
                                required/>
@@ -98,7 +97,7 @@
                                 data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
                         </button>
                         <div class="invalid-feedback">
-                            @error('date')
+                            @error('scheduled_date')
                             {{ $message }}
                             @enderror
                         </div>
@@ -125,6 +124,8 @@
                         <th scope="col">SKU</th>
                         <th scope="col">採購數量</th>
                         <th scope="col">採購價錢</th>
+                        <th scope="col">狀態</th>
+                        <th scope="col">入庫人員</th>
                         <th scope="col">採購備註</th>
                     </tr>
                     </thead>
@@ -164,27 +165,29 @@
                                             class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                         <i class="bi bi-trash"></i>
                                     </button>
-                                    <input type="hidden" name="item_id[]" value="{{ old('item_id.'. $psItemKey, $psItemVal['id']?? '') }}">
-                                    <input type="hidden" name="product_style_id[]" value="{{ old('product_style_id.'. $psItemKey, $psItemVal['product_style_id']?? '') }}">
-                                    <input type="hidden" name="name[]" value="{{ old('name.'. $psItemKey, $psItemVal['title']?? '') }}">
-                                    <input type="hidden" name="sku[]" value="{{ old('sku.'. $psItemKey, $psItemVal['sku']?? '') }}">
+                                    <input type="hidden" name="item_id[]" value="{{ old('item_id.'. $psItemKey, $psItemVal->id?? '') }}">
+                                    <input type="hidden" name="product_style_id[]" value="{{ old('product_style_id.'. $psItemKey, $psItemVal->product_style_id?? '') }}">
+                                    <input type="hidden" name="name[]" value="{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}">
+                                    <input type="hidden" name="sku[]" value="{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}">
                                 </th>
-                                <td data-td="name">{{ old('name.'. $psItemKey, $psItemVal['title']?? '') }}</td>
-                                <td data-td="sku">{{ old('sku.'. $psItemKey, $psItemVal['sku']?? '') }}</td>
+                                <td data-td="name">{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}</td>
+                                <td data-td="sku">{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}</td>
                                 <td>
                                     <input type="number" class="form-control form-control-sm @error('num.' . $psItemKey) is-invalid @enderror"
-                                           name="num[]" value="{{ old('num.'. $psItemKey, $psItemVal['num']?? '') }}" min="1" step="0.01" required/>
+                                           name="num[]" value="{{ old('num.'. $psItemKey, $psItemVal->num?? '') }}" min="1" step="0.01" required/>
                                 </td>
                                 <td>
                                     <div class="input-group input-group-sm flex-nowrap">
                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                                         <input type="number" class="form-control form-control-sm @error('price.' . $psItemKey) is-invalid @enderror"
-                                               name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal['price']?? '') }}" min="0" step="0.01" required/>
+                                               name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}" min="0" step="0.01" required/>
                                     </div>
                                 </td>
+                                <td data-td="inbound_type">{{$psItemVal->inbound_type?? ''}}</td>
+                                <td data-td="inbound_user_name">{{$psItemVal->inbound_user_name?? ''}}</td>
                                 <td>
                                     <input type="text" class="form-control form-control-sm -xl" name="memo[]"
-                                           value="{{ old('memo.'. $psItemKey, $psItemVal['memo']?? '') }}"/>
+                                           value="{{ old('memo.'. $psItemKey, $psItemVal->memo?? '') }}"/>
                                 </td>
                             </tr>
                         @endforeach
@@ -216,12 +219,14 @@
                         <label class="form-label">物流費用 <span class="text-danger">*</span></label>
                         <div class="input-group flex-nowrap">
                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                            <input class="form-control" name="logistics_price" type="number" min="0" value="" placeholder="請輸入運費"/>
+                            <input class="form-control" name="logistics_price" type="number" min="0" placeholder="請輸入運費"
+                                   value="{{ old('logistics_price', $purchaseData->logistics_price  ?? '') }}"/>
                         </div>
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">物流備註</label>
-                        <input class="form-control" name="logistics_memo" type="text" placeholder="請輸入物流備註" aria-label="物流備註">
+                        <input class="form-control" name="logistics_memo" type="text" placeholder="請輸入物流備註" aria-label="物流備註"
+                               value="{{ old('logistics_memo', $purchaseData->logistics_memo  ?? '') }}">
                     </div>
                 </div>
                 <div class="col-auto">
@@ -267,17 +272,21 @@
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">發票號碼</label>
-                        <input class="form-control" name="invoice_num" type="text" placeholder="請輸入發票號碼" maxlength="10" aria-label="發票號碼">
+                        <input class="form-control" name="invoice_num" type="text" placeholder="請輸入發票號碼" maxlength="10" aria-label="發票號碼" value="{{ old('invoice_num', $purchaseData->invoice_num  ?? '') }}">
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">發票日期</label>
                         <div class="input-group has-validation">
-                            <input type="date" name="invoice_date" value=""
-                                   class="form-control" aria-label="發票日期"/>
+                            <input type="date" id="invoice_date" name="invoice_date"
+                                   value="{{ old('invoice_date', $purchaseData->invoice_date  ?? '') }}"
+                                   class="form-control @error('scheduled_date') is-invalid @enderror" aria-label="發票日期"/>
                             <button class="btn btn-outline-secondary icon" type="button" data-clear
                                     data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
                             </button>
                             <div class="invalid-feedback">
+                                @error('invoice_date')
+                                {{ $message }}
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -367,7 +376,7 @@
             if (true == isAlreadyFinalPay) {
                 $('.-cloneElem.--selectedP :input').prop("disabled", true);
             }
-            
+
             // 物流
             // -新增
             $('#logistics button.-add').off('click').on('click', function () {

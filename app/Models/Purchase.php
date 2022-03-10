@@ -64,7 +64,12 @@ class Purchase extends Model
     )
     {
         $purchase = Purchase::where('id', '=', $id)
-            ->select('supplier_id')
+            ->select('supplier_id'
+                , 'logistics_price'
+                , 'logistics_memo'
+                , 'invoice_num'
+                , 'invoice_date'
+            )
             ->selectRaw('DATE_FORMAT(scheduled_date,"%Y-%m-%d") as scheduled_date')
             ->get()->first();
 
@@ -75,7 +80,7 @@ class Purchase extends Model
         $purchase->invoice_num = $purchasePayReq['invoice_num'] ?? null;
         $purchase->invoice_date = $purchasePayReq['invoice_date'] ?? null;
 
-        return DB::transaction(function () use ($purchase, $id, $purchaseReq, $changeStr, $operator_user_id, $operator_user_name
+        return DB::transaction(function () use ($purchase, $id, $purchaseReq, $changeStr, $operator_user_id, $operator_user_name, $purchasePayReq
         ) {
             if ($purchase->isDirty()) {
                 foreach ($purchase->getDirty() as $key => $val) {
@@ -103,6 +108,10 @@ class Purchase extends Model
                 Purchase::where('id', $id)->update([
                     "supplier_id" => $purchaseReq['supplier'],
                     "scheduled_date" => $purchaseReq['scheduled_date'],
+                    'logistics_price' => $purchasePayReq['logistics_price'] ?? 0,
+                    'logistics_memo' => $purchasePayReq['logistics_memo'] ?? null,
+                    'invoice_num' => $purchasePayReq['invoice_num'] ?? null,
+                    'invoice_date' => $purchasePayReq['invoice_date'] ?? null,
                 ]);
             }
             return ['success' => 1, 'error_msg' => $changeStr];
@@ -165,14 +174,18 @@ class Purchase extends Model
                 , 'purchase.sn as purchase_sn'
                 , 'purchase.invoice_num as invoice_num'
                 , 'purchase.pay_type as pay_type'
-                , 'purchase.close_date as close_date'
-                , 'purchase_user_id as user_id'
-                , 'purchase_user_name as user_name'
-                , 'supplier_id as supplier_id'
-                , 'supplier_name as supplier_name'
-                , 'supplier_nickname as supplier_nickname'
+                , 'purchase.purchase_user_id as user_id'
+                , 'purchase.purchase_user_name as user_name'
+                , 'purchase.supplier_id as supplier_id'
+                , 'purchase.supplier_name as supplier_name'
+                , 'purchase.supplier_nickname as supplier_nickname'
+
+                , 'purchase.logistics_price as logistics_price'
+                , 'purchase.logistics_memo as logistics_memo'
             )
+            ->selectRaw('DATE_FORMAT(purchase.close_date,"%Y-%m-%d") as close_date')
             ->selectRaw('DATE_FORMAT(purchase.scheduled_date,"%Y-%m-%d") as scheduled_date')
+            ->selectRaw('DATE_FORMAT(purchase.invoice_date,"%Y-%m-%d") as invoice_date')
             ->whereNull('purchase.deleted_at')
             ->where('purchase.id', '=', $id);
 
