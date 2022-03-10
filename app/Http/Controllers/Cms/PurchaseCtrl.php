@@ -227,7 +227,6 @@ class PurchaseCtrl extends Controller
 //        $purchaseItemData = PurchaseItem::getData($id)->get()->toArray();
         $purchaseItemData = PurchaseItem::getDataWithInbound($id)->get()->toArray();
 
-//        dd($purchaseData->has_tax);
         if (!$purchaseData) {
             return abort(404);
         }
