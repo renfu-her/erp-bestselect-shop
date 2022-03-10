@@ -221,15 +221,19 @@
         </div>
 
         @if ($method === 'edit')
+        @php
+            $hasLogistics = $purchaseData->logistics_price !== 0 || !empty($purchaseData->logistics_memo);
+        @endphp
             <div id="logistics" class="card shadow p-4 mb-4">
                 <h6>物流</h6>
-                <div class="row mb-3" hidden>
+                <div class="row mb-3" @if (!$hasLogistics) hidden @endif >
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">物流費用 <span class="text-danger">*</span></label>
                         <div class="input-group flex-nowrap">
                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                             <input class="form-control" name="logistics_price" type="number" min="0" placeholder="請輸入運費"
-                                   value="{{ old('logistics_price', $purchaseData->logistics_price  ?? '') }}"/>
+                                   value="{{ old('logistics_price', $purchaseData->logistics_price  ?? '') }}"
+                                   @if ($hasLogistics) required @endif/>
                         </div>
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
@@ -239,10 +243,12 @@
                     </div>
                 </div>
                 <div class="col-auto">
-                    <button class="btn btn-primary -add" type="button" role="button">
+                    <button class="btn btn-primary -add" type="button" role="button"
+                        @if ($hasLogistics) hidden @endif>
                         <i class="bi bi-plus-lg"></i> 新增物流
                     </button>
-                    <button class="btn btn-outline-danger -del" type="button" hidden @if($hasCreatedFinalPayment) disabled @endif>
+                    <button class="btn btn-outline-danger -del" type="button" 
+                        @if (!$hasLogistics) hidden @endif @if($hasCreatedFinalPayment) disabled @endif>
                         <i class="bi bi-trash"></i> 刪除物流
                     </button>
                 </div>
@@ -390,15 +396,14 @@
             // -新增
             $('#logistics button.-add').off('click').on('click', function () {
                 $('#logistics div.row, #logistics button.-del').prop('hidden', false);
-                $('#logistics input[name^="logistics_"]').prop('disabled', false);
                 $('#logistics input[name="logistics_price"]').prop('required', true);
                 $(this).prop('hidden', true);
             });
             // -刪除
             $('#logistics button.-del').off('click').on('click', function () {
                 $('#logistics div.row, #logistics button.-del').prop('hidden', true);
-                $('#logistics input[name^="logistics_"]').val('');
                 $('#logistics input[name="logistics_price"]').prop('required', false);
+                $('#logistics input[name^="logistics_"]').val('');
                 $('#logistics button.-add').prop('hidden', false);
             });
 
