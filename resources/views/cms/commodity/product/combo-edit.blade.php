@@ -305,7 +305,7 @@
                             'item_id': null
                         });
                         cloneElem.find('td[data-td]').text('');
-                        cloneElem.find('input[name^=o_]').attr('name', function(index, attr) {
+                        cloneElem.find('input[name^="o_"]').attr('name', function(index, attr) {
                             return attr.replace(/o_/, '');
                         });
                         if (p) {

@@ -335,12 +335,7 @@ class ProductCtrl extends Controller
             ProductStyle::createSku($id, $style['id']);
         }
 
-        if (count($styles) > 0) {
-            Product::where('id', $id)->update(['spec_locked' => 1]);
-        }
-
         wToast('sku產生完成');
-        // return redirect(route('cms.product.edit-style', ['id' => $id]));
         return redirect()->back();
     }
 
@@ -352,9 +347,9 @@ class ProductCtrl extends Controller
      */
     public function editSpec($id)
     {
-        
+
         $product = self::product_data($id);
-     //    dd( ProductSpec::specList($id));
+        //    dd( ProductSpec::specList($id));
         return view('cms.commodity.product.spec-edit', [
             'data' => Product::where('id', $id)->get()->first(),
             'specs' => ProductSpec::get()->toArray(),
@@ -366,18 +361,38 @@ class ProductCtrl extends Controller
 
     public function storeSpec(Request $request, $id)
     {
-        dd($_POST);
+
         $d = $request->all();
         for ($i = 0; $i < 3; $i++) {
             if (isset($d["spec" . $i])) {
                 Product::setProductSpec($id, $d["spec" . $i]);
-                if (isset($d["item" . $i]) && is_array($d["item" . $i])) {
-                    foreach ($d["item" . $i] as $item) {
+                // new
+                if (isset($d["item_new" . $i]) && is_array($d["item_new" . $i])) {
+                    foreach ($d["item_new" . $i] as $item) {
                         ProductSpecItem::createItems($id, $d["spec" . $i], $item);
+                    }
+                }
+                // update
+                if (isset($d["item_id" . $i]) && is_array($d["item_id" . $i])) {
+                    foreach ($d["item_id" . $i] as $key => $item_id) {
+                        if (isset($d["item_value" . $i][$key])) {
+                            ProductSpecItem::where('id', $item_id)->update([
+                                'title' => $d["item_value" . $i][$key],
+                            ]);
+                        }
                     }
                 }
             }
         }
+
+        if (isset($d['del_item_id'])) {
+            $del_item_id = explode(',', $d['del_item_id']);
+            if (count($del_item_id) > 0) {
+                ProductSpecItem::whereIn('id', $del_item_id)->delete();
+            }
+        }
+
+        wToast('修改完成');
 
         return redirect(Route('cms.product.edit-style', ['id' => $id]));
     }
