@@ -30,6 +30,8 @@
                                  @endif
                              @elseif($data->event == App\Enums\Purchase\LogEvent::inbound()->key)
                                  {{$data->title}} @if(isset($data->qty)) 數量:{{$data->qty}} @endif
+                             @elseif($data->event == App\Enums\Purchase\LogEvent::purchase()->key)
+                                 {{$data->title}}
                              @endif
                          </td>
                          <td>{{$data->user_name}}</td>

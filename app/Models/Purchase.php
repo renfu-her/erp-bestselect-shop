@@ -15,14 +15,16 @@ class Purchase extends Model
     protected $table = 'pcs_purchase';
     protected $guarded = [];
 
-    public static function createPurchase($supplier_id, $supplier_name, $supplier_nickname, $purchase_user_id, $purchase_user_name
+    public static function createPurchase($supplier_id, $supplier_name, $supplier_nickname, $supplier_sn = null, $purchase_user_id, $purchase_user_name
         , $scheduled_date
         , $logistics_price = 0, $logistics_memo = null, $invoice_num = null, $invoice_date = null
     )
     {
-        return DB::transaction(function () use ($supplier_id,
+        return DB::transaction(function () use (
+            $supplier_id,
             $supplier_name,
             $supplier_nickname,
+            $supplier_sn,
             $purchase_user_id,
             $purchase_user_name,
             $scheduled_date,
@@ -42,6 +44,7 @@ class Purchase extends Model
                 'supplier_id' => $supplier_id,
                 'supplier_name' => $supplier_name,
                 'supplier_nickname' => $supplier_nickname,
+                'supplier_sn' => $supplier_sn ?? null,
                 'purchase_user_id' => $purchase_user_id,
                 'purchase_user_name' => $purchase_user_name,
                 'scheduled_date' => $scheduled_date,
@@ -60,11 +63,13 @@ class Purchase extends Model
         });
     }
 
-    public static function checkToUpdatePurchaseData($id, array $purchaseReq, string $changeStr, $operator_user_id, $operator_user_name, array $purchasePayReq
+    public static function checkToUpdatePurchaseData($id, array $purchaseReq, string $changeStr, $operator_user_id, $operator_user_name, $tax, array $purchasePayReq
     )
     {
         $purchase = Purchase::where('id', '=', $id)
             ->select('supplier_id'
+                , 'supplier_sn'
+                , 'has_tax'
                 , 'logistics_price'
                 , 'logistics_memo'
                 , 'invoice_num'
@@ -74,22 +79,32 @@ class Purchase extends Model
             ->get()->first();
 
         $purchase->supplier_id = $purchaseReq['supplier'];
+        $purchase->supplier_sn = $purchaseReq['supplier_sn'] ?? null;
         $purchase->scheduled_date = $purchaseReq['scheduled_date'];
+        $purchase->has_tax = $tax;
         $purchase->logistics_price = $purchasePayReq['logistics_price'] ?? 0;
         $purchase->logistics_memo = $purchasePayReq['logistics_memo'] ?? null;
         $purchase->invoice_num = $purchasePayReq['invoice_num'] ?? null;
         $purchase->invoice_date = $purchasePayReq['invoice_date'] ?? null;
 
-        return DB::transaction(function () use ($purchase, $id, $purchaseReq, $changeStr, $operator_user_id, $operator_user_name, $purchasePayReq
+        return DB::transaction(function () use ($purchase, $id, $purchaseReq, $changeStr, $operator_user_id, $operator_user_name, $tax, $purchasePayReq
         ) {
             if ($purchase->isDirty()) {
                 foreach ($purchase->getDirty() as $key => $val) {
-                    $changeStr .= ' ' . $key . ' change to ' . $val;
                     $event = '';
                     if ($key == 'supplier_id') {
                         $event = '修改廠商';
+                    } else if($key == 'supplier_sn') {
+                        $event = '修改廠商訂單號';
                     } else if($key == 'scheduled_date') {
                         $event = '修改廠商預計進貨日期';
+                    } else if($key == 'hax_tax') {
+                        $event = '修改課稅別';
+                        if (0 == $val) {
+                            $val = '應稅';
+                        } else if (1 == $val) {
+                            $val = '免稅';
+                        }
                     } else if($key == 'logistics_price') {
                         $event = '修改物流費用';
                     } else if($key == 'logistics_memo') {
@@ -99,6 +114,7 @@ class Purchase extends Model
                     } else if($key == 'invoice_date') {
                         $event = '修改發票日期';
                     }
+                    $changeStr .= ' ' . $key . ' change to ' . $val;
                     $rePcsLSC = PurchaseLog::stockChange($id, null, LogEvent::purchase()->value, $id, LogEventFeature::pcs_change_data()->value, null, $event, $operator_user_id, $operator_user_name);
                     if ($rePcsLSC['success'] == 0) {
                         DB::rollBack();
@@ -107,7 +123,9 @@ class Purchase extends Model
                 }
                 Purchase::where('id', $id)->update([
                     "supplier_id" => $purchaseReq['supplier'],
+                    "supplier_sn" => $purchaseReq['supplier_sn'],
                     "scheduled_date" => $purchaseReq['scheduled_date'],
+                    "has_tax" => $tax,
                     'logistics_price' => $purchasePayReq['logistics_price'] ?? 0,
                     'logistics_memo' => $purchasePayReq['logistics_memo'] ?? null,
                     'invoice_num' => $purchasePayReq['invoice_num'] ?? null,
@@ -179,7 +197,9 @@ class Purchase extends Model
                 , 'purchase.supplier_id as supplier_id'
                 , 'purchase.supplier_name as supplier_name'
                 , 'purchase.supplier_nickname as supplier_nickname'
+                , 'purchase.supplier_sn as supplier_sn'
 
+                , 'purchase.has_tax as has_tax'
                 , 'purchase.logistics_price as logistics_price'
                 , 'purchase.logistics_memo as logistics_memo'
             )
