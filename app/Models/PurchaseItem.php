@@ -136,7 +136,8 @@ class PurchaseItem extends Model
         $inboundOverviewList = PurchaseInbound::getOverviewInboundList($purchase_id);
         $query = DB::table('pcs_purchase_items as items')
             ->leftJoinSub($inboundOverviewList, 'inbound', function($join) {
-                $join->on('inbound.purchase_id', '=', 'items.purchase_id');
+                $join->on('inbound.purchase_id', '=', 'items.purchase_id')
+                    ->on('inbound.product_style_id', '=', 'items.product_style_id');
             })
             ->where('items.purchase_id', $purchase_id)
             ->whereNull('items.deleted_at');

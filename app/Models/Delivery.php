@@ -153,7 +153,7 @@ class Delivery extends Model
         Order::orderAddress($query_order, 'order', 'order_id');
 
         $query_receive_depot = DB::table('dlv_receive_depot')
-            ->select('dlv_receive_depot.delivery_id'
+            ->select('dlv_receive_depot.delivery_id as dlv_id'
                 , 'dlv_receive_depot.depot_id'
                 , 'dlv_receive_depot.depot_name'
             )
@@ -175,7 +175,7 @@ class Delivery extends Model
                     ->where('delivery.event', '=', 'order');
             })
             ->leftJoinSub($query_receive_depot, 'query_receive_depot', function($join) {
-                $join->on('query_receive_depot.delivery_id', '=', 'delivery.id');
+                $join->on('query_receive_depot.dlv_id', '=', 'delivery.id');
             })
             ->select('delivery.id as delivery_id'
                 , 'delivery.sn as delivery_sn'
@@ -223,7 +223,6 @@ class Delivery extends Model
         }
         $query->orderBy('delivery.created_at');
 
-        $query->whereNotNull('delivery_id');
         return $query;
     }
 }

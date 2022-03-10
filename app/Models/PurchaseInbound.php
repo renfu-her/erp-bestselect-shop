@@ -216,7 +216,7 @@ class PurchaseInbound extends Model
             ->select('inbound.purchase_id as purchase_id'
                 , 'inbound.product_style_id as product_style_id')
             ->selectRaw('sum(inbound.inbound_num) as inbound_num')
-            ->selectRaw('GROUP_CONCAT(inbound.inbound_user_name) as inbound_user_name') //入庫人員
+            ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_name) as inbound_user_name') //入庫人員
             ->groupBy('inbound.purchase_id')
             ->groupBy('inbound.product_style_id');
 
