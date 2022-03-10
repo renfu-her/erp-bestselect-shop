@@ -15,7 +15,10 @@ class Purchase extends Model
     protected $table = 'pcs_purchase';
     protected $guarded = [];
 
-    public static function createPurchase($supplier_id, $supplier_name, $supplier_nickname, $purchase_user_id, $purchase_user_name, $scheduled_date, $memo = null)
+    public static function createPurchase($supplier_id, $supplier_name, $supplier_nickname, $purchase_user_id, $purchase_user_name
+        , $scheduled_date
+        , $logistics_price = 0, $logistics_memo = null, $invoice_num = null, $invoice_date = null
+    )
     {
         return DB::transaction(function () use ($supplier_id,
             $supplier_name,
@@ -23,7 +26,10 @@ class Purchase extends Model
             $purchase_user_id,
             $purchase_user_name,
             $scheduled_date,
-            $memo
+            $logistics_price,
+            $logistics_memo,
+            $invoice_num,
+            $invoice_date
             ) {
 
             $sn = "B" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
@@ -39,7 +45,10 @@ class Purchase extends Model
                 'purchase_user_id' => $purchase_user_id,
                 'purchase_user_name' => $purchase_user_name,
                 'scheduled_date' => $scheduled_date,
-                'memo' => $memo,
+                'logistics_price' => $logistics_price ?? 0,
+                'logistics_memo' => $logistics_memo ?? null,
+                'invoice_num' => $invoice_num ?? null,
+                'invoice_date' => $invoice_date ?? null,
             ])->id;
 
             $rePcsLSC = PurchaseLog::stockChange($id, null, LogEvent::purchase()->value, $id, LogEventFeature::pcs_add()->value, null, null, $purchase_user_id, $purchase_user_name);
@@ -51,7 +60,8 @@ class Purchase extends Model
         });
     }
 
-    public static function checkToUpdatePurchaseData($id, array $purchaseReq, string $changeStr, $operator_user_id, $operator_user_name)
+    public static function checkToUpdatePurchaseData($id, array $purchaseReq, string $changeStr, $operator_user_id, $operator_user_name, array $purchasePayReq
+    )
     {
         $purchase = Purchase::where('id', '=', $id)
             ->select('supplier_id')
@@ -60,8 +70,12 @@ class Purchase extends Model
 
         $purchase->supplier_id = $purchaseReq['supplier'];
         $purchase->scheduled_date = $purchaseReq['scheduled_date'];
+        $purchase->logistics_price = $purchasePayReq['logistics_price'] ?? 0;
+        $purchase->logistics_memo = $purchasePayReq['logistics_memo'] ?? null;
+        $purchase->invoice_num = $purchasePayReq['invoice_num'] ?? null;
+        $purchase->invoice_date = $purchasePayReq['invoice_date'] ?? null;
 
-        return DB::transaction(function () use ($purchase, $id, $purchaseReq, $changeStr
+        return DB::transaction(function () use ($purchase, $id, $purchaseReq, $changeStr, $operator_user_id, $operator_user_name
         ) {
             if ($purchase->isDirty()) {
                 foreach ($purchase->getDirty() as $key => $val) {
@@ -71,6 +85,14 @@ class Purchase extends Model
                         $event = '修改廠商';
                     } else if($key == 'scheduled_date') {
                         $event = '修改廠商預計進貨日期';
+                    } else if($key == 'logistics_price') {
+                        $event = '修改物流費用';
+                    } else if($key == 'logistics_memo') {
+                        $event = '修改物流備註';
+                    } else if($key == 'invoice_num') {
+                        $event = '修改發票號碼';
+                    } else if($key == 'invoice_date') {
+                        $event = '修改發票日期';
                     }
                     $rePcsLSC = PurchaseLog::stockChange($id, null, LogEvent::purchase()->value, $id, LogEventFeature::pcs_change_data()->value, null, $event, $operator_user_id, $operator_user_name);
                     if ($rePcsLSC['success'] == 0) {
