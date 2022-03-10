@@ -138,14 +138,14 @@ class PurchaseCtrl extends Controller
             $purchaseReq['supplier'],
             $supplier->name,
             $supplier->nickname,
-            $purchaseReq['supplier_sn'],
+            $purchaseReq['supplier_sn'] ?? null,
             $request->user()->id,
             $request->user()->name,
             $purchaseReq['scheduled_date'],
-            $purchasePayReq['logistics_price'],
-            $purchasePayReq['logistics_memo'],
-            $purchasePayReq['invoice_num'],
-            $purchasePayReq['invoice_date'],
+            $purchasePayReq['logistics_price'] ?? null,
+            $purchasePayReq['logistics_memo'] ?? null,
+            $purchasePayReq['invoice_num'] ?? null,
+            $purchasePayReq['invoice_date'] ?? null,
         );
         $purchaseID = null;
         if (isset($rePcs['id'])) {
@@ -230,6 +230,17 @@ class PurchaseCtrl extends Controller
         if (!$purchaseData) {
             return abort(404);
         }
+
+        $inbound_name_arr = [];
+        if (null != $purchaseItemData && 0 < count($purchaseItemData)) {
+            foreach ($purchaseItemData as $item) {
+                if (isset($item->inbound_user_name)) {
+                    array_push($inbound_name_arr, $item->inbound_user_name);
+                }
+            }
+            $inbound_name_arr = array_unique($inbound_name_arr);
+        }
+
         $hasCreatedDepositPayment = false;
         $hasCreatedFinalPayment = false;
         //TODO 讀取「付款作業」相關的database table欄位來決定是否以付款, 目前尚未設計， 暫定true
@@ -273,6 +284,8 @@ class PurchaseCtrl extends Controller
             'supplierList' => $supplierList,
             'formAction' => Route('cms.purchase.edit', ['id' => $id]),
             'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
+
+            '$inbound_name_arr' => $inbound_name_arr,
         ]);
     }
 
