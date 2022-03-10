@@ -30,7 +30,7 @@
                                 {{ $ord->product_title }} @if($ord->combo_product_title) ] {{$ord->combo_product_title}} @endif
                             </td>
                             <td>{{ $ord->sku }}</td>
-                            <td>{{ number_format($ord->qty) }}</td>
+                            <td data-td="o_qty">{{ number_format($ord->qty) }}</td>
                             <td>
                                 <input type="text" value="" name="qty_actual[]" class="form-control form-control-sm text-center" readonly>
                             </td>
@@ -178,8 +178,8 @@
             const Readonly = @json(isset($delivery->close_date));
             
             // init
-            DvyCheckSubmit(Readonly);
             DvySumExportQty();
+            DvyCheckSubmit(Readonly);
 
             // 刪除
             $('#confirm-delete').on('show.bs.modal', function (e) {

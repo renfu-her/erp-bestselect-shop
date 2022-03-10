@@ -166,6 +166,7 @@
                         <th scope="col">銷售通路</th>
                         <th scope="col">物態</th>
                         <th scope="col">收款單號</th>
+                        <th scope="col">物流型態</th>
                         <th scope="col">客戶物流方式</th>
                         <th scope="col">實際物流</th>
                         <th scope="col">包裹編號</th>
@@ -187,8 +188,11 @@
                                 <span class="d-block lh-sm">46456456</span>
                                 <span class="d-block lh-sm">77987979</span>
                             </td>
-                            <td>{{ $data->ship_category_name }}</td>
+                            <td>
+                                {{ $data->ship_category_name }}
+                            </td>
                             <td>{{ $data->ship_event }}</td>
+                            <td></td>
                             <td>{{ $data->ship_sn }}</td>
                             <td>-</td>
                             <td class="text-center">

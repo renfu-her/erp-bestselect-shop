@@ -80,17 +80,17 @@ class OrderCart extends Model
                 case 'pickup':
                     $shipment = Product::getPickup($value['product_id'])->where('depot.id', $value['shipment_event_id'])->get()->first();
                     if (!$shipment) {
-                        return ['success' => 0, 'error_msg' => '無運送方式', 'event' => 'product', 'event_id' => $value['product_style_id']];
+                        return ['success' => 0, 'error_msg' => '無運送方式(自取)', 'event' => 'product', 'event_id' => $value['product_style_id']];
                     }
 
                     $shipment->category_name = "自取";
 
                     break;
                 case 'deliver':
-                    $shipment = Product::getShipment($value['product_id'])->where('g.id', $value['product_style_id'])->get()->first();
+                    $shipment = Product::getShipment($value['product_id'])->where('g.id', $value['shipment_event_id'])->get()->first();
 
                     if (!$shipment) {
-                        return ['success' => 0, 'error_msg' => '無運送方式', 'event' => 'product', 'event_id' => $value['product_style_id']];
+                        return ['success' => 0, 'error_msg' => '無運送方式(宅配)', 'event' => 'product', 'event_id' => $value['product_style_id']];
                     }
                     $shipment->rules = json_decode($shipment->rules);
 

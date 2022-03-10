@@ -40,10 +40,6 @@ $(function () {
     let delItemOption = {
         appendClone: '.-appendClone.--selectedIB',
         cloneElem: '.-cloneElem.--selectedIB',
-        checkFn: function () {
-            // 無單不可送審
-            checkSubmit();
-        },
         autoRemove: false
     };
     
@@ -202,6 +198,7 @@ $(function () {
                 });
 
                 sumExportQty();
+                checkSubmit();
                 // 關閉懸浮視窗
                 addInboundModal.hide();
                 toast.show('加入成功', { type: 'success' });
@@ -237,13 +234,13 @@ $(function () {
         }
     }
 
-    // 無單不可送審
+    // 出貨數量 != 訂購數量 不可送審
     window.DvyCheckSubmit = checkSubmit;
     function checkSubmit(readonly = false) {
         let chk = true;
-        $('tr.--rece').each(function (index, element) {
+        $('tr.--prod').each(function (index, element) {
             // element == this
-            chk &= $(element).find('.-cloneElem.--selectedIB').length > 0;
+            chk &= $(element).find('input[name="qty_actual[]"').val() === $(element).find('td[data-td="o_qty"]').text().trim();
         });
         $('#submitDiv button[type="submit"]').prop('disabled', !chk || readonly);
     }

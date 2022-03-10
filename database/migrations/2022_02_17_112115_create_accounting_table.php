@@ -117,6 +117,29 @@ class CreateAccountingTable extends Migration
             $table->softDeletes();
             $table->timestamps();
         });
+
+        Schema::create('acc_all_grades', function (Blueprint $table) {
+            $table->id()->comment('所有會計科目的primary id');
+
+            $table->unsignedBigInteger('acc_first_grade_fk')->comment('foreign key');
+            $table->foreign('acc_first_grade_fk')->references('id')->on('acc_first_grade');
+
+            $table->unsignedBigInteger('acc_second_grade_fk')->nullable()->default(null)->comment('foreign key');
+            $table->foreign('acc_second_grade_fk')->references('id')->on('acc_second_grade');
+
+            $table->unsignedBigInteger('acc_third_grade_fk')->nullable()->default(null)->comment('foreign key');
+            $table->foreign('acc_third_grade_fk')->references('id')->on('acc_third_grade');
+
+            $table->unsignedBigInteger('acc_fourth_grade_fk')->nullable()->default(null)->comment('foreign key');
+            $table->foreign('acc_fourth_grade_fk')->references('id')->on('acc_fourth_grade');
+
+            $table->unique([
+                'acc_first_grade_fk',
+                'acc_second_grade_fk',
+                'acc_third_grade_fk',
+                'acc_fourth_grade_fk',
+            ], 'unique_grade_id');
+        });
     }
 
     /**
@@ -169,12 +192,24 @@ class CreateAccountingTable extends Migration
             $table->dropForeign(['acc_income_statement_fk']);
             $table->dropColumn('acc_income_statement_fk');
         });
+        Schema::table('acc_all_grades', function (Blueprint $table) {
+            $table->dropForeign(['acc_first_grade_fk']);
+            $table->dropForeign(['acc_second_grade_fk']);
+            $table->dropForeign(['acc_third_grade_fk']);
+            $table->dropForeign(['acc_fourth_grade_fk']);
+
+            $table->dropColumn(['acc_first_grade_fk']);
+            $table->dropColumn(['acc_second_grade_fk']);
+            $table->dropColumn(['acc_third_grade_fk']);
+            $table->dropColumn(['acc_fourth_grade_fk']);
+        });
 
         Schema::dropIfExists('acc_fourth_grade');
         Schema::dropIfExists('acc_third_grade');
         Schema::dropIfExists('acc_second_grade');
-
         Schema::dropIfExists('acc_first_grade');
+        Schema::dropIfExists('acc_all_grades');
+
         Schema::dropIfExists('acc_income_statement');
     }
 }

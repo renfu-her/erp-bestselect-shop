@@ -15,6 +15,7 @@
                 <div class="row">
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">訂購客戶</label>
+                        <input type="hidden" name="customer_id">
                         <select id="customer" class=" form-select -select2 -single" disabled data-placeholder="請選擇訂購客戶">
                             @foreach ($customers as $customer)
                                 <option value="{{ $customer->id }}" @if ($customer->id == $customer_id) selected @endif>
