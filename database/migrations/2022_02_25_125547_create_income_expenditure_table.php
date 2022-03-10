@@ -41,6 +41,15 @@ class CreateIncomeExpenditureTable extends Migration
             $table->string('status', 64);
         });
 
+        Schema::create('acc_payable_currency', function (Blueprint $table) {
+            $table->id()->comment('外幣付款');
+            $table->decimal('foreign_currency')->comment('外幣付款金額');
+            $table->decimal('rate')->comment('付款時的匯率');
+
+            $table->unsignedBigInteger('acc_currency_fk')->comment('幣別, foreign key');
+            $table->foreign('acc_currency_fk')->references('id')->on('acc_currency');
+        });
+
         Schema::create('acc_payable_cheque', function (Blueprint $table) {
             $table->id()->comment('支票付款');
             $table->string('check_num')->comment('票號');
@@ -109,6 +118,7 @@ class CreateIncomeExpenditureTable extends Migration
         }
 
         Schema::dropIfExists('acc_payable_remit');
+        Schema::dropIfExists('acc_payable_currency');
         Schema::dropIfExists('acc_cheque_status');
         Schema::dropIfExists('acc_income_type');
         Schema::dropIfExists('acc_currency');
