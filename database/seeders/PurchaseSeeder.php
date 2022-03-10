@@ -29,7 +29,6 @@ class PurchaseSeeder extends Seeder
             5,
             '之谷',
             '2021-12-22 00:00:00',
-            '第一筆採購單',
         );
         $purchaseID1 = null;
         if (isset($purchase1['id'])) {
@@ -42,7 +41,6 @@ class PurchaseSeeder extends Seeder
             2,
             '小姜',
             '2021-12-23 00:00:00',
-            null,
         );
         $purchaseID2 = null;
         if (isset($purchase2['id'])) {
@@ -56,7 +54,6 @@ class PurchaseSeeder extends Seeder
             2,
             '小姜',
             '2021-03-23 00:00:00',
-            null,
         );
         $purchaseID3 = null;
         if (isset($purchase3['id'])) {
