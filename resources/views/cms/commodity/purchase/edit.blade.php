@@ -16,9 +16,58 @@
         <div class="alert alert-danger mt-3">{{ $message }}</div>
         @enderror
 
+        @if ($method === 'edit')
+            <input type='hidden' name='id' value="{{ old('id', $id) }}"/>
+
+            <div class="card shadow p-4 mb-4">
+                <h6>基本資訊</h6>
+                <div class="row">
+                    <div class="col-12 col-sm-6 mb-3">
+                        <label class="form-label">新增人員</label>
+                        <input class="form-control" name="" type="text" placeholder="請輸入新增採購單人員" aria-label="新增人員">
+                    </div>
+                    <div class="col-12 col-sm-6 mb-3">
+                        <label class="form-label">狀態</label>
+                        <select class="form-select" name="" aria-label="狀態">
+                            <option value="">請選擇</option>
+                            <option value="1">item 1</option>
+                            <option value="2">item 2</option>
+                            <option value="3">item 3</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-sm-6 mb-3">
+                        <label class="form-label">入庫人員</label>
+                        <select name="" multiple class="-select2 -multiple form-select" data-placeholder="可多選">
+                            <option value="1">item 1</option>
+                            <option value="2">item 2</option>
+                            <option value="3">item 3</option>
+                        </select>
+                    </div>
+                    <fieldset class="col-12 col-sm-6 mb-3">
+                        <legend class="col-form-label p-0 mb-2">課稅別 <span class="text-danger">*</span></legend>
+                        <div class="px-1 pt-1">
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="tax" type="radio" required>
+                                    應稅
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="tax" type="radio" required>
+                                    免稅
+                                </label>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        @endif
+
         <div class="card shadow p-4 mb-4">
+            <h6>廠商資訊</h6>
             <div class="row">
-                <div class="col-12 col-sm-6 mb-3 ">
+                <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">採購廠商{{$purchaseData->supplier_id ?? ''}} <span class="text-danger">*</span></label>
                     <select id="supplier" @if ($method === 'edit') disabled @endif
                     class="form-select -select2 -single @error('supplier') is-invalid @enderror"
@@ -38,8 +87,7 @@
                         @enderror
                     </div>
                 </div>
-
-                <div class="col-12 col-sm-6 mb-3 ">
+                <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">廠商預計進貨日期 <span class="text-danger">*</span></label>
                     <div class="input-group has-validation">
                         <input type="date" id="date" name="scheduled_date"
@@ -56,6 +104,13 @@
                         </div>
                     </div>
                 </div>
+
+                @if ($method === 'edit')
+                    <div class="col-12 col-sm-6 mb-3">
+                        <label class="form-label">廠商訂單號</label>
+                        <input class="form-control" name="" type="text" placeholder="請輸入廠商訂單號" aria-label="廠商訂單號">
+                    </div>
+                @endif
             </div>
         </div>
 
@@ -151,24 +206,43 @@
                 </button>
                 @endif
             </div>
-
         </div>
 
         @if ($method === 'edit')
-            <input type='hidden' name='id' value="{{ old('id', $id) }}"/>
+            <div id="logistics" class="card shadow p-4 mb-4">
+                <h6>物流</h6>
+                <div class="row mb-3" hidden>
+                    <div class="col-12 col-sm-6 mb-3">
+                        <label class="form-label">物流費用 <span class="text-danger">*</span></label>
+                        <div class="input-group flex-nowrap">
+                            <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                            <input class="form-control" name="logistics_price" type="number" min="0" value="" placeholder="請輸入運費"/>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 mb-3">
+                        <label class="form-label">物流備註</label>
+                        <input class="form-control" name="logistics_memo" type="text" placeholder="請輸入物流備註" aria-label="物流備註">
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-primary -add" type="button" role="button">
+                        <i class="bi bi-plus-lg"></i> 新增物流
+                    </button>
+                    <button class="btn btn-outline-danger -del" type="button" hidden @if($hasCreatedFinalPayment) disabled @endif>
+                        <i class="bi bi-trash"></i> 刪除物流
+                    </button>
+                </div>
+            </div>
 
             <div class="card shadow p-4 mb-4">
                 <h6>付款資訊</h6>
                 <div class="row">
                     <div class="col-12 col-sm-6 mb-3">
-                        <label class="form-label">訂金付款單</label>
+                        <label class="form-label">訂金付款單@if($hasCreatedDepositPayment && $hasReceivedDepositPayment)<span class="text-danger">（已付完訂金）</span>@endif</label>
                         <div class="form-control" readonly>
                             @if($hasCreatedDepositPayment)
                                 <a href="{{ Route('cms.purchase.view-pay-order', ['id' => $id, 'type' => '0'], true) }}" >
                                     付款單號-{{ $depositPayData->sn }}
-                                    @if($hasReceivedDepositPayment)
-                                        （已付完訂金）
-                                    @endif
                                 </a>
                             @else
                                 <a href="{{ Route('cms.purchase.pay-deposit', ['id' => $id], true) }}">新增付款單</a>
@@ -176,14 +250,11 @@
                         </div>
                     </div>
                     <div class="col-12 col-sm-6 mb-3 ">
-                        <label class="form-label">尾款付款單</label>
+                        <label class="form-label">尾款付款單@if($hasCreatedFinalPayment && $hasReceivedFinalPayment)<span class="text-danger">（已付完尾款）</span>@endif</label>
                         <div class="form-control" readonly>
                             @if($hasCreatedFinalPayment)
                                 <a href="{{ Route('cms.purchase.view-pay-order', ['id' => $id, 'type' => '1'], true) }}">
                                     付款單號-{{ $finalPayData->sn }}
-                                    @if($hasReceivedFinalPayment)
-                                        （已付完尾款）
-                                    @endif
                                 </a>
                             @else
                                 @if($hasCreatedDepositPayment && !$hasReceivedDepositPayment)
@@ -192,6 +263,22 @@
                                     <a href="{{ Route('cms.purchase.pay-final', ['id' => $id], true) }}">新增付款單</a>
                                 @endif
                             @endif
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 mb-3">
+                        <label class="form-label">發票號碼</label>
+                        <input class="form-control" name="invoice_num" type="text" placeholder="請輸入發票號碼" maxlength="10" aria-label="發票號碼">
+                    </div>
+                    <div class="col-12 col-sm-6 mb-3">
+                        <label class="form-label">發票日期</label>
+                        <div class="input-group has-validation">
+                            <input type="date" name="invoice_date" value=""
+                                   class="form-control" aria-label="發票日期"/>
+                            <button class="btn btn-outline-secondary icon" type="button" data-clear
+                                    data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
+                            </button>
+                            <div class="invalid-feedback">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -280,6 +367,22 @@
             if (true == isAlreadyFinalPay) {
                 $('.-cloneElem.--selectedP :input').prop("disabled", true);
             }
+            
+            // 物流
+            // -新增
+            $('#logistics button.-add').off('click').on('click', function () {
+                $('#logistics div.row, #logistics button.-del').prop('hidden', false);
+                $('#logistics input[name^="logistics_"]').prop('disabled', false);
+                $('#logistics input[name="logistics_price"]').prop('required', true);
+                $(this).prop('hidden', true);
+            });
+            // -刪除
+            $('#logistics button.-del').off('click').on('click', function () {
+                $('#logistics div.row, #logistics button.-del').prop('hidden', true);
+                $('#logistics input[name^="logistics_"]').prop('disabled', true);
+                $('#logistics input[name="logistics_price"]').prop('required', false);
+                $('#logistics button.-add').prop('hidden', false);
+            });
 
             $('#supplier').on('change', function (e) {
                 // if ("" != $('input[name=bank_cname]').val()
