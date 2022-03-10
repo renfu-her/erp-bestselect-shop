@@ -124,8 +124,10 @@
                         <th scope="col">SKU</th>
                         <th scope="col">採購數量</th>
                         <th scope="col">採購價錢</th>
-                        <th scope="col">狀態</th>
-                        <th scope="col">入庫人員</th>
+                        @if ($method === 'edit')
+                            <th scope="col">狀態</th>
+                            <th scope="col">入庫人員</th>
+                        @endif
                         <th scope="col">採購備註</th>
                     </tr>
                     </thead>
@@ -183,8 +185,10 @@
                                                name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}" min="0" step="0.01" required/>
                                     </div>
                                 </td>
-                                <td data-td="inbound_type">{{$psItemVal->inbound_type?? ''}}</td>
-                                <td data-td="inbound_user_name">{{$psItemVal->inbound_user_name?? ''}}</td>
+                                @if ($method === 'edit')
+                                    <td data-td="inbound_type">{{$psItemVal->inbound_type?? ''}}</td>
+                                    <td data-td="inbound_user_name">{{$psItemVal->inbound_user_name?? ''}}</td>
+                                @endif
                                 <td>
                                     <input type="text" class="form-control form-control-sm -xl" name="memo[]"
                                            value="{{ old('memo.'. $psItemKey, $psItemVal->memo?? '') }}"/>
