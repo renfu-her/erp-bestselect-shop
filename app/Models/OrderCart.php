@@ -87,7 +87,7 @@ class OrderCart extends Model
 
                     break;
                 case 'deliver':
-                    $shipment = Product::getShipment($value['product_id'])->where('g.id', $value['product_style_id'])->get()->first();
+                    $shipment = Product::getShipment($value['product_id'])->where('g.id', $value['shipment_event_id'])->get()->first();
 
                     if (!$shipment) {
                         return ['success' => 0, 'error_msg' => '無運送方式', 'event' => 'product', 'event_id' => $value['product_style_id']];
