@@ -49,18 +49,11 @@ class DeliveryCtrl extends Controller
         }
 
         // 出貨單號ID
-        $delivery = Delivery::createData(
-            Event::order()->value
-            , $sub_order->id
-            , $sub_order->sn
-            , $sub_order->ship_temp_id
-            , $sub_order->ship_temp
-            , $sub_order->ship_category
-            , $sub_order->ship_category_name
-            , $sub_order->ship_group_id);
+        $delivery = Delivery::getData(Event::order()->value, $sub_order->id)->get();
         $delivery_id = null;
-        if (isset($delivery['id'])) {
-            $delivery_id = $delivery['id'];
+        if (null != $delivery) {
+            $deliveryGet = $delivery->first();
+            $delivery_id = $deliveryGet->id;
         }
         if (null != $delivery_id) {
             $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
