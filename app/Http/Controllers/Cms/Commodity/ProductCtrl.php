@@ -55,7 +55,7 @@ class ProductCtrl extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
 
         return view('cms.commodity.product.basic_info', [
@@ -64,6 +64,7 @@ class ProductCtrl extends Controller
             'users' => User::get(),
             'suppliers' => Supplier::get(),
             'categorys' => Category::get(),
+            'current_user' => $request->user()->id,
             'images' => [],
         ]);
     }
@@ -211,7 +212,7 @@ class ProductCtrl extends Controller
         $product = self::product_data($id);
         $specList = ProductSpec::specList($id);
         $styles = ProductStyle::styleList($id)->get()->toArray();
-       // dd($styles);
+        // dd($styles);
         $init_styles = [];
         if (count($styles) == 0) {
             $init_styles = ProductStyle::createInitStyles($id);
@@ -406,7 +407,7 @@ class ProductCtrl extends Controller
      */
     public function editSale($id)
     {
-        
+
         $product = self::product_data($id);
         $specList = ProductSpec::specList($id);
         $styles = ProductStyle::where('product_id', $id)->get()->toArray();
@@ -478,8 +479,7 @@ class ProductCtrl extends Controller
      */
     public function editPrice($id, $sid)
     {
-       // dd('aa');
-      
+        // dd('aa');
 
         $product = Product::productList(null, $id, ['user' => true, 'supplier' => true])->get()->first();
         $style = ProductStyle::where('id', $sid)->get()->first();
