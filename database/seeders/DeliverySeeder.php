@@ -19,49 +19,6 @@ class DeliverySeeder extends Seeder
      */
     public function run()
     {
-        DB::table('dlv_logistic_status')->insert([
-            [
-                'title' => '新增',
-                'content' => '',
-                'code' => 'a10',
-            ],
-            [
-                'title' => '檢貨中',
-                'content' => '',
-                'code' => 'a20',
-            ],
-            [
-                'title' => '理貨中',
-                'content' => '',
-                'code' => 'a30',
-            ],
-            [
-                'title' => '待配送',
-                'content' => '',
-                'code' => 'a40',
-            ],
-            [
-                'title' => '配送中',
-                'content' => '',
-                'code' => 'b10',
-            ],
-            [
-                'title' => '已送達',
-                'content' => '',
-                'code' => 'b20',
-            ],
-            [
-                'title' => '未送達',
-                'content' => '',
-                'code' => 'b30',
-            ],
-            [
-                'title' => '訂單取消',
-                'content' => '',
-                'code' => 'd40',
-            ],
-        ]);
-
         $sub_order = SubOrders::getListWithShiGroupById(3)->get()->first();
 
         $delivery = Delivery::createData(

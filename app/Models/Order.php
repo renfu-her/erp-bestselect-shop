@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Delivery\Event;
 use App\Enums\Order\UserAddrType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -210,6 +211,22 @@ class Order extends Model
                 }
 
                 $subOrderId = DB::table('ord_sub_orders')->insertGetId($insertData);
+
+                //TODO 目前做DEMO 在新增訂單時，就新增出貨單，若未來串好付款，則在付款完畢後才新增出貨單
+                $reDelivery = Delivery::createData(
+                    Event::order()->value
+                    , $subOrderId
+                    , $insertData['sn']
+                    , $insertData['ship_temp_id'] ?? null
+                    , $insertData['ship_temp'] ?? null
+                    , $insertData['ship_category'] ?? null
+                    , $insertData['ship_category_name'] ?? null
+                    , $insertData['$ship_group_id'] ?? null
+                );
+                if ($reDelivery['success'] == 0) {
+                    DB::rollBack();
+                    return $reDelivery;
+                }
 
                 foreach ($value->products as $product) {
 
