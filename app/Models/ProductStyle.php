@@ -168,6 +168,7 @@ class ProductStyle extends Model
                     ->count()) + 1, 2, '0', STR_PAD_LEFT);
 
             self::where('id', $id)->update(['sku' => $sku]);
+            Product::where('id', $product_id)->update(['spec_locked' => 1]);
             return true;
         });
     }
