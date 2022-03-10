@@ -72,7 +72,7 @@
                             <option value="" selected disabled>請選擇</option>
                             @foreach ($supplierList as $supplierItem)
                                 <option value="{{ $supplierItem->id }}"
-                                        @if ($supplierItem->id == old('supplier', $purchaseData->supplier_id ?? '')) selected @endif>
+                                        @if ($supplierItem->id == old('supplier')) selected @endif>
                                     {{ $supplierItem->name }}@if ($supplierItem->nickname)（{{ $supplierItem->nickname }}） @endif
                                 </option>
                             @endforeach
@@ -83,7 +83,7 @@
                             @enderror
                         </div>
                     @endif
-                    <input type="hidden" name="supplier" value="{{ $purchaseData->supplier_id }}">
+                    <input type="hidden" name="supplier" value="{{ $purchaseData->supplier_id?? '' }}">
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">廠商預計進貨日期 <span class="text-danger">*</span></label>
@@ -247,7 +247,7 @@
                         @if ($hasLogistics) hidden @endif>
                         <i class="bi bi-plus-lg"></i> 新增物流
                     </button>
-                    <button class="btn btn-outline-danger -del" type="button" 
+                    <button class="btn btn-outline-danger -del" type="button"
                         @if (!$hasLogistics) hidden @endif @if($hasCreatedFinalPayment) disabled @endif>
                         <i class="bi bi-trash"></i> 刪除物流
                     </button>
