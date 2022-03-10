@@ -39,13 +39,15 @@
                         <div class="px-1 pt-1">
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" name="tax" type="radio" required>
+                                    <input class="form-check-input" name="tax" type="radio" value="1" required
+                                           @if (1 === $purchaseData->has_tax ?? '') checked @endif>
                                     應稅
                                 </label>
                             </div>
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" name="tax" type="radio" required>
+                                    <input class="form-check-input" name="tax" type="radio" value="0" required
+                                           @if (0 === $purchaseData->has_tax ?? '') checked @endif>
                                     免稅
                                 </label>
                             </div>
@@ -104,7 +106,8 @@
                 @if ($method === 'edit')
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">廠商訂單號</label>
-                        <input class="form-control" name="" type="text" placeholder="請輸入廠商訂單號" aria-label="廠商訂單號">
+                        <input class="form-control" name="supplier_sn" type="text" placeholder="請輸入廠商訂單號" aria-label="廠商訂單號"
+                               value="{{ old('supplier_sn', $purchaseData->supplier_sn  ?? '') }}">
                     </div>
                 @endif
             </div>
