@@ -22,25 +22,17 @@
             <div class="card shadow p-4 mb-4">
                 <h6>基本資訊</h6>
                 <div class="row">
-                    <x-b-form-group name="account" title="新增人員" required="true">
-                        <div class="col-form-label">{{ $purchaseData->user_name ?? '' }}</div>
-                    </x-b-form-group>
+                    <div class="col-12 col-sm-6 mb-3">
+                        <label class="form-label">新增人員</label>
+                        <div class="form-control" readonly>{{ $purchaseData->user_name ?? '-' }}</div>
+                    </div>
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">狀態</label>
-                        <select class="form-select" name="" aria-label="狀態">
-                            <option value="">請選擇</option>
-                            <option value="1">item 1</option>
-                            <option value="2">item 2</option>
-                            <option value="3">item 3</option>
-                        </select>
+                        <div class="form-control" readonly>-</div>
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">入庫人員</label>
-                        <select name="" multiple class="-select2 -multiple form-select" data-placeholder="可多選">
-                            <option value="1">item 1</option>
-                            <option value="2">item 2</option>
-                            <option value="3">item 3</option>
-                        </select>
+                        <div class="form-control" readonly>-</div>
                     </div>
                     <fieldset class="col-12 col-sm-6 mb-3">
                         <legend class="col-form-label p-0 mb-2">課稅別 <span class="text-danger">*</span></legend>
@@ -67,24 +59,29 @@
             <h6>廠商資訊</h6>
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">採購廠商{{$purchaseData->supplier_id ?? ''}} <span class="text-danger">*</span></label>
-                    <select id="supplier" @if ($method === 'edit') disabled @endif
-                    class="form-select -select2 -single @error('supplier') is-invalid @enderror"
-                            aria-label="採購廠商" required>
-                        <option value="" selected disabled>請選擇</option>
-                        @foreach ($supplierList as $supplierItem)
-                            <option value="{{ $supplierItem->id }}"
-                                    @if ($supplierItem->id == old('supplier', $purchaseData->supplier_id ?? '')) selected @endif>
-                                {{ $supplierItem->name }}@if ($supplierItem->nickname)（{{ $supplierItem->nickname }}） @endif
-                            </option>
-                        @endforeach
-                    </select>
-                    <input type="hidden" name="supplier" value="">
-                    <div class="invalid-feedback">
-                        @error('supplier')
-                        {{ $message }}
-                        @enderror
-                    </div>
+                    <label class="form-label">採購廠商 <span class="text-danger">*</span></label>
+                    @if ($method === 'edit')
+                        <div class="form-control" readonly>
+                            {{ $purchaseData->supplier_name }}@if ($purchaseData->supplier_nickname)（{{ $purchaseData->supplier_nickname }}） @endif
+                        </div>
+                    @else
+                        <select id="supplier" aria-label="採購廠商" required
+                            class="form-select -select2 -single @error('supplier') is-invalid @enderror">
+                            <option value="" selected disabled>請選擇</option>
+                            @foreach ($supplierList as $supplierItem)
+                                <option value="{{ $supplierItem->id }}"
+                                        @if ($supplierItem->id == old('supplier', $purchaseData->supplier_id ?? '')) selected @endif>
+                                    {{ $supplierItem->name }}@if ($supplierItem->nickname)（{{ $supplierItem->nickname }}） @endif
+                                </option>
+                            @endforeach
+                        </select>
+                        <div class="invalid-feedback">
+                            @error('supplier')
+                            {{ $message }}
+                            @enderror
+                        </div>
+                    @endif
+                    <input type="hidden" name="supplier" value="{{ $purchaseData->supplier_id }}">
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">廠商預計進貨日期 <span class="text-danger">*</span></label>
@@ -116,7 +113,7 @@
         <div class="card shadow p-4 mb-4">
             <h6>採購清單</h6>
             <div class="table-responsive tableOverBox">
-                <table class="table table-hover tableList mb-1">
+                <table class="table table-hover tableList mb-0">
                     <thead>
                     <tr>
                         <th scope="col" class="text-center">刪除</th>
@@ -193,6 +190,15 @@
                         @endforeach
                     @endif
                     </tbody>
+                    <tfoot>
+                        <tr>
+                            <th class="lh-1"></th>
+                            <th class="lh-1"></th>
+                            <th class="lh-1"></th>
+                            <th class="lh-1">價錢小計</th>
+                            <th class="lh-1 text-end -sum">$ 0</th>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
             <div class="d-grid mt-3">
@@ -405,6 +411,7 @@
                 // } else {
                 //     changeRemittance();
                 // }
+                $('input:hidden[name="supplier"]').val($('#supplier').val());
             });
 
             //變更匯款資料
@@ -465,9 +472,14 @@
                     if (!$('.-cloneElem.--selectedP').length) {
                         $('button[type="submit"]').prop('disabled', true);
                     }
+                    sumPrice();
                 }
             };
             Clone_bindDelElem($('.-cloneElem.--selectedP .-del'), delItemOption);
+            // init bind
+            bindPriceSum();
+            sumPrice();
+
             // 無商品不可儲存
             if (!$('.-cloneElem.--selectedP').length) {
                 $('button[type="submit"]').prop('disabled', true);
@@ -492,7 +504,7 @@
                 let _URL = `${Laravel.apiUrl.productStyles}?page=${page}`;
                 let Data = {
                     keyword: $('#addProduct .-searchBar input').val(),
-                    supplier_id: $('#supplier').val()
+                    supplier_id: $('input:hidden[name="supplier"]').val()
                 };
 
                 if (!Data.supplier_id) {
@@ -590,6 +602,7 @@
                 if ($('.-cloneElem.--selectedP').length) {
                     $('#supplier').prop('disabled', true);
                 }
+                bindPriceSum();
 
                 // 關閉懸浮視窗
                 addProductModal.hide();
@@ -624,6 +637,24 @@
                 $('#addProduct .-checkedNum').text('已選取 0 件商品');
                 $('.-emptyData').hide();
             });
+
+            // 綁定計算
+            function bindPriceSum() {
+                $('.-cloneElem.--selectedP input[name="price[]"]')
+                .off('change.sum').on('change.sum', function () {
+                    sumPrice();
+                });
+            }
+            // 計算小計
+            function sumPrice() {
+                let sum = 0;
+                $('.-cloneElem.--selectedP input[name="price[]"]').each(function (index, element) {
+                    // element == this
+                    const val = Number($(this).val());
+                    sum = Number((sum + val).toFixed(2));
+                });
+                $('tfoot th.-sum').text(`$ ${formatNumber(sum.toFixed(2))}`);
+            }
         </script>
     @endpush
 @endonce
