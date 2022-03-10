@@ -222,6 +222,8 @@ class Delivery extends Model
             $query->whereBetween('delivery.created_at', [date((string) $param['delivery_sdate']), date((string) $param['delivery_edate'])]);
         }
         $query->orderBy('delivery.created_at');
+
+        $query->whereNotNull('delivery_id');
         return $query;
     }
 }
