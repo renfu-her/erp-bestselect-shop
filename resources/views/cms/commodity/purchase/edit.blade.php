@@ -394,7 +394,7 @@
             // -刪除
             $('#logistics button.-del').off('click').on('click', function () {
                 $('#logistics div.row, #logistics button.-del').prop('hidden', true);
-                $('#logistics input[name^="logistics_"]').prop('disabled', true);
+                $('#logistics input[name^="logistics_"]').val('');
                 $('#logistics input[name="logistics_price"]').prop('required', false);
                 $('#logistics button.-add').prop('hidden', false);
             });
