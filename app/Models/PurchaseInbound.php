@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\Globals\ResponseParam;
 use App\Enums\Purchase\InboundStatus;
 use App\Enums\Purchase\LogEventFeature;
 use App\Enums\Purchase\LogEvent;
@@ -218,7 +217,8 @@ class PurchaseInbound extends Model
             ->selectRaw('sum(inbound.inbound_num) as inbound_num')
             ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_name) as inbound_user_name') //入庫人員
             ->groupBy('inbound.purchase_id')
-            ->groupBy('inbound.product_style_id');
+            ->groupBy('inbound.product_style_id')
+            ->groupBy('inbound_user_name');
 
         $queryTotalInboundNum = '( COALESCE(sum(items.num), 0) - COALESCE((inbound.inbound_num), 0) )'; //應進數量
 
@@ -259,6 +259,7 @@ class PurchaseInbound extends Model
                 , 'styles.title'
                 , 'users.name'
                 , 'inbound.inbound_num'
+                , 'inbound.inbound_user_name'
             )
             ->orderBy('purchase.id')
             ->orderBy('items.product_style_id')
