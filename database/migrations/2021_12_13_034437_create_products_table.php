@@ -76,5 +76,6 @@ class CreateProductsTable extends Migration
         Schema::dropIfExists('prd_product_images');
         Schema::dropIfExists('prd_product_supplier');
         Schema::dropIfExists('prd_product_shipment');
+        Schema::dropIfExists('prd_speclists');
     }
 }
