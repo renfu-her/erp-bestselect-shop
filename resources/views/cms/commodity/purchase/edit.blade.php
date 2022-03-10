@@ -448,7 +448,9 @@
 
             // 儲存前設定name
             $('#form1').submit(function(e) {
-                $('input:hidden[name="supplier"]').val($('#supplier').val());
+                if ($('#supplier').length) {
+                    $('input:hidden[name="supplier"]').val($('#supplier').val());
+                }
             });
         </script>
         <script>
