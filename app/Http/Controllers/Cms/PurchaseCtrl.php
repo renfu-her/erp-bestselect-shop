@@ -131,6 +131,7 @@ class PurchaseCtrl extends Controller
 
         $purchaseReq = $request->only('supplier', 'scheduled_date');
         $purchaseItemReq = $request->only('product_style_id', 'name', 'sku', 'num', 'price', 'memo');
+        $purchasePayReq = $request->only('logistics_price', 'logistics_memo', 'invoice_num', 'invoice_date');
 
         $supplier = Supplier::where('id', '=', $purchaseReq['supplier'])->get()->first();
         $rePcs = Purchase::createPurchase(
@@ -140,6 +141,10 @@ class PurchaseCtrl extends Controller
             $request->user()->id,
             $request->user()->name,
             $purchaseReq['scheduled_date'],
+            $purchasePayReq['logistics_price'],
+            $purchasePayReq['logistics_memo'],
+            $purchasePayReq['invoice_num'],
+            $purchasePayReq['invoice_date'],
         );
         $purchaseID = null;
         if (isset($rePcs['id'])) {
@@ -275,6 +280,7 @@ class PurchaseCtrl extends Controller
 
         $purchaseReq = $request->only('supplier', 'scheduled_date');
         $purchaseItemReq = $request->only('item_id', 'product_style_id', 'name', 'sku', 'num', 'price', 'memo');
+        $purchasePayReq = $request->only('logistics_price', 'logistics_memo', 'invoice_num', 'invoice_date');
 
 
         //判斷是否有付款單，有則不可新增刪除商品款式
@@ -297,7 +303,7 @@ class PurchaseCtrl extends Controller
         }
 
         $changeStr = '';
-        $repcsCTPD = Purchase::checkToUpdatePurchaseData($id, $purchaseReq, $changeStr, $request->user()->id, $request->user()->name);
+        $repcsCTPD = Purchase::checkToUpdatePurchaseData($id, $purchaseReq, $changeStr, $request->user()->id, $request->user()->name, $purchasePayReq);
         $changeStr .= $repcsCTPD['error_msg'];
 
         $purchaseGet = Purchase::where('id', '=', $id)->get()->first();
@@ -317,7 +323,7 @@ class PurchaseCtrl extends Controller
                 //有值則做更新
                 //itemId = null 代表新資料
                 if (null != $itemId) {
-                    $result = PurchaseItem::checkToUpdatePurchaseItemData($itemId, $purchaseItemReq, $key, $changeStr, $request->user()->id, $request->user()->name);
+                    $result = PurchaseItem::checkToUpdatePurchaseItemData($itemId, $purchaseItemReq, $key, $changeStr, $request->user()->id, $request->user()->name, $purchasePayReq);
                     $changeStr = $result['error_msg'];
                 } else {
                     $changeStr .= ' add item:' . $purchaseItemReq['name'][$key];
