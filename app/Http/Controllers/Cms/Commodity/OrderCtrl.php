@@ -262,8 +262,9 @@ class OrderCtrl extends Controller
     {
 
         $order = Order::orderDetail($id)->get()->first();
+        
         $subOrder = Order::subOrderDetail($id)->get()->toArray();
-
+        
         foreach ($subOrder as $key => $value) {
             $subOrder[$key]->items = json_decode($value->items);
         }
