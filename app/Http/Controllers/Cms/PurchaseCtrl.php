@@ -381,15 +381,17 @@ class PurchaseCtrl extends Controller
         $returnMsg = [];
         $inbounds = PurchaseInbound::inboundList($id)->get()->toArray();
         $payingOrderList = PayingOrder::getPayingOrdersWithPurchaseID($id)->get();
-        if (null != $inbounds && 0 < count($inbounds) && 0 >= count($payingOrderList)) {
+        if (null != $inbounds && 0 < count($inbounds)) {
+            $returnMsg = '已入庫無法刪除';
+        } else if (null != $payingOrderList && 0 < count($payingOrderList)) {
+            $returnMsg = '已有付款單無法刪除';
+        } else {
             $result = Purchase::del($id, $request->user()->id, $request->user()->name);
             if ($result['success'] == 0) {
                 wToast($result['error_msg']);
             } else {
                 $returnMsg = __('Delete finished.');
             }
-        } else {
-            $returnMsg = '已入庫無法刪除';
         }
 
         wToast($returnMsg);
