@@ -14,6 +14,9 @@
     <button type="submit" class="btn btn-primary">新增細項</button>
     <button type="submit" class="btn btn-primary">變更支付對象</button>
     <button type="submit" class="btn btn-primary">取消訂金折抵</button>
+{{--    <button type="button" class="btn btn-primary">--}}
+{{--        <a href="{{ Route('cms.ap.create', ['id' => $id], true) }}" class="text-white">付款</a>--}}
+{{--    </button>--}}
     <button type="submit" class="btn btn-danger">中一刀列印畫面</button>
     <button type="submit" class="btn btn-danger">A4列印畫面</button>
     <button type="submit" class="btn btn-danger">圖片管理</button>
