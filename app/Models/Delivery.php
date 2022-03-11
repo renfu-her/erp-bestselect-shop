@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Delivery\Event;
+use App\Helpers\IttmsUtils;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -200,11 +201,11 @@ class Delivery extends Model
                 , 'query_order.*'
                 , 'query_receive_depot.*'
             );
-        if (isset($param['event_sn'])) {
-            $query->where('delivery.event_sn', '=', $param['event_sn']);
-        }
         if (isset($param['delivery_sn'])) {
             $query->where('delivery.sn', '=', $param['delivery_sn']);
+        }
+        if (isset($param['event_sn'])) {
+            $query->where('delivery.event_sn', '=', $param['event_sn']);
         }
         if (isset($param['receive_depot_id']) && 0 < count($param['receive_depot_id'])) {
             $query->whereIn('query_receive_depot.depot_id', $param['receive_depot_id']);

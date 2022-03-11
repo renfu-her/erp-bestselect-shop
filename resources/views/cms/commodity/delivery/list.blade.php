@@ -8,12 +8,12 @@
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">出貨單號</label>
-                    <input class="form-control" value="{{ $searchParam['event_sn'] }}" type="text" name="event_sn"
+                    <input class="form-control" value="{{ $searchParam['delivery_sn'] }}" type="text" name="delivery_sn"
                            placeholder="輸入出貨單號">
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">單據編號</label>
-                    <input class="form-control" value="{{ $searchParam['delivery_sn'] }}" type="text" name="delivery_sn"
+                    <input class="form-control" value="{{ $searchParam['event_sn'] }}" type="text" name="event_sn"
                            placeholder="輸入訂購單、轉倉單號">
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
@@ -118,6 +118,7 @@
                         <th scope="col">單據編號</th>
                         <th scope="col">寄件倉</th>
                         <th scope="col">物態</th>
+                        <th scope="col">物流分類</th>
                         <th scope="col">寄件人姓名</th>
                         <th scope="col">收件人姓名</th>
                         <th scope="col">收件人地址</th>
@@ -132,6 +133,7 @@
                             <td>{{ $data->event_sn }}</td>
                             <td>{{ $data->depot_name }}</td>
                             <td>{{ $data->logistic_status }}</td>
+                            <td>{{ $data->method }}</td>
                             <td>{{ $data->rec_name }}</td>
                             <td>{{ $data->ord_name }}</td>
                             <td>{{ $data->ord_address }}</td>

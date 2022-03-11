@@ -18,8 +18,8 @@ class DeliveryCtrl extends Controller
     {
         $query = $request->query();
         $cond = [];
-        $cond['event_sn'] = Arr::get($query, 'event_sn', null);
         $cond['delivery_sn'] = Arr::get($query, 'delivery_sn', null);
+        $cond['event_sn'] = Arr::get($query, 'event_sn', null);
         $cond['receive_depot_id'] = Arr::get($query, 'receive_depot_id', []);
         $cond['ship_method'] = Arr::get($query, 'ship_method', null);
         $cond['logistic_status_id'] = Arr::get($query, 'logistic_status_id', null);
