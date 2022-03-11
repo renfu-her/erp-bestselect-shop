@@ -68,7 +68,7 @@
                         </div>
                     @else
                         <select id="supplier" aria-label="採購廠商" required
-                            class="form-select -select2 -single @error('supplier') is-invalid @enderror">
+                                class="form-select -select2 -single @error('supplier') is-invalid @enderror">
                             <option value="" selected disabled>請選擇</option>
                             @foreach ($supplierList as $supplierItem)
                                 <option value="{{ $supplierItem->id }}"
@@ -198,13 +198,13 @@
                     @endif
                     </tbody>
                     <tfoot>
-                        <tr>
-                            <th class="lh-1"></th>
-                            <th class="lh-1"></th>
-                            <th class="lh-1"></th>
-                            <th class="lh-1">價錢小計</th>
-                            <th class="lh-1 text-end -sum">$ 0</th>
-                        </tr>
+                    <tr>
+                        <th class="lh-1"></th>
+                        <th class="lh-1"></th>
+                        <th class="lh-1"></th>
+                        <th class="lh-1">價錢小計</th>
+                        <th class="lh-1 text-end -sum">$ 0</th>
+                    </tr>
                     </tfoot>
                 </table>
             </div>
@@ -215,19 +215,19 @@
                 @error('item_error')
                 <div class="alert alert-danger mt-3">{{ $message }}</div>
                 @enderror
-                @if(false == ($isAlreadyFinalPay?? false))
-                <button id="addProductBtn" type="button"
-                        class="btn btn-outline-primary border-dashed" style="font-weight: 500;">
-                    <i class="bi bi-plus-circle bold"></i> 加入商品
-                </button>
+                @if(false == ($hasCreatedFinalPayment?? false))
+                    <button id="addProductBtn" type="button"
+                            class="btn btn-outline-primary border-dashed" style="font-weight: 500;">
+                        <i class="bi bi-plus-circle bold"></i> 加入商品
+                    </button>
                 @endif
             </div>
         </div>
 
         @if ($method === 'edit')
-        @php
-            $hasLogistics = $purchaseData->logistics_price !== 0 || !empty($purchaseData->logistics_memo);
-        @endphp
+            @php
+                $hasLogistics = $purchaseData->logistics_price !== 0 || !empty($purchaseData->logistics_memo);
+            @endphp
             <div id="logistics" class="card shadow p-4 mb-4">
                 <h6>物流</h6>
                 <div class="row mb-3" @if (!$hasLogistics) hidden @endif >
@@ -248,11 +248,11 @@
                 </div>
                 <div class="col-auto">
                     <button class="btn btn-primary -add" type="button" role="button"
-                        @if ($hasLogistics) hidden @endif>
+                            @if ($hasLogistics) hidden @endif>
                         <i class="bi bi-plus-lg"></i> 新增物流
                     </button>
                     <button class="btn btn-outline-danger -del" type="button"
-                        @if (!$hasLogistics) hidden @endif @if($hasCreatedFinalPayment) disabled @endif>
+                            @if (!$hasLogistics) hidden @endif @if($hasCreatedFinalPayment) disabled @endif>
                         <i class="bi bi-trash"></i> 刪除物流
                     </button>
                 </div>
@@ -320,8 +320,8 @@
         <div id="submitDiv">
             <div class="col-auto">
                 <input type="hidden" name="del_item_id">
-                @if(false == ($isAlreadyFinalPay?? false) && (null == ($purchaseData?? null) || null == $purchaseData->close_date))
-                <button type="submit" class="btn btn-primary px-4">儲存</button>
+                @if(false == ($hasCreatedFinalPayment?? false) && (null == ($purchaseData?? null) || null == $purchaseData->close_date))
+                    <button type="submit" class="btn btn-primary px-4">儲存</button>
                 @endif
                 <a href="{{ Route('cms.purchase.index', [], true) }}" class="btn btn-outline-primary px-4"
                    role="button">返回列表</a>
@@ -390,9 +390,9 @@
     @push('sub-scripts')
         <script>
             let supplierList = @json($supplierList);
-            let isAlreadyFinalPay = @json($isAlreadyFinalPay?? false);
+            let hasCreatedFinalPayment = @json($hasCreatedFinalPayment?? false);
 
-            if (true == isAlreadyFinalPay) {
+            if (true == hasCreatedFinalPayment) {
                 $('.-cloneElem.--selectedP :input').prop("disabled", true);
             }
 
@@ -655,7 +655,7 @@
             // 綁定計算
             function bindPriceSum() {
                 $('.-cloneElem.--selectedP input[name="price[]"]')
-                .off('change.sum').on('change.sum', function () {
+                    .off('change.sum').on('change.sum', function () {
                     sumPrice();
                 });
             }

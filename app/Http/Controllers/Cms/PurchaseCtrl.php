@@ -247,18 +247,16 @@ class PurchaseCtrl extends Controller
             $inbound_names = implode(',', $inbound_name_arr);
         }
 
-        $hasCreatedDepositPayment = false;
-        $hasCreatedFinalPayment = false;
+        $hasCreatedDepositPayment = false;  // 是否已有訂金單
+        $hasCreatedFinalPayment = false;  // 是否已有尾款單
         //TODO 讀取「付款作業」相關的database table欄位來決定是否以付款, 目前尚未設計， 暫定true
         $hasReceivedDepositPayment = true;
         $hasReceivedFinalPayment = true;
-        $isAlreadyFinalPay = false;  // 是否已有尾款單
         $payingOrderList = PayingOrder::getPayingOrdersWithPurchaseID($id)->get();
 
         $depositPayData = null;
         $finalPayData = null;
         if (0 < count($payingOrderList)) {
-            $isAlreadyFinalPay = true;
             foreach ($payingOrderList as $payingOrderItem) {
                 if ($payingOrderItem->type === 0) {
                     $hasCreatedDepositPayment = true;
@@ -285,7 +283,6 @@ class PurchaseCtrl extends Controller
             'hasReceivedFinalPayment'   => $hasReceivedFinalPayment,
             'depositPayData'            => $depositPayData,
             'finalPayData'              => $finalPayData,
-            'isAlreadyFinalPay' => $isAlreadyFinalPay,
             'method' => 'edit',
             'supplierList' => $supplierList,
             'formAction' => Route('cms.purchase.edit', ['id' => $id]),
