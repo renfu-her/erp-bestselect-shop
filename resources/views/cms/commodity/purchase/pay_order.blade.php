@@ -139,13 +139,15 @@
                                     <td>{{ $purchaseItem->memo }}</td>
                                 </tr>
                             @endforeach
-                            <tr>
-                                <td>訂金抵扣（訂金付款單號{{ $depositPaymentData->sn }}）</td>
-                                <td>1</td>
-                                <td>-{{ number_format($depositPaymentData->price, 2) }}</td>
-                                <td>-{{ number_format($depositPaymentData->price) }}</td>
-                                <td></td>
-                            </tr>
+                            @if(!is_null($depositPaymentData))
+                                <tr>
+                                    <td>訂金抵扣（訂金付款單號{{ $depositPaymentData->sn }}）</td>
+                                    <td>1</td>
+                                    <td>-{{ number_format($depositPaymentData->price, 2) }}</td>
+                                    <td>-{{ number_format($depositPaymentData->price) }}</td>
+                                    <td></td>
+                                </tr>
+                            @endif
                             <tr class="table-light">
                                 <td>合計：</td>
                                 <td></td>

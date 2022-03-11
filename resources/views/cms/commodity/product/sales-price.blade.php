@@ -67,8 +67,7 @@
                     </thead>
                     <tbody>
                         @foreach ($sales as $styleKey => $sale)
-                            <tr
-                                @if ($sale->is_master == '1') class="table-warning" @else data-discount="{{ $sale->discount }}" @endif>
+                            <tr @if ($sale->is_master == '1') class="table-warning" @else data-discount="{{ $sale->discount }}" @endif>
                                 <th scope="row">
                                     {{ $sale->title }}
                                     <input type="hidden" name="sale_channel_id[]" value="{{ $sale->sale_id }}">
