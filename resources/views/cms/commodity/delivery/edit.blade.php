@@ -73,7 +73,7 @@
                                         <tfoot class="border-top-0">
                                             <tr>
                                                 <td colspan="5">
-                                                    <input type="hidden" class="-ord" value="{{ $ord->product_style_id }}" data-sku="{{ $ord->sku }}" 
+                                                    <input type="hidden" class="-ord" value="{{ $ord->product_style_id }}" data-sku="{{ $ord->sku }}"
                                                         data-title="{{ $ord->product_title }}" @if($ord->combo_product_title) data-subtitle="{{$ord->combo_product_title}}" @endif
                                                         data-qty="{{ $ord->qty }}" data-item="{{ $ord->item_id }}">
                                                     <button data-idx="{{ $key + 1 }}" type="button" class="btn -add btn-outline-primary btn-sm border-dashed w-100" style="font-weight: 500;">
@@ -99,7 +99,9 @@
         <div id="submitDiv">
             <div class="col-auto">
                 <button type="submit" class="btn btn-primary px-4" @if (isset($delivery->close_date)) disabled @endif>送出審核</button>
-                <a href="{{ Route('cms.order.detail', ['id' => $order_id]) }}" class="btn btn-outline-primary px-4" role="button">前往訂單明細</a>
+                @if($delivery->event == App\Enums\Delivery\Event::order()->value)
+                    <a href="{{ Route('cms.order.detail', ['id' => $order_id, 'subOrderId' => $delivery->id ]) }}" class="btn btn-outline-primary px-4" role="button">前往訂單明細</a>
+                @endif
             </div>
         </div>
     </form>
@@ -176,7 +178,7 @@
             const DelUrl = "{{ Route('cms.delivery.delete', ['subOrderId'=>$sub_order_id, 'receiveDepotId'=>'#'], true) }}".replace('#', '');
             const DeliveryId = @json($delivery_id);
             const Readonly = @json(isset($delivery->close_date));
-            
+
             // init
             DvySumExportQty();
             DvyCheckSubmit(Readonly);
