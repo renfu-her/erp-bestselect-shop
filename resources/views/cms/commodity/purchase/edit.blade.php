@@ -40,14 +40,16 @@
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
                                     <input class="form-check-input" name="tax" type="radio" value="1" required
-                                           @if (1 === $purchaseData->has_tax ?? '') checked @endif>
+                                        @if ($hasCreatedFinalPayment) disabled @endif
+                                        @if (1 === $purchaseData->has_tax ?? '') checked @endif>
                                     應稅
                                 </label>
                             </div>
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
                                     <input class="form-check-input" name="tax" type="radio" value="0" required
-                                           @if (0 === $purchaseData->has_tax ?? '') checked @endif>
+                                        @if ($hasCreatedFinalPayment) disabled @endif
+                                        @if (0 === $purchaseData->has_tax ?? '') checked @endif>
                                     免稅
                                 </label>
                             </div>
@@ -83,31 +85,39 @@
                             @enderror
                         </div>
                     @endif
-                    <input type="hidden" name="supplier" value="{{ $purchaseData->supplier_id?? '' }}">
+                    <input type="hidden" name="supplier" value="{{ $purchaseData->supplier_id ?? '' }}">
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">廠商預計進貨日期 <span class="text-danger">*</span></label>
-                    <div class="input-group has-validation">
-                        <input type="date" id="scheduled_date" name="scheduled_date"
-                               value="{{ old('scheduled_date', $purchaseData->scheduled_date  ?? '') }}"
-                               class="form-control @error('scheduled_date') is-invalid @enderror" aria-label="廠商預計進貨日期"
-                               required/>
-                        <button class="btn btn-outline-secondary icon" type="button" data-clear
-                                data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
-                        </button>
-                        <div class="invalid-feedback">
-                            @error('scheduled_date')
-                            {{ $message }}
-                            @enderror
+                    @if ($hasCreatedFinalPayment)
+                        <div class="form-control" readonly>
+                            {{ empty($purchaseData->scheduled_date) ? '-' : date('Y/m/d', strtotime($purchaseData->scheduled_date)) }}
                         </div>
-                    </div>
+                    @else
+                        <div class="input-group has-validation">
+                            <input type="date" id="scheduled_date" name="scheduled_date"
+                                value="{{ old('scheduled_date', $purchaseData->scheduled_date  ?? '') }}"
+                                class="form-control @error('scheduled_date') is-invalid @enderror" aria-label="廠商預計進貨日期"
+                                required/>
+                            <button class="btn btn-outline-secondary icon" type="button" data-clear
+                                    data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
+                            </button>
+                            <div class="invalid-feedback">
+                                @error('scheduled_date')
+                                {{ $message }}
+                                @enderror
+                            </div>
+                        </div>
+                    @endif
+                    
                 </div>
 
                 @if ($method === 'edit')
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">廠商訂單號</label>
-                        <input class="form-control" name="supplier_sn" type="text" placeholder="請輸入廠商訂單號" aria-label="廠商訂單號"
-                               value="{{ old('supplier_sn', $purchaseData->supplier_sn  ?? '') }}">
+                        <input class="form-control" name="supplier_sn" type="text" aria-label="廠商訂單號"
+                               value="{{ old('supplier_sn', $purchaseData->supplier_sn  ?? '-') }}"
+                               @if ($hasCreatedFinalPayment) disabled @endif placeholder="請輸入廠商訂單號">
                     </div>
                 @endif
             </div>
@@ -237,7 +247,7 @@
                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                             <input class="form-control" name="logistics_price" type="number" min="0" placeholder="請輸入運費"
                                    value="{{ old('logistics_price', $purchaseData->logistics_price  ?? '') }}"
-                                   @if ($hasCreatedFinalPayment) readonly @endif
+                                   @if ($hasCreatedFinalPayment) disabled @endif
                                    @if ($hasLogistics) required @endif/>
                         </div>
                     </div>
@@ -245,7 +255,7 @@
                         <label class="form-label">物流備註</label>
                         <input class="form-control" name="logistics_memo" type="text" placeholder="請輸入物流備註" aria-label="物流備註"
                                value="{{ old('logistics_memo', $purchaseData->logistics_memo  ?? '') }}"
-                               @if ($hasCreatedFinalPayment) readonly @endif>
+                               @if ($hasCreatedFinalPayment) disabled @endif>
                     </div>
                 </div>
                 <div class="col-auto">
@@ -330,6 +340,8 @@
                 <input type="hidden" name="del_item_id">
                 @if(!$hasCreatedFinalPayment && $purchaseData->close_date == null)
                     <button type="submit" class="btn btn-primary px-4">儲存</button>
+                @else
+                    <button type="submit" class="btn btn-primary px-4">登錄發票</button>
                 @endif
                 <a href="{{ Route('cms.purchase.index', [], true) }}" class="btn btn-outline-primary px-4"
                    role="button">返回列表</a>
