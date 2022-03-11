@@ -194,44 +194,5 @@ class AccountingSeeder extends Seeder
 
     private function insertToAllGradeTable()
     {
-        $fourthCodeArray = DB::table('acc_fourth_grade')->select('code')->get();
-        foreach ($fourthCodeArray as $fourthCode) {
-            $fourthCode = $fourthCode->code;
-            $firstCode = substr($fourthCode, 0, 1);
-            $secondCode = substr($fourthCode, 0, 2);
-            $thirdCode = substr($fourthCode, 0, 4);
-
-            $firstGradeIdArray = DB::table('acc_first_grade')->where('code', '=', $firstCode)->select('id')->get();
-            $secondGradeIdArray = DB::table('acc_second_grade')->where('code', '=', $secondCode)->select('id')->get();
-            $thirdGradeIdArray = DB::table('acc_third_grade')->where('code', '=', $thirdCode)->select('id')->get();
-            $fourthGradeIdArray = DB::table('acc_fourth_grade')->where('code', '=', $fourthCode)->select('id')->get();
-
-            foreach ($firstGradeIdArray as $firstGradeId) {
-                DB::table('acc_all_grades')->insert([
-                    'acc_first_grade_fk' => $firstGradeId->id
-                ]);
-                foreach ($secondGradeIdArray as $secondGradeId) {
-                    DB::table('acc_all_grades')->insert([
-                        'acc_first_grade_fk' => $firstGradeId->id,
-                        'acc_second_grade_fk' => $secondGradeId->id,
-                    ]);
-                    foreach ($thirdGradeIdArray as $thirdGradeId) {
-                        DB::table('acc_all_grades')->insert([
-                            'acc_first_grade_fk' => $firstGradeId->id,
-                            'acc_second_grade_fk' => $secondGradeId->id,
-                            'acc_third_grade_fk' => $thirdGradeId->id,
-                        ]);
-                        foreach ($fourthGradeIdArray as $fourthGradeId) {
-                            DB::table('acc_all_grades')->insert([
-                                'acc_first_grade_fk' => $firstGradeId->id,
-                                'acc_second_grade_fk' => $secondGradeId->id,
-                                'acc_third_grade_fk' => $thirdGradeId->id,
-                                'acc_fourth_grade_fk' => $fourthGradeId->id,
-                            ]);
-                        }
-                    }
-                }
-            }
-        }
     }
 }
