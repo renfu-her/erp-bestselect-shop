@@ -85,7 +85,7 @@ class Order extends Model
             ->select('item.sub_order_id')
             ->selectRaw($concatString . ' as items')
             ->where('item.order_id', $order_id);
-
+       // dd($itemQuery->get()->toArray());
         if ($sub_order_id) {
             $itemQuery->where('item.sub_order_id', $sub_order_id);
         }
@@ -93,14 +93,18 @@ class Order extends Model
         $orderQuery = DB::table('ord_sub_orders as sub_order')
             ->leftJoinSub($itemQuery, 'i', function($join) {
                 $join->on('sub_order.id', '=', 'i.sub_order_id');
-            })
-            ->mergeBindings($itemQuery)
+            })    
+//->mergeBindings($itemQuery) ;
+            
             ->leftJoin('dlv_delivery', function($join) {
                 $join->on('dlv_delivery.event_id', '=', 'sub_order.id');
                 $join->where('dlv_delivery.event', '=', Event::order()->value);
             })
             ->select('sub_order.*', 'i.items', 'dlv_delivery.sn as delivery_sn')
             ->where('order_id', $order_id);
+            
+        
+     //   dd($orderQuery->get()->toArray());
 
         if ($sub_order_id) {
             $orderQuery->where('sub_order.id', $sub_order_id);
