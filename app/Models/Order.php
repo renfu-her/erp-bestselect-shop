@@ -225,7 +225,7 @@ class Order extends Model
                     , $insertData['ship_temp'] ?? null
                     , $insertData['ship_category'] ?? null
                     , $insertData['ship_category_name'] ?? null
-                    , $insertData['$ship_group_id'] ?? null
+                    , $insertData['ship_event_id'] ?? null
                 );
                 if ($reDelivery['success'] == 0) {
                     DB::rollBack();
