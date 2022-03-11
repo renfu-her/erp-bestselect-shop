@@ -24,7 +24,7 @@
                 <div class="row">
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">新增人員</label>
-                        <div class="form-control" readonly>{{ $purchaseData->user_name ?? '-' }}</div>
+                        <div class="form-control" readonly>{{ empty($purchaseData->user_name) ? '-' : $purchaseData->user_name }}</div>
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">狀態</label>
@@ -32,7 +32,7 @@
                     </div>
                     <div class="col-12 col-md-6 mb-3">
                         <label class="form-label">入庫人員</label>
-                        <div class="form-control" readonly>{{ $inbound_names ?? '-' }}</div>
+                        <div class="form-control" readonly>{{ empty($inbound_names) ? '-' : $inbound_names }}</div>
                     </div>
                     <fieldset class="col-12 col-sm-6 mb-3">
                         <legend class="col-form-label p-0 mb-2">課稅別 <span class="text-danger">*</span></legend>
@@ -68,7 +68,7 @@
                         </div>
                     @else
                         <select id="supplier" aria-label="採購廠商" required
-                                class="form-select -select2 -single @error('supplier') is-invalid @enderror">
+                            class="form-select -select2 -single @error('supplier') is-invalid @enderror">
                             <option value="" selected disabled>請選擇</option>
                             @foreach ($supplierList as $supplierItem)
                                 <option value="{{ $supplierItem->id }}"
@@ -237,24 +237,32 @@
                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                             <input class="form-control" name="logistics_price" type="number" min="0" placeholder="請輸入運費"
                                    value="{{ old('logistics_price', $purchaseData->logistics_price  ?? '') }}"
+                                   @if ($hasCreatedFinalPayment) readonly @endif
                                    @if ($hasLogistics) required @endif/>
                         </div>
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">物流備註</label>
                         <input class="form-control" name="logistics_memo" type="text" placeholder="請輸入物流備註" aria-label="物流備註"
-                               value="{{ old('logistics_memo', $purchaseData->logistics_memo  ?? '') }}">
+                               value="{{ old('logistics_memo', $purchaseData->logistics_memo  ?? '') }}"
+                               @if ($hasCreatedFinalPayment) readonly @endif>
                     </div>
                 </div>
                 <div class="col-auto">
-                    <button class="btn btn-primary -add" type="button" role="button"
+                    @if ($hasCreatedFinalPayment)
+                        @if (!$hasLogistics)
+                            <label class="text-secondary">無</label>
+                        @endif
+                    @else
+                        <button class="btn btn-primary -add" type="button" role="button"
                             @if ($hasLogistics) hidden @endif>
-                        <i class="bi bi-plus-lg"></i> 新增物流
-                    </button>
-                    <button class="btn btn-outline-danger -del" type="button"
-                            @if (!$hasLogistics) hidden @endif @if($hasCreatedFinalPayment) disabled @endif>
-                        <i class="bi bi-trash"></i> 刪除物流
-                    </button>
+                            <i class="bi bi-plus-lg"></i> 新增物流
+                        </button>
+                        <button class="btn btn-outline-danger -del" type="button"
+                            @if (!$hasLogistics) hidden @endif>
+                            <i class="bi bi-trash"></i> 刪除物流
+                        </button>
+                    @endif
                 </div>
             </div>
 
@@ -320,7 +328,7 @@
         <div id="submitDiv">
             <div class="col-auto">
                 <input type="hidden" name="del_item_id">
-                @if(false == ($hasCreatedFinalPayment?? false) || null == $purchaseData->close_date))
+                @if(!$hasCreatedFinalPayment && $purchaseData->close_date == null)
                     <button type="submit" class="btn btn-primary px-4">儲存</button>
                 @endif
                 <a href="{{ Route('cms.purchase.index', [], true) }}" class="btn btn-outline-primary px-4"
