@@ -98,7 +98,7 @@ class Purchase extends Model
                         $event = '修改廠商訂單號';
                     } else if($key == 'scheduled_date') {
                         $event = '修改廠商預計進貨日期';
-                    } else if($key == 'hax_tax') {
+                    } else if($key == 'has_tax') {
                         $event = '修改課稅別';
                         if (0 == $val) {
                             $val = '應稅';
