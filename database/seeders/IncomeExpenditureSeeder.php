@@ -28,16 +28,16 @@ class IncomeExpenditureSeeder extends Seeder
             'grade' => 4,
         ]);
         $incomeType_4 = DB::table('acc_income_type')->insertGetId([
-            'type' => '應付帳款',
+            'type' => '外幣',
             'grade' => 4,
         ]);
         $incomeType_5 = DB::table('acc_income_type')->insertGetId([
-            'type' => '其它',
-            'grade' => 3,
+            'type' => '應付帳款',
+            'grade' => 4,
         ]);
         $incomeType_6 = DB::table('acc_income_type')->insertGetId([
-            'type' => '外幣',
-            'grade' => 4,
+            'type' => '其它',
+            'grade' => 3,
         ]);
 
         //現金
@@ -78,24 +78,24 @@ class IncomeExpenditureSeeder extends Seeder
 
         //應付帳款
         DB::table('acc_income_expenditure')->insert([
-            'acc_income_type_fk' => $incomeType_4,
+            'acc_income_type_fk' => $incomeType_5,
             'grade_id_fk' => 2,
             'acc_currency_fk' => null,
         ]);
         DB::table('acc_income_expenditure')->insert([
-            'acc_income_type_fk' => $incomeType_4,
+            'acc_income_type_fk' => $incomeType_5,
             'grade_id_fk' => 4,
             'acc_currency_fk' => null,
         ]);
 
         //其他
         DB::table('acc_income_expenditure')->insert([
-            'acc_income_type_fk' => $incomeType_5,
+            'acc_income_type_fk' => $incomeType_6,
             'grade_id_fk' => 1,
             'acc_currency_fk' => null,
         ]);
         DB::table('acc_income_expenditure')->insert([
-            'acc_income_type_fk' => $incomeType_5,
+            'acc_income_type_fk' => $incomeType_6,
             'grade_id_fk' => 3,
             'acc_currency_fk' => null,
         ]);
@@ -107,7 +107,7 @@ class IncomeExpenditureSeeder extends Seeder
         }
         for ($index = 1; $index <= 13; $index++) {
             DB::table('acc_income_expenditure')->insert([
-                'acc_income_type_fk' => $incomeType_6,
+                'acc_income_type_fk' => $incomeType_4,
                 'grade_id_fk' => $index + 2,
                 'acc_currency_fk' => $index,
             ]);
