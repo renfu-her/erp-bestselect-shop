@@ -347,6 +347,8 @@ class PurchaseItem extends Model
             ->select('purchase_id'
                 , 'product_style_id')
             ->selectRaw('sum(inbound_num) as inbound_num')
+            ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_id) as inbound_user_ids') //入庫人員
+            ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_name) as inbound_user_names') //入庫人員
             ->whereNull('deleted_at')
             ->groupBy('purchase_id')
             ->groupBy('product_style_id');
@@ -390,6 +392,8 @@ class PurchaseItem extends Model
                 , 'items.num as num'
                 , 'items.arrived_num as arrived_num'
                 , 'inbound.inbound_num as inbound_num'
+                , 'inbound.inbound_user_ids as inbound_user_ids'
+                , 'inbound.inbound_user_names as inbound_user_names'
             )
             ->whereNull('items.deleted_at')
             ->orderBy('items.product_style_id')
@@ -415,6 +419,8 @@ class PurchaseItem extends Model
                 ,'itemtb_new.price as price'
                 ,'itemtb_new.num as num'
                 ,'itemtb_new.arrived_num as arrived_num'
+                ,'itemtb_new.inbound_user_ids as inbound_user_ids'
+                ,'itemtb_new.inbound_user_names as inbound_user_names'
                 ,'purchase.purchase_user_id as purchase_user_id'
                 ,'purchase.supplier_id as supplier_id'
                 ,'purchase.invoice_num as invoice_num'
@@ -448,8 +454,17 @@ class PurchaseItem extends Model
         if ($supplier_id) {
             $result->where('purchase.supplier_id', '=', $supplier_id);
         }
+
+        if ($inbound_user_id) {
+            $result->whereIn('itemtb_new.inbound_user_ids', $inbound_user_id);
+        }
+
         $result2 = DB::table(DB::raw("({$result->toSql()}) as tb"))
             ->select('*');
+
+        $result->mergeBindings($subColumn);
+        $result->mergeBindings($subColumn2);
+        $result2->mergeBindings($result);
 
         if ($inbound_status) {
             $arr_status = [];
@@ -468,9 +483,6 @@ class PurchaseItem extends Model
 
             $result2->whereIn('inbound_status', $arr_status);
         }
-        $result->mergeBindings($subColumn);
-        $result->mergeBindings($subColumn2);
-        $result2->mergeBindings($result);
 
         return $result2;
     }
