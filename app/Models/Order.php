@@ -91,11 +91,15 @@ class Order extends Model
         }
 
         $orderQuery = DB::table('ord_sub_orders as sub_order')
-            ->leftJoin(DB::raw("({$itemQuery->toSql()}) as i"), function ($join) {
+            ->leftJoinSub($itemQuery, 'i', function($join) {
                 $join->on('sub_order.id', '=', 'i.sub_order_id');
             })
             ->mergeBindings($itemQuery)
-            ->select('sub_order.*', 'i.items')
+            ->leftJoin('dlv_delivery', function($join) {
+                $join->on('dlv_delivery.event_id', '=', 'sub_order.id');
+                $join->where('dlv_delivery.event', '=', Event::order()->value);
+            })
+            ->select('sub_order.*', 'i.items', 'dlv_delivery.sn as delivery_sn')
             ->where('order_id', $order_id);
 
         if ($sub_order_id) {
