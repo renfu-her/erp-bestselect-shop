@@ -217,8 +217,7 @@ class PurchaseInbound extends Model
             ->selectRaw('sum(inbound.inbound_num) as inbound_num')
             ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_name) as inbound_user_name') //入庫人員
             ->groupBy('inbound.purchase_id')
-            ->groupBy('inbound.product_style_id')
-            ->groupBy('inbound_user_name');
+            ->groupBy('inbound.product_style_id');
 
         $queryTotalInboundNum = '( COALESCE(sum(items.num), 0) - COALESCE((inbound.inbound_num), 0) )'; //應進數量
 
