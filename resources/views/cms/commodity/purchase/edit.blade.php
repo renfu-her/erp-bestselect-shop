@@ -30,9 +30,9 @@
                         <label class="form-label">狀態</label>
                         <div class="form-control" readonly>-</div>
                     </div>
-                    <div class="col-12 col-sm-6 mb-3">
+                    <div class="col-12 col-md-6 mb-3">
                         <label class="form-label">入庫人員</label>
-                        <div class="form-control" readonly>-</div>
+                        <div class="form-control" readonly>{{ $inbound_names ?? '-' }}</div>
                     </div>
                     <fieldset class="col-12 col-sm-6 mb-3">
                         <legend class="col-form-label p-0 mb-2">課稅別 <span class="text-danger">*</span></legend>

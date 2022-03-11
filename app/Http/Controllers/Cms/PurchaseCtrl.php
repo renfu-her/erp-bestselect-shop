@@ -231,14 +231,20 @@ class PurchaseCtrl extends Controller
             return abort(404);
         }
 
+        //做一陣列 整理各款式商品的入庫人員，將重複的去除
         $inbound_name_arr = [];
+        $inbound_names = '';
         if (null != $purchaseItemData && 0 < count($purchaseItemData)) {
             foreach ($purchaseItemData as $item) {
                 if (isset($item->inbound_user_name)) {
-                    array_push($inbound_name_arr, $item->inbound_user_name);
+                    $item_name_arr = explode(',', $item->inbound_user_name);
+                    foreach ($item_name_arr as $item_name) {
+                        array_push($inbound_name_arr, $item_name);
+                    }
                 }
             }
             $inbound_name_arr = array_unique($inbound_name_arr);
+            $inbound_names = implode(',', $inbound_name_arr);
         }
 
         $hasCreatedDepositPayment = false;
@@ -285,7 +291,7 @@ class PurchaseCtrl extends Controller
             'formAction' => Route('cms.purchase.edit', ['id' => $id]),
             'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
 
-            '$inbound_name_arr' => $inbound_name_arr,
+            'inbound_names' => $inbound_names,
         ]);
     }
 
