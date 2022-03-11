@@ -716,9 +716,10 @@ class ProductCtrl extends Controller
      */
     public function editCombo($id)
     {
+        
         $product = self::product_data($id);
         $styles = ProductStyle::styleList($id)->get()->toArray();
-
+       
         return view('cms.commodity.product.combo', [
             'product' => $product,
             'styles' => $styles,
@@ -766,6 +767,7 @@ class ProductCtrl extends Controller
      */
     public function editComboProd($id, $sid)
     {
+        
         $style = ProductStyle::where('id', $sid)->get()->first();
         $product = self::product_data($id);
         return view('cms.commodity.product.combo-edit', [
