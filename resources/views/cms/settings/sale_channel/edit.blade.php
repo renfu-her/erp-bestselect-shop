@@ -7,7 +7,7 @@
     </div>
     <div class="card">
         <div class="card-header">
-            @if ($method === 'create') 新增 @else 編輯 @endif 廠商
+            @if ($method === 'create') 新增 @else 編輯 @endif 通路
         </div>
         <form class="card-body" method="post" action="{{ $formAction }}">
             @method('POST')
@@ -29,7 +29,7 @@
                     value="{{ old('chargeman', $data->chargeman ?? '') }}" />
             </x-b-form-group>
             <x-b-form-group name="chargeman" title="折扣" required="true">
-                <input class="form-control @error('discount') is-invalid @enderror" type="number" max="1" step="0.1" name="discount"
+                <input class="form-control @error('discount') is-invalid @enderror" type="number" max="1" step="0.01" name="discount"
                     value="{{ old('discount', $data->discount ?? 1) }}" />
             </x-b-form-group>
             <x-b-form-group name="sales_type" title="銷售類型" required="true">
