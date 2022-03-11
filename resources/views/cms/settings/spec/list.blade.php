@@ -10,7 +10,7 @@
             </a>
             @endcan
         </div>
-        <div class="col-auto">
+        {{-- <div class="col-auto">
             顯示
             <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
                 @foreach (config('global.dataPerPage') as $value)
@@ -18,7 +18,7 @@
                 @endforeach
             </select>
             筆
-        </div>
+        </div> --}}
     </div>
 
     <div class="table-responsive tableOverBox">
