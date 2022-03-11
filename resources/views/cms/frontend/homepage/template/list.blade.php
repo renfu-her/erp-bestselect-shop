@@ -14,7 +14,7 @@
         </div>
 
         <div class="d-flex col-12 mb-3 border-bottom border-2 border-dark fw-bold">
-            <div class="col-auto px-2" style="width: 50px;">ID</div>
+            <div class="col-auto px-2" style="width: 50px;">#</div>
             <div class="col px-2">版型大標題</div>
             <div class="col-auto text-center" style="width: 40px;">編輯</div>
             <div class="col-auto text-center" style="width: 40px;">排序</div>
@@ -25,7 +25,7 @@
             @foreach ($dataList as $key => $data)
             <div class="d-flex col-12 mb-3 sortabled_box">
                 <div class="input-group col">
-                    <span class="input-group-text" style="width: 50px;">{{ $data->id }}</span>
+                    <span class="input-group-text" style="width: 50px;">{{ $key + 1 }}</span>
                     <input type="hidden" name="template_id[]" value="{{$data->id}}">
                     <span class="form-control">{{ $data->title }}</span>
                 </div>
