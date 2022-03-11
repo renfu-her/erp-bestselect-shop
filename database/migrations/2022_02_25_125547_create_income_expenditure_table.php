@@ -41,6 +41,11 @@ class CreateIncomeExpenditureTable extends Migration
             $table->string('status', 64);
         });
 
+        Schema::create('acc_payable_status', function (Blueprint $table) {
+            $table->id()->comment('付款單付款狀態');
+            $table->string('payment_status', 64)->comment('付款狀態：1未付款, 2已付');
+        });
+
         Schema::create('acc_payable_currency', function (Blueprint $table) {
             $table->id()->comment('外幣付款');
             $table->decimal('foreign_currency')->comment('外幣付款金額');
@@ -79,7 +84,10 @@ class CreateIncomeExpenditureTable extends Migration
             $table->unsignedBigInteger('payable_id_fk')->comment('不同付款方式對應到不同table foreign key');
             $table->decimal('tw_price')->comment('金額(新台幣)');
             $table->boolean('is_final_payment')->comment('是否是「尾款」, 1:尾款 0：訂金');
-            $table->tinyInteger('payment_status')->comment('付款狀態：0未付款, 1已付, 2退款');
+
+            $table->unsignedBigInteger('acc_payable_status_fk')->comment('付款狀態：1未付款, 2已付 foreign key');
+            $table->foreign('acc_payable_status_fk')->references('id')->on('acc_payable_status');
+
             $table->dateTime('payment_date')->comment('付款日期');
 
             $table->unsignedBigInteger('accountant_id_fk')->comment('會計師, user_id foreign key');
@@ -147,8 +155,16 @@ class CreateIncomeExpenditureTable extends Migration
             });
         }
 
+        if (Schema::hasColumns('acc_payable', ['acc_payable_status_fk'])) {
+            Schema::table('acc_payable', function (Blueprint $table) {
+                $table->dropForeign(['acc_payable_status_fk']);
+                $table->dropColumn('acc_payable_status_fk');
+            });
+        }
+
         Schema::dropIfExists('acc_payable_remit');
         Schema::dropIfExists('acc_payable_currency');
+        Schema::dropIfExists('acc_payable_status');
         Schema::dropIfExists('acc_cheque_status');
         Schema::dropIfExists('acc_payable');
         Schema::dropIfExists('acc_income_type');
