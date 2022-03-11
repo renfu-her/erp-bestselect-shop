@@ -107,7 +107,7 @@
                             <td>{{ $data->type_title }}</td>
                             <td>{{ $data->sku }}</td>
                             <td>
-                                <a href="{{ Route('cms.purchase.index', ['title' => $data->sku], true) }}"></a>
+                                <a href="{{ Route('cms.purchase.index', ['title' => $data->sku], true) }}">{{ $data->total_inbound }}</a>
                             </td>
                             <td>
                                 <a href="{{ Route('cms.product.edit-stock', ['id' => $data->product_id, 'sid' => $data->id]) }}">{{ $data->in_stock }}</a>
