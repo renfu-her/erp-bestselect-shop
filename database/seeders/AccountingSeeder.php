@@ -194,44 +194,64 @@ class AccountingSeeder extends Seeder
 
     private function insertToAllGradeTable()
     {
-        $fourthCodeArray = DB::table('acc_fourth_grade')->select('code')->get();
-        foreach ($fourthCodeArray as $fourthCode) {
-            $fourthCode = $fourthCode->code;
-            $firstCode = substr($fourthCode, 0, 1);
-            $secondCode = substr($fourthCode, 0, 2);
-            $thirdCode = substr($fourthCode, 0, 4);
+        $fourthGradeArray = DB::table('acc_fourth_grade as 4th')
+                                ->leftJoin('acc_third_grade as 3rd', '4th.third_grade_fk', '=', '3rd.id')
+                                ->leftJoin('acc_second_grade as 2nd', '3rd.second_grade_fk', '=', '2nd.id')
+                                ->leftJoin('acc_first_grade as 1st', '2nd.first_grade_fk', '=', '1st.id')
+                                ->select([
+                                    '1st.id as first_id',
+                                    '2nd.id as second_id',
+                                    '3rd.id as third_id',
+                                    '4th.id as fourth_id',
+                                ])
+                                ->get();
+        $thirdGradeArray = DB::table('acc_third_grade as 3rd')
+                                ->leftJoin('acc_second_grade as 2nd', '3rd.second_grade_fk', '=', '2nd.id')
+                                ->leftJoin('acc_first_grade as 1st', '2nd.first_grade_fk', '=', '1st.id')
+                                ->select([
+                                    '1st.id as first_id',
+                                    '2nd.id as second_id',
+                                    '3rd.id as third_id',
+                                ])
+                                ->get();
+        $secondGradeArray = DB::table('acc_second_grade as 2nd')
+                                ->leftJoin('acc_first_grade as 1st', '2nd.first_grade_fk', '=', '1st.id')
+                                ->select([
+                                    '1st.id as first_id',
+                                    '2nd.id as second_id',
+                                ])
+                                ->get();
+        $firstGradeArray = DB::table('acc_first_grade as 1st')
+                                ->select([
+                                    '1st.id as first_id',
+                                ])
+                                ->get();
 
-            $firstGradeIdArray = DB::table('acc_first_grade')->where('code', '=', $firstCode)->select('id')->get();
-            $secondGradeIdArray = DB::table('acc_second_grade')->where('code', '=', $secondCode)->select('id')->get();
-            $thirdGradeIdArray = DB::table('acc_third_grade')->where('code', '=', $thirdCode)->select('id')->get();
-            $fourthGradeIdArray = DB::table('acc_fourth_grade')->where('code', '=', $fourthCode)->select('id')->get();
-
-            foreach ($firstGradeIdArray as $firstGradeId) {
-                DB::table('acc_all_grades')->insert([
-                    'acc_first_grade_fk' => $firstGradeId->id
-                ]);
-                foreach ($secondGradeIdArray as $secondGradeId) {
-                    DB::table('acc_all_grades')->insert([
-                        'acc_first_grade_fk' => $firstGradeId->id,
-                        'acc_second_grade_fk' => $secondGradeId->id,
-                    ]);
-                    foreach ($thirdGradeIdArray as $thirdGradeId) {
-                        DB::table('acc_all_grades')->insert([
-                            'acc_first_grade_fk' => $firstGradeId->id,
-                            'acc_second_grade_fk' => $secondGradeId->id,
-                            'acc_third_grade_fk' => $thirdGradeId->id,
-                        ]);
-                        foreach ($fourthGradeIdArray as $fourthGradeId) {
-                            DB::table('acc_all_grades')->insert([
-                                'acc_first_grade_fk' => $firstGradeId->id,
-                                'acc_second_grade_fk' => $secondGradeId->id,
-                                'acc_third_grade_fk' => $thirdGradeId->id,
-                                'acc_fourth_grade_fk' => $fourthGradeId->id,
-                            ]);
-                        }
-                    }
-                }
-            }
+        foreach ($firstGradeArray as $firstGrade) {
+            DB::table('acc_all_grades')->insert([
+                'acc_first_grade_fk' => $firstGrade->first_id,
+            ]);
+        }
+        foreach ($secondGradeArray as $secondGrade) {
+            DB::table('acc_all_grades')->insert([
+                'acc_first_grade_fk'  => $secondGrade->first_id,
+                'acc_second_grade_fk' => $secondGrade->second_id,
+            ]);
+        }
+        foreach ($thirdGradeArray as $thirdGrade) {
+            DB::table('acc_all_grades')->insert([
+                'acc_first_grade_fk'  => $thirdGrade->first_id,
+                'acc_second_grade_fk' => $thirdGrade->second_id,
+                'acc_third_grade_fk'  => $thirdGrade->third_id,
+            ]);
+        }
+        foreach ($fourthGradeArray as $fourthGrade) {
+            DB::table('acc_all_grades')->insert([
+                'acc_first_grade_fk'  => $fourthGrade->first_id,
+                'acc_second_grade_fk' => $fourthGrade->second_id,
+                'acc_third_grade_fk'  => $fourthGrade->third_id,
+                'acc_fourth_grade_fk' => $fourthGrade->fourth_id,
+            ]);
         }
     }
 }
