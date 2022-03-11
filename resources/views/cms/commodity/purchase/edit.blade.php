@@ -320,7 +320,7 @@
         <div id="submitDiv">
             <div class="col-auto">
                 <input type="hidden" name="del_item_id">
-                @if(false == ($hasCreatedFinalPayment?? false) && (null == ($purchaseData?? null) || null == $purchaseData->close_date))
+                @if(false == ($hasCreatedFinalPayment?? false) || null == $purchaseData->close_date))
                     <button type="submit" class="btn btn-primary px-4">儲存</button>
                 @endif
                 <a href="{{ Route('cms.purchase.index', [], true) }}" class="btn btn-outline-primary px-4"
