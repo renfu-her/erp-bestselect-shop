@@ -45,6 +45,10 @@ class CreateIncomeExpenditureTable extends Migration
             $table->foreign('acc_currency_fk')->references('id')->on('acc_currency');
         });
 
+        Schema::create('acc_payable_cash', function (Blueprint $table) {
+            $table->id()->comment('現金付款');
+        });
+
         Schema::create('acc_payable_cheque', function (Blueprint $table) {
             $table->id()->comment('支票付款');
             $table->string('check_num')->comment('票號');
@@ -61,6 +65,13 @@ class CreateIncomeExpenditureTable extends Migration
         Schema::create('acc_payable', function (Blueprint $table) {
             $table->id()->comment('付款管理');
             $table->tinyInteger('type')->unique()->comment('付款類型, 0:採購');
+        Schema::create('acc_payable_account', function (Blueprint $table) {
+            $table->id()->comment('應付帳款');
+        });
+
+        Schema::create('acc_payable_other', function (Blueprint $table) {
+            $table->id()->comment('其它');
+        });
 
 
             $table->unsignedBigInteger('acc_income_type_fk')->comment('付款方式, foreign key');
