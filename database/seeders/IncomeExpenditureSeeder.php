@@ -113,11 +113,6 @@ class IncomeExpenditureSeeder extends Seeder
             ]);
         }
 
-        foreach (['付款', '兌現', '押票', '退票', '開票'] as $chequeStatus) {
-            DB::table('acc_cheque_status')->insert(['status' => $chequeStatus]);
-        }
 
-        DB::table('acc_payable_status')->insert(['payment_status' => '未付款']);
-        DB::table('acc_payable_status')->insert(['payment_status' => '已付款']);
     }
 }
