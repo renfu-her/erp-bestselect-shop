@@ -217,13 +217,18 @@ class Delivery extends Model
             $query->whereIn('delivery.logistic_status_id', $param['logistic_status_id']);
         }
         if (isset($param['order_sdate']) && isset($param['order_edate'])) {
-            $query->whereBetween('query_order.order_created_at', [date((string) $param['order_sdate']), date((string) $param['order_edate'])]);
+            $order_sdate = date('Y-m-d 00:00:00', strtotime($param['order_sdate']));
+            $order_edate = date('Y-m-d 23:59:59', strtotime($param['order_edate']));
+            $query->whereBetween('query_order.order_created_at', [$order_sdate, $order_edate]);
         }
         if (isset($param['delivery_sdate']) && isset($param['delivery_edate'])) {
-            $query->whereBetween('delivery.created_at', [date((string) $param['delivery_sdate']), date((string) $param['delivery_edate'])]);
+            $delivery_sdate = date('Y-m-d 00:00:00', strtotime($param['delivery_sdate']));
+            $delivery_edate = date('Y-m-d 23:59:59', strtotime($param['delivery_edate']));
+            $query->whereBetween('delivery.created_at', [$delivery_sdate, $delivery_edate]);
         }
         $query->orderBy('delivery.created_at');
 
+        dd(IttmsUtils::getEloquentSqlWithBindings($query));
         return $query;
     }
 }
