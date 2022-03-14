@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Enums\Delivery\Event;
-use App\Helpers\IttmsUtils;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -228,7 +227,6 @@ class Delivery extends Model
         }
         $query->orderBy('delivery.created_at');
 
-        dd(IttmsUtils::getEloquentSqlWithBindings($query));
         return $query;
     }
 }
