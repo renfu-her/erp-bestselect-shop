@@ -15,11 +15,12 @@
 ### 1.1.1. 取得可入庫單 可出貨列表
 
 ```
-POST {host}/api/cms/delivery/get-select-inbound-list/{款式ID productStyleId}
+POST {host}/api/cms/delivery/get-select-inbound-list
 ```
 
 | request body | -      |      |
 | ------------ | ------ | ---- |
+| product_style_id            | string |   商品款式ID  |
 
 | response body  | -      |     |
 | -------------- | ------ | --- |
@@ -50,13 +51,16 @@ POST {host}/api/cms/delivery/get-select-inbound-list/{款式ID productStyleId}
 ### 1.1.2. 新增對應的入庫商品款式
 
 ```
-POST {host}/api/cms/delivery/store-receive-depot/{出貨單ID deliveryId}/{子訂單商品ID itemId}/{款式ID 可選 productStyleId?}
+POST {host}/api/cms/delivery/store-receive-depot
 ```
 
-> 款式ID 可選 productStyleId 若有輸入 則回傳時，只回傳相同productStyleId的預計出貨列表 (在一個子訂單商品為組合包時，會有不同productStyleId，用此欄位過濾)
+> 款式ID 可選 product_style_id 若有輸入 則回傳時，只回傳相同 product_style_id 的預計出貨列表 (在一個子訂單商品為組合包時，會有不同 product_style_id，用此欄位過濾)
 
 | request body | -      |      |
 | ------------ | ------ | ---- |
+| delivery_id            | string |   出貨單ID  |
+| item_id            | string |   子訂單商品ID  |
+| product_style_id            | string |   款式ID(可選)  |
 | inbound_id[]           | array:int | 入庫單ID  |
 | qty[]           | array:int | 數量  |
 
@@ -94,5 +98,5 @@ POST {host}/api/cms/delivery/store-receive-depot/{出貨單ID deliveryId}/{子�
 ### 1.1.3. 刪除單筆預計出貨倉資料
 
 ```
-POST {host}/api/cms/delivery/del-receive-depot/{收貨倉ID receiveDepotId}
+GET {host}/api/cms/delivery/del-receive-depot/{收貨倉ID receiveDepotId}
 ```

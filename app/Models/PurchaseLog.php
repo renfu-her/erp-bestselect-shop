@@ -53,7 +53,7 @@ class PurchaseLog extends Model
                 , 'log.created_at'
                 , 'log.qty'
             )
-            ->selectRaw('CONCAT("") as title')
+            ->selectRaw('CONCAT(log.note) as title')
             ->where('log.purchase_id', '=', $purchase_id)
             ->where('log.event', '=', 'purchase');
         $log_style = DB::table('pcs_purchase_log as log')

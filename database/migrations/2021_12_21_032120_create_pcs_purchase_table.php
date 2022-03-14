@@ -25,10 +25,13 @@ class CreatePcsPurchaseTable extends Migration
             $table->dateTime('scheduled_date')->comment('預計進貨日期');
             //付款資訊
             $table->tinyInteger('pay_type')->nullable()->comment('採購付款方式 0:先付(訂金) / 1:先付(一次付清) / 2:貨到付款');
+
+            $table->tinyInteger('has_tax')->nullable()->comment('應稅與否 0:免稅 1:應稅');
+            $table->integer('logistics_price')->default(0)->comment('物流費用');
+            $table->string('logistics_memo')->nullable()->comment('物流備註');
             $table->string('invoice_num')->nullable()->comment('發票號碼');
             $table->dateTime('invoice_date')->nullable()->comment('發票日期');
             $table->dateTime('close_date')->nullable()->comment('結案日期');
-            $table->string('memo')->nullable()->comment('備註');
             $table->timestamps();
             $table->softDeletes();
         });

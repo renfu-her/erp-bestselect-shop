@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\Globals\ResponseParam;
 use App\Enums\Purchase\InboundStatus;
 use App\Enums\Purchase\LogEventFeature;
 use App\Enums\Purchase\LogEvent;
@@ -60,11 +59,22 @@ class PurchaseInbound extends Model
 
             //入庫 新增入庫數量
             //寫入ProductStock
-            PurchaseItem::updateArrivedNum($purchase_item_id, $inbound_num, $can_tally);
-            PurchaseLog::stockChange($purchase_id, $product_style_id, LogEvent::inbound()->value, $id, LogEventFeature::inbound_add()->value, $inbound_num, null, $inbound_user_id, $inbound_user_name);
-            ProductStock::stockChange($product_style_id, $inbound_num, StockEvent::inbound()->value, $id, null, true, $can_tally);
-
-            return $id;
+            $rePcsItemUAN = PurchaseItem::updateArrivedNum($purchase_item_id, $inbound_num, $can_tally);
+            if ($rePcsItemUAN['success'] == 0) {
+                DB::rollBack();
+                return $rePcsItemUAN;
+            }
+            $rePcsLSC = PurchaseLog::stockChange($purchase_id, $product_style_id, LogEvent::inbound()->value, $id, LogEventFeature::inbound_add()->value, $inbound_num, null, $inbound_user_id, $inbound_user_name);
+            if ($rePcsLSC['success'] == 0) {
+                DB::rollBack();
+                return $rePcsLSC;
+            }
+            $rePSSC = ProductStock::stockChange($product_style_id, $inbound_num, StockEvent::inbound()->value, $id, null, true, $can_tally);
+            if ($rePSSC['success'] == 0) {
+                DB::rollBack();
+                return $rePSSC;
+            }
+            return ['success' => 1, 'error_msg' => "", 'id' => $id];
         });
     }
 
@@ -98,19 +108,32 @@ class PurchaseInbound extends Model
                     //判斷若為理貨倉 則採購款式 已到貨 ++; 採購款式 理貨 ++; product_style in_stock ++
                     //否則採購款式 已到貨 ++
                     $qty = $inboundDataGet->inbound_num * -1;
-                    PurchaseItem::updateArrivedNum($inboundDataGet->purchase_item_id, $qty, $can_tally);
-                    PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogEvent::inbound()->value, $id, LogEventFeature::inbound_del()->value, $qty, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
-                    ProductStock::stockChange($inboundDataGet->product_style_id, $qty, StockEvent::inbound_del()->value, $id, $inboundDataGet->inbound_user_name . LogEventFeature::inbound_del()->getDescription(LogEventFeature::inbound_del()->value), true, $can_tally);
+                    $rePcsItemUAN = PurchaseItem::updateArrivedNum($inboundDataGet->purchase_item_id, $qty, $can_tally);
+                    if ($rePcsItemUAN['success'] == 0) {
+                        DB::rollBack();
+                        return $rePcsItemUAN;
+                    }
+                    $rePcsLSC = PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogEvent::inbound()->value, $id, LogEventFeature::inbound_del()->value, $qty, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
+                    if ($rePcsLSC['success'] == 0) {
+                        DB::rollBack();
+                        return $rePcsLSC;
+                    }
+                    $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $qty, StockEvent::inbound_del()->value, $id, $inboundDataGet->inbound_user_name . LogEventFeature::inbound_del()->getDescription(LogEventFeature::inbound_del()->value), true, $can_tally);
+                    if ($rePSSC['success'] == 0) {
+                        DB::rollBack();
+                        return $rePSSC;
+                    }
                     $inboundData->delete();
+                    return ['success' => 1, 'error_msg' => ""];
                 }
             }
+            return ['success' => 0, 'error_msg' => "找不到資料"];
         });
     }
 
     //售出 更新資料
     public static function shippingInbound($id, $sale_num = 0)
     {
-        try {
             return DB::transaction(function () use (
                 $id,
                 $sale_num
@@ -119,17 +142,19 @@ class PurchaseInbound extends Model
                 $inboundDataGet = $inboundData->get()->first();
                 if (null != $inboundDataGet) {
                     if (($inboundDataGet->inbound_num - $inboundDataGet->sale_num - $sale_num) < 0) {
-                        throw new \Exception('數量超出範圍');
+                        return ['success' => 0, 'error_msg' => '入庫單出貨數量超出範圍'];
                     } else {
                         PurchaseInbound::where('id', $id)
                             ->update(['sale_num' => DB::raw("sale_num + $sale_num")]);
-                        PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogEvent::inbound()->value, $id, LogEventFeature::inbound_shipping()->value, $sale_num, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
+                        $reStockChange =PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogEvent::inbound()->value, $id, LogEventFeature::inbound_shipping()->value, $sale_num, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
+                        if ($reStockChange['success'] == 0) {
+                            DB::rollBack();
+                            return $reStockChange;
+                        }
                     }
                 }
+                return ['success' => 1, 'error_msg' => ""];
             });
-        } catch (\Exception $e) {
-            return [ResponseParam::status()->key => 1, ResponseParam::msg()->key => $e->getMessage()];
-        }
     }
 
     //歷史入庫
@@ -190,6 +215,7 @@ class PurchaseInbound extends Model
             ->select('inbound.purchase_id as purchase_id'
                 , 'inbound.product_style_id as product_style_id')
             ->selectRaw('sum(inbound.inbound_num) as inbound_num')
+            ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_name) as inbound_user_name') //入庫人員
             ->groupBy('inbound.purchase_id')
             ->groupBy('inbound.product_style_id');
 
@@ -210,6 +236,7 @@ class PurchaseInbound extends Model
                 , 'products.title as product_title' //商品名稱
                 , 'styles.title as style_title' //款式名稱
                 , 'users.name as user_name' //商品負責人
+                , 'inbound.inbound_user_name as inbound_user_name' //入庫人員
             )
             ->selectRaw('min(items.sku) as sku') //款式SKU
             ->selectRaw('sum(items.num) as num') //採購數量
@@ -231,6 +258,7 @@ class PurchaseInbound extends Model
                 , 'styles.title'
                 , 'users.name'
                 , 'inbound.inbound_num'
+                , 'inbound.inbound_user_name'
             )
             ->orderBy('purchase.id')
             ->orderBy('items.product_style_id')

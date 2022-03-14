@@ -107,18 +107,18 @@
                             <td>{{ $data->type_title }}</td>
                             <td>{{ $data->sku }}</td>
                             <td>
-                                <a href="簡易採購單清單">20</a>
+                                <a href="{{ Route('cms.purchase.index', ['title' => $data->sku], true) }}">{{ $data->total_inbound }}</a>
                             </td>
                             <td>
-                                <a href="銷售控管">{{ $data->in_stock }}</a>
+                                <a href="{{ Route('cms.product.edit-stock', ['id' => $data->product_id, 'sid' => $data->id]) }}">{{ $data->in_stock }}</a>
                             </td>
                             <td>
                                 {{-- if (銷售控管 = 0) --}}
-                                <a href="銷售控管"></a>
+                                <a href="{{ Route('cms.product.edit-stock', ['id' => $data->product_id, 'sid' => $data->id]) }}"></a>
                             </td>
                             <td>{{ $data->safety_stock }}
                                 @if ($data->in_stock <= $data->safety_stock)
-                                    <a href="銷售控管" class="link-danger">(未達)</a>
+                                    <a href="{{ Route('cms.product.edit-stock', ['id' => $data->product_id, 'sid' => $data->id]) }}" class="link-danger">(未達)</a>
                                 @endif
                             </td>
                             <td>

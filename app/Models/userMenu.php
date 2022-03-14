@@ -97,10 +97,27 @@ return
             ],
         ],
     ],
+//    [
+//        "title" => "帳務管理",
+//        "icon" => "bi-cash-coin",
+//        "menu_id" => "4",
+//        "child" => [
+//            [
+//                "title" => "付款作業",
+//                "controller_name" => "AccountPayableCtrl",
+//                "route_name" => "cms.ap.index",
+//            ],
+//            [
+//                "title" => "收款作業",
+//                "controller_name" => "AccountReceivedCtrl",
+//                "route_name" => "cms.ar.index",
+//            ],
+//        ],
+//    ],
     [
         "title" => "總帳會計",
         "icon" => "bi-journal-text",
-        "menu_id" => "4",
+        "menu_id" => "5",
         "child" => [
             [
                 "title" => "會計科目",
@@ -112,7 +129,7 @@ return
     [
         "title" => "會計設定",
         "icon" => "bi-bar-chart-steps",
-        "menu_id" => "5",
+        "menu_id" => "6",
         "child" => [
             [
                 "title" => "會計分類",
@@ -134,7 +151,7 @@ return
     [
         "title" => "帳號管理",
         "icon" => "bi-person-circle",
-        "menu_id" => "4",
+        "menu_id" => "7",
         "child" => [
             [
                 "title" => "員工帳號管理",

@@ -13,7 +13,7 @@ class Product extends Model
     protected $table = 'prd_products';
     protected $guarded = [];
 
-    public static function productList($title = null, $id = null, $options = [])
+    public static function productList($keyword = null, $id = null, $options = [])
     {
 
         $re = DB::table('prd_products as product')
@@ -21,8 +21,11 @@ class Product extends Model
             ->selectRaw('CASE product.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title')
             ->whereNull('product.deleted_at');
 
-        if ($title) {
-            $re->where('product.title', 'like', "%$title%");
+        if ($keyword) {
+            $re->where(function ($q) use ($keyword) {
+                $q->where('product.title', 'like', "%$keyword%")
+                    ->orWhere('product.sku', 'like', "%$keyword%");
+            });
         }
 
         if ($id) {
@@ -32,10 +35,20 @@ class Product extends Model
         if (isset($options['user'])) {
             $re->leftJoin('usr_users as user', 'product.user_id', '=', 'user.id')
                 ->addSelect('user.name as user_name');
+
+            if (is_array($options['user'])) {
+                $re->whereIn('user.id', $options['user']);
+            } else if (is_string($options['user']) || is_numeric($options['user'])) {
+                $re->where('user.id', $options['user']);
+            }
         }
 
         if (isset($options['sku'])) {
             $re->orWhere('product.sku', 'like', '%' . $options['sku'] . '%');
+        }
+
+        if (isset($options['product_type']) && in_array($options['product_type'], ['c', 'p'])) {
+            $re->where('product.type', $options['product_type']);
         }
 
         if (isset($options['supplier'])) {
@@ -190,7 +203,7 @@ class Product extends Model
 
         $re = DB::table('prd_products as p')
             ->leftJoin('prd_product_styles as s', 'p.id', '=', 's.product_id')
-            ->select('s.id', 's.sku', 'p.title as product_title', 'p.id as product_id', 's.title as spec', 's.safety_stock')
+            ->select('s.id', 's.sku', 'p.title as product_title', 'p.id as product_id', 's.title as spec', 's.safety_stock','s.total_inbound')
             ->selectRaw('CASE p.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title')
             ->selectRaw('s.in_stock + s.overbought as in_stock')
             ->whereNotNull('s.sku')
@@ -414,7 +427,7 @@ class Product extends Model
     {
         $pick_up = DB::table('prd_pickup as pick_up')
             ->leftJoin('depot', 'depot.id', '=', 'pick_up.depot_id_fk')
-            ->select('pick_up.id','depot.id as depot_id' ,'depot.name as depot_name', )
+            ->select('pick_up.id', 'depot.id as depot_id', 'depot.name as depot_name', )
             ->whereNull('depot.deleted_at')
             ->where('pick_up.product_id_fk', $product_id);
 
@@ -440,6 +453,13 @@ class Product extends Model
         }
 
         return $arr;
+
+    }
+
+    public static function getCollectionsOfProduct($product_id)
+    {
+        return DB::table('collection_prd')->where('product_id_fk', $product_id)
+            ->select('collection_id_fk as collection_id');
 
     }
 }

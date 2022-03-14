@@ -47,7 +47,7 @@ class PayingOrder extends Model
                 "memo" => $memo
             ])->id;
 
-            return $id;
+            return ['success' => 1, 'error_msg' => "", 'id' => $id];
         });
     }
 

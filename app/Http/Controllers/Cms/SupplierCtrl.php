@@ -95,7 +95,7 @@ class SupplierCtrl extends Controller
             }
         }
         wToast(__('Add finished.'));
-        return redirect(Route('cms.supplier.edit', [
+        return redirect(Route('cms.supplier.index', [
             'id' => $id,
             'query' => $query
         ]));
@@ -137,6 +137,13 @@ class SupplierCtrl extends Controller
             'request_data'         => 'nullable|string',
             'memo'                 => 'nullable|string',
             'def_paytype'          => 'required|string',
+            'paytype'          => 'required|array',
+            'paytype.*'          => 'required|string',
+            'bank_cname'          => 'nullable|string',
+            'bank_code'          => 'nullable|string',
+            'bank_acount'          => 'nullable|string',
+            'bank_numer'          => 'nullable|string',
+            'cheque_payable'          => 'nullable|string',
         ]);
     }
 
@@ -176,6 +183,12 @@ class SupplierCtrl extends Controller
             'request_data',
             'memo',
             'def_paytype',
+            'paytype',
+            'bank_cname',
+            'bank_code',
+            'bank_acount',
+            'bank_numer',
+            'cheque_payable',
         );
     }
 
@@ -265,7 +278,7 @@ class SupplierCtrl extends Controller
             SupplierPayment::where('supplier_id', '=', $id)->whereIn('type', $del_id_arr)->forceDelete();
         }
         wToast(__('Edit finished.'));
-        return redirect(Route('cms.supplier.edit', [
+        return redirect(Route('cms.supplier.index', [
             'id' => $id,
             'query' => $query
         ]));

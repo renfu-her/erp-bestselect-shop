@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Delivery\Event;
 use App\Enums\Order\UserAddrType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -84,18 +85,26 @@ class Order extends Model
             ->select('item.sub_order_id')
             ->selectRaw($concatString . ' as items')
             ->where('item.order_id', $order_id);
-
+       // dd($itemQuery->get()->toArray());
         if ($sub_order_id) {
             $itemQuery->where('item.sub_order_id', $sub_order_id);
         }
 
         $orderQuery = DB::table('ord_sub_orders as sub_order')
-            ->leftJoin(DB::raw("({$itemQuery->toSql()}) as i"), function ($join) {
+            ->leftJoinSub($itemQuery, 'i', function($join) {
                 $join->on('sub_order.id', '=', 'i.sub_order_id');
+            })    
+//->mergeBindings($itemQuery) ;
+            
+            ->leftJoin('dlv_delivery', function($join) {
+                $join->on('dlv_delivery.event_id', '=', 'sub_order.id');
+                $join->where('dlv_delivery.event', '=', Event::order()->value);
             })
-            ->mergeBindings($itemQuery)
-            ->select('sub_order.*', 'i.items')
+            ->select('sub_order.*', 'i.items', 'dlv_delivery.sn as delivery_sn')
             ->where('order_id', $order_id);
+            
+        
+     //   dd($orderQuery->get()->toArray());
 
         if ($sub_order_id) {
             $orderQuery->where('sub_order.id', $sub_order_id);
@@ -105,11 +114,11 @@ class Order extends Model
 
     }
 
-    private static function orderAddress(&$query)
+    public static function orderAddress(&$query, $joinTable = 'order', $joinKey = 'order_id')
     {
         foreach (UserAddrType::asArray() as $value) {
-            $query->leftJoin('ord_address as ' . $value, function ($q) use ($value) {
-                $q->on('order.id', '=', $value . '.order_id')
+            $query->leftJoin('ord_address as ' . $value, function ($q) use ($value, $joinTable, $joinKey) {
+                $q->on($joinTable.'.id', '=', $value . '.'. $joinKey)
                     ->where($value . '.type', '=', $value);
             });
             switch ($value) {
@@ -210,6 +219,22 @@ class Order extends Model
                 }
 
                 $subOrderId = DB::table('ord_sub_orders')->insertGetId($insertData);
+
+                //TODO 目前做DEMO 在新增訂單時，就新增出貨單，若未來串好付款，則在付款完畢後才新增出貨單
+                $reDelivery = Delivery::createData(
+                    Event::order()->value
+                    , $subOrderId
+                    , $insertData['sn']
+                    , $insertData['ship_temp_id'] ?? null
+                    , $insertData['ship_temp'] ?? null
+                    , $insertData['ship_category'] ?? null
+                    , $insertData['ship_category_name'] ?? null
+                    , $insertData['ship_event_id'] ?? null
+                );
+                if ($reDelivery['success'] == 0) {
+                    DB::rollBack();
+                    return $reDelivery;
+                }
 
                 foreach ($value->products as $product) {
 

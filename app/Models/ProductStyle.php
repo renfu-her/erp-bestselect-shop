@@ -80,7 +80,7 @@ class ProductStyle extends Model
         return DB::table('prd_product_styles as style')
             ->select('style.*')
             ->selectRaw(DB::raw("({$usb->toSql()}) as p_title"))
-            ->mergeBindings($usb); 
+            ->mergeBindings($usb);
     }
 
     /**
@@ -90,15 +90,22 @@ class ProductStyle extends Model
     public static function styleList($product_id)
     {
 
-        $channelSub = DB::table('prd_sale_channels')->select('id', 'code')->where('code', '01');
+        $channelSub = DB::table('prd_sale_channels as sale_channel')
+            ->leftJoin('prd_salechannel_style_price as price', 'sale_channel.id', '=', 'price.sale_channel_id')
+            ->select('price.style_id') 
+            ->selectRaw('IF(price.dealer_price,price.dealer_price,0) as dealer_price')
+            ->selectRaw('IF(price.origin_price,price.origin_price,0) as origin_price')
+            ->selectRaw('IF(price.price,price.price,0) as price')
+            ->selectRaw('IF(price.bonus,price.bonus,0) as bonus')
+            ->selectRaw('IF(price.dividend,price.dividend,0) as dividend')   
+            ->where('is_master', '1');
 
         $re = DB::table('prd_product_styles as style')
-            ->leftJoin('prd_salechannel_style_price as price', 'style.id', '=', 'price.style_id', 'left outer')
-            ->leftJoin(DB::raw("({$channelSub->toSql()}) as channel"), function ($join) {
-                $join->on('price.sale_channel_id', '=', 'channel.id');
+            ->leftJoin(DB::raw("({$channelSub->toSql()}) as price"), function ($join) {
+                $join->on('style.id', '=', 'price.style_id');
             })
-            ->mergeBindings($channelSub)
-            ->select('style.*')
+           ->mergeBindings($channelSub)
+            ->select('style.*', 'price.*')
             ->selectRaw('IF(price.dealer_price,price.dealer_price,0) as dealer_price')
             ->selectRaw('IF(price.origin_price,price.origin_price,0) as origin_price')
             ->selectRaw('IF(price.price,price.price,0) as price')
@@ -168,6 +175,10 @@ class ProductStyle extends Model
                     ->count()) + 1, 2, '0', STR_PAD_LEFT);
 
             self::where('id', $id)->update(['sku' => $sku]);
+            Product::where('id', $product_id)->update(['spec_locked' => 1]);
+            //新增所有通路價格
+
+            SaleChannel::addPriceForStyle($id);
             return true;
         });
     }
@@ -180,9 +191,6 @@ class ProductStyle extends Model
             self::createSku($product_id, $style['id']);
         }
 
-        if (count($styles) > 0) {
-            Product::where('id', $product_id)->update(['spec_locked' => 1]);
-        }
     }
 
     public static function activeStyle($product_id, $ids = [])

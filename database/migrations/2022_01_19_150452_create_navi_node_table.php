@@ -17,6 +17,7 @@ class CreateNaviNodeTable extends Migration
             $table->id();
             $table->integer('parent_id')->nullable()->comment('父id');
             $table->string('title')->nullable()->comment('title');
+            $table->string('sub_title')->nullable()->comment('group_title,etc');
             $table->string('url')->nullable()->comment('網址');
             $table->integer('event_id')->nullable()->comment('群組id');
             $table->string('event')->nullable()->comment('類型');

@@ -210,7 +210,9 @@ class OrderCtrl extends Controller
         $re = Order::createOrder($customer->email, 1, $address, $items, $d['note']);
         if ($re['success'] == '1') {
             wToast('訂單新增成功');
-            return redirect(route('cms.order.index'));
+            return redirect(route('cms.order.detail', [
+                'id' => $re['order_id']
+            ]));
         }
         $errors = [];
         $addInput = [];
@@ -255,14 +257,16 @@ class OrderCtrl extends Controller
      * Show the data for order detail.
      *
      * @param  int  $id
+     * @param  int  $subOrderId 若有值 則只顯示該子訂單
      * @return \Illuminate\Http\Response
      */
-    public function detail($id)
+    public function detail($id, $subOrderId = null)
     {
 
         $order = Order::orderDetail($id)->get()->first();
+        
         $subOrder = Order::subOrderDetail($id)->get()->toArray();
-
+        
         foreach ($subOrder as $key => $value) {
             $subOrder[$key]->items = json_decode($value->items);
         }
@@ -279,7 +283,9 @@ class OrderCtrl extends Controller
             'sn' => $sn,
             'order' => $order,
             'subOrders' => $subOrder,
-            'breadcrumb_data' => $sn]);
+            'breadcrumb_data' => $sn,
+            'subOrderId' => $subOrderId
+        ]);
     }
 
     /**

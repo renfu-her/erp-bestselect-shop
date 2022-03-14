@@ -37,7 +37,7 @@
                             <div class="row -appendClone -item">
                                 <div class="col-12 col-sm-6 mb-2 -cloneElem -item">
                                     <div class="input-group has-validation">
-                                        <input class="form-control" value="" type="text" required placeholder="請輸入項目"
+                                        <input class="form-control" value="" name="item_new[]" type="text" required placeholder="請輸入項目"
                                             aria-label="項目">
                                         <button class="btn btn-outline-secondary -del -item" type="button" title="刪除">
                                             <i class="bi bi-x-lg"></i>
@@ -74,11 +74,12 @@
                                 @foreach ($cSpec->items as $item)
                                     <div class="col-12 col-sm-6 mb-2 -cloneElem -item">
                                         <div class="input-group has-validation">
-                                            <input class="form-control" value="{{ $item->value }}" disabled
-                                                data-id="{{ $item->key }}" type="text" placeholder="請輸入項目"
-                                                aria-label="項目">
-                                            <button class="btn btn-outline-secondary -del -item" disabled type="button"
-                                                title="刪除"><i class="bi bi-x-lg"></i></button>
+                                            <input type="hidden" name="item_id[]" value="{{ $item->key }}">
+                                            <input class="form-control" name="item_value[]" value="{{ $item->value }}" 
+                                                type="text" placeholder="請輸入項目"
+                                                aria-label="項目" @if ($data->spec_locked) disabled @endif>
+                                            <button class="btn btn-outline-secondary -del -item" @if ($data->spec_locked) disabled @endif 
+                                                type="button" title="刪除"><i class="bi bi-x-lg"></i></button>
                                             <div class="invalid-feedback"></div>
                                         </div>
                                     </div>
@@ -101,6 +102,7 @@
 
         <div>
             <div class="col-auto">
+                <input type="hidden" name="del_item_id">
                 <button type="submit" class="btn btn-primary px-4 -checkSubmit">儲存</button>
                 <a href="{{ Route('cms.product.edit-style', ['id' => $data->id]) }}" class="btn btn-outline-primary px-4"
                     role="button">取消</a>
@@ -133,16 +135,20 @@
             };
             const $cloneSpec = $(`${Spec.clone}:first-child`).clone();
             const $cloneItem = $(`${Spec.clone}:first-child ${Items.clone}:first-child`).clone();
+            let del_item_id = [];
+
             // init
             Clone_bindDelElem($(Spec.del), {
                 appendClone: Spec.append,
                 cloneElem: Spec.clone,
-                checkFn: checkStylesQty
+                checkFn: checkStylesQty,
+                beforeDelFn: delItem
             });
             Clone_bindDelElem($(Items.del), {
                 appendClone: Items.append,
                 cloneElem: Items.clone,
-                checkFn: checkStylesQty
+                checkFn: checkStylesQty,
+                beforeDelFn: delItem
             });
             $('.-single:not(:disabled)').addClass('-select2').select2();
             checkStylesQty();
@@ -153,12 +159,16 @@
                     $c_s.find('input, select, button').prop('disabled', false);
                     $c_s.find(`${Items.clone}:nth-child(n+2), select.-single + input:hidden`).remove();
                     $c_s.find('select.-single').addClass('-select2').select2();
+                    $c_s.find('input[name="item_id[]"]').remove();
+                    $c_s.find('input[name="item_value[]"]').attr('name', 'item_new[]');
 
                     // 規格裡的btn: 新增項目
                     $c_s.find('.-newItem').off('click').on('click', function() {
                         Clone_bindCloneBtn($cloneItem, function($c_i) {
                             $c_i.find('input').val('');
                             $c_i.find('input, button').prop('disabled', false);
+                            $c_i.find('input[name="item_id[]"]').remove();
+                            $c_i.find('input[name="item_value[]"]').attr('name', 'item_new[]');
                         }, {
                             cloneElem: Items.clone,
                             delElem: Items.del,
@@ -185,6 +195,8 @@
                 Clone_bindCloneBtn($cloneItem, function($c_i) {
                     $c_i.find('input').val('');
                     $c_i.find('input, button').prop('disabled', false);
+                    $c_i.find('input[name="item_id[]"]').remove();
+                    $c_i.find('input[name="item_value[]"]').attr('name', 'item_new[]');
                 }, {
                     cloneElem: Items.clone,
                     delElem: Items.del,
@@ -209,14 +221,22 @@
                 });
                 $('.-checkSubmit').prop('disabled', !chkItems);
             }
+            // 刪除項目
+            function delItem({$this}) {
+                const id = $this.siblings('input[name="item_id[]"]').val();
+                del_item_id.push(id);
+            }
 
             // 儲存前設定name
             $('#form1').submit(function(e) {
+                $('input[name="del_item_id"]').val(del_item_id.toString());
                 $(Spec.clone).each(function(index, element) {
                     // element == this
                     $(element).find('select.-single.-select2, select.-single + input:hidden')
                         .attr('name', `spec${index}`);
-                    $(element).find(`${Items.clone} input`).attr('name', `item${index}[]`);
+                    $(element).find(`${Items.clone} input[name]`).attr('name', function (i, attr) {
+                        return attr.replace('[]', `${index}[]`);
+                    });
                 });
             });
         </script>

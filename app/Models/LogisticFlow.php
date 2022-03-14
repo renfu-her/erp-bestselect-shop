@@ -12,19 +12,33 @@ class LogisticFlow extends Model
     protected $table = 'dlv_logistic_flow';
     protected $guarded = [];
 
-    public static function changeDeliveryStatus($delivery_id, $code)
+    //更新出貨單物態
+    public static function changeDeliveryStatus($delivery_id, $logistic_status_get)
     {
-        $code = DB::table('dlv_logistic_status')->where('code', $code)->get()->first();
+        if (null == $logistic_status_get) {
+            return ['success' => 0, 'error_msg' => '無此物流狀態'];
+        }
 
-        Delivery::where('id', $delivery_id)->update([
-            'logistic_status' => $code->title,
-            'logistic_status_code' => $code->code,
-        ]);
+        //判斷最新一筆物態是否相同 不同才做
+        $logisticFlow = LogisticFlow::getListByDeliveryId($delivery_id);
+        $logisticFlow_get = $logisticFlow->get()->first();
+        if (null == $logisticFlow_get || $logisticFlow_get->status_id != $logistic_status_get->id) {
+            LogisticFlow::create([
+                'delivery_id' => $delivery_id,
+                'status_id' => $logistic_status_get->id,
+                'status' => $logistic_status_get->title,
+                'status_code' => $logistic_status_get->code,
+            ]);
+        }
+    }
 
-        self::create([
-            'delivery_id' => $delivery_id,
-            'status' => $code->title,
-            'status_code' => $code->code,
-        ]);
+    /**
+     * 取得出貨單目前最新物態
+     * @param $delivery_id 出貨單ID
+     */
+    public static function getListByDeliveryId($delivery_id) {
+        $query = LogisticFlow::where('delivery_id', $delivery_id)
+            ->orderByDesc('dlv_logistic_flow.created_at');
+        return $query;
     }
 }

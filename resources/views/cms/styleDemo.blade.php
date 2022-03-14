@@ -307,7 +307,15 @@
                                 </div>
                                 <div class="col-12 col-sm-4 mb-3">
                                     <label class="form-label">Date</label>
-                                    <input class="form-control" type="date">
+                                    <div class="input-group has-validation">
+                                        <input type="date" name="" value=""
+                                               class="form-control" aria-label=""/>
+                                        <button class="btn btn-outline-secondary icon" type="button" data-clear
+                                                data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
+                                        </button>
+                                        <div class="invalid-feedback">
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="col-12 col-sm-8 mb-3">
                                     <label class="form-label">Files</label>

@@ -20,7 +20,9 @@ class CreatePcsPayingOrdersItemsTable extends Migration
             $table->tinyInteger('type')->comment('付款單類型 0:訂金 1:尾款');
 
             $table->string('sn')->comment('付款單號');
-            $table->string('price')->nullable()->comment('金額');
+            $table->decimal('price')->nullable()->comment('金額');
+            $table->decimal('tw_dollar')->nullable()->default(null)->comment('新台幣,暫留欄位');
+            $table->decimal('rate')->nullable()->default(null)->comment('採購當時的匯率,暫留欄位');
 
             $table->dateTime('expecte_pay_date')->nullable()->comment('期望付款日期');
             $table->string('pay_date')->nullable()->comment('付款日期');

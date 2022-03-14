@@ -7,61 +7,6 @@ use Illuminate\Support\Facades\DB;
 
 class IncomeExpenditureSeeder extends Seeder
 {
-    private const CURRENCY = [
-            [
-                'name' => 'USD-美金',
-                'rate' => 30,
-            ],
-            [
-                'name' => 'JPY-日幣',
-                'rate' => 0.29,
-            ],
-            [
-                'name' => 'EUR-歐元',
-                'rate' => 35,
-            ],
-            [
-                'name' => 'AUD-澳幣',
-                'rate' => 20,
-            ],
-            [
-                'name' => 'CNY-人民幣',
-                'rate' => 4.5,
-            ],
-            [
-                'name' => 'THB-泰幣',
-                'rate' => 1.1,
-            ],
-            [
-                'name' => 'GBP-英鎊',
-                'rate' => 41,
-            ],
-            [
-                'name' => 'KRW-韓幣',
-                'rate' => 0.03,
-            ],
-            [
-                'name' => 'CAD-加拿大幣',
-                'rate' => 20,
-            ],
-            [
-                'name' => 'HKD-港幣',
-                'rate' => 4,
-            ],
-            [
-                'name' => 'NZD-紐西蘭幣',
-                'rate' => 20,
-            ],
-            [
-                'name' => 'SGD-新加坡幣',
-                'rate' => 22,
-            ],
-            [
-                'name' => 'CHF-法郎',
-                'rate' => 32.5,
-            ],
-        ];
-
     /**
      * Run the database seeds.
      *
@@ -83,16 +28,16 @@ class IncomeExpenditureSeeder extends Seeder
             'grade' => 4,
         ]);
         $incomeType_4 = DB::table('acc_income_type')->insertGetId([
-            'type' => '應付帳款',
+            'type' => '外幣',
             'grade' => 4,
         ]);
         $incomeType_5 = DB::table('acc_income_type')->insertGetId([
-            'type' => '其它',
-            'grade' => 3,
+            'type' => '應付帳款',
+            'grade' => 4,
         ]);
         $incomeType_6 = DB::table('acc_income_type')->insertGetId([
-            'type' => '外幣',
-            'grade' => 4,
+            'type' => '其它',
+            'grade' => 3,
         ]);
 
         //現金
@@ -133,38 +78,46 @@ class IncomeExpenditureSeeder extends Seeder
 
         //應付帳款
         DB::table('acc_income_expenditure')->insert([
-            'acc_income_type_fk' => $incomeType_4,
+            'acc_income_type_fk' => $incomeType_5,
             'grade_id_fk' => 2,
             'acc_currency_fk' => null,
         ]);
         DB::table('acc_income_expenditure')->insert([
-            'acc_income_type_fk' => $incomeType_4,
+            'acc_income_type_fk' => $incomeType_5,
             'grade_id_fk' => 4,
             'acc_currency_fk' => null,
         ]);
 
         //其他
         DB::table('acc_income_expenditure')->insert([
-            'acc_income_type_fk' => $incomeType_5,
+            'acc_income_type_fk' => $incomeType_6,
             'grade_id_fk' => 1,
             'acc_currency_fk' => null,
         ]);
         DB::table('acc_income_expenditure')->insert([
-            'acc_income_type_fk' => $incomeType_5,
+            'acc_income_type_fk' => $incomeType_6,
             'grade_id_fk' => 3,
             'acc_currency_fk' => null,
         ]);
 
         //外幣
-        foreach (self::CURRENCY as $currencyRate) {
+        $currencyArray = include 'currency.php';
+        foreach ($currencyArray as $currencyRate) {
             DB::table('acc_currency')->insert($currencyRate);
         }
         for ($index = 1; $index <= 13; $index++) {
             DB::table('acc_income_expenditure')->insert([
-                'acc_income_type_fk' => $incomeType_6,
-                'grade_id_fk' => ($index % 4) === 0 ? 1 : ($index % 4),
+                'acc_income_type_fk' => $incomeType_4,
+                'grade_id_fk' => $index + 2,
                 'acc_currency_fk' => $index,
             ]);
         }
+
+        foreach (['付款', '兌現', '押票', '退票', '開票'] as $chequeStatus) {
+            DB::table('acc_cheque_status')->insert(['status' => $chequeStatus]);
+        }
+
+        DB::table('acc_payable_status')->insert(['payment_status' => '未付款']);
+        DB::table('acc_payable_status')->insert(['payment_status' => '已付款']);
     }
 }

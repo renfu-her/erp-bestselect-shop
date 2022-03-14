@@ -13,16 +13,16 @@ class Collection extends Model
 
     protected $table = 'collection';
     protected $fillable = [
-            'name',
-            'url',
-            'meta_title',
-            'meta_description',
-            'is_public'
-        ];
+        'name',
+        'url',
+        'meta_title',
+        'meta_description',
+        'is_public',
+    ];
 
     /**
      * @param  string  $id collection primary_id
-//     * @param  int  $amount 分頁數、限制回傳數量（待討論）
+    //     * @param  int  $amount 分頁數、限制回傳數量（待討論）
      *
      * @return array|mixed
      */
@@ -34,13 +34,13 @@ class Collection extends Model
                 'status' => 1,
                 'msg' => '查無此商品群組',
                 'data' => [
-                ]
+                ],
             ];
         }
 
         $queryResult =
-            DB::table('collection')
-                ->where('collection.id', '=', $id)
+        DB::table('collection')
+            ->where('collection.id', '=', $id)
             ->leftJoin('collection_prd', 'collection_id_fk', 'collection.id')
             ->leftJoin('prd_products', 'product_id_fk', '=', 'prd_products.id')
             ->leftJoin('prd_product_styles', 'prd_products.id', '=', 'prd_product_styles.product_id')
@@ -62,17 +62,17 @@ class Collection extends Model
             ->groupBy('prd_id')
             ->toArray();
 
-        $dataList  = array();
+        $dataList = array();
         foreach ($queryResult as $item) {
             $dataList[] = [
-                'sku'    => $item[0]->sku,
-                'name'   => $item[0]->title,
-                'img'    => $item[0]->img_url,
+                'sku' => $item[0]->sku,
+                'name' => $item[0]->title,
+                'img' => $item[0]->img_url,
                 'amount' => $item[0]->in_stock,
-                'price'  => [
+                'price' => [
                     'origin' => $item[0]->origin_price,
-                    'sale'   => $item[0]->price
-                ]
+                    'sale' => $item[0]->price,
+                ],
             ];
         }
 
@@ -88,23 +88,22 @@ class Collection extends Model
         array $productIdArray
     ) {
         if (self::where('url', $url)->get()->first()) {
-            $url = $url.'-'.time();
+            $url = $url . '-' . time();
         }
 
         $collectionId = self::create([
-            'name'             => $collection_name,
-            'url'              => $url,
-            'meta_title'       => $meta_title,
+            'name' => $collection_name,
+            'url' => $url,
+            'meta_title' => $meta_title,
             'meta_description' => $meta_description,
-            'is_public'        => (bool) $is_public,
+            'is_public' => (bool) $is_public,
         ])->id;
-
 
         for ($i = 0; $i < count($productIdArray); $i++) {
             DB::table('collection_prd')
                 ->insert([
                     'collection_id_fk' => $collectionId,
-                    'product_id_fk'    => $productIdArray[$i]
+                    'product_id_fk' => $productIdArray[$i],
                 ]);
         }
     }
@@ -151,17 +150,17 @@ class Collection extends Model
     ) {
         if (self::where([
             ['id', '<>', $collectionId],
-            ['url', '=', $url]
+            ['url', '=', $url],
         ])->get()->first()
         ) {
-            $url = $url.'-'.time();
+            $url = $url . '-' . time();
         }
 
         self::where('id', $collectionId)
             ->update([
-                'name'             => $collection_name,
-                'url'              => $url,
-                'meta_title'       => $meta_title,
+                'name' => $collection_name,
+                'url' => $url,
+                'meta_title' => $meta_title,
                 'meta_description' => $meta_description,
             ]);
 
@@ -171,7 +170,7 @@ class Collection extends Model
         for ($i = 0; $i < count($prdIdArray); $i++) {
             DB::table('collection_prd')->insert([
                 'collection_id_fk' => $collectionId,
-                'product_id_fk'    => $prdIdArray[$i]
+                'product_id_fk' => $prdIdArray[$i],
             ]);
         }
     }
@@ -196,10 +195,24 @@ class Collection extends Model
 
         $name = Arr::get($query, 'name', '');
         if ($name) {
-           $result->where('name', 'like', "%$name%");
+            $result->where('name', 'like', "%$name%");
         }
 
         return $result->paginate(10)
-                    ->appends($query);
+            ->appends($query);
+    }
+
+    public static function addProductToCollections($product_id, $collection_ids)
+    {
+        DB::table('collection_prd')->where('product_id_fk', $product_id)->delete();
+        if (count($collection_ids) == 0) {
+            return;
+        }
+        DB::table('collection_prd')->insert(array_map(function ($n) use ($product_id) {
+            return [
+                'product_id_fk' => $product_id,
+                'collection_id_fk' => $n,
+            ];
+        }, $collection_ids));
     }
 }

@@ -83,7 +83,7 @@ class SaleChannel extends Model
     {
         return DB::table('prd_sale_channels as c')
             ->leftJoin('prd_salechannel_style_price as price', 'c.id', '=', 'price.sale_channel_id', 'left outer')
-            ->select('c.id as sale_id', 'c.title', 'c.is_realtime','c.is_master','c.discount')
+            ->select('c.id as sale_id', 'c.title', 'c.is_realtime', 'c.is_master', 'c.discount')
             ->selectRaw('IF(price.dealer_price,price.dealer_price,0) as dealer_price')
             ->selectRaw('IF(price.origin_price,price.origin_price,0) as origin_price')
             ->selectRaw('IF(price.price,price.price,0) as price')
@@ -94,7 +94,7 @@ class SaleChannel extends Model
                 $q->where('price.style_id', $style_id)
                     ->orWhereNull('price.style_id');
             })
-            ->orderBy('c.is_master','DESC');
+            ->orderBy('c.is_master', 'DESC');
     }
 
     public static function changePrice($sale_id, $style_id, $dealer_price, $price, $origin_price, $bonus, $dividend)
@@ -163,6 +163,48 @@ class SaleChannel extends Model
                             'sale_channel_id' => $currentSale->id,
                             'dealer_price' => $product->dealer_price,
                             'origin_price' => $product->origin_price,
+                            'price' => $price,
+                            'bonus' => $bonus,
+                        ]);
+                }
+            }
+        });
+    }
+
+    public static function addPriceForStyle($style_id)
+    {
+        DB::transaction(function () use ($style_id) {
+            $masterSale = DB::table('prd_sale_channels as ch')
+                ->leftJoin('prd_salechannel_style_price as price', 'ch.id', '=', 'price.sale_channel_id')
+                ->where('ch.is_master', 1)
+                ->where('price.style_id', $style_id)
+                ->select('ch.id as channel_id', 'price.*')->get()->first();
+
+          
+            if (!$masterSale) {
+                return;
+            }
+            
+            $saleChannels = self::where('is_master', '<>', 1)
+                ->select('id', 'discount')
+                ->get();
+
+            foreach ($saleChannels as $sale) {
+                // dd($product);
+                $hasPrice = DB::table('prd_salechannel_style_price')
+                    ->where('sale_channel_id', $sale->id)
+                    ->where('style_id', $style_id)
+                    ->get()->first();
+
+                if (!$hasPrice) {
+                    $price = round($masterSale->price * $sale->discount);
+                    $bonus = round(($price - $masterSale->dealer_price) * Bonus::bonus()->value);
+                    DB::table('prd_salechannel_style_price')
+                        ->insert([
+                            'style_id' => $masterSale->style_id,
+                            'sale_channel_id' => $sale->id,
+                            'dealer_price' => $masterSale->dealer_price,
+                            'origin_price' => $masterSale->origin_price,
                             'price' => $price,
                             'bonus' => $bonus,
                         ]);

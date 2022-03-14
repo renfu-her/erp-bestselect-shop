@@ -24,10 +24,10 @@
         <a href="{{ Route('cms.purchase.inbound', ['id' => $id], true) }}"
             class="nav-link {{ isActive('inbound', $route_name) }}">入庫審核</a>
     </li>
-    <li class="nav-item">
-        <a href="#"
-            class="nav-link disabled">物流資料</a>
-    </li>
+{{--    <li class="nav-item">--}}
+{{--        <a href="#"--}}
+{{--            class="nav-link disabled">物流資料</a>--}}
+{{--    </li>--}}
     <li class="nav-item">
         <a href="#"
             class="nav-link disabled">結單管理</a>

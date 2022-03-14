@@ -16,53 +16,117 @@
         <div class="alert alert-danger mt-3">{{ $message }}</div>
         @enderror
 
-        <div class="card shadow p-4 mb-4">
-            <div class="row">
-                <div class="col-12 col-sm-6 mb-3 ">
-                    <label class="form-label">採購廠商{{$purchaseData->supplier_id ?? ''}} <span class="text-danger">*</span></label>
-                    <select id="supplier" @if ($method === 'edit') disabled @endif
-                    class="form-select -select2 -single @error('supplier') is-invalid @enderror"
-                            aria-label="採購廠商" required>
-                        <option value="" selected disabled>請選擇</option>
-                        @foreach ($supplierList as $supplierItem)
-                            <option value="{{ $supplierItem->id }}"
-                                    @if ($supplierItem->id == old('supplier', $purchaseData->supplier_id ?? '')) selected @endif>
-                                {{ $supplierItem->name }}@if ($supplierItem->nickname)（{{ $supplierItem->nickname }}） @endif
-                            </option>
-                        @endforeach
-                    </select>
-                    <input type="hidden" name="supplier" value="">
-                    <div class="invalid-feedback">
-                        @error('supplier')
-                        {{ $message }}
-                        @enderror
-                    </div>
-                </div>
+        @if ($method === 'edit')
+            <input type='hidden' name='id' value="{{ old('id', $id) }}"/>
 
-                <div class="col-12 col-sm-6 mb-3 ">
-                    <label class="form-label">廠商預計進貨日期 <span class="text-danger">*</span></label>
-                    <div class="input-group has-validation">
-                        <input type="date" id="date" name="scheduled_date"
-                               value="{{ old('scheduled_date', $purchaseData->scheduled_date  ?? '') }}"
-                               class="form-control @error('scheduled_date') is-invalid @enderror" aria-label="廠商預計進貨日期"
-                               required/>
-                        <button class="btn btn-outline-secondary icon" type="button" data-clear
-                                data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
-                        </button>
+            <div class="card shadow p-4 mb-4">
+                <h6>基本資訊</h6>
+                <div class="row">
+                    <div class="col-12 col-sm-6 mb-3">
+                        <label class="form-label">新增人員</label>
+                        <div class="form-control" readonly>{{ empty($purchaseData->user_name) ? '-' : $purchaseData->user_name }}</div>
+                    </div>
+                    <div class="col-12 col-sm-6 mb-3">
+                        <label class="form-label">狀態</label>
+                        <div class="form-control" readonly>-</div>
+                    </div>
+                    <div class="col-12 col-md-6 mb-3">
+                        <label class="form-label">入庫人員</label>
+                        <div class="form-control" readonly>{{ empty($inbound_names) ? '-' : $inbound_names }}</div>
+                    </div>
+                    <fieldset class="col-12 col-sm-6 mb-3">
+                        <legend class="col-form-label p-0 mb-2">課稅別 <span class="text-danger">*</span></legend>
+                        <div class="px-1 pt-1">
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="tax" type="radio" value="1" required
+                                        @if ($hasCreatedFinalPayment) disabled @endif
+                                        @if (1 === $purchaseData->has_tax ?? '') checked @endif>
+                                    應稅
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="tax" type="radio" value="0" required
+                                        @if ($hasCreatedFinalPayment) disabled @endif
+                                        @if (0 === $purchaseData->has_tax ?? '') checked @endif>
+                                    免稅
+                                </label>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        @endif
+
+        <div class="card shadow p-4 mb-4">
+            <h6>廠商資訊</h6>
+            <div class="row">
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">採購廠商 <span class="text-danger">*</span></label>
+                    @if ($method === 'edit')
+                        <div class="form-control" readonly>
+                            {{ $purchaseData->supplier_name }}@if ($purchaseData->supplier_nickname)（{{ $purchaseData->supplier_nickname }}） @endif
+                        </div>
+                    @else
+                        <select id="supplier" aria-label="採購廠商" required
+                            class="form-select -select2 -single @error('supplier') is-invalid @enderror">
+                            <option value="" selected disabled>請選擇</option>
+                            @foreach ($supplierList as $supplierItem)
+                                <option value="{{ $supplierItem->id }}"
+                                        @if ($supplierItem->id == old('supplier')) selected @endif>
+                                    {{ $supplierItem->name }}@if ($supplierItem->nickname)（{{ $supplierItem->nickname }}） @endif
+                                </option>
+                            @endforeach
+                        </select>
                         <div class="invalid-feedback">
-                            @error('date')
+                            @error('supplier')
                             {{ $message }}
                             @enderror
                         </div>
-                    </div>
+                    @endif
+                    <input type="hidden" name="supplier" value="{{ $purchaseData->supplier_id ?? '' }}">
                 </div>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">廠商預計進貨日期 <span class="text-danger">*</span></label>
+                    @if ($hasCreatedFinalPayment)
+                        <div class="form-control" readonly>
+                            {{ empty($purchaseData->scheduled_date) ? '-' : date('Y/m/d', strtotime($purchaseData->scheduled_date)) }}
+                        </div>
+                    @else
+                        <div class="input-group has-validation">
+                            <input type="date" id="scheduled_date" name="scheduled_date"
+                                value="{{ old('scheduled_date', $purchaseData->scheduled_date  ?? '') }}"
+                                class="form-control @error('scheduled_date') is-invalid @enderror" aria-label="廠商預計進貨日期"
+                                required/>
+                            <button class="btn btn-outline-secondary icon" type="button" data-clear
+                                    data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
+                            </button>
+                            <div class="invalid-feedback">
+                                @error('scheduled_date')
+                                {{ $message }}
+                                @enderror
+                            </div>
+                        </div>
+                    @endif
+                    
+                </div>
+
+                @if ($method === 'edit')
+                    <div class="col-12 col-sm-6 mb-3">
+                        <label class="form-label">廠商訂單號</label>
+                        <input class="form-control" name="supplier_sn" type="text" aria-label="廠商訂單號"
+                               value="{{ old('supplier_sn', $purchaseData->supplier_sn  ?? '-') }}"
+                               @if ($hasCreatedFinalPayment) disabled @endif placeholder="請輸入廠商訂單號">
+                    </div>
+                @endif
             </div>
         </div>
 
         <div class="card shadow p-4 mb-4">
             <h6>採購清單</h6>
             <div class="table-responsive tableOverBox">
-                <table class="table table-hover tableList mb-1">
+                <table class="table table-hover tableList mb-0">
                     <thead>
                     <tr>
                         <th scope="col" class="text-center">刪除</th>
@@ -70,7 +134,11 @@
                         <th scope="col">SKU</th>
                         <th scope="col">採購數量</th>
                         <th scope="col">採購價錢</th>
-                        <th scope="col">備註</th>
+                        @if ($method === 'edit')
+                            <th scope="col">狀態</th>
+                            <th scope="col">入庫人員</th>
+                        @endif
+                        <th scope="col">採購備註</th>
                     </tr>
                     </thead>
                     <tbody class="-appendClone --selectedP">
@@ -94,7 +162,7 @@
                             <td>
                                 <div class="input-group input-group-sm flex-nowrap">
                                     <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                    <input type="number" class="form-control form-control-sm" name="price[]" min="0" value="" required/>
+                                    <input type="number" class="form-control form-control-sm" name="price[]" min="0" step="0.01" value="" required/>
                                 </div>
                             </td>
                             <td>
@@ -109,32 +177,45 @@
                                             class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                         <i class="bi bi-trash"></i>
                                     </button>
-                                    <input type="hidden" name="item_id[]" value="{{ old('item_id.'. $psItemKey, $psItemVal['id']?? '') }}">
-                                    <input type="hidden" name="product_style_id[]" value="{{ old('product_style_id.'. $psItemKey, $psItemVal['product_style_id']?? '') }}">
-                                    <input type="hidden" name="name[]" value="{{ old('name.'. $psItemKey, $psItemVal['title']?? '') }}">
-                                    <input type="hidden" name="sku[]" value="{{ old('sku.'. $psItemKey, $psItemVal['sku']?? '') }}">
+                                    <input type="hidden" name="item_id[]" value="{{ old('item_id.'. $psItemKey, $psItemVal->id?? '') }}">
+                                    <input type="hidden" name="product_style_id[]" value="{{ old('product_style_id.'. $psItemKey, $psItemVal->product_style_id?? '') }}">
+                                    <input type="hidden" name="name[]" value="{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}">
+                                    <input type="hidden" name="sku[]" value="{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}">
                                 </th>
-                                <td data-td="name">{{ old('name.'. $psItemKey, $psItemVal['title']?? '') }}</td>
-                                <td data-td="sku">{{ old('sku.'. $psItemKey, $psItemVal['sku']?? '') }}</td>
+                                <td data-td="name">{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}</td>
+                                <td data-td="sku">{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}</td>
                                 <td>
                                     <input type="number" class="form-control form-control-sm @error('num.' . $psItemKey) is-invalid @enderror"
-                                           name="num[]" value="{{ old('num.'. $psItemKey, $psItemVal['num']?? '') }}" min="1" required/>
+                                           name="num[]" value="{{ old('num.'. $psItemKey, $psItemVal->num?? '') }}" min="1" step="0.01" required/>
                                 </td>
                                 <td>
                                     <div class="input-group input-group-sm flex-nowrap">
                                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                                         <input type="number" class="form-control form-control-sm @error('price.' . $psItemKey) is-invalid @enderror"
-                                               name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal['price']?? '') }}" min="0" required/>
+                                               name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}" min="0" step="0.01" required/>
                                     </div>
                                 </td>
+                                @if ($method === 'edit')
+                                    <td data-td="inbound_type">{{$psItemVal->inbound_type?? ''}}</td>
+                                    <td data-td="inbound_user_name">{{$psItemVal->inbound_user_name?? ''}}</td>
+                                @endif
                                 <td>
                                     <input type="text" class="form-control form-control-sm -xl" name="memo[]"
-                                           value="{{ old('memo.'. $psItemKey, $psItemVal['memo']?? '') }}"/>
+                                           value="{{ old('memo.'. $psItemKey, $psItemVal->memo?? '') }}"/>
                                 </td>
                             </tr>
                         @endforeach
                     @endif
                     </tbody>
+                    <tfoot>
+                    <tr>
+                        <th class="lh-1"></th>
+                        <th class="lh-1"></th>
+                        <th class="lh-1"></th>
+                        <th class="lh-1">價錢小計</th>
+                        <th class="lh-1 text-end -sum">$ 0</th>
+                    </tr>
+                    </tfoot>
                 </table>
             </div>
             <div class="d-grid mt-3">
@@ -144,31 +225,66 @@
                 @error('item_error')
                 <div class="alert alert-danger mt-3">{{ $message }}</div>
                 @enderror
-                @if(false == ($isAlreadyFinalPay?? false))
-                <button id="addProductBtn" type="button"
-                        class="btn btn-outline-primary border-dashed" style="font-weight: 500;">
-                    <i class="bi bi-plus-circle bold"></i> 加入商品
-                </button>
+                @if(false == ($hasCreatedFinalPayment?? false))
+                    <button id="addProductBtn" type="button"
+                            class="btn btn-outline-primary border-dashed" style="font-weight: 500;">
+                        <i class="bi bi-plus-circle bold"></i> 加入商品
+                    </button>
                 @endif
             </div>
-
         </div>
 
         @if ($method === 'edit')
-            <input type='hidden' name='id' value="{{ old('id', $id) }}"/>
+            @php
+                $hasLogistics = $purchaseData->logistics_price !== 0 || !empty($purchaseData->logistics_memo);
+            @endphp
+            <div id="logistics" class="card shadow p-4 mb-4">
+                <h6>物流</h6>
+                <div class="row mb-3" @if (!$hasLogistics) hidden @endif >
+                    <div class="col-12 col-sm-6 mb-3">
+                        <label class="form-label">物流費用 <span class="text-danger">*</span></label>
+                        <div class="input-group flex-nowrap">
+                            <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                            <input class="form-control" name="logistics_price" type="number" min="0" placeholder="請輸入運費"
+                                   value="{{ old('logistics_price', $purchaseData->logistics_price  ?? '') }}"
+                                   @if ($hasCreatedFinalPayment) disabled @endif
+                                   @if ($hasLogistics) required @endif/>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 mb-3">
+                        <label class="form-label">物流備註</label>
+                        <input class="form-control" name="logistics_memo" type="text" placeholder="請輸入物流備註" aria-label="物流備註"
+                               value="{{ old('logistics_memo', $purchaseData->logistics_memo  ?? '') }}"
+                               @if ($hasCreatedFinalPayment) disabled @endif>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    @if ($hasCreatedFinalPayment)
+                        @if (!$hasLogistics)
+                            <label class="text-secondary">無</label>
+                        @endif
+                    @else
+                        <button class="btn btn-primary -add" type="button" role="button"
+                            @if ($hasLogistics) hidden @endif>
+                            <i class="bi bi-plus-lg"></i> 新增物流
+                        </button>
+                        <button class="btn btn-outline-danger -del" type="button"
+                            @if (!$hasLogistics) hidden @endif>
+                            <i class="bi bi-trash"></i> 刪除物流
+                        </button>
+                    @endif
+                </div>
+            </div>
 
             <div class="card shadow p-4 mb-4">
-                <h6>付款單</h6>
+                <h6>付款資訊</h6>
                 <div class="row">
                     <div class="col-12 col-sm-6 mb-3">
-                        <label class="form-label">訂金付款單</label>
+                        <label class="form-label">訂金付款單@if($hasCreatedDepositPayment && $hasReceivedDepositPayment)<span class="text-danger">（已付完訂金）</span>@endif</label>
                         <div class="form-control" readonly>
                             @if($hasCreatedDepositPayment)
                                 <a href="{{ Route('cms.purchase.view-pay-order', ['id' => $id, 'type' => '0'], true) }}" >
                                     付款單號-{{ $depositPayData->sn }}
-                                    @if($hasReceivedDepositPayment)
-                                        （已付完訂金）
-                                    @endif
                                 </a>
                             @else
                                 <a href="{{ Route('cms.purchase.pay-deposit', ['id' => $id], true) }}">新增付款單</a>
@@ -176,14 +292,11 @@
                         </div>
                     </div>
                     <div class="col-12 col-sm-6 mb-3 ">
-                        <label class="form-label">尾款付款單</label>
+                        <label class="form-label">尾款付款單@if($hasCreatedFinalPayment && $hasReceivedFinalPayment)<span class="text-danger">（已付完尾款）</span>@endif</label>
                         <div class="form-control" readonly>
                             @if($hasCreatedFinalPayment)
                                 <a href="{{ Route('cms.purchase.view-pay-order', ['id' => $id, 'type' => '1'], true) }}">
                                     付款單號-{{ $finalPayData->sn }}
-                                    @if($hasReceivedFinalPayment)
-                                        （已付完尾款）
-                                    @endif
                                 </a>
                             @else
                                 @if($hasCreatedDepositPayment && !$hasReceivedDepositPayment)
@@ -192,6 +305,26 @@
                                     <a href="{{ Route('cms.purchase.pay-final', ['id' => $id], true) }}">新增付款單</a>
                                 @endif
                             @endif
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 mb-3">
+                        <label class="form-label">發票號碼</label>
+                        <input class="form-control" name="invoice_num" type="text" placeholder="請輸入發票號碼" maxlength="10" aria-label="發票號碼" value="{{ old('invoice_num', $purchaseData->invoice_num  ?? '') }}">
+                    </div>
+                    <div class="col-12 col-sm-6 mb-3">
+                        <label class="form-label">發票日期</label>
+                        <div class="input-group has-validation">
+                            <input type="date" id="invoice_date" name="invoice_date"
+                                   value="{{ old('invoice_date', $purchaseData->invoice_date  ?? '') }}"
+                                   class="form-control @error('scheduled_date') is-invalid @enderror" aria-label="發票日期"/>
+                            <button class="btn btn-outline-secondary icon" type="button" data-clear
+                                    data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
+                            </button>
+                            <div class="invalid-feedback">
+                                @error('invoice_date')
+                                {{ $message }}
+                                @enderror
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -205,8 +338,10 @@
         <div id="submitDiv">
             <div class="col-auto">
                 <input type="hidden" name="del_item_id">
-                @if(false == ($isAlreadyFinalPay?? false) && (null == ($purchaseData?? null) || null == $purchaseData->close_date))
-                <button type="submit" class="btn btn-primary px-4">儲存</button>
+                @if(!$hasCreatedFinalPayment && $purchaseData->close_date == null)
+                    <button type="submit" class="btn btn-primary px-4">儲存</button>
+                @else
+                    <button type="submit" class="btn btn-primary px-4">登錄發票</button>
                 @endif
                 <a href="{{ Route('cms.purchase.index', [], true) }}" class="btn btn-outline-primary px-4"
                    role="button">返回列表</a>
@@ -275,11 +410,26 @@
     @push('sub-scripts')
         <script>
             let supplierList = @json($supplierList);
-            let isAlreadyFinalPay = @json($isAlreadyFinalPay?? false);
+            let hasCreatedFinalPayment = @json($hasCreatedFinalPayment?? false);
 
-            if (true == isAlreadyFinalPay) {
+            if (true == hasCreatedFinalPayment) {
                 $('.-cloneElem.--selectedP :input').prop("disabled", true);
             }
+
+            // 物流
+            // -新增
+            $('#logistics button.-add').off('click').on('click', function () {
+                $('#logistics div.row, #logistics button.-del').prop('hidden', false);
+                $('#logistics input[name="logistics_price"]').prop('required', true);
+                $(this).prop('hidden', true);
+            });
+            // -刪除
+            $('#logistics button.-del').off('click').on('click', function () {
+                $('#logistics div.row, #logistics button.-del').prop('hidden', true);
+                $('#logistics input[name="logistics_price"]').prop('required', false);
+                $('#logistics input[name^="logistics_"]').val('');
+                $('#logistics button.-add').prop('hidden', false);
+            });
 
             $('#supplier').on('change', function (e) {
                 // if ("" != $('input[name=bank_cname]').val()
@@ -293,6 +443,7 @@
                 // } else {
                 //     changeRemittance();
                 // }
+                $('input:hidden[name="supplier"]').val($('#supplier').val());
             });
 
             //變更匯款資料
@@ -317,7 +468,9 @@
 
             // 儲存前設定name
             $('#form1').submit(function(e) {
-                $('input:hidden[name="supplier"]').val($('#supplier').val());
+                if ($('#supplier').length) {
+                    $('input:hidden[name="supplier"]').val($('#supplier').val());
+                }
             });
         </script>
         <script>
@@ -353,9 +506,14 @@
                     if (!$('.-cloneElem.--selectedP').length) {
                         $('button[type="submit"]').prop('disabled', true);
                     }
+                    sumPrice();
                 }
             };
             Clone_bindDelElem($('.-cloneElem.--selectedP .-del'), delItemOption);
+            // init bind
+            bindPriceSum();
+            sumPrice();
+
             // 無商品不可儲存
             if (!$('.-cloneElem.--selectedP').length) {
                 $('button[type="submit"]').prop('disabled', true);
@@ -380,7 +538,7 @@
                 let _URL = `${Laravel.apiUrl.productStyles}?page=${page}`;
                 let Data = {
                     keyword: $('#addProduct .-searchBar input').val(),
-                    supplier_id: $('#supplier').val()
+                    supplier_id: $('input:hidden[name="supplier"]').val()
                 };
 
                 if (!Data.supplier_id) {
@@ -478,6 +636,7 @@
                 if ($('.-cloneElem.--selectedP').length) {
                     $('#supplier').prop('disabled', true);
                 }
+                bindPriceSum();
 
                 // 關閉懸浮視窗
                 addProductModal.hide();
@@ -512,6 +671,24 @@
                 $('#addProduct .-checkedNum').text('已選取 0 件商品');
                 $('.-emptyData').hide();
             });
+
+            // 綁定計算
+            function bindPriceSum() {
+                $('.-cloneElem.--selectedP input[name="price[]"]')
+                    .off('change.sum').on('change.sum', function () {
+                    sumPrice();
+                });
+            }
+            // 計算小計
+            function sumPrice() {
+                let sum = 0;
+                $('.-cloneElem.--selectedP input[name="price[]"]').each(function (index, element) {
+                    // element == this
+                    const val = Number($(this).val());
+                    sum = Number((sum + val).toFixed(2));
+                });
+                $('tfoot th.-sum').text(`$ ${formatNumber(sum.toFixed(2))}`);
+            }
         </script>
     @endpush
 @endonce

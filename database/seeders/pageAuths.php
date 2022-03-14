@@ -193,6 +193,48 @@ return [
         ],
     ],
     [
+        "unit" => "付款作業",
+        "permissions" => [
+            [
+                "cms.ap.index",
+                "瀏覽",
+            ],
+            [
+                "cms.ap.create",
+                "新增",
+            ],
+            [
+                "cms.ap.edit",
+                "編輯",
+            ],
+            [
+                "cms.ap.delete",
+                "刪除",
+            ],
+        ],
+    ],
+    [
+        "unit" => "收款科目",
+        "permissions" => [
+            [
+                "cms.ar.index",
+                "瀏覽",
+            ],
+            [
+                "cms.ar.create",
+                "新增",
+            ],
+            [
+                "cms.ar.edit",
+                "編輯",
+            ],
+            [
+                "cms.ar.delete",
+                "刪除",
+            ],
+        ],
+    ],
+    [
         "unit" => "會計科目",
         "permissions" => [
             [

@@ -1,4 +1,4 @@
-<div class="toast-container position-fixed bottom-0 right-0 p-3" style="z-index: 5; right: 0; bottom: 0;">
+<div class="toast-container position-fixed bottom-0 right-0 p-3" style="z-index: 1065; right: 0; bottom: 0;">
     {{-- 偵測 flash session 自動產生 --}}
     @if (!is_null($data))
         <div id="autoToast" class="toast hide toast-{{ $data->type }}" role="alert" aria-live="assertive"

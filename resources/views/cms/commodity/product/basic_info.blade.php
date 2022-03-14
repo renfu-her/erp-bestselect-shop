@@ -85,7 +85,7 @@
                         name="user_id">
                         <option value="" disabled selected>請選擇負責人員</option>
                         @foreach ($users as $key => $user)
-                            <option value="{{ $user->id }}" @if (old('user_id', $product->user_id ?? '') == $user->id) selected @endif>{{ $user->name }}</option>
+                            <option value="{{ $user->id }}" @if (old('user_id', $product->user_id ?? $current_user) == $user->id) selected @endif>{{ $user->name }}</option>
                         @endforeach
                     </select>
                     @error('user_id')
@@ -140,13 +140,13 @@
                     <legend class="col-form-label p-0 mb-2">應稅免稅 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline @error('has_tax')is-invalid @enderror">
-                            <input class="form-check-input @error('has_tax')is-invalid @enderror" name="has_tax" value="0"
-                                type="radio" id="tax_1" required @if (old('has_tax', $product->has_tax ?? '') == '0') checked @endif>
+                            <input class="form-check-input @error('has_tax')is-invalid @enderror" name="has_tax" value="1"
+                                type="radio" id="tax_1" required @if (old('has_tax', $product->has_tax ?? '1') == '1') checked @endif>
                             <label class="form-check-label" for="tax_1">應稅</label>
                         </div>
                         <div class="form-check form-check-inline @error('has_tax')is-invalid @enderror">
-                            <input class="form-check-input @error('has_tax')is-invalid @enderror" name="has_tax" value="1"
-                                type="radio" id="tax_2" required @if (old('has_tax', $product->has_tax ?? '1') == '1') checked @endif>
+                            <input class="form-check-input @error('has_tax')is-invalid @enderror" name="has_tax" value="0"
+                                type="radio" id="tax_2" required @if (old('has_tax', $product->has_tax ?? '') == '0') checked @endif>
                             <label class="form-check-label" for="tax_2">免稅（農林漁牧產品/免稅）</label>
                         </div>
                         @error('has_tax')
