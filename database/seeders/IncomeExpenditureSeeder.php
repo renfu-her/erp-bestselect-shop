@@ -18,26 +18,32 @@ class IncomeExpenditureSeeder extends Seeder
         $incomeType_1 = DB::table('acc_income_type')->insertGetId([
             'type' => '現金',
             'grade' => 3,
+            'grade_type' => 'App\Models\ThirdGrade'
         ]);
         $incomeType_2 = DB::table('acc_income_type')->insertGetId([
             'type' => '支票',
             'grade' => 4,
+            'grade_type' => 'App\Models\FourthGrade'
         ]);
         $incomeType_3 = DB::table('acc_income_type')->insertGetId([
             'type' => '匯款',
             'grade' => 4,
+            'grade_type' => 'App\Models\FourthGrade'
         ]);
         $incomeType_4 = DB::table('acc_income_type')->insertGetId([
             'type' => '外幣',
             'grade' => 4,
+            'grade_type' => 'App\Models\FourthGrade'
         ]);
         $incomeType_5 = DB::table('acc_income_type')->insertGetId([
             'type' => '應付帳款',
             'grade' => 4,
+            'grade_type' => 'App\Models\FourthGrade'
         ]);
         $incomeType_6 = DB::table('acc_income_type')->insertGetId([
             'type' => '其它',
             'grade' => 3,
+            'grade_type' => 'App\Models\ThirdGrade'
         ]);
 
         //現金
@@ -113,6 +119,32 @@ class IncomeExpenditureSeeder extends Seeder
             ]);
         }
 
+        DB::table('acc_payable')->insert([
+            'type' => 0,
+            'payable_type' => 'App\Models\PayableRemit',
+            'payable_id' => 1,
+            'acc_income_type_fk' => 3,
+            'pay_order_id_fk' => 1,
+            'tw_price' => 100,
+            'payable_status' => 1,
+            'payment_date' => '2022-03-01',
+            'accountant_id_fk' => 1,
+            'note' => 'aaa',
+        ]);
 
+        DB::table('acc_payable_remit')->insert([
+            'grade_type' => 'App\Models\FourthGrade',
+            'grade_id' => 1,
+            'remit_date' => '2022-02-15'
+        ]);
+
+        DB::table('acc_payable_cheque')->insert([
+            'grade_type' => 'App\Models\FourthGrade',
+            'grade_id' => 2,
+            'check_num' => "YA12345",
+            'maturity_date' => '2022-02-16',
+            'cash_cheque_date' => '2022-02-17',
+            'cheque_status' => 1
+        ]);
     }
 }
