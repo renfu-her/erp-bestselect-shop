@@ -63,7 +63,7 @@ class SupplierSeeder extends Seeder
             'account_date' => 15,
             'request_data' => '無',
             'email' => 'xxx@xxx.com',
-            'def_paytype' => Payment::cheque()->value,
+            'def_paytype' => Payment::Cheque()->value,
             'memo' => '第一家廠商',
         ])->id;
 
@@ -97,24 +97,24 @@ class SupplierSeeder extends Seeder
             'account_date' => 15,
             'request_data' => '無',
             'email' => 'mac.sense@hinet.com',
-            'def_paytype' => Payment::cheque()->value,
+            'def_paytype' => Payment::Cheque()->value,
             'memo' => '',
         ])->id;
 
         SupplierPayment::create([
             'supplier_id' => $supplier1,
-            'type' => Payment::cheque()->value,
+            'type' => Payment::Cheque()->value,
             'cheque_payable' => '第一筆支票抬頭',
         ]);
         SupplierPayment::create([
             'supplier_id' => $supplier2,
-            'type' => Payment::cheque()->value,
+            'type' => Payment::Cheque()->value,
             'cheque_payable' => '支票抬頭',
         ]);
 
         SupplierPayment::create([
             'supplier_id' => $supplier1,
-            'type' => Payment::remittance()->value,
+            'type' => Payment::Remittance()->value,
             'bank_cname' => '喜鴻金庫',
             'bank_code' => '008',
             'bank_acount' => '喜鴻國際有限公司',
@@ -122,7 +122,7 @@ class SupplierSeeder extends Seeder
         ]);
         SupplierPayment::create([
             'supplier_id' => $supplier2,
-            'type' => Payment::remittance()->value,
+            'type' => Payment::Remittance()->value,
             'bank_cname' => '合作金庫長春分行',
             'bank_code' => '006',
             'bank_acount' => '喜鴻旅行社有限公司',
