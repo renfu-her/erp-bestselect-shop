@@ -136,8 +136,6 @@ class CreateIncomeExpenditureTable extends Migration
             $table->dropColumn('acc_currency_fk');
         });
 
-        Schema::dropIfExists('acc_payable_cheque');
-
         if (Schema::hasColumns('pcs_purchase_items', ['acc_currency_fk'])) {
             Schema::table('pcs_purchase_items', function (Blueprint $table) {
                 $table->dropForeign(['acc_currency_fk']);
@@ -152,8 +150,12 @@ class CreateIncomeExpenditureTable extends Migration
             });
         }
 
+        Schema::dropIfExists('acc_payable_cash');
+        Schema::dropIfExists('acc_payable_cheque');
         Schema::dropIfExists('acc_payable_remit');
         Schema::dropIfExists('acc_payable_currency');
+        Schema::dropIfExists('acc_payable_account');
+        Schema::dropIfExists('acc_payable_other');
         Schema::dropIfExists('acc_payable');
         Schema::dropIfExists('acc_income_type');
         Schema::dropIfExists('acc_currency');
