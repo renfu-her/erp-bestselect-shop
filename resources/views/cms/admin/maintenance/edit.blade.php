@@ -16,7 +16,7 @@
             </div>
             <div class="card-body">
                 <x-b-form-group name="name" title="姓名">
-                    <div class="col-form-label">{{ $data->name }}</div>
+                    <div class="form-control" readonly>{{ $data->name }}</div>
                 </x-b-form-group>
                 <x-b-form-group name="password" title="密碼">
                     <input class="form-control @error('password') is-invalid @enderror" type="password"

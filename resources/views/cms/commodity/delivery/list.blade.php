@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">商品管理</h2>
+    <h2 class="mb-4">出貨管理</h2>
 
     <form id="search" action="{{ Route('cms.delivery.index') }}" method="GET">
         <div class="card shadow p-4 mb-4">
