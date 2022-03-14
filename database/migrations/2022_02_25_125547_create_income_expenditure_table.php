@@ -62,8 +62,6 @@ class CreateIncomeExpenditureTable extends Migration
             $table->id()->comment('付款管理');
             $table->tinyInteger('type')->unique()->comment('付款類型, 0:採購');
 
-            $table->unsignedBigInteger('all_grades_id_fk')->comment('對應到table acc_all_grades第所有會計科目的 foreign key');
-            $table->foreign('all_grades_id_fk')->references('id')->on('acc_all_grades');
 
             $table->unsignedBigInteger('acc_income_type_fk')->comment('付款方式, foreign key');
             $table->foreign('acc_income_type_fk')->references('id')->on('acc_income_type');
@@ -125,13 +123,6 @@ class CreateIncomeExpenditureTable extends Migration
             Schema::table('pcs_paying_orders', function (Blueprint $table) {
                 $table->dropForeign(['acc_currency_fk']);
                 $table->dropColumn('acc_currency_fk');
-            });
-        }
-
-        if (Schema::hasColumns('acc_payable', ['all_grades_id_fk'])) {
-            Schema::table('acc_payable', function (Blueprint $table) {
-                $table->dropForeign(['all_grades_id_fk']);
-                $table->dropColumn('all_grades_id_fk');
             });
         }
 
