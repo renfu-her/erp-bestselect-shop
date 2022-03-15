@@ -33,7 +33,7 @@
                         @endforeach
                     </div>
                 </fieldset>
-                <fieldset class="col-12 mb-3">
+                <fieldset class="col-12 col-sm-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">耗材</legend>
                     <div class="px-1 pt-1">
                         @foreach ($consumes as $key => $consume)
@@ -47,7 +47,7 @@
                         @endforeach
                     </div>
                 </fieldset>
-                <fieldset class="col-12 mb-3">
+                <fieldset class="col-12 col-sm-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">公開</legend>
                     <div class="px-1 pt-1">
                         @foreach ($publics as $key => $public)

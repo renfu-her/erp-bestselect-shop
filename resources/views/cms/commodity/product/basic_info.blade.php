@@ -13,11 +13,11 @@
         @endif
     </div>
 
-    <form method="POST" action="{{ $formAction }}" enctype="multipart/form-data">
+    <form method="POST" action="{{ $formAction }}" enctype="multipart/form-data" novalidate>
         @csrf
         <div class="card shadow p-4 mb-4">
             <h6>基本設定</h6>
-            <fieldset class="col-12 col-lg-6 mb-3">
+            <fieldset class="col-12 mb-3">
                 <div class="px-1 pt-1">
                     <div class="form-check form-check-inline @error('type') is-invalid @enderror">
                         <label class="form-check-label">
@@ -35,10 +35,21 @@
                             組合包商品
                         </label>
                     </div>
-                    @error('type')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                    <div class="form-check-inline ms-3 ps-3 border-start border-3">
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                <input class="form-check-input" value="1" name="consume" type="checkbox" 
+                                    @if (old('consume', $product->consume ?? 0)) checked @endif>
+                                屬於耗材 <span class="text-danger">*</span>
+                            </label>
+                            <i class="bi bi-question-circle" data-bs-toggle="tooltip" title="若屬於耗材請打勾"></i>
+                        </div>
+                    </div>
+                    
                 </div>
+                @error('type')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </fieldset>
             <div class="row">
                 <div class="col-12 mb-3">
@@ -170,19 +181,10 @@
                     </div>
                 </fieldset>
                 <fieldset class="col-12 col-lg-6 mb-3">
-                    <legend class="col-form-label p-0 mb-2">耗材 <span class="text-danger">*</span></legend>
-                    <input class="form-check-input" type="checkbox" value="1" name="consume"
-                        @if (old('consume', $product->consume ?? 0)) checked @endif>
-                    <label class="form-check-label" for="flexCheckChecked">
-
-                    </label>
-                </fieldset>
-                <fieldset class="col-12 col-lg-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">公開 <span class="text-danger">*</span></legend>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" value='1' role="switch" id="flexSwitchCheckChecked"
-                            name="public" @if (old('consume', $product->public ?? 1)) checked @endif>
-                        <label class="form-check-label" for="flexSwitchCheckChecked"></label>
+                    <div class="form-check form-switch form-switch-lg">
+                        <input class="form-check-input" type="checkbox" name="public" value="1" 
+                            @if (old('consume', $product->public ?? 1)) checked @endif>
                     </div>
                 </fieldset>
             </div>
