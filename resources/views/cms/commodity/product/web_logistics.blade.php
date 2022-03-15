@@ -8,8 +8,7 @@
         @csrf
         <div class="card shadow p-4 mb-4">
             <h6>運送方式（網頁）</h6>
-            <x-b-editor id="editor"></x-b-editor>
-            <textarea name="logistic_desc" hidden></textarea>
+            <textarea id="editor" name="logistic_desc" hidden></textarea>
         </div>
         <div>
             <div class="col-auto">
@@ -20,22 +19,23 @@
     </form>
 @endsection
 @once
-    @push('sub-styles')
-        <style>
-        </style>
-    @endpush
     @push('sub-scripts')
+        <script src="{{ Asset("plug-in/tinymce/tinymce.min.js") }}"></script>
+        <script src="{{ Asset("plug-in/tinymce/myTinymce.js") }}"></script>
         <script>
             let content = @json($product->logistic_desc);
-            if (!content) {
-                content = '';
-            }
-            Editor.createEditor('editor', {
-                initialValue: content
+            content = content ? content : '';
+
+            tinymce.init({
+                selector: '#editor',
+                auto_focus: 'editor',
+                ...TINY_OPTION
+            }).then((editors) => {
+                editors[0].setContent(content);
             });
 
             $('#form1').submit(function(e) {
-                $('textarea[name="logistic_desc"]').val(editor.getHTML());
+                $('textarea[name="logistic_desc"]').val(tinymce.get('editor').getContent());
             });
         </script>
     @endpush
