@@ -4,25 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
-/**
- * 會計分類(一級科目）
- */
-class FirstGrade extends Model
+class SecondGrade extends Model
 {
     use HasFactory;
 
-    protected $table = 'acc_first_grade';
-    protected $fillable = [
-        'code',
-        'name',
-        'has_next_grade',
-        'acc_company_fk',
-        'income_statement_fk'
-    ];
+    protected $table = 'acc_second_grade';
 
     /**
-     * 取得第1級科目現金資料
+     * 取得第2級科目現金資料
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function payableCash()
@@ -31,7 +22,7 @@ class FirstGrade extends Model
     }
 
     /**
-     * 取得第1級科目支票資料
+     * 取得第2級科目支票資料
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function payableCheque()
@@ -40,7 +31,7 @@ class FirstGrade extends Model
     }
 
     /**
-     * 取得第1級科目匯款資料
+     * 取得第2級科目匯款資料
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function payableRemit()
@@ -49,7 +40,7 @@ class FirstGrade extends Model
     }
 
     /**
-     * 取得第1級科目外幣資料
+     * 取得第2級科目外幣資料
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function payableForeignCurrency()
@@ -58,7 +49,7 @@ class FirstGrade extends Model
     }
 
     /**
-     * 取得第1級科目「應付帳款」資料
+     * 取得第2級科目「應付帳款」資料
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function payableAccount()
@@ -67,7 +58,7 @@ class FirstGrade extends Model
     }
 
     /**
-     * 取得第1級科目其它資料
+     * 取得第2級科目其它資料
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function payableOther()

@@ -34,6 +34,12 @@ class ProductCtrl extends Controller
             $options['supplier'] = ['condition' => $d['supplier_id']];
         }
 
+        if (isset($d['consume'])) {
+            $options['consume'] = $d['consume'];
+        }
+
+        
+
         // Arr::get($d, 'supplier_id',''),
 
         $re = Product::productStyleList(

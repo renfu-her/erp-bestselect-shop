@@ -33,13 +33,21 @@ class ProductCtrl extends Controller
     {
         $query = $request->query();
         $productTypes = [['all', '不限'], ['p', '一般商品'], ['c', '組合包商品']];
+        $consumes = [['all', '不限'], ['1', '耗材'], ['0', '商品']];
+        $publics = [['all', '不限'], ['1', '公開'], ['0', '不公開']];
         $page = getPageCount(Arr::get($query, 'data_per_page'));
         $cond = [];
         $cond['keyword'] = Arr::get($query, 'keyword');
         $cond['user'] = Arr::get($query, 'user', true);
         $cond['product_type'] = Arr::get($query, 'product_type', 'all');
+        $cond['consume'] = Arr::get($query, 'consume', 'all');
+        $cond['public'] = Arr::get($query, 'public', 'all');
 
-        $products = Product::productList($cond['keyword'], null, ['user' => $cond['user'], 'product_type' => $cond['product_type']])
+        $products = Product::productList($cond['keyword'], null, ['user' => $cond['user'],
+            'product_type' => $cond['product_type'],
+            'consume' => $cond['consume'] == 'all' ? null : $cond['consume'],
+            'public' => $cond['public'] == 'all' ? null : $cond['public'],
+        ])
             ->paginate($page);
 
         return view('cms.commodity.product.list', [
@@ -47,6 +55,8 @@ class ProductCtrl extends Controller
             'productTypes' => $productTypes,
             'users' => User::get(),
             'data_per_page' => $page,
+            'consumes' => $consumes,
+            'publics' => $publics,
             'cond' => $cond]);
     }
 
@@ -94,7 +104,19 @@ class ProductCtrl extends Controller
         // $path = $request->file('file')->store('excel');
 
         $d = $request->all();
-        $re = Product::createProduct($d['title'], $d['user_id'], $d['category_id'], $d['type'], $d['feature'], $d['url'], $d['slogan'], $d['active_sdate'], $d['active_edate'], $d['supplier'], $d['has_tax']);
+        $re = Product::createProduct($d['title'],
+            $d['user_id'],
+            $d['category_id'],
+            $d['type'],
+            $d['feature'],
+            $d['url'],
+            $d['slogan'],
+            $d['active_sdate'],
+            $d['active_edate'],
+            $d['supplier'],
+            $d['has_tax'],
+            isset($d['consume']) ? $d['consume'] : '0',
+            isset($d['public']) ? $d['public'] : '0');
 
         if ($request->hasfile('files')) {
             foreach ($request->file('files') as $file) {
@@ -178,11 +200,24 @@ class ProductCtrl extends Controller
             'user_id' => 'required',
             'category_id' => 'required',
             'supplier' => 'required|array',
+
         ]);
 
         $d = $request->all();
 
-        Product::updateProduct($id, $d['title'], $d['user_id'], $d['category_id'], $d['feature'], $d['url'], $d['slogan'], $d['active_sdate'], $d['active_edate'], $d['supplier'], $d['has_tax']);
+        Product::updateProduct($id,
+            $d['title'],
+            $d['user_id'],
+            $d['category_id'],
+            $d['feature'],
+            $d['url'],
+            $d['slogan'],
+            $d['active_sdate'],
+            $d['active_edate'],
+            $d['supplier'],
+            $d['has_tax'],
+            isset($d['consume']) ? $d['consume'] : '0',
+            isset($d['public']) ? $d['public'] : '0');
 
         if ($request->hasfile('files')) {
             foreach ($request->file('files') as $file) {
@@ -716,10 +751,10 @@ class ProductCtrl extends Controller
      */
     public function editCombo($id)
     {
-        
+
         $product = self::product_data($id);
         $styles = ProductStyle::styleList($id)->get()->toArray();
-       
+
         return view('cms.commodity.product.combo', [
             'product' => $product,
             'styles' => $styles,
@@ -767,7 +802,7 @@ class ProductCtrl extends Controller
      */
     public function editComboProd($id, $sid)
     {
-        
+
         $style = ProductStyle::where('id', $sid)->get()->first();
         $product = self::product_data($id);
         return view('cms.commodity.product.combo-edit', [

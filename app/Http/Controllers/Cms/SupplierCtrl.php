@@ -80,9 +80,9 @@ class SupplierCtrl extends Controller
         ])->id;
         if (isset($paramReq_supplier['paytype'])) {
             foreach ($paramReq_supplier['paytype'] as $key => $val) {
-                if (Payment::cheque()->value == $val) {
+                if (Payment::Cheque()->value == $val) {
                     SupplierPayment::createData($id, $val, ['cheque_payable' => $paramReq_supplier['cheque_payable'] ?? null]);
-                } else if (Payment::remittance()->value == $val) {
+                } else if (Payment::Remittance()->value == $val) {
                     SupplierPayment::createData($id, $val, [
                         'bank_cname' => $paramReq_supplier['bank_cname'] ?? null
                         , 'bank_code' => $paramReq_supplier['bank_code'] ?? null
@@ -260,9 +260,9 @@ class SupplierCtrl extends Controller
 
         if (isset($paramReq_supplier['paytype'])) {
             foreach ($paramReq_supplier['paytype'] as $key => $val) {
-                if (Payment::cheque()->value == $val) {
+                if (Payment::Cheque()->value == $val) {
                     SupplierPayment::checkToUpdateData($id, $val, ['cheque_payable' => $paramReq_supplier['cheque_payable'] ?? null]);
-                } else if (Payment::remittance()->value == $val) {
+                } else if (Payment::Remittance()->value == $val) {
                     SupplierPayment::checkToUpdateData($id, $val, [
                         'bank_cname' => $paramReq_supplier['bank_cname'] ?? null
                         , 'bank_code' => $paramReq_supplier['bank_code'] ?? null

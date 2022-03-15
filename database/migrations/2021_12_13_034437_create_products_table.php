@@ -31,6 +31,8 @@ class CreateProductsTable extends Migration
             $table->integer('spec1_id')->nullable()->comment('規格項目');
             $table->integer('spec2_id')->nullable()->comment('規格項目');
             $table->integer('spec3_id')->nullable()->comment('規格項目');
+            $table->integer('consume')->default(0)->comment('是否耗材');
+            $table->integer('public')->default(1)->comment('是否公開');
             $table->tinyInteger('spec_locked')->default(0);
             $table->timestamps();
             $table->softDeletes();
