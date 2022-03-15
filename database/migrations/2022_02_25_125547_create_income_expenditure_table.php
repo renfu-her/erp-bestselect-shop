@@ -46,12 +46,15 @@ class CreateIncomeExpenditureTable extends Migration
 
             $table->unsignedBigInteger('acc_currency_fk')->comment('幣別, foreign key');
             $table->foreign('acc_currency_fk')->references('id')->on('acc_currency');
+
+            $table->timestamps();
         });
 
         Schema::create('acc_payable_cash', function (Blueprint $table) {
             $table->id()->comment('現金付款');
             $table->string('grade_type')->comment('1~4級會計科目的model class name, 共有App\Models\FirstGrade, SecondGrade, ThirdGrade, FourthGrade');
             $table->unsignedBigInteger('grade_id')->nullable()->comment('對應到1～4級科目table的primary key');
+            $table->timestamps();
         });
 
         Schema::create('acc_payable_cheque', function (Blueprint $table) {
@@ -62,6 +65,7 @@ class CreateIncomeExpenditureTable extends Migration
             $table->dateTime('maturity_date')->comment('到期日');
             $table->dateTime('cash_cheque_date')->comment('兌現日');
             $table->unsignedTinyInteger('cheque_status')->comment('支票的狀態： enum ChequeStatus::getValues()');
+            $table->timestamps();
         });
 
         Schema::create('acc_payable_remit', function (Blueprint $table) {
@@ -69,18 +73,21 @@ class CreateIncomeExpenditureTable extends Migration
             $table->string('grade_type')->comment('1~4級會計科目的model class name, 共有App\Models\FirstGrade, SecondGrade, ThirdGrade, FourthGrade');
             $table->unsignedBigInteger('grade_id')->nullable()->comment('對應到1～4級科目table的primary key');
             $table->dateTime('remit_date')->comment('匯款日期');
+            $table->timestamps();
         });
 
         Schema::create('acc_payable_account', function (Blueprint $table) {
             $table->id()->comment('應付帳款');
             $table->string('grade_type')->comment('1~4級會計科目的model class name, 共有App\Models\FirstGrade, SecondGrade, ThirdGrade, FourthGrade');
             $table->unsignedBigInteger('grade_id')->nullable()->comment('對應到1～4級科目table的primary key');
+            $table->timestamps();
         });
 
         Schema::create('acc_payable_other', function (Blueprint $table) {
             $table->id()->comment('其它');
             $table->string('grade_type')->comment('1~4級會計科目的model class name, 共有App\Models\FirstGrade, SecondGrade, ThirdGrade, FourthGrade');
             $table->unsignedBigInteger('grade_id')->nullable()->comment('對應到1～4級科目table的primary key');
+            $table->timestamps();
         });
 
         Schema::create('acc_payable', function (Blueprint $table) {
@@ -104,6 +111,7 @@ class CreateIncomeExpenditureTable extends Migration
                 $table->foreign('accountant_id_fk')->references('id')->on('usr_users');
 
                 $table->text('note')->nullable()->comment('備註');
+                $table->timestamps();
         });
 
         Schema::create('acc_income_expenditure', function (Blueprint $table) {
