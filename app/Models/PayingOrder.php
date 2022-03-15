@@ -17,7 +17,7 @@ class PayingOrder extends Model
      * 取得「採購」付款單的「應付帳款」資訊
      * @return \Illuminate\Database\Eloquent\Relations\MorphOne
      */
-    public function payableAccount()
+    public function accountPayable()
     {
         return $this->morphOne(AccountPayable::class, 'payingOrder', 'pay_order_type', 'pay_order_id');
     }
