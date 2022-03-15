@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">商品管理</h2>
+    <h2 class="mb-4">出貨管理</h2>
 
     <form id="search" action="{{ Route('cms.delivery.index') }}" method="GET">
         <div class="card shadow p-4 mb-4">
@@ -49,6 +49,9 @@
                                name="order_sdate" value="{{ $searchParam['order_sdate'] }}" aria-label="訂單起始日期" />
                         <input type="date" class="form-control -endDate @error('order_edate') is-invalid @enderror"
                                name="order_edate" value="{{ $searchParam['order_edate'] }}" aria-label="訂單結束日期" />
+                        <button class="btn btn-outline-secondary icon" type="button" data-clear
+                                data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
+                        </button>
                         <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
                         <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
                         <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
@@ -72,6 +75,9 @@
                                name="delivery_sdate" value="{{ $searchParam['delivery_sdate'] }}" aria-label="出貨起始日期" />
                         <input type="date" class="form-control -endDate @error('order_edate') is-invalid @enderror"
                                name="delivery_edate" value="{{ $searchParam['delivery_edate'] }}" aria-label="出貨結束日期" />
+                        <button class="btn btn-outline-secondary icon" type="button" data-clear
+                                data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
+                        </button>
                         <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
                         <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
                         <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>

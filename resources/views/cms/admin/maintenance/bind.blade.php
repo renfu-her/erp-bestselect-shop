@@ -16,7 +16,7 @@
             </div>
             <div class="card-body">
                 <x-b-form-group name="name" title="姓名">
-                    <div class="form-control">{{ $data->name }}</div>
+                    <div class="form-control" readonly>{{ $data->name }}</div>
                 </x-b-form-group>
                 @if (!$customer)
                     <x-b-form-group name="email" title="消費者Email">
@@ -36,7 +36,7 @@
                     </div>
                 @else
                     <x-b-form-group name="name" title="已綁定消費者">
-                        <div class="form-control">{{ $customer->name }} ({{ $customer->email }})</div>
+                        <div class="form-control" readonly>{{ $customer->name }} ({{ $customer->email }})</div>
                     </x-b-form-group>
                 @endif
             </div>

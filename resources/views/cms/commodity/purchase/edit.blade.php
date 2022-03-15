@@ -1,12 +1,16 @@
 @extends('layouts.main')
 @section('sub-content')
     @if ($method === 'edit')
-        <h2 class="mb-3">採購單 {{ $purchaseData->purchase_sn }}</h2>
+        <h2 class="mb-3">#{{ $purchaseData->purchase_sn }} 採購單</h2>
         <x-b-pch-navi :id="$id"></x-b-pch-navi>
     @else
         <h2 class="mb-3">新增採購單</h2>
     @endif
 
+    @php
+        $hasCreatedFinalPayment = $hasCreatedFinalPayment ?? false;
+        $purchaseData = $purchaseData ?? null;
+    @endphp
 
     <form id="form1" method="post" action="{{ $formAction }}">
         @method('POST')
@@ -40,16 +44,16 @@
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
                                     <input class="form-check-input" name="tax" type="radio" value="1" required
-                                        @if ($hasCreatedFinalPayment) disabled @endif
-                                        @if (1 === $purchaseData->has_tax ?? '') checked @endif>
+                                           @if ($hasCreatedFinalPayment) disabled @endif
+                                           @if (1 === $purchaseData->has_tax ?? '') checked @endif>
                                     應稅
                                 </label>
                             </div>
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
                                     <input class="form-check-input" name="tax" type="radio" value="0" required
-                                        @if ($hasCreatedFinalPayment) disabled @endif
-                                        @if (0 === $purchaseData->has_tax ?? '') checked @endif>
+                                           @if ($hasCreatedFinalPayment) disabled @endif
+                                           @if (0 === $purchaseData->has_tax ?? '') checked @endif>
                                     免稅
                                 </label>
                             </div>
@@ -70,7 +74,7 @@
                         </div>
                     @else
                         <select id="supplier" aria-label="採購廠商" required
-                            class="form-select -select2 -single @error('supplier') is-invalid @enderror">
+                                class="form-select -select2 -single @error('supplier') is-invalid @enderror">
                             <option value="" selected disabled>請選擇</option>
                             @foreach ($supplierList as $supplierItem)
                                 <option value="{{ $supplierItem->id }}"
@@ -96,9 +100,9 @@
                     @else
                         <div class="input-group has-validation">
                             <input type="date" id="scheduled_date" name="scheduled_date"
-                                value="{{ old('scheduled_date', $purchaseData->scheduled_date  ?? '') }}"
-                                class="form-control @error('scheduled_date') is-invalid @enderror" aria-label="廠商預計進貨日期"
-                                required/>
+                                   value="{{ old('scheduled_date', $purchaseData->scheduled_date  ?? '') }}"
+                                   class="form-control @error('scheduled_date') is-invalid @enderror" aria-label="廠商預計進貨日期"
+                                   required/>
                             <button class="btn btn-outline-secondary icon" type="button" data-clear
                                     data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
                             </button>
@@ -109,7 +113,7 @@
                             </div>
                         </div>
                     @endif
-                    
+
                 </div>
 
                 @if ($method === 'edit')
@@ -265,11 +269,11 @@
                         @endif
                     @else
                         <button class="btn btn-primary -add" type="button" role="button"
-                            @if ($hasLogistics) hidden @endif>
+                                @if ($hasLogistics) hidden @endif>
                             <i class="bi bi-plus-lg"></i> 新增物流
                         </button>
                         <button class="btn btn-outline-danger -del" type="button"
-                            @if (!$hasLogistics) hidden @endif>
+                                @if (!$hasLogistics) hidden @endif>
                             <i class="bi bi-trash"></i> 刪除物流
                         </button>
                     @endif
@@ -338,7 +342,7 @@
         <div id="submitDiv">
             <div class="col-auto">
                 <input type="hidden" name="del_item_id">
-                @if(!$hasCreatedFinalPayment && $purchaseData->close_date == null)
+                @if(!$hasCreatedFinalPayment && ($purchaseData == null || $purchaseData->close_date == null))
                     <button type="submit" class="btn btn-primary px-4">儲存</button>
                 @else
                     <button type="submit" class="btn btn-primary px-4">登錄發票</button>

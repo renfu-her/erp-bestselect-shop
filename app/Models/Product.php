@@ -17,8 +17,14 @@ class Product extends Model
     {
 
         $re = DB::table('prd_products as product')
-            ->select('product.id as id', 'product.title as title', 'product.sku as sku', 'product.type as type')
+            ->select('product.id as id',
+                'product.title as title',
+                'product.sku as sku',
+                'product.type as type',
+                'product.consume as consume',
+                'product.public as public')
             ->selectRaw('CASE product.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title')
+
             ->whereNull('product.deleted_at');
 
         if ($keyword) {
@@ -45,6 +51,15 @@ class Product extends Model
 
         if (isset($options['sku'])) {
             $re->orWhere('product.sku', 'like', '%' . $options['sku'] . '%');
+        }
+
+        if (isset($options['consume']) && !is_null($options['consume'])) {
+        
+            $re->where('product.consume', $options['consume']);
+        }
+
+        if (isset($options['public']) && !is_null($options['public'])) {
+            $re->where('product.public', $options['public']);
         }
 
         if (isset($options['product_type']) && in_array($options['product_type'], ['c', 'p'])) {
@@ -86,8 +101,10 @@ class Product extends Model
      *
      * @return string[]
      */
-    public static function createProduct($title, $user_id, $category_id, $type = 'p', $feature = null, $url = null, $slogan = null, $active_sdate = null, $active_edate = null, $supplier = null, $has_tax = 0)
-    {
+    public static function createProduct($title,
+        $user_id, $category_id, $type = 'p',
+        $feature = null, $url = null, $slogan = null, $active_sdate = null,
+        $active_edate = null, $supplier = null, $has_tax = 0, $consume = 0, $public = 1) {
         return DB::transaction(function () use ($title,
             $user_id,
             $category_id,
@@ -98,7 +115,9 @@ class Product extends Model
             $active_sdate,
             $active_edate,
             $supplier,
-            $has_tax) {
+            $has_tax,
+            $consume,
+            $public) {
 
             switch ($type) {
                 case 'p':
@@ -133,6 +152,8 @@ class Product extends Model
                 "active_sdate" => $active_sdate,
                 "active_edate" => $active_edate ? $active_edate . " 23:59:59" : null,
                 "has_tax" => $has_tax,
+                'consume' => $consume,
+                'public' => $public,
             ])->id;
 
             if ($supplier) {
@@ -157,7 +178,9 @@ class Product extends Model
         $active_sdate = null,
         $active_edate = null,
         $supplier,
-        $has_tax = 0) {
+        $has_tax = 0,
+        $consume = 0,
+        $public = 1) {
 
         $url = $url ? $url : $title;
 
@@ -175,6 +198,8 @@ class Product extends Model
             "active_sdate" => $active_sdate,
             "active_edate" => $active_edate,
             "has_tax" => $has_tax,
+            'consume' => $consume,
+            'public' => $public,
         ]);
 
         Supplier::updateProductSupplier($id, $supplier);
@@ -203,7 +228,7 @@ class Product extends Model
 
         $re = DB::table('prd_products as p')
             ->leftJoin('prd_product_styles as s', 'p.id', '=', 's.product_id')
-            ->select('s.id', 's.sku', 'p.title as product_title', 'p.id as product_id', 's.title as spec', 's.safety_stock','s.total_inbound')
+            ->select('s.id', 's.sku', 'p.title as product_title', 'p.id as product_id', 's.title as spec', 's.safety_stock', 's.total_inbound')
             ->selectRaw('CASE p.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title')
             ->selectRaw('s.in_stock + s.overbought as in_stock')
             ->whereNotNull('s.sku')
@@ -285,6 +310,14 @@ class Product extends Model
             $re->leftJoin('prd_salechannel_style_price as price', 's.id', '=', 'price.style_id')
                 ->addSelect('price.price')
                 ->where('price.sale_channel_id', $options['price']);
+        }
+
+        if (isset($options['consume']) && !is_null($options['consume'])) {  
+            $re->where('p.consume', $options['consume']);
+        }
+
+        if (isset($options['public']) && !is_null($options['public'])) {
+            $re->where('p.public', $options['public']);
         }
 
         return $re;

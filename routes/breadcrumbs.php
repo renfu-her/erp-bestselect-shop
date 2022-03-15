@@ -177,6 +177,12 @@ Breadcrumbs::for('cms.order.create', function (BreadcrumbTrail $trail, $value) {
     $trail->push('新增訂單');
 });
 
+// 出貨管理
+Breadcrumbs::for('cms.delivery.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('出貨管理', route('cms.delivery.index'));
+});
+
 /**
  * 設定
  **/

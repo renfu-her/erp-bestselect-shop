@@ -33,6 +33,35 @@
                         @endforeach
                     </div>
                 </fieldset>
+                <fieldset class="col-12 col-sm-6 mb-3">
+                    <legend class="col-form-label p-0 mb-2">耗材</legend>
+                    <div class="px-1 pt-1">
+                        @foreach ($consumes as $key => $consume)
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="consume" type="radio"
+                                        value="{{ $consume[0] }}" @if ($consume[0] == $cond['consume']) checked @endif>
+                                    {{ $consume[1] }}
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                </fieldset>
+                <fieldset class="col-12 col-sm-6 mb-3">
+                    <legend class="col-form-label p-0 mb-2">公開</legend>
+                    <div class="px-1 pt-1">
+                        @foreach ($publics as $key => $public)
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="public" type="radio"
+                                        value="{{ $public[0] }}" @if ($public[0] == $cond['public']) checked @endif>
+                                    {{ $public[1] }}
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                </fieldset>
+              
             </div>
             <div class="col">
                 <input type="hidden" name="data_per_page" value="{{ $data_per_page }}" />
@@ -69,6 +98,8 @@
                         <th scope="col">SKU</th>
                         <th scope="col">負責人</th>
                         <th scope="col">類型</th>
+                        <th scope="col">耗材</th>
+                        <th scope="col">公開</th>
                         <th scope="col" class="text-center">編輯</th>
                     </tr>
                 </thead>
@@ -80,6 +111,16 @@
                             <td>{{ $data->sku }}</td>
                             <td>{{ $data->user_name }}</td>
                             <td>{{ $data->type_title }}</td>
+                            <td>
+                                @if ($data->consume == '1')
+                                    是
+                                @endif
+                            </td>
+                            <td>
+                                @if ($data->public == '1')
+                                    是
+                                @endif
+                            </td>
                             <td class="text-center">
                                 <a href="{{ Route('cms.product.edit', ['id' => $data->id], true) }}"
                                     data-bs-toggle="tooltip" title="編輯"
