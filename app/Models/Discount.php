@@ -8,6 +8,7 @@ use App\Enums\Discount\DisStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class Discount extends Model
 {
@@ -16,7 +17,7 @@ class Discount extends Model
     protected $table = 'dis_discounts';
     protected $guarded = [];
 
-    public static function createDiscount($title, DisMethod $method, $value, $start_date = null, $end_date = null, $is_grand_total = 1, $is_global = 0)
+    public static function createDiscount($title, DisMethod $method, $value, $start_date = null, $end_date = null, $is_grand_total = 1, $is_global = 0, $collection_ids = [])
     {
 
         $data = self::_createDiscount($title, DisCategory::normal(), $method, $value, [
@@ -26,7 +27,10 @@ class Discount extends Model
             'is_global' => $is_global,
         ]);
 
-        return self::create($data)->id;
+        $id = self::create($data)->id;
+
+        self::updateDiscountCollection($id, $collection_ids);
+        return $id;
 
     }
 
@@ -82,5 +86,21 @@ class Discount extends Model
         }
 
         return $data;
+    }
+
+    private static function updateDiscountCollection($discount_id, $collection_ids = [])
+    {
+        DB::table('dis_discount_collection')->where('discount_id', $discount_id)
+            ->delete();
+
+        if (is_array($collection_ids) && count($collection_ids) > 0) {
+            DB::table('dis_discount_collection')->insert(array_map(function ($n) use ($discount_id) {
+                return [
+                    'discount_id' => $discount_id,
+                    'collection_id' => $n,
+                ];
+            }, $collection_ids));
+        }
+
     }
 }
