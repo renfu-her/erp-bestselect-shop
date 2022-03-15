@@ -276,8 +276,8 @@
                                     </select>
                                 </div>
                             </div>
-                            <div>
-                                <x-b-editor id="editor" classes="my-3"></x-b-editor>
+                            <div class="mt-4">
+                                <textarea id="editor1" name="editor1" hidden></textarea>
                             </div>
                             <div>
                                 <x-b-calendar id="calendar" readOnly="false" create="true" classes="my-3" ></x-b-calendar>
@@ -503,6 +503,8 @@
         <script src="{{ Asset('dist/js/dashboard.js') }}"></script>
         <script src="{{ Asset('dist/js/helpers.js') }}"></script>
         <script src="{{ Asset('dist/js/components.js') }}"></script>
+        <script src="{{ Asset("plug-in/tinymce/tinymce.min.js") }}"></script>
+        <script src="{{ Asset("plug-in/tinymce/myTinymce.js") }}"></script>
         <script>
             window.Laravel = {!! json_encode([
                 'apiToken' => auth()->user()->api_token ?? null,
@@ -519,6 +521,14 @@
             window.axios.defaults.headers.common['Accept'] = 'application/json';
         </script>
         <script>
+            // editor
+            tinymce.init({
+                selector: '#editor1',
+                ...TINY_OPTION
+            }).then((editors) => {
+                editors[0].setContent('<p>qwer1234</p>');
+                console.log(tinymce.get('editor1').getContent());
+            });
             // menu
             $('main > div > div > fieldset[id]').each(function (index, element) {
                 // element == this
