@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Cms\Commodity;
 use App\Enums\Delivery\Event;
 use App\Http\Controllers\Controller;
 use App\Models\Delivery;
+use App\Models\Logistic;
 use App\Models\SubOrders;
 use Illuminate\Http\Request;
 
@@ -29,27 +30,32 @@ class LogisticCtrl extends Controller
             $deliveryGet = $delivery->first();
             $delivery_id = $deliveryGet->id;
         }
-        if (null != $delivery_id) {
+        if (null == $delivery) {
+            return abort(404);
+        }
+        $logistic = Logistic::where('delivery_id', $delivery_id)->first();
+        if (null != $logistic) {
+            return abort(404);
         }
 
         //顯示出貨商品列表product_title ; 單價price ; 數量send_qty ; 小計price*數量send_qty
         //組合包判斷兩者欄位不同都顯示:product_title rec_product_title，否則只顯示product_title
-//        Delivery::getListToLogistic();
+        $deliveryList = Delivery::getListToLogistic()->get();
 
         //取得出貨耗材列表
 
         //取得該出貨單 預設基本設定的物流成本
 //        ShipmentGroup::getDataWithCost();
-        Delivery::getListWithCost(2);
+        $deliveryCost = Delivery::getListWithCost($delivery_id)->get();
 
-
+//        dd($deliveryList, $deliveryCost);
         return view('cms.commodity.logistic.edit', [
             'delivery' => $delivery,
-            'delivery_id' => $delivery_id,
-            'sn' => $sub_order->sn,
-            'order_id' => $sub_order->order_id,
+            'logistic' => $logistic,
             'sub_order_id' => $sub_order_id,
-            'formAction' => Route('cms.logistic.create', [$delivery_id], true)
+            'deliveryList' => $deliveryList,
+            'deliveryCost' => $deliveryCost,
+            'formAction' => Route('cms.logistic.create', [$logistic->id], true)
         ]);
     }
 
@@ -57,7 +63,7 @@ class LogisticCtrl extends Controller
     {
         $errors = [];
         $logistic = Delivery::where('id', '=', $logistic_id)->get()->first();
-        if (null != $logistic->close_date) {
+        if (null != $logistic->audit_date) {
             $errors['error_msg'] = '不可重複送出審核';
         } else {
             $re = null;
