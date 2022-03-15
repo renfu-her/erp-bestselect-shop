@@ -3,7 +3,6 @@ window.Elem = require('./helpers/elem');
 window.ChipElem = require('./helpers/chipElem');
 window.Toast = require('./helpers/toast');
 window.Calendar = require('./helpers/calendar');
-window.Editor = require('./helpers/editor');
 window.Pagination = require('./helpers/pagination');
 
 $(function(){

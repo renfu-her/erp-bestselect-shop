@@ -2,7 +2,6 @@ const TEditor = require('@toast-ui/editor');
 require('@toast-ui/editor/dist/i18n/zh-tw');
 const colorPlugin = require('@toast-ui/editor-plugin-color-syntax');
 
-
 module.exports = class Editor {
     /**
      * 
@@ -23,13 +22,16 @@ module.exports = class Editor {
             ...options
         };
 
+        let plugs = [];
+        if (options.colorTool) { plugs.push(colorPlugin); }
+
         const editor = new TEditor({
             ...options,
             el: document.querySelector('#' + elemId),
             initialEditType: 'wysiwyg',
             hideModeSwitch: true,
             language: 'zh-TW',
-            plugins: (options.colorTool) ? [colorPlugin] : []
+            plugins: plugs
         });
         // auto height
         document.querySelector('#' + elemId + ' .toastui-editor-main-container').addEventListener('click', function () {
