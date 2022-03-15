@@ -145,7 +145,7 @@
                             <td>{{ $data->ord_address }}</td>
                             <td class="text-center">
                                 @if($data->event == App\Enums\Delivery\Event::order()->value)
-                                    <a href="{{ Route('cms.order.detail', ['id' => $data->order_id, 'subOrderId' => $data->delivery_id], true) }}"
+                                    <a href="{{ Route('cms.order.detail', ['id' => $data->order_id, 'subOrderId' => $data->sub_order_id], true) }}"
                                        data-bs-toggle="tooltip" title="編輯"
                                        class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                         <i class="bi bi-pencil-square"></i>
