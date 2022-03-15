@@ -1,6 +1,6 @@
 const TINY_OPTION = {
     language: 'zh_TW',
-    skin: 'oxide-dark',
+    skin: 'oxide',
     plugins: `fullscreen lists link image media charmap preview anchor table`,
     menubar: false,  // 'edit insert format table tools'
     toolbar_mode: 'wrap',
