@@ -1,8 +1,8 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">組合包組裝</h2>
+    <h2 class="mb-4">現折優惠</h2>
 
-    <form id="search" action="{{ Route('cms.combo-purchase.index') }}" method="GET">
+    <form id="search" action="" method="GET">
         <div class="card shadow p-4 mb-4">
             <h6>搜尋條件</h6>
             <div class="row">

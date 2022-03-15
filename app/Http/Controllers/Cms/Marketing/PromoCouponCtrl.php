@@ -15,6 +15,13 @@ class PromoCouponCtrl extends Controller
     public function index()
     {
         //
+        $data_per_page = 10;
+        
+        return view('cms.marketing.promo.list', [
+            'type' => 'coupon',
+            'dataList' => [],
+            'data_per_page' => $data_per_page,
+        ]);
     }
 
     /**

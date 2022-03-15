@@ -29,7 +29,6 @@ class ComboPurchaseCtrl extends Controller
             ->paginate($data_per_page)->appends($query);
 
         return view('cms.commodity.combo_purchase.list', [
-            'data_per_page' => 10,
             'dataList' => $dataList,
             'query' => $query,
             'data_per_page' => $data_per_page,

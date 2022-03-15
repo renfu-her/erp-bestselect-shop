@@ -1,6 +1,8 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">組合包組裝</h2>
+    <h2 class="mb-4">
+        @if ($type === 'code') 優惠券代碼 @else 優惠券 @endif
+    </h2>
 
     <form id="search" action="{{ Route('cms.combo-purchase.index') }}" method="GET">
         <div class="card shadow p-4 mb-4">

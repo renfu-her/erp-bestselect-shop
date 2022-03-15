@@ -39,8 +39,8 @@ return
         ],
     ],
     [
-        "title" => "行銷相關",
-        "icon" => "bi-basket",
+        "title" => "行銷設定",
+        "icon" => "bi-shop",
         "menu_id" => "8",
         "child" => [
             [

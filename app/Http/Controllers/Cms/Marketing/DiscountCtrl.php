@@ -14,7 +14,12 @@ class DiscountCtrl extends Controller
      */
     public function index()
     {
-        //
+        $data_per_page = 10;
+        
+        return view('cms.marketing.discount.list', [
+            'dataList' => [],
+            'data_per_page' => $data_per_page,
+        ]);
     }
 
     /**
