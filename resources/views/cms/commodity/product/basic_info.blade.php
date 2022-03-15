@@ -35,7 +35,7 @@
                             組合包商品
                         </label>
                     </div>
-                    <div class="form-check-inline ms-3 ps-3 border-start border-3">
+                    <div class="form-check-inline ms-3 ps-3 border-start border-3 border-secondary">
                         <div class="form-check">
                             <label class="form-check-label">
                                 <input class="form-check-input" value="1" name="consume" type="checkbox" 
