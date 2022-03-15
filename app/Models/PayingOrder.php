@@ -13,6 +13,15 @@ class PayingOrder extends Model
     protected $table = 'pcs_paying_orders';
     protected $guarded = [];
 
+    /**
+     * 取得「採購」付款單的「應付帳款」資訊
+     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
+     */
+    public function payableAccount()
+    {
+        return $this->morphOne(AccountPayable::class, 'payingOrder', 'pay_order_type', 'pay_order_id');
+    }
+
     public static function createPayingOrder(
         $purchase_id,
         $usr_users_id,

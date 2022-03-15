@@ -87,8 +87,8 @@ class CreateIncomeExpenditureTable extends Migration
                 $table->id()->comment('付款管理：1.連結不同的「付款單類型」、付款單ID
                                                         2.儲存不同付款方式的foreign id,
                                                         3.儲存不同付款方式中的共同欄位');
-                $table->tinyInteger('type')->unique()->comment('付款類型, 1:採購');
-                $table->unsignedBigInteger('pay_order_id_fk')->comment('不同「付款類型」對應到不同付款單table的 primary ID');
+                $table->string('pay_order_type')->comment('付款單類型,存入model class name，例如:採購是App\Models\PayingOrder');
+                $table->unsignedBigInteger('pay_order_id')->comment('不同「付款類型」對應到不同付款單table的 primary ID');
 
                 $table->unsignedBigInteger('acc_income_type_fk')->comment('付款方式, foreign key');
                 $table->foreign('acc_income_type_fk')->references('id')->on('acc_income_type');

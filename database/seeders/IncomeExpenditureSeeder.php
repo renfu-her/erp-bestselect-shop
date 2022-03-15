@@ -120,11 +120,11 @@ class IncomeExpenditureSeeder extends Seeder
         }
 
         DB::table('acc_payable')->insert([
-            'type' => 0,
+            'pay_order_type' => 'App\Models\PayingOrder',
             'payable_type' => 'App\Models\PayableRemit',
             'payable_id' => 1,
             'acc_income_type_fk' => 3,
-            'pay_order_id_fk' => 1,
+            'pay_order_id' => 1,
             'tw_price' => 100,
             'payable_status' => 1,
             'payment_date' => '2022-03-01',
