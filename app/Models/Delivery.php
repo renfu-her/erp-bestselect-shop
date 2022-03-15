@@ -229,4 +229,80 @@ class Delivery extends Model
 
         return $query;
     }
+
+    //取得物流頁顯示的 子訂單-出貨商品列表
+    public static function getListToLogistic($order_id = null, $sub_order_id = null)
+    {
+        $sub_rec_depot = DB::table('dlv_receive_depot')
+            ->select('dlv_receive_depot.delivery_id'
+                , 'dlv_receive_depot.event_item_id'
+                , 'dlv_receive_depot.freebies'
+                , 'dlv_receive_depot.product_style_id'
+                , 'dlv_receive_depot.sku as rec_sku'
+                , 'dlv_receive_depot.product_title as rec_product_title'
+            )
+            ->selectRaw('sum(dlv_receive_depot.qty) as send_qty')
+            ->groupBy('dlv_receive_depot.delivery_id')
+            ->groupBy('dlv_receive_depot.event_item_id')
+            ->groupBy('dlv_receive_depot.freebies')
+            ->groupBy('dlv_receive_depot.product_style_id')
+            ->groupBy('dlv_receive_depot.sku')
+            ->groupBy('dlv_receive_depot.product_title');
+
+        $sub_orders = DB::table('ord_sub_orders')
+            ->leftJoin('ord_items', function($join) {
+                $join->on('ord_items.sub_order_id', '=', 'ord_sub_orders.id');
+            })
+            ->select('ord_items.id as item_id'
+                , 'ord_items.order_id'
+                , 'ord_items.sub_order_id'
+                , 'ord_items.product_style_id'
+                , 'ord_items.sku'
+                , 'ord_items.product_title'
+                , 'ord_items.price'
+                , 'ord_items.qty'
+                , 'ord_items.type'
+                , 'ord_items.total_price'
+            );
+
+        $query = DB::table(DB::raw("({$sub_rec_depot->toSql()}) as rec_depot"))
+            ->leftJoinSub($sub_orders, 'orders', function($join) {
+                $join->on('orders.sub_order_id', '=', 'rec_depot.event_item_id');
+            })
+            ->whereNotNull('rec_depot.delivery_id')
+            ->whereNotNull('orders.item_id')
+            ->select('*');
+
+        if (isset($order_id)) {
+            $query->whereIn('ord_items.order_id', $order_id);
+        }
+        if (isset($sub_order_id)) {
+            $query->whereIn('ord_items.sub_order_id', $sub_order_id);
+        }
+
+        return $query;
+    }
+
+    //取得出貨單 預設基本設定的物流成本
+    public static function getListWithCost($delivery_id = null, $event = null, $event_id = null) {
+        $sub_shi = ShipmentGroup::getDataWithCost();
+        $query = DB::table('dlv_delivery as delivery')
+            ->leftJoinSub($sub_shi, 'shi_tb', function($join) {
+                $join->on('shi_tb.group_id_fk', '=', 'delivery.ship_group_id');
+                $join->where('delivery.ship_category', '=', 'deliver');
+            })
+            ->whereNotNull('shi_tb.group_id_fk');;
+
+        if (isset($delivery_id)) {
+            $query->where('delivery.id', $delivery_id);
+        }
+        if (isset($event)) {
+            $query->where('delivery.event', $event);
+        }
+        if (isset($event_id)) {
+            $query->where('delivery.event_id', $event_id);
+        }
+        return $query;
+    }
+
 }
