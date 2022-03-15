@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\Route;
 |
  */
 
-
 Route::get('/', function () {
     // dd(app('url')->route('test',[],false));
     return redirect()->route('cms.dashboard');
@@ -57,8 +56,11 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/FirstGrade.php');
     require base_path('routes/cms/Delivery.php');
     require base_path('routes/cms/UserMnt.php');
+   
+    require base_path('routes/cms/Discount.php');
+    require base_path('routes/cms/PromoCoupon.php');
+    require base_path('routes/cms/PromoCode.php');
 });
-
 
 Route::group(['middleware' => 'guest:customer'], function () {
     Route::get('/forgot-password', [CustomerResetCtrl::class, 'forgot_password'])->name('password.request');
@@ -71,7 +73,3 @@ Route::group(['middleware' => 'guest:customer'], function () {
         return session('status');
     })->name('login');
 });
-
-
-
-
