@@ -1,7 +1,13 @@
 @extends('layouts.main')
 @section('sub-content')
     <div>
-        <h2 class="mb-3">@if ($method == 'create') 新增商品 @else {{ $product->title }} @endif </h2>
+        <h2 class="mb-3">
+            @if ($method == 'create')
+                新增商品
+            @else
+                {{ $product->title }}
+            @endif
+        </h2>
         @if ($method === 'edit')
             <x-b-prd-navi :product="$product"></x-b-prd-navi>
         @endif
@@ -13,17 +19,19 @@
             <h6>基本設定</h6>
             <fieldset class="col-12 col-lg-6 mb-3">
                 <div class="px-1 pt-1">
-                    <div class="form-check form-check-inline @error('type')is-invalid @enderror">
+                    <div class="form-check form-check-inline @error('type') is-invalid @enderror">
                         <label class="form-check-label">
-                            <input class="form-check-input @error('type')is-invalid @enderror" name="type" value="p" type="radio"
-                            @if ($method == 'edit') disabled @endif required @if (old('type', $product->type ?? 'p') == 'p') checked @endif>
+                            <input class="form-check-input @error('type') is-invalid @enderror" name="type" value="p"
+                                type="radio" @if ($method == 'edit') disabled @endif required
+                                @if (old('type', $product->type ?? 'p') == 'p') checked @endif>
                             一般商品
                         </label>
                     </div>
-                    <div class="form-check form-check-inline @error('type')is-invalid @enderror">
+                    <div class="form-check form-check-inline @error('type') is-invalid @enderror">
                         <label class="form-check-label" for="type_2">
-                            <input class="form-check-input @error('type')is-invalid @enderror" name="type" value="c" type="radio"
-                            @if ($method == 'edit') disabled @endif id="type_2" required @if (old('type', $product->type ?? '') == 'c') checked @endif>
+                            <input class="form-check-input @error('type') is-invalid @enderror" name="type" value="c"
+                                type="radio" @if ($method == 'edit') disabled @endif id="type_2" required
+                                @if (old('type', $product->type ?? '') == 'c') checked @endif>
                             組合包商品
                         </label>
                     </div>
@@ -35,7 +43,7 @@
             <div class="row">
                 <div class="col-12 mb-3">
                     <label class="form-label">商品名稱 <span class="text-danger">*</span></label>
-                    <input class="form-control @error('title')is-invalid @enderror" name="title" type="text"
+                    <input class="form-control @error('title') is-invalid @enderror" name="title" type="text"
                         placeholder="例：女休閒短T" maxlength="30" value="{{ old('title', $product->title ?? '') }}"
                         aria-label="商品名稱" required />
                     @error('title')
@@ -46,10 +54,12 @@
                     <label class="form-label">商品網址（發佈後若有更改網址可能會影響SEO搜尋）</label>
                     <div class="input-group has-validation">
                         <span class="input-group-text">https://demo.bestselection.com.tw/products/</span>
-                        <input type="text" name="url" class="form-control @error('url')is-invalid @enderror"
+                        <input type="text" name="url" class="form-control @error('url') is-invalid @enderror"
                             placeholder="請輸入連結路徑" value="{{ old('url', $product->url ?? '') }}" aria-label="商品網址">
                         <div class="invalid-feedback">
-                            @error('url') {{ $message }} @enderror
+                            @error('url')
+                                {{ $message }}
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -66,11 +76,12 @@
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">商品歸類 <span class="text-danger">*</span></label>
-                    <select class="form-select @error('category_id')is-invalid @enderror" required aria-label="Select"
+                    <select class="form-select @error('category_id') is-invalid @enderror" required aria-label="Select"
                         name="category_id">
                         <option value="" disabled selected>請選擇商品歸類</option>
                         @foreach ($categorys as $key => $category)
-                            <option value="{{ $category->id }}" @if (old('category_id', $product->category_id ?? '') == $category->id) selected @endif>{{ $category->category }}
+                            <option value="{{ $category->id }}" @if (old('category_id', $product->category_id ?? '') == $category->id) selected @endif>
+                                {{ $category->category }}
                             </option>
                         @endforeach
                     </select>
@@ -81,11 +92,12 @@
 
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">負責人員 <span class="text-danger">*</span></label>
-                    <select class="form-select @error('user_id')is-invalid @enderror" required aria-label="Select"
+                    <select class="form-select @error('user_id') is-invalid @enderror" required aria-label="Select"
                         name="user_id">
                         <option value="" disabled selected>請選擇負責人員</option>
                         @foreach ($users as $key => $user)
-                            <option value="{{ $user->id }}" @if (old('user_id', $product->user_id ?? $current_user) == $user->id) selected @endif>{{ $user->name }}</option>
+                            <option value="{{ $user->id }}" @if (old('user_id', $product->user_id ?? $current_user) == $user->id) selected @endif>
+                                {{ $user->name }}</option>
                         @endforeach
                     </select>
                     @error('user_id')
@@ -95,10 +107,11 @@
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label" for="supplier">廠商 <span class="text-danger">*</span></label>
                     <select name="supplier[]" id="supplier" multiple hidden
-                        class="-select2 -multiple form-select @error('supplier')is-invalid @enderror"
+                        class="-select2 -multiple form-select @error('supplier') is-invalid @enderror"
                         data-placeholder="請選擇廠商" required>
                         @foreach ($suppliers as $key => $supplier)
-                            <option value="{{ $supplier->id }}" @if (in_array($supplier->id, old('supplier', $current_supplier ?? []))) selected @endif>{{ $supplier->name }}
+                            <option value="{{ $supplier->id }}" @if (in_array($supplier->id, old('supplier', $current_supplier ?? []))) selected @endif>
+                                {{ $supplier->name }}
                             </option>
                         @endforeach
                     </select>
@@ -109,14 +122,15 @@
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">上架時間</label>
                     <div class="input-group has-validation">
-                        <input class="form-control @error('active_sdate')is-invalid @enderror" name="active_sdate" type="date"
-                        aria-label="上架時間" value="{{ old('active_sdate', $product->active_sdate ?? '') }}">
-                        <button class="btn btn-outline-secondary icon" type="button" data-clear
-                            data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
+                        <input class="form-control @error('active_sdate') is-invalid @enderror" name="active_sdate"
+                            type="date" aria-label="上架時間"
+                            value="{{ old('active_sdate', $product->active_sdate ?? '') }}">
+                        <button class="btn btn-outline-secondary icon" type="button" data-clear data-bs-toggle="tooltip"
+                            title="清空日期"><i class="bi bi-calendar-x"></i>
                         </button>
                         <div class="invalid-feedback">
                             @error('active_sdate')
-                            {{ $message }}
+                                {{ $message }}
                             @enderror
                         </div>
                     </div>
@@ -124,14 +138,15 @@
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">下架時間</label>
                     <div class="input-group has-validation">
-                        <input class="form-control @error('active_edate')is-invalid @enderror" name="active_edate" type="date"
-                        aria-label="下架時間" value="{{ old('active_edate', $product->active_edate ?? '') }}">
-                        <button class="btn btn-outline-secondary icon" type="button" data-clear
-                            data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
+                        <input class="form-control @error('active_edate') is-invalid @enderror" name="active_edate"
+                            type="date" aria-label="下架時間"
+                            value="{{ old('active_edate', $product->active_edate ?? '') }}">
+                        <button class="btn btn-outline-secondary icon" type="button" data-clear data-bs-toggle="tooltip"
+                            title="清空日期"><i class="bi bi-calendar-x"></i>
                         </button>
                         <div class="invalid-feedback">
                             @error('active_edate')
-                            {{ $message }}
+                                {{ $message }}
                             @enderror
                         </div>
                     </div>
@@ -139,19 +154,35 @@
                 <fieldset class="col-12 col-lg-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">應稅免稅 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
-                        <div class="form-check form-check-inline @error('has_tax')is-invalid @enderror">
-                            <input class="form-check-input @error('has_tax')is-invalid @enderror" name="has_tax" value="1"
+                        <div class="form-check form-check-inline @error('has_tax') is-invalid @enderror">
+                            <input class="form-check-input @error('has_tax') is-invalid @enderror" name="has_tax" value="1"
                                 type="radio" id="tax_1" required @if (old('has_tax', $product->has_tax ?? '1') == '1') checked @endif>
                             <label class="form-check-label" for="tax_1">應稅</label>
                         </div>
-                        <div class="form-check form-check-inline @error('has_tax')is-invalid @enderror">
-                            <input class="form-check-input @error('has_tax')is-invalid @enderror" name="has_tax" value="0"
+                        <div class="form-check form-check-inline @error('has_tax') is-invalid @enderror">
+                            <input class="form-check-input @error('has_tax') is-invalid @enderror" name="has_tax" value="0"
                                 type="radio" id="tax_2" required @if (old('has_tax', $product->has_tax ?? '') == '0') checked @endif>
                             <label class="form-check-label" for="tax_2">免稅（農林漁牧產品/免稅）</label>
                         </div>
                         @error('has_tax')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
+                    </div>
+                </fieldset>
+                <fieldset class="col-12 col-lg-6 mb-3">
+                    <legend class="col-form-label p-0 mb-2">耗材 <span class="text-danger">*</span></legend>
+                    <input class="form-check-input" type="checkbox" value="1" name="consume"
+                        @if (old('consume', $product->consume ?? 0)) checked @endif>
+                    <label class="form-check-label" for="flexCheckChecked">
+
+                    </label>
+                </fieldset>
+                <fieldset class="col-12 col-lg-6 mb-3">
+                    <legend class="col-form-label p-0 mb-2">公開 <span class="text-danger">*</span></legend>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" value='1' role="switch" id="flexSwitchCheckChecked"
+                            name="public" @if (old('consume', $product->public ?? 1)) checked @endif>
+                        <label class="form-check-label" for="flexSwitchCheckChecked"></label>
                     </div>
                 </fieldset>
             </div>
@@ -244,6 +275,7 @@
                     $('.upload_image_block .sortabled > label').appendTo('.upload_image_block .sortabled');
                 }
             };
+
             function delImage($x) {
                 const id = $x.closest('.sortabled_box').attr('data-id');
                 console.log(id);
@@ -258,11 +290,10 @@
                 num: 'multiple',
                 fileInputName: 'files[]',
                 delFn: delImage,
-                movable: false,    // 暫時無法排序
+                movable: false, // 暫時無法排序
                 moveOpt: moveOpt
             });
             bindSortableMove($('#mediaSettings .upload_image_block > .sortabled'), moveOpt);
-
         </script>
     @endpush
 @endOnce
