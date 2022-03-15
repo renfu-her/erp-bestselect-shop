@@ -128,12 +128,15 @@
                 '-detail-primary' => $subOrder->ship_category === 'deliver',
                 '-detail-warning' => $subOrder->ship_category === 'pickup'
                 ])>
-                <div class="card-header px-4 py-3 d-flex align-items-center bg-white">
+                <div class="card-header px-4 py-3 d-flex align-items-center bg-white flex-wrap justify-content-end">
                     <strong class="flex-grow-1 mb-0">{{ $subOrder->ship_event }}</strong>
                     @if(true == isset($subOrderId))
+                    <div class="d-flex">
+                        <a class="btn btn-success -in-header" href="">物流設定</a>
                         <a class="btn btn-success -in-header" href="{{ Route('cms.delivery.create', [$subOrder->id], true) }}">出貨審核</a>
                         <button type="button" class="btn btn-primary -in-header">列印銷貨單</button>
                         <button type="button" class="btn btn-primary -in-header">列印出貨單</button>
+                    </div>
                     @endif
                 </div>
                 <div class="card-body px-4">
