@@ -180,7 +180,11 @@
                         <dd></dd>
                     </div>
                     <div class="col">
-                        <dt>會計：</dt>
+                        <dt>會計：
+                            @if($hasReceivedPayment)
+                                {{ $accountant ?? '' }}
+                            @endif
+                        </dt>
                         <dd></dd>
                     </div>
                     <div class="col">

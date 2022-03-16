@@ -581,16 +581,24 @@ class PurchaseCtrl extends Controller
                             ->where('id', '=', 1)
                             ->get()
                             ->first();
+        $accountPayable = PayingOrder::find($payingOrderData->id)->accountPayable;
+
+        if ($accountPayable) {
+            $accountant = DB::table('usr_users')
+                            ->find($accountPayable->accountant_id_fk, ['name'])
+                            ->name;
+        }
 
         return view('cms.commodity.purchase.pay_order', [
             'id' => $id,
+            'accountant' => $accountant ?? '',
             'payOrdId' => $payingOrderData->id,
             'type' => ($validatedReq['type'] === '0') ? 'deposit' : 'final',
             'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
             'formAction' => Route('cms.purchase.index', ['id' => $id,]),
             'supplierUrl' => Route('cms.supplier.edit', ['id' => $supplier->id,]),
             'purchaseData' => $purchaseData,
-            'hasReceivedPayment' => !is_null(PayingOrder::find($payingOrderData->id)->accountPayable),
+            'hasReceivedPayment' => !is_null($accountPayable),
             'payingOrderData' => $payingOrderData,
             'depositPaymentData' => $depositPaymentData,
             'finalPaymentPrice' => $paymentPrice['finalPaymentPrice'],
