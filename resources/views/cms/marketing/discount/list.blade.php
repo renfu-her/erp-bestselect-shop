@@ -8,7 +8,7 @@
             <div class="row">
                 <div class="col-12 col-md-6 mb-3">
                     <label class="form-label">活動名稱</label>
-                    <input class="form-control" type="text" name="title" placeholder="活動名稱">
+                    <input class="form-control" type="text" name="title" placeholder="請輸入活動名稱">
                 </div>
                 <div class="col-12 col-md-6 mb-3">
                     <fieldset class="col-12 mb-3">
@@ -133,24 +133,24 @@
                                 'text-danger' => '已結束']) --}}>
                                 待進行
                             </td>
-                            <td>2022/10/1</td>
-                            <td>2022/10/31</td>
+                            <td>2022/10/1 00:00</td>
+                            <td>2022/10/31 23:59</td>
                         </tr>
                         <tr>
                             <th scope="row">2</th>
                             <td>情人節活動</td>
                             <td>金額</td>
                             <td class="text-danger">已結束</td>
-                            <td>2022/2/1</td>
-                            <td>2022/2/28</td>
+                            <td>2022/2/1 10:00</td>
+                            <td>2022/2/28 22:00</td>
                         </tr>
                         <tr>
                             <th scope="row">3</th>
                             <td>婦女節優惠</td>
                             <td>優惠券</td>
                             <td class="text-success">進行中</td>
-                            <td>2022/3/1</td>
-                            <td>2022/3/31</td>
+                            <td>2022/3/1 03:00</td>
+                            <td>2022/3/31 20:00</td>
                         </tr>
                     {{-- @endforeach --}}
                 </tbody>
@@ -168,10 +168,6 @@
     </div>
 @endsection
 @once
-    @push('sub-styles')
-        <style>
-        </style>
-    @endpush
     @push('sub-scripts')
         <script>
             // 顯示筆數選擇
