@@ -10,6 +10,11 @@ class PayableRemit extends Model
     use HasFactory;
 
     protected $table = 'acc_payable_remit';
+    protected $fillable = [
+        'grade_type',
+        'grade_id',
+        'remit_date',
+    ];
 
     /**
      * 取得匯款方式對應到acc_payable table資料
@@ -17,7 +22,7 @@ class PayableRemit extends Model
      */
     public function pay()
     {
-        return $this->morphOne(AccountPayable::class, 'payable')->withDefault();
+        return $this->morphOne(AccountPayable::class, 'payable');
     }
 
     /**

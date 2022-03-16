@@ -286,23 +286,23 @@
                     <div class="px-1 pt-1">
                         <div class="form-check mb-3">
                             <label class="form-check-label" data-type="現金">
-                                <input class="form-check-input" name="paytype[]" value="0" type="checkbox" @if('0' == old('paytype.0', '') || true == in_array('0', $payTypeList ?? [])) checked @endif>
+                                <input class="form-check-input" name="paytype[]" value="1" type="checkbox" @if('1' == old('paytype.0', '') || true == in_array('1', $payTypeList ?? [])) checked @endif>
                             </label>
                         </div>
                         <div class="form-check mb-3">
                             <label class="form-check-label" data-type="外幣">
-                                <input class="form-check-input" name="paytype[]" value="3" type="checkbox" @if('3' == old('paytype.1', '') || true == in_array('3', $payTypeList ?? [])) checked @endif>
+                                <input class="form-check-input" name="paytype[]" value="4" type="checkbox" @if('4' == old('paytype.1', '') || true == in_array('4', $payTypeList ?? [])) checked @endif>
                             </label>
                         </div>
                         <div class="form-check mb-3">
                             <label class="form-check-label" data-type="匯款">
-                                <input class="form-check-input" name="paytype[]" value="2" type="checkbox" @if('2' == old('paytype.2', '') || true == in_array('2', $payTypeList ?? [])) checked @endif>
+                                <input class="form-check-input" name="paytype[]" value="3" type="checkbox" @if('3' == old('paytype.2', '') || true == in_array('3', $payTypeList ?? [])) checked @endif>
                             </label>
                             <div class="row">
                                 @php
                                     $remittanceData = null;
                                     foreach ($payList ?? [] as $key => $value) {
-                                        if ('2' == $value['type']) {
+                                        if ('3' == $value['type']) {
                                             $remittanceData = $value;
                                             break;
                                         }
@@ -324,13 +324,13 @@
                         </div>
                         <div class="form-check mb-3">
                             <label class="form-check-label" data-type="支票">
-                                <input class="form-check-input" name="paytype[]" value="1" type="checkbox" @if('1' == old('paytype.3', '') || true == in_array('1', $payTypeList ?? [])) checked @endif>
+                                <input class="form-check-input" name="paytype[]" value="2" type="checkbox" @if('2' == old('paytype.3', '') || true == in_array('2', $payTypeList ?? [])) checked @endif>
                             </label>
                             <div class="row">
                                 @php
                                     $chequeData = null;
                                     foreach ($payList ?? [] as $key => $value) {
-                                        if ('1' == $value['type']) {
+                                        if ('2' == $value['type']) {
                                             $chequeData = $value;
                                             break;
                                         }
@@ -343,7 +343,7 @@
                         </div>
                         <div class="form-check mb-3">
                             <label class="form-check-label" data-type="其他">
-                                <input class="form-check-input" name="paytype[]" value="5" type="checkbox" @if('5' == old('paytype.4', '') || true == in_array('5', $payTypeList ?? [])) checked @endif>
+                                <input class="form-check-input" name="paytype[]" value="6" type="checkbox" @if('6' == old('paytype.4', '') || true == in_array('6', $payTypeList ?? [])) checked @endif>
                             </label>
                         </div>
                     </div>
@@ -353,27 +353,27 @@
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline">
                             <label class="form-check-label" data-type="現金">
-                                <input class="form-check-input" name="def_paytype" value="0" type="radio" required @if('0' == old('def_paytype', (isset($supplierData)?($supplierData->def_paytype ?? ''): ''))) checked @endif>
-                            </label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <label class="form-check-label" data-type="外幣">
-                                <input class="form-check-input" name="def_paytype" value="3" type="radio" required @if('3' == old('def_paytype', (isset($supplierData)?($supplierData->def_paytype ?? ''): ''))) checked @endif>
-                            </label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <label class="form-check-label" data-type="匯款">
-                                <input class="form-check-input" name="def_paytype" value="2" type="radio" required @if('2' == old('def_paytype', (isset($supplierData)?($supplierData->def_paytype ?? ''): ''))) checked @endif>
-                            </label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <label class="form-check-label" data-type="支票">
                                 <input class="form-check-input" name="def_paytype" value="1" type="radio" required @if('1' == old('def_paytype', (isset($supplierData)?($supplierData->def_paytype ?? ''): ''))) checked @endif>
                             </label>
                         </div>
                         <div class="form-check form-check-inline">
+                            <label class="form-check-label" data-type="外幣">
+                                <input class="form-check-input" name="def_paytype" value="4" type="radio" required @if('4' == old('def_paytype', (isset($supplierData)?($supplierData->def_paytype ?? ''): ''))) checked @endif>
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label" data-type="匯款">
+                                <input class="form-check-input" name="def_paytype" value="3" type="radio" required @if('3' == old('def_paytype', (isset($supplierData)?($supplierData->def_paytype ?? ''): ''))) checked @endif>
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label" data-type="支票">
+                                <input class="form-check-input" name="def_paytype" value="2" type="radio" required @if('2' == old('def_paytype', (isset($supplierData)?($supplierData->def_paytype ?? ''): ''))) checked @endif>
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
                             <label class="form-check-label" data-type="其他">
-                                <input class="form-check-input" name="def_paytype" value="5" type="radio" required @if('5' == old('def_paytype', (isset($supplierData)?($supplierData->def_paytype ?? ''): ''))) checked @endif>
+                                <input class="form-check-input" name="def_paytype" value="6" type="radio" required @if('6' == old('def_paytype', (isset($supplierData)?($supplierData->def_paytype ?? ''): ''))) checked @endif>
                             </label>
                         </div>
                     </div>

@@ -590,6 +590,7 @@ class PurchaseCtrl extends Controller
             'formAction' => Route('cms.purchase.index', ['id' => $id,]),
             'supplierUrl' => Route('cms.supplier.edit', ['id' => $supplier->id,]),
             'purchaseData' => $purchaseData,
+            'hasAccountPayable' => is_null(PayingOrder::find($id)->accountPayable) ? false : true,
             'payingOrderData' => $payingOrderData,
             'depositPaymentData' => $depositPaymentData,
             'finalPaymentPrice' => $paymentPrice['finalPaymentPrice'],

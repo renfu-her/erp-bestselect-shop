@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Supplier\Payment;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -144,5 +145,18 @@ class IncomeExpenditure extends Model
                     'acc_income_type_fk' => $emptyItem->id,
                 ]);
         }
+    }
+
+    /**
+     * @param $type int use Enum Payment class in App\Enums\Payment
+     * 取得付款選項的會計科目
+     *
+     * @return string grade model class name Eg,App\Models\FourthGrade
+     */
+    public static function getModelNameByPayableTypeId($type)
+    {
+        return DB::table('acc_income_type')
+            ->find($type, ['grade_type'])
+            ->grade_type;
     }
 }

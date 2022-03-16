@@ -2,9 +2,15 @@
 
 namespace App\Http\Controllers\Cms\AccountManagement;
 
+use App\Enums\Supplier\Payment;
 use App\Http\Controllers\Controller;
 use App\Models\AccountPayable;
+use App\Models\PayableCash;
+use App\Models\IncomeExpenditure;
+use App\Models\PayingOrder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Enums\Payable\PayableStatus;
 
 class AccountPayableCtrl extends Controller
 {
@@ -23,9 +29,53 @@ class AccountPayableCtrl extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+        $aa = IncomeExpenditure::getModelNameByPayableTypeId(Payment::Cheque);
+        $request->validate([
+            'payOrdType'    => ['required', 'string', 'regex:/^(pcs)$/'],
+            'payOrdId' => ['required', 'int', 'min:1']
+        ]);
+
+        $payOrdId = $request['payOrdId'];
+
+        if ($request['type'] === 'pcs') {
+            $type = 'App\Models\PayingOrder';
+        }
+
+        $payOrder = PayingOrder::find($payOrdId);
+        $thirdGradesDataList = IncomeExpenditure::getOptionDataByGrade(3);
+        $fourthGradesDataList = IncomeExpenditure::getOptionDataByGrade(4);
+        $currencyData = IncomeExpenditure::getCurrencyOptionData();
+
+        $payStatusArray = [
+            [
+                'id' => PayableStatus::Unpaid,
+                'payment_status' => PayableStatus::getDescription(PayableStatus::Unpaid)
+            ],
+            [
+                'id' => PayableStatus::Paid,
+                'payment_status' => PayableStatus::getDescription(PayableStatus::Paid)
+            ]
+        ];
+
+        return view('cms.account_management.account_payable.edit', [
+            'tw_price' => $payOrder->price,
+            'thirdGradesDataList' => $thirdGradesDataList,
+            'fourthGradesDataList' => $fourthGradesDataList,
+            'cashDefault' => AccountPayable::getThirdGradeDefaultById(1),
+            'chequeDefault' => AccountPayable::getFourthGradeDefaultById(2),
+            'remitDefault' => AccountPayable::getFourthGradeDefaultById(3),
+            'currencyDefault' => AccountPayable::getFourthGradeDefaultById(4),
+            'accountPayableDefault' => AccountPayable::getFourthGradeDefaultById(5),
+            'otherDefault' => AccountPayable::getThirdGradeDefaultById(6),
+            'paymentStatusList' => $payStatusArray,
+            'currencyData' => $currencyData,
+            'method' => 'create',
+            'transactTypeList' => AccountPayable::getTransactTypeList(),
+            'chequeStatus' => AccountPayable::getChequeStatus(),
+            'formAction' => Route('cms.ap.create'),
+        ]);
     }
 
     /**
@@ -36,7 +86,33 @@ class AccountPayableCtrl extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'acc_transact_type_fk'    => ['required', 'string', 'regex:/^[1-6]$/'],
+            'pay_order_type' => ['required', 'string', 'regex:/^(pcs)$/'],
+            'pay_order_id' => ['required', 'int', 'min:1'],
+            'is_final_payment' => ['required', 'int', 'regex:/^(0|1)$/']
+        ]);
+        $req = $request->all();
+        $payableType = $req['acc_transact_type_fk'];
+        switch ($payableType) {
+            case Payment::Cash:
+                PayableCash::storePayableCash($req);
+                break;
+            case Payment::Cheque:
+                break;
+            case Payment::Remittance:
+                break;
+            case Payment::ForeignCurrency:
+                break;
+            case Payment::AccountsPayable:
+                break;
+            case Payment::Other:
+                break;
+        }
+
+        return redirect()->route('cms.purchase.view-pay-order',
+                                        ['id' => $req['pay_order_id'],
+                                        'type' => $req['is_final_payment']]);
     }
 
     /**
@@ -83,4 +159,5 @@ class AccountPayableCtrl extends Controller
     {
         //
     }
+
 }

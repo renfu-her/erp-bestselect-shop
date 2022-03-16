@@ -10,6 +10,10 @@ class PayableAccount extends Model
     use HasFactory;
 
     protected $table = 'acc_payable_account';
+    protected $fillable = [
+        'grade_type',
+        'grade_id',
+    ];
 
     /**
      * 取得「應付帳款」方式對應到acc_payable table資料
@@ -17,7 +21,7 @@ class PayableAccount extends Model
      */
     public function pay()
     {
-        return $this->morphOne(AccountPayable::class, 'payable')->withDefault();
+        return $this->morphOne(AccountPayable::class, 'payable');
     }
 
     /**
