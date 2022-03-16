@@ -84,8 +84,8 @@
     <div class="card shadow p-4 mb-4">
         <div class="row justify-content-end mb-4">
             <div class="col">
-                @can('cms.purchase.create')
-                    <a href="" class="btn btn-primary">
+                @can('cms.discount.create')
+                    <a href="{{ Route('cms.discount.create') }}" class="btn btn-primary">
                         <i class="bi bi-plus-lg pe-1"></i> 新增現折優惠
                     </a>
                 @endcan

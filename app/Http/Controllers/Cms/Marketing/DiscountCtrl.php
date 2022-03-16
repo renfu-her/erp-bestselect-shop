@@ -47,6 +47,9 @@ class DiscountCtrl extends Controller
     public function create()
     {
         //
+        return view('cms.marketing.discount.edit', [
+            'method' => 'create'
+        ]);
     }
 
     /**
@@ -80,6 +83,10 @@ class DiscountCtrl extends Controller
     public function edit($id)
     {
         //
+        return view('cms.marketing.discount.edit', [
+            'method' => 'edit',
+            'breadcrumb_data' => '現折優惠'
+        ]);
     }
 
     /**
