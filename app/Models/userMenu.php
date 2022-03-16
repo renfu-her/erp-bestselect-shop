@@ -36,11 +36,6 @@ return
                 "controller_name" => "DeliveryCtrl",
                 "route_name" => "cms.delivery.index",
             ],
-            [
-                "title" => "物流管理",
-                "controller_name" => "LogisticCtrl",
-                "route_name" => "cms.logistic.index",
-            ],
         ],
     ],
     [

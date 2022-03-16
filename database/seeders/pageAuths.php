@@ -389,10 +389,6 @@ return [
         "unit" => "物流管理",
         "permissions" => [
             [
-                "cms.logistic.index",
-                "瀏覽",
-            ],
-            [
                 "cms.logistic.create",
                 "新增",
             ],

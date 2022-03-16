@@ -13,10 +13,6 @@ use Illuminate\Support\Facades\DB;
 
 class LogisticCtrl extends Controller
 {
-    public function index(Request $request)
-    {
-    }
-
     public function create($sub_order_id)
     {
         $sub_order = SubOrders::getListWithShiGroupById($sub_order_id)->get()->first();
