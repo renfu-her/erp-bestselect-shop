@@ -226,7 +226,7 @@
                     <span class="text-danger">*</span>
                 </label>
                 <select
-                    name="other[grade_id]"
+                    name="other[grade_id_fk]"
                     class="-select2 -single form-select col-12 col-sm-4 mb-3 other"
                     required
                     data-placeholder="請選擇">
