@@ -9,14 +9,18 @@
     {{--        <h2 class="mb-3">新增採購單</h2>--}}
     {{--    @endif--}}
 
-    <button type="submit" class="btn btn-primary">修改</button>
-    <button type="submit" class="btn btn-primary">修改備註</button>
-    <button type="submit" class="btn btn-primary">新增細項</button>
-    <button type="submit" class="btn btn-primary">變更支付對象</button>
-    <button type="submit" class="btn btn-primary">取消訂金折抵</button>
-{{--    <button type="button" class="btn btn-primary">--}}
-{{--        <a href="{{ Route('cms.ap.create', ['id' => $id], true) }}" class="text-white">付款</a>--}}
-{{--    </button>--}}
+{{--    <button type="submit" class="btn btn-primary">修改</button>--}}
+{{--    <button type="submit" class="btn btn-primary">修改備註</button>--}}
+{{--    <button type="submit" class="btn btn-primary">新增細項</button>--}}
+{{--    <button type="submit" class="btn btn-primary">變更支付對象</button>--}}
+{{--    <button type="submit" class="btn btn-primary">取消訂金折抵</button>--}}
+    <button type="button" class="btn btn-primary">
+        @if($hasAccountPayable)
+            <a href="{{ Route('cms.ap.edit', ['payOrdId' => $id, 'type' => 'pcs'], true) }}" class="text-white">編輯付款</a>
+        @else
+            <a href="{{ Route('cms.ap.create', ['payOrdId' => $id, 'type' => 'pcs'], true) }}" class="text-white">付款</a>
+        @endif
+    </button>
     <button type="submit" class="btn btn-danger">中一刀列印畫面</button>
     <button type="submit" class="btn btn-danger">A4列印畫面</button>
     <button type="submit" class="btn btn-danger">圖片管理</button>
