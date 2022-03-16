@@ -5,8 +5,13 @@ namespace App\Http\Controllers\Cms\AccountManagement;
 use App\Enums\Supplier\Payment;
 use App\Http\Controllers\Controller;
 use App\Models\AccountPayable;
+use App\Models\PayableAccount;
 use App\Models\PayableCash;
 use App\Models\IncomeExpenditure;
+use App\Models\PayableCheque;
+use App\Models\PayableForeignCurrency;
+use App\Models\PayableOther;
+use App\Models\PayableRemit;
 use App\Models\PayingOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -98,14 +103,19 @@ class AccountPayableCtrl extends Controller
                 PayableCash::storePayableCash($req);
                 break;
             case Payment::Cheque:
+                PayableCheque::storePayableCheque($req);
                 break;
             case Payment::Remittance:
+                PayableRemit::storePayableRemit($req);
                 break;
             case Payment::ForeignCurrency:
+                PayableForeignCurrency::storePayableCurrency($req);
                 break;
             case Payment::AccountsPayable:
+                PayableAccount::storePayablePayableAccount($req);
                 break;
             case Payment::Other:
+                PayableOther::storePayableOther($req);
                 break;
         }
 

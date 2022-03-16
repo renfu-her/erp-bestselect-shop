@@ -130,8 +130,8 @@
                     <span class="text-danger">*</span>
                 </label>
                 <select
-                    name="remit[all_grades_id_fk]"
-                    class="-select2 -single form-select col-12 col-sm-4 mb-3 remit @error('remit[all_grades_id_fk]') is-invalid @enderror"
+                    name="remit[grade_id_fk]"
+                    class="-select2 -single form-select col-12 col-sm-4 mb-3 remit @error('remit[grade_id_fk]') is-invalid @enderror"
                     required
                     data-placeholder="請選擇">
                     <option disabled selected value> -- select an option --</option>
@@ -193,8 +193,8 @@
                     <span class="text-danger">*</span>
                 </label>
                 <select
-                    name="foreign_currency[all_grades_id_fk]"
-                    class="-select2 -single form-select col-12 col-sm-4 mb-3 foreign_currency @error('foreign_currency[all_grades_id_fk]') is-invalid @enderror"
+                    name="foreign_currency[grade_id_fk]"
+                    class="-select2 -single form-select col-12 col-sm-4 mb-3 foreign_currency @error('foreign_currency[grade_id_fk]') is-invalid @enderror"
                     required
                     data-placeholder="請選擇">
                     <option disabled selected value> -- select an option --</option>
@@ -209,8 +209,8 @@
                     <span class="text-danger">*</span>
                 </label>
                 <select
-                    name="payable_account[all_grades_id_fk]"
-                    class="-select2 -single form-select col-12 col-sm-4 mb-3 payable_account @error('payable_account[all_grades_id_fk]') is-invalid @enderror"
+                    name="payable_account[grade_id_fk]"
+                    class="-select2 -single form-select col-12 col-sm-4 mb-3 payable_account @error('payable_account[grade_id_fk]') is-invalid @enderror"
                     required
                     data-placeholder="請選擇">
                     <option disabled selected value> -- select an option --</option>

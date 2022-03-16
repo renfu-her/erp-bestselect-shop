@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\Supplier\Payment;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class PayableCheque extends Model
 {
@@ -35,5 +37,30 @@ class PayableCheque extends Model
     public function grade()
     {
         return $this->morphTo();
+    }
+
+    public static function storePayableCheque($req)
+    {
+        $payableData =self::create([
+            'check_num' => $req['cheque']['check_num'],
+            'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::Cheque),
+            'grade_id' => $req['cheque']['grade_id_fk'],
+            'maturity_date' => $req['cheque']['maturity_date'],
+            'cash_cheque_date' => $req['cheque']['cash_cheque_date'],
+            'cheque_status' => $req['cheque']['cheque_status'],
+        ]);
+
+        AccountPayable::create([
+            'pay_order_type' => 'App\Models\PayingOrder',
+            'pay_order_id' => $req['pay_order_id'],
+            'acc_income_type_fk' => Payment::Cheque,
+            'payable_type' => 'App\Models\PayableCheque',
+            'payable_id' => $payableData->id,
+            'tw_price' => $req['tw_price'],
+            //            'payable_status' => $req['payable_status'],
+            'payment_date' => $req['payment_date'],
+            'accountant_id_fk' => Auth::user()->id,
+            'note' => $req['note'],
+        ]);
     }
 }
