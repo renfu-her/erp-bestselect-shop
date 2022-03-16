@@ -104,7 +104,7 @@ class CreateIncomeExpenditureTable extends Migration
                 $table->unsignedBigInteger('payable_id')->comment('對應付款方式(支票、匯款、外幣、現金、應付帳款、其它)table的primary id');
 
                 $table->decimal('tw_price')->comment('金額(新台幣)');
-                $table->unsignedTinyInteger('payable_status')->comment('付款狀態：1未付款, 2已付 use enum PayableStatus');
+//                $table->unsignedTinyInteger('payable_status')->comment('付款狀態：1未付款, 2已付 use enum PayableStatus');
                 $table->dateTime('payment_date')->comment('付款日期');
 
                 $table->unsignedBigInteger('accountant_id_fk')->comment('會計師, user_id foreign key');
