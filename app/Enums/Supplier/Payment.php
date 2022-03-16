@@ -15,12 +15,12 @@ use BenSampo\Enum\Enum;
  */
 class Payment extends Enum
 {
-    const Cash = 0;
-    const Cheque = 1;
-    const Remittance = 2;
-    const ForeignCurrency = 3;
-    const AccountsPayable = 4;
-    const Other = 5;
+    const Cash = 1;
+    const Cheque = 2;
+    const Remittance = 3;
+    const ForeignCurrency = 4;
+    const AccountsPayable = 5;
+    const Other = 6;
 
     public static function getDescription($value): string
     {
