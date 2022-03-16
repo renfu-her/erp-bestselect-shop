@@ -67,6 +67,7 @@ class DeliveryCtrl extends Controller
             'order_id' => $sub_order->order_id,
             'sub_order_id' => $sub_order_id,
             'ord_items_arr' => $ord_items_arr,
+            'event' => Event::order()->value,
             'formAction' => Route('cms.delivery.create', [$delivery_id], true)
         ]);
     }
@@ -106,10 +107,12 @@ class DeliveryCtrl extends Controller
     }
 
     //刪除出貨單收貨倉數量
-    public function destroy(Request $request, $subOrderId, int $receiveDepotId)
+    public function destroyItem(Request $request, int $receiveDepotId, $event, $eventId)
     {
         ReceiveDepot::deleteById($receiveDepotId);
         wToast('刪除成功');
-        return redirect(Route('cms.delivery.create', [$subOrderId], true));
+        if(Event::order()->value == $event) {
+            return redirect(Route('cms.delivery.create', [$eventId], true));
+        }
     }
 }

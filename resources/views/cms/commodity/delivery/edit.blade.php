@@ -175,7 +175,7 @@
         <script>
         $(function () {
             const CreateUrl = @json(Route('api.cms.delivery.create-receive-depot'));
-            const DelUrl = "{{ Route('cms.delivery.delete', ['subOrderId'=>$sub_order_id, 'receiveDepotId'=>'#'], true) }}".replace('#', '');
+            const DelUrl = "{{ Route('cms.delivery.delete', ['receiveDepotId'=>'#', 'event'=>$event, 'eventId'=>$sub_order_id], true) }}".replace('#', '');
             const DeliveryId = @json($delivery_id);
             const Readonly = @json(isset($delivery->close_date));
 
