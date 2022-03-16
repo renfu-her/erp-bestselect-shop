@@ -249,7 +249,7 @@ class PurchaseCtrl extends Controller
 
         $hasCreatedDepositPayment = false;  // 是否已有訂金單
         $hasCreatedFinalPayment = false;  // 是否已有尾款單
-        //TODO 讀取「付款作業」相關的database table欄位來決定是否以付款, 目前尚未設計， 暫定true
+        //TODO Design Enum Type 訂金、尾款單（建立與否、付款與否)
         $hasReceivedDepositPayment = false;
         $hasReceivedFinalPayment = false;
         $payingOrderList = PayingOrder::getPayingOrdersWithPurchaseID($id)->get();
@@ -258,23 +258,22 @@ class PurchaseCtrl extends Controller
         $finalPayData = null;
         if (0 < count($payingOrderList)) {
             foreach ($payingOrderList as $payingOrderItem) {
+                $payingOrderId = $payingOrderItem->id;
                 if ($payingOrderItem->type === 0) {
                     $hasCreatedDepositPayment = true;
                     $depositPayData = $payingOrderItem;
-                    if (null != $payingOrderItem->pay_date) {
+                    if (PayingOrder::find($payingOrderId)->accountPayable) {
                         $hasReceivedDepositPayment = true;
                     }
-                } else {
-                    if ($payingOrderItem->type === 1) {
+                } elseif ($payingOrderItem->type === 1) {
                         $hasCreatedFinalPayment = true;
                         $finalPayData = $payingOrderItem;
-                        if (null != $payingOrderItem->pay_date) {
+                    if (PayingOrder::find($payingOrderId)->accountPayable) {
                             $hasReceivedFinalPayment = true;
                         }
                     }
                 }
             }
-        }
 
         $supplierList = Supplier::getSupplierList()->get();
 
