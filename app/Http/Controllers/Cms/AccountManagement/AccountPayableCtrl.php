@@ -78,7 +78,7 @@ class AccountPayableCtrl extends Controller
             'method' => 'create',
             'transactTypeList' => AccountPayable::getTransactTypeList(),
             'chequeStatus' => AccountPayable::getChequeStatus(),
-            'formAction' => Route('cms.ap.create'),
+            'formAction' => Route('cms.ap.store'),
         ]);
     }
 
