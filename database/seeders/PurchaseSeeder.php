@@ -78,7 +78,7 @@ class PurchaseSeeder extends Seeder
                 'product_style_id' => $product_style1->id,
                 'title' => '測試商品-'.$product_style1->title,
                 'sku' => $product_style1->sku,
-                'price' => '11',
+                'price' => '110',
                 'num' => 10,
                 'temp_id' => null,
                 'memo' => '第一筆款式'
@@ -96,8 +96,8 @@ class PurchaseSeeder extends Seeder
                 'product_style_id' => $product_style2->id,
                 'title' => '測試商品-'.$product_style2->title,
                 'sku' => $product_style2->sku,
-                'price' => '12',
-                'num' => 10,
+                'price' => '2000',
+                'num' => 100,
                 'temp_id' => null,
                 'memo' => '第二筆款式'
             ],
@@ -114,7 +114,7 @@ class PurchaseSeeder extends Seeder
                 'product_style_id' => $product_style1->id,
                 'title' => '測試商品-'.$product_style1->title,
                 'sku' => $product_style1->sku,
-                'price' => '13',
+                'price' => '130',
                 'num' => 10,
                 'temp_id' => null,
                 'memo' => '第三筆款式'
@@ -128,8 +128,8 @@ class PurchaseSeeder extends Seeder
                 'product_style_id' => $product_style3->id,
                 'title' => '測試商品-'.$product_style3->title,
                 'sku' => $product_style3->sku,
-                'price' => '13',
-                'num' => 13,
+                'price' => '3000',
+                'num' => 10,
                 'temp_id' => null,
                 'memo' => null
             ],
@@ -185,7 +185,7 @@ class PurchaseSeeder extends Seeder
             $purchaseID1,
             $undertakerUserId,
             0,
-            100,
+            5000,
             '2021-12-13 00:00:00',
             '訂金測試1',
             '第一筆備註 訂金'
@@ -194,7 +194,7 @@ class PurchaseSeeder extends Seeder
             $purchaseID1,
             $undertakerUserId,
             1,
-            900,
+            110,
             '2021-12-14 00:00:00',
             '訂金測試2',
             '第二筆備註 尾款'
