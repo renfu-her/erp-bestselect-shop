@@ -20,7 +20,7 @@
                     <label class="form-label">消費金額 <span class="text-danger">*</span></label>
                     <div class="input-group flex-nowrap">
                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                        <input type="number" class="form-control" name="" min="0" value="" required>
+                        <input type="number" class="form-control" name="" min="0" value="" placeholder="請輸入消費金額" required>
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
@@ -77,7 +77,7 @@
                         <label class="form-label">折扣金額 <span class="text-danger">*</span></label>
                         <div class="input-group flex-nowrap">
                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                            <input type="number" name="" class="form-control" min="0" value="">
+                            <input type="number" name="" class="form-control" min="0" value="" placeholder="請輸入折扣金額">
                         </div>
                     </div>
                     <fieldset class="col-12 col-sm-6 mb-3">
@@ -98,7 +98,7 @@
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">折扣百分比 <span class="text-danger">*</span></label>
                         <div class="input-group flex-nowrap">
-                            <input type="number" name="" class="form-control" min="0" max="100" value="">
+                            <input type="number" name="" class="form-control" min="1" max="100" value="" placeholder="請輸入百分比 1 ~ 100">
                             <span class="input-group-text"><i class="bi bi-percent"></i></span>
                         </div>
                     </div>
@@ -129,7 +129,7 @@
                         <label class="form-label">優惠券金額 <span class="text-danger">*</span></label>
                         <div class="input-group flex-nowrap">
                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                            <input type="number" name="" class="form-control" min="1" value="">
+                            <input type="number" name="" class="form-control" min="1" value="" placeholder="請輸入優惠券金額">
                         </div>
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
