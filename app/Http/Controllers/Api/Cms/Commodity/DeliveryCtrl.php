@@ -37,7 +37,6 @@ class DeliveryCtrl extends Controller
 
         $delivery_id = $request->input('delivery_id')?? null;
         $item_id = $request->input('item_id')?? null;
-        $product_style_id = $request->input('product_style_id')?? null;
         $re = [];
         $input = $request->only('freebies', 'inbound_id', 'qty');
         if (count($input['inbound_id']) != count($input['qty'])) {
