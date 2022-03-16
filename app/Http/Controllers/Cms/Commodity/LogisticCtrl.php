@@ -69,10 +69,31 @@ class LogisticCtrl extends Controller
         ]);
     }
 
-    public function store(Request $request, int $logistic_id)
+    public function store(Request $request)
     {
+        $request->validate([
+            'logistic_id' => 'required|numeric',
+            'package_sn' => 'sometimes|string',
+            'ship_group_id' => 'required|numeric',
+            'cost' => 'required|numeric|min:0',
+            'memo' => 'sometimes|string',
+        ]);
+        $logistic_id = $request->input('logistic_id');
+        $input = $request->only('logistic_id', 'ship_group_id', 'cost', 'package_sn', 'memo');
+
         $errors = [];
-        $logistic = Logistic::where('id', '=', $logistic_id)->get()->first();
+        $reLgt = Logistic::updateData(
+            $input['logistic_id']
+            , $input['package_sn']
+            , $input['ship_group_id']
+            , $input['cost']
+            , $input['memo']
+        );
+        if ($reLgt['success'] == '0') {
+            $errors['error_msg'] = $reLgt['error_msg'];
+            return redirect()->back()->withInput()->withErrors($errors);
+        }
+        $logistic = Logistic::where('id', '=', $input['logistic_id'])->get()->first();
         if (null != $logistic->audit_date) {
             $errors['error_msg'] = '不可重複送出審核';
         } else {

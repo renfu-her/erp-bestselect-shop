@@ -30,6 +30,7 @@ class Logistic extends Model
 
         $result = null;
         if (null == $dataGet) {
+            $delivery = Delivery::where('id', $delivery_id)->withTrashed()->get()->first();
             $sn = "LGT" . date("ymd") . str_pad((Delivery::whereDate('created_at', '=', date('Y-m-d'))
                         ->withTrashed()
                         ->get()
@@ -37,7 +38,8 @@ class Logistic extends Model
 
             $result = Logistic::create([
                 'sn' => $sn,
-                'delivery_id' => $delivery_id,
+                'delivery_id' => $delivery->id,
+                'ship_group_id' => $delivery->ship_group_id,
             ])->id;
             return ['success' => 1, 'error_msg' => "", 'id' => $result];
         } else {
@@ -46,7 +48,8 @@ class Logistic extends Model
         }
     }
 
-    public static function updateData($id, $ship_group_id, $cost, $memo) {
+    //更新物流單資料
+    public static function updateData($id, $package_sn, $ship_group_id, $cost, $memo) {
         $data = Logistic::where('id', $id);
         $dataGet = null;
         if (null != $data) {
@@ -55,7 +58,8 @@ class Logistic extends Model
 
         if (null != $dataGet) {
             $updateData = [
-                'ship_group_id' => $ship_group_id
+                'package_sn' => $package_sn
+                , 'ship_group_id' => $ship_group_id
                 , 'cost' => $cost
                 , 'memo' => $memo
             ];
