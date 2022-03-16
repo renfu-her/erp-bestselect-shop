@@ -175,7 +175,7 @@
         <script>
         $(function () {
             const CreateUrl = @json(Route('api.cms.delivery.create-receive-depot'));
-            const DelUrl = "{{ Route('cms.delivery.delete', ['receiveDepotId'=>'#', 'event'=>$event, 'eventId'=>$sub_order_id], true) }}".replace('#', '');
+            const DelUrl = "{{ Route('cms.delivery.delete', ['event'=>$event, 'eventId'=>$sub_order_id, 'receiveDepotId'=>'#'], true)}}".replace('#', '');
             const DeliveryId = @json($delivery_id);
             const Readonly = @json(isset($delivery->close_date));
 
@@ -185,6 +185,7 @@
 
             // 刪除
             $('#confirm-delete').on('show.bs.modal', function (e) {
+                console.log($(e.relatedTarget).data('rid'));
                 $(this).find('.btn-ok').attr('href', DelUrl + $(e.relatedTarget).data('rid'));
             });
 

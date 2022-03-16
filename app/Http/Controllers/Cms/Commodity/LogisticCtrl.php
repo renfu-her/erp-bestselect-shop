@@ -91,7 +91,7 @@ class LogisticCtrl extends Controller
     }
 
     //刪除物流單耗材
-    public function destroyItem(Request $request, int $consumId, $event, $eventId)
+    public function destroyItem(Request $request, $event, $eventId, int $consumId)
     {
 //        ReceiveDepot::deleteById($receiveDepotId);
         wToast('刪除成功');

@@ -107,7 +107,7 @@ class DeliveryCtrl extends Controller
     }
 
     //刪除出貨單收貨倉數量
-    public function destroyItem(Request $request, int $receiveDepotId, $event, $eventId)
+    public function destroyItem(Request $request, $event, $eventId, int $receiveDepotId)
     {
         ReceiveDepot::deleteById($receiveDepotId);
         wToast('刪除成功');
