@@ -10,6 +10,10 @@ class PayableCash extends Model
     use HasFactory;
 
     protected $table = 'acc_payable_cash';
+    protected $fillable = [
+        'grade_type',
+        'grade_id',
+    ];
 
     /**
      * 取得現金方式對應到acc_payable table資料

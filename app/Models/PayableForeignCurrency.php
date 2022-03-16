@@ -10,6 +10,13 @@ class PayableForeignCurrency extends Model
     use HasFactory;
 
     protected $table = 'acc_payable_currency';
+    protected $fillable = [
+        'grade_type',
+        'grade_id',
+        'foreign_currency',
+        'rate',
+        'acc_currency_fk',
+    ];
 
     /**
      * 取得外幣方式對應到acc_payable table資料

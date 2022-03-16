@@ -10,6 +10,10 @@ class PayableOther extends Model
     use HasFactory;
 
     protected $table = 'acc_payable_other';
+    protected $fillable = [
+        'grade_type',
+        'grade_id',
+    ];
 
     /**
      * 取得「其它」方式對應到acc_payable table資料
