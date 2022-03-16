@@ -1,7 +1,7 @@
 @extends('layouts.main')
 @section('sub-content')
     <h2 class="mb-4">
-        @if ($type === 'code') 優惠券代碼 @else 優惠券 @endif
+        @if ($type === 'code') 優惠代碼 @else 優惠券 @endif
     </h2>
 
     <form id="search" action="" method="GET">
@@ -97,7 +97,7 @@
             <div class="col">
                 @can('cms.purchase.create')
                     <a href="" class="btn btn-primary">
-                        <i class="bi bi-plus-lg pe-1"></i> @if ($type === 'code') 新增優惠券代碼 @else 新增優惠劵 @endif
+                        <i class="bi bi-plus-lg pe-1"></i> @if ($type === 'code') 新增優惠代碼 @else 新增優惠劵 @endif
                     </a>
                 @endcan
             </div>

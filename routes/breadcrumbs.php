@@ -184,6 +184,26 @@ Breadcrumbs::for('cms.delivery.index', function (BreadcrumbTrail $trail) {
 });
 
 /**
+ * 行銷設定
+ **/
+
+// 現折優惠
+Breadcrumbs::for('cms.discount.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('現折優惠', route('cms.discount.index'));
+});
+// 優惠券
+Breadcrumbs::for('cms.promo-coupon.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('優惠券', route('cms.promo-coupon.index'));
+});
+// 優惠代碼
+Breadcrumbs::for('cms.promo-code.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('優惠代碼', route('cms.promo-code.index'));
+});
+
+/**
  * 設定
  **/
 
