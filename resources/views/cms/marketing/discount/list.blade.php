@@ -160,10 +160,6 @@
     </div>
 @endsection
 @once
-    @push('sub-styles')
-        <style>
-        </style>
-    @endpush
     @push('sub-scripts')
         <script>
             // 顯示筆數選擇
