@@ -10,7 +10,67 @@ class Consum extends Model
 {
     use HasFactory;
     protected $table = 'lgt_consum';
+    public $timestamps = false;
+    protected $guarded = [];
 
+    public static function createData($logistic_id, $inbound_id, $inbound_sn, $depot_id, $depot_name, $product_style_id, $sku, $product_title, $qty, $expiry_date)
+    {
+        $result = Consum::create([
+            'logistic_id' => $logistic_id,
+            'inbound_id' => $inbound_id,
+            'inbound_sn' => $inbound_sn,
+            'depot_id' => $depot_id,
+            'depot_name' => $depot_name,
+            'product_style_id' => $product_style_id,
+            'sku' => $sku,
+            'product_title' => $product_title,
+            'qty' => $qty,
+        ])->id;
+        return ['success' => 1, 'error_msg' => "", 'id' => $result];
+    }
+
+    /**
+     * 新增對應的入庫商品款式
+     * @param $input_arr inbound_id:入庫單ID ; qty:數量
+     * @param $logistic_id 物流單ID
+     * @return array|mixed|void
+     */
+    public static function setDatasWithLogisticId($input_arr, $logistic_id) {
+        return DB::transaction(function () use ($logistic_id, $input_arr
+        ) {
+            if (null != $input_arr['qty'] && 0 < count($input_arr['qty'])) {
+                $addIds = [];
+                foreach($input_arr['qty'] as $key => $val) {
+                    $inbound = PurchaseInbound::getSelectInboundList(['inbound_id' => $input_arr['inbound_id'][$key]])->get()->first();
+                    if (null != $inbound) {
+                        if (0 > $inbound->qty - $val) {
+                            return ['success' => 0, 'error_msg' => "庫存數量不足"];
+                        }
+                        $reSD = Consum::createData(
+                            $logistic_id, //出貨單ID
+                            $inbound->inbound_id,
+                            $inbound->inbound_sn,
+                            $inbound->depot_id,
+                            $inbound->depot_name,
+                            $inbound->product_style_id,
+                            $inbound->style_sku,
+                            $inbound->product_title. '-'. $inbound->style_title,
+                            $val, //數量
+                            $inbound->expiry_date);
+                        if ($reSD['success'] == 0) {
+                            DB::rollBack();
+                            return $reSD;
+                        } else {
+                            array_push($addIds, $reSD['id']);
+                        }
+                    }
+                }
+                return ['success' => 1, 'error_msg' => "", 'id' => $addIds];
+            } else {
+                return ['success' => 0, 'error_msg' => "未輸入數量"];
+            }
+        });
+    }
 
     public static function deleteById($id)
     {
