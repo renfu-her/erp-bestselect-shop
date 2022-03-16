@@ -290,6 +290,8 @@
                                 <a href="{{ Route('cms.purchase.view-pay-order', ['id' => $id, 'type' => '0'], true) }}" >
                                     付款單號-{{ $depositPayData->sn }}
                                 </a>
+                            @elseif($hasReceivedFinalPayment)
+                                已付完尾款（無訂金付款單）
                             @else
                                 <a href="{{ Route('cms.purchase.pay-deposit', ['id' => $id], true) }}">新增付款單</a>
                             @endif
