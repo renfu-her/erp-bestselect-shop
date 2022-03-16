@@ -92,7 +92,7 @@ POST {host}/api/cms/delivery/store-receive-depot
 | data.receive_depot.product_title | string | 商品名稱-款式名稱    |
 | data.receive_depot.qty | int | 出貨數量    |
 | data.receive_depot.expiry_date | string | 有效日期    |
-| data.receive_depot.close_date | string | 結單日期    |
+| data.receive_depot.audit_date | string | 審核日期    |
 
 
 ### 1.1.3. 刪除單筆預計出貨倉資料
