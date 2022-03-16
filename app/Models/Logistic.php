@@ -20,7 +20,7 @@ class Logistic extends Model
     }
 
     //新增資料
-    public static function createData($delivery_id, $ship_group_id, $cost, $memo, $close_date)
+    public static function createData($delivery_id)
     {
         $data = Logistic::where('delivery_id', $delivery_id);
         $dataGet = null;
