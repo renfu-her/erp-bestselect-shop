@@ -276,6 +276,7 @@
                 <input type="hidden" name="pay_order_type" value="{{ request()->get('payOrdType') }}">
                 <input type="hidden" name="pay_order_id" value="{{ request()->get('payOrdId') }}">
                 <input type="hidden" name="is_final_payment" value="{{ request()->get('isFinalPay') }}">
+                <input type="hidden" name="purchase_id" value="{{ request()->get('purchaseId') }}">
                 <button type="submit" class="btn btn-primary px-4">儲存</button>
                 <a onclick="history.back()"
                    class="btn btn-outline-primary px-4"

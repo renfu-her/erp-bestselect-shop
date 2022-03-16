@@ -120,7 +120,7 @@ class AccountPayableCtrl extends Controller
         }
 
         return redirect()->route('cms.purchase.view-pay-order',
-                                        ['id' => $req['pay_order_id'],
+                                        ['id' => $req['purchase_id'],
                                         'type' => $req['is_final_payment']]);
     }
 
