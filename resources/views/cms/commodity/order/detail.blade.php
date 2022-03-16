@@ -151,7 +151,7 @@
                         </div>
                         <div class="col">
                             <dt>出貨單號</dt>
-                            <dd>{{ $subOrder->delivery_sn }}</dd>
+                            <dd>{{ $subOrder->delivery_sn ?? '(待處理)' }}</dd>
                         </div>
                         <div class="col">
                             <dt>消費者物流費用</dt>
