@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Enums\Delivery\Event;
 use App\Http\Controllers\Controller;
+use App\Models\Consum;
 use App\Models\Delivery;
 use App\Models\Logistic;
 use App\Models\SubOrders;
@@ -14,7 +15,6 @@ class LogisticCtrl extends Controller
 {
     public function index(Request $request)
     {
-        return self::create(1);
     }
 
     public function create($sub_order_id)
@@ -59,7 +59,7 @@ class LogisticCtrl extends Controller
 //        ShipmentGroup::getDataWithCost();
         $deliveryCost = Delivery::getListWithCost($delivery_id)->get();
 
-        dd($deliveryList);
+        dd($deliveryList, $deliveryCost);
 //        dd($deliveryList, $deliveryCost);
         return view('cms.commodity.logistic.edit', [
             'delivery' => $delivery,
@@ -93,7 +93,7 @@ class LogisticCtrl extends Controller
     //刪除物流單耗材
     public function destroyItem(Request $request, $event, $eventId, int $consumId)
     {
-//        ReceiveDepot::deleteById($receiveDepotId);
+        Consum::deleteById($consumId);
         wToast('刪除成功');
         if(Event::order()->value == $event) {
             return redirect(Route('cms.logistic.create', [$eventId], true));
