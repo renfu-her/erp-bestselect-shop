@@ -266,14 +266,14 @@ class PurchaseCtrl extends Controller
                         $hasReceivedDepositPayment = true;
                     }
                 } elseif ($payingOrderItem->type === 1) {
-                        $hasCreatedFinalPayment = true;
-                        $finalPayData = $payingOrderItem;
+                    $hasCreatedFinalPayment = true;
+                    $finalPayData = $payingOrderItem;
                     if (PayingOrder::find($payingOrderId)->accountPayable) {
-                            $hasReceivedFinalPayment = true;
-                        }
+                        $hasReceivedFinalPayment = true;
                     }
                 }
             }
+        }
 
         $supplierList = Supplier::getSupplierList()->get();
 
@@ -524,7 +524,7 @@ class PurchaseCtrl extends Controller
 
     /**
      * @param  Request  $request
-     * @param  int  $id
+     * @param  int  $id purchase_id 採購單ID
      * 處理付款單訊息、顯示付款單
      * @return void
      */
@@ -584,12 +584,13 @@ class PurchaseCtrl extends Controller
 
         return view('cms.commodity.purchase.pay_order', [
             'id' => $id,
+            'payOrdId' => $payingOrderData->id,
             'type' => ($validatedReq['type'] === '0') ? 'deposit' : 'final',
             'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
             'formAction' => Route('cms.purchase.index', ['id' => $id,]),
             'supplierUrl' => Route('cms.supplier.edit', ['id' => $supplier->id,]),
             'purchaseData' => $purchaseData,
-            'hasAccountPayable' => is_null(PayingOrder::find($id)->accountPayable) ? false : true,
+            'hasReceivedPayment' => !is_null(PayingOrder::find($payingOrderData->id)->accountPayable),
             'payingOrderData' => $payingOrderData,
             'depositPaymentData' => $depositPaymentData,
             'finalPaymentPrice' => $paymentPrice['finalPaymentPrice'],

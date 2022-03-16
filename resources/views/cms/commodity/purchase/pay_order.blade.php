@@ -15,13 +15,13 @@
 {{--    <button type="submit" class="btn btn-primary">變更支付對象</button>--}}
 {{--    <button type="submit" class="btn btn-primary">取消訂金折抵</button>--}}
     <button type="button" class="btn btn-primary">
-        @if($hasAccountPayable)
-        <a href="{{ Route('cms.ap.edit', ['payOrdId' => $id,
+        @if($hasReceivedPayment)
+        <a href="{{ Route('cms.ap.edit', ['payOrdId' => $payOrdId,
                                          'payOrdType' => 'pcs',
                                          'isFinalPay' => ($type === 'final' ? 1 : 0)], true) }}"
            class="text-white">編輯付款</a>
         @else
-        <a href="{{ Route('cms.ap.create', ['payOrdId' => $id,
+        <a href="{{ Route('cms.ap.create', ['payOrdId' => $payOrdId,
                                             'payOrdType' => 'pcs',
                                             'isFinalPay' => ($type === 'final' ? 1 : 0)], true) }}"
            class="text-white">付款</a>
