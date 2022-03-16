@@ -72,6 +72,28 @@ class Consum extends Model
         });
     }
 
+    //將物流資料變更為成立
+    public static function setUpLogisticData($logistic_id) {
+        $dataGet = null;
+        if (null != $logistic_id) {
+            $data = Consum::where('logistic_id', $logistic_id);
+            $dataGet = $data->get();
+        }
+        $result = null;
+        if (null != $dataGet && 0 < count($dataGet)) {
+            $result = DB::transaction(function () use ($data, $dataGet, $logistic_id
+            ) {
+                $curr_date = date('Y-m-d H:i:s');
+                Logistic::where('id', '=', $logistic_id)->update(['audit_date' => $curr_date]);
+
+                return ['success' => 1, 'error_msg' => ""];
+            });
+        } else {
+            return ['success' => 0, 'error_msg' => "無此物流單"];
+        }
+        return $result;
+    }
+
     public static function deleteById($id)
     {
         Consum::where('id', $id)->delete();

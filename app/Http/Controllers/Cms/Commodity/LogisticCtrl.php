@@ -57,7 +57,7 @@ class LogisticCtrl extends Controller
 
         //取得原出貨單 預設基本設定的物流成本
 //        ShipmentGroup::getDataWithCost();
-        $deliveryCost = Delivery::getListWithCost($delivery_id)->get();
+        $deliveryCost = Delivery::getListWithCost($delivery_id)->get()->first();
 
         return view('cms.commodity.logistic.edit', [
             'delivery' => $delivery,
@@ -72,13 +72,13 @@ class LogisticCtrl extends Controller
     public function store(Request $request, int $logistic_id)
     {
         $errors = [];
-        $logistic = Delivery::where('id', '=', $logistic_id)->get()->first();
+        $logistic = Logistic::where('id', '=', $logistic_id)->get()->first();
         if (null != $logistic->audit_date) {
             $errors['error_msg'] = '不可重複送出審核';
         } else {
             $re = null;
             if ($re['success'] == '1') {
-//                $re = ReceiveDepot::setUpShippingData($delivery_id);
+                $re = Consum::setUpLogisticData($logistic_id);
                 wToast('儲存成功');
                 return redirect(Route('cms.logistic.create', [$logistic->delivery_id], true));
             }
