@@ -2,14 +2,14 @@
 
 namespace App\Enums\Discount;
 
-use BenSampo\Enum\Enum;
+use App\Enums\Helper;
 
 /**
  * @method static static OptionOne()
  * @method static static OptionTwo()
  * @method static static OptionThree()
  */
-final class DisMethod extends Enum
+final class DisMethod extends Helper
 {
     const cash = 'cash';
     const percent = 'percent';
@@ -17,6 +17,7 @@ final class DisMethod extends Enum
 
     public static function getDescription($value): string
     {
+        
         $result = '';
         switch ($value) {
             case self::cash:
@@ -34,4 +35,5 @@ final class DisMethod extends Enum
         }
         return $result;
     }
+    
 }

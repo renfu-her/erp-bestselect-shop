@@ -2,14 +2,14 @@
 
 namespace App\Enums\Discount;
 
-use BenSampo\Enum\Enum;
+use App\Enums\Helper;
 
 /**
  * @method static static OptionOne()
  * @method static static OptionTwo()
  * @method static static OptionThree()
  */
-final class DisStatus extends Enum
+final class DisStatus extends Helper
 {
     const D00 = 'D00';
     const D01 = 'D01';
@@ -20,7 +20,7 @@ final class DisStatus extends Enum
         $result = '';
         switch ($value) {
             case self::D00:
-                $result = '帶進行';
+                $result = '待進行';
                 break;
             case self::D01:
                 $result = '進行中';

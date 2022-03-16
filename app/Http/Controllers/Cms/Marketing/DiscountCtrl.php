@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Cms\Marketing;
 
+use App\Enums\Discount\DisMethod;
+use App\Enums\Discount\DisStatus;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 class DiscountCtrl extends Controller
 {
@@ -12,13 +15,27 @@ class DiscountCtrl extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $data_per_page = 10;
-        
+
+        $cond = [];
+        $query = $request->query();
+
+        $data_per_page = getPageCount(Arr::get($query, 'data_per_page', 10));
+        $cond['title'] = Arr::get($query, 'title', 10);
+        $cond['method_code'] = Arr::get($query, 'method_code', []);
+        $cond['status_code'] = Arr::get($query, 'status_code');
+        $cond['start_date'] = Arr::get($query, 'start_date');
+        $cond['end_date'] = Arr::get($query, 'end_date');
+        $cond['is_global'] = Arr::get($query, 'is_global');
+
+     //   $cond['status_code'] = $cond['status_code'] ? explode(',', $cond['status_code']) : [];
         return view('cms.marketing.discount.list', [
             'dataList' => [],
+            'dis_methods' => DisMethod::getValueWithDesc(),
+            'dis_status' => DisStatus::getValueWithDesc(),
             'data_per_page' => $data_per_page,
+            'cond' => $cond,
         ]);
     }
 
