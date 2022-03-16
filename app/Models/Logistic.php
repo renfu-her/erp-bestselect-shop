@@ -46,7 +46,7 @@ class Logistic extends Model
         }
     }
 
-    public static function updateData($id, $ship_group_id, $cost, $memo, $close_date) {
+    public static function updateData($id, $ship_group_id, $cost, $memo) {
         $data = Logistic::where('id', $id);
         $dataGet = null;
         if (null != $data) {

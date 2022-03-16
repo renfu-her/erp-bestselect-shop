@@ -133,7 +133,7 @@ class Delivery extends Model
             $delivery_get = $delivery->get()->first();
             if (null == $delivery_get) {
                 return ['success' => 0, 'error_msg' => "無此出貨單"];
-            } else if ($delivery_get->close_date != null) {
+            } else if ($delivery_get->audit_date != null) {
                 //若已送出審核 則代表已扣除相應入庫單數量 則不給刪除
                 return ['success' => 0, 'error_msg' => "已送出審核，無法刪除"];
             } else {
@@ -192,7 +192,7 @@ class Delivery extends Model
                 , 'delivery.logistic_status_id'
                 , 'delivery.logistic_status'
                 , 'delivery.memo'
-                , 'delivery.close_date'
+                , 'delivery.audit_date'
                 , 'delivery.created_at'
                 , 'delivery.updated_at'
                 , 'delivery.deleted_at'

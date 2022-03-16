@@ -76,7 +76,7 @@ class DeliveryCtrl extends Controller
     {
         $errors = [];
         $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
-        if (null != $delivery->close_date) {
+        if (null != $delivery->audit_date) {
             $errors['error_msg'] = '不可重複送出審核';
         } else {
             $re = ReceiveDepot::setUpShippingData($delivery_id);

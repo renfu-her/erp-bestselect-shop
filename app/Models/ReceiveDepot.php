@@ -127,10 +127,10 @@ class ReceiveDepot extends Model
                         }
                     }
                     $curr_date = date('Y-m-d H:i:s');
-                    Delivery::where('id', '=', $delivery_id)->update(['close_date' => $curr_date]);
+                    Delivery::where('id', '=', $delivery_id)->update(['audit_date' => $curr_date]);
 
                     $data->update([
-                        'close_date' => $curr_date,
+                        'audit_date' => $curr_date,
                     ]);
                     return ['success' => 1, 'error_msg' => ""];
                 });
@@ -183,7 +183,7 @@ class ReceiveDepot extends Model
                 , 'rcv_depot.product_title as product_title'
                 , 'rcv_depot.qty as qty'
                 , 'rcv_depot.expiry_date as expiry_date'
-                , 'rcv_depot.close_date as close_date'
+                , 'rcv_depot.audit_date as audit_date'
             )
             ->whereNull('rcv_depot.deleted_at');
 

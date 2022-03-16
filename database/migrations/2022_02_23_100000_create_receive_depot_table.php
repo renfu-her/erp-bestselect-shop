@@ -30,7 +30,7 @@ class CreateReceiveDepotTable extends Migration
             $table->unsignedBigInteger('logistic_status_id')->nullable()->comment('物流狀態ID');
             $table->string('logistic_status', 20)->nullable()->comment('物流狀態 檢貨中/理貨中/待配送');
             $table->string('memo')->nullable()->comment('備註');
-            $table->dateTime('close_date')->nullable()->comment('結單日期');
+            $table->dateTime('audit_date')->nullable()->comment('審核日期');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -49,7 +49,7 @@ class CreateReceiveDepotTable extends Migration
             $table->string('product_title', 40)->comment('商品名稱');
             $table->integer('qty')->comment('數量');
             $table->dateTime('expiry_date')->nullable()->comment('有效期限');
-            $table->dateTime('close_date')->nullable()->comment('結單日期');
+            $table->dateTime('audit_date')->nullable()->comment('審核日期');
             $table->softDeletes();
         });
 

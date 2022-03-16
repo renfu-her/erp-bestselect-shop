@@ -288,7 +288,7 @@ class PurchaseInbound extends Model
                 , 'dlv_receive_depot.product_title as product_title'
             )
             ->selectRaw('sum(dlv_receive_depot.qty) as qty')
-            ->whereNull('dlv_receive_depot.close_date')
+            ->whereNull('dlv_receive_depot.audit_date')
             ->whereNull('dlv_receive_depot.deleted_at')
             ->groupBy('dlv_receive_depot.inbound_id')
             ->groupBy('dlv_receive_depot.product_style_id')
