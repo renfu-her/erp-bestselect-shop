@@ -255,7 +255,7 @@
                                             <i class="bi bi-x-lg"></i>
                                         </button>
                                     </div>
-                                    <input type="hidden" name="regions_value">
+                                    <input type="hidden" name="regions_value" value="1,3">
                                     <div id="chip-group-regions" class="d-flex flex-wrap bd-highlight chipGroup"></div>
                                 </div>
                                 <div class="col-4">
@@ -320,6 +320,22 @@
                                 <div class="col-12 col-sm-8 mb-3">
                                     <label class="form-label">Files</label>
                                     <input class="form-control" type="file" multiple>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label class="form-label">起訖日期</label>
+                                    <div class="input-group has-validation">
+                                        <input type="date" class="form-control -startDate"
+                                            name="sdate" value="" aria-label="起始日期" />
+                                        <input type="date" class="form-control -endDate"
+                                            name="edate" value="" aria-label="結束日期" />
+                                        <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
+                                        <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
+                                        <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
+                                        <button class="btn px-2" data-daysBefore="6" type="button">近7日</button>
+                                        <button class="btn" data-daysBefore="month" type="button">本月</button>
+                                        <div class="invalid-feedback">
+                                        </div>
+                                    </div>
                                 </div>
                                 <fieldset class="col-12 mb-3">
                                     <legend class="col-form-label p-0 mb-2">Checkbox</legend>
@@ -521,14 +537,6 @@
             window.axios.defaults.headers.common['Accept'] = 'application/json';
         </script>
         <script>
-            // editor
-            tinymce.init({
-                selector: '#editor1',
-                ...TINY_OPTION
-            }).then((editors) => {
-                editors[0].setContent('<p>qwer1234</p>');
-                console.log(tinymce.get('editor1').getContent());
-            });
             // menu
             $('main > div > div > fieldset[id]').each(function (index, element) {
                 // element == this
@@ -592,8 +600,12 @@
             });
 
             // region
-            let selectRegion = [];
+            let selectRegion = $('input[name="regions_value"]').val();
+            let all_region = {'1': 'item1', '2': 'item2', '3': 'item3'};
             let Chips_regions = new ChipElem($('#chip-group-regions'));
+            selectRegion = Chips_regions.init(selectRegion, all_region);
+            
+            // bind
             $('#region').off('change.chips').on('change.chips', function(e) {
                 let region = { val: $(this).val(), title: $(this).children(':selected').text()};
                 if (selectRegion.indexOf(region.val) === -1) {
@@ -620,8 +632,13 @@
             // select2
             // $('.-select2').select2();
 
-            Editor.createEditor('editor', {
-                initialValue: '<h2>Header</h2><p>iewo reiu8ud jijh3 dsl</p>'
+            // editor
+            tinymce.init({
+                selector: '#editor1',
+                ...TINY_OPTION
+            }).then((editors) => {
+                editors[0].setContent('<p>qwer1234</p>');
+                console.log(tinymce.get('editor1').getContent());
             });
 
             // 數字千分位

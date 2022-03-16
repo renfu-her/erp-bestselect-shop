@@ -7,12 +7,78 @@
             <h6>搜尋條件</h6>
             <div class="row">
                 <div class="col-12 col-md-6 mb-3">
-                    <label class="form-label">SKU</label>
-                    <input class="form-control" type="text" placeholder="SKU" name="sku">
+                    <label class="form-label">活動名稱</label>
+                    <input class="form-control" type="text" name="title" placeholder="活動名稱">
                 </div>
                 <div class="col-12 col-md-6 mb-3">
-                    <label class="form-label">名稱</label>
-                    <input class="form-control" type="text" name="keyword" placeholder="組合包名稱 或 組合款式名稱">
+                    <fieldset class="col-12 mb-3">
+                        <legend class="col-form-label p-0 mb-2">優惠方式</legend>
+                        <div class="px-1 pt-1">
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="method_code" type="checkbox" checked>
+                                    金額
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="method_code" type="checkbox">
+                                    百分比
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="method_code" type="checkbox">
+                                    優惠劵
+                                </label>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label class="form-label" for="status">進行狀態</label>
+                    <div class="input-group">
+                        <select id="status" class="form-select">
+                            <option value="" selected>請選擇</option>
+                            <option value="1">待進行</option>
+                            <option value="2">進行中</option>
+                            <option value="3">已結束</option>
+                        </select>
+                        <button id="clear_status" class="btn btn-outline-secondary" type="button" data-bs-toggle="tooltip" title="清空">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                    <input type="hidden" name="status_code" value="1,2">
+                    <div id="chip-group-status" class="d-flex flex-wrap bd-highlight chipGroup"></div>
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <fieldset class="col-12 mb-3">
+                        <legend class="col-form-label p-0 mb-2">優惠範圍</legend>
+                        <div class="px-1 pt-1">
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="is_global" value="1" type="checkbox">
+                                    全館
+                                </label>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="col-12 mb-3">
+                    <label class="form-label">起訖日期</label>
+                    <div class="input-group has-validation">
+                        <input type="date" class="form-control -startDate"
+                            name="start_date" value="" aria-label="起始日期" />
+                        <input type="date" class="form-control -endDate"
+                            name="end_date" value="" aria-label="結束日期" />
+                        <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
+                        <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
+                        <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
+                        <button class="btn px-2" data-daysBefore="6" type="button">近7日</button>
+                        <button class="btn" data-daysBefore="month" type="button">本月</button>
+                        <div class="invalid-feedback">
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -26,6 +92,13 @@
 
     <div class="card shadow p-4 mb-4">
         <div class="row justify-content-end mb-4">
+            <div class="col">
+                @can('cms.purchase.create')
+                    <a href="" class="btn btn-primary">
+                        <i class="bi bi-plus-lg pe-1"></i> 新增現折優惠
+                    </a>
+                @endcan
+            </div>
             <div class="col-auto">
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
@@ -42,28 +115,44 @@
                 <thead>
                     <tr>
                         <th scope="col" style="width:10%">#</th>
-                        <th scope="col">【組合包】款式名稱</th>
-                        <th scope="col">SKU</th>
-                        <th scope="col">庫存</th>
-                        <th scope="col" class="text-center">組裝/拆包</th>
+                        <th scope="col">活動名稱</th>
+                        <th scope="col">優惠方式</th>
+                        <th scope="col">進行狀態</th>
+                        <th scope="col">開始時間</th>
+                        <th scope="col">結束時間</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($dataList as $key => $data)
+                    {{-- @foreach ($dataList as $key => $data) --}}
                         <tr>
-                            <th scope="row">{{ $key + 1 }}</th>
-                            <td>【{{ $data->product_title}}】{{ $data->spec }}</td>
-                            <td>{{ $data->sku }}</td>
-                            <td>{{ $data->in_stock }}</td>
-                            <td class="text-center">
-                                <a type="button" data-bs-toggle="tooltip" title="組裝/拆包"
-                                    href="{{ Route('cms.combo-purchase.edit', ['id' => $data->id], true) }}"
-                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0 p-0">
-                                    <i class="bi bi-plus-slash-minus"></i>
-                                </a>
+                            <th scope="row">1</th>
+                            <td>周年慶</td>
+                            <td>百分比</td>
+                            <td {{-- @class([
+                                'text-success' => '進行中', 
+                                'text-danger' => '已結束']) --}}>
+                                待進行
                             </td>
+                            <td>2022/10/1</td>
+                            <td>2022/10/31</td>
                         </tr>
-                    @endforeach
+                        <tr>
+                            <th scope="row">2</th>
+                            <td>情人節活動</td>
+                            <td>金額</td>
+                            <td class="text-danger">已結束</td>
+                            <td>2022/2/1</td>
+                            <td>2022/2/28</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">3</th>
+                            <td>婦女節優惠</td>
+                            <td>優惠券</td>
+                            <td class="text-success">進行中</td>
+                            <td>2022/3/1</td>
+                            <td>2022/3/31</td>
+                        </tr>
+                    {{-- @endforeach --}}
                 </tbody>
             </table>
         </div>
@@ -89,6 +178,28 @@
             $('#dataPerPageElem').on('change', function(e) {
                 $('input[name=data_per_page]').val($(this).val());
                 $('#search').submit();
+            });
+
+            // 進行狀態 region
+            let selectStatus = $('input[name="status_code"]').val();
+            let all_status = {'1': '待進行', '2': '進行中', '3': '已結束'};
+            let Chips_status = new ChipElem($('#chip-group-status'));
+            selectStatus = Chips_status.init(selectStatus, all_status);
+            
+            // bind
+            Chips_status.onDelete = function(id) {
+                selectStatus.splice(selectStatus.indexOf(id), 1);
+                $('input[name="status_code"]').val(selectStatus);
+            };
+            $('#region').off('change.chips').on('change.chips', function(e) {
+                let region = { val: $(this).val(), title: $(this).children(':selected').text()};
+                if (selectStatus.indexOf(region.val) === -1) {
+                    selectStatus.push(region.val);
+                    Chips_status.add(region.val, region.title);
+                }
+                
+                $(this).val('');
+                $('input[name="status_code"]').val(selectStatus);
             });
         </script>
     @endpush
