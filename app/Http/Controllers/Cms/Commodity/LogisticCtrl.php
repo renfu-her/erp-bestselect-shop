@@ -59,8 +59,6 @@ class LogisticCtrl extends Controller
 //        ShipmentGroup::getDataWithCost();
         $deliveryCost = Delivery::getListWithCost($delivery_id)->get();
 
-        dd($deliveryList, $deliveryCost);
-//        dd($deliveryList, $deliveryCost);
         return view('cms.commodity.logistic.edit', [
             'delivery' => $delivery,
             'logistic' => $logistic,
