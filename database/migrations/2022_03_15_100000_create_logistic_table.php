@@ -37,7 +37,6 @@ class CreateLogisticTable extends Migration
             $table->string('product_title', 40)->comment('耗材商品名稱');
             $table->integer('qty')->comment('數量');
             $table->dateTime('audit_date')->nullable()->comment('審核日期');
-            $table->softDeletes();
         });
     }
 
