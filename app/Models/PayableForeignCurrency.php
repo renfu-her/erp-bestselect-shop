@@ -24,7 +24,7 @@ class PayableForeignCurrency extends Model
      */
     public function pay()
     {
-        return $this->morphOne(AccountPayable::class, 'payable')->withDefault();
+        return $this->morphOne(AccountPayable::class, 'payable');
     }
 
     /**
