@@ -17,6 +17,7 @@ class CreateLogisticTable extends Migration
             $table->id()->comment('物流單');
             $table->unsignedBigInteger('delivery_id')->comment('出貨單id');
             $table->string('sn', 30)->comment('物流SN');
+            $table->string('package_sn', 30)->nullable()->comment('物流包裹編號SN');
             $table->unsignedBigInteger('ship_group_id')->nullable()->comment('實際物流 出貨方式id 對應shi_group.id');
             $table->integer('cost')->default(0)->comment('物流成本');
             $table->string('memo')->nullable()->comment('物流備註');
@@ -36,7 +37,6 @@ class CreateLogisticTable extends Migration
             $table->string('sku', 20)->comment('耗材商品sku');
             $table->string('product_title', 40)->comment('耗材商品名稱');
             $table->integer('qty')->comment('數量');
-            $table->dateTime('audit_date')->nullable()->comment('審核日期');
         });
     }
 
