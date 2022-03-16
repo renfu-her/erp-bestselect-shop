@@ -294,12 +294,11 @@
                                     <input class="form-control" type="text" placeholder="Placeholder" aria-label="Input">
                                 </div>
                                 <div class="col-12 col-sm-4 mb-3">
-                                    <label class="form-label">Select</label>
-                                    <select class="form-select" aria-label="Select">
-                                        <option value="1">item 1</option>
-                                        <option value="2" disabled>item 2</option>
-                                        <option value="3">item 3</option>
-                                    </select>
+                                    <label class="form-label">Input group</label>
+                                    <div class="input-group flex-nowrap">
+                                        <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                        <input type="number" class="form-control" name="" min="0" value="">
+                                    </div>
                                 </div>
                                 <div class="col-12 col-sm-4 mb-3">
                                     <label class="form-label">Textarea</label>
@@ -317,7 +316,15 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-12 col-sm-8 mb-3">
+                                <div class="col-12 col-sm-4 mb-3">
+                                    <label class="form-label">Select</label>
+                                    <select class="form-select" aria-label="Select">
+                                        <option value="1">item 1</option>
+                                        <option value="2" disabled>item 2</option>
+                                        <option value="3">item 3</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-sm-4 mb-3">
                                     <label class="form-label">Files</label>
                                     <input class="form-control" type="file" multiple>
                                 </div>

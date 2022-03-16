@@ -32,6 +32,10 @@ class PromoCouponCtrl extends Controller
     public function create()
     {
         //
+        return view('cms.marketing.discount.edit', [
+            'method' => 'create',
+            'type' => 'coupon',
+        ]);
     }
 
     /**
@@ -65,6 +69,11 @@ class PromoCouponCtrl extends Controller
     public function edit($id)
     {
         //
+        return view('cms.marketing.discount.edit', [
+            'method' => 'edit',
+            'type' => 'coupon',
+            'breadcrumb_data' => '優惠券'
+        ]);
     }
 
     /**

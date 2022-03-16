@@ -312,6 +312,7 @@ select.form-select optgroup option {
 }
 // Date input 
 input.form-control[type="date"],
+input.form-control[type="datetime-local"],
 input.form-control[type="month"] {
   position: relative;
 
