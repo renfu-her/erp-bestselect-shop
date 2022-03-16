@@ -31,7 +31,6 @@ class AccountPayableCtrl extends Controller
      */
     public function create(Request $request)
     {
-        $aa = IncomeExpenditure::getModelNameByPayableTypeId(Payment::Cheque);
         $request->validate([
             'payOrdType'    => ['required', 'string', 'regex:/^(pcs)$/'],
             'payOrdId' => ['required', 'int', 'min:1']
