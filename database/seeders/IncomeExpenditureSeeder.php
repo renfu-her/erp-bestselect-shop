@@ -126,7 +126,7 @@ class IncomeExpenditureSeeder extends Seeder
             'acc_income_type_fk' => 3,
             'pay_order_id' => 1,
             'tw_price' => 100,
-            'payable_status' => 1,
+//            'payable_status' => 1,
             'payment_date' => '2022-03-01',
             'accountant_id_fk' => 1,
             'note' => 'aaa',

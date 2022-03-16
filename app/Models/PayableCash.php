@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\Supplier\Payment;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class PayableCash extends Model
 {
@@ -31,5 +33,27 @@ class PayableCash extends Model
     public function grade()
     {
         return $this->morphTo();
+    }
+
+    public static function storePayableCash($req)
+    {
+        $payableData =self::create([
+            'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::Cash),
+            'grade_id' => $req['cash']['grade_id_fk']
+        ]);
+
+//        $payOrder = PayingOrder::find($req['pay_order_id']);
+        AccountPayable::create([
+            'pay_order_type' => 'App\Models\PayingOrder',
+            'pay_order_id' => $req['pay_order_id'],
+            'acc_income_type_fk' => Payment::Cash,
+            'payable_type' => 'App\Models\PayableCash',
+            'payable_id' => $payableData->id,
+            'tw_price' => $req['tw_price'],
+            //            'payable_status' => $req['payable_status'],
+            'payment_date' => $req['payment_date'],
+            'accountant_id_fk' => Auth::user()->id,
+            'note' => $req['note'],
+        ]);
     }
 }

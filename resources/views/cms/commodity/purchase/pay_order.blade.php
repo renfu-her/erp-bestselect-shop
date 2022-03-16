@@ -16,9 +16,15 @@
 {{--    <button type="submit" class="btn btn-primary">取消訂金折抵</button>--}}
     <button type="button" class="btn btn-primary">
         @if($hasAccountPayable)
-            <a href="{{ Route('cms.ap.edit', ['payOrdId' => $id, 'type' => 'pcs'], true) }}" class="text-white">編輯付款</a>
+        <a href="{{ Route('cms.ap.edit', ['payOrdId' => $id,
+                                         'payOrdType' => 'pcs',
+                                         'isFinalPay' => ($type === 'final' ? 1 : 0)], true) }}"
+           class="text-white">編輯付款</a>
         @else
-            <a href="{{ Route('cms.ap.create', ['payOrdId' => $id, 'type' => 'pcs'], true) }}" class="text-white">付款</a>
+        <a href="{{ Route('cms.ap.create', ['payOrdId' => $id,
+                                            'payOrdType' => 'pcs',
+                                            'isFinalPay' => ($type === 'final' ? 1 : 0)], true) }}"
+           class="text-white">付款</a>
         @endif
     </button>
     <button type="submit" class="btn btn-danger">中一刀列印畫面</button>

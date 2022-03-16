@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Cms\AccountManagement;
 
+use App\Enums\Supplier\Payment;
 use App\Http\Controllers\Controller;
 use App\Models\AccountPayable;
 use App\Models\PayableCash;
@@ -30,8 +31,9 @@ class AccountPayableCtrl extends Controller
      */
     public function create(Request $request)
     {
+        $aa = IncomeExpenditure::getModelNameByPayableTypeId(Payment::Cheque);
         $request->validate([
-            'type'    => ['required', 'string', 'regex:/^(pcs)$/'],
+            'payOrdType'    => ['required', 'string', 'regex:/^(pcs)$/'],
             'payOrdId' => ['required', 'int', 'min:1']
         ]);
 
@@ -84,7 +86,33 @@ class AccountPayableCtrl extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'acc_transact_type_fk'    => ['required', 'string', 'regex:/^[1-6]$/'],
+            'pay_order_type' => ['required', 'string', 'regex:/^(pcs)$/'],
+            'pay_order_id' => ['required', 'int', 'min:1'],
+            'is_final_payment' => ['required', 'int', 'regex:/^(0|1)$/']
+        ]);
+        $req = $request->all();
+        $payableType = $req['acc_transact_type_fk'];
+        switch ($payableType) {
+            case Payment::Cash:
+                PayableCash::storePayableCash($req);
+                break;
+            case Payment::Cheque:
+                break;
+            case Payment::Remittance:
+                break;
+            case Payment::ForeignCurrency:
+                break;
+            case Payment::AccountsPayable:
+                break;
+            case Payment::Other:
+                break;
+        }
+
+        return redirect()->route('cms.purchase.view-pay-order',
+                                        ['id' => $req['pay_order_id'],
+                                        'type' => $req['is_final_payment']]);
     }
 
     /**
@@ -131,4 +159,5 @@ class AccountPayableCtrl extends Controller
     {
         //
     }
+
 }
