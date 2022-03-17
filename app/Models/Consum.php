@@ -10,7 +10,7 @@ class Consum extends Model
 {
     use HasFactory;
     protected $table = 'lgt_consum';
-    public $timestamps = false;
+//    public $timestamps = false;
     protected $guarded = [];
 
     public static function createData($logistic_id, $inbound_id, $inbound_sn, $depot_id, $depot_name, $product_style_id, $sku, $product_title, $qty, $expiry_date)
@@ -98,5 +98,47 @@ class Consum extends Model
     {
         Consum::where('id', $id)->delete();
     }
+
+    //取得耗材X入庫列表
+    public static function getConsumWithInboundList($logistic_id = null, $product_style_id = null)
+    {
+        $concatString = concatStr([
+            'consum_id' => 'consum.id',
+            'inbound_id' => 'consum.inbound_id',
+            'inbound_sn' => 'consum.inbound_sn',
+            'depot_id' => 'consum.depot_id',
+            'depot_name' => 'consum.depot_name',
+            'qty' => 'consum.qty',
+            'created_at' => 'consum.created_at',
+            ]);
+
+        $result = DB::table('lgt_logistic as logistic')
+            ->leftJoin('lgt_consum as consum', 'consum.logistic_id', '=', 'logistic.id')
+            ->select('logistic.sn as logistic_sn'
+                , 'consum.logistic_id as logistic_id'
+                , 'consum.product_style_id as product_style_id'
+                , 'consum.sku as sku'
+                , 'consum.product_title as product_title'
+                , DB::raw('sum(consum.qty) as total_qty')
+
+            )
+            ->selectRaw(('('.$concatString. '   ) as groupconcat'))
+            ->groupBy('logistic.sn')
+            ->groupBy('consum.logistic_id')
+            ->groupBy('consum.product_style_id')
+            ->groupBy('consum.sku')
+            ->groupBy('consum.product_title')
+            ->orderBy('consum.product_style_id');
+
+        if (null != $logistic_id) {
+            $result->where('consum.logistic_id', $logistic_id);
+        }
+        if (null != $product_style_id) {
+            $result->where('consum.product_style_id', $product_style_id);
+        }
+
+        return $result;
+    }
+
 
 }

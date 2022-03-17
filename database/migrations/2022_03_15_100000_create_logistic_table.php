@@ -37,6 +37,7 @@ class CreateLogisticTable extends Migration
             $table->string('sku', 20)->comment('耗材商品sku');
             $table->string('product_title', 40)->comment('耗材商品名稱');
             $table->integer('qty')->comment('數量');
+            $table->timestamps();
         });
     }
 
