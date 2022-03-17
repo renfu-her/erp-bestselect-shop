@@ -77,7 +77,19 @@ class LogisticCtrl extends Controller
         $logistic_id = $request->input('logistic_id');
         $input = $request->only('logistic_id', 'ship_group_id', 'cost', 'package_sn', 'memo');
 
+
         $errors = [];
+        $logistic = Logistic::where('id', '=', $input['logistic_id'])->get()->first();
+        $delivery = Delivery::where('id', $logistic->delivery_id)->get()->first();
+        //判斷若為子訂單 則回寫到子訂單資料表
+        if (Event::order()->value == $delivery->event) {
+            SubOrders::updateLogisticData($delivery->event_id
+                , $input['package_sn']
+                , $input['ship_group_id']
+                , $input['cost']
+                , $input['memo']);
+        }
+
         $reLgt = Logistic::updateData(
             $input['logistic_id']
             , $input['package_sn']
@@ -89,7 +101,7 @@ class LogisticCtrl extends Controller
             $errors['error_msg'] = $reLgt['error_msg'];
             return redirect()->back()->withInput()->withErrors($errors);
         }
-        $logistic = Logistic::where('id', '=', $input['logistic_id'])->get()->first();
+
         if (null != $logistic->audit_date) {
             $errors['error_msg'] = '不可重複送出審核';
         } else {
