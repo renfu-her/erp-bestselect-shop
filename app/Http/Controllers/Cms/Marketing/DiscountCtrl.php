@@ -11,7 +11,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 
-
 class DiscountCtrl extends Controller
 {
     /**
@@ -21,7 +20,7 @@ class DiscountCtrl extends Controller
      */
     public function index(Request $request)
     {
-
+        Discount::dataList();
         $cond = [];
         $query = $request->query();
 
@@ -33,6 +32,7 @@ class DiscountCtrl extends Controller
         $cond['end_date'] = Arr::get($query, 'end_date');
         $cond['is_global'] = Arr::get($query, 'is_global');
 
+        $dataList = Discount::dataList()->paginate($data_per_page)->appends($query);
         //   $cond['status_code'] = $cond['status_code'] ? explode(',', $cond['status_code']) : [];
         return view('cms.marketing.discount.list', [
             'dataList' => [],
@@ -40,6 +40,7 @@ class DiscountCtrl extends Controller
             'dis_status' => DisStatus::getValueWithDesc(),
             'data_per_page' => $data_per_page,
             'cond' => $cond,
+            'dataList' => $dataList,
         ]);
     }
 
@@ -74,13 +75,24 @@ class DiscountCtrl extends Controller
             'method_code' => ['required', Rule::in(array_keys(DisMethod::getValueWithDesc()))],
             'start_date' => 'required|date',
             'end_date' => 'required|date',
-            
+            'discount_value' => 'required',
         ]);
 
         $d = $request->all();
+        $is_grand_total = isset($d['is_grand_total']) ? $d['is_grand_total'] : '0';
+        $method_code = $d['method_code'];
 
-        dd($d);
-      //   $id = Discount::createDiscount($d['title'],DisMethod::$d['method_code']()->value,);
+        Discount::createDiscount($d['title'],
+            DisMethod::$method_code(),
+            $d['discount_value'],
+            $d['start_date'],
+            $d['end_date'],
+            $is_grand_total,
+            isset($d['collection_id']) ? $d['collection_id'] : []
+        );
+
+        wToast('新增完成');
+        return redirect(route('cms.discount.index'));
     }
 
     /**
