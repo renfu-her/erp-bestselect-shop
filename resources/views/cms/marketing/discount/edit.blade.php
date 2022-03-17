@@ -47,6 +47,14 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-12 mb-3">
+                    <label class="form-label">適用商品群組（多選）</label>
+                    <select name="select[]" multiple class="-select2 -multiple form-select" data-close-on-select="false" data-placeholder="不選為全館適用">
+                        <option value="1">item 1</option>
+                        <option value="2">item 2</option>
+                        <option value="3">item 3</option>
+                    </select>
+                </div>
                 <fieldset class="col-12 mb-1">
                     <legend class="col-form-label p-0 mb-2">優惠方式 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
@@ -107,44 +115,13 @@
                 {{-- 優惠方式：優惠劵 coupon --}}
                 <div class="row mb-3 border rounded mx-0 px-0 pt-2" data-method="coupon" hidden>
                     <div class="col-12 mb-3">
-                        <label class="form-label">限用商品群組</label>
-                        <select name="select[]" multiple class="-select2 -multiple form-select" data-placeholder="不選為全館適用" norequired>
+                        <label class="form-label">指定贈送優惠券 <span class="text-danger">*</span></label>
+                        <select class="form-select -select2 -single" aria-label="指定贈送優惠券">
+                            <option value="" selected disabled>請選擇</option>
                             <option value="1">item 1</option>
                             <option value="2">item 2</option>
                             <option value="3">item 3</option>
                         </select>
-                    </div>
-                    <div class="col-12 col-sm-6 mb-3">
-                        <label class="form-label">與其他行銷活動併用限制 <span class="text-danger">*</span></label>
-                        <select class="form-select" aria-label="與其他行銷活動併用限制">
-                            <option value="1" selected>無限制</option>
-                            <option value="2">任選折扣</option>
-                            <option value="3">全館折扣</option>
-                            <option value="4">VIP 折扣</option>
-                            <option value="5">推薦碼折扣</option>
-                            <option value="6">加價購</option>
-                        </select>
-                    </div>
-                    <div class="col-12 col-sm-6 mb-3">
-                        <label class="form-label">優惠券金額 <span class="text-danger">*</span></label>
-                        <div class="input-group flex-nowrap">
-                            <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                            <input type="number" name="" class="form-control" min="1" value="" placeholder="請輸入優惠券金額">
-                        </div>
-                    </div>
-                    <div class="col-12 col-sm-6 mb-3">
-                        <label class="form-label">優惠券使用天數</label>
-                        <div class="input-group flex-nowrap">
-                            <input type="number" name="" step="1" class="form-control" min="0" value="" placeholder="不填為無限制" norequired>
-                            <span class="input-group-text">天</span>
-                        </div>
-                    </div>
-                    <div class="col-12 col-sm-6 mb-3">
-                        <label class="form-label">使用優惠券最低消費限制 <span class="text-danger">*</span></label>
-                        <div class="input-group flex-nowrap">
-                            <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                            <input type="number" name="" class="form-control" min="0" value="0">
-                        </div>
                     </div>
                 </div>
             </div>
