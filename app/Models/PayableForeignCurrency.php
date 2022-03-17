@@ -52,7 +52,7 @@ class PayableForeignCurrency extends Model
             'pay_order_type' => 'App\Models\PayingOrder',
             'pay_order_id' => $req['pay_order_id'],
             'acc_income_type_fk' => Payment::ForeignCurrency,
-            'payable_type' => 'App\Models\PayableCurrency',
+            'payable_type' => 'App\Models\PayableForeignCurrency',
             'payable_id' => $payableData->id,
             'tw_price' => $req['tw_price'],
             //            'payable_status' => $req['payable_status'],
