@@ -60,7 +60,6 @@ class LogisticCtrl extends Controller
         return view('cms.commodity.logistic.edit', [
             'delivery' => $delivery,
             'logistic' => $logistic,
-            'sub_order_id' => $sub_order_id,
             'deliveryList' => $deliveryList,
             'deliveryCost' => $deliveryCost,
             'consumWithInboundList' => $consumWithInboundList,
