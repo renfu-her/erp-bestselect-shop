@@ -1,8 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">
-        @if ($type === 'code') 優惠代碼 @else 優惠券 @endif
-    </h2>
+    <h2 class="mb-4">優惠劵 / 序號</h2>
 
     <form id="search" action="" method="GET">
         <div class="card shadow p-4 mb-4">
@@ -95,9 +93,9 @@
     <div class="card shadow p-4 mb-4">
         <div class="row justify-content-end mb-4">
             <div class="col">
-                @can('cms.purchase.create')
-                    <a href="" class="btn btn-primary">
-                        <i class="bi bi-plus-lg pe-1"></i> @if ($type === 'code') 新增優惠代碼 @else 新增優惠劵 @endif
+                @can('cms.promo.create')
+                    <a href="{{ Route('cms.promo.create') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-lg pe-1"></i> 新增優惠劵 / 序號
                     </a>
                 @endcan
             </div>

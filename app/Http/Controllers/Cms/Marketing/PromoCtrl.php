@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Cms\Marketing;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class PromoCouponCtrl extends Controller
+class PromoCtrl extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -18,7 +18,6 @@ class PromoCouponCtrl extends Controller
         $data_per_page = 10;
         
         return view('cms.marketing.promo.list', [
-            'type' => 'coupon',
             'dataList' => [],
             'data_per_page' => $data_per_page,
         ]);
@@ -32,9 +31,8 @@ class PromoCouponCtrl extends Controller
     public function create()
     {
         //
-        return view('cms.marketing.discount.edit', [
+        return view('cms.marketing.promo.edit', [
             'method' => 'create',
-            'type' => 'coupon',
         ]);
     }
 
@@ -71,7 +69,7 @@ class PromoCouponCtrl extends Controller
         //
         return view('cms.marketing.discount.edit', [
             'method' => 'edit',
-            'type' => 'coupon',
+            'type' => 'coupon/code',
             'breadcrumb_data' => '優惠券'
         ]);
     }

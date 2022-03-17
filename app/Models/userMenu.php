@@ -44,19 +44,14 @@ return
         "menu_id" => "8",
         "child" => [
             [
+                "title" => "優惠劵 / 序號",
+                "controller_name" => "PromoCtrl",
+                "route_name" => "cms.promo.index",
+            ],
+            [
                 "title" => "現折優惠",
                 "controller_name" => "DiscountCtrl",
                 "route_name" => "cms.discount.index",
-            ],
-            [
-                "title" => "優惠券",
-                "controller_name" => "PromoCouponCtrl",
-                "route_name" => "cms.promo-coupon.index",
-            ],
-            [
-                "title" => "優惠代碼",
-                "controller_name" => "PromoCodeCtrl",
-                "route_name" => "cms.promo-code.index",
             ],
         ],
     ],
