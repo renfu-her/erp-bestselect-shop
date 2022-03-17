@@ -405,6 +405,7 @@
             const currencyJson = @json($currencyDefault);
 
             const transactTypeEle = $('.transactType');
+            const transactTypeSelectedRadioEle = $('.transactType input:checked');
 
             //用來控制顯示「各付款方式」的element
             const cashEle = $('.cash');
@@ -427,20 +428,79 @@
             const foreignPriceEle = $('[name^="foreign_currency[foreign_price]"]');
             const twPriceEle = $('[name=tw_price]');
 
-            $(document).ready(function () {
-                cashEle.hide();
-                chequeEle.hide();
-                remitEle.hide();
-                foreignCurrencyEle.hide();
-                accountPayableEle.hide();
-                otherEle.hide();
+            //付款方式ID數值
+            const CASH = {{ \App\Enums\Supplier\Payment::Cash }};
+            const CHEQUE = {{ \App\Enums\Supplier\Payment::Cheque }};
+            const REMIT = {{ \App\Enums\Supplier\Payment::Remittance }};
+            const FOREIGN_CURRENCY = {{ \App\Enums\Supplier\Payment::ForeignCurrency }};
+            const ACCOUNTS_PAYABLE = {{ \App\Enums\Supplier\Payment::AccountsPayable }};
+            const OTHER = {{ \App\Enums\Supplier\Payment::Other }};
 
-                cashNameAttr.prop('disabled', true);
-                chequeNameAttr.prop('disabled', true);
-                remitNameAttr.prop('disabled', true);
-                foreignCurrencyNameAttr.prop('disabled', true);
-                accountPayableNameAttr.prop('disabled', true);
-                otherNameAttr.prop('disabled', true);
+            $(document).ready(function () {
+                let selectedType = transactTypeSelectedRadioEle.val();
+
+                //初次新create建立，只顯示現金畫面
+                if (selectedType === undefined) {
+                    // cashEle.hide();
+                    chequeEle.hide();
+                    remitEle.hide();
+                    foreignCurrencyEle.hide();
+                    accountPayableEle.hide();
+                    otherEle.hide();
+
+                    // cashNameAttr.prop('disabled', true);
+                    chequeNameAttr.prop('disabled', true);
+                    remitNameAttr.prop('disabled', true);
+                    foreignCurrencyNameAttr.prop('disabled', true);
+                    accountPayableNameAttr.prop('disabled', true);
+                    otherNameAttr.prop('disabled', true);
+                } else {
+                    //資料庫已經有記錄，先隱藏所有選項
+                    cashEle.hide();
+                    chequeEle.hide();
+                    remitEle.hide();
+                    foreignCurrencyEle.hide();
+                    accountPayableEle.hide();
+                    otherEle.hide();
+
+                    cashNameAttr.prop('disabled', true);
+                    chequeNameAttr.prop('disabled', true);
+                    remitNameAttr.prop('disabled', true);
+                    foreignCurrencyNameAttr.prop('disabled', true);
+                    accountPayableNameAttr.prop('disabled', true);
+                    otherNameAttr.prop('disabled', true);
+                }
+
+                // 只顯示出資料庫有的「付款方式」
+                switch (parseInt(selectedType, 10)) {
+                    case CASH:
+                        cashEle.show();
+                        cashNameAttr.prop('disabled', false);
+                        break;
+                    case CHEQUE:
+                        chequeEle.show();
+                        chequeNameAttr.prop('disabled', false);
+                        break;
+                    case REMIT:
+                        remitEle.show();
+                        remitNameAttr.prop('disabled', false);
+                        break;
+                    case FOREIGN_CURRENCY:
+                        foreignCurrencyEle.show();
+                        foreignCurrencyNameAttr.prop('disabled', false);
+                        break;
+                    case ACCOUNTS_PAYABLE:
+                        accountPayableEle.show();
+                        accountPayableNameAttr.prop('disabled', false);
+                        break;
+                    case OTHER:
+                        otherEle.show();
+                        otherNameAttr.prop('disabled', false);
+                        break;
+                    default:
+                        cashEle.show();
+                        cashNameAttr.prop('disabled', false);
+                }
             })
 
             //選擇外幣後，自動帶入匯率、外幣金額、會計科目
