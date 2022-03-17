@@ -135,77 +135,25 @@
             </div>
         </div>
     </form>
-
-    {{-- 群組清單 --}}
-    <x-b-modal id="addProduct" cancelBtn="false" size="modal-xl modal-fullscreen-lg-down">
-        <x-slot name="title">選取商品加入採購清單</x-slot>
-        <x-slot name="body">
-            <div class="input-group mb-3 -searchBar">
-                <input type="text" class="form-control" placeholder="請輸入名稱或SKU" aria-label="搜尋條件">
-                <button class="btn btn-primary" type="button">搜尋商品</button>
-            </div>
-            {{-- <div class="row justify-content-end mb-2">
-                <div class="col-auto">
-                    顯示
-                    <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
-                        @foreach (config('global.dataPerPage') as $value)
-                            <option value="{{ $value }}">{{ $value }}</option>
-                        @endforeach
-                    </select>
-                    筆
-                </div>
-            </div> --}}
-            <div class="table-responsive">
-                <table class="table table-hover tableList">
-                    <thead>
-                    <tr>
-                        <th scope="col" class="text-center">選取</th>
-                        <th scope="col">商品名稱</th>
-                        <th scope="col">款式</th>
-                        <th scope="col">SKU</th>
-                        <th scope="col">庫存數量</th>
-                        <th scope="col">預扣庫存量</th>
-                    </tr>
-                    </thead>
-                    <tbody class="-appendClone --product">
-                    <tr>
-                        <th class="text-center">
-                            <input class="form-check-input" type="checkbox"
-                                   value="" data-td="p_id" aria-label="選取商品">
-                        </th>
-                        <td data-td="name">【喜鴻嚴選】咖啡候機室(10入/盒)</td>
-                        <td data-td="spec">綜合口味</td>
-                        <td data-td="sku">AA2590</td>
-                        <td>58</td>
-                        <td>20</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="col d-flex justify-content-end align-items-center flex-wrap -pages"></div>
-            <div class="alert alert-secondary mx-3 mb-0 -emptyData" style="display: none;" role="alert">
-                查無資料！
-            </div>
-        </x-slot>
-        <x-slot name="foot">
-            <span class="me-3 -checkedNum">已選取 0 件商品</span>
-            <button type="button" class="btn btn-primary btn-ok">加入採購清單</button>
-        </x-slot>
-    </x-b-modal>
 @endsection
 @once
     @push('sub-scripts')
         <script>
+            const AbleControl = { required: true, disabled: false };
+            const DisabledControl = { required: false, disabled: true };
+
+            // 優惠方式
             $('input[name="method_code"]').on('change', function () {
                 const method = $(this).val();
 
                 // hidden
                 $(`div[data-method]:not([data-method="${method}"])`).prop('hidden', true);
-                $(`div[data-method]:not([data-method="${method}"])`).find('input, select').prop('required', false);
+                $(`div[data-method]:not([data-method="${method}"])`).find('input, select').prop(DisabledControl);
 
                 // shown
                 $(`div[data-method="${method}"]`).prop('hidden', false);
-                $(`div[data-method="${method}"]`).find('input:not([norequired]), select:not([norequired])').prop('required', true);
+                $(`div[data-method="${method}"]`).find('input, select').prop(AbleControl);
+                $(`div[data-method="${method}"]`).find('[norequired]').prop('required', false);
             });
         </script>
     @endpush

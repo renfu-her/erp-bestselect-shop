@@ -206,7 +206,7 @@ Breadcrumbs::for('cms.discount.edit', function (BreadcrumbTrail $trail, $value) 
 // 優惠劵 / 序號
 Breadcrumbs::for('cms.promo.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('優惠券', route('cms.promo.index'));
+    $trail->push('優惠券 / 序號', route('cms.promo.index'));
 });
 // 新增 優惠劵 / 序號
 Breadcrumbs::for('cms.promo.create', function (BreadcrumbTrail $trail) {
@@ -216,22 +216,6 @@ Breadcrumbs::for('cms.promo.create', function (BreadcrumbTrail $trail) {
 // 編輯 優惠劵 / 序號
 Breadcrumbs::for('cms.promo.edit', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.promo.index');
-    $trail->push('[' . $value . '] 編輯');
-});
-
-// 優惠代碼
-Breadcrumbs::for('cms.promo-code.index', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.dashboard');
-    $trail->push('優惠代碼', route('cms.promo-code.index'));
-});
-// 新增優惠代碼
-Breadcrumbs::for('cms.promo-code.create', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.promo-code.index');
-    $trail->push('新增優惠代碼');
-});
-// 編輯 優惠代碼
-Breadcrumbs::for('cms.promo-code.edit', function (BreadcrumbTrail $trail, $value) {
-    $trail->parent('cms.promo-code.index');
     $trail->push('[' . $value . '] 編輯');
 });
 
