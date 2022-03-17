@@ -73,12 +73,12 @@ class LogisticCtrl extends Controller
         $request->validate([
             'logistic_id' => 'required|numeric',
             'package_sn' => 'sometimes|string',
-            'ship_group_id' => 'required|numeric',
+            'actual_ship_group_id' => 'required|numeric',
             'cost' => 'required|numeric|min:0',
             'memo' => 'sometimes|string',
         ]);
         $logistic_id = $request->input('logistic_id');
-        $input = $request->only('logistic_id', 'ship_group_id', 'cost', 'package_sn', 'memo');
+        $input = $request->only('logistic_id', 'actual_ship_group_id', 'cost', 'package_sn', 'memo');
 
 
         $errors = [];
@@ -88,7 +88,7 @@ class LogisticCtrl extends Controller
         if (Event::order()->value == $delivery->event) {
             SubOrders::updateLogisticData($delivery->event_id
                 , $input['package_sn']
-                , $input['ship_group_id']
+                , $input['actual_ship_group_id']
                 , $input['cost']
                 , $input['memo']);
         }
@@ -96,7 +96,7 @@ class LogisticCtrl extends Controller
         $reLgt = Logistic::updateData(
             $input['logistic_id']
             , $input['package_sn']
-            , $input['ship_group_id']
+            , $input['actual_ship_group_id']
             , $input['cost']
             , $input['memo']
         );
@@ -110,7 +110,7 @@ class LogisticCtrl extends Controller
     }
 
     //儲存耗材入庫，進行扣除入庫單
-    public function storeInbound(Request $request) {
+    public function auditInbound(Request $request) {
         $request->validate([
             'logistic_id' => 'required|numeric'
         ]);
@@ -120,9 +120,8 @@ class LogisticCtrl extends Controller
         if (null != $logistic->audit_date) {
             $errors['error_msg'] = '不可重複送出審核';
         } else {
-            $re = null;
+            $re = Consum::setUpLogisticData($logistic_id);
             if ($re['success'] == '1') {
-                $re = Consum::setUpLogisticData($logistic_id);
                 wToast('儲存成功');
                 return redirect(Route('cms.logistic.create', [$logistic->delivery_id], true));
             }

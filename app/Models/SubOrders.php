@@ -40,8 +40,8 @@ class SubOrders extends Model
 
 
     //更新物流單資料
-    public static function updateLogisticData($id, $package_sn, $ship_group_id, $cost, $memo) {
-        $data = SubOrders::where('id', $id);
+    public static function updateLogisticData($id, $package_sn, $actual_ship_group_id, $cost, $memo) {
+        $data = DB::table('ord_sub_orders')->where('id', $id);
         $dataGet = null;
         if (null != $data) {
             $dataGet = $data->first();
@@ -50,9 +50,9 @@ class SubOrders extends Model
         if (null != $dataGet) {
             $updateData = [
                 'package_sn' => $package_sn
-                , 'ship_group_id' => $ship_group_id
-                , 'cost' => $cost
-                , 'memo' => $memo
+                , 'actual_ship_group_id' => $actual_ship_group_id
+//                , 'cost' => $cost
+//                , 'memo' => $memo
             ];
 
             $data->update($updateData);
