@@ -253,7 +253,7 @@ class AccountPayableCtrl extends Controller
             'method' => 'edit',
             'transactTypeList' => AccountPayable::getTransactTypeList(),
             'chequeStatus' => AccountPayable::getChequeStatus(),
-            'formAction' => Route('cms.ap.update'),
+            'formAction' => Route('cms.ap.update', ['id' => $id]),
         ]);
         //
     }
