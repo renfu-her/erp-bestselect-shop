@@ -34,39 +34,52 @@
                     </div>
                 </fieldset>
                 <div class="col-12 mb-3" data-category="code" hidden>
-                    <label class="form-label">優惠劵序號</label>
+                    <label class="form-label">優惠劵序號 <span class="text-danger">*</span></label>
                     <div class="input-group flex-nowrap">
-                        <input type="text" name="" class="form-control" value="" placeholder="可自行輸入或按隨機產生鈕">
-                        <button class="btn btn-success" type="button" id="button-addon2">隨機產生序號</button>
+                        <input type="text" name="" class="form-control" value="" disabled placeholder="可自行輸入或按隨機產生鈕">
+                        <button class="btn btn-success" type="button" id="button-addon2">
+                            <i class="bi bi-shuffle"></i> 隨機產生序號
+                        </button>
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">活動開始時間</label>
+                    <label class="form-label">優惠券數量 <span class="text-danger">*</span><span class="small text-secondary">（不限則填0）</span></label>
+                    <input type="number" name="" min="0" value="1000" class="form-control" placeholder="請輸入優惠券數量" required aria-label="優惠券數量">
+                </div>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">最低消費金額 <span class="text-danger">*</span><span class="small text-secondary">（不限則填0）</span></label>
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                        <input type="number" name="" min="0" value="0" class="form-control" placeholder="請輸入優惠券最低消費金額" required>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">活動開始日期<span class="small text-secondary">（未填則表示現在）</span></label>
                     <div class="input-group has-validation">
-                        <input type="datetime-local" name="start_date" value=""
-                                class="form-control" aria-label="活動開始時間"/>
+                        <input type="date" name="start_date" value=""
+                                class="form-control" aria-label="活動開始日期"/>
                         <button class="btn btn-outline-secondary icon" type="button" data-clear
-                                data-bs-toggle="tooltip" title="清空時間"><i class="bi bi-calendar-x"></i>
+                                data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
                         </button>
                         <div class="invalid-feedback">
                         </div>
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">活動結束時間</label>
+                    <label class="form-label">活動結束日期<span class="small text-secondary">（未填則表示不會結束）</span></label>
                     <div class="input-group has-validation">
-                        <input type="datetime-local" name="end_date" value=""
-                                class="form-control" aria-label="活動結束時間"/>
+                        <input type="date" name="end_date" value=""
+                                class="form-control" aria-label="活動結束日期"/>
                         <button class="btn btn-outline-secondary icon" type="button" data-clear
-                                data-bs-toggle="tooltip" title="清空時間"><i class="bi bi-calendar-x"></i>
+                                data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
                         </button>
                         <div class="invalid-feedback">
                         </div>
                     </div>
                 </div>
                 <div class="col-12 mb-3">
-                    <label class="form-label">適用商品群組（多選）</label>
-                    <select name="select[]" multiple class="-select2 -multiple form-select" data-close-on-select="false" data-placeholder="不選為全館適用">
+                    <label class="form-label">適用商品群組<span class="small text-secondary">（不選為全館適用）</span></label>
+                    <select name="select[]" multiple class="-select2 -multiple form-select" data-close-on-select="false" data-placeholder="可多選">
                         <option value="1">item 1</option>
                         <option value="2">item 2</option>
                         <option value="3">item 3</option>
@@ -85,12 +98,6 @@
                             <label class="form-check-label">
                                 <input class="form-check-input" name="method_code" type="radio" value="percent" required>
                                 百分比
-                            </label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <label class="form-check-label">
-                                <input class="form-check-input" name="method_code" type="radio" value="coupon" required>
-                                優惠劵
                             </label>
                         </div>
                     </div>
@@ -120,8 +127,10 @@
 
                 {{-- 優惠方式：百分比 percent --}}
                 <div class="row mb-3 border rounded mx-0 px-0 pt-2" data-method="percent" hidden>
-                    <div class="col-12 col-sm-6 mb-3">
-                        <label class="form-label">折扣百分比 <span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 mb-3">
+                        <label class="form-label">折扣百分比 <span class="text-danger">*</span>
+                            <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="例：100 元商品打 8 折為 80 元，請輸入數字 80，等同 80%" data-bs-placement="right"></i>
+                        </label>
                         <div class="input-group flex-nowrap">
                             <input type="number" name="" class="form-control" min="1" max="100" value="" placeholder="請輸入百分比 1 ~ 100">
                             <span class="input-group-text"><i class="bi bi-percent"></i></span>

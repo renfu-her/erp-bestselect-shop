@@ -24,7 +24,7 @@
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">活動開始時間</label>
+                    <label class="form-label">活動開始時間<span class="small text-secondary">（未填則表示現在）</span></label>
                     <div class="input-group has-validation">
                         <input type="datetime-local" name="start_date" value="" class="form-control"
                             aria-label="活動開始時間" />
@@ -36,7 +36,7 @@
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">活動結束時間</label>
+                    <label class="form-label">活動結束時間<span class="small text-secondary">（未填則表示不會結束）</span></label>
                     <div class="input-group has-validation">
                         <input type="datetime-local" name="end_date" value="" class="form-control" aria-label="活動結束時間" />
                         <button class="btn btn-outline-secondary icon" type="button" data-clear data-bs-toggle="tooltip"
@@ -47,9 +47,9 @@
                     </div>
                 </div>
                 <div class="col-12 mb-3">
-                    <label class="form-label">適用商品群組（多選）</label>
+                    <label class="form-label">適用商品群組<span class="small text-secondary">（不選為全館適用）</span></label>
                     <select name="collection_id[]" multiple class="-select2 -multiple form-select" data-close-on-select="false"
-                        data-placeholder="不選為全館適用">
+                        data-placeholder="可多選">
                         @foreach ($collections as $key => $value)
                             <option value="{{ $value->id }}">{{ $value->name }}</option>
                         @endforeach
@@ -97,7 +97,9 @@
                 {{-- 優惠方式：百分比 percent --}}
                 <div class="row mb-3 border rounded mx-0 px-0 pt-2" data-method="percent" hidden>
                     <div class="col-12 col-sm-6 mb-3">
-                        <label class="form-label">折扣百分比 <span class="text-danger">*</span></label>
+                        <label class="form-label">折扣百分比 <span class="text-danger">*</span>
+                            <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="例：100 元商品打 8 折為 80 元，請輸入數字 80，等同 80%" data-bs-placement="right"></i>
+                        </label>
                         <div class="input-group flex-nowrap">
                             <input type="number" name="" class="form-control" min="1" max="100" value=""
                                 placeholder="請輸入百分比 1 ~ 100">
@@ -141,9 +143,16 @@
                 disabled: true
             };
 
+            // init
+            setMethod();
             // 優惠方式
             $('input[name="method_code"]').on('change', function() {
-                const method = $(this).val();
+                setMethod();
+            });
+
+            // 設定優惠方式
+            function setMethod() {
+                const method = $('input[name="method_code"]:checked').val();
 
                 // hidden
                 $(`div[data-method]:not([data-method="${method}"])`).prop('hidden', true);
@@ -153,7 +162,7 @@
                 $(`div[data-method="${method}"]`).prop('hidden', false);
                 $(`div[data-method="${method}"]`).find('input, select').prop(AbleControl);
                 $(`div[data-method="${method}"]`).find('[norequired]').prop('required', false);
-            });
+            }
         </script>
     @endpush
 @endonce
