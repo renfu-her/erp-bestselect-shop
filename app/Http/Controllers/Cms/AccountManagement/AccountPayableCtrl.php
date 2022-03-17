@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Cms\AccountManagement;
 
+use App\Enums\Payable\PayableModelType;
 use App\Enums\Supplier\Payment;
 use App\Http\Controllers\Controller;
 use App\Models\AccountPayable;
@@ -139,6 +140,9 @@ class AccountPayableCtrl extends Controller
      * Show the form for editing the specified resource.
      *
      * @param  \App\Models\AccountPayable  $accountPayable
+     * @param  Request  $request
+     * @param  int  $id primary ID of AccountPayable
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit(AccountPayable $accountPayable, Request $request, int $id)
@@ -263,11 +267,283 @@ class AccountPayableCtrl extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\AccountPayable  $accountPayable
+     * @param  int  $id primary ID of AccountPayable
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, AccountPayable $accountPayable)
+    public function update(AccountPayable $accountPayable, Request $request, int $id)
     {
-        //
+        $request->validate([
+            'acc_transact_type_fk'    => ['required', 'string', 'regex:/^[1-6]$/'],
+//            'pay_order_type' => ['required', 'string', 'regex:/^(pcs)$/'],
+//            'pay_order_id' => ['required', 'int', 'min:1'],
+//            'is_final_payment' => ['required', 'int', 'regex:/^(0|1)$/']
+        ]);
+        $req = $request->all();
+        $requestPayableTypeId = $req['acc_transact_type_fk'];
+
+        $requestUpdatePayableType = PayableModelType::getDescription($requestPayableTypeId);
+        $oriPayableType = $accountPayable->find($id)->payable_type;
+        $hasTheSamePayableType = ($oriPayableType === $requestUpdatePayableType) ? true :false;
+
+        // when user choose other types instead of the original one
+        // Flow Chart
+        // TODO refactor in the future
+//        if (the same) {
+//            switch
+//              update child tree
+//              update parent tree
+//        }else {
+//            delete child tree
+//            switch
+//                create new child tree
+//                update parent tree(update child id)
+//        }
+        if ($hasTheSamePayableType) {
+            $payableId = $accountPayable->find($id)->payable->id;
+            switch ($requestPayableTypeId) {
+                case Payment::Cash:
+                    PayableModelType::where('id', $payableId)->update([
+                        'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::Cash),
+                        'grade_id' => $req['cash']['grade_id_fk']
+                    ]);
+                    AccountPayable::where('id', $id)->update([
+                        'pay_order_type' => 'App\Models\PayingOrder',
+                        'pay_order_id' => $req['pay_order_id'],
+                        'acc_income_type_fk' => Payment::Cash,
+                        'payable_type' => 'App\Models\PayableCash',
+//                        'payable_id' => $payableData->id,
+                        'tw_price' => $req['tw_price'],
+                        //            'payable_status' => $req['payable_status'],
+                        'payment_date' => $req['payment_date'],
+                        'accountant_id_fk' => Auth::user()->id,
+                        'note' => $req['note'],
+                    ]);
+                    break;
+                case Payment::Cheque:
+                    PayableCheque::where('id', $payableId)->update([
+                        'check_num' => $req['cheque']['check_num'],
+                        'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::Cheque),
+                        'grade_id' => $req['cheque']['grade_id_fk'],
+                        'maturity_date' => $req['cheque']['maturity_date'],
+                        'cash_cheque_date' => $req['cheque']['cash_cheque_date'],
+                        'cheque_status' => $req['cheque']['cheque_status'],
+                    ]);
+                    AccountPayable::where('id', $id)->update([
+                        'pay_order_type' => 'App\Models\PayingOrder',
+                        'pay_order_id' => $req['pay_order_id'],
+                        'acc_income_type_fk' => Payment::Cheque,
+                        'payable_type' => 'App\Models\PayableCheque',
+                        //                        'payable_id' => $payableData->id,
+                        'tw_price' => $req['tw_price'],
+                        //            'payable_status' => $req['payable_status'],
+                        'payment_date' => $req['payment_date'],
+                        'accountant_id_fk' => Auth::user()->id,
+                        'note' => $req['note'],
+                    ]);
+                    break;
+                case Payment::Remittance:
+                    PayableRemit::where('id', $payableId)->update([
+                        'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::Remittance),
+                        'grade_id' => $req['remit']['grade_id_fk'],
+                        'remit_date' => $req['remit']['remit_date']
+                    ]);
+
+                    AccountPayable::where('id', $id)->update([
+                        'pay_order_type' => 'App\Models\PayingOrder',
+                        'pay_order_id' => $req['pay_order_id'],
+                        'acc_income_type_fk' => Payment::Remittance,
+                        'payable_type' => 'App\Models\PayableRemit',
+//                        'payable_id' => $payableData->id,
+                        'tw_price' => $req['tw_price'],
+                        //            'payable_status' => $req['payable_status'],
+                        'payment_date' => $req['payment_date'],
+                        'accountant_id_fk' => Auth::user()->id,
+                        'note' => $req['note'],
+                    ]);
+                    break;
+                case Payment::ForeignCurrency:
+                    PayableForeignCurrency::where('id', $payableId)->update([
+                        'foreign_currency' => $req['foreign_currency']['foreign_price'],
+                        'rate' => $req['foreign_currency']['rate'],
+                        'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::ForeignCurrency),
+                        'grade_id' => $req['foreign_currency']['grade_id_fk'],
+                        'acc_currency_fk' => $req['foreign_currency']['currency'],
+                    ]);
+                    AccountPayable::where('id', $id)->update([
+                        'pay_order_type' => 'App\Models\PayingOrder',
+                        'pay_order_id' => $req['pay_order_id'],
+                        'acc_income_type_fk' => Payment::ForeignCurrency,
+                        'payable_type' => 'App\Models\PayableForeignCurrency',
+//                        'payable_id' => $payableData->id,
+                        'tw_price' => $req['tw_price'],
+                        //            'payable_status' => $req['payable_status'],
+                        'payment_date' => $req['payment_date'],
+                        'accountant_id_fk' => Auth::user()->id,
+                        'note' => $req['note'],
+                    ]);
+                    break;
+                case Payment::AccountsPayable:
+                    PayableAccount::where('id', $payableId)->update([
+                        'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::AccountsPayable),
+                        'grade_id' => $req['payable_account']['grade_id_fk'],
+                    ]);
+                    AccountPayable::where('id', $id)->update([
+                        'pay_order_type' => 'App\Models\PayingOrder',
+                        'pay_order_id' => $req['pay_order_id'],
+                        'acc_income_type_fk' => Payment::AccountsPayable,
+                        'payable_type' => 'App\Models\PayableAccount',
+//                        'payable_id' => $payableData->id,
+                        'tw_price' => $req['tw_price'],
+                        //            'payable_status' => $req['payable_status'],
+                        'payment_date' => $req['payment_date'],
+                        'accountant_id_fk' => Auth::user()->id,
+                        'note' => $req['note'],
+                    ]);
+                    break;
+                case Payment::Other:
+                    PayableOther::where('id', $payableId)->update([
+                        'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::Other),
+                        'grade_id' => $req['other']['grade_id_fk']
+                    ]);
+                    AccountPayable::where('id', $id)->update([
+                        'pay_order_type' => 'App\Models\PayingOrder',
+                        'pay_order_id' => $req['pay_order_id'],
+                        'acc_income_type_fk' => Payment::Other,
+                        'payable_type' => 'App\Models\PayableOther',
+//                        'payable_id' => $payableData->id,
+                        'tw_price' => $req['tw_price'],
+                        //            'payable_status' => $req['payable_status'],
+                        'payment_date' => $req['payment_date'],
+                        'accountant_id_fk' => Auth::user()->id,
+                        'note' => $req['note'],
+                    ]);
+                    break;
+            }
+        } else {
+            $accountPayable->find($id)->payable->delete();
+            switch ($requestPayableTypeId) {
+                case Payment::Cash:
+                    $payableData = PayableCash::create([
+                        'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::Cash),
+                        'grade_id' => $req['cash']['grade_id_fk']
+                    ]);
+                    AccountPayable::where('id', $id)->update([
+                        'pay_order_type' => 'App\Models\PayingOrder',
+                        'pay_order_id' => $req['pay_order_id'],
+                        'acc_income_type_fk' => Payment::Cash,
+                        'payable_type' => 'App\Models\PayableCash',
+                        'payable_id' => $payableData->id,
+                        'tw_price' => $req['tw_price'],
+                        //            'payable_status' => $req['payable_status'],
+                        'payment_date' => $req['payment_date'],
+                        'accountant_id_fk' => Auth::user()->id,
+                        'note' => $req['note'],
+                    ]);
+                    break;
+                case Payment::Cheque:
+                    $payableData = PayableCheque::create([
+                        'check_num' => $req['cheque']['check_num'],
+                        'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::Cheque),
+                        'grade_id' => $req['cheque']['grade_id_fk'],
+                        'maturity_date' => $req['cheque']['maturity_date'],
+                        'cash_cheque_date' => $req['cheque']['cash_cheque_date'],
+                        'cheque_status' => $req['cheque']['cheque_status'],
+                    ]);
+                    AccountPayable::where('id', $id)->update([
+                        'pay_order_type' => 'App\Models\PayingOrder',
+                        'pay_order_id' => $req['pay_order_id'],
+                        'acc_income_type_fk' => Payment::Cheque,
+                        'payable_type' => 'App\Models\PayableCheque',
+                        'payable_id' => $payableData->id,
+                        'tw_price' => $req['tw_price'],
+                        //            'payable_status' => $req['payable_status'],
+                        'payment_date' => $req['payment_date'],
+                        'accountant_id_fk' => Auth::user()->id,
+                        'note' => $req['note'],
+                    ]);
+                    break;
+                case Payment::Remittance:
+                    $payableData = PayableRemit::create([
+                        'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::Remittance),
+                        'grade_id' => $req['remit']['grade_id_fk'],
+                        'remit_date' => $req['remit']['remit_date']
+                    ]);
+                    AccountPayable::where('id', $id)->update([
+                        'pay_order_type' => 'App\Models\PayingOrder',
+                        'pay_order_id' => $req['pay_order_id'],
+                        'acc_income_type_fk' => Payment::Remittance,
+                        'payable_type' => 'App\Models\PayableRemit',
+                        'payable_id' => $payableData->id,
+                        'tw_price' => $req['tw_price'],
+                        //            'payable_status' => $req['payable_status'],
+                        'payment_date' => $req['payment_date'],
+                        'accountant_id_fk' => Auth::user()->id,
+                        'note' => $req['note'],
+                    ]);
+                    break;
+                case Payment::ForeignCurrency:
+                    $payableData = PayableForeignCurrency::create([
+                        'foreign_currency' => $req['foreign_currency']['foreign_price'],
+                        'rate' => $req['foreign_currency']['rate'],
+                        'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::ForeignCurrency),
+                        'grade_id' => $req['foreign_currency']['grade_id_fk'],
+                        'acc_currency_fk' => $req['foreign_currency']['currency'],
+                    ]);
+                    AccountPayable::where('id', $id)->update([
+                        'pay_order_type' => 'App\Models\PayingOrder',
+                        'pay_order_id' => $req['pay_order_id'],
+                        'acc_income_type_fk' => Payment::ForeignCurrency,
+                        'payable_type' => 'App\Models\PayableForeignCurrency',
+                        'payable_id' => $payableData->id,
+                        'tw_price' => $req['tw_price'],
+                        //            'payable_status' => $req['payable_status'],
+                        'payment_date' => $req['payment_date'],
+                        'accountant_id_fk' => Auth::user()->id,
+                        'note' => $req['note'],
+                    ]);
+                    break;
+                case Payment::AccountsPayable:
+                    $payableData = AccountPayable::create([
+                        'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::AccountsPayable),
+                        'grade_id' => $req['payable_account']['grade_id_fk'],
+                    ]);
+                    AccountPayable::where('id', $id)->update([
+                        'pay_order_type' => 'App\Models\PayingOrder',
+                        'pay_order_id' => $req['pay_order_id'],
+                        'acc_income_type_fk' => Payment::AccountsPayable,
+                        'payable_type' => 'App\Models\PayableAccount',
+                        'payable_id' => $payableData->id,
+                        'tw_price' => $req['tw_price'],
+                        //            'payable_status' => $req['payable_status'],
+                        'payment_date' => $req['payment_date'],
+                        'accountant_id_fk' => Auth::user()->id,
+                        'note' => $req['note'],
+                    ]);
+                    break;
+                case Payment::Other:
+                    $payableData =PayableOther::create([
+                        'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::Other),
+                        'grade_id' => $req['other']['grade_id_fk']
+                    ]);
+                    AccountPayable::where('id', $id)->update([
+                        'pay_order_type' => 'App\Models\PayingOrder',
+                        'pay_order_id' => $req['pay_order_id'],
+                        'acc_income_type_fk' => Payment::Other,
+                        'payable_type' => 'App\Models\PayableOther',
+                        'payable_id' => $payableData->id,
+                        'tw_price' => $req['tw_price'],
+                        //            'payable_status' => $req['payable_status'],
+                        'payment_date' => $req['payment_date'],
+                        'accountant_id_fk' => Auth::user()->id,
+                        'note' => $req['note'],
+                    ]);
+                    break;
+            }
+        }
+
+        return redirect()->route('cms.purchase.view-pay-order',
+                                                    ['id' => $req['purchase_id'],
+                                                     'type' => $req['is_final_payment']]);
     }
 
     /**
