@@ -68,6 +68,7 @@ class LogisticCtrl extends Controller
         ]);
     }
 
+    //儲存物流相關資料
     public function store(Request $request)
     {
         $request->validate([
@@ -82,7 +83,7 @@ class LogisticCtrl extends Controller
 
 
         $errors = [];
-        $logistic = Logistic::where('id', '=', $input['logistic_id'])->get()->first();
+        $logistic = Logistic::where('id', '=', $logistic_id)->get()->first();
         $delivery = Delivery::where('id', $logistic->delivery_id)->get()->first();
         //判斷若為子訂單 則回寫到子訂單資料表
         if (Event::order()->value == $delivery->event) {
@@ -105,6 +106,18 @@ class LogisticCtrl extends Controller
             return redirect()->back()->withInput()->withErrors($errors);
         }
 
+        wToast('儲存成功');
+        return redirect(Route('cms.logistic.create', [$logistic->delivery_id], true));
+    }
+
+    //儲存耗材入庫，進行扣除入庫單
+    public function storeInbound(Request $request) {
+        $request->validate([
+            'logistic_id' => 'required|numeric'
+        ]);
+        $logistic_id = $request->input('logistic_id');
+        $errors = [];
+        $logistic = Logistic::where('id', '=', $logistic_id)->get()->first();
         if (null != $logistic->audit_date) {
             $errors['error_msg'] = '不可重複送出審核';
         } else {
@@ -116,7 +129,6 @@ class LogisticCtrl extends Controller
             }
             $errors['error_msg'] = $re['error_msg'];
         }
-
         return redirect()->back()->withInput()->withErrors($errors);
     }
 

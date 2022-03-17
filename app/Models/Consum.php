@@ -83,6 +83,14 @@ class Consum extends Model
         if (null != $dataGet && 0 < count($dataGet)) {
             $result = DB::transaction(function () use ($data, $dataGet, $logistic_id
             ) {
+                //扣除入庫單庫存
+                foreach ($dataGet as $item) {
+                    $reShipIb = PurchaseInbound::shippingInbound($item->inbound_id, $item->qty);
+                    if ($reShipIb['success'] == 0) {
+                        DB::rollBack();
+                        return $reShipIb;
+                    }
+                }
                 $curr_date = date('Y-m-d H:i:s');
                 Logistic::where('id', '=', $logistic_id)->update(['audit_date' => $curr_date]);
 
