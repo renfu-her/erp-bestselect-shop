@@ -31,6 +31,9 @@
                                 <input class="form-check-input"
                                        name="acc_transact_type_fk"
                                        type="radio"
+                                       @if(($payableData->acc_income_type_fk ?? 0) === $transactData['value'])
+                                           checked
+                                       @endif
                                        value="{{ $transactData['value'] }}">
                                 {{ $transactData['name'] }}
                             </label>
@@ -57,11 +60,25 @@
                     required
                     data-placeholder="請選擇">
                     <option disabled selected value> -- select an option --</option>
-
+                    @if($method === 'edit')
+                        @if(count($allPayableTypeData['payableCash']) > 0)
+                            <option selected value="{{ $allPayableTypeData['payableCash']['grade_id_fk'] }}">
+                                {{ $allPayableTypeData['payableCash']['code'] . ' '}}
+                                {{ $allPayableTypeData['payableCash']['name'] }}
+                            </option>
+                        @endif
+                    @endif
                     @foreach($cashDefault as $cashData)
-                        <option
-                            value="{{ $cashData['grade_id_fk'] }}">{{ $cashData['code'] . ' ' . $cashData['name'] }}
-                        </option>
+{{--                        @if($method === 'create')--}}
+{{--                            <option--}}
+{{--                                value="{{ $cashData['grade_id_fk'] }}">{{ $cashData['code'] . ' ' . $cashData['name'] }}--}}
+{{--                            </option>--}}
+{{--                        @elseif(count($allPayableTypeData['payableCash']) > 0 &&--}}
+{{--                                !in_array($allPayableTypeData['payableCash']['grade_id_fk'], $cashData))--}}
+                            <option
+                                value="{{ $cashData['grade_id_fk'] }}">{{ $cashData['code'] . ' ' . $cashData['name'] }}
+                            </option>
+{{--                        @endif--}}
                     @endforeach
                 </select>
 
@@ -75,10 +92,25 @@
                     class="-select2 -single form-select col-12 col-sm-4 mb-3 cheque @error('cheque[grade_id_fk]') is-invalid @enderror"
                     data-placeholder="請選擇">
                     <option disabled selected value> -- select an option --</option>
+                    @if($method === 'edit')
+                        @if(count($allPayableTypeData['payableCheque']) > 0)
+                            <option selected value="{{ $allPayableTypeData['payableCheque']['grade_id_fk'] }}">
+                                {{ $allPayableTypeData['payableCheque']['code'] . ' '}}
+                                {{ $allPayableTypeData['payableCheque']['name'] }}
+                            </option>
+                        @endif
+                    @endif
                     @foreach($chequeDefault as $chequeData)
-                        <option
-                            value="{{ $chequeData['grade_id_fk'] }}">{{ $chequeData['code'] . ' ' . $chequeData['name'] }}
-                        </option>
+{{--                        @if($method === 'create')--}}
+{{--                            <option--}}
+{{--                            value="{{ $chequeData['grade_id_fk'] }}">{{ $chequeData['code'] . ' ' . $chequeData['name'] }}--}}
+{{--                            </option>--}}
+{{--                        @elseif(count($allPayableTypeData['payableCheque']) > 0 &&--}}
+{{--                            !in_array($allPayableTypeData['payableCheque']['grade_id_fk'], $chequeData))--}}
+                            <option
+                                value="{{ $chequeData['grade_id_fk'] }}">{{ $chequeData['code'] . ' ' . $chequeData['name'] }}
+                            </option>
+{{--                        @endif--}}
                     @endforeach
                 </select>
 
@@ -89,7 +121,7 @@
                            name="cheque[check_num]"
                            required
                            type="text"
-                           value="{{ old('check_num', $data->check_num ?? '') }}"/>
+                           value="{{ old('cheque[check_num]', $allPayableTypeData['payableCheque']['check_num'] ?? '') }}"/>
                 </x-b-form-group>
                 <x-b-form-group name="cheque[maturity_date]"
                                 title="到期日"
@@ -100,7 +132,7 @@
                            name="cheque[maturity_date]"
                            required
                            type="date"
-                           value="{{ old('maturity_date', $data->maturity_date ?? '') }}"/>
+                           value="{{ old('cheque[maturity_date]', $allPayableTypeData['payableCheque']['maturity_date'] ?? '') }}"/>
                 </x-b-form-group>
                 <x-b-form-group name="cheque[cash_cheque_date]" title="兌現日" required="true"
                                 class="col-12 col-sm-4 mb-3 cheque"
@@ -109,7 +141,7 @@
                            name="cheque[cash_cheque_date]"
                            required
                            type="date"
-                           value="{{ old('check_num', $data->check_num ?? '') }}"/>
+                           value="{{ old('cheque[cash_cheque_date]', $allPayableTypeData['payableCheque']['cash_cheque_date'] ?? '') }}"/>
                 </x-b-form-group>
                 <div class="col-12 col-sm-4 mb-3 cheque">
                     <label class="form-label">狀態
@@ -118,7 +150,14 @@
                     <select name="cheque[cheque_status]" class="form-select" aria-label="Select" required>
                         <option value=""></option>
                         @foreach($chequeStatus as $chequeData)
-                            <option value="{{ $chequeData['id'] }}">
+                            <option value="{{ $chequeData['id'] }}"
+                                @if($method === 'edit')
+                                    @if(count($allPayableTypeData['payableCheque']) > 0 &&
+                                        $allPayableTypeData['payableCheque']['cheque_status'] === $chequeData['id'])
+                                        selected
+                                    @endif
+                                @endif
+                            >
                                 {{ $chequeData['status'] }}
                             </option>
                         @endforeach
@@ -135,19 +174,38 @@
                     required
                     data-placeholder="請選擇">
                     <option disabled selected value> -- select an option --</option>
+                    @if($method === 'edit')
+                        @if(count($allPayableTypeData['payableRemit']) > 0)
+                            <option selected value="{{ $allPayableTypeData['payableRemit']['grade_id_fk'] }}">
+                                {{ $allPayableTypeData['payableRemit']['code'] . ' '}}
+                                {{ $allPayableTypeData['payableRemit']['name'] }}
+                            </option>
+                        @endif
+                    @endif
                     @foreach($remitDefault as $remitData)
-                        <option
-                            value="{{ $remitData['grade_id_fk'] }}">{{ $remitData['code'] . ' ' . $remitData['name'] }}
-                        </option>
+{{--                        @if($method === 'create')--}}
+{{--                            <option--}}
+{{--                                @if(count($allPayableTypeData['payableRemit']) > 0 &&--}}
+{{--                                    count($allPayableTypeData['payableRemit']['grade_id_fk']) > 0)--}}
+{{--                                selected--}}
+{{--                                @endif--}}
+{{--                                value="{{ $allPayableTypeData['payableRemit']['grade_id_fk'] }}">{{ $allPayableTypeData['payableRemit']['code'] . ' ' . $allPayableTypeData['payableRemit']['name'] }}--}}
+{{--                            </option>--}}
+{{--                        @else--}}
+                            <option
+                                value="{{ $remitData['grade_id_fk'] }}">{{ $remitData['code'] . ' ' . $remitData['name'] }}
+                            </option>
+{{--                        @endif--}}
                     @endforeach
                 </select>
+
                 <x-b-form-group name="remit[remit_date]" title="匯款日期" required="true"
                                 class="col-12 col-sm-4 mb-3 remit">
                     <input class="form-control @error('remit[remit_date]') is-invalid @enderror"
                            name="remit[remit_date]"
                            type="date"
                            required
-                           value="{{ old('remit[remit_date]', $data->remit_date ?? '') }}"/>
+                           value="{{ old('remit[remit_date]',  $allPayableTypeData['payableRemit']['remit_date'] ?? '') }}"/>
                 </x-b-form-group>
 
                 <label for="" class="form-label foreign_currency">外幣
@@ -161,6 +219,12 @@
                     <option disabled selected value> -- select an option --</option>
                     @foreach($currencyDefault as $currencyData)
                         <option
+                            @if($method === 'edit')
+                                @if(count($allPayableTypeData['payableForeignCurrency']) > 0 &&
+                                    $allPayableTypeData['payableForeignCurrency']['acc_currency_fk'] === $currencyData['currency_id']))
+                                    selected
+                                @endif
+                            @endif
                             value="{{ $currencyData['currency_id'] }}">{{ $currencyData['currency'] }}
                         </option>
                     @endforeach
@@ -175,7 +239,7 @@
                            id="rate"
                            type="number"
                            step="0.01"
-                           value="{{ old('foreign_currency[rate]', $data->rate ?? '') }}"/>
+                           value="{{ old('foreign_currency[rate]', $allPayableTypeData['payableForeignCurrency']['rate'] ?? '') }}"/>
                 </x-b-form-group>
 
                 <x-b-form-group name="foreign_currency[foreign_price]" title="金額（外幣）" required="true"
@@ -186,7 +250,7 @@
                            required
                            type="number"
                            step="0.01"
-                           value="{{ old('foreign_currency[foreign_price]', $data->foreign_currency ?? '') }}"/>
+                           value="{{ old('foreign_currency[foreign_price]', $allPayableTypeData['payableForeignCurrency']['foreign_currency'] ?? '') }}"/>
                 </x-b-form-group>
 
                 <label for="" class="form-label foreign_currency">科目
@@ -198,10 +262,25 @@
                     required
                     data-placeholder="請選擇">
                     <option disabled selected value> -- select an option --</option>
+                    @if($method === 'edit')
+                        @if(count($allPayableTypeData['payableForeignCurrency']) > 0)
+                            <option selected value="{{ $allPayableTypeData['payableForeignCurrency']['grade_id_fk'] }}">
+                                {{ $allPayableTypeData['payableForeignCurrency']['code'] . ' '}}
+                                {{ $allPayableTypeData['payableForeignCurrency']['name'] }}
+                            </option>
+                        @endif
+                    @endif
                     @foreach($currencyDefault as $currencyData)
-                        <option
-                            value="{{ $currencyData['grade_id_fk'] }}">{{ $currencyData['code'] . ' ' . $currencyData['name'] }}
-                        </option>
+{{--                        @if($method === 'create')--}}
+{{--                            <option--}}
+{{--                                value="{{ $currencyData['grade_id_fk'] }}">{{ $currencyData['code'] . ' ' . $currencyData['name'] }}--}}
+{{--                            </option>--}}
+{{--                        @elseif(count($allPayableTypeData['payableForeignCurrency']) > 0 &&--}}
+{{--                            !in_array($allPayableTypeData['payableForeignCurrency']['grade_id_fk'], $currencyData))--}}
+                            <option
+                                value="{{ $currencyData['grade_id_fk'] }}">{{ $currencyData['code'] . ' ' . $currencyData['name'] }}
+                            </option>
+{{--                        @endif--}}
                     @endforeach
                 </select>
 
@@ -214,11 +293,28 @@
                     required
                     data-placeholder="請選擇">
                     <option disabled selected value> -- select an option --</option>
+                    @if($method === 'edit')
+                        @if(count($allPayableTypeData['payableAccount']) > 0)
+                            <option selected value="{{ $allPayableTypeData['payableAccount']['grade_id_fk'] }}">
+                                {{ $allPayableTypeData['payableAccount']['code'] . ' '}}
+                                {{ $allPayableTypeData['payableAccount']['name'] }}
+                            </option>
+                        @endif
+                    @endif
                     @foreach($accountPayableDefault ?? [] as $accountPayableData)
-                        <option
-                            selected
-                            value="{{ $accountPayableData['grade_id_fk'] }}">{{ $accountPayableData['code'] . ' ' . $accountPayableData['name'] }}
-                        </option>
+{{--                        @if($method === 'create')--}}
+{{--                            <option--}}
+{{--                                value="{{ $accountPayableData['grade_id_fk'] }}">{{ $accountPayableData['code'] . ' ' . $accountPayableData['name'] }}--}}
+{{--                            </option>--}}
+{{--                        @elseif(count($allPayableTypeData['payableAccount']) > 0 &&--}}
+{{--                            !in_array($allPayableTypeData['payableAccount']['grade_id_fk'], $accountPayableData))--}}
+                            <option
+                                value="{{ $accountPayableData['grade_id_fk'] }}">{{ $accountPayableData['code'] . ' ' . $accountPayableData['name'] }}
+                            </option>
+{{--                        @endif--}}
+                        {{--                            value="{{ $currencyData['currency_id'] }}">{{ $currencyData['currency'] }}--}}
+{{--                            selected--}}
+{{--                            value="{{ $accountPayableData['grade_id_fk'] }}">{{ $accountPayableData['code'] . ' ' . $accountPayableData['name'] }}--}}
                     @endforeach
                 </select>
 
@@ -231,10 +327,26 @@
                     required
                     data-placeholder="請選擇">
                     <option disabled selected value> -- select an option --</option>
+                    @if($method === 'edit')
+                        @if(count($allPayableTypeData['payableOther']) > 0)
+                            <option selected value="{{ $allPayableTypeData['payableOther']['grade_id_fk'] }}">
+                                {{ $allPayableTypeData['payableOther']['code'] . ' ' }}
+                                {{ $allPayableTypeData['payableOther']['name'] }}
+                            </option>
+                        @endif
+                    @endif
                     @foreach($otherDefault as $otherData)
-                        <option
-                            value="{{ $otherData['grade_id_fk'] }}">{{ $otherData['code'] . ' ' . $otherData['name'] }}
-                        </option>
+{{--                        @if($method === 'create')--}}
+{{--                            <option--}}
+{{--                                value="{{ $otherData['grade_id_fk'] }}">{{ $otherData['code'] . ' ' . $otherData['name'] }}--}}
+{{--                            </option>--}}
+{{--                        @elseif(count($allPayableTypeData['payableOther']) > 0 &&--}}
+{{--                            !in_array($allPayableTypeData['payableOther']['grade_id_fk'], $otherData))--}}
+                            <option
+                                value="{{ $otherData['grade_id_fk'] }}">{{ $otherData['code'] . ' ' . $otherData['name'] }}
+                            </option>
+{{--                        @endif--}}
+                        {{--                            value="{{ $currencyData['currency_id'] }}">{{ $currencyData['currency'] }}--}}
                     @endforeach
                 </select>
             </div>
@@ -263,13 +375,13 @@
                            name="payment_date"
                            required
                            type="date"
-                           value="{{ old('payment_date', $data->payment_date ?? '') }}"/>
+                           value="{{ old('payment_date', $payment_date ?? '') }}"/>
                 </x-b-form-group>
                 <x-b-form-group name="note" title="備註" required="false">
                     <input class="form-control @error('note') is-invalid @enderror"
                            name="note"
                            type="text"
-                           value="{{ old('note', $data->note ?? '') }}"/>
+                           value="{{ old('note', $payableData->note ?? '') }}"/>
                 </x-b-form-group>
             </div>
             <div>

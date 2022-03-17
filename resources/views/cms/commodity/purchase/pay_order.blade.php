@@ -17,12 +17,14 @@
     <button type="button" class="btn btn-primary">
         @if($hasReceivedPayment)
         <a href="{{ Route('cms.ap.edit', ['payOrdId' => $payOrdId,
+                                         'id' => $accountPayableId,
                                          'payOrdType' => 'pcs',
                                          'isFinalPay' => ($type === 'final' ? 1 : 0),
                                          'purchaseId' => $id], true) }}"
            class="text-white">編輯付款</a>
         @else
         <a href="{{ Route('cms.ap.create', ['payOrdId' => $payOrdId,
+                                             'id' => $accountPayableId,
                                             'payOrdType' => 'pcs',
                                             'isFinalPay' => ($type === 'final' ? 1 : 0),
                                             'purchaseId' => $id], true) }}"

@@ -592,6 +592,7 @@ class PurchaseCtrl extends Controller
         return view('cms.commodity.purchase.pay_order', [
             'id' => $id,
             'accountant' => $accountant ?? '',
+            'accountPayableId' => $accountPayable->id ?? null,
             'payOrdId' => $payingOrderData->id,
             'type' => ($validatedReq['type'] === '0') ? 'deposit' : 'final',
             'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],

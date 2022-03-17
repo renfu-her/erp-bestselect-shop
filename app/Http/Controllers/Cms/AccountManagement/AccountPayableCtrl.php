@@ -141,8 +141,120 @@ class AccountPayableCtrl extends Controller
      * @param  \App\Models\AccountPayable  $accountPayable
      * @return \Illuminate\Http\Response
      */
-    public function edit(AccountPayable $accountPayable)
+    public function edit(AccountPayable $accountPayable, Request $request, int $id)
     {
+        $request->validate([
+            'payOrdType'    => ['required', 'string', 'regex:/^(pcs)$/'],
+            'payOrdId' => ['required', 'int', 'min:1']
+        ]);
+
+        $payOrdId = $request['payOrdId'];
+
+        $payableData = $accountPayable::find($id);
+        $payableType = $payableData->acc_income_type_fk;
+
+        $payableTypeData = $payableData->payable;
+        $grade = $payableTypeData->grade;
+
+        switch ($payableType) {
+            case Payment::Cash:
+                $payableCash = [
+                    'grade_id_fk' => $grade->id,
+                    'code' => $grade->code,
+                    'name' => $grade->name,
+                ];
+                break;
+            case Payment::Cheque:
+                $payableCheque = [
+                    'grade_id_fk' => $grade->id,
+                    'code' => $grade->code,
+                    'name' => $grade->name,
+                    'check_num' => $payableTypeData->check_num,
+                    'grade_type' => $payableTypeData->grade_type,
+                    'maturity_date' => explode(' ', $payableTypeData->maturity_date)[0],
+                    'cash_cheque_date' => explode(' ', $payableTypeData->cash_cheque_date)[0],
+                    'cheque_status' => $payableTypeData->cheque_status,
+                ];
+                break;
+            case Payment::Remittance:
+                $payableRemit = [
+                    'grade_id_fk' => $grade->id,
+                    'code' => $grade->code,
+                    'name' => $grade->name,
+                    'remit_date' => explode(' ', $payableTypeData->remit_date)[0],
+                ];
+                break;
+            case Payment::ForeignCurrency:
+                $payableForeignCurrency = [
+                    'grade_id_fk' => $grade->id,
+                    'code' => $grade->code,
+                    'name' => $grade->name,
+                    'foreign_currency' => $payableTypeData->foreign_currency,
+                    'rate' => $payableTypeData->rate,
+                    'acc_currency_fk' => $payableTypeData->acc_currency_fk,
+                ];
+                break;
+            case Payment::AccountsPayable:
+                $payableAccount = [
+                    'grade_id_fk' => $grade->id,
+                    'code' => $grade->code,
+                    'name' => $grade->name,
+                ];
+                break;
+            case Payment::Other:
+                $payableOther = [
+                    'grade_id_fk' => $grade->id,
+                    'code' => $grade->code,
+                    'name' => $grade->name,
+                ];
+                break;
+        }
+        $allPayableTypeData = [
+          'payableCash' => $payableCash ?? [],
+          'payableCheque' => $payableCheque ?? [],
+          'payableRemit' => $payableRemit ?? [],
+          'payableForeignCurrency' => $payableForeignCurrency ?? [],
+          'payableAccount' => $payableAccount ?? [],
+          'payableOther' => $payableOther ?? [],
+        ];
+
+        $payOrder = PayingOrder::find($payOrdId);
+        $thirdGradesDataList = IncomeExpenditure::getOptionDataByGrade(3);
+        $fourthGradesDataList = IncomeExpenditure::getOptionDataByGrade(4);
+        $currencyData = IncomeExpenditure::getCurrencyOptionData();
+
+        $payStatusArray = [
+            [
+                'id' => PayableStatus::Unpaid,
+                'payment_status' => PayableStatus::getDescription(PayableStatus::Unpaid)
+            ],
+            [
+                'id' => PayableStatus::Paid,
+                'payment_status' => PayableStatus::getDescription(PayableStatus::Paid)
+            ]
+        ];
+
+        return view('cms.account_management.account_payable.edit', [
+            'tw_price' => $payableData->tw_price,
+            'payableData' => $payableData,
+            'allPayableTypeData' => $allPayableTypeData,
+            'payment_date' => explode(' ', $payableData->payment_date)[0],
+//            'note' => $payableData->note ?? '',
+            'thirdGradesDataList' => $thirdGradesDataList,
+            'fourthGradesDataList' => $fourthGradesDataList,
+            'cashDefault' => AccountPayable::getThirdGradeDefaultById(1),
+            'chequeDefault' => AccountPayable::getFourthGradeDefaultById(2),
+            'remitDefault' => AccountPayable::getFourthGradeDefaultById(3),
+            'currencyDefault' => AccountPayable::getFourthGradeDefaultById(4),
+            'accountPayableDefault' => AccountPayable::getFourthGradeDefaultById(5),
+            'otherDefault' => AccountPayable::getThirdGradeDefaultById(6),
+            'paymentStatusList' => $payStatusArray,
+            'currencyData' => $currencyData,
+            'method' => 'edit',
+            'transactTypeList' => AccountPayable::getTransactTypeList(),
+            'chequeStatus' => AccountPayable::getChequeStatus(),
+            'formAction' => Route('cms.ap.update'),
+        ]);
         //
     }
 
