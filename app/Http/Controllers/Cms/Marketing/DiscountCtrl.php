@@ -5,8 +5,12 @@ namespace App\Http\Controllers\Cms\Marketing;
 use App\Enums\Discount\DisMethod;
 use App\Enums\Discount\DisStatus;
 use App\Http\Controllers\Controller;
+use App\Models\Collection;
+use App\Models\Discount;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
+
 
 class DiscountCtrl extends Controller
 {
@@ -29,7 +33,7 @@ class DiscountCtrl extends Controller
         $cond['end_date'] = Arr::get($query, 'end_date');
         $cond['is_global'] = Arr::get($query, 'is_global');
 
-     //   $cond['status_code'] = $cond['status_code'] ? explode(',', $cond['status_code']) : [];
+        //   $cond['status_code'] = $cond['status_code'] ? explode(',', $cond['status_code']) : [];
         return view('cms.marketing.discount.list', [
             'dataList' => [],
             'dis_methods' => DisMethod::getValueWithDesc(),
@@ -46,9 +50,13 @@ class DiscountCtrl extends Controller
      */
     public function create()
     {
+        // dd('aa');
         //
         return view('cms.marketing.discount.edit', [
-            'method' => 'create'
+            'method' => 'create',
+            'dis_methods' => DisMethod::getValueWithDesc(),
+            'collections' => Collection::select('id', 'name')->get(),
+            'formAction' => Route("cms.discount.create"),
         ]);
     }
 
@@ -61,6 +69,18 @@ class DiscountCtrl extends Controller
     public function store(Request $request)
     {
         //
+        $request->validate([
+            'title' => 'required',
+            'method_code' => ['required', Rule::in(array_keys(DisMethod::getValueWithDesc()))],
+            'start_date' => 'required|date',
+            'end_date' => 'required|date',
+            
+        ]);
+
+        $d = $request->all();
+
+        dd($d);
+      //   $id = Discount::createDiscount($d['title'],DisMethod::$d['method_code']()->value,);
     }
 
     /**
@@ -85,7 +105,7 @@ class DiscountCtrl extends Controller
         //
         return view('cms.marketing.discount.edit', [
             'method' => 'edit',
-            'breadcrumb_data' => '現折優惠'
+            'breadcrumb_data' => '現折優惠',
         ]);
     }
 
