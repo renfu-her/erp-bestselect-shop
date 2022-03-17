@@ -17,6 +17,7 @@ use App\Models\PayingOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Enums\Payable\PayableStatus;
+use Illuminate\Support\Facades\DB;
 
 class AccountPayableCtrl extends Controller
 {
@@ -25,9 +26,32 @@ class AccountPayableCtrl extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(AccountPayable $accountPayable)
     {
-        //
+        $payableDataList = $accountPayable->all();
+
+        $dataList = [];
+        foreach ($payableDataList as $payableData) {
+            $payingOrderRepresentative = DB::table('usr_users')
+                                                ->find($payableData->payingOrder->usr_users_id, 'name')
+                                                ->name;
+            $accountant = DB::table('usr_users')
+                            ->find($payableData->accountant_id_fk, 'name')
+                            ->name;
+            $dataList[] = [
+                'tw_price' => $payableData->tw_price,
+                //TODO use Enum Type to define PayingOrder Model
+                'payingOrderType' => '採購',
+                'paying_order_sn' => $payableData->payingOrder->sn,
+                'paying_order_representative' => $payingOrderRepresentative,
+                'payableTypeName' => AccountPayable::getPayableNameByModelName($payableData->payable_type),
+                'accountant' => $accountant,
+            ];
+        }
+
+        return view('cms.account_management.account_payable.list', [
+            'dataList' => $dataList,
+        ]);
     }
 
     /**

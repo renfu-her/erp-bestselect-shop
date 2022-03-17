@@ -97,23 +97,23 @@ return
             ],
         ],
     ],
-//    [
-//        "title" => "帳務管理",
-//        "icon" => "bi-cash-coin",
-//        "menu_id" => "4",
-//        "child" => [
-//            [
-//                "title" => "付款作業",
-//                "controller_name" => "AccountPayableCtrl",
-//                "route_name" => "cms.ap.index",
-//            ],
+    [
+        "title" => "帳務管理",
+        "icon" => "bi-cash-coin",
+        "menu_id" => "4",
+        "child" => [
+            [
+                "title" => "付款作業",
+                "controller_name" => "AccountPayableCtrl",
+                "route_name" => "cms.ap.index",
+            ],
 //            [
 //                "title" => "收款作業",
 //                "controller_name" => "AccountReceivedCtrl",
 //                "route_name" => "cms.ar.index",
 //            ],
-//        ],
-//    ],
+        ],
+    ],
     [
         "title" => "總帳會計",
         "icon" => "bi-journal-text",
