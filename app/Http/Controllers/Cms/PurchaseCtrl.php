@@ -554,6 +554,13 @@ class PurchaseCtrl extends Controller
                 $tempTotalPrice = $validatedReq['price'];
             }
 
+            //TODO 檢查是否儲存
+//            $tempLogisticsPrice = 0;
+//            if (isset($request['logistics_price']) &&
+//                $request['logistics_price'] > 0) {
+//                $tempLogisticsPrice = $request['logistics_price'];
+//            }
+
             PayingOrder::createPayingOrder(
                 $id,
                 $request->user()->id,
@@ -618,6 +625,7 @@ class PurchaseCtrl extends Controller
             'payingOrderData' => $payingOrderData,
             'depositPaymentData' => $depositPaymentData,
             'finalPaymentPrice' => $paymentPrice['finalPaymentPrice'],
+            'logisticsPrice' => $paymentPrice['logisticsPrice'],
             'purchaseItemData' => $purchaseItemData,
             'chargemen' => $chargemen,
             'undertaker' => $undertaker,
@@ -680,17 +688,23 @@ class PurchaseCtrl extends Controller
     /**
      * @param  int  $purchaseId
      * 計算付款單的金額，並回傳
-     * @return array 回傳付款單（訂金、尾款）的金額 array index:depositPaymentPrice, finalPaymentPrice, totalPrice
+     * @return array 回傳付款單（訂金、尾款、運費）的金額 array index:depositPaymentPrice, finalPaymentPrice, logisticsPrice, totalPrice
      */
     public function getPaymentPrice(int $purchaseId)
     {
         $depositPaymentPrice = 0;
         $finalPaymentPrice = 0;
         $totalPrice = 0;
+
         $purchaseItemData = PurchaseItem::getPurchaseItemsByPurchaseId($purchaseId);
         foreach ($purchaseItemData as $purchaseItem) {
             $totalPrice += $purchaseItem->total_price;
         }
+        $logisticsPrice = DB::table('pcs_purchase')
+                            ->find($purchaseId, 'logistics_price')
+                            ->logistics_price;
+        $totalPrice += $logisticsPrice;
+
         $depositPaymentOrder = PayingOrder::getPayingOrdersWithPurchaseID($purchaseId, 0)->get()->first();
         if ($depositPaymentOrder) {
             $depositPaymentPrice = $depositPaymentOrder->price;
@@ -703,6 +717,7 @@ class PurchaseCtrl extends Controller
         return [
             'depositPaymentPrice' => $depositPaymentPrice,
             'finalPaymentPrice'   => $finalPaymentPrice,
+            'logisticsPrice'      => $logisticsPrice,
             'totalPrice'          => $totalPrice,
         ];
     }

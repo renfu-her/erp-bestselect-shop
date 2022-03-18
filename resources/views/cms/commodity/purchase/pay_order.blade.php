@@ -153,6 +153,15 @@
                                     <td>{{ $purchaseItem->memo }}</td>
                                 </tr>
                             @endforeach
+                            @if($logisticsPrice > 0)
+                                <tr>
+                                    <td>物流費用</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>{{ $logisticsPrice }}</td>
+                                    <td></td>
+                                </tr>
+                            @endif
                             @if(!is_null($depositPaymentData))
                                 <tr>
                                     <td>訂金抵扣（訂金付款單號{{ $depositPaymentData->sn }}）</td>
