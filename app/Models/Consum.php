@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 class Consum extends Model
 {
     use HasFactory;
-    protected $table = 'lgt_consum';
+    protected $table = 'dlv_consum';
 //    public $timestamps = false;
     protected $guarded = [];
 
@@ -120,8 +120,8 @@ class Consum extends Model
             'created_at' => 'consum.created_at',
             ]);
 
-        $result = DB::table('lgt_logistic as logistic')
-            ->leftJoin('lgt_consum as consum', 'consum.logistic_id', '=', 'logistic.id')
+        $result = DB::table('dlv_logistic as logistic')
+            ->leftJoin('dlv_consum as consum', 'consum.logistic_id', '=', 'logistic.id')
             ->select('logistic.sn as logistic_sn'
                 , 'consum.logistic_id as logistic_id'
                 , 'consum.product_style_id as product_style_id'

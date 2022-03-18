@@ -11,7 +11,7 @@ class Logistic extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'lgt_logistic';
+    protected $table = 'dlv_logistic';
     protected $guarded = [];
 
     public static function getData($id) {
