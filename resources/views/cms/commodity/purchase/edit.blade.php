@@ -481,7 +481,7 @@
             };
 
             $('#finalPayment').click(function (e) {
-                $('#form1').attr('action', `{!! Route('cms.purchase.pay-order', ['id' => $id, 'type' =>'1']) !!}`)
+                $('#form1').attr('action', `{!! Route('cms.purchase.pay-order', ['id' => $id ?? '0', 'type' =>'1']) !!}`)
                     .submit(function (e) {
                         // 儲存前設定name
                         if ($('#supplier').length) {
