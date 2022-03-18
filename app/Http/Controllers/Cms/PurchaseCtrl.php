@@ -541,32 +541,17 @@ class PurchaseCtrl extends Controller
 
         //產生付款單
         if ($request->isMethod('POST')) {
-            $tempTotalPrice = 0;
-            if ($validatedReq['type'] === '1' &&
-                is_array($validatedReq['price'])) {
-                foreach ($validatedReq['price'] as $tempPrice) {
-                    $tempTotalPrice += $tempPrice;
-                }
-                $depositPrice = self::getPaymentPrice($id)['depositPaymentPrice'];
-                if ($depositPrice > 0) {
-                    $tempTotalPrice = $tempTotalPrice - $depositPrice;
-                }
-            } else {
-                $tempTotalPrice = $validatedReq['price'];
+            if ($validatedReq['type'] === '1') {
+                $totalPrice = self::getPaymentPrice($id)['finalPaymentPrice'];
+            } elseif (isset($validatedReq['price'])) {
+                $totalPrice = intval($validatedReq['price']);
             }
-
-            //TODO 檢查是否儲存
-//            $tempLogisticsPrice = 0;
-//            if (isset($request['logistics_price']) &&
-//                $request['logistics_price'] > 0) {
-//                $tempLogisticsPrice = $request['logistics_price'];
-//            }
 
             PayingOrder::createPayingOrder(
                 $id,
                 $request->user()->id,
                 $validatedReq['type'],
-                $tempTotalPrice,
+                $totalPrice ?? 0,
                 null,
                 $request['deposit_summary'] ?? '',
                 $request['deposit_memo'] ?? '',
