@@ -89,8 +89,8 @@ class CreateReceiveDepotTable extends Migration
             $table->integer('delivery_id')->comment('訂單id');
             $table->string('status', 10)->comment('狀態名稱');
             $table->string('status_code', 10)->comment('代碼');
-            $table->unsignedBigInteger('user_id')->comment('新增者');
-            $table->string('user_name')->comment('新增者名稱');
+            $table->unsignedBigInteger('user_id')->nullable()->comment('新增者');
+            $table->string('user_name')->nullable()->comment('新增者名稱');
             $table->timestamps();
         });
     }
