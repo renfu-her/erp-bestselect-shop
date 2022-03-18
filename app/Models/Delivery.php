@@ -74,9 +74,9 @@ class Delivery extends Model
     }
 
     //更新物流狀態
-    public static function updateLogisticStatus($event, $event_id, $logistic_status_id)
+    public static function updateLogisticStatus($event, $event_id, $logistic_status_code)
     {
-        $logistic_status = LogisticStatus::where('id', $logistic_status_id);
+        $logistic_status = LogisticStatus::where('code', $logistic_status_code);
         $logistic_status_get = $logistic_status->get()->first();
         if (null == $logistic_status_get) {
             return ['success' => 0, 'error_msg' => '無此物流狀態'];
@@ -93,7 +93,7 @@ class Delivery extends Model
             ) {
                 $data->update([
                     'logistic_status' => $logistic_status_get->title,
-                    'logistic_status_id' => $logistic_status_get->id,
+                    'logistic_status_code' => $logistic_status_get->code,
                 ]);
                 LogisticFlow::changeDeliveryStatus($dataGet->id, $logistic_status_get);
                 return ['success' => 1, 'error_msg' => "", 'id' => $dataGet->id];
@@ -189,7 +189,7 @@ class Delivery extends Model
                 , 'delivery.ship_depot_id'
                 , 'delivery.ship_depot_name'
                 , 'delivery.ship_group_id'
-                , 'delivery.logistic_status_id'
+                , 'delivery.logistic_status_code'
                 , 'delivery.logistic_status'
                 , 'delivery.memo'
                 , 'delivery.audit_date'
@@ -212,8 +212,8 @@ class Delivery extends Model
         if (isset($param['ship_method']) && 0 < count($param['ship_method'])) {
             $query->whereIn('shi_method.method', $param['ship_method']);
         }
-        if (isset($param['logistic_status_id']) && 0 < count($param['logistic_status_id'])) {
-            $query->whereIn('delivery.logistic_status_id', $param['logistic_status_id']);
+        if (isset($param['logistic_status_code']) && 0 < count($param['logistic_status_code'])) {
+            $query->whereIn('delivery.logistic_status_code', $param['logistic_status_code']);
         }
         if (isset($param['order_sdate']) && isset($param['order_edate'])) {
             $order_sdate = date('Y-m-d 00:00:00', strtotime($param['order_sdate']));
