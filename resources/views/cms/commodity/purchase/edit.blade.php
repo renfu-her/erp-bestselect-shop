@@ -292,6 +292,8 @@
                                     付款單號-{{ $depositPayData->sn }}
                                 </a>
                                 </button>
+                            @elseif($hasCreatedFinalPayment)
+                                已先建立尾款（無訂金付款單）
                             @elseif($hasReceivedFinalPayment)
                                 已付完尾款（無訂金付款單）
                             @else
