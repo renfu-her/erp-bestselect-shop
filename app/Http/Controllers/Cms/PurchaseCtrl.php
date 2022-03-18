@@ -538,19 +538,19 @@ class PurchaseCtrl extends Controller
         ]);
 
         $validatedReq = $val->validated();
+        $paymentPrice = self::getPaymentPrice($id);
         if ($request->isMethod('POST')) {
             PayingOrder::createPayingOrder(
                 $id,
                 $request->user()->id,
                 $validatedReq['type'],
-                $validatedReq['price'],
+                $validatedReq['type'] === 0 ? $validatedReq['price'] : $paymentPrice['finalPaymentPrice'],
                 null,
-                $validatedReq['summary'],
-                $validatedReq['memo'],
+                '',
+                '',
             );
         }
 
-        $paymentPrice = self::getPaymentPrice($id);
         if ($paymentPrice['depositPaymentPrice'] > 0) {
             $depositPaymentData = PayingOrder::getPayingOrdersWithPurchaseID($id, 0)->get()->first();
         } else {
