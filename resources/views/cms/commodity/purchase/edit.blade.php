@@ -285,28 +285,38 @@
                 <div class="row">
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">訂金付款單@if($hasCreatedDepositPayment && $hasReceivedDepositPayment)<span class="text-danger">（已付完訂金）</span>@endif</label>
-                        <div class="form-control" readonly>
+                        <div class="form-control p-sm-1" readonly>
                             @if($hasCreatedDepositPayment)
+                                <button type="button" class="btn btn-link btn-sm">
                                 <a href="{{ Route('cms.purchase.view-pay-order', ['id' => $id, 'type' => '0'], true) }}" >
                                     付款單號-{{ $depositPayData->sn }}
                                 </a>
+                                </button>
+                            @elseif($hasCreatedFinalPayment)
+                                已先建立尾款（無訂金付款單）
+                            @elseif($hasReceivedFinalPayment)
+                                已付完尾款（無訂金付款單）
                             @else
+                                <button type="button" class="btn btn-link btn-sm">
                                 <a href="{{ Route('cms.purchase.pay-deposit', ['id' => $id], true) }}">新增付款單</a>
+                                </button>
                             @endif
                         </div>
                     </div>
                     <div class="col-12 col-sm-6 mb-3 ">
                         <label class="form-label">尾款付款單@if($hasCreatedFinalPayment && $hasReceivedFinalPayment)<span class="text-danger">（已付完尾款）</span>@endif</label>
-                        <div class="form-control" readonly>
+                        <div class="form-control p-sm-1" readonly>
                             @if($hasCreatedFinalPayment)
+                                <button type="button" class="btn btn-link btn-sm">
                                 <a href="{{ Route('cms.purchase.view-pay-order', ['id' => $id, 'type' => '1'], true) }}">
                                     付款單號-{{ $finalPayData->sn }}
                                 </a>
+                                </button>
                             @else
                                 @if($hasCreatedDepositPayment && !$hasReceivedDepositPayment)
                                     尚未收到訂金
                                 @else
-                                    <a href="{{ Route('cms.purchase.pay-final', ['id' => $id], true) }}">新增付款單</a>
+                                    <button type="submit" id="finalPayment" class="btn btn-link btn-sm">新增付款單</button>
                                 @endif
                             @endif
                         </div>
@@ -470,8 +480,19 @@
                 }
             };
 
+            $('#finalPayment').click(function (e) {
+                $('#form1').attr('action', `{!! Route('cms.purchase.pay-order', ['id' => $id ?? '0', 'type' =>'1']) !!}`)
+                    .submit(function (e) {
+                        // 儲存前設定name
+                        if ($('#supplier').length) {
+                            $('input:hidden[name="supplier"]').val($('#supplier').val());
+                        }
+                    })
+                ;
+            });
+
             // 儲存前設定name
-            $('#form1').submit(function(e) {
+            $('#form1').submit(function (e) {
                 if ($('#supplier').length) {
                     $('input:hidden[name="supplier"]').val($('#supplier').val());
                 }

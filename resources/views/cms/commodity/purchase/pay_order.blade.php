@@ -15,15 +15,19 @@
 {{--    <button type="submit" class="btn btn-primary">變更支付對象</button>--}}
 {{--    <button type="submit" class="btn btn-primary">取消訂金折抵</button>--}}
     <button type="button" class="btn btn-primary">
-        @if($hasAccountPayable)
-        <a href="{{ Route('cms.ap.edit', ['payOrdId' => $id,
+        @if($hasReceivedPayment)
+        <a href="{{ Route('cms.ap.edit', ['payOrdId' => $payOrdId,
+                                         'id' => $accountPayableId,
                                          'payOrdType' => 'pcs',
-                                         'isFinalPay' => ($type === 'final' ? 1 : 0)], true) }}"
+                                         'isFinalPay' => ($type === 'final' ? 1 : 0),
+                                         'purchaseId' => $id], true) }}"
            class="text-white">編輯付款</a>
         @else
-        <a href="{{ Route('cms.ap.create', ['payOrdId' => $id,
+        <a href="{{ Route('cms.ap.create', ['payOrdId' => $payOrdId,
+                                             'id' => $accountPayableId,
                                             'payOrdType' => 'pcs',
-                                            'isFinalPay' => ($type === 'final' ? 1 : 0)], true) }}"
+                                            'isFinalPay' => ($type === 'final' ? 1 : 0),
+                                            'purchaseId' => $id], true) }}"
            class="text-white">付款</a>
         @endif
     </button>
@@ -149,6 +153,15 @@
                                     <td>{{ $purchaseItem->memo }}</td>
                                 </tr>
                             @endforeach
+                            @if($logisticsPrice > 0)
+                                <tr>
+                                    <td>物流費用</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>{{ $logisticsPrice }}</td>
+                                    <td></td>
+                                </tr>
+                            @endif
                             @if(!is_null($depositPaymentData))
                                 <tr>
                                     <td>訂金抵扣（訂金付款單號{{ $depositPaymentData->sn }}）</td>
@@ -178,7 +191,11 @@
                         <dd></dd>
                     </div>
                     <div class="col">
-                        <dt>會計：</dt>
+                        <dt>會計：
+                            @if($hasReceivedPayment)
+                                {{ $accountant ?? '' }}
+                            @endif
+                        </dt>
                         <dd></dd>
                     </div>
                     <div class="col">
@@ -201,8 +218,8 @@
             <div class="col-auto">
                 <input type="hidden" name="del_item_id">
                 {{--                    <button type="submit" class="btn btn-primary px-4">儲存</button>--}}
-                <a href="" class="btn btn-primary px-4"
-                   role="button">返回「付款作業」列表（會計專用）</a>
+                <a href="{{ Route('cms.ap.index') }}" class="btn btn-primary px-4"
+                   role="button">返回「付款作業」列表</a>
                 <a href="{{ Route('cms.purchase.edit', ['id' => $id], true) }}" class="btn btn-outline-primary px-4"
                    role="button">返回採購單資訊</a>
             </div>

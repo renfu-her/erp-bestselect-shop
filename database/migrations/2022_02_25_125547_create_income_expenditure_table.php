@@ -100,7 +100,7 @@ class CreateIncomeExpenditureTable extends Migration
                 $table->unsignedBigInteger('acc_income_type_fk')->comment('付款方式, foreign key');
                 $table->foreign('acc_income_type_fk')->references('id')->on('acc_income_type');
 
-                $table->string('payable_type')->comment('付款方式(支票、匯款、外幣)對應的model class name, 另外3種付款方式(現金、應付帳款、其它)為null');
+                $table->string('payable_type')->comment('付款方式(支票、匯款、外幣、現金、應付帳款、其它)對應的model class name');
                 $table->unsignedBigInteger('payable_id')->comment('對應付款方式(支票、匯款、外幣、現金、應付帳款、其它)table的primary id');
 
                 $table->decimal('tw_price')->comment('金額(新台幣)');

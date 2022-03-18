@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Payable\ChequeStatus;
+use App\Enums\Payable\PayableModelType;
 use App\Enums\Supplier\Payment;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -48,7 +49,7 @@ class AccountPayable extends Model
 
     /**
      * 取得所有付款方式
-     * @return array key變數名稱  , name:中文描述
+     * @return array key變數名稱  , name:中文描述 , value: primary_id
      */
     public static function getTransactTypeList()
     {
@@ -75,6 +76,22 @@ class AccountPayable extends Model
         }
 
         return $dataArray;
+    }
+
+    /**
+     * @param $modelName \App\Models\PayingOrder
+     *
+     * @return string 採購、出貨、物流
+     */
+    public static function getPayableNameByModelName($modelName)
+    {
+        $dataArray = [];
+        foreach (PayableModelType::asArray() as $value) {
+            $dataArray[$value] = PayableModelType::getDescription($value);
+        }
+        $name = Payment::getDescription(array_search($modelName, $dataArray, true));
+
+        return $name;
     }
 
     /**

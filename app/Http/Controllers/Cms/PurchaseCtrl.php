@@ -249,7 +249,7 @@ class PurchaseCtrl extends Controller
 
         $hasCreatedDepositPayment = false;  // 是否已有訂金單
         $hasCreatedFinalPayment = false;  // 是否已有尾款單
-        //TODO 讀取「付款作業」相關的database table欄位來決定是否以付款, 目前尚未設計， 暫定true
+        //TODO Design Enum Type 訂金、尾款單（建立與否、付款與否)
         $hasReceivedDepositPayment = false;
         $hasReceivedFinalPayment = false;
         $payingOrderList = PayingOrder::getPayingOrdersWithPurchaseID($id)->get();
@@ -258,19 +258,18 @@ class PurchaseCtrl extends Controller
         $finalPayData = null;
         if (0 < count($payingOrderList)) {
             foreach ($payingOrderList as $payingOrderItem) {
+                $payingOrderId = $payingOrderItem->id;
                 if ($payingOrderItem->type === 0) {
                     $hasCreatedDepositPayment = true;
                     $depositPayData = $payingOrderItem;
-                    if (null != $payingOrderItem->pay_date) {
+                    if (PayingOrder::find($payingOrderId)->accountPayable) {
                         $hasReceivedDepositPayment = true;
                     }
-                } else {
-                    if ($payingOrderItem->type === 1) {
-                        $hasCreatedFinalPayment = true;
-                        $finalPayData = $payingOrderItem;
-                        if (null != $payingOrderItem->pay_date) {
-                            $hasReceivedFinalPayment = true;
-                        }
+                } elseif ($payingOrderItem->type === 1) {
+                    $hasCreatedFinalPayment = true;
+                    $finalPayData = $payingOrderItem;
+                    if (PayingOrder::find($payingOrderId)->accountPayable) {
+                        $hasReceivedFinalPayment = true;
                     }
                 }
             }
@@ -525,7 +524,7 @@ class PurchaseCtrl extends Controller
 
     /**
      * @param  Request  $request
-     * @param  int  $id
+     * @param  int  $id purchase_id 採購單ID
      * 處理付款單訊息、顯示付款單
      * @return void
      */
@@ -539,15 +538,37 @@ class PurchaseCtrl extends Controller
         ]);
 
         $validatedReq = $val->validated();
+
         if ($request->isMethod('POST')) {
+            $tempTotalPrice = 0;
+            if ($validatedReq['type'] === '1' &&
+                is_array($validatedReq['price'])) {
+                foreach ($validatedReq['price'] as $tempPrice) {
+                    $tempTotalPrice += $tempPrice;
+                }
+                $depositPrice = self::getPaymentPrice($id)['depositPaymentPrice'];
+                if ($depositPrice > 0) {
+                    $tempTotalPrice = $tempTotalPrice - $depositPrice;
+                }
+            } else {
+                $tempTotalPrice = $validatedReq['price'];
+            }
+
+            //TODO 檢查是否儲存
+//            $tempLogisticsPrice = 0;
+//            if (isset($request['logistics_price']) &&
+//                $request['logistics_price'] > 0) {
+//                $tempLogisticsPrice = $request['logistics_price'];
+//            }
+
             PayingOrder::createPayingOrder(
                 $id,
                 $request->user()->id,
                 $validatedReq['type'],
-                $validatedReq['price'],
+                $tempTotalPrice,
                 null,
-                $validatedReq['summary'],
-                $validatedReq['memo'],
+                '',
+                '',
             );
         }
 
@@ -582,18 +603,29 @@ class PurchaseCtrl extends Controller
                             ->where('id', '=', 1)
                             ->get()
                             ->first();
+        $accountPayable = PayingOrder::find($payingOrderData->id)->accountPayable;
+
+        if ($accountPayable) {
+            $accountant = DB::table('usr_users')
+                            ->find($accountPayable->accountant_id_fk, ['name'])
+                            ->name;
+        }
 
         return view('cms.commodity.purchase.pay_order', [
             'id' => $id,
+            'accountant' => $accountant ?? '',
+            'accountPayableId' => $accountPayable->id ?? null,
+            'payOrdId' => $payingOrderData->id,
             'type' => ($validatedReq['type'] === '0') ? 'deposit' : 'final',
             'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
             'formAction' => Route('cms.purchase.index', ['id' => $id,]),
             'supplierUrl' => Route('cms.supplier.edit', ['id' => $supplier->id,]),
             'purchaseData' => $purchaseData,
-            'hasAccountPayable' => is_null(PayingOrder::find($id)->accountPayable) ? false : true,
+            'hasReceivedPayment' => !is_null($accountPayable),
             'payingOrderData' => $payingOrderData,
             'depositPaymentData' => $depositPaymentData,
             'finalPaymentPrice' => $paymentPrice['finalPaymentPrice'],
+            'logisticsPrice' => $paymentPrice['logisticsPrice'],
             'purchaseItemData' => $purchaseItemData,
             'chargemen' => $chargemen,
             'undertaker' => $undertaker,
@@ -656,17 +688,23 @@ class PurchaseCtrl extends Controller
     /**
      * @param  int  $purchaseId
      * 計算付款單的金額，並回傳
-     * @return array 回傳付款單（訂金、尾款）的金額 array index:depositPaymentPrice, finalPaymentPrice, totalPrice
+     * @return array 回傳付款單（訂金、尾款、運費）的金額 array index:depositPaymentPrice, finalPaymentPrice, logisticsPrice, totalPrice
      */
     public function getPaymentPrice(int $purchaseId)
     {
         $depositPaymentPrice = 0;
         $finalPaymentPrice = 0;
         $totalPrice = 0;
+
         $purchaseItemData = PurchaseItem::getPurchaseItemsByPurchaseId($purchaseId);
         foreach ($purchaseItemData as $purchaseItem) {
             $totalPrice += $purchaseItem->total_price;
         }
+        $logisticsPrice = DB::table('pcs_purchase')
+                            ->find($purchaseId, 'logistics_price')
+                            ->logistics_price;
+        $totalPrice += $logisticsPrice;
+
         $depositPaymentOrder = PayingOrder::getPayingOrdersWithPurchaseID($purchaseId, 0)->get()->first();
         if ($depositPaymentOrder) {
             $depositPaymentPrice = $depositPaymentOrder->price;
@@ -679,6 +717,7 @@ class PurchaseCtrl extends Controller
         return [
             'depositPaymentPrice' => $depositPaymentPrice,
             'finalPaymentPrice'   => $finalPaymentPrice,
+            'logisticsPrice'      => $logisticsPrice,
             'totalPrice'          => $totalPrice,
         ];
     }
