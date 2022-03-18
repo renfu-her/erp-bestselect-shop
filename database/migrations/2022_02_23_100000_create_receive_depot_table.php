@@ -53,16 +53,6 @@ class CreateReceiveDepotTable extends Migration
             $table->softDeletes();
         });
 
-        Schema::create('dlv_logistic_status', function (Blueprint $table) {
-            $table->id();
-            $table->string('title', 15)->comment('名稱');
-            $table->string('content', 40)->comment('解說')->nullable();
-            $table->string('style', 20)->comment('樣式')->nullable();
-            $table->string('code', 15)->comment('代碼');
-
-            $table->unique(['code']);
-        });
-
         Schema::create('dlv_logistic_flow', function (Blueprint $table) {
             $table->id();
             $table->integer('delivery_id')->comment('訂單id');

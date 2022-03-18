@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Enums\Delivery\Event;
+use App\Enums\Delivery\LogisticStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Delivery;
 use App\Models\Depot;
-use App\Models\LogisticStatus;
 use App\Models\ReceiveDepot;
 use App\Models\SubOrders;
 use Illuminate\Http\Request;
@@ -36,7 +36,7 @@ class DeliveryCtrl extends Controller
         return view('cms.commodity.delivery.list', [
             'dataList' => $delivery,
             'depotList' => Depot::all(),
-            'logisticStatus' => LogisticStatus::all(),
+            'logisticStatus' => LogisticStatus::asArray(),
             'searchParam' => $cond,
             'data_per_page' => $cond['data_per_page']]);
     }
