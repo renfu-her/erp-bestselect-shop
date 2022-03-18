@@ -539,6 +539,7 @@ class PurchaseCtrl extends Controller
 
         $validatedReq = $val->validated();
 
+        //產生付款單
         if ($request->isMethod('POST')) {
             $tempTotalPrice = 0;
             if ($validatedReq['type'] === '1' &&
@@ -567,8 +568,8 @@ class PurchaseCtrl extends Controller
                 $validatedReq['type'],
                 $tempTotalPrice,
                 null,
-                '',
-                '',
+                $request['deposit_summary'] ?? '',
+                $request['deposit_memo'] ?? '',
             );
         }
 
