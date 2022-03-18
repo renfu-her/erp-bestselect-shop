@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Consum;
 use App\Models\Delivery;
 use App\Models\Logistic;
+use App\Models\ShipmentGroup;
 use App\Models\SubOrders;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -62,6 +63,7 @@ class LogisticCtrl extends Controller
             'logistic' => $logistic,
             'deliveryList' => $deliveryList,
             'defDeliveryCost' => $defDeliveryCost,
+            'shipmentGroup' => ShipmentGroup::all(), //物流列表
             'consumWithInboundList' => $consumWithInboundList,
             'formAction' => Route('cms.logistic.create', [$logistic_id], true)
         ]);
