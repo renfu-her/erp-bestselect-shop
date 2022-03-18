@@ -126,9 +126,9 @@
                             <th scope="row">{{ $key + 1 }}</th>
                             <td>{{ $data->title }}</td>
                             <td>{{ $data->method_title }}</td>
-                            <td {{-- @class([
-                                'text-success' => '進行中', 
-                                'text-danger' => '已結束']) --}}>
+                            <td @class([
+                                'text-success' => $data->status === '進行中', 
+                                'text-danger' => $data->status ==='已結束'])>
                                 {{ $data->status }}
                             </td>
                             <td>{{ $data->start_date }}</td>
