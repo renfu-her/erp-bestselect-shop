@@ -61,7 +61,7 @@ class Delivery extends Model
                 'ship_group_id' => $ship_group_id,
                 'memo' => $memo,
             ])->id;
-            $reDlvUpd = Delivery::updateLogisticStatus($event, $event_id, $logistic_status_get->id);
+            $reDlvUpd = Delivery::updateLogisticStatus($event, $event_id, $logistic_status_get->code);
             if ($reDlvUpd['success'] == 0) {
                 DB::rollBack();
                 return $reDlvUpd;
