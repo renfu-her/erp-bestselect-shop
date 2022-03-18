@@ -276,6 +276,9 @@
                                 @if (!$hasLogistics) hidden @endif>
                             <i class="bi bi-trash"></i> 刪除物流
                         </button>
+                        <mark class="fw-light small">
+                            <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>有修改需要<b>儲存</b>才會生效呦！
+                        </mark>
                     @endif
                 </div>
             </div>
