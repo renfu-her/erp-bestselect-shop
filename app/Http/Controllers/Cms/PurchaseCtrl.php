@@ -538,19 +538,34 @@ class PurchaseCtrl extends Controller
         ]);
 
         $validatedReq = $val->validated();
-        $paymentPrice = self::getPaymentPrice($id);
+
         if ($request->isMethod('POST')) {
+            $tempTotalPrice = 0;
+            if ($validatedReq['type'] === '1' &&
+                is_array($validatedReq['price'])) {
+                foreach ($validatedReq['price'] as $tempPrice) {
+                    $tempTotalPrice += $tempPrice;
+                }
+                $depositPrice = self::getPaymentPrice($id)['depositPaymentPrice'];
+                if ($depositPrice > 0) {
+                    $tempTotalPrice = $tempTotalPrice - $depositPrice;
+                }
+            } else {
+                $tempTotalPrice = $validatedReq['price'];
+            }
+
             PayingOrder::createPayingOrder(
                 $id,
                 $request->user()->id,
                 $validatedReq['type'],
-                $validatedReq['type'] === 0 ? $validatedReq['price'] : $paymentPrice['finalPaymentPrice'],
+                $tempTotalPrice,
                 null,
                 '',
                 '',
             );
         }
 
+        $paymentPrice = self::getPaymentPrice($id);
         if ($paymentPrice['depositPaymentPrice'] > 0) {
             $depositPaymentData = PayingOrder::getPayingOrdersWithPurchaseID($id, 0)->get()->first();
         } else {
