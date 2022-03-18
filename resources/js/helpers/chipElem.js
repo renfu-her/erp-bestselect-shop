@@ -1,9 +1,21 @@
 module.exports = class ElemChip {
    
-    constructor(baseElem) {
+    constructor(baseElem, value = '', allValuesObj = null) {
         this.onDelete = null;
         this.onAppend = null;
         this.baseElem = baseElem;
+        // init
+        this.init(value, allValuesObj);
+    }
+
+    init(value, allValuesObj) {
+        if (value && allValuesObj) {
+            if (typeof value === 'string') { value = value.split(','); }
+            value.forEach(item => {
+                this.add(item, allValuesObj[item]);
+            });
+        }
+        return value || [];
     }
 
     add(id, title) {

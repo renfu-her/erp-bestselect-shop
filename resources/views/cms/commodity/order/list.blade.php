@@ -94,7 +94,7 @@
                             <i class="bi bi-x-lg"></i>
                         </button>
                     </div>
-                    <input type="hidden" name="shipment_status" />
+                    <input type="hidden" name="shipment_status" value="{{ implode(',', $cond['shipment_status']) }}"/>
                     <div id="chip-group-shipment" class="d-flex flex-wrap bd-highlight chipGroup"></div>
 
                     <!-- Modal 說明 -->
@@ -114,7 +114,7 @@
                             <i class="bi bi-x-lg"></i>
                         </button>
                     </div>
-                    <input type="hidden" name="order_status" />
+                    <input type="hidden" name="order_status" value="{{ implode(',', $cond['order_status']) }}"/>
                     <div id="chip-group-order" class="d-flex flex-wrap bd-highlight chipGroup"></div>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
@@ -209,8 +209,11 @@
     </div>
     <div class="row flex-column-reverse flex-sm-row">
         <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">
-            {{-- 頁碼 --}}
-            <div class="d-flex justify-content-center">{{ $dataList->links() }}</div>
+            @if($dataList)
+                <div class="mx-3">共 {{ $dataList->lastPage() }} 頁(共找到 {{ $dataList->total() }} 筆資料)</div>
+                {{-- 頁碼 --}}
+                <div class="d-flex justify-content-center">{{ $dataList->links() }}</div>
+            @endif
         </div>
     </div>
 @endsection
@@ -226,62 +229,53 @@
             // Chip
 
             // - 物態
-            let shipmentStatus = @json($shipmentStatus);
-
-
-            let selectedShipment = @json($cond['shipment_status']);
+            let selectedShipment = $('input[name="shipment_status"]').val();
+            const shipmentStatus = @json($shipmentStatus) || [];
+            let all_shipmentStatus = {};
+            shipmentStatus.forEach(code => {
+                all_shipmentStatus[code.id] = code.title;
+            });
             let Chips_shipment = new ChipElem($('#chip-group-shipment'));
+            // - 訂單狀態
+            let selectedOrder = $('input[name="order_status"]').val();
+            const orderStatus = @json($orderStatus) || [];
+            let all_orderStatus = {};
+            orderStatus.forEach(status => {
+                all_orderStatus[status.id] = status.title;
+            });
+            let Chips_order = new ChipElem($('#chip-group-order'));
+
+            // 初始化
+            selectedShipment = Chips_shipment.init(selectedShipment, all_shipmentStatus);
+            selectedOrder = Chips_order.init(selectedOrder, all_orderStatus);
+
+            // 綁定事件
             Chips_shipment.onDelete = function(code) {
                 selectedShipment.splice(selectedShipment.indexOf(code), 1);
             };
-            // - 訂單狀態
-            let orderStatus = @json($orderStatus) || [];
-            let selectedOrder = @json($cond['order_status']) || [];
-            let Chips_order = new ChipElem($('#chip-group-order'));
             Chips_order.onDelete = function(id) {
                 selectedOrder.splice(selectedOrder.indexOf(id), 1);
             };
-
-            // 初始化
-            chipInit();
-
-            function chipInit() {
-                // - 物態
-                selectedShipment.map(function(code) {
-                    return shipmentStatus[shipmentStatus.map((v) => v.id).indexOf(code)];
-                }).forEach(function(code) {
-                    Chips_shipment.add(code.id, code.title);
-                });
-                // - 訂單狀態
-                selectedOrder.map(function(id) {
-                    return orderStatus[orderStatus.map((v) => v.id).indexOf(id)] || false;
-                }).forEach(function(status) {
-                    if (status) Chips_order.add(status.id, status.title);
-                });
-            }
-
-            // 綁定事件
             $('#shipment_status, #order_status').off('change.chips').on('change.chips', function(e) {
                 const id = $(this).attr('id');
                 const val = $(this).val();
+                const title = $(this).children(':selected').text();
 
                 switch (id) {
                     case 'shipment_status':
-                        let code = shipmentStatus[shipmentStatus.map((v) => v.id).indexOf(val)] || {};
-                        chipChangeEvent(selectedShipment, Chips_shipment, code.id, code.title);
+                        chipChangeEvent(selectedShipment, Chips_shipment, val, title);
                         break;
                     case 'order_status':
-                        let channel = orderStatus[orderStatus.map((v) => v.id).indexOf(val)] || {};
-                        chipChangeEvent(selectedOrder, Chips_order, channel.id, channel.title);
+                        chipChangeEvent(selectedOrder, Chips_order, val, title);
                         break;
                 }
 
                 $(this).val('');
 
-                function chipChangeEvent(thisSelected, thisChips, index, title) {
-                    if (thisSelected.indexOf(index) === -1) {
-                        thisSelected.push(index);
-                        thisChips.add(index, title);
+                function chipChangeEvent(thisSelected, thisChips, value, title) {
+                    if (thisSelected.indexOf(value) === -1) {
+                        thisSelected.push(value);
+                        thisChips.add(value, title);
                     }
                 }
             });

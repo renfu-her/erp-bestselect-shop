@@ -39,6 +39,23 @@ return
         ],
     ],
     [
+        "title" => "行銷設定",
+        "icon" => "bi-shop",
+        "menu_id" => "8",
+        "child" => [
+            [
+                "title" => "優惠劵 / 序號",
+                "controller_name" => "PromoCtrl",
+                "route_name" => "cms.promo.index",
+            ],
+            [
+                "title" => "現折優惠",
+                "controller_name" => "DiscountCtrl",
+                "route_name" => "cms.discount.index",
+            ],
+        ],
+    ],
+    [
         "title" => "設定",
         "icon" => "bi-sliders",
         "menu_id" => "2",

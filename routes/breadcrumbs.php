@@ -184,6 +184,42 @@ Breadcrumbs::for('cms.delivery.index', function (BreadcrumbTrail $trail) {
 });
 
 /**
+ * 行銷設定
+ **/
+
+// 現折優惠
+Breadcrumbs::for('cms.discount.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('現折優惠', route('cms.discount.index'));
+});
+// 新增現折優惠
+Breadcrumbs::for('cms.discount.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.discount.index');
+    $trail->push('新增現折優惠');
+});
+// 編輯 現折優惠
+Breadcrumbs::for('cms.discount.edit', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.discount.index');
+    $trail->push('[' . $value . '] 編輯');
+});
+
+// 優惠劵 / 序號
+Breadcrumbs::for('cms.promo.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('優惠券 / 序號', route('cms.promo.index'));
+});
+// 新增 優惠劵 / 序號
+Breadcrumbs::for('cms.promo.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.promo.index');
+    $trail->push('新增優惠劵 / 序號');
+});
+// 編輯 優惠劵 / 序號
+Breadcrumbs::for('cms.promo.edit', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.promo.index');
+    $trail->push('[' . $value . '] 編輯');
+});
+
+/**
  * 設定
  **/
 

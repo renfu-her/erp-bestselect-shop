@@ -34,7 +34,7 @@
                             <i class="bi bi-x-lg"></i>
                         </button>
                     </div>
-                    <input type="hidden" name="inbound_status">
+                    <input type="hidden" name="inbound_status" value="{{ $inbound_status }}">
                     <div id="chip-group-iStatus" class="d-flex flex-wrap bd-highlight chipGroup"></div>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
@@ -289,16 +289,11 @@
             });
 
             // region
-            let selectStatus = @json($inbound_status);
+            let selectStatus = $('input[name="inbound_status"]').val();
             let all_inbound_status = @json($all_inbound_status);
             let Chips_regions = new ChipElem($('#chip-group-iStatus'));
             // init
-            if (selectStatus) {
-                selectStatus = selectStatus.split(',');
-                selectStatus.forEach((status) => {
-                    Chips_regions.add(status, all_inbound_status[status]);
-                });
-            }
+            selectStatus = Chips_regions.init(selectStatus, all_inbound_status);
             // bind
             $('#iStatus').off('change.chips').on('change.chips', function(e) {
                 let region = { val: $(this).val(), title: $(this).children(':selected').text()};
