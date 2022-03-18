@@ -108,7 +108,7 @@ class ReceiveDepot extends Model
     }
 
     //將收貨資料變更為成立
-    public static function setUpShippingData($delivery_id) {
+    public static function setUpShippingData($delivery_id, $user_id, $user_name) {
         $dataGet = null;
         if (null != $delivery_id) {
             $data = ReceiveDepot::where('delivery_id', $delivery_id);
@@ -116,7 +116,7 @@ class ReceiveDepot extends Model
         }
         $result = null;
         if (null != $dataGet && 0 < count($dataGet)) {
-                $result = DB::transaction(function () use ($data, $dataGet, $delivery_id
+                $result = DB::transaction(function () use ($data, $dataGet, $delivery_id, $user_id, $user_name
                 ) {
                     //扣除入庫單庫存
                     foreach ($dataGet as $item) {
@@ -131,6 +131,8 @@ class ReceiveDepot extends Model
 
                     $data->update([
                         'audit_date' => $curr_date,
+                        'audit_user_id' => $user_id,
+                        'audit_user_name' => $user_name,
                     ]);
                     return ['success' => 1, 'error_msg' => ""];
                 });

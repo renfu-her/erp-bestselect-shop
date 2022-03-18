@@ -73,7 +73,7 @@ class Consum extends Model
     }
 
     //將物流資料變更為成立
-    public static function setUpLogisticData($logistic_id) {
+    public static function setUpLogisticData($logistic_id, $user_id, $user_name) {
         $dataGet = null;
         if (null != $logistic_id) {
             $data = Consum::where('logistic_id', $logistic_id);
@@ -81,7 +81,7 @@ class Consum extends Model
         }
         $result = null;
         if (null != $dataGet && 0 < count($dataGet)) {
-            $result = DB::transaction(function () use ($data, $dataGet, $logistic_id
+            $result = DB::transaction(function () use ($data, $dataGet, $logistic_id, $user_id, $user_name
             ) {
                 //扣除入庫單庫存
                 foreach ($dataGet as $item) {
@@ -92,7 +92,11 @@ class Consum extends Model
                     }
                 }
                 $curr_date = date('Y-m-d H:i:s');
-                Logistic::where('id', '=', $logistic_id)->update(['audit_date' => $curr_date]);
+                Logistic::where('id', '=', $logistic_id)->update([
+                    'audit_date' => $curr_date,
+                    'audit_user_id' => $user_id,
+                    'audit_user_name' => $user_name,
+                ]);
 
                 return ['success' => 1, 'error_msg' => ""];
             });

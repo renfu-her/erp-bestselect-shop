@@ -31,6 +31,8 @@ class CreateReceiveDepotTable extends Migration
             $table->string('logistic_status', 20)->nullable()->comment('物流狀態 檢貨中/理貨中/待配送');
             $table->string('memo')->nullable()->comment('備註');
             $table->dateTime('audit_date')->nullable()->comment('審核日期');
+            $table->unsignedBigInteger('audit_user_id')->nullable()->comment('審核者');
+            $table->string('audit_user_name')->nullable()->comment('審核者名稱');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -62,6 +64,8 @@ class CreateReceiveDepotTable extends Migration
             $table->integer('cost')->default(0)->comment('物流成本');
             $table->string('memo')->nullable()->comment('物流備註');
             $table->dateTime('audit_date')->nullable()->comment('審核日期');
+            $table->unsignedBigInteger('audit_user_id')->nullable()->comment('審核者');
+            $table->string('audit_user_name')->nullable()->comment('審核者名稱');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -85,6 +89,8 @@ class CreateReceiveDepotTable extends Migration
             $table->integer('delivery_id')->comment('訂單id');
             $table->string('status', 10)->comment('狀態名稱');
             $table->string('status_code', 10)->comment('代碼');
+            $table->unsignedBigInteger('user_id')->comment('新增者');
+            $table->string('user_name')->comment('新增者名稱');
             $table->timestamps();
         });
     }
