@@ -35,12 +35,12 @@
                 </fieldset>
                 <div class="col-12 mb-3" data-category="code" hidden>
                     <label class="form-label">優惠劵序號 <span class="text-danger">*</span><span class="small text-secondary">（僅接受英數，區分大小寫）</span></label>
-                    <div class="input-group flex-nowrap has-validation">
+                    <div class="input-group has-validation">
                         <input type="text" name="sn" class="form-control" value="" maxlength="20" disabled placeholder="可自行輸入或按隨機產生鈕" autocomplete="off">
                         <button id="generate_coupon_sn" class="btn btn-success" type="button">
                             <i class="bi bi-shuffle"></i> 隨機產生序號
                         </button>
-                        <div class="valid-feedback invalid-feedback -feedback">序號可使用！</div>
+                        <div class="valid-feedback invalid-feedback -feedback"></div>
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
@@ -217,7 +217,7 @@
             $('#form1').submit(function (e) {
                 if ($('input[name="category"]:checked').val() === 'code') {
                     e.preventDefault();
-                    
+
                     const $sn = $('input[name="sn"]');
                     if ($sn.hasClass('is-valid')) {
                         $(this).submit();
@@ -240,17 +240,26 @@
             });
             function checkSnInput($snInput) {
                 const sn = $snInput.val();
+                if (!sn) {
+                    unavailableSn($snInput, '序號不可為空');
+                    return false;
+                }
+
                 callCheckCouponSnApi(sn).then((res) => {
-                    if (res) {
+                    if (res.status === '0') {
                         // 序號可使用
-                        $snInput.removeClass('is-invalid').addClass('is-valid');
-                        $snInput.siblings('-feedback').removeClass('invalid-feedback').addClass('valid-feedback');
-                        $snInput.siblings('-feedback').text('序號可使用！');
+                        availableSn($snInput);
                     } else {
-                        // 序號已使用過
-                        $snInput.removeClass('is-valid').addClass('is-invalid');
-                        $snInput.siblings('-feedback').removeClass('valid-feedback').addClass('invalid-feedback');
-                        $snInput.siblings('-feedback').text('序號已使用過！');
+                        // 序號不可使用
+                        let msg = '';
+                        switch (res.status) {
+                            case 'E01':
+                                msg = res.message.sn[0];
+                            default:
+                                msg = res.message || '此序號不可使用';
+                                break;
+                        }
+                        unavailableSn($snInput, msg);
                     }
                 }).catch((err) => {
                     console.error(err);
@@ -268,8 +277,9 @@
 
                 // 檢查重複
                 callCheckCouponSnApi(result).then((res) => {
-                    if (res) {
+                    if (res.status === '0') {
                         $('input[name="sn"]').val(result);
+                        availableSn($('input[name="sn"]'));
                     } else {
                         generateCouponSn(AutoSnLength);
                     }
@@ -281,15 +291,14 @@
 
             // 檢查序號是否重複API
             function callCheckCouponSnApi(sn) {
-                const _URL = '';
+                const _URL = @json(route('api.cms.discount.check-sn'));
                 let Data = {
                     sn: sn
                 };
                 console.log('callCheckCouponSnApi', sn);
-                return true;
 
-                return axios.get(_URL, Data).then((result) => {
-                    if (result.status === 200 && re.data.status === '0') {
+                return axios.post(_URL, Data).then((result) => {
+                    if (result.status === 200) {
                         return result.data;
                     } else {
                         return Promise.reject(result);
@@ -298,6 +307,19 @@
                     console.error(err);
                     alert('發生錯誤！');
                 });
+            }
+
+            // 序號可使用
+            function availableSn($snInput) {
+                $snInput.removeClass('is-invalid').addClass('is-valid');
+                $snInput.siblings('.-feedback').removeClass('invalid-feedback').addClass('valid-feedback');
+                $snInput.siblings('.-feedback').text('序號可使用');
+            }
+            // 序號不可使用
+            function unavailableSn($snInput, errMsg) {
+                $snInput.removeClass('is-valid').addClass('is-invalid');
+                $snInput.siblings('.-feedback').removeClass('valid-feedback').addClass('invalid-feedback');
+                $snInput.siblings('.-feedback').text(errMsg);
             }
         </script>
     @endpush
