@@ -15,12 +15,19 @@
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">活動名稱 <span class="text-danger">*</span></label>
                     <input class="form-control" name="title" type="text" placeholder="請輸入活動名稱" required aria-label="活動名稱">
+                    @error('title')
+                        <div class="alert-danger"> {{ $message }} </div>
+                    @enderror
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">消費金額 <span class="text-danger">*</span></label>
                     <div class="input-group flex-nowrap">
                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                        <input type="number" class="form-control" name="min_consume" min="0" value="" placeholder="請輸入消費金額" required>
+                        <input type="number" class="form-control" name="min_consume" min="0" value=""
+                            placeholder="請輸入消費金額" required>
+                        @error('min_consume')
+                            <div class="alert-danger"> {{ $message }} </div>
+                        @enderror
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
@@ -33,6 +40,9 @@
                         </button>
                         <div class="invalid-feedback">
                         </div>
+                        @error('start_date')
+                            <div class="alert-danger"> {{ $message }} </div>
+                        @enderror
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
@@ -44,12 +54,15 @@
                         </button>
                         <div class="invalid-feedback">
                         </div>
+                        @error('end_date')
+                            <div class="alert-danger"> {{ $message }} </div>
+                        @enderror
                     </div>
                 </div>
                 <div class="col-12 mb-3">
                     <label class="form-label">適用商品群組<span class="small text-secondary">（不選為全館適用）</span></label>
-                    <select name="collection_id[]" multiple class="-select2 -multiple form-select" data-close-on-select="false"
-                        data-placeholder="可多選">
+                    <select name="collection_id[]" multiple class="-select2 -multiple form-select"
+                        data-close-on-select="false" data-placeholder="可多選">
                         @foreach ($collections as $key => $value)
                             <option value="{{ $value->id }}">{{ $value->name }}</option>
                         @endforeach
@@ -78,15 +91,20 @@
                         <label class="form-label">折扣金額 <span class="text-danger">*</span></label>
                         <div class="input-group flex-nowrap">
                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                            <input type="number" name="discount_value" class="form-control" min="0" value="" placeholder="請輸入折扣金額">
+                            <input type="number" name="discount_value" class="form-control" min="0" value=""
+                                placeholder="請輸入折扣金額">
                         </div>
+                        @error('discount_value')
+                            <div class="alert-danger"> {{ $message }} </div>
+                        @enderror
                     </div>
                     <fieldset class="col-12 col-sm-6 mb-3">
                         <legend class="col-form-label p-0 mb-2">&nbsp;</legend>
                         <div class="px-1 pt-1">
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" name="is_grand_total" type="checkbox" value="1" checked norequired>
+                                    <input class="form-check-input" name="is_grand_total" type="checkbox" value="1" checked
+                                        norequired>
                                     累計折扣
                                 </label>
                             </div>
@@ -98,13 +116,17 @@
                 <div class="row mb-3 border rounded mx-0 px-0 pt-2" data-method="percent" hidden>
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">折扣百分比 <span class="text-danger">*</span>
-                            <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="例：100 元商品打 8 折為 80 元，請輸入數字 80，等同 80%" data-bs-placement="right"></i>
+                            <i class="bi bi-info-circle" data-bs-toggle="tooltip"
+                                title="例：100 元商品打 8 折為 80 元，請輸入數字 80，等同 80%" data-bs-placement="right"></i>
                         </label>
                         <div class="input-group flex-nowrap">
-                            <input type="number" name="" class="form-control" min="1" max="100" value=""
+                            <input type="number" name="discount_value" class="form-control" min="1" max="100" value=""
                                 placeholder="請輸入百分比 1 ~ 100">
                             <span class="input-group-text"><i class="bi bi-percent"></i></span>
                         </div>
+                        @error('discount_value')
+                            <div class="alert-danger"> {{ $message }} </div>
+                        @enderror
                     </div>
                 </div>
 
@@ -112,12 +134,15 @@
                 <div class="row mb-3 border rounded mx-0 px-0 pt-2" data-method="coupon" hidden>
                     <div class="col-12 mb-3">
                         <label class="form-label">指定贈送優惠券 <span class="text-danger">*</span></label>
-                        <select class="form-select -select2 -single" aria-label="指定贈送優惠券">
+                        <select name="discount_value" class="form-select -select2 -single" aria-label="指定贈送優惠券">
                             <option value="" selected disabled>請選擇</option>
                             <option value="1">item 1</option>
                             <option value="2">item 2</option>
                             <option value="3">item 3</option>
                         </select>
+                        @error('discount_value')
+                            <div class="alert-danger"> {{ $message }} </div>
+                        @enderror
                     </div>
                 </div>
             </div>

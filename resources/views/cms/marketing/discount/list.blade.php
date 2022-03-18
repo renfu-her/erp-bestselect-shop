@@ -122,7 +122,7 @@
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td>{{ $data->title }}</td>
-                            <td>{{ $data->category_title }}</td>
+                            <td>{{ $data->method_title }}</td>
                             <td {{-- @class([
                                 'text-success' => '進行中', 
                                 'text-danger' => '已結束']) --}}>
