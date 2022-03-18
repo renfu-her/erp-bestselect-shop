@@ -66,9 +66,8 @@ class CreateReceiveDepotTable extends Migration
         Schema::create('dlv_logistic_flow', function (Blueprint $table) {
             $table->id();
             $table->integer('delivery_id')->comment('訂單id');
-            $table->unsignedBigInteger('status_id')->comment('物流狀態ID');
-            $table->string('status', 15)->comment('狀態名稱');
-            $table->string('status_code', 15)->comment('代碼');
+            $table->string('status', 10)->comment('狀態名稱');
+            $table->string('status_code', 10)->comment('代碼');
             $table->timestamps();
         });
     }

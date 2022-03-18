@@ -13,21 +13,20 @@ class LogisticFlow extends Model
     protected $guarded = [];
 
     //更新出貨單物態
-    public static function changeDeliveryStatus($delivery_id, $logistic_status_get)
+    public static function changeDeliveryStatus($delivery_id, $logistic_status)
     {
-        if (null == $logistic_status_get) {
+        if (null == $logistic_status) {
             return ['success' => 0, 'error_msg' => '無此物流狀態'];
         }
 
         //判斷最新一筆物態是否相同 不同才做
         $logisticFlow = LogisticFlow::getListByDeliveryId($delivery_id);
         $logisticFlow_get = $logisticFlow->get()->first();
-        if (null == $logisticFlow_get || $logisticFlow_get->status_id != $logistic_status_get->id) {
+        if (null == $logisticFlow_get || $logisticFlow_get->status_code != $logistic_status->key) {
             LogisticFlow::create([
                 'delivery_id' => $delivery_id,
-                'status_id' => $logistic_status_get->id,
-                'status' => $logistic_status_get->title,
-                'status_code' => $logistic_status_get->code,
+                'status' => $logistic_status->value,
+                'status_code' => $logistic_status->key,
             ]);
         }
     }
