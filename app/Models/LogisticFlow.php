@@ -13,7 +13,7 @@ class LogisticFlow extends Model
     protected $guarded = [];
 
     //更新出貨單物態
-    public static function changeDeliveryStatus($delivery_id, $logistic_status)
+    public static function createDeliveryStatus($delivery_id, $logistic_status)
     {
         if (null == $logistic_status) {
             return ['success' => 0, 'error_msg' => '無此物流狀態'];

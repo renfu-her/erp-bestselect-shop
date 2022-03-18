@@ -87,7 +87,7 @@ class Delivery extends Model
                     'logistic_status' => $logistic_status->value,
                     'logistic_status_code' => $logistic_status->key,
                 ]);
-                LogisticFlow::changeDeliveryStatus($dataGet->id, $logistic_status);
+                LogisticFlow::createDeliveryStatus($dataGet->id, $logistic_status);
                 return ['success' => 1, 'error_msg' => "", 'id' => $dataGet->id];
             });
         } else {
