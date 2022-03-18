@@ -17,8 +17,48 @@ class Discount extends Model
     protected $table = 'dis_discounts';
     protected $guarded = [];
 
-    public static function createDiscount($title, DisMethod $method, $value, $start_date = null, $end_date = null, $is_grand_total = 1, $is_global = 0, $collection_ids = [])
+    public static function dataList(DisStatus $disStatus = null)
     {
+        $now = date('Y-m-d H:i:s');
+
+        $selectStatus = "CASE
+        WHEN active=0
+        THEN '" . DisStatus::D03()->description . "'
+        WHEN '$now' BETWEEN start_date AND end_date THEN '" . DisStatus::D01()->description . "'
+        WHEN '$now' > end_date THEN '" . DisStatus::D02()->description . "'
+        ELSE '" . DisStatus::D00()->description . "' END as status";
+
+        $selectStatusCode = "CASE
+        WHEN active=0
+        THEN '" . DisStatus::D03()->value . "'
+        WHEN '$now' BETWEEN start_date AND end_date THEN '" . DisStatus::D01()->value . "'
+        WHEN '$now' > end_date THEN '" . DisStatus::D02()->value . "'
+        ELSE '" . DisStatus::D00()->value . "' END as status_code";
+
+        $sub = self::select('*')
+            ->selectRaw($selectStatus)
+            ->selectRaw($selectStatusCode);
+
+        $re = DB::table(DB::raw("({$sub->toSql()}) as sub"));
+
+        if ($disStatus) {
+            $re->where('status_code', $disStatus->value);
+        }
+        
+        return $re;
+
+        // ->whereRaw("($selectStatusCode) as bb", "=", "D03");
+
+       // dd($re->get()->toArray());
+    }
+
+    public static function createDiscount($title, DisMethod $method, $value, $start_date = null, $end_date = null, $is_grand_total = 1, $collection_ids = [])
+    {
+        if (count($collection_ids) > 0) {
+            $is_global = 0;
+        } else {
+            $is_global = 1;
+        }
 
         $data = self::_createDiscount($title, DisCategory::normal(), $method, $value, [
             'start_date' => $start_date,
@@ -41,13 +81,14 @@ class Discount extends Model
         $options = []) {
         $data = [
             'title' => $title,
-            'status_code' => DisStatus::D00()->value,
-            'status_title' => DisStatus::D00()->description,
+            //   'status_code' => DisStatus::D00()->value,
+            //  'status_title' => DisStatus::D00()->description,
             'category_code' => $disCategory->value,
             'category_title' => $disCategory->description,
             'method_code' => $method->value,
             'method_title' => $method->description,
             'discount_value' => $discount_value,
+            'active' => 1,
         ];
 
         if (isset($options['is_global'])) {

@@ -18,7 +18,7 @@
                                 <div class="form-check form-check-inline">
                                     <label class="form-check-label">
                                         <input class="form-check-input" value="{{ $key }}" name="method_code[]"
-                                            type="checkbox" @if (in_array($key, $cond['method_code']))) checked @endif>
+                                            type="checkbox" @if (in_array($key, $cond['method_code'])) ) checked @endif>
                                         {{ $value }}
                                     </label>
                                 </div>
@@ -50,7 +50,8 @@
                         <div class="px-1 pt-1">
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" name="is_global" value="1"  @if($cond['is_global']) checked @endif type="checkbox">
+                                    <input class="form-check-input" name="is_global" value="1"
+                                        @if ($cond['is_global']) checked @endif type="checkbox">
                                     全館
                                 </label>
                             </div>
@@ -60,8 +61,10 @@
                 <div class="col-12 mb-3">
                     <label class="form-label">起訖日期</label>
                     <div class="input-group has-validation">
-                        <input type="date" class="form-control -startDate" name="start_date" value="{{ $cond['start_date'] }}" aria-label="起始日期" />
-                        <input type="date" class="form-control -endDate" name="end_date" value="{{ $cond['end_date'] }}" aria-label="結束日期" />
+                        <input type="date" class="form-control -startDate" name="start_date"
+                            value="{{ $cond['start_date'] }}" aria-label="起始日期" />
+                        <input type="date" class="form-control -endDate" name="end_date" value="{{ $cond['end_date'] }}"
+                            aria-label="結束日期" />
                         <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
                         <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
                         <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
@@ -115,36 +118,20 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {{-- @foreach ($dataList as $key => $data) --}}
-                    <tr>
-                        <th scope="row">1</th>
-                        <td>周年慶</td>
-                        <td>百分比</td>
-                        <td {{-- @class([
+                    @foreach ($dataList as $key => $data)
+                        <tr>
+                            <th scope="row">{{ $key + 1 }}</th>
+                            <td>{{ $data->title }}</td>
+                            <td>{{ $data->category_title }}</td>
+                            <td {{-- @class([
                                 'text-success' => '進行中', 
                                 'text-danger' => '已結束']) --}}>
-                            待進行
-                        </td>
-                        <td>2022/10/1</td>
-                        <td>2022/10/31</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">2</th>
-                        <td>情人節活動</td>
-                        <td>金額</td>
-                        <td class="text-danger">已結束</td>
-                        <td>2022/2/1</td>
-                        <td>2022/2/28</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">3</th>
-                        <td>婦女節優惠</td>
-                        <td>優惠券</td>
-                        <td class="text-success">進行中</td>
-                        <td>2022/3/1</td>
-                        <td>2022/3/31</td>
-                    </tr>
-                    {{-- @endforeach --}}
+                                {{ $data->status }}
+                            </td>
+                            <td> {{ $data->start_date }}</td>
+                            <td>{{ $data->end_date }}</td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>
