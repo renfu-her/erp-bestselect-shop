@@ -70,12 +70,15 @@ class DiscountCtrl extends Controller
     public function store(Request $request)
     {
         //
+
+       // dd($_POST);
         $request->validate([
             'title' => 'required',
             'method_code' => ['required', Rule::in(array_keys(DisMethod::getValueWithDesc()))],
             'start_date' => 'required|date',
             'end_date' => 'required|date',
-            'discount_value' => 'required',
+            'discount_value' => 'required|numeric',
+            'min_consume' => 'required|numeric',
         ]);
 
         $d = $request->all();
