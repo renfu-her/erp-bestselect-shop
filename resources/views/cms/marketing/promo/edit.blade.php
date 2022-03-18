@@ -13,7 +13,7 @@
         <div class="card shadow p-4 mb-4">
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">活動名稱 <span class="text-danger">*</span></label>
+                    <label class="form-label">優惠劵活動名稱 <span class="text-danger">*</span></label>
                     <input class="form-control" name="title" type="text" placeholder="請輸入活動名稱" required aria-label="活動名稱">
                 </div>
                 <fieldset class="col-12 col-sm-6 mb-3">
@@ -27,7 +27,7 @@
                         </div>
                         <div class="form-check form-check-inline">
                             <label class="form-check-label">
-                                <input class="form-check-input" name="category" type="radio" value="code" checked>
+                                <input class="form-check-input" name="category" type="radio" value="code">
                                 序號兌換
                             </label>
                         </div>

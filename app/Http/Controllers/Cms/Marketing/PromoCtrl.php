@@ -67,7 +67,7 @@ class PromoCtrl extends Controller
     public function edit($id)
     {
         //
-        return view('cms.marketing.discount.edit', [
+        return view('cms.marketing.promo.edit', [
             'method' => 'edit',
             'type' => 'coupon/code',
             'breadcrumb_data' => '優惠券'

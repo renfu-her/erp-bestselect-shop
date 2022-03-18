@@ -114,8 +114,8 @@
             <table class="table table-striped tableList">
                 <thead>
                     <tr>
-                        <th scope="col" style="width:10%">#</th>
-                        <th scope="col">活動名稱</th>
+                        <th scope="col">#</th>
+                        <th scope="col">優惠劵活動名稱</th>
                         <th scope="col">優惠券序號</th>
                         <th scope="col">優惠方式</th>
                         <th scope="col">折價金額/百分比</th>
@@ -126,7 +126,9 @@
                         <th scope="col">開始日期</th>
                         <th scope="col">結束日期</th>
                         <th scope="col">數量</th>
-                        <th scope="col">結束</th>
+                        <th scope="col" class="text-center">編輯</th>
+                        <th scope="col" class="text-center">啟用</th>
+                        <th scope="col" class="text-center">暫停</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -149,8 +151,22 @@
                             <td>2022/10/31</td>
                             <td>50,000</td>
                             <td>
-                                <a href="javascript:void(0)" data-href=""
-                                    data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                                <a href="{{ Route('cms.promo.edit', ['id' => '1'], true) }}"
+                                    data-bs-toggle="tooltip" title="編輯"
+                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                     <i class="bi bi-pencil-square"></i>
+                                 </a>
+                            </td>
+                            <td>
+                                <a href="javascript:void(0)" data-href="#"
+                                    data-bs-toggle="modal" data-bs-target="#confirm-start"
+                                    class="icon -del icon-btn fs-5 text-primary rounded-circle border-0">
+                                    <i class="bi bi-play-circle"></i>
+                                </a>
+                            </td>
+                            <td>
+                                <a href="javascript:void(0)" data-href="#"
+                                    data-bs-toggle="modal" data-bs-target="#confirm-pause"
                                     class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
                                     <i class="bi bi-pause-circle"></i>
                                 </a>
@@ -171,13 +187,20 @@
         </div>
     </div>
 
-    
 <!-- Modal -->
-<x-b-modal id="confirm-delete">
-    <x-slot name="title">強制結束確認</x-slot>
-    <x-slot name="body">確認要強制結束此優惠劵？</x-slot>
+<x-b-modal id="confirm-start">
+    <x-slot name="title">強制啟用確認</x-slot>
+    <x-slot name="body">確認要強制啟用此優惠劵？</x-slot>
     <x-slot name="foot">
-        <a class="btn btn-danger btn-ok" href="#">確認並結束</a>
+        <a class="btn btn-primary btn-ok" href="#">確認並啟用</a>
+    </x-slot>
+</x-b-modal>
+<!-- Modal -->
+<x-b-modal id="confirm-pause">
+    <x-slot name="title">強制暫停確認</x-slot>
+    <x-slot name="body">確認要強制暫停此優惠劵？</x-slot>
+    <x-slot name="foot">
+        <a class="btn btn-danger btn-ok" href="#">確認並暫停</a>
     </x-slot>
 </x-b-modal>
 @endsection
@@ -188,6 +211,11 @@
             $('#dataPerPageElem').on('change', function(e) {
                 $('input[name=data_per_page]').val($(this).val());
                 $('#search').submit();
+            });
+            
+            // Modal Control
+            $('#confirm-start, #confirm-pause').on('show.bs.modal', function(e) {
+                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
             });
             
             // 進行狀態 region
