@@ -14,7 +14,8 @@
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">活動名稱 <span class="text-danger">*</span></label>
-                    <input class="form-control" name="title" type="text" placeholder="請輸入活動名稱" required aria-label="活動名稱">
+                    <input class="form-control" value="{{ old('title', $data->title ?? '') }}" name="title" type="text"
+                        placeholder="請輸入活動名稱" required aria-label="活動名稱">
                     @error('title')
                         <div class="alert-danger"> {{ $message }} </div>
                     @enderror
@@ -23,8 +24,8 @@
                     <label class="form-label">消費金額 <span class="text-danger">*</span></label>
                     <div class="input-group flex-nowrap">
                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                        <input type="number" class="form-control" name="min_consume" min="0" value=""
-                            placeholder="請輸入消費金額" required>
+                        <input type="number" class="form-control" name="min_consume" min="0"
+                            value="{{ old('min_consume', $data->min_consume ?? '') }}" placeholder="請輸入消費金額" required>
                         @error('min_consume')
                             <div class="alert-danger"> {{ $message }} </div>
                         @enderror
@@ -33,8 +34,8 @@
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">活動開始時間<span class="small text-secondary">（未填則表示現在）</span></label>
                     <div class="input-group has-validation">
-                        <input type="datetime-local" name="start_date" value="" class="form-control"
-                            aria-label="活動開始時間" />
+                        <input type="datetime-local" name="start_date" value="{{ old('start_date', $data->start_date ?? '') }}"
+                            class="form-control" aria-label="活動開始時間" />
                         <button class="btn btn-outline-secondary icon" type="button" data-clear data-bs-toggle="tooltip"
                             title="清空時間"><i class="bi bi-calendar-x"></i>
                         </button>
@@ -48,7 +49,8 @@
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">活動結束時間<span class="small text-secondary">（未填則表示不會結束）</span></label>
                     <div class="input-group has-validation">
-                        <input type="datetime-local" name="end_date" value="" class="form-control" aria-label="活動結束時間" />
+                        <input type="datetime-local" name="end_date" value="{{ old('end_date', $data->end_date ?? '') }}"
+                            class="form-control" aria-label="活動結束時間" />
                         <button class="btn btn-outline-secondary icon" type="button" data-clear data-bs-toggle="tooltip"
                             title="清空時間"><i class="bi bi-calendar-x"></i>
                         </button>
@@ -76,7 +78,7 @@
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
                                     <input class="form-check-input" name="method_code" type="radio"
-                                        value="{{ $key }}" @if (old('method_code', 'cash') == $key) checked @endif
+                                        value="{{ $key }}" @if (old('method_code', $data->method_code ?? 'cash') == $key) checked @endif
                                         required>
                                     {{ $value }}
                                 </label>
@@ -91,8 +93,8 @@
                         <label class="form-label">折扣金額 <span class="text-danger">*</span></label>
                         <div class="input-group flex-nowrap">
                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                            <input type="number" name="discount_value" class="form-control" min="0" value=""
-                                placeholder="請輸入折扣金額">
+                            <input type="number" name="discount_value" class="form-control" min="0"
+                                value="{{ old('discount_value', $data->discount_value ?? '') }}" placeholder="請輸入折扣金額">
                         </div>
                         @error('discount_value')
                             <div class="alert-danger"> {{ $message }} </div>
@@ -120,7 +122,7 @@
                                 title="例：100 元商品打 8 折為 80 元，請輸入數字 80，等同 80%" data-bs-placement="right"></i>
                         </label>
                         <div class="input-group flex-nowrap">
-                            <input type="number" name="discount_value" class="form-control" min="1" max="100" value=""
+                            <input type="number" name="discount_value" class="form-control" min="1" max="100" value="{{ old('discount_value', $data->discount_value ?? '') }}"
                                 placeholder="請輸入百分比 1 ~ 100">
                             <span class="input-group-text"><i class="bi bi-percent"></i></span>
                         </div>
