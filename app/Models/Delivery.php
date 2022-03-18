@@ -55,7 +55,7 @@ class Delivery extends Model
                 'ship_group_id' => $ship_group_id,
                 'memo' => $memo,
             ])->id;
-            $reDlvUpd = Delivery::updateLogisticStatus($event, $event_id, \App\Enums\Delivery\LogisticStatus::A1000());
+            $reDlvUpd = Delivery::updateLogisticStatus(null, $event, $event_id, \App\Enums\Delivery\LogisticStatus::A1000());
             if ($reDlvUpd['success'] == 0) {
                 DB::rollBack();
                 return $reDlvUpd;
@@ -68,7 +68,7 @@ class Delivery extends Model
     }
 
     //更新物流狀態
-    public static function updateLogisticStatus($event, $event_id, \App\Enums\Delivery\LogisticStatus $logistic_status)
+    public static function updateLogisticStatus($user, $event, $event_id, \App\Enums\Delivery\LogisticStatus $logistic_status)
     {
         if (null == $logistic_status) {
             return ['success' => 0, 'error_msg' => '無此物流狀態'];
@@ -81,13 +81,18 @@ class Delivery extends Model
         }
         $result = null;
         if (null != $dataGet) {
-            return DB::transaction(function () use ($data, $dataGet, $logistic_status
+            return DB::transaction(function () use ($data, $dataGet, $logistic_status, $user
             ) {
+                $reLFCDS = LogisticFlow::createDeliveryStatus($user, $dataGet->id, $logistic_status);
+
+                if ($reLFCDS['success'] == 0) {
+                    DB::rollBack();
+                }
                 $data->update([
                     'logistic_status' => $logistic_status->value,
                     'logistic_status_code' => $logistic_status->key,
                 ]);
-                LogisticFlow::createDeliveryStatus($dataGet->id, $logistic_status);
+
                 return ['success' => 1, 'error_msg' => "", 'id' => $dataGet->id];
             });
         } else {
