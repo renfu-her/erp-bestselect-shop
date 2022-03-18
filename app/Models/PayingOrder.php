@@ -75,6 +75,7 @@ class PayingOrder extends Model
                 'paying_order.usr_users_id as usr_users_id',
                 'paying_order.sn as sn',
                 'paying_order.summary as summary',
+                'paying_order.memo as memo',
                 'paying_order.price as price',
             )
             ->selectRaw('DATE_FORMAT(paying_order.pay_date,"%Y-%m-%d") as pay_date')

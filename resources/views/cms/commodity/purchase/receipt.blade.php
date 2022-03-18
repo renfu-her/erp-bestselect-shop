@@ -12,7 +12,7 @@
             <input type="hidden" name="type" value="0">
             <div class="col-12 mb-3">
                 <label class="form-label">摘要 <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" name="summary" value="訂金" placeholder="訂金">
+                <input type="text" class="form-control" name="deposit_summary" value="訂金" placeholder="訂金">
             </div>
             <div class="col-12 mb-3">
                 <label class="form-label">金額 <span class="text-danger">*</span></label>
@@ -24,7 +24,7 @@
             </div>
             <div class="col-12 mb-3">
                 <label class="form-label">備註 </label>
-                <input type="text" class="form-control" name="memo" value="" placeholder="備註">
+                <input type="text" class="form-control" name="deposit_memo" value="" placeholder="備註">
             </div>
         </div>
 {{--    @else--}}

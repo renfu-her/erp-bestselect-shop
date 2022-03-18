@@ -130,11 +130,11 @@
 {{--                                </tr>--}}
 {{--                            @endforeach--}}
                             <tr>
-                                <td>訂金</td>
+                                <td>{{ $depositPaymentData->summary }}</td>
                                 <td>1</td>
                                 <td>{{ number_format($depositPaymentData->price, 2) }}</td>
                                 <td>{{ number_format($depositPaymentData->price) }}</td>
-                                <td>摘要：{{ $depositPaymentData->summary }}</td>
+                                <td>{{ $depositPaymentData->memo }}</td>
                             </tr>
                             <tr class="table-light">
                                 <td>合計：</td>
@@ -159,7 +159,7 @@
                                     <td></td>
                                     <td></td>
                                     <td>{{ $logisticsPrice }}</td>
-                                    <td></td>
+                                    <td>{{ $purchaseData->logistics_memo }}</td>
                                 </tr>
                             @endif
                             @if(!is_null($depositPaymentData))
