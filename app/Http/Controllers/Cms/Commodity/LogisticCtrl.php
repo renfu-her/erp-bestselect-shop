@@ -177,7 +177,8 @@ class LogisticCtrl extends Controller
         ]);
         $input = $request->only('event', 'event_id', 'delivery_id');
 
-        $reLFCDS = LogisticFlow::createDeliveryStatus($request->user(), $input['delivery_id'], $input['status_code']);
+        $logistic_status = \App\Enums\Delivery\LogisticStatus::fromKey($input['status_code']);
+        $reLFCDS = LogisticFlow::createDeliveryStatus($request->user(), $input['delivery_id'], $logistic_status);
         if ($reLFCDS['success'] == 0) {
             wToast($reLFCDS['error_msg']);
         } else {

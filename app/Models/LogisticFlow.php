@@ -12,11 +12,17 @@ class LogisticFlow extends Model
     protected $table = 'dlv_logistic_flow';
     protected $guarded = [];
 
-    //更新出貨單物態
+    //新增出貨單物態 並更新 出貨單物態欄位
     public static function createDeliveryStatus($user, $delivery_id, $logistic_status)
     {
         if (null == $logistic_status) {
             return ['success' => 0, 'error_msg' => '無此物流狀態'];
+        }
+
+        $delivery = Delivery::where('id', $delivery_id);
+        $deliveryGet = $delivery->get()->first();
+        if (null == $deliveryGet) {
+            return ['success' => 0, 'error_msg' => '無此出貨單'];
         }
 
         //判斷最新一筆物態是否相同 不同才做
@@ -30,6 +36,11 @@ class LogisticFlow extends Model
                 'status_code' => $logistic_status->key,
                 'user_id' => $user->id ?? null,
                 'user_name' => $user->name ?? null,
+            ]);
+
+            $delivery->update([
+                'logistic_status' => $logistic_status->value,
+                'logistic_status_code' => $logistic_status->key,
             ]);
             return ['success' => 1, 'error_msg' => ""];
 //        }
