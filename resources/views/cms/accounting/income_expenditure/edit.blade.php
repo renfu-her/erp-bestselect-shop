@@ -5,6 +5,7 @@
 {{--        @method('POST')--}}
         @csrf
         <div class="card shadow p-4 mb-4">
+            <h4 class="mb-3">付款管理預設</h4>
             <div class="col-12 mb-3">
                 <label class="form-label" for="select1-multiple">現金</label>
                 <select name="income_type[{{ $thirdGradesDataList['selectedResult']['現金']['acc_income_type_fk'] }}][]"
@@ -160,6 +161,54 @@
 
                     </tbody>
                 </table>
+            </div>
+        </div>
+        <div class="card shadow p-4 mb-4">
+            <h4 class="mb-3">付款單預設</h4>
+            <div class="col-12 mb-3">
+                <label class="form-label" for="">商品支出</label>
+                <select
+                    name="orderDefault[product]"
+                    required
+                    @if($isViewMode === true)
+                        disabled
+                    @endif
+                    class="-select2 -single form-select col-12 @error('orderDefault[product]') is-invalid @enderror"
+                    data-placeholder="請選擇">
+                    <option disabled selected value> -- select an option --</option>
+                    @foreach($allThirdGrades as $thirdGrade)
+                        <option
+                            @if(!is_null($productGradeDefaultArray) &&
+                                $productGradeDefaultArray['id'] === $thirdGrade['id'])
+                                selected
+                            @endif
+                            value="{{ $thirdGrade['id'] }}">{{ $thirdGrade['code'] . ' ' . $thirdGrade['name'] }}
+                        </option>
+                    @endforeach
+                </select>
+
+            </div>
+            <div class="col-12 mb-3">
+                <label class="form-label" for="">物流費用</label>
+                <select
+                    name="orderDefault[logistics]"
+                    required
+                    @if($isViewMode === true)
+                    disabled
+                    @endif
+                    class="-select2 -single form-select col-12 @error('orderDefault[logistics]') is-invalid @enderror"
+                    data-placeholder="請選擇">
+                    <option disabled selected value> -- select an option --</option>
+                    @foreach($allThirdGrades as $thirdGrade)
+                        <option
+                            @if(!is_null($logisticsGradeDefaultArray) &&
+                                $logisticsGradeDefaultArray['id'] === $thirdGrade['id'])
+                                selected
+                            @endif
+                            value="{{ $thirdGrade['id'] }}">{{ $thirdGrade['code'] . ' ' . $thirdGrade['name'] }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
         </div>
         <div class="">

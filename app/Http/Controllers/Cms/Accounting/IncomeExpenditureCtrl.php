@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Cms\Accounting;
 
 use App\Http\Controllers\Controller;
+use App\Models\GeneralLedger;
 use App\Models\IncomeExpenditure;
+use App\Models\PayableOrderDefault;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -17,6 +19,9 @@ class IncomeExpenditureCtrl extends Controller
      */
     public function index()
     {
+        $productGradeDefaultArray = IncomeExpenditure::productGradeDefault();
+        $logisticsGradeDefaultArray = IncomeExpenditure::logisticsGradeDefault();
+        $allThirdGrades = GeneralLedger::getGradeData(3);
         $thirdGradesDataList = IncomeExpenditure::getOptionDataByGrade(3);
         $fourthGradesDataList = IncomeExpenditure::getOptionDataByGrade(4);
         $currencyData = IncomeExpenditure::getCurrencyOptionData();
@@ -25,6 +30,9 @@ class IncomeExpenditureCtrl extends Controller
             'thirdGradesDataList' => $thirdGradesDataList,
             'fourthGradesDataList' => $fourthGradesDataList,
             'currencyData' => $currencyData,
+            'productGradeDefaultArray' => $productGradeDefaultArray,
+            'logisticsGradeDefaultArray' => $logisticsGradeDefaultArray,
+            'allThirdGrades' => $allThirdGrades,
             'isViewMode' => true,
             'formAction' => Route('cms.income_expenditure.edit', [], true),
             'formMethod' => 'GET'
@@ -70,6 +78,9 @@ class IncomeExpenditureCtrl extends Controller
      */
     public function edit()
     {
+        $productGradeDefaultArray = IncomeExpenditure::productGradeDefault();
+        $logisticsGradeDefaultArray = IncomeExpenditure::logisticsGradeDefault();
+        $allThirdGrades = GeneralLedger::getGradeData(3);
         $thirdGradesDataList = IncomeExpenditure::getOptionDataByGrade(3);
         $fourthGradesDataList = IncomeExpenditure::getOptionDataByGrade(4);
         $currencyData = IncomeExpenditure::getCurrencyOptionData();
@@ -78,6 +89,9 @@ class IncomeExpenditureCtrl extends Controller
             'thirdGradesDataList'  => $thirdGradesDataList,
             'fourthGradesDataList' => $fourthGradesDataList,
             'currencyData'         => $currencyData,
+            'productGradeDefaultArray' => $productGradeDefaultArray,
+            'logisticsGradeDefaultArray' => $logisticsGradeDefaultArray,
+            'allThirdGrades' => $allThirdGrades,
             'isViewMode'           => false,
             'formAction'           => Route('cms.income_expenditure.update', [], true),
             'formMethod'           => 'POST'
@@ -117,18 +131,9 @@ class IncomeExpenditureCtrl extends Controller
         IncomeExpenditure::updateCurrency($validatedReq);
         IncomeExpenditure::updateIncomeExpenditure($validatedReq);
 
-        $thirdGradesDataList = IncomeExpenditure::getOptionDataByGrade(3);
-        $fourthGradesDataList = IncomeExpenditure::getOptionDataByGrade(4);
-        $currencyData = IncomeExpenditure::getCurrencyOptionData();
+        PayableOrderDefault::updatePayableOrderDefault($request['orderDefault']);
 
-        return view('cms.accounting.income_expenditure.edit', [
-            'thirdGradesDataList' => $thirdGradesDataList,
-            'fourthGradesDataList' => $fourthGradesDataList,
-            'currencyData' => $currencyData,
-            'isViewMode' => true,
-            'formAction' => Route('cms.income_expenditure.edit', [], true),
-            'formMethod' => 'GET'
-        ]);
+        return redirect()->route('cms.income_expenditure.index');
     }
 
     /**

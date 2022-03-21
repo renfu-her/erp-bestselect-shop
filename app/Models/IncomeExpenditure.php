@@ -159,4 +159,52 @@ class IncomeExpenditure extends Model
             ->find($type, ['grade_type'])
             ->grade_type;
     }
+
+    /**
+     * 取得「付款單」商品指出預設值
+     * @return array
+     */
+    public static function productGradeDefault()
+    {
+        $productGradeDefault = DB::table('acc_payable_default')
+            ->where('acc_payable_default.id', '=', '1')
+            ->leftJoin('acc_third_grade', 'acc_payable_default.product_default_grade_id', '=', 'acc_third_grade.id')
+            ->select(
+                'acc_third_grade.name',
+                'acc_third_grade.code',
+                'acc_third_grade.id',
+            )
+            ->get()
+            ->first();
+
+        return [
+            'id'   => $productGradeDefault->id,
+            'code' => $productGradeDefault->code,
+            'name' => $productGradeDefault->name,
+        ];
+    }
+
+    /**
+     * 取得「付款單」的物流費用預設值
+     * @return array
+     */
+    public static function logisticsGradeDefault()
+    {
+        $logisticsGradeDefault = DB::table('acc_payable_default')
+            ->where('acc_payable_default.id', '=', '1')
+            ->leftJoin('acc_third_grade', 'acc_payable_default.logistics_default_grade_id', '=', 'acc_third_grade.id')
+            ->select(
+                'acc_third_grade.name',
+                'acc_third_grade.code',
+                'acc_third_grade.id',
+            )
+            ->get()
+            ->first();
+
+        return [
+            'id'   => $logisticsGradeDefault->id,
+            'code' => $logisticsGradeDefault->code,
+            'name' => $logisticsGradeDefault->name,
+        ];
+    }
 }
