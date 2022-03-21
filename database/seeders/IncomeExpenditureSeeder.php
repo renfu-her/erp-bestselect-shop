@@ -148,9 +148,9 @@ class IncomeExpenditureSeeder extends Seeder
         ]);
 
         DB::table('acc_payable_default')->insert([
-            'product_default_grade_type' => 'App\\\Models\\\ThirdGrade',
+            'product_default_grade_type' => 'App\Models\ThirdGrade',
             'product_default_grade_id' => 4,
-            'logistics_default_grade_type' => 'App\\\Models\\\ThirdGrade',
+            'logistics_default_grade_type' => 'App\Models\ThirdGrade',
             'logistics_default_grade_id' => 8,
         ]);
     }
