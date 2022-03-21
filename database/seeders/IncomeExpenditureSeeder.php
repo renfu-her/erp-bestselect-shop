@@ -147,11 +147,13 @@ class IncomeExpenditureSeeder extends Seeder
             'cheque_status' => 1
         ]);
 
-        DB::table('acc_payable_default')->insert([
-            'product_default_grade_type' => 'App\Models\ThirdGrade',
-            'product_default_grade_id' => 4,
-            'logistics_default_grade_type' => 'App\Models\ThirdGrade',
-            'logistics_default_grade_id' => 8,
+        DB::table('acc_grade_default')->insert([
+            'name' => 'product',
+            'default_grade_id' => 15,
+        ]);
+        DB::table('acc_grade_default')->insert([
+            'name' => 'logistics',
+            'default_grade_id' => 19,
         ]);
     }
 }

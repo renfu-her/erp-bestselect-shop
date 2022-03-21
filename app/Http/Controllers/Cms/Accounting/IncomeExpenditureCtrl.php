@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Cms\Accounting;
 
 use App\Http\Controllers\Controller;
+use App\Models\AllGrade;
+use App\Models\FirstGrade;
 use App\Models\GeneralLedger;
 use App\Models\IncomeExpenditure;
-use App\Models\PayableOrderDefault;
+use App\Models\GradeDefault;
+use App\Enums\Accounting\ItemNameGradeDefault;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -131,7 +134,8 @@ class IncomeExpenditureCtrl extends Controller
         IncomeExpenditure::updateCurrency($validatedReq);
         IncomeExpenditure::updateIncomeExpenditure($validatedReq);
 
-        PayableOrderDefault::updatePayableOrderDefault($request['orderDefault']);
+        GradeDefault::updateGradeDefault(ItemNameGradeDefault::Product, $request['orderDefault']['product']);
+        GradeDefault::updateGradeDefault(ItemNameGradeDefault::Logistics, $request['orderDefault']['logistics']);
 
         return redirect()->route('cms.income_expenditure.index');
     }

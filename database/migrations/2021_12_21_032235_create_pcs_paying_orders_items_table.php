@@ -23,15 +23,8 @@ class CreatePcsPayingOrdersItemsTable extends Migration
             $table->decimal('price')->nullable()->comment('金額');
             $table->decimal('tw_dollar')->nullable()->default(null)->comment('新台幣,暫留欄位');
             $table->decimal('rate')->nullable()->default(null)->comment('採購當時的匯率,暫留欄位');
-
-            $table->string('logistics_grade_type')
-                ->comment('物流費用會計科目 1~4級會計科目的model class name, 共有App\Models\FirstGrade');
-            $table->unsignedBigInteger('logistics_grade_id')->comment('對應到1～4級科目table的primary key');
-
-            $table->string('product_grade_type')
-                ->comment('記錄商品會計科目 1~4級會計科目的model class name, 共有App\Models\FirstGrade, SecondGrade, ThirdGrade, FourthGrade');
-            $table->unsignedBigInteger('product_grade_id')->comment('對應到1～4級科目table的primary key');
-
+            $table->unsignedBigInteger('logistics_grade_id')->comment('對應到acc_all_grade的primary key');
+            $table->unsignedBigInteger('product_grade_id')->comment('對應到acc_all_grade的primary key');
             $table->dateTime('expecte_pay_date')->nullable()->comment('期望付款日期');
             $table->string('pay_date')->nullable()->comment('付款日期');
             $table->string('summary')->nullable()->comment('摘要');

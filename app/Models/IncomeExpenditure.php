@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Accounting\ItemNameGradeDefault;
 use App\Enums\Supplier\Payment;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -166,16 +167,12 @@ class IncomeExpenditure extends Model
      */
     public static function productGradeDefault()
     {
-        $productGradeDefault = DB::table('acc_payable_default')
-            ->where('acc_payable_default.id', '=', '1')
-            ->leftJoin('acc_third_grade', 'acc_payable_default.product_default_grade_id', '=', 'acc_third_grade.id')
-            ->select(
-                'acc_third_grade.name',
-                'acc_third_grade.code',
-                'acc_third_grade.id',
-            )
+        $prdGradeDefault = DB::table('acc_grade_default')
+            ->where('acc_grade_default.name', '=', ItemNameGradeDefault::Product)
             ->get()
             ->first();
+
+        $productGradeDefault = AllGrade::find($prdGradeDefault->default_grade_id)->eachGrade;
 
         return [
             'id'   => $productGradeDefault->id,
@@ -190,16 +187,11 @@ class IncomeExpenditure extends Model
      */
     public static function logisticsGradeDefault()
     {
-        $logisticsGradeDefault = DB::table('acc_payable_default')
-            ->where('acc_payable_default.id', '=', '1')
-            ->leftJoin('acc_third_grade', 'acc_payable_default.logistics_default_grade_id', '=', 'acc_third_grade.id')
-            ->select(
-                'acc_third_grade.name',
-                'acc_third_grade.code',
-                'acc_third_grade.id',
-            )
+        $lgsGradeDefault = DB::table('acc_grade_default')
+            ->where('acc_grade_default.name', '=', ItemNameGradeDefault::Logistics)
             ->get()
             ->first();
+        $logisticsGradeDefault = AllGrade::find($lgsGradeDefault->default_grade_id)->eachGrade;
 
         return [
             'id'   => $logisticsGradeDefault->id,
