@@ -166,7 +166,7 @@ class CreateIncomeExpenditureTable extends Migration
             });
         }
 
-        Schema::dropIfExists('acc_payable_default');
+        Schema::dropIfExists('acc_grade_default');
         Schema::dropIfExists('acc_payable_cash');
         Schema::dropIfExists('acc_payable_cheque');
         Schema::dropIfExists('acc_payable_remit');
