@@ -55,7 +55,7 @@ class LogisticCtrl extends Controller
         //取得原出貨單 預設基本設定的物流成本
         $deliveryCost = Delivery::getListWithCost($delivery_id)->get()->first();
         $defDeliveryCost = 0;
-        if (null == $deliveryCost) {
+        if (null != $deliveryCost) {
             $defDeliveryCost = $deliveryCost->dlv_cost;
         }
 
