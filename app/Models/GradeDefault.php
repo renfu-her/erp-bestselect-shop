@@ -24,6 +24,7 @@ class GradeDefault extends Model
     {
         $GRADE_DEFAULT = [
             ItemNameGradeDefault::Product => GradeModelClass::getDescription(GradeModelClass::ThirdGrade),
+            ItemNameGradeDefault::Logistics => GradeModelClass::getDescription(GradeModelClass::ThirdGrade),
         ];
 
         $allGrade = $GRADE_DEFAULT[$name]::find($each_grade_id)->allGrade;
