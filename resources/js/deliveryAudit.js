@@ -134,7 +134,7 @@ $(function () {
                 toast.show('發生錯誤', { type: 'danger' });
             });
 
-        // 商品列表
+        // 入庫列表
         function createOneInbound(ib, un_qty, auto_count) {
             const idx = selectedInboundId.indexOf(ib.inbound_id);
             let checked = '';
