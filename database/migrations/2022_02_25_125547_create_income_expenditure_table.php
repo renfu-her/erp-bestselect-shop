@@ -130,12 +130,12 @@ class CreateIncomeExpenditureTable extends Migration
 
         Schema::create('acc_payable_default', function (Blueprint $table) {
             $table->id()->comment('商品存貨, 物流費用');
-            $table->string('product_default_grade_type')->default('App\\\Models\\\ThirdGrade')
+            $table->string('product_default_grade_type')
                 ->comment('商品存貨1~4級會計科目的model class name, App\Models\FirstGrade等 ');
-            $table->unsignedBigInteger('product_default_grade_id')->default(4)->comment('對應到1～4級科目table的primary key');
-            $table->string('logistics_default_grade_type')->default('App\\\Models\\\ThirdGrade')
+            $table->unsignedBigInteger('product_default_grade_id')->comment('對應到1～4級科目table的primary key');
+            $table->string('logistics_default_grade_type')
                 ->comment('物流費用1~4級會計科目的model class name, 例App\Models\FirstGrade');
-            $table->unsignedBigInteger('logistics_default_grade_id')->default(8)->comment('對應到1～4級科目table的primary key');
+            $table->unsignedBigInteger('logistics_default_grade_id')->comment('對應到1～4級科目table的primary key');
 
             $table->timestamps();
         });
