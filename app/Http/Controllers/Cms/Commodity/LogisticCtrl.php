@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Enums\Delivery\Event;
+use App\Enums\Delivery\LogisticStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Consum;
 use App\Models\Delivery;
 use App\Models\Logistic;
+use App\Models\LogisticFlow;
 use App\Models\ShipmentGroup;
 use App\Models\SubOrders;
 use Illuminate\Http\Request;
@@ -143,6 +145,50 @@ class LogisticCtrl extends Controller
         wToast('刪除成功');
         if(Event::order()->value == $event) {
             return redirect(Route('cms.logistic.create', [$eventId], true));
+        }
+    }
+
+    //修改配送狀態
+    public function changeLogisticStatus(Request $request, $event, $eventId) {
+        $lastPageAction = '';
+        $delivery_id = null;
+        if (Event::order()->value == $event) {
+            $delivery = Delivery::getDeliveryWithEventWithSn($event, $eventId)->get()->first();
+            if (null != $delivery) {
+                $delivery_id = $delivery->id;
+                $subOrder = SubOrders::where('id', $eventId)->get()->first();
+                $lastPageAction = Route('cms.order.detail', ['id' => $subOrder->order_id, 'subOrderId' => $eventId ]);
+            }
+        }
+        $flowList = null;
+        if (null != $delivery_id) {
+            $flowList = LogisticFlow::getListByDeliveryId($delivery_id)->get();
+        }
+
+        return view('cms.commodity.logistic.change_status', [
+            'lastPageAction' => $lastPageAction,
+            'logisticStatus' => LogisticStatus::asArray(),
+            'flowList' => $flowList,
+            'event' => $event,
+            'eventId' => $eventId,
+            'delivery_id' => $delivery_id,
+        ]);
+    }
+
+    public function updateLogisticStatus(Request $request, $event ,$eventId ,$deliveryId ,$statusCode) {
+        $logistic_status = \App\Enums\Delivery\LogisticStatus::fromKey($statusCode);
+        $reLFCDS = LogisticFlow::createDeliveryStatus($request->user(), $deliveryId, $logistic_status);
+        if ($reLFCDS['success'] == 0) {
+            wToast($reLFCDS['error_msg']);
+        } else {
+            wToast('新增成功');
+        }
+
+        if(Event::order()->value == $event) {
+            return redirect(Route('cms.logistic.changeLogisticStatus', [
+                'event' => $event,
+                'eventId' => $eventId
+            ], true));
         }
     }
 }

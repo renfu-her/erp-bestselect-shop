@@ -302,4 +302,15 @@ class Delivery extends Model
         return $query;
     }
 
+    public static function getDeliveryWithEventWithSn($event, $event_id) {
+        $query = DB::table('dlv_delivery as delivery');
+        if (isset($event)) {
+            $query->where('delivery.event', $event);
+        }
+        if (isset($event_id)) {
+            $query->where('delivery.event_id', $event_id);
+        }
+        return $query;
+    }
+
 }
