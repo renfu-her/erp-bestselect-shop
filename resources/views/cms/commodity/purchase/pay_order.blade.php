@@ -146,7 +146,7 @@
                         @elseif($type === 'final')
                             @foreach($purchaseItemData as $purchaseItem)
                                 <tr>
-                                    <td>{{ $purchaseItem->title }}（負責人：{{ $purchaseItem->name }}）</td>
+                                    <td>{{ $productGradeName . '-' .$purchaseItem->title . '（負責人：' . $purchaseItem->name }}）</td>
                                     <td>{{ $purchaseItem->num }}</td>
                                     <td>{{ number_format($purchaseItem->total_price / $purchaseItem->num, 2) }}</td>
                                     <td>{{ number_format($purchaseItem->total_price) }}</td>
@@ -155,7 +155,7 @@
                             @endforeach
                             @if($logisticsPrice > 0)
                                 <tr>
-                                    <td>物流費用</td>
+                                    <td>{{ $logisticsGradeName }}</td>
                                     <td></td>
                                     <td></td>
                                     <td>{{ $logisticsPrice }}</td>

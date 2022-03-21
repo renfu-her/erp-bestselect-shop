@@ -546,11 +546,16 @@ class PurchaseCtrl extends Controller
             } elseif (isset($validatedReq['price'])) {
                 $totalPrice = intval($validatedReq['price']);
             }
+            $payableDefault = DB::table('acc_payable_default')->where('id', '=', 1)->get()->first;
 
             PayingOrder::createPayingOrder(
                 $id,
                 $request->user()->id,
                 $validatedReq['type'],
+                $payableDefault->product_default_grade_type,
+                $payableDefault->product_default_grade_id,
+                $payableDefault->logistics_default_grade_type,
+                $payableDefault->logistics_default_grade_id,
                 $totalPrice ?? 0,
                 null,
                 $request['deposit_summary'] ?? '',
@@ -566,6 +571,10 @@ class PurchaseCtrl extends Controller
         }
 
         $payingOrderData = PayingOrder::getPayingOrdersWithPurchaseID($id, $validatedReq['type'])->get()->first();
+        $payingOrderQuery = PayingOrder::find($payingOrderData->id);
+        $productGradeName = $payingOrderQuery->productGrade->name;
+        $logisticsGradeName = $payingOrderQuery->logisticsGrade->name;
+
         $purchaseItemData = PurchaseItem::getPurchaseItemsByPurchaseId($id);
 
         $purchaseData = Purchase::getPurchase($id)->first();
@@ -609,6 +618,8 @@ class PurchaseCtrl extends Controller
             'purchaseData' => $purchaseData,
             'hasReceivedPayment' => !is_null($accountPayable),
             'payingOrderData' => $payingOrderData,
+            'productGradeName' => $productGradeName,
+            'logisticsGradeName' => $logisticsGradeName,
             'depositPaymentData' => $depositPaymentData,
             'finalPaymentPrice' => $paymentPrice['finalPaymentPrice'],
             'logisticsPrice' => $paymentPrice['logisticsPrice'],

@@ -22,10 +22,34 @@ class PayingOrder extends Model
         return $this->morphOne(AccountPayable::class, 'payingOrder', 'pay_order_type', 'pay_order_id');
     }
 
+    /**
+     * 付款單商品的會計科目資料
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
+    public function productGrade()
+    {
+        return $this->morphTo(__FUNCTION__, 'product_grade_type', 'product_grade_id');
+    }
+
+    /**
+     * 物流費用的會計科目資料
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
+    public function logisticsGrade()
+    {
+        return $this->morphTo(__FUNCTION__, 'logistics_grade_type', 'logistics_grade_id');
+    }
+
     public static function createPayingOrder(
         $purchase_id,
         $usr_users_id,
         $type,
+        $product_grade_type,
+        $product_grade_id,
+        $logistics_grade_type,
+        $logistics_grade_id,
         $price = null,
         $pay_date = null,
         $summary = null,
@@ -35,6 +59,10 @@ class PayingOrder extends Model
             $purchase_id,
             $usr_users_id,
             $type,
+            $product_grade_type,
+            $product_grade_id,
+            $logistics_grade_type,
+            $logistics_grade_id,
             $price,
             $pay_date,
             $summary,
@@ -50,6 +78,10 @@ class PayingOrder extends Model
                 "usr_users_id" => $usr_users_id,
                 "type" => $type,
                 "sn" => $sn,
+                "product_grade_type" => $product_grade_type,
+                "product_grade_id" => $product_grade_id,
+                "logistics_grade_type" => $logistics_grade_type,
+                "logistics_grade_id" => $logistics_grade_id,
                 "price" => $price,
                 "pay_date" => $pay_date,
                 'summary' => $summary,

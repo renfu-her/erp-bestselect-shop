@@ -146,5 +146,12 @@ class IncomeExpenditureSeeder extends Seeder
             'cash_cheque_date' => '2022-02-17',
             'cheque_status' => 1
         ]);
+
+        DB::table('acc_payable_default')->insert([
+            'product_default_grade_type' => 'App\\\Models\\\ThirdGrade',
+            'product_default_grade_id' => 4,
+            'logistics_default_grade_type' => 'App\\\Models\\\ThirdGrade',
+            'logistics_default_grade_id' => 8,
+        ]);
     }
 }
