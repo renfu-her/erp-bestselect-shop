@@ -2,10 +2,15 @@
 
 namespace App\Models;
 
+use App\Enums\Accounting\GradeModelClass;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * 主要用來做「總帳會計」->「會計科目」下的CRUD
+ * table acc_all_grades的資料會在 AllGrade model 處理
+ */
 class GeneralLedger extends Model
 {
     use HasFactory;
@@ -336,7 +341,13 @@ class GeneralLedger extends Model
             $insertData[$FOREIGN_KEY_ARRAY[$prevGrade]] = $prevGradeFk[0]->id;
         }
 
-        DB::table($tableName)
-            ->insert($insertData);
+        $newGradeId = DB::table($tableName)
+            ->insertGetId($insertData);
+        $gradeType = GradeModelClass::getDescription(intval($grade));
+
+        AllGrade::create([
+            'grade_type' => $gradeType,
+            'grade_id' => $newGradeId,
+        ]);
     }
 }

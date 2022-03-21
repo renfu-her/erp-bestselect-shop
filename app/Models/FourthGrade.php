@@ -12,6 +12,16 @@ class FourthGrade extends Model
     protected $table = 'acc_fourth_grade';
 
     /**
+     * 主要用來取得對應到AllGrade的Id
+     * Example:  self::find(1)->allGrade->id
+     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
+     */
+    public function allGrade()
+    {
+        return $this->morphOne(AllGrade::class, 'eachGrade', 'grade_type', 'grade_id');
+    }
+
+    /**
      * 取得第4級科目現金資料
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\Accounting\GradeModelClass;
 use App\Models\FirstGrade;
 use App\Models\IncomeStatement;
 use Illuminate\Database\Seeder;
@@ -261,28 +262,26 @@ class AccountingSeeder extends Seeder
 
         foreach ($firstGradeArray as $firstGrade) {
             DB::table('acc_all_grades')->insert([
-                'acc_first_grade_fk' => $firstGrade->first_id,
+                'grade_type' => GradeModelClass::getDescription(1),
+                'grade_id' => $firstGrade->first_id,
             ]);
         }
         foreach ($secondGradeArray as $secondGrade) {
             DB::table('acc_all_grades')->insert([
-                'acc_first_grade_fk'  => $secondGrade->first_id,
-                'acc_second_grade_fk' => $secondGrade->second_id,
+                'grade_type' => GradeModelClass::getDescription(2),
+                'grade_id' => $secondGrade->second_id,
             ]);
         }
         foreach ($thirdGradeArray as $thirdGrade) {
             DB::table('acc_all_grades')->insert([
-                'acc_first_grade_fk'  => $thirdGrade->first_id,
-                'acc_second_grade_fk' => $thirdGrade->second_id,
-                'acc_third_grade_fk'  => $thirdGrade->third_id,
+                'grade_type' => GradeModelClass::getDescription(3),
+                'grade_id'  => $thirdGrade->third_id,
             ]);
         }
         foreach ($fourthGradeArray as $fourthGrade) {
             DB::table('acc_all_grades')->insert([
-                'acc_first_grade_fk'  => $fourthGrade->first_id,
-                'acc_second_grade_fk' => $fourthGrade->second_id,
-                'acc_third_grade_fk'  => $fourthGrade->third_id,
-                'acc_fourth_grade_fk' => $fourthGrade->fourth_id,
+                'grade_type' => GradeModelClass::getDescription(4),
+                'grade_id' => $fourthGrade->fourth_id,
             ]);
         }
     }
