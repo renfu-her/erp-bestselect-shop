@@ -159,7 +159,7 @@ return
                 "route_name" => "cms.income_statement.index",
             ],
             [
-                "title" => "收支科目",
+                "title" => "付款單科目",
                 "controller_name" => "IncomeExpenditureCtrl",
                 "route_name" => "cms.income_expenditure.index",
             ],

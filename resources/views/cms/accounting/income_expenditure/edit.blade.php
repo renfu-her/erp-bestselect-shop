@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-3">收支科目</h2>
+    <h2 class="mb-3">付款單科目</h2>
     <form  method="{{ $formMethod }}" action="{{ $formAction }}">
 {{--        @method('POST')--}}
         @csrf

@@ -417,18 +417,18 @@ Breadcrumbs::for('cms.income_statement.create', function (BreadcrumbTrail $trail
     $trail->push('科目類別', route('cms.income_statement.create'));
 });
 
-//收支科目
+//付款單科目
 Breadcrumbs::for('cms.income_expenditure.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('收支科目', route('cms.income_expenditure.index'));
+    $trail->push('付款單科目', route('cms.income_expenditure.index'));
 });
 Breadcrumbs::for('cms.income_expenditure.edit', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('收支科目', route('cms.income_expenditure.edit'));
+    $trail->push('付款單科目', route('cms.income_expenditure.edit'));
 });
 Breadcrumbs::for('cms.income_expenditure.update', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('收支科目', route('cms.income_expenditure.update'));
+    $trail->push('付款單科目', route('cms.income_expenditure.update'));
 });
 
 // 會計科目
