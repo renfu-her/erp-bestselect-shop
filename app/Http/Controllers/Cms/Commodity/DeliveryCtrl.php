@@ -41,35 +41,40 @@ class DeliveryCtrl extends Controller
             'data_per_page' => $cond['data_per_page']]);
     }
 
-    public function create($sub_order_id)
+    public function create($event, $eventId)
     {
-        $sub_order = SubOrders::getListWithShiGroupById($sub_order_id)->get()->first();
-        if (null == $sub_order) {
-            return abort(404);
+        $rsp_arr = [
+            'event' => $event,
+            'eventId' => $eventId,
+        ];
+        if(Event::order()->value == $event) {
+            $sub_order = SubOrders::getListWithShiGroupById($eventId)->get()->first();
+            if (null == $sub_order) {
+                return abort(404);
+            }
+
+            // 出貨單號ID
+            $delivery = Delivery::getData(Event::order()->value, $sub_order->id)->get();
+            $delivery_id = null;
+            if (null != $delivery) {
+                $deliveryGet = $delivery->first();
+                $delivery_id = $deliveryGet->id;
+            }
+            if (null != $delivery_id) {
+                $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
+                $ord_items_arr = ReceiveDepot::getShipItemWithDeliveryWithReceiveDepotList($event, $eventId, $delivery_id);
+            }
+            $rsp_arr['delivery'] = $delivery;
+            $rsp_arr['delivery_id'] = $delivery_id;
+            $rsp_arr['sn'] = $sub_order->sn;
+            $rsp_arr['order_id'] = $sub_order->order_id;
+            $rsp_arr['ord_items_arr'] = $ord_items_arr;
+            $rsp_arr['formAction'] = Route('cms.delivery.store', [
+                'deliveryId' => $delivery_id,
+            ], true);
         }
 
-        // 出貨單號ID
-        $delivery = Delivery::getData(Event::order()->value, $sub_order->id)->get();
-        $delivery_id = null;
-        if (null != $delivery) {
-            $deliveryGet = $delivery->first();
-            $delivery_id = $deliveryGet->id;
-        }
-        if (null != $delivery_id) {
-            $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
-            $ord_items_arr = ReceiveDepot::getShipItemWithDeliveryWithReceiveDepotList(Event::order()->value, $sub_order_id, $delivery_id);
-        }
-
-        return view('cms.commodity.delivery.edit', [
-            'delivery' => $delivery,
-            'delivery_id' => $delivery_id,
-            'sn' => $sub_order->sn,
-            'order_id' => $sub_order->order_id,
-            'sub_order_id' => $sub_order_id,
-            'ord_items_arr' => $ord_items_arr,
-            'event' => Event::order()->value,
-            'formAction' => Route('cms.delivery.create', [$delivery_id], true)
-        ]);
+        return view('cms.commodity.delivery.edit', $rsp_arr);
     }
 
     public function store(Request $request, int $delivery_id)
@@ -82,7 +87,10 @@ class DeliveryCtrl extends Controller
             $re = ReceiveDepot::setUpShippingData($delivery_id, $request->user()->id, $request->user()->name);
             if ($re['success'] == '1') {
                 wToast('儲存成功');
-                return redirect(Route('cms.delivery.create', [$delivery->event_id], true));
+                return redirect(Route('cms.delivery.create', [
+                    'event' => $delivery->event,
+                    'eventId' => $delivery->event_id,
+                    ], true));
             }
             $errors['error_msg'] = $re['error_msg'];
         }
@@ -112,7 +120,9 @@ class DeliveryCtrl extends Controller
         ReceiveDepot::deleteById($receiveDepotId);
         wToast('刪除成功');
         if(Event::order()->value == $event) {
-            return redirect(Route('cms.delivery.create', [$eventId], true));
+            return redirect(Route('cms.delivery.create', [
+                'event' => $event,
+                'eventId' => $eventId,], true));
         }
     }
 }

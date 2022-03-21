@@ -127,12 +127,13 @@ class ReceiveDepot extends Model
                         }
                     }
                     $curr_date = date('Y-m-d H:i:s');
-                    Delivery::where('id', '=', $delivery_id)->update(['audit_date' => $curr_date]);
+                    Delivery::where('id', '=', $delivery_id)->update([
+                        'audit_date' => $curr_date,
+                        'audit_user_id' => $user_id,
+                        'audit_user_name' => $user_name,]);
 
                     $data->update([
                         'audit_date' => $curr_date,
-                        'audit_user_id' => $user_id,
-                        'audit_user_name' => $user_name,
                     ]);
                     return ['success' => 1, 'error_msg' => ""];
                 });

@@ -100,7 +100,7 @@
             <div class="col-auto">
                 <button type="submit" class="btn btn-primary px-4" @if (isset($delivery->audit_date)) disabled @endif>送出審核</button>
                 @if($delivery->event == App\Enums\Delivery\Event::order()->value)
-                    <a href="{{ Route('cms.order.detail', ['id' => $order_id, 'subOrderId' => $sub_order_id ]) }}" class="btn btn-outline-primary px-4" role="button">前往出貨單明細</a>
+                    <a href="{{ Route('cms.order.detail', ['id' => $order_id, 'subOrderId' => $eventId ]) }}" class="btn btn-outline-primary px-4" role="button">前往出貨單明細</a>
                 @endif
             </div>
         </div>
@@ -175,7 +175,7 @@
         <script>
         $(function () {
             const CreateUrl = @json(Route('api.cms.delivery.create-receive-depot'));
-            const DelUrl = "{{ Route('cms.delivery.delete', ['event'=>$event, 'eventId'=>$sub_order_id, 'receiveDepotId'=>'#'], true)}}".replace('#', '');
+            const DelUrl = "{{ Route('cms.delivery.delete', ['event'=>$event, 'eventId'=>$eventId, 'receiveDepotId'=>'#'], true)}}".replace('#', '');
             const DeliveryId = @json($delivery_id);
             const Readonly = @json(isset($delivery->audit_date));
 
