@@ -546,16 +546,20 @@ class PurchaseCtrl extends Controller
             } elseif (isset($validatedReq['price'])) {
                 $totalPrice = intval($validatedReq['price']);
             }
-            $payableDefault = DB::table('acc_payable_default')->where('id', '=', 1)->get()->first;
-
+            $payableDefault = DB::table('acc_payable_default')->where('id', '=', 1)->get()->first();
+            $payDefault = json_decode( json_encode($payableDefault), true);
+            $productDefaultGradeType = $payableDefault->product_default_grade_type;
+            $productDefaultGradeId = $payableDefault->product_default_grade_id;
+            $logisticsDefaultGradeType = $payableDefault->logistics_default_grade_type;
+            $logisticsDefaultGradeId = $payableDefault->logistics_default_grade_id;
             PayingOrder::createPayingOrder(
                 $id,
                 $request->user()->id,
                 $validatedReq['type'],
-                $payableDefault->product_default_grade_type,
-                $payableDefault->product_default_grade_id,
-                $payableDefault->logistics_default_grade_type,
-                $payableDefault->logistics_default_grade_id,
+                $payDefault['product_default_grade_type'],
+                $payDefault['product_default_grade_id'],
+                $payDefault['logistics_default_grade_type'],
+                $payDefault['logistics_default_grade_id'],
                 $totalPrice ?? 0,
                 null,
                 $request['deposit_summary'] ?? '',
