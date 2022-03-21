@@ -130,7 +130,7 @@
 {{--                                </tr>--}}
 {{--                            @endforeach--}}
                             <tr>
-                                <td>{{ $depositPaymentData->summary }}</td>
+                                <td>{{ $productGradeName . '-' . $depositPaymentData->summary }}</td>
                                 <td>1</td>
                                 <td>{{ number_format($depositPaymentData->price, 2) }}</td>
                                 <td>{{ number_format($depositPaymentData->price) }}</td>
@@ -155,7 +155,7 @@
                             @endforeach
                             @if($logisticsPrice > 0)
                                 <tr>
-                                    <td>{{ $logisticsGradeName }}</td>
+                                    <td>{{ $logisticsGradeName . '-物流費用' }}</td>
                                     <td></td>
                                     <td></td>
                                     <td>{{ $logisticsPrice }}</td>
@@ -164,11 +164,11 @@
                             @endif
                             @if(!is_null($depositPaymentData))
                                 <tr>
-                                    <td>訂金抵扣（訂金付款單號{{ $depositPaymentData->sn }}）</td>
+                                    <td>{{ $productGradeName }}-訂金抵扣（訂金付款單號{{ $depositPaymentData->sn }}）</td>
                                     <td>1</td>
                                     <td>-{{ number_format($depositPaymentData->price, 2) }}</td>
                                     <td>-{{ number_format($depositPaymentData->price) }}</td>
-                                    <td></td>
+                                    <td>{{$depositPaymentData->memo}}</td>
                                 </tr>
                             @endif
                             <tr class="table-light">
