@@ -168,27 +168,19 @@ class LogisticCtrl extends Controller
         ]);
     }
 
-    public function updateLogisticStatus(Request $request) {
-        $request->validate([
-            'event' => 'required|string',
-            'event_id' => 'required|numeric',
-            'delivery_id' => 'required|numeric',
-            'status_code' => 'required|string'
-        ]);
-        $input = $request->only('event', 'event_id', 'delivery_id');
-
-        $logistic_status = \App\Enums\Delivery\LogisticStatus::fromKey($input['status_code']);
-        $reLFCDS = LogisticFlow::createDeliveryStatus($request->user(), $input['delivery_id'], $logistic_status);
+    public function updateLogisticStatus(Request $request, $event ,$eventId ,$deliveryId ,$statusCode) {
+        $logistic_status = \App\Enums\Delivery\LogisticStatus::fromKey($statusCode);
+        $reLFCDS = LogisticFlow::createDeliveryStatus($request->user(), $deliveryId, $logistic_status);
         if ($reLFCDS['success'] == 0) {
             wToast($reLFCDS['error_msg']);
         } else {
             wToast('修改成功');
         }
 
-        if(Event::order()->value == $input['event']) {
+        if(Event::order()->value == $event) {
             return redirect(Route('cms.logistic.change-logistic-status', [
-                'event' => $input['event'],
-                'event_id' => $input['event_id']
+                'event' => $event,
+                'event_id' => $eventId
             ], true));
         }
     }
