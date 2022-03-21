@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Enums\Delivery\Event;
+use App\Enums\Delivery\LogisticStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Consum;
 use App\Models\Delivery;
 use App\Models\Logistic;
+use App\Models\LogisticFlow;
 use App\Models\ShipmentGroup;
 use App\Models\SubOrders;
 use Illuminate\Http\Request;
@@ -143,6 +145,50 @@ class LogisticCtrl extends Controller
         wToast('刪除成功');
         if(Event::order()->value == $event) {
             return redirect(Route('cms.logistic.create', [$eventId], true));
+        }
+    }
+
+    //修改配送狀態
+    public function changeLogisticStatus(Request $request, $event, $eventId) {
+        $delivery_id = null;
+        if (Event::order()->value == $event) {
+            $delivery = Delivery::getDeliveryWithEventWithSn($event, $eventId)->get()->first();
+            if (null != $delivery) {
+                $delivery_id = $delivery->id;
+            }
+        }
+        $flowList = null;
+        if (null != $delivery_id) {
+            $flowList = LogisticFlow::getListByDeliveryId($delivery_id)->get();
+        }
+
+        return view('cms.commodity.logistic.change_status', [
+            'logisticStatus' => LogisticStatus::asArray(),
+            'flowList' => $flowList,
+        ]);
+    }
+
+    public function updateLogisticStatus(Request $request) {
+        $request->validate([
+            'event' => 'required|string',
+            'event_id' => 'required|numeric',
+            'delivery_id' => 'required|numeric',
+            'status_code' => 'required|string'
+        ]);
+        $input = $request->only('event', 'event_id', 'delivery_id');
+
+        $reLFCDS = LogisticFlow::createDeliveryStatus($request->user(), $input['delivery_id'], $input['status_code']);
+        if ($reLFCDS['success'] == 0) {
+            wToast($reLFCDS['error_msg']);
+        } else {
+            wToast('修改成功');
+        }
+
+        if(Event::order()->value == $input['event']) {
+            return redirect(Route('cms.logistic.change-logistic-status', [
+                'event' => $input['event'],
+                'event_id' => $input['event_id']
+            ], true));
         }
     }
 }
