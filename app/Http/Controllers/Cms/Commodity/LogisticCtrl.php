@@ -150,11 +150,14 @@ class LogisticCtrl extends Controller
 
     //修改配送狀態
     public function changeLogisticStatus(Request $request, $event, $eventId) {
+        $lastPageAction = '';
         $delivery_id = null;
         if (Event::order()->value == $event) {
             $delivery = Delivery::getDeliveryWithEventWithSn($event, $eventId)->get()->first();
             if (null != $delivery) {
                 $delivery_id = $delivery->id;
+                $subOrder = SubOrders::where('id', $eventId)->get()->first();
+                $lastPageAction = Route('cms.order.detail', ['id' => $subOrder->order_id, 'subOrderId' => $eventId ]);
             }
         }
         $flowList = null;
@@ -163,8 +166,12 @@ class LogisticCtrl extends Controller
         }
 
         return view('cms.commodity.logistic.change_status', [
+            'lastPageAction' => $lastPageAction,
             'logisticStatus' => LogisticStatus::asArray(),
             'flowList' => $flowList,
+            'event' => $event,
+            'eventId' => $eventId,
+            'delivery_id' => $delivery_id,
         ]);
     }
 
@@ -174,13 +181,13 @@ class LogisticCtrl extends Controller
         if ($reLFCDS['success'] == 0) {
             wToast($reLFCDS['error_msg']);
         } else {
-            wToast('修改成功');
+            wToast('新增成功');
         }
 
         if(Event::order()->value == $event) {
-            return redirect(Route('cms.logistic.change-logistic-status', [
+            return redirect(Route('cms.logistic.changeLogisticStatus', [
                 'event' => $event,
-                'event_id' => $eventId
+                'eventId' => $eventId
             ], true));
         }
     }
