@@ -136,11 +136,7 @@ class LogisticCtrl extends Controller
         if (null != $input['qty'] && 0 < count($input['qty'])) {
             //取得request資料 重新建立該子訂單商品的出貨資料
             $reConsumSetData = Consum::setDatasWithLogisticId($input, $logistic_id);
-            if ($reConsumSetData['success'] == '1') {
-                $addIds = $reConsumSetData['id'];
-                $receiveDepotList = Consum::whereIn('id', $addIds)->get();
-                $re[ResponseParam::data()->key] = $receiveDepotList;
-            } else {
+            if ('1' != $reConsumSetData['success']) {
                 $errors['error_msg'] = $reConsumSetData['error_msg'];
             }
         }
