@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Cms\Accounting\IncomeExpenditureCtrl;
 
+/**
+ * 付款單科目
+ */
 Route::group(['prefix' => 'income_expenditure', 'as' => 'income_expenditure.'], function () {
     Route::get('', [IncomeExpenditureCtrl::class, 'index'])->name('index')->middleware('permission:cms.income_expenditure.index');
 //    Route::get('create', [IncomeExpenditureCtrl::class, 'create'])->name('create')->middleware('permission:cms.income_expenditure.create');
