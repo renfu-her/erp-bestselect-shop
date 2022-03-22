@@ -34,7 +34,7 @@
                     </div>
                 </fieldset>
                 <div class="col-12 mb-3" data-category="code" hidden>
-                    <label class="form-label">優惠劵序號 <span class="text-danger">*</span><span class="small text-secondary">（僅接受英數，區分大小寫）</span></label>
+                    <label class="form-label">優惠劵序號 <span class="text-danger">*</span><span class="small text-secondary">（英文區分大小寫）</span></label>
                     <div class="input-group has-validation">
                         <input type="text" name="sn" class="form-control" value="" maxlength="20" disabled placeholder="可自行輸入或按隨機產生鈕" autocomplete="off">
                         <button id="generate_coupon_sn" class="btn btn-success" type="button">
@@ -43,11 +43,11 @@
                         <div class="valid-feedback invalid-feedback -feedback"></div>
                     </div>
                 </div>
-                <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">活動開始日期<span class="small text-secondary">（未填則表示現在）</span></label>
+                <div class="col-12 col-sm-6 mb-3" data-category="code" hidden>
+                    <label class="form-label">可用起始日<span class="small text-secondary">（未填則表示現在）</span></label>
                     <div class="input-group has-validation">
-                        <input type="date" name="start_date" value=""
-                                class="form-control" aria-label="活動開始日期"/>
+                        <input type="date" name="start_date" value="" norequired
+                                class="form-control" aria-label="可用起始日"/>
                         <button class="btn btn-outline-secondary icon" type="button" data-clear
                                 data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
                         </button>
@@ -55,11 +55,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">活動結束日期<span class="small text-secondary">（未填則表示不會結束）</span></label>
+                <div class="col-12 col-sm-6 mb-3" data-category="code" hidden>
+                    <label class="form-label">可用結束日<span class="small text-secondary">（未填則表示不會結束）</span></label>
                     <div class="input-group has-validation">
-                        <input type="date" name="end_date" value=""
-                                class="form-control" aria-label="活動結束日期"/>
+                        <input type="date" name="end_date" value="" norequired
+                                class="form-control" aria-label="可用結束日" />
                         <button class="btn btn-outline-secondary icon" type="button" data-clear
                                 data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
                         </button>
@@ -67,22 +67,22 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-sm-6 mb-3">
+                <div class="col-12 col-sm-6 mb-3" data-category="code" hidden>
                     <label class="form-label">優惠券數量 <span class="text-danger">*</span><span class="small text-secondary">（不限則填0）</span></label>
                     <input type="number" name="" min="0" value="1000" class="form-control" placeholder="請輸入優惠券數量" required aria-label="優惠券數量">
+                </div>
+                <div class="col-12 col-sm-6 mb-3" data-category="coupon" hidden>
+                    <label class="form-label">優惠券使用天數<span class="small text-secondary">（未填則表示無限制）</span></label>
+                    <div class="input-group flex-nowrap">
+                        <input type="number" name="" step="1" class="form-control" min="0" value="" placeholder="請輸入優惠券使用天數" norequired>
+                        <span class="input-group-text">天</span>
+                    </div>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">使用優惠券最低消費限制 <span class="text-danger">*</span><span class="small text-secondary">（不限則填0）</span></label>
                     <div class="input-group flex-nowrap">
                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                         <input type="number" name="" min="0" value="0" class="form-control" placeholder="請輸入使用優惠券最低消費金額" required>
-                    </div>
-                </div>
-                <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">優惠券使用天數<span class="small text-secondary">（未填則表示無限制）</span></label>
-                    <div class="input-group flex-nowrap">
-                        <input type="number" name="" step="1" class="form-control" min="0" value="" placeholder="請輸入優惠券使用天數" norequired>
-                        <span class="input-group-text">天</span>
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
@@ -187,13 +187,14 @@
             function setCategory() {
                 const category = $('input[name="category"]:checked').val();
 
-                if (category === 'code') {
-                    $('div[data-category="code"]').prop('hidden', false);
-                    $('div[data-category="code"] input').prop(AbleControl);
-                } else {
-                    $('div[data-category="code"]').prop('hidden', true);
-                    $('div[data-category="code"] input').prop(DisabledControl);
-                }
+                // hidden
+                $(`div[data-category]:not([data-category="${category}"])`).prop('hidden', true);
+                $(`div[data-category]:not([data-category="${category}"]) input`).prop(DisabledControl);
+
+                // shown
+                $(`div[data-category="${category}"]`).prop('hidden', false);
+                $(`div[data-category="${category}"] input`).prop(AbleControl);
+                $(`div[data-category="${category}"] input[norequired]`).prop('required', false);
             }
 
             // 優惠方式
@@ -216,16 +217,15 @@
 
             $('#form1').submit(function (e) {
                 if ($('input[name="category"]:checked').val() === 'code') {
-                    e.preventDefault();
-
                     const $sn = $('input[name="sn"]');
                     if ($sn.hasClass('is-valid')) {
-                        $(this).submit();
+                        return true;
                     } if ($sn.hasClass('is-invalid')) {
                         toast.show('請填入不重複的優惠劵序號', { type: 'danger' });
                         return false;
                     } else {
-                        checkSnInput($sn);
+                        checkSnInput($sn, true);
+                        return false;
                     }
                 }
             })
@@ -236,9 +236,9 @@
             });
             // 檢查序號
             $('input[name="sn"]').on('change', function () {
-                checkSnInput($(this));
+                checkSnInput($(this), false);
             });
-            function checkSnInput($snInput) {
+            function checkSnInput($snInput, submit) {
                 const sn = $snInput.val();
                 if (!sn) {
                     unavailableSn($snInput, '序號不可為空');
@@ -249,6 +249,9 @@
                     if (res.status === '0') {
                         // 序號可使用
                         availableSn($snInput);
+                        if (submit) {
+                            $('#form1').submit();
+                        }
                     } else {
                         // 序號不可使用
                         let msg = '';
