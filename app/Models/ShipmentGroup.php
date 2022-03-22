@@ -32,14 +32,12 @@ class ShipmentGroup extends Model
             ->groupBy('shi_group.name')
             ->groupBy('shi_group.method_fk')
             ->groupBy('shi_group.temps_fk')
-            ->groupBy('shi_group.note')
             ->select('shi_rule.group_id_fk'
                 , 'shi_rule.dlv_cost'
                 , 'shi_rule.at_most'
                 , 'shi_group.name'
                 , 'shi_group.method_fk'
                 , 'shi_group.temps_fk'
-                , 'shi_group.note'
             )
             ->selectRaw('max(shi_rule.dlv_fee) as dlv_fee');
 
