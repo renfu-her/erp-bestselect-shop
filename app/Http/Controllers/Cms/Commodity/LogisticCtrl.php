@@ -71,7 +71,8 @@ class LogisticCtrl extends Controller
             'defDeliveryCost' => $defDeliveryCost,
             'shipmentGroup' => ShipmentGroup::all(), //物流列表
             'consumWithInboundList' => $consumWithInboundList,
-            'formAction' => Route('cms.logistic.create', [$logistic_id], true)
+            'logisticFormAction' => Route('cms.logistic.create', [$logistic_id], true),
+            'inboundFormAction' => 'cms.logistic.audit-inbound'
         ]);
     }
 

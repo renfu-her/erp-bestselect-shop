@@ -45,7 +45,7 @@
         </div>
     </div>
 
-    <form action="{{ $formAction }}" method="post">
+    <form action="{{ $logisticFormAction }}" method="post">
         <div class="card shadow p-4 mb-4">
             <h6>物流基本資料</h6>
             <div class="row">
@@ -82,7 +82,7 @@
         </div>
     </form>
 
-    <form action="" method="post">
+    <form action="{{ $inboundFormAction }}" method="post">
         <div class="card shadow p-4 mb-4">
             <h6>耗材</h6>
             <div class="table-responsive tableOverBox">
@@ -143,6 +143,7 @@
             @endif
             
             <div class="col">
+                <input type="hidden" name="logistic_id" value="{{ $logistic->id }}">
                 <button type="submit" class="btn btn-primary px-4">儲存</button>
             </div>
         </div>
@@ -192,7 +193,63 @@
     </x-b-modal>
 
     {{-- 入庫清單 --}}
-    <x-b-modal id="addInbound" cancelBtn="false" size="modal-xl">
+    <div class="modal fade" id="addInbound" tabindex="-1" aria-labelledby="addInboundLabel"aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addInboundLabel">選擇入庫單</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="" method="post">
+                    <div class="modal-body">
+                        <div class="table-responsive">
+                            <figure class="mb-2">
+                                <blockquote class="blockquote">
+                                    <h6 class="fs-5"></h6>
+                                </blockquote>
+                                <figcaption class="blockquote-footer mb-2"></figcaption>
+                            </figure>
+                            <table class="table table-hover tableList">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" class="text-center" style="width: 10%">選取</th>
+                                        <th scope="col">入庫單</th>
+                                        <th scope="col">倉庫</th>
+                                        <th scope="col">庫存</th>
+                                        <th scope="col" style="width: 10%">預計使用數量</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="-appendClone --inbound">
+                                    <tr class="-cloneElem d-none">
+                                        <th class="text-center">
+                                            <input class="form-check-input" type="checkbox" name="inbound_id[]"
+                                               value="" aria-label="選取入庫單">
+                                        </th>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>
+                                            <input type="number" name="qty[]" value="0" min="1" max="" class="form-control form-control-sm text-center" disabled>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="alert alert-secondary mx-3 mb-0 -emptyData" style="display: none;" role="alert">
+                            查無入庫紀錄！
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" name="logistic_id" value="{{ $logistic->id }}">
+                        <span class="me-3 -checkedNum">已選擇 0 筆入庫單</span>
+                        <button class="btn btn-secondary" data-bs-target="#addConsume" data-bs-toggle="modal" data-bs-dismiss="modal">返回列表</button>
+                        <button type="submit" class="btn btn-primary btn-ok">加入</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {{-- <x-b-modal id="addInbound" cancelBtn="false" size="modal-xl">
         <x-slot name="title">選擇入庫單</x-slot>
         <x-slot name="body">
             <div class="table-responsive">
@@ -237,7 +294,7 @@
             <button class="btn btn-secondary" data-bs-target="#addConsume" data-bs-toggle="modal" data-bs-dismiss="modal">返回列表</button>
             <button type="button" class="btn btn-primary btn-ok">加入</button>
         </x-slot>
-    </x-b-modal>
+    </x-b-modal> --}}
 @endsection
 @once
     @push('sub-scripts')
@@ -368,17 +425,20 @@
                     const res = result.data;
                     if (res.status === '0') {
                         const inboData = res.data;
-                        inboData.forEach(inbo => {
-                            createOneInbound(inbo);
+                        inboData.forEach((inbo, i) => {
+                            createOneInbound(inbo, i);
                         });
                         
                         // bind event
                         // -- 選取
-                        $('#addInbound .-appendClone.--inbound input[type="checkbox"]:not(:disabled)')
-                            .off('change').on('change', function () {
-                                catchCheckedInbound($(this));
-                                $('#addInbound .-checkedNum').text(`已選擇 ${selectedInbound.length} 筆入庫單`);
-                            });
+                        $('#addInbound .-appendClone.--inbound input[type="checkbox"]').off('change').on('change', function () {
+                            catchCheckedInbound($(this));
+                            $('#addInbound .-checkedNum').text(`已選擇 ${selectedInbound.length} 筆入庫單`);
+                        });
+                        // -- 加入
+                        $('#addInbound button.btn-ok').off('click').on('click', function () {
+                            // 
+                        })
                     } else {
                         toast.show(res.msg, { title: '發生錯誤', type: 'danger' });
                     }
@@ -392,13 +452,13 @@
             function createOneInbound(ib, i) {
                 let $tr = $(`<tr>
                     <th class="text-center">
-                        <input class="form-check-input" type="checkbox"
-                            value="${i}" data-td="idx" aria-label="選取入庫單">
+                        <input class="form-check-input" type="checkbox" name="inbound_id[]"
+                            value="${ib.inbound_id}" aria-label="選取入庫單">
                     </th>
                     <td>${ib.inbound_sn}</td>
                     <td>${ib.depot_name}</td>
                     <td>${ib.qty}</td>
-                    <td><input type="number" value="" min="1" max="${ib.qty}" class="form-control form-control-sm text-center" disabled></td>
+                    <td><input type="number" name="qty[]" value="" min="1" max="${ib.qty}" class="form-control form-control-sm text-center" disabled></td>
                 </tr>`);
                 $('#addInbound .-appendClone.--inbound').append($tr);
             }
