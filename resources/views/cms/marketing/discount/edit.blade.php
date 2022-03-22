@@ -32,7 +32,7 @@
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">活動開始時間<span class="small text-secondary">（未填則表示現在）</span></label>
+                    <label class="form-label">活動開始時間 <span class="small text-secondary">（未填則表示現在）</span></label>
                     <div class="input-group has-validation">
                         <input type="datetime-local" name="start_date" value="{{ old('start_date', $data->start_date ?? '') }}"
                             class="form-control @error('start_date') is-invalid @enderror" aria-label="活動開始時間" />

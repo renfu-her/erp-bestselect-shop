@@ -127,8 +127,9 @@
                             <td>{{ $data->title }}</td>
                             <td>{{ $data->method_title }}</td>
                             <td @class([
-                                'text-success' => $data->status === '進行中', 
-                                'text-danger' => $data->status ==='已結束'])>
+                                'text-success' => $data->status === '進行中',
+                                'text-danger' => $data->status === '已結束',
+                            ])>
                                 {{ $data->status }}
                             </td>
                             <td>{{ $data->start_date }}</td>
@@ -137,16 +138,18 @@
                                 <a href="{{ Route('cms.discount.edit', ['id' => $data->id], true) }}"
                                     data-bs-toggle="tooltip" title="編輯"
                                     class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                     <i class="bi bi-pencil-square"></i>
-                                 </a>
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
                             </td>
                             <td class="text-center">
                                 <div class="form-check form-switch form-switch-lg mb-0 mt-1">
-                                    <input class="form-check-input" type="checkbox" name="">
+                                    <input class="form-check-input active-switch" data-id="{{ $data->id }}"
+                                        type="checkbox" @if ($data->active == '1') checked @endif name="">
                                 </div>
                             </td>
                             <td class="text-center">
-                                <a href="javascript:void(0)" data-href="#"
+                                <a href="javascript:void(0)"
+                                    data-href="{{ Route('cms.discount.delete', ['id' => $data->id], true) }}"
                                     data-bs-toggle="modal" data-bs-target="#confirm-delete"
                                     class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
                                     <i class="bi bi-trash"></i>
@@ -167,15 +170,15 @@
             @endif
         </div>
     </div>
-    
-<!-- Modal -->
-<x-b-modal id="confirm-delete">
-    <x-slot name="title">刪除確認</x-slot>
-    <x-slot name="body">確認要刪除此優惠劵？</x-slot>
-    <x-slot name="foot">
-        <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
-    </x-slot>
-</x-b-modal>
+
+    <!-- Modal -->
+    <x-b-modal id="confirm-delete">
+        <x-slot name="title">刪除確認</x-slot>
+        <x-slot name="body">確認要刪除此優惠劵？</x-slot>
+        <x-slot name="foot">
+            <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
+        </x-slot>
+    </x-b-modal>
 @endsection
 @once
     @push('sub-scripts')
@@ -185,11 +188,14 @@
                 $('input[name=data_per_page]').val($(this).val());
                 $('#search').submit();
             });
-            
+
             // Modal Control
             $('#confirm-delete').on('show.bs.modal', function(e) {
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
             });
+
+
+            let changeActiveUrl = @json(route('api.cms.discount.change-active'));
 
             // 進行狀態 region
             let selectStatus = $('input[name="status_code"]').val();
@@ -217,6 +223,24 @@
                 $(this).val('');
                 $('input[name="status_code"]').val(selectStatus);
             });
+
+            $('.active-switch').on('change', function() {
+                let active = $(this).is(':checked') ? 1 : 0;
+                let dataId = $(this).attr('data-id');
+
+                axios.post(changeActiveUrl, {
+                        'id': dataId,
+                        'active': active
+                    })
+                    .then((result) => {
+                        console.log(result.data);
+
+
+                    }).catch((err) => {
+                        console.error(err);
+                    });
+
+            })
         </script>
     @endpush
 @endOnce

@@ -44,15 +44,15 @@ class Discount extends Model
         if ($disStatus) {
             $re->where('status_code', $disStatus->value);
         }
-        
+
         return $re;
 
         // ->whereRaw("($selectStatusCode) as bb", "=", "D03");
 
-       // dd($re->get()->toArray());
+        // dd($re->get()->toArray());
     }
 
-    public static function createDiscount($title, DisMethod $method, $value, $start_date = null, $end_date = null, $is_grand_total = 1, $collection_ids = [])
+    public static function createDiscount($title, $min_consume, DisMethod $method, $value, $start_date = null, $end_date = null, $is_grand_total = 1, $collection_ids = [])
     {
         if (count($collection_ids) > 0) {
             $is_global = 0;
@@ -64,6 +64,7 @@ class Discount extends Model
             'start_date' => $start_date,
             'end_date' => $end_date,
             'is_grand_total' => $is_grand_total,
+            'min_consume' => $min_consume,
             'is_global' => $is_global,
         ]);
 
@@ -97,11 +98,14 @@ class Discount extends Model
 
         if (isset($options['start_date']) && $options['start_date']) {
             $data['start_date'] = date("Y-m-d 00:00:00", strtotime($options['start_date']));
+        } else {
+            $data['start_date'] = date("Y-m-d 00:00:00");
         }
 
         if (isset($options['end_date']) && $options['end_date']) {
-
             $data['end_date'] = date("Y-m-d 23:59:59", strtotime($options['end_date']));
+        } else {
+            $data['end_date'] = date('Y-m-d 23:59:59', strtotime(date('Y-m-d') . " +3 years"));
         }
 
         if ($method->value == DisMethod::fromKey('cash')->value) {
@@ -129,7 +133,7 @@ class Discount extends Model
         return $data;
     }
 
-    private static function updateDiscountCollection($discount_id, $collection_ids = [])
+    public static function updateDiscountCollection($discount_id, $collection_ids = [])
     {
         DB::table('dis_discount_collection')->where('discount_id', $discount_id)
             ->delete();

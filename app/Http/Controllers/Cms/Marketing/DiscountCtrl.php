@@ -20,7 +20,8 @@ class DiscountCtrl extends Controller
      */
     public function index(Request $request)
     {
-        Discount::dataList();
+
+       //  Discount::dataList();
         $cond = [];
         $query = $request->query();
 
@@ -71,12 +72,12 @@ class DiscountCtrl extends Controller
     {
         //
 
-       // dd($_POST);
+        // dd($_POST);
         $request->validate([
             'title' => 'required',
             'method_code' => ['required', Rule::in(array_keys(DisMethod::getValueWithDesc()))],
-            'start_date' => 'required|date',
-            'end_date' => 'required|date',
+          //  'start_date' => 'required|date',
+          //  'end_date' => 'required|date',
             'discount_value' => 'required|numeric',
             'min_consume' => 'required|numeric',
         ]);
@@ -86,6 +87,7 @@ class DiscountCtrl extends Controller
         $method_code = $d['method_code'];
 
         Discount::createDiscount($d['title'],
+            $d['min_consume'],
             DisMethod::$method_code(),
             $d['discount_value'],
             $d['start_date'],
@@ -115,12 +117,28 @@ class DiscountCtrl extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
         //
+
+        $data = Discount::where('id', $id)->get()->first();
+        if (!$data) {
+            return abort(404);
+        }
+
+        $data->start_date = str_replace(' ', 'T', $data->start_date);
+        $data->end_date = str_replace(' ', 'T', $data->end_date);
+
+        //dd($data->start_date);
+        // dd($data);
         return view('cms.marketing.discount.edit', [
             'method' => 'edit',
             'breadcrumb_data' => '現折優惠',
+            'data' => $data,
+            'dis_methods' => DisMethod::getValueWithDesc(),
+            'collections' => Collection::select('id', 'name')->get(),
+            'formAction' => Route("cms.discount.edit", ['id' => $id]),
+
         ]);
     }
 
@@ -133,7 +151,36 @@ class DiscountCtrl extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'title' => 'required',
+            'method_code' => ['required', Rule::in(array_keys(DisMethod::getValueWithDesc()))],
+            'start_date' => 'required|date',
+            'end_date' => 'required|date',
+            'discount_value' => 'required|numeric',
+            'min_consume' => 'required|numeric',
+        ]);
+        $d = request()->all();
+        $is_global = 1;
+
+        if (isset($d['collection_id']) && count($d['collection_id']) > 0) {
+            Discount::updateDiscountCollection($id, $d['collection_id']);
+            $is_global = 0;
+        }
+
+        Discount::where('id', $id)->update(
+            [
+                'title' => $d['title'],
+                'start_date' => $d['start_date'],
+                'end_date' => $d['end_date'],
+                'discount_value' => $d['discount_value'],
+                'method_code' => $d['method_code'],
+                'min_consume' => $d['min_consume'],
+                'is_global' => $is_global,
+            ]
+        );
+
+        wToast('更新完成');
+        return redirect(route('cms.discount.index'));
     }
 
     /**
@@ -145,5 +192,9 @@ class DiscountCtrl extends Controller
     public function destroy($id)
     {
         //
+        Discount::where('id', $id)->delete();
+        wToast('刪除完成');
+        return redirect(route('cms.discount.index'));
+
     }
 }
