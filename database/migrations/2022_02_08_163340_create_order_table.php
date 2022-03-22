@@ -38,6 +38,8 @@ class CreateOrderTable extends Migration
             $table->string('ship_temp', 10)->nullable()->comment('溫層');
             $table->integer('ship_temp_id')->nullable()->comment('溫層id');
             $table->integer('ship_rule_id')->nullable()->comment('減免id');
+            $table->string('package_sn', 30)->nullable()->comment('物流包裹編號SN');
+            $table->unsignedBigInteger('actual_ship_group_id')->nullable()->comment('實際物流 出貨方式id 對應shi_group.id');
             $table->string('dlv_fee')->comment('運費');
             $table->string('status', 20)->comment('訂單狀態');
             $table->integer('total_price')->comment('總費用');

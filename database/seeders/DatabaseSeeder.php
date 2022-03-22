@@ -27,7 +27,6 @@ class DatabaseSeeder extends Seeder
             SaleChannelSeeder::class,
             ProductSeeder::class,
             PurchaseSeeder::class,
-            LogisticStatusSeeder::class,
             OrderSeeder::class,
             AccountingSeeder::class,
             naviNodeSeeder::class,

@@ -27,10 +27,12 @@ class CreateReceiveDepotTable extends Migration
             $table->string('ship_depot_name', 20)->nullable()->comment('出貨倉庫名稱');
             $table->unsignedBigInteger('ship_group_id')->nullable()->comment('出貨方式id 對應shi_group.id');
 
-            $table->unsignedBigInteger('logistic_status_id')->nullable()->comment('物流狀態ID');
+            $table->string('logistic_status_code', 10)->nullable()->comment('物流狀態ID');
             $table->string('logistic_status', 20)->nullable()->comment('物流狀態 檢貨中/理貨中/待配送');
             $table->string('memo')->nullable()->comment('備註');
-            $table->dateTime('close_date')->nullable()->comment('結單日期');
+            $table->dateTime('audit_date')->nullable()->comment('審核日期');
+            $table->unsignedBigInteger('audit_user_id')->nullable()->comment('審核者');
+            $table->string('audit_user_name')->nullable()->comment('審核者名稱');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -49,26 +51,46 @@ class CreateReceiveDepotTable extends Migration
             $table->string('product_title', 40)->comment('商品名稱');
             $table->integer('qty')->comment('數量');
             $table->dateTime('expiry_date')->nullable()->comment('有效期限');
-            $table->dateTime('close_date')->nullable()->comment('結單日期');
+            $table->dateTime('audit_date')->nullable()->comment('審核日期');
             $table->softDeletes();
         });
 
-        Schema::create('dlv_logistic_status', function (Blueprint $table) {
-            $table->id();
-            $table->string('title', 15)->comment('名稱');
-            $table->string('content', 40)->comment('解說')->nullable();
-            $table->string('style', 20)->comment('樣式')->nullable();
-            $table->string('code', 15)->comment('代碼');
+        Schema::create('dlv_logistic', function (Blueprint $table) {
+            $table->id()->comment('物流單');
+            $table->unsignedBigInteger('delivery_id')->comment('出貨單id');
+            $table->string('sn', 30)->comment('物流SN');
+            $table->string('package_sn', 30)->nullable()->comment('物流包裹編號SN');
+            $table->unsignedBigInteger('ship_group_id')->nullable()->comment('實際物流 出貨方式id 對應shi_group.id');
+            $table->integer('cost')->default(0)->comment('物流成本');
+            $table->string('memo')->nullable()->comment('物流備註');
+            $table->dateTime('audit_date')->nullable()->comment('審核日期');
+            $table->unsignedBigInteger('audit_user_id')->nullable()->comment('審核者');
+            $table->string('audit_user_name')->nullable()->comment('審核者名稱');
+            $table->timestamps();
+            $table->softDeletes();
+        });
 
-            $table->unique(['code']);
+        Schema::create('dlv_consum', function (Blueprint $table) {
+            $table->id()->comment('物流耗材商品ID');
+            $table->unsignedBigInteger('logistic_id')->comment('物流單id');
+            $table->unsignedBigInteger('inbound_id')->comment('入庫單ID');
+            $table->string('inbound_sn', 20)->comment('入庫單SN');
+            $table->unsignedBigInteger('depot_id')->comment('收貨倉庫ID');
+            $table->string('depot_name', 30)->comment('收貨倉庫名稱');
+            $table->unsignedBigInteger('product_style_id')->comment('耗材商品款式ID');
+            $table->string('sku', 20)->comment('耗材商品sku');
+            $table->string('product_title', 40)->comment('耗材商品名稱');
+            $table->integer('qty')->comment('數量');
+            $table->timestamps();
         });
 
         Schema::create('dlv_logistic_flow', function (Blueprint $table) {
             $table->id();
             $table->integer('delivery_id')->comment('訂單id');
-            $table->unsignedBigInteger('status_id')->comment('物流狀態ID');
-            $table->string('status', 15)->comment('狀態名稱');
-            $table->string('status_code', 15)->comment('代碼');
+            $table->string('status', 10)->comment('狀態名稱');
+            $table->string('status_code', 10)->comment('代碼');
+            $table->unsignedBigInteger('user_id')->nullable()->comment('新增者');
+            $table->string('user_name')->nullable()->comment('新增者名稱');
             $table->timestamps();
         });
     }
@@ -82,7 +104,8 @@ class CreateReceiveDepotTable extends Migration
     {
         Schema::dropIfExists('dlv_delivery');
         Schema::dropIfExists('dlv_receive_depot');
-        Schema::dropIfExists('dlv_logistic_status');
+        Schema::dropIfExists('dlv_logistic');
+        Schema::dropIfExists('dlv_consum');
         Schema::dropIfExists('dlv_logistic_flow');
     }
 }

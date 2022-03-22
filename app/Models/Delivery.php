@@ -35,12 +35,6 @@ class Delivery extends Model
             $dataGet = $data->get()->first();
         }
 
-        $logistic_status = LogisticStatus::where('title', '新增');
-        $logistic_status_get = $logistic_status->get()->first();
-        if (null == $logistic_status_get) {
-            return ['success' => 0, 'error_msg' => '無此物流狀態'];
-        }
-
         $result = null;
         if (null == $dataGet) {
 
@@ -61,7 +55,7 @@ class Delivery extends Model
                 'ship_group_id' => $ship_group_id,
                 'memo' => $memo,
             ])->id;
-            $reDlvUpd = Delivery::updateLogisticStatus($event, $event_id, $logistic_status_get->id);
+            $reDlvUpd = Delivery::updateLogisticStatus(null, $event, $event_id, \App\Enums\Delivery\LogisticStatus::A1000());
             if ($reDlvUpd['success'] == 0) {
                 DB::rollBack();
                 return $reDlvUpd;
@@ -74,11 +68,9 @@ class Delivery extends Model
     }
 
     //更新物流狀態
-    public static function updateLogisticStatus($event, $event_id, $logistic_status_id)
+    public static function updateLogisticStatus($user, $event, $event_id, \App\Enums\Delivery\LogisticStatus $logistic_status)
     {
-        $logistic_status = LogisticStatus::where('id', $logistic_status_id);
-        $logistic_status_get = $logistic_status->get()->first();
-        if (null == $logistic_status_get) {
+        if (null == $logistic_status) {
             return ['success' => 0, 'error_msg' => '無此物流狀態'];
         }
 
@@ -89,13 +81,18 @@ class Delivery extends Model
         }
         $result = null;
         if (null != $dataGet) {
-            return DB::transaction(function () use ($data, $dataGet, $logistic_status_get
+            return DB::transaction(function () use ($data, $dataGet, $logistic_status, $user
             ) {
+                $reLFCDS = LogisticFlow::createDeliveryStatus($user, $dataGet->id, [$logistic_status]);
+
+                if ($reLFCDS['success'] == 0) {
+                    DB::rollBack();
+                }
                 $data->update([
-                    'logistic_status' => $logistic_status_get->title,
-                    'logistic_status_id' => $logistic_status_get->id,
+                    'logistic_status' => $logistic_status->value,
+                    'logistic_status_code' => $logistic_status->key,
                 ]);
-                LogisticFlow::changeDeliveryStatus($dataGet->id, $logistic_status_get);
+
                 return ['success' => 1, 'error_msg' => "", 'id' => $dataGet->id];
             });
         } else {
@@ -133,7 +130,7 @@ class Delivery extends Model
             $delivery_get = $delivery->get()->first();
             if (null == $delivery_get) {
                 return ['success' => 0, 'error_msg' => "無此出貨單"];
-            } else if ($delivery_get->close_date != null) {
+            } else if ($delivery_get->audit_date != null) {
                 //若已送出審核 則代表已扣除相應入庫單數量 則不給刪除
                 return ['success' => 0, 'error_msg' => "已送出審核，無法刪除"];
             } else {
@@ -189,10 +186,10 @@ class Delivery extends Model
                 , 'delivery.ship_depot_id'
                 , 'delivery.ship_depot_name'
                 , 'delivery.ship_group_id'
-                , 'delivery.logistic_status_id'
+                , 'delivery.logistic_status_code'
                 , 'delivery.logistic_status'
                 , 'delivery.memo'
-                , 'delivery.close_date'
+                , 'delivery.audit_date'
                 , 'delivery.created_at'
                 , 'delivery.updated_at'
                 , 'delivery.deleted_at'
@@ -212,8 +209,8 @@ class Delivery extends Model
         if (isset($param['ship_method']) && 0 < count($param['ship_method'])) {
             $query->whereIn('shi_method.method', $param['ship_method']);
         }
-        if (isset($param['logistic_status_id']) && 0 < count($param['logistic_status_id'])) {
-            $query->whereIn('delivery.logistic_status_id', $param['logistic_status_id']);
+        if (isset($param['logistic_status_code']) && 0 < count($param['logistic_status_code'])) {
+            $query->whereIn('delivery.logistic_status_code', $param['logistic_status_code']);
         }
         if (isset($param['order_sdate']) && isset($param['order_edate'])) {
             $order_sdate = date('Y-m-d 00:00:00', strtotime($param['order_sdate']));
@@ -229,4 +226,91 @@ class Delivery extends Model
 
         return $query;
     }
+
+    //取得物流頁顯示的 子訂單-出貨商品列表
+    public static function getListToLogistic($order_id = null, $sub_order_id = null)
+    {
+        $sub_rec_depot = DB::table('dlv_receive_depot')
+            ->select('dlv_receive_depot.delivery_id'
+                , 'dlv_receive_depot.event_item_id'
+                , 'dlv_receive_depot.freebies'
+                , 'dlv_receive_depot.product_style_id'
+                , 'dlv_receive_depot.sku as rec_sku'
+                , 'dlv_receive_depot.product_title as rec_product_title'
+            )
+            ->selectRaw('sum(dlv_receive_depot.qty) as send_qty')
+            ->groupBy('dlv_receive_depot.delivery_id')
+            ->groupBy('dlv_receive_depot.event_item_id')
+            ->groupBy('dlv_receive_depot.freebies')
+            ->groupBy('dlv_receive_depot.product_style_id')
+            ->groupBy('dlv_receive_depot.sku')
+            ->groupBy('dlv_receive_depot.product_title');
+
+        $sub_orders = DB::table('ord_sub_orders')
+            ->leftJoin('ord_items', function($join) {
+                $join->on('ord_items.sub_order_id', '=', 'ord_sub_orders.id');
+            })
+            ->select('ord_items.id as item_id'
+                , 'ord_items.order_id'
+                , 'ord_items.sub_order_id'
+                , 'ord_items.product_style_id'
+                , 'ord_items.sku'
+                , 'ord_items.product_title'
+                , 'ord_items.price'
+                , 'ord_items.qty'
+                , 'ord_items.type'
+                , 'ord_items.total_price'
+            );
+
+        $query = DB::table(DB::raw("({$sub_rec_depot->toSql()}) as rec_depot"))
+            ->leftJoinSub($sub_orders, 'orders', function($join) {
+                $join->on('orders.sub_order_id', '=', 'rec_depot.event_item_id');
+            })
+            ->whereNotNull('rec_depot.delivery_id')
+            ->whereNotNull('orders.item_id')
+            ->select('*');
+
+        if (isset($order_id)) {
+            $query->whereIn('ord_items.order_id', $order_id);
+        }
+        if (isset($sub_order_id)) {
+            $query->whereIn('ord_items.sub_order_id', $sub_order_id);
+        }
+
+        return $query;
+    }
+
+    //取得出貨單 預設基本設定的物流成本
+    public static function getListWithCost($delivery_id = null, $event = null, $event_id = null) {
+        $sub_shi = ShipmentGroup::getDataWithCost();
+        $query = DB::table('dlv_delivery as delivery')
+            ->leftJoinSub($sub_shi, 'shi_tb', function($join) {
+                $join->on('shi_tb.group_id_fk', '=', 'delivery.ship_group_id');
+                $join->where('delivery.ship_category', '=', 'deliver');
+            })
+            ->whereNotNull('shi_tb.group_id_fk');;
+
+        if (isset($delivery_id)) {
+            $query->where('delivery.id', $delivery_id);
+        }
+        if (isset($event)) {
+            $query->where('delivery.event', $event);
+        }
+        if (isset($event_id)) {
+            $query->where('delivery.event_id', $event_id);
+        }
+        return $query;
+    }
+
+    public static function getDeliveryWithEventWithSn($event, $event_id) {
+        $query = DB::table('dlv_delivery as delivery');
+        if (isset($event)) {
+            $query->where('delivery.event', $event);
+        }
+        if (isset($event_id)) {
+            $query->where('delivery.event_id', $event_id);
+        }
+        return $query;
+    }
+
 }

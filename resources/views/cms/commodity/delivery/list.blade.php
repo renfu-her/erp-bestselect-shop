@@ -34,10 +34,10 @@
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">物態</label>
-                    <select class="form-select -select2 -multiple" multiple name="logistic_status_id[]" aria-label="物態" data-placeholder="多選">
-                        @foreach ($logisticStatus as $key => $data)
-                            <option value="{{ $data->id }}"
-                                    @if (in_array($data->id, $searchParam['logistic_status_id'] ?? [])) selected @endif>{{ $data->title }}</option>
+                    <select class="form-select -select2 -multiple" multiple name="logistic_status_code[]" aria-label="物態" data-placeholder="多選">
+                        @foreach ($logisticStatus as $key => $value)
+                            <option value="{{ $key }}"
+                                    @if (in_array($key, $searchParam['logistic_status_code'] ?? [])) selected @endif>{{ $value }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -49,9 +49,6 @@
                                name="order_sdate" value="{{ $searchParam['order_sdate'] }}" aria-label="訂單起始日期" />
                         <input type="date" class="form-control -endDate @error('order_edate') is-invalid @enderror"
                                name="order_edate" value="{{ $searchParam['order_edate'] }}" aria-label="訂單結束日期" />
-                        <button class="btn btn-outline-secondary icon" type="button" data-clear
-                                data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
-                        </button>
                         <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
                         <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
                         <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
@@ -75,9 +72,6 @@
                                name="delivery_sdate" value="{{ $searchParam['delivery_sdate'] }}" aria-label="出貨起始日期" />
                         <input type="date" class="form-control -endDate @error('order_edate') is-invalid @enderror"
                                name="delivery_edate" value="{{ $searchParam['delivery_edate'] }}" aria-label="出貨結束日期" />
-                        <button class="btn btn-outline-secondary icon" type="button" data-clear
-                                data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
-                        </button>
                         <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
                         <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
                         <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
@@ -145,7 +139,7 @@
                             <td>{{ $data->ord_address }}</td>
                             <td class="text-center">
                                 @if($data->event == App\Enums\Delivery\Event::order()->value)
-                                    <a href="{{ Route('cms.order.detail', ['id' => $data->order_id, 'subOrderId' => $data->delivery_id], true) }}"
+                                    <a href="{{ Route('cms.order.detail', ['id' => $data->order_id, 'subOrderId' => $data->sub_order_id], true) }}"
                                        data-bs-toggle="tooltip" title="編輯"
                                        class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                         <i class="bi bi-pencil-square"></i>

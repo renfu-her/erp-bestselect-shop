@@ -58,7 +58,7 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:cms-api']
     require base_path('routes/api/cms/Delivery.php');
     require base_path('routes/api/cms/Collection.php');
     require base_path('routes/api/cms/Discount.php');
-
+    require base_path('routes/api/cms/Logistic.php');
     require base_path('routes/api/User.php');
 
 });
@@ -73,3 +73,4 @@ Route::group(['prefix' => 'web', 'as' => 'web.'], function () {
 require base_path('routes/api/Addr.php');
 
 Route::post('customer-login', [CustomerCtrl::class, 'login']);
+

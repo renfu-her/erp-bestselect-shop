@@ -5,7 +5,7 @@
         @method('POST')
         @csrf
         <div class="card shadow p-4 mb-4">
-            <h6>商品列表 {{$delivery->close_date}}</h6>
+            <h6>商品列表</h6>
             <div class="table-responsive tableOverBox">
                 <table id="Pord_list" class="table table-striped tableList">
                     <thead>
@@ -55,7 +55,7 @@
                                                 <button href="javascript:void(0)" type="button"
                                                     data-bid="{{ $rec->inbound_id }}" data-rid="{{ $rec->id }}"
                                                     data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                                                    @if (isset($delivery->close_date)) disabled @endif
+                                                    @if (isset($delivery->audit_date)) disabled @endif
                                                     class="icon icon-btn -del fs-5 text-danger rounded-circle border-0">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
@@ -69,7 +69,7 @@
                                         </tr>
                                         @endforeach
                                     </tbody>
-                                    @if (is_null($delivery->close_date))
+                                    @if (is_null($delivery->audit_date))
                                         <tfoot class="border-top-0">
                                             <tr>
                                                 <td colspan="5">
@@ -98,9 +98,9 @@
         </div>
         <div id="submitDiv">
             <div class="col-auto">
-                <button type="submit" class="btn btn-primary px-4" @if (isset($delivery->close_date)) disabled @endif>送出審核</button>
+                <button type="submit" class="btn btn-primary px-4" @if (isset($delivery->audit_date)) disabled @endif>送出審核</button>
                 @if($delivery->event == App\Enums\Delivery\Event::order()->value)
-                    <a href="{{ Route('cms.order.detail', ['id' => $order_id, 'subOrderId' => $delivery->id ]) }}" class="btn btn-outline-primary px-4" role="button">前往出貨單明細</a>
+                    <a href="{{ Route('cms.order.detail', ['id' => $order_id, 'subOrderId' => $eventId ]) }}" class="btn btn-outline-primary px-4" role="button">前往出貨單明細</a>
                 @endif
             </div>
         </div>
@@ -149,7 +149,6 @@
                     </tbody>
                 </table>
             </div>
-            <div class="col d-flex justify-content-end align-items-center flex-wrap -pages"></div>
             <div class="alert alert-secondary mx-3 mb-0 -emptyData" style="display: none;" role="alert">
                 查無入庫紀錄！
             </div>
@@ -162,7 +161,7 @@
 
     <!-- 刪除確認 Modal -->
     <x-b-modal id="confirm-delete">
-        <x-slot name="name">刪除確認</x-slot>
+        <x-slot name="title">刪除確認</x-slot>
         <x-slot name="body">刪除後將無法復原！確認要刪除？</x-slot>
         <x-slot name="foot">
             <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
@@ -175,9 +174,9 @@
         <script>
         $(function () {
             const CreateUrl = @json(Route('api.cms.delivery.create-receive-depot'));
-            const DelUrl = "{{ Route('cms.delivery.delete', ['subOrderId'=>$sub_order_id, 'receiveDepotId'=>'#'], true) }}".replace('#', '');
+            const DelUrl = "{{ Route('cms.delivery.delete', ['event'=>$event, 'eventId'=>$eventId, 'receiveDepotId'=>'#'], true)}}".replace('#', '');
             const DeliveryId = @json($delivery_id);
-            const Readonly = @json(isset($delivery->close_date));
+            const Readonly = @json(isset($delivery->audit_date));
 
             // init
             DvySumExportQty();
@@ -185,6 +184,7 @@
 
             // 刪除
             $('#confirm-delete').on('show.bs.modal', function (e) {
+                console.log($(e.relatedTarget).data('rid'));
                 $(this).find('.btn-ok').attr('href', DelUrl + $(e.relatedTarget).data('rid'));
             });
 

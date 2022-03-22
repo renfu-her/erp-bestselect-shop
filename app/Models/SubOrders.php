@@ -37,4 +37,29 @@ class SubOrders extends Model
                 , 'shi_group.id as ship_group_id' );
         return $sub_order;
     }
+
+
+    //更新物流單資料
+    public static function updateLogisticData($id, $package_sn, $actual_ship_group_id, $cost, $memo) {
+        $data = DB::table('ord_sub_orders')->where('id', $id);
+        $dataGet = null;
+        if (null != $data) {
+            $dataGet = $data->first();
+        }
+
+        if (null != $dataGet) {
+            $updateData = [
+                'package_sn' => $package_sn
+                , 'actual_ship_group_id' => $actual_ship_group_id
+//                , 'cost' => $cost
+//                , 'memo' => $memo
+            ];
+
+            $data->update($updateData);
+
+            return ['success' => 1, 'error_msg' => "", 'id' => $id];
+        } else {
+            return ['success' => 0, 'error_msg' => "查無資料"];
+        }
+    }
 }

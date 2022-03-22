@@ -385,4 +385,17 @@ return [
             ],
         ],
     ],
+    [
+        "unit" => "物流管理",
+        "permissions" => [
+            [
+                "cms.logistic.create",
+                "新增",
+            ],
+            [
+                "cms.logistic.delete",
+                "刪除",
+            ],
+        ],
+    ],
 ];
