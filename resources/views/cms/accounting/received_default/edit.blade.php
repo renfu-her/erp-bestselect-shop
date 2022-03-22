@@ -1,0 +1,207 @@
+@extends('layouts.main')
+@section('sub-content')
+    <style>
+        .grade_1 {
+            padding-left: 1ch;
+        }
+
+        .grade_2 {
+            padding-left: 2ch;
+        }
+
+        .grade_3 {
+            padding-left: 4ch;
+        }
+
+        .grade_4 {
+            padding-left: 8ch;
+        }
+    </style>
+    <h2 class="mb-3">付款單科目</h2>
+    <form method="{{ $formMethod }}" action="{{ $formAction }}">
+        {{--        @method('POST')--}}
+        @csrf
+        <div class="card shadow p-4 mb-4">
+            <h4 class="mb-3">付款管理預設</h4>
+            @foreach($defaultArray as $type => $default)
+                <div class="col-12 mb-3">
+                    <label class="form-label" for="">{{$default['description']}}</label>
+                    <select name="{{$type}}[default_grade_id][]"
+                            id=""
+                            multiple
+                            class="select2 -multiple form-select"
+{{--                                                    @if($isViewMode === true)--}}
+                                                        disabled
+{{--                                                    @endif--}}
+                            data-placeholder="可複選">
+                        @foreach($totalGrades as $totalGrade)
+                            <option
+                                @if(in_array($totalGrade['primary_id'], $default['default_grade_id']))
+                                selected
+                                @endif
+                                @if($totalGrade['grade_num'] === 1)
+                                class="grade_1"
+                                @elseif($totalGrade['grade_num'] === 2)
+                                class="grade_2"
+                                @elseif($totalGrade['grade_num'] === 3)
+                                class="grade_3"
+                                @elseif($totalGrade['grade_num'] === 4)
+                                class="grade_4"
+                                @endif
+                                value="{{ $totalGrade['primary_id'] }}">{{ $totalGrade['code'] . ' ' . $totalGrade['name'] }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            @endforeach
+            <h6 class="flex-grow-1 mb-3">外匯</h6>
+            <div class="table-responsive tableOverBox">
+                <table class="table table-hover tableList">
+                    <thead>
+                    <tr>
+                        <th scope="col">外幣名稱</th>
+                        <th scope="col">匯率（兌成台幣）</th>
+                        <th scope="col">科目</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach($currencyDefaultArray ?? [] as $type => $currencyDefaultList)
+                        @foreach($currencyDefaultList as $currencyDefault)
+                            <tr>
+                                <td>{{ $currencyDefault['currency_name'] ?? ''}}</td>
+                                <td>
+                                    <div class="col-12 col-sm-4 mb-3">
+                                        <input name="{{ $type }}[rate][{{$currencyDefault['currency_id']}}]"
+                                               class="form-control @error('foreign_currency.currency_name[]') is-invalid @enderror"
+{{--                                                                                      @if($isViewMode === true)--}}
+                                                                                          disabled
+{{--                                                                                      @endif--}}
+                                               type="number"
+                                               step="0.01"
+                                               value="{{ $currencyDefault['rate'] ?? '' }}"
+                                               placeholder=""
+                                               aria-label="Input">
+                                    </div>
+                                    @error('foreign_currency.currency_name[]') {{ $message }} @enderror
+                                </td>
+                                <td>
+                                    <select name="{{ $type }}[grade_id_fk][{{$currencyDefault['currency_id']}}]"
+                                            class="select3 -single form-select"
+                                            {{--@error(true) is-invalid @enderror"--}}
+{{--                                                                                @if($isViewMode === true)--}}
+                                                                                disabled
+{{--                                                                                @endif--}}
+                                            data-placeholder="單選">
+                                        <option disabled selected value>請選擇</option>
+
+                                        @foreach($totalGrades as $totalGrade)
+                                            <option
+                                                @if($totalGrade['primary_id'] === $currencyDefault['default_grade_id'])
+                                                selected
+                                                @endif
+                                                @if($totalGrade['grade_num'] === 1)
+                                                class="grade_1"
+                                                @elseif($totalGrade['grade_num'] === 2)
+                                                class="grade_2"
+                                                @elseif($totalGrade['grade_num'] === 3)
+                                                class="grade_3"
+                                                @elseif($totalGrade['grade_num'] === 4)
+                                                class="grade_4"
+                                                @endif
+                                                value="{{ $totalGrade['primary_id'] }}">{{ $totalGrade['code'] . ' ' . $totalGrade['name'] }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    {{--                            @error() {{ $message }} @enderror--}}
+
+                                </td>
+                            </tr>
+                        @endforeach
+                    @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <div class="">
+{{--                    @if($isViewMode === true)--}}
+                <button type="button" class="btn btn-primary px-4" id="editBtn">
+                        編輯
+                </button>
+{{--                    @else--}}
+                <button type="submit" class="btn btn-primary px-4" id="submitBtn">
+                        儲存
+{{--                    @endif--}}
+                </button>
+{{--                @if($isViewMode === false)--}}
+                    <a href="{{ Route('cms.received_default.index', [], true) }}">
+                        <button type="button" class="btn btn-outline-primary px-4" id="cancelBtn">取消</button>
+                    </a>
+{{--                @endif--}}
+            </div>
+        </div>
+    </form>
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+@endsection
+@once
+    @push('sub-scripts')
+        <script>
+            // 會計科目樹狀排版
+            $('.select2, .select3').select2({
+                templateResult: function (data) {
+                    // We only really care if there is an element to pull classes from
+                    if (!data.element) {
+                        return data.text;
+                    }
+
+                    var $element = $(data.element);
+
+                    var $wrapper = $('<span></span>');
+                    $wrapper.addClass($element[0].className);
+
+                    $wrapper.text(data.text);
+
+                    return $wrapper;
+                }
+            });
+
+            $(document).ready(function () {
+                // $('#editBtn').show();
+                // $('#submitBtn').hide();
+                // $('#cancelBtn').hide();
+                $('#editBtn').click(function () {
+                    if ($('input, select').attr('disabled') === 'disabled'){
+                        $('input, select').attr('disabled', false);
+                        $('#editBtn').hide();
+                        $('#submitBtn').show();
+                        $('#cancelBtn').show();
+                    }else {
+                        $('input, select').attr('disabled', true);
+                        $('#editBtn').show();
+                        $('#submitBtn').hide();
+                        $('#cancelBtn').hide();
+                    }
+                });
+
+            });
+
+
+
+
+            // $('#editBtn').toggle(
+            //     function () {
+            //     $('input, select').attr('disabled', false);
+            // }, function () {
+            //     // $('input, select').attr('disabled', true);
+            // });
+
+        </script>
+    @endpush
+@endonce

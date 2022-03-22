@@ -51,13 +51,14 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/GeneralLedger.php');
     require base_path('routes/cms/IncomeStatement.php');
     require base_path('routes/cms/IncomeExpenditure.php');
+    require base_path('routes/cms/ReceivedDefault.php');
     require base_path('routes/cms/Ap.php');
     require base_path('routes/cms/Ar.php');
     require base_path('routes/cms/FirstGrade.php');
     require base_path('routes/cms/Delivery.php');
     require base_path('routes/cms/Logistic.php');
     require base_path('routes/cms/UserMnt.php');
-   
+
     require base_path('routes/cms/Discount.php');
     require base_path('routes/cms/PromoCoupon.php');
     require base_path('routes/cms/PromoCode.php');

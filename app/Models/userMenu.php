@@ -163,6 +163,11 @@ return
                 "controller_name" => "IncomeExpenditureCtrl",
                 "route_name" => "cms.income_expenditure.index",
             ],
+            [
+                "title" => "收款單科目",
+                "controller_name" => "ReceivedDefaultCtrl",
+                "route_name" => "cms.received_default.index",
+            ],
         ],
     ],
     [

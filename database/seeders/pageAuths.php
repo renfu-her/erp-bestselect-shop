@@ -298,6 +298,27 @@ return [
         ],
     ],
     [
+        "unit" => "收款單科目",
+        "permissions" => [
+            [
+                "cms.received_default.index",
+                "瀏覽",
+            ],
+            [
+                "cms.received_default.create",
+                "新增",
+            ],
+            [
+                "cms.received_default.edit",
+                "編輯",
+            ],
+            [
+                "cms.received_default.delete",
+                "刪除",
+            ],
+        ],
+    ],
+    [
         "unit" => "員工帳號管理",
         "permissions" => [
             [
