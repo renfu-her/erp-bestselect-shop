@@ -54,10 +54,16 @@ class LogisticFlow extends Model
         $logisticFlowToDel->delete();
         //取得最後一筆
         $logisticFlowLast = LogisticFlow::where('delivery_id', $delivery_id)->orderByDesc('id')->get()->first();
+        $status = null;
+        $status_code = null;
+        if (null != $logisticFlowLast) {
+            $status = $logisticFlowLast->status;
+            $status_code = $logisticFlowLast->status_code;
+        }
         //回寫回出貨單
         Delivery::where('id', $delivery_id)->update([
-            'logistic_status' => $logisticFlowLast->status,
-            'logistic_status_code' => $logisticFlowLast->status_code,
+            'logistic_status' => $status,
+            'logistic_status_code' => $status_code,
         ]);
     }
 
