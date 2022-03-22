@@ -4,7 +4,7 @@ use App\Http\Controllers\Cms\Commodity\LogisticCtrl;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'logistic','as'=>'logistic.'], function () {
-    Route::get('create/{subOrderId}', [LogisticCtrl::class, 'create'])->name('create')->middleware('permission:cms.logistic.create');
+    Route::get('create/{event}/{eventId}', [LogisticCtrl::class, 'create'])->name('create')->middleware('permission:cms.logistic.create');
     Route::post('store', [LogisticCtrl::class, 'store'])->name('store')->middleware('permission:cms.logistic.create');
     Route::post('store-consum', [LogisticCtrl::class, 'storeConsum'])->name('storeConsum')->middleware('permission:cms.logistic.create');
     Route::post('audit-inbound', [LogisticCtrl::class, 'auditInbound'])->name('auditInbound')->middleware('permission:cms.logistic.create');

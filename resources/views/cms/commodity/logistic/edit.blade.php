@@ -56,7 +56,9 @@
                     <select name="actual_ship_group_id" class="-select2 -single form-select" required data-placeholder="請單選">
                         <option value="" selected disabled>請選擇</option>
                         @foreach ($shipmentGroup as $ship)
-                            <option value="{{ $ship->group_id_fk }}" data-cost="{{ $ship->dlv_cost }}">{{ $ship->name }}</option>
+                            <option value="{{ $ship->group_id_fk }}"
+                                    @if($ship->group_id_fk == $logistic->ship_group_id) selected @endif
+                                    data-cost="{{ $ship->dlv_cost }}">{{ $ship->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -156,7 +158,7 @@
 
     <div>
         <div class="col-auto">
-            <a href=""
+            <a href="{{ $returnAction }}"
                 class="btn btn-outline-primary px-4" role="button">返回明細</a>
         </div>
     </div>
@@ -176,7 +178,7 @@
             </form>
         </x-slot>
     </x-b-modal>
-    
+
     <!-- 刪除確認 Modal -->
     <x-b-modal id="confirm-delete">
         <x-slot name="title">刪除確認</x-slot>

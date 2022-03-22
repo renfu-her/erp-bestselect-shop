@@ -16,18 +16,23 @@ use Illuminate\Support\Facades\DB;
 
 class LogisticCtrl extends Controller
 {
-    public function create($sub_order_id)
+    public function create($event, $eventId)
     {
-        $sub_order = SubOrders::getListWithShiGroupById($sub_order_id)->get()->first();
-        if (null == $sub_order) {
-            return abort(404);
-        }
-
-        // 出貨單號ID
-        $delivery = Delivery::getData(Event::order()->value, $sub_order->id)->get()->first();
+        $delivery = null;
         $delivery_id = null;
-        if (null != $delivery) {
-            $delivery_id = $delivery->id;
+        $returnAction = '';
+        if (Event::order()->value == $event) {
+            $sub_order = SubOrders::getListWithShiGroupById($eventId)->get()->first();
+            if (null == $sub_order) {
+                return abort(404);
+            }
+            $returnAction = Route('cms.order.detail', ['id' => $sub_order->order_id, 'subOrderId' => $eventId ]);
+
+            // 出貨單號ID
+            $delivery = Delivery::getData($event, $eventId)->get()->first();
+            if (null != $delivery) {
+                $delivery_id = $delivery->id;
+            }
         }
 
         if (null == $delivery) {
@@ -71,6 +76,7 @@ class LogisticCtrl extends Controller
         }
 
         return view('cms.commodity.logistic.edit', [
+            'returnAction' => $returnAction,
             'delivery' => $delivery,
             'logistic' => $logistic,
             'deliveryList' => $deliveryList,
