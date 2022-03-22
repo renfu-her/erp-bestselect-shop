@@ -56,7 +56,7 @@
                     <select name="actual_ship_group_id" class="-select2 -single form-select" required data-placeholder="請單選">
                         <option value="" selected disabled>請選擇</option>
                         @foreach ($shipmentGroup as $ship)
-                            <option value="{{ $ship->id }}">{{ $ship->name }}</option>
+                            <option value="{{ $ship->group_id_fk }}">{{ $ship->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -205,6 +205,8 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="{{ Route('cms.logistic.storeConsum', [], true) }}" method="post">
+                    @method('POST')
+                    @csrf
                     <div class="modal-body">
                         <div class="table-responsive">
                             <figure class="mb-2">
