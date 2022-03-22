@@ -161,6 +161,7 @@
         </div>
     </div>
 
+@if (is_null($logistic->audit_date))
 {{-- Modal --}}
     <!-- 送審確認 Modal -->
     <x-b-modal id="confirm-audit">
@@ -173,6 +174,15 @@
                 <input type="hidden" name="logistic_id" value="{{ $logistic->id }}">
                 <button type="submit" class="btn btn-primary">確認並送審</button>
             </form>
+        </x-slot>
+    </x-b-modal>
+    
+    <!-- 刪除確認 Modal -->
+    <x-b-modal id="confirm-delete">
+        <x-slot name="title">刪除確認</x-slot>
+        <x-slot name="body">刪除後將無法復原！確認要刪除？</x-slot>
+        <x-slot name="foot">
+            <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
         </x-slot>
     </x-b-modal>
 
@@ -270,15 +280,7 @@
             </div>
         </div>
     </div>
-    
-    <!-- 刪除確認 Modal -->
-    <x-b-modal id="confirm-delete">
-        <x-slot name="title">刪除確認</x-slot>
-        <x-slot name="body">刪除後將無法復原！確認要刪除？</x-slot>
-        <x-slot name="foot">
-            <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
-        </x-slot>
-    </x-b-modal>
+@endif
 @endsection
 @once
     @push('sub-scripts')
@@ -288,6 +290,7 @@
             $('input[name="cost"]').val(cost);
         });
     </script>
+    @if (is_null($logistic->audit_date))
     <script>
         let addConsumeModal = new bootstrap.Modal(document.getElementById('addConsume'));
         let addInboundModal = new bootstrap.Modal(document.getElementById('addInbound'));
@@ -492,7 +495,7 @@
                 }
             }
         }
-
     </script>
+    @endif
     @endpush
 @endonce
