@@ -2,11 +2,6 @@
 @section('sub-content')
     <h2 class="mb-3">配送狀態</h2>
 
-    <div class="pt-2 mb-3">
-        <a href="{{ $lastPageAction }}" class="btn btn-primary" role="button">
-            <i class="bi bi-arrow-left"></i> 返回上一頁
-        </a>
-    </div>
     @error('error_msg')
     <div class="alert alert-danger" role="alert">
         {{ $message }}
@@ -76,6 +71,13 @@
                 @endforeach
                 </tbody>
             </table>
+        </div>
+    </div>
+
+    <div>
+        <div class="col-auto">
+            <a href="{{ $lastPageAction }}"
+                class="btn btn-outline-primary px-4" role="button">返回明細</a>
         </div>
     </div>
 @endsection
