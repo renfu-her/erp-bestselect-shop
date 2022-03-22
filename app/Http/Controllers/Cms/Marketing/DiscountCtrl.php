@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Cms\Marketing;
 
+use App\Enums\Discount\DisCategory;
 use App\Enums\Discount\DisMethod;
 use App\Enums\Discount\DisStatus;
 use App\Http\Controllers\Controller;
@@ -21,7 +22,7 @@ class DiscountCtrl extends Controller
     public function index(Request $request)
     {
 
-       //  Discount::dataList();
+        //  Discount::dataList();
         $cond = [];
         $query = $request->query();
 
@@ -33,7 +34,7 @@ class DiscountCtrl extends Controller
         $cond['end_date'] = Arr::get($query, 'end_date');
         $cond['is_global'] = Arr::get($query, 'is_global');
 
-        $dataList = Discount::dataList()->paginate($data_per_page)->appends($query);
+        $dataList = Discount::dataList(DisCategory::normal())->paginate($data_per_page)->appends($query);
         //   $cond['status_code'] = $cond['status_code'] ? explode(',', $cond['status_code']) : [];
         return view('cms.marketing.discount.list', [
             'dataList' => [],
@@ -76,8 +77,8 @@ class DiscountCtrl extends Controller
         $request->validate([
             'title' => 'required',
             'method_code' => ['required', Rule::in(array_keys(DisMethod::getValueWithDesc()))],
-          //  'start_date' => 'required|date',
-          //  'end_date' => 'required|date',
+            //  'start_date' => 'required|date',
+            //  'end_date' => 'required|date',
             'discount_value' => 'required|numeric',
             'min_consume' => 'required|numeric',
         ]);
@@ -192,7 +193,7 @@ class DiscountCtrl extends Controller
     public function destroy($id)
     {
         //
-        Discount::where('id', $id)->delete();
+        Discount::delProcess($id);
         wToast('刪除完成');
         return redirect(route('cms.discount.index'));
 

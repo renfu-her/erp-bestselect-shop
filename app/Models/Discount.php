@@ -17,7 +17,7 @@ class Discount extends Model
     protected $table = 'dis_discounts';
     protected $guarded = [];
 
-    public static function dataList(DisStatus $disStatus = null)
+    public static function dataList(DisCategory | array $category = null, DisStatus $disStatus = null, )
     {
         $now = date('Y-m-d H:i:s');
 
@@ -43,6 +43,16 @@ class Discount extends Model
 
         if ($disStatus) {
             $re->where('status_code', $disStatus->value);
+        }
+
+        if ($category) {
+            if (is_array($category)) {
+                $re->whereIn('category_code', array_map(function ($n) {
+                    return $n->value;
+                }, $category));
+            } else {
+                $re->where('category_code', $category->value);
+            }
         }
 
         return $re;
@@ -72,6 +82,70 @@ class Discount extends Model
 
         self::updateDiscountCollection($id, $collection_ids);
         return $id;
+
+    }
+
+    public static function createCoupon($title, $min_consume, DisMethod $method, $value, $is_grand_total = 1, $collection_ids = [], $life_cycle = 0)
+    {
+
+        DB::transaction(function () use ($title, $min_consume, $method, $value, $is_grand_total, $collection_ids, $life_cycle) {
+            if (count($collection_ids) > 0) {
+                $is_global = 0;
+            } else {
+                $is_global = 1;
+            }
+
+            $sn = '';
+
+            $sn = date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
+                    ->where('category_code', DisCategory::coupon()->value)
+                    ->withTrashed()
+                    ->get()
+                    ->count()) + 1, 3, '0', STR_PAD_LEFT);
+
+            $data = self::_createDiscount($title, DisCategory::coupon(), $method, $value, [
+                'is_grand_total' => $is_grand_total,
+                'min_consume' => $min_consume,
+                'is_global' => $is_global,
+                'life_cycle' => $life_cycle,
+                'sn' => $sn,
+            ]);
+
+            $id = self::create($data)->id;
+
+            self::updateDiscountCollection($id, $collection_ids);
+            return $id;
+
+        });
+
+    }
+
+    public static function createCode($sn, $title, $min_consume, DisMethod $method, $value, $start_date = null, $end_date = null, $is_grand_total = 1, $collection_ids = [], $max_usage = 0)
+    {
+
+        DB::transaction(function () use ($sn, $title, $min_consume, $method, $value, $is_grand_total, $collection_ids, $start_date, $end_date, $max_usage) {
+            if (count($collection_ids) > 0) {
+                $is_global = 0;
+            } else {
+                $is_global = 1;
+            }
+
+            $data = self::_createDiscount($title, DisCategory::code(), $method, $value, [
+                'is_grand_total' => $is_grand_total,
+                'min_consume' => $min_consume,
+                'is_global' => $is_global,
+                'sn' => $sn,
+                'start_date' => $start_date,
+                'end_date' => $end_date,
+                'max_usage' => $max_usage,
+            ]);
+
+            $id = self::create($data)->id;
+
+            self::updateDiscountCollection($id, $collection_ids);
+            return $id;
+
+        });
 
     }
 
@@ -130,6 +204,17 @@ class Discount extends Model
             $data['min_consume'] = $options['min_consume'];
         }
 
+        if (isset($options['life_cycle'])) {
+            $data['life_cycle'] = $options['life_cycle'];
+        }
+
+        if (isset($options['sn'])) {
+            $data['sn'] = $options['sn'];
+        }
+        if (isset($options['max_usage'])) {
+            $data['max_usage'] = $options['max_usage'];
+        }
+
         return $data;
     }
 
@@ -147,5 +232,16 @@ class Discount extends Model
             }, $collection_ids));
         }
 
+    }
+
+    public static function getDicountCollections($dis_id)
+    {
+        return DB::table('dis_discount_collection')->where('discount_id', $dis_id);
+    }
+
+    public static function delProcess($id)
+    {
+        self::where('id', $id)->delete();
+        DB::table('dis_discount_collection')->where('discount_id', $id)->delete();
     }
 }

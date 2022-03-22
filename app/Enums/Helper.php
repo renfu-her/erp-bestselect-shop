@@ -11,13 +11,18 @@ use BenSampo\Enum\Enum;
  */
 class Helper extends Enum
 {
-    public static function getValueWithDesc()
+    public static function getValueWithDesc($keys = null)
     {
         $output = [];
-        foreach (self::asArray() as $key => $value) {
-            $output[$value] = self::$key()->description;
+        if ($keys && is_array($keys)) {
+            foreach ($keys as $value) {
+                $output[$value] = self::$value()->description;
+            }
+        } else {
+            foreach (self::asArray() as $key => $value) {
+                $output[$value] = self::$key()->description;
+            }
         }
-
         return $output;
 
     }

@@ -15,6 +15,7 @@ final class DisStatus extends Helper
     const D01 = 'D01';
     const D02 = 'D02';
     const D03 = 'D03';
+    const D04 = 'D04';
 
     public static function getDescription($value): string
     {
@@ -31,6 +32,9 @@ final class DisStatus extends Helper
                 break;
             case self::D03:
                 $result = '暫停';
+                break;
+            case self::D04:
+                $result = '無限制';
                 break;
             default:
                 $result = parent::getDescription($value);

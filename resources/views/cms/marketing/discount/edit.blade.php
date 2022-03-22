@@ -14,8 +14,9 @@
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">活動名稱 <span class="text-danger">*</span></label>
-                    <input class="form-control @error('title') is-invalid @enderror" value="{{ old('title', $data->title ?? '') }}" name="title" type="text"
-                        placeholder="請輸入活動名稱" required aria-label="活動名稱">
+                    <input class="form-control @error('title') is-invalid @enderror"
+                        value="{{ old('title', $data->title ?? '') }}" name="title" type="text" placeholder="請輸入活動名稱"
+                        required aria-label="活動名稱">
                     @error('title')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -24,8 +25,9 @@
                     <label class="form-label">消費金額 <span class="text-danger">*</span></label>
                     <div class="input-group flex-nowrap">
                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                        <input type="number" class="form-control @error('min_consume') is-invalid @enderror" name="min_consume" min="0"
-                            value="{{ old('min_consume', $data->min_consume ?? '') }}" placeholder="請輸入消費金額" required>
+                        <input type="number" class="form-control @error('min_consume') is-invalid @enderror"
+                            name="min_consume" min="0" value="{{ old('min_consume', $data->min_consume ?? '') }}"
+                            placeholder="請輸入消費金額" required>
                         @error('min_consume')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -34,7 +36,8 @@
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">活動開始時間 <span class="small text-secondary">（未填則表示現在）</span></label>
                     <div class="input-group has-validation">
-                        <input type="datetime-local" name="start_date" value="{{ old('start_date', $data->start_date ?? '') }}"
+                        <input type="datetime-local" name="start_date"
+                            value="{{ old('start_date', $data->start_date ?? '') }}"
                             class="form-control @error('start_date') is-invalid @enderror" aria-label="活動開始時間" />
                         <button class="btn btn-outline-secondary icon" type="button" data-clear data-bs-toggle="tooltip"
                             title="清空時間"><i class="bi bi-calendar-x"></i>
@@ -92,11 +95,15 @@
                         <label class="form-label">折扣金額 <span class="text-danger">*</span></label>
                         <div class="input-group has-validation">
                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                            <input type="number" name="discount_value" class="form-control @error('discount_value') is-invalid @enderror" placeholder="請輸入折扣金額"
-                                min="0" value="{{ old('method_code', $data->method_code ?? '') === 'cash' ? old('discount_value', $data->discount_value ?? '') : '' }}">
+                            <input type="number" name="discount_value"
+                                class="form-control @error('discount_value') is-invalid @enderror" placeholder="請輸入折扣金額"
+                                min="0"
+                                value="{{ old('method_code', $data->method_code ?? '') === 'cash'? old('discount_value', $data->discount_value ?? ''): '' }}">
                             <div class="invalid-feedback">
                                 @if (old('method_code', $data->method_code ?? '') === 'cash')
-                                    @error('discount_value') {{ $message }} @enderror
+                                    @error('discount_value')
+                                        {{ $message }}
+                                    @enderror
                                 @endif
                             </div>
                         </div>
@@ -106,8 +113,8 @@
                         <div class="px-1 pt-1">
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" name="is_grand_total" type="checkbox" value="1" checked
-                                        norequired>
+                                    <input class="form-check-input" name="is_grand_total" type="checkbox" value="1"
+                                        @if (old('is_grand_total', $data->is_grand_total ?? '') == '1') checked @endif norequired>
                                     累計折扣
                                 </label>
                             </div>
@@ -123,13 +130,16 @@
                                 title="例：100 元商品打 8 折為 80 元，請輸入數字 80，等同 80%" data-bs-placement="right"></i>
                         </label>
                         <div class="input-group has-validation">
-                            <input type="number" name="discount_value" class="form-control @error('discount_value') is-invalid @enderror" min="1" max="100" 
-                                value="{{ old('method_code', $data->method_code ?? '') === 'percent' ? old('discount_value', $data->discount_value ?? '') : '' }}"
+                            <input type="number" name="discount_value"
+                                class="form-control @error('discount_value') is-invalid @enderror" min="1" max="100"
+                                value="{{ old('method_code', $data->method_code ?? '') === 'percent'? old('discount_value', $data->discount_value ?? ''): '' }}"
                                 placeholder="請輸入百分比 1 ~ 100">
                             <span class="input-group-text"><i class="bi bi-percent"></i></span>
                             <div class="invalid-feedback">
                                 @if (old('method_code', $data->method_code ?? '') === 'percent')
-                                    @error('discount_value') {{ $message }} @enderror
+                                    @error('discount_value')
+                                        {{ $message }}
+                                    @enderror
                                 @endif
                             </div>
                         </div>
@@ -140,7 +150,8 @@
                 <div class="row mb-3 border rounded mx-0 px-0 pt-2" data-method="coupon" hidden>
                     <div class="col-12">
                         <label class="form-label">指定贈送優惠券 <span class="text-danger">*</span></label>
-                        <select name="discount_value" class="form-select -select2 -single @error('discount_value') is-invalid @enderror" 
+                        <select name="discount_value"
+                            class="form-select -select2 -single @error('discount_value') is-invalid @enderror"
                             aria-label="指定贈送優惠券">
                             <option value="" selected disabled>請選擇</option>
                             <option value="1">item 1</option>
@@ -154,7 +165,8 @@
                     <div class="col-12 mb-3">
                         <p class="fw-light small mark mb-0">
                             <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>
-                            此處優惠券為 <a href="{{ Route('cms.promo.create') }}">行銷設定>優惠券/序號</a> 設定之優惠券，若無請先前往新增。（以上未儲存資料將不保留）
+                            此處優惠券為 <a href="{{ Route('cms.promo.create') }}">行銷設定>優惠券/序號</a>
+                            設定之優惠券，若無請先前往新增。（以上未儲存資料將不保留）
                         </p>
                     </div>
                 </div>
