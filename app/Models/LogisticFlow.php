@@ -46,6 +46,21 @@ class LogisticFlow extends Model
 //        }
     }
 
+    public static function deleteById($id)
+    {
+        $logisticFlowToDel = LogisticFlow::where('id', $id);
+        $logisticFlowToDelGet = $logisticFlowToDel->get();
+        $delivery_id = $logisticFlowToDelGet->delivery_id;
+        $logisticFlowToDel->delete();
+        //取得最後一筆
+        $logisticFlowLast = LogisticFlow::where('delivery_id', $delivery_id)->orderByDesc('id')->get()-first();
+        //回寫回出貨單
+        Delivery::where('id', $delivery_id)->update([
+            'logistic_status' => $logisticFlowLast->status,
+            'logistic_status_code' => $logisticFlowLast->status_code,
+        ]);
+    }
+
     /**
      * 取得出貨單目前最新物態
      * @param $delivery_id 出貨單ID

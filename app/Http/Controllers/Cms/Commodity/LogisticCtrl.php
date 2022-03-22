@@ -64,7 +64,11 @@ class LogisticCtrl extends Controller
         //取得物流X成本列表
         $shipmentGroupWithCost = ShipmentGroup::getDataWithCost()->get();
         //取得耗材X入庫列表
-        $consumWithInboundList = Consum::getConsumWithInboundList($logistic_id)->get();
+        $consumWithInboundList = Consum::getConsumWithInboundList($logistic_id)->get()->toArray();
+
+        foreach ($consumWithInboundList as $key => $value) {
+            $consumWithInboundList[$key]->groupconcat = json_decode($value->groupconcat);
+        }
 
         return view('cms.commodity.logistic.edit', [
             'delivery' => $delivery,
@@ -220,6 +224,16 @@ class LogisticCtrl extends Controller
                 'event' => $event,
                 'eventId' => $eventId
             ], true));
+        }
+    }
+
+    //刪除物流單耗材
+    public function deleteLogisticStatus(Request $request, $event, $eventId, int $consumId)
+    {
+        LogisticFlow::deleteById($consumId);
+        wToast('刪除成功');
+        if(Event::order()->value == $event) {
+            return redirect(Route('cms.logistic.create', [$eventId], true));
         }
     }
 }
