@@ -242,7 +242,7 @@
                     <div class="modal-footer">
                         <input type="hidden" name="logistic_id" value="{{ $logistic->id }}">
                         <span class="me-3 -checkedNum">已選擇 0 筆入庫單</span>
-                        <button class="btn btn-secondary" data-bs-target="#addConsume" data-bs-toggle="modal" data-bs-dismiss="modal">返回列表</button>
+                        <button type="button" class="btn btn-secondary" data-bs-target="#addConsume" data-bs-toggle="modal" data-bs-dismiss="modal">返回列表</button>
                         <button type="submit" class="btn btn-primary btn-ok">加入</button>
                     </div>
                 </form>
