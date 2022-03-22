@@ -70,9 +70,7 @@ class LogisticCtrl extends Controller
             'deliveryList' => $deliveryList,
             'defDeliveryCost' => $defDeliveryCost,
             'shipmentGroup' => ShipmentGroup::all(), //物流列表
-            'consumWithInboundList' => $consumWithInboundList,
-            'logisticFormAction' => Route('cms.logistic.store', [], true),
-            'inboundFormAction' => Route('cms.logistic.auditInbound', [], true)
+            'consumWithInboundList' => $consumWithInboundList
         ]);
     }
 

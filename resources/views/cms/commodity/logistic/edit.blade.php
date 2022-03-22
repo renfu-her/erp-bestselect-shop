@@ -45,7 +45,7 @@
         </div>
     </div>
 
-    <form action="{{ $logisticFormAction }}" method="post">
+    <form action="{{ Route('cms.logistic.store', [], true) }}" method="post">
         @method('POST')
         @csrf
         <div class="card shadow p-4 mb-4">
@@ -84,7 +84,7 @@
         </div>
     </form>
 
-    <form action="{{ $inboundFormAction }}" method="post">
+    <form action="{{ Route('cms.logistic.auditInbound', [], true) }}" method="post">
         @method('POST')
         @csrf
         <div class="card shadow p-4 mb-4">
@@ -204,7 +204,7 @@
                     <h5 class="modal-title" id="addInboundLabel">選擇入庫單</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="" method="post">
+                <form action="{{ Route('cms.logistic.storeConsum', [], true) }}" method="post">
                     <div class="modal-body">
                         <div class="table-responsive">
                             <figure class="mb-2">
@@ -421,7 +421,7 @@
                 product_style_id: selectedConsume.sid
             };
             resetAddInboundModal();
-            $('#addInbound blockquote h6').text(`${selectedConsume.name} ${selectedConsume.spec}`);
+            $('#addInbound blockquote h6').text(`${selectedConsume.name} [${selectedConsume.spec}]`);
             $('#addInbound figcaption').text(selectedConsume.sku);
 
             axios.post(_URL, Data)
@@ -440,9 +440,12 @@
                             $('#addInbound .-checkedNum').text(`已選擇 ${selectedInbound.length} 筆入庫單`);
                         });
                         // -- 加入
-                        $('#addInbound button.btn-ok').off('click').on('click', function () {
-                            //
-                        })
+                        $('#addInbound form').submit(function () {
+                            if (!$('#addInbound .-appendClone input[type="checkbox"]:checked').length) {
+                                toast.show('請選擇至少 1 筆入庫單', { type: 'warning' });
+                                return false;
+                            }
+                        });
                     } else {
                         toast.show(res.msg, { title: '發生錯誤', type: 'danger' });
                     }
