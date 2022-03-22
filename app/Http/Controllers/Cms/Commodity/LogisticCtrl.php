@@ -61,6 +61,8 @@ class LogisticCtrl extends Controller
             $defDeliveryCost = $deliveryCost->dlv_cost;
         }
 
+        //取得物流X成本列表
+        $shipmentGroupWithCost = ShipmentGroup::getDataWithCost()->get();
         //取得耗材X入庫列表
         $consumWithInboundList = Consum::getConsumWithInboundList($logistic_id)->get();
 
@@ -69,7 +71,7 @@ class LogisticCtrl extends Controller
             'logistic' => $logistic,
             'deliveryList' => $deliveryList,
             'defDeliveryCost' => $defDeliveryCost,
-            'shipmentGroup' => ShipmentGroup::all(), //物流列表
+            'shipmentGroup' => $shipmentGroupWithCost, //物流列表
             'consumWithInboundList' => $consumWithInboundList,
             'logisticFormAction' => Route('cms.logistic.store', [], true),
             'inboundFormAction' => Route('cms.logistic.auditInbound', [], true)
