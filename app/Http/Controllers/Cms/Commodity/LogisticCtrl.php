@@ -125,7 +125,10 @@ class LogisticCtrl extends Controller
         }
 
         wToast('儲存成功');
-        return redirect(Route('cms.logistic.create', [$logistic->delivery_id], true));
+        return redirect(Route('cms.logistic.create', [
+            'event' => $delivery->event,
+            'eventId' => $delivery->event_id
+        ], true));
     }
 
     public static function storeConsum(Request $request) {
@@ -154,7 +157,11 @@ class LogisticCtrl extends Controller
             return redirect()->back()->withInput()->withErrors($errors);
         } else {
             $logistic = Logistic::where('id', $logistic_id)->get()->first();
-            return redirect(Route('cms.logistic.create', [$logistic->delivery_id], true));
+            $delivery = Delivery::where('id', $logistic->delivery_id)->get()->first();
+            return redirect(Route('cms.logistic.create', [
+                'event' => $delivery->event,
+                'eventId' => $delivery->event_id
+            ], true));
         }
     }
 
@@ -172,7 +179,11 @@ class LogisticCtrl extends Controller
             $re = Consum::setUpLogisticData($logistic_id, $request->user()->id, $request->user()->name);
             if ($re['success'] == '1') {
                 wToast('儲存成功');
-                return redirect(Route('cms.logistic.create', [$logistic->delivery_id], true));
+                $delivery = Delivery::where('id', $logistic->delivery_id)->get()->first();
+                return redirect(Route('cms.logistic.create', [
+                    'event' => $delivery->event,
+                    'eventId' => $delivery->event_id
+                ], true));
             }
             $errors['error_msg'] = $re['error_msg'];
         }
@@ -185,7 +196,9 @@ class LogisticCtrl extends Controller
         Consum::deleteById($consumId);
         wToast('刪除成功');
         if(Event::order()->value == $event) {
-            return redirect(Route('cms.logistic.create', [$eventId], true));
+            return redirect(Route('cms.logistic.create', [
+                'event' => $event,
+                'eventId' => $eventId], true));
         }
     }
 
