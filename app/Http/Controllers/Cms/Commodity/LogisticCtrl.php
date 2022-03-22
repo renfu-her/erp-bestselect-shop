@@ -216,9 +216,18 @@ class LogisticCtrl extends Controller
         ]);
     }
 
-    public function updateLogisticStatus(Request $request, $event ,$eventId ,$deliveryId ,$statusCode) {
-        $logistic_status = \App\Enums\Delivery\LogisticStatus::fromKey($statusCode);
-        $reLFCDS = LogisticFlow::createDeliveryStatus($request->user(), $deliveryId, $logistic_status);
+    public function updateLogisticStatus(Request $request, $event ,$eventId ,$deliveryId) {
+        $request->validate([
+            'statusCode.*' => 'required|int',
+        ]);
+        $statusCodes = $request->input('statusCode');
+        $logistic_status_arr = [];
+        foreach ($statusCodes as $code) {
+            $logistic_status = \App\Enums\Delivery\LogisticStatus::fromKey($code);
+            array_push($logistic_status_arr, $logistic_status);
+        }
+
+        $reLFCDS = LogisticFlow::createDeliveryStatus($request->user(), $deliveryId, $logistic_status_arr);
         if ($reLFCDS['success'] == 0) {
             wToast($reLFCDS['error_msg']);
         } else {

@@ -83,7 +83,7 @@ class Delivery extends Model
         if (null != $dataGet) {
             return DB::transaction(function () use ($data, $dataGet, $logistic_status, $user
             ) {
-                $reLFCDS = LogisticFlow::createDeliveryStatus($user, $dataGet->id, $logistic_status);
+                $reLFCDS = LogisticFlow::createDeliveryStatus($user, $dataGet->id, [$logistic_status]);
 
                 if ($reLFCDS['success'] == 0) {
                     DB::rollBack();

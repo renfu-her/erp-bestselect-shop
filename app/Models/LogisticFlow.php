@@ -13,7 +13,7 @@ class LogisticFlow extends Model
     protected $guarded = [];
 
     //新增出貨單物態 並更新 出貨單物態欄位
-    public static function createDeliveryStatus($user, $delivery_id, $logistic_status)
+    public static function createDeliveryStatus($user, $delivery_id, array $logistic_status)
     {
         if (null == $logistic_status) {
             return ['success' => 0, 'error_msg' => '無此物流狀態'];
@@ -30,17 +30,24 @@ class LogisticFlow extends Model
 //        $logisticFlow_get = $logisticFlow->get()->first();
 //        if (null == $logisticFlow_get || $logisticFlow_get->status_code != $logistic_status->key)
 //        {
-            LogisticFlow::create([
-                'delivery_id' => $delivery_id,
-                'status' => $logistic_status->value,
-                'status_code' => $logistic_status->key,
-                'user_id' => $user->id ?? null,
-                'user_name' => $user->name ?? null,
-            ]);
+
+            $insert_arr = [];
+            foreach ($logistic_status as $value) {
+                array_push($insert_arr, [
+                    'delivery_id' => $delivery_id,
+                    'status' => $value->value,
+                    'status_code' => $value->key,
+                    'user_id' => $user->id ?? null,
+                    'user_name' => $user->name ?? null,
+                ]);
+            }
+            LogisticFlow::insert($insert_arr);
+
+            $logistic_status_last = end($logistic_status);
 
             $delivery->update([
-                'logistic_status' => $logistic_status->value,
-                'logistic_status_code' => $logistic_status->key,
+                'logistic_status' => $logistic_status_last->value,
+                'logistic_status_code' => $logistic_status_last->key,
             ]);
             return ['success' => 1, 'error_msg' => ""];
 //        }
