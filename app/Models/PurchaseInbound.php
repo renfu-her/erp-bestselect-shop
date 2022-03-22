@@ -6,7 +6,6 @@ use App\Enums\Purchase\InboundStatus;
 use App\Enums\Purchase\LogEventFeature;
 use App\Enums\Purchase\LogEvent;
 use App\Enums\StockEvent;
-use App\Helpers\IttmsUtils;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -135,27 +134,27 @@ class PurchaseInbound extends Model
     //售出 更新資料
     public static function shippingInbound($id, $sale_num = 0)
     {
-            return DB::transaction(function () use (
-                $id,
-                $sale_num
-            ) {
-                $inboundData = PurchaseInbound::where('id', '=', $id);
-                $inboundDataGet = $inboundData->get()->first();
-                if (null != $inboundDataGet) {
-                    if (($inboundDataGet->inbound_num - $inboundDataGet->sale_num - $sale_num) < 0) {
-                        return ['success' => 0, 'error_msg' => '入庫單出貨數量超出範圍'];
-                    } else {
-                        PurchaseInbound::where('id', $id)
-                            ->update(['sale_num' => DB::raw("sale_num + $sale_num")]);
-                        $reStockChange =PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogEvent::inbound()->value, $id, LogEventFeature::inbound_shipping()->value, $sale_num, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
-                        if ($reStockChange['success'] == 0) {
-                            DB::rollBack();
-                            return $reStockChange;
-                        }
+        return DB::transaction(function () use (
+            $id,
+            $sale_num
+        ) {
+            $inboundData = PurchaseInbound::where('id', '=', $id);
+            $inboundDataGet = $inboundData->get()->first();
+            if (null != $inboundDataGet) {
+                if (($inboundDataGet->inbound_num - $inboundDataGet->sale_num - $sale_num) < 0) {
+                    return ['success' => 0, 'error_msg' => '入庫單出貨數量超出範圍'];
+                } else {
+                    PurchaseInbound::where('id', $id)
+                        ->update(['sale_num' => DB::raw("sale_num + $sale_num")]);
+                    $reStockChange =PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogEvent::inbound()->value, $id, LogEventFeature::inbound_shipping()->value, $sale_num, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
+                    if ($reStockChange['success'] == 0) {
+                        DB::rollBack();
+                        return $reStockChange;
                     }
                 }
-                return ['success' => 1, 'error_msg' => ""];
-            });
+            }
+            return ['success' => 1, 'error_msg' => ""];
+        });
     }
 
     //歷史入庫
@@ -302,18 +301,30 @@ class PurchaseInbound extends Model
                 , 'dlv_consum.product_title as product_title'
             )
             ->selectRaw('sum(dlv_consum.qty) as qty')
-            ->whereNull('dlv_consum.audit_date')
-            ->whereNull('dlv_consum.deleted_at')
+            ->whereNull('dlv_logistic.audit_date')
+            ->whereNull('dlv_logistic.deleted_at')
             ->groupBy('dlv_consum.inbound_id')
             ->groupBy('dlv_consum.product_style_id')
             ->groupBy('dlv_consum.product_title');
+
+        $receive_depotQuerySub->union($logistic_consumQuerySub);
+
+        $rdlcQuerySub = DB::table(DB::raw("({$receive_depotQuerySub->toSql()}) as tb_rd"))
+            ->select('tb_rd.inbound_id as inbound_id'
+                , 'tb_rd.product_style_id as product_style_id'
+                , 'tb_rd.product_title as product_title'
+            )
+            ->selectRaw('sum(tb_rd.qty) as qty')
+            ->groupBy('tb_rd.inbound_id')
+            ->groupBy('tb_rd.product_style_id')
+            ->groupBy('tb_rd.product_title');
 
         $calc_qty = '(case when tb_rd.qty is null then inbound.inbound_num - inbound.sale_num
        else inbound.inbound_num - inbound.sale_num - tb_rd.qty end)';
         $result = DB::table('pcs_purchase_inbound as inbound')
             ->leftJoin('prd_product_styles as style', 'style.id', '=', 'inbound.product_style_id')
             ->leftJoin('prd_products as product', 'product.id', '=', 'style.product_id')
-            ->leftJoin(DB::raw("({$receive_depotQuerySub->toSql()}) as tb_rd"), function ($join) {
+            ->leftJoinSub($rdlcQuerySub, 'tb_rd', function($join) {
                 $join->on('tb_rd.inbound_id', '=', 'inbound.id');
             })
             ->select('inbound.purchase_id as purchase_id' //採購ID
@@ -338,8 +349,7 @@ class PurchaseInbound extends Model
             ->selectRaw('DATE_FORMAT(inbound.inbound_date,"%Y-%m-%d") as inbound_date') //入庫日期
             ->selectRaw('DATE_FORMAT(inbound.deleted_at,"%Y-%m-%d") as deleted_at') //刪除日期
             ->whereNotNull('inbound.id')
-            ->whereNull('inbound.deleted_at')
-            ->mergeBindings($receive_depotQuerySub);
+            ->whereNull('inbound.deleted_at');
 
         if (isset($param['product_style_id'])) {
             $result->where('inbound.product_style_id', '=', $param['product_style_id']);
@@ -352,7 +362,6 @@ class PurchaseInbound extends Model
             $result->where(DB::raw($calc_qty), '>', 0);
         }
         $result->orderBy('inbound.expiry_date');
-        dd(IttmsUtils::getEloquentSqlWithBindings($result));
         return $result;
     }
 }
