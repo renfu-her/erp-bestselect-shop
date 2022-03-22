@@ -49,11 +49,11 @@ class LogisticFlow extends Model
     public static function deleteById($id)
     {
         $logisticFlowToDel = LogisticFlow::where('id', $id);
-        $logisticFlowToDelGet = $logisticFlowToDel->get();
+        $logisticFlowToDelGet = $logisticFlowToDel->get()->first();
         $delivery_id = $logisticFlowToDelGet->delivery_id;
         $logisticFlowToDel->delete();
         //取得最後一筆
-        $logisticFlowLast = LogisticFlow::where('delivery_id', $delivery_id)->orderByDesc('id')->get()-first();
+        $logisticFlowLast = LogisticFlow::where('delivery_id', $delivery_id)->orderByDesc('id')->get()->first();
         //回寫回出貨單
         Delivery::where('id', $delivery_id)->update([
             'logistic_status' => $logisticFlowLast->status,

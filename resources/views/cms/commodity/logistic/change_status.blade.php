@@ -52,6 +52,7 @@
                     <th scope="col">狀態</th>
                     <th scope="col">人員</th>
                     <th scope="col">時間</th>
+                    <th class="text-center">刪除</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -61,6 +62,16 @@
                         <td>{{$data->status}}</td>
                         <td>{{$data->user_name ?? ''}}</td>
                         <td>{{date('Y-m-d H:i:s', strtotime($data->created_at))}}</td>
+                        <td class="text-center">
+                            <a href="{{ Route('cms.logistic.deleteLogisticStatus', [
+                                'event' => $event,
+                                'eventId' => $eventId,
+                                'deliveryId' => $delivery_id,
+                                'flowId' => $data->id], true) }}"
+                               class="icon icon-btn fs-5 text-danger rounded-circle border-0">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
                     </tr>
                 @endforeach
                 </tbody>
