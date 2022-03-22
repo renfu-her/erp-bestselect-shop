@@ -45,7 +45,7 @@
         </div>
     </div>
 
-    <form action="{{ Route('cms.logistic.store', [], true) }}" method="post">
+    <form id="form_store" action="{{ Route('cms.logistic.store', [], true) }}" method="post">
         @method('POST')
         @csrf
         <div class="card shadow p-4 mb-4">
@@ -56,7 +56,7 @@
                     <select name="actual_ship_group_id" class="-select2 -single form-select" required data-placeholder="請單選">
                         <option value="" selected disabled>請選擇</option>
                         @foreach ($shipmentGroup as $ship)
-                            <option value="{{ $ship->group_id_fk }}">{{ $ship->name }}</option>
+                            <option value="{{ $ship->group_id_fk }}" data-cost="{{ $ship->dlv_cost }}">{{ $ship->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -84,74 +84,75 @@
         </div>
     </form>
 
-    <form action="{{ Route('cms.logistic.auditInbound', [], true) }}" method="post">
-        @method('POST')
-        @csrf
-        <div class="card shadow p-4 mb-4">
-            <h6>耗材</h6>
-            <div class="table-responsive tableOverBox">
-                <table id="Pord_list" class="table table-striped tableList mb-2">
-                    <thead>
-                        <tr>
-                            <th class="text-center" style="width: 10%">刪除</th>
-                            <th>耗材名稱</th>
-                            <th>款式</th>
-                            <th>SKU</th>
-                            <th style="width: 10%">數量小計</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+    <div class="card shadow p-4 mb-4">
+        <h6>耗材</h6>
+        <div class="table-responsive tableOverBox">
+            <table id="Pord_list" class="table table-striped tableList mb-2">
+                <thead>
+                    <tr>
+                        <th>耗材名稱-款式</th>
+                        <th>SKU</th>
+                        <th style="width: 10%">數量小計</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($consumWithInboundList as $consum)
                         <tr class="--prod">
-                            <td class="text-center">
-                                <button href="javascript:void(0)" type="button"
-                                    data-bid="" data-rid="}"
-                                    data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                                    class="icon icon-btn -del fs-5 text-danger rounded-circle border-0">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                            <td>耗材</td>
-                            <td>60x55x40</td>
-                            <td>A123</td>
-                            <td>1</td>
+                            <td>{{ $consum->product_title }}</td>
+                            <td>{{ $consum->sku }}</td>
+                            <td>{{ number_format($consum->total_qty) }}</td>
                         </tr>
                         <tr class="--rece">
                             <td colspan="5" class="pt-0 ps-5">
                                 <table class="table mb-0 table-sm table-hover border-start border-end">
                                     <thead>
                                         <tr class="border-top-0" style="border-bottom-color:var(--bs-secondary);">
+                                            @if (is_null($logistic->audit_date))
+                                                <td class="text-center" style="width: 10%">刪除</td>
+                                            @endif
                                             <td>入庫單</td>
                                             <td>倉庫</td>
-                                            <td class="text-center" style="width: 10%">數量</td>
+                                            <td style="width: 10%">數量</td>
                                         </tr>
                                     </thead>
                                     <tbody class="border-top-0 -appendClone --selectedIB">
-                                        <tr class="-cloneElem --selectedIB">
-                                            <td data-td="sn"></td>
-                                            <td data-td="depot"></td>
-                                            <td data-td="qty"></td>
-                                        </tr>
+                                        @foreach ($consum->groupconcat as $ib)
+                                            <tr class="-cloneElem --selectedIB">
+                                                @if (is_null($logistic->audit_date))
+                                                    <td class="text-center">
+                                                        <a href="javascript:void(0)"
+                                                            data-href="{{ Route('cms.logistic.delete', ['event'=>$delivery->event, 'eventId'=>$delivery->event_id, 'consumId'=>$ib->consum_id], true) }}"
+                                                            data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                                                            class="icon icon-btn -del fs-5 text-danger rounded-circle border-0">
+                                                            <i class="bi bi-trash"></i>
+                                                        </a>
+                                                    </td>
+                                                @endif
+                                                <td>{{ $ib->inbound_sn }}</td>
+                                                <td>{{ $ib->depot_name }}</td>
+                                                <td>{{ number_format($ib->qty) }}</td>
+                                            </tr>
+                                        @endforeach
                                     </tbody>
                                 </table>
                             </td>
                         </tr>
-                    </tbody>
-                </table>
-            </div>
-            @if (is_null($logistic->audit_date))
-                <div class="mb-3">
-                    <button id="addConsumeBtn" type="button" class="btn -add btn-outline-primary btn-sm border-dashed w-100" style="font-weight: 500;">
-                        <i class="bi bi-plus-circle"></i> 新增
-                    </button>
-                </div>
-            @endif
-
-            <div class="col">
-                <input type="hidden" name="logistic_id" value="{{ $logistic->id }}">
-                <button type="submit" class="btn btn-primary px-4">儲存</button>
-            </div>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
-    </form>
+        @if (is_null($logistic->audit_date))
+            <div class="mb-3">
+                <button id="addConsumeBtn" type="button" class="btn -add btn-outline-primary btn-sm border-dashed w-100" style="font-weight: 500;">
+                    <i class="bi bi-plus-circle"></i> 新增
+                </button>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-primary px-4"
+                    data-bs-toggle="modal" data-bs-target="#confirm-audit">入庫審核</button>
+            </div>
+        @endif
+    </div>
 
     <div>
         <div class="col-auto">
@@ -160,8 +161,32 @@
         </div>
     </div>
 
+@if (is_null($logistic->audit_date))
+{{-- Modal --}}
+    <!-- 送審確認 Modal -->
+    <x-b-modal id="confirm-audit">
+        <x-slot name="title">審核確認</x-slot>
+        <x-slot name="body">審核後將無法再做修改！確認要送審？</x-slot>
+        <x-slot name="foot">
+            <form action="{{ Route('cms.logistic.auditInbound', [], true) }}" method="post">
+                @method('POST')
+                @csrf
+                <input type="hidden" name="logistic_id" value="{{ $logistic->id }}">
+                <button type="submit" class="btn btn-primary">確認並送審</button>
+            </form>
+        </x-slot>
+    </x-b-modal>
+    
+    <!-- 刪除確認 Modal -->
+    <x-b-modal id="confirm-delete">
+        <x-slot name="title">刪除確認</x-slot>
+        <x-slot name="body">刪除後將無法復原！確認要刪除？</x-slot>
+        <x-slot name="foot">
+            <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
+        </x-slot>
+    </x-b-modal>
 
-    {{-- 耗材清單 --}}
+    {{-- 耗材清單 Modal --}}
     <x-b-modal id="addConsume" cancelBtn="false" size="modal-xl modal-fullscreen-lg-down">
         <x-slot name="title">選擇耗材</x-slot>
         <x-slot name="body">
@@ -196,7 +221,7 @@
         </x-slot>
     </x-b-modal>
 
-    {{-- 入庫清單 --}}
+    {{-- 入庫清單 Modal --}}
     <div class="modal fade" id="addInbound" tabindex="-1" aria-labelledby="addInboundLabel"aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -255,55 +280,17 @@
             </div>
         </div>
     </div>
-    {{-- <x-b-modal id="addInbound" cancelBtn="false" size="modal-xl">
-        <x-slot name="title">選擇入庫單</x-slot>
-        <x-slot name="body">
-            <div class="table-responsive">
-                <figure class="mb-2">
-                    <blockquote class="blockquote">
-                        <h6 class="fs-5"></h6>
-                    </blockquote>
-                    <figcaption class="blockquote-footer mb-2"></figcaption>
-                </figure>
-                <table class="table table-hover tableList">
-                    <thead>
-                        <tr>
-                            <th scope="col" class="text-center" style="width: 10%">選取</th>
-                            <th scope="col">入庫單</th>
-                            <th scope="col">倉庫</th>
-                            <th scope="col">庫存</th>
-                            <th scope="col" style="width: 10%">預計使用數量</th>
-                        </tr>
-                    </thead>
-                    <tbody class="-appendClone --inbound">
-                        <tr class="-cloneElem d-none">
-                            <th class="text-center">
-                                <input class="form-check-input" type="checkbox"
-                                   value="" data-td="idx" aria-label="選取入庫單">
-                            </th>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td>
-                                <input type="number" value="0" min="1" max="" class="form-control form-control-sm text-center" disabled>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="alert alert-secondary mx-3 mb-0 -emptyData" style="display: none;" role="alert">
-                查無入庫紀錄！
-            </div>
-        </x-slot>
-        <x-slot name="foot">
-            <span class="me-3 -checkedNum">已選擇 0 筆入庫單</span>
-            <button class="btn btn-secondary" data-bs-target="#addConsume" data-bs-toggle="modal" data-bs-dismiss="modal">返回列表</button>
-            <button type="button" class="btn btn-primary btn-ok">加入</button>
-        </x-slot>
-    </x-b-modal> --}}
+@endif
 @endsection
 @once
     @push('sub-scripts')
+    <script>
+        $('select[name="actual_ship_group_id"]').on('change', function () {
+            const cost = $(this).children(':selected').data('cost');
+            $('input[name="cost"]').val(cost);
+        });
+    </script>
+    @if (is_null($logistic->audit_date))
     <script>
         let addConsumeModal = new bootstrap.Modal(document.getElementById('addConsume'));
         let addInboundModal = new bootstrap.Modal(document.getElementById('addInbound'));
@@ -322,6 +309,12 @@
         let selectedInbound = [
             // index
         ];
+        /********/
+
+        // 刪除
+        $('#confirm-delete').on('show.bs.modal', function (e) {
+            $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+        });
 
         /*** 耗材 ***/
         // 新增 btn
@@ -442,7 +435,7 @@
                             $('#addInbound .-checkedNum').text(`已選擇 ${selectedInbound.length} 筆入庫單`);
                         });
                         // -- 加入
-                        $('#addInbound form').submit(function () {
+                        $('#addInbound form').off('submit').submit(function () {
                             if (!$('#addInbound .-appendClone input[type="checkbox"]:checked').length) {
                                 toast.show('請選擇至少 1 筆入庫單', { type: 'warning' });
                                 return false;
@@ -502,7 +495,7 @@
                 }
             }
         }
-
     </script>
+    @endif
     @endpush
 @endonce
