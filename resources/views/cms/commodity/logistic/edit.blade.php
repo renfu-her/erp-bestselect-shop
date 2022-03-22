@@ -107,7 +107,9 @@
                                 <table class="table mb-0 table-sm table-hover border-start border-end">
                                     <thead>
                                         <tr class="border-top-0" style="border-bottom-color:var(--bs-secondary);">
-                                            <td class="text-center" style="width: 10%">刪除</td>
+                                            @if (is_null($logistic->audit_date))
+                                                <td class="text-center" style="width: 10%">刪除</td>
+                                            @endif
                                             <td>入庫單</td>
                                             <td>倉庫</td>
                                             <td style="width: 10%">數量</td>
@@ -116,14 +118,16 @@
                                     <tbody class="border-top-0 -appendClone --selectedIB">
                                         @foreach ($consum->groupconcat as $ib)
                                             <tr class="-cloneElem --selectedIB">
-                                                <td class="text-center">
-                                                    <a href="javascript:void(0)"
-                                                        data-href="{{ Route('cms.logistic.delete', ['event'=>$delivery->event, 'eventId'=>$delivery->event_id, 'consumId'=>$ib->consum_id], true) }}"
-                                                        data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                                                        class="icon icon-btn -del fs-5 text-danger rounded-circle border-0">
-                                                        <i class="bi bi-trash"></i>
-                                                    </a>
-                                                </td>
+                                                @if (is_null($logistic->audit_date))
+                                                    <td class="text-center">
+                                                        <a href="javascript:void(0)"
+                                                            data-href="{{ Route('cms.logistic.delete', ['event'=>$delivery->event, 'eventId'=>$delivery->event_id, 'consumId'=>$ib->consum_id], true) }}"
+                                                            data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                                                            class="icon icon-btn -del fs-5 text-danger rounded-circle border-0">
+                                                            <i class="bi bi-trash"></i>
+                                                        </a>
+                                                    </td>
+                                                @endif
                                                 <td>{{ $ib->inbound_sn }}</td>
                                                 <td>{{ $ib->depot_name }}</td>
                                                 <td>{{ number_format($ib->qty) }}</td>
