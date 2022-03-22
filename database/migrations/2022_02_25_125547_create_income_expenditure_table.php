@@ -25,6 +25,10 @@ class CreateIncomeExpenditureTable extends Migration
             $table->id()->comment('外幣');
             $table->string('name')->unique()->comment('外幣名稱');
             $table->decimal('rate')->comment('外幣匯率');
+            $table->unsignedTinyInteger('received_default_fk')
+                    ->nullable()
+                    ->unique()
+                    ->comment('table收款單的會計科目預設值acc_received_default foreign key');
         });
 
         Schema::table('pcs_purchase_items', function (Blueprint $table) {
@@ -129,10 +133,18 @@ class CreateIncomeExpenditureTable extends Migration
         });
 
         Schema::create('acc_grade_default', function (Blueprint $table) {
-            $table->id()->comment('各項目的會計科目預設值');
+            $table->id()->comment('付款單的會計科目預設值');
             $table->string('name')->comment('項目名稱，用來設計「預設會計科目」的項目，例如：商品存貨、物流費用');
             $table->unsignedBigInteger('default_grade_id')->comment('會計科目預設值，對應到acc_all_grades table的primary key');
+            $table->timestamps();
+        });
 
+        Schema::create('acc_received_default', function (Blueprint $table) {
+            $table->id()->comment('收款單的會計科目預設值');
+            $table->string('name')->comment('項目名稱，用來設計「預設會計科目」的項目，例如：信用卡、退貨');
+            $table->unsignedBigInteger('default_grade_id')
+                    ->nullable()
+                    ->comment('會計科目預設值，對應到acc_all_grades table的primary key');
             $table->timestamps();
         });
     }
@@ -167,6 +179,7 @@ class CreateIncomeExpenditureTable extends Migration
         }
 
         Schema::dropIfExists('acc_grade_default');
+        Schema::dropIfExists('acc_received_default');
         Schema::dropIfExists('acc_payable_cash');
         Schema::dropIfExists('acc_payable_cheque');
         Schema::dropIfExists('acc_payable_remit');
