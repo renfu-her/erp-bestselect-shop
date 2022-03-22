@@ -30,6 +30,9 @@ class ShipmentGroup extends Model
             ->groupBy('shi_rule.dlv_cost')
             ->groupBy('shi_rule.at_most')
             ->groupBy('shi_group.name')
+            ->groupBy('shi_group.method_fk')
+            ->groupBy('shi_group.temps_fk')
+            ->groupBy('shi_group.note')
             ->select('shi_rule.group_id_fk'
                 , 'shi_rule.dlv_cost'
                 , 'shi_rule.at_most'
