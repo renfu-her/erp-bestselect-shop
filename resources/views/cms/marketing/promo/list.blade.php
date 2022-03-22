@@ -128,7 +128,7 @@
                         <th scope="col">數量</th>
                         <th scope="col" class="text-center">編輯</th>
                         <th scope="col" class="text-center">啟用</th>
-                        <th scope="col" class="text-center">暫停</th>
+                        <th scope="col" class="text-center">刪除</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -158,17 +158,15 @@
                                  </a>
                             </td>
                             <td>
-                                <a href="javascript:void(0)" data-href="#"
-                                    data-bs-toggle="modal" data-bs-target="#confirm-start"
-                                    class="icon -del icon-btn fs-5 text-primary rounded-circle border-0">
-                                    <i class="bi bi-play-circle"></i>
-                                </a>
+                                <div class="form-check form-switch form-switch-lg mb-0 mt-1">
+                                    <input class="form-check-input" type="checkbox" name="">
+                                </div>
                             </td>
                             <td>
                                 <a href="javascript:void(0)" data-href="#"
-                                    data-bs-toggle="modal" data-bs-target="#confirm-pause"
+                                    data-bs-toggle="modal" data-bs-target="#confirm-delete"
                                     class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
-                                    <i class="bi bi-pause-circle"></i>
+                                    <i class="bi bi-trash"></i>
                                 </a>
                             </td>
                         </tr>
@@ -188,19 +186,11 @@
     </div>
 
 <!-- Modal -->
-<x-b-modal id="confirm-start">
-    <x-slot name="title">強制啟用確認</x-slot>
-    <x-slot name="body">確認要強制啟用此優惠劵？</x-slot>
+<x-b-modal id="confirm-delete">
+    <x-slot name="title">刪除確認</x-slot>
+    <x-slot name="body">確認要刪除此優惠劵？</x-slot>
     <x-slot name="foot">
-        <a class="btn btn-primary btn-ok" href="#">確認並啟用</a>
-    </x-slot>
-</x-b-modal>
-<!-- Modal -->
-<x-b-modal id="confirm-pause">
-    <x-slot name="title">強制暫停確認</x-slot>
-    <x-slot name="body">確認要強制暫停此優惠劵？</x-slot>
-    <x-slot name="foot">
-        <a class="btn btn-danger btn-ok" href="#">確認並暫停</a>
+        <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
     </x-slot>
 </x-b-modal>
 @endsection
@@ -214,7 +204,7 @@
             });
             
             // Modal Control
-            $('#confirm-start, #confirm-pause').on('show.bs.modal', function(e) {
+            $('#confirm-delete').on('show.bs.modal', function(e) {
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
             });
             
