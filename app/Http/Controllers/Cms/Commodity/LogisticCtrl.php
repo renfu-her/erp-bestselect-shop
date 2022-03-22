@@ -39,9 +39,9 @@ class LogisticCtrl extends Controller
         if (null == $logistic) {
             $re = Logistic::createData($delivery_id);
             if ($re['success'] == 0) {
-                DB::rollBack();
             } else {
                 $logistic_id = $re['id'];
+                $logistic = Logistic::where('id', $logistic_id)->get()->first();
             }
         } else {
             $logistic_id = $logistic->id;

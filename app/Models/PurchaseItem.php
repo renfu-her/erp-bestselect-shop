@@ -261,9 +261,7 @@ class PurchaseItem extends Model
                 end) as inbound_status')
             ->addSelect(['deposit_num' => $subColumn, 'final_pay_num' => $subColumn2])
             ->whereNull('purchase.deleted_at')
-            ->whereNull('items.deleted_at')
-            ->orderByDesc('purchase.id')
-            ->orderBy('items_id');
+            ->whereNull('items.deleted_at');
 
         if($purchase_sn) {
             $result->where('purchase.sn', '=', $purchase_sn);
@@ -284,7 +282,9 @@ class PurchaseItem extends Model
             $result->where('purchase.supplier_id', '=', $supplier_id);
         }
         $result2 = DB::table(DB::raw("({$result->toSql()}) as tb"))
-            ->select('*');
+            ->select('*')
+            ->orderByDesc('id')
+            ->orderBy('items_id');
 
         $result->mergeBindings($subColumn);
         $result->mergeBindings($subColumn2);
