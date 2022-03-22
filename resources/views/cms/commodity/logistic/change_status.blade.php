@@ -48,16 +48,20 @@
             <table class="table tableList table-hover table-striped mb-1">
                 <thead>
                 <tr>
-                    <th class="text-center" style="width: 10%">刪除</th>
                     <th scope="col" style="width:10%">#</th>
                     <th scope="col">狀態</th>
                     <th scope="col">人員</th>
                     <th scope="col">時間</th>
+                    <th class="text-center">刪除</th>
                 </tr>
                 </thead>
                 <tbody>
                 @foreach ($flowList as $key => $data)
                     <tr>
+                        <td>{{$key + 1}}</td>
+                        <td>{{$data->status}}</td>
+                        <td>{{$data->user_name ?? ''}}</td>
+                        <td>{{date('Y-m-d H:i:s', strtotime($data->created_at))}}</td>
                         <td class="text-center">
                             <a href="{{ Route('cms.logistic.deleteLogisticStatus', [
                                 'event' => $event,
@@ -68,10 +72,6 @@
                                 <i class="bi bi-trash"></i>
                             </a>
                         </td>
-                        <td>{{$key + 1}}</td>
-                        <td>{{$data->status}}</td>
-                        <td>{{$data->user_name ?? ''}}</td>
-                        <td>{{date('Y-m-d H:i:s', strtotime($data->created_at))}}</td>
                     </tr>
                 @endforeach
                 </tbody>
