@@ -74,13 +74,15 @@ class Consum extends Model
 
     //將物流資料變更為成立
     public static function setUpLogisticData($logistic_id, $user_id, $user_name) {
+        $logistic = Logistic::where('id', '=', $logistic_id)->get();
+
         $dataGet = null;
         if (null != $logistic_id) {
             $data = Consum::where('logistic_id', $logistic_id);
             $dataGet = $data->get();
         }
         $result = null;
-        if (null != $dataGet && 0 < count($dataGet)) {
+        if (null != $logistic && null != $dataGet && 0 <= count($dataGet)) {
             $result = DB::transaction(function () use ($data, $dataGet, $logistic_id, $user_id, $user_name
             ) {
                 //扣除入庫單庫存
