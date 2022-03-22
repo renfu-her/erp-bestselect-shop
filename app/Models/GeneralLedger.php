@@ -28,7 +28,13 @@ class GeneralLedger extends Model
         $stdResult = DB::table('acc_first_grade')
             ->leftJoin('acc_company', 'acc_company_fk', '=', 'acc_company.id')
             ->leftJoin('acc_income_statement', 'acc_income_statement_fk', '=', 'acc_income_statement.id')
+            ->join('acc_all_grades', function ($join) {
+                $join->on('acc_first_grade.id', '=', 'acc_all_grades.grade_id')
+                    ->where('acc_all_grades.grade_type', '=', GradeModelClass::getDescription(GradeModelClass::FirstGrade));
+            })
             ->select(
+                'acc_all_grades.id as primary_id',
+                DB::raw(GradeModelClass::FirstGrade .' as grade_num'),
                 'acc_first_grade.id',
                 'acc_first_grade.code',
                 'acc_first_grade.has_next_grade',
@@ -53,7 +59,13 @@ class GeneralLedger extends Model
             ->where('first_grade_fk', '=', $firstGradeId)
             ->leftJoin('acc_company', 'acc_company_fk', '=', 'acc_company.id')
             ->leftJoin('acc_income_statement', 'acc_income_statement_fk', '=', 'acc_income_statement.id')
+            ->join('acc_all_grades', function ($join) {
+                $join->on('acc_second_grade.id', '=', 'acc_all_grades.grade_id')
+                    ->where('acc_all_grades.grade_type', '=', GradeModelClass::getDescription(GradeModelClass::SecondGrade));
+            })
             ->select(
+                'acc_all_grades.id as primary_id',
+                DB::raw(GradeModelClass::SecondGrade . ' as grade_num'),
                 'acc_second_grade.id',
                 'acc_second_grade.code',
                 'acc_second_grade.name',
@@ -77,7 +89,13 @@ class GeneralLedger extends Model
             ->where('second_grade_fk', '=', $secondGradeId)
             ->leftJoin('acc_company', 'acc_company_fk', '=', 'acc_company.id')
             ->leftJoin('acc_income_statement', 'acc_income_statement_fk', '=', 'acc_income_statement.id')
+            ->join('acc_all_grades', function ($join) {
+                $join->on('acc_third_grade.id', '=', 'acc_all_grades.grade_id')
+                    ->where('acc_all_grades.grade_type', '=', GradeModelClass::getDescription(GradeModelClass::ThirdGrade));
+            })
             ->select(
+                'acc_all_grades.id as primary_id',
+                DB::raw(GradeModelClass::ThirdGrade . ' as grade_num'),
                 'acc_third_grade.id',
                 'acc_third_grade.code',
                 'acc_third_grade.name',
@@ -101,7 +119,13 @@ class GeneralLedger extends Model
             ->where('third_grade_fk', '=', $thirdGradeId)
             ->leftJoin('acc_company', 'acc_company_fk', '=', 'acc_company.id')
             ->leftJoin('acc_income_statement', 'acc_income_statement_fk', '=', 'acc_income_statement.id')
+             ->join('acc_all_grades', function ($join) {
+                 $join->on('acc_fourth_grade.id', '=', 'acc_all_grades.grade_id')
+                     ->where('acc_all_grades.grade_type', '=', GradeModelClass::getDescription(GradeModelClass::FourthGrade));
+             })
             ->select(
+                'acc_all_grades.id as primary_id',
+                DB::raw(GradeModelClass::FourthGrade . ' as grade_num'),
                 'acc_fourth_grade.id',
                 'acc_fourth_grade.code',
                 'acc_fourth_grade.name',
