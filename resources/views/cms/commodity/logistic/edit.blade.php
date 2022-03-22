@@ -46,6 +46,8 @@
     </div>
 
     <form action="{{ $logisticFormAction }}" method="post">
+        @method('POST')
+        @csrf
         <div class="card shadow p-4 mb-4">
             <h6>物流基本資料</h6>
             <div class="row">
@@ -83,6 +85,8 @@
     </form>
 
     <form action="{{ $inboundFormAction }}" method="post">
+        @method('POST')
+        @csrf
         <div class="card shadow p-4 mb-4">
             <h6>耗材</h6>
             <div class="table-responsive tableOverBox">
@@ -141,7 +145,7 @@
                     </button>
                 </div>
             @endif
-            
+
             <div class="col">
                 <input type="hidden" name="logistic_id" value="{{ $logistic->id }}">
                 <button type="submit" class="btn btn-primary px-4">儲存</button>
@@ -151,12 +155,12 @@
 
     <div>
         <div class="col-auto">
-            <a href="" 
+            <a href=""
                 class="btn btn-outline-primary px-4" role="button">返回明細</a>
         </div>
     </div>
 
-    
+
     {{-- 耗材清單 --}}
     <x-b-modal id="addConsume" cancelBtn="false" size="modal-xl modal-fullscreen-lg-down">
         <x-slot name="title">選擇耗材</x-slot>
@@ -327,7 +331,7 @@
         $('#addConsume').on('show.bs.modal', function() {
             getConsumeList(1);
         });
-            
+
         // 耗材款式 API
         function getConsumeList(page) {
             const _URL = `${Laravel.apiUrl.productStyles}?page=${page}`;
@@ -345,7 +349,7 @@
                         prodData.forEach((prod, i) => {
                             createOneConsume(prod, i);
                         });
-                        
+
                         // bind 選擇btn
                         $('#addConsume .-appendClone.--consume .-add').on('click', function() {
                             const idx = Number($(this).attr('data-idx'));
@@ -367,7 +371,7 @@
                         $('#addConsume .-emptyData').show();
                     }
                 }).catch((err) => {
-                    
+
                 });
 
             // 耗材列表
@@ -394,7 +398,7 @@
                 };
             }
         }
-        
+
         // 清空耗材 Modal
         function resetAddConsumeModal() {
             $('#addConsume tbody.-appendClone.--consume').empty();
@@ -419,7 +423,7 @@
             resetAddInboundModal();
             $('#addInbound blockquote h6').text(`${selectedConsume.name} ${selectedConsume.spec}`);
             $('#addInbound figcaption').text(selectedConsume.sku);
-            
+
             axios.post(_URL, Data)
                 .then((result) => {
                     const res = result.data;
@@ -428,7 +432,7 @@
                         inboData.forEach((inbo, i) => {
                             createOneInbound(inbo, i);
                         });
-                        
+
                         // bind event
                         // -- 選取
                         $('#addInbound .-appendClone.--inbound input[type="checkbox"]').off('change').on('change', function () {
@@ -437,12 +441,12 @@
                         });
                         // -- 加入
                         $('#addInbound button.btn-ok').off('click').on('click', function () {
-                            // 
+                            //
                         })
                     } else {
                         toast.show(res.msg, { title: '發生錯誤', type: 'danger' });
                     }
-                    
+
                 }).catch((err) => {
                     console.error(err);
                     toast.show('發生錯誤', { type: 'danger' });

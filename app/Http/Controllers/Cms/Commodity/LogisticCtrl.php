@@ -71,8 +71,8 @@ class LogisticCtrl extends Controller
             'defDeliveryCost' => $defDeliveryCost,
             'shipmentGroup' => ShipmentGroup::all(), //物流列表
             'consumWithInboundList' => $consumWithInboundList,
-            'logisticFormAction' => Route('cms.logistic.create', [$logistic_id], true),
-            'inboundFormAction' => 'cms.logistic.audit-inbound'
+            'logisticFormAction' => Route('cms.logistic.store', [], true),
+            'inboundFormAction' => Route('cms.logistic.auditInbound', [], true)
         ]);
     }
 
@@ -116,6 +116,40 @@ class LogisticCtrl extends Controller
 
         wToast('儲存成功');
         return redirect(Route('cms.logistic.create', [$logistic->delivery_id], true));
+    }
+
+    public static function storeConsum(Request $request) {
+        $request->validate([
+            'logistic_id' => 'required|int',
+            'product_style_id' => 'filled|int',
+            'inbound_id.*' => 'nullable|integer|min:1',
+            'qty.*' => 'nullable|integer|min:1',
+        ]);
+
+        $logistic_id = $request->input('logistic_id')?? null;
+        $errors = [];
+        $input = $request->only('inbound_id', 'qty');
+        if (count($input['inbound_id']) != count($input['qty'])) {
+            $errors['error_msg'] = '各資料個數不同';
+        }
+
+        if (null != $input['qty'] && 0 < count($input['qty'])) {
+            //取得request資料 重新建立該子訂單商品的出貨資料
+            $reConsumSetData = Consum::setDatasWithLogisticId($input, $logistic_id);
+            if ($reConsumSetData['success'] == '1') {
+                $addIds = $reConsumSetData['id'];
+                $receiveDepotList = Consum::whereIn('id', $addIds)->get();
+                $re[ResponseParam::data()->key] = $receiveDepotList;
+            } else {
+                $errors['error_msg'] = $reConsumSetData['error_msg'];
+            }
+        }
+        if ([] != $errors) {
+            return redirect()->back()->withInput()->withErrors($errors);
+        } else {
+            $logistic = Logistic::where('id', $logistic_id)->get()->first();
+            return redirect(Route('cms.logistic.create', [$logistic->delivery_id], true));
+        }
     }
 
     //儲存耗材入庫，進行扣除入庫單
