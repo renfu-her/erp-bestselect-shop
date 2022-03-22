@@ -5,7 +5,7 @@
         @method('POST')
         @csrf
         <div class="card shadow p-4 mb-4">
-            <h6>商品列表 {{$delivery->audit_date}}</h6>
+            <h6>商品列表</h6>
             <div class="table-responsive tableOverBox">
                 <table id="Pord_list" class="table table-striped tableList">
                     <thead>
@@ -149,7 +149,6 @@
                     </tbody>
                 </table>
             </div>
-            <div class="col d-flex justify-content-end align-items-center flex-wrap -pages"></div>
             <div class="alert alert-secondary mx-3 mb-0 -emptyData" style="display: none;" role="alert">
                 查無入庫紀錄！
             </div>

@@ -6,6 +6,7 @@ use App\Enums\Purchase\InboundStatus;
 use App\Enums\Purchase\LogEventFeature;
 use App\Enums\Purchase\LogEvent;
 use App\Enums\StockEvent;
+use App\Helpers\IttmsUtils;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -294,6 +295,19 @@ class PurchaseInbound extends Model
             ->groupBy('dlv_receive_depot.product_style_id')
             ->groupBy('dlv_receive_depot.product_title');
 
+        $logistic_consumQuerySub = DB::table('dlv_logistic')
+            ->leftJoin('dlv_consum', 'dlv_consum.logistic_id', '=', 'dlv_logistic.id')
+            ->select('dlv_consum.inbound_id as inbound_id'
+                , 'dlv_consum.product_style_id as product_style_id'
+                , 'dlv_consum.product_title as product_title'
+            )
+            ->selectRaw('sum(dlv_consum.qty) as qty')
+            ->whereNull('dlv_consum.audit_date')
+            ->whereNull('dlv_consum.deleted_at')
+            ->groupBy('dlv_consum.inbound_id')
+            ->groupBy('dlv_consum.product_style_id')
+            ->groupBy('dlv_consum.product_title');
+
         $calc_qty = '(case when tb_rd.qty is null then inbound.inbound_num - inbound.sale_num
        else inbound.inbound_num - inbound.sale_num - tb_rd.qty end)';
         $result = DB::table('pcs_purchase_inbound as inbound')
@@ -338,6 +352,7 @@ class PurchaseInbound extends Model
             $result->where(DB::raw($calc_qty), '>', 0);
         }
         $result->orderBy('inbound.expiry_date');
+        dd(IttmsUtils::getEloquentSqlWithBindings($result));
         return $result;
     }
 }

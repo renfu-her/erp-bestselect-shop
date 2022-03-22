@@ -132,11 +132,11 @@
                     <strong class="flex-grow-1 mb-0">{{ $subOrder->ship_event }}</strong>
                     @if(true == isset($subOrderId))
                     <div class="d-flex">
-                        <a class="btn btn-success -in-header" href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">配送狀態</a>
-                        <a class="btn btn-success -in-header" href="{{ Route('cms.logistic.create', [$subOrder->id], true) }}">物流設定</a>
-                        <a class="btn btn-success -in-header" href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">出貨審核</a>
-                        <button type="button" class="btn btn-primary -in-header">列印銷貨單</button>
-                        <button type="button" class="btn btn-primary -in-header">列印出貨單</button>
+                        <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">配送狀態</a>
+                        <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.create', [$subOrder->id], true) }}">物流設定</a>
+                        <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">出貨審核</a>
+                        <button type="button" class="btn btn-sm btn-primary -in-header">列印銷貨單</button>
+                        <button type="button" class="btn btn-sm btn-primary -in-header">列印出貨單</button>
                     </div>
                     @endif
                 </div>
@@ -337,3 +337,4 @@
     @push('sub-scripts')
     @endpush
 @endonce
+
