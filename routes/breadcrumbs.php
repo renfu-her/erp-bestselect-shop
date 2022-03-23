@@ -183,6 +183,19 @@ Breadcrumbs::for('cms.delivery.index', function (BreadcrumbTrail $trail) {
     $trail->push('出貨管理', route('cms.delivery.index'));
 });
 
+Breadcrumbs::for('cms.delivery.create', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('出貨審核');
+});
+Breadcrumbs::for('cms.logistic.create', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('實際物流設定');
+});
+Breadcrumbs::for('cms.logistic.changeLogisticStatus', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('配送狀態');
+});
+
 /**
  * 行銷設定
  **/
