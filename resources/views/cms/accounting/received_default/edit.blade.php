@@ -29,7 +29,7 @@
                     <select name="{{$type}}[default_grade_id][]"
                             id=""
                             multiple
-                            class="select2 -multiple form-select"
+                            class="select2 -multiple form-select @error($type . '.default_grade_id.*') is-invalid @enderror"
 {{--                                                    @if($isViewMode === true)--}}
                                                         disabled
 {{--                                                    @endif--}}
@@ -50,6 +50,7 @@
                                 @endif
                                 value="{{ $totalGrade['primary_id'] }}">{{ $totalGrade['code'] . ' ' . $totalGrade['name'] }}
                             </option>
+                            @error($type . '.default_grade_id.*') {{ $message }} @enderror
                         @endforeach
                     </select>
                 </div>
@@ -72,7 +73,7 @@
                                 <td>
                                     <div class="col-12 col-sm-4 mb-3">
                                         <input name="{{ $type }}[rate][{{$currencyDefault['currency_id']}}]"
-                                               class="form-control @error('foreign_currency.currency_name[]') is-invalid @enderror"
+                                               class="form-control @error($type . '.[rate].' . $currencyDefault['currency_id']) is-invalid @enderror"
 {{--                                                                                      @if($isViewMode === true)--}}
                                                                                           disabled
 {{--                                                                                      @endif--}}
@@ -82,12 +83,11 @@
                                                placeholder=""
                                                aria-label="Input">
                                     </div>
-                                    @error('foreign_currency.currency_name[]') {{ $message }} @enderror
+                                    @error($type . '.[rate].' . $currencyDefault['currency_id']) {{ $message }} @enderror
                                 </td>
                                 <td>
                                     <select name="{{ $type }}[grade_id_fk][{{$currencyDefault['currency_id']}}]"
-                                            class="select3 -single form-select"
-                                            {{--@error(true) is-invalid @enderror"--}}
+                                            class="select3 -single form-select @error($type . '.[grade_id_fk].' . $currencyDefault['currency_id']) is-invalid @enderror"
 {{--                                                                                @if($isViewMode === true)--}}
                                                                                 disabled
 {{--                                                                                @endif--}}
@@ -110,9 +110,9 @@
                                                 @endif
                                                 value="{{ $totalGrade['primary_id'] }}">{{ $totalGrade['code'] . ' ' . $totalGrade['name'] }}
                                             </option>
+                                                                @error($type . '.[grade_id_fk].' . $currencyDefault['currency_id']) {{ $message }} @enderror
                                         @endforeach
                                     </select>
-                                    {{--                            @error() {{ $message }} @enderror--}}
 
                                 </td>
                             </tr>
@@ -174,9 +174,9 @@
 
             //「編輯」「儲存」、「取消」按鈕初始狀態
             $(document).ready(function () {
-                        $('#editBtn').show();
-                        $('#submitBtn').hide();
-                        $('#cancelBtn').hide();
+                $('#editBtn').show();
+                $('#submitBtn').hide();
+                $('#cancelBtn').hide();
             });
 
             //點擊「編輯」按鈕後，所有表單變成可編輯狀態
