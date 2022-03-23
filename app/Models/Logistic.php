@@ -31,7 +31,7 @@ class Logistic extends Model
         $result = null;
         if (null == $dataGet) {
             $delivery = Delivery::where('id', $delivery_id)->withTrashed()->get()->first();
-            $sn = "LG" . date("ymd") . str_pad((Delivery::whereDate('created_at', '=', date('Y-m-d'))
+            $sn = "LG" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
                         ->withTrashed()
                         ->get()
                         ->count()) + 1, 5, '0', STR_PAD_LEFT);

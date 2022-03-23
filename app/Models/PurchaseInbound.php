@@ -37,7 +37,7 @@ class PurchaseInbound extends Model
             , $can_tally
         ) {
 
-            $sn = "IB" . date("ymd") . str_pad((PurchaseInbound::whereDate('created_at', '=', date('Y-m-d'))
+            $sn = "IB" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
                         ->withTrashed()
                         ->get()
                         ->count()) + 1, 4, '0', STR_PAD_LEFT);

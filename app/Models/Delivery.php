@@ -38,7 +38,7 @@ class Delivery extends Model
         $result = null;
         if (null == $dataGet) {
 
-            $sn = "DL" . date("ymd") . str_pad((Delivery::whereDate('created_at', '=', date('Y-m-d'))
+            $sn = "DL" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
                         ->withTrashed()
                         ->get()
                         ->count()) + 1, 5, '0', STR_PAD_LEFT);
