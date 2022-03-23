@@ -73,6 +73,7 @@ class PromoCtrl extends Controller
             'collections' => Collection::select('id', 'name')->get(),
             'formAction' => Route("cms.promo.create"),
             'dis_categorys' => DisCategory::getValueWithDesc(['coupon', 'code']),
+            'discountCollections' => [],
         ]);
     }
 
@@ -192,10 +193,6 @@ class PromoCtrl extends Controller
     {
         //
         $rules = [
-            'title' => 'required',
-            'method_code' => ['required', Rule::in(array_keys(DisMethod::getValueWithDesc()))],
-            'discount_value' => 'required|numeric',
-            'min_consume' => 'required|numeric',
             'collection_id' => 'array',
         ];
 
@@ -210,20 +207,13 @@ class PromoCtrl extends Controller
 
         $d = $request->all();
 
-        $is_grand_total = isset($d['is_grand_total']) ? $d['is_grand_total'] : '0';
-        $method_code = $d['method_code'];
-
         $is_global = '0';
         if (isset($d['collection_id'])) {
             $is_global = '1';
             Discount::updateDiscountCollection($id, $d['collection_id']);
         }
 
-        $updateData = ['title' => $d['title'],
-            'min_consume' => $d['min_consume'],
-            'discount_value' => $d['discount_value'],
-            'is_grand_total' => $is_grand_total,
-            'method_code' => DisMethod::$method_code()->value,
+        $updateData = [
             'is_global' => $is_global,
         ];
 
@@ -233,8 +223,10 @@ class PromoCtrl extends Controller
                 Discount::where('id', $id)->update($updateData);
                 break;
             case DisCategory::code()->value:
-                $updateData['start_date'] = $d['start_date'];
-                $updateData['end_date'] = $d['end_date'];
+                $start_date = $d['start_date'] ? $d['start_date'] : date('Y-m-d 00:00:00');
+                $end_date = $d['end_date'] ? $d['end_date'] : date('Y-m-d 23:59:59', strtotime(date('Y-m-d') . " +3 years"));
+                $updateData['start_date'] = $start_date;
+                $updateData['end_date'] = $end_date;
                 $updateData['max_usage'] = $d['max_usage'];
                 Discount::where('id', $id)->update($updateData);
                 break;

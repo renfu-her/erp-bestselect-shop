@@ -10,10 +10,10 @@
         @method('POST')
         @csrf
         @php
-            $editBlock = ($method === 'edit') ? 'disabled' : '';
+            $editBlock = $method === 'edit' ? 'disabled' : '';
         @endphp
         @if ($method === 'edit')
-            <input type="hidden" name="category" value="" >
+            <input type="hidden" name="category" value="{{ $data->category_code }}">
         @endif
 
         <div class="card shadow p-4 mb-4">
@@ -29,8 +29,8 @@
                         @foreach ($dis_categorys as $key => $value)
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" name="category" type="radio" value="{{ $key }}" {{ $editBlock }}
-                                        @if (old('category', $data->category_code ?? 'coupon') == $key) checked @endif>
+                                    <input class="form-check-input" name="category" type="radio" value="{{ $key }}"
+                                        {{ $editBlock }} @if (old('category', $data->category_code ?? 'coupon') == $key) checked @endif>
                                     {{ $value }}
                                 </label>
                             </div>
@@ -51,8 +51,10 @@
                 <div class="col-12 col-sm-6 mb-3" data-category="code" hidden>
                     <label class="form-label">可用起始日 <span class="small text-secondary">（未填則表示現在）</span></label>
                     <div class="input-group has-validation">
-                        <input type="datetime-local" name="start_date" value="{{ old('start_date', $data->start_date ?? '') }}"
-                            class="form-control @error('start_date') is-invalid @enderror" aria-label="可用起始日" editable norequired />
+                        <input type="datetime-local" name="start_date"
+                            value="{{ old('start_date', $data->start_date ?? '') }}"
+                            class="form-control @error('start_date') is-invalid @enderror" aria-label="可用起始日" editable
+                            norequired />
                         <button class="btn btn-outline-secondary icon" type="button" data-clear data-bs-toggle="tooltip"
                             title="清空時間"><i class="bi bi-calendar-x"></i>
                         </button>
@@ -67,7 +69,8 @@
                     <label class="form-label">可用結束日<span class="small text-secondary">（未填則表示不會結束）</span></label>
                     <div class="input-group has-validation">
                         <input type="datetime-local" name="end_date" value="{{ old('end_date', $data->end_date ?? '') }}"
-                            class="form-control @error('end_date') is-invalid @enderror" aria-label="可用結束日" editable norequired />
+                            class="form-control @error('end_date') is-invalid @enderror" aria-label="可用結束日" editable
+                            norequired />
                         <button class="btn btn-outline-secondary icon" type="button" data-clear data-bs-toggle="tooltip"
                             title="清空時間"><i class="bi bi-calendar-x"></i>
                         </button>
@@ -263,7 +266,8 @@
                 $(`div[data-method="${method}"]`).find('input, select').prop(AbleControl);
                 $(`div[data-method="${method}"]`).find('[norequired]').prop('required', false);
                 if (editBlock) {
-                    $(`div[data-method="${method}"]`).find('input:not([editable]), select:not([editable])').prop(DisabledControl);
+                    $(`div[data-method="${method}"]`).find('input:not([editable]), select:not([editable])').prop(
+                        DisabledControl);
                 }
             }
 
