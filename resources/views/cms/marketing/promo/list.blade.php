@@ -150,10 +150,11 @@
                             </td>
                             <td>{{ $data->start_date }}</td>
                             <td>{{ $data->end_date }}</td>
-                            <td>{{ $data->max_usage  }}</td>
+                            <td>{{ $data->max_usage }}</td>
                             <td>
-                                <a href="{{ Route('cms.promo.edit', ['id' => $data->id], true) }}" data-bs-toggle="tooltip"
-                                    title="編輯" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                <a href="{{ Route('cms.promo.edit', ['id' => $data->id], true) }}"
+                                    data-bs-toggle="tooltip" title="編輯"
+                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-pencil-square"></i>
                                 </a>
                             </td>
@@ -164,8 +165,9 @@
                                 </div>
                             </td>
                             <td>
-                                <a href="javascript:void(0)" data-href="{{ Route('cms.promo.delete', ['id' => $data->id], true) }}" data-bs-toggle="modal"
-                                    data-bs-target="#confirm-delete"
+                                <a href="javascript:void(0)"
+                                    data-href="{{ Route('cms.promo.delete', ['id' => $data->id], true) }}"
+                                    data-bs-toggle="modal" data-bs-target="#confirm-delete"
                                     class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
                                     <i class="bi bi-trash"></i>
                                 </a>
@@ -209,16 +211,13 @@
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
             });
 
-            let changeActiveUrl = @json(route('api.cms.discount.change-active'));
 
+            let changeActiveUrl = @json(route('api.cms.discount.change-active'));
 
             // 進行狀態 region
             let selectStatus = $('input[name="status_code"]').val();
-            let all_status = {
-                '1': '待進行',
-                '2': '進行中',
-                '3': '已結束'
-            };
+            let all_status = @json($dis_status);
+
             let Chips_status = new ChipElem($('#chip-group-status'));
             selectStatus = Chips_status.init(selectStatus, all_status);
 
@@ -227,11 +226,12 @@
                 selectStatus.splice(selectStatus.indexOf(id), 1);
                 $('input[name="status_code"]').val(selectStatus);
             };
-            $('#region').off('change.chips').on('change.chips', function(e) {
+            $('#status').off('change.chips').on('change.chips', function(e) {
                 let region = {
                     val: $(this).val(),
                     title: $(this).children(':selected').text()
                 };
+
                 if (selectStatus.indexOf(region.val) === -1) {
                     selectStatus.push(region.val);
                     Chips_status.add(region.val, region.title);
