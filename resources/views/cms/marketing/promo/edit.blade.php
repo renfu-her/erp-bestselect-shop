@@ -9,12 +9,15 @@
     <form id="form1" method="post" action="">
         @method('POST')
         @csrf
+        @php
+            $editBlock = ($method === 'edit') ? 'disabled' : '';
+        @endphp
 
         <div class="card shadow p-4 mb-4">
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">優惠劵活動名稱 <span class="text-danger">*</span></label>
-                    <input class="form-control" name="title" type="text" placeholder="請輸入活動名稱"
+                    <input class="form-control" name="title" type="text" placeholder="請輸入活動名稱" {{ $editBlock }}
                         value="{{ old('title', $data->title ?? '') }}" required aria-label="活動名稱">
                 </div>
                 <fieldset class="col-12 col-sm-6 mb-3">
@@ -23,7 +26,7 @@
                         @foreach ($dis_categorys as $key => $value)
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" name="category" type="radio" value="{{ $key }}"
+                                    <input class="form-check-input" name="category" type="radio" value="{{ $key }}" {{ $editBlock }}
                                         @if (old('category', $data->category_code ?? 'coupon') == $key) checked @endif>
                                     {{ $value }}
                                 </label>
@@ -36,8 +39,8 @@
                             class="small text-secondary">（英文區分大小寫）</span></label>
                     <div class="input-group has-validation">
                         <input type="text" name="sn" class="form-control" value="{{ old('sn', $data->sn ?? '') }}"
-                            maxlength="20" disabled placeholder="可自行輸入或按隨機產生鈕" autocomplete="off">
-                        <button id="generate_coupon_sn" class="btn btn-success" type="button">
+                            maxlength="20" disabled placeholder="可自行輸入或按隨機產生鈕" autocomplete="off" {{ $editBlock }}>
+                        <button id="generate_coupon_sn" class="btn btn-success" type="button" {{ $editBlock }}>
                             <i class="bi bi-shuffle"></i> 隨機產生序號
                         </button>
                         <div class="valid-feedback invalid-feedback -feedback"></div>
@@ -46,9 +49,8 @@
                 <div class="col-12 col-sm-6 mb-3" data-category="code" hidden>
                     <label class="form-label">可用起始日 <span class="small text-secondary">（未填則表示現在）</span></label>
                     <div class="input-group has-validation">
-                        <input type="datetime-local" name="start_date"
-                            value="{{ old('start_date', $data->start_date ?? '') }}"
-                            class="form-control @error('start_date') is-invalid @enderror" aria-label="可用起始日" />
+                        <input type="datetime-local" name="start_date" value="{{ old('start_date', $data->start_date ?? '') }}"
+                            class="form-control @error('start_date') is-invalid @enderror" aria-label="可用起始日" editable />
                         <button class="btn btn-outline-secondary icon" type="button" data-clear data-bs-toggle="tooltip"
                             title="清空時間"><i class="bi bi-calendar-x"></i>
                         </button>
@@ -63,7 +65,7 @@
                     <label class="form-label">可用結束日<span class="small text-secondary">（未填則表示不會結束）</span></label>
                     <div class="input-group has-validation">
                         <input type="datetime-local" name="end_date" value="{{ old('end_date', $data->end_date ?? '') }}"
-                            class="form-control @error('end_date') is-invalid @enderror" aria-label="可用結束日" />
+                            class="form-control @error('end_date') is-invalid @enderror" aria-label="可用結束日" editable />
                         <button class="btn btn-outline-secondary icon" type="button" data-clear data-bs-toggle="tooltip"
                             title="清空時間"><i class="bi bi-calendar-x"></i>
                         </button>
@@ -74,12 +76,11 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="col-12 col-sm-6 mb-3" data-category="code" hidden>
                     <label class="form-label">優惠券數量 <span class="text-danger">*</span><span
                             class="small text-secondary">（不限則填0）</span></label>
                     <input type="number" name="max_usage" min="0" value="{{ old('max_usage', $data->max_usage ?? '') }}"
-                        class="form-control" placeholder="請輸入優惠券數量" required aria-label="優惠券數量">
+                        class="form-control" placeholder="請輸入優惠券數量" required aria-label="優惠券數量" editable>
                 </div>
                 <div class="col-12 col-sm-6 mb-3" data-category="coupon" hidden>
                     <label class="form-label">優惠券使用天數<span class="small text-secondary">（未填則表示無限制）</span></label>
@@ -94,14 +95,14 @@
                             class="small text-secondary">（不限則填0）</span></label>
                     <div class="input-group flex-nowrap">
                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                        <input type="number" name="min_consume" min="0"
+                        <input type="number" name="min_consume" min="0" {{ $editBlock }}
                             value="{{ old('min_consume', $data->min_consume ?? 0) }}" class="form-control"
                             placeholder="請輸入使用優惠券最低消費金額" required>
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">與其他行銷活動併用限制 <span class="text-danger">*</span></label>
-                    <select class="form-select" aria-label="與其他行銷活動併用限制">
+                    <select class="form-select" aria-label="與其他行銷活動併用限制" {{ $editBlock }}>
                         <option value="1" selected>無限制</option>
                         <option value="2">任選折扣</option>
                         <option value="3">全館折扣</option>
@@ -113,7 +114,7 @@
                 <div class="col-12 mb-3">
                     <label class="form-label">適用商品群組<span class="small text-secondary">（不選為全館適用）</span></label>
                     <select name="collection_id[]" multiple class="-select2 -multiple form-select"
-                        data-close-on-select="false" data-placeholder="可多選">
+                        data-close-on-select="false" data-placeholder="可多選" editable>
                         @foreach ($collections as $key => $value)
                             <option value="{{ $value->id }}" @if (in_array($value->id, $discountCollections)) selected @endif>
                                 {{ $value->name }}</option>
@@ -126,7 +127,7 @@
                         @foreach ($dis_methods as $key => $value)
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" name="method_code" type="radio"
+                                    <input class="form-check-input" name="method_code" type="radio" {{ $editBlock }}
                                         value="{{ $key }}" @if (old('method_code', $data->method_code ?? 'cash') == $key) checked @endif
                                         required>
                                     {{ $value }}
@@ -215,6 +216,7 @@
                 required: false,
                 disabled: true
             };
+            const editBlock = @json($editBlock);
 
             // init
             setCategory();
@@ -236,6 +238,10 @@
                 $(`div[data-category="${category}"]`).prop('hidden', false);
                 $(`div[data-category="${category}"] input`).prop(AbleControl);
                 $(`div[data-category="${category}"] input[norequired]`).prop('required', false);
+                if (editBlock) {
+                    $(`div[data-category="${category}"] input:not([editable])`).prop(DisabledControl);
+                }
+
             }
 
             // 優惠方式
@@ -254,12 +260,15 @@
                 $(`div[data-method="${method}"]`).prop('hidden', false);
                 $(`div[data-method="${method}"]`).find('input, select').prop(AbleControl);
                 $(`div[data-method="${method}"]`).find('[norequired]').prop('required', false);
+                if (editBlock) {
+                    $(`div[data-method="${method}"]`).find('input:not([editable]), select:not([editable])').prop(DisabledControl);
+                }
             }
 
             $('#form1').submit(function(e) {
                 if ($('input[name="category"]:checked').val() === 'code') {
                     const $sn = $('input[name="sn"]');
-                    if ($sn.hasClass('is-valid')) {
+                    if ($sn.hasClass('is-valid') || $sn.prop('disabled')) {
                         return true;
                     }
                     if ($sn.hasClass('is-invalid')) {
