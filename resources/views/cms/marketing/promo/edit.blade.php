@@ -12,6 +12,9 @@
         @php
             $editBlock = ($method === 'edit') ? 'disabled' : '';
         @endphp
+        @if ($method === 'edit')
+            <input type="hidden" name="category" value="" >
+        @endif
 
         <div class="card shadow p-4 mb-4">
             <div class="row">
@@ -140,7 +143,7 @@
                 <div class="row mb-3 border rounded mx-0 px-0 pt-2" data-method="cash" hidden>
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">折扣金額 <span class="text-danger">*</span></label>
-                        <div class="input-group flex-nowrap">
+                        <div class="input-group has-validation">
                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                             <input type="number" name="discount_value"
                                 class="form-control @error('discount_value') is-invalid @enderror" min="0"
@@ -176,7 +179,7 @@
                             <i class="bi bi-info-circle" data-bs-toggle="tooltip"
                                 title="例：100 元商品打 8 折為 80 元，請輸入數字 80，等同 80%" data-bs-placement="right"></i>
                         </label>
-                        <div class="input-group flex-nowrap">
+                        <div class="input-group has-validation">
                             <input type="number" name="discount_value"
                                 class="form-control @error('discount_value') is-invalid @enderror" min="1" max="100"
                                 value="{{ old('method_code', $data->method_code ?? '') === 'percent'? old('discount_value', $data->discount_value ?? ''): '' }}"
