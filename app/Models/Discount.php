@@ -27,7 +27,7 @@ class Discount extends Model
         $start_date = null,
         $end_date = null,
         $method_code = null,
-        $is_global = null,
+        $is_global = null
     ) {
         $now = date('Y-m-d H:i:s');
 
