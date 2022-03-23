@@ -211,6 +211,8 @@ class PromoCtrl extends Controller
         if (isset($d['collection_id'])) {
             $is_global = '1';
             Discount::updateDiscountCollection($id, $d['collection_id']);
+        } else {
+            Discount::updateDiscountCollection($id, []);
         }
 
         $updateData = [

@@ -91,7 +91,7 @@
                     <label class="form-label">優惠券使用天數<span class="small text-secondary">（未填則表示無限制）</span></label>
                     <div class="input-group flex-nowrap">
                         <input type="number" name="life_cycle" step="1" class="form-control" min="0"
-                            value="{{ old('life_cycle', $data->life_cycle ?? '') }}" placeholder="請輸入優惠券使用天數" norequired>
+                            value="{{ old('life_cycle', $data->life_cycle ?? '') }}" placeholder="請輸入優惠券使用天數" norequired editable>
                         <span class="input-group-text">天</span>
                     </div>
                 </div>
