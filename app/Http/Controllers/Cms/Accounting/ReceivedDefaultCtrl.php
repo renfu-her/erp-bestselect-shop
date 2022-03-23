@@ -40,19 +40,24 @@ class ReceivedDefaultCtrl extends Controller
             ->whereNotIn('name', [ReceivedMethod::ForeignCurrency])
             ->get();
 
-        $defaultArray = [];
+        $defaultList = [];
         foreach ($queries as $query) {
-            $defaultArray[$query->name]['description'] = ReceivedMethod::getDescription($query->name);
-            $defaultArray[$query->name]['default_grade_id'][] = $query->default_grade_id;
+            $defaultList[$query->name]['description'] = ReceivedMethod::getDescription($query->name);
+            $defaultList[$query->name]['default_grade_id'][] = $query->default_grade_id;
         }
         foreach ($allReceivedMethod as $receivedMethod) {
             // 若使用者無設定「付款方式」，則補上[]數值，只在前端顯示「付款方式」文字，至於「外幣」另外分類處理
-            if (!array_key_exists($receivedMethod, $defaultArray) &&
+            if (!array_key_exists($receivedMethod, $defaultList) &&
                 $receivedMethod !== ReceivedMethod::ForeignCurrency) {
-                $defaultArray[$receivedMethod]['description'] = ReceivedMethod::getDescription($receivedMethod);
-                $defaultArray[$receivedMethod]['default_grade_id'] = [];
+                $defaultList[$receivedMethod]['description'] = ReceivedMethod::getDescription($receivedMethod);
+                $defaultList[$receivedMethod]['default_grade_id'] = [];
             }
         }
+
+        //sort defaultList by the design order of ReceivedMethod Enum
+        $defaultArray = array_replace(array_flip(ReceivedMethod::asArray()), $defaultList);
+        //「外幣」另外處理
+        unset($defaultArray[ReceivedMethod::ForeignCurrency]);
 
         $currencyDefault = DB::table('acc_currency')
             ->leftJoin('acc_received_default', 'acc_currency.received_default_fk', '=', 'acc_received_default.id')
@@ -82,7 +87,7 @@ class ReceivedDefaultCtrl extends Controller
             'currencyDefaultArray' => $currencyDefaultArray,
             'isViewMode' => true,
             'formAction' => Route('cms.received_default.edit', [], true),
-            'formMethod' => 'GET'
+            'formMethod' => 'post'
         ]);
     }
 
@@ -133,12 +138,47 @@ class ReceivedDefaultCtrl extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\ReceivedDefault  $receivedDefault
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, ReceivedDefault $receivedDefault)
+    public function update(Request $request)
     {
-        //
+        //form的元素名稱用Enum ReceivedMethod命名
+        $request->validate([
+            ReceivedMethod::Cash => ['nullable', 'array'],
+            ReceivedMethod::Cheque => ['nullable', 'array'],
+            ReceivedMethod::CreditCard => ['nullable', 'array'],
+            ReceivedMethod::Remittance => ['nullable', 'array'],
+            ReceivedMethod::AccountsReceivable => ['nullable', 'array'],
+            ReceivedMethod::Other => ['nullable', 'array'],
+            ReceivedMethod::Refund => ['nullable', 'array'],
+
+            //若有回傳會計科目的id，不得小於1
+            ReceivedMethod::Cash . '.default_grade_id.*' => ['nullable', 'numeric', 'min:1'],
+            ReceivedMethod::Cheque . '.default_grade_id.*' => ['nullable', 'numeric', 'min:1'],
+            ReceivedMethod::CreditCard . '.default_grade_id.*' => ['nullable', 'numeric', 'min:1'],
+            ReceivedMethod::Remittance . '.default_grade_id.*' => ['nullable', 'numeric', 'min:1'],
+            ReceivedMethod::AccountsReceivable . '.default_grade_id.*' => ['nullable', 'numeric', 'min:1'],
+            ReceivedMethod::Other . '.default_grade_id.*' => ['nullable', 'numeric', 'min:1'],
+            ReceivedMethod::Refund . '.default_grade_id.*' => ['nullable', 'numeric', 'min:1'],
+
+            ReceivedMethod::ForeignCurrency => ['required', 'array'],
+            ReceivedMethod::ForeignCurrency . '.rate' => ['required', 'array'],
+            //匯率計算到小數點第2位
+            ReceivedMethod::ForeignCurrency . '.rate.*' => ['required', 'regex:/^\d+\.\d{2}$/', 'min:0'],
+
+            //table acc_currency的Id array
+            ReceivedMethod::ForeignCurrency . '.grade_id_fk' => ['required', 'array'],
+            //若有回傳會計科目的id，不得小於1
+            ReceivedMethod::ForeignCurrency . '.grade_id_fk.*' => ['required', 'int', 'min:1'],
+        ]);
+
+
+        $req = $request->all();
+
+        ReceivedDefault::updateCurrency($req['foreign_currency']);
+        ReceivedDefault::updateReceivedDefault($req);
+
+        return redirect()->route('cms.received_default.index');
     }
 
     /**

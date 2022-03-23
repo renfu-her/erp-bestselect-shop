@@ -17,8 +17,18 @@ class Discount extends Model
     protected $table = 'dis_discounts';
     protected $guarded = [];
 
-    public static function dataList(DisStatus $disStatus = null)
-    {
+    /**
+     * @param DisCategory $category
+     */
+
+    public static function dataList($category = null,
+        $disStatus = null,
+        $title = null,
+        $start_date = null,
+        $end_date = null,
+        $method_code = null,
+        $is_global = null
+    ) {
         $now = date('Y-m-d H:i:s');
 
         $selectStatus = "CASE
@@ -42,17 +52,52 @@ class Discount extends Model
         $re = DB::table(DB::raw("({$sub->toSql()}) as sub"));
 
         if ($disStatus) {
-            $re->where('status_code', $disStatus->value);
+            if (is_array($disStatus)) {
+                $re->whereIn('status_code', $disStatus);
+            } else {
+                $re->where('status_code', $disStatus);
+            }
         }
-        
+
+        if ($title) {
+            $re->where('title', 'like', "%$title%");
+        }
+
+        if ($category) {
+            if (is_array($category)) {
+                $re->whereIn('category_code', $category);
+            } else {
+                $re->where('category_code', $category);
+            }
+        }
+
+        if ($start_date) {
+            $re->where('start_date', '>=', $start_date);
+        }
+
+        if ($end_date) {
+            $re->where('end_date', '<=', date('Y-m-d 59:59:59', strtotime($end_date)));
+        }
+
+        if ($method_code) {
+            if (is_array($method_code)) {
+                $re->whereIn('method_code', $method_code);
+            } else {
+                $re->where('method_code', $method_code);
+            }
+        }
+        if (!is_null($is_global)) {
+            $re->where('is_global', $is_global);
+        }
+
         return $re;
 
         // ->whereRaw("($selectStatusCode) as bb", "=", "D03");
 
-       // dd($re->get()->toArray());
+        // dd($re->get()->toArray());
     }
 
-    public static function createDiscount($title, DisMethod $method, $value, $start_date = null, $end_date = null, $is_grand_total = 1, $collection_ids = [])
+    public static function createDiscount($title, $min_consume, DisMethod $method, $value, $start_date = null, $end_date = null, $is_grand_total = 1, $collection_ids = [])
     {
         if (count($collection_ids) > 0) {
             $is_global = 0;
@@ -64,6 +109,7 @@ class Discount extends Model
             'start_date' => $start_date,
             'end_date' => $end_date,
             'is_grand_total' => $is_grand_total,
+            'min_consume' => $min_consume,
             'is_global' => $is_global,
         ]);
 
@@ -71,6 +117,70 @@ class Discount extends Model
 
         self::updateDiscountCollection($id, $collection_ids);
         return $id;
+
+    }
+
+    public static function createCoupon($title, $min_consume, DisMethod $method, $value, $is_grand_total = 1, $collection_ids = [], $life_cycle = 0)
+    {
+
+        DB::transaction(function () use ($title, $min_consume, $method, $value, $is_grand_total, $collection_ids, $life_cycle) {
+            if (count($collection_ids) > 0) {
+                $is_global = 0;
+            } else {
+                $is_global = 1;
+            }
+
+            $sn = '';
+
+            $sn = date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
+                    ->where('category_code', DisCategory::coupon()->value)
+                    ->withTrashed()
+                    ->get()
+                    ->count()) + 1, 3, '0', STR_PAD_LEFT);
+
+            $data = self::_createDiscount($title, DisCategory::coupon(), $method, $value, [
+                'is_grand_total' => $is_grand_total,
+                'min_consume' => $min_consume,
+                'is_global' => $is_global,
+                'life_cycle' => $life_cycle,
+                'sn' => $sn,
+            ]);
+
+            $id = self::create($data)->id;
+
+            self::updateDiscountCollection($id, $collection_ids);
+            return $id;
+
+        });
+
+    }
+
+    public static function createCode($sn, $title, $min_consume, DisMethod $method, $value, $start_date = null, $end_date = null, $is_grand_total = 1, $collection_ids = [], $max_usage = 0)
+    {
+
+        DB::transaction(function () use ($sn, $title, $min_consume, $method, $value, $is_grand_total, $collection_ids, $start_date, $end_date, $max_usage) {
+            if (count($collection_ids) > 0) {
+                $is_global = 0;
+            } else {
+                $is_global = 1;
+            }
+
+            $data = self::_createDiscount($title, DisCategory::code(), $method, $value, [
+                'is_grand_total' => $is_grand_total,
+                'min_consume' => $min_consume,
+                'is_global' => $is_global,
+                'sn' => $sn,
+                'start_date' => $start_date,
+                'end_date' => $end_date,
+                'max_usage' => $max_usage,
+            ]);
+
+            $id = self::create($data)->id;
+
+            self::updateDiscountCollection($id, $collection_ids);
+            return $id;
+
+        });
 
     }
 
@@ -97,11 +207,14 @@ class Discount extends Model
 
         if (isset($options['start_date']) && $options['start_date']) {
             $data['start_date'] = date("Y-m-d 00:00:00", strtotime($options['start_date']));
+        } else {
+            $data['start_date'] = date("Y-m-d 00:00:00");
         }
 
         if (isset($options['end_date']) && $options['end_date']) {
-
             $data['end_date'] = date("Y-m-d 23:59:59", strtotime($options['end_date']));
+        } else {
+            $data['end_date'] = date('Y-m-d 23:59:59', strtotime(date('Y-m-d') . " +3 years"));
         }
 
         if ($method->value == DisMethod::fromKey('cash')->value) {
@@ -126,10 +239,21 @@ class Discount extends Model
             $data['min_consume'] = $options['min_consume'];
         }
 
+        if (isset($options['life_cycle'])) {
+            $data['life_cycle'] = $options['life_cycle'];
+        }
+
+        if (isset($options['sn'])) {
+            $data['sn'] = $options['sn'];
+        }
+        if (isset($options['max_usage'])) {
+            $data['max_usage'] = $options['max_usage'];
+        }
+
         return $data;
     }
 
-    private static function updateDiscountCollection($discount_id, $collection_ids = [])
+    public static function updateDiscountCollection($discount_id, $collection_ids = [])
     {
         DB::table('dis_discount_collection')->where('discount_id', $discount_id)
             ->delete();
@@ -143,5 +267,16 @@ class Discount extends Model
             }, $collection_ids));
         }
 
+    }
+
+    public static function getDicountCollections($dis_id)
+    {
+        return DB::table('dis_discount_collection')->where('discount_id', $dis_id);
+    }
+
+    public static function delProcess($id)
+    {
+        self::where('id', $id)->delete();
+        DB::table('dis_discount_collection')->where('discount_id', $id)->delete();
     }
 }

@@ -17,19 +17,19 @@
             padding-left: 8ch;
         }
     </style>
-    <h2 class="mb-3">付款單科目</h2>
+    <h2 class="mb-3">收款單科目</h2>
     <form method="{{ $formMethod }}" action="{{ $formAction }}">
         {{--        @method('POST')--}}
         @csrf
         <div class="card shadow p-4 mb-4">
-            <h4 class="mb-3">付款管理預設</h4>
+            <h4 class="mb-3">收款管理預設</h4>
             @foreach($defaultArray as $type => $default)
                 <div class="col-12 mb-3">
                     <label class="form-label" for="">{{$default['description']}}</label>
                     <select name="{{$type}}[default_grade_id][]"
                             id=""
                             multiple
-                            class="select2 -multiple form-select"
+                            class="select2 -multiple form-select @error($type . '.default_grade_id.*') is-invalid @enderror"
 {{--                                                    @if($isViewMode === true)--}}
                                                         disabled
 {{--                                                    @endif--}}
@@ -50,6 +50,7 @@
                                 @endif
                                 value="{{ $totalGrade['primary_id'] }}">{{ $totalGrade['code'] . ' ' . $totalGrade['name'] }}
                             </option>
+                            @error($type . '.default_grade_id.*') {{ $message }} @enderror
                         @endforeach
                     </select>
                 </div>
@@ -61,7 +62,7 @@
                     <tr>
                         <th scope="col">外幣名稱</th>
                         <th scope="col">匯率（兌成台幣）</th>
-                        <th scope="col">科目</th>
+                        <th scope="col" class="col-6">科目</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -72,7 +73,7 @@
                                 <td>
                                     <div class="col-12 col-sm-4 mb-3">
                                         <input name="{{ $type }}[rate][{{$currencyDefault['currency_id']}}]"
-                                               class="form-control @error('foreign_currency.currency_name[]') is-invalid @enderror"
+                                               class="form-control @error($type . '.[rate].' . $currencyDefault['currency_id']) is-invalid @enderror"
 {{--                                                                                      @if($isViewMode === true)--}}
                                                                                           disabled
 {{--                                                                                      @endif--}}
@@ -82,12 +83,11 @@
                                                placeholder=""
                                                aria-label="Input">
                                     </div>
-                                    @error('foreign_currency.currency_name[]') {{ $message }} @enderror
+                                    @error($type . '.[rate].' . $currencyDefault['currency_id']) {{ $message }} @enderror
                                 </td>
                                 <td>
                                     <select name="{{ $type }}[grade_id_fk][{{$currencyDefault['currency_id']}}]"
-                                            class="select3 -single form-select"
-                                            {{--@error(true) is-invalid @enderror"--}}
+                                            class="select3 -single form-select @error($type . '.[grade_id_fk].' . $currencyDefault['currency_id']) is-invalid @enderror"
 {{--                                                                                @if($isViewMode === true)--}}
                                                                                 disabled
 {{--                                                                                @endif--}}
@@ -110,9 +110,9 @@
                                                 @endif
                                                 value="{{ $totalGrade['primary_id'] }}">{{ $totalGrade['code'] . ' ' . $totalGrade['name'] }}
                                             </option>
+                                                                @error($type . '.[grade_id_fk].' . $currencyDefault['currency_id']) {{ $message }} @enderror
                                         @endforeach
                                     </select>
-                                    {{--                            @error() {{ $message }} @enderror--}}
 
                                 </td>
                             </tr>
@@ -172,36 +172,23 @@
                 }
             });
 
+            //「編輯」「儲存」、「取消」按鈕初始狀態
             $(document).ready(function () {
-                // $('#editBtn').show();
-                // $('#submitBtn').hide();
-                // $('#cancelBtn').hide();
-                $('#editBtn').click(function () {
-                    if ($('input, select').attr('disabled') === 'disabled'){
-                        $('input, select').attr('disabled', false);
-                        $('#editBtn').hide();
-                        $('#submitBtn').show();
-                        $('#cancelBtn').show();
-                    }else {
-                        $('input, select').attr('disabled', true);
-                        $('#editBtn').show();
-                        $('#submitBtn').hide();
-                        $('#cancelBtn').hide();
-                    }
-                });
-
+                $('#editBtn').show();
+                $('#submitBtn').hide();
+                $('#cancelBtn').hide();
             });
 
-
-
-
-            // $('#editBtn').toggle(
-            //     function () {
-            //     $('input, select').attr('disabled', false);
-            // }, function () {
-            //     // $('input, select').attr('disabled', true);
-            // });
-
+            //點擊「編輯」按鈕後，所有表單變成可編輯狀態
+            $('#editBtn').click(function () {
+                if ($('input, select').prop('disabled') === false){
+                    $('html, body').animate({scrollTop: '0px'}, 300);
+                    $('input, select').prop('disabled', false);
+                    $('#editBtn').hide();
+                    $('#submitBtn').show();
+                    $('#cancelBtn').show();
+                }
+            })
         </script>
     @endpush
 @endonce

@@ -2,14 +2,15 @@
 
 namespace App\Enums\Discount;
 
-use BenSampo\Enum\Enum;
+// use BenSampo\Enum\Enum;
+use App\Enums\Helper;
 
 /**
  * @method static static OptionOne()
  * @method static static OptionTwo()
  * @method static static OptionThree()
  */
-final class DisCategory extends Enum
+final class DisCategory extends Helper
 {
     const normal = 'normal';
     const coupon = 'coupon';

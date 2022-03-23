@@ -38,4 +38,25 @@ class DiscountCtrl extends Controller
 
     }
 
+    public static function changeActive(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required',
+            'active' => 'required|in:0,1',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'E01',
+                'message' => $validator->messages(),
+            ]);
+        }
+        Discount::where('id', $request->input('id'))->update(['active' => $request->input('active')]);
+        
+        return response()->json([
+            'status' => '0',
+        ]);
+
+    }
+
 }
