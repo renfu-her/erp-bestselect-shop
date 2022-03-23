@@ -235,7 +235,8 @@ class LogisticCtrl extends Controller
         ]);
         $statusCodes = $request->input('statusCode');
         $logistic_status_arr = [];
-        foreach ($statusCodes as $code) {
+        //反轉送上來的順序再做儲存
+        foreach (array_reverse($statusCodes, true) as $code) {
             try {
                 $logistic_status = \App\Enums\Delivery\LogisticStatus::fromKey($code);
                 array_push($logistic_status_arr, $logistic_status);
