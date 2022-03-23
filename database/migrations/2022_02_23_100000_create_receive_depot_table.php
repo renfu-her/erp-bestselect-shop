@@ -58,7 +58,7 @@ class CreateReceiveDepotTable extends Migration
         Schema::create('dlv_logistic', function (Blueprint $table) {
             $table->id()->comment('物流單');
             $table->unsignedBigInteger('delivery_id')->comment('出貨單id');
-            $table->string('sn', 30)->comment('物流SN');
+            $table->string('sn', 20)->comment('物流SN');
             $table->string('package_sn', 30)->nullable()->comment('物流包裹編號SN');
             $table->unsignedBigInteger('ship_group_id')->nullable()->comment('實際物流 出貨方式id 對應shi_group.id');
             $table->integer('cost')->default(0)->comment('物流成本');
