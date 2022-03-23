@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-3">配送狀態</h2>
+    <h2 class="mb-3">#{{ $breadcrumb_data }} 配送狀態</h2>
 
     @error('error_msg')
     <div class="alert alert-danger" role="alert">

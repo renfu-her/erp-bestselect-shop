@@ -82,7 +82,8 @@ class LogisticCtrl extends Controller
             'deliveryList' => $deliveryList,
             'defDeliveryCost' => $defDeliveryCost,
             'shipmentGroup' => $shipmentGroupWithCost, //物流列表
-            'consumWithInboundList' => $consumWithInboundList
+            'consumWithInboundList' => $consumWithInboundList,
+            'breadcrumb_data' => $delivery->sn
         ]);
     }
 
@@ -226,7 +227,8 @@ class LogisticCtrl extends Controller
             'event' => $event,
             'eventId' => $eventId,
             'delivery_id' => $delivery_id,
-            'user' => $request->user()
+            'user' => $request->user(),
+            'breadcrumb_data' => $delivery->sn
         ]);
     }
 

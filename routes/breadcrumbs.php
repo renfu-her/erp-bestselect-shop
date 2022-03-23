@@ -170,7 +170,7 @@ Breadcrumbs::for('cms.order.index', function (BreadcrumbTrail $trail) {
 });
 Breadcrumbs::for('cms.order.detail', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
-    $trail->push('[單號：' . $value . '] 訂單明細');
+    $trail->push('#' . $value . ' 訂單明細');
 });
 Breadcrumbs::for('cms.order.create', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
@@ -184,16 +184,16 @@ Breadcrumbs::for('cms.delivery.index', function (BreadcrumbTrail $trail) {
 });
 
 Breadcrumbs::for('cms.delivery.create', function (BreadcrumbTrail $trail, $value) {
-    $trail->parent('cms.order.index');
-    $trail->push('出貨審核');
+    $trail->parent('cms.delivery.index');
+    $trail->push('#' . $value . ' 出貨審核');
 });
 Breadcrumbs::for('cms.logistic.create', function (BreadcrumbTrail $trail, $value) {
-    $trail->parent('cms.order.index');
-    $trail->push('實際物流設定');
+    $trail->parent('cms.delivery.index');
+    $trail->push('#' . $value . ' 實際物流設定');
 });
 Breadcrumbs::for('cms.logistic.changeLogisticStatus', function (BreadcrumbTrail $trail, $value) {
-    $trail->parent('cms.order.index');
-    $trail->push('配送狀態');
+    $trail->parent('cms.delivery.index');
+    $trail->push('#' . $value . ' 配送狀態');
 });
 
 /**
