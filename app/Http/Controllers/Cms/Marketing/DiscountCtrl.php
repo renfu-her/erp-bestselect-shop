@@ -33,18 +33,20 @@ class DiscountCtrl extends Controller
         $cond['start_date'] = Arr::get($query, 'start_date');
         $cond['end_date'] = Arr::get($query, 'end_date');
         $cond['is_global'] = Arr::get($query, 'is_global');
-      //  dd($cond['method_code']);
+
+        //  dd($cond['method_code']);
         $status_code = $cond['status_code'] ? explode(',', $cond['status_code']) : null;
-     //   dd( $cond['method_code']);
-        $dataList = Discount::dataList(DisCategory::normal(),
+        //   dd( $cond['method_code']);
+        $dataList = Discount::dataList(DisCategory::normal()->value,
             $status_code,
             $cond['title'],
             $cond['start_date'],
             $cond['end_date'],
-            $cond['method_code'])->paginate($data_per_page)->appends($query);
-       
+            $cond['method_code'],
+            $cond['is_global'])->paginate($data_per_page)->appends($query);
+
         //   $cond['status_code'] = $cond['status_code'] ? explode(',', $cond['status_code']) : [];
-        $cond['method_code'] = $cond['method_code']?$cond['method_code']:[];
+        $cond['method_code'] = $cond['method_code'] ? $cond['method_code'] : [];
         return view('cms.marketing.discount.list', [
             'dataList' => [],
             'dis_methods' => DisMethod::getValueWithDesc(),

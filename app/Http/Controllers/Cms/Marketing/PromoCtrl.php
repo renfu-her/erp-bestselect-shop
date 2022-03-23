@@ -26,16 +26,25 @@ class PromoCtrl extends Controller
         $query = $request->query();
 
         $data_per_page = getPageCount(Arr::get($query, 'data_per_page', 10));
-        $cond['title'] = Arr::get($query, 'title', 10);
-        $cond['method_code'] = Arr::get($query, 'method_code', []);
-        $cond['status_code'] = Arr::get($query, 'status_code');
+        $cond['title'] = Arr::get($query, 'title');
+        $cond['method_code'] = Arr::get($query, 'method_code');
+        $cond['status_code'] = Arr::get($query, 'status_code', '');
         $cond['start_date'] = Arr::get($query, 'start_date');
         $cond['end_date'] = Arr::get($query, 'end_date');
         $cond['is_global'] = Arr::get($query, 'is_global');
 
-        $dataList = Discount::dataList([DisCategory::coupon(), DisCategory::code()])
-            ->paginate($data_per_page)
-            ->appends($query);
+        //  dd($cond['method_code']);
+        $status_code = $cond['status_code'] ? explode(',', $cond['status_code']) : null;
+
+        $dataList = Discount::dataList([DisCategory::coupon()->value, DisCategory::code()->value],
+            $status_code,
+            $cond['title'],
+            $cond['start_date'],
+            $cond['end_date'],
+            $cond['method_code'],
+            $cond['is_global'])->paginate($data_per_page)->appends($query);
+
+        $cond['method_code'] = $cond['method_code'] ? $cond['method_code'] : [];
 
         return view('cms.marketing.promo.list', [
             'dataList' => [],
