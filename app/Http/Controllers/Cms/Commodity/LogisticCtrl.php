@@ -236,8 +236,14 @@ class LogisticCtrl extends Controller
         $statusCodes = $request->input('statusCode');
         $logistic_status_arr = [];
         foreach ($statusCodes as $code) {
-            $logistic_status = \App\Enums\Delivery\LogisticStatus::fromKey($code);
-            array_push($logistic_status_arr, $logistic_status);
+            try {
+                $logistic_status = \App\Enums\Delivery\LogisticStatus::fromKey($code);
+                array_push($logistic_status_arr, $logistic_status);
+            } catch (\Exception $e) {
+                wToast($e->getMessage());
+                $errors['error_msg'] = $e->getMessage();
+                return redirect()->back()->withInput()->withErrors($errors);
+            }
         }
 
         $reLFCDS = LogisticFlow::createDeliveryStatus($request->user(), $deliveryId, $logistic_status_arr);

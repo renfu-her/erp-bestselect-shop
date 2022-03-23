@@ -15,7 +15,7 @@ class LogisticFlow extends Model
     //新增出貨單物態 並更新 出貨單物態欄位
     public static function createDeliveryStatus($user, $delivery_id, array $logistic_status)
     {
-        if (null == $logistic_status) {
+        if (null == $logistic_status || 0 >= count($logistic_status)) {
             return ['success' => 0, 'error_msg' => '無此物流狀態'];
         }
 
