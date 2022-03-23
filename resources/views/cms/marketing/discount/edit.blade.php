@@ -59,7 +59,7 @@
                     <label class="form-label">活動結束時間<span class="small text-secondary">（未填則表示不會結束）</span></label>
                     <div class="input-group has-validation">
                         <input type="datetime-local" name="end_date" value="{{ old('end_date', $data->end_date ?? '') }}"
-                            class="form-control @error('end_date') is-invalid @enderror" aria-label="活動結束時間" editable/>
+                            class="form-control @error('end_date') is-invalid @enderror" aria-label="活動結束時間" editable />
                         <button class="btn btn-outline-secondary icon" type="button" data-clear data-bs-toggle="tooltip"
                             title="清空時間"><i class="bi bi-calendar-x"></i>
                         </button>
@@ -75,7 +75,8 @@
                     <select name="collection_id[]" multiple class="-select2 -multiple form-select"
                         data-close-on-select="false" data-placeholder="可多選" editable>
                         @foreach ($collections as $key => $value)
-                            <option value="{{ $value->id }}">{{ $value->name }}</option>
+                            <option value="{{ $value->id }}" @if (in_array($value->id, old('collection_id', $discountCollections ?? []))) selected @endif>
+                                {{ $value->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -118,8 +119,8 @@
                         <div class="px-1 pt-1">
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" name="is_grand_total" type="checkbox" value="1" {{ $editBlock }}
-                                        @if (old('is_grand_total', $data->is_grand_total ?? '') == '1') checked @endif norequired>
+                                    <input class="form-check-input" name="is_grand_total" type="checkbox" value="1"
+                                        {{ $editBlock }} @if (old('is_grand_total', $data->is_grand_total ?? '') == '1') checked @endif norequired>
                                     累計折扣
                                 </label>
                             </div>
@@ -159,9 +160,10 @@
                             class="form-select -select2 -single @error('discount_value') is-invalid @enderror"
                             aria-label="指定贈送優惠券">
                             <option value="" selected disabled>請選擇</option>
-                            <option value="1">item 1</option>
-                            <option value="2">item 2</option>
-                            <option value="3">item 3</option>
+                            @foreach ($coupons as $key => $value)
+                                <option value="{{ $value->id }}" @if (old('discount_value', $data->discount_value ?? '') == $value->id) selected @endif>
+                                    {{ $value->title }}</option>
+                            @endforeach
                         </select>
                         @error('discount_value')
                             <div class="invalid-feedback">{{ $message }}</div>

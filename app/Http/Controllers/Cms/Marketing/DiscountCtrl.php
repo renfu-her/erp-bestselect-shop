@@ -66,11 +66,13 @@ class DiscountCtrl extends Controller
     {
         // dd('aa');
         //
+
         return view('cms.marketing.discount.edit', [
             'method' => 'create',
             'dis_methods' => DisMethod::getValueWithDesc(),
             'collections' => Collection::select('id', 'name')->get(),
             'formAction' => Route("cms.discount.create"),
+            'coupons' => Discount::where('category_code', DisCategory::coupon()->value)->get(),
         ]);
     }
 
@@ -141,8 +143,10 @@ class DiscountCtrl extends Controller
         $data->start_date = str_replace(' ', 'T', $data->start_date);
         $data->end_date = str_replace(' ', 'T', $data->end_date);
 
-        //dd($data->start_date);
-        // dd($data);
+        $discountCollections = array_map(function ($n) {
+            return $n->collection_id;
+        }, Discount::getDicountCollections($id)->get()->toArray());
+
         return view('cms.marketing.discount.edit', [
             'method' => 'edit',
             'breadcrumb_data' => '現折優惠',
@@ -150,6 +154,9 @@ class DiscountCtrl extends Controller
             'dis_methods' => DisMethod::getValueWithDesc(),
             'collections' => Collection::select('id', 'name')->get(),
             'formAction' => Route("cms.discount.edit", ['id' => $id]),
+            'discountCollections' => $discountCollections,
+            'coupons' => Discount::where('category_code', DisCategory::coupon()->value)->get(),
+
 
         ]);
     }
@@ -163,30 +170,29 @@ class DiscountCtrl extends Controller
      */
     public function update(Request $request, $id)
     {
+
         $request->validate([
-            'title' => 'required',
-            'method_code' => ['required', Rule::in(array_keys(DisMethod::getValueWithDesc()))],
-            'start_date' => 'required|date',
-            'end_date' => 'required|date',
-            'discount_value' => 'required|numeric',
-            'min_consume' => 'required|numeric',
+            'start_date' => 'date|nullable',
+            'end_date' => 'date|nullable',
         ]);
+
         $d = request()->all();
         $is_global = 1;
 
         if (isset($d['collection_id']) && count($d['collection_id']) > 0) {
             Discount::updateDiscountCollection($id, $d['collection_id']);
             $is_global = 0;
+        } else {
+            Discount::updateDiscountCollection($id, []);
         }
+
+        $start_date = $d['start_date'] ? $d['start_date'] : date('Y-m-d 00:00:00');
+        $end_date = $d['end_date'] ? $d['end_date'] : date('Y-m-d 23:59:59', strtotime(date('Y-m-d') . " +3 years"));
 
         Discount::where('id', $id)->update(
             [
-                'title' => $d['title'],
-                'start_date' => $d['start_date'],
-                'end_date' => $d['end_date'],
-                'discount_value' => $d['discount_value'],
-                'method_code' => $d['method_code'],
-                'min_consume' => $d['min_consume'],
+                'start_date' => $start_date,
+                'end_date' => $end_date,
                 'is_global' => $is_global,
             ]
         );
