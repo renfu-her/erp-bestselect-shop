@@ -17,12 +17,12 @@
             padding-left: 8ch;
         }
     </style>
-    <h2 class="mb-3">付款單科目</h2>
+    <h2 class="mb-3">收款單科目</h2>
     <form method="{{ $formMethod }}" action="{{ $formAction }}">
         {{--        @method('POST')--}}
         @csrf
         <div class="card shadow p-4 mb-4">
-            <h4 class="mb-3">付款管理預設</h4>
+            <h4 class="mb-3">收款管理預設</h4>
             @foreach($defaultArray as $type => $default)
                 <div class="col-12 mb-3">
                     <label class="form-label" for="">{{$default['description']}}</label>
