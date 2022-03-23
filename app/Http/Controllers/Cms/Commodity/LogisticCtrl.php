@@ -226,6 +226,7 @@ class LogisticCtrl extends Controller
             'event' => $event,
             'eventId' => $eventId,
             'delivery_id' => $delivery_id,
+            'user' => $request->user()
         ]);
     }
 
