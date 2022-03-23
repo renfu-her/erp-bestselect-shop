@@ -261,18 +261,5 @@ class LogisticCtrl extends Controller
             ], true));
         }
     }
-
-    //刪除物流單耗材
-    public function deleteLogisticStatus(Request $request, $event, $eventId, int $flowId)
-    {
-        LogisticFlow::deleteById($flowId);
-        wToast('刪除成功');
-        if(Event::order()->value == $event) {
-            return redirect(Route('cms.logistic.changeLogisticStatus', [
-                'event' => $event,
-                'eventId' => $eventId
-            ], true));
-        }
-    }
 }
 

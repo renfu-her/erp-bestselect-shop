@@ -56,6 +56,7 @@ class LogisticFlow extends Model
 //        }
     }
 
+    //刪除物流狀態時，將最新狀態回寫回出貨單
     public static function deleteById($id)
     {
         $logisticFlowToDel = LogisticFlow::where('id', $id);

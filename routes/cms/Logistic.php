@@ -13,5 +13,4 @@ Route::group(['prefix' => 'logistic','as'=>'logistic.'], function () {
     //修改配送狀態
     Route::get('change-logistic-status/{event}/{eventId}', [LogisticCtrl::class, 'changeLogisticStatus'])->name('changeLogisticStatus')->middleware('permission:cms.logistic.create');
     Route::post('update-logistic-status/{event}/{eventId}/{deliveryId}', [LogisticCtrl::class, 'updateLogisticStatus'])->name('updateLogisticStatus')->middleware('permission:cms.logistic.create');
-    Route::get('delete-logistic-status/{event}/{eventId}/{flowId}', [LogisticCtrl::class, 'deleteLogisticStatus'])->name('deleteLogisticStatus')->middleware('permission:cms.logistic.delete');
 });
