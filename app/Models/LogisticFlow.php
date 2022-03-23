@@ -32,6 +32,7 @@ class LogisticFlow extends Model
 //        {
 
             $insert_arr = [];
+            $curr_date = date('Y-m-d H:i:s');
             foreach ($logistic_status as $value) {
                 array_push($insert_arr, [
                     'delivery_id' => $delivery_id,
@@ -39,6 +40,8 @@ class LogisticFlow extends Model
                     'status_code' => $value->key,
                     'user_id' => $user->id ?? null,
                     'user_name' => $user->name ?? null,
+                    'created_at' => $curr_date,
+                    'updated_at' => $curr_date,
                 ]);
             }
             LogisticFlow::insert($insert_arr);
