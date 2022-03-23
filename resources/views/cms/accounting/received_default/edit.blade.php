@@ -19,7 +19,6 @@
     </style>
     <h2 class="mb-3">收款單科目</h2>
     <form method="{{ $formMethod }}" action="{{ $formAction }}">
-        {{--        @method('POST')--}}
         @csrf
         <div class="card shadow p-4 mb-4">
             <h4 class="mb-3">收款管理預設</h4>
@@ -30,9 +29,7 @@
                             id=""
                             multiple
                             class="select2 -multiple form-select @error($type . '.default_grade_id.*') is-invalid @enderror"
-{{--                                                    @if($isViewMode === true)--}}
-                                                        disabled
-{{--                                                    @endif--}}
+                            disabled
                             data-placeholder="可複選">
                         @foreach($totalGrades as $totalGrade)
                             <option
@@ -74,9 +71,7 @@
                                     <div class="col-12 col-sm-4 mb-3">
                                         <input name="{{ $type }}[rate][{{$currencyDefault['currency_id']}}]"
                                                class="form-control @error($type . '.[rate].' . $currencyDefault['currency_id']) is-invalid @enderror"
-{{--                                                                                      @if($isViewMode === true)--}}
-                                                                                          disabled
-{{--                                                                                      @endif--}}
+                                               disabled
                                                type="number"
                                                step="0.01"
                                                value="{{ $currencyDefault['rate'] ?? '' }}"
@@ -88,9 +83,7 @@
                                 <td>
                                     <select name="{{ $type }}[grade_id_fk][{{$currencyDefault['currency_id']}}]"
                                             class="select3 -single form-select @error($type . '.[grade_id_fk].' . $currencyDefault['currency_id']) is-invalid @enderror"
-{{--                                                                                @if($isViewMode === true)--}}
-                                                                                disabled
-{{--                                                                                @endif--}}
+                                            disabled
                                             data-placeholder="單選">
                                         <option disabled selected value>請選擇</option>
 
@@ -122,20 +115,15 @@
                 </table>
             </div>
             <div class="">
-{{--                    @if($isViewMode === true)--}}
                 <button type="button" class="btn btn-primary px-4" id="editBtn">
                         編輯
                 </button>
-{{--                    @else--}}
                 <button type="submit" class="btn btn-primary px-4" id="submitBtn">
                         儲存
-{{--                    @endif--}}
                 </button>
-{{--                @if($isViewMode === false)--}}
-                    <a href="{{ Route('cms.received_default.index', [], true) }}">
-                        <button type="button" class="btn btn-outline-primary px-4" id="cancelBtn">取消</button>
-                    </a>
-{{--                @endif--}}
+                <a href="{{ Route('cms.received_default.index', [], true) }}">
+                    <button type="button" class="btn btn-outline-primary px-4" id="cancelBtn">取消</button>
+                </a>
             </div>
         </div>
     </form>
