@@ -34,7 +34,7 @@ class Logistic extends Model
             $sn = "LG" . date("ymd") . str_pad((Delivery::whereDate('created_at', '=', date('Y-m-d'))
                         ->withTrashed()
                         ->get()
-                        ->count()) + 1, 3, '0', STR_PAD_LEFT);
+                        ->count()) + 1, 5, '0', STR_PAD_LEFT);
 
             $result = Logistic::create([
                 'sn' => $sn,
