@@ -431,6 +431,20 @@ Breadcrumbs::for('cms.income_expenditure.update', function (BreadcrumbTrail $tra
     $trail->push('付款單科目', route('cms.income_expenditure.update'));
 });
 
+//收款單科目
+Breadcrumbs::for('cms.received_default.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('收款單科目', route('cms.received_default.index'));
+});
+Breadcrumbs::for('cms.received_default.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('收款單科目', route('cms.received_default.edit'));
+});
+Breadcrumbs::for('cms.received_default.update', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('收款單科目', route('cms.received_default.update'));
+});
+
 // 會計科目
 Breadcrumbs::for('cms.general_ledger.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
