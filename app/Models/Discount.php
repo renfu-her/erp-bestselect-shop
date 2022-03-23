@@ -17,11 +17,15 @@ class Discount extends Model
     protected $table = 'dis_discounts';
     protected $guarded = [];
 
-    public static function dataList(DisCategory | array $category = null,
-        array | string $disStatus = null,
+
+    
+
+    public static function dataList($category = null,
+        $disStatus = null,
         $title = null,
         $start_date = null,
-        $end_date = null
+        $end_date = null,
+        $method_code = null
     ) {
 
         $now = date('Y-m-d H:i:s');
@@ -68,12 +72,20 @@ class Discount extends Model
             }
         }
 
-        if ($start_date && $end_date) {
-            $re->whereBetween('start_date', [$start_date, $end_date]);
-        } else if ($start_date) {
+        if ($start_date) {
             $re->where('start_date', '>=', $start_date);
-        } else if ($end_date) {
+        }
+
+        if ($end_date) {
             $re->where('end_date', '<=', $end_date);
+        }
+
+        if ($method_code) {
+            if (is_array($method_code)) {
+                $re->whereIn('method_code', $method_code);
+            } else {
+                $re->where('method_code', $method_code);
+            }
         }
 
         return $re;
