@@ -35,8 +35,7 @@
                     </div>
                 </fieldset>
                 <div class="col-12 mb-3" data-category="code" hidden>
-                    <label class="form-label">優惠劵序號 <span class="text-danger">*</span><span
-                            class="small text-secondary">（英文區分大小寫）</span></label>
+                    <label class="form-label">優惠劵序號 <span class="text-danger">*</span></label>
                     <div class="input-group has-validation">
                         <input type="text" name="sn" class="form-control" value="{{ old('sn', $data->sn ?? '') }}"
                             maxlength="20" disabled placeholder="可自行輸入或按隨機產生鈕" autocomplete="off" {{ $editBlock }}>
@@ -327,7 +326,7 @@
             // 產生優惠劵序號
             function generateCouponSn(len) {
                 let result = '';
-                const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
                 for (let index = 0; index < len; index++) {
                     result += characters.charAt(Math.floor(Math.random() * characters.length));
                 }
