@@ -61,7 +61,7 @@
                     <tr>
                         <th scope="col">外幣名稱</th>
                         <th scope="col">匯率（兌成台幣）</th>
-                        <th scope="col">科目</th>
+                        <th scope="col" class="col-6">科目</th>
                     </tr>
                     </thead>
                     <tbody>
