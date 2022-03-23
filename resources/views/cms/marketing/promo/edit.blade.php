@@ -9,85 +9,105 @@
     <form id="form1" method="post" action="">
         @method('POST')
         @csrf
+        @php
+            $editBlock = $method === 'edit' ? 'disabled' : '';
+        @endphp
+        @if ($method === 'edit')
+            <input type="hidden" name="category" value="{{ $data->category_code }}">
+        @endif
 
         <div class="card shadow p-4 mb-4">
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">優惠劵活動名稱 <span class="text-danger">*</span></label>
-                    <input class="form-control" name="title" type="text" placeholder="請輸入活動名稱" required aria-label="活動名稱">
+                    <input class="form-control" name="title" type="text" placeholder="請輸入活動名稱" {{ $editBlock }}
+                        value="{{ old('title', $data->title ?? '') }}" required aria-label="活動名稱">
                 </div>
                 <fieldset class="col-12 col-sm-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">優惠券類型 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
-                        <div class="form-check form-check-inline">
-                            <label class="form-check-label">
-                                <input class="form-check-input" name="category" type="radio" value="coupon">
-                                一般券
-                            </label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <label class="form-check-label">
-                                <input class="form-check-input" name="category" type="radio" value="code">
-                                序號兌換
-                            </label>
-                        </div>
+                        @foreach ($dis_categorys as $key => $value)
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="category" type="radio" value="{{ $key }}"
+                                        {{ $editBlock }} @if (old('category', $data->category_code ?? 'coupon') == $key) checked @endif>
+                                    {{ $value }}
+                                </label>
+                            </div>
+                        @endforeach
                     </div>
                 </fieldset>
                 <div class="col-12 mb-3" data-category="code" hidden>
-                    <label class="form-label">優惠劵序號 <span class="text-danger">*</span><span class="small text-secondary">（僅接受英數，區分大小寫）</span></label>
+                    <label class="form-label">優惠劵序號 <span class="text-danger">*</span></label>
                     <div class="input-group has-validation">
-                        <input type="text" name="sn" class="form-control" value="" maxlength="20" disabled placeholder="可自行輸入或按隨機產生鈕" autocomplete="off">
-                        <button id="generate_coupon_sn" class="btn btn-success" type="button">
+                        <input type="text" name="sn" class="form-control" value="{{ old('sn', $data->sn ?? '') }}"
+                            maxlength="20" disabled placeholder="可自行輸入或按隨機產生鈕" autocomplete="off" {{ $editBlock }}>
+                        <button id="generate_coupon_sn" class="btn btn-success" type="button" {{ $editBlock }}>
                             <i class="bi bi-shuffle"></i> 隨機產生序號
                         </button>
                         <div class="valid-feedback invalid-feedback -feedback"></div>
                     </div>
                 </div>
-                <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">活動開始日期<span class="small text-secondary">（未填則表示現在）</span></label>
+                <div class="col-12 col-sm-6 mb-3" data-category="code" hidden>
+                    <label class="form-label">可用起始日 <span class="small text-secondary">（未填則表示現在）</span></label>
                     <div class="input-group has-validation">
-                        <input type="date" name="start_date" value=""
-                                class="form-control" aria-label="活動開始日期"/>
-                        <button class="btn btn-outline-secondary icon" type="button" data-clear
-                                data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
+                        <input type="datetime-local" name="start_date"
+                            value="{{ old('start_date', $data->start_date ?? '') }}"
+                            class="form-control @error('start_date') is-invalid @enderror" aria-label="可用起始日" editable
+                            norequired />
+                        <button class="btn btn-outline-secondary icon" type="button" data-clear data-bs-toggle="tooltip"
+                            title="清空時間"><i class="bi bi-calendar-x"></i>
                         </button>
                         <div class="invalid-feedback">
+                            @error('start_date')
+                                {{ $message }}
+                            @enderror
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">活動結束日期<span class="small text-secondary">（未填則表示不會結束）</span></label>
+                <div class="col-12 col-sm-6 mb-3" data-category="code" hidden>
+                    <label class="form-label">可用結束日<span class="small text-secondary">（未填則表示不會結束）</span></label>
                     <div class="input-group has-validation">
-                        <input type="date" name="end_date" value=""
-                                class="form-control" aria-label="活動結束日期"/>
-                        <button class="btn btn-outline-secondary icon" type="button" data-clear
-                                data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
+                        <input type="datetime-local" name="end_date" value="{{ old('end_date', $data->end_date ?? '') }}"
+                            class="form-control @error('end_date') is-invalid @enderror" aria-label="可用結束日" editable
+                            norequired />
+                        <button class="btn btn-outline-secondary icon" type="button" data-clear data-bs-toggle="tooltip"
+                            title="清空時間"><i class="bi bi-calendar-x"></i>
                         </button>
                         <div class="invalid-feedback">
+                            @error('end_date')
+                                {{ $message }}
+                            @enderror
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">優惠券數量 <span class="text-danger">*</span><span class="small text-secondary">（不限則填0）</span></label>
-                    <input type="number" name="" min="0" value="1000" class="form-control" placeholder="請輸入優惠券數量" required aria-label="優惠券數量">
+                <div class="col-12 col-sm-6 mb-3" data-category="code" hidden>
+                    <label class="form-label">優惠券數量 <span class="text-danger">*</span><span
+                            class="small text-secondary">（不限則填0）</span></label>
+                    <input type="number" name="max_usage" min="0" value="{{ old('max_usage', $data->max_usage ?? '') }}"
+                        class="form-control" placeholder="請輸入優惠券數量" required aria-label="優惠券數量" editable>
                 </div>
-                <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">使用優惠券最低消費限制 <span class="text-danger">*</span><span class="small text-secondary">（不限則填0）</span></label>
-                    <div class="input-group flex-nowrap">
-                        <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                        <input type="number" name="" min="0" value="0" class="form-control" placeholder="請輸入使用優惠券最低消費金額" required>
-                    </div>
-                </div>
-                <div class="col-12 col-sm-6 mb-3">
+                <div class="col-12 col-sm-6 mb-3" data-category="coupon" hidden>
                     <label class="form-label">優惠券使用天數<span class="small text-secondary">（未填則表示無限制）</span></label>
                     <div class="input-group flex-nowrap">
-                        <input type="number" name="" step="1" class="form-control" min="0" value="" placeholder="請輸入優惠券使用天數" norequired>
+                        <input type="number" name="life_cycle" step="1" class="form-control" min="0"
+                            value="{{ old('life_cycle', $data->life_cycle ?? '') }}" placeholder="請輸入優惠券使用天數" norequired editable>
                         <span class="input-group-text">天</span>
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">使用優惠券最低消費限制 <span class="text-danger">*</span><span
+                            class="small text-secondary">（不限則填0）</span></label>
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                        <input type="number" name="min_consume" min="0" {{ $editBlock }}
+                            value="{{ old('min_consume', $data->min_consume ?? 0) }}" class="form-control"
+                            placeholder="請輸入使用優惠券最低消費金額" required>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">與其他行銷活動併用限制 <span class="text-danger">*</span></label>
-                    <select class="form-select" aria-label="與其他行銷活動併用限制">
+                    <select class="form-select" aria-label="與其他行銷活動併用限制" {{ $editBlock }}>
                         <option value="1" selected>無限制</option>
                         <option value="2">任選折扣</option>
                         <option value="3">全館折扣</option>
@@ -98,27 +118,27 @@
                 </div>
                 <div class="col-12 mb-3">
                     <label class="form-label">適用商品群組<span class="small text-secondary">（不選為全館適用）</span></label>
-                    <select name="select[]" multiple class="-select2 -multiple form-select" data-close-on-select="false" data-placeholder="可多選">
-                        <option value="1">item 1</option>
-                        <option value="2">item 2</option>
-                        <option value="3">item 3</option>
+                    <select name="collection_id[]" multiple class="-select2 -multiple form-select"
+                        data-close-on-select="false" data-placeholder="可多選" editable>
+                        @foreach ($collections as $key => $value)
+                            <option value="{{ $value->id }}" @if (in_array($value->id, $discountCollections)) selected @endif>
+                                {{ $value->name }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <fieldset class="col-12 mb-1">
                     <legend class="col-form-label p-0 mb-2">優惠方式 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
-                        <div class="form-check form-check-inline">
-                            <label class="form-check-label">
-                                <input class="form-check-input" name="method_code" type="radio" value="cash" required>
-                                金額
-                            </label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <label class="form-check-label">
-                                <input class="form-check-input" name="method_code" type="radio" value="percent" required>
-                                百分比
-                            </label>
-                        </div>
+                        @foreach ($dis_methods as $key => $value)
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="method_code" type="radio" {{ $editBlock }}
+                                        value="{{ $key }}" @if (old('method_code', $data->method_code ?? 'cash') == $key) checked @endif
+                                        required>
+                                    {{ $value }}
+                                </label>
+                            </div>
+                        @endforeach
                     </div>
                 </fieldset>
 
@@ -126,9 +146,19 @@
                 <div class="row mb-3 border rounded mx-0 px-0 pt-2" data-method="cash" hidden>
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">折扣金額 <span class="text-danger">*</span></label>
-                        <div class="input-group flex-nowrap">
+                        <div class="input-group has-validation">
                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                            <input type="number" name="" class="form-control" min="0" value="" disabled placeholder="請輸入折扣金額">
+                            <input type="number" name="discount_value"
+                                class="form-control @error('discount_value') is-invalid @enderror" min="0"
+                                value="{{ old('method_code', $data->method_code ?? '') === 'cash'? old('discount_value', $data->discount_value ?? ''): '' }}"
+                                disabled placeholder="請輸入折扣金額">
+                            <div class="invalid-feedback">
+                                @if (old('method_code', $data->method_code ?? '') === 'cash')
+                                    @error('discount_value')
+                                        {{ $message }}
+                                    @enderror
+                                @endif
+                            </div>
                         </div>
                     </div>
                     <fieldset class="col-12 col-sm-6 mb-3">
@@ -136,7 +166,8 @@
                         <div class="px-1 pt-1">
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" name="" type="checkbox" value="1" disabled checked norequired>
+                                    <input class="form-check-input" name="is_grand_total" type="checkbox" value="1" disabled
+                                        @if (old('is_grand_total', $data->is_grand_total ?? '') == '1') checked @endif norequired>
                                     累計折扣
                                 </label>
                             </div>
@@ -148,11 +179,22 @@
                 <div class="row mb-3 border rounded mx-0 px-0 pt-2" data-method="percent" hidden>
                     <div class="col-12 col-md-6 mb-3">
                         <label class="form-label">折扣百分比 <span class="text-danger">*</span>
-                            <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="例：100 元商品打 8 折為 80 元，請輸入數字 80，等同 80%" data-bs-placement="right"></i>
+                            <i class="bi bi-info-circle" data-bs-toggle="tooltip"
+                                title="例：100 元商品打 8 折為 80 元，請輸入數字 80，等同 80%" data-bs-placement="right"></i>
                         </label>
-                        <div class="input-group flex-nowrap">
-                            <input type="number" name="" class="form-control" min="1" max="100" value="" disabled placeholder="請輸入百分比 1 ~ 100">
+                        <div class="input-group has-validation">
+                            <input type="number" name="discount_value"
+                                class="form-control @error('discount_value') is-invalid @enderror" min="1" max="100"
+                                value="{{ old('method_code', $data->method_code ?? '') === 'percent'? old('discount_value', $data->discount_value ?? ''): '' }}"
+                                disabled placeholder="請輸入百分比 1 ~ 100">
                             <span class="input-group-text"><i class="bi bi-percent"></i></span>
+                            <div class="invalid-feedback">
+                                @if (old('method_code', $data->method_code ?? '') === 'percent')
+                                    @error('discount_value')
+                                        {{ $message }}
+                                    @enderror
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -162,8 +204,7 @@
         <div id="submitDiv">
             <div class="col-auto">
                 <button type="submit" class="btn btn-primary px-4">儲存</button>
-                <a href="{{ Route('cms.promo.index') }}" class="btn btn-outline-primary px-4"
-                   role="button">返回列表</a>
+                <a href="{{ Route('cms.promo.index') }}" class="btn btn-outline-primary px-4" role="button">返回列表</a>
             </div>
         </div>
     </form>
@@ -172,32 +213,44 @@
     @push('sub-scripts')
         <script>
             const AutoSnLength = 12;
-            const AbleControl = { required: true, disabled: false };
-            const DisabledControl = { required: false, disabled: true };
+            const AbleControl = {
+                required: true,
+                disabled: false
+            };
+            const DisabledControl = {
+                required: false,
+                disabled: true
+            };
+            const editBlock = @json($editBlock);
 
             // init
             setCategory();
             setMethod();
 
             // 優惠券類型
-            $('input[name="category"]').on('change', function () {
+            $('input[name="category"]').on('change', function() {
                 setCategory();
             });
             // 設定優惠券類型
             function setCategory() {
                 const category = $('input[name="category"]:checked').val();
 
-                if (category === 'code') {
-                    $('div[data-category="code"]').prop('hidden', false);
-                    $('div[data-category="code"] input').prop(AbleControl);
-                } else {
-                    $('div[data-category="code"]').prop('hidden', true);
-                    $('div[data-category="code"] input').prop(DisabledControl);
+                // hidden
+                $(`div[data-category]:not([data-category="${category}"])`).prop('hidden', true);
+                $(`div[data-category]:not([data-category="${category}"]) input`).prop(DisabledControl);
+
+                // shown
+                $(`div[data-category="${category}"]`).prop('hidden', false);
+                $(`div[data-category="${category}"] input`).prop(AbleControl);
+                $(`div[data-category="${category}"] input[norequired]`).prop('required', false);
+                if (editBlock) {
+                    $(`div[data-category="${category}"] input:not([editable])`).prop(DisabledControl);
                 }
+
             }
 
             // 優惠方式
-            $('input[name="method_code"]').on('change', function () {
+            $('input[name="method_code"]').on('change', function() {
                 setMethod();
             });
             // 設定優惠方式
@@ -212,33 +265,40 @@
                 $(`div[data-method="${method}"]`).prop('hidden', false);
                 $(`div[data-method="${method}"]`).find('input, select').prop(AbleControl);
                 $(`div[data-method="${method}"]`).find('[norequired]').prop('required', false);
+                if (editBlock) {
+                    $(`div[data-method="${method}"]`).find('input:not([editable]), select:not([editable])').prop(
+                        DisabledControl);
+                }
             }
 
-            $('#form1').submit(function (e) {
+            $('#form1').submit(function(e) {
                 if ($('input[name="category"]:checked').val() === 'code') {
-                    e.preventDefault();
-
                     const $sn = $('input[name="sn"]');
-                    if ($sn.hasClass('is-valid')) {
-                        $(this).submit();
-                    } if ($sn.hasClass('is-invalid')) {
-                        toast.show('請填入不重複的優惠劵序號', { type: 'danger' });
+                    if ($sn.hasClass('is-valid') || $sn.prop('disabled')) {
+                        return true;
+                    }
+                    if ($sn.hasClass('is-invalid')) {
+                        toast.show('請填入不重複的優惠劵序號', {
+                            type: 'danger'
+                        });
                         return false;
                     } else {
-                        checkSnInput($sn);
+                        checkSnInput($sn, true);
+                        return false;
                     }
                 }
             })
 
             // 產生優惠劵序號 btn
-            $('#generate_coupon_sn').on('click', function () {
+            $('#generate_coupon_sn').on('click', function() {
                 generateCouponSn(AutoSnLength);
             });
             // 檢查序號
-            $('input[name="sn"]').on('change', function () {
-                checkSnInput($(this));
+            $('input[name="sn"]').on('change', function() {
+                checkSnInput($(this), false);
             });
-            function checkSnInput($snInput) {
+
+            function checkSnInput($snInput, submit) {
                 const sn = $snInput.val();
                 if (!sn) {
                     unavailableSn($snInput, '序號不可為空');
@@ -249,6 +309,9 @@
                     if (res.status === '0') {
                         // 序號可使用
                         availableSn($snInput);
+                        if (submit) {
+                            $('#form1').submit();
+                        }
                     } else {
                         // 序號不可使用
                         let msg = '';
@@ -270,7 +333,7 @@
             // 產生優惠劵序號
             function generateCouponSn(len) {
                 let result = '';
-                const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
                 for (let index = 0; index < len; index++) {
                     result += characters.charAt(Math.floor(Math.random() * characters.length));
                 }
@@ -324,4 +387,3 @@
         </script>
     @endpush
 @endonce
-
