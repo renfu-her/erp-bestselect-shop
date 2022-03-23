@@ -17,8 +17,13 @@ class Discount extends Model
     protected $table = 'dis_discounts';
     protected $guarded = [];
 
-    public static function dataList(DisCategory | array $category = null, DisStatus $disStatus = null, )
-    {
+    public static function dataList(DisCategory | array $category = null,
+        array | string $disStatus = null,
+        $title = null,
+        $start_date = null,
+        $end_date = null
+    ) {
+
         $now = date('Y-m-d H:i:s');
 
         $selectStatus = "CASE
@@ -42,7 +47,15 @@ class Discount extends Model
         $re = DB::table(DB::raw("({$sub->toSql()}) as sub"));
 
         if ($disStatus) {
-            $re->where('status_code', $disStatus->value);
+            if (is_array($disStatus)) {
+                $re->whereIn('status_code', $disStatus);
+            } else {
+                $re->where('status_code', $disStatus);
+            }
+        }
+
+        if ($title) {
+            $re->where('title', 'like', "%$title%");
         }
 
         if ($category) {
@@ -53,6 +66,14 @@ class Discount extends Model
             } else {
                 $re->where('category_code', $category->value);
             }
+        }
+
+        if ($start_date && $end_date) {
+            $re->whereBetween('start_date', [$start_date, $end_date]);
+        } else if ($start_date) {
+            $re->where('start_date', '>=', $start_date);
+        } else if ($end_date) {
+            $re->where('end_date', '<=', $end_date);
         }
 
         return $re;

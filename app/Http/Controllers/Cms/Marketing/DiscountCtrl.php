@@ -27,14 +27,16 @@ class DiscountCtrl extends Controller
         $query = $request->query();
 
         $data_per_page = getPageCount(Arr::get($query, 'data_per_page', 10));
-        $cond['title'] = Arr::get($query, 'title', 10);
+        $cond['title'] = Arr::get($query, 'title');
         $cond['method_code'] = Arr::get($query, 'method_code', []);
-        $cond['status_code'] = Arr::get($query, 'status_code');
+        $cond['status_code'] = Arr::get($query, 'status_code', '');
         $cond['start_date'] = Arr::get($query, 'start_date');
         $cond['end_date'] = Arr::get($query, 'end_date');
         $cond['is_global'] = Arr::get($query, 'is_global');
 
-        $dataList = Discount::dataList(DisCategory::normal())->paginate($data_per_page)->appends($query);
+        $dataList = Discount::dataList(DisCategory::normal(),
+            explode(',', $cond['status_code']),
+            $cond['title'])->paginate($data_per_page)->appends($query);
         //   $cond['status_code'] = $cond['status_code'] ? explode(',', $cond['status_code']) : [];
         return view('cms.marketing.discount.list', [
             'dataList' => [],
