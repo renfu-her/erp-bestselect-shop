@@ -17,17 +17,18 @@ class Discount extends Model
     protected $table = 'dis_discounts';
     protected $guarded = [];
 
-
-    
+    /**
+     * @param DisCategory $category
+     */
 
     public static function dataList($category = null,
         $disStatus = null,
         $title = null,
         $start_date = null,
         $end_date = null,
-        $method_code = null
+        $method_code = null,
+        $is_global = null,
     ) {
-
         $now = date('Y-m-d H:i:s');
 
         $selectStatus = "CASE
@@ -64,11 +65,9 @@ class Discount extends Model
 
         if ($category) {
             if (is_array($category)) {
-                $re->whereIn('category_code', array_map(function ($n) {
-                    return $n->value;
-                }, $category));
+                $re->whereIn('category_code', $category);
             } else {
-                $re->where('category_code', $category->value);
+                $re->where('category_code', $category);
             }
         }
 
@@ -77,7 +76,7 @@ class Discount extends Model
         }
 
         if ($end_date) {
-            $re->where('end_date', '<=', $end_date);
+            $re->where('end_date', '<=', date('Y-m-d 59:59:59', strtotime($end_date)));
         }
 
         if ($method_code) {
@@ -86,6 +85,9 @@ class Discount extends Model
             } else {
                 $re->where('method_code', $method_code);
             }
+        }
+        if (!is_null($is_global)) {
+            $re->where('is_global', $is_global);
         }
 
         return $re;
