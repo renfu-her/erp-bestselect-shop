@@ -231,7 +231,7 @@ class LogisticCtrl extends Controller
 
     public function updateLogisticStatus(Request $request, $event ,$eventId ,$deliveryId) {
         $request->validate([
-            'statusCode.*' => 'required|int',
+            'statusCode.*' => 'required|string',
         ]);
         $statusCodes = $request->input('statusCode');
         $logistic_status_arr = [];
