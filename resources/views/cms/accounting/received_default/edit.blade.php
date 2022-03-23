@@ -172,36 +172,23 @@
                 }
             });
 
+            //「編輯」「儲存」、「取消」按鈕初始狀態
             $(document).ready(function () {
-                // $('#editBtn').show();
-                // $('#submitBtn').hide();
-                // $('#cancelBtn').hide();
-                $('#editBtn').click(function () {
-                    if ($('input, select').attr('disabled') === 'disabled'){
-                        $('input, select').attr('disabled', false);
-                        $('#editBtn').hide();
-                        $('#submitBtn').show();
-                        $('#cancelBtn').show();
-                    }else {
-                        $('input, select').attr('disabled', true);
                         $('#editBtn').show();
                         $('#submitBtn').hide();
                         $('#cancelBtn').hide();
-                    }
-                });
-
             });
 
-
-
-
-            // $('#editBtn').toggle(
-            //     function () {
-            //     $('input, select').attr('disabled', false);
-            // }, function () {
-            //     // $('input, select').attr('disabled', true);
-            // });
-
+            //點擊「編輯」按鈕後，所有表單變成可編輯狀態
+            $('#editBtn').click(function () {
+                if ($('input, select').prop('disabled') === false){
+                    $('html, body').animate({scrollTop: '0px'}, 300);
+                    $('input, select').prop('disabled', false);
+                    $('#editBtn').hide();
+                    $('#submitBtn').show();
+                    $('#cancelBtn').show();
+                }
+            })
         </script>
     @endpush
 @endonce
