@@ -66,12 +66,13 @@ class DeliveryCtrl extends Controller
             }
             $rsp_arr['delivery'] = $delivery;
             $rsp_arr['delivery_id'] = $delivery_id;
-            $rsp_arr['sn'] = $sub_order->sn;
+            $rsp_arr['sn'] = $delivery->sn;
             $rsp_arr['order_id'] = $sub_order->order_id;
             $rsp_arr['ord_items_arr'] = $ord_items_arr;
             $rsp_arr['formAction'] = Route('cms.delivery.store', [
                 'deliveryId' => $delivery_id,
             ], true);
+            $rsp_arr['breadcrumb_data'] = $delivery->sn;
         }
 
         return view('cms.commodity.delivery.edit', $rsp_arr);

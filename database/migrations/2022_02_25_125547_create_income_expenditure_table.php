@@ -25,7 +25,7 @@ class CreateIncomeExpenditureTable extends Migration
             $table->id()->comment('外幣');
             $table->string('name')->unique()->comment('外幣名稱');
             $table->decimal('rate')->comment('外幣匯率');
-            $table->unsignedTinyInteger('received_default_fk')
+            $table->unsignedBigInteger('received_default_fk')
                     ->nullable()
                     ->unique()
                     ->comment('table收款單的會計科目預設值acc_received_default foreign key');

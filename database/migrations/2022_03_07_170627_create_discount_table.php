@@ -28,6 +28,7 @@ class CreateDiscountTable extends Migration
             $table->integer('usage_count')->default(0)->comment('使用次數');
             $table->integer('max_usage')->nullable()->comment('限制次數');
             $table->integer('min_consume')->default(0)->comment('最低消費金額');
+            $table->integer('life_cycle')->default(0)->comment('使用天數');
             $table->tinyInteger('is_global')->default(1)->comment('是否全館適用');
             $table->dateTime('start_date')->nullable()->comment('起始時間');
             $table->dateTime('end_date')->nullable()->comment('結束時間');

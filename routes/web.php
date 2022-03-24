@@ -61,7 +61,6 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
 
     require base_path('routes/cms/Discount.php');
     require base_path('routes/cms/PromoCoupon.php');
-    require base_path('routes/cms/PromoCode.php');
 });
 
 Route::group(['middleware' => 'guest:customer'], function () {

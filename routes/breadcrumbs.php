@@ -170,7 +170,7 @@ Breadcrumbs::for('cms.order.index', function (BreadcrumbTrail $trail) {
 });
 Breadcrumbs::for('cms.order.detail', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
-    $trail->push('[單號：' . $value . '] 訂單明細');
+    $trail->push('#' . $value . ' 訂單明細');
 });
 Breadcrumbs::for('cms.order.create', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
@@ -184,16 +184,16 @@ Breadcrumbs::for('cms.delivery.index', function (BreadcrumbTrail $trail) {
 });
 
 Breadcrumbs::for('cms.delivery.create', function (BreadcrumbTrail $trail, $value) {
-    $trail->parent('cms.order.index');
-    $trail->push('出貨審核');
+    $trail->parent('cms.delivery.index');
+    $trail->push('#' . $value . ' 出貨審核');
 });
 Breadcrumbs::for('cms.logistic.create', function (BreadcrumbTrail $trail, $value) {
-    $trail->parent('cms.order.index');
-    $trail->push('實際物流設定');
+    $trail->parent('cms.delivery.index');
+    $trail->push('#' . $value . ' 實際物流設定');
 });
 Breadcrumbs::for('cms.logistic.changeLogisticStatus', function (BreadcrumbTrail $trail, $value) {
-    $trail->parent('cms.order.index');
-    $trail->push('配送狀態');
+    $trail->parent('cms.delivery.index');
+    $trail->push('#' . $value . ' 配送狀態');
 });
 
 /**
@@ -444,6 +444,20 @@ Breadcrumbs::for('cms.income_expenditure.update', function (BreadcrumbTrail $tra
     $trail->push('付款單科目', route('cms.income_expenditure.update'));
 });
 
+//收款單科目
+Breadcrumbs::for('cms.received_default.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('收款單科目', route('cms.received_default.index'));
+});
+Breadcrumbs::for('cms.received_default.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('收款單科目', route('cms.received_default.edit'));
+});
+Breadcrumbs::for('cms.received_default.update', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('收款單科目', route('cms.received_default.update'));
+});
+
 // 會計科目
 Breadcrumbs::for('cms.general_ledger.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
@@ -539,4 +553,5 @@ Breadcrumbs::for('cms.customer.edit', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.customer.index');
     $trail->push('編輯');
 });
+
 
