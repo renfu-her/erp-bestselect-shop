@@ -93,18 +93,29 @@ class Order extends Model
         $orderQuery = DB::table('ord_sub_orders as sub_order')
             ->leftJoinSub($itemQuery, 'i', function($join) {
                 $join->on('sub_order.id', '=', 'i.sub_order_id');
-            })    
+            })
 //->mergeBindings($itemQuery) ;
-            
+
             ->leftJoin('dlv_delivery', function($join) {
                 $join->on('dlv_delivery.event_id', '=', 'sub_order.id');
                 $join->where('dlv_delivery.event', '=', Event::order()->value);
             })
-            ->select('sub_order.*', 'i.items', 'dlv_delivery.sn as delivery_sn')
+            ->leftJoin('dlv_logistic', function($join) {
+                $join->on('dlv_logistic.delivery_id', '=', 'dlv_delivery.id');
+            })
+            ->leftJoin('shi_group', function($join) {
+                $join->on('shi_group.id', '=', 'dlv_logistic.ship_group_id');
+                $join->whereNotNull('dlv_logistic.ship_group_id');
+            })
+            ->select('sub_order.*', 'i.items'
+                , 'dlv_delivery.sn as delivery_sn'
+                , 'dlv_delivery.logistic_status as logistic_status'
+                , 'dlv_logistic.sn as logistic_sn'
+                , 'dlv_logistic.package_sn as package_sn'
+                , 'dlv_logistic.ship_group_id as ship_group_id'
+                , 'shi_group.name as ship_group_name'
+                , 'shi_group.note as ship_group_note')
             ->where('order_id', $order_id);
-            
-        
-     //   dd($orderQuery->get()->toArray());
 
         if ($sub_order_id) {
             $orderQuery->where('sub_order.id', $sub_order_id);

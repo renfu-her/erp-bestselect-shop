@@ -235,21 +235,21 @@
                         </div>
                         <div class="col">
                             <dt>實際物流</dt>
-                            <dd>(待處理)</dd>
+                            <dd>{{ $subOrder->ship_group_name ?? '(待處理)' }}</dd>
                         </div>
                         <div class="col">
                             <dt>包裹編號</dt>
-                            <dd>(待處理)</dd>
+                            <dd>{{ $subOrder->package_sn ?? '(待處理)' }}</dd>
                         </div>
                     </dl>
                     <dl class="row">
                         <div class="col">
                             <dt>物態</dt>
-                            <dd>(待處理)</dd>
+                            <dd>{{ $subOrder->logistic_status ?? '(待處理)' }}</dd>
                         </div>
                         <div class="col-9">
                             <dt>物流說明</dt>
-                            <dd>不含箱子費用、不含離島地區</dd>
+                            <dd>{{ $subOrder->ship_group_note ?? '(待處理)' }}</dd>
                         </div>
                     </dl>
                 </div>
