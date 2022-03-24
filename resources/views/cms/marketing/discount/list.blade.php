@@ -112,9 +112,12 @@
                         <th scope="col" style="width:10%">#</th>
                         <th scope="col">活動名稱</th>
                         <th scope="col">優惠方式</th>
+                        <th scope="col">優惠內容</th>
                         <th scope="col">進行狀態</th>
+
                         <th scope="col">開始時間</th>
                         <th scope="col">結束時間</th>
+                        <th scope="col">全館</th>
                         <th scope="col" class="text-center">編輯</th>
                         <th scope="col" class="text-center">啟用</th>
                         <th scope="col" class="text-center">刪除</th>
@@ -126,6 +129,13 @@
                             <th scope="row">{{ $key + 1 }}</th>
                             <td>{{ $data->title }}</td>
                             <td>{{ $data->method_title }}</td>
+                            <td>
+                                @if ($data->method_code == 'cash')
+                                    {{ $data->discount_value }}元
+                                @elseif($data->method_code == 'percent')
+                                    {{ $data->discount_value }}折
+                                @endif
+                            </td>
                             <td @class([
                                 'text-success' => $data->status === '進行中',
                                 'text-danger' => $data->status === '已結束',
@@ -134,6 +144,11 @@
                             </td>
                             <td>{{ $data->start_date }}</td>
                             <td>{{ $data->end_date }}</td>
+                            <td>
+                                @if ($data->is_global == '1')
+                                    是
+                                @endif
+                            </td>
                             <td class="text-center">
                                 <a href="{{ Route('cms.discount.edit', ['id' => $data->id], true) }}"
                                     data-bs-toggle="tooltip" title="編輯"

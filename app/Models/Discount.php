@@ -48,6 +48,7 @@ class Discount extends Model
         $sub = self::select('*')
             ->selectRaw($selectStatus)
             ->selectRaw($selectStatusCode);
+          
 
         $re = DB::table(DB::raw("({$sub->toSql()}) as sub"));
 
