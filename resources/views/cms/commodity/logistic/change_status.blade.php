@@ -39,7 +39,7 @@
                     <li>
                         <h6 class="mb-1">{{date('Y-m-d H:i:s', strtotime($data->created_at))}}</h6>
                         <p>
-                            <span>物態：{{$data->status}}</span>
+                            <span>{{$data->status}}</span>
                             <span>操作人員：{{$data->user_name ?? ''}}</span>
                         </p>
                     </li>
