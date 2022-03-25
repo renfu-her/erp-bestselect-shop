@@ -118,9 +118,9 @@
                             <td>{{ $data->method_title }}</td>
                             <td>
                                 @if ($data->method_code == 'cash')
-                                    {{ $data->discount_value }}元
+                                    ${{ $data->discount_value }}
                                 @elseif($data->method_code == 'percent')
-                                    {{ $data->discount_value }}折
+                                    {{ $data->discount_value }}%
                                 @elseif($data->method_code == 'coupon')
                                     <a href="{{ route('cms.promo.edit', ['id' => $data->coupon_id]) }}">
                                         {{ $data->coupon_title }}
@@ -133,8 +133,8 @@
                             ])>
                                 {{ $data->status }}
                             </td>
-                            <td>{{ $data->start_date }}</td>
-                            <td>{{ $data->end_date }}</td>
+                            <td>{{ date('Y/m/d h:i', strtotime($data->start_date)) }}</td>
+                            <td>{{ date('Y/m/d h:i', strtotime($data->end_date)) }}</td>
 
                             <td class="text-center">
                                 <a href="{{ Route('cms.discount.edit', ['id' => $data->id], true) }}"
