@@ -219,8 +219,8 @@
                                 <td>{{ $data->deposit_num }}</td>
                                 <td>{{ $data->final_pay_num }}</td>
                                 <td>{{ $data->sku }}</td>
-                                <td>${{ number_format($data->price) }}</td>
-                                <td>${{ number_format($data->single_price) }}</td>
+                                <td>${{ number_format(floatval($data->price)) }}</td>
+                                <td>${{ number_format(floatval($data->single_price)) }}</td>
                                 <td>{{ $data->num }}</td>
                                 <td>{{ $data->arrived_num }}</td>
                                 <td>{{ $data->error_num }}</td>
