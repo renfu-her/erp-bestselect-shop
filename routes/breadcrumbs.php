@@ -196,6 +196,22 @@ Breadcrumbs::for('cms.logistic.changeLogisticStatus', function (BreadcrumbTrail 
     $trail->push('#' . $value . ' 配送狀態');
 });
 
+// 寄倉單管理
+Breadcrumbs::for('cms.consignment.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('寄倉單管理', route('cms.consignment.index'));
+});
+// 新增寄倉單
+Breadcrumbs::for('cms.consignment.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.consignment.index');
+    $trail->push('新增寄倉單');
+});
+// 編輯 - 寄倉單資訊
+Breadcrumbs::for('cms.consignment.edit', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.consignment.index');
+    $trail->push('[單號：' . $value['sn'] . '] 寄倉單資訊', route('cms.consignment.edit', ['id' => $value['id']]));
+});
+
 /**
  * 行銷設定
  **/

@@ -36,6 +36,11 @@ return
                 "controller_name" => "DeliveryCtrl",
                 "route_name" => "cms.delivery.index",
             ],
+            [
+                "title" => "寄倉管理",
+                "controller_name" => "ConsignmentCtrl",
+                "route_name" => "cms.consignment.index",
+            ],
         ],
     ],
     [

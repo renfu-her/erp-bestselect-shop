@@ -319,6 +319,27 @@ return [
         ],
     ],
     [
+        "unit" => "寄倉單列表",
+        "permissions" => [
+            [
+                "cms.consignment.index",
+                "瀏覽",
+            ],
+            [
+                "cms.consignment.create",
+                "新增",
+            ],
+            [
+                "cms.consignment.edit",
+                "修改",
+            ],
+            [
+                "cms.consignment.delete",
+                "刪除",
+            ],
+        ],
+    ],
+    [
         "unit" => "員工帳號管理",
         "permissions" => [
             [
