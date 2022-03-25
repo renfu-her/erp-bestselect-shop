@@ -23,6 +23,7 @@ POST {host}/api/cms/delivery/get-select-inbound-list
 | request body | -      |      |
 | ------------ | ------ | ---- |
 | product_style_id            | string |   商品款式ID  |
+| depot_id            | string |   倉庫ID(可選 若有則只過濾出該倉庫的入庫單)  |
 
 | response body  | -      |     |
 | -------------- | ------ | --- |
