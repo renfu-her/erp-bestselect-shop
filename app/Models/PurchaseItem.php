@@ -99,7 +99,6 @@ class PurchaseItem extends Model
             $query = PurchaseItem::whereIn('id', $del_item_id_arr)
                 ->selectRaw('sum(arrived_num) as arrived_num')->get()->first();
             if (0 < $query->arrived_num) {
-                throw ValidationException::withMessages(['del_error' => '有入庫 不可刪除']);
                 return ['success' => 0, 'error_msg' => "有入庫 不可刪除"];
             } else {
                 return DB::transaction(function () use ($purchase_id, $del_item_id_arr, $operator_user_id, $operator_user_name
