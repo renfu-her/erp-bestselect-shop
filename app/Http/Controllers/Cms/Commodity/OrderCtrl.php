@@ -126,7 +126,7 @@ class OrderCtrl extends Controller
 
         $citys = Addr::getCitys();
 
-        //  dd(Discount::getDiscounts('global-normal'));
+     //   dd(Discount::getDiscounts(null,1));
         //    dd($citys);
         return view('cms.commodity.order.edit', [
             'customer_id' => $customer_id,

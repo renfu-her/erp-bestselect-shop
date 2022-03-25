@@ -44,6 +44,21 @@
                     <input type="hidden" name="status_code" value="{{ $cond['status_code'] }}">
                     <div id="chip-group-status" class="d-flex flex-wrap bd-highlight chipGroup"></div>
                 </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <fieldset class="col-12 mb-3">
+                        <legend class="col-form-label p-0 mb-2">優惠範圍</legend>
+                        <div class="px-1 pt-1">
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="is_global" value="1"
+                                        @if ($cond['is_global']) checked @endif type="checkbox">
+                                    全館
+                                </label>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
 
                 <div class="col-12 mb-3">
                     <label class="form-label">起訖日期</label>
@@ -104,7 +119,7 @@
 
                         <th scope="col">開始時間</th>
                         <th scope="col">結束時間</th>
-
+                        <th scope="col">全館</th>
                         <th scope="col" class="text-center">編輯</th>
                         <th scope="col" class="text-center">啟用</th>
                         <th scope="col" class="text-center">刪除</th>
@@ -135,6 +150,11 @@
                             </td>
                             <td>{{ date('Y/m/d h:i', strtotime($data->start_date)) }}</td>
                             <td>{{ date('Y/m/d h:i', strtotime($data->end_date)) }}</td>
+                            <td>
+                                @if ($data->is_global == '1')
+                                    是
+                                @endif
+                            </td>
 
                             <td class="text-center">
                                 <a href="{{ Route('cms.discount.edit', ['id' => $data->id], true) }}"
