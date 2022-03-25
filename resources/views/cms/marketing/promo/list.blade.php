@@ -136,9 +136,9 @@
                             <td>{{ $data->method_title }}</td>
                             <td>
                                 @if ($data->method_code == 'cash')
-                                    {{ $data->discount_value }}元
+                                    ${{ $data->discount_value }}
                                 @elseif($data->method_code == 'percent')
-                                    {{ $data->discount_value }}折
+                                    {{ $data->discount_value }}%
                                 @endif
                             </td>
                             <td>{{ $data->min_consume }}</td>
@@ -155,8 +155,8 @@
                                 'text-danger' => '已結束']) --}}>
                                 {{ $data->status }}
                             </td>
-                            <td>{{ $data->start_date }}</td>
-                            <td>{{ $data->end_date }}</td>
+                            <td>{{ date('Y/m/d', strtotime($data->start_date)) }}</td>
+                            <td>{{ date('Y/m/d', strtotime($data->end_date)) }}</td>
                             <td>{{ $data->max_usage }}</td>
                             <td>
                                 <a href="{{ Route('cms.promo.edit', ['id' => $data->id], true) }}"

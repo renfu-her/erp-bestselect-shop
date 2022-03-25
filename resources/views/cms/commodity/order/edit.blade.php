@@ -121,6 +121,8 @@
                 </div>
             </div>
             <div id="Total_price" class="card shadow p-4 mb-4">
+                <h6>全館優惠</h6>
+                <div></div>
                 <h6>應付金額</h6>
                 <div class="table-responsive">
                     <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
@@ -447,8 +449,6 @@
                 getSaleChannel();
             });
 
-            const discounts = @json($discounts);
-
             // 取得客戶身份
             function getSaleChannel() {
                 const _URL = @json(route('api.cms.user.get-customer-salechannels'));
@@ -463,7 +463,6 @@
                 } else {
                     axios.post(_URL, Data)
                         .then((result) => {
-                            console.log(result);
                             const res = result.data;
                             if (res.status === '0' && res.data && res.data.length) {
                                 $('#addProductBtn').prop('disabled', false);
@@ -505,6 +504,9 @@
                 keyboard: false
             });
             let prodPages = new Pagination($('#addProduct .-pages'));
+            // 全館優惠
+            const Discounts = @json($discounts);
+            console.log(Discounts);
             // 物流方式
             const EVENT_CLASS = {
                 'deliver': 'primary',
@@ -913,6 +915,8 @@
 
                 // 關閉懸浮視窗
                 setShipmentModal.hide();
+
+                // 優惠
 
                 // 新增一個物流
                 function createNewShip(s) {
