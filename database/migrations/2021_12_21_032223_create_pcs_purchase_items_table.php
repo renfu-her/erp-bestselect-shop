@@ -17,8 +17,8 @@ class CreatePcsPurchaseItemsTable extends Migration
             $table->id()->comment('採購款式id');
             $table->integer('purchase_id')->comment('採購id');
             $table->integer('product_style_id')->comment('款式product_style_id 帶出款式sku碼');
-            $table->string('title')->comment('商品名稱');
-            $table->string('sku')->comment('sku');
+            $table->string('title', 40)->comment('商品名稱');
+            $table->string('sku', 20)->comment('sku');
             $table->decimal('price')->comment('總價');
             $table->decimal('tw_dollar')->nullable()->default(null)->comment('新台幣,暫留欄位');
             $table->decimal('rate')->nullable()->default(null)->comment('採購當時的匯率,暫留欄位');

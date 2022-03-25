@@ -15,13 +15,13 @@ class CreatePcsPurchaseTable extends Migration
     {
         Schema::create('pcs_purchase', function (Blueprint $table) {
             $table->id()->comment('採購id 一張採購對一家廠商');
-            $table->string('sn')->comment('採購單號');
+            $table->string('sn', 20)->comment('採購單號');
             $table->integer('supplier_id')->comment('廠商');
-            $table->string('supplier_name')->comment('廠商名稱');
-            $table->string('supplier_nickname')->comment('廠商暱稱');
-            $table->string('supplier_sn')->nullable()->comment('廠商訂單號');
+            $table->string('supplier_name', 20)->comment('廠商名稱');
+            $table->string('supplier_nickname', 20)->comment('廠商暱稱');
+            $table->string('supplier_sn', 20)->nullable()->comment('廠商訂單號');
             $table->integer('purchase_user_id')->comment('採購人員');
-            $table->string('purchase_user_name')->comment('採購人員名稱');
+            $table->string('purchase_user_name', 20)->comment('採購人員名稱');
             $table->dateTime('scheduled_date')->comment('預計進貨日期');
             //付款資訊
             $table->tinyInteger('pay_type')->nullable()->comment('採購付款方式 0:先付(訂金) / 1:先付(一次付清) / 2:貨到付款');
@@ -29,7 +29,7 @@ class CreatePcsPurchaseTable extends Migration
             $table->tinyInteger('has_tax')->nullable()->comment('應稅與否 0:免稅 1:應稅');
             $table->integer('logistics_price')->default(0)->comment('物流費用');
             $table->string('logistics_memo')->nullable()->comment('物流備註');
-            $table->string('invoice_num')->nullable()->comment('發票號碼');
+            $table->string('invoice_num', 20)->nullable()->comment('發票號碼');
             $table->dateTime('invoice_date')->nullable()->comment('發票日期');
             $table->dateTime('close_date')->nullable()->comment('結案日期');
             $table->timestamps();

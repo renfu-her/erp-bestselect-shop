@@ -32,7 +32,7 @@ class CreateReceiveDepotTable extends Migration
             $table->string('memo')->nullable()->comment('備註');
             $table->dateTime('audit_date')->nullable()->comment('審核日期');
             $table->unsignedBigInteger('audit_user_id')->nullable()->comment('審核者');
-            $table->string('audit_user_name')->nullable()->comment('審核者名稱');
+            $table->string('audit_user_name', 20)->nullable()->comment('審核者名稱');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -65,7 +65,7 @@ class CreateReceiveDepotTable extends Migration
             $table->string('memo')->nullable()->comment('物流備註');
             $table->dateTime('audit_date')->nullable()->comment('審核日期');
             $table->unsignedBigInteger('audit_user_id')->nullable()->comment('審核者');
-            $table->string('audit_user_name')->nullable()->comment('審核者名稱');
+            $table->string('audit_user_name', 20)->nullable()->comment('審核者名稱');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -90,7 +90,7 @@ class CreateReceiveDepotTable extends Migration
             $table->string('status', 10)->comment('狀態名稱');
             $table->string('status_code', 10)->comment('代碼');
             $table->unsignedBigInteger('user_id')->nullable()->comment('新增者');
-            $table->string('user_name')->nullable()->comment('新增者名稱');
+            $table->string('user_name', 20)->nullable()->comment('新增者名稱');
             $table->timestamps();
         });
     }
