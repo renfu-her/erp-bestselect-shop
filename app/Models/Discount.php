@@ -90,6 +90,10 @@ class Discount extends Model
                 $re->where('sub.is_global', 1)
                     ->where('sub.category_code', DisCategory::normal()->value);
                 break;
+            case 'non-global-normal':
+                $re->where('sub.is_global', 0)
+                    ->where('sub.category_code', DisCategory::normal()->value);
+                break;
         }
         //   dd(DisStatus::D01()->value);
 

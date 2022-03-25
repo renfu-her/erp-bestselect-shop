@@ -52,9 +52,29 @@ class DiscountCtrl extends Controller
             ]);
         }
         Discount::where('id', $request->input('id'))->update(['active' => $request->input('active')]);
-        
+
         return response()->json([
             'status' => '0',
+        ]);
+
+    }
+
+    public static function getNormalDiscount(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'product_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'E01',
+                'message' => $validator->messages(),
+            ]);
+        }
+
+        return response()->json([
+            'status' => '0',
+            'data' => Discount::getDiscounts('non-global-normal', $request->input('product_id')),
         ]);
 
     }
