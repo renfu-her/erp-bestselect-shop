@@ -358,6 +358,10 @@ class PurchaseInbound extends Model
         if (isset($param['inbound_id'])) {
             $result->where('inbound.id', '=', $param['inbound_id']);
         }
+
+        if (isset($param['depot_id'])) {
+            $result->where('inbound.depot_id', '=', $param['depot_id']);
+        }
         if (false == $showNegativeVal) {
             $result->where(DB::raw($calc_qty), '>', 0);
         }
