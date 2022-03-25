@@ -17,18 +17,8 @@ class Discount extends Model
     protected $table = 'dis_discounts';
     protected $guarded = [];
 
-    /**
-     * @param DisCategory $category
-     */
-
-    public static function dataList($category = null,
-        $disStatus = null,
-        $title = null,
-        $start_date = null,
-        $end_date = null,
-        $method_code = null,
-        $is_global = null
-    ) {
+    private static function _discountStatus()
+    {
         $now = date('Y-m-d H:i:s');
 
         $selectStatus = "CASE
@@ -48,9 +38,83 @@ class Discount extends Model
         $sub = self::select('*')
             ->selectRaw($selectStatus)
             ->selectRaw($selectStatusCode);
-          
 
-        $re = DB::table(DB::raw("({$sub->toSql()}) as sub"));
+        $coupons = DB::table(DB::raw("({$sub->toSql()}) as sub"))
+            ->leftJoin('dis_discounts as dis', 'sub.discount_value', '=', 'dis.id')
+            ->select('sub.*', 'dis.id as coupon_id', 'dis.title as coupon_title')
+            ->where('sub.method_code', '=', DisMethod::coupon()->value);
+
+        $nonCoupon = DB::table(DB::raw("({$sub->toSql()}) as sub"))
+            ->select('sub.*', DB::raw("@coupon_id:=null as coupon_id"), DB::raw("@coupon_title:=null as coupon_title"))
+            ->where('sub.method_code', '<>', DisMethod::coupon()->value)
+            ->union($coupons);
+
+        $nonCoupon->bindings['where'][] = $nonCoupon->bindings['union'][0];
+        $nonCoupon->bindings['union'] = [];
+
+        return $nonCoupon;
+
+    }
+
+    public static function getDiscounts($type = null)
+    {
+        $sub = self::_discountStatus();
+
+      
+        $select = [
+            'sub.id',
+            'sub.title',
+            'sub.category_title',
+            'sub.category_code',
+            'sub.method_code',
+            'sub.method_title',
+            'sub.discount_value',
+            'sub.is_grand_total',
+            'sub.min_consume',
+        ];
+
+        $re = DB::table(DB::raw("({$sub->toSql()}) as sub"))
+            ->select($select)
+            ->mergeBindings($sub)
+            ->where('sub.status_code', DisStatus::D01()->value)
+            ->where('sub.active', 1);
+
+        switch ($type) {
+            case 'global-normal':
+                $re->where('sub.is_global', 1)
+                    ->where('sub.category_code', DisCategory::normal()->value);
+                break;
+        }
+        //   dd(DisStatus::D01()->value);
+
+        //dd(IttmsUtils::getEloquentSqlWithBindings($re));
+
+        $output = [];
+
+        foreach ($re->get()->toArray() as $value) {
+            if (!isset($output[$value->method_code])) {
+                $output[$value->method_code] = [];
+            }
+            $output[$value->method_code][] = $value;
+        }
+
+        return $output;
+
+    }
+
+    public static function dataList($category = null,
+        $disStatus = null,
+        $title = null,
+        $start_date = null,
+        $end_date = null,
+        $method_code = null,
+        $is_global = null
+    ) {
+
+        $sub = self::_discountStatus();
+       
+        $re = DB::table(DB::raw("({$sub->toSql()}) as sub"))
+        ->mergeBindings($sub);
 
         if ($disStatus) {
             if (is_array($disStatus)) {

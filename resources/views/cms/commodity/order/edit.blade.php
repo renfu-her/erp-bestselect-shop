@@ -447,6 +447,8 @@
                 getSaleChannel();
             });
 
+            const discounts = @json($discounts);
+
             // 取得客戶身份
             function getSaleChannel() {
                 const _URL = @json(route('api.cms.user.get-customer-salechannels'));

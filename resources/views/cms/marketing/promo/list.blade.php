@@ -1,6 +1,7 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">優惠劵 / 序號</h2>
+    <h2 class="mb-4">
+        優惠劵 / 序號</h2>
 
     <form id="search" action="" method="GET">
         <div class="card shadow p-4 mb-4">
@@ -133,7 +134,13 @@
                             <td>{{ $data->title }}</td>
                             <td>{{ $data->sn }}</td>
                             <td>{{ $data->method_title }}</td>
-                            <td>{{ $data->discount_value }}</td>
+                            <td>
+                                @if ($data->method_code == 'cash')
+                                    {{ $data->discount_value }}元
+                                @elseif($data->method_code == 'percent')
+                                    {{ $data->discount_value }}折
+                                @endif
+                            </td>
                             <td>{{ $data->min_consume }}</td>
                             <td>
                                 @if ($data->is_global == '1')

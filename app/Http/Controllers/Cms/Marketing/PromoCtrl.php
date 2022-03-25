@@ -156,7 +156,8 @@ class PromoCtrl extends Controller
     {
         //
 
-        $data = Discount::where('id', $id)->get()->first();
+        $data = Discount::where('id', $id)
+            ->where('category_code', "<>", DisCategory::normal()->value)->get()->first();
         if (!$data) {
             return abort(404);
         }
