@@ -56,11 +56,11 @@ class Discount extends Model
 
     }
 
-    public static function getDiscounts($type = null)
+    public static function getDiscounts($type = null, $product_id = null)
     {
+
         $sub = self::_discountStatus();
 
-      
         $select = [
             'sub.id',
             'sub.title',
@@ -78,6 +78,12 @@ class Discount extends Model
             ->mergeBindings($sub)
             ->where('sub.status_code', DisStatus::D01()->value)
             ->where('sub.active', 1);
+
+        if ($product_id) {
+            $re->leftJoin('dis_discount_collection as dc', 'sub.id', '=', 'dc.discount_id')
+                ->leftJoin('collection_prd as cp', 'dc.collection_id', '=', 'cp.collection_id_fk')
+                ->where('cp.product_id_fk', $product_id);
+        }
 
         switch ($type) {
             case 'global-normal':
@@ -112,9 +118,9 @@ class Discount extends Model
     ) {
 
         $sub = self::_discountStatus();
-       
+
         $re = DB::table(DB::raw("({$sub->toSql()}) as sub"))
-        ->mergeBindings($sub);
+            ->mergeBindings($sub);
 
         if ($disStatus) {
             if (is_array($disStatus)) {
