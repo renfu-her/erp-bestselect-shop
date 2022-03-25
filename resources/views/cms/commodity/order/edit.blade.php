@@ -121,8 +121,15 @@
                 </div>
             </div>
             <div id="Total_price" class="card shadow p-4 mb-4">
-                <h6>全館優惠</h6>
-                <div></div>
+                <div id="Global_discount">
+                    <h6>全館優惠</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm text-right align-middle">
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                
                 <h6>應付金額</h6>
                 <div class="table-responsive">
                     <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
@@ -505,8 +512,8 @@
             });
             let prodPages = new Pagination($('#addProduct .-pages'));
             // 全館優惠
-            const Discounts = @json($discounts);
-            console.log(Discounts);
+            const GlobalDiscounts = @json($discounts);
+            console.log(GlobalDiscounts);
             // 物流方式
             const EVENT_CLASS = {
                 'deliver': 'primary',
@@ -1094,6 +1101,85 @@
                 $('#Total_price td[data-td="subtotal"]').text(`${formatNumber(all_total)}`);
                 $('#Total_price td[data-td="dlv_fee"]').text(`${formatNumber(all_dlvFee)}`);
                 $('#Total_price td[data-td="sum"]').text(`${formatNumber(all_total + all_dlvFee)}`);
+            }
+
+            /*** 優惠 ***/
+            // 全館優惠
+            function setGlobalDiscount(all_total) {
+                if (GlobalDiscounts.length === 0) {
+                    $('#Global_discount').hide();
+                    return false;
+                }
+
+                for (const key in GlobalDiscounts) {
+                    if (Object.hasOwnProperty.call(GlobalDiscounts, key)) {
+                        appendTbody(GlobalDiscounts[key], key);
+                    }
+                }
+
+                function appendTbody(dis_list) {
+                    let trList = [];
+                    dis_list.map(d => {
+                        trList.push(`<tr>
+                            <td class="col-8">${d.title}
+                                <span class="small text-secondary">${discountNote(d)}</span>
+                            </td>
+                            <td class="text-end pe-4"></td>
+                        </tr>`);
+                    });
+                    $('#Global_discount table tbody').append(trList);
+                }
+
+                // ex. 消費滿 $100 折 $10，可累計優惠
+                // ex. 消費滿 $100 享 88 折優惠（不含運費）
+                // ex. 消費不限金額享 88 折優惠（不含運費）
+                // ex. 消費滿 $100 送優惠券
+                function discountNote(dis) {
+                    let note = '';
+                    // 低消
+                    if (dis.min_consume > 0) {
+                        note += `消費滿 $${dis.min_consume} `;
+                    } else {
+                        note += '消費不限金額';
+                    }
+                    // 優惠內容
+                    switch (dis.method_code) {
+                        case 'cash':
+                            note += `折 $${dis.discount_value}`;
+                            break;
+                        case 'percent':
+                            note += `享 ${dis.discount_value}} 折優惠（不含運費）`;
+                            break;
+                        case 'coupon':
+                            note += `送優惠券`;
+                            break;
+                    }
+                    // 累計
+                    if (dis.is_grand_total > 0) {
+                        note += '，可累計優惠';
+                    }
+                    return note;
+                }
+
+                function discountUse(dis) {
+                    let result = '';
+                    if (all_total >= dis.min_consume) {
+                        switch (dis.method_code) {
+                            case 'cash':
+                                
+                                break;
+                            case 'percent':
+                                all_total * (dis.discount_value / 100)
+                                break;
+                            case 'coupon':
+                                result = `【${dis.coupon_title || ''}】`;
+                                break;
+                        }
+                    } else {
+                        result = '未達優惠標準';
+                    }
+                    return result;
+                }
             }
         </script>
         <script>

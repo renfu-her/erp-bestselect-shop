@@ -21,7 +21,6 @@ class DiscountCtrl extends Controller
      */
     public function index(Request $request)
     {
-
         //  Discount::dataList();
         $cond = [];
         $query = $request->query();
@@ -38,7 +37,6 @@ class DiscountCtrl extends Controller
         $status_code = $cond['status_code'] ? explode(',', $cond['status_code']) : null;
         //   dd( $cond['method_code']);
 
-        //  dd(Discount::dataList()->get()->toArray());
         $dataList = Discount::dataList(DisCategory::normal()->value,
             $status_code,
             $cond['title'],
@@ -50,7 +48,6 @@ class DiscountCtrl extends Controller
         //   $cond['status_code'] = $cond['status_code'] ? explode(',', $cond['status_code']) : [];
         $cond['method_code'] = $cond['method_code'] ? $cond['method_code'] : [];
         return view('cms.marketing.discount.list', [
-            'dataList' => [],
             'dis_methods' => DisMethod::getValueWithDesc(),
             'dis_status' => DisStatus::getValueWithDesc(),
             'data_per_page' => $data_per_page,

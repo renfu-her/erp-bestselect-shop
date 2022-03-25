@@ -55,6 +55,7 @@ class DiscountCtrl extends Controller
 
         return response()->json([
             'status' => '0',
+            'data' => '改變後狀態'
         ]);
 
     }

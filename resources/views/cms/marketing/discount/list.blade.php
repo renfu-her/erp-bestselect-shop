@@ -141,9 +141,9 @@
                                     </a>
                                 @endif
                             </td>
-                            <td @class([
+                            <td data-td="status" @class([
                                 'text-success' => $data->status === '進行中',
-                                'text-danger' => $data->status === '已結束',
+                                'text-danger' => $data->status === '已結束' || $data->status === '暫停',
                             ])>
                                 {{ $data->status }}
                             </td>
@@ -245,9 +245,16 @@
                 $('input[name="status_code"]').val(selectStatus);
             });
 
-            $('.active-switch').on('change', function() {
-                let active = $(this).is(':checked') ? 1 : 0;
-                let dataId = $(this).attr('data-id');
+            // 啟用
+            const statusClass = {
+                '進行中': 'text-success',
+                '已結束': 'text-danger',
+                '暫停': 'text-danger'
+            };
+            $('.active-switch').off('change').on('change', function() {
+                const $switch = $(this);
+                const active = $switch.prop('checked') ? 1 : 0;
+                const dataId = $switch.data('id');
 
                 axios.post(changeActiveUrl, {
                         'id': dataId,
@@ -255,6 +262,14 @@
                     })
                     .then((result) => {
                         console.log(result.data);
+                        $switch.closest('tr').find('td[data-td="status"]').text(result.data.data)
+                            .removeClass('text-success text-danger')
+                            .addClass(statusClass[result.data.data]);
+                        if (active) {
+                            toast.show('活動已啟用');
+                        } else {
+                            toast.show('活動已暫停', { type: 'warning' });
+                        }
                     }).catch((err) => {
                         console.error(err);
                     });
