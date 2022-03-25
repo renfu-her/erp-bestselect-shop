@@ -116,10 +116,9 @@
                         <th scope="col">優惠方式</th>
                         <th scope="col">優惠內容</th>
                         <th scope="col">進行狀態</th>
-
+                        <th scope="col">全館</th>
                         <th scope="col">開始時間</th>
                         <th scope="col">結束時間</th>
-                        <th scope="col">全館</th>
                         <th scope="col" class="text-center">編輯</th>
                         <th scope="col" class="text-center">啟用</th>
                         <th scope="col" class="text-center">刪除</th>
@@ -133,7 +132,7 @@
                             <td>{{ $data->method_title }}</td>
                             <td>
                                 @if ($data->method_code == 'cash')
-                                    ${{ $data->discount_value }}
+                                    ${{ number_format($data->discount_value) }}
                                 @elseif($data->method_code == 'percent')
                                     {{ $data->discount_value }}%
                                 @elseif($data->method_code == 'coupon')
@@ -148,13 +147,13 @@
                             ])>
                                 {{ $data->status }}
                             </td>
-                            <td>{{ date('Y/m/d h:i', strtotime($data->start_date)) }}</td>
-                            <td>{{ date('Y/m/d h:i', strtotime($data->end_date)) }}</td>
                             <td>
                                 @if ($data->is_global == '1')
-                                    是
+                                    <i class="bi bi-check-lg text-success fs-5"></i>
                                 @endif
                             </td>
+                            <td>{{ date('Y/m/d h:i', strtotime($data->start_date)) }}</td>
+                            <td>{{ date('Y/m/d h:i', strtotime($data->end_date)) }}</td>
 
                             <td class="text-center">
                                 <a href="{{ Route('cms.discount.edit', ['id' => $data->id], true) }}"
@@ -256,8 +255,6 @@
                     })
                     .then((result) => {
                         console.log(result.data);
-
-
                     }).catch((err) => {
                         console.error(err);
                     });

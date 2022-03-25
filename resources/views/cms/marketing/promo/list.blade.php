@@ -114,11 +114,11 @@
                         <th scope="col">優惠劵活動名稱</th>
                         <th scope="col">優惠券序號</th>
                         <th scope="col">優惠方式</th>
-                        <th scope="col">折價金額/百分比</th>
+                        <th scope="col">優惠內容</th>
                         <th scope="col">最低消費限制</th>
-                        <th scope="col">限用商品群組</th>
-                        <th scope="col">與其他行銷活動併用限制</th>
                         <th scope="col">進行狀態</th>
+                        <th scope="col">全館</th>
+                        <th scope="col">併用限制</th>
                         <th scope="col">開始日期</th>
                         <th scope="col">結束日期</th>
                         <th scope="col">數量</th>
@@ -136,28 +136,26 @@
                             <td>{{ $data->method_title }}</td>
                             <td>
                                 @if ($data->method_code == 'cash')
-                                    ${{ $data->discount_value }}
+                                    ${{ number_format($data->discount_value) }}
                                 @elseif($data->method_code == 'percent')
                                     {{ $data->discount_value }}%
                                 @endif
                             </td>
-                            <td>{{ $data->min_consume }}</td>
+                            <td>${{ number_format($data->min_consume) }}</td>
+                            <td @class([
+                                'text-success' => $data->status === '進行中', 
+                                'text-danger' => $data->status === '已結束'])>
+                                {{ $data->status }}
+                            </td>
                             <td>
                                 @if ($data->is_global == '1')
-                                    全館
-                                @else
-                                    群組
+                                    <i class="bi bi-check-lg text-success fs-5"></i>
                                 @endif
                             </td>
                             <td>無</td>
-                            <td {{-- @class([
-                                'text-success' => '進行中', 
-                                'text-danger' => '已結束']) --}}>
-                                {{ $data->status }}
-                            </td>
                             <td>{{ date('Y/m/d', strtotime($data->start_date)) }}</td>
                             <td>{{ date('Y/m/d', strtotime($data->end_date)) }}</td>
-                            <td>{{ $data->max_usage }}</td>
+                            <td>{{ number_format($data->max_usage) }}</td>
                             <td>
                                 <a href="{{ Route('cms.promo.edit', ['id' => $data->id], true) }}"
                                     data-bs-toggle="tooltip" title="編輯"
