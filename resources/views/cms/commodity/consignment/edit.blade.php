@@ -158,7 +158,6 @@
                             <th scope="col">狀態</th>
                             <th scope="col">入庫人員</th>
                         @endif
-                        <th scope="col">寄倉備註</th>
                     </tr>
                     </thead>
                     <tbody class="-appendClone --selectedP">
@@ -219,10 +218,6 @@
                                     <td data-td="inbound_type">{{$psItemVal->inbound_type?? ''}}</td>
                                     <td data-td="inbound_user_name">{{$psItemVal->inbound_user_name?? ''}}</td>
                                 @endif
-                                <td>
-                                    <input type="text" class="form-control form-control-sm -xl" name="memo[]"
-                                           value="{{ old('memo.'. $psItemKey, $psItemVal->memo?? '') }}"/>
-                                </td>
                             </tr>
                         @endforeach
                     @endif
