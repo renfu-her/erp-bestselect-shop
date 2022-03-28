@@ -15,7 +15,7 @@ class CreatePcsPurchaseLogTable extends Migration
     {
         Schema::create('pcs_purchase_log', function (Blueprint $table) {
             $table->id()->comment('logID');
-            $table->integer('purchase_id')->comment('採購ID');
+            $table->integer('event_parant_id')->comment('事件上層ID 採購 寄賣');
             $table->integer('product_style_id')->nullable()->comment('款式ID');
             $table->string('event')->comment('事件');
             $table->string('event_id')->comment('事件ID');
