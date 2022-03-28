@@ -27,7 +27,7 @@ class OrderCtrl extends Controller
     {
 
         // Order::createOrder([]);
-
+     //   dd(Discount::getDiscountStatus(1));
         // dd(Order::orderList()->get()->toArray());
 
         $query = $request->query();
@@ -78,7 +78,7 @@ class OrderCtrl extends Controller
      */
     public function create(Request $request)
     {
-
+      //  Discount::calculatorDiscount(2000);
         $cart = null;
         if (old('product_style_id')) {
             $oldData = [];

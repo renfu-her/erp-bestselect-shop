@@ -52,10 +52,10 @@ class DiscountCtrl extends Controller
             ]);
         }
         Discount::where('id', $request->input('id'))->update(['active' => $request->input('active')]);
-
+       //  $re = Discount::getDiscountStatus($request->input('id'));
         return response()->json([
             'status' => '0',
-            'data' => '改變後狀態'
+            'data' => Discount::getDiscountStatus($request->input('id'))->status
         ]);
 
     }
