@@ -64,7 +64,7 @@ class PurchaseInbound extends Model
                 DB::rollBack();
                 return $rePcsItemUAN;
             }
-            $rePcsLSC = PurchaseLog::stockChange($purchase_id, $product_style_id, LogEvent::inbound()->value, $id, LogEventFeature::inbound_add()->value, $inbound_num, null, $inbound_user_id, $inbound_user_name);
+            $rePcsLSC = PurchaseLog::stockChange($purchase_id, $product_style_id, LogEvent::purchase()->value, $id, LogEventFeature::inbound_add()->value, $inbound_num, null, $inbound_user_id, $inbound_user_name);
             if ($rePcsLSC['success'] == 0) {
                 DB::rollBack();
                 return $rePcsLSC;
@@ -113,7 +113,7 @@ class PurchaseInbound extends Model
                         DB::rollBack();
                         return $rePcsItemUAN;
                     }
-                    $rePcsLSC = PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogEvent::inbound()->value, $id, LogEventFeature::inbound_del()->value, $qty, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
+                    $rePcsLSC = PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogEvent::purchase()->value, $id, LogEventFeature::inbound_del()->value, $qty, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
                     if ($rePcsLSC['success'] == 0) {
                         DB::rollBack();
                         return $rePcsLSC;
@@ -146,7 +146,7 @@ class PurchaseInbound extends Model
                 } else {
                     PurchaseInbound::where('id', $id)
                         ->update(['sale_num' => DB::raw("sale_num + $sale_num")]);
-                    $reStockChange =PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogEvent::inbound()->value, $id, LogEventFeature::inbound_shipping()->value, $sale_num, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
+                    $reStockChange =PurchaseLog::stockChange($inboundDataGet->purchase_id, $inboundDataGet->product_style_id, LogEvent::purchase()->value, $id, LogEventFeature::inbound_shipping()->value, $sale_num, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
                     if ($reStockChange['success'] == 0) {
                         DB::rollBack();
                         return $reStockChange;
@@ -319,8 +319,14 @@ class PurchaseInbound extends Model
             ->groupBy('tb_rd.product_style_id')
             ->groupBy('tb_rd.product_title');
 
-        $calc_qty = '(case when tb_rd.qty is null then inbound.inbound_num - inbound.sale_num
-       else inbound.inbound_num - inbound.sale_num - tb_rd.qty end)';
+        $calc_qty = '(case when tb_rd.qty is null then inbound.inbound_num - inbound.sale_num - csn_num
+       else inbound.inbound_num - inbound.sale_num - csn_num - tb_rd.qty end)';
+
+        //若有指定倉庫 則需過濾該倉庫選品
+        if (isset($param['receive_depot_id'])) {
+            // TODO
+        }
+
         $result = DB::table('pcs_purchase_inbound as inbound')
             ->leftJoin('prd_product_styles as style', 'style.id', '=', 'inbound.product_style_id')
             ->leftJoin('prd_products as product', 'product.id', '=', 'style.product_id')

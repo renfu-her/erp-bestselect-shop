@@ -727,6 +727,9 @@ class PurchaseCtrl extends Controller
     public function historyLog(Request $request, $id) {
         $purchaseData = Purchase::getPurchase($id)->first();
         $purchaseLog = PurchaseLog::getData($id)->get();
+        if (!$purchaseData) {
+            return abort(404);
+        }
 
         return view('cms.commodity.purchase.log', [
             'id' => $id,
