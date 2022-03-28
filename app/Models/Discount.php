@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
-use App\Helpers\IttmsUtils;
 
 class Discount extends Model
 {
@@ -59,16 +58,16 @@ class Discount extends Model
 
     public static function getDiscountStatus($id)
     {
-        
+
         $sub = self::_discountStatus();
         $re = DB::table(DB::raw("({$sub->toSql()}) as sub"))
-        ->select(['sub.id','status','status_code'])
-        ->mergeBindings($sub)
-        ->where('id',$id);
-       
-       // dd(IttmsUtils::getEloquentSqlWithBindings($re));
-        
-       return $re->get()->first();
+            ->select(['sub.id', 'status', 'status_code'])
+            ->mergeBindings($sub)
+            ->where('id', $id);
+
+        // dd(IttmsUtils::getEloquentSqlWithBindings($re));
+
+        return $re->get()->first();
     }
 
     public static function getDiscounts($type = null, $product_id = null)
@@ -375,6 +374,8 @@ class Discount extends Model
     public static function calculatorDiscount($price, $type = null, $product_id = null)
     {
         $discounts = self::getDiscounts('global-normal');
+
+        //   dd($discounts);
         $dis = [];
         foreach ($discounts as $key => $value) {
 
@@ -383,24 +384,40 @@ class Discount extends Model
 
                     foreach ($value as $cash) {
                         if ($cash->min_consume == 0 || $cash->min_consume < $price) {
-                            //    dd($price - $cash->discount_value);
-                        }
-                        /*
-                    if($cash->min_consume == 0 || $cash->min_consume < $price){
-                    if($cash->is_grand_total==1){
-                    $cycle = floor($price/)
-                    }else{
+                            if ($cash->is_grand_total == 1) {
+                                $cash->currentDiscount = intval(floor($price / $cash->min_consume) * $cash->discount_value);
 
-                    }
-                    }*/
+                            } else {
+                                $cash->currentDiscount = $cash->discount_value;
+                            }
+                            $dis[] = $cash;
+                        }
+
                     }
 
                     break;
                 case DisMethod::percent()->value:
+                    foreach ($value as $cash) {
+                        if ($cash->min_consume == 0 || $cash->min_consume < $price) {
+                            $cash->currentDiscount = $price - intval(floor($price / 100) * $cash->discount_value);
+                            $dis[] = $cash;
+                        }
+                    }
                     break;
                 case DisMethod::coupon()->value:
                     break;
             }
         }
+
+        usort($dis, function ($a, $b) {
+            return strcmp($b->currentDiscount, $a->currentDiscount);
+        });
+
+        return [
+            'origin_price' => $price,
+            'result_price' => $dis[0] ? ($price - $dis[0]->currentDiscount) : 0,
+            'discount' => $dis[0] ? $dis[0] : null,
+        ];
+
     }
 }
