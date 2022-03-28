@@ -29,7 +29,7 @@ class CreateCsnConsignmentTable extends Migration
             $table->string('logistic_status', 20)->nullable()->comment('物流狀態 檢貨中/理貨中/待配送');
             $table->unsignedBigInteger('create_user_id')->nullable()->comment('建單者ID');
             $table->string('create_user_name', 20)->nullable()->comment('建單者名稱');
-            $table->dateTime('send_date')->nullable()->comment('寄倉日期');
+            $table->dateTime('scheduled_date')->nullable()->comment('預計入庫日期');
             $table->dateTime('audit_date')->nullable()->comment('審核日期');
             $table->unsignedBigInteger('audit_user_id')->nullable()->comment('審核者ID');
             $table->string('audit_user_name', 20)->nullable()->comment('審核者名稱');

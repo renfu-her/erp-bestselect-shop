@@ -117,22 +117,22 @@
                     <input type="hidden" name="receive_depot_id" value="{{ $consignmentData->receive_depot_id ?? '' }}">
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">寄倉日期 <span class="text-danger">*</span></label>
+                    <label class="form-label">預計入庫日期 <span class="text-danger">*</span></label>
                     @if ($hasCreatedFinalPayment)
                         <div class="form-control" readonly>
-                            {{ empty($consignmentData->send_date) ? '-' : date('Y/m/d', strtotime($consignmentData->send_date)) }}
+                            {{ empty($consignmentData->scheduled_date) ? '-' : date('Y/m/d', strtotime($consignmentData->scheduled_date)) }}
                         </div>
                     @else
                         <div class="input-group has-validation">
-                            <input type="date" id="send_date" name="send_date"
-                                   value="{{ old('send_date', $consignmentData->send_date  ?? '') }}"
-                                   class="form-control @error('send_date') is-invalid @enderror" aria-label="寄貨日期"
+                            <input type="date" id="scheduled_date" name="scheduled_date"
+                                   value="{{ old('scheduled_date', $consignmentData->scheduled_date  ?? '') }}"
+                                   class="form-control @error('scheduled_date') is-invalid @enderror" aria-label="寄貨日期"
                                    required/>
                             <button class="btn btn-outline-secondary icon" type="button" data-clear
                                     data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
                             </button>
                             <div class="invalid-feedback">
-                                @error('send_date')
+                                @error('scheduled_date')
                                 {{ $message }}
                                 @enderror
                             </div>

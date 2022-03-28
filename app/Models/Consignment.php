@@ -15,13 +15,13 @@ class Consignment extends Model
     protected $table = 'csn_consignment';
     protected $guarded = [];
     protected $casts = [
-        'send_date'  => 'datetime:Y-m-d',
+        'scheduled_date'  => 'datetime:Y-m-d',
         'audit_date'  => 'datetime:Y-m-d',
     ];
 
     public static function createData($send_depot_id, $send_depot_name, $receive_depot_id, $receive_depot_name
         , $create_user_id = null, $create_user_name = null
-        , $send_date = null
+        , $scheduled_date = null
     )
     {
         return DB::transaction(function () use (
@@ -29,7 +29,7 @@ class Consignment extends Model
 //            , $ship_temp_id, $ship_temp_name, $ship_event_id, $ship_event
 //            , $dlv_fee, $logistic_status_code, $logistic_status
             , $create_user_id, $create_user_name
-            , $send_date
+            , $scheduled_date
 //            , $audit_date, $audit_user_id, $audit_user_name, $audit_status
             ) {
 
@@ -46,7 +46,7 @@ class Consignment extends Model
                 'receive_depot_name' => $receive_depot_name,
                 'create_user_id' => $create_user_id ?? null,
                 'create_user_name' => $create_user_name ?? null,
-                'send_date' => $send_date ?? null,
+                'scheduled_date' => $scheduled_date ?? null,
             ])->id;
 
             $rePcsLSC = PurchaseLog::stockChange($id, null, LogEvent::consignment()->value, $id, LogEventFeature::csn_add()->value, null, null, $create_user_id, $create_user_name);
@@ -77,10 +77,10 @@ class Consignment extends Model
                 , 'logistic_status'
                 , 'create_user_id'
                 , 'create_user_name'
-                , 'send_date'
+                , 'scheduled_date'
                 , 'memo'
             )
-            ->selectRaw('DATE_FORMAT(send_date,"%Y-%m-%d") as send_date')
+            ->selectRaw('DATE_FORMAT(scheduled_date,"%Y-%m-%d") as scheduled_date')
             ->selectRaw('DATE_FORMAT(audit_date,"%Y-%m-%d") as audit_date')
             ->get()->first();
 
@@ -97,7 +97,7 @@ class Consignment extends Model
         $purchase->logistic_status = $purchaseReq['logistic_status'] ?? null;
         $purchase->create_user_id = $purchaseReq['create_user_id'] ?? null;
         $purchase->create_user_name = $purchaseReq['create_user_name'] ?? null;
-        $purchase->send_date = $purchaseReq['send_date'] ?? null;
+        $purchase->scheduled_date = $purchaseReq['scheduled_date'] ?? null;
         $purchase->memo = $purchaseReq['memo'] ?? null;
 
         return DB::transaction(function () use ($purchase, $id, $purchaseReq, $changeStr, $operator_user_id, $operator_user_name
@@ -148,7 +148,7 @@ class Consignment extends Model
                     "logistic_status" => $purchaseReq['logistic_status'] ?? null,
                     "create_user_id" => $purchaseReq['create_user_id'] ?? null,
                     "create_user_name" => $purchaseReq['create_user_name'] ?? null,
-                    "send_date" => $purchaseReq['send_date'] ?? null,
+                    "scheduled_date" => $purchaseReq['scheduled_date'] ?? null,
                     "audit_status" => $purchaseReq['audit_status'] ?? 0,
                     "memo" => $purchaseReq['memo'] ?? null,
                 ]);
@@ -203,7 +203,7 @@ class Consignment extends Model
                 , 'consignment.audit_status as audit_status'
                 , 'consignment.memo as memo'
             )
-            ->selectRaw('DATE_FORMAT(consignment.send_date,"%Y-%m-%d") as send_date')
+            ->selectRaw('DATE_FORMAT(consignment.scheduled_date,"%Y-%m-%d") as scheduled_date')
             ->selectRaw('DATE_FORMAT(consignment.audit_date,"%Y-%m-%d") as audit_date')
             ->whereNull('consignment.deleted_at');
 
@@ -245,7 +245,7 @@ class Consignment extends Model
                 , 'consignment.memo as memo'
 
             )
-            ->selectRaw('DATE_FORMAT(consignment.send_date,"%Y-%m-%d") as send_date')
+            ->selectRaw('DATE_FORMAT(consignment.scheduled_date,"%Y-%m-%d") as scheduled_date')
             ->selectRaw('DATE_FORMAT(consignment.audit_date,"%Y-%m-%d") as audit_date')
             ->whereNull('consignment.deleted_at')
             ->where('consignment.id', '=', $id);

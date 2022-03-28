@@ -33,7 +33,7 @@ class ConsignmentCtrl extends Controller
         $query = $request->query();
         $this->validInputValue($request);
 
-        $csnReq = $request->only('send_depot_id', 'receive_depot_id', 'send_date');
+        $csnReq = $request->only('send_depot_id', 'receive_depot_id', 'scheduled_date');
         $csnItemReq = $request->only('product_style_id', 'name', 'sku', 'num', 'price', 'memo');
 //        $purchasePayReq = $request->only('logistics_price', 'logistics_memo', 'invoice_num', 'invoice_date');
 
@@ -42,7 +42,7 @@ class ConsignmentCtrl extends Controller
 
         $reCsn = Consignment::createData($send_depot->id, $send_depot->name, $receive_depot->id, $receive_depot->name
             , $request->user()->id, $request->user()->name
-            , $csnReq['send_date']);
+            , $csnReq['scheduled_date']);
 
         $consignmentID = null;
         if (isset($reCsn['id'])) {
@@ -93,7 +93,7 @@ class ConsignmentCtrl extends Controller
         $request->validate([
             'send_depot_id' => 'required|numeric',
             'receive_depot_id' => 'required|numeric',
-            'send_date' => 'required|string',
+            'scheduled_date' => 'required|string',
             'product_style_id.*' => 'required|numeric',
             'name.*' => 'required|string',
             'sku.*' => 'required|string',
@@ -104,10 +104,21 @@ class ConsignmentCtrl extends Controller
 
     public function edit(Request $request, $id)
     {
+        $query = $request->query();
         $consignmentData = Consignment::where('id', $id)->get()->first();
-        //dd($consignmentData->send_date->format('Y-m-d'));
-        dd($consignmentData);
 
+        if (!$consignmentData) {
+            return abort(404);
+        }
+
+        return view('cms.commodity.consignment.edit', [
+            'id' => $id,
+            'query' => $query,
+            'consignmentData' => $consignmentData,
+            'method' => 'edit',
+            'formAction' => Route('cms.consignment.edit', ['id' => $id]),
+            'breadcrumb_data' => ['id' => $id, 'sn' => $consignmentData->sn],
+        ]);
     }
 }
 
