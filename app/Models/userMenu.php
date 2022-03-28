@@ -49,7 +49,7 @@ return
                 "route_name" => "cms.promo.index",
             ],
             [
-                "title" => "現折優惠",
+                "title" => "全館優惠",
                 "controller_name" => "DiscountCtrl",
                 "route_name" => "cms.discount.index",
             ],

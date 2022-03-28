@@ -586,9 +586,8 @@
                         if (myCart[`${type}_${event_id}`].products.length <= 0) {
                             delete myCart[`${type}_${event_id}`];
                             $(`#${type}_${event_id}`).remove();
-                        } else {
-                            sumGroupTotal(`${type}_${event_id}`);
                         }
+                        sumGroupTotal(`${type}_${event_id}`);
                     }
                 },
                 checkFn: function() {
@@ -1055,9 +1054,7 @@
             // 計算 群組小計
             function sumGroupTotal(group_key) {
                 let total = 0;
-                if (!myCart[group_key]) {
-                    return false;
-                } else {
+                if (myCart[group_key]) {
                     (myCart[group_key].products).forEach(p => {
                         total += (p.price * p.qty);
                     });
@@ -1079,8 +1076,8 @@
                             myCart[group_key].dlv_fee = 0;
                             break;
                     }
-                    sumAllAmount();
                 }
+                sumAllAmount();
             }
             // 計算 應付金額
             function sumAllAmount() {
@@ -1107,7 +1104,6 @@
             // 全館優惠
             function setGlobalDiscount(all_total = 0) {
                 if (GlobalDiscounts.length === 0) {
-                    $('#Global_discount').prop('hidden', true);
                     return false;
                 }
                 $('#Global_discount').prop('hidden', false);
@@ -1122,12 +1118,16 @@
                 function appendTbody(dis_list) {
                     let trList = [];
                     dis_list.map(d => {
-                        trList.push(`<tr>
-                            <td class="col-8">${d.title}
-                                <span class="small text-secondary">－${discountNote(d)}</span>
-                            </td>
-                            <td class="text-end pe-4">${discountUse(d)}</td>
-                        </tr>`);
+                        let discount = discountUse(d);
+                        if (discount) {
+                            let text_class = (typeof discount === 'number') ? 'text-danger' : 'text-info';
+                            trList.push(`<tr>
+                                <td class="col-8">${d.title}
+                                    <span class="small text-secondary">－${discountNote(d)}</span>
+                                </td>
+                                <td class="text-end pe-4 ${text_class}">${discount}</td>
+                            </tr>`);
+                        }
                     });
                     $('#Global_discount table tbody').append(trList);
                 }
@@ -1165,26 +1165,24 @@
 
                 // 使用優惠
                 function discountUse(dis) {
-                    let result = '';
+                    let result = false;
                     if (all_total >= dis.min_consume) {
                         switch (dis.method_code) {
                             case 'cash':
                                 if (dis.is_grand_total) {   // 累計
                                     let count = Math.floor(all_total / dis.min_consume);
-                                    result = '- $' + (dis.discount_value * count);
+                                    result = (dis.discount_value * count);
                                 } else {
-                                    result = '- $' + dis.discount_value;
+                                    result = dis.discount_value;
                                 }
                                 break;
                             case 'percent':
-                                result = '- $' + Math.floor(all_total * (1 - (dis.discount_value / 100)));
+                                result = Math.floor(all_total * (1 - (dis.discount_value / 100)));
                                 break;
                             case 'coupon':
                                 result = `【${dis.coupon_title || ''}】`;
                                 break;
                         }
-                    } else {
-                        result = '未達優惠標準';
                     }
                     return result;
                 }

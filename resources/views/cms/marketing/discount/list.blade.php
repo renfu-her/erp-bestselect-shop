@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">現折優惠</h2>
+    <h2 class="mb-4">全館優惠</h2>
 
     <form id="search" action="" method="GET">
         <div class="card shadow p-4 mb-4">

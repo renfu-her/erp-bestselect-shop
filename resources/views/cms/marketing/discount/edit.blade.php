@@ -3,7 +3,7 @@
     @if ($method === 'edit')
         <h2 class="mb-3">活動名稱</h2>
     @else
-        <h2 class="mb-3">新增 現折優惠</h2>
+        <h2 class="mb-3">新增 全館優惠</h2>
     @endif
 
     <form id="form1" method="post" action="{{ $formAction }}">
@@ -70,17 +70,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 mb-3">
-                    <label class="form-label">適用商品群組<span class="small text-secondary">（不選為全館適用）</span></label>
-                    <select name="collection_id[]" multiple class="-select2 -multiple form-select"
-                        data-close-on-select="false" data-placeholder="可多選" editable>
-                        @foreach ($collections as $key => $value)
-                            <option value="{{ $value->id }}" @if (in_array($value->id, old('collection_id', $discountCollections ?? []))) selected @endif>
-                                {{ $value->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
               
                 <fieldset class="col-12 mb-1">
                     <legend class="col-form-label p-0 mb-2">優惠方式 <span class="text-danger">*</span></legend>

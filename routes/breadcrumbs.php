@@ -200,17 +200,17 @@ Breadcrumbs::for('cms.logistic.changeLogisticStatus', function (BreadcrumbTrail 
  * 行銷設定
  **/
 
-// 現折優惠
+// 全館優惠
 Breadcrumbs::for('cms.discount.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('現折優惠', route('cms.discount.index'));
+    $trail->push('全館優惠', route('cms.discount.index'));
 });
-// 新增現折優惠
+// 新增全館優惠
 Breadcrumbs::for('cms.discount.create', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.discount.index');
-    $trail->push('新增現折優惠');
+    $trail->push('新增全館優惠');
 });
-// 編輯 現折優惠
+// 編輯 全館優惠
 Breadcrumbs::for('cms.discount.edit', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.discount.index');
     $trail->push('[' . $value . '] 編輯');

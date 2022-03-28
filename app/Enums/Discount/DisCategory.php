@@ -27,7 +27,7 @@ final class DisCategory extends Helper
                 $result = '優惠代碼';
                 break;
             case self::normal:
-                $result = '現折優惠';
+                $result = '全館優惠';
                 break;
             default:
                 $result = parent::getDescription($value);
