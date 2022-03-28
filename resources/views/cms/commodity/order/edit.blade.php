@@ -121,7 +121,7 @@
                 </div>
             </div>
             <div id="Total_price" class="card shadow p-4 mb-4">
-                <div id="Global_discount">
+                <div id="Global_discount" hidden>
                     <h6>全館優惠</h6>
                     <div class="table-responsive">
                         <table class="table table-sm text-right align-middle">
@@ -634,10 +634,11 @@
                     }
                 }
             }
+            // 優惠
+            setGlobalDiscount(0);
             // 計數器
             bindAdjusterBtn();
             $('#Loading_spinner').removeClass('d-flex');
-
             // 刪除商品
             Clone_bindDelElem($('.-cloneElem.--selectedP .-del'), cloneProductsOption);
             // 無商品不可下一步
@@ -921,9 +922,7 @@
                 }
 
                 // 關閉懸浮視窗
-                setShipmentModal.hide();
-
-                // 優惠
+                setShipmentModal.hide();                
 
                 // 新增一個物流
                 function createNewShip(s) {
@@ -1098,6 +1097,7 @@
                     }
                 }
 
+                setGlobalDiscount(all_total);
                 $('#Total_price td[data-td="subtotal"]').text(`${formatNumber(all_total)}`);
                 $('#Total_price td[data-td="dlv_fee"]').text(`${formatNumber(all_dlvFee)}`);
                 $('#Total_price td[data-td="sum"]').text(`${formatNumber(all_total + all_dlvFee)}`);
@@ -1105,11 +1105,13 @@
 
             /*** 優惠 ***/
             // 全館優惠
-            function setGlobalDiscount(all_total) {
+            function setGlobalDiscount(all_total = 0) {
                 if (GlobalDiscounts.length === 0) {
-                    $('#Global_discount').hide();
+                    $('#Global_discount').prop('hidden', true);
                     return false;
                 }
+                $('#Global_discount').prop('hidden', false);
+                $('#Global_discount table tbody').empty();
 
                 for (const key in GlobalDiscounts) {
                     if (Object.hasOwnProperty.call(GlobalDiscounts, key)) {
@@ -1122,9 +1124,9 @@
                     dis_list.map(d => {
                         trList.push(`<tr>
                             <td class="col-8">${d.title}
-                                <span class="small text-secondary">${discountNote(d)}</span>
+                                <span class="small text-secondary">－${discountNote(d)}</span>
                             </td>
-                            <td class="text-end pe-4"></td>
+                            <td class="text-end pe-4">${discountUse(d)}</td>
                         </tr>`);
                     });
                     $('#Global_discount table tbody').append(trList);
@@ -1148,7 +1150,7 @@
                             note += `折 $${dis.discount_value}`;
                             break;
                         case 'percent':
-                            note += `享 ${dis.discount_value}} 折優惠（不含運費）`;
+                            note += `享 ${dis.discount_value} 折優惠（不含運費）`;
                             break;
                         case 'coupon':
                             note += `送優惠券`;
@@ -1161,15 +1163,21 @@
                     return note;
                 }
 
+                // 使用優惠
                 function discountUse(dis) {
                     let result = '';
                     if (all_total >= dis.min_consume) {
                         switch (dis.method_code) {
                             case 'cash':
-                                
+                                if (dis.is_grand_total) {   // 累計
+                                    let count = Math.floor(all_total / dis.min_consume);
+                                    result = '- $' + (dis.discount_value * count);
+                                } else {
+                                    result = '- $' + dis.discount_value;
+                                }
                                 break;
                             case 'percent':
-                                all_total * (dis.discount_value / 100)
+                                result = '- $' + Math.floor(all_total * (1 - (dis.discount_value / 100)));
                                 break;
                             case 'coupon':
                                 result = `【${dis.coupon_title || ''}】`;
