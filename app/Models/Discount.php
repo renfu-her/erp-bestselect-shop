@@ -71,6 +71,8 @@ class Discount extends Model
             'sub.discount_value',
             'sub.is_grand_total',
             'sub.min_consume',
+            'sub.coupon_id',
+            'sub.coupon_title',
         ];
 
         $re = DB::table(DB::raw("({$sub->toSql()}) as sub"))
@@ -86,11 +88,11 @@ class Discount extends Model
         }
 
         switch ($type) {
-            case 'global-normal':
+            case 'global-normal': //全館優惠
                 $re->where('sub.is_global', 1)
                     ->where('sub.category_code', DisCategory::normal()->value);
                 break;
-            case 'non-global-normal':
+            case 'non-global-normal': //非全館優惠
                 $re->where('sub.is_global', 0)
                     ->where('sub.category_code', DisCategory::normal()->value);
                 break;
