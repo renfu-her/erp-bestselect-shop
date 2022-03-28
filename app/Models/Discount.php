@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use App\Helpers\IttmsUtils;
 
 class Discount extends Model
 {
@@ -54,6 +55,20 @@ class Discount extends Model
 
         return $nonCoupon;
 
+    }
+
+    public static function getDiscountStatus($id)
+    {
+        
+        $sub = self::_discountStatus();
+        $re = DB::table(DB::raw("({$sub->toSql()}) as sub"))
+        ->select(['sub.id','status','status_code'])
+        ->mergeBindings($sub)
+        ->where('id',$id);
+       
+       // dd(IttmsUtils::getEloquentSqlWithBindings($re));
+        
+       return $re->get()->first();
     }
 
     public static function getDiscounts($type = null, $product_id = null)
@@ -355,5 +370,37 @@ class Discount extends Model
     {
         self::where('id', $id)->delete();
         DB::table('dis_discount_collection')->where('discount_id', $id)->delete();
+    }
+
+    public static function calculatorDiscount($price, $type = null, $product_id = null)
+    {
+        $discounts = self::getDiscounts('global-normal');
+        $dis = [];
+        foreach ($discounts as $key => $value) {
+
+            switch ($key) {
+                case DisMethod::cash()->value:
+
+                    foreach ($value as $cash) {
+                        if ($cash->min_consume == 0 || $cash->min_consume < $price) {
+                            //    dd($price - $cash->discount_value);
+                        }
+                        /*
+                    if($cash->min_consume == 0 || $cash->min_consume < $price){
+                    if($cash->is_grand_total==1){
+                    $cycle = floor($price/)
+                    }else{
+
+                    }
+                    }*/
+                    }
+
+                    break;
+                case DisMethod::percent()->value:
+                    break;
+                case DisMethod::coupon()->value:
+                    break;
+            }
+        }
     }
 }
