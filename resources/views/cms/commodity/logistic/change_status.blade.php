@@ -27,25 +27,24 @@
 
         <div class="card shadow p-4 mb-4">
             <h6>配送歷程</h6>
-            <div class="table-responsive tableOverBox">
-                <table class="table tableList table-hover table-striped mb-1">
-                    <thead>
-                    <tr>
-                        <th scope="col">狀態</th>
-                        <th scope="col">人員</th>
-                        <th scope="col">時間</th>
-                    </tr>
-                    </thead>
+            <div class="table-responsive">
+                <table class="table table-sm tableList table-hover mb-1">
                     <tbody class="-appendClone">
-                    @foreach ($flowList as $key => $data)
-                        <tr>
-                            <td>{{$data->status}}</td>
-                            <td>{{$data->user_name ?? ''}}</td>
-                            <td>{{date('Y-m-d H:i:s', strtotime($data->created_at))}}</td>
-                        </tr>
-                    @endforeach
                     </tbody>
                 </table>
+            </div>
+            <div id="flow-list" class="ms-3">
+                <ul>
+                    @foreach ($flowList as $key => $data)
+                    <li>
+                        <h6 class="mb-1">{{date('Y-m-d H:i:s', strtotime($data->created_at))}}</h6>
+                        <p>
+                            <span>{{$data->status}}</span>
+                            <span>操作人員：{{$data->user_name ?? ''}}</span>
+                        </p>
+                    </li>
+                    @endforeach
+                </ul>
             </div>
         </div>
 
@@ -105,8 +104,13 @@
         // bind btn
         $('button[data-code]').off('click').on('click', function () {
             const code = $(this).data('code');
+            let type = 'success';
+            type = $(this).hasClass('btn-outline-primary') ? 'primary' : type;
+            type = $(this).hasClass('btn-outline-danger') ? 'danger' : type;
+
             $('tbody.-appendClone').prepend(`
                 <tr class="-cloneElem">
+                    <td class="table-${type} text-center" style="width:10%">新增</td>
                     <td>${logisticStatus[code]}</td>
                     <td>${User}</td>
                     <td>
