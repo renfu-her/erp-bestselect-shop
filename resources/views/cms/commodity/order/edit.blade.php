@@ -634,7 +634,7 @@
                 }
             }
             // 優惠
-            setGlobalDiscount(0);
+            sumGlobalDiscount(0);
             // 計數器
             bindAdjusterBtn();
             $('#Loading_spinner').removeClass('d-flex');
@@ -1083,8 +1083,12 @@
             function sumAllAmount() {
                 // 商品小計
                 let all_total = 0;
+                // 折扣
+                let all_discount = 0;
                 // 運費
                 let all_dlvFee = 0;
+                // 總金額
+                let all_sum = 0;
 
                 for (const key in myCart) {
                     if (Object.hasOwnProperty.call(myCart, key)) {
@@ -1093,43 +1097,90 @@
                         all_total += cart.total;
                     }
                 }
+                all_discount = sumGlobalDiscount(all_total);
+                all_discount = (all_discount > all_total) ? all_total : all_discount;
+                all_sum = all_total - all_discount + all_dlvFee;
 
-                setGlobalDiscount(all_total);
-                $('#Total_price td[data-td="subtotal"]').text(`${formatNumber(all_total)}`);
-                $('#Total_price td[data-td="dlv_fee"]').text(`${formatNumber(all_dlvFee)}`);
-                $('#Total_price td[data-td="sum"]').text(`${formatNumber(all_total + all_dlvFee)}`);
+                $('#Total_price td[data-td="subtotal"]').text(`$${formatNumber(all_total)}`);
+                $('#Total_price td[data-td="discount"]').text(`- $${formatNumber(all_discount)}`);
+                $('#Total_price td[data-td="dlv_fee"]').text(`$${formatNumber(all_dlvFee)}`);
+                $('#Total_price td[data-td="sum"]').text(`$${formatNumber(all_sum)}`);
             }
 
             /*** 優惠 ***/
             // 全館優惠
-            function setGlobalDiscount(all_total = 0) {
+            function sumGlobalDiscount(all_total = 0) {
                 if (GlobalDiscounts.length === 0) {
                     return false;
                 }
-                $('#Global_discount').prop('hidden', false);
+                
                 $('#Global_discount table tbody').empty();
 
+                let maxDiscount = 0;  // 現金、趴數 最優擇一
+                let bestDiscount = '';  // 最優優惠
+                let couponList = [];    // 優惠券可重複
                 for (const key in GlobalDiscounts) {
                     if (Object.hasOwnProperty.call(GlobalDiscounts, key)) {
-                        appendTbody(GlobalDiscounts[key], key);
+                        appendTbody(GlobalDiscounts[key]);
                     }
                 }
 
+                if (bestDiscount || couponList.length) {
+                    $('#Global_discount').prop('hidden', false);
+                    $('#Global_discount table tbody').append(bestDiscount, ...couponList);
+                } else {
+                    $('#Global_discount').prop('hidden', true);
+                }
+
+                return maxDiscount;
+
+                // 整理可使用優惠 <tr>s
                 function appendTbody(dis_list) {
-                    let trList = [];
                     dis_list.map(d => {
                         let discount = discountUse(d);
                         if (discount) {
-                            let text_class = (typeof discount === 'number') ? 'text-danger' : 'text-info';
-                            trList.push(`<tr>
-                                <td class="col-8">${d.title}
-                                    <span class="small text-secondary">－${discountNote(d)}</span>
-                                </td>
-                                <td class="text-end pe-4 ${text_class}">${discount}</td>
-                            </tr>`);
+                            if (typeof discount === 'string') {
+                                couponList.push(discountTR(d, discount, 'text-info'));
+                            } else if (discount > maxDiscount) {
+                                maxDiscount = discount;
+                                bestDiscount = discountTR(d, '- $' + discount, 'text-danger');
+                            }
                         }
                     });
-                    $('#Global_discount table tbody').append(trList);
+                }
+
+                // 使用優惠
+                function discountUse(dis) {
+                    let result = false;
+                    if (all_total >= dis.min_consume) {
+                        switch (dis.method_code) {
+                            case 'cash':
+                                if (dis.is_grand_total) {   // 累計
+                                    let count = Math.floor(all_total / dis.min_consume);
+                                    result = (dis.discount_value * count);
+                                } else {
+                                    result = dis.discount_value;
+                                }
+                                break;
+                            case 'percent':
+                                result = Math.floor(all_total * (1 - (dis.discount_value / 100)));
+                                break;
+                            case 'coupon':
+                                result = `【${dis.coupon_title || ''}】`;
+                                break;
+                        }
+                    }
+                    return result;
+                }
+
+                // 產生優惠 tr
+                function discountTR(dis, dis_text, dis_class) {
+                    return `<tr>
+                        <td class="col-8">${dis.title}
+                            <span class="small text-secondary">－${discountNote(dis)}</span>
+                        </td>
+                        <td class="text-end pe-4 ${dis_class}">${dis_text}</td>
+                    </tr>`;
                 }
 
                 // ex. 消費滿 $100 折 $10，可累計優惠
@@ -1161,30 +1212,6 @@
                         note += '，可累計優惠';
                     }
                     return note;
-                }
-
-                // 使用優惠
-                function discountUse(dis) {
-                    let result = false;
-                    if (all_total >= dis.min_consume) {
-                        switch (dis.method_code) {
-                            case 'cash':
-                                if (dis.is_grand_total) {   // 累計
-                                    let count = Math.floor(all_total / dis.min_consume);
-                                    result = (dis.discount_value * count);
-                                } else {
-                                    result = dis.discount_value;
-                                }
-                                break;
-                            case 'percent':
-                                result = Math.floor(all_total * (1 - (dis.discount_value / 100)));
-                                break;
-                            case 'coupon':
-                                result = `【${dis.coupon_title || ''}】`;
-                                break;
-                        }
-                    }
-                    return result;
                 }
             }
         </script>
