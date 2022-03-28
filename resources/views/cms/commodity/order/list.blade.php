@@ -183,7 +183,7 @@
                             <td>{{ $data->order_date }}</td>
                             <td>{{ $data->name }}</td>
                             <td>{{ $data->sale_title }}</td>
-                            <td class="text-success">待配送</td>
+                            <td class="text-success">{{ $data->logistic_status }}</td>
                             <td>
                                 <span class="d-block lh-sm">46456456</span>
                                 <span class="d-block lh-sm">77987979</span>
@@ -192,8 +192,8 @@
                                 {{ $data->ship_category_name }}
                             </td>
                             <td>{{ $data->ship_event }}</td>
-                            <td></td>
-                            <td>{{ $data->ship_sn }}</td>
+                            <td>{{ $data->ship_group_name }}</td>
+                            <td>{{ $data->package_sn }}</td>
                             <td>-</td>
                             <td class="text-center">
                                 <a href="{{ Route('cms.order.detail', ['id' => $data->id]) }}" data-bs-toggle="tooltip"

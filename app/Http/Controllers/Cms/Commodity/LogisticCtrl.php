@@ -83,7 +83,7 @@ class LogisticCtrl extends Controller
             'defDeliveryCost' => $defDeliveryCost,
             'shipmentGroup' => $shipmentGroupWithCost, //物流列表
             'consumWithInboundList' => $consumWithInboundList,
-            'breadcrumb_data' => $delivery->sn
+            'breadcrumb_data' => $logistic->sn
         ]);
     }
 
@@ -92,10 +92,10 @@ class LogisticCtrl extends Controller
     {
         $request->validate([
             'logistic_id' => 'required|numeric',
-            'package_sn' => 'sometimes|string',
+            'package_sn' => 'sometimes|nullable|string',
             'actual_ship_group_id' => 'required|numeric',
             'cost' => 'required|numeric|min:0',
-            'memo' => 'sometimes|string',
+            'memo' => 'sometimes|nullable|string',
         ]);
         $logistic_id = $request->input('logistic_id');
         $input = $request->only('logistic_id', 'actual_ship_group_id', 'cost', 'package_sn', 'memo');
