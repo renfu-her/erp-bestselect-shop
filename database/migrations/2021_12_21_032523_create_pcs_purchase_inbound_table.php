@@ -16,7 +16,8 @@ class CreatePcsPurchaseInboundTable extends Migration
         Schema::create('pcs_purchase_inbound', function (Blueprint $table) {
             $table->id()->comment('採購入庫id');
             $table->string('sn', 20)->comment('入庫單SN');
-            $table->integer('purchase_id')->comment('採購id');
+            $table->string('event')->comment('事件 採購 寄倉');
+            $table->string('event_id')->comment('事件ID');
             $table->integer('purchase_item_id')->comment('採購款式id');
             $table->integer('product_style_id')->comment('款式product_style_id 帶出款式sku碼');
             $table->dateTime('expiry_date')->nullable()->comment('有效期限');
@@ -27,6 +28,10 @@ class CreatePcsPurchaseInboundTable extends Migration
             $table->integer('inbound_user_id')->nullable()->comment('入庫者');
             $table->string('inbound_user_name', 20)->nullable()->comment('入庫者名稱');
             $table->integer('sale_num')->default(0)->comment('銷售數量 出貨時做計算');
+            $table->integer('csn_num')->default(0)->comment('寄倉數量 寄倉時加 寄倉到達後減，並加回入庫數量');
+            $table->string('csn_origin_event')->nullable()->comment('寄倉來源事件');
+            $table->string('csn_origin_event_id')->nullable()->comment('寄倉來源ID');
+
             $table->dateTime('close_date')->nullable()->comment('結單日期');
             $table->string('memo')->nullable()->comment('備註');
             $table->timestamps();

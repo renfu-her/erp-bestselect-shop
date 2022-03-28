@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Cms;
 
+use App\Enums\Purchase\LogEvent;
 use App\Http\Controllers\Controller;
 use App\Models\AllGrade;
 use App\Models\Depot;
@@ -382,7 +383,7 @@ class PurchaseCtrl extends Controller
     {
         //判斷若有入庫、付款單 則不可刪除
         $returnMsg = [];
-        $inbounds = PurchaseInbound::inboundList($id)->get()->toArray();
+        $inbounds = PurchaseInbound::purchaseInboundList($id)->get()->toArray();
         $payingOrderList = PayingOrder::getPayingOrdersWithPurchaseID($id)->get();
         if (null != $inbounds && 0 < count($inbounds)) {
             $returnMsg = '已入庫無法刪除';
@@ -403,7 +404,7 @@ class PurchaseCtrl extends Controller
 
     //結案
     public function close(Request $request, $id) {
-        $inboundOverviewList = PurchaseInbound::getOverviewInboundList($id)->get()->toArray();
+        $inboundOverviewList = PurchaseInbound::getOverviewInboundList(LogEvent::purchase()->key, $id)->get()->toArray();
         $errmsg = '';
         if (0 < $inboundOverviewList) {
             foreach ($inboundOverviewList as $key => $data) {
@@ -430,8 +431,8 @@ class PurchaseCtrl extends Controller
     public function inbound(Request $request, $id) {
         $purchaseData = Purchase::getPurchase($id)->first();
         $purchaseItemList = PurchaseItem::getDataForInbound($id)->get()->toArray();
-        $inboundList = PurchaseInbound::getInboundList(['purchase_id' => $id])->get()->toArray();
-        $inboundOverviewList = PurchaseInbound::getOverviewInboundList($id)->get()->toArray();
+        $inboundList = PurchaseInbound::getInboundList(['event' => LogEvent::purchase()->key, 'purchase_id' => $id])->get()->toArray();
+        $inboundOverviewList = PurchaseInbound::getOverviewInboundList(LogEvent::purchase()->key, $id)->get()->toArray();
 
         $depotList = Depot::all()->toArray();
         return view('cms.commodity.purchase.inbound', [
@@ -470,6 +471,7 @@ class PurchaseCtrl extends Controller
                 foreach ($inboundItemReq['product_style_id'] as $key => $val) {
 
                     $re = PurchaseInbound::createInbound(
+                        LogEvent::purchase()->key,
                         $id,
                         $inboundItemReq['purchase_item_id'][$key],
                         $inboundItemReq['product_style_id'][$key],
@@ -506,7 +508,7 @@ class PurchaseCtrl extends Controller
         $inboundDataGet = $inboundData->get()->first();
         $purchase_id = '';
         if (null != $inboundDataGet) {
-            $purchase_id = $inboundDataGet->purchase_id;
+            $purchase_id = $inboundDataGet->event_id;
             if (0 < $inboundDataGet->sale_num) {
                 wToast('已有售出紀錄 無法刪除');
             } else {

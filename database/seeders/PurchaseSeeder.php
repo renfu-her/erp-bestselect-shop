@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\Purchase\LogEvent;
 use App\Models\PayingOrder;
 use App\Models\ProductStyle;
 use App\Models\Purchase;
@@ -213,6 +214,7 @@ class PurchaseSeeder extends Seeder
 
 
         $purchaseInbound1 = PurchaseInbound::createInbound(
+            LogEvent::purchase()->key,
             $purchaseID1,
             $purchaseItemID1,
             $product_style1->id,
@@ -232,6 +234,7 @@ class PurchaseSeeder extends Seeder
         PurchaseInbound::delInbound($purchaseInboundID1, $user_id_5);
 
         $purchaseInbound2 = PurchaseInbound::createInbound(
+            LogEvent::purchase()->key,
             $purchaseID1,
             $purchaseItemID1,
             $product_style1->id,
@@ -250,6 +253,7 @@ class PurchaseSeeder extends Seeder
         }
         PurchaseInbound::delInbound($purchaseInboundID1, $user_id_5);
         $purchaseInbound3 = PurchaseInbound::createInbound(
+            LogEvent::purchase()->key,
             $purchaseID1,
             $purchaseItemID1,
             $product_style1->id,
@@ -264,6 +268,7 @@ class PurchaseSeeder extends Seeder
         );
 
         $purchaseInbound4 = PurchaseInbound::createInbound(
+            LogEvent::purchase()->key,
             $purchaseID2,
             $purchaseItemID2,
             $product_style2->id,
@@ -277,6 +282,7 @@ class PurchaseSeeder extends Seeder
             '退換貨',
         );
         $purchaseInbound5 = PurchaseInbound::createInbound(
+            LogEvent::purchase()->key,
             $purchaseID1,
             $purchaseItemID3,
             $product_style3->id,
@@ -290,6 +296,7 @@ class PurchaseSeeder extends Seeder
             '退換貨',
         );
         $purchaseInbound6 = PurchaseInbound::createInbound(
+            LogEvent::purchase()->key,
             $purchaseID3,
             $purchaseItemID4,
             $product_style2->id,
@@ -303,6 +310,7 @@ class PurchaseSeeder extends Seeder
             '退換貨',
         );
         $purchaseInbound7 = PurchaseInbound::createInbound(
+            LogEvent::purchase()->key,
             $purchaseID3,
             $purchaseItemID5,
             $product_style5->id,

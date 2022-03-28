@@ -132,7 +132,7 @@ class PurchaseItem extends Model
     }
 
     public static function getDataWithInbound($purchase_id) {
-        $inboundOverviewList = PurchaseInbound::getOverviewInboundList($purchase_id);
+        $inboundOverviewList = PurchaseInbound::getOverviewInboundList(LogEvent::purchase()->key, $purchase_id);
         $query = DB::table('pcs_purchase_items as items')
             ->leftJoinSub($inboundOverviewList, 'inbound', function($join) {
                 $join->on('inbound.purchase_id', '=', 'items.purchase_id')
@@ -140,6 +140,7 @@ class PurchaseItem extends Model
             })
             ->where('items.purchase_id', $purchase_id)
             ->whereNull('items.deleted_at');
+//        dd($query->get());
         return $query;
     }
 
@@ -195,11 +196,14 @@ class PurchaseItem extends Model
             ->limit(1);
 
         $tempInboundSql = DB::table('pcs_purchase_inbound as inbound')
-            ->select('purchase_id'
+            ->select('event_id'
                 , 'product_style_id')
             ->selectRaw('sum(inbound_num) as inbound_num')
-            ->whereNull('deleted_at')
-            ->groupBy('purchase_id')
+            ->whereNull('deleted_at');
+
+        $tempInboundSql->where('inbound.event', '=', LogEvent::purchase()->key);
+
+        $tempInboundSql->groupBy('event_id')
             ->groupBy('product_style_id');
         if ($depot_id) {
             $tempInboundSql->where('inbound.depot_id', '=', $depot_id);
@@ -228,7 +232,7 @@ class PurchaseItem extends Model
         $result = DB::table('pcs_purchase as purchase')
             ->leftJoin('pcs_purchase_items as items', 'purchase.id', '=', 'items.purchase_id')
             ->leftJoinSub($tempInboundSql, 'inbound', function($join) use($tempInboundSql) {
-                $join->on('items.purchase_id', '=', 'inbound.purchase_id')
+                $join->on('items.purchase_id', '=', 'inbound.event_id')
                     ->on('items.product_style_id', '=', 'inbound.product_style_id');
             })
             //->select('*')
@@ -343,13 +347,14 @@ class PurchaseItem extends Model
             ->limit(1);
 
         $tempInboundSql = DB::table('pcs_purchase_inbound as inbound')
-            ->select('purchase_id'
+            ->select('event_id'
                 , 'product_style_id')
             ->selectRaw('sum(inbound_num) as inbound_num')
             ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_id) as inbound_user_ids') //入庫人員
             ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_name) as inbound_user_names') //入庫人員
+            ->where('event', LogEvent::purchase()->key)
             ->whereNull('deleted_at')
-            ->groupBy('purchase_id')
+            ->groupBy('event_id')
             ->groupBy('product_style_id');
         if ($depot_id) {
             $tempInboundSql->where('inbound.depot_id', '=', $depot_id);
@@ -379,7 +384,7 @@ class PurchaseItem extends Model
         //為了只撈出一筆，獨立出來寫sub query
         $tempPurchaseItemSql = DB::table('pcs_purchase_items as items')
             ->leftJoinSub($tempInboundSql, 'inbound', function($join) use($tempInboundSql) {
-                $join->on('items.purchase_id', '=', 'inbound.purchase_id')
+                $join->on('items.purchase_id', '=', 'inbound.event_id')
                     ->on('items.product_style_id', '=', 'inbound.product_style_id');
             })
             ->select('items.id as id'
@@ -403,7 +408,6 @@ class PurchaseItem extends Model
                 $query->orWhere('items.sku', 'like', "%{$title}%");
             });
         }
-
 
         $result = DB::table('pcs_purchase as purchase')
             ->leftJoinSub($tempPurchaseItemSql, 'itemtb_new', function($join) use($tempPurchaseItemSql) {

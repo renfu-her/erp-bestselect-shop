@@ -15,7 +15,7 @@ class PurchaseLog extends Model
     protected $table = 'pcs_purchase_log';
     protected $guarded = [];
 
-    public static function stockChange($event_parant_id, $product_style_id, $event, $event_id, $feature, $qty, $note = null, $operator_user_id, $operator_user_name)
+    public static function stockChange($event_parent_id, $product_style_id, $event, $event_id, $feature, $qty, $note = null, $operator_user_id, $operator_user_name)
     {
         if (!LogEvent::hasKey($event)) {
             return ['success' => 0, 'error_msg' => 'feature error'];
@@ -25,9 +25,9 @@ class PurchaseLog extends Model
             return ['success' => 0, 'error_msg' => 'event error'];
         }
 
-        return DB::transaction(function () use ($event_parant_id, $product_style_id, $event, $event_id, $feature, $qty, $note, $operator_user_id, $operator_user_name) {
+        return DB::transaction(function () use ($event_parent_id, $product_style_id, $event, $event_id, $feature, $qty, $note, $operator_user_id, $operator_user_name) {
             self::create([
-                'event_parant_id' => $event_parant_id,
+                'event_parent_id' => $event_parent_id,
                 'product_style_id' => $product_style_id,
                 'event' => $event,
                 'event_id' => $event_id,
@@ -42,7 +42,7 @@ class PurchaseLog extends Model
         });
     }
 
-    public static function getData($purchase_id) {
+    public static function getData($event_id) {
         $logEventFeatureKey_purchase = [];
         foreach (LogEventFeature::asArray() as $key => $value) {
             if (0 === strpos($key, 'pcs')) {
@@ -64,7 +64,7 @@ class PurchaseLog extends Model
             )
             ->selectRaw('CONCAT(log.note) as title')
             ->whereNotNull('purchase.id')
-            ->where('log.purchase_id', '=', $purchase_id)
+            ->where('log.event_parent_id', '=', $event_id)
             ->where('log.event', '=', LogEvent::purchase()->key);
 
         $logEventFeatureKey_style = [];
@@ -88,7 +88,7 @@ class PurchaseLog extends Model
                 , 'items.title'
             )
             ->whereNotNull('items.id')
-            ->where('log.purchase_id', '=', $purchase_id)
+            ->where('log.event_parent_id', '=', $event_id)
             ->where('log.event', '=', LogEvent::purchase()->key);
 
         $logEventFeatureKey_inbound = [];
@@ -113,9 +113,10 @@ class PurchaseLog extends Model
                 , 'items.title as title'
             )
             ->whereNotNull('inbound.id')
-            ->where('log.purchase_id', '=', $purchase_id)
+            ->where('log.event_parent_id', '=', $event_id)
             ->where('log.event', '=', LogEvent::purchase()->key);
 
+//        dd($log_inbound->get());
         $logEventFeatureKey_pay = [];
         foreach (LogEventFeature::asArray() as $key => $value) {
             if (0 === strpos($key, 'pay')) {
@@ -136,7 +137,7 @@ class PurchaseLog extends Model
                 , 'log.qty'
             )
             ->selectRaw('CONCAT("") as title')
-            ->where('log.purchase_id', '=', $purchase_id)
+            ->where('log.event_parent_id', '=', $event_id)
             ->where('log.event', '=', LogEvent::pcs_pay()->key);
 
         $log_purchase->union($log_style);
