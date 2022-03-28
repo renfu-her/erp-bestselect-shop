@@ -35,6 +35,12 @@ final class LogEventFeature extends Enum
     const pay_change_pay_type = 'pay_change_pay_type';
     const pay_change_shipping_fee = 'pay_change_shipping_fee';
 
+    //寄賣
+    const csn_add = 'csn_add';
+    const csn_del = 'csn_del';
+    const csn_close = 'csn_close';
+    const csn_change_data = 'csn_change_data';
+
     public static function getDescription($value): string
     {
         $result = '';
@@ -51,6 +57,7 @@ final class LogEventFeature extends Enum
             case self::pcs_change_data:
                 $result = '採購單修改內容';
                 break;
+
             case self::style_add:
                 $result = '新增商品';
                 break;
@@ -88,6 +95,19 @@ final class LogEventFeature extends Enum
                 break;
             case self::pay_change_shipping_fee:
                 $result = '變更運費';
+                break;
+
+            case self::csn_add:
+                $result = '新增寄賣單';
+                break;
+            case self::csn_del:
+                $result = '刪除寄賣單';
+                break;
+            case self::csn_close:
+                $result = '寄賣單結單';
+                break;
+            case self::csn_change_data:
+                $result = '寄賣單修改內容';
                 break;
             default:
                 $result = parent::getDescription($value);

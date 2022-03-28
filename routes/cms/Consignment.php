@@ -7,7 +7,7 @@ Route::group(['prefix' => 'consignment', 'as' => 'consignment.'], function () {
     Route::get('', [ConsignmentCtrl::class, 'index'])->name('index')->middleware('permission:cms.consignment.index');
     Route::get('create', [ConsignmentCtrl::class, 'create'])->name('create')->middleware('permission:cms.consignment.create');
     Route::post('create', [ConsignmentCtrl::class, 'store']);
-//    Route::get('edit/{id}', [ConsignmentCtrl::class, 'edit'])->name('edit')->middleware('permission:cms.consignment.edit');
+    Route::get('edit/{id}', [ConsignmentCtrl::class, 'edit'])->name('edit')->middleware('permission:cms.consignment.edit');
 //    Route::post('edit/{id}', [ConsignmentCtrl::class, 'update']);
 //    Route::get('edit/{id}/pay-deposit', [ConsignmentCtrl::class, 'payDeposit'])->name('pay-deposit');
 ////    Route::get('edit/{id}/pay-final', [ConsignmentCtrl::class, 'payFinal'])->name('pay-final');
