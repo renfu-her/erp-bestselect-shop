@@ -173,7 +173,7 @@ class Order extends Model
 
         return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $note) {
             $order = OrderCart::cartFormater($items);
-
+           // dd($order);
             if ($order['success'] != 1) {
                 DB::rollBack();
                 return $order;
