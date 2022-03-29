@@ -278,28 +278,6 @@ class Delivery extends Model
         return $query;
     }
 
-    //取得出貨單 預設基本設定的物流成本
-    public static function getListWithCost($delivery_id = null, $event = null, $event_id = null) {
-        $sub_shi = ShipmentGroup::getDataWithCost();
-        $query = DB::table('dlv_delivery as delivery')
-            ->leftJoinSub($sub_shi, 'shi_tb', function($join) {
-                $join->on('shi_tb.group_id_fk', '=', 'delivery.ship_group_id');
-                $join->where('delivery.ship_category', '=', 'deliver');
-            })
-            ->whereNotNull('shi_tb.group_id_fk');;
-
-        if (isset($delivery_id)) {
-            $query->where('delivery.id', $delivery_id);
-        }
-        if (isset($event)) {
-            $query->where('delivery.event', $event);
-        }
-        if (isset($event_id)) {
-            $query->where('delivery.event_id', $event_id);
-        }
-        return $query;
-    }
-
     public static function getDeliveryWithEventWithSn($event, $event_id) {
         $query = DB::table('dlv_delivery as delivery');
         if (isset($event)) {

@@ -67,13 +67,6 @@ class LogisticCtrl extends Controller
         //取得出貨耗材列表
         //打API post api/product/get-product-styles 帶參數 'consume':1
 
-        //取得原出貨單 預設基本設定的物流成本
-        $deliveryCost = Delivery::getListWithCost($delivery_id)->get()->first();
-        $defDeliveryCost = 0;
-        if (null != $deliveryCost) {
-            $defDeliveryCost = $deliveryCost->dlv_cost;
-        }
-
         //取得物流X成本列表
         $shipmentGroupWithCost = ShipmentGroup::getDataWithCost()->get();
         //取得耗材X入庫列表
@@ -88,7 +81,6 @@ class LogisticCtrl extends Controller
             'delivery' => $delivery,
             'logistic' => $logistic,
             'deliveryList' => $deliveryList,
-            'defDeliveryCost' => $defDeliveryCost,
             'shipmentGroup' => $shipmentGroupWithCost, //物流列表
             'consumWithInboundList' => $consumWithInboundList,
             'breadcrumb_data' => $logistic->sn

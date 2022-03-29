@@ -71,7 +71,7 @@
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                         <input type="number" class="form-control" name="cost" min="0" placeholder="請輸入成本"
-                            value="{{ $logistic->cost !== 0 ? $logistic->cost : $defDeliveryCost }}">
+                            value="{{ $logistic->cost !== 0 ? $logistic->cost : 0 }}">
                     </div>
                 </div>
                 <div class="col-12 mb-3">
