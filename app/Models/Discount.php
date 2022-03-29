@@ -215,7 +215,7 @@ class Discount extends Model
     public static function createCoupon($title, $min_consume, DisMethod $method, $value, $is_grand_total = 1, $collection_ids = [], $life_cycle = 0)
     {
 
-        DB::transaction(function () use ($title, $min_consume, $method, $value, $is_grand_total, $collection_ids, $life_cycle) {
+        return DB::transaction(function () use ($title, $min_consume, $method, $value, $is_grand_total, $collection_ids, $life_cycle) {
             if (count($collection_ids) > 0) {
                 $is_global = 0;
             } else {

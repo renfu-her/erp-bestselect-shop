@@ -173,7 +173,7 @@ class Order extends Model
 
         return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $note) {
             $order = OrderCart::cartFormater($items);
-            //    dd($order);
+        //      dd($order);
             if ($order['success'] != 1) {
                 DB::rollBack();
                 return $order;
@@ -183,7 +183,7 @@ class Order extends Model
                     ->get()
                     ->count()) + 1, 2, '0', STR_PAD_LEFT);
 
-            // dd($order['shipments']);
+           
             $order_id = self::create([
                 "sn" => $order_sn,
                 "sale_channel_id" => $sale_channel_id,

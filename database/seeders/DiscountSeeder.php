@@ -18,7 +18,7 @@ class DiscountSeeder extends Seeder
         //
         Discount::createDiscount('全館85折', 100, DisMethod::percent(), 85);
         $cid = Discount::createCoupon('黃金假期折抵', 100, DisMethod::cash(), 20);
-        Discount::createDiscount('送抵用券', 0, DisMethod::coupon(),100, $cid);
+        Discount::createDiscount('送抵用券', 0, DisMethod::coupon(), $cid);
         Discount::createCode("apple", "特惠碼", 300, DisMethod::cash(), 30);
 
     }
