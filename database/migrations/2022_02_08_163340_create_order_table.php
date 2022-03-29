@@ -25,6 +25,7 @@ class CreateOrderTable extends Migration
             $table->integer('price')->default(0)->comment('小計'); 
             $table->integer('total_price')->default(0)->comment('總金額');
             $table->integer('discount')->default(0)->comment('折扣');
+            $table->integer('discounted_price')->default(0)->comment('折扣後金額');
             $table->string('note')->nullable()->comment('備註');
             $table->timestamps();
         });
