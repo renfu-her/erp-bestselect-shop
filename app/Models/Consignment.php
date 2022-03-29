@@ -183,7 +183,7 @@ class Consignment extends Model
     {
         $result = DB::table('csn_consignment as consignment')
             ->select(
-                'id'
+                'consignment.id'
                 , 'consignment.sn as consignment_sn'
                 , 'consignment.send_depot_id as send_depot_id'
                 , 'consignment.send_depot_name as send_depot_name'
@@ -223,13 +223,19 @@ class Consignment extends Model
     public static function getData($id)
     {
         $result = DB::table('csn_consignment as consignment')
+            ->leftJoin('depot as send', 'send.id', '=', 'consignment.send_depot_id')
+            ->leftJoin('depot as rcv', 'rcv.id', '=', 'consignment.receive_depot_id')
             ->select(
-                'id'
+                'consignment.id'
                 , 'consignment.sn as consignment_sn'
                 , 'consignment.send_depot_id as send_depot_id'
                 , 'consignment.send_depot_name as send_depot_name'
+                , 'send.tel as send_depot_tel'
+                , 'send.address as send_depot_address'
                 , 'consignment.receive_depot_id as receive_depot_id'
                 , 'consignment.receive_depot_name as receive_depot_name'
+                , 'rcv.tel as receive_depot_tel'
+                , 'rcv.address as receive_depot_address'
                 , 'consignment.ship_temp_id as ship_temp_id'
                 , 'consignment.ship_temp_name as ship_temp_name'
                 , 'consignment.ship_event_id as ship_event_id'
