@@ -78,7 +78,8 @@ class OrderCtrl extends Controller
      */
     public function create(Request $request)
     {
-        //  Discount::calculatorDiscount(2000);
+
+      //   dd(Discount::checkCode('fkfk',[1,2,4]));
         $cart = null;
         if (old('product_style_id')) {
             $oldData = [];
