@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers\Cms\AccountManagement;
 
+use App\Enums\Received\ReceivedMethod;
 use App\Http\Controllers\Controller;
 use App\Models\AccountReceived;
+use App\Models\AllGrade;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AccountReceivedCtrl extends Controller
 {
@@ -19,28 +23,106 @@ class AccountReceivedCtrl extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * 收款方式
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+        $req = $request->all();
+        $receivedMethods = ReceivedMethod::asSelectArray();
+        $totalPrice = DB::table('ord_orders')->where('id', '=', $req['id']['ord_orders'])->value('total_price');
+
+        return view('cms.account_management.account_received.edit', [
+            'tw_price' => $totalPrice,
+            'receivedMethods' => $receivedMethods,
+            'formAction' => Route('cms.ar.store'),
+            'ord_orders_id' => $req['id']['ord_orders']
+        ]);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * 產生收款單,產生後不能修改收款單，只能刪除再重新產生
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
-        //
+
+        $req = $request->all();
+        $orderId = $req['id']['ord_orders'];
+
+        //申請公司（系統先預設「喜鴻國際」）
+        $appliedCompanyData = DB::table('acc_company')
+                                ->where('id', '=', 1)
+                                ->get()
+                                ->first();
+
+        $queries = DB::table('ord_orders as order')
+                        ->where('order.id', '=', $orderId)
+                        ->leftJoin('ord_address', function ($join) {
+                            $join->on('ord_address.order_id', '=', 'order.id')
+                                ->where('ord_address.type', '=', 'orderer');
+                        })
+                        ->leftJoin('ord_items as product', 'product.order_id', '=', 'order.id')
+                        ->leftJoin('ord_sub_orders', function ($join) {
+                            $join->on('ord_sub_orders.id', '=', 'product.sub_order_id');
+                        })
+                        ->leftJoin('prd_product_styles', 'product.product_style_id', '=', 'prd_product_styles.id')
+                        ->leftJoin('prd_products', 'prd_product_styles.product_id', '=', 'prd_products.id')
+                        ->leftJoin('usr_users', 'prd_products.user_id', '=', 'usr_users.id')
+                        ->select(
+                            'ord_address.name',
+                            'ord_address.phone',
+                            'ord_address.address',
+                            'order.id',
+                            'order.email',
+                            'order.note',
+                            'order.total_price',
+                            'ord_sub_orders.sn as sub_sn',
+                            'product.product_title',
+                            'product.product_style_id',
+                            'product.price',
+                            'product.qty',
+                            'product.total_price as prd_total_price',
+                            'usr_users.name as product_owner'
+                        )
+                        ->get();
+
+        $customer = $queries->first();
+
+        $deliveries = DB::table('ord_sub_orders')
+                            ->where('order_id', '=', $orderId)
+                            ->where('dlv_fee', '<>', 0)
+                            ->select('sn as sub_sn', 'dlv_fee')
+                            ->get();
+
+        $productOwnerArray = [];
+        foreach ($queries as $query) {
+            $productOwnerArray[] = $query->product_owner;
+        }
+        $productOwners = implode(',', array_unique($productOwnerArray));
+
+        $underTaker = DB::table('usr_users')
+                        ->where('id', '=', Auth::user()->id)
+                        ->value('name');
+
+
+        return view('cms.account_management.account_received.receipt', [
+           'hasReviewed' => false,
+           'appliedCompanyData' => $appliedCompanyData,
+           'customer' => $customer,
+           'products' => $queries,
+           'deliveries' => $deliveries,
+           'productOwners' => $productOwners,
+           'underTaker' => $underTaker,
+           'ord_orders_id' => $orderId,
+        ]);
     }
 
     /**
-     * Display the specified resource.
+     * 查看「收款單」
      *
      * @param  \App\Models\AccountReceived  $accountReceived
      * @return \Illuminate\Http\Response
@@ -70,6 +152,20 @@ class AccountReceivedCtrl extends Controller
      */
     public function update(Request $request, AccountReceived $accountReceived)
     {
+        //
+    }
+
+    /**
+     * 收款單「入款審核」
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function review(Request $request)
+    {
+        return view('cms.account_management.account_received.review', [
+
+        ]);
         //
     }
 
