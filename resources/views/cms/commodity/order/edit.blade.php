@@ -76,13 +76,21 @@
                                             <input type="hidden" name="shipment_type[]" value="">
                                             <input type="hidden" name="shipment_event_id[]" value="">
                                         </th>
-                                        <td data-td="title"><a href="#" class="-text"></a></td>
+                                        <td>
+                                            <div data-td="title"><a href="#" class="-text"></a></div>
+                                            <div data-td="discount" class="lh-1 small text-secondary">
+                                                <span class="badge rounded-pill bg-danger fw-normal me-2"></span>
+                                            </div>
+                                        </td>
                                         <td class="text-center" data-td="price">${{ number_format(0) }}</td>
                                         <td>
                                             <x-b-qty-adjuster name="qty[]" value="1" min="1" size="sm" minus="減少" plus="增加">
                                             </x-b-qty-adjuster>
                                         </td>
-                                        <td class="text-end" data-td="subtotal">${{ number_format(0) }}</td>
+                                        <td class="text-end">
+                                            <div data-td="subtotal">${{ number_format(0) }}</div>
+                                            <div data-td="disprice" class="lh-1 text-danger"></div>
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -94,18 +102,26 @@
                             <table class="table tableList table-sm mb-0">
                                 <thead class="table-light text-secondary">
                                     <tr>
-                                        <th scope="col">優惠類型</th>
+                                        <th scope="col" class="col-1 text-center">優惠類型</th>
                                         <th scope="col">優惠名稱</th>
-                                        <th scope="col">贈品</th>
-                                        <th scope="col">金額</th>
+                                        <th scope="col" class="col-2 text-end">優惠內容</th>
                                     </tr>
                                 </thead>
                                 <tbody class="-appendClone">
                                     <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
+                                        <td>任選</td>
+                                        <td>任選3件500</td>
+                                        <td class="text-end text-danger">- $568</td>
+                                    </tr>
+                                    <tr>
+                                        <td>優惠劵</td>
+                                        <td>【QII9ANXNY】新手禮包</td>
+                                        <td class="text-end text-danger">- $100</td>
+                                    </tr>
+                                    <tr>
+                                        <td>贈品</td>
+                                        <td>-</td>
+                                        <td class="text-end">滑鼠墊</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -142,7 +158,7 @@
             </div>
             <div id="Total_price" class="card shadow p-4 mb-4">
                 <div id="Global_discount" hidden>
-                    <h6>全館優惠</h6>
+                    <h6>其他優惠</h6>
                     <div class="table-responsive">
                         <table class="table table-sm text-right align-middle">
                             <tbody></tbody>
@@ -466,7 +482,6 @@
             .-detail-success .badge.-badge::after {
                 content: "超取";
             }
-
         </style>
     @endpush
     @push('sub-scripts')
@@ -962,18 +977,22 @@
                     };
                     Clone_bindCloneBtn($selectedClone, function(cloneElem) {
                         cloneElem.find('input').val('');
-                        cloneElem.find('td[data-td]').text('');
+                        cloneElem.find('td[data-td], div[data-td]').text('');
                         cloneElem.find('.is-invalid').removeClass('is-invalid');
                         if (p) {
                             cloneElem.find('input[name="product_id[]"]').val(p.pid);
                             cloneElem.find('input[name="product_style_id[]"]').val(p.sid);
                             cloneElem.find('input[name="shipment_type[]"]').val(s.category);
                             cloneElem.find('input[name="shipment_event_id[]"]').val(s.group_id);
-                            cloneElem.find('td[data-td="title"]').html(
+                            cloneElem.find('div[data-td="title"]').html(
                                 `<a href="#" class="-text">${p.name}-${p.spec}</a>`
                             );
-                            cloneElem.find('td[data-td="price"]').text(`${formatNumber(p.price)}`);
-                            cloneElem.find('td[data-td="subtotal"]').text(`${formatNumber(p.price * p.qty)}`);
+                            cloneElem.find('div[data-td="discount"]').html(
+                                `<span class="badge rounded-pill bg-danger fw-normal me-2">已達優惠/贈品</span>滑鼠墊`
+                            );
+                            cloneElem.find('td[data-td="price"]').text(`$${formatNumber(p.price)}`);
+                            cloneElem.find('div[data-td="subtotal"]').text(`$${formatNumber(p.price * p.qty)}`);
+                            cloneElem.find('div[data-td="disprice"]').text(`- $${formatNumber(100)}`);
                             let $qty = cloneElem.find('input[name="qty[]"]');
                             $qty.val(p.qty);
                             $qty.attr('max', p.stock);
