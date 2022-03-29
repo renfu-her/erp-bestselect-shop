@@ -33,6 +33,14 @@ class LogisticCtrl extends Controller
             if (null != $delivery) {
                 $delivery_id = $delivery->id;
             }
+        } else if (Event::consignment()->value == $event) {
+            $returnAction = Route('cms.consignment.edit', ['id' => $eventId ]);
+
+            // 出貨單號ID
+            $delivery = Delivery::getData($event, $eventId)->get()->first();
+            if (null != $delivery) {
+                $delivery_id = $delivery->id;
+            }
         }
 
         if (null == $delivery) {
@@ -196,11 +204,9 @@ class LogisticCtrl extends Controller
     {
         Consum::deleteById($consumId);
         wToast('刪除成功');
-        if(Event::order()->value == $event) {
-            return redirect(Route('cms.logistic.create', [
-                'event' => $event,
-                'eventId' => $eventId], true));
-        }
+        return redirect(Route('cms.logistic.create', [
+            'event' => $event,
+            'eventId' => $eventId], true));
     }
 
     //修改配送狀態
@@ -213,6 +219,12 @@ class LogisticCtrl extends Controller
                 $delivery_id = $delivery->id;
                 $subOrder = SubOrders::where('id', $eventId)->get()->first();
                 $lastPageAction = Route('cms.order.detail', ['id' => $subOrder->order_id, 'subOrderId' => $eventId ]);
+            }
+        } else if (Event::consignment()->value == $event) {
+            $delivery = Delivery::getDeliveryWithEventWithSn($event, $eventId)->get()->first();
+            if (null != $delivery) {
+                $delivery_id = $delivery->id;
+                $lastPageAction = Route('cms.consignment.edit', ['id' => $eventId ]);
             }
         }
         $flowList = null;
@@ -257,12 +269,10 @@ class LogisticCtrl extends Controller
             wToast('新增成功');
         }
 
-        if(Event::order()->value == $event) {
-            return redirect(Route('cms.logistic.changeLogisticStatus', [
-                'event' => $event,
-                'eventId' => $eventId
-            ], true));
-        }
+        return redirect(Route('cms.logistic.changeLogisticStatus', [
+            'event' => $event,
+            'eventId' => $eventId
+        ], true));
     }
 }
 

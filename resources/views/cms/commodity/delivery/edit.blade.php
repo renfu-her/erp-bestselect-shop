@@ -18,75 +18,77 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($ord_items_arr as $key => $ord)
-                        <tr class="--prod">
-                            <th scope="row">{{ $key + 1 }}</th>
-                            <td>
-                                @if ($ord->combo_product_title)
-                                    <span class="badge rounded-pill bg-warning text-dark">組合包</span> [
-                                @else
-                                    <span class="badge rounded-pill bg-success">一般</span>
-                                @endif
-                                {{ $ord->product_title }} @if($ord->combo_product_title) ] {{$ord->combo_product_title}} @endif
-                            </td>
-                            <td>{{ $ord->sku }}</td>
-                            <td data-td="o_qty">{{ number_format($ord->qty) }}</td>
-                            <td>
-                                <input type="text" value="" name="qty_actual[]" class="form-control form-control-sm text-center" readonly>
-                            </td>
-                        </tr>
-                        <tr class="--rece">
-                            <td></td>
-                            <td colspan="5" class="pt-0 ps-0">
-                                <table class="table mb-0 table-sm table-hover border-start border-end">
-                                    <thead>
-                                        <tr class="border-top-0" style="border-bottom-color:var(--bs-secondary);">
-                                            <td class="text-center">刪除</td>
-                                            <td>入庫單</td>
-                                            <td>倉庫</td>
-                                            <td class="text-center" style="width: 10%">數量</td>
-                                            <td>效期</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="border-top-0 -appendClone --selectedIB">
-                                        @foreach ($ord->receive_depot as $rec)
-                                        <tr class="-cloneElem --selectedIB">
-                                            <td class="text-center">
-                                                <button href="javascript:void(0)" type="button"
-                                                    data-bid="{{ $rec->inbound_id }}" data-rid="{{ $rec->id }}"
-                                                    data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                                                    @if (isset($delivery->audit_date)) disabled @endif
-                                                    class="icon icon-btn -del fs-5 text-danger rounded-circle border-0">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </td>
-                                            <td data-td="sn">{{ $rec->inbound_sn }}</td>
-                                            <td data-td="depot">{{ $rec->depot_name }}</td>
-                                            <td class="text-center">
-                                                <input type="text" name="qty[]" value="{{ $rec->qty }}" class="form-control form-control-sm text-center" readonly>
-                                            </td>
-                                            <td data-td="expiry">{{ date('Y/m/d', strtotime($rec->expiry_date)) }}</td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                    @if (is_null($delivery->audit_date))
-                                        <tfoot class="border-top-0">
-                                            <tr>
-                                                <td colspan="5">
-                                                    <input type="hidden" class="-ord" value="{{ $ord->product_style_id }}" data-sku="{{ $ord->sku }}"
-                                                        data-title="{{ $ord->product_title }}" @if($ord->combo_product_title) data-subtitle="{{$ord->combo_product_title}}" @endif
-                                                        data-qty="{{ $ord->qty }}" data-item="{{ $ord->item_id }}">
-                                                    <button data-idx="{{ $key + 1 }}" type="button" class="btn -add btn-outline-primary btn-sm border-dashed w-100" style="font-weight: 500;">
-                                                        <i class="bi bi-plus-circle"></i> 新增
-                                                    </button>
-                                                </td>
+                        @if (null != $ord_items_arr)
+                            @foreach ($ord_items_arr as $key => $ord)
+                                <tr class="--prod">
+                                    <th scope="row">{{ $key + 1 }}</th>
+                                    <td>
+                                        @if ($ord->combo_product_title)
+                                            <span class="badge rounded-pill bg-warning text-dark">組合包</span> [
+                                        @else
+                                            <span class="badge rounded-pill bg-success">一般</span>
+                                        @endif
+                                        {{ $ord->product_title }} @if($ord->combo_product_title) ] {{$ord->combo_product_title}} @endif
+                                    </td>
+                                    <td>{{ $ord->sku }}</td>
+                                    <td data-td="o_qty">{{ number_format($ord->qty) }}</td>
+                                    <td>
+                                        <input type="text" value="" name="qty_actual[]" class="form-control form-control-sm text-center" readonly>
+                                    </td>
+                                </tr>
+                                <tr class="--rece">
+                                    <td></td>
+                                    <td colspan="5" class="pt-0 ps-0">
+                                        <table class="table mb-0 table-sm table-hover border-start border-end">
+                                            <thead>
+                                            <tr class="border-top-0" style="border-bottom-color:var(--bs-secondary);">
+                                                <td class="text-center">刪除</td>
+                                                <td>入庫單</td>
+                                                <td>倉庫</td>
+                                                <td class="text-center" style="width: 10%">數量</td>
+                                                <td>效期</td>
                                             </tr>
-                                        </tfoot>
-                                    @endif
-                                </table>
-                            </td>
-                        </tr>
-                        @endforeach
+                                            </thead>
+                                            <tbody class="border-top-0 -appendClone --selectedIB">
+                                            @foreach ($ord->receive_depot as $rec)
+                                                <tr class="-cloneElem --selectedIB">
+                                                    <td class="text-center">
+                                                        <button href="javascript:void(0)" type="button"
+                                                                data-bid="{{ $rec->inbound_id }}" data-rid="{{ $rec->id }}"
+                                                                data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                                                                @if (isset($delivery->audit_date)) disabled @endif
+                                                                class="icon icon-btn -del fs-5 text-danger rounded-circle border-0">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </td>
+                                                    <td data-td="sn">{{ $rec->inbound_sn }}</td>
+                                                    <td data-td="depot">{{ $rec->depot_name }}</td>
+                                                    <td class="text-center">
+                                                        <input type="text" name="qty[]" value="{{ $rec->qty }}" class="form-control form-control-sm text-center" readonly>
+                                                    </td>
+                                                    <td data-td="expiry">{{ date('Y/m/d', strtotime($rec->expiry_date)) }}</td>
+                                                </tr>
+                                            @endforeach
+                                            </tbody>
+                                            @if (is_null($delivery->audit_date))
+                                                <tfoot class="border-top-0">
+                                                <tr>
+                                                    <td colspan="5">
+                                                        <input type="hidden" class="-ord" value="{{ $ord->product_style_id }}" data-sku="{{ $ord->sku }}"
+                                                               data-title="{{ $ord->product_title }}" @if($ord->combo_product_title) data-subtitle="{{$ord->combo_product_title}}" @endif
+                                                               data-qty="{{ $ord->qty }}" data-item="{{ $ord->item_id }}">
+                                                        <button data-idx="{{ $key + 1 }}" type="button" class="btn -add btn-outline-primary btn-sm border-dashed w-100" style="font-weight: 500;">
+                                                            <i class="bi bi-plus-circle"></i> 新增
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                </tfoot>
+                                            @endif
+                                        </table>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @endif
                     </tbody>
                 </table>
             </div>
@@ -101,6 +103,8 @@
                 <button type="submit" class="btn btn-primary px-4" @if (isset($delivery->audit_date)) disabled @endif>送出審核</button>
                 @if($delivery->event == App\Enums\Delivery\Event::order()->value)
                     <a href="{{ Route('cms.order.detail', ['id' => $order_id, 'subOrderId' => $eventId ]) }}" class="btn btn-outline-primary px-4" role="button">返回明細</a>
+                @elseif($delivery->event == App\Enums\Delivery\Event::consignment()->value)
+                    <a href="{{ Route('cms.consignment.edit', ['id' => $eventId ]) }}" class="btn btn-outline-primary px-4" role="button">返回明細</a>
                 @endif
             </div>
         </div>

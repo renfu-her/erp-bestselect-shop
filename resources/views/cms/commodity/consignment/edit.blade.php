@@ -1,7 +1,7 @@
 @extends('layouts.main')
 @section('sub-content')
     @if ($method === 'edit')
-        <h2 class="mb-3">#{{ $consignmentData->sn }} 寄倉單</h2>
+        <h2 class="mb-3">#{{ $consignmentData->consignment_sn }} 寄倉單</h2>
         <x-b-pch-navi :id="$id"></x-b-pch-navi>
     @else
         <h2 class="mb-3">新增寄倉單</h2>
@@ -12,6 +12,11 @@
         $consignmentData = $consignmentData ?? null;
     @endphp
 
+    @if ($method === 'edit')
+    <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">配送狀態</a>
+    <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">物流設定</a>
+    <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">出貨審核</a>
+    @endif
     <form id="form1" method="post" action="{{ $formAction }}">
         @method('POST')
         @csrf
@@ -27,7 +32,7 @@
                 <div class="row">
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">新增人員</label>
-                        <div class="form-control" readonly>{{ empty($consignmentData->create_user_name) ? '-' : $consignmentData->user_name }}</div>
+                        <div class="form-control" readonly>{{ empty($consignmentData->create_user_name) ? '-' : $consignmentData->create_user_name }}</div>
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">狀態</label>
@@ -37,27 +42,6 @@
                         <label class="form-label">入庫人員</label>
                         <div class="form-control" readonly>{{ empty($inbound_names) ? '-' : $inbound_names }}</div>
                     </div>
-                    <fieldset class="col-12 col-sm-6 mb-3">
-                        <legend class="col-form-label p-0 mb-2">課稅別 <span class="text-danger">*</span></legend>
-                        <div class="px-1 pt-1">
-                            <div class="form-check form-check-inline">
-                                <label class="form-check-label">
-                                    <input class="form-check-input" name="tax" type="radio" value="1" required
-                                           @if ($hasCreatedFinalPayment) disabled @endif
-                                           @if (1 === $consignmentData->has_tax ?? '') checked @endif>
-                                    應稅
-                                </label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <label class="form-check-label">
-                                    <input class="form-check-input" name="tax" type="radio" value="0" required
-                                           @if ($hasCreatedFinalPayment) disabled @endif
-                                           @if (0 === $consignmentData->has_tax ?? '') checked @endif>
-                                    免稅
-                                </label>
-                            </div>
-                        </div>
-                    </fieldset>
                 </div>
             </div>
         @endif
@@ -256,7 +240,7 @@
         <div id="submitDiv">
             <div class="col-auto">
                 <input type="hidden" name="del_item_id">
-                @if(!$hasCreatedFinalPayment && ($consignmentData == null || $consignmentData->close_date == null))
+                @if(!$hasCreatedFinalPayment && ($consignmentData == null || $consignmentData->audit_date == null))
                     <button type="submit" class="btn btn-primary px-4">儲存</button>
                 @else
                     <button type="submit" class="btn btn-primary px-4">登錄發票</button>

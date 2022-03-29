@@ -17,17 +17,15 @@ class Delivery extends Model
 
     public static function getData($event, $event_id) {
         $data = null;
-        if (null != $event_id) {
-            if (Event::order()->value == $event) {
-                $data = Delivery::where('event', $event)->where('event_id', $event_id);
-            }
+        if (null != $event && null != $event_id) {
+            $data = Delivery::where('event', $event)->where('event_id', $event_id);
         }
         return $data;
     }
 
     //新增資料
     //創建時，將上層資料複製進來
-    public static function createData($event, $event_id, $event_sn, $temp_id, $temp_name, $ship_category, $ship_category_name, $ship_group_id, $memo = null)
+    public static function createData($event, $event_id, $event_sn, $temp_id = null, $temp_name = null, $ship_category = null, $ship_category_name = null, $ship_group_id = null, $memo = null)
     {
         $data = Delivery::getData($event, $event_id);
         $dataGet = null;
@@ -74,7 +72,7 @@ class Delivery extends Model
             return ['success' => 0, 'error_msg' => '無此物流狀態'];
         }
 
-        $data = Delivery::getData($event, $event_id);
+        $data = Delivery::getData($event, (int)$event_id);
         $dataGet = null;
         if (null != $data) {
             $dataGet = $data->get()->first();

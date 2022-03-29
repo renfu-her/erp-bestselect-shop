@@ -21,8 +21,8 @@ class CreateReceiveDepotTable extends Migration
             $table->string('event_sn', 20)->comment('單號');
             $table->unsignedBigInteger('temp_id')->nullable()->comment('溫層id');
             $table->string('temp_name', 10)->nullable()->comment('溫層');
-            $table->string('ship_category', 30)->comment('物流代碼');
-            $table->string('ship_category_name', 30)->comment('物流類別名稱');
+            $table->string('ship_category', 30)->nullable()->comment('物流代碼');
+            $table->string('ship_category_name', 30)->nullable()->comment('物流類別名稱');
             $table->unsignedBigInteger('ship_depot_id')->nullable()->comment('出貨倉庫id');
             $table->string('ship_depot_name', 20)->nullable()->comment('出貨倉庫名稱');
             $table->unsignedBigInteger('ship_group_id')->nullable()->comment('出貨方式id 對應shi_group.id');
