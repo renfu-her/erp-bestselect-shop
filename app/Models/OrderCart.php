@@ -174,7 +174,7 @@ class OrderCart extends Model
         $order['total_price'] = $discount['result_price'] + $order['total_dlv_fee'];
         $order['total_discount_price'] = isset($discount['discount']->currentDiscount) ? $discount['discount']->currentDiscount : 0;
         $order['discounted_price'] = $order['origin_price'] - $order['total_discount_price'];
-
+      //  dd($order);
         $order['shipments'] = $shipmentGroup;
         $order['success'] = 1;
 

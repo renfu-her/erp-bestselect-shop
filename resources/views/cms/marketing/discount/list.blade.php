@@ -136,9 +136,10 @@
                                 @elseif($data->method_code == 'percent')
                                     {{ $data->discount_value }}%
                                 @elseif($data->method_code == 'coupon')
-                                    <a href="{{ route('cms.promo.edit', ['id' => $data->coupon_id]) }}">
-                                        {{ $data->coupon_title }}
-                                    </a>
+                                <a href="{{ route('cms.promo.edit', ['id' => $data->coupon_id]) }}">
+                                    {{ $data->coupon_title }}
+                                </a>
+
                                 @endif
                             </td>
                             <td data-td="status" @class([
