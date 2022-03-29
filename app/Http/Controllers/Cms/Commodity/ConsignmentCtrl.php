@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Cms\Commodity;
 
+use App\Enums\Delivery\Event;
 use App\Http\Controllers\Controller;
 use App\Models\Consignment;
 use App\Models\ConsignmentItem;
+use App\Models\Delivery;
 use App\Models\Depot;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -75,6 +77,16 @@ class ConsignmentCtrl extends Controller
             }
             return ['success' => 1, 'error_msg' => ""];
         });
+        $csn = Consignment::where('id', $consignmentID)->get()->first();
+        $reDelivery = Delivery::createData(
+            Event::consignment()->value
+            , $consignmentID
+            , $csn->sn
+        );
+        if ($reDelivery['success'] == 0) {
+            return $reDelivery;
+        }
+
         if ($result['success'] == 0) {
             wToast($result['error_msg']);
         } else {
@@ -105,7 +117,8 @@ class ConsignmentCtrl extends Controller
     public function edit(Request $request, $id)
     {
         $query = $request->query();
-        $consignmentData = Consignment::where('id', $id)->get()->first();
+        $consignmentData  = Consignment::getData($id)->get()->first();
+        $consignmentItemData = ConsignmentItem::where('consignment_id', $id)->get()->toArray();
 
         if (!$consignmentData) {
             return abort(404);
@@ -117,7 +130,7 @@ class ConsignmentCtrl extends Controller
             'consignmentData' => $consignmentData,
             'method' => 'edit',
             'formAction' => Route('cms.consignment.edit', ['id' => $id]),
-            'breadcrumb_data' => ['id' => $id, 'sn' => $consignmentData->sn],
+            'breadcrumb_data' => ['id' => $id, 'sn' => $consignmentData->consignment_sn],
         ]);
     }
 }
