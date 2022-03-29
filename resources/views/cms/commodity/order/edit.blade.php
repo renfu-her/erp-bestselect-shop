@@ -120,6 +120,26 @@
                     </div>
                 </div>
             </div>
+            <div class="card shadow p-4 mb-4">
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <label class="form-label">優惠券代碼</label>
+                        <div class="d-flex">
+                            <input type="text" class="form-control col" name="" placeholder="請輸入優惠券代碼">
+                            <button type="button" class="btn btn-primary mx-1 px-4 col-auto">確認</button>
+                        </div>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="form-label">
+                            紅利<span class="small text-secondary">（目前紅利點數：11點，可使用紅利上限：10點）</span>
+                        </label>
+                        <div class="d-flex">
+                            <input type="text" class="form-control col" name="" placeholder="請輸入會員紅利折抵點數">
+                            <button type="button" class="btn btn-primary mx-1 px-4 col-auto">確認</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div id="Total_price" class="card shadow p-4 mb-4">
                 <div id="Global_discount" hidden>
                     <h6>全館優惠</h6>

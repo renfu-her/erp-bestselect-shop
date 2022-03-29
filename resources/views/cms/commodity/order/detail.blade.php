@@ -259,6 +259,33 @@
 
         @if(false == isset($subOrderId))
             <div class="card shadow p-4 mb-4">
+                <h6>折扣明細</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm text-right align-middle">
+                        <tbody>
+                            <tr>
+                                <td class="col-8">任選3件500</td>
+                                <td class="text-end pe-4 text-danger">- $568</td>
+                            </tr>
+                            <tr>
+                                <td class="col-8">周年慶全館88折</td>
+                                <td class="text-end pe-4 text-danger">- $168</td>
+                            </tr>
+                            <tr>
+                                <td class="col-8">優惠券【新手禮包】</td>
+                                <td class="text-end pe-4 text-danger">- $100</td>
+                            </tr>
+                            <tr>
+                                <td class="col-8">紅利折扣</td>
+                                <td class="text-end pe-4 text-danger">- $11</td>
+                            </tr>
+                            <tr>
+                                <td class="col-8">贈送優惠券（下次使用）</td>
+                                <td class="text-end pe-4">【新年禮包】</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
                 <h6>訂單總覽</h6>
                 <div class="table-responsive">
                     <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
