@@ -293,8 +293,8 @@
                             <tr>
                                 <td>${{ number_format($order->price) }}</td>
                                 <td class="text-danger">- ${{ number_format($order->discount) }}</td>
-                                <td>${{ number_format($price - 0) }}</td>
-                                <td>${{ number_format($order->price - $order->discount) }}</td>
+                                <td>${{ number_format($order->discounted_price) }}</td>
+                                <td>${{ number_format($order->dlv_fee) }}</td>
                                 <td class="fw-bold">${{ number_format($order->total_price) }}</td>
                                 <td>-</td>
                             </tr>
@@ -312,7 +312,7 @@
                             </tr>
                             <tr>
                                 <td class="col-7 table-light lh-sm">折扣後 (不含運)</td>
-                                <td class="text-end pe-4">${{ number_format($order->price - $order->discount) }}</td>
+                                <td class="text-end pe-4">${{ number_format($order->discounted_price) }}</td>
                             </tr>
                             <tr>
                                 <td class="col-7 table-light">運費</td>
