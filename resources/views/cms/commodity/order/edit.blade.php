@@ -109,18 +109,21 @@
                 <div class="row">
                     <div class="col-12 mb-3">
                         <label class="form-label">優惠券代碼</label>
-                        <div class="d-flex">
-                            <input type="text" class="form-control col" name="" placeholder="請輸入優惠券代碼">
-                            <button type="button" class="btn btn-outline-primary mx-1 px-4 col-auto">確認</button>
+                        <div class="d-flex is-invalid">
+                            <input type="text" class="form-control col -coupon_sn" placeholder="請輸入優惠券代碼">
+                            <input type="hidden" name="discount_sn">
+                            <button type="button" class="btn btn-outline-primary mx-1 px-4 col-auto -coupon_sn">確認</button>
                         </div>
+                        {{-- <div class="invalid-feedback"></div> --}}
                     </div>
                     <div class="col-12 mb-3">
                         <label class="form-label">
                             紅利<span class="small text-secondary">（目前紅利點數：11點，可使用紅利上限：10點）</span>
                         </label>
                         <div class="d-flex">
-                            <input type="text" class="form-control col" name="" placeholder="請輸入會員紅利折抵點數">
-                            <button type="button" class="btn btn-outline-primary mx-1 px-4 col-auto">確認</button>
+                            <input type="text" class="form-control col -bonus_point" placeholder="請輸入會員紅利折抵點數">
+                            <input type="hidden" name="bonus">
+                            <button type="button" class="btn btn-outline-primary mx-1 px-4 col-auto -bonus_point">確認</button>
                         </div>
                     </div>
                 </div>
@@ -644,6 +647,7 @@
             $('#Loading_spinner').removeClass('d-flex');
             // 刪除商品
             Clone_bindDelElem($('.-cloneElem.--selectedP .-del'), cloneProductsOption);
+
             // 無商品不可下一步
             if (!$('.-cloneElem.--selectedP').length) {
                 $('#STEP_1 .-next_step').prop('disabled', true);
@@ -1116,6 +1120,41 @@
             }
 
             /*** 優惠 ***/
+            $('button.-coupon_sn').off('click').on('click', function () {
+                checkCouponSN();
+            });
+            // 優惠券代碼 -coupon_sn
+            function checkCouponSN() {
+                const _URL = '';
+                let Data = {
+                    sn: $('input.-coupon_sn').val(),
+                    product_id: []
+                };
+                if (!Data.sn) {
+                    toast.show('請輸入優惠代碼', { type: 'danger' });
+                    return false;
+                }
+                $('input[name="product_id[]"]').each(function (index, element) {
+                    // element == this
+                    if ((Data.product_id).indexOf($(element).val()) < 0) {
+                        (Data.product_id).push($(element).val());
+                    }
+                });
+                if (Data.product_id.length <= 0) {
+                    toast.show('請先加入商品', { type: 'danger' });
+                    return false;
+                }
+
+                axios.post(_URL, Data)
+                    .then((result) => {
+                        console.log(result.data);
+                    }).catch((err) => {
+                        console.error(err);
+                    });
+            }
+
+            // 紅利 -bonus_point
+
             // 全館優惠
             function sumGlobalDiscount(all_total = 0) {
                 if (GlobalDiscounts.length === 0) {
