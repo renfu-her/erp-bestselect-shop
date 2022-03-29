@@ -406,6 +406,8 @@ class Discount extends Model
                     break;
                 case DisMethod::coupon()->value:
                     break;
+               
+                   
             }
         }
 
@@ -415,8 +417,8 @@ class Discount extends Model
 
         return [
             'origin_price' => $price,
-            'result_price' => $dis[0] ? ($price - $dis[0]->currentDiscount) : 0,
-            'discount' => $dis[0] ? $dis[0] : null,
+            'result_price' => isset($dis[0]) ? ($price - $dis[0]->currentDiscount) : 0,
+            'discount' => isset($dis[0]) ? $dis[0] : null,
         ];
 
     }

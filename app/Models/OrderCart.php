@@ -158,7 +158,7 @@ class OrderCart extends Model
 
         $order['origin_price'] = $discount['origin_price'];
         $order['total_price'] = $discount['result_price'];
-        $order['total_discount_price'] = $discount['discount']->currentDiscount;
+        $order['total_discount_price'] = isset($discount['discount']->currentDiscount) ? $discount['discount']->currentDiscount : null;
         $order['discounts'][] = $discount['discount'];
         $order['shipments'] = $shipmentGroup;
         $order['success'] = 1;
