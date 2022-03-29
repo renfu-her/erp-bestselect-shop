@@ -388,7 +388,7 @@ class Discount extends Model
                         if ($cash->min_consume == 0 || $cash->min_consume < $price) {
                             if ($cash->is_grand_total == 1) {
                                 $cash->currentDiscount = intval(floor($price / $cash->min_consume) * $cash->discount_value);
-                                $cash->title =  $cash->title."(累計)";
+                                $cash->title = $cash->title . "(累計)";
 
                             } else {
                                 $cash->currentDiscount = $cash->discount_value;
@@ -402,8 +402,8 @@ class Discount extends Model
                 case DisMethod::percent()->value:
                     foreach ($value as $cash) {
                         if ($cash->min_consume == 0 || $cash->min_consume < $price) {
-                            $cash->currentDiscount = $price - intval(floor($price / 100) * $cash->discount_value);
-                            $cash->discount_value =  $cash->discount_value;
+                            $cash->currentDiscount = $price - intval($price / 100 * $cash->discount_value);     
+                            $cash->discount_value = $cash->discount_value;
                             $dis[] = $cash;
                         }
                     }
@@ -412,7 +412,7 @@ class Discount extends Model
 
                     foreach ($value as $cash) {
                         if ($cash->min_consume == 0 || $cash->min_consume < $price) {
-                            $cash->title = $cash->title." (下次使用)";
+                            $cash->title = $cash->title . " (下次使用)";
                             $coupons[] = $cash;
                         }
                     }
