@@ -157,17 +157,23 @@ class OrderCart extends Model
         }
 
         $discount = Discount::calculatorDiscount($order['total_price']);
-
+       
         if ($discount) {
-            $order['discounts'][] = $discount['discount'];
+            if($discount['discount']){
+                $order['discounts'][] = $discount['discount'];
+            }
+           
             foreach ($discount['coupons'] as $coupon) {
                 $order['discounts'][] = $coupon;
             }
         }
 
+       
+       
         $order['origin_price'] = $discount['origin_price'];
         $order['total_price'] = $discount['result_price'] + $order['total_dlv_fee'];
-        $order['total_discount_price'] = isset($discount['discount']->currentDiscount) ? $discount['discount']->currentDiscount : null;
+        $order['total_discount_price'] = isset($discount['discount']->currentDiscount) ? $discount['discount']->currentDiscount : 0;
+        $order['discounted_price'] = $order['origin_price'] - $order['total_discount_price'];
 
         $order['shipments'] = $shipmentGroup;
         $order['success'] = 1;

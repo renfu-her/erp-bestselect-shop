@@ -192,6 +192,7 @@ class Order extends Model
                 "price" => $order['origin_price'],
                 "dlv_fee" => $order['total_dlv_fee'],
                 "discount" => $order['total_discount_price'],
+                "discounted_price" => $order['discounted_price'],
                 'note' => $note,
             ])->id;
 
