@@ -22,13 +22,18 @@ class ReceivedDefault extends Model
         DB::table('acc_received_default')
             ->where('name', '=', ReceivedMethod::ForeignCurrency)
             ->delete();
-        foreach ($currencyData['grade_id_fk'] as $currencyId => $grade_id_fk) {
-               $defaultPrimaryId = DB::table('acc_received_default')
-                                ->insertGetId(['name' =>ReceivedMethod::ForeignCurrency,
-                                                'default_grade_id' => $grade_id_fk]);
-               DB::table('acc_currency')
-                   ->where('id', '=', $currencyId)
-                   ->update(['received_default_fk' => $defaultPrimaryId]);
+
+        if (isset($currencyData['grade_id_fk'])) {
+            foreach ($currencyData['grade_id_fk'] as $currencyId => $grade_id_fk) {
+                $defaultPrimaryId = DB::table('acc_received_default')
+                    ->insertGetId([
+                        'name' => ReceivedMethod::ForeignCurrency,
+                        'default_grade_id' => $grade_id_fk
+                    ]);
+                DB::table('acc_currency')
+                    ->where('id', '=', $currencyId)
+                    ->update(['received_default_fk' => $defaultPrimaryId]);
+            }
         }
     }
 
