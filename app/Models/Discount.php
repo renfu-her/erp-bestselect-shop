@@ -35,9 +35,16 @@ class Discount extends Model
         WHEN '$now' > end_date THEN '" . DisStatus::D02()->value . "'
         ELSE '" . DisStatus::D00()->value . "' END as status_code";
 
-        $sub = self::select('*')
+        return self::select('*')
             ->selectRaw($selectStatus)
             ->selectRaw($selectStatusCode);
+
+    }
+
+    private static function _dataWithCoupon()
+    {
+
+        $sub = self::_discountStatus();
 
         $coupons = DB::table(DB::raw("({$sub->toSql()}) as sub"))
             ->leftJoin('dis_discounts as dis', 'sub.discount_value', '=', 'dis.id')
@@ -53,13 +60,12 @@ class Discount extends Model
         $nonCoupon->bindings['union'] = [];
 
         return $nonCoupon;
-
     }
 
     public static function getDiscountStatus($id)
     {
 
-        $sub = self::_discountStatus();
+        $sub = self::_dataWithCoupon();
         $re = DB::table(DB::raw("({$sub->toSql()}) as sub"))
             ->select(['sub.id', 'status', 'status_code'])
             ->mergeBindings($sub)
@@ -73,7 +79,7 @@ class Discount extends Model
     public static function getDiscounts($type = null, $product_id = null)
     {
 
-        $sub = self::_discountStatus();
+        $sub = self::_dataWithCoupon();
 
         $select = [
             'sub.id',
@@ -138,7 +144,7 @@ class Discount extends Model
         $is_global = null
     ) {
 
-        $sub = self::_discountStatus();
+        $sub = self::_dataWithCoupon();
 
         $re = DB::table(DB::raw("({$sub->toSql()}) as sub"))
             ->mergeBindings($sub);
@@ -276,6 +282,79 @@ class Discount extends Model
 
     }
 
+    public static function checkCode($sn = null, $product_id = null)
+    {
+        $sub = self::_discountStatus();
+
+        $select = [
+            'sub.id',
+            'sub.sn',
+            'sub.title',
+            'sub.category_title',
+            'sub.category_code',
+            'sub.method_code',
+            'sub.method_title',
+            'sub.discount_value',
+            'sub.is_grand_total',
+            'sub.min_consume',
+            'sub.usage_count',
+            'sub.max_usage',
+            'sub.is_global',
+        ];
+
+        $re = DB::table(DB::raw("({$sub->toSql()}) as sub"))
+            ->select($select)
+            ->where('status_code', DisStatus::D01()->value)
+            ->where('category_code', DisCategory::code()->value)
+            ->where('sub.sn', $sn)
+            ->get()->first();
+
+        if (!$re) {
+            return [
+                'success' => '0',
+                'message' => "查無序號,或此序號尚未在活動期間",
+            ];
+        }
+
+        if ($re->max_usage != 0 && $re->usage_count > $re->max_usage) {
+            return [
+                'success' => '0',
+                'message' => "序號超出使用次數",
+            ];
+        }
+        if ($re->is_global == '1') {
+            return [
+                'success' => '1',
+                'data' => $re,
+            ];
+        }
+
+        if (!$product_id) {
+            return [
+                'success' => '0',
+                'message' => "缺少product_id",
+            ];
+        }
+
+        $collection = DB::table('dis_discount_collection as dc')
+            ->leftJoin('collection_prd as cp', 'dc.collection_id', '=', 'cp.collection_id_fk')
+            ->select('cp.product_id_fk as product_id')
+            ->where('dc.discount_id', $re->id)
+            ->whereIn('cp.product_id_fk', $product_id)
+            ->distinct();
+
+        $re->product_ids = array_map(function ($n) {
+            return $n->product_id;
+        }, $collection->get()->toArray());
+
+       
+        return [
+            'success' => '1',
+            'data' => $re,
+        ];
+
+    }
+
     private static function _createDiscount($title,
         DisCategory $disCategory,
         DisMethod $method,
@@ -402,7 +481,7 @@ class Discount extends Model
                 case DisMethod::percent()->value:
                     foreach ($value as $cash) {
                         if ($cash->min_consume == 0 || $cash->min_consume < $price) {
-                            $cash->currentDiscount = $price - intval($price / 100 * $cash->discount_value);     
+                            $cash->currentDiscount = $price - intval($price / 100 * $cash->discount_value);
                             $cash->discount_value = $cash->discount_value;
                             $dis[] = $cash;
                         }

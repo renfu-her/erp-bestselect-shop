@@ -52,10 +52,10 @@ class DiscountCtrl extends Controller
             ]);
         }
         Discount::where('id', $request->input('id'))->update(['active' => $request->input('active')]);
-       //  $re = Discount::getDiscountStatus($request->input('id'));
+        //  $re = Discount::getDiscountStatus($request->input('id'));
         return response()->json([
             'status' => '0',
-            'data' => Discount::getDiscountStatus($request->input('id'))->status
+            'data' => Discount::getDiscountStatus($request->input('id'))->status,
         ]);
 
     }
@@ -77,6 +77,36 @@ class DiscountCtrl extends Controller
             'status' => '0',
             'data' => Discount::getDiscounts('non-global-normal', $request->input('product_id')),
         ]);
+
+    }
+
+    public static function checkDiscountCode(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'sn' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'E01',
+                'message' => $validator->messages(),
+            ]);
+        }
+        $d = $request->all();
+        $product_id = isset($d['product_id']) ? explode(',', $d['product_id']) : null;
+        $re = Discount::checkCode($d['sn'], $product_id);
+
+        if ($re['success'] == '1') {
+            return response()->json([
+                'status' => '0',
+                'data' => $re['data'],
+            ]);
+        } else {
+            return response()->json([
+                'status' => '1',
+                'messagw' => $re['message'],
+            ]);
+        }
 
     }
 
