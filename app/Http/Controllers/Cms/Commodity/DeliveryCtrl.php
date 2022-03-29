@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Cms\Commodity;
 use App\Enums\Delivery\Event;
 use App\Enums\Delivery\LogisticStatus;
 use App\Http\Controllers\Controller;
+use App\Models\Consignment;
 use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\ReceiveDepot;
@@ -72,6 +73,8 @@ class DeliveryCtrl extends Controller
                 $ord_items_arr = ReceiveDepot::getOrderShipItemWithDeliveryWithReceiveDepotList($event, $eventId, $delivery_id);
             } else if (Event::consignment()->value == $event) {
                 $ord_items_arr = ReceiveDepot::getCSNShipItemWithDeliveryWithReceiveDepotList($event, $eventId, $delivery_id);
+                $consignment = Consignment::where('id', $delivery->event_id)->get()->first();
+                $rsp_arr['depot_id'] = $consignment->send_depot_id;
             }
         }
         $rsp_arr['delivery'] = $delivery;

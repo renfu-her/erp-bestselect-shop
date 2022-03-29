@@ -181,6 +181,7 @@
             const DelUrl = "{{ Route('cms.delivery.delete', ['event'=>$event, 'eventId'=>$eventId, 'receiveDepotId'=>'#'], true)}}".replace('#', '');
             const DeliveryId = @json($delivery_id);
             const Readonly = @json(isset($delivery->audit_date));
+            const depot_id = @json($depott ?? null); //判斷若有值，則需在apiUrl.inboundList調用
 
             // init
             DvySumExportQty();
