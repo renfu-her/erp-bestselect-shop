@@ -261,6 +261,7 @@
 
         @if (false == isset($subOrderId))
             <div class="card shadow p-4 mb-4">
+                @if (count($discounts) > 0)
                 <h6>折扣明細</h6>
                 <div class="table-responsive">
                     <table class="table table-sm text-right align-middle">
@@ -278,6 +279,7 @@
                         </tbody>
                     </table>
                 </div>
+                @endif
                 <h6>訂單總覽</h6>
                 <div class="table-responsive">
                     <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
