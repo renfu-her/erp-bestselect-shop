@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\Delivery\Event;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -226,7 +225,7 @@ class Delivery extends Model
     }
 
     //取得物流頁顯示的 子訂單-出貨商品列表
-    public static function getListToLogistic($order_id = null, $sub_order_id = null)
+    public static function getOrderListToLogistic($order_id = null, $sub_order_id = null)
     {
         $sub_rec_depot = DB::table('dlv_receive_depot')
             ->select('dlv_receive_depot.delivery_id'
@@ -273,6 +272,56 @@ class Delivery extends Model
         }
         if (isset($sub_order_id)) {
             $query->whereIn('ord_items.sub_order_id', $sub_order_id);
+        }
+
+        return $query;
+    }
+
+    //取得物流頁顯示的 寄倉商品列表
+    public static function getCsnListToLogistic($consignment_id = null)
+    {
+        $sub_rec_depot = DB::table('dlv_receive_depot')
+            ->select('dlv_receive_depot.delivery_id'
+                , 'dlv_receive_depot.event_item_id'
+                , 'dlv_receive_depot.freebies'
+                , 'dlv_receive_depot.product_style_id'
+                , 'dlv_receive_depot.sku as rec_sku'
+                , 'dlv_receive_depot.product_title as rec_product_title'
+            )
+            ->selectRaw('sum(dlv_receive_depot.qty) as send_qty')
+            ->groupBy('dlv_receive_depot.delivery_id')
+            ->groupBy('dlv_receive_depot.event_item_id')
+            ->groupBy('dlv_receive_depot.freebies')
+            ->groupBy('dlv_receive_depot.product_style_id')
+            ->groupBy('dlv_receive_depot.sku')
+            ->groupBy('dlv_receive_depot.product_title');
+
+        $sub_orders = DB::table('csn_consignment')
+            ->leftJoin('csn_consignment_items', function($join) {
+                $join->on('csn_consignment_items.consignment_id', '=', 'csn_consignment.id');
+            })
+            ->select('csn_consignment_items.id as item_id'
+                , 'csn_consignment_items.consignment_id'
+                , 'csn_consignment_items.product_style_id'
+                , 'csn_consignment_items.title as product_title'
+                , 'csn_consignment_items.sku'
+                , 'csn_consignment_items.price'
+                , 'csn_consignment_items.num'
+                , 'csn_consignment_items.arrived_num'
+                , 'csn_consignment_items.memo'
+                , 'csn_consignment_items.created_at'
+            );
+
+        $query = DB::table(DB::raw("({$sub_rec_depot->toSql()}) as rec_depot"))
+            ->leftJoinSub($sub_orders, 'csn', function($join) {
+                $join->on('csn.item_id', '=', 'rec_depot.event_item_id');
+            })
+            ->whereNotNull('rec_depot.delivery_id')
+            ->whereNotNull('csn.item_id')
+            ->select('*');
+
+        if (isset($consignment_id)) {
+            $query->where('csn.consignment_id', $consignment_id);
         }
 
         return $query;

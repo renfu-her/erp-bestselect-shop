@@ -21,6 +21,10 @@ class LogisticCtrl extends Controller
         $delivery = null;
         $delivery_id = null;
         $returnAction = '';
+
+        //顯示出貨商品列表product_title ; 單價price ; 數量send_qty ; 小計price*數量send_qty
+        //組合包判斷兩者欄位不同都顯示:product_title rec_product_title，否則只顯示product_title
+        $deliveryList = null;
         if (Event::order()->value == $event) {
             $sub_order = SubOrders::getListWithShiGroupById($eventId)->get()->first();
             if (null == $sub_order) {
@@ -33,6 +37,7 @@ class LogisticCtrl extends Controller
             if (null != $delivery) {
                 $delivery_id = $delivery->id;
             }
+            $deliveryList = Delivery::getOrderListToLogistic($sub_order->order_id, $sub_order->id)->get();
         } else if (Event::consignment()->value == $event) {
             $returnAction = Route('cms.consignment.edit', ['id' => $eventId ]);
 
@@ -41,6 +46,7 @@ class LogisticCtrl extends Controller
             if (null != $delivery) {
                 $delivery_id = $delivery->id;
             }
+            $deliveryList = Delivery::getCsnListToLogistic($eventId)->get();
         }
 
         if (null == $delivery) {
@@ -59,10 +65,6 @@ class LogisticCtrl extends Controller
         } else {
             $logistic_id = $logistic->id;
         }
-
-        //顯示出貨商品列表product_title ; 單價price ; 數量send_qty ; 小計price*數量send_qty
-        //組合包判斷兩者欄位不同都顯示:product_title rec_product_title，否則只顯示product_title
-        $deliveryList = Delivery::getListToLogistic()->get();
 
         //取得出貨耗材列表
         //打API post api/product/get-product-styles 帶參數 'consume':1
