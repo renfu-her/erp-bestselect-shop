@@ -68,7 +68,11 @@ class DeliveryCtrl extends Controller
         }
         if (null != $delivery_id) {
             $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
-            $ord_items_arr = ReceiveDepot::getShipItemWithDeliveryWithReceiveDepotList($event, $eventId, $delivery_id);
+            if (Event::order()->value == $event) {
+                $ord_items_arr = ReceiveDepot::getOrderShipItemWithDeliveryWithReceiveDepotList($event, $eventId, $delivery_id);
+            } else if (Event::consignment()->value == $event) {
+                $ord_items_arr = ReceiveDepot::getCSNShipItemWithDeliveryWithReceiveDepotList($event, $eventId, $delivery_id);
+            }
         }
         $rsp_arr['delivery'] = $delivery;
         $rsp_arr['delivery_id'] = $delivery_id;

@@ -78,7 +78,7 @@ class OrderItem extends Model
                 , 'tb_ship.product_style_id'
                 , 'tb_ship.product_id'
                 , 'tb_ship.sku'
-                , 'tb_ship.type'
+//                , 'tb_ship.type'
                 , 'dlv_receive_depot.id'
                 , 'dlv_receive_depot.delivery_id'
                 , 'dlv_receive_depot.freebies'

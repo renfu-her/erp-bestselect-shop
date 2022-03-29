@@ -208,34 +208,62 @@ class ReceiveDepot extends Model
     }
 
     //取得子訂單商品列表 與對應的出貨列表
-    public static function getShipItemWithDeliveryWithReceiveDepotList($event, $sub_order_id, $delivery_id, $product_style_id = null) {
+    public static function getOrderShipItemWithDeliveryWithReceiveDepotList($event, $sub_order_id, $delivery_id, $product_style_id = null) {
         // 子訂單的商品列表
         $ord_items = OrderItem::getShipItem($sub_order_id)->get();
-        // 子訂單要的出貨資料
-        $ord_items_arr = null;
-        if (null != $ord_items && 0 < count($ord_items)) {
-            $receiveDepotList = ReceiveDepot::getDeliveryWithReceiveDepotList($event, $sub_order_id, $delivery_id, $product_style_id)->get();
-            $ord_items_arr = $ord_items->toArray();
-            foreach ($ord_items_arr as $ord_key => $ord_item) {
-                $ord_items_arr[$ord_key]->receive_depot = [];
+        // 對應的出貨資料
+        $ord_items_arr = ReceiveDepot::getReceiveDepotParseData($event, $sub_order_id, $delivery_id, $product_style_id, $ord_items);
+        return $ord_items_arr;
+    }
+
+    public static function getCSNShipItemWithDeliveryWithReceiveDepotList($event, $consignment_id, $delivery_id, $product_style_id = null) {
+        // 寄倉單的商品列表
+        $csn_items = DB::table('csn_consignment_items')
+            ->select('id as item_id'
+                , 'consignment_id'
+                , 'product_style_id'
+                , DB::raw('@title:=null as combo_product_title')
+                , 'title as product_title'
+                , 'sku'
+                , 'price'
+                , 'num as qty'
+                , 'arrived_num'
+                , 'memo'
+                , 'created_at'
+                , 'updated_at'
+                , 'deleted_at'
+            )
+            ->where('consignment_id', $consignment_id)
+            ->get();
+        // 對應的出貨資料
+        $ord_items_arr = ReceiveDepot::getReceiveDepotParseData($event, $consignment_id, $delivery_id, $product_style_id, $csn_items);
+        return $ord_items_arr;
+    }
+
+    private static function getReceiveDepotParseData($event, $event_id, $delivery_id, $product_style_id, $obj_items) {
+        $obj_items_arr = null;
+        if (null != $obj_items && 0 < count($obj_items)) {
+            $receiveDepotList = ReceiveDepot::getDeliveryWithReceiveDepotList($event, $event_id, $delivery_id, $product_style_id)->get();
+            $obj_items_arr = $obj_items;
+            foreach ($obj_items_arr as $ord_key => $ord_item) {
+                $obj_items_arr[$ord_key]->receive_depot = [];
             }
             if (0 < count($receiveDepotList)) {
                 $receiveDepotList_arr = $receiveDepotList->toArray();
-                foreach ($ord_items_arr as $ord_key => $ord_item) {
-                    $ord_items_arr[$ord_key]->receive_depot = [];
+                foreach ($obj_items_arr as $ord_key => $ord_item) {
+                    $obj_items_arr[$ord_key]->receive_depot = [];
                     foreach ($receiveDepotList_arr as $revd_key => $revd_item) {
-                        if ($ord_items_arr[$ord_key]->item_id == $revd_item->event_item_id
-                            && $ord_items_arr[$ord_key]->product_style_id == $revd_item->product_style_id
+                        if ($obj_items_arr[$ord_key]->item_id == $revd_item->event_item_id
+                            && $obj_items_arr[$ord_key]->product_style_id == $revd_item->product_style_id
                         ) {
-                            array_push($ord_items_arr[$ord_key]->receive_depot, $receiveDepotList_arr[$revd_key]);
+                            array_push($obj_items_arr[$ord_key]->receive_depot, $receiveDepotList_arr[$revd_key]);
                             unset($receiveDepotList_arr[$revd_key]);
                         }
                     }
                 }
             }
         }
-
-        return $ord_items_arr;
+        return $obj_items_arr;
     }
 
 }
