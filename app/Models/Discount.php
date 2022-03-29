@@ -77,6 +77,7 @@ class Discount extends Model
 
         $select = [
             'sub.id',
+            'sub.sn',
             'sub.title',
             'sub.category_title',
             'sub.category_code',
@@ -377,6 +378,7 @@ class Discount extends Model
 
         //   dd($discounts);
         $dis = [];
+        $coupons = [];
         foreach ($discounts as $key => $value) {
 
             switch ($key) {
@@ -386,6 +388,7 @@ class Discount extends Model
                         if ($cash->min_consume == 0 || $cash->min_consume < $price) {
                             if ($cash->is_grand_total == 1) {
                                 $cash->currentDiscount = intval(floor($price / $cash->min_consume) * $cash->discount_value);
+                                $cash->title =  $cash->title."(累計)";
 
                             } else {
                                 $cash->currentDiscount = $cash->discount_value;
@@ -400,12 +403,21 @@ class Discount extends Model
                     foreach ($value as $cash) {
                         if ($cash->min_consume == 0 || $cash->min_consume < $price) {
                             $cash->currentDiscount = $price - intval(floor($price / 100) * $cash->discount_value);
+                            $cash->discount_value =  $cash->discount_value;
                             $dis[] = $cash;
                         }
                     }
                     break;
                 case DisMethod::coupon()->value:
+
+                    foreach ($value as $cash) {
+                        if ($cash->min_consume == 0 || $cash->min_consume < $price) {
+                            $cash->title = $cash->title." (下次使用)";
+                            $coupons[] = $cash;
+                        }
+                    }
                     break;
+
             }
         }
 
@@ -415,9 +427,61 @@ class Discount extends Model
 
         return [
             'origin_price' => $price,
-            'result_price' => $dis[0] ? ($price - $dis[0]->currentDiscount) : 0,
-            'discount' => $dis[0] ? $dis[0] : null,
+            'result_price' => isset($dis[0]) ? ($price - $dis[0]->currentDiscount) : 0,
+            'discount' => isset($dis[0]) ? $dis[0] : null,
+            'coupons' => $coupons,
         ];
 
+    }
+
+    public static function createOrderDiscount($type, $order_id, $datas = [])
+    {
+
+     //   dd($datas);
+
+        if (!$datas || count($datas) == 0) {
+            return;
+        }
+
+        DB::table('ord_discounts')->insert(array_map(function ($n) use ($type, $order_id) {
+            $category = $n->category_code;
+            $method = $n->method_code;
+
+            $d = [
+                'order_type' => $type,
+                'order_id' => $order_id,
+                'title' => $n->title,
+                'sn' => isset($n->sn) ? $n->sn : null,
+                'sort' => DisCategory::getSort(DisCategory::$category()),
+                'category_title' => $n->category_title,
+                'category_code' => $n->category_code,
+                'method_title' => $n->method_title,
+                'method_code' => $n->method_code,
+                'discount' => isset($n->currentDiscount) ? $n->currentDiscount : null,
+                'is_grand_total' => $n->is_grand_total,
+            ];
+
+            switch ($method) {
+                case DisCategory::coupon()->value:
+                    $d['extra_title'] = $n->coupon_title;
+                    $d['extra_id'] = $n->coupon_id;
+                    break;
+
+                default:
+                    $d['extra_title'] = null;
+                    $d['extra_id'] = null;
+
+            }
+
+            return $d;
+
+        }, $datas));
+
+    }
+
+    public static function orderDiscountList($type, $order_id)
+    {
+        return DB::table('ord_discounts')->where('order_type', $type)
+            ->where('order_id', $order_id);
     }
 }

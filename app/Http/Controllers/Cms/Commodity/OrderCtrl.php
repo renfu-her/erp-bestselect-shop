@@ -27,7 +27,7 @@ class OrderCtrl extends Controller
     {
 
         // Order::createOrder([]);
-     //   dd(Discount::getDiscountStatus(1));
+        //   dd(Discount::getDiscountStatus(1));
         // dd(Order::orderList()->get()->toArray());
 
         $query = $request->query();
@@ -78,7 +78,7 @@ class OrderCtrl extends Controller
      */
     public function create(Request $request)
     {
-      //  Discount::calculatorDiscount(2000);
+        //  Discount::calculatorDiscount(2000);
         $cart = null;
         if (old('product_style_id')) {
             $oldData = [];
@@ -126,7 +126,7 @@ class OrderCtrl extends Controller
 
         $citys = Addr::getCitys();
 
-    //  dd(Discount::getDiscounts('global-normal'));
+        //  dd(Discount::getDiscounts('global-normal'));
         //    dd($citys);
         return view('cms.commodity.order.edit', [
             'customer_id' => $customer_id,
@@ -271,16 +271,18 @@ class OrderCtrl extends Controller
 
         $subOrder = Order::subOrderDetail($id)->get()->toArray();
 
+        //  dd(Discount::orderDiscountList('main',$id)->get()->toArray());
+
         foreach ($subOrder as $key => $value) {
             $subOrder[$key]->items = json_decode($value->items);
         }
 
-        //  dd($subOrder);
+      //    dd($order);
 
         if (!$order) {
             return abort(404);
         }
-        //   dd($order);
+        //  dd( Discount::orderDiscountList('main', $id)->get()->toArray());
 
         $sn = $order->sn;
         return view('cms.commodity.order.detail', [
@@ -289,6 +291,7 @@ class OrderCtrl extends Controller
             'subOrders' => $subOrder,
             'breadcrumb_data' => $sn,
             'subOrderId' => $subOrderId,
+            'discounts' => Discount::orderDiscountList('main', $id)->get()->toArray(),
         ]);
     }
 

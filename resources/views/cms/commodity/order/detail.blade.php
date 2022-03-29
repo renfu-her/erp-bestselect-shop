@@ -113,7 +113,7 @@
         @php
             $dlv_fee = 0;
             $price = 0;
-
+            
         @endphp
         @foreach ($subOrders as $subOrder)
             @php
@@ -121,23 +121,27 @@
                 $price += $subOrder->total_price;
             @endphp
             {{-- 宅配 .-detail-primary / 自取 .-detail-warning / 超取 .-detail-success --}}
-            @if(true == isset($subOrderId) && $subOrder->id != $subOrderId)
+            @if (true == isset($subOrderId) && $subOrder->id != $subOrderId)
                 @continue
             @endif
-            <div @class(['card shadow mb-4 -detail',
+            <div @class([
+                'card shadow mb-4 -detail',
                 '-detail-primary' => $subOrder->ship_category === 'deliver',
-                '-detail-warning' => $subOrder->ship_category === 'pickup'
-                ])>
+                '-detail-warning' => $subOrder->ship_category === 'pickup',
+            ])>
                 <div class="card-header px-4 py-3 d-flex align-items-center bg-white flex-wrap justify-content-end">
                     <strong class="flex-grow-1 mb-0">{{ $subOrder->ship_event }}</strong>
-                    @if(true == isset($subOrderId))
-                    <div class="d-flex">
-                        <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">配送狀態</a>
-                        <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">物流設定</a>
-                        <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">出貨審核</a>
-                        <button type="button" class="btn btn-sm btn-primary -in-header">列印銷貨單</button>
-                        <button type="button" class="btn btn-sm btn-primary -in-header">列印出貨單</button>
-                    </div>
+                    @if (true == isset($subOrderId))
+                        <div class="d-flex">
+                            <a class="btn btn-sm btn-success -in-header"
+                                href="{{ Route('cms.logistic.changeLogisticStatus',['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id],true) }}">配送狀態</a>
+                            <a class="btn btn-sm btn-success -in-header"
+                                href="{{ Route('cms.logistic.create',['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id],true) }}">物流設定</a>
+                            <a class="btn btn-sm btn-success -in-header"
+                                href="{{ Route('cms.delivery.create',['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id],true) }}">出貨審核</a>
+                            <button type="button" class="btn btn-sm btn-primary -in-header">列印銷貨單</button>
+                            <button type="button" class="btn btn-sm btn-primary -in-header">列印出貨單</button>
+                        </div>
                     @endif
                 </div>
                 <div class="card-body px-4">
@@ -257,32 +261,22 @@
         @endforeach
 
 
-        @if(false == isset($subOrderId))
+        @if (false == isset($subOrderId))
             <div class="card shadow p-4 mb-4">
                 <h6>折扣明細</h6>
                 <div class="table-responsive">
                     <table class="table table-sm text-right align-middle">
                         <tbody>
-                            <tr>
-                                <td class="col-8">任選3件500</td>
-                                <td class="text-end pe-4 text-danger">- $568</td>
-                            </tr>
-                            <tr>
-                                <td class="col-8">周年慶全館88折</td>
-                                <td class="text-end pe-4 text-danger">- $168</td>
-                            </tr>
-                            <tr>
-                                <td class="col-8">優惠券【新手禮包】</td>
-                                <td class="text-end pe-4 text-danger">- $100</td>
-                            </tr>
-                            <tr>
-                                <td class="col-8">紅利折扣</td>
-                                <td class="text-end pe-4 text-danger">- $11</td>
-                            </tr>
-                            <tr>
-                                <td class="col-8">贈送優惠券（下次使用）</td>
-                                <td class="text-end pe-4">【新年禮包】</td>
-                            </tr>
+                            @foreach ($discounts as $key => $dis)
+                                <tr>
+                                    <td class="col-8">{{ $dis->title }}</td>
+                                    @if ($dis->method_code == 'coupon')
+                                        <td class="text-end pe-4">{{ $dis->extra_title }}</td>
+                                    @else
+                                        <td class="text-end pe-4 text-danger">- ${{ $dis->discount }}</td>
+                                    @endif
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
@@ -290,66 +284,67 @@
                 <div class="table-responsive">
                     <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
                         <tbody>
-                        <tr class="table-light">
-                            <td class="col-2">小計</td>
-                            <td class="col-2">折扣</td>
-                            <td class="col-2 lh-sm">折扣後 <br class="d-xxl-none">(不含運)</td>
-                            <td class="col-2">運費</td>
-                            <td class="col-2">總金額</td>
-                            <td class="col-2 lh-sm">預計獲得<a href="#" class="-text d-block d-xxl-inline">紅利積點</a></td>
-                        </tr>
-                        <tr>
-                            <td>${{ number_format($price) }}</td>
-                            <td class="text-danger">- ${{ number_format(0) }}</td>
-                            <td>${{ number_format($price - 0) }}</td>
-                            <td>${{ number_format($dlv_fee) }}</td>
-                            <td class="fw-bold">${{ number_format($order->total_price) }}</td>
-                            <td>-</td>
-                        </tr>
+                            <tr class="table-light">
+                                <td class="col-2">小計</td>
+                                <td class="col-2">折扣</td>
+                                <td class="col-2 lh-sm">折扣後 <br class="d-xxl-none">(不含運)</td>
+                                <td class="col-2">運費</td>
+                                <td class="col-2">總金額</td>
+                                <td class="col-2 lh-sm">預計獲得<a href="#" class="-text d-block d-xxl-inline">紅利積點</a></td>
+                            </tr>
+                            <tr>
+                                <td>${{ number_format($order->price) }}</td>
+                                <td class="text-danger">- ${{ number_format($order->discount) }}</td>
+                                <td>${{ number_format($price - 0) }}</td>
+                                <td>${{ number_format($order->price - $order->discount) }}</td>
+                                <td class="fw-bold">${{ number_format($order->total_price) }}</td>
+                                <td>-</td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-bordered table-sm text-center align-middle d-table d-sm-none">
                         <tbody>
-                        <tr>
-                            <td class="col-7 table-light">小計</td>
-                            <td class="text-end pe-4">${{ number_format($price) }}</td>
-                        </tr>
-                        <tr>
-                            <td class="col-7 table-light">折扣</td>
-                            <td class="text-danger text-end pe-4">- ${{ number_format(0) }}</td>
-                        </tr>
-                        <tr>
-                            <td class="col-7 table-light lh-sm">折扣後 (不含運)</td>
-                            <td class="text-end pe-4">${{ number_format($price - 0) }}</td>
-                        </tr>
-                        <tr>
-                            <td class="col-7 table-light">運費</td>
-                            <td class="text-end pe-4">${{ number_format($dlv_fee) }}</td>
-                        </tr>
-                        <tr>
-                            <td class="col-7 table-light">總金額</td>
-                            <td class="fw-bold text-end pe-4">${{ number_format($order->total_price) }}</td>
-                        </tr>
-                        <tr>
-                            <td class="col-7 table-light lh-sm">預計獲得<a href="#" class="-text">紅利積點</a></td>
-                            <td class="text-end pe-4">-</td>
-                        </tr>
+                            <tr>
+                                <td class="col-7 table-light">小計</td>
+                                <td class="text-end pe-4">${{ number_format($order->price) }}</td>
+                            </tr>
+                            <tr>
+                                <td class="col-7 table-light">折扣 </td>
+                                <td class="text-danger text-end pe-4">- ${{ number_format($order->discount) }}</td>
+                            </tr>
+                            <tr>
+                                <td class="col-7 table-light lh-sm">折扣後 (不含運)</td>
+                                <td class="text-end pe-4">${{ number_format($order->price - $order->discount) }}</td>
+                            </tr>
+                            <tr>
+                                <td class="col-7 table-light">運費</td>
+                                <td class="text-end pe-4">${{ number_format($order->dlv_fee) }}</td>
+                            </tr>
+                            <tr>
+                                <td class="col-7 table-light">總金額</td>
+                                <td class="fw-bold text-end pe-4">${{ number_format($order->total_price) }}</td>
+                            </tr>
+                            <tr>
+                                <td class="col-7 table-light lh-sm">預計獲得<a href="#" class="-text">紅利積點</a></td>
+                                <td class="text-end pe-4">-</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         @endif
 
-            <div id="submitDiv">
-                <div class="col-auto">
-                    @if(false == isset($subOrderId))
-                        <button type="submit" class="btn btn-primary px-4">列印整張訂購單</button>
-                        <a href="{{ Route('cms.order.index') }}" class="btn btn-outline-primary px-4" role="button">返回列表</a>
-                    @else
-                        <a href="{{ Route('cms.delivery.index') }}" class="btn btn-outline-primary px-4" role="button">返回列表</a>
-                    @endif
-                </div>
+        <div id="submitDiv">
+            <div class="col-auto">
+                @if (false == isset($subOrderId))
+                    <button type="submit" class="btn btn-primary px-4">列印整張訂購單</button>
+                    <a href="{{ Route('cms.order.index') }}" class="btn btn-outline-primary px-4" role="button">返回列表</a>
+                @else
+                    <a href="{{ Route('cms.delivery.index') }}" class="btn btn-outline-primary px-4"
+                        role="button">返回列表</a>
+                @endif
             </div>
+        </div>
     </form>
 @endsection
 @once
@@ -359,9 +354,9 @@
             .table.table-bordered:not(.table-sm) tr:not(.table-light) {
                 height: 70px;
             }
+
         </style>
     @endpush
     @push('sub-scripts')
     @endpush
 @endonce
-
