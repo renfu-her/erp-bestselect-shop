@@ -96,37 +96,6 @@
                             </table>
                         </div>
                     </div>
-                    {{-- 優惠列表 --}}
-                    {{-- <div class="card-body px-4 py-0">
-                        <div class="table-responsive tableOverBox">
-                            <table class="table tableList table-sm mb-0">
-                                <thead class="table-light text-secondary">
-                                    <tr>
-                                        <th scope="col" class="col-1 text-center">優惠類型</th>
-                                        <th scope="col">優惠名稱</th>
-                                        <th scope="col" class="col-2 text-end">優惠內容</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="-appendClone">
-                                    <tr>
-                                        <td>任選</td>
-                                        <td>任選3件500</td>
-                                        <td class="text-end text-danger">- $568</td>
-                                    </tr>
-                                    <tr>
-                                        <td>優惠劵</td>
-                                        <td>【QII9ANXNY】新手禮包</td>
-                                        <td class="text-end text-danger">- $100</td>
-                                    </tr>
-                                    <tr>
-                                        <td>贈品</td>
-                                        <td>-</td>
-                                        <td class="text-end">滑鼠墊</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div> --}}
                     {{-- 運費 --}}
                     <div class="card-body px-4 py-2 border-top">
                         <div class="d-flex lh-lg">
@@ -142,7 +111,7 @@
                         <label class="form-label">優惠券代碼</label>
                         <div class="d-flex">
                             <input type="text" class="form-control col" name="" placeholder="請輸入優惠券代碼">
-                            <button type="button" class="btn btn-primary mx-1 px-4 col-auto">確認</button>
+                            <button type="button" class="btn btn-outline-primary mx-1 px-4 col-auto">確認</button>
                         </div>
                     </div>
                     <div class="col-12 mb-3">
@@ -151,7 +120,7 @@
                         </label>
                         <div class="d-flex">
                             <input type="text" class="form-control col" name="" placeholder="請輸入會員紅利折抵點數">
-                            <button type="button" class="btn btn-primary mx-1 px-4 col-auto">確認</button>
+                            <button type="button" class="btn btn-outline-primary mx-1 px-4 col-auto">確認</button>
                         </div>
                     </div>
                 </div>

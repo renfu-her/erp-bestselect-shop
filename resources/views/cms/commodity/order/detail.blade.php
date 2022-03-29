@@ -131,17 +131,15 @@
             ])>
                 <div class="card-header px-4 py-3 d-flex align-items-center bg-white flex-wrap justify-content-end">
                     <strong class="flex-grow-1 mb-0">{{ $subOrder->ship_event }}</strong>
-                    @if (true == isset($subOrderId))
-                        <div class="d-flex">
-                            <a class="btn btn-sm btn-success -in-header"
-                                href="{{ Route('cms.logistic.changeLogisticStatus',['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id],true) }}">配送狀態</a>
-                            <a class="btn btn-sm btn-success -in-header"
-                                href="{{ Route('cms.logistic.create',['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id],true) }}">物流設定</a>
-                            <a class="btn btn-sm btn-success -in-header"
-                                href="{{ Route('cms.delivery.create',['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id],true) }}">出貨審核</a>
-                            <button type="button" class="btn btn-sm btn-primary -in-header">列印銷貨單</button>
-                            <button type="button" class="btn btn-sm btn-primary -in-header">列印出貨單</button>
-                        </div>
+                    <span class="badge -badge fs-6">{{ $subOrder->ship_category_name }}</span>
+                    @if(true == isset($subOrderId))
+                    <div class="col-12 d-flex justify-content-end mt-2" style="margin-bottom: -0.5rem;">
+                        <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">配送狀態</a>
+                        <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">物流設定</a>
+                        <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">出貨審核</a>
+                        <button type="button" class="btn btn-sm btn-primary -in-header">列印銷貨單</button>
+                        <button type="button" class="btn btn-sm btn-primary -in-header">列印出貨單</button>
+                    </div>
                     @endif
                 </div>
                 <div class="card-body px-4">
