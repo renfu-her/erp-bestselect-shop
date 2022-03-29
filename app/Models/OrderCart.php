@@ -62,7 +62,9 @@ class OrderCart extends Model
     {
         $shipmentGroup = [];
         $shipmentKeys = [];
-        $order = ['total_price' => 0, 'total_dlv_fee' => 0, 'shipments' => [], 'discounts' => []];
+        $order = ['total_price' => 0, 'total_dlv_fee' => 0,
+            'shipments' => [], 'discounts' => [],
+            'coupons' => []];
         foreach ($data as $value) {
             $style = Product::productStyleList(null, null, null, ['price' => 1])->where('s.id', $value['product_style_id'])
                 ->get()->first();
@@ -156,12 +158,20 @@ class OrderCart extends Model
 
         $discount = Discount::calculatorDiscount($order['total_price']);
 
+        if ($discount) {
+            $order['discounts'][] = $discount['discount'];
+            foreach ($discount['coupons'] as $coupon) {
+                $order['discounts'][] = $coupon;
+            }
+        }
+
         $order['origin_price'] = $discount['origin_price'];
-        $order['total_price'] = $discount['result_price'];
+        $order['total_price'] = $discount['result_price'] + $order['total_dlv_fee'];
         $order['total_discount_price'] = isset($discount['discount']->currentDiscount) ? $discount['discount']->currentDiscount : null;
-        $order['discounts'][] = $discount['discount'];
+
         $order['shipments'] = $shipmentGroup;
         $order['success'] = 1;
+
         return $order;
 
     }

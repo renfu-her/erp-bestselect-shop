@@ -21,9 +21,10 @@ class CreateOrderTable extends Migration
             $table->string('status_code', 20)->nullable()->comment('訂單狀態代碼');
             $table->string('status', 20)->nullable()->comment('訂單狀態');
             $table->integer('rcode')->nullable()->comment('rcode消費者id');
+            $table->integer('dlv_fee')->default(0)->comment('運費');
+            $table->integer('price')->default(0)->comment('小計'); 
             $table->integer('total_price')->default(0)->comment('總金額');
-            $table->integer('origin_price')->default(0)->comment('原始金額');
-            $table->integer('discount')->default(0)->comment('優惠金額');
+            $table->integer('discount')->default(0)->comment('折扣');
             $table->string('note')->nullable()->comment('備註');
             $table->timestamps();
         });
@@ -101,16 +102,24 @@ class CreateOrderTable extends Migration
 
         Schema::create('ord_discounts', function (Blueprint $table) {
             $table->id();
-            $table->string('order_type',10)->comment('訂單類別:main,sub');
+            $table->string('order_type', 10)->comment('訂單類別:main,sub');
             $table->integer('order_id')->comment('訂單類別id');
+            $table->integer('sort')->default(0)->comment('訂單類別id');
 
             $table->string('title')->nullable()->comment('名稱');
-            $table->string('sn')->nullable()->comment('序號');      
-            $table->string('category_title',30)->comment('類別名稱:全館,優惠券');
-            $table->string('method_title',30)->comment('優惠方式標題');
+            $table->string('sn')->nullable()->comment('序號');
+            $table->string('category_title', 30)->comment('類別名稱:全館,優惠券');
+            $table->string('category_code', 10)->comment('類別名稱代碼');
+
+            $table->string('method_title', 30)->comment('優惠方式標題');
+            $table->string('method_code', 10)->comment('優惠方式code');
+
+            $table->integer('extra_id')->nullable()->comment('特殊id');
+            $table->string('extra_title', 100)->nullable()->comment('特殊項目名稱');
+
             $table->integer('discount')->nullable()->comment('折扣金額');
             $table->tinyInteger('is_grand_total')->default(0)->comment('是否累計折扣');
-            
+
         });
 
     }
@@ -130,9 +139,5 @@ class CreateOrderTable extends Migration
         Schema::dropIfExists('ord_order_flow');
         Schema::dropIfExists('ord_discounts');
 
-        
-        
-
     }
 }
-

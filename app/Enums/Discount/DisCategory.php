@@ -36,4 +36,24 @@ final class DisCategory extends Helper
         return $result;
     }
 
+    public static function getSort($value): string
+    {
+        $result = '';
+        switch ($value) {
+            case self::coupon:
+                $result = 9;
+                break;
+            case self::code:
+                $result = 2;
+                break;
+            case self::normal:
+                $result = 1;
+                break;
+            default:
+                $result = parent::getSort($value);
+                break;
+        }
+        return $result;
+    }
+
 }
