@@ -225,7 +225,7 @@ class Delivery extends Model
     }
 
     //取得物流頁顯示的 子訂單-出貨商品列表
-    public static function getOrderListToLogistic($order_id = null, $sub_order_id = null)
+    public static function getOrderListToLogistic($delivery_id, $order_id = null, $sub_order_id = null)
     {
         $sub_rec_depot = DB::table('dlv_receive_depot')
             ->select('dlv_receive_depot.delivery_id'
@@ -260,25 +260,26 @@ class Delivery extends Model
             );
 
         $query = DB::table(DB::raw("({$sub_rec_depot->toSql()}) as rec_depot"))
-            ->leftJoinSub($sub_orders, 'orders', function($join) {
+            ->leftJoinSub($sub_orders, 'orders', function($join) use($delivery_id) {
                 $join->on('orders.sub_order_id', '=', 'rec_depot.event_item_id');
+                $join->where('rec_depot.delivery_id', $delivery_id);
             })
             ->whereNotNull('rec_depot.delivery_id')
             ->whereNotNull('orders.item_id')
             ->select('*');
 
         if (isset($order_id)) {
-            $query->whereIn('ord_items.order_id', $order_id);
+            $query->where('orders.order_id', $order_id);
         }
         if (isset($sub_order_id)) {
-            $query->whereIn('ord_items.sub_order_id', $sub_order_id);
+            $query->where('orders.sub_order_id', $sub_order_id);
         }
 
         return $query;
     }
 
     //取得物流頁顯示的 寄倉商品列表
-    public static function getCsnListToLogistic($consignment_id = null)
+    public static function getCsnListToLogistic($delivery_id, $consignment_id = null)
     {
         $sub_rec_depot = DB::table('dlv_receive_depot')
             ->select('dlv_receive_depot.delivery_id'
@@ -313,8 +314,9 @@ class Delivery extends Model
             );
 
         $query = DB::table(DB::raw("({$sub_rec_depot->toSql()}) as rec_depot"))
-            ->leftJoinSub($sub_orders, 'csn', function($join) {
+            ->leftJoinSub($sub_orders, 'csn', function($join) use($delivery_id) {
                 $join->on('csn.item_id', '=', 'rec_depot.event_item_id');
+                $join->where('rec_depot.delivery_id', $delivery_id);
             })
             ->whereNotNull('rec_depot.delivery_id')
             ->whereNotNull('csn.item_id')

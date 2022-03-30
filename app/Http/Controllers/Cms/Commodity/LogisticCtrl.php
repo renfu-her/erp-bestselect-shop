@@ -37,7 +37,7 @@ class LogisticCtrl extends Controller
             if (null != $delivery) {
                 $delivery_id = $delivery->id;
             }
-            $deliveryList = Delivery::getOrderListToLogistic($sub_order->order_id, $sub_order->id)->get();
+            $deliveryList = Delivery::getOrderListToLogistic($delivery_id, $sub_order->order_id, $sub_order->id)->get();
         } else if (Event::consignment()->value == $event) {
             $returnAction = Route('cms.consignment.edit', ['id' => $eventId ]);
 
@@ -46,7 +46,7 @@ class LogisticCtrl extends Controller
             if (null != $delivery) {
                 $delivery_id = $delivery->id;
             }
-            $deliveryList = Delivery::getCsnListToLogistic($eventId)->get();
+            $deliveryList = Delivery::getCsnListToLogistic($delivery_id, $eventId)->get();
         }
 
         if (null == $delivery) {
