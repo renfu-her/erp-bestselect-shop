@@ -22,7 +22,7 @@ class CreateOrderTable extends Migration
             $table->string('status', 20)->nullable()->comment('訂單狀態');
             $table->integer('rcode')->nullable()->comment('rcode消費者id');
             $table->integer('dlv_fee')->default(0)->comment('運費');
-            $table->integer('price')->default(0)->comment('小計'); 
+            $table->integer('origin_price')->default(0)->comment('小計'); 
             $table->integer('total_price')->default(0)->comment('總金額');
             $table->integer('discount')->default(0)->comment('折扣');
             $table->integer('discounted_price')->default(0)->comment('折扣後金額');
@@ -49,6 +49,8 @@ class CreateOrderTable extends Migration
             $table->integer('total_price')->default(0)->comment('總費用');
             $table->integer('origin_price')->default(0)->comment('原始金額');
             $table->integer('discount')->default(0)->comment('優惠金額');
+            $table->integer('discounted_price')->default(0)->comment('折扣後金額');
+
             $table->string('statu', 10)->nullable()->comment('物流狀態');
             $table->string('statu_code', 10)->nullable()->comment('物流狀態代碼');
         });
@@ -63,7 +65,10 @@ class CreateOrderTable extends Migration
             $table->integer('price')->comment('單價');
             $table->integer('qty')->comment('數量');
             $table->string('type', 20)->nullable()->comment('商品/贈品');
-            $table->integer('total_price')->comment('小計');
+            $table->integer('origin_price')->default(0)->comment('原價');
+            $table->integer('total_price')->default(0)->comment('總價');
+            $table->integer('discount')->default(0)->comment('優惠金額');
+            $table->integer('discounted_price')->default(0)->comment('折扣後金額');
         });
 
         Schema::create('ord_address', function (Blueprint $table) {
@@ -103,7 +108,7 @@ class CreateOrderTable extends Migration
 
         Schema::create('ord_discounts', function (Blueprint $table) {
             $table->id();
-            $table->string('order_type', 10)->comment('訂單類別:main,sub');
+            $table->string('order_type', 10)->comment('訂單類別:main,sub,item');
             $table->integer('order_id')->comment('訂單類別id');
             $table->integer('sort')->default(0)->comment('訂單類別id');
 

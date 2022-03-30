@@ -65,6 +65,15 @@ class OrderCart extends Model
         $order = ['total_price' => 0, 'total_dlv_fee' => 0,
             'shipments' => [], 'discounts' => [],
             'coupons' => []];
+
+        $discountProductIds = [1, 2];
+        $discountedCouponProducts = [
+            'total_price' => 0,
+            'styles' => [],
+            'method' => 'percent',
+            'discount_value' => 90,
+        ];
+
         foreach ($data as $value) {
             $style = Product::productStyleList(null, null, null, ['price' => 1])->where('s.id', $value['product_style_id'])
                 ->get()->first();
@@ -77,7 +86,7 @@ class OrderCart extends Model
                     return ['success' => 0, 'error_msg' => '購買超過上限', 'event' => 'product', 'event_id' => $value['product_style_id']];
                 }
             }
-
+            // shipment
             switch ($value['shipment_type']) {
                 case 'pickup':
                     $shipment = Product::getPickup($value['product_id'])->where('depot.id', $value['shipment_event_id'])->get()->first();
@@ -120,7 +129,34 @@ class OrderCart extends Model
             $shipmentGroup[$idx]->products[] = $style;
             $shipmentGroup[$idx]->totalPrice += $style->total_price;
 
+            if (in_array($style->product_id, $discountProductIds)) {
+
+                $discountedCouponProducts['styles'][] = [
+                    'groupIdx' => $idx,
+                    'productIdx' => count($shipmentGroup[$idx]->products) - 1,
+                    'total_price' => $style->total_price,
+                ];
+
+                $discountedCouponProducts['total_price'] = $discountedCouponProducts['total_price'] + $style->total_price;
+            }
+
         }
+        /*
+         //coupon prototype 
+         
+        $couponDiscount = $discountedCouponProducts['total_price'] - $discountedCouponProducts['total_price'] / 100 * $discountedCouponProducts['discount_value'];
+        $proportion = $discountedCouponProducts['total_price'] / $couponDiscount;
+        // dd($proportion);
+        foreach ($discountedCouponProducts['styles'] as $key => $value) {
+            $discountedCouponProducts['styles'][$key]['discount'] = floor($value['total_price'] / $proportion);
+            $groupIdx = $discountedCouponProducts['styles'][$key]['groupIdx'];
+            $styleIdx = $discountedCouponProducts['styles'][$key]['productIdx'];
+            // dd( $shipmentGroup[$groupIdx]->products[$styleIdx]->discount);
+            $shipmentGroup[$groupIdx]->products[$styleIdx]->discount = $discountedCouponProducts['styles'][$key]['discount'];
+            $shipmentGroup[$groupIdx]->totalPrice -= $discountedCouponProducts['styles'][$key]['discount'];
+        }
+        */
+     
         foreach ($shipmentGroup as $key => $ship) {
             //  dd($ship);
             switch ($ship->category) {
@@ -157,24 +193,22 @@ class OrderCart extends Model
         }
 
         $discount = Discount::calculatorDiscount($order['total_price']);
-       
+
         if ($discount) {
-            if($discount['discount']){
+            if ($discount['discount']) {
                 $order['discounts'][] = $discount['discount'];
             }
-           
+
             foreach ($discount['coupons'] as $coupon) {
                 $order['discounts'][] = $coupon;
             }
         }
 
-       
-       
         $order['origin_price'] = $discount['origin_price'];
         $order['total_price'] = $discount['result_price'] + $order['total_dlv_fee'];
         $order['total_discount_price'] = isset($discount['discount']->currentDiscount) ? $discount['discount']->currentDiscount : 0;
         $order['discounted_price'] = $order['origin_price'] - $order['total_discount_price'];
-      //  dd($order);
+        //  dd($order);
         $order['shipments'] = $shipmentGroup;
         $order['success'] = 1;
 
