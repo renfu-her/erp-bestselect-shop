@@ -277,6 +277,20 @@ Breadcrumbs::for('cms.depot.edit', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.depot.index');
     $trail->push('編輯');
 });
+Breadcrumbs::for('cms.depot.product-index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.depot.index');
+    $trail->push('寄倉選品');
+});
+Breadcrumbs::for('cms.depot.product-create', function (BreadcrumbTrail $trail, $id) {
+    $trail->parent('cms.depot.index');
+    $trail->push('寄倉選品', route('cms.depot.product-index', ['id'=>$id]));
+    $trail->push('選品');
+});
+Breadcrumbs::for('cms.depot.product-edit', function (BreadcrumbTrail $trail, $id) {
+    $trail->parent('cms.depot.index');
+    $trail->push('寄倉選品', route('cms.depot.product-index', ['id'=>$id]));
+    $trail->push('修改');
+});
 
 // 廠商管理
 Breadcrumbs::for('cms.supplier.index', function (BreadcrumbTrail $trail) {
