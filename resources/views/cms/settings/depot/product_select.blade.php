@@ -206,7 +206,8 @@
                             if(! target.prop('disabled')){
                                 let o_price = parseInt($(this).find('td span.o_price').text(), 10);
 
-                                target.val(+(Math.round((o_price + o_price * pmp / 100) + "e+2")  + "e-2"));
+                                // target.val(+(Math.round((o_price + o_price * pmp / 100) + "e+2")  + "e-2"));
+                                target.val( +(Math.round(o_price + o_price * pmp / 100)) );
                             }
                         }
                     });
