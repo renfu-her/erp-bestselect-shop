@@ -6,6 +6,7 @@
         @csrf
         <div class="card shadow p-4 mb-4">
             <h6>商品列表</h6>
+            <input type="hidden" name="depot_id" value="{{$depot_id ?? null}}">
             <div class="table-responsive tableOverBox">
                 <table id="Pord_list" class="table table-striped tableList">
                     <thead>
@@ -181,7 +182,6 @@
             const DelUrl = "{{ Route('cms.delivery.delete', ['event'=>$event, 'eventId'=>$eventId, 'receiveDepotId'=>'#'], true)}}".replace('#', '');
             const DeliveryId = @json($delivery_id);
             const Readonly = @json(isset($delivery->audit_date));
-            const depot_id = @json($depott ?? null); //判斷若有值，則需在apiUrl.inboundList調用
 
             // init
             DvySumExportQty();

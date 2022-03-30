@@ -1,11 +1,11 @@
 $(function () {
-    /*** 
+    /***
      * 出貨審核
      **/
 
     /*** 定義 ***/
     let addInboundModal = new bootstrap.Modal(document.getElementById('addInbound'));
-    
+
     // 入庫單
     let selectedInboundId = [];
     let selectedInbound = [
@@ -42,7 +42,7 @@ $(function () {
         cloneElem: '.-cloneElem.--selectedIB',
         autoRemove: false
     };
-    
+
     /*** 綁定事件 ***/
     // 加入入庫單視窗
     $('#Pord_list tbody tr.--rece button.-add').off('click').on('click', function(e) {
@@ -71,7 +71,7 @@ $(function () {
 
 
     /*** fn ***/
-    
+
     // 入庫單 API
     function getInboundList(target) {
         const $input = $(target).prev('input');
@@ -80,6 +80,9 @@ $(function () {
         const Data = {
             product_style_id: sid
         };
+        if($('input[name="depot_id"]').val()) {
+            Data.depot_id = $('input[name="depot_id"]').val();
+        }
         let title = '';
         if ($input.data('subtitle')) {
             title = `[ ${$input.data('title')} ] ${$input.data('subtitle')}`;
@@ -128,7 +131,7 @@ $(function () {
                 } else {
                     toast.show(res.msg, { title: '發生錯誤', type: 'danger' });
                 }
-                
+
             }).catch((err) => {
                 console.error(err);
                 toast.show('發生錯誤', { type: 'danger' });
