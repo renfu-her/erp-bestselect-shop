@@ -31,6 +31,7 @@ class CreateCsnConsignmentTable extends Migration
             $table->string('create_user_name', 20)->nullable()->comment('建單者名稱');
             $table->dateTime('scheduled_date')->nullable()->comment('預計入庫日期');
             $table->dateTime('audit_date')->nullable()->comment('審核日期');
+            $table->dateTime('close_date')->nullable()->comment('結案日期');
             $table->unsignedBigInteger('audit_user_id')->nullable()->comment('審核者ID');
             $table->string('audit_user_name', 20)->nullable()->comment('審核者名稱');
             $table->tinyInteger('audit_status')->default(0)->comment('審核狀態 0:未審核 / 1:核可 / 2:否決');

@@ -28,9 +28,9 @@ class CreatePcsPurchaseInboundTable extends Migration
             $table->integer('inbound_user_id')->nullable()->comment('入庫者');
             $table->string('inbound_user_name', 20)->nullable()->comment('入庫者名稱');
             $table->integer('sale_num')->default(0)->comment('銷售數量 出貨時做計算');
-            $table->integer('csn_num')->default(0)->comment('寄倉數量 寄倉時加 寄倉到達後減，並加回入庫數量');
-            $table->string('csn_origin_event')->nullable()->comment('寄倉來源事件');
-            $table->string('csn_origin_event_id')->nullable()->comment('寄倉來源ID');
+            $table->integer('csn_num')->default(0)->comment('寄倉數量 寄倉時加 寄倉退回後減，並加回入庫數量');
+            $table->integer('consume_num')->default(0)->comment('被當耗材數量');
+            $table->unsignedBigInteger('origin_inbound_id')->nullable()->comment('原始入庫來源ID');
 
             $table->dateTime('close_date')->nullable()->comment('結單日期');
             $table->string('memo')->nullable()->comment('備註');

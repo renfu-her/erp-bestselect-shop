@@ -50,6 +50,7 @@ class CreateReceiveDepotTable extends Migration
             $table->string('sku', 20)->comment('商品sku');
             $table->string('product_title', 40)->comment('商品名稱');
             $table->integer('qty')->comment('數量');
+            $table->integer('csn_arrived_qty')->default(0)->comment('寄倉到貨數量');
             $table->dateTime('expiry_date')->nullable()->comment('有效期限');
             $table->dateTime('audit_date')->nullable()->comment('審核日期');
             $table->softDeletes();
