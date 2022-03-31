@@ -609,7 +609,11 @@ class Product extends Model
             ->get();
         $imageArray = [];
         foreach ($imageBuilder as $image) {
-            $imageArray[] = $image->src;
+            if (!empty($image->src)) {
+                $imageArray[] = [
+                    'src' => $image->src,
+                ];
+            }
         }
 
         $transport = $query->leftJoin('prd_product_shipment as ship', 'product.id', '=', 'ship.product_id')
