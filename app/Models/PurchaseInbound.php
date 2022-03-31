@@ -384,12 +384,18 @@ class PurchaseInbound extends Model
      * @return \Illuminate\Database\Query\Builder
      */
     public static function getSelectInboundList($param, $showNegativeVal = false) {
-        $receive_depotQuerySub = DB::table('dlv_receive_depot')
+        $receive_depotQuerySub = DB::table('dlv_delivery')
+            ->leftJoin('dlv_receive_depot', function ($join) {
+                $join->on('dlv_receive_depot.delivery_id', '=', 'dlv_delivery.id');
+                $join->where('dlv_delivery.event', '=', Event::consignment()->value);
+            })
             ->select('dlv_receive_depot.inbound_id as inbound_id'
                 , 'dlv_receive_depot.product_style_id as product_style_id'
                 , 'dlv_receive_depot.product_title as product_title'
             )
             ->selectRaw('sum(dlv_receive_depot.qty) as qty')
+            ->whereNotNull('qty')
+            ->whereNull('dlv_delivery.audit_date')
             ->whereNull('dlv_receive_depot.audit_date')
             ->whereNull('dlv_receive_depot.deleted_at')
             ->groupBy('dlv_receive_depot.inbound_id')
@@ -403,6 +409,7 @@ class PurchaseInbound extends Model
                 , 'dlv_consum.product_title as product_title'
             )
             ->selectRaw('sum(dlv_consum.qty) as qty')
+            ->whereNotNull('qty')
             ->whereNull('dlv_logistic.audit_date')
             ->whereNull('dlv_logistic.deleted_at')
             ->groupBy('dlv_consum.inbound_id')
@@ -411,18 +418,21 @@ class PurchaseInbound extends Model
 
         $receive_depotQuerySub->union($logistic_consumQuerySub);
 
+
         $rdlcQuerySub = DB::table(DB::raw("({$receive_depotQuerySub->toSql()}) as tb_rd"))
             ->select('tb_rd.inbound_id as inbound_id'
                 , 'tb_rd.product_style_id as product_style_id'
                 , 'tb_rd.product_title as product_title'
             )
             ->selectRaw('sum(tb_rd.qty) as qty')
+            ->mergeBindings($receive_depotQuerySub)
+            ->whereNotNull('qty')
             ->groupBy('tb_rd.inbound_id')
             ->groupBy('tb_rd.product_style_id')
             ->groupBy('tb_rd.product_title');
 
         $calc_qty = '(case when tb_rd.qty is null then inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num
-       else inbound.inbound_num - inbound.sale_num - inbound.csn_num - tb_rd.qty end)';
+       else inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num - tb_rd.qty end)';
 
         $result = DB::table('pcs_purchase_inbound as inbound')
             ->leftJoin('prd_product_styles as style', 'style.id', '=', 'inbound.product_style_id')
