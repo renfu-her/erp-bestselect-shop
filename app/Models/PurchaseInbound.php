@@ -71,8 +71,10 @@ class PurchaseInbound extends Model
                 $is_pcs_inbound = true;
                 $rePcsItemUAN = PurchaseItem::updateArrivedNum($purchase_item_id, $inbound_num, $can_tally);
             } else if ($event == LogEvent::consignment()->value) {
+                // 個別紀錄入庫單到達數
                 $rePcsItemUAN = ReceiveDepot::updateCSNArrivedNum($purchase_item_id, $inbound_num);
-                $rePcsItemUAN = ConsignmentItem::updateArrivedNum($purchase_item_id, $inbound_num);
+//                // 紀錄該商品款式到達數總覽
+//                $rePcsItemUAN = ConsignmentItem::updateArrivedNum($purchase_item_id, $inbound_num);
             }
             if ($rePcsItemUAN['success'] == 0) {
                 DB::rollBack();

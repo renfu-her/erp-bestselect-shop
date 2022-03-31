@@ -48,8 +48,6 @@ class CreateCsnConsignmentTable extends Migration
             $table->string('sku', 20)->comment('sku');
             $table->decimal('price')->default(0)->comment('寄倉價(單價)');
             $table->integer('num')->comment('數量');
-            $table->integer('arrived_num')->default(0)->comment('到貨數量');
-//            $table->tinyInteger('receive_status')->default(0)->comment('入倉狀態 0:未入 / 1:正常 / 2:缺少 / 3:短缺');
             $table->string('memo')->nullable()->comment('備註');
             $table->timestamps();
             $table->softDeletes();

@@ -9,6 +9,7 @@ use App\Models\ConsignmentItem;
 use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\PurchaseInbound;
+use App\Models\ReceiveDepot;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -142,23 +143,11 @@ class ConsignmentCtrl extends Controller
 
     public function inbound(Request $request, $id) {
         $purchaseData  = Consignment::getData($id)->get()->first();
-        $purchaseItemList = ConsignmentItem::where('consignment_id', $id)
-            ->select('*', 'id as item_id')
-            ->selectRaw('( COALESCE(num, 0) - COALESCE(arrived_num, 0) ) as should_enter_num')
-            ->get();
+        $purchaseItemList = ReceiveDepot::getShouldEnterNumDataList(Event::consignment()->value, $id);
 
         $inboundList = PurchaseInbound::getInboundList(['event' => Event::consignment()->key, 'purchase_id' => $id])->get()->toArray();
         $inboundOverviewList = PurchaseInbound::getOverviewInboundList(Event::consignment()->key, $id)->get()->toArray();
-        $purchaseItemList = DB::table('dlv_delivery as delivery')
-            ->leftJoin('dlv_receive_depot as rcv_depot', 'rcv_depot.delivery_id', '=', 'delivery.id')
-            ->select('*'
-                , 'rcv_depot.id as rcv_deppot_id'
-            )
-            ->selectRaw('DATE_FORMAT(expiry_date,"%Y-%m-%d") as expiry_date')
-            ->selectRaw('( COALESCE(rcv_depot.qty, 0) - COALESCE(rcv_depot.csn_arrived_qty, 0) ) as should_enter_num')
-            ->where('delivery.event', Event::consignment()->value)
-            ->where('delivery.event_id', $id)
-            ->whereNotNull('rcv_depot.id');
+
 
         $depotList = Depot::all()->toArray();
         return view('cms.commodity.consignment.inbound', [

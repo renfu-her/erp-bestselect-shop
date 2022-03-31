@@ -308,7 +308,6 @@ class Delivery extends Model
                 , 'csn_consignment_items.sku'
                 , 'csn_consignment_items.price'
                 , 'csn_consignment_items.num'
-                , 'csn_consignment_items.arrived_num'
                 , 'csn_consignment_items.memo'
                 , 'csn_consignment_items.created_at'
             );
