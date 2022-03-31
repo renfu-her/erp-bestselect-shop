@@ -19,14 +19,14 @@ class PurchaseInbound extends Model
     protected $table = 'pcs_purchase_inbound';
     protected $guarded = [];
 
-    public static function createInbound($event, $event_id, $purchase_item_id, $product_style_id, $expiry_date = null, $inbound_date = null, $inbound_num = 0, $depot_id = null, $depot_name = null, $inbound_user_id = null, $inbound_user_name = null, $memo = null, $origin_inbound_id = null)
+    public static function createInbound($event, $event_id, $event_item_id, $product_style_id, $expiry_date = null, $inbound_date = null, $inbound_num = 0, $depot_id = null, $depot_name = null, $inbound_user_id = null, $inbound_user_name = null, $memo = null, $origin_inbound_id = null)
     {
         $can_tally = Depot::can_tally($depot_id);
 
         return DB::transaction(function () use (
             $event
             , $event_id
-            , $purchase_item_id
+            , $event_item_id
             , $product_style_id
             , $expiry_date
             , $inbound_date
@@ -49,7 +49,7 @@ class PurchaseInbound extends Model
                 'sn' => $sn,
                 "event" => $event,
                 "event_id" => $event_id,
-                "purchase_item_id" => $purchase_item_id,
+                "purchase_item_id" => $event_item_id,
                 "product_style_id" => $product_style_id,
                 "expiry_date" => $expiry_date,
                 "inbound_date" => $inbound_date,
@@ -69,12 +69,10 @@ class PurchaseInbound extends Model
             $rePcsItemUAN = ['success' => 0, 'error_msg' => "未執行入庫"];
             if ($event == LogEvent::purchase()->value) {
                 $is_pcs_inbound = true;
-                $rePcsItemUAN = PurchaseItem::updateArrivedNum($purchase_item_id, $inbound_num, $can_tally);
+                $rePcsItemUAN = PurchaseItem::updateArrivedNum($event_item_id, $inbound_num, $can_tally);
             } else if ($event == LogEvent::consignment()->value) {
                 // 個別紀錄入庫單到達數
-                $rePcsItemUAN = ReceiveDepot::updateCSNArrivedNum($purchase_item_id, $inbound_num);
-//                // 紀錄該商品款式到達數總覽
-//                $rePcsItemUAN = ConsignmentItem::updateArrivedNum($purchase_item_id, $inbound_num);
+                $rePcsItemUAN = ReceiveDepot::updateCSNArrivedNum($event_item_id, $inbound_num);
             }
             if ($rePcsItemUAN['success'] == 0) {
                 DB::rollBack();
@@ -110,16 +108,26 @@ class PurchaseInbound extends Model
                 //刪除
                 //判斷是否已結單 有則不能刪
                 $purchaseData = null;
-                if ($event == LogEvent::purchase()->value) {
+                if ($event == Event::purchase()->value) {
                     $purchaseData = DB::table('pcs_purchase as purchase')
                         ->leftJoin('pcs_purchase_inbound as inbound', 'inbound.event_id', '=', 'purchase.id')
                         ->select('purchase.close_date as close_date')
-                        ->where('purchase.id', '=', $inboundDataGet->purchase_id)
+                        ->where('purchase.id', '=', $inboundDataGet->event_id)
                         ->where('inbound.event', '=', $event)
                         ->get()->first();
-                }
-                if (null != $purchaseData && null != $purchaseData->close_date) {
-                    return ['success' => 0, 'error_msg' => 'purchase already close, so cant be delete'];
+                    if (null != $purchaseData && null != $purchaseData->close_date) {
+                        return ['success' => 0, 'error_msg' => 'purchase already close, so cant be delete'];
+                    }
+                } else if ($event == Event::consignment()->value) {
+                    $purchaseData = DB::table('csn_consignment as consignment')
+                        ->leftJoin('pcs_purchase_inbound as inbound', 'inbound.event_id', '=', 'consignment.id')
+                        ->select('consignment.close_date as close_date')
+                        ->where('consignment.id', '=', $inboundDataGet->event_id)
+                        ->where('inbound.event', '=', $event)
+                        ->get()->first();
+                    if (null != $purchaseData && null != $purchaseData->close_date) {
+                        return ['success' => 0, 'error_msg' => 'consignment already close, so cant be delete'];
+                    }
                 }
                 //判斷是否有賣出過 有則不能刪
                 //寫入ProductStock
@@ -134,9 +142,10 @@ class PurchaseInbound extends Model
                     $is_pcs_inbound = false;
                     if ($event == LogEvent::purchase()->value) {
                         $is_pcs_inbound = true;
-                        $rePcsItemUAN = PurchaseItem::updateArrivedNum($inboundDataGet->purchase_item_id, $qty, $can_tally);
+                        $rePcsItemUAN = PurchaseItem::updateArrivedNum($inboundDataGet->event_item_id, $qty, $can_tally);
                     } else if ($event == LogEvent::consignment()->value) {
-                        $rePcsItemUAN = ConsignmentItem::updateArrivedNum($inboundDataGet->purchase_item_id, $qty);
+                        // 個別紀錄入庫單到達數
+                        $rePcsItemUAN = ReceiveDepot::updateCSNArrivedNum($inboundDataGet->event_item_id, $qty);
                     }
 
                     if ($rePcsItemUAN['success'] == 0) {
