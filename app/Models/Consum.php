@@ -46,6 +46,11 @@ class Consum extends Model
                         if (0 > $inbound->qty - $val) {
                             return ['success' => 0, 'error_msg' => "庫存數量不足"];
                         }
+
+                        //物流單寫入使用耗材數量
+                        PurchaseInbound::where('id', $inbound->inbound_id)
+                            ->update(['consume_num' => DB::raw("consume_num + $val")]);
+
                         $reSD = Consum::createData(
                             $logistic_id, //出貨單ID
                             $inbound->inbound_id,
