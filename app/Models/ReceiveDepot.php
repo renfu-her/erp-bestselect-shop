@@ -108,7 +108,7 @@ class ReceiveDepot extends Model
     }
 
     //將收貨資料變更為成立
-    public static function setUpShippingData($delivery_id, $user_id, $user_name) {
+    public static function setUpShippingData($event, $delivery_id, $user_id, $user_name) {
         $dataGet = null;
         if (null != $delivery_id) {
             $data = ReceiveDepot::where('delivery_id', $delivery_id);
@@ -116,11 +116,11 @@ class ReceiveDepot extends Model
         }
         $result = null;
         if (null != $dataGet && 0 < count($dataGet)) {
-                $result = DB::transaction(function () use ($data, $dataGet, $delivery_id, $user_id, $user_name
+                $result = DB::transaction(function () use ($data, $dataGet, $event, $delivery_id, $user_id, $user_name
                 ) {
                     //扣除入庫單庫存
                     foreach ($dataGet as $item) {
-                        $reShipIb = PurchaseInbound::shippingInbound($item->inbound_id, $item->qty);
+                        $reShipIb = PurchaseInbound::shippingInbound($event, $item->inbound_id, $item->qty);
                         if ($reShipIb['success'] == 0) {
                             DB::rollBack();
                             return $reShipIb;
@@ -146,6 +146,18 @@ class ReceiveDepot extends Model
     public static function deleteById($id)
     {
         ReceiveDepot::where('id', $id)->delete();
+    }
+
+    //更新寄倉到貨數量
+    public static function updateCSNArrivedNum($id, $addnum) {
+        return DB::transaction(function () use ($id, $addnum
+        ) {
+            $updateArr = [];
+            $updateArr['csn_arrived_qty'] = DB::raw("csn_arrived_qty + $addnum");
+            ReceiveDepot::where('id', $id)
+                ->update($updateArr);
+            return ['success' => 1, 'error_msg' => ""];
+        });
     }
 
     public static function getDataList($param) {

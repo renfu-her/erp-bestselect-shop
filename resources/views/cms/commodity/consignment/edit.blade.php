@@ -16,6 +16,8 @@
     <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">配送狀態</a>
     <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">物流設定</a>
     <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">出貨審核</a>
+
+    <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.consignment.inbound', ['id' => $id], true) }}">入庫審核</a>
     @endif
     <form id="form1" method="post" action="{{ $formAction }}">
         @method('POST')
@@ -405,10 +407,10 @@
                 let _URL = `${Laravel.apiUrl.productStyles}?page=${page}`;
                 let Data = {
                     keyword: $('#addProduct .-searchBar input').val(),
-                    receive_depot: $('input:hidden[name="receive_depot_id"]').val()
+                    depot_id: $('input:hidden[name="receive_depot_id"]').val()
                 };
 
-                if (!Data.receive_depot) {
+                if (!Data.depot_id) {
                     toast.show('請先選擇入庫倉。', {type: 'warning', title: '條件未設'});
                     return false;
                 } else {

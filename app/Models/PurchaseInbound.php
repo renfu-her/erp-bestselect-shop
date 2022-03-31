@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Delivery\Event;
 use App\Enums\Purchase\InboundStatus;
 use App\Enums\Purchase\LogEventFeature;
 use App\Enums\Purchase\LogEvent;
@@ -18,7 +19,7 @@ class PurchaseInbound extends Model
     protected $table = 'pcs_purchase_inbound';
     protected $guarded = [];
 
-    public static function createInbound($event, $event_id, $purchase_item_id, $product_style_id, $expiry_date = null, $inbound_date = null, $inbound_num = 0, $depot_id = null, $depot_name = null, $inbound_user_id = null, $inbound_user_name = null, $memo = null)
+    public static function createInbound($event, $event_id, $purchase_item_id, $product_style_id, $expiry_date = null, $inbound_date = null, $inbound_num = 0, $depot_id = null, $depot_name = null, $inbound_user_id = null, $inbound_user_name = null, $memo = null, $origin_inbound_id = null)
     {
         $can_tally = Depot::can_tally($depot_id);
 
@@ -36,6 +37,7 @@ class PurchaseInbound extends Model
             , $inbound_user_name
             , $memo
             , $can_tally
+            , $origin_inbound_id
         ) {
 
             $sn = "IB" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
@@ -56,7 +58,8 @@ class PurchaseInbound extends Model
                 "depot_name" => $depot_name,
                 "inbound_user_id" => $inbound_user_id,
                 "inbound_user_name" => $inbound_user_name,
-                "memo" => $memo
+                "memo" => $memo,
+                "origin_inbound_id" => $origin_inbound_id
             ];
 
             $id = self::create($insert_data)->id;
@@ -68,6 +71,7 @@ class PurchaseInbound extends Model
                 $is_pcs_inbound = true;
                 $rePcsItemUAN = PurchaseItem::updateArrivedNum($purchase_item_id, $inbound_num, $can_tally);
             } else if ($event == LogEvent::consignment()->value) {
+                $rePcsItemUAN = ReceiveDepot::updateCSNArrivedNum($purchase_item_id, $inbound_num);
                 $rePcsItemUAN = ConsignmentItem::updateArrivedNum($purchase_item_id, $inbound_num);
             }
             if ($rePcsItemUAN['success'] == 0) {
@@ -156,20 +160,29 @@ class PurchaseInbound extends Model
     }
 
     //售出 更新資料
-    public static function shippingInbound($id, $sale_num = 0)
+    public static function shippingInbound($event, $id, $sale_num = 0)
     {
         return DB::transaction(function () use (
+            $event,
             $id,
             $sale_num
         ) {
             $inboundData = PurchaseInbound::where('id', '=', $id);
             $inboundDataGet = $inboundData->get()->first();
             if (null != $inboundDataGet) {
-                if (($inboundDataGet->inbound_num - $inboundDataGet->sale_num - $sale_num) < 0) {
+                if (($inboundDataGet->inbound_num - $inboundDataGet->sale_num - $inboundDataGet->csn_num - $inboundDataGet->consume_num - $sale_num) < 0) {
                     return ['success' => 0, 'error_msg' => '入庫單出貨數量超出範圍'];
                 } else {
+                    $update_arr = [];
+
+                    if (Event::purchase()->value == $event) {
+                        $update_arr['sale_num'] = DB::raw("sale_num + $sale_num");
+                    } else if (Event::consignment()->value == $event) {
+                        $update_arr['csn_num'] = DB::raw("csn_num + $sale_num");
+                    }
+
                     PurchaseInbound::where('id', $id)
-                        ->update(['sale_num' => DB::raw("sale_num + $sale_num")]);
+                        ->update($update_arr);
                     $reStockChange =PurchaseLog::stockChange($inboundDataGet->event_id, $inboundDataGet->product_style_id, $inboundDataGet->event, $id, LogEventFeature::inbound_shipping()->value, $sale_num, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
                     if ($reStockChange['success'] == 0) {
                         DB::rollBack();
@@ -254,46 +267,90 @@ class PurchaseInbound extends Model
 
         $queryTotalInboundNum = '( COALESCE(sum(items.num), 0) - COALESCE((inbound.inbound_num), 0) )'; //應進數量
 
-        $result = DB::table('pcs_purchase as purchase')
-            ->leftJoin('pcs_purchase_items as items', 'items.purchase_id', '=', 'purchase.id')
-            ->leftJoinSub($tempInboundSql, 'inbound', function($join) {
-                $join->on('inbound.event_id', '=', 'items.purchase_id');
-                $join->on('inbound.product_style_id', '=', 'items.product_style_id');
-            })
-            ->leftJoin('prd_product_styles as styles', 'styles.id', '=', 'items.product_style_id')
-            ->leftJoin('prd_products as products', 'products.id', '=', 'styles.product_id')
-            ->leftJoin('usr_users as users', 'users.id', '=', 'products.user_id')
-            ->select('purchase.id as purchase_id' //採購ID
-                , 'items.product_style_id as product_style_id' //商品款式ID
-                , 'products.title as product_title' //商品名稱
-                , 'styles.title as style_title' //款式名稱
-                , 'users.name as user_name' //商品負責人
-                , 'inbound.inbound_user_name as inbound_user_name' //入庫人員
-            )
-            ->selectRaw('min(items.sku) as sku') //款式SKU
-            ->selectRaw('sum(items.num) as num') //採購數量
-            ->selectRaw('(inbound.inbound_num) as inbound_num') //已到數量
-            ->selectRaw($queryTotalInboundNum.' AS should_enter_num') //應進數量
+        $result = null;
+        if (LogEvent::purchase()->key == $event) {
+            $result = DB::table('pcs_purchase as purchase')
+                ->leftJoin('pcs_purchase_items as items', 'items.purchase_id', '=', 'purchase.id')
+                ->leftJoinSub($tempInboundSql, 'inbound', function($join) {
+                    $join->on('inbound.event_id', '=', 'items.purchase_id');
+                    $join->on('inbound.product_style_id', '=', 'items.product_style_id');
+                })
+                ->leftJoin('prd_product_styles as styles', 'styles.id', '=', 'items.product_style_id')
+                ->leftJoin('prd_products as products', 'products.id', '=', 'styles.product_id')
+                ->leftJoin('usr_users as users', 'users.id', '=', 'products.user_id')
+                ->select('purchase.id as purchase_id' //採購ID
+                    , 'items.product_style_id as product_style_id' //商品款式ID
+                    , 'products.title as product_title' //商品名稱
+                    , 'styles.title as style_title' //款式名稱
+                    , 'users.name as user_name' //商品負責人
+                    , 'inbound.inbound_user_name as inbound_user_name' //入庫人員
+                )
+                ->selectRaw('min(items.sku) as sku') //款式SKU
+                ->selectRaw('sum(items.num) as num') //採購數量
+                ->selectRaw('(inbound.inbound_num) as inbound_num') //已到數量
+                ->selectRaw($queryTotalInboundNum.' AS should_enter_num') //應進數量
 
-            ->selectRaw('(case
+                ->selectRaw('(case
                     when '. $queryTotalInboundNum. ' = 0 and COALESCE(inbound.inbound_num, 0) <> 0 then "'.InboundStatus::getDescription(InboundStatus::normal()->value).'"
                     when COALESCE(inbound.inbound_num, 0) = 0 then "'.InboundStatus::getDescription(InboundStatus::not_yet()->value).'"
                     when COALESCE(sum(items.num), 0) < COALESCE(inbound.inbound_num) then "'.InboundStatus::getDescription(InboundStatus::overflow()->value).'"
                     when COALESCE(sum(items.num), 0) > COALESCE(inbound.inbound_num) then "'.InboundStatus::getDescription(InboundStatus::shortage()->value).'"
                 end) as inbound_type') //採購狀態
-            ->whereNull('purchase.deleted_at')
-            ->whereNull('items.deleted_at')
-            ->where('purchase.id', '=', $event_id)
-            ->groupBy('purchase.id'
-                , 'items.product_style_id'
-                , 'products.title'
-                , 'styles.title'
-                , 'users.name'
-                , 'inbound.inbound_num'
-                , 'inbound.inbound_user_name'
-            )
-            ->orderBy('purchase.id')
-            ->orderBy('items.product_style_id');
+                ->whereNull('purchase.deleted_at')
+                ->whereNull('items.deleted_at')
+                ->where('purchase.id', '=', $event_id)
+                ->groupBy('purchase.id'
+                    , 'items.product_style_id'
+                    , 'products.title'
+                    , 'styles.title'
+                    , 'users.name'
+                    , 'inbound.inbound_num'
+                    , 'inbound.inbound_user_name'
+                )
+                ->orderBy('purchase.id')
+                ->orderBy('items.product_style_id');
+        } else if (Event::consignment()->value == $event) {
+            $result = DB::table('csn_consignment as consignment')
+                ->leftJoin('csn_consignment_items as items', 'items.consignment_id', '=', 'consignment.id')
+                ->leftJoinSub($tempInboundSql, 'inbound', function($join) {
+                    $join->on('inbound.event_id', '=', 'items.consignment_id');
+                    $join->on('inbound.product_style_id', '=', 'items.product_style_id');
+                })
+                ->leftJoin('prd_product_styles as styles', 'styles.id', '=', 'items.product_style_id')
+                ->leftJoin('prd_products as products', 'products.id', '=', 'styles.product_id')
+                ->leftJoin('usr_users as users', 'users.id', '=', 'products.user_id')
+                ->select('consignment.id as consignment_id' //採購ID
+                    , 'items.product_style_id as product_style_id' //商品款式ID
+                    , 'products.title as product_title' //商品名稱
+                    , 'styles.title as style_title' //款式名稱
+                    , 'users.name as user_name' //商品負責人
+                    , 'inbound.inbound_user_name as inbound_user_name' //入庫人員
+                )
+                ->selectRaw('min(items.sku) as sku') //款式SKU
+                ->selectRaw('sum(items.num) as num') //採購數量
+                ->selectRaw('(inbound.inbound_num) as inbound_num') //已到數量
+                ->selectRaw($queryTotalInboundNum.' AS should_enter_num') //應進數量
+
+                ->selectRaw('(case
+                    when '. $queryTotalInboundNum. ' = 0 and COALESCE(inbound.inbound_num, 0) <> 0 then "'.InboundStatus::getDescription(InboundStatus::normal()->value).'"
+                    when COALESCE(inbound.inbound_num, 0) = 0 then "'.InboundStatus::getDescription(InboundStatus::not_yet()->value).'"
+                    when COALESCE(sum(items.num), 0) < COALESCE(inbound.inbound_num) then "'.InboundStatus::getDescription(InboundStatus::overflow()->value).'"
+                    when COALESCE(sum(items.num), 0) > COALESCE(inbound.inbound_num) then "'.InboundStatus::getDescription(InboundStatus::shortage()->value).'"
+                end) as inbound_type') //採購狀態
+                ->whereNull('consignment.deleted_at')
+                ->whereNull('items.deleted_at')
+                ->where('consignment.id', '=', $event_id)
+                ->groupBy('consignment.id'
+                    , 'items.product_style_id'
+                    , 'products.title'
+                    , 'styles.title'
+                    , 'users.name'
+                    , 'inbound.inbound_num'
+                    , 'inbound.inbound_user_name'
+                )
+                ->orderBy('consignment.id')
+                ->orderBy('items.product_style_id');
+        }
         return $result;
     }
 
@@ -353,8 +410,8 @@ class PurchaseInbound extends Model
             ->groupBy('tb_rd.product_style_id')
             ->groupBy('tb_rd.product_title');
 
-        $calc_qty = '(case when tb_rd.qty is null then inbound.inbound_num - inbound.sale_num - csn_num
-       else inbound.inbound_num - inbound.sale_num - csn_num - tb_rd.qty end)';
+        $calc_qty = '(case when tb_rd.qty is null then inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num
+       else inbound.inbound_num - inbound.sale_num - inbound.csn_num - tb_rd.qty end)';
 
         $result = DB::table('pcs_purchase_inbound as inbound')
             ->leftJoin('prd_product_styles as style', 'style.id', '=', 'inbound.product_style_id')

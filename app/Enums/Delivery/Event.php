@@ -6,15 +6,20 @@ use BenSampo\Enum\Enum;
 
 class Event extends Enum
 {
-    //訂單 轉倉 寄倉
-    const order = 'order';
-    const turnover = 'turnover';
-    const consignment = 'consignment';
+    const purchase = 'purchase'; //採購
+
+    const order = 'order'; //訂單
+    const turnover = 'turnover'; //轉倉
+    const consignment = 'consignment'; //寄倉
 
     public static function getDescription($value): string
     {
         $result = '';
         switch ($value) {
+            case self::purchase:
+                $result = '採購';
+                break;
+
             case self::order:
                 $result = '訂單';
                 break;

@@ -8,6 +8,7 @@ use App\Models\Consignment;
 use App\Models\ConsignmentItem;
 use App\Models\Delivery;
 use App\Models\Depot;
+use App\Models\PurchaseInbound;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -132,6 +133,107 @@ class ConsignmentCtrl extends Controller
             'formAction' => Route('cms.consignment.edit', ['id' => $id]),
             'breadcrumb_data' => ['id' => $id, 'sn' => $consignmentData->consignment_sn],
         ]);
+    }
+
+    //入庫結案
+    public function close(Request $request, $id) {
+        dd('close:'.$id);
+    }
+
+    public function inbound(Request $request, $id) {
+        $purchaseData  = Consignment::getData($id)->get()->first();
+        $purchaseItemList = ConsignmentItem::where('consignment_id', $id)
+            ->select('*', 'id as item_id')
+            ->selectRaw('( COALESCE(num, 0) - COALESCE(arrived_num, 0) ) as should_enter_num')
+            ->get();
+
+        $inboundList = PurchaseInbound::getInboundList(['event' => Event::consignment()->key, 'purchase_id' => $id])->get()->toArray();
+        $inboundOverviewList = PurchaseInbound::getOverviewInboundList(Event::consignment()->key, $id)->get()->toArray();
+        $purchaseItemList = DB::table('dlv_delivery as delivery')
+            ->leftJoin('dlv_receive_depot as rcv_depot', 'rcv_depot.delivery_id', '=', 'delivery.id')
+            ->select('*'
+                , 'rcv_depot.id as rcv_deppot_id'
+            )
+            ->selectRaw('DATE_FORMAT(expiry_date,"%Y-%m-%d") as expiry_date')
+            ->selectRaw('( COALESCE(rcv_depot.qty, 0) - COALESCE(rcv_depot.csn_arrived_qty, 0) ) as should_enter_num')
+            ->where('delivery.event', Event::consignment()->value)
+            ->where('delivery.event_id', $id)
+            ->whereNotNull('rcv_depot.id');
+
+        $depotList = Depot::all()->toArray();
+        return view('cms.commodity.consignment.inbound', [
+            'purchaseData' => $purchaseData,
+            'id' => $id,
+            'send_depot_id' => $purchaseData->send_depot_id,
+            'purchaseItemList' => $purchaseItemList->get(),
+            'inboundList' => $inboundList,
+            'inboundOverviewList' => $inboundOverviewList,
+            'depotList' => $depotList,
+            'formAction' => Route('cms.consignment.store_inbound', ['id' => $id,]),
+            'formActionClose' => Route('cms.consignment.close', ['id' => $id,]),
+            'breadcrumb_data' => $purchaseData->consignment_sn,
+        ]);
+    }
+
+    public function storeInbound(Request $request, $id)
+    {
+        $request->validate([
+            'depot_id' => 'required|numeric',
+            'purchase_item_id.*' => 'required|numeric',
+            'product_style_id.*' => 'required|numeric',
+            'inbound_date.*' => 'required|string',
+            'inbound_num.*' => 'required|numeric|min:1',
+            'error_num.*' => 'required|numeric|min:0',
+            'status.*' => 'required|numeric|min:0',
+            'expiry_date.*' => 'required|string',
+            'origin_inbound_id.*' => 'required|numeric',
+        ]);
+        $depot_id = $request->input('depot_id');
+        $inboundItemReq = $request->only('purchase_item_id', 'product_style_id', 'inbound_date', 'inbound_num', 'error_num', 'inbound_memo', 'status', 'expiry_date', 'inbound_memo', 'origin_inbound_id');
+
+        if (isset($inboundItemReq['product_style_id'])) {
+            $depot = Depot::where('id', '=', $depot_id)->get()->first();
+
+            $result = DB::transaction(function () use ($inboundItemReq, $id, $depot_id, $depot, $request
+            ) {
+                foreach ($inboundItemReq['product_style_id'] as $key => $val) {
+
+                    $re = PurchaseInbound::createInbound(
+                        Event::consignment()->key,
+                        $id,
+                        $inboundItemReq['purchase_item_id'][$key], //存入 dlv_receive_depot.id
+                        $inboundItemReq['product_style_id'][$key],
+                        $inboundItemReq['expiry_date'][$key],
+                        $inboundItemReq['inbound_date'][$key],
+                        $inboundItemReq['inbound_num'][$key],
+                        $depot_id,
+                        $depot->name,
+                        $request->user()->id,
+                        $request->user()->name,
+                        $inboundItemReq['inbound_memo'][$key],
+                        $inboundItemReq['origin_inbound_id'][$key]
+                    );
+                    if ($re['success'] == 0) {
+                        DB::rollBack();
+                        return $re;
+                    }
+                }
+                return ['success' => 1, 'error_msg' => ""];
+            });
+            if ($result['success'] == 0) {
+                wToast($result['error_msg']);
+            } else {
+                wToast(__('Add finished.'));
+            }
+        }
+        return redirect(Route('cms.consignment.inbound', [
+            'id' => $id,
+        ]));
+    }
+
+    public function deleteInbound(Request $request, $id)
+    {
+        dd('deleteInbound:'.$id);
     }
 }
 
