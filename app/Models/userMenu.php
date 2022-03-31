@@ -155,7 +155,7 @@ return
         "child" => [
             [
                 "title" => "會計分類",
-                "controller_name" => "BalanceSheetCtrl",
+                "controller_name" => "FirstGradeCtrl",
                 "route_name" => "cms.first_grade.index",
             ],
             [

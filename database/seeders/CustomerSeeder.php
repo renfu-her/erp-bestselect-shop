@@ -37,5 +37,6 @@ class CustomerSeeder extends Seeder
         Customer::createCustomer('之谷', 'pntcwz@gmail.com', '12345');
         Customer::createCustomer('烏梅', 'hsihung08079@gmail.com', '12345');
         Customer::createCustomer('yoyo', 'yoyo@writingbeing.com', '12345');
+        Customer::createCustomer('andy', 'andy', '1111');
     }
 }

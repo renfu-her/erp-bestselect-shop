@@ -1,6 +1,19 @@
 @extends('layouts.main')
 @section('sub-content')
     <h2 class="mb-3">#{{ $sn }} 訂單明細</h2>
+    @php
+        $receivedId = false;
+        $route = $receivedId ? 'show' : 'create';
+    @endphp
+    <form id="receivedForm" method="post" action="{{ Route('cms.ar.' . $route ) }}">
+        @csrf
+        <button type="submit" class="btn btn-danger" name="id[ord_orders]" value="{{ $order->id }}">
+            @if(!$receivedId)
+                新增
+            @endif
+                收款單（暫放）
+        </button>
+    </form>
 
     <form id="form1" method="post" action="">
         @method('POST')

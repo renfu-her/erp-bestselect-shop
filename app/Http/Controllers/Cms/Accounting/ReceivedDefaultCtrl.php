@@ -167,7 +167,7 @@ class ReceivedDefaultCtrl extends Controller
             ReceivedMethod::ForeignCurrency . '.rate.*' => ['required', 'regex:/^\d+\.\d{2}$/', 'min:0'],
 
             //table acc_currency的Id array
-            ReceivedMethod::ForeignCurrency . '.grade_id_fk' => ['required', 'array'],
+            ReceivedMethod::ForeignCurrency . '.grade_id_fk' => ['nullable', 'array'],
             //若有回傳會計科目的id，不得小於1
             ReceivedMethod::ForeignCurrency . '.grade_id_fk.*' => ['required', 'int', 'min:1'],
         ]);
