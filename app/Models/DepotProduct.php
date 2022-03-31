@@ -50,6 +50,7 @@ class DepotProduct extends Model
                 'product.id as product_id',
                 'style.title as spec',
                 'style.safety_stock',
+                'style.in_stock',
                 'style.total_inbound',
                 'p.sale_channel_id',
                 'p.dealer_price',
@@ -57,9 +58,8 @@ class DepotProduct extends Model
                 'p.price',
                 'p.bonus',
                 'p.dividend',
+                DB::raw('CASE product.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title'),
             );
-
-            // ->select('select_list.*', 'depot.*', 'product.*', 'style.*');
 
         if ($depot_id) {
             $re->where('select_list.depot_id', $depot_id);

@@ -38,7 +38,7 @@ class ProductCtrl extends Controller
             $options['consume'] = $d['consume'];
         }
 
-        
+
 
         // Arr::get($d, 'supplier_id',''),
 
@@ -101,7 +101,25 @@ class ProductCtrl extends Controller
         return response()->json(['status' => '0', 'data' => $re]);
     }
 
-    
+    public function getProductInfo(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'sku' => ['required'],
+            'm_class' => ['nullable', 'string', 'regex:/^(customer|employee|company)$/']
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'E01',
+                'msg' => $validator->messages(),
+            ]);
+        }
+
+        if (isset($request['m_class'])) {
+            return Product::getProductInfo($request['sku'], $request['m_class']);
+        } else {
+            return Product::getProductInfo($request['sku']);
+        }
+    }
 
     // Product::getProductShipments($id);
 

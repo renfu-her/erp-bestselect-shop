@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Customer\Identity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -54,7 +55,7 @@ class Product extends Model
         }
 
         if (isset($options['consume']) && !is_null($options['consume'])) {
-        
+
             $re->where('product.consume', $options['consume']);
         }
 
@@ -312,7 +313,7 @@ class Product extends Model
                 ->where('price.sale_channel_id', $options['price']);
         }
 
-        if (isset($options['consume']) && !is_null($options['consume'])) {  
+        if (isset($options['consume']) && !is_null($options['consume'])) {
             $re->where('p.consume', $options['consume']);
         }
 
@@ -494,5 +495,199 @@ class Product extends Model
         return DB::table('collection_prd')->where('product_id_fk', $product_id)
             ->select('collection_id_fk as collection_id');
 
+    }
+
+    /**
+     * @param $sku string 產品SKU（不是款式SKU）
+     * @param $m_class string ENUM Identity 會員類別
+     * @param $m_id string 加密會員編號
+     * 前端商品資訊API
+     */
+    public static function getProductInfo($sku, string $m_class = Identity::customer, string $m_id = null)
+    {
+        // start to check 產品的公開、上下架時間
+        $conditionQuery = DB::table('prd_products as product')
+            ->where([
+                ['product.sku', '=', $sku],
+                ['product.public', '=', 1]
+            ]);
+
+        $isPublic = $conditionQuery->exists();
+        if (!$isPublic) {
+            return response()->json([
+                'status' => 0,
+                'msg'    => '不公開',
+                'data'   => []
+            ]);
+        }
+
+        $isActive = $conditionQuery
+            ->leftJoin('prd_product_styles', 'product.id', '=', 'prd_product_styles.product_id')
+            ->where('prd_product_styles.is_active', '=', 1)
+            ->exists();
+        if (!$isActive) {
+            return response()->json([
+                'status' => 0,
+                'msg' => '已下架',
+                'data' => []
+            ]);
+        }
+
+        $activeDateQuery = $conditionQuery
+            ->select(
+                'active_sdate',
+                'active_edate',
+            )
+            ->get()
+            ->first();
+        $startDate = $activeDateQuery->active_sdate ?? null;
+        $endDate = $activeDateQuery->active_edate ?? null;
+        date_default_timezone_set('Asia/Taipei');
+        $now = date('Y-m-d H:i:s');
+
+        if (is_null($startDate)
+            && !is_null($endDate)
+            && $now > $endDate
+        ) {
+            return response()->json([
+                'status' => 0,
+                'msg'    => '已過下架時間',
+                'data'   => []
+            ]);
+        } elseif (!is_null($startDate)
+            && is_null($endDate)
+            && $now < $startDate
+        ) {
+            return response()->json([
+                'status' => 0,
+                'msg'    => '未到上架時間',
+                'data'   => []
+            ]);
+        } elseif (!is_null($startDate)
+            && !is_null($endDate)
+        ) {
+            if ($now < $startDate) {
+                return response()->json([
+                    'status' => 0,
+                    'msg'    => '還未上架',
+                    'data'   => []
+                ]);
+            } elseif ($now > $endDate) {
+                return response()->json([
+                    'status' => 0,
+                    'msg'    => '已經下架',
+                    'data'   => []
+                ]);
+            }
+        }
+        // end to check 產品的公開、上下架時間
+
+        // 產品已上架、公開，開始做query
+        $query = DB::table('prd_products as product')
+            ->where([
+                ['product.sku', '=', $sku],
+                ['product.public', '=', 1]
+            ])
+            ->whereNull('product.deleted_at');
+
+        $productQuery = $query
+            ->select(
+                'product.id as id',
+                'product.title as title',
+                'product.feature',
+                'product.slogan',
+                'product.desc as introduction',
+                'product.logistic_desc as logist_desc',
+                'product.type as type',
+                'product.active_sdate',
+                'product.desc as introduction',
+            )
+            ->get();
+
+        $imageBuilder = $query->leftJoin('prd_product_images as images', 'images.product_id', '=', 'product.id')
+            ->select('images.url as src')
+            ->get();
+        $imageArray = [];
+        foreach ($imageBuilder as $image) {
+            $imageArray[] = $image->src;
+        }
+
+        $transport = $query->leftJoin('prd_product_shipment as ship', 'product.id', '=', 'ship.product_id')
+            ->leftJoin('shi_group', 'ship.group_id', '=', 'shi_group.id')
+            ->select('shi_group.name as transport')
+            ->get()
+            ->first()
+            ->transport;
+
+        // get sales_id
+        $sale_channel_id = DB::table('usr_identity')
+            ->where('code', '=', $m_class)
+            ->leftJoin('usr_identity_salechannel', 'usr_identity.id', '=', 'usr_identity_salechannel.identity_id')
+            ->select('sale_channel_id')
+            ->get()
+            ->first()
+            ->sale_channel_id;
+
+        $productStyleProduct = $query
+            ->leftJoin('prd_product_styles as product_style', function ($join) {
+                $join->on('product_style.product_id', '=', 'product.id')
+                    ->where('product_style.is_active', '=', 1);
+            })
+            ->leftJoin('prd_salechannel_style_price as sale_channel', function ($join) use ($sale_channel_id) {
+                $join->on('sale_channel.style_id', '=', 'product_style.id')
+                    ->where('sale_channel.sale_channel_id', '=', $sale_channel_id);
+            })
+            ->select(
+                'product_style.sku',
+                'product_style.title as name',
+                'product_style.in_stock as amount',
+                'sale_channel.origin_price as origin',
+                'sale_channel.price as sale',
+            )
+            ->selectRaw(
+                'product_style.total_inbound - product_style.in_stock as sell',
+            )
+            ->get();
+
+        $pickupBuilder = $query->leftJoin('prd_pickup', 'product.id', '=', 'prd_pickup.product_id_fk')
+            ->leftJoin('depot', function ($join) {
+                $join->on('prd_pickup.depot_id_fk', '=', 'depot.id')
+                    ->where('can_pickup', '=', 1);
+            })
+            ->select('depot.name as pickup')
+            ->get()
+        ->unique();
+
+        $pickupArray = [];
+        foreach ($pickupBuilder as $key => $pickup) {
+            $pickupArray[$key] = $pickup->pickup;
+        }
+
+        $spec = DB::table('prd_speclists')
+            ->where('product_id', '=', $productQuery->first()->id)
+            ->select(
+                'title',
+                'content'
+            )
+            ->get();
+
+        return response()->json([
+            'status' => 0,
+            'msg'    => 'ok',
+            'data'   => [
+                'info' => [
+                    'name'    => $productQuery->first()->title,
+                    'slogan'  => $productQuery->first()->slogan,
+                    'feature' => $productQuery->first()->feature,
+                    'image'   => $imageArray,
+                ],
+                'introduction' => $productQuery->first()->introduction,
+                'transport'    => $transport,
+                'spec'         => $spec,
+                'logist_desc'  => $productQuery->first()->logist_desc,
+                'pickup'       => $pickupArray,
+                'item'         => $productStyleProduct,
+            ]
+        ]);
     }
 }
