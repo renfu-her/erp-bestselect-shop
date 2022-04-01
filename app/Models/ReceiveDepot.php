@@ -259,6 +259,7 @@ class ReceiveDepot extends Model
                 , 'updated_at'
                 , 'deleted_at'
             )
+            ->whereNull('deleted_at')
             ->where('consignment_id', $consignment_id)
             ->get();
         // 對應的出貨資料
