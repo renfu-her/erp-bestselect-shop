@@ -44,7 +44,7 @@ return
         "menu_id" => "8",
         "child" => [
             [
-                "title" => "優惠劵 / 序號",
+                "title" => "優惠劵 / 代碼",
                 "controller_name" => "PromoCtrl",
                 "route_name" => "cms.promo.index",
             ],

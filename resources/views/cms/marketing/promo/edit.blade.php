@@ -3,7 +3,7 @@
     @if ($method === 'edit')
         <h2 class="mb-3">優惠券名稱</h2>
     @else
-        <h2 class="mb-3">新增 優惠劵 / 序號</h2>
+        <h2 class="mb-3">新增 優惠劵 / 代碼</h2>
     @endif
 
     <form id="form1" method="post" action="">
