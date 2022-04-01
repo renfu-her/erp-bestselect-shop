@@ -66,8 +66,8 @@ class OrderCart extends Model
         $order = [
             'origin_price' => 0,
             'total_price' => 0,
-            'total_dlv_fee' => 0,
-            'total_discount_price' => 0,
+            'dlv_fee' => 0,
+            'discount_value' => 0,
             'discounted_price' => 0,
             'shipments' => [],
             'discounts' => [],
@@ -127,76 +127,47 @@ class OrderCart extends Model
             $style->product_id = $value['product_id'];
             $style->product_style_id = $value['product_style_id'];
             $style->qty = $value['qty'];
-            $style->dlv_fee = 0;
-            $style->total_price = $value['qty'] * $style->price;
-            $style->discount = 0;
-            $style->discounted_price = $style->total_price;
+            $style->origin_price = $value['qty'] * $style->price;
+            $style->discount_value = 0;
+            $style->discounted_price = $style->origin_price;
             $style->discounts = [];
             $shipmentGroup[$idx]->products[] = $style;
-            $shipmentGroup[$idx]->origin_price += $style->total_price;
+            $shipmentGroup[$idx]->origin_price += $style->origin_price;
             $shipmentGroup[$idx]->discounted_price = $shipmentGroup[$idx]->origin_price;
             $_tempProducts[] = [
                 'groupIdx' => $idx,
                 'productIdx' => count($shipmentGroup[$idx]->products) - 1,
-                'total_price' => $style->total_price,
+                'total_price' => $style->origin_price,
                 'product_id' => $style->product_id,
             ];
 
+            $order['origin_price'] += $shipmentGroup[$idx]->origin_price;
         }
+
         // get coupon
-        $currentCoupon = Discount::checkCode('fkfk', array_map(function ($n) {
+        $currentCoupon = Discount::checkCode('apple', array_map(function ($n) {
             return $n['product_id'];
         }, $_tempProducts));
 
         if ($currentCoupon['success'] == '1') {
             $currentCoupon = $currentCoupon['data'];
         }
-        // shipment 計算
-        foreach ($shipmentGroup as $key => $ship) {
-            //  dd($ship);
-            switch ($ship->category) {
-                case "deliver":
-                    foreach ($ship->rules as $rule) {
-                        $use_rule = false;
-                        if ($rule->is_above == 'false') {
-                            if ($ship->origin_price >= $rule->min_price && $ship->origin_price < $rule->max_price) {
-                                $shipmentGroup[$key]->dlv_fee = $rule->dlv_fee;
-                                $use_rule = $rule;
-                            }
-                        } else {
-                            if ($ship->origin_price >= $rule->max_price) {
-                                $shipmentGroup[$key]->dlv_fee = $rule->dlv_fee;
-                                $use_rule = $rule;
-
-                            }
-                        }
-
-                        if ($use_rule) {
-                            $shipmentGroup[$key]->use_rule = $use_rule;
-                            break;
-                        }
-                    }
-                    break;
-                default:
-                    $shipmentGroup[$key]->dlv_fee = 0;
-
-            }
-
-            $order['origin_price'] += $ship->origin_price;
-            $order['total_dlv_fee'] += $shipmentGroup[$key]->dlv_fee;
-
-        }
+        
         // discounted init
         $order['discounted_price'] = $order['origin_price'];
+        //   dd($order);
         $order['shipments'] = $shipmentGroup;
         // 全館
+
         self::globalStage($order);
 
         self::couponStage($order, $currentCoupon, $_tempProducts);
 
-        dd($order);
+        self::shipmentStage($order);
+       
+        $order['total_price'] = $order['discounted_price'] + $order['dlv_fee'];
         $order['success'] = 1;
-
+        // dd($order);
         return $order;
 
     }
@@ -254,9 +225,9 @@ class OrderCart extends Model
             return strcmp($b->currentDiscount, $a->currentDiscount);
         });
 
-        if ($dis[0]) {
+        if ($dis && $dis[0]) {
             $order['discounts'][] = $dis[0];
-            $order['total_discount_price'] += $dis[0]->currentDiscount;
+            $order['discount_value'] += $dis[0]->currentDiscount;
             $order['discounted_price'] -= $dis[0]->currentDiscount;
         }
 
@@ -272,7 +243,7 @@ class OrderCart extends Model
         if ($currentCoupon->is_global == '1') {
             if ($order['discounted_price'] > $currentCoupon->min_consume) {
                 $discount_value = $currentCoupon->discount_value;
-                $order->discounts[] = $currentCoupon;
+                $order['discounts'][] = $currentCoupon;
             }
         } else {
             $couponTargetProducts = ['styles' => [],
@@ -307,9 +278,9 @@ class OrderCart extends Model
                 foreach ($couponTargetProducts['styles'] as $value) {
                     $gIdx = $value['groupIdx'];
                     $pIdx = $value['productIdx'];
-                    $tPrice = $order['shipments'][$gIdx]->products[$pIdx]->total_price;
+                    $tPrice = $order['shipments'][$gIdx]->products[$pIdx]->origin_price;
                     $discount_value = floor($tPrice - $tPrice * $proportion);
-                    $order['shipments'][$gIdx]->products[$pIdx]->discount = $discount_value;
+                    $order['shipments'][$gIdx]->products[$pIdx]->discount_value = $discount_value;
                     $order['shipments'][$gIdx]->products[$pIdx]->discounted_price = $tPrice - $discount_value;
                     $tempDiscount += $discount_value;
                     $order['shipments'][$gIdx]->products[$pIdx]->discounts[] = $currentCoupon;
@@ -323,7 +294,7 @@ class OrderCart extends Model
                     $gIdx = $lastStyle['groupIdx'];
                     $pIdx = $lastStyle['productIdx'];
                     $fix_value = $currentCoupon->discount_value - $tempDiscount;
-                    $order['shipments'][$gIdx]->products[$pIdx]->discount += $fix_value;
+                    $order['shipments'][$gIdx]->products[$pIdx]->discount_value += $fix_value;
                     $order['shipments'][$gIdx]->products[$pIdx]->discounted_price -= $fix_value;
                     $order['shipments'][$gIdx]->discount_value += $fix_value;
                     $order['shipments'][$gIdx]->discounted_price -= $fix_value;
@@ -336,8 +307,45 @@ class OrderCart extends Model
         }
 
         $order['discounted_price'] -= $discount_value;
-        $order['total_discount_price'] += $discount_value;
+        $order['discount_value'] += $discount_value;
 
+    }
+
+    private static function shipmentStage(&$order)
+    {
+        foreach ($order['shipments'] as $key => $ship) {
+            //  dd($ship);
+            switch ($ship->category) {
+                case "deliver":
+                    foreach ($ship->rules as $rule) {
+                        $use_rule = false;
+                        if ($rule->is_above == 'false') {
+                            if ($ship->discounted_price >= $rule->min_price && $ship->discounted_price < $rule->max_price) {
+                                $order['shipments'][$key]->dlv_fee = $rule->dlv_fee;
+                                $use_rule = $rule;
+                            }
+                        } else {
+                            if ($ship->discounted_price >= $rule->max_price) {
+                                $order['shipments'][$key]->dlv_fee = $rule->dlv_fee;
+                                $use_rule = $rule;
+
+                            }
+                        }
+
+                        if ($use_rule) {
+                            $order['shipments'][$key]->use_rule = $use_rule;
+                            break;
+                        }
+                    }
+                    break;
+                default:
+                    $order['shipments'][$key]->dlv_fee = 0;
+
+            }
+
+            $order['dlv_fee'] += $order['shipments'][$key]->dlv_fee;
+
+        }
     }
 
 }
