@@ -282,7 +282,7 @@ class Discount extends Model
 
     }
 
-    public static function checkCode($type, $sn = null, $product_id = null)
+    public static function checkCode( $sn = null, $product_id = null)
     {
         $sub = self::_discountStatus();
 
