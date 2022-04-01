@@ -31,12 +31,16 @@ class DepotCtrl extends Controller
 
         $query = $request->query();
 
-        $type = Arr::get($query, 'product_type', 'all');//c,p,all
+        $type = request('product_type', 'all');//c,p,all
 
         $re = DepotProduct::product_list(request('depot_id'), null, $type)
             ->orderBy('product_id', 'ASC')
             ->orderBy('id', 'ASC')
-            ->select('style.id', 'style.sku', 'product.title as product_title', 'product.id as product_id', 'style.title as spec', DB::raw('CASE product.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title'), 'style.in_stock')
+            ->select('style.id', 'style.sku', 'product.title as product_title', 'product.id as product_id', 'style.title as spec', DB::raw('CASE product.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title'), 'style.in_stock'
+                , 'select_list.depot_price'
+                , 'product.type'
+                , DB::raw('CASE product.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title')
+            )
             ->paginate(10)->toArray();
 
         $re['status'] = '0';
