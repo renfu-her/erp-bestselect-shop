@@ -159,6 +159,8 @@ class OrderCart extends Model
 
                     if ($currentCoupon['success'] == '1') {
                         $currentCoupon = $currentCoupon['data'];
+                    } else {
+                        return ['success' => 0, 'error_msg' => $currentCoupon['message'], 'event' => 'coupon'];
                     }
                     break;
             }
