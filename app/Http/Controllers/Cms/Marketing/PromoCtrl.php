@@ -208,16 +208,11 @@ class PromoCtrl extends Controller
 
         $d = $request->all();
 
-        $is_global = '0';
-        if (isset($d['collection_id'])) {
-            $is_global = '1';
-            Discount::updateDiscountCollection($id, $d['collection_id']);
-        } else {
-            Discount::updateDiscountCollection($id, []);
-        }
+     
+       
 
         $updateData = [
-            'is_global' => $is_global,
+            
         ];
 
         switch ($d['category']) {
