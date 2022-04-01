@@ -104,7 +104,7 @@ class DiscountCtrl extends Controller
         } else {
             return response()->json([
                 'status' => '1',
-                'messagw' => $re['message'],
+                'message' => $re['message'],
             ]);
         }
 

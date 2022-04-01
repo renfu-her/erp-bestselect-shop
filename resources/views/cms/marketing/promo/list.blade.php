@@ -1,7 +1,7 @@
 @extends('layouts.main')
 @section('sub-content')
     <h2 class="mb-4">
-        優惠劵 / 序號</h2>
+        優惠劵 / 代碼</h2>
 
     <form id="search" action="" method="GET">
         <div class="card shadow p-4 mb-4">
@@ -90,7 +90,7 @@
             <div class="col">
                 @can('cms.promo.create')
                     <a href="{{ Route('cms.promo.create') }}" class="btn btn-primary">
-                        <i class="bi bi-plus-lg pe-1"></i> 新增優惠劵 / 序號
+                        <i class="bi bi-plus-lg pe-1"></i> 新增優惠劵 / 代碼
                     </a>
                 @endcan
             </div>
