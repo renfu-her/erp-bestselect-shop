@@ -119,7 +119,7 @@
                 <div class="col-12 mb-3">
                     <label class="form-label">適用商品群組<span class="small text-secondary">（不選為全館適用）</span></label>
                     <select name="collection_id[]" multiple class="-select2 -multiple form-select"
-                        data-close-on-select="false" data-placeholder="可多選" editable>
+                        data-close-on-select="false" data-placeholder="可多選" {{ $editBlock }}>
                         @foreach ($collections as $key => $value)
                             <option value="{{ $value->id }}" @if (in_array($value->id, $discountCollections)) selected @endif>
                                 {{ $value->name }}</option>
@@ -254,8 +254,8 @@
                 $(`div[data-method="${method}"]`).find('input, select').prop(AbleControl);
                 $(`div[data-method="${method}"]`).find('[norequired]').prop('required', false);
                 if (editBlock) {
-                    $(`div[data-method="${method}"]`).find('input:not([editable]), select:not([editable])').prop(
-                        DisabledControl);
+                    $(`div[data-method="${method}"]`).find('input:not([editable]), select:not([editable])')
+                        .prop(DisabledControl);
                 }
             }
 
