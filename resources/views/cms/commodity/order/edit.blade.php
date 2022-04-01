@@ -122,6 +122,7 @@
                                     優惠代碼
                                 </label>
                             </div>
+
                         </div>
                     </fieldset>
                     <div class="col-12 mb-3 --ctype -coupon" hidden>
@@ -138,6 +139,11 @@
                             <button type="button" class="btn btn-outline-primary mx-1 px-4 col-auto -coupon_sn">確認</button>
                         </div>
                         <div class="-feedback -coupon_sn" hidden></div>
+                    </div>
+                    <div class="invalid-feedback">
+                        @error('coupon')
+                            {{ $message }}
+                        @enderror   
                     </div>
                     <div class="col-12 mb-3">
                         <label class="form-label">

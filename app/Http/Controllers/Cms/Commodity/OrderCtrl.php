@@ -79,7 +79,7 @@ class OrderCtrl extends Controller
     public function create(Request $request)
     {
 
-      //   dd(Discount::checkCode('fkfk',[1,2,4]));
+        //   dd(Discount::checkCode('fkfk',[1,2,4]));
         $cart = null;
         if (old('product_style_id')) {
             $oldData = [];
@@ -149,7 +149,7 @@ class OrderCtrl extends Controller
      */
     public function store(Request $request)
     {
-        dd($_POST);
+
         $arrVali = [];
         foreach (UserAddrType::asArray() as $value) {
             switch ($value) {
@@ -212,7 +212,12 @@ class OrderCtrl extends Controller
 
         }
 
-        $re = Order::createOrder($customer->email, 1, $address, $items, $d['note']);
+        $coupon = null;
+        if (isset($d['coupon_type']) && isset($d['coupon_sn'])) {
+            $coupon = [$d['coupon_type'], $d['coupon_sn']];
+        }
+
+        $re = Order::createOrder($customer->email, 1, $address, $items, $d['note'], $coupon);
         if ($re['success'] == '1') {
             wToast('訂單新增成功');
             return redirect(route('cms.order.detail', [
@@ -240,6 +245,9 @@ class OrderCtrl extends Controller
                     break;
                 case "product":
                     $addInput['overbought_id'] = $re['event_id'];
+                    break;
+                case "coupon":
+                    $errors['coupon'] = $re['error_msg'];
                     break;
             }
         }
@@ -278,7 +286,7 @@ class OrderCtrl extends Controller
             $subOrder[$key]->items = json_decode($value->items);
         }
 
-      //    dd($order);
+        //    dd($order);
 
         if (!$order) {
             return abort(404);
