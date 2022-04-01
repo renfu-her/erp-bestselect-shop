@@ -84,19 +84,6 @@ class Consignment extends Model
             ->selectRaw('DATE_FORMAT(audit_date,"%Y-%m-%d") as audit_date')
             ->get()->first();
 
-        $purchase->send_depot_id = $purchaseReq['send_depot_id'];
-        $purchase->send_depot_name = $purchaseReq['send_depot_name'];
-        $purchase->receive_depot_id = $purchaseReq['receive_depot_id'];
-        $purchase->receive_depot_name = $purchaseReq['receive_depot_name'] ?? null;
-        $purchase->ship_temp_id = $purchaseReq['ship_temp_id'] ?? null;
-        $purchase->ship_temp_name = $purchaseReq['ship_temp_name'] ?? null;
-        $purchase->ship_event_id = $purchaseReq['ship_event_id'] ?? null;
-        $purchase->ship_event = $purchaseReq['ship_event'] ?? null;
-        $purchase->dlv_fee = $purchaseReq['dlv_fee'] ?? 0;
-        $purchase->logistic_status_code = $purchaseReq['logistic_status_code'] ?? null;
-        $purchase->logistic_status = $purchaseReq['logistic_status'] ?? null;
-        $purchase->create_user_id = $purchaseReq['create_user_id'] ?? null;
-        $purchase->create_user_name = $purchaseReq['create_user_name'] ?? null;
         $purchase->scheduled_date = $purchaseReq['scheduled_date'] ?? null;
         $purchase->memo = $purchaseReq['memo'] ?? null;
 
@@ -105,28 +92,9 @@ class Consignment extends Model
             if ($purchase->isDirty()) {
                 foreach ($purchase->getDirty() as $key => $val) {
                     $event = '';
-//                    if ($key == 'supplier_id') {
-//                        $event = '修改廠商';
-//                    } else if($key == 'supplier_sn') {
-//                        $event = '修改廠商訂單號';
-//                    } else if($key == 'scheduled_date') {
-//                        $event = '修改廠商預計進貨日期';
-//                    } else if($key == 'has_tax') {
-//                        $event = '修改課稅別';
-//                        if (0 == $val) {
-//                            $val = '應稅';
-//                        } else if (1 == $val) {
-//                            $val = '免稅';
-//                        }
-//                    } else if($key == 'logistics_price') {
-//                        $event = '修改物流費用';
-//                    } else if($key == 'logistics_memo') {
-//                        $event = '修改物流備註';
-//                    } else if($key == 'invoice_num') {
-//                        $event = '修改發票號碼';
-//                    } else if($key == 'invoice_date') {
-//                        $event = '修改發票日期';
-//                    }
+                    if($key == 'scheduled_date') {
+                        $event = '預計入庫日期';
+                    }
                     $changeStr .= ' ' . $key . ' change to ' . $val;
                     $rePcsLSC = PurchaseLog::stockChange($id, null, LogEvent::consignment()->value, $id, LogEventFeature::csn_change_data()->value, null, $event, $operator_user_id, $operator_user_name);
                     if ($rePcsLSC['success'] == 0) {
@@ -135,21 +103,7 @@ class Consignment extends Model
                     }
                 }
                 self::where('id', $id)->update([
-                    "send_depot_id" => $purchaseReq['send_depot_id'],
-                    "send_depot_name" => $purchaseReq['send_depot_name'],
-                    "receive_depot_id" => $purchaseReq['receive_depot_id'],
-                    "receive_depot_name" => $purchaseReq['receive_depot_name'] ?? null,
-                    "ship_temp_id" => $purchaseReq['ship_temp_id'] ?? null,
-                    "ship_temp_name" => $purchaseReq['ship_temp_name'] ?? null,
-                    "ship_event_id" => $purchaseReq['ship_event_id'] ?? null,
-                    "ship_event" => $purchaseReq['ship_event'] ?? null,
-                    "dlv_fee" => $purchaseReq['dlv_fee'] ?? 0,
-                    "logistic_status_code" => $purchaseReq['logistic_status_code'] ?? null,
-                    "logistic_status" => $purchaseReq['logistic_status'] ?? null,
-                    "create_user_id" => $purchaseReq['create_user_id'] ?? null,
-                    "create_user_name" => $purchaseReq['create_user_name'] ?? null,
                     "scheduled_date" => $purchaseReq['scheduled_date'] ?? null,
-                    "audit_status" => $purchaseReq['audit_status'] ?? 0,
                     "memo" => $purchaseReq['memo'] ?? null,
                 ]);
             }
