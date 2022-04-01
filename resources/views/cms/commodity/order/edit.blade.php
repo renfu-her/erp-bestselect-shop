@@ -580,7 +580,8 @@
                 // price: '單價',
                 // stock: '庫存',
                 // qty: '數量(預設1)',
-                // total: '小計'
+                // total: '小計(不含折扣)'
+                // dis_price: '折扣金額',
             };
             // 物流
             let selectShip = {
@@ -840,6 +841,8 @@
                             price: p.price,
                             stock: p.in_stock,
                             qty: 1,
+                            total: 0,
+                            dis_price: 0,
                         };
                     }
                 }
@@ -1409,10 +1412,12 @@
                                 if (dis.method_code === 'cash') {
                                     total_dis -= price;
                                 }
+                                myProductList[sid].dis_price = price;
                             }
                         }
                     }
                     result[result.length - 1].price += total_dis;
+                    myProductList[result[result.length - 1].sid].dis_price += total_dis;
                 }
                 return result;
             }
