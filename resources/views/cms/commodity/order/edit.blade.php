@@ -107,11 +107,34 @@
             </div>
             <div class="card shadow p-4 mb-4">
                 <div class="row">
-                    <div class="col-12 mb-3">
-                        <label class="form-label">優惠券代碼</label>
+                    <fieldset class="col-12 mb-3">
+                        <legend class="col-form-label p-0 mb-2">優惠使用（二擇一）</legend>
+                        <div class="px-1 pt-1">
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="coupon_type" type="radio" value="coupon">
+                                    優惠券
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="coupon_type" type="radio" value="code">
+                                    優惠代碼
+                                </label>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div class="col-12 mb-3 --ctype -coupon" hidden>
+                        <select class="form-select" aria-label="Select" name="coupon_sn" disabled>
+                            <option value="1">item 1</option>
+                            <option value="2">item 2</option>
+                            <option value="3">item 3</option>
+                        </select>
+                    </div>
+                    <div class="col-12 mb-3 --ctype -code" hidden>
                         <div class="d-flex -coupon_sn">
-                            <input type="text" class="form-control col -coupon_sn" placeholder="請輸入優惠券代碼">
-                            <input type="hidden" name="discount_sn">
+                            <input type="text" class="form-control col -coupon_sn" placeholder="請輸入優惠券代碼" disabled>
+                            <input type="hidden" name="coupon_sn" disabled>
                             <button type="button" class="btn btn-outline-primary mx-1 px-4 col-auto -coupon_sn">確認</button>
                         </div>
                         <div class="-feedback -coupon_sn" hidden></div>
@@ -496,6 +519,15 @@
                 }
             }
 
+            // 優惠使用
+            $('input[name="coupon_type"]').off('change').on('change', function () {
+                const type = $('input[name="coupon_type"]:checked').val();
+                $('div.--ctype').prop('hidden', true);
+                $('div.--ctype select, div.--ctype input').prop('disabled', true);
+                $(`div.--ctype.-${type}`).prop('hidden', false);
+                $(`div.--ctype.-${type} select, div.--ctype.-${type} input`).prop('disabled', false);
+            });
+
             // 禁用鍵盤 Enter submit
             $('form').on('keydown', ':input:not(textarea)', function(e) {
                 return e.key !== 'Enter';
@@ -543,8 +575,7 @@
                 // price: '單價',
                 // stock: '庫存',
                 // qty: '數量(預設1)',
-                // total: '小計',
-                // discount: [{type:'optional', id:1}] 折扣優惠
+                // total: '小計'
             };
             // 物流
             let selectShip = {
@@ -556,10 +587,14 @@
                 // rules: '宅配價格',
             };
             /** ********* **/
-            // 樣式ID
+            // 商品樣式ID
             let myProductList = {
                 // sid: {商品}
             };
+            // 商品使用優惠list
+            let myProductDiscountList = [
+                // {sid:樣式ID, pid:商品ID, did:優惠ID, price:折扣金額}
+            ];
             // 優惠資料
             let myDiscountList = {
                 optional: {},    // 任選 [暫無]
@@ -800,7 +835,6 @@
                             price: p.price,
                             stock: p.in_stock,
                             qty: 1,
-                            discount: []
                         };
                     }
                 }
@@ -1084,7 +1118,7 @@
             function sumSubtotal($this, qty) {
                 // 修改 myCart 裡的數量
                 const style_id = Number($this.closest('tr.-cloneElem').find('input[name="product_style_id[]"]').val());
-                myProductList[style_id].qty = qty;
+                myProductList[style_id].qty = Number(qty);
                 myProductList[style_id].total = myProductList[style_id].price * Number(qty);
                 $this.closest('tr.-cloneElem').find('div[data-td="subtotal"]').text(
                     `$${formatNumber(myProductList[style_id].total)}`);
@@ -1208,7 +1242,6 @@
                                 discount_price = discountUse(dis, consume);
                             } else {
                                 myDiscountList.code[dis.id] = dis;
-                                saveProductDiscount(dis.product_ids, dis.id, 'code');
                                 consume = sumPordTotal(dis.product_ids);
                                 discount_price = discountUse(dis, consume);
                                 // 回填各商品折扣
@@ -1217,6 +1250,8 @@
                             if (discount_price) {
                                 valid_cls = 'valid';
                                 msg = `使用優惠券：${dis.title}－`;
+                                // 紀錄sn
+                                $('div.--ctype.-code input[name="coupon_sn"]').val(Data.sn);
                             } else {
                                 valid_cls = 'invalid';
                                 msg = '未達優惠使用條件：';
@@ -1286,37 +1321,30 @@
                 }
             }
 
-            /** 暫存各商品優惠
-             * @param {array} pid 指定商品ID
-             * @param {string} id 優惠ID
-             * @param {number} type 優惠類別 optional/coupon
-            */
-            function saveProductDiscount(pids = [], id, type) {
-                if (!pids.length) {
-                    return false;
-                }
-                for (const sid in myProductList) {
-                    if (Object.hasOwnProperty.call(myProductList, sid)) {
-                        const prod = myProductList[sid];
-                        if (pids.indexOf(prod.pid) >= 0) {
-                            (myProductList[sid].discount).push({id, type});
-                        }
-                    }
-                }
-            }
             /** 
              * set 所有各商品優惠
             */
             function setProductDiscount() {
-                if (Object.keys(myDiscountList.code).length === 0 && Object.keys(myDiscountList.optional) === 0) {
+                if (Object.keys(myDiscountList.code).length === 0 && Object.keys(myDiscountList.optional).length === 0) {
                     return false;
                 }
                 // 清空
                 $(`.-cloneElem.--selectedP div[data-td="discount"],
                    .-cloneElem.--selectedP div[data-td="disprice"]`).remove();
+                myProductDiscountList = [];
                 
                 // main
-                
+                for (const type of DISC_PRIORITY) {
+                    let tempDis = null;
+                    if (tempDis = myDiscountList[type] && Object.keys(tempDis).length) {
+                        for (const id in tempDis) {
+                            if (Object.hasOwnProperty.call(tempDis, id)) {
+                                const useDis = codeDiscountUse(tempDis[id]);
+                                myProductDiscountList.push(...useDis);
+                            }
+                        }
+                    }
+                }
 
                 // 折扣文字
                 function dicountDIV(dis) {
@@ -1329,6 +1357,51 @@
                 function dispriceDIV(price) {
                     return `<div data-td="disprice" class="lh-1 text-danger">- $${formatNumber(price)}</div>`;
                 }
+            }
+            /** 計算總使用各商品優惠
+             * @param {object} dis 優惠
+             * @param {array} pid 指定商品ID
+            */
+            function codeDiscountUse(dis) {
+                const pids = dis.product_ids;
+                if (!pids || !pids.length) {
+                    return false;
+                }
+                let result = [];
+                let consume = sumPordTotal(pids);
+                if (consume >= dis.min_consume) {
+                    let total_dis = 0;  // 總折扣金額
+                    let ratio = 0;  // 折扣比例
+                    switch (dis.method_code) {
+                        case 'cash':
+                            if (dis.is_grand_total) {   // 累計
+                                total_dis = dis.discount_value * (Math.floor(consume / dis.min_consume));
+                            } else {
+                                total_dis = dis.discount_value;
+                            }
+                            ratio = consume / total_dis;
+                            break;
+                        case 'percent':
+                            ratio = dis.discount_value;
+                            break;
+                    }
+
+                    for (const sid in myProductList) {
+                        if (Object.hasOwnProperty.call(myProductList, sid)) {
+                            const prod = myProductList[sid];
+                            if (pids.indexOf(prod.pid) >= 0) {
+                                result.push({
+                                    sid: prod.sid,
+                                    pid: prod.pid,
+                                    did: dis.id,
+                                    price: Math.round(prod.total * ratio)
+                                });
+                                total_dis
+                            }
+                        }
+                    }
+                }
+                return result;
             }
 
             /** 計算總使用優惠
