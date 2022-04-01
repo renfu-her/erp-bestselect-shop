@@ -272,7 +272,7 @@
                                     @if ($dis->method_code == 'coupon')
                                         <td class="text-end pe-4">{{ $dis->extra_title }}</td>
                                     @else
-                                        <td class="text-end pe-4 text-danger">- ${{ $dis->discount }}</td>
+                                        <td class="text-end pe-4 text-danger">- ${{ $dis->discount_value }}</td>
                                     @endif
                                 </tr>
                             @endforeach
