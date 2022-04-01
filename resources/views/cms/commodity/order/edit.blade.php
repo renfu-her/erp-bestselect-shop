@@ -1197,6 +1197,7 @@
 
             /*** 優惠 ***/
             $('button.-coupon_sn').off('click').on('click', function () {
+                $('div.--ctype.-code input[name="coupon_sn"]').val('');
                 checkCouponSN();
             });
             // 優惠券代碼 -coupon_sn
@@ -1255,7 +1256,6 @@
                             } else {
                                 valid_cls = 'invalid';
                                 msg = '未達優惠使用條件：';
-                                $('div.--ctype.-code input[name="coupon_sn"]').val('');
                             }
                             msg += discountNote(dis);
                         } else {
