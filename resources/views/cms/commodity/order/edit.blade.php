@@ -133,17 +133,16 @@
                         </select>
                     </div>
                     <div class="col-12 mb-3 --ctype -code" hidden>
-                        <div class="d-flex -coupon_sn">
+                        <div class="d-flex -coupon_sn @error('coupon') is-invalid @enderror">
                             <input type="text" class="form-control col -coupon_sn" placeholder="請輸入優惠券代碼" disabled>
                             <input type="hidden" name="coupon_sn" disabled>
                             <button type="button" class="btn btn-outline-primary mx-1 px-4 col-auto -coupon_sn">確認</button>
                         </div>
-                        <div class="-feedback -coupon_sn" hidden></div>
-                    </div>
-                    <div class="invalid-feedback">
-                        @error('coupon')
-                            {{ $message }}
-                        @enderror   
+                        <div class="-feedback -coupon_sn @error('coupon') invalid-feedback @enderror">
+                            @error('coupon')
+                                {{ $message }}
+                            @enderror
+                        </div>
                     </div>
                     <div class="col-12 mb-3">
                         <label class="form-label">
