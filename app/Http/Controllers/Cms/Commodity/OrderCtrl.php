@@ -149,7 +149,7 @@ class OrderCtrl extends Controller
      */
     public function store(Request $request)
     {
-        // dd($_POST);
+        dd($_POST);
         $arrVali = [];
         foreach (UserAddrType::asArray() as $value) {
             switch ($value) {
