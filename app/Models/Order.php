@@ -80,7 +80,7 @@ class Order extends Model
         $orderQuery = DB::table('ord_orders as order')
             ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
             ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id')
-            ->select(['order.sn', 'order.discount','order.discounted_price', 'order.dlv_fee', 'order.price', 'order.note', 'order.status', 'order.total_price', 'order.created_at', 'customer.name', 'customer.email', 'sale.title as sale_title'])
+            ->select(['order.sn', 'order.discount','order.discounted_price', 'order.dlv_fee', 'order.origin_price', 'order.note', 'order.status', 'order.total_price', 'order.created_at', 'customer.name', 'customer.email', 'sale.title as sale_title'])
             ->where('order.id', $order_id);
         self::orderAddress($orderQuery);
 
@@ -189,7 +189,7 @@ class Order extends Model
                 "sale_channel_id" => $sale_channel_id,
                 "email" => $email,
                 "total_price" => $order['total_price'],
-                "price" => $order['origin_price'],
+                "origin_price" => $order['origin_price'],
                 "dlv_fee" => $order['total_dlv_fee'],
                 "discount" => $order['total_discount_price'],
                 "discounted_price" => $order['discounted_price'],
@@ -232,6 +232,7 @@ class Order extends Model
                     'ship_category_name' => $value->category_name,
                     'dlv_fee' => $value->dlv_fee,
                     'total_price' => $value->totalPrice,
+                    'origin_price' => $value->totalPrice,
                     'status' => '',
                 ];
 
@@ -285,6 +286,7 @@ class Order extends Model
                         'price' => $product->price,
                         'qty' => $product->qty,
                         'total_price' => $product->total_price,
+                        'origin_price' => $product->total_price,
                     ]);
 
                 }

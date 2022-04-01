@@ -293,7 +293,7 @@
                                 <td class="col-2 lh-sm">預計獲得<a href="#" class="-text d-block d-xxl-inline">紅利積點</a></td>
                             </tr>
                             <tr>
-                                <td>${{ number_format($order->price) }}</td>
+                                <td>${{ number_format($order->origin_price) }}</td>
                                 <td class="text-danger">- ${{ number_format($order->discount) }}</td>
                                 <td>${{ number_format($order->discounted_price) }}</td>
                                 <td>${{ number_format($order->dlv_fee) }}</td>
@@ -306,7 +306,7 @@
                         <tbody>
                             <tr>
                                 <td class="col-7 table-light">小計</td>
-                                <td class="text-end pe-4">${{ number_format($order->price) }}</td>
+                                <td class="text-end pe-4">${{ number_format($order->origin_price) }}</td>
                             </tr>
                             <tr>
                                 <td class="col-7 table-light">折扣 </td>
