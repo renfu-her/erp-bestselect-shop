@@ -179,12 +179,7 @@ class DiscountCtrl extends Controller
         $d = request()->all();
         $is_global = 1;
 
-        if (isset($d['collection_id']) && count($d['collection_id']) > 0) {
-            Discount::updateDiscountCollection($id, $d['collection_id']);
-            $is_global = 0;
-        } else {
-            Discount::updateDiscountCollection($id, []);
-        }
+      
 
 
         $start_date = $d['start_date'] ? $d['start_date'] : date('Y-m-d 00:00:00');
