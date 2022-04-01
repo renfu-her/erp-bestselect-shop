@@ -183,12 +183,21 @@ class Order extends Model
         }
     }
 
-    public static function createOrder($email, $sale_channel_id, $address, $items, $note = null)
+    /**
+     * @param string $email
+     * @param string $sale_channel_id
+     * @param array $address
+     * @param array $items
+     * @param string $note
+     * @param array $coupon_obj [type,value]
+     * 
+     */
+    public static function createOrder($email, $sale_channel_id, $address, $items, $note = null, $coupon_obj = null)
     {
 
-        return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $note) {
-            $order = OrderCart::cartFormater($items);
-            //      dd($order);
+        return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $note, $coupon_obj) {
+            $order = OrderCart::cartFormater($items, $coupon_obj);
+
             if ($order['success'] != 1) {
                 DB::rollBack();
                 return $order;
@@ -305,6 +314,8 @@ class Order extends Model
                         'discount_value' => $product->discount_value,
                         'origin_price' => $product->origin_price,
                     ]);
+
+                    Discount::createOrderDiscount('item', $pid, $product->discounts);
 
                 }
 

@@ -282,7 +282,7 @@ class Discount extends Model
 
     }
 
-    public static function checkCode($sn = null, $product_id = null)
+    public static function checkCode($type, $sn = null, $product_id = null)
     {
         $sub = self::_discountStatus();
 
@@ -347,7 +347,6 @@ class Discount extends Model
             return $n->product_id;
         }, $collection->get()->toArray());
 
-       
         return [
             'success' => '1',
             'data' => $re,
@@ -451,7 +450,6 @@ class Discount extends Model
         DB::table('dis_discount_collection')->where('discount_id', $id)->delete();
     }
 
-  
     public static function createOrderDiscount($type, $order_id, $datas = [])
     {
 
@@ -475,7 +473,7 @@ class Discount extends Model
                 'category_code' => $n->category_code,
                 'method_title' => $n->method_title,
                 'method_code' => $n->method_code,
-                'discount' => isset($n->currentDiscount) ? $n->currentDiscount : null,
+                'discount_value' => isset($n->currentDiscount) ? $n->currentDiscount : null,
                 'is_grand_total' => $n->is_grand_total,
             ];
 

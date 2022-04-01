@@ -122,7 +122,7 @@ class CreateOrderTable extends Migration
             $table->integer('extra_id')->nullable()->comment('特殊id');
             $table->string('extra_title', 100)->nullable()->comment('特殊項目名稱');
 
-            $table->integer('discount')->nullable()->comment('折扣金額');
+            $table->integer('discount_value')->nullable()->comment('折扣金額');
             $table->tinyInteger('is_grand_total')->default(0)->comment('是否累計折扣');
 
         });
