@@ -19,11 +19,15 @@ class Order extends Model
         $sale_channel_id = null,
         $order_date = null) {
         $order = DB::table('ord_orders as order')
-            ->select('order.id as id', 'order.status as order_status', 'customer.name', 'sale.title as sale_title', 'so.ship_category_name',
-                'so.ship_event', 'so.ship_sn'
-                , 'dlv_delivery.logistic_status as logistic_status'
-                , 'dlv_logistic.package_sn as package_sn'
-                , 'shi_group.name as ship_group_name')
+            ->select(['order.id as id',
+                'order.status as order_status',
+                'customer.name',
+                'sale.title as sale_title',
+                'so.ship_category_name',
+                'so.ship_event', 'so.ship_sn',
+                'dlv_delivery.logistic_status as logistic_status',
+                'dlv_logistic.package_sn as package_sn',
+                'shi_group.name as ship_group_name'])
             ->selectRaw('DATE_FORMAT(order.created_at,"%Y-%m-%d") as order_date')
             ->selectRaw('so.sn as order_sn')
             ->leftJoin('ord_sub_orders as so', 'order.id', '=', 'so.order_id')
@@ -80,7 +84,18 @@ class Order extends Model
         $orderQuery = DB::table('ord_orders as order')
             ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
             ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id')
-            ->select(['order.sn', 'order.discount','order.discounted_price', 'order.dlv_fee', 'order.origin_price', 'order.note', 'order.status', 'order.total_price', 'order.created_at', 'customer.name', 'customer.email', 'sale.title as sale_title'])
+            ->select(['order.sn',
+                'order.discount_value',
+                'order.discounted_price',
+                'order.dlv_fee',
+                'order.origin_price',
+                'order.note',
+                'order.status',
+                'order.total_price',
+                'order.created_at',
+                'customer.name',
+                'customer.email',
+                'sale.title as sale_title'])
             ->where('order.id', $order_id);
         self::orderAddress($orderQuery);
 
@@ -94,7 +109,7 @@ class Order extends Model
             'sku' => 'item.sku',
             'price' => 'item.price',
             'qty' => 'item.qty',
-            'total_price' => 'item.total_price']);
+            'total_price' => 'item.origin_price']);
 
         $itemQuery = DB::table('ord_items as item')
             ->groupBy('item.sub_order_id')
@@ -173,7 +188,7 @@ class Order extends Model
 
         return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $note) {
             $order = OrderCart::cartFormater($items);
-        //      dd($order);
+            //      dd($order);
             if ($order['success'] != 1) {
                 DB::rollBack();
                 return $order;
@@ -183,15 +198,14 @@ class Order extends Model
                     ->get()
                     ->count()) + 1, 2, '0', STR_PAD_LEFT);
 
-           
             $order_id = self::create([
                 "sn" => $order_sn,
                 "sale_channel_id" => $sale_channel_id,
                 "email" => $email,
                 "total_price" => $order['total_price'],
                 "origin_price" => $order['origin_price'],
-                "dlv_fee" => $order['total_dlv_fee'],
-                "discount" => $order['total_discount_price'],
+                "dlv_fee" => $order['dlv_fee'],
+                "discount_value" => $order['discount_value'],
                 "discounted_price" => $order['discounted_price'],
                 'note' => $note,
             ])->id;
@@ -231,8 +245,10 @@ class Order extends Model
                     'ship_category' => $value->category,
                     'ship_category_name' => $value->category_name,
                     'dlv_fee' => $value->dlv_fee,
-                    'total_price' => $value->totalPrice,
-                    'origin_price' => $value->totalPrice,
+                    'total_price' => $value->origin_price,
+                    'origin_price' => $value->origin_price,
+                    'discounted_price' => $value->discounted_price,
+                    'discount_value' => $value->discount_value,
                     'status' => '',
                 ];
 
@@ -277,7 +293,7 @@ class Order extends Model
                         DB::rollBack();
                         return $reStock;
                     }
-                    DB::table('ord_items')->insert([
+                    $pid = DB::table('ord_items')->insertGetId([
                         'order_id' => $order_id,
                         'sub_order_id' => $subOrderId,
                         'product_style_id' => $product->product_style_id,
@@ -285,8 +301,9 @@ class Order extends Model
                         'product_title' => $product->product_title . '-' . $product->spec,
                         'price' => $product->price,
                         'qty' => $product->qty,
-                        'total_price' => $product->total_price,
-                        'origin_price' => $product->total_price,
+                        'discounted_price' => $product->discounted_price,
+                        'discount_value' => $product->discount_value,
+                        'origin_price' => $product->origin_price,
                     ]);
 
                 }
