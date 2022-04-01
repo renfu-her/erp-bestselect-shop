@@ -79,7 +79,7 @@
                                         <td>
                                             <div data-td="title"><a href="#" class="-text"></a></div>
                                             <div data-td="discount" class="lh-1 small text-secondary">
-                                                <span data-id="" class="badge rounded-pill bg-danger fw-normal me-2"></span>
+                                                <span class="badge rounded-pill bg-danger fw-normal me-2"></span>
                                             </div>
                                         </td>
                                         <td class="text-center" data-td="price">${{ number_format(0) }}</td>
@@ -599,7 +599,7 @@
             let myDiscountList = {
                 optional: {},    // 任選 [暫無]
                 global: {},     // 全館 + 優惠券不綁商品
-                code: {},     // 優惠券代碼綁商品
+                code: {},     // 優惠券/代碼綁商品
             };
             for (const method of DISC_METHOD) {
                 if (GlobalDiscounts[method]) {
@@ -1018,12 +1018,8 @@
                             cloneElem.find('div[data-td="title"]').html(
                                 `<a href="#" class="-text">${p.name}-${p.spec}</a>`
                             );
-                            cloneElem.find('div[data-td="discount"]').html(
-                                `<span data-id="" class="badge rounded-pill bg-danger fw-normal me-2">已達優惠/贈品</span>滑鼠墊`
-                            );
                             cloneElem.find('td[data-td="price"]').text(`$${formatNumber(p.price)}`);
                             cloneElem.find('div[data-td="subtotal"]').text(`$${formatNumber(p.price * p.qty)}`);
-                            cloneElem.find('div[data-td="disprice"]').text(`- $${formatNumber(100)}`);
                             let $qty = cloneElem.find('input[name="qty[]"]');
                             $qty.val(p.qty);
                             $qty.attr('max', p.stock);
@@ -1334,23 +1330,29 @@
                    .-cloneElem.--selectedP div[data-td="disprice"]`).remove();
                 myProductDiscountList = [];
                 
-                // main
+                // main: 紀錄商品優惠
                 for (const type of DISC_PRIORITY) {
                     let tempDis = null;
                     if (tempDis = myDiscountList[type] && Object.keys(tempDis).length) {
                         for (const id in tempDis) {
                             if (Object.hasOwnProperty.call(tempDis, id)) {
-                                const useDis = codeDiscountUse(tempDis[id]);
+                                const useDis = codeDiscountUse(tempDis[id], type);
                                 myProductDiscountList.push(...useDis);
                             }
                         }
                     }
                 }
+                // set html
+                myProductDiscountList.forEach(prodDis => {
+                    const $tr = $(`input[name="product_style_id[]"][value="${prodDis.sid}"]`).closest('.-cloneElem.--selectedP');
+                    $tr.find('div[data-td="title"]').after(dicountDIV(myDiscountList[prodDis.type][prodDis.did]));
+                    $tr.find('div[data-td="subtotal"]').after(dispriceDIV(prodDis.price));
+                });
 
                 // 折扣文字
                 function dicountDIV(dis) {
                     return `<div data-td="discount" class="lh-1 small text-secondary">
-                        <span data-id="" class="badge rounded-pill bg-danger fw-normal me-2">已達優惠</span>
+                        <span class="badge rounded-pill bg-danger fw-normal me-2">已達優惠</span>
                         ${discountNote(dis)}
                     </div>`;
                 }
@@ -1361,9 +1363,9 @@
             }
             /** 計算總使用各商品優惠
              * @param {object} dis 優惠
-             * @param {array} pid 指定商品ID
+             * @param {string} type 類型'optional'|'code'
             */
-            function codeDiscountUse(dis) {
+            function codeDiscountUse(dis, type) {
                 const pids = dis.product_ids;
                 if (!pids || !pids.length) {
                     return false;
@@ -1391,16 +1393,21 @@
                         if (Object.hasOwnProperty.call(myProductList, sid)) {
                             const prod = myProductList[sid];
                             if (pids.indexOf(prod.pid) >= 0) {
+                                const price = Math.round(prod.total * ratio);
                                 result.push({
                                     sid: prod.sid,
                                     pid: prod.pid,
                                     did: dis.id,
-                                    price: Math.round(prod.total * ratio)
+                                    price,
+                                    type
                                 });
-                                total_dis
+                                if (dis.method_code === 'cash') {
+                                    total_dis -= price;
+                                }
                             }
                         }
                     }
+                    result[result.length - 1].price += total_dis;
                 }
                 return result;
             }
