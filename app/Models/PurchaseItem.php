@@ -76,7 +76,10 @@ class PurchaseItem extends Model
                         $logEventFeature = LogEventFeature::style_change_qty()->value;
                     }
                     if ('' != $event && null != $logEventFeature) {
-                        $rePcsLSC = PurchaseLog::stockChange($purchaseItem->purchase_id, $purchaseItem->product_style_id, LogEvent::purchase()->value, $itemId, $logEventFeature, $dirtyval, $event, $operator_user_id, $operator_user_name);
+                        $rePcsLSC = PurchaseLog::stockChange($purchaseItem->purchase_id, $purchaseItem->product_style_id
+                            , LogEvent::purchase()->value, $itemId
+                            , $logEventFeature, $dirtyval, $event
+                            , $operator_user_id, $operator_user_name);
                         if ($rePcsLSC['success'] == 0) {
                             DB::rollBack();
                             return $rePcsLSC;

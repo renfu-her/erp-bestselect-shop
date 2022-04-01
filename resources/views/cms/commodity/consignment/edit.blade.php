@@ -13,11 +13,12 @@
     @endphp
 
     @if ($method === 'edit')
-    <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">配送狀態</a>
-    <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">物流設定</a>
-    <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">出貨審核</a>
+        <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">配送狀態</a>
+        <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">物流設定</a>
+        <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">出貨審核</a>
 
-    <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.consignment.inbound', ['id' => $id], true) }}">入庫審核</a>
+        <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.consignment.inbound', ['id' => $id], true) }}">入庫審核</a>
+        <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.consignment.log', ['id' => $id], true) }}">變更紀錄</a>
     @endif
     <form id="form1" method="post" action="{{ $formAction }}">
         @method('POST')
@@ -158,21 +159,14 @@
                                 <input type="hidden" name="product_style_id[]" value="">
                                 <input type="hidden" name="name[]" value="">
                                 <input type="hidden" name="sku[]" value="">
+                                <input type="hidden" name="price[]" value="">
                             </th>
                             <td data-td="name"></td>
                             <td data-td="sku"></td>
                             <td>
                                 <input type="number" class="form-control form-control-sm" name="num[]" min="1" value="" required/>
                             </td>
-                            <td>
-                                <div class="input-group input-group-sm flex-nowrap">
-                                    <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                    <input type="number" class="form-control form-control-sm" name="price[]" min="0" step="0.01" value="" required/>
-                                </div>
-                            </td>
-                            <td>
-                                <input type="text" class="form-control form-control-sm -xl" name="memo[]">
-                            </td>
+                            <td data-td="price"></td>
                         </tr>
                     @elseif(0 < count(old('item_id', $consignmentItemData?? [])))
                         @foreach (old('item_id', $consignmentItemData ?? []) as $psItemKey => $psItemVal)
@@ -186,6 +180,7 @@
                                     <input type="hidden" name="product_style_id[]" value="{{ old('product_style_id.'. $psItemKey, $psItemVal->product_style_id?? '') }}">
                                     <input type="hidden" name="name[]" value="{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}">
                                     <input type="hidden" name="sku[]" value="{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}">
+                                    <input type="hidden" name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}">
                                 </th>
                                 <td data-td="name">{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}</td>
                                 <td data-td="sku">{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}</td>
@@ -193,13 +188,7 @@
                                     <input type="number" class="form-control form-control-sm @error('num.' . $psItemKey) is-invalid @enderror"
                                            name="num[]" value="{{ old('num.'. $psItemKey, $psItemVal->num?? '') }}" min="1" step="0.01" required/>
                                 </td>
-                                <td>
-                                    <div class="input-group input-group-sm flex-nowrap">
-                                        <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                        <input type="number" class="form-control form-control-sm @error('price.' . $psItemKey) is-invalid @enderror"
-                                               name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}" min="0" step="0.01" required/>
-                                    </div>
-                                </td>
+                                <td data-td="price">{{ old('sku.'. $psItemKey, $psItemVal->price?? '') }}</td>
                                 @if ($method === 'edit')
                                     <td data-td="inbound_type">{{$psItemVal->inbound_type?? ''}}</td>
                                     <td data-td="inbound_user_name">{{$psItemVal->inbound_user_name?? ''}}</td>
@@ -270,7 +259,7 @@
                         <th scope="col">款式</th>
                         <th scope="col">SKU</th>
                         <th scope="col">庫存數量</th>
-                        <th scope="col">預扣庫存量</th>
+                        <th scope="col">寄倉價(單價)</th>
                     </tr>
                     </thead>
                     <tbody class="-appendClone --product">
@@ -283,6 +272,7 @@
                         <td data-td="spec">綜合口味</td>
                         <td data-td="sku">AA2590</td>
                         <td>58</td>
+                        <td data-td="price">99</td>
                         <td>20</td>
                     </tr>
                     </tbody>
@@ -404,9 +394,9 @@
 
             // 商品清單 API
             function getProductList(page) {
-                let _URL = `${Laravel.apiUrl.productStyles}?page=${page}`;
+                let _URL = `${Laravel.apiUrl.selectProductList}?page=${page}`;
                 let Data = {
-                    keyword: $('#addProduct .-searchBar input').val(),
+                    product_type: 'p',
                     depot_id: $('input:hidden[name="receive_depot_id"]').val()
                 };
 
@@ -462,7 +452,7 @@
                             <td data-td="spec">${p.spec || ''}</td>
                             <td data-td="sku">${p.sku}</td>
                             <td>${p.in_stock}</td>
-                            <td>${p.safety_stock}</td>
+                            <td data-td="price">${p.depot_price}</td>
                         </tr>`);
                         $('#addProduct .-appendClone.--product').append($tr);
                     }
@@ -482,7 +472,8 @@
                                 id: $(element).val(),
                                 name: $(element).parent('th').siblings('[data-td="name"]').text(),
                                 sku: sku,
-                                spec: $(element).parent('th').siblings('[data-td="spec"]').text()
+                                spec: $(element).parent('th').siblings('[data-td="spec"]').text(),
+                                price: $(element).parent('th').siblings('[data-td="price"]').text()
                             });
                         }
                     } else {
@@ -522,8 +513,10 @@
                             cloneElem.find('input[name="product_style_id[]"]').val(p.id);
                             cloneElem.find('input[name="name[]"]').val(`${p.name}-${p.spec}`);
                             cloneElem.find('input[name="sku[]"]').val(p.sku);
+                            cloneElem.find('input[name="price[]"]').val(p.price);
                             cloneElem.find('td[data-td="name"]').text(`${p.name}-${p.spec}`);
                             cloneElem.find('td[data-td="sku"]').text(p.sku);
+                            cloneElem.find('td[data-td="price"]').text(p.price);
                         }
                     }, delItemOption);
                 }
