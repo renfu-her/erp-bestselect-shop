@@ -24,7 +24,7 @@ class CreateOrderTable extends Migration
             $table->integer('dlv_fee')->default(0)->comment('運費');
             $table->integer('origin_price')->default(0)->comment('小計'); 
             $table->integer('total_price')->default(0)->comment('總金額');
-            $table->integer('discount')->default(0)->comment('折扣');
+            $table->integer('discount_value')->default(0)->comment('折扣');
             $table->integer('discounted_price')->default(0)->comment('折扣後金額');
             $table->string('note')->nullable()->comment('備註');
             $table->timestamps();
@@ -48,7 +48,7 @@ class CreateOrderTable extends Migration
             $table->string('status', 20)->comment('訂單狀態');
             $table->integer('total_price')->default(0)->comment('總費用');
             $table->integer('origin_price')->default(0)->comment('原始金額');
-            $table->integer('discount')->default(0)->comment('優惠金額');
+            $table->integer('discount_value')->default(0)->comment('優惠金額');
             $table->integer('discounted_price')->default(0)->comment('折扣後金額');
 
             $table->string('statu', 10)->nullable()->comment('物流狀態');
@@ -66,8 +66,7 @@ class CreateOrderTable extends Migration
             $table->integer('qty')->comment('數量');
             $table->string('type', 20)->nullable()->comment('商品/贈品');
             $table->integer('origin_price')->default(0)->comment('原價');
-            $table->integer('total_price')->default(0)->comment('總價');
-            $table->integer('discount')->default(0)->comment('優惠金額');
+            $table->integer('discount_value')->default(0)->comment('優惠金額');
             $table->integer('discounted_price')->default(0)->comment('折扣後金額');
         });
 

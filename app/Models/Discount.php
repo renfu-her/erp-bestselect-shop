@@ -451,68 +451,7 @@ class Discount extends Model
         DB::table('dis_discount_collection')->where('discount_id', $id)->delete();
     }
 
-    public static function calculatorDiscount($price, $type = null, $product_id = null)
-    {
-        $discounts = self::getDiscounts('global-normal');
-
-        //   dd($discounts);
-        $dis = [];
-        $coupons = [];
-        foreach ($discounts as $key => $value) {
-
-            switch ($key) {
-                case DisMethod::cash()->value:
-
-                    foreach ($value as $cash) {
-                        if ($cash->min_consume == 0 || $cash->min_consume < $price) {
-                            if ($cash->is_grand_total == 1) {
-                                $cash->currentDiscount = intval(floor($price / $cash->min_consume) * $cash->discount_value);
-                                $cash->title = $cash->title . "(累計)";
-
-                            } else {
-                                $cash->currentDiscount = $cash->discount_value;
-                            }
-                            $dis[] = $cash;
-                        }
-
-                    }
-
-                    break;
-                case DisMethod::percent()->value:
-                    foreach ($value as $cash) {
-                        if ($cash->min_consume == 0 || $cash->min_consume < $price) {
-                            $cash->currentDiscount = $price - intval($price / 100 * $cash->discount_value);
-                            $cash->discount_value = $cash->discount_value;
-                            $dis[] = $cash;
-                        }
-                    }
-                    break;
-                case DisMethod::coupon()->value:
-
-                    foreach ($value as $cash) {
-                        if ($cash->min_consume == 0 || $cash->min_consume < $price) {
-                            $cash->title = $cash->title . " (下次使用)";
-                            $coupons[] = $cash;
-                        }
-                    }
-                    break;
-
-            }
-        }
-
-        usort($dis, function ($a, $b) {
-            return strcmp($b->currentDiscount, $a->currentDiscount);
-        });
-
-        return [
-            'origin_price' => $price,
-            'result_price' => isset($dis[0]) ? ($price - $dis[0]->currentDiscount) : 0,
-            'discount' => isset($dis[0]) ? $dis[0] : null,
-            'coupons' => $coupons,
-        ];
-
-    }
-
+  
     public static function createOrderDiscount($type, $order_id, $datas = [])
     {
 
