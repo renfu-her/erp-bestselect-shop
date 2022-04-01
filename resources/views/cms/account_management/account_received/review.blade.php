@@ -64,16 +64,16 @@
                 <tr>
                     <th scope="row"></th>
                     <td>test</td>
-                    <td>{{ number_format(12345) }}</td>
+                    <td>{{ number_format(123) }}</td>
                     <td>test</td>
-                    <td>{{ number_format(12345) }}</td>
+                    <td>{{ number_format(123) }}</td>
                 </tr>
                 <tr class="table-light">
                     <td>合計：</td>
                     <td></td>
-                    <td>{{ number_format(12345) }}</td>
+                    <td>{{ number_format(123) }}</td>
                     <td></td>
-                    <td>{{ number_format(12345) }}</td>
+                    <td>{{ number_format(123) }}</td>
                 </tr>
                 </tbody>
             </table>
