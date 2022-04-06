@@ -1,6 +1,7 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">優惠劵 / 序號</h2>
+    <h2 class="mb-4">
+        優惠劵 / 代碼</h2>
 
     <form id="search" action="" method="GET">
         <div class="card shadow p-4 mb-4">
@@ -89,7 +90,7 @@
             <div class="col">
                 @can('cms.promo.create')
                     <a href="{{ Route('cms.promo.create') }}" class="btn btn-primary">
-                        <i class="bi bi-plus-lg pe-1"></i> 新增優惠劵 / 序號
+                        <i class="bi bi-plus-lg pe-1"></i> 新增優惠劵 / 代碼
                     </a>
                 @endcan
             </div>
@@ -113,11 +114,11 @@
                         <th scope="col">優惠劵活動名稱</th>
                         <th scope="col">優惠券序號</th>
                         <th scope="col">優惠方式</th>
-                        <th scope="col">折價金額/百分比</th>
+                        <th scope="col">優惠內容</th>
                         <th scope="col">最低消費限制</th>
-                        <th scope="col">限用商品群組</th>
-                        <th scope="col">與其他行銷活動併用限制</th>
                         <th scope="col">進行狀態</th>
+                        <th scope="col">全館</th>
+                        <th scope="col">併用限制</th>
                         <th scope="col">開始日期</th>
                         <th scope="col">結束日期</th>
                         <th scope="col">數量</th>
@@ -133,24 +134,29 @@
                             <td>{{ $data->title }}</td>
                             <td>{{ $data->sn }}</td>
                             <td>{{ $data->method_title }}</td>
-                            <td>{{ $data->discount_value }}</td>
-                            <td>{{ $data->min_consume }}</td>
+                            <td>
+                                @if ($data->method_code == 'cash')
+                                    ${{ number_format($data->discount_value) }}
+                                @elseif($data->method_code == 'percent')
+                                    {{ $data->discount_value }}%
+                                @endif
+                            </td>
+                            <td>${{ number_format($data->min_consume) }}</td>
+                            <td data-td="status" @class([
+                                'text-success' => $data->status === '進行中', 
+                                'text-danger' => $data->status === '已結束' || $data->status === '暫停'
+                            ])>
+                                {{ $data->status }}
+                            </td>
                             <td>
                                 @if ($data->is_global == '1')
-                                    全館
-                                @else
-                                    群組
+                                    <i class="bi bi-check-lg text-success fs-5"></i>
                                 @endif
                             </td>
                             <td>無</td>
-                            <td {{-- @class([
-                                'text-success' => '進行中', 
-                                'text-danger' => '已結束']) --}}>
-                                {{ $data->status }}
-                            </td>
-                            <td>{{ $data->start_date }}</td>
-                            <td>{{ $data->end_date }}</td>
-                            <td>{{ $data->max_usage }}</td>
+                            <td>{{ date('Y/m/d', strtotime($data->start_date)) }}</td>
+                            <td>{{ date('Y/m/d', strtotime($data->end_date)) }}</td>
+                            <td>{{ number_format($data->max_usage) }}</td>
                             <td>
                                 <a href="{{ Route('cms.promo.edit', ['id' => $data->id], true) }}"
                                     data-bs-toggle="tooltip" title="編輯"
@@ -241,9 +247,16 @@
                 $('input[name="status_code"]').val(selectStatus);
             });
 
+            // 啟用
+            const statusClass = {
+                '進行中': 'text-success',
+                '已結束': 'text-danger',
+                '暫停': 'text-danger'
+            };
             $('.active-switch').on('change', function() {
-                let active = $(this).is(':checked') ? 1 : 0;
-                let dataId = $(this).attr('data-id');
+                const $switch = $(this);
+                const active = $switch.prop('checked') ? 1 : 0;
+                const dataId = $switch.data('id');
 
                 axios.post(changeActiveUrl, {
                         'id': dataId,
@@ -251,8 +264,14 @@
                     })
                     .then((result) => {
                         console.log(result.data);
-
-
+                        $switch.closest('tr').find('td[data-td="status"]').text(result.data.data)
+                            .removeClass('text-success text-danger')
+                            .addClass(statusClass[result.data.data]);
+                        if (active) {
+                            toast.show('活動已啟用');
+                        } else {
+                            toast.show('活動已暫停', { type: 'warning' });
+                        }
                     }).catch((err) => {
                         console.error(err);
                     });

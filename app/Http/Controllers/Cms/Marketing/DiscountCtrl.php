@@ -6,8 +6,8 @@ use App\Enums\Discount\DisCategory;
 use App\Enums\Discount\DisMethod;
 use App\Enums\Discount\DisStatus;
 use App\Http\Controllers\Controller;
-use App\Models\Collection;
 use App\Models\Discount;
+use App\Models\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
@@ -21,7 +21,6 @@ class DiscountCtrl extends Controller
      */
     public function index(Request $request)
     {
-
         //  Discount::dataList();
         $cond = [];
         $query = $request->query();
@@ -37,6 +36,7 @@ class DiscountCtrl extends Controller
         //  dd($cond['method_code']);
         $status_code = $cond['status_code'] ? explode(',', $cond['status_code']) : null;
         //   dd( $cond['method_code']);
+
         $dataList = Discount::dataList(DisCategory::normal()->value,
             $status_code,
             $cond['title'],
@@ -48,7 +48,6 @@ class DiscountCtrl extends Controller
         //   $cond['status_code'] = $cond['status_code'] ? explode(',', $cond['status_code']) : [];
         $cond['method_code'] = $cond['method_code'] ? $cond['method_code'] : [];
         return view('cms.marketing.discount.list', [
-            'dataList' => [],
             'dis_methods' => DisMethod::getValueWithDesc(),
             'dis_status' => DisStatus::getValueWithDesc(),
             'data_per_page' => $data_per_page,
@@ -135,7 +134,8 @@ class DiscountCtrl extends Controller
     {
         //
 
-        $data = Discount::where('id', $id)->get()->first();
+        $data = Discount::where('id', $id)
+            ->where('category_code', DisCategory::normal()->value)->get()->first();
         if (!$data) {
             return abort(404);
         }
@@ -147,16 +147,16 @@ class DiscountCtrl extends Controller
             return $n->collection_id;
         }, Discount::getDicountCollections($id)->get()->toArray());
 
+
         return view('cms.marketing.discount.edit', [
             'method' => 'edit',
-            'breadcrumb_data' => '現折優惠',
+            'breadcrumb_data' => '全館優惠',
             'data' => $data,
             'dis_methods' => DisMethod::getValueWithDesc(),
-            'collections' => Collection::select('id', 'name')->get(),
             'formAction' => Route("cms.discount.edit", ['id' => $id]),
-            'discountCollections' => $discountCollections,
             'coupons' => Discount::where('category_code', DisCategory::coupon()->value)->get(),
-
+            'collections' => Collection::select('id', 'name')->get(),
+            'discountCollections' => $discountCollections,
 
         ]);
     }
@@ -179,12 +179,8 @@ class DiscountCtrl extends Controller
         $d = request()->all();
         $is_global = 1;
 
-        if (isset($d['collection_id']) && count($d['collection_id']) > 0) {
-            Discount::updateDiscountCollection($id, $d['collection_id']);
-            $is_global = 0;
-        } else {
-            Discount::updateDiscountCollection($id, []);
-        }
+      
+
 
         $start_date = $d['start_date'] ? $d['start_date'] : date('Y-m-d 00:00:00');
         $end_date = $d['end_date'] ? $d['end_date'] : date('Y-m-d 23:59:59', strtotime(date('Y-m-d') . " +3 years"));

@@ -76,41 +76,26 @@
                                             <input type="hidden" name="shipment_type[]" value="">
                                             <input type="hidden" name="shipment_event_id[]" value="">
                                         </th>
-                                        <td data-td="title"><a href="#" class="-text"></a></td>
+                                        <td>
+                                            <div data-td="title"><a href="#" class="-text"></a></div>
+                                            <div data-td="discount" class="lh-1 small text-secondary">
+                                                <span class="badge rounded-pill bg-danger fw-normal me-2"></span>
+                                            </div>
+                                        </td>
                                         <td class="text-center" data-td="price">${{ number_format(0) }}</td>
                                         <td>
                                             <x-b-qty-adjuster name="qty[]" value="1" min="1" size="sm" minus="減少" plus="增加">
                                             </x-b-qty-adjuster>
                                         </td>
-                                        <td class="text-end" data-td="subtotal">${{ number_format(0) }}</td>
+                                        <td class="text-end">
+                                            <div data-td="subtotal">${{ number_format(0) }}</div>
+                                            <div data-td="disprice" class="lh-1 text-danger"></div>
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                    {{-- 優惠列表 --}}
-                    {{-- <div class="card-body px-4 py-0">
-                        <div class="table-responsive tableOverBox">
-                            <table class="table tableList table-sm mb-0">
-                                <thead class="table-light text-secondary">
-                                    <tr>
-                                        <th scope="col">優惠類型</th>
-                                        <th scope="col">優惠名稱</th>
-                                        <th scope="col">贈品</th>
-                                        <th scope="col">金額</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="-appendClone">
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div> --}}
                     {{-- 運費 --}}
                     <div class="card-body px-4 py-2 border-top">
                         <div class="d-flex lh-lg">
@@ -120,7 +105,68 @@
                     </div>
                 </div>
             </div>
+            <div class="card shadow p-4 mb-4">
+                <div class="row">
+                    <fieldset class="col-12 mb-3">
+                        <legend class="col-form-label p-0 mb-2">優惠使用（二擇一）</legend>
+                        <div class="px-1 pt-1">
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="coupon_type" type="radio" value="coupon">
+                                    優惠券
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="coupon_type" type="radio" value="code">
+                                    優惠代碼
+                                </label>
+                            </div>
+
+                        </div>
+                    </fieldset>
+                    <div class="col-12 mb-3 --ctype -coupon" hidden>
+                        <select class="form-select" aria-label="Select" name="coupon_sn" disabled>
+                            <option value="1">item 1</option>
+                            <option value="2">item 2</option>
+                            <option value="3">item 3</option>
+                        </select>
+                    </div>
+                    <div class="col-12 mb-3 --ctype -code" hidden>
+                        <div class="d-flex -coupon_sn @error('coupon') is-invalid @enderror">
+                            <input type="text" class="form-control col -coupon_sn" placeholder="請輸入優惠券代碼" disabled>
+                            <input type="hidden" name="coupon_sn" disabled>
+                            <button type="button" class="btn btn-outline-primary mx-1 px-4 col-auto -coupon_sn">確認</button>
+                        </div>
+                        <div class="-feedback -coupon_sn @error('coupon') invalid-feedback @enderror">
+                            @error('coupon')
+                                {{ $message }}
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="form-label">
+                            紅利<span class="small text-secondary">（目前紅利點數：11點，可使用紅利上限：10點）</span>
+                        </label>
+                        <div class="d-flex -bonus_point">
+                            <input type="text" class="form-control col -bonus_point" placeholder="請輸入會員紅利折抵點數">
+                            <input type="hidden" name="bonus">
+                            <button type="button" class="btn btn-outline-primary mx-1 px-4 col-auto -bonus_point">確認</button>
+                        </div>
+                        <div class="-feedback -bonus_point" hidden></div>
+                    </div>
+                </div>
+            </div>
             <div id="Total_price" class="card shadow p-4 mb-4">
+                <div id="Global_discount" hidden>
+                    <h6>其他優惠</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm text-right align-middle">
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                
                 <h6>應付金額</h6>
                 <div class="table-responsive">
                     <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
@@ -437,7 +483,6 @@
             .-detail-success .badge.-badge::after {
                 content: "超取";
             }
-
         </style>
     @endpush
     @push('sub-scripts')
@@ -461,7 +506,6 @@
                 } else {
                     axios.post(_URL, Data)
                         .then((result) => {
-                            console.log(result);
                             const res = result.data;
                             if (res.status === '0' && res.data && res.data.length) {
                                 $('#addProductBtn').prop('disabled', false);
@@ -479,6 +523,15 @@
                     });
                 }
             }
+
+            // 優惠使用
+            $('input[name="coupon_type"]').off('change').on('change', function () {
+                const type = $('input[name="coupon_type"]:checked').val();
+                $('div.--ctype').prop('hidden', true);
+                $('div.--ctype select, div.--ctype input').prop('disabled', true);
+                $(`div.--ctype.-${type}`).prop('hidden', false);
+                $(`div.--ctype.-${type} select, div.--ctype.-${type} input`).prop('disabled', false);
+            });
 
             // 禁用鍵盤 Enter submit
             $('form').on('keydown', ':input:not(textarea)', function(e) {
@@ -503,12 +556,19 @@
                 keyboard: false
             });
             let prodPages = new Pagination($('#addProduct .-pages'));
+            // 全館優惠
+            const GlobalDiscounts = @json($discounts);
+            console.log(GlobalDiscounts);
             // 物流方式
             const EVENT_CLASS = {
                 'deliver': 'primary',
                 'pickup': 'warning',
                 'family': 'success'
             };
+            // 優惠類型
+            const DISC_METHOD = ['cash', 'percent', 'coupon'];
+            // 折扣順序 (不含全館)
+            const DISC_PRIORITY = ['optional', 'code'];
             /*** 選取 ***/
             // 商品
             let selectedProduct = {
@@ -520,6 +580,8 @@
                 // price: '單價',
                 // stock: '庫存',
                 // qty: '數量(預設1)',
+                // total: '小計(不含折扣)'
+                // dis_price: '折扣金額',
             };
             // 物流
             let selectShip = {
@@ -531,8 +593,28 @@
                 // rules: '宅配價格',
             };
             /** ********* **/
+            // 商品樣式ID
+            let myProductList = {
+                // sid: {商品}
+            };
+            // 商品使用優惠list
+            let myProductDiscountList = [
+                // {sid:樣式ID, pid:商品ID, did:優惠ID, price:折扣金額}
+            ];
+            // 優惠資料
+            let myDiscountList = {
+                optional: {},    // 任選 [暫無]
+                global: {},     // 全館 + 優惠券不綁商品
+                code: {},     // 優惠券/代碼綁商品
+            };
+            for (const method of DISC_METHOD) {
+                if (GlobalDiscounts[method]) {
+                    GlobalDiscounts[method].map(d => {
+                        myDiscountList.global[d.id] = d;
+                    });
+                }
+            }
             // 購物車資料
-            let productStyleId = []; // 樣式ID
             let myCart = { // 購物車
                 // 'category_[group_id]/category_[depots.depot_id]': {
                 //     id: '物流ID group_id/depots.depot_id',
@@ -540,11 +622,12 @@
                 //     type: '物流類型category: pickup|deliver',
                 //     temps: '溫層: 常溫|冷凍|冷藏',
                 //     products: [商品],
-                //     total: '商品金額小記(不含運)',
+                //     total: '此物流商品金額小記(不含運)',
                 //     rules: '[宅配價格]',
                 //     dlv_fee: '運費',
                 // }
             };
+
             // clone 項目
             const $selectedClone = $('.-detail.d-none .-cloneElem.--selectedP').clone();
             $('.-detail.d-none .-appendClone.--selectedP').empty();
@@ -560,24 +643,22 @@
                 beforeDelFn: function({
                     $this
                 }) {
-                    const product_style_id = Number($this.siblings('input[name="product_style_id[]"]').val());
-                    let index = productStyleId.indexOf(product_style_id);
-                    if (product_style_id && index >= 0) {
-                        // 刪樣式ID
-                        productStyleId.splice(index, 1);
+                    const product_style_id = $this.siblings('input[name="product_style_id[]"]').val();
+                    if (product_style_id && myProductList[product_style_id]) {
+                        // 刪樣式ID[]
+                        delete myProductList[product_style_id];
                         // 刪購物車
                         const type = $this.siblings('input[name="shipment_type[]"]').val();
                         const event_id = $this.siblings('input[name="shipment_event_id[]"]').val();
-                        myCart[`${type}_${event_id}`].products =
-                            (myCart[`${type}_${event_id}`].products)
-                            .filter(p => p.sid !== product_style_id);
+                        const index = (myCart[`${type}_${event_id}`].products).indexOf(product_style_id);
+                        (myCart[`${type}_${event_id}`].products).splice(index, 1);
+                            
                         // 檢查若該物流沒商品，則刪除該物流
                         if (myCart[`${type}_${event_id}`].products.length <= 0) {
                             delete myCart[`${type}_${event_id}`];
                             $(`#${type}_${event_id}`).remove();
-                        } else {
-                            sumGroupTotal(`${type}_${event_id}`);
                         }
+                        sumGroupTotal(`${type}_${event_id}`);
                     }
                 },
                 checkFn: function() {
@@ -623,12 +704,14 @@
                     }
                 }
             }
+            // 優惠
+            setGlobalDiscount(0);
             // 計數器
             bindAdjusterBtn();
             $('#Loading_spinner').removeClass('d-flex');
-
             // 刪除商品
             Clone_bindDelElem($('.-cloneElem.--selectedP .-del'), cloneProductsOption);
+
             // 無商品不可下一步
             if (!$('.-cloneElem.--selectedP').length) {
                 $('#STEP_1 .-next_step').prop('disabled', true);
@@ -725,7 +808,7 @@
 
                         if (p.in_stock <= 0) {
                             addBtn = `<span class="text-muted">缺貨</span>`;
-                        } else if (productStyleId.indexOf(p.id) < 0) {
+                        } else if (!myProductList[p.id]) {
                             addBtn = `<button type="button" class="btn btn-outline-primary -add" data-idx="${i}">
                                 <i class="bi bi-plus-circle"></i> 加入
                             </button>`;
@@ -757,7 +840,9 @@
                             sku: p.sku,
                             price: p.price,
                             stock: p.in_stock,
-                            qty: 1
+                            qty: 1,
+                            total: 0,
+                            dis_price: 0,
                         };
                     }
                 }
@@ -900,17 +985,17 @@
                     createNewShip(selectShip);
                 }
                 // 加入一個商品
-                productStyleId.push(selectedProduct.sid);
-                (myCart[shipKey].products).push(selectedProduct);
+                myProductList[selectedProduct.sid] = selectedProduct;
+                (myCart[shipKey].products).push(selectedProduct.sid);
                 createOneSelected(selectedProduct, selectShip);
-                sumGroupTotal(shipKey);
+                sumSubtotal($(`input[name="product_style_id[]"][value="${selectedProduct.sid}"]`), selectedProduct.qty);
 
                 if ($('.-cloneElem.--selectedP').length) {
                     $('#customer').prop('disabled', true);
                 }
 
                 // 關閉懸浮視窗
-                setShipmentModal.hide();
+                setShipmentModal.hide();                
 
                 // 新增一個物流
                 function createNewShip(s) {
@@ -931,18 +1016,18 @@
                     };
                     Clone_bindCloneBtn($selectedClone, function(cloneElem) {
                         cloneElem.find('input').val('');
-                        cloneElem.find('td[data-td]').text('');
+                        cloneElem.find('td[data-td], div[data-td]').text('');
                         cloneElem.find('.is-invalid').removeClass('is-invalid');
                         if (p) {
                             cloneElem.find('input[name="product_id[]"]').val(p.pid);
                             cloneElem.find('input[name="product_style_id[]"]').val(p.sid);
                             cloneElem.find('input[name="shipment_type[]"]').val(s.category);
                             cloneElem.find('input[name="shipment_event_id[]"]').val(s.group_id);
-                            cloneElem.find('td[data-td="title"]').html(
+                            cloneElem.find('div[data-td="title"]').html(
                                 `<a href="#" class="-text">${p.name}-${p.spec}</a>`
                             );
-                            cloneElem.find('td[data-td="price"]').text(`${formatNumber(p.price)}`);
-                            cloneElem.find('td[data-td="subtotal"]').text(`${formatNumber(p.price * p.qty)}`);
+                            cloneElem.find('td[data-td="price"]').text(`$${formatNumber(p.price)}`);
+                            cloneElem.find('div[data-td="subtotal"]').text(`$${formatNumber(p.price * p.qty)}`);
                             let $qty = cloneElem.find('input[name="qty[]"]');
                             $qty.val(p.qty);
                             $qty.attr('max', p.stock);
@@ -975,7 +1060,7 @@
                 $('#addProduct #pageSum').text('');
                 $('#addProduct .page-item:not(:first-child, :last-child)').remove();
                 $('#addProduct nav').hide();
-                $('#addProduct .-checkedNum').text(`已添加 ${productStyleId.length} 件商品`);
+                $('#addProduct .-checkedNum').text(`已添加 ${Object.keys(myProductList).length} 件商品`);
                 $('.-emptyData').hide();
             }
             // 清空物流 Modal
@@ -1023,31 +1108,34 @@
                     });
             }
 
+            // 顯示應付金額
+            function setTotalPrice() {
+                const { all_total, all_discount, all_dlvFee, all_sum } = sumAllAmount();
+                $('#Total_price td[data-td="subtotal"]').text(`$${formatNumber(all_total)}`);
+                $('#Total_price td[data-td="discount"]').text(`- $${formatNumber(all_discount)}`);
+                $('#Total_price td[data-td="dlv_fee"]').text(`$${formatNumber(all_dlvFee)}`);
+                $('#Total_price td[data-td="sum"]').text(`$${formatNumber(all_sum)}`);
+            }
+
             /*** 計算 ***/
             // 計算 單一商品小計
             function sumSubtotal($this, qty) {
                 // 修改 myCart 裡的數量
-                const $card = $this.closest('.-detail');
-                const id = $card.attr('id');
-                const style_id = Number($card.find('input[name="product_style_id[]"]').val());
-                (myCart[id].products).forEach(p => {
-                    if (p.sid === style_id) {
-                        p.qty = Number(qty);
-                        $this.closest('tr.-cloneElem').find('td[data-td="subtotal"]').text(
-                            `${formatNumber(p.price * p.qty)}`);
-                    }
-                });
+                const style_id = Number($this.closest('tr.-cloneElem').find('input[name="product_style_id[]"]').val());
+                myProductList[style_id].qty = Number(qty);
+                myProductList[style_id].total = myProductList[style_id].price * Number(qty);
+                $this.closest('tr.-cloneElem').find('div[data-td="subtotal"]').text(
+                    `$${formatNumber(myProductList[style_id].total)}`);
 
-                sumGroupTotal(id);
+                const $card = $this.closest('.-detail');
+                sumGroupTotal($card.attr('id'));
             }
             // 計算 群組小計
             function sumGroupTotal(group_key) {
                 let total = 0;
-                if (!myCart[group_key]) {
-                    return false;
-                } else {
-                    (myCart[group_key].products).forEach(p => {
-                        total += (p.price * p.qty);
+                if (myCart[group_key]) {
+                    (myCart[group_key].products).forEach(sid => {
+                        total += myProductList[sid].total;
                     });
                     myCart[group_key].total = total;
 
@@ -1067,27 +1155,329 @@
                             myCart[group_key].dlv_fee = 0;
                             break;
                     }
-                    sumAllAmount();
                 }
+                // set 應付金額
+                setTotalPrice();
             }
+
             // 計算 應付金額
             function sumAllAmount() {
                 // 商品小計
                 let all_total = 0;
+                // 折扣
+                let all_discount = 0;
                 // 運費
                 let all_dlvFee = 0;
+                // 總金額
+                let all_sum = 0;
 
                 for (const key in myCart) {
                     if (Object.hasOwnProperty.call(myCart, key)) {
                         const cart = myCart[key];
-                        all_dlvFee += cart.dlv_fee;
                         all_total += cart.total;
+                        all_dlvFee += cart.dlv_fee;
+                    }
+                }
+                all_discount = setGlobalDiscount(all_total);
+                all_discount = (all_discount > all_total) ? all_total : all_discount;
+                all_sum = all_total - all_discount + all_dlvFee;
+
+                return { all_total, all_discount, all_dlvFee, all_sum };
+            }
+
+            // 計算 優惠商品總額 (pid = [] 則不限)
+            function sumPordTotal(pids = []) {
+                let total = 0;
+                for (const sid in myProductList) {
+                    if (Object.hasOwnProperty.call(myProductList, sid)) {
+                        const prod = myProductList[sid];
+                        if (pids.length === 0 || pids.indexOf(prod.pid) >= 0) {
+                            total += prod.total;
+                        }
+                    }
+                }
+                return total;
+            }
+
+            /*** 優惠 ***/
+            $('button.-coupon_sn').off('click').on('click', function () {
+                $('div.--ctype.-code input[name="coupon_sn"]').val('');
+                checkCouponSN();
+            });
+            // 優惠券代碼 -coupon_sn
+            function checkCouponSN() {
+                const _URL = @json(route('api.cms.discount.check-discount-code'));
+                let Data = {
+                    sn: $('input.-coupon_sn').val(),
+                    product_id: []
+                };
+                // init
+                $('.d-flex.-coupon_sn, input.-coupon_sn').removeClass('is-valid is-invalid');
+                $('.-feedback.-coupon_sn').removeClass('valid-feedback invalid-feedback').prop('hidden', true);
+
+                if (!Data.sn) {
+                    toast.show('請輸入優惠代碼', { type: 'danger' });
+                    return false;
+                }
+                $('input[name="product_id[]"]').each(function (index, element) {
+                    // element == this
+                    if ((Data.product_id).indexOf($(element).val()) < 0) {
+                        (Data.product_id).push($(element).val());
+                    }
+                });
+                if (Data.product_id.length <= 0) {
+                    toast.show('請先加入商品', { type: 'danger' });
+                    return false;
+                }
+                Data.product_id = (Data.product_id).toString();
+
+                axios.post(_URL, Data)
+                    .then((result) => {
+                        const res = result.data;
+                        console.log(res);
+                        let valid_cls = '', msg = '';
+                        if (res.status === '0') {
+                            const dis = res.data;
+                            let consume = 0;    // 優惠商品小計
+                            let discount_price = 0; // 折扣總金額
+                            if (dis.is_global) {
+                                myDiscountList.global[dis.id] = dis;
+                                consume = sumPordTotal();
+                                setGlobalDiscount(consume);
+                                discount_price = discountUse(dis, consume);
+                            } else {
+                                myDiscountList.code[dis.id] = dis;
+                                consume = sumPordTotal(dis.product_ids);
+                                discount_price = discountUse(dis, consume);
+                                // 回填各商品折扣
+                            }
+                            // 檢查低消
+                            if (discount_price) {
+                                valid_cls = 'valid';
+                                msg = `使用優惠券：${dis.title}－`;
+                                // 紀錄sn
+                                $('div.--ctype.-code input[name="coupon_sn"]').val(Data.sn);
+                            } else {
+                                valid_cls = 'invalid';
+                                msg = '未達優惠使用條件：';
+                            }
+                            msg += discountNote(dis);
+                        } else {
+                            valid_cls = 'invalid';
+                            msg = res.message || '未達優惠使用條件';
+                        }
+                        $('.d-flex.-coupon_sn, input.-coupon_sn').addClass(`is-${valid_cls}`);
+                        $('.-feedback.-coupon_sn').addClass(`${valid_cls}-feedback`)
+                            .prop('hidden', false).text(msg);
+                    }).catch((err) => {
+                        console.error(err);
+                    });
+            }
+
+            // 紅利 -bonus_point
+
+            // set 全館優惠
+            function setGlobalDiscount(all_total = 0) {
+                if (Object.keys(myDiscountList.global).length === 0) {
+                    return false;
+                }
+                // 清空
+                $('#Global_discount table tbody').empty();
+
+                let maxDiscount = 0;  // 現金、趴數 最優擇一
+                let bestDiscount = '';  // 最優優惠
+                let couponList = [];    // 優惠券可重複
+                for (const key in myDiscountList.global) {
+                    if (Object.hasOwnProperty.call(myDiscountList.global, key)) {
+                        appendTbody(myDiscountList.global[key]);
                     }
                 }
 
-                $('#Total_price td[data-td="subtotal"]').text(`${formatNumber(all_total)}`);
-                $('#Total_price td[data-td="dlv_fee"]').text(`${formatNumber(all_dlvFee)}`);
-                $('#Total_price td[data-td="sum"]').text(`${formatNumber(all_total + all_dlvFee)}`);
+                if (bestDiscount || couponList.length) {
+                    $('#Global_discount').prop('hidden', false);
+                    $('#Global_discount table tbody').append(bestDiscount, ...couponList);
+                } else {
+                    $('#Global_discount').prop('hidden', true);
+                }
+
+                return maxDiscount;
+
+                // 整理可使用優惠 <tr>s
+                function appendTbody(dis) {
+                    let discount = discountUse(dis, all_total);
+                    if (discount) {
+                        if (typeof discount === 'string') {
+                            couponList.push(discountTR(dis, discount, 'text-primary'));
+                        } else if (discount > maxDiscount) {
+                            maxDiscount = discount;
+                            bestDiscount = discountTR(dis, '- $' + discount, 'text-danger');
+                        }
+                    }
+                }
+
+                // 產生優惠 tr
+                function discountTR(dis, dis_text, dis_class) {
+                    return `<tr data-id="${dis.id}">
+                        <td class="col-8">${dis.title}
+                            <span class="small text-secondary">－${discountNote(dis)}</span>
+                        </td>
+                        <td class="text-end pe-4 ${dis_class}">${dis_text}</td>
+                    </tr>`;
+                }
+            }
+
+            /** 
+             * set 所有各商品優惠
+            */
+            function setProductDiscount() {
+                if (Object.keys(myDiscountList.code).length === 0 && Object.keys(myDiscountList.optional).length === 0) {
+                    return false;
+                }
+                // 清空
+                $(`.-cloneElem.--selectedP div[data-td="discount"],
+                   .-cloneElem.--selectedP div[data-td="disprice"]`).remove();
+                myProductDiscountList = [];
+                
+                // main: 紀錄商品優惠
+                for (const type of DISC_PRIORITY) {
+                    let tempDis = null;
+                    if (tempDis = myDiscountList[type] && Object.keys(tempDis).length) {
+                        for (const id in tempDis) {
+                            if (Object.hasOwnProperty.call(tempDis, id)) {
+                                const useDis = codeDiscountUse(tempDis[id], type);
+                                myProductDiscountList.push(...useDis);
+                            }
+                        }
+                    }
+                }
+                // set html
+                myProductDiscountList.forEach(prodDis => {
+                    const $tr = $(`input[name="product_style_id[]"][value="${prodDis.sid}"]`).closest('.-cloneElem.--selectedP');
+                    $tr.find('div[data-td="title"]').after(dicountDIV(myDiscountList[prodDis.type][prodDis.did]));
+                    $tr.find('div[data-td="subtotal"]').after(dispriceDIV(prodDis.price));
+                });
+
+                // 折扣文字
+                function dicountDIV(dis) {
+                    return `<div data-td="discount" class="lh-1 small text-secondary">
+                        <span class="badge rounded-pill bg-danger fw-normal me-2">已達優惠</span>
+                        ${discountNote(dis)}
+                    </div>`;
+                }
+                // 折扣金額
+                function dispriceDIV(price) {
+                    return `<div data-td="disprice" class="lh-1 text-danger">- $${formatNumber(price)}</div>`;
+                }
+            }
+            /** 計算總使用各商品優惠
+             * @param {object} dis 優惠
+             * @param {string} type 類型'optional'|'code'
+            */
+            function codeDiscountUse(dis, type) {
+                const pids = dis.product_ids;
+                if (!pids || !pids.length) {
+                    return false;
+                }
+                let result = [];
+                let consume = sumPordTotal(pids);
+                if (consume >= dis.min_consume) {
+                    let total_dis = 0;  // 總折扣金額
+                    let ratio = 0;  // 折扣比例
+                    switch (dis.method_code) {
+                        case 'cash':
+                            if (dis.is_grand_total) {   // 累計
+                                total_dis = dis.discount_value * (Math.floor(consume / dis.min_consume));
+                            } else {
+                                total_dis = dis.discount_value;
+                            }
+                            ratio = consume / total_dis;
+                            break;
+                        case 'percent':
+                            ratio = dis.discount_value;
+                            break;
+                    }
+
+                    for (const sid in myProductList) {
+                        if (Object.hasOwnProperty.call(myProductList, sid)) {
+                            const prod = myProductList[sid];
+                            if (pids.indexOf(prod.pid) >= 0) {
+                                const price = Math.round(prod.total * ratio);
+                                result.push({
+                                    sid: prod.sid,
+                                    pid: prod.pid,
+                                    did: dis.id,
+                                    price,
+                                    type
+                                });
+                                if (dis.method_code === 'cash') {
+                                    total_dis -= price;
+                                }
+                                myProductList[sid].dis_price = price;
+                            }
+                        }
+                    }
+                    result[result.length - 1].price += total_dis;
+                    myProductList[result[result.length - 1].sid].dis_price += total_dis;
+                }
+                return result;
+            }
+
+            /** 計算總使用優惠
+             * dis: 優惠 {}
+             * consume: 優惠商品消費總金額
+            */
+            function discountUse(dis, consume = 0) {
+                let result = false;
+                if (consume >= dis.min_consume) {
+                    switch (dis.method_code) {
+                        case 'cash':
+                            if (dis.is_grand_total) {   // 累計
+                                let count = Math.floor(consume / dis.min_consume);
+                                result = (dis.discount_value * count);
+                            } else {
+                                result = dis.discount_value;
+                            }
+                            break;
+                        case 'percent':
+                            result = Math.floor(consume * (1 - (dis.discount_value / 100)));
+                            break;
+                        case 'coupon':
+                            result = `【${dis.coupon_title || ''}】`;
+                            break;
+                    }
+                }
+                return result;
+            }
+
+            // ex. 消費滿 $100 折 $10（不得折抵運費），可累計優惠
+            // ex. 消費滿 $100 享 88 折優惠（不含運費）
+            // ex. 消費不限金額享 88 折優惠（不含運費）
+            // ex. 消費滿 $100 送優惠券
+            function discountNote(dis) {
+                let note = '';
+                // 低消
+                if (dis.min_consume > 0) {
+                    note += `消費滿 $${dis.min_consume} `;
+                } else {
+                    note += '消費不限金額';
+                }
+                // 優惠內容
+                switch (dis.method_code) {
+                    case 'cash':
+                        note += `折 $${dis.discount_value}（不得折抵運費）`;
+                        break;
+                    case 'percent':
+                        note += `享 ${dis.discount_value} 折優惠（不含運費）`;
+                        break;
+                    case 'coupon':
+                        note += `送優惠券`;
+                        break;
+                }
+                // 累計
+                if (dis.is_grand_total > 0) {
+                    note += '，可累計優惠';
+                }
+                return note;
             }
         </script>
         <script>

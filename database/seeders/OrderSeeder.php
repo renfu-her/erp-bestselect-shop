@@ -17,7 +17,7 @@ class OrderSeeder extends Seeder
      */
     public function run()
     {
-        //
+        
         DB::table('ord_order_status')->insert([
             [
                 'title' => '新增',
@@ -60,7 +60,7 @@ class OrderSeeder extends Seeder
 
         ProductStock::comboProcess(4, 5);
         ProductStock::comboProcess(5, 6);
-
+        
         $address = [
             ['name' => 'hans', 'phone' => '0123313', 'address' => '桃園市八德區永福街', 'type' => 'reciver'],
             ['name' => 'hans', 'phone' => '0123313', 'address' => '桃園市八德區永福街', 'type' => 'orderer'],

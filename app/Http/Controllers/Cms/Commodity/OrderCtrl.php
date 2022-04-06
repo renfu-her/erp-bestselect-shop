@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Addr;
 use App\Models\Customer;
 use App\Models\CustomerIdentity;
+use App\Models\Discount;
 use App\Models\Order;
 use App\Models\OrderCart;
 use App\Models\OrderStatus;
@@ -26,7 +27,7 @@ class OrderCtrl extends Controller
     {
 
         // Order::createOrder([]);
-
+        //   dd(Discount::getDiscountStatus(1));
         // dd(Order::orderList()->get()->toArray());
 
         $query = $request->query();
@@ -78,6 +79,7 @@ class OrderCtrl extends Controller
     public function create(Request $request)
     {
 
+        //   dd(Discount::checkCode('fkfk',[1,2,4]));
         $cart = null;
         if (old('product_style_id')) {
             $oldData = [];
@@ -124,6 +126,8 @@ class OrderCtrl extends Controller
         }
 
         $citys = Addr::getCitys();
+
+        //  dd(Discount::getDiscounts('global-normal'));
         //    dd($citys);
         return view('cms.commodity.order.edit', [
             'customer_id' => $customer_id,
@@ -133,6 +137,7 @@ class OrderCtrl extends Controller
             'regions' => $regions,
             'overbought_id' => $overbought_id,
             'salechannels' => $salechannels,
+            'discounts' => Discount::getDiscounts('global-normal'),
         ]);
     }
 
@@ -144,7 +149,7 @@ class OrderCtrl extends Controller
      */
     public function store(Request $request)
     {
-        // dd($_POST);
+
         $arrVali = [];
         foreach (UserAddrType::asArray() as $value) {
             switch ($value) {
@@ -207,11 +212,16 @@ class OrderCtrl extends Controller
 
         }
 
-        $re = Order::createOrder($customer->email, 1, $address, $items, $d['note']);
+        $coupon = null;
+        if (isset($d['coupon_type']) && isset($d['coupon_sn'])) {
+            $coupon = [$d['coupon_type'], $d['coupon_sn']];
+        }
+
+        $re = Order::createOrder($customer->email, 1, $address, $items, $d['note'], $coupon);
         if ($re['success'] == '1') {
             wToast('訂單新增成功');
             return redirect(route('cms.order.detail', [
-                'id' => $re['order_id']
+                'id' => $re['order_id'],
             ]));
         }
         $errors = [];
@@ -235,6 +245,9 @@ class OrderCtrl extends Controller
                     break;
                 case "product":
                     $addInput['overbought_id'] = $re['event_id'];
+                    break;
+                case "coupon":
+                    $errors['coupon'] = $re['error_msg'];
                     break;
             }
         }
@@ -264,19 +277,21 @@ class OrderCtrl extends Controller
     {
 
         $order = Order::orderDetail($id)->get()->first();
-        
+
         $subOrder = Order::subOrderDetail($id)->get()->toArray();
-        
+
+        //  dd(Discount::orderDiscountList('main',$id)->get()->toArray());
+
         foreach ($subOrder as $key => $value) {
             $subOrder[$key]->items = json_decode($value->items);
         }
 
-        //  dd($subOrder);
+        //    dd($order);
 
         if (!$order) {
             return abort(404);
         }
-        //   dd($order);
+        //  dd( Discount::orderDiscountList('main', $id)->get()->toArray());
 
         $sn = $order->sn;
         return view('cms.commodity.order.detail', [
@@ -284,7 +299,8 @@ class OrderCtrl extends Controller
             'order' => $order,
             'subOrders' => $subOrder,
             'breadcrumb_data' => $sn,
-            'subOrderId' => $subOrderId
+            'subOrderId' => $subOrderId,
+            'discounts' => Discount::orderDiscountList('main', $id)->get()->toArray(),
         ]);
     }
 

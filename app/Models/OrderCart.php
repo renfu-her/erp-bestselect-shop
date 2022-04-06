@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\Discount\DisCategory;
+use App\Enums\Discount\DisMethod;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -57,12 +59,26 @@ class OrderCart extends Model
         return $cart;
 
     }
+    /**
+     * @param array $coupon_obj ["type"=>"code/sn","value"=>"string"]
+     */
 
-    public static function cartFormater($data, $checkInStock = true)
+    public static function cartFormater($data, $coupon_obj = null, $checkInStock = true)
     {
         $shipmentGroup = [];
         $shipmentKeys = [];
-        $order = ['total_price' => 0, 'shipments' => []];
+        $order = [
+            'origin_price' => 0,
+            'total_price' => 0,
+            'dlv_fee' => 0,
+            'discount_value' => 0,
+            'discounted_price' => 0,
+            'shipments' => [],
+            'discounts' => [],
+        ];
+
+        $_tempProducts = [];
+
         foreach ($data as $value) {
             $style = Product::productStyleList(null, null, null, ['price' => 1])->where('s.id', $value['product_style_id'])
                 ->get()->first();
@@ -75,7 +91,7 @@ class OrderCart extends Model
                     return ['success' => 0, 'error_msg' => '購買超過上限', 'event' => 'product', 'event_id' => $value['product_style_id']];
                 }
             }
-
+            // shipment
             switch ($value['shipment_type']) {
                 case 'pickup':
                     $shipment = Product::getPickup($value['product_id'])->where('depot.id', $value['shipment_event_id'])->get()->first();
@@ -103,7 +119,9 @@ class OrderCart extends Model
             if (!in_array($groupKey, $shipmentKeys)) {
                 $shipmentKeys[] = $groupKey;
                 $shipment->products = [];
-                $shipment->totalPrice = 0;
+                $shipment->origin_price = 0;
+                $shipment->discounted_price = 0;
+                $shipment->discount_value = 0;
                 $shipment->category = $value['shipment_type'];
                 $shipmentGroup[] = $shipment;
             }
@@ -113,50 +131,247 @@ class OrderCart extends Model
             $style->product_id = $value['product_id'];
             $style->product_style_id = $value['product_style_id'];
             $style->qty = $value['qty'];
-            $style->dlv_fee = 0;
-            $style->total_price = $value['qty'] * $style->price;
+            $style->origin_price = $value['qty'] * $style->price;
+            $style->discount_value = 0;
+            $style->discounted_price = $style->origin_price;
+            $style->discounts = [];
             $shipmentGroup[$idx]->products[] = $style;
-            $shipmentGroup[$idx]->totalPrice += $style->total_price;
+            $shipmentGroup[$idx]->origin_price += $style->origin_price;
+            $shipmentGroup[$idx]->discounted_price = $shipmentGroup[$idx]->origin_price;
+            $_tempProducts[] = [
+                'groupIdx' => $idx,
+                'productIdx' => count($shipmentGroup[$idx]->products) - 1,
+                'total_price' => $style->origin_price,
+                'product_id' => $style->product_id,
+            ];
+
+            $order['origin_price'] += $shipmentGroup[$idx]->origin_price;
+        }
+
+        // get coupon
+        $currentCoupon = null;
+        if ($coupon_obj && $coupon_obj[0]) {
+            switch ($coupon_obj[0]) {
+                case DisCategory::code();
+                    $currentCoupon = Discount::checkCode($coupon_obj[1], array_map(function ($n) {
+                        return $n['product_id'];
+                    }, $_tempProducts));
+
+                    if ($currentCoupon['success'] == '1') {
+                        $currentCoupon = $currentCoupon['data'];
+                    } else {
+                        return ['success' => 0, 'error_msg' => $currentCoupon['message'], 'event' => 'coupon'];
+                    }
+                    break;
+            }
+        }
+
+        // discounted init
+        $order['discounted_price'] = $order['origin_price'];
+        //   dd($order);
+        $order['shipments'] = $shipmentGroup;
+        // 全館
+
+        self::globalStage($order);
+
+        self::couponStage($order, $currentCoupon, $_tempProducts);
+
+        self::shipmentStage($order);
+
+        $order['total_price'] = $order['discounted_price'] + $order['dlv_fee'];
+        $order['success'] = 1;
+
+        return $order;
+
+    }
+
+    private static function globalStage(&$order)
+    {
+        $discounts = Discount::getDiscounts('global-normal');
+
+        //   dd($discounts);
+        $dis = [];
+        $coupons = [];
+        foreach ($discounts as $key => $value) {
+
+            switch ($key) {
+                case DisMethod::cash()->value:
+
+                    foreach ($value as $cash) {
+                        if ($cash->min_consume == 0 || $cash->min_consume < $order['origin_price']) {
+                            if ($cash->is_grand_total == 1) {
+                                $cash->currentDiscount = intval(floor($order['origin_price'] / $cash->min_consume) * $cash->discount_value);
+                                $cash->title = $cash->title . "(累計)";
+
+                            } else {
+                                $cash->currentDiscount = $cash->discount_value;
+                            }
+                            $dis[] = $cash;
+                        }
+
+                    }
+
+                    break;
+                case DisMethod::percent()->value:
+                    foreach ($value as $cash) {
+                        if ($cash->min_consume == 0 || $cash->min_consume < $order['origin_price']) {
+                            $cash->currentDiscount = $order['origin_price'] - intval($order['origin_price'] / 100 * $cash->discount_value);
+                            $cash->discount_value = $cash->discount_value;
+                            $dis[] = $cash;
+                        }
+                    }
+                    break;
+                case DisMethod::coupon()->value:
+
+                    foreach ($value as $cash) {
+                        if ($cash->min_consume == 0 || $cash->min_consume < $order['origin_price']) {
+                            $cash->title = $cash->title . " (下次使用)";
+                            $coupons[] = $cash;
+                        }
+                    }
+                    break;
+
+            }
+        }
+
+        usort($dis, function ($a, $b) {
+            return strcmp($b->currentDiscount, $a->currentDiscount);
+        });
+
+        if ($dis && $dis[0]) {
+            $order['discounts'][] = $dis[0];
+            $order['discount_value'] += $dis[0]->currentDiscount;
+            $order['discounted_price'] -= $dis[0]->currentDiscount;
+        }
+
+        foreach ($coupons as $coupon) {
+            $order['discounts'][] = $coupon;
+        }
+
+    }
+
+    private static function couponStage(&$order, $currentCoupon, $_tempProducts)
+    {
+        if (!$currentCoupon) {
+            return;
+        }
+        $discount_value = 0;
+        if ($currentCoupon->is_global == '1') {
+            if ($order['discounted_price'] > $currentCoupon->min_consume) {
+                $discount_value = $currentCoupon->discount_value;
+                $order['discounts'][] = $currentCoupon;
+            }
+        } else {
+            $couponTargetProducts = ['styles' => [],
+                'total_price' => 0,
+                'discount' => 0];
+            //  dd($currentCoupon);
+            foreach ($_tempProducts as $value) {
+                if (in_array($value['product_id'], $currentCoupon->product_ids)) {
+                    $couponTargetProducts['total_price'] += $value['total_price'];
+                    $couponTargetProducts['styles'][] = $value;
+                }
+            }
+
+            if (count($couponTargetProducts['styles']) > 0) {
+                switch ($currentCoupon->method_code) {
+                    case DisMethod::cash():
+                        $couponTargetProducts['discount'] = $currentCoupon->discount_value;
+                        $couponTargetProducts['discounted_price'] = $couponTargetProducts['total_price'] - $couponTargetProducts['discount'];
+                        break;
+                    case DisMethod::percent():
+                        $tPrice = $couponTargetProducts['total_price'];
+                        $couponTargetProducts['discount'] = floor($tPrice - $tPrice / 100 * $currentCoupon->discount_value);
+                        $couponTargetProducts['discounted_price'] = $tPrice - $couponTargetProducts['discount'];
+
+                        break;
+                    default:
+
+                }
+
+                $proportion = $couponTargetProducts['discounted_price'] / $couponTargetProducts['total_price'];
+                $tempDiscount = 0;
+                $_positions = [];
+                foreach ($couponTargetProducts['styles'] as $value) {
+                    $gIdx = $value['groupIdx'];
+                    $pIdx = $value['productIdx'];
+                    $tPrice = $order['shipments'][$gIdx]->products[$pIdx]->origin_price;
+                    $discount_value = floor($tPrice - $tPrice * $proportion);
+                    $order['shipments'][$gIdx]->products[$pIdx]->discount_value = $discount_value;
+                    $order['shipments'][$gIdx]->products[$pIdx]->discounted_price = $tPrice - $discount_value;
+
+                    $tempDiscount += $discount_value;
+                    $order['shipments'][$gIdx]->products[$pIdx]->discounts[] = clone $currentCoupon;
+                    $order['shipments'][$gIdx]->discount_value += $discount_value;
+                    $order['shipments'][$gIdx]->discounted_price -= $discount_value;
+
+                    $discount_idx = count($order['shipments'][$gIdx]->products[$pIdx]->discounts) - 1;
+                    $_positions[] = [$gIdx, $pIdx, $discount_idx];
+
+                    $order['shipments'][$gIdx]->products[$pIdx]->discounts[$discount_idx]->currentDiscount = $discount_value;
+
+                }
+
+                if ($currentCoupon->method_code == DisMethod::cash() && $currentCoupon->discount_value > $tempDiscount && count($couponTargetProducts['styles']) > 0) {
+                    $lastStyle = $_positions[count($_positions) - 1];
+
+                    $gIdx = $lastStyle[0];
+                    $pIdx = $lastStyle[1];
+                    $dIdx = $lastStyle[2];
+                    $fix_value = $currentCoupon->discount_value - $tempDiscount;
+                    $order['shipments'][$gIdx]->products[$pIdx]->discount_value += $fix_value;
+                    $order['shipments'][$gIdx]->products[$pIdx]->discounted_price -= $fix_value;
+                    $order['shipments'][$gIdx]->discount_value += $fix_value;
+                    $order['shipments'][$gIdx]->discounted_price -= $fix_value;
+                    $order['shipments'][$gIdx]->products[$pIdx]->discounts[$dIdx]->currentDiscount += $fix_value;
+                }
+
+                $discount_value = $couponTargetProducts['discount'];
+
+            }
 
         }
-        foreach ($shipmentGroup as $key => $ship) {
+
+        $order['discounted_price'] -= $discount_value;
+        $order['discount_value'] += $discount_value;
+
+    }
+
+    private static function shipmentStage(&$order)
+    {
+        foreach ($order['shipments'] as $key => $ship) {
             //  dd($ship);
             switch ($ship->category) {
                 case "deliver":
                     foreach ($ship->rules as $rule) {
                         $use_rule = false;
                         if ($rule->is_above == 'false') {
-                            if ($ship->totalPrice >= $rule->min_price && $ship->totalPrice < $rule->max_price) {
-                                $shipmentGroup[$key]->dlv_fee = $rule->dlv_fee;
+                            if ($ship->discounted_price >= $rule->min_price && $ship->discounted_price < $rule->max_price) {
+                                $order['shipments'][$key]->dlv_fee = $rule->dlv_fee;
                                 $use_rule = $rule;
                             }
                         } else {
-                            if ($ship->totalPrice >= $rule->max_price) {
-                                $shipmentGroup[$key]->dlv_fee = $rule->dlv_fee;
+                            if ($ship->discounted_price >= $rule->max_price) {
+                                $order['shipments'][$key]->dlv_fee = $rule->dlv_fee;
                                 $use_rule = $rule;
 
                             }
                         }
 
                         if ($use_rule) {
-                            $shipmentGroup[$key]->use_rule = $use_rule;
+                            $order['shipments'][$key]->use_rule = $use_rule;
                             break;
                         }
                     }
                     break;
                 default:
-                    $shipmentGroup[$key]->dlv_fee = 0;
+                    $order['shipments'][$key]->dlv_fee = 0;
 
             }
 
-            $order['total_price'] += $ship->totalPrice + $shipmentGroup[$key]->dlv_fee;
+            $order['dlv_fee'] += $order['shipments'][$key]->dlv_fee;
+
         }
-
-        $order['shipments'] = $shipmentGroup;
-        $order['success'] = 1;
-        return $order;
-
     }
 
 }
-

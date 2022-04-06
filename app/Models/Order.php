@@ -19,25 +19,29 @@ class Order extends Model
         $sale_channel_id = null,
         $order_date = null) {
         $order = DB::table('ord_orders as order')
-            ->select('order.id as id','order.status as order_status', 'customer.name', 'sale.title as sale_title', 'so.ship_category_name',
-                'so.ship_event', 'so.ship_sn'
-                , 'dlv_delivery.logistic_status as logistic_status'
-                , 'dlv_logistic.package_sn as package_sn'
-                , 'shi_group.name as ship_group_name')
+            ->select(['order.id as id',
+                'order.status as order_status',
+                'customer.name',
+                'sale.title as sale_title',
+                'so.ship_category_name',
+                'so.ship_event', 'so.ship_sn',
+                'dlv_delivery.logistic_status as logistic_status',
+                'dlv_logistic.package_sn as package_sn',
+                'shi_group.name as ship_group_name'])
             ->selectRaw('DATE_FORMAT(order.created_at,"%Y-%m-%d") as order_date')
             ->selectRaw('so.sn as order_sn')
             ->leftJoin('ord_sub_orders as so', 'order.id', '=', 'so.order_id')
             ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
             ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id')
 
-            ->leftJoin('dlv_delivery', function($join) {
+            ->leftJoin('dlv_delivery', function ($join) {
                 $join->on('dlv_delivery.event_id', '=', 'so.id');
                 $join->where('dlv_delivery.event', '=', Event::order()->value);
             })
-            ->leftJoin('dlv_logistic', function($join) {
+            ->leftJoin('dlv_logistic', function ($join) {
                 $join->on('dlv_logistic.delivery_id', '=', 'dlv_delivery.id');
             })
-            ->leftJoin('shi_group', function($join) {
+            ->leftJoin('shi_group', function ($join) {
                 $join->on('shi_group.id', '=', 'dlv_logistic.ship_group_id');
                 $join->whereNotNull('dlv_logistic.ship_group_id');
             })
@@ -80,7 +84,18 @@ class Order extends Model
         $orderQuery = DB::table('ord_orders as order')
             ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
             ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id')
-            ->select('order.id', 'order.sn', 'order.note', 'order.status', 'order.total_price', 'order.created_at', 'customer.name', 'customer.email', 'sale.title as sale_title')
+            ->select(['order.sn',
+                'order.discount_value',
+                'order.discounted_price',
+                'order.dlv_fee',
+                'order.origin_price',
+                'order.note',
+                'order.status',
+                'order.total_price',
+                'order.created_at',
+                'customer.name',
+                'customer.email',
+                'sale.title as sale_title'])
             ->where('order.id', $order_id);
         self::orderAddress($orderQuery);
 
@@ -94,32 +109,32 @@ class Order extends Model
             'sku' => 'item.sku',
             'price' => 'item.price',
             'qty' => 'item.qty',
-            'total_price' => 'item.total_price']);
+            'total_price' => 'item.origin_price']);
 
         $itemQuery = DB::table('ord_items as item')
             ->groupBy('item.sub_order_id')
             ->select('item.sub_order_id')
             ->selectRaw($concatString . ' as items')
             ->where('item.order_id', $order_id);
-       // dd($itemQuery->get()->toArray());
+        // dd($itemQuery->get()->toArray());
         if ($sub_order_id) {
             $itemQuery->where('item.sub_order_id', $sub_order_id);
         }
 
         $orderQuery = DB::table('ord_sub_orders as sub_order')
-            ->leftJoinSub($itemQuery, 'i', function($join) {
+            ->leftJoinSub($itemQuery, 'i', function ($join) {
                 $join->on('sub_order.id', '=', 'i.sub_order_id');
             })
 //->mergeBindings($itemQuery) ;
 
-            ->leftJoin('dlv_delivery', function($join) {
+            ->leftJoin('dlv_delivery', function ($join) {
                 $join->on('dlv_delivery.event_id', '=', 'sub_order.id');
                 $join->where('dlv_delivery.event', '=', Event::order()->value);
             })
-            ->leftJoin('dlv_logistic', function($join) {
+            ->leftJoin('dlv_logistic', function ($join) {
                 $join->on('dlv_logistic.delivery_id', '=', 'dlv_delivery.id');
             })
-            ->leftJoin('shi_group', function($join) {
+            ->leftJoin('shi_group', function ($join) {
                 $join->on('shi_group.id', '=', 'dlv_logistic.ship_group_id');
                 $join->whereNotNull('dlv_logistic.ship_group_id');
             })
@@ -145,7 +160,7 @@ class Order extends Model
     {
         foreach (UserAddrType::asArray() as $value) {
             $query->leftJoin('ord_address as ' . $value, function ($q) use ($value, $joinTable, $joinKey) {
-                $q->on($joinTable.'.id', '=', $value . '.'. $joinKey)
+                $q->on($joinTable . '.id', '=', $value . '.' . $joinKey)
                     ->where($value . '.type', '=', $value);
             });
             switch ($value) {
@@ -168,11 +183,20 @@ class Order extends Model
         }
     }
 
-    public static function createOrder($email, $sale_channel_id, $address, $items, $note = null)
+    /**
+     * @param string $email
+     * @param string $sale_channel_id
+     * @param array $address
+     * @param array $items
+     * @param string $note
+     * @param array $coupon_obj [type,value]
+     * 
+     */
+    public static function createOrder($email, $sale_channel_id, $address, $items, $note = null, $coupon_obj = null)
     {
 
-        return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $note) {
-            $order = OrderCart::cartFormater($items);
+        return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $note, $coupon_obj) {
+            $order = OrderCart::cartFormater($items, $coupon_obj);
 
             if ($order['success'] != 1) {
                 DB::rollBack();
@@ -183,14 +207,19 @@ class Order extends Model
                     ->get()
                     ->count()) + 1, 2, '0', STR_PAD_LEFT);
 
-            // dd($order['shipments']);
             $order_id = self::create([
                 "sn" => $order_sn,
                 "sale_channel_id" => $sale_channel_id,
                 "email" => $email,
                 "total_price" => $order['total_price'],
+                "origin_price" => $order['origin_price'],
+                "dlv_fee" => $order['dlv_fee'],
+                "discount_value" => $order['discount_value'],
+                "discounted_price" => $order['discounted_price'],
                 'note' => $note,
             ])->id;
+
+            Discount::createOrderDiscount('main', $order_id, $order['discounts']);
 
             foreach ($address as $key => $user) {
 
@@ -209,7 +238,7 @@ class Order extends Model
             }
             try {
                 DB::table('ord_address')->insert($address);
-            } catch (\Exception $e) {
+            } catch (\Exception$e) {
                 DB::rollBack();
                 return ['success' => '0', 'error_msg' => 'address format error', 'event' => 'address', 'event_id' => ''];
             }
@@ -225,7 +254,10 @@ class Order extends Model
                     'ship_category' => $value->category,
                     'ship_category_name' => $value->category_name,
                     'dlv_fee' => $value->dlv_fee,
-                    'total_price' => $value->totalPrice,
+                    'total_price' => $value->origin_price,
+                    'origin_price' => $value->origin_price,
+                    'discounted_price' => $value->discounted_price,
+                    'discount_value' => $value->discount_value,
                     'status' => '',
                 ];
 
@@ -270,16 +302,20 @@ class Order extends Model
                         DB::rollBack();
                         return $reStock;
                     }
-                    DB::table('ord_items')->insert([
+                    $pid = DB::table('ord_items')->insertGetId([
                         'order_id' => $order_id,
                         'sub_order_id' => $subOrderId,
                         'product_style_id' => $product->product_style_id,
                         'sku' => $product->sku,
-                        'product_title' => $product->product_title .'-'. $product->spec,
+                        'product_title' => $product->product_title . '-' . $product->spec,
                         'price' => $product->price,
                         'qty' => $product->qty,
-                        'total_price' => $product->total_price,
+                        'discounted_price' => $product->discounted_price,
+                        'discount_value' => $product->discount_value,
+                        'origin_price' => $product->origin_price,
                     ]);
+
+                    Discount::createOrderDiscount('item', $pid, $product->discounts);
 
                 }
 

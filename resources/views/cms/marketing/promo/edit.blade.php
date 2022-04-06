@@ -3,7 +3,7 @@
     @if ($method === 'edit')
         <h2 class="mb-3">優惠券名稱</h2>
     @else
-        <h2 class="mb-3">新增 優惠劵 / 序號</h2>
+        <h2 class="mb-3">新增 優惠劵 / 代碼</h2>
     @endif
 
     <form id="form1" method="post" action="">
@@ -51,8 +51,8 @@
                 <div class="col-12 col-sm-6 mb-3" data-category="code" hidden>
                     <label class="form-label">可用起始日 <span class="small text-secondary">（未填則表示現在）</span></label>
                     <div class="input-group has-validation">
-                        <input type="datetime-local" name="start_date"
-                            value="{{ old('start_date', $data->start_date ?? '') }}"
+                        <input type="date" name="start_date"
+                            value="{{ old('start_date') ? date('Y-m-d', strtotime($data->start_date)) : '' }}"
                             class="form-control @error('start_date') is-invalid @enderror" aria-label="可用起始日" editable
                             norequired />
                         <button class="btn btn-outline-secondary icon" type="button" data-clear data-bs-toggle="tooltip"
@@ -68,7 +68,7 @@
                 <div class="col-12 col-sm-6 mb-3" data-category="code" hidden>
                     <label class="form-label">可用結束日<span class="small text-secondary">（未填則表示不會結束）</span></label>
                     <div class="input-group has-validation">
-                        <input type="datetime-local" name="end_date" value="{{ old('end_date', $data->end_date ?? '') }}"
+                        <input type="date" name="end_date" value="{{ old('end_date') ? date('Y-m-d', strtotime($data->end_date)) : '' }}"
                             class="form-control @error('end_date') is-invalid @enderror" aria-label="可用結束日" editable
                             norequired />
                         <button class="btn btn-outline-secondary icon" type="button" data-clear data-bs-toggle="tooltip"
@@ -119,7 +119,7 @@
                 <div class="col-12 mb-3">
                     <label class="form-label">適用商品群組<span class="small text-secondary">（不選為全館適用）</span></label>
                     <select name="collection_id[]" multiple class="-select2 -multiple form-select"
-                        data-close-on-select="false" data-placeholder="可多選" editable>
+                        data-close-on-select="false" data-placeholder="可多選" {{ $editBlock }}>
                         @foreach ($collections as $key => $value)
                             <option value="{{ $value->id }}" @if (in_array($value->id, $discountCollections)) selected @endif>
                                 {{ $value->name }}</option>
@@ -161,18 +161,6 @@
                             </div>
                         </div>
                     </div>
-                    <fieldset class="col-12 col-sm-6 mb-3">
-                        <legend class="col-form-label p-0 mb-2">&nbsp;</legend>
-                        <div class="px-1 pt-1">
-                            <div class="form-check form-check-inline">
-                                <label class="form-check-label">
-                                    <input class="form-check-input" name="is_grand_total" type="checkbox" value="1" disabled
-                                        @if (old('is_grand_total', $data->is_grand_total ?? '') == '1') checked @endif norequired>
-                                    累計折扣
-                                </label>
-                            </div>
-                        </div>
-                    </fieldset>
                 </div>
 
                 {{-- 優惠方式：百分比 percent --}}
@@ -266,8 +254,8 @@
                 $(`div[data-method="${method}"]`).find('input, select').prop(AbleControl);
                 $(`div[data-method="${method}"]`).find('[norequired]').prop('required', false);
                 if (editBlock) {
-                    $(`div[data-method="${method}"]`).find('input:not([editable]), select:not([editable])').prop(
-                        DisabledControl);
+                    $(`div[data-method="${method}"]`).find('input:not([editable]), select:not([editable])')
+                        .prop(DisabledControl);
                 }
             }
 
