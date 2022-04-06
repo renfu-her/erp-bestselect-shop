@@ -114,7 +114,7 @@ class IncomeExpenditureSeeder extends Seeder
         for ($index = 1; $index <= 13; $index++) {
             DB::table('acc_income_expenditure')->insert([
                 'acc_income_type_fk' => $incomeType_4,
-                'grade_id_fk' => $index + 2,
+                'grade_id_fk' => $index + 3,
                 'acc_currency_fk' => $index,
             ]);
         }
