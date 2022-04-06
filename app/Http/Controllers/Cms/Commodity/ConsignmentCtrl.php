@@ -144,7 +144,7 @@ class ConsignmentCtrl extends Controller
         $query = $request->query();
         $this->validInputValue($request);
 
-        $csnReq = $request->only('send_depot_id', 'receive_depot_id', 'scheduled_date');
+        $csnReq = $request->only('send_depot_id', 'receive_depot_id', 'scheduled_date', 'audit_status');
         $csnItemReq = $request->only('item_id', 'product_style_id', 'name', 'sku', 'num', 'price');
 
         //判斷是否有出貨審核，有則不可新增刪除商品款式
@@ -216,7 +216,28 @@ class ConsignmentCtrl extends Controller
 
     //入庫結案
     public function close(Request $request, $id) {
-        dd('close:'.$id);
+        $inboundOverviewList = PurchaseInbound::getOverviewInboundList(Event::consignment()->value, $id)->get()->toArray();
+        $errmsg = '';
+        if (0 < $inboundOverviewList) {
+            foreach ($inboundOverviewList as $key => $data) {
+                if (0 < $data->should_enter_num) {
+                    $errmsg = '請檢察是否有款式尚未入庫';
+                    break;
+                }
+            }
+        } else {
+            $errmsg = '未加入商品款式';
+        }
+        if ('' != $errmsg) {
+            throw ValidationException::withMessages(['close_error' => $errmsg]);
+        } else {
+            Consignment::close($id, $request->user()->id, $request->user()->name);
+        }
+
+        wToast(__('Close finished.'));
+        return redirect(Route('cms.purchase.inbound', [
+            'id' => $id,
+        ]));
     }
 
     public function inbound(Request $request, $id) {

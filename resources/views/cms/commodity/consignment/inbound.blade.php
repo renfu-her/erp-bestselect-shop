@@ -199,7 +199,7 @@
 
     <div>
         <div class="col-auto">
-            @if(null == $purchaseData->audit_date)
+            @if(null == $purchaseData->close_date)
             <button type="button"
                     data-bs-toggle="modal" data-bs-target="#confirm-close"
                     class="btn btn-primary px-4">
