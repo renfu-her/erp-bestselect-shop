@@ -84,7 +84,9 @@ class Order extends Model
         $orderQuery = DB::table('ord_orders as order')
             ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
             ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id')
-            ->select(['order.sn',
+            ->select([
+                'order.id',
+                'order.sn',
                 'order.discount_value',
                 'order.discounted_price',
                 'order.dlv_fee',
