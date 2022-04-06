@@ -128,7 +128,7 @@ class Consignment extends Model
 
     //結案
     public static function close($id, $operator_user_id, $operator_user_name) {
-        self::where('id', $id)->update(['audit_date' => date('Y-m-d H:i:s')]);
+        self::where('id', $id)->update(['close_date' => date('Y-m-d H:i:s')]);
         PurchaseLog::stockChange($id, null, LogEvent::consignment()->value, $id, LogEventFeature::csn_close()->value, null, null, $operator_user_id, $operator_user_name);
     }
 
