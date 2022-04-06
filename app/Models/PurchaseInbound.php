@@ -131,7 +131,7 @@ class PurchaseInbound extends Model
                 }
                 //判斷是否有賣出過 有則不能刪
                 //寫入ProductStock
-                else if (is_numeric($inboundDataGet->sale_num) && 0 < $inboundDataGet->sale_num) {
+                if (is_numeric($inboundDataGet->sale_num) && 0 < $inboundDataGet->sale_num) {
                     return ['success' => 0, 'error_msg' => 'inbound already sell'];
                 } else {
                     $can_tally = Depot::can_tally($inboundDataGet->depot_id);
@@ -165,8 +165,9 @@ class PurchaseInbound extends Model
                     $inboundData->delete();
                     return ['success' => 1, 'error_msg' => ""];
                 }
+            } else {
+                return ['success' => 0, 'error_msg' => "找不到資料"];
             }
-            return ['success' => 0, 'error_msg' => "找不到資料"];
         });
     }
 
