@@ -281,7 +281,7 @@ class PurchaseInbound extends Model
         $queryTotalInboundNum = '( COALESCE(sum(items.num), 0) - COALESCE((inbound.inbound_num), 0) )'; //應進數量
 
         $result = null;
-        if (Event::purchase()->key == $event) {
+        if (Event::purchase()->value == $event) {
             $result = DB::table('pcs_purchase as purchase')
                 ->leftJoin('pcs_purchase_items as items', 'items.purchase_id', '=', 'purchase.id')
                 ->leftJoinSub($tempInboundSql, 'inbound', function($join) {
@@ -371,7 +371,7 @@ class PurchaseInbound extends Model
         $result = DB::table('pcs_purchase as purchase')
             ->leftJoin('pcs_purchase_inbound as inbound', function($join) {
                 $join->on('inbound.event_id', '=', 'purchase.id');
-                $join->where('inbound.event', '=', Event::purchase()->key);
+                $join->where('inbound.event', '=', Event::purchase()->value);
             })
             ->whereNull('purchase.deleted_at')
             ->where('purchase.id', '=', $purchase_id);

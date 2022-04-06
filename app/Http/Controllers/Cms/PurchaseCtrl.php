@@ -405,7 +405,7 @@ class PurchaseCtrl extends Controller
 
     //結案
     public function close(Request $request, $id) {
-        $inboundOverviewList = PurchaseInbound::getOverviewInboundList(Event::purchase()->key, $id)->get()->toArray();
+        $inboundOverviewList = PurchaseInbound::getOverviewInboundList(Event::purchase()->value, $id)->get()->toArray();
         $errmsg = '';
         if (0 < $inboundOverviewList) {
             foreach ($inboundOverviewList as $key => $data) {
@@ -432,8 +432,8 @@ class PurchaseCtrl extends Controller
     public function inbound(Request $request, $id) {
         $purchaseData = Purchase::getPurchase($id)->first();
         $purchaseItemList = PurchaseItem::getDataForInbound($id)->get()->toArray();
-        $inboundList = PurchaseInbound::getInboundList(['event' => Event::purchase()->key, 'purchase_id' => $id])->get()->toArray();
-        $inboundOverviewList = PurchaseInbound::getOverviewInboundList(Event::purchase()->key, $id)->get()->toArray();
+        $inboundList = PurchaseInbound::getInboundList(['event' => Event::purchase()->value, 'purchase_id' => $id])->get()->toArray();
+        $inboundOverviewList = PurchaseInbound::getOverviewInboundList(Event::purchase()->value, $id)->get()->toArray();
 
         $depotList = Depot::all()->toArray();
         return view('cms.commodity.purchase.inbound', [
@@ -472,7 +472,7 @@ class PurchaseCtrl extends Controller
                 foreach ($inboundItemReq['product_style_id'] as $key => $val) {
 
                     $re = PurchaseInbound::createInbound(
-                        Event::purchase()->key,
+                        Event::purchase()->value,
                         $id,
                         $inboundItemReq['purchase_item_id'][$key],
                         $inboundItemReq['product_style_id'][$key],
