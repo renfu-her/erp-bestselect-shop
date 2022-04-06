@@ -33,6 +33,7 @@
                     <th scope="col">理貨倉</th>
                     <th scope="col">地址</th>
                     <th scope="col">電話</th>
+                    <th scope="col" class="text-center">寄倉選品</th>
                     <th scope="col" class="text-center">編輯</th>
                     <th scope="col" class="text-center">刪除</th>
                 </tr>
@@ -48,6 +49,15 @@
                         <td>{{ $data->can_tally ? '是' : '否' }}</td>
                         <td>{{ $data->address }}</td>
                         <td>{{ $data->tel }}</td>
+
+                        <td class="text-center">
+                            @can('cms.depot.product-index')
+                            <a href="{{ Route('cms.depot.product-index', ['id' => $data->id], true) }}" data-bs-toggle="tooltip" title="寄倉選品" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                <i class="bi bi-inboxes"></i>
+                            </a>
+                            @endcan
+                        </td>
+
                         <td class="text-center">
                             @can('cms.depot.edit')
                             <a href="{{ Route('cms.depot.edit', ['id' => $data->id], true) }}"

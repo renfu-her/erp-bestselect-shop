@@ -39,6 +39,22 @@ return [
                 "cms.depot.delete",
                 "刪除",
             ],
+            [
+                "cms.depot.product-index",
+                "寄倉選品瀏覽",
+            ],
+            [
+                "cms.depot.product-create",
+                "寄倉選品新增",
+            ],
+            [
+                "cms.depot.product-edit",
+                "寄倉選品修改",
+            ],
+            [
+                "cms.depot.product-delete",
+                "寄倉選品刪除",
+            ],
         ],
     ],
     [

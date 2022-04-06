@@ -41,6 +41,6 @@ class CustomerSeeder extends Seeder
         User::customerBinding(6, 'hsihung08079@gmail.com');
 
         Customer::createCustomer('yoyo', 'yoyo@writingbeing.com', '12345');
-
+        Customer::createCustomer('andy', 'andy', '1111');
     }
 }
