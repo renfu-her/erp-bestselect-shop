@@ -256,7 +256,6 @@ class Delivery extends Model
                 , 'ord_items.price'
                 , 'ord_items.qty'
                 , 'ord_items.type'
-                , 'ord_items.total_price'
             );
 
         $query = DB::table(DB::raw("({$sub_rec_depot->toSql()}) as rec_depot"))
