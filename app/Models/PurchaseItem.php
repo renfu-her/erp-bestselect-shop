@@ -149,6 +149,7 @@ class PurchaseItem extends Model
     }
 
     public static function getDataForInbound($purchase_id) {
+        $raw = '( COALESCE(items.num, 0) - COALESCE(items.arrived_num, 0) )';
         $result = DB::table('pcs_purchase_items as items')
             ->select('items.id'
                 , 'items.purchase_id'
@@ -157,9 +158,11 @@ class PurchaseItem extends Model
                 , 'items.sku'
                 , 'items.num'
                 , 'items.arrived_num'
+                , DB::raw($raw. ' as should_enter_num')
             )
-            ->selectRaw('( COALESCE(items.num, 0) - COALESCE(items.arrived_num, 0) ) as should_enter_num')
-            ->where('purchase_id', $purchase_id)->whereNull('deleted_at');
+            ->where(DB::raw($raw), '>', 0)
+            ->where('purchase_id', $purchase_id)
+            ->whereNull('deleted_at');
 
         return $result;
     }
