@@ -78,6 +78,10 @@ class Consignment extends Model
                 , 'create_user_id'
                 , 'create_user_name'
                 , 'scheduled_date'
+                , 'audit_date'
+                , 'audit_user_id'
+                , 'audit_user_name'
+                , 'audit_status'
                 , 'memo'
             )
             ->selectRaw('DATE_FORMAT(scheduled_date,"%Y-%m-%d") as scheduled_date')
@@ -86,6 +90,7 @@ class Consignment extends Model
 
         $purchase->scheduled_date = $purchaseReq['scheduled_date'] ?? null;
         $purchase->memo = $purchaseReq['memo'] ?? null;
+        $purchase->audit_status = $purchaseReq['audit_status'] ?? null;
 
         return DB::transaction(function () use ($purchase, $id, $purchaseReq, $changeStr, $operator_user_id, $operator_user_name
         ) {
@@ -102,9 +107,14 @@ class Consignment extends Model
                         return $rePcsLSC;
                     }
                 }
+                $curr_date = date('Y-m-d H:i:s');
                 self::where('id', $id)->update([
                     "scheduled_date" => $purchaseReq['scheduled_date'] ?? null,
                     "memo" => $purchaseReq['memo'] ?? null,
+                    "audit_date" => $curr_date,
+                    "audit_user_id" => $operator_user_id,
+                    "audit_user_name" => $operator_user_name,
+                    "audit_status" => $purchaseReq['audit_status'] ?? App\Enums\Consignment\AuditStatus::unreviewed()->value,
                 ]);
             }
             return ['success' => 1, 'error_msg' => $changeStr];
@@ -207,6 +217,7 @@ class Consignment extends Model
             )
             ->selectRaw('DATE_FORMAT(consignment.scheduled_date,"%Y-%m-%d") as scheduled_date')
             ->selectRaw('DATE_FORMAT(consignment.audit_date,"%Y-%m-%d") as audit_date')
+            ->selectRaw('DATE_FORMAT(consignment.close_date,"%Y-%m-%d") as close_date')
             ->whereNull('consignment.deleted_at')
             ->where('consignment.id', '=', $id);
 

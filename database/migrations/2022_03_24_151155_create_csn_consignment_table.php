@@ -34,7 +34,7 @@ class CreateCsnConsignmentTable extends Migration
             $table->dateTime('close_date')->nullable()->comment('結案日期');
             $table->unsignedBigInteger('audit_user_id')->nullable()->comment('審核者ID');
             $table->string('audit_user_name', 20)->nullable()->comment('審核者名稱');
-            $table->tinyInteger('audit_status')->default(0)->comment('審核狀態 0:未審核 / 1:核可 / 2:否決');
+            $table->tinyInteger('audit_status')->default(App\Enums\Consignment\AuditStatus::unreviewed()->value)->comment('審核狀態 0:未審核 / 1:核可 / 2:否決');
             $table->string('memo')->nullable()->comment('備註');
             $table->timestamps();
             $table->softDeletes();

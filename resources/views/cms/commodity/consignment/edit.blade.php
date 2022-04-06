@@ -45,6 +45,24 @@
                         <label class="form-label">入庫人員</label>
                         <div class="form-control" readonly>{{ empty($inbound_names) ? '-' : $inbound_names }}</div>
                     </div>
+                    <fieldset class="col-12 col-sm-6 mb-3">
+                        <legend class="col-form-label p-0 mb-2">審核狀態 <span class="text-danger">*</span></legend>
+                        <div class="px-1 pt-1">
+                            @foreach (App\Enums\Consignment\AuditStatus::asArray() as $key => $val)
+                                <div class="form-check form-check-inline @error('audit_status')is-invalid @enderror">
+                                    <label class="form-check-label">
+                                        <input class="form-check-input @error('audit_status')is-invalid @enderror" name="audit_status"
+                                               value="{{ $val }}" type="radio" required
+                                               @if (old('audit_status', $consignmentData->audit_status ?? '') == $val) checked @endif>
+                                        {{ App\Enums\Consignment\AuditStatus::getDescription($val) }}
+                                    </label>
+                                </div>
+                            @endforeach
+                            @error('target')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </fieldset>
                 </div>
             </div>
         @endif
@@ -231,10 +249,10 @@
         <div id="submitDiv">
             <div class="col-auto">
                 <input type="hidden" name="del_item_id">
-                @if(!$hasCreatedFinalPayment && ($consignmentData == null || $consignmentData->audit_date == null))
+                @if(!$hasCreatedFinalPayment && ($consignmentData == null || $consignmentData->close_date == null))
                     <button type="submit" class="btn btn-primary px-4">儲存</button>
                 @else
-                    <button type="submit" class="btn btn-primary px-4">登錄發票</button>
+{{--                    <button type="submit" class="btn btn-primary px-4">登錄發票</button>--}}
                 @endif
                 <a href="{{ Route('cms.consignment.index', [], true) }}" class="btn btn-outline-primary px-4"
                    role="button">返回列表</a>
