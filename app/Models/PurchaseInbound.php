@@ -67,10 +67,10 @@ class PurchaseInbound extends Model
             $is_pcs_inbound = false;
             //入庫 新增入庫數量
             $rePcsItemUAN = ['success' => 0, 'error_msg' => "未執行入庫"];
-            if ($event == LogEvent::purchase()->value) {
+            if ($event == Event::purchase()->value) {
                 $is_pcs_inbound = true;
                 $rePcsItemUAN = PurchaseItem::updateArrivedNum($event_item_id, $inbound_num, $can_tally);
-            } else if ($event == LogEvent::consignment()->value) {
+            } else if ($event == Event::consignment()->value) {
                 // 個別紀錄入庫單到達數
                 $rePcsItemUAN = ReceiveDepot::updateCSNArrivedNum($event_item_id, $inbound_num);
             }
@@ -140,10 +140,10 @@ class PurchaseInbound extends Model
                     $qty = $inboundDataGet->inbound_num * -1;
                     $rePcsItemUAN = ['success' => 0, 'error_msg' => "未執行入庫"];
                     $is_pcs_inbound = false;
-                    if ($event == LogEvent::purchase()->value) {
+                    if ($event == Event::purchase()->value) {
                         $is_pcs_inbound = true;
                         $rePcsItemUAN = PurchaseItem::updateArrivedNum($inboundDataGet->event_item_id, $qty, $can_tally);
-                    } else if ($event == LogEvent::consignment()->value) {
+                    } else if ($event == Event::consignment()->value) {
                         // 個別紀錄入庫單到達數
                         $rePcsItemUAN = ReceiveDepot::updateCSNArrivedNum($inboundDataGet->event_item_id, $qty);
                     }
@@ -281,7 +281,7 @@ class PurchaseInbound extends Model
         $queryTotalInboundNum = '( COALESCE(sum(items.num), 0) - COALESCE((inbound.inbound_num), 0) )'; //應進數量
 
         $result = null;
-        if (LogEvent::purchase()->key == $event) {
+        if (Event::purchase()->key == $event) {
             $result = DB::table('pcs_purchase as purchase')
                 ->leftJoin('pcs_purchase_items as items', 'items.purchase_id', '=', 'purchase.id')
                 ->leftJoinSub($tempInboundSql, 'inbound', function($join) {
@@ -371,7 +371,7 @@ class PurchaseInbound extends Model
         $result = DB::table('pcs_purchase as purchase')
             ->leftJoin('pcs_purchase_inbound as inbound', function($join) {
                 $join->on('inbound.event_id', '=', 'purchase.id');
-                $join->where('inbound.event', '=', LogEvent::purchase()->key);
+                $join->where('inbound.event', '=', Event::purchase()->key);
             })
             ->whereNull('purchase.deleted_at')
             ->where('purchase.id', '=', $purchase_id);

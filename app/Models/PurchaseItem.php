@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Delivery\Event;
 use App\Enums\Purchase\InboundStatus;
 use App\Enums\Purchase\LogEvent;
 use App\Enums\Purchase\LogEventFeature;
@@ -135,7 +136,7 @@ class PurchaseItem extends Model
     }
 
     public static function getDataWithInbound($purchase_id) {
-        $inboundOverviewList = PurchaseInbound::getOverviewInboundList(LogEvent::purchase()->key, $purchase_id);
+        $inboundOverviewList = PurchaseInbound::getOverviewInboundList(Event::purchase()->key, $purchase_id);
         $query = DB::table('pcs_purchase_items as items')
             ->leftJoinSub($inboundOverviewList, 'inbound', function($join) {
                 $join->on('inbound.purchase_id', '=', 'items.purchase_id')
@@ -204,7 +205,7 @@ class PurchaseItem extends Model
             ->selectRaw('sum(inbound_num) as inbound_num')
             ->whereNull('deleted_at');
 
-        $tempInboundSql->where('inbound.event', '=', LogEvent::purchase()->key);
+        $tempInboundSql->where('inbound.event', '=', Event::purchase()->key);
 
         $tempInboundSql->groupBy('event_id')
             ->groupBy('product_style_id');
@@ -355,7 +356,7 @@ class PurchaseItem extends Model
             ->selectRaw('sum(inbound_num) as inbound_num')
             ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_id) as inbound_user_ids') //入庫人員
             ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_name) as inbound_user_names') //入庫人員
-            ->where('event', LogEvent::purchase()->key)
+            ->where('event', Event::purchase()->key)
             ->whereNull('deleted_at')
             ->groupBy('event_id')
             ->groupBy('product_style_id');
