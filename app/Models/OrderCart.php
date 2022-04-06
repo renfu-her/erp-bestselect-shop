@@ -173,9 +173,7 @@ class OrderCart extends Model
         // 全館
 
         self::globalStage($order);
-
         self::couponStage($order, $currentCoupon, $_tempProducts);
-
         self::shipmentStage($order);
 
         $order['total_price'] = $order['discounted_price'] + $order['dlv_fee'];
@@ -213,6 +211,7 @@ class OrderCart extends Model
 
                     break;
                 case DisMethod::percent()->value:
+
                     foreach ($value as $cash) {
                         if ($cash->min_consume == 0 || $cash->min_consume < $order['origin_price']) {
                             $cash->currentDiscount = $order['origin_price'] - intval($order['origin_price'] / 100 * $cash->discount_value);
@@ -258,8 +257,20 @@ class OrderCart extends Model
         $discount_value = 0;
         if ($currentCoupon->is_global == '1') {
             if ($order['discounted_price'] > $currentCoupon->min_consume) {
-                $discount_value = $currentCoupon->discount_value;
+
+                switch ($currentCoupon->method_code) {
+                    case DisMethod::cash():
+                        $discount_value = $currentCoupon->discount_value;
+                        break;
+                    case DisMethod::percent():
+                        $tPrice = $order['discounted_price'];
+                        $discount_value = floor($tPrice - $tPrice / 100 * $currentCoupon->discount_value);     
+                        break;
+                    default:
+                }
+
                 $order['discounts'][] = $currentCoupon;
+
             }
         } else {
             $couponTargetProducts = ['styles' => [],

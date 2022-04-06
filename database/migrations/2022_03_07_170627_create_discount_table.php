@@ -17,7 +17,7 @@ class CreateDiscountTable extends Migration
             $table->id();
             $table->string('title')->nullable()->comment('名稱');
             $table->string('sn')->nullable()->comment('序號');
-          
+
             $table->string('category_code')->comment('類別code');
             $table->string('category_title')->comment('類別名稱:全館,優惠券');
             $table->string('method_code')->comment('優惠方式');
@@ -28,6 +28,7 @@ class CreateDiscountTable extends Migration
             $table->integer('usage_count')->default(0)->comment('使用次數');
             $table->integer('max_usage')->nullable()->comment('限制次數');
             $table->integer('min_consume')->default(0)->comment('最低消費金額');
+            $table->integer('min_qty')->nullable()->comment('任選優惠商品數量');
             $table->integer('life_cycle')->default(0)->comment('使用天數');
             $table->tinyInteger('is_global')->default(1)->comment('是否全館適用');
             $table->dateTime('start_date')->nullable()->comment('起始時間');
@@ -44,12 +45,12 @@ class CreateDiscountTable extends Migration
             $table->integer('collection_id')->comment('商品群組id');
         });
         /*
-        Schema::create('dis_discount_customer', function (Blueprint $table) {
-            $table->id();
-            $table->integer('discount_id')->comment('優惠id');
-            $table->integer('collection_id')->comment('商品群組id');
-        });
-        */
+    Schema::create('dis_discount_customer', function (Blueprint $table) {
+    $table->id();
+    $table->integer('discount_id')->comment('優惠id');
+    $table->integer('collection_id')->comment('商品群組id');
+    });
+     */
     }
 
     /**
