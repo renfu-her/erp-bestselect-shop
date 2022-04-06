@@ -44,8 +44,6 @@ class AccountingSeeder extends Seeder
             'code' => '3',
             'has_next_grade' => 1,
             'name' => '股東權益',
-            'acc_company_fk' => '1',
-            'acc_income_statement_fk' => '1'
             ])->id;
         $firstGradeId_4 = FirstGrade::create([
             'code' => '4',
@@ -99,6 +97,12 @@ class AccountingSeeder extends Seeder
             'has_next_grade' => 1,
             'name' => '其他負債',
             'first_grade_fk' => $firstGradeId_2,
+        ]);
+        $secondGradeId_9 = DB::table('acc_second_grade')->insertGetId([
+            'code' => '31',
+            'has_next_grade' => 1,
+            'name' => '資本',
+            'first_grade_fk' => $firstGradeId_3,
         ]);
         $secondGradeId_5 = DB::table('acc_second_grade')->insertGetId([
             'code' => '51',
@@ -352,6 +356,31 @@ class AccountingSeeder extends Seeder
             'has_next_grade' => 0,
             'name' => '高爾夫球隊基金',
             'second_grade_fk' => $secondGradeId_8,
+        ]);
+
+        $thirdGradeId_3_1 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '3101',
+            'has_next_grade' => 0,
+            'name' => '股本',
+            'second_grade_fk' => $secondGradeId_9,
+        ]);
+        $thirdGradeId_3_2 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '3102',
+            'has_next_grade' => 0,
+            'name' => '本期損益',
+            'second_grade_fk' => $secondGradeId_9,
+        ]);
+        $thirdGradeId_3_3 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '3103',
+            'has_next_grade' => 0,
+            'name' => '累計盈虧',
+            'second_grade_fk' => $secondGradeId_9,
+        ]);
+        $thirdGradeId_3_4 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '3104',
+            'has_next_grade' => 0,
+            'name' => '前期損益調整',
+            'second_grade_fk' => $secondGradeId_9,
         ]);
         $thirdGradeId_6 = DB::table('acc_third_grade')->insertGetId([
             'code' => '5201',
