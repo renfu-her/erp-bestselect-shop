@@ -95,8 +95,8 @@
                                             class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                         <i class="bi bi-trash"></i>
                                     </button>
-                                    <input type="hidden" name="purchase_item_id[]"
-                                           value="{{ old('purchase_item_id.'. $styleKey, $styleVal->id?? '') }}">
+                                    <input type="hidden" name="event_item_id[]"
+                                           value="{{ old('event_item_id.'. $styleKey, $styleVal->id?? '') }}">
                                     <input type="hidden" name="product_style_id[]"
                                            value="{{ old('product_style_id.'. $styleKey, $styleVal->product_style_id?? '') }}">
                                 </th>

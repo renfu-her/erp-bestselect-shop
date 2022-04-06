@@ -18,7 +18,7 @@ class CreatePcsPurchaseInboundTable extends Migration
             $table->string('sn', 20)->comment('入庫單SN');
             $table->string('event')->comment('事件 採購 寄倉');
             $table->string('event_id')->comment('事件ID');
-            $table->integer('purchase_item_id')->comment('採購款式id');
+            $table->integer('event_item_id')->comment('採購款式id');
             $table->integer('product_style_id')->comment('款式product_style_id 帶出款式sku碼');
             $table->dateTime('expiry_date')->nullable()->comment('有效期限');
             $table->dateTime('inbound_date')->nullable()->comment('入庫日期');

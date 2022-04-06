@@ -49,7 +49,7 @@ class PurchaseInbound extends Model
                 'sn' => $sn,
                 "event" => $event,
                 "event_id" => $event_id,
-                "purchase_item_id" => $event_item_id,
+                "event_item_id" => $event_item_id,
                 "product_style_id" => $product_style_id,
                 "expiry_date" => $expiry_date,
                 "inbound_date" => $inbound_date,

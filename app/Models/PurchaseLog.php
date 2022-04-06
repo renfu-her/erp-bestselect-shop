@@ -120,7 +120,7 @@ class PurchaseLog extends Model
                 $join->where('log.event', $event);
                 $join->whereIn('log.feature', $logEventFeatureKey_inbound);
             })
-            ->leftJoin('pcs_purchase_items as items', 'items.id', '=', 'inbound.purchase_item_id')
+            ->leftJoin('pcs_purchase_items as items', 'items.id', '=', 'inbound.event_item_id')
             ->select('log.id'
                 , 'log.event'
                 , 'log.feature'
