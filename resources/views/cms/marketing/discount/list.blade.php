@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">現折優惠</h2>
+    <h2 class="mb-4">全館優惠</h2>
 
     <form id="search" action="" method="GET">
         <div class="card shadow p-4 mb-4">
@@ -58,6 +58,8 @@
                         </div>
                     </fieldset>
                 </div>
+
+
                 <div class="col-12 mb-3">
                     <label class="form-label">起訖日期</label>
                     <div class="input-group has-validation">
@@ -112,7 +114,9 @@
                         <th scope="col" style="width:10%">#</th>
                         <th scope="col">活動名稱</th>
                         <th scope="col">優惠方式</th>
+                        <th scope="col">優惠內容</th>
                         <th scope="col">進行狀態</th>
+                        <th scope="col">全館</th>
                         <th scope="col">開始時間</th>
                         <th scope="col">結束時間</th>
                         <th scope="col" class="text-center">編輯</th>
@@ -126,14 +130,32 @@
                             <th scope="row">{{ $key + 1 }}</th>
                             <td>{{ $data->title }}</td>
                             <td>{{ $data->method_title }}</td>
-                            <td @class([
+                            <td>
+                                @if ($data->method_code == 'cash')
+                                    ${{ number_format($data->discount_value) }}
+                                @elseif($data->method_code == 'percent')
+                                    {{ $data->discount_value }}%
+                                @elseif($data->method_code == 'coupon')
+                                <a href="{{ route('cms.promo.edit', ['id' => $data->coupon_id]) }}">
+                                    {{ $data->coupon_title }}
+                                </a>
+
+                                @endif
+                            </td>
+                            <td data-td="status" @class([
                                 'text-success' => $data->status === '進行中',
-                                'text-danger' => $data->status === '已結束',
+                                'text-danger' => $data->status === '已結束' || $data->status === '暫停',
                             ])>
                                 {{ $data->status }}
                             </td>
-                            <td>{{ $data->start_date }}</td>
-                            <td>{{ $data->end_date }}</td>
+                            <td>
+                                @if ($data->is_global == '1')
+                                    <i class="bi bi-check-lg text-success fs-5"></i>
+                                @endif
+                            </td>
+                            <td>{{ date('Y/m/d h:i', strtotime($data->start_date)) }}</td>
+                            <td>{{ date('Y/m/d h:i', strtotime($data->end_date)) }}</td>
+
                             <td class="text-center">
                                 <a href="{{ Route('cms.discount.edit', ['id' => $data->id], true) }}"
                                     data-bs-toggle="tooltip" title="編輯"
@@ -224,9 +246,16 @@
                 $('input[name="status_code"]').val(selectStatus);
             });
 
-            $('.active-switch').on('change', function() {
-                let active = $(this).is(':checked') ? 1 : 0;
-                let dataId = $(this).attr('data-id');
+            // 啟用
+            const statusClass = {
+                '進行中': 'text-success',
+                '已結束': 'text-danger',
+                '暫停': 'text-danger'
+            };
+            $('.active-switch').off('change').on('change', function() {
+                const $switch = $(this);
+                const active = $switch.prop('checked') ? 1 : 0;
+                const dataId = $switch.data('id');
 
                 axios.post(changeActiveUrl, {
                         'id': dataId,
@@ -234,8 +263,14 @@
                     })
                     .then((result) => {
                         console.log(result.data);
-
-
+                        $switch.closest('tr').find('td[data-td="status"]').text(result.data.data)
+                            .removeClass('text-success text-danger')
+                            .addClass(statusClass[result.data.data]);
+                        if (active) {
+                            toast.show('活動已啟用');
+                        } else {
+                            toast.show('活動已暫停', { type: 'warning' });
+                        }
                     }).catch((err) => {
                         console.error(err);
                     });

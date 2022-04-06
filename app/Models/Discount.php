@@ -17,18 +17,8 @@ class Discount extends Model
     protected $table = 'dis_discounts';
     protected $guarded = [];
 
-    /**
-     * @param DisCategory $category
-     */
-
-    public static function dataList($category = null,
-        $disStatus = null,
-        $title = null,
-        $start_date = null,
-        $end_date = null,
-        $method_code = null,
-        $is_global = null
-    ) {
+    private static function _discountStatus()
+    {
         $now = date('Y-m-d H:i:s');
 
         $selectStatus = "CASE
@@ -45,11 +35,119 @@ class Discount extends Model
         WHEN '$now' > end_date THEN '" . DisStatus::D02()->value . "'
         ELSE '" . DisStatus::D00()->value . "' END as status_code";
 
-        $sub = self::select('*')
+        return self::select('*')
             ->selectRaw($selectStatus)
             ->selectRaw($selectStatusCode);
 
-        $re = DB::table(DB::raw("({$sub->toSql()}) as sub"));
+    }
+
+    private static function _dataWithCoupon()
+    {
+
+        $sub = self::_discountStatus();
+
+        $coupons = DB::table(DB::raw("({$sub->toSql()}) as sub"))
+            ->leftJoin('dis_discounts as dis', 'sub.discount_value', '=', 'dis.id')
+            ->select('sub.*', 'dis.id as coupon_id', 'dis.title as coupon_title')
+            ->where('sub.method_code', '=', DisMethod::coupon()->value);
+
+        $nonCoupon = DB::table(DB::raw("({$sub->toSql()}) as sub"))
+            ->select('sub.*', DB::raw("@coupon_id:=null as coupon_id"), DB::raw("@coupon_title:=null as coupon_title"))
+            ->where('sub.method_code', '<>', DisMethod::coupon()->value)
+            ->union($coupons);
+
+        $nonCoupon->bindings['where'][] = $nonCoupon->bindings['union'][0];
+        $nonCoupon->bindings['union'] = [];
+
+        return $nonCoupon;
+    }
+
+    public static function getDiscountStatus($id)
+    {
+
+        $sub = self::_dataWithCoupon();
+        $re = DB::table(DB::raw("({$sub->toSql()}) as sub"))
+            ->select(['sub.id', 'status', 'status_code'])
+            ->mergeBindings($sub)
+            ->where('id', $id);
+
+        // dd(IttmsUtils::getEloquentSqlWithBindings($re));
+
+        return $re->get()->first();
+    }
+
+    public static function getDiscounts($type = null, $product_id = null)
+    {
+
+        $sub = self::_dataWithCoupon();
+
+        $select = [
+            'sub.id',
+            'sub.sn',
+            'sub.title',
+            'sub.category_title',
+            'sub.category_code',
+            'sub.method_code',
+            'sub.method_title',
+            'sub.discount_value',
+            'sub.is_grand_total',
+            'sub.min_consume',
+            'sub.coupon_id',
+            'sub.coupon_title',
+        ];
+
+        $re = DB::table(DB::raw("({$sub->toSql()}) as sub"))
+            ->select($select)
+            ->mergeBindings($sub)
+            ->where('sub.status_code', DisStatus::D01()->value)
+            ->where('sub.active', 1);
+
+        if ($product_id) {
+            $re->leftJoin('dis_discount_collection as dc', 'sub.id', '=', 'dc.discount_id')
+                ->leftJoin('collection_prd as cp', 'dc.collection_id', '=', 'cp.collection_id_fk')
+                ->where('cp.product_id_fk', $product_id);
+        }
+
+        switch ($type) {
+            case 'global-normal': //全館優惠
+                $re->where('sub.is_global', 1)
+                    ->where('sub.category_code', DisCategory::normal()->value);
+                break;
+            case 'non-global-normal': //非全館優惠
+                $re->where('sub.is_global', 0)
+                    ->where('sub.category_code', DisCategory::normal()->value);
+                break;
+        }
+        //   dd(DisStatus::D01()->value);
+
+        //dd(IttmsUtils::getEloquentSqlWithBindings($re));
+
+        $output = [];
+
+        foreach ($re->get()->toArray() as $value) {
+            if (!isset($output[$value->method_code])) {
+                $output[$value->method_code] = [];
+            }
+            $output[$value->method_code][] = $value;
+        }
+
+        return $output;
+
+    }
+
+    public static function dataList($category = null,
+        $disStatus = null,
+        $title = null,
+        $start_date = null,
+        $end_date = null,
+        $method_code = null,
+        $is_global = null
+    ) {
+
+        $sub = self::_dataWithCoupon();
+
+        $re = DB::table(DB::raw("({$sub->toSql()}) as sub"))
+            ->mergeBindings($sub);
 
         if ($disStatus) {
             if (is_array($disStatus)) {
@@ -123,7 +221,7 @@ class Discount extends Model
     public static function createCoupon($title, $min_consume, DisMethod $method, $value, $is_grand_total = 1, $collection_ids = [], $life_cycle = 0)
     {
 
-        DB::transaction(function () use ($title, $min_consume, $method, $value, $is_grand_total, $collection_ids, $life_cycle) {
+        return DB::transaction(function () use ($title, $min_consume, $method, $value, $is_grand_total, $collection_ids, $life_cycle) {
             if (count($collection_ids) > 0) {
                 $is_global = 0;
             } else {
@@ -181,6 +279,78 @@ class Discount extends Model
             return $id;
 
         });
+
+    }
+
+    public static function checkCode( $sn = null, $product_id = null)
+    {
+        $sub = self::_discountStatus();
+
+        $select = [
+            'sub.id',
+            'sub.sn',
+            'sub.title',
+            'sub.category_title',
+            'sub.category_code',
+            'sub.method_code',
+            'sub.method_title',
+            'sub.discount_value',
+            'sub.is_grand_total',
+            'sub.min_consume',
+            'sub.usage_count',
+            'sub.max_usage',
+            'sub.is_global',
+        ];
+
+        $re = DB::table(DB::raw("({$sub->toSql()}) as sub"))
+            ->select($select)
+            ->where('status_code', DisStatus::D01()->value)
+            ->where('category_code', DisCategory::code()->value)
+            ->where('sub.sn', $sn)
+            ->get()->first();
+
+        if (!$re) {
+            return [
+                'success' => '0',
+                'message' => "查無序號,或此序號尚未在活動期間",
+            ];
+        }
+
+        if ($re->max_usage != 0 && $re->usage_count > $re->max_usage) {
+            return [
+                'success' => '0',
+                'message' => "序號超出使用次數",
+            ];
+        }
+        if ($re->is_global == '1') {
+            return [
+                'success' => '1',
+                'data' => $re,
+            ];
+        }
+
+        if (!$product_id) {
+            return [
+                'success' => '0',
+                'message' => "缺少product_id",
+            ];
+        }
+
+        $collection = DB::table('dis_discount_collection as dc')
+            ->leftJoin('collection_prd as cp', 'dc.collection_id', '=', 'cp.collection_id_fk')
+            ->select('cp.product_id_fk as product_id')
+            ->where('dc.discount_id', $re->id)
+            ->whereIn('cp.product_id_fk', $product_id)
+            ->distinct();
+
+        $re->product_ids = array_map(function ($n) {
+            return $n->product_id;
+        }, $collection->get()->toArray());
+
+        return [
+            'success' => '1',
+            'data' => $re,
+        ];
 
     }
 
@@ -278,5 +448,56 @@ class Discount extends Model
     {
         self::where('id', $id)->delete();
         DB::table('dis_discount_collection')->where('discount_id', $id)->delete();
+    }
+
+    public static function createOrderDiscount($type, $order_id, $datas = [])
+    {
+
+        // dd($datas);
+
+        if (!$datas || count($datas) == 0) {
+            return;
+        }
+
+        DB::table('ord_discounts')->insert(array_map(function ($n) use ($type, $order_id) {
+            $category = $n->category_code;
+            $method = $n->method_code;
+
+            $d = [
+                'order_type' => $type,
+                'order_id' => $order_id,
+                'title' => $n->title,
+                'sn' => isset($n->sn) ? $n->sn : null,
+                'sort' => DisCategory::getSort(DisCategory::$category()),
+                'category_title' => $n->category_title,
+                'category_code' => $n->category_code,
+                'method_title' => $n->method_title,
+                'method_code' => $n->method_code,
+                'discount_value' => isset($n->currentDiscount) ? $n->currentDiscount : null,
+                'is_grand_total' => $n->is_grand_total,
+            ];
+
+            switch ($method) {
+                case DisCategory::coupon()->value:
+                    $d['extra_title'] = $n->coupon_title;
+                    $d['extra_id'] = $n->coupon_id;
+                    break;
+
+                default:
+                    $d['extra_title'] = null;
+                    $d['extra_id'] = null;
+
+            }
+
+            return $d;
+
+        }, $datas));
+
+    }
+
+    public static function orderDiscountList($type, $order_id)
+    {
+        return DB::table('ord_discounts')->where('order_type', $type)
+            ->where('order_id', $order_id);
     }
 }
