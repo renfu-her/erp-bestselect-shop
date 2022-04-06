@@ -270,7 +270,7 @@ class PurchaseSeeder extends Seeder
 
         $purchaseInbound4 = PurchaseInbound::createInbound(
             Event::purchase()->value,
-            $purchaseID2,
+            $purchaseID1,
             $purchaseItemID2,
             $product_style2->id,
             '2022-11-14 00:00:00',
