@@ -181,13 +181,15 @@ class ReceiveDepot extends Model
 
     //取得寄倉入庫商品應進數量
     public static function getShouldEnterNumDataList($event, $event_id) {
+        $raw = '( COALESCE(rcv_depot.qty, 0) - COALESCE(rcv_depot.csn_arrived_qty, 0) )';
         $result = DB::table('dlv_delivery as delivery')
             ->leftJoin('dlv_receive_depot as rcv_depot', 'rcv_depot.delivery_id', '=', 'delivery.id')
             ->select('*'
                 , 'rcv_depot.id as rcv_deppot_id'
             )
             ->selectRaw('DATE_FORMAT(expiry_date,"%Y-%m-%d") as expiry_date')
-            ->selectRaw('( COALESCE(rcv_depot.qty, 0) - COALESCE(rcv_depot.csn_arrived_qty, 0) ) as should_enter_num')
+            ->selectRaw($raw.' as should_enter_num')
+            ->where(DB::raw($raw), '>', 0)
             ->where('delivery.event', $event)
             ->where('delivery.event_id', $event_id)
             ->whereNotNull('rcv_depot.id');
