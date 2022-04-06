@@ -39,8 +39,6 @@ class AccountingSeeder extends Seeder
             'code' => '2',
             'has_next_grade' => 1,
             'name' => '負債',
-            'acc_company_fk' => '1',
-            'acc_income_statement_fk' => '1'
             ])->id;
         $firstGradeId_3 = FirstGrade::create([
             'code' => '3',
@@ -88,17 +86,19 @@ class AccountingSeeder extends Seeder
             'code' => '21',
             'has_next_grade' => 1,
             'name' => '流動負債',
-//            'acc_company_fk' => 1,
             'first_grade_fk' => $firstGradeId_2,
-//            'acc_income_statement_fk' => 1
         ]);
         $secondGradeId_4 = DB::table('acc_second_grade')->insertGetId([
             'code' => '22',
             'has_next_grade' => 0,
             'name' => '長期負債',
-            'acc_company_fk' => 1,
             'first_grade_fk' => $firstGradeId_2,
-            'acc_income_statement_fk' => 1
+        ]);
+        $secondGradeId_8 = DB::table('acc_second_grade')->insertGetId([
+            'code' => '23',
+            'has_next_grade' => 1,
+            'name' => '其他負債',
+            'first_grade_fk' => $firstGradeId_2,
         ]);
         $secondGradeId_5 = DB::table('acc_second_grade')->insertGetId([
             'code' => '51',
@@ -279,17 +279,79 @@ class AccountingSeeder extends Seeder
             'code' => '2101',
             'has_next_grade' => 0,
             'name' => '應付票據',
-            'acc_company_fk' => 1,
             'second_grade_fk' => $secondGradeId_3,
-            'acc_income_statement_fk' => 1
         ]);
         $thirdGradeId_5 = DB::table('acc_third_grade')->insertGetId([
             'code' => '2102',
-            'has_next_grade' => 0,
+            'has_next_grade' => 1,
             'name' => '應付帳款',
-            'acc_company_fk' => 1,
             'second_grade_fk' => $secondGradeId_3,
-            'acc_income_statement_fk' => 1
+        ]);
+        $thirdGradeId_2_1 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '2103',
+            'has_next_grade' => 1,
+            'name' => '其他應付款',
+            'second_grade_fk' => $secondGradeId_3,
+        ]);
+        $thirdGradeId_2_2 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '2104',
+            'has_next_grade' => 0,
+            'name' => '預收團費',
+            'second_grade_fk' => $secondGradeId_3,
+        ]);
+        $thirdGradeId_2_3 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '2105',
+            'has_next_grade' => 0,
+            'name' => '福利金',
+            'second_grade_fk' => $secondGradeId_3,
+        ]);
+        $thirdGradeId_2_4 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '2106',
+            'has_next_grade' => 0,
+            'name' => '暫收款',
+            'second_grade_fk' => $secondGradeId_3,
+        ]);
+        $thirdGradeId_2_5 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '2107',
+            'has_next_grade' => 1,
+            'name' => '公積金',
+            'second_grade_fk' => $secondGradeId_3,
+        ]);
+        $thirdGradeId_2_6 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '2108',
+            'has_next_grade' => 0,
+            'name' => '短期借款',
+            'second_grade_fk' => $secondGradeId_3,
+        ]);
+        $thirdGradeId_2_7 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '2109',
+            'has_next_grade' => 1,
+            'name' => '預收款項',
+            'second_grade_fk' => $secondGradeId_3,
+        ]);
+        $thirdGradeId_2_8 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '2110',
+            'has_next_grade' => 0,
+            'name' => '福利互助金	',
+            'second_grade_fk' => $secondGradeId_3,
+        ]);
+        $thirdGradeId_2_9 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '2111',
+            'has_next_grade' => 1,
+            'name' => '其他暫收款	',
+            'second_grade_fk' => $secondGradeId_3,
+        ]);
+        $thirdGradeId_2_10 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '2301',
+            'has_next_grade' => 0,
+            'name' => '存入保證金',
+            'second_grade_fk' => $secondGradeId_8,
+        ]);
+        $thirdGradeId_2_11 = DB::table('acc_third_grade')->insertGetId([
+            'code' => '2302',
+            'has_next_grade' => 0,
+            'name' => '高爾夫球隊基金',
+            'second_grade_fk' => $secondGradeId_8,
         ]);
         $thirdGradeId_6 = DB::table('acc_third_grade')->insertGetId([
             'code' => '5201',
@@ -364,17 +426,14 @@ class AccountingSeeder extends Seeder
         DB::table('acc_fourth_grade')->insert([
             'code' => '21020001',
             'name' => '應付帳款-其他',
-            'acc_company_fk' => 1,
             'third_grade_fk' => $thirdGradeId_5,
-            'acc_income_statement_fk' => 1,
-            'note_1' => '2014/8/31以前應付帳款轉用'
+            'note_1' => '2014/8/31以前應付帳款轉用',
+            'note_2' => '2014/9/1之後新增用'
         ]);
         DB::table('acc_fourth_grade')->insert([
             'code' => '21020002',
             'name' => '應付帳款-茶衣創意',
-            'acc_company_fk' => 1,
             'third_grade_fk' => $thirdGradeId_5,
-            'acc_income_statement_fk' => 1,
         ]);
 
         self::insertToAllGradeTable();
