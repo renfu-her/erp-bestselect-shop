@@ -223,8 +223,8 @@ class ConsignmentCtrl extends Controller
         $purchaseData  = Consignment::getData($id)->get()->first();
         $purchaseItemList = ReceiveDepot::getShouldEnterNumDataList(Event::consignment()->value, $id);
 
-        $inboundList = PurchaseInbound::getInboundList(['event' => Event::consignment()->key, 'purchase_id' => $id])->get()->toArray();
-        $inboundOverviewList = PurchaseInbound::getOverviewInboundList(Event::consignment()->key, $id)->get()->toArray();
+        $inboundList = PurchaseInbound::getInboundList(['event' => Event::consignment()->value, 'purchase_id' => $id])->get()->toArray();
+        $inboundOverviewList = PurchaseInbound::getOverviewInboundList(Event::consignment()->value, $id)->get()->toArray();
 
 
         $depotList = Depot::all()->toArray();
@@ -266,7 +266,7 @@ class ConsignmentCtrl extends Controller
                 foreach ($inboundItemReq['product_style_id'] as $key => $val) {
 
                     $re = PurchaseInbound::createInbound(
-                        Event::consignment()->key,
+                        Event::consignment()->value,
                         $id,
                         $inboundItemReq['purchase_item_id'][$key], //存入 dlv_receive_depot.id
                         $inboundItemReq['product_style_id'][$key],
