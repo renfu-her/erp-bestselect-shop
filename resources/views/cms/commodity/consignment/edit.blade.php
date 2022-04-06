@@ -397,10 +397,14 @@
                 let _URL = `${Laravel.apiUrl.selectProductList}?page=${page}`;
                 let Data = {
                     product_type: 'p',
-                    depot_id: $('input:hidden[name="receive_depot_id"]').val()
+                    send_depot_id: $('input:hidden[name="send_depot_id"]').val(),
+                    receive_depot_id: $('input:hidden[name="receive_depot_id"]').val()
                 };
 
-                if (!Data.depot_id) {
+                if (!Data.send_depot_id) {
+                    toast.show('請先選擇出貨倉。', {type: 'warning', title: '條件未設'});
+                    return false;
+                } else if (!Data.receive_depot_id) {
                     toast.show('請先選擇入庫倉。', {type: 'warning', title: '條件未設'});
                     return false;
                 } else {

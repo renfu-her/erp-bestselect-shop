@@ -483,4 +483,23 @@ class PurchaseInbound extends Model
         $result->orderBy('inbound.expiry_date');
         return $result;
     }
+
+    //取得商品款式現有數量
+    public static function getExistInboundProductStyleList($depot_id) {
+        $result = DB::table('pcs_purchase_inbound as inbound')
+            ->select(
+                'inbound.product_style_id'
+                , 'inbound.depot_id'
+                , DB::raw('sum(inbound.inbound_num) as inbound_num')
+                , DB::raw('sum(inbound.inbound_num) as sale_num')
+                , DB::raw('sum(inbound.inbound_num) as csn_num')
+                , DB::raw('sum(inbound.inbound_num) as consume_num')
+            )
+            ->where(DB::raw('(inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num)'), '>', 0)
+//            ->whereNotNull('inbound.close_date')
+            ->groupBy('inbound.product_style_id')
+            ->groupBy('inbound.depot_id')
+        ;
+        return $result;
+    }
 }
