@@ -277,7 +277,6 @@ class OrderCtrl extends Controller
     {
 
         $order = Order::orderDetail($id)->get()->first();
-
         $subOrder = Order::subOrderDetail($id)->get()->toArray();
 
         //  dd(Discount::orderDiscountList('main',$id)->get()->toArray());
