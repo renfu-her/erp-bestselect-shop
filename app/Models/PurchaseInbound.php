@@ -190,6 +190,8 @@ class PurchaseInbound extends Model
                         $update_arr['sale_num'] = DB::raw("sale_num + $sale_num");
                     } else if (Event::consignment()->value == $event) {
                         $update_arr['csn_num'] = DB::raw("csn_num + $sale_num");
+                    } else if (Event::consume()->value == $event) {
+                        $update_arr['consume_num'] = DB::raw("consume_num + $sale_num");
                     }
 
                     PurchaseInbound::where('id', $id)

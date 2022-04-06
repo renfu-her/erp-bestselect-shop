@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Delivery\Event;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -47,10 +48,6 @@ class Consum extends Model
                             return ['success' => 0, 'error_msg' => "庫存數量不足"];
                         }
 
-                        //物流單寫入使用耗材數量
-                        PurchaseInbound::where('id', $inbound->inbound_id)
-                            ->update(['consume_num' => DB::raw("consume_num + $val")]);
-
                         $reSD = Consum::createData(
                             $logistic_id, //出貨單ID
                             $inbound->inbound_id,
@@ -92,7 +89,7 @@ class Consum extends Model
             ) {
                 //扣除入庫單庫存
                 foreach ($dataGet as $item) {
-                    $reShipIb = PurchaseInbound::shippingInbound($item->inbound_id, $item->qty);
+                    $reShipIb = PurchaseInbound::shippingInbound(Event::consume()->value, $item->inbound_id, $item->qty);
                     if ($reShipIb['success'] == 0) {
                         DB::rollBack();
                         return $reShipIb;
