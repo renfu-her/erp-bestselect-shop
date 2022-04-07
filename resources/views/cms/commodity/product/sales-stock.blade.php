@@ -82,7 +82,7 @@
                     </tbody>
                 </table>
                 <hr>
-
+                <!--
                 <label class="text-secondary py-1 fw-bold">非即時庫存</label>
                 <table id="Non_instant" class="table table-bordered border-secondary align-middle mb-4">
                     <thead>
@@ -127,7 +127,7 @@
                         </tr>
                     </tfoot>
                 </table>
-
+            -->
                 <label class="text-secondary py-1 fw-bold">即時庫存</label>
                 <table class="table table-bordered border-secondary align-middle">
                     <thead>

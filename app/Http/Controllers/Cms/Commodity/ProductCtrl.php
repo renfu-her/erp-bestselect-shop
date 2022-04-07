@@ -496,8 +496,9 @@ class ProductCtrl extends Controller
         ]);
 
         $d = request()->all();
-
-        $re = ProductStyle::stockProcess($sid, $d['safety_stock'], $d['overbought'], $d['sale_id'], $d['qty']);
+        $sale_id = Arr::get($d, 'sale_id', []);
+        $qty = Arr::get($d, 'qty', []);
+        $re = ProductStyle::stockProcess($sid, $d['safety_stock'], $d['overbought'], $sale_id, $qty);
 
         if (!$re['success']) {
             return redirect()->back()->withErrors(['status' => $re['error_msg']]);
