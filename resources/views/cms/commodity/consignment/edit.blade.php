@@ -13,12 +13,165 @@
     @endphp
 
     @if ($method === 'edit')
-        <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">配送狀態</a>
-        <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">物流設定</a>
-        <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">出貨審核</a>
+        <div class="card shadow p-4 mb-4">
+            <h6>寄倉單明細</h6>
+            <dl class="row">
+                <div class="col">
+                    <dt>寄倉單編號</dt>
+                    <dd>{{ $consignmentData->consignment_sn }}</dd>
+                </div>
+                <div class="col">
+                    <dt>建單時間</dt>
+                    <dd>{{ $consignmentData->created_at }}</dd>
+                </div>
+                <div class="col-sm-5">
+                    <dt>建單人員</dt>
+                    <dd>{{ $consignmentData->create_user_name }}</dd>
+                </div>
+            </dl>
+            <dl class="row">
+                <div class="col">
+                    <dt>審核人員</dt>
+                    <dd>{{ $consignmentData->audit_user_name }}</dd>
+                </div>
+                <div class="col">
+                    <dt>審核日期</dt>
+                    <dd>{{ $consignmentData->audit_date }}</dd>
+                </div>
+                <div class="col-sm-5">
+                    <dt></dt>
+                    <dd>
+                        <span></span>
+                        <span></span>
+                    </dd>
+                </div>
+            </dl>
+            <dl class="row">
+                <div class="col">
+                    <dt>寄件倉</dt>
+                    <dd>{{ $consignmentData->send_depot_name }}</dd>
+                </div>
+                <div class="col">
+                    <dt>寄件倉電話</dt>
+                    <dd>{{ $consignmentData->send_depot_tel }}</dd>
+                </div>
+                <div class="col-sm-5">
+                    <dt>寄件倉地址</dt>
+                    <dd>{{ $consignmentData->send_depot_address }}</dd>
+                </div>
+            </dl>
+            <dl class="row">
+                <div class="col">
+                    <dt>收件倉</dt>
+                    <dd>{{ $consignmentData->receive_depot_name }}</dd>
+                </div>
+                <div class="col">
+                    <dt>收件倉電話</dt>
+                    <dd>{{ $consignmentData->receive_depot_tel }}</dd>
+                </div>
+                <div class="col-sm-5">
+                    <dt>收件倉地址</dt>
+                    <dd>{{ $consignmentData->receive_depot_address }}</dd>
+                </div>
+            </dl>
+            <dl class="row">
+                <div class="col">
+                    <dt></dt>
+                    <dd></dd>
+                </div>
+                <div class="col-auto" style="width: calc(100%/12*8.5);">
+                    <dt>備註</dt>
+                    <dd>{{ $consignmentData->memo }}</dd>
+                </div>
+            </dl>
+        </div>
+    @endif
 
-        <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.consignment.inbound', ['id' => $id], true) }}">入庫審核</a>
-        <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.consignment.log', ['id' => $id], true) }}">變更紀錄</a>
+    @if ($method === 'edit')
+
+        <div>
+            <div class="card-header px-4 d-flex align-items-center bg-white flex-wrap justify-content-end">
+                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">配送狀態</a>
+                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">物流設定</a>
+                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">出貨審核</a>
+
+                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.consignment.inbound', ['id' => $id], true) }}">入庫審核</a>
+                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.consignment.log', ['id' => $id], true) }}">變更紀錄</a>
+            </div>
+            <div class="card-body px-4">
+                <dl class="row mb-0">
+                    <div class="col">
+                        <dt>物流編號</dt>
+                        <dd>{{ $consignmentData->lgt_sn ?? '-' }}</dd>
+                    </div>
+                    <div class="col">
+                        <dt>溫層</dt>
+                        <dd>{{ $consignmentData->temps ?? '-' }}</dd>
+                    </div>
+                    <div class="col">
+                        <dt>寄倉單編號</dt>
+                        <dd>{{ $consignmentData->consignment_sn }}</dd>
+                    </div>
+                    <div class="col">
+                        <dt>寄倉出貨單號</dt>
+                        <dd>{{ $consignmentData->dlv_sn ?? '(待處理)' }}</dd>
+                    </div>
+                </dl>
+            </div>
+{{--            <div class="card-body px-4 py-0">--}}
+{{--                <div class="table-responsive tableOverBox">--}}
+{{--                    <table class="table tableList table-sm mb-0">--}}
+{{--                        <thead class="table-light text-secondary">--}}
+{{--                        <tr>--}}
+{{--                            <th scope="col">商品名稱</th>--}}
+{{--                            <th scope="col">SKU</th>--}}
+{{--                            <th scope="col">單價</th>--}}
+{{--                            <th scope="col">數量</th>--}}
+{{--                            <th scope="col">小計</th>--}}
+{{--                        </tr>--}}
+{{--                        </thead>--}}
+{{--                        <tbody>--}}
+{{--                        @foreach ($subOrder->items as $item)--}}
+{{--                            <tr>--}}
+{{--                                <td><a href="#" class="-text">{{ $item->product_title }}</a></td>--}}
+{{--                                <td>{{ $item->sku }}</td>--}}
+{{--                                <td>${{ number_format($item->price) }}</td>--}}
+{{--                                <td>{{ $item->qty }}</td>--}}
+{{--                                <td>${{ number_format($item->total_price) }}</td>--}}
+{{--                            </tr>--}}
+{{--                        @endforeach--}}
+{{--                        </tbody>--}}
+{{--                    </table>--}}
+{{--                </div>--}}
+{{--            </div>--}}
+
+            <div class="card-header px-4 text-secondary border-top">物流資訊</div>
+            <div class="card-body px-4 pb-4">
+                <dl class="row">
+                    <div class="col">
+                        <dt>運費付款單</dt>
+                        <dd>(待處理)</dd>
+                    </div>
+                    <div class="col">
+                        <dt>實際物流</dt>
+                        <dd>{{ $consignmentData->group_name ?? '(待處理)' }}</dd>
+                    </div>
+                    <div class="col">
+                        <dt>包裹編號</dt>
+                        <dd>{{ $consignmentData->package_sn ?? '(待處理)' }}</dd>
+                    </div>
+                    <div class="col">
+                        <dt>物態</dt>
+                        <dd>{{ $consignmentData->logistic_status ?? '(待處理)' }}</dd>
+                    </div>
+                    <div class="col">
+                        <dt>物流說明</dt>
+                        <dd>{{ $consignmentData->lgt_memo ?? '(待處理)' }}</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
     @endif
     <form id="form1" method="post" action="{{ $formAction }}">
         @method('POST')
@@ -33,36 +186,10 @@
 
             <div class="card shadow p-4 mb-4">
                 <div class="row">
-                    <div class="col-12 col-sm-6 mb-3">
-                        <label class="form-label">新增人員</label>
-                        <div class="form-control" readonly>{{ empty($consignmentData->create_user_name) ? '-' : $consignmentData->create_user_name }}</div>
-                    </div>
-                    <div class="col-12 col-sm-6 mb-3">
-                        <label class="form-label">狀態</label>
-                        <div class="form-control" readonly>-</div>
-                    </div>
                     <div class="col-12 col-md-6 mb-3">
                         <label class="form-label">入庫人員</label>
                         <div class="form-control" readonly>{{ empty($inbound_names) ? '-' : $inbound_names }}</div>
                     </div>
-                    <fieldset class="col-12 col-sm-6 mb-3">
-                        <legend class="col-form-label p-0 mb-2">審核狀態 <span class="text-danger">*</span></legend>
-                        <div class="px-1 pt-1">
-                            @foreach (App\Enums\Consignment\AuditStatus::asArray() as $key => $val)
-                                <div class="form-check form-check-inline @error('audit_status')is-invalid @enderror">
-                                    <label class="form-check-label">
-                                        <input class="form-check-input @error('audit_status')is-invalid @enderror" name="audit_status"
-                                               value="{{ $val }}" type="radio" required
-                                               @if (old('audit_status', $consignmentData->audit_status ?? '') == $val) checked @endif>
-                                        {{ App\Enums\Consignment\AuditStatus::getDescription($val) }}
-                                    </label>
-                                </div>
-                            @endforeach
-                            @error('target')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </fieldset>
                 </div>
             </div>
         @endif
@@ -241,6 +368,45 @@
                 @endif
             </div>
         </div>
+
+        @if ($method === 'edit')
+        <h6>訂單總覽</h6>
+        <div class="table-responsive">
+            <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
+                <tbody>
+                <tr class="table-light">
+                    <td class="col-2">小計</td>
+                    <td class="col-2">運費</td>
+                    <td class="col-2">總金額</td>
+                </tr>
+                <tr>
+                    <td>$-</td>
+                    <td>${{ number_format($consignmentData->lgt_cost) }}</td>
+                    <td>$-</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <fieldset class="col-12 col-sm-6 mb-3">
+            <legend class="col-form-label p-0 mb-2">審核狀態 <span class="text-danger">*</span></legend>
+            <div class="px-1 pt-1">
+                @foreach (App\Enums\Consignment\AuditStatus::asArray() as $key => $val)
+                    <div class="form-check form-check-inline @error('audit_status')is-invalid @enderror">
+                        <label class="form-check-label">
+                            <input class="form-check-input @error('audit_status')is-invalid @enderror" name="audit_status"
+                                   value="{{ $val }}" type="radio" required
+                                   @if (old('audit_status', $consignmentData->audit_status ?? '') == $val) checked @endif>
+                            {{ App\Enums\Consignment\AuditStatus::getDescription($val) }}
+                        </label>
+                    </div>
+                @endforeach
+                @error('target')
+                <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+        </fieldset>
+        @endif
 
         @error('del_error')
         <div class="alert alert-danger mt-3">{{ $message }}</div>

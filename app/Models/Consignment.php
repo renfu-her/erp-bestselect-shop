@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Delivery\Event;
 use App\Enums\Purchase\LogEvent;
 use App\Enums\Purchase\LogEventFeature;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -215,6 +216,7 @@ class Consignment extends Model
                 , 'consignment.memo as memo'
 
             )
+            ->selectRaw('DATE_FORMAT(consignment.created_at,"%Y-%m-%d") as created_at')
             ->selectRaw('DATE_FORMAT(consignment.scheduled_date,"%Y-%m-%d") as scheduled_date')
             ->selectRaw('DATE_FORMAT(consignment.audit_date,"%Y-%m-%d") as audit_date')
             ->selectRaw('DATE_FORMAT(consignment.close_date,"%Y-%m-%d") as close_date')
@@ -224,4 +226,58 @@ class Consignment extends Model
         return $result;
     }
 
+    public static function getDeliveryData($id)
+    {
+        $query = DB::table('csn_consignment as consignment')
+            ->leftJoin('depot as send', 'send.id', '=', 'consignment.send_depot_id')
+            ->leftJoin('depot as rcv', 'rcv.id', '=', 'consignment.receive_depot_id')
+            ->leftJoin('dlv_delivery', function ($join) {
+                $join->on('dlv_delivery.event_id', '=', 'consignment.id')
+                    ->where('dlv_delivery.event', '=', Event::consignment()->value);
+            })
+            ->leftJoin('dlv_logistic', 'dlv_logistic.delivery_id', '=', 'dlv_delivery.id')
+            ->leftJoin('shi_group', 'shi_group.id', '=', 'dlv_logistic.ship_group_id')
+            ->leftJoin('shi_temps', 'shi_temps.id', '=', 'shi_group.temps_fk')
+            ->where('consignment.id', $id)
+            ->select(
+                'consignment.sn as consignment_sn'
+                , 'consignment.send_depot_id as send_depot_id'
+                , 'consignment.send_depot_name as send_depot_name'
+                , 'send.tel as send_depot_tel'
+                , 'send.address as send_depot_address'
+                , 'consignment.receive_depot_id as receive_depot_id'
+                , 'consignment.receive_depot_name as receive_depot_name'
+                , 'rcv.tel as receive_depot_tel'
+                , 'rcv.address as receive_depot_address'
+                , 'consignment.logistic_status_code as logistic_status_code'
+                , 'consignment.logistic_status as logistic_status'
+                , 'consignment.create_user_id as create_user_id'
+                , 'consignment.create_user_name as create_user_name'
+                , 'consignment.audit_user_id as audit_user_id'
+                , 'consignment.audit_user_name as audit_user_name'
+                , 'consignment.audit_status as audit_status'
+                , 'consignment.memo as memo'
+                , DB::raw('DATE_FORMAT(consignment.created_at,"%Y-%m-%d") as created_at')
+                , DB::raw('DATE_FORMAT(consignment.scheduled_date,"%Y-%m-%d") as scheduled_date')
+                , DB::raw('DATE_FORMAT(consignment.audit_date,"%Y-%m-%d") as audit_date')
+                , DB::raw('DATE_FORMAT(consignment.close_date,"%Y-%m-%d") as close_date')
+
+                , 'dlv_delivery.sn as dlv_sn'
+                , 'dlv_delivery.logistic_status'
+                , 'dlv_delivery.logistic_status_code'
+                , 'dlv_delivery.audit_date as audit_date'
+                , 'dlv_delivery.audit_user_id as audit_user_id'
+                , 'dlv_delivery.audit_user_name as audit_user_name'
+
+                , 'dlv_logistic.sn as lgt_sn'
+                , 'dlv_logistic.package_sn'
+                , 'dlv_logistic.cost as lgt_cost'
+                , 'dlv_logistic.memo as lgt_memo'
+                , 'shi_group.name as group_name'
+                , 'shi_group.note as group_note'
+                , 'shi_temps.temps'
+            );
+
+        return $query;
+    }
 }

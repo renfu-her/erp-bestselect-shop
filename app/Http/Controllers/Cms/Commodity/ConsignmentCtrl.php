@@ -91,14 +91,14 @@ class ConsignmentCtrl extends Controller
             if ($reDelivery['success'] == 0) {
                 return $reDelivery;
             }
-            return ['success' => 1, 'error_msg' => "", '$consignmentID' => $consignmentID];
+            return ['success' => 1, 'error_msg' => "", 'consignmentID' => $consignmentID];
         });
 
         if ($result['success'] == 0) {
             wToast($result['error_msg']);
         } else {
             wToast(__('Add finished.'));
-            $consignmentID = $result['error_msg'];
+            $consignmentID = $result['consignmentID'];
         }
 
         return redirect(Route('cms.consignment.edit', [
@@ -125,7 +125,7 @@ class ConsignmentCtrl extends Controller
     public function edit(Request $request, $id)
     {
         $query = $request->query();
-        $consignmentData  = Consignment::getData($id)->get()->first();
+        $consignmentData  = Consignment::getDeliveryData($id)->get()->first();
         $consignmentItemData = ConsignmentItem::where('consignment_id', $id)->get();
 
         if (!$consignmentData) {
