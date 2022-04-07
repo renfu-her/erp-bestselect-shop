@@ -44,6 +44,13 @@ class CreateDiscountTable extends Migration
             $table->integer('discount_id')->comment('優惠id');
             $table->integer('collection_id')->comment('商品群組id');
         });
+
+        Schema::create('dis_combine_group', function (Blueprint $table) {
+            $table->id();
+            $table->integer('discount_id')->comment('優惠id');
+            $table->integer('product_id')->comment('商品id');
+            $table->unique(['product_id']);
+        });
         /*
     Schema::create('dis_discount_customer', function (Blueprint $table) {
     $table->id();
@@ -62,5 +69,6 @@ class CreateDiscountTable extends Migration
     {
         Schema::dropIfExists('dis_discounts');
         Schema::dropIfExists('dis_discount_collection');
+        Schema::dropIfExists('dis_combine_group');     
     }
 }
