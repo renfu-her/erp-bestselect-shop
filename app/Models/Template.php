@@ -103,11 +103,11 @@ class Template extends Model
         $result = DB::table('idx_template as template')
             ->select(
                 'template.title',
-                'template.group_id as id',
+                DB::raw('concat("'. FrontendApiUrl::collection(). '") as event'),
+                'template.group_id as event_id',
                 'template.style_type',
                 'template.sort',
-            )
-            ->selectRaw('concat("'. frontendUrl(FrontendApiUrl::collection()). '", template.group_id, "\/", template.title) as link');
+            );
         if ($is_public) {
             $result->where('template.is_public', '=', $is_public);
         }
