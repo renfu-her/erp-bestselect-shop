@@ -249,8 +249,10 @@
         <div id="submitDiv">
             <div class="col-auto">
                 <input type="hidden" name="del_item_id">
-                @if(!$hasCreatedFinalPayment && (null == $consignmentData || $consignmentData->close_date == null)
-                    && (null == $consignmentData || $consignmentData->audit_status == App\Enums\Consignment\AuditStatus::unreviewed()->value))
+                @if(null == $consignmentData)
+                    <button type="submit" class="btn btn-primary px-4">儲存</button>
+                @elseif(!$hasCreatedFinalPayment && $consignmentData->close_date == null
+                    && $consignmentData->audit_status == App\Enums\Consignment\AuditStatus::unreviewed()->value)
                     <button type="submit" class="btn btn-primary px-4">寄倉審核</button>
                 @else
 {{--                    <button type="submit" class="btn btn-primary px-4">登錄發票</button>--}}
