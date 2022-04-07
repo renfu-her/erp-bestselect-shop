@@ -438,6 +438,46 @@ class AccountingSeeder extends Seeder
             'second_grade_fk'      => $secondGradeId_11,
         ]);
 
+        //insert 科目代碼 from 5101 to 5102
+        for ($i = 1; $i <= 2; $i++) {
+            DB::table('acc_third_grade')->insert([
+                'code' => '51' . str_pad($i, 2, '0', STR_PAD_LEFT),
+                'name' => 'test_510-' . $i,
+                'has_next_grade'       => 0,
+                'second_grade_fk' => $secondGradeId_5
+            ]);
+        }
+        //delete 科目代碼 from 5101 to 5102
+        $toDeleteIds_5101 = DB::table('acc_third_grade')
+            ->where('code', 'like', '510%')
+            ->select('id')
+            ->get();
+        $toDeleteIdArray_5101 = [];
+        foreach ($toDeleteIds_5101 as $toDeleteId) {
+            $toDeleteIdArray_5101[] = $toDeleteId->id;
+        }
+        DB::table('acc_all_grades')
+            ->where('grade_type', '=', GradeModelClass::getDescription(3))
+            ->whereIn('grade_id', $toDeleteIdArray_5101)
+            ->delete();
+        DB::table('acc_third_grade')->where('code', 'like', '510%')->delete();
+        DB::table('acc_third_grade')->insert([
+            'code' => '5103',
+            'name' => '進貨成本',
+            'has_next_grade'       => 0,
+            'acc_income_statement_fk' => 2,
+            'acc_company_fk' => 1,
+            'second_grade_fk' => $secondGradeId_5,
+        ]);
+        DB::table('acc_third_grade')->insert([
+            'code' => '5104',
+            'name' => '進貨退出',
+            'has_next_grade'       => 0,
+            'acc_income_statement_fk' => 2,
+            'acc_company_fk' => 1,
+            'second_grade_fk' => $secondGradeId_5,
+        ]);
+
         $thirdGradeData = [
             '薪資支出',
             '租金支出',
@@ -473,9 +513,6 @@ class AccountingSeeder extends Seeder
             '勞保費',
             '交際費',
             '印刷費',
-            '稅捐',
-            '折舊',
-            '雜項支出',
         ];
         foreach ($thirdGradeData_1 as $key => $thirdGradeDatum) {
             DB::table('acc_third_grade')->insertGetId([
@@ -486,6 +523,88 @@ class AccountingSeeder extends Seeder
                 'second_grade_fk' => $secondGradeId_6,
             ]);
         }
+
+        //insert 科目代碼 from 5217 to 5218
+        for ($i = 7; $i <= 8; $i++) {
+            DB::table('acc_third_grade')->insert([
+                'code' => '521' . str_pad($i, 1, '0', STR_PAD_LEFT),
+                'name' => 'test_521-' . $i,
+                'has_next_grade'       => 0,
+                'second_grade_fk' => $secondGradeId_5
+            ]);
+        }
+        //delete 科目代碼 from 5217 to 5218
+        $toDeleteIds_5211 = DB::table('acc_third_grade')
+            ->where('code', '=', '5217')
+            ->orWhere('code', '=', '5218')
+            ->select('id')
+            ->get();
+        $toDeleteIdArray_5211 = [];
+        foreach ($toDeleteIds_5211 as $toDeleteId) {
+            $toDeleteIdArray_5211[] = $toDeleteId->id;
+        }
+        DB::table('acc_all_grades')
+            ->where('grade_type', '=', GradeModelClass::getDescription(3))
+            ->whereIn('grade_id', $toDeleteIdArray_5211)
+            ->delete();
+        DB::table('acc_third_grade')
+            ->where('code', '=', '5217')
+            ->orWhere('code', '=', '5218')
+            ->delete();
+
+        $thirdGradeData_2 = [
+            '稅捐',
+            '折舊',
+        ];
+        foreach ($thirdGradeData_2 as $key => $thirdGradeDatum) {
+            DB::table('acc_third_grade')->insertGetId([
+                'code'            => '52' . str_pad($key + 19, 2, '0', STR_PAD_LEFT),
+                'has_next_grade'  => 0,
+                'name'            => $thirdGradeDatum,
+                'acc_income_statement_fk' => 3,
+                'second_grade_fk' => $secondGradeId_6,
+            ]);
+        }
+
+        //insert 科目代碼 from 5221 to 5224
+        for ($i = 1; $i <= 4; $i++) {
+            DB::table('acc_third_grade')->insert([
+                'code' => '522' . str_pad($i, 1, '0', STR_PAD_LEFT),
+                'name' => 'test_522-' . $i,
+                'has_next_grade'       => 0,
+                'second_grade_fk' => $secondGradeId_5
+            ]);
+        }
+        //delete 科目代碼 from 5221 to 5224
+        $toDeleteIds_5221 = DB::table('acc_third_grade')
+            ->where('code', '=', '5221')
+            ->orWhere('code', '=', '5222')
+            ->orWhere('code', '=', '5223')
+            ->orWhere('code', '=', '5224')
+            ->select('id')
+            ->get();
+        $toDeleteIdArray_5221 = [];
+        foreach ($toDeleteIds_5221 as $toDeleteId) {
+            $toDeleteIdArray_5221[] = $toDeleteId->id;
+        }
+        DB::table('acc_all_grades')
+            ->where('grade_type', '=', GradeModelClass::getDescription(3))
+            ->whereIn('grade_id', $toDeleteIdArray_5221)
+            ->delete();
+        DB::table('acc_third_grade')
+            ->where('code', '=', '5221')
+            ->orWhere('code', '=', '5222')
+            ->orWhere('code', '=', '5223')
+            ->orWhere('code', '=', '5224')
+            ->delete();
+
+        DB::table('acc_third_grade')->insertGetId([
+            'code'            => '5225',
+            'has_next_grade'  => 0,
+            'name'            => '雜項支出',
+            'acc_income_statement_fk' => 3,
+            'second_grade_fk' => $secondGradeId_6,
+        ]);
 
         DB::table('acc_third_grade')->insertGetId([
             'code'            => '5226',
@@ -515,7 +634,33 @@ class AccountingSeeder extends Seeder
             'acc_income_statement_fk' => 4,
             'second_grade_fk' => $secondGradeId_6,
         ]);
-        // TODO delete 5230
+
+        //insert 科目代碼 5230
+        for ($i = 0; $i <= 0; $i++) {
+            DB::table('acc_third_grade')->insert([
+                'code' => '523' . str_pad($i, 1, '0', STR_PAD_LEFT),
+                'name' => 'test_523-' . $i,
+                'has_next_grade'       => 0,
+                'second_grade_fk' => $secondGradeId_5
+            ]);
+        }
+        //delete 科目代碼 5230
+        $toDeleteIds_5230 = DB::table('acc_third_grade')
+            ->where('code', '=', '5230')
+            ->select('id')
+            ->get();
+        $toDeleteIdArray_5230 = [];
+        foreach ($toDeleteIds_5230 as $toDeleteId) {
+            $toDeleteIdArray_5230[] = $toDeleteId->id;
+        }
+        DB::table('acc_all_grades')
+            ->where('grade_type', '=', GradeModelClass::getDescription(3))
+            ->whereIn('grade_id', $toDeleteIdArray_5230)
+            ->delete();
+        DB::table('acc_third_grade')
+            ->where('code', '=', '5230')
+            ->delete();
+
 
         $thirdGradeData_53 = [
             '兌換損失',
@@ -589,6 +734,65 @@ class AccountingSeeder extends Seeder
             'name' => '其他應收款-其他',
             'third_grade_fk' => $thirdGradeId_10,
         ]);
+
+        //insert 科目代碼 from 11090001 to 11090115
+        for ($i = 1; $i <= 115; $i++) {
+            DB::table('acc_fourth_grade')->insert([
+                'code' => '11090' . str_pad($i, 3, '00', STR_PAD_LEFT),
+                'name' => 'test' . $i,
+                'third_grade_fk' => $thirdGradeId_13,
+            ]);
+        }
+        //delete 科目代碼 from 11090001 to 11090115
+        $toDeleteIds = DB::table('acc_fourth_grade')
+            ->where('code', 'like', '11090%')
+            ->select('id')
+            ->get();
+        $toDeleteIdArray = [];
+        foreach ($toDeleteIds as $toDeleteId) {
+            $toDeleteIdArray[] = $toDeleteId->id;
+        }
+        DB::table('acc_all_grades')
+            ->where('grade_type', '=', GradeModelClass::getDescription(4))
+            ->whereIn('grade_id', $toDeleteIdArray)
+            ->delete();
+        DB::table('acc_fourth_grade')->where('code', 'like', '11090%')->delete();
+        DB::table('acc_fourth_grade')->insert([
+            'code' => '11090116',
+            'name' => '信用卡-藍新金流一般-合庫公司戶',
+            'acc_company_fk' => 1,
+            'note_1' => '11020001',
+            'note_2' => '5226',
+            'third_grade_fk' => $thirdGradeId_13,
+        ]);
+
+        //insert 科目代碼 from 11130001 to 11130004
+        for ($i = 1; $i <= 4; $i++) {
+            DB::table('acc_fourth_grade')->insert([
+                'code' => '11130' . str_pad($i, 3, '00', STR_PAD_LEFT),
+                'name' => 'test1113-' . $i,
+                'third_grade_fk' => $thirdGradeId_17,
+            ]);
+        }
+        //delete 科目代碼 from 11130001 to 11130004
+        $toDelete_1113_Ids = DB::table('acc_fourth_grade')
+            ->where('code', 'like', '11130%')
+            ->select('id')
+            ->get();
+        $toDeleteId_1113_Array = [];
+        foreach ($toDelete_1113_Ids as $toDeleteId) {
+            $toDeleteId_1113_Array[] = $toDeleteId->id;
+        }
+        DB::table('acc_all_grades')
+            ->where('grade_type', '=', GradeModelClass::getDescription(4))
+            ->whereIn('grade_id', $toDeleteId_1113_Array)
+            ->delete();
+        DB::table('acc_fourth_grade')->where('code', 'like', '11130%')->delete();
+        DB::table('acc_fourth_grade')->insert([
+            'code' => '11130005',
+            'name' => '同業往來-喜鴻旅行社',
+            'third_grade_fk' => $thirdGradeId_17,
+        ]);
         DB::table('acc_fourth_grade')->insert([
             'code' => '11140001',
             'name' => '內部往來-沖帳',
@@ -610,6 +814,34 @@ class AccountingSeeder extends Seeder
             'code' => '21020002',
             'name' => '應付帳款-茶衣創意',
             'third_grade_fk' => $thirdGradeId_5,
+        ]);
+
+        //insert 科目代碼  21030001
+        for ($i = 1; $i <= 1; $i++) {
+            DB::table('acc_fourth_grade')->insert([
+                'code' => '21030' . str_pad($i, 3, '00', STR_PAD_LEFT),
+                'name' => 'test_2103_' . $i,
+                'third_grade_fk' => $thirdGradeId_2_1,
+            ]);
+        }
+        //delete 科目代碼  21030001
+        $toDeleteIds_2103 = DB::table('acc_fourth_grade')
+            ->where('code', 'like', '21030%')
+            ->select('id')
+            ->get();
+        $toDeleteId_2103_Array = [];
+        foreach ($toDeleteIds_2103 as $toDeleteId) {
+            $toDeleteId_2103_Array[] = $toDeleteId->id;
+        }
+        DB::table('acc_all_grades')
+            ->where('grade_type', '=', GradeModelClass::getDescription(4))
+            ->whereIn('grade_id', $toDeleteId_2103_Array)
+            ->delete();
+        DB::table('acc_fourth_grade')->where('code', 'like', '21030%')->delete();
+        DB::table('acc_fourth_grade')->insert([
+            'code' => '21030002',
+            'name' => '其他應付款-其他',
+            'third_grade_fk' => $thirdGradeId_2_1,
         ]);
 
         $logisticData = [
