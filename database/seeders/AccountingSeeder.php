@@ -661,6 +661,35 @@ class AccountingSeeder extends Seeder
             ->where('code', '=', '5230')
             ->delete();
 
+        DB::table('acc_third_grade')->insertGetId([
+            'code'            => '5231',
+            'has_next_grade'  => 0,
+            'name'            => '物流費用',
+            'acc_income_statement_fk' => 3,
+            'second_grade_fk' => $secondGradeId_6,
+        ]);
+        DB::table('acc_third_grade')->insertGetId([
+            'code'            => '5232',
+            'has_next_grade'  => 0,
+            'name'            => '樣品',
+            'note_1' => '喜鴻國際',
+            'acc_income_statement_fk' => 3,
+            'second_grade_fk' => $secondGradeId_6,
+        ]);
+        DB::table('acc_third_grade')->insertGetId([
+            'code'            => '5233',
+            'has_next_grade'  => 0,
+            'name'            => '耗材',
+            'note_1' => '喜鴻國際',
+            'acc_income_statement_fk' => 3,
+            'second_grade_fk' => $secondGradeId_6,
+        ]);
+        DB::table('acc_third_grade')->insertGetId([
+            'code'            => '5234',
+            'has_next_grade'  => 0,
+            'name'            => '系統費用',
+            'second_grade_fk' => $secondGradeId_6,
+        ]);
 
         $thirdGradeData_53 = [
             '兌換損失',
