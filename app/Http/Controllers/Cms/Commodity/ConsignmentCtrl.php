@@ -46,19 +46,21 @@ class ConsignmentCtrl extends Controller
         $send_depot = Depot::where('id', $csnReq['send_depot_id'])->get()->first();
         $receive_depot = Depot::where('id', $csnReq['receive_depot_id'])->get()->first();
 
-        $reCsn = Consignment::createData($send_depot->id, $send_depot->name, $receive_depot->id, $receive_depot->name
-            , $request->user()->id, $request->user()->name
-            , $csnReq['scheduled_date']);
-
         $consignmentID = null;
-        if (isset($reCsn['id'])) {
-            $consignmentID = $reCsn['id'];
-        }
-
         $result = null;
-        $result = DB::transaction(function () use ($csnItemReq, $request, $consignmentID
+        $result = DB::transaction(function () use ($csnReq, $csnItemReq, $request, $send_depot, $receive_depot
         ) {
+            $reCsn = Consignment::createData($send_depot->id, $send_depot->name, $receive_depot->id, $receive_depot->name
+                , $request->user()->id, $request->user()->name
+                , $csnReq['scheduled_date']);
+
+            $consignmentID = null;
+            if (isset($reCsn['id'])) {
+                $consignmentID = $reCsn['id'];
+            }
+
             if (isset($csnItemReq['product_style_id']) && isset($consignmentID)) {
+
                 foreach ($csnItemReq['product_style_id'] as $key => $val) {
                     $reCsnIC = ConsignmentItem::createData(
                         [
@@ -79,22 +81,24 @@ class ConsignmentCtrl extends Controller
                     }
                 }
             }
-            return ['success' => 1, 'error_msg' => ""];
+
+            $csn = Consignment::where('id', $consignmentID)->get()->first();
+            $reDelivery = Delivery::createData(
+                Event::consignment()->value
+                , $consignmentID
+                , $csn->sn
+            );
+            if ($reDelivery['success'] == 0) {
+                return $reDelivery;
+            }
+            return ['success' => 1, 'error_msg' => "", '$consignmentID' => $consignmentID];
         });
-        $csn = Consignment::where('id', $consignmentID)->get()->first();
-        $reDelivery = Delivery::createData(
-            Event::consignment()->value
-            , $consignmentID
-            , $csn->sn
-        );
-        if ($reDelivery['success'] == 0) {
-            return $reDelivery;
-        }
 
         if ($result['success'] == 0) {
             wToast($result['error_msg']);
         } else {
             wToast(__('Add finished.'));
+            $consignmentID = $result['error_msg'];
         }
 
         return redirect(Route('cms.consignment.edit', [

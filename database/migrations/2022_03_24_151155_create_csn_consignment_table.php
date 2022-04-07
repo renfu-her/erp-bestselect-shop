@@ -51,6 +51,8 @@ class CreateCsnConsignmentTable extends Migration
             $table->string('memo')->nullable()->comment('備註');
             $table->timestamps();
             $table->softDeletes();
+
+            $table->unique(['consignment_id', 'product_style_id']); //寄倉不可選重複的款式
         });
     }
 
