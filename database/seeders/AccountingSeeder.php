@@ -47,10 +47,8 @@ class AccountingSeeder extends Seeder
             ])->id;
         $firstGradeId_4 = FirstGrade::create([
             'code' => '4',
-            'has_next_grade' => 0,
+            'has_next_grade' => 1,
             'name' => '股東收益',
-            'acc_company_fk' => '1',
-            'acc_income_statement_fk' => '1'
             ])->id;
         $firstGradeId_5 = FirstGrade::create([
             'code' => '5',
@@ -103,6 +101,18 @@ class AccountingSeeder extends Seeder
             'has_next_grade' => 1,
             'name' => '資本',
             'first_grade_fk' => $firstGradeId_3,
+        ]);
+        $secondGradeId_10 = DB::table('acc_second_grade')->insertGetId([
+            'code' => '41',
+            'has_next_grade' => 1,
+            'name' => '營業收入',
+            'first_grade_fk' => $firstGradeId_4,
+        ]);
+        $secondGradeId_11 = DB::table('acc_second_grade')->insertGetId([
+            'code' => '42',
+            'has_next_grade' => 1,
+            'name' => '營業外收入',
+            'first_grade_fk' => $firstGradeId_4,
         ]);
         $secondGradeId_5 = DB::table('acc_second_grade')->insertGetId([
             'code' => '51',
@@ -382,6 +392,51 @@ class AccountingSeeder extends Seeder
             'name' => '前期損益調整',
             'second_grade_fk' => $secondGradeId_9,
         ]);
+
+        $fourthGradeData = [
+            '銷貨收入',
+            '銷貨退回',
+            '紅利折扣',
+            '優惠券折扣',
+            '任選折扣',
+            '銷貨折扣-蝦皮-蝦幣折抵',
+            '全館活動折扣',
+        ];
+        foreach ($fourthGradeData as $key => $fourthGradeDatum) {
+            DB::table('acc_third_grade')->insertGetId([
+                'code'           => '41' . str_pad($key + 1, 2, '0', STR_PAD_LEFT),
+                'has_next_grade'       => 0,
+                'name'                 => $fourthGradeDatum,
+                'acc_income_statement_fk' => 1,
+                'second_grade_fk'      => $secondGradeId_10,
+            ]);
+        }
+
+        $fourthGradeData_1 = [
+            '利息收入',
+            '兌換盈益',
+            '其他收入',
+            '租金收入',
+            '贊助回饋金收入',
+            '佣金收入',
+        ];
+        foreach ($fourthGradeData_1 as $key => $fourthGradeDatum_1) {
+            DB::table('acc_third_grade')->insertGetId([
+                'code'           => '42' . str_pad($key + 1, 2, '0', STR_PAD_LEFT),
+                'has_next_grade'       => 0,
+                'name'                 => $fourthGradeDatum_1,
+                'acc_income_statement_fk' => 5,
+                'second_grade_fk'      => $secondGradeId_11,
+            ]);
+        }
+        $thirdGradeId_4_1 = DB::table('acc_third_grade')->insertGetId([
+            'code'           => '4207',
+            'has_next_grade'       => 1,
+            'name'                 => '物流收入',
+            'acc_income_statement_fk' => 5,
+            'second_grade_fk'      => $secondGradeId_11,
+        ]);
+
         $thirdGradeId_6 = DB::table('acc_third_grade')->insertGetId([
             'code' => '5201',
             'has_next_grade' => 0,
@@ -464,6 +519,27 @@ class AccountingSeeder extends Seeder
             'name' => '應付帳款-茶衣創意',
             'third_grade_fk' => $thirdGradeId_5,
         ]);
+
+        $logisticData = [
+            '喬元手創食品(果木小薰)',
+            '桔豐科技',
+            '公務車',
+            '和生御品',
+            '美麗心靈',
+            '東雅小廚館',
+            '千櫻國際',
+            '尊榮生活電商',
+            '廣泰興',
+            '宏光開發',
+        ];
+        foreach ($logisticData as $key => $logisticDatum) {
+            DB::table('acc_fourth_grade')->insert([
+                'code'                    => '420700' . str_pad($key + 1, 2, '0', STR_PAD_LEFT),
+                'name'                    => '物流收入-' . $logisticDatum,
+                'acc_income_statement_fk' => 5,
+                'third_grade_fk'          => $thirdGradeId_4_1,
+            ]);
+        }
 
         self::insertToAllGradeTable();
     }
