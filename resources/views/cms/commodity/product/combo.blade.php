@@ -30,7 +30,7 @@
                             </th>
                             <th scope="col">庫存</th>
                             <th scope="col">安全庫存</th>
-                            <th scope="col">庫存不足</th>
+                            <!-- <th scope="col">庫存不足</th> -->
                             <th scope="col">喜鴻紅利抵扣</th>
                         </tr>
                     </thead>
@@ -40,7 +40,7 @@
                                 <td class="text-center">
                                     <div class="form-check form-switch form-switch-lg">
                                         <input class="form-check-input" type="checkbox" name="active_id[]"
-                                            value="{{ $style->id }}" @if ($style->is_active == '1')checked @endif>
+                                            value="{{ $style->id }}" @if ($style->is_active == '1') checked @endif>
                                     </div>
                                 </td>
                                 <td class="text-center">
@@ -101,19 +101,23 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <a href="{{ Route('cms.product.edit-stock', ['id' => $product->id, 'sid' => $style->id]) }}" class="-text -stock">{{ $style->safety_stock }}</a>
+                                    <a href="{{ Route('cms.product.edit-stock', ['id' => $product->id, 'sid' => $style->id]) }}"
+                                        class="-text -stock">{{ $style->safety_stock }}</a>
                                 </td>
                                 <td>
-                                    <a href="{{ Route('cms.product.edit-stock', ['id' => $product->id, 'sid' => $style->id]) }}" class="-text -stock">{{ $style->in_stock }}</a>
+                                    <a href="{{ Route('cms.product.edit-stock', ['id' => $product->id, 'sid' => $style->id]) }}"
+                                        class="-text -stock">{{ $style->in_stock }}</a>
                                 </td>
-                                <td>
-                                    <select name="sold_out_event[]" class="form-select form-select-sm">
-                                        <option value="繼續銷售">繼續銷售</option>
-                                        <option value="停止銷售">停止銷售</option>
-                                        <option value="下架">下架</option>
-                                        <option value="預售">預售</option>
-                                    </select>
-                                </td>
+                                <!--
+                                    <td>
+                                        <select name="sold_out_event[]" class="form-select form-select-sm">
+                                            <option value="繼續銷售">繼續銷售</option>
+                                            <option value="停止銷售">停止銷售</option>
+                                            <option value="下架">下架</option>
+                                            <option value="預售">預售</option>
+                                        </select>
+                                    </td>
+                                -->
                                 <td>
                                     <input type="number" class="form-control form-control-sm" name="dividend[]" min="0"
                                         value="{{ $style->dividend }}" required>
@@ -165,18 +169,20 @@
 
             // 計算 獎金 = (售價-經銷價) × BonusRate
             bindCalculate();
+
             function bindCalculate() {
                 $('input[name="price[]"], input[name="dealer_price[]"]').off('change.bonus')
-                .on('change.bonus', function () {
-                    const $this = $(this);
-                    const price = $this.closest('tr').find('input[name="price[]"]').val() || 0;
-                    const dealer_price = $this.closest('tr').find('input[name="dealer_price[]"]').val() || 0;
-                    $this.closest('tr').find('input[name="bonus[]"]').val(Math.floor((price - dealer_price) * BonusRate));
-                });
+                    .on('change.bonus', function() {
+                        const $this = $(this);
+                        const price = $this.closest('tr').find('input[name="price[]"]').val() || 0;
+                        const dealer_price = $this.closest('tr').find('input[name="dealer_price[]"]').val() || 0;
+                        $this.closest('tr').find('input[name="bonus[]"]').val(Math.floor((price - dealer_price) *
+                            BonusRate));
+                    });
             }
 
             // sku
-            $('#form1 button[type="submit"]').on('click.add_sku', function () {
+            $('#form1 button[type="submit"]').on('click.add_sku', function() {
                 $('input[name="add_sku"]').val($(this).hasClass('-add_sku') ? 1 : 0);
             });
         </script>

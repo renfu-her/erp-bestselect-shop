@@ -131,7 +131,7 @@ class OrderCtrl extends Controller
         //    dd($citys);
         return view('cms.commodity.order.edit', [
             'customer_id' => $customer_id,
-            'customers' => Customer::get(),
+            'customers' => Customer::where('id', $customer_id)->get(),
             'citys' => $citys,
             'cart' => $cart,
             'regions' => $regions,

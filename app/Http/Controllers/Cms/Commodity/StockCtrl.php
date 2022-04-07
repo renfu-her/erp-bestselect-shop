@@ -48,6 +48,7 @@ class StockCtrl extends Controller
             ->paginate($searchParam['data_per_page'])
             ->appends($query);
 
+       
         return view('cms.commodity.stock.list', [
             'dataList' => $products,
             'suppliers' => Supplier::select('name', 'id', 'vat_no')->get()->toArray(),
