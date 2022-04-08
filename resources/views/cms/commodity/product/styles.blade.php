@@ -144,6 +144,7 @@
                                 </td>
                             -->
                                 <td>
+                                    <input type="hidden" name="n_sold_out_event[]" value="0">
                                     <input type="number" class="form-control form-control-sm" name="n_dividend[]" min="0"
                                         value="0" required>
                                 </td>

@@ -48,7 +48,7 @@
                     @endforeach
                 </select>
             </x-b-form-group>
-            <x-b-form-group name="is_realtime" title="類型" required="true">
+            <x-b-form-group name="is_realtime" title="庫存類型" required="true">
                 <div class="px-1">
                     <div class="form-check form-check-inline">
                         <label class="form-check-label">

@@ -25,6 +25,7 @@ class SupplierPayment extends Model
             $insert_arr = self::createInsertKeyVal($insert_arr, $array, 'bank_numer');
             $insert_arr = self::createInsertKeyVal($insert_arr, $array, 'cheque_payable');
             $insert_arr = self::createInsertKeyVal($insert_arr, $array, 'def_paytype');
+            $insert_arr = self::createInsertKeyVal($insert_arr, $array, 'other');
             $id = self::create($insert_arr)->id;
             return $id;
         });
@@ -60,6 +61,7 @@ class SupplierPayment extends Model
                         'bank_code' => $array['bank_code'] ?? null,
                         'bank_acount' => $array['bank_acount'] ?? null,
                         'bank_numer' => $array['bank_numer'] ?? null,
+                        'other' => $array['other'] ?? null,
                         'cheque_payable' => $array['cheque_payable'] ?? null
                 ]);
             }

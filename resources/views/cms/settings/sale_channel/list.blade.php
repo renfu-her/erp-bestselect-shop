@@ -18,9 +18,11 @@
                     <tr>
                         <th scope="col" style="width:10%">#</th>
                         <th scope="col">通路名稱</th>
-                        <th scope="col">通路聯絡人</th>
-                        <th scope="col">通路聯絡電話</th>
-                        <th scope="col">類型</th>
+{{--                        <th scope="col">通路聯絡人</th>--}}
+{{--                        <th scope="col">通路聯絡電話</th>--}}
+                        <th scope="col">庫存類型</th>
+                        <th scope="col">銷售類型</th>
+                        <th scope="col">紅利點數</th>
                         <th scope="col">折扣</th>
                         <th scope="col" class="text-center">同步價格</th>
                         <th scope="col" class="text-center">編輯</th>
@@ -32,9 +34,15 @@
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td>{{ $data->title }}</td>
-                            <td>{{ $data->contact_person }}</td>
-                            <td>{{ $data->contact_tel }}</td>
+{{--                            <td>{{ $data->contact_person }}</td>--}}
+{{--                            <td>{{ $data->contact_tel }}</td>--}}
                             <td>{{ $data->is_realtime_title }}</td>
+                            <td>
+                                {{ App\Enums\SaleChannel\SalesType::getDescription($data->sales_type) }}
+                            </td>
+                            <td>
+                                {{ App\Enums\SaleChannel\UseCoupon::getDescription($data->use_coupon) }}
+                            </td>
                             <td>{{ $data->discount }}</td>
                             <td class="text-center">
                                 @if ($data->is_master != 1)
