@@ -130,4 +130,83 @@ class ConsignmentItem extends Model
     public static function getData($consignment_id) {
         return self::where('consignment_id', $consignment_id)->whereNull('deleted_at');
     }
+
+    //取得寄倉商品和原本對應的採購入庫單
+    public static function getOriginInboundDataList($consignment_id) {
+        //取得原對應採購單
+        $subQuery = DB::table('pcs_purchase_inbound as inbound1')
+            ->leftJoin('pcs_purchase_inbound as inbound2', function ($join) {
+                $join->on('inbound2.id', '=', 'inbound1.origin_inbound_id')
+                    ->where('inbound1.event', '=', Event::consignment()->value);
+            })
+            ->select('inbound1.event'
+                , 'inbound1.event_id'
+                , 'inbound1.event_item_id'
+                , 'inbound1.product_style_id'
+                , DB::raw('GROUP_CONCAT(DISTINCT inbound1.id) as inbound_id')
+                , DB::raw('GROUP_CONCAT(DISTINCT inbound2.sn) as inbound_sn')
+            )
+            ->groupBy('inbound1.event')
+            ->groupBy('inbound1.event_id')
+            ->groupBy('inbound1.event_item_id')
+            ->groupBy('inbound1.product_style_id')
+            ->where('inbound1.event_id', '=', $consignment_id)
+            ->where('inbound1.event', '=', Event::consignment()->value);
+
+        //將原採購單資料對應到目前出貨單商品
+        $subQueryRcvDepot = DB::table('dlv_delivery as delivery')
+            ->leftJoin('dlv_receive_depot as rcv_depot', 'rcv_depot.delivery_id', '=', 'delivery.id')
+            ->leftJoinSub($subQuery, 'origin', function($join) use($consignment_id) {
+                $join->on('origin.product_style_id', 'rcv_depot.product_style_id')
+                    ->on('origin.event_item_id', 'rcv_depot.id')
+                    ->where('origin.event_id', $consignment_id);
+            })
+            ->select('rcv_depot.event_item_id as csn_item_id'
+                , 'origin.event'
+                , 'origin.event_id'
+                , 'origin.product_style_id'
+                , DB::raw('GROUP_CONCAT(DISTINCT origin.event_item_id) as origin_rcv_depot_id')
+                , DB::raw('GROUP_CONCAT(DISTINCT origin.inbound_id) as origin_inbound_id')
+                , DB::raw('GROUP_CONCAT(DISTINCT origin.inbound_sn) as origin_inbound_sn')
+            )
+            ->where('delivery.event_id', $consignment_id)
+            ->where('delivery.event', Event::consignment()->value)
+            ->groupBy('rcv_depot.event_item_id')
+            ->groupBy('origin.event')
+            ->groupBy('origin.event_id')
+            ->groupBy('origin.product_style_id');
+
+        $inboundOverviewList = PurchaseInbound::getOverviewInboundList(Event::consignment()->value, $consignment_id);
+
+        $consignmentItemData = DB::table('csn_consignment_items as items')
+            ->leftJoinSub($subQueryRcvDepot, 'rcv_depot', function($join) {
+                $join->on('rcv_depot.csn_item_id', '=', 'items.id')
+                    ->on('rcv_depot.product_style_id', '=', 'items.product_style_id');
+            })
+            ->leftJoinSub($inboundOverviewList, 'inbound', function($join) {
+                $join->on('inbound.consignment_id', 'items.consignment_id')
+                    ->on('inbound.product_style_id', 'items.product_style_id');
+            })
+            ->select('items.id'
+                , 'items.consignment_id'
+                , 'items.product_style_id'
+                , 'items.title'
+                , 'items.sku'
+                , 'items.price'
+                , 'items.num'
+                , 'items.memo'
+                , DB::raw('DATE_FORMAT(items.created_at,"%Y-%m-%d") as created_at')
+                , DB::raw('DATE_FORMAT(items.updated_at,"%Y-%m-%d") as updated_at')
+                , DB::raw('DATE_FORMAT(items.deleted_at,"%Y-%m-%d") as deleted_at')
+                , 'rcv_depot.origin_rcv_depot_id'
+                , 'rcv_depot.origin_inbound_id'
+                , 'rcv_depot.origin_inbound_sn'
+                , 'inbound.inbound_user_name'
+                , 'inbound.inbound_type'
+            )
+            ->where('items.consignment_id', $consignment_id)
+            ->whereNull('items.deleted_at');
+
+        return $consignmentItemData;
+    }
 }

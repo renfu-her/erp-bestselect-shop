@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Cms\Commodity;
 
+use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Purchase\LogEvent;
 use App\Http\Controllers\Controller;
@@ -14,6 +15,7 @@ use App\Models\PurchaseLog;
 use App\Models\ReceiveDepot;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class ConsignmentCtrl extends Controller
 {
@@ -126,8 +128,8 @@ class ConsignmentCtrl extends Controller
     {
         $query = $request->query();
         $consignmentData  = Consignment::getDeliveryData($id)->get()->first();
-        $consignmentItemData = ConsignmentItem::where('consignment_id', $id)->get();
-
+        $consignmentItemData = ConsignmentItem::getOriginInboundDataList($id)->get();
+;
         if (!$consignmentData) {
             return abort(404);
         }
@@ -153,6 +155,9 @@ class ConsignmentCtrl extends Controller
 
         //判斷是否有出貨審核，有則不可新增刪除商品款式
         $consignmentGet = Consignment::where('id', '=', $id)->get()->first();
+        if (null != $consignmentGet && AuditStatus::unreviewed()->value != $consignmentGet->audit_status) {
+            throw ValidationException::withMessages(['item_error' => '已寄倉審核，無法再修改']);
+        }
         if (null != $consignmentGet->audit_date) {
 
             if (isset($request['del_item_id']) && null != $request['del_item_id']) {

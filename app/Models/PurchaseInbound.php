@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Enums\Delivery\Event;
 use App\Enums\Purchase\InboundStatus;
 use App\Enums\Purchase\LogEventFeature;
-use App\Enums\Purchase\LogEvent;
 use App\Enums\StockEvent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -276,8 +275,8 @@ class PurchaseInbound extends Model
             $tempInboundSql->where('inbound.event', '=', $event);
         }
 
-        $tempInboundSql->groupBy('inbound.event_id')
-            ->groupBy('inbound.product_style_id');
+        $tempInboundSql->groupBy('inbound.event_id');
+        $tempInboundSql->groupBy('inbound.product_style_id');
 
         $queryTotalInboundNum = '( COALESCE(sum(items.num), 0) - COALESCE((inbound.inbound_num), 0) )'; //應進數量
 

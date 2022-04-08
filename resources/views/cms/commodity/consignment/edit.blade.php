@@ -32,11 +32,11 @@
             <dl class="row">
                 <div class="col">
                     <dt>審核人員</dt>
-                    <dd>{{ $consignmentData->audit_user_name }}</dd>
+                    <dd>{{ $consignmentData->audit_user_name ?? '-' }}</dd>
                 </div>
                 <div class="col">
                     <dt>審核日期</dt>
-                    <dd>{{ $consignmentData->audit_date }}</dd>
+                    <dd>{{ $consignmentData->audit_date ?? '-' }}</dd>
                 </div>
                 <div class="col-sm-5">
                     <dt></dt>
@@ -49,29 +49,29 @@
             <dl class="row">
                 <div class="col">
                     <dt>寄件倉</dt>
-                    <dd>{{ $consignmentData->send_depot_name }}</dd>
+                    <dd>{{ $consignmentData->send_depot_name ?? '-' }}</dd>
                 </div>
                 <div class="col">
                     <dt>寄件倉電話</dt>
-                    <dd>{{ $consignmentData->send_depot_tel }}</dd>
+                    <dd>{{ $consignmentData->send_depot_tel ?? '-' }}</dd>
                 </div>
                 <div class="col-sm-5">
                     <dt>寄件倉地址</dt>
-                    <dd>{{ $consignmentData->send_depot_address }}</dd>
+                    <dd>{{ $consignmentData->send_depot_address ?? '-' }}</dd>
                 </div>
             </dl>
             <dl class="row">
                 <div class="col">
                     <dt>收件倉</dt>
-                    <dd>{{ $consignmentData->receive_depot_name }}</dd>
+                    <dd>{{ $consignmentData->receive_depot_name ?? '-' }}</dd>
                 </div>
                 <div class="col">
                     <dt>收件倉電話</dt>
-                    <dd>{{ $consignmentData->receive_depot_tel }}</dd>
+                    <dd>{{ $consignmentData->receive_depot_tel ?? '-' }}</dd>
                 </div>
                 <div class="col-sm-5">
                     <dt>收件倉地址</dt>
-                    <dd>{{ $consignmentData->receive_depot_address }}</dd>
+                    <dd>{{ $consignmentData->receive_depot_address ?? '-' }}</dd>
                 </div>
             </dl>
             <dl class="row">
@@ -81,7 +81,7 @@
                 </div>
                 <div class="col-auto" style="width: calc(100%/12*8.5);">
                     <dt>備註</dt>
-                    <dd>{{ $consignmentData->memo }}</dd>
+                    <dd>{{ $consignmentData->memo ?? '-' }}</dd>
                 </div>
             </dl>
         </div>
@@ -181,19 +181,6 @@
         <div class="alert alert-danger mt-3">{{ $message }}</div>
         @enderror
 
-        @if ($method === 'edit')
-            <input type='hidden' name='id' value="{{ old('id', $id) }}"/>
-
-            <div class="card shadow p-4 mb-4">
-                <div class="row">
-                    <div class="col-12 col-md-6 mb-3">
-                        <label class="form-label">入庫人員</label>
-                        <div class="form-control" readonly>{{ empty($inbound_names) ? '-' : $inbound_names }}</div>
-                    </div>
-                </div>
-            </div>
-        @endif
-
         <div class="card shadow p-4 mb-4">
             <h6>倉庫資訊</h6>
             <div class="row">
@@ -287,6 +274,7 @@
                         <th scope="col">寄倉數量</th>
                         <th scope="col">寄倉價錢</th>
                         @if ($method === 'edit')
+                            <th scope="col">採購入庫單號</th>
                             <th scope="col">狀態</th>
                             <th scope="col">入庫人員</th>
                         @endif
@@ -335,6 +323,7 @@
                                 </td>
                                 <td data-td="price">{{ old('sku.'. $psItemKey, $psItemVal->price?? '') }}</td>
                                 @if ($method === 'edit')
+                                    <td data-td="inbound_type">{{$psItemVal->origin_inbound_sn?? ''}}</td>
                                     <td data-td="inbound_type">{{$psItemVal->inbound_type?? ''}}</td>
                                     <td data-td="inbound_user_name">{{$psItemVal->inbound_user_name?? ''}}</td>
                                 @endif
@@ -415,16 +404,23 @@
         <div id="submitDiv">
             <div class="col-auto">
                 <input type="hidden" name="del_item_id">
-                @if(null == $consignmentData)
-                    <button type="submit" class="btn btn-primary px-4">儲存</button>
-                @elseif(!$hasCreatedFinalPayment && $consignmentData->close_date == null
-                    && $consignmentData->audit_status == App\Enums\Consignment\AuditStatus::unreviewed()->value)
-                    <button type="submit" class="btn btn-primary px-4">寄倉審核</button>
-                @else
-{{--                    <button type="submit" class="btn btn-primary px-4">登錄發票</button>--}}
-                @endif
-                <a href="{{ Route('cms.consignment.index', [], true) }}" class="btn btn-outline-primary px-4"
-                   role="button">返回列表</a>
+                <div class="col">
+                    <mark class="fw-light small">
+                        <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>審核狀態改為<b> 核可 或 否決 </b>就不能再修改呦！
+                    </mark>
+                </div>
+                <div class="col">
+                    @if(null == $consignmentData)
+                        <button type="submit" class="btn btn-primary px-4">儲存</button>
+                    @elseif(!$hasCreatedFinalPayment && $consignmentData->close_date == null
+                        && $consignmentData->audit_status == App\Enums\Consignment\AuditStatus::unreviewed()->value)
+                        <button type="submit" class="btn btn-primary px-4">儲存</button>
+                    @else
+                        {{--判斷已審核 則不可再按儲存--}}
+                    @endif
+                    <a href="{{ Route('cms.consignment.index', [], true) }}" class="btn btn-outline-primary px-4"
+                       role="button">返回列表</a>
+                </div>
             </div>
         </div>
     </form>

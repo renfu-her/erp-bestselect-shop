@@ -265,9 +265,9 @@ class Consignment extends Model
                 , 'dlv_delivery.sn as dlv_sn'
                 , 'dlv_delivery.logistic_status'
                 , 'dlv_delivery.logistic_status_code'
-                , 'dlv_delivery.audit_date as audit_date'
-                , 'dlv_delivery.audit_user_id as audit_user_id'
-                , 'dlv_delivery.audit_user_name as audit_user_name'
+                , 'dlv_delivery.audit_date as dlv_audit_date'
+                , 'dlv_delivery.audit_user_id as dlv_audit_user_id'
+                , 'dlv_delivery.audit_user_name as dlv_audit_user_name'
 
                 , 'dlv_logistic.sn as lgt_sn'
                 , 'dlv_logistic.package_sn'
