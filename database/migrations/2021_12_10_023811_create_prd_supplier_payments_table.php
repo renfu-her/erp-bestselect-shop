@@ -22,6 +22,7 @@ class CreatePrdSupplierPaymentsTable extends Migration
             $table->string('bank_acount')->nullable()->comment('匯款戶名');
             $table->string('bank_numer')->nullable()->comment('匯款帳號');
             $table->string('cheque_payable')->nullable()->comment('支票抬頭');
+            $table->string('other')->nullable()->comment('其他');
             $table->timestamps();
             $table->softDeletes();
         });

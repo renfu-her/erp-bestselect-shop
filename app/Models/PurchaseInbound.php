@@ -269,8 +269,10 @@ class PurchaseInbound extends Model
             ->selectRaw('sum(inbound.inbound_num) as inbound_num')
             ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_name) as inbound_user_name'); //入庫人員
 
-        $tempInboundSql->where('inbound.event_id', '=', (int)$event_id)
-            ->whereNull('inbound.deleted_at');
+        if ($event_id) {
+            $tempInboundSql->where('inbound.event_id', '=', (int)$event_id);
+        }
+        $tempInboundSql->whereNull('inbound.deleted_at');
         if (isset($event)) {
             $tempInboundSql->where('inbound.event', '=', $event);
         }
@@ -311,7 +313,7 @@ class PurchaseInbound extends Model
                 end) as inbound_type') //採購狀態
                 ->whereNull('purchase.deleted_at')
                 ->whereNull('items.deleted_at')
-                ->where('purchase.id', '=', $event_id)
+//                ->where('purchase.id', '=', $event_id)
                 ->groupBy('purchase.id'
                     , 'items.product_style_id'
                     , 'products.title'
@@ -322,6 +324,9 @@ class PurchaseInbound extends Model
                 )
                 ->orderBy('purchase.id')
                 ->orderBy('items.product_style_id');
+            if ($event_id) {
+                $result->where('purchase.id', $event_id);
+            }
         } else if (Event::consignment()->value == $event) {
             $result = DB::table('csn_consignment as consignment')
                 ->leftJoin('csn_consignment_items as items', 'items.consignment_id', '=', 'consignment.id')
@@ -352,7 +357,7 @@ class PurchaseInbound extends Model
                 end) as inbound_type') //採購狀態
                 ->whereNull('consignment.deleted_at')
                 ->whereNull('items.deleted_at')
-                ->where('consignment.id', '=', $event_id)
+//                ->where('consignment.id', '=', $event_id)
                 ->groupBy('consignment.id'
                     , 'items.product_style_id'
                     , 'products.title'
@@ -363,6 +368,9 @@ class PurchaseInbound extends Model
                 )
                 ->orderBy('consignment.id')
                 ->orderBy('items.product_style_id');
+            if ($event_id) {
+                $result->where('consignment.id', $event_id);
+            }
         }
         return $result;
     }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
+use App\Enums\Purchase\InboundStatus;
 use App\Enums\Purchase\LogEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Consignment;
@@ -14,6 +15,7 @@ use App\Models\PurchaseInbound;
 use App\Models\PurchaseLog;
 use App\Models\ReceiveDepot;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -22,13 +24,54 @@ class ConsignmentCtrl extends Controller
 
     public function index(Request $request)
     {
-        //return view('cms.commodity.consignment.list', []);
-        return redirect(Route('cms.consignment.create'));
+        $query = $request->query();
+        $data_per_page = Arr::get($query, 'data_per_page', 10);
+        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
+
+        $all_inbound_status = [];
+        foreach (InboundStatus::asArray() as $data) {
+            $all_inbound_status[$data] = InboundStatus::getDescription($data);
+        }
+
+        $consignment_sn = Arr::get($query, 'consignment_sn', '');
+        $send_depot_id = Arr::get($query, 'send_depot_id', '');
+        $receive_depot_id = Arr::get($query, 'receive_depot_id', '');
+        $csn_sdate = Arr::get($query, 'csn_sdate', '');
+        $csn_edate = Arr::get($query, 'csn_edate', '');
+        $inbound_status = Arr::get($query, 'inbound_status', implode(',', array_keys($all_inbound_status)));
+
+        $inbound_status_arr = [];
+        if ('' != $inbound_status) {
+            $inbound_status_arr = explode(',', $inbound_status);
+        }
+        $dataList = ConsignmentItem::getOriginInboundDataListWithCSN(
+                $consignment_sn
+                , $send_depot_id
+                , $receive_depot_id
+                , $csn_sdate
+                , $csn_edate
+                , $inbound_status_arr
+            )
+            ->paginate($data_per_page)->appends($query);
+
+        return view('cms.commodity.consignment.list', [
+            'dataList' => $dataList
+            , 'data_per_page' => $data_per_page
+            , 'depotList' => Depot::all()
+
+            , 'consignment_sn' => $consignment_sn
+            , 'send_depot_id' => $send_depot_id
+            , 'receive_depot_id' => $receive_depot_id
+            , 'csn_sdate' => $csn_sdate
+            , 'csn_edate' => $csn_edate
+            , 'inbound_status' => $inbound_status
+            , 'all_inbound_status' => $all_inbound_status
+        ]);
     }
 
     public function create(Request $request)
     {
-        return view('cms.commodity.consignment.edit', [
+        return view('cms.commodity.consignment.create', [
             'method' => 'create',
             'depotList' => Depot::all(),
             'formAction' => Route('cms.consignment.create'),
@@ -38,8 +81,17 @@ class ConsignmentCtrl extends Controller
 
     public function store(Request $request)
     {
+        $request->validate([
+            'send_depot_id' => 'required|numeric',
+            'receive_depot_id' => 'required|numeric',
+            'scheduled_date' => 'required|string',
+            'product_style_id.*' => 'required|numeric',
+            'name.*' => 'required|string',
+            'sku.*' => 'required|string',
+            'price.*' => 'required|numeric',
+            'num.*' => 'required|numeric',
+        ]);
         $query = $request->query();
-        $this->validInputValue($request);
 
         $csnReq = $request->only('send_depot_id', 'receive_depot_id', 'scheduled_date');
         $csnItemReq = $request->only('product_style_id', 'name', 'sku', 'num', 'price', 'memo');
@@ -109,21 +161,6 @@ class ConsignmentCtrl extends Controller
         ]));
     }
 
-    //驗證資料
-    private function validInputValue(Request $request)
-    {
-        $request->validate([
-            'send_depot_id' => 'required|numeric',
-            'receive_depot_id' => 'required|numeric',
-            'scheduled_date' => 'required|string',
-            'product_style_id.*' => 'required|numeric',
-            'name.*' => 'required|string',
-            'sku.*' => 'required|string',
-            'price.*' => 'required|numeric',
-            'num.*' => 'required|numeric',
-        ]);
-    }
-
     public function edit(Request $request, $id)
     {
         $query = $request->query();
@@ -147,32 +184,30 @@ class ConsignmentCtrl extends Controller
 
     public function update(Request $request, $id)
     {
+        $request->validate([
+            'product_style_id.*' => 'required|numeric',
+            'name.*' => 'required|string',
+            'sku.*' => 'required|string',
+            'price.*' => 'required|numeric',
+            'num.*' => 'required|numeric',
+        ]);
         $query = $request->query();
-        $this->validInputValue($request);
 
-        $csnReq = $request->only('send_depot_id', 'receive_depot_id', 'scheduled_date', 'audit_status');
+        $csnReq = $request->only('scheduled_date', 'audit_status');
         $csnItemReq = $request->only('item_id', 'product_style_id', 'name', 'sku', 'num', 'price');
 
         //判斷是否有出貨審核，有則不可新增刪除商品款式
-        $consignmentGet = Consignment::where('id', '=', $id)->get()->first();
-        if (null != $consignmentGet && AuditStatus::unreviewed()->value != $consignmentGet->audit_status) {
+//        $consignmentGet = Consignment::where('id', '=', $id)->get()->first();
+        $consignmentData  = Consignment::getDeliveryData($id)->get()->first();
+        if (null != $consignmentData && AuditStatus::unreviewed()->value != $consignmentData->audit_status) {
             throw ValidationException::withMessages(['item_error' => '已寄倉審核，無法再修改']);
         }
-        if (null != $consignmentGet->audit_date) {
-
+        if (null != $consignmentData->dlv_audit_date || null != $consignmentData->audit_date) {
             if (isset($request['del_item_id']) && null != $request['del_item_id']) {
-                throw ValidationException::withMessages(['item_error' => '已出貨審核，有則不可刪除商品款式']);
+                throw ValidationException::withMessages(['item_error' => '已審核，不可刪除商品款式']);
             }
-            if (isset($purchaseItemReq['item_id'])) {
-                foreach ($purchaseItemReq['item_id'] as $key => $val) {
-                    $itemId = $purchaseItemReq['item_id'][$key];
-                    //有值則做更新
-                    //itemId = null 代表新資料
-                    if (null == $itemId) {
-                        throw ValidationException::withMessages(['item_error' => '已出貨審核，有則不可新增商品款式']);
-                        break;
-                    }
-                }
+            if (isset($csnItemReq['item_id'])) {
+                throw ValidationException::withMessages(['item_error' => '已審核，不可新增修改商品款式']);
             }
         }
 
@@ -184,9 +219,10 @@ class ConsignmentCtrl extends Controller
         if (isset($request['del_item_id']) && null != $request['del_item_id']) {
             $changeStr .= 'delete purchaseItem id:' . $request['del_item_id'];
             $del_item_id_arr = explode(",", $request['del_item_id']);
-            $rePcsDI = ConsignmentItem::deleteItems($consignmentGet->id, $del_item_id_arr, $request->user()->id, $request->user()->name);
+            $rePcsDI = ConsignmentItem::deleteItems($consignmentData->consignment_id, $del_item_id_arr, $request->user()->id, $request->user()->name);
             if ($rePcsDI['success'] == 0) {
-                $changeStr .= $rePcsDI['error_msg'];
+                $changeStr = $rePcsDI['error_msg'];
+                throw ValidationException::withMessages(['item_error' => $rePcsDI['error_msg']]);
             }
         }
 
@@ -197,13 +233,16 @@ class ConsignmentCtrl extends Controller
                 //itemId = null 代表新資料
                 if (null != $itemId) {
                     $result = ConsignmentItem::checkToUpdateItemData($itemId, $csnItemReq, $key, $changeStr, $request->user()->id, $request->user()->name);
-                    $changeStr = $result['error_msg'];
+                    if ($result['success'] == 0) {
+                        $changeStr = $result['error_msg'];
+                        throw ValidationException::withMessages(['item_error' => $result['error_msg']]);
+                    }
                 } else {
                     $changeStr .= ' add item:' . $csnItemReq['name'][$key];
 
                     ConsignmentItem::createData(
                         [
-                            'consignment_id' => $consignmentGet->id,
+                            'consignment_id' => $consignmentData->consignment_id,
                             'product_style_id' => $csnItemReq['product_style_id'][$key],
                             'title' => $csnItemReq['name'][$key],
                             'sku' => $csnItemReq['sku'][$key],

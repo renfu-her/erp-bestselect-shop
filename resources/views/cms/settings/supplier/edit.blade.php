@@ -345,6 +345,20 @@
                             <label class="form-check-label" data-type="其他">
                                 <input class="form-check-input" name="paytype[]" value="6" type="checkbox" @if('6' == old('paytype.4', '') || true == in_array('6', $payTypeList ?? [])) checked @endif>
                             </label>
+                            <div class="row">
+                                @php
+                                    $otherData = null;
+                                    foreach ($payList ?? [] as $key => $value) {
+                                        if ('6' == $value['type']) {
+                                            $otherData = $value;
+                                            break;
+                                        }
+                                    }
+                                @endphp
+                                <x-b-form-group name="other" title="其他" required="true" class="col-12 col-sm-6">
+                                    <input class="form-control @error('other') is-invalid @enderror" name="other" value="{{ old('other', $otherData['other'] ?? '') }}" />
+                                </x-b-form-group>
+                            </div>
                         </div>
                     </div>
                 </fieldset>
