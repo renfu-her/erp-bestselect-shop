@@ -149,11 +149,11 @@ class IncomeExpenditureSeeder extends Seeder
 
         DB::table('acc_grade_default')->insert([
             'name' => 'product',
-            'default_grade_id' => 15,
+            'default_grade_id' => 35,
         ]);
         DB::table('acc_grade_default')->insert([
             'name' => 'logistics',
-            'default_grade_id' => 19,
+            'default_grade_id' => 100,
         ]);
     }
 }
