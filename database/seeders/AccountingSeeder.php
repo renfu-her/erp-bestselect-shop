@@ -66,9 +66,7 @@ class AccountingSeeder extends Seeder
             'code' => '12',
             'has_next_grade' => 1,
             'name' => '固定資產',
-            'acc_company_fk' => 1,
             'first_grade_fk' => $firstGradeId_1,
-            'acc_income_statement_fk' => 1
         ]);
         $secondGradeId_7 = DB::table('acc_second_grade')->insertGetId([
             'code' => '13',
