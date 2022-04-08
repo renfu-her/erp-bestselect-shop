@@ -114,7 +114,7 @@ class IncomeExpenditureSeeder extends Seeder
         for ($index = 1; $index <= 13; $index++) {
             DB::table('acc_income_expenditure')->insert([
                 'acc_income_type_fk' => $incomeType_4,
-                'grade_id_fk' => $index + 2,
+                'grade_id_fk' => $index + 3,
                 'acc_currency_fk' => $index,
             ]);
         }
@@ -149,11 +149,11 @@ class IncomeExpenditureSeeder extends Seeder
 
         DB::table('acc_grade_default')->insert([
             'name' => 'product',
-            'default_grade_id' => 15,
+            'default_grade_id' => 35,
         ]);
         DB::table('acc_grade_default')->insert([
             'name' => 'logistics',
-            'default_grade_id' => 19,
+            'default_grade_id' => 100,
         ]);
     }
 }

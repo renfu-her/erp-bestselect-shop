@@ -27,7 +27,8 @@
                     <select class="form-select -select2 -multiple" multiple name="user[]" aria-label="負責人"
                         data-placeholder="多選">
                         @foreach ($users as $user)
-                            <option value="{{ $user['id'] }}" @if (in_array($user['id'], $searchParam['user'] ?? [])) selected @endif>{{ $user['name'] }}</option>
+                            <option value="{{ $user['id'] }}" @if (in_array($user['id'], $searchParam['user'] ?? [])) selected @endif>
+                                {{ $user['name'] }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -37,8 +38,8 @@
                         @foreach ($typeRadios as $key => $typeRadio)
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" value="{{ $key }}" @if ($searchParam['type'] == $key) checked @endif
-                                        name="type" type="radio">
+                                    <input class="form-check-input" value="{{ $key }}"
+                                        @if ($searchParam['type'] == $key) checked @endif name="type" type="radio">
                                     {{ $typeRadio }}
                                 </label>
                             </div>
@@ -74,7 +75,8 @@
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
                     @foreach (config('global.dataPerPage') as $value)
-                        <option value="{{ $value }}" @if ($searchParam['data_per_page'] == $value) selected @endif>{{ $value }}</option>
+                        <option value="{{ $value }}" @if ($searchParam['data_per_page'] == $value) selected @endif>
+                            {{ $value }}</option>
                     @endforeach
                 </select>
                 筆
@@ -92,7 +94,7 @@
                         <th scope="col">SKU</th>
                         <th scope="col">進貨數量</th>
                         <th scope="col">實際庫存</th>
-                        <th scope="col">預扣庫存</th>
+                        <!--<th scope="col">預扣庫存</th>-->
                         <th scope="col">安全庫存</th>
                         <th scope="col">廠商名稱</th>
                         <th scope="col">負責人</th>
@@ -102,24 +104,34 @@
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
-                            <td>{{ $data->product_title }}</td>
+                            <td> <a
+                                    href="{{ Route('cms.product.edit', ['id' => $data->product_id], true) }}">{{ $data->product_title }}</a>
+                            </td>
                             <td>{{ $data->spec }}</td>
                             <td>{{ $data->type_title }}</td>
                             <td>{{ $data->sku }}</td>
                             <td>
-                                <a href="{{ Route('cms.purchase.index', ['title' => $data->sku], true) }}">{{ $data->total_inbound }}</a>
+                                <!--<a href="{{ Route('cms.purchase.index', ['title' => $data->sku], true) }}">{{ $data->total_inbound }}</a>-->
+                                {{ $data->total_inbound }}
                             </td>
                             <td>
-                                <a href="{{ Route('cms.product.edit-stock', ['id' => $data->product_id, 'sid' => $data->id]) }}">{{ $data->in_stock }}</a>
+                                <!--<a href="{{ Route('cms.product.edit-stock', ['id' => $data->product_id, 'sid' => $data->id]) }}">{{ $data->in_stock }}</a>-->
+                                {{ $data->in_stock }}
                             </td>
+                            <!--
                             <td>
                                 {{-- if (銷售控管 = 0) --}}
-                                <a href="{{ Route('cms.product.edit-stock', ['id' => $data->product_id, 'sid' => $data->id]) }}"></a>
+                                <a
+                                    href="{{ Route('cms.product.edit-stock', ['id' => $data->product_id, 'sid' => $data->id]) }}"></a>
                             </td>
+                        -->
                             <td>{{ $data->safety_stock }}
+
                                 @if ($data->in_stock <= $data->safety_stock)
-                                    <a href="{{ Route('cms.product.edit-stock', ['id' => $data->product_id, 'sid' => $data->id]) }}" class="link-danger">(未達)</a>
+                                    <a href="{{ Route('cms.product.edit-stock', ['id' => $data->product_id, 'sid' => $data->id]) }}"
+                                        class="link-danger">(未達)</a>
                                 @endif
+
                             </td>
                             <td>
                                 {{ $data->suppliers_name }}
@@ -134,7 +146,7 @@
     </div>
     <div class="row flex-column-reverse flex-sm-row">
         <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">
-            @if($dataList)
+            @if ($dataList)
                 <div class="mx-3">共 {{ $dataList->lastPage() }} 頁(共找到 {{ $dataList->total() }} 筆資料)</div>
                 {{-- 頁碼 --}}
                 <div class="d-flex justify-content-center">{{ $dataList->links() }}</div>

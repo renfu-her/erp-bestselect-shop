@@ -2,12 +2,12 @@
 
 return [
     [
-        'name' => 'USD-美金',
-        'rate' => 30,
-    ],
-    [
         'name' => 'JPY-日幣',
         'rate' => 0.29,
+    ],
+    [
+        'name' => 'USD-美金',
+        'rate' => 30,
     ],
     [
         'name' => 'EUR-歐元',

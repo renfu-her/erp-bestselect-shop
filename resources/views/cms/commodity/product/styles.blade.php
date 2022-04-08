@@ -65,7 +65,7 @@
                                 </th>
                                 <th scope="col">庫存</th>
                                 <th scope="col">安全庫存</th>
-                                <th scope="col">庫存不足</th>
+                               <!-- <th scope="col">庫存不足</th> -->
                                 <th scope="col">喜鴻紅利抵扣</th>
                             </tr>
                         </thead>
@@ -133,6 +133,7 @@
                                 <td>
                                     <a href="#" class="-text -stock">庫存管理</a>
                                 </td>
+                                <!--
                                 <td>
                                     <select name="n_sold_out_event[]" class="form-select form-select-sm">
                                         <option value="繼續銷售" selected>繼續銷售</option>
@@ -141,6 +142,7 @@
                                         <option value="預售">預售</option>
                                     </select>
                                 </td>
+                            -->
                                 <td>
                                     <input type="number" class="form-control form-control-sm" name="n_dividend[]" min="0"
                                         value="0" required>
@@ -221,6 +223,7 @@
                                     <td>
                                         <a href="{{ Route('cms.product.edit-stock', ['id' => $data->id, 'sid' => $style->id]) }}" class="-text -stock">{{ $style->safety_stock }}</a>
                                     </td>
+                                    <!--
                                     <td>
                                         <select name="{{ $prefix }}sold_out_event[]"
                                             class="form-select form-select-sm">
@@ -230,6 +233,7 @@
                                             <option value="預售">預售</option>
                                         </select>
                                     </td>
+                                -->
                                     <td>
                                         <input type="number" class="form-control form-control-sm" name="{{ $prefix }}dividend[]" min="0"
                                             value="{{ $style->dividend }}" required>
