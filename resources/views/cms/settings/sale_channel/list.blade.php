@@ -20,7 +20,7 @@
                         <th scope="col">通路名稱</th>
                         <th scope="col">通路聯絡人</th>
                         <th scope="col">通路聯絡電話</th>
-                        <th scope="col">類型</th>
+                        <th scope="col">庫存類型</th>
                         <th scope="col">折扣</th>
                         <th scope="col" class="text-center">同步價格</th>
                         <th scope="col" class="text-center">編輯</th>
