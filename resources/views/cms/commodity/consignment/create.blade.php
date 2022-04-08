@@ -1,285 +1,177 @@
 @extends('layouts.main')
 @section('sub-content')
-
-    <h2 class="mb-3">#{{ $consignmentData->consignment_sn }} 寄倉單</h2>
-    <x-b-pch-navi :id="$id"></x-b-pch-navi>
+    <h2 class="mb-3">新增寄倉單</h2>
 
     @php
         $hasCreatedFinalPayment = $hasCreatedFinalPayment ?? false;
         $consignmentData = $consignmentData ?? null;
     @endphp
 
-    <div class="card shadow p-4 mb-4">
-        <h6>寄倉單明細</h6>
-        <dl class="row">
-            <div class="col">
-                <dt>寄倉單編號</dt>
-                <dd>{{ $consignmentData->consignment_sn }}</dd>
-            </div>
-            <div class="col">
-                <dt>建單時間</dt>
-                <dd>{{ $consignmentData->created_at }}</dd>
-            </div>
-            <div class="col-sm-5">
-                <dt>建單人員</dt>
-                <dd>{{ $consignmentData->create_user_name }}</dd>
-            </div>
-        </dl>
-        <dl class="row">
-            <div class="col">
-                <dt>預計入庫日期</dt>
-                <dd>{{ $consignmentData->scheduled_date ?? '-' }}</dd>
-            </div>
-            <div class="col">
-                <dt>審核人員</dt>
-                <dd>{{ $consignmentData->audit_user_name ?? '-' }}</dd>
-            </div>
-            <div class="col-sm-5">
-                <dt>審核日期</dt>
-                <dd>{{ $consignmentData->audit_date ?? '-' }}</dd>
-            </div>
-        </dl>
-        <dl class="row">
-            <div class="col">
-                <dt>寄件倉</dt>
-                <dd>{{ $consignmentData->send_depot_name ?? '-' }}</dd>
-            </div>
-            <div class="col">
-                <dt>寄件倉電話</dt>
-                <dd>{{ $consignmentData->send_depot_tel ?? '-' }}</dd>
-            </div>
-            <div class="col-sm-5">
-                <dt>寄件倉地址</dt>
-                <dd>{{ $consignmentData->send_depot_address ?? '-' }}</dd>
-            </div>
-        </dl>
-        <dl class="row">
-            <div class="col">
-                <dt>收件倉</dt>
-                <dd>{{ $consignmentData->receive_depot_name ?? '-' }}</dd>
-            </div>
-            <div class="col">
-                <dt>收件倉電話</dt>
-                <dd>{{ $consignmentData->receive_depot_tel ?? '-' }}</dd>
-            </div>
-            <div class="col-sm-5">
-                <dt>收件倉地址</dt>
-                <dd>{{ $consignmentData->receive_depot_address ?? '-' }}</dd>
-            </div>
-        </dl>
-        <dl class="row">
-            <div class="col">
-                <dt></dt>
-                <dd></dd>
-            </div>
-            <div class="col-auto" style="width: calc(100%/12*8.5);">
-                <dt>備註</dt>
-                <dd>{{ $consignmentData->memo ?? '-' }}</dd>
-            </div>
-        </dl>
-    </div>
 
     <form id="form1" method="post" action="{{ $formAction }}">
         @method('POST')
         @csrf
-    <div>
-        <div class="card-header px-4 d-flex align-items-center bg-white flex-wrap justify-content-end">
-            <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">配送狀態</a>
-            <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">物流設定</a>
-            <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">出貨審核</a>
-
-            <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.consignment.inbound', ['id' => $id], true) }}">入庫審核</a>
-{{--            <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.consignment.log', ['id' => $id], true) }}">變更紀錄</a>--}}
-        </div>
-        <div class="card-body px-4">
-            <dl class="row mb-0">
-                <div class="col">
-                    <dt>物流編號</dt>
-                    <dd>{{ $consignmentData->lgt_sn ?? '-' }}</dd>
-                </div>
-                <div class="col">
-                    <dt>溫層</dt>
-                    <dd>{{ $consignmentData->temps ?? '-' }}</dd>
-                </div>
-                <div class="col">
-                    <dt>寄倉單編號</dt>
-                    <dd>{{ $consignmentData->consignment_sn }}</dd>
-                </div>
-                <div class="col">
-                    <dt>寄倉出貨單號</dt>
-                    <dd>{{ $consignmentData->dlv_sn ?? '(待處理)' }}</dd>
-                </div>
-            </dl>
-        </div>
-        <div class="card-body px-4 py-0">
-            <div class="table-responsive tableOverBox">
-                <div class="card shadow p-4 mb-4">
-                    <h6>寄倉清單</h6>
-                    <div class="table-responsive tableOverBox">
-                        <table class="table table-hover tableList mb-0">
-                            <thead>
-                            <tr>
-                                <th scope="col" class="text-center">刪除</th>
-                                <th scope="col">商品名稱</th>
-                                <th scope="col">SKU</th>
-                                <th scope="col">寄倉數量</th>
-                                <th scope="col">寄倉價錢</th>
-                                <th scope="col">採購入庫單號</th>
-                                <th scope="col">狀態</th>
-                                <th scope="col">入庫人員</th>
-                            </tr>
-                            </thead>
-                            <tbody class="-appendClone --selectedP">
-                            @if (0 >= count(old('item_id', $consignmentItemData?? [])))
-                                <tr class="-cloneElem --selectedP d-none">
-                                    <th class="text-center">
-                                        <button type="button"
-                                                class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                        <input type="hidden" name="item_id[]" value="">
-                                        <input type="hidden" name="product_style_id[]" value="">
-                                        <input type="hidden" name="name[]" value="">
-                                        <input type="hidden" name="sku[]" value="">
-                                        <input type="hidden" name="price[]" value="">
-                                    </th>
-                                    <td data-td="name"></td>
-                                    <td data-td="sku"></td>
-                                    <td>
-                                        <input type="number" class="form-control form-control-sm" name="num[]" min="1" value="" required/>
-                                    </td>
-                                    <td data-td="price"></td>
-                                </tr>
-                            @elseif(0 < count(old('item_id', $consignmentItemData?? [])))
-                                @foreach (old('item_id', $consignmentItemData ?? []) as $psItemKey => $psItemVal)
-                                    <tr class="-cloneElem --selectedP">
-                                        <th class="text-center">
-                                            <button type="button"
-                                                    class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                            <input type="hidden" name="item_id[]" value="{{ old('item_id.'. $psItemKey, $psItemVal->id?? '') }}">
-                                            <input type="hidden" name="product_style_id[]" value="{{ old('product_style_id.'. $psItemKey, $psItemVal->product_style_id?? '') }}">
-                                            <input type="hidden" name="name[]" value="{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}">
-                                            <input type="hidden" name="sku[]" value="{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}">
-                                            <input type="hidden" name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}">
-                                        </th>
-                                        <td data-td="name">{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}</td>
-                                        <td data-td="sku">{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}</td>
-                                        <td>
-                                            <input type="number" class="form-control form-control-sm @error('num.' . $psItemKey) is-invalid @enderror"
-                                                   name="num[]" value="{{ old('num.'. $psItemKey, $psItemVal->num?? '') }}" min="1" step="0.01" required/>
-                                        </td>
-                                        <td data-td="price">{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}</td>
-                                        <td data-td="inbound_type">{{$psItemVal->origin_inbound_sn?? ''}}</td>
-                                        <td data-td="inbound_type">{{$psItemVal->inbound_type?? ''}}</td>
-                                        <td data-td="inbound_user_name">{{$psItemVal->inbound_user_name?? ''}}</td>
-                                    </tr>
-                                @endforeach
-                            @endif
-                            </tbody>
-                            <tfoot>
-                            <tr>
-                                <th class="lh-1"></th>
-                                <th class="lh-1"></th>
-                                <th class="lh-1"></th>
-                                <th class="lh-1">價錢小計</th>
-                                <th class="lh-1 text-end -sum">$ 0</th>
-                            </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                    <div class="d-grid mt-3">
-                        @error('sku_repeat')
-                        <div class="alert alert-danger mt-3">{{ $message }}</div>
-                        @enderror
-                        @error('item_error')
-                        <div class="alert alert-danger mt-3">{{ $message }}</div>
-                        @enderror
-                        @if(false == ($hasCreatedFinalPayment?? false))
-                            <button id="addProductBtn" type="button"
-                                    class="btn btn-outline-primary border-dashed" style="font-weight: 500;">
-                                <i class="bi bi-plus-circle bold"></i> 加入商品
-                            </button>
-                        @endif
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card-header px-4 text-secondary border-top">物流資訊</div>
-        <div class="card-body px-4 pb-4">
-            <dl class="row">
-                <div class="col">
-                    <dt>運費付款單</dt>
-                    <dd>(待處理)</dd>
-                </div>
-                <div class="col">
-                    <dt>實際物流</dt>
-                    <dd>{{ $consignmentData->group_name ?? '(待處理)' }}</dd>
-                </div>
-                <div class="col">
-                    <dt>包裹編號</dt>
-                    <dd>{{ $consignmentData->package_sn ?? '(待處理)' }}</dd>
-                </div>
-                <div class="col">
-                    <dt>物態</dt>
-                    <dd>{{ $consignmentData->logistic_status ?? '(待處理)' }}</dd>
-                </div>
-                <div class="col">
-                    <dt>物流說明</dt>
-                    <dd>{{ $consignmentData->lgt_memo ?? '(待處理)' }}</dd>
-                </div>
-            </dl>
-        </div>
-    </div>
-
-
 
         @error('id')
         <div class="alert alert-danger mt-3">{{ $message }}</div>
         @enderror
 
-        <input type="hidden" name="send_depot_id" value="{{ $consignmentData->send_depot_id ?? '' }}">
-        <input type="hidden" name="receive_depot_id" value="{{ $consignmentData->receive_depot_id ?? '' }}">
+        <div class="card shadow p-4 mb-4">
+            <h6>倉庫資訊</h6>
+            <div class="row">
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">出貨倉 <span class="text-danger">*</span></label>
 
+                    <select id="send_depot_id" aria-label="出貨倉" required
+                            class="form-select -select2 -single @error('send_depot_id') is-invalid @enderror">
+                        <option value="" selected disabled>請選擇</option>
+                        @foreach ($depotList as $depot)
+                            <option value="{{ $depot->id }}"
+                                    @if ($depot->id == old('send_depot_id')) selected @endif>
+                                {{ $depot->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="invalid-feedback">
+                        @error('send_depot_id')
+                        {{ $message }}
+                        @enderror
+                    </div>
+                    <input type="hidden" name="send_depot_id" value="{{ $consignmentData->send_depot_id ?? '' }}">
+                </div>
 
-        <h6>訂單總覽</h6>
-        <div class="table-responsive">
-            <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
-                <tbody>
-                <tr class="table-light">
-                    <td class="col-2">小計</td>
-                    <td class="col-2">運費</td>
-                    <td class="col-2">總金額</td>
-                </tr>
-                <tr>
-                    <td>$-</td>
-                    <td>${{ number_format($consignmentData->lgt_cost) }}</td>
-                    <td>$-</td>
-                </tr>
-                </tbody>
-            </table>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">入庫倉 <span class="text-danger">*</span></label>
+
+                    <select id="receive_depot_id" aria-label="入庫倉" required
+                            class="form-select -select2 -single @error('receive_depot_id') is-invalid @enderror">
+                        <option value="" selected disabled>請選擇</option>
+                        @foreach ($depotList as $depot)
+                            <option value="{{ $depot->id }}"
+                                    @if ($depot->id == old('receive_depot_id')) selected @endif>
+                                {{ $depot->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="invalid-feedback">
+                        @error('receive_depot_id')
+                        {{ $message }}
+                        @enderror
+                    </div>
+                    <input type="hidden" name="receive_depot_id" value="{{ $consignmentData->receive_depot_id ?? '' }}">
+                </div>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">預計入庫日期 <span class="text-danger">*</span></label>
+                    @if ($hasCreatedFinalPayment)
+                        <div class="form-control" readonly>
+                            {{ empty($consignmentData->scheduled_date) ? '-' : date('Y/m/d', strtotime($consignmentData->scheduled_date)) }}
+                        </div>
+                    @else
+                        <div class="input-group has-validation">
+                            <input type="date" id="scheduled_date" name="scheduled_date"
+                                   value="{{ old('scheduled_date', $consignmentData->scheduled_date  ?? '') }}"
+                                   class="form-control @error('scheduled_date') is-invalid @enderror" aria-label="寄貨日期"
+                                   required/>
+                            <button class="btn btn-outline-secondary icon" type="button" data-clear
+                                    data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
+                            </button>
+                            <div class="invalid-feedback">
+                                @error('scheduled_date')
+                                {{ $message }}
+                                @enderror
+                            </div>
+                        </div>
+                    @endif
+
+                </div>
+            </div>
         </div>
 
-        <fieldset class="col-12 col-sm-6 mb-3">
-            <legend class="col-form-label p-0 mb-2">審核狀態 <span class="text-danger">*</span></legend>
-            <div class="px-1 pt-1">
-                @foreach (App\Enums\Consignment\AuditStatus::asArray() as $key => $val)
-                    <div class="form-check form-check-inline @error('audit_status')is-invalid @enderror">
-                        <label class="form-check-label">
-                            <input class="form-check-input @error('audit_status')is-invalid @enderror" name="audit_status"
-                                   value="{{ $val }}" type="radio" required
-                                   @if (old('audit_status', $consignmentData->audit_status ?? '') == $val) checked @endif>
-                            {{ App\Enums\Consignment\AuditStatus::getDescription($val) }}
-                        </label>
-                    </div>
-                @endforeach
-                @error('target')
-                <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
+        <div class="card shadow p-4 mb-4">
+            <h6>寄倉清單</h6>
+            <div class="table-responsive tableOverBox">
+                <table class="table table-hover tableList mb-0">
+                    <thead>
+                    <tr>
+                        <th scope="col" class="text-center">刪除</th>
+                        <th scope="col">商品名稱</th>
+                        <th scope="col">SKU</th>
+                        <th scope="col">寄倉數量</th>
+                        <th scope="col">寄倉價錢</th>
+                    </tr>
+                    </thead>
+                    <tbody class="-appendClone --selectedP">
+                    @if (0 >= count(old('item_id', $consignmentItemData?? [])))
+                        <tr class="-cloneElem --selectedP d-none">
+                            <th class="text-center">
+                                <button type="button"
+                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                <input type="hidden" name="item_id[]" value="">
+                                <input type="hidden" name="product_style_id[]" value="">
+                                <input type="hidden" name="name[]" value="">
+                                <input type="hidden" name="sku[]" value="">
+                                <input type="hidden" name="price[]" value="">
+                            </th>
+                            <td data-td="name"></td>
+                            <td data-td="sku"></td>
+                            <td>
+                                <input type="number" class="form-control form-control-sm" name="num[]" min="1" value="" required/>
+                            </td>
+                            <td data-td="price"></td>
+                        </tr>
+                    @elseif(0 < count(old('item_id', $consignmentItemData?? [])))
+                        @foreach (old('item_id', $consignmentItemData ?? []) as $psItemKey => $psItemVal)
+                            <tr class="-cloneElem --selectedP">
+                                <th class="text-center">
+                                    <button type="button"
+                                            class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                    <input type="hidden" name="item_id[]" value="{{ old('item_id.'. $psItemKey, $psItemVal->id?? '') }}">
+                                    <input type="hidden" name="product_style_id[]" value="{{ old('product_style_id.'. $psItemKey, $psItemVal->product_style_id?? '') }}">
+                                    <input type="hidden" name="name[]" value="{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}">
+                                    <input type="hidden" name="sku[]" value="{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}">
+                                    <input type="hidden" name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}">
+                                </th>
+                                <td data-td="name">{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}</td>
+                                <td data-td="sku">{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}</td>
+                                <td>
+                                    <input type="number" class="form-control form-control-sm @error('num.' . $psItemKey) is-invalid @enderror"
+                                           name="num[]" value="{{ old('num.'. $psItemKey, $psItemVal->num?? '') }}" min="1" step="0.01" required/>
+                                </td>
+                                <td data-td="price">{{ old('sku.'. $psItemKey, $psItemVal->price?? '') }}</td>
+                            </tr>
+                        @endforeach
+                    @endif
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th class="lh-1"></th>
+                        <th class="lh-1"></th>
+                        <th class="lh-1"></th>
+                        <th class="lh-1">價錢小計</th>
+                        <th class="lh-1 text-end -sum">$ 0</th>
+                    </tr>
+                    </tfoot>
+                </table>
             </div>
-        </fieldset>
+            <div class="d-grid mt-3">
+                @error('sku_repeat')
+                <div class="alert alert-danger mt-3">{{ $message }}</div>
+                @enderror
+                @error('item_error')
+                <div class="alert alert-danger mt-3">{{ $message }}</div>
+                @enderror
+                @if(false == ($hasCreatedFinalPayment?? false))
+                    <button id="addProductBtn" type="button"
+                            class="btn btn-outline-primary border-dashed" style="font-weight: 500;">
+                        <i class="bi bi-plus-circle bold"></i> 加入商品
+                    </button>
+                @endif
+            </div>
+        </div>
 
         @error('del_error')
         <div class="alert alert-danger mt-3">{{ $message }}</div>
@@ -288,11 +180,6 @@
         <div id="submitDiv">
             <div class="col-auto">
                 <input type="hidden" name="del_item_id">
-                <div class="col">
-                    <mark class="fw-light small">
-                        <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>審核狀態改為<b> 核可 或 否決 </b>就不能再修改呦！
-                    </mark>
-                </div>
                 <div class="col">
                     @if(null == $consignmentData)
                         <button type="submit" class="btn btn-primary px-4">儲存</button>

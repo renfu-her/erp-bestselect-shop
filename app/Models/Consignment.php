@@ -89,7 +89,7 @@ class Consignment extends Model
             ->selectRaw('DATE_FORMAT(audit_date,"%Y-%m-%d") as audit_date')
             ->get()->first();
 
-        $purchase->scheduled_date = $purchaseReq['scheduled_date'] ?? null;
+//        $purchase->scheduled_date = $purchaseReq['scheduled_date'] ?? null;
         $purchase->memo = $purchaseReq['memo'] ?? null;
         $purchase->audit_status = $purchaseReq['audit_status'] ?? null;
 
@@ -240,7 +240,8 @@ class Consignment extends Model
             ->leftJoin('shi_temps', 'shi_temps.id', '=', 'shi_group.temps_fk')
             ->where('consignment.id', $id)
             ->select(
-                'consignment.sn as consignment_sn'
+                'consignment.id as consignment_id'
+                , 'consignment.sn as consignment_sn'
                 , 'consignment.send_depot_id as send_depot_id'
                 , 'consignment.send_depot_name as send_depot_name'
                 , 'send.tel as send_depot_tel'
