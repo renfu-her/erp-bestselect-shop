@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
+use App\Enums\Purchase\InboundStatus;
 use App\Enums\Purchase\LogEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Consignment;
@@ -14,6 +15,7 @@ use App\Models\PurchaseInbound;
 use App\Models\PurchaseLog;
 use App\Models\ReceiveDepot;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -22,8 +24,49 @@ class ConsignmentCtrl extends Controller
 
     public function index(Request $request)
     {
-        //return view('cms.commodity.consignment.list', []);
-        return redirect(Route('cms.consignment.create'));
+        $query = $request->query();
+        $data_per_page = Arr::get($query, 'data_per_page', 10);
+        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
+
+        $all_inbound_status = [];
+        foreach (InboundStatus::asArray() as $data) {
+            $all_inbound_status[$data] = InboundStatus::getDescription($data);
+        }
+
+        $consignment_sn = Arr::get($query, 'consignment_sn', '');
+        $send_depot_id = Arr::get($query, 'send_depot_id', '');
+        $receive_depot_id = Arr::get($query, 'receive_depot_id', '');
+        $csn_sdate = Arr::get($query, 'csn_sdate', '');
+        $csn_edate = Arr::get($query, 'csn_edate', '');
+        $inbound_status = Arr::get($query, 'inbound_status', implode(',', array_keys($all_inbound_status)));
+
+        $inbound_status_arr = [];
+        if ('' != $inbound_status) {
+            $inbound_status_arr = explode(',', $inbound_status);
+        }
+        $dataList = ConsignmentItem::getOriginInboundDataListWithCSN(
+                $consignment_sn
+                , $send_depot_id
+                , $receive_depot_id
+                , $csn_sdate
+                , $csn_edate
+                , $inbound_status_arr
+            )
+            ->paginate($data_per_page)->appends($query);
+
+        return view('cms.commodity.consignment.list', [
+            'dataList' => $dataList
+            , 'data_per_page' => $data_per_page
+            , 'depotList' => Depot::all()
+
+            , 'consignment_sn' => $consignment_sn
+            , 'send_depot_id' => $send_depot_id
+            , 'receive_depot_id' => $receive_depot_id
+            , 'csn_sdate' => $csn_sdate
+            , 'csn_edate' => $csn_edate
+            , 'inbound_status' => $inbound_status
+            , 'all_inbound_status' => $all_inbound_status
+        ]);
     }
 
     public function create(Request $request)

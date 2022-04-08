@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Delivery\Event;
+use App\Enums\Purchase\InboundStatus;
 use App\Enums\Purchase\LogEvent;
 use App\Enums\Purchase\LogEventFeature;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -132,7 +133,7 @@ class ConsignmentItem extends Model
     }
 
     //取得寄倉商品和原本對應的採購入庫單
-    public static function getOriginInboundDataList($consignment_id) {
+    public static function getOriginInboundDataList($consignment_id = null) {
         //取得原對應採購單
         $subQuery = DB::table('pcs_purchase_inbound as inbound1')
             ->leftJoin('pcs_purchase_inbound as inbound2', function ($join) {
@@ -150,16 +151,19 @@ class ConsignmentItem extends Model
             ->groupBy('inbound1.event_id')
             ->groupBy('inbound1.event_item_id')
             ->groupBy('inbound1.product_style_id')
-            ->where('inbound1.event_id', '=', $consignment_id)
+//            ->where('inbound1.event_id', '=', $consignment_id)
             ->where('inbound1.event', '=', Event::consignment()->value);
+        if ($consignment_id) {
+            $subQuery->where('inbound1.event_id', $consignment_id);
+        }
 
         //將原採購單資料對應到目前出貨單商品
         $subQueryRcvDepot = DB::table('dlv_delivery as delivery')
             ->leftJoin('dlv_receive_depot as rcv_depot', 'rcv_depot.delivery_id', '=', 'delivery.id')
             ->leftJoinSub($subQuery, 'origin', function($join) use($consignment_id) {
                 $join->on('origin.product_style_id', 'rcv_depot.product_style_id')
-                    ->on('origin.event_item_id', 'rcv_depot.id')
-                    ->where('origin.event_id', $consignment_id);
+                    ->on('origin.event_item_id', 'rcv_depot.id');
+//                    ->where('origin.event_id', $consignment_id);
             })
             ->select('rcv_depot.event_item_id as csn_item_id'
                 , 'origin.event'
@@ -169,12 +173,15 @@ class ConsignmentItem extends Model
                 , DB::raw('GROUP_CONCAT(DISTINCT origin.inbound_id) as origin_inbound_id')
                 , DB::raw('GROUP_CONCAT(DISTINCT origin.inbound_sn) as origin_inbound_sn')
             )
-            ->where('delivery.event_id', $consignment_id)
+//            ->where('delivery.event_id', $consignment_id)
             ->where('delivery.event', Event::consignment()->value)
             ->groupBy('rcv_depot.event_item_id')
             ->groupBy('origin.event')
             ->groupBy('origin.event_id')
             ->groupBy('origin.product_style_id');
+        if ($consignment_id) {
+            $subQueryRcvDepot->where('delivery.event_id', $consignment_id);
+        }
 
         $inboundOverviewList = PurchaseInbound::getOverviewInboundList(Event::consignment()->value, $consignment_id);
 
@@ -204,9 +211,60 @@ class ConsignmentItem extends Model
                 , 'inbound.inbound_user_name'
                 , 'inbound.inbound_type'
             )
-            ->where('items.consignment_id', $consignment_id)
             ->whereNull('items.deleted_at');
+        if ($consignment_id) {
+            $consignmentItemData->where('items.consignment_id', $consignment_id);
+        }
 
         return $consignmentItemData;
+    }
+
+    public static function getOriginInboundDataListWithCSN(
+        $consignment_sn = null
+        , $send_depot_id = null
+        , $receive_depot_id = null
+        , $csn_sdate = null
+        , $csn_edate = null
+        , $inbound_status = null) {
+
+        $consignmentItemData = ConsignmentItem::getOriginInboundDataList();
+        $consignmentData  = Consignment::getDeliveryData();
+        $result = DB::table(DB::raw("({$consignmentData->toSql()}) as consignment"))
+            ->leftJoinSub($consignmentItemData, 'items', function($join) {
+                $join->on('items.consignment_id', '=', 'consignment.consignment_id');
+            })
+            ->mergeBindings($consignmentData);
+        if ($consignment_sn) {
+            $result->where('consignment.consignment_sn', $consignment_sn);
+        }
+        if ($send_depot_id) {
+            $result->where('consignment.send_depot_id', $send_depot_id);
+        }
+        if ($receive_depot_id) {
+            $result->where('consignment.receive_depot_id', $receive_depot_id);
+        }
+        if ($csn_sdate && $csn_edate) {
+            $sDate = date('Y-m-d 00:00:00', strtotime($csn_sdate));
+            $eDate = date('Y-m-d 23:59:59', strtotime($csn_edate));
+            $result->whereBetween('consignment.created_at_withHIS', [$sDate, $eDate]);
+        }
+        if ($inbound_status) {
+            $arr_status = [];
+            if (in_array(InboundStatus::not_yet()->value, $inbound_status)) {
+                array_push($arr_status, InboundStatus::getDescription(InboundStatus::not_yet()->value));
+            }
+            if (in_array(InboundStatus::normal()->value, $inbound_status)) {
+                array_push($arr_status, InboundStatus::getDescription(InboundStatus::normal()->value));
+            }
+            if (in_array(InboundStatus::shortage()->value, $inbound_status)) {
+                array_push($arr_status, InboundStatus::getDescription(InboundStatus::shortage()->value));
+            }
+            if (in_array(InboundStatus::overflow()->value, $inbound_status)) {
+                array_push($arr_status, InboundStatus::getDescription(InboundStatus::overflow()->value));
+            }
+
+            $result->whereIn('inbound_type', $arr_status);
+        }
+        return $result;
     }
 }

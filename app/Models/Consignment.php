@@ -226,7 +226,7 @@ class Consignment extends Model
         return $result;
     }
 
-    public static function getDeliveryData($id)
+    public static function getDeliveryData($consignment_id = null)
     {
         $query = DB::table('csn_consignment as consignment')
             ->leftJoin('depot as send', 'send.id', '=', 'consignment.send_depot_id')
@@ -238,7 +238,6 @@ class Consignment extends Model
             ->leftJoin('dlv_logistic', 'dlv_logistic.delivery_id', '=', 'dlv_delivery.id')
             ->leftJoin('shi_group', 'shi_group.id', '=', 'dlv_logistic.ship_group_id')
             ->leftJoin('shi_temps', 'shi_temps.id', '=', 'shi_group.temps_fk')
-            ->where('consignment.id', $id)
             ->select(
                 'consignment.id as consignment_id'
                 , 'consignment.sn as consignment_sn'
@@ -258,14 +257,15 @@ class Consignment extends Model
                 , 'consignment.audit_user_name as audit_user_name'
                 , 'consignment.audit_status as audit_status'
                 , 'consignment.memo as memo'
+                , 'consignment.created_at as created_at_withHIS'
                 , DB::raw('DATE_FORMAT(consignment.created_at,"%Y-%m-%d") as created_at')
                 , DB::raw('DATE_FORMAT(consignment.scheduled_date,"%Y-%m-%d") as scheduled_date')
                 , DB::raw('DATE_FORMAT(consignment.audit_date,"%Y-%m-%d") as audit_date')
                 , DB::raw('DATE_FORMAT(consignment.close_date,"%Y-%m-%d") as close_date')
 
                 , 'dlv_delivery.sn as dlv_sn'
-                , 'dlv_delivery.logistic_status'
-                , 'dlv_delivery.logistic_status_code'
+                , 'dlv_delivery.logistic_status as dlv_logistic_status'
+                , 'dlv_delivery.logistic_status_code as dlv_logistic_status_code'
                 , 'dlv_delivery.audit_date as dlv_audit_date'
                 , 'dlv_delivery.audit_user_id as dlv_audit_user_id'
                 , 'dlv_delivery.audit_user_name as dlv_audit_user_name'
@@ -278,6 +278,9 @@ class Consignment extends Model
                 , 'shi_group.note as group_note'
                 , 'shi_temps.temps'
             );
+        if ($consignment_id) {
+            $query->where('consignment.id', $consignment_id);
+        }
 
         return $query;
     }
