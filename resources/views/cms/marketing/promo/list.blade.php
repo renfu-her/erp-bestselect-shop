@@ -112,6 +112,7 @@
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">優惠劵活動名稱</th>
+                        <th scope="col">類別</th>
                         <th scope="col">優惠券序號</th>
                         <th scope="col">優惠方式</th>
                         <th scope="col">優惠內容</th>
@@ -132,6 +133,7 @@
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td>{{ $data->title }}</td>
+                            <td>{{ $data->category_title }}</td>
                             <td>{{ $data->sn }}</td>
                             <td>{{ $data->method_title }}</td>
                             <td>

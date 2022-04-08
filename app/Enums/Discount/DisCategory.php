@@ -15,6 +15,7 @@ final class DisCategory extends Helper
     const normal = 'normal';
     const coupon = 'coupon';
     const code = 'code';
+    const combine = 'combine';
 
     public static function getDescription($value): string
     {
@@ -28,6 +29,9 @@ final class DisCategory extends Helper
                 break;
             case self::normal:
                 $result = '全館優惠';
+                break;
+            case self::combine:
+                $result = '任選則扣';
                 break;
             default:
                 $result = parent::getDescription($value);
@@ -44,10 +48,13 @@ final class DisCategory extends Helper
                 $result = 9;
                 break;
             case self::code:
-                $result = 2;
+                $result = 4;
                 break;
             case self::normal:
-                $result = 1;
+                $result = 2;
+                break;
+            case self::combine:
+                $result = 0;
                 break;
             default:
                 $result = parent::getSort($value);
