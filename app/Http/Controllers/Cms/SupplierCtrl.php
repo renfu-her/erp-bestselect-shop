@@ -89,6 +89,10 @@ class SupplierCtrl extends Controller
                         , 'bank_acount' => $paramReq_supplier['bank_acount'] ?? null
                         , 'bank_numer' => $paramReq_supplier['bank_numer'] ?? null
                     ]);
+                } else if (Payment::Other()->value == $val) {
+                    SupplierPayment::createData($id, $val, [
+                        'other' => $paramReq_supplier['other'] ?? null,
+                    ]);
                 } else {
                     SupplierPayment::createData($id, $val, []);
                 }
@@ -144,6 +148,7 @@ class SupplierCtrl extends Controller
             'bank_acount'          => 'nullable|string',
             'bank_numer'          => 'nullable|string',
             'cheque_payable'          => 'nullable|string',
+            'other'          => 'nullable|string',
         ]);
     }
 
@@ -189,6 +194,7 @@ class SupplierCtrl extends Controller
             'bank_acount',
             'bank_numer',
             'cheque_payable',
+            'other',
         );
     }
 
@@ -268,6 +274,10 @@ class SupplierCtrl extends Controller
                         , 'bank_code' => $paramReq_supplier['bank_code'] ?? null
                         , 'bank_acount' => $paramReq_supplier['bank_acount'] ?? null
                         , 'bank_numer' => $paramReq_supplier['bank_numer'] ?? null
+                    ]);
+                } else if (Payment::Other()->value == $val) {
+                    SupplierPayment::checkToUpdateData($id, $val, [
+                        'other' => $paramReq_supplier['other'] ?? null,
                     ]);
                 } else {
                     SupplierPayment::checkToUpdateData($id, $val, []);
