@@ -124,9 +124,11 @@ Breadcrumbs::for('cms.purchase.edit', function (BreadcrumbTrail $trail, $value) 
     $trail->push('[單號：' . $value['sn'] . '] 採購單資訊', route('cms.purchase.edit', ['id' => $value['id']]));
 });
 // 編輯 - 採購單資訊 - 新增訂金付款單
-Breadcrumbs::for('cms.purchase.pay-deposit', function (BreadcrumbTrail $trail, $value) {
+Breadcrumbs::for('cms.ap.create', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.purchase.edit', $value);
-    $trail->push('新增訂金付款單');
+    $trail->push('付款單', route('cms.purchase.view-pay-order', ['id' => $value['id'], 'type' => $value['type']]));
+    // $trail->push('新增訂金付款單');
+    $trail->push('新增付款');
 });
 // 編輯 - 採購單資訊 - 新增尾款付款單
 Breadcrumbs::for('cms.purchase.pay-final', function (BreadcrumbTrail $trail, $value) {
