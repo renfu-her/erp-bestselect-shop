@@ -224,7 +224,7 @@
                 </div>
                 <div class="col">
                     <dt>物態</dt>
-                    <dd>{{ $consignmentData->logistic_status ?? '(待處理)' }}</dd>
+                    <dd>{{ $consignmentData->dlv_logistic_status ?? '(待處理)' }}</dd>
                 </div>
                 <div class="col">
                     <dt>物流說明</dt>
