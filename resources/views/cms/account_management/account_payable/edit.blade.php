@@ -65,7 +65,7 @@
                                     <td class="text-end">{{ $currency->rate }}</td>
                                     <td>{{ $currency->name }}</td>
                                     <td class="text-end">{{ number_format($deposit_payment_data->price) }}</td>
-                                    <td>{{-- '已付款項' --}}</td>
+                                    <td>{{-- number_format($payable_data->tw_price) --}}</td>
 
                                     {{--
                                     <td>{{ $deposit_payment_data->memo }}</td>
@@ -119,10 +119,10 @@
                                 @endif
                                 @if(!is_null($deposit_payment_data))
                                     <tr>
-                                        <td>{{ $pay_order->sn }}</td>
+                                        <td>{{ $deposit_payment_data->sn }}</td>
                                         <td>{{ $purchase_data->purchase_sn }}</td>
                                         <td>{{ $product_grade_name }}</td>
-                                        <td>訂金抵扣（訂金付款單號{{ $deposit_payment_data->sn }}）</td>
+                                        <td>訂金抵扣</td>
                                         <td class="text-end">-{{ number_format($deposit_payment_data->price, 2) }}</td>
                                         <td class="text-end">1</td>
                                         <td class="text-end">{{ $currency->rate }}</td>
