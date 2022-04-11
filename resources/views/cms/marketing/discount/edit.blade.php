@@ -214,7 +214,7 @@
                 $(`div[data-method="${method}"]`).find('input, select').prop(AbleControl);
                 $(`div[data-method="${method}"]`).find('[norequired]').prop('required', false);
                 if (editBlock) {
-                    $(`div[data-method="${method}"] input:not([editable])`).prop(DisabledControl);
+                    $(`div[data-method="${method}"]`).find('input:not([editable]), select:not([editable])').prop(DisabledControl);
                 }
             }
         </script>
