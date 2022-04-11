@@ -80,12 +80,16 @@
         @csrf
     <div>
         <div class="card-header px-4 d-flex align-items-center bg-white flex-wrap justify-content-end">
-            <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">配送狀態</a>
-            <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">物流設定</a>
-            <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">出貨審核</a>
 
-            <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.consignment.inbound', ['id' => $id], true) }}">入庫審核</a>
-{{--            <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.consignment.log', ['id' => $id], true) }}">變更紀錄</a>--}}
+            {{--寄倉審核OK後才可做出貨--}}
+            @if ($consignmentData->audit_status == App\Enums\Consignment\AuditStatus::approved()->value)
+                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">配送狀態</a>
+                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">物流設定</a>
+                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">出貨審核</a>
+
+                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.consignment.inbound', ['id' => $id], true) }}">入庫審核</a>
+{{--                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.consignment.log', ['id' => $id], true) }}">變更紀錄</a>--}}
+            @endif
         </div>
         <div class="card-body px-4">
             <dl class="row mb-0">
@@ -294,9 +298,7 @@
                     </mark>
                 </div>
                 <div class="col">
-                    @if(null == $consignmentData)
-                        <button type="submit" class="btn btn-primary px-4">儲存</button>
-                    @elseif(!$hasCreatedFinalPayment && $consignmentData->close_date == null
+                    @if(!$hasCreatedFinalPayment && $consignmentData->close_date == null
                         && $consignmentData->audit_status == App\Enums\Consignment\AuditStatus::unreviewed()->value)
                         <button type="submit" class="btn btn-primary px-4">儲存</button>
                     @else
