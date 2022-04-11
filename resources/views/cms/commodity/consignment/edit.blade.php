@@ -27,10 +27,6 @@
         </dl>
         <dl class="row">
             <div class="col">
-                <dt>預計入庫日期</dt>
-                <dd>{{ $consignmentData->scheduled_date ?? '-' }}</dd>
-            </div>
-            <div class="col">
                 <dt>審核人員</dt>
                 <dd>{{ $consignmentData->audit_user_name ?? '-' }}</dd>
             </div>
@@ -73,7 +69,7 @@
                 <dd></dd>
             </div>
             <div class="col-auto" style="width: calc(100%/12*8.5);">
-                <dt>備註</dt>
+                <dt>寄倉單備註</dt>
                 <dd>{{ $consignmentData->memo ?? '-' }}</dd>
             </div>
         </dl>
@@ -93,6 +89,10 @@
         </div>
         <div class="card-body px-4">
             <dl class="row mb-0">
+                <div class="col">
+                    <dt>預計入庫日期</dt>
+                    <dd>{{ $consignmentData->scheduled_date ?? '-' }}</dd>
+                </div>
                 <div class="col">
                     <dt>物流編號</dt>
                     <dd>{{ $consignmentData->lgt_sn ?? '-' }}</dd>
