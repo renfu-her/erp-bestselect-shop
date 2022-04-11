@@ -295,7 +295,9 @@ class ConsignmentCtrl extends Controller
         $purchaseData  = Consignment::getData($id)->get()->first();
         $purchaseItemList = ReceiveDepot::getShouldEnterNumDataList(Event::consignment()->value, $id);
 
-        $inboundList = PurchaseInbound::getInboundList(['event' => Event::consignment()->value, 'purchase_id' => $id])->get()->toArray();
+        $inboundList = PurchaseInbound::getInboundList(['event' => Event::consignment()->value, 'purchase_id' => $id])
+            ->orderByDesc('inbound.created_at')
+            ->get()->toArray();
         $inboundOverviewList = PurchaseInbound::getOverviewInboundList(Event::consignment()->value, $id)->get()->toArray();
 
 

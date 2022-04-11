@@ -342,6 +342,7 @@ class PurchaseCtrl extends Controller
             $rePcsDI = PurchaseItem::deleteItems($purchaseGet->id, $del_item_id_arr, $request->user()->id, $request->user()->name);
             if ($rePcsDI['success'] == 0) {
                 $changeStr .= $rePcsDI['error_msg'];
+                throw ValidationException::withMessages(['item_error' => $rePcsDI['error_msg']]);
             }
         }
 
@@ -432,7 +433,9 @@ class PurchaseCtrl extends Controller
     public function inbound(Request $request, $id) {
         $purchaseData = Purchase::getPurchase($id)->first();
         $purchaseItemList = PurchaseItem::getDataForInbound($id)->get()->toArray();
-        $inboundList = PurchaseInbound::getInboundList(['event' => Event::purchase()->value, 'purchase_id' => $id])->get()->toArray();
+        $inboundList = PurchaseInbound::getInboundList(['event' => Event::purchase()->value, 'purchase_id' => $id])
+            ->orderByDesc('inbound.created_at')
+            ->get()->toArray();
         $inboundOverviewList = PurchaseInbound::getOverviewInboundList(Event::purchase()->value, $id)->get()->toArray();
 
         $depotList = Depot::all()->toArray();
