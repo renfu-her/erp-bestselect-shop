@@ -40,7 +40,7 @@
         @enderror
     </div>
 
-    @if(null == $purchaseData->audit_date)
+    @if(null != $purchaseData->audit_date)
         <div class="card shadow p-4 mb-4">
             <form id="form1" method="post" action="{{ $formAction }}">
                 @method('POST')
