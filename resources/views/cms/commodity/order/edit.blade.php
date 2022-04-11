@@ -144,7 +144,7 @@
                             @enderror
                         </div>
                     </div>
-                    <div class="col-12 mb-3">
+                    <div class="col-12 mb-3" hidden>
                         <label class="form-label">
                             紅利<span class="small text-secondary">（目前紅利點數：11點，可使用紅利上限：10點）</span>
                         </label>
@@ -581,7 +581,9 @@
                 // stock: '庫存',
                 // qty: '數量(預設1)',
                 // total: '小計(不含折扣)'
-                // dis_price: '折扣金額',
+                // discount: [{type:'優惠類型', id:'優惠ID', price:折扣金額}],
+                // dis_total: '折扣總金額',
+                // dised_total: '折扣後小計(total-dis_total)',
             };
             // 物流
             let selectShip = {
@@ -597,10 +599,6 @@
             let myProductList = {
                 // sid: {商品}
             };
-            // 商品使用優惠list
-            let myProductDiscountList = [
-                // {sid:樣式ID, pid:商品ID, did:優惠ID, price:折扣金額}
-            ];
             // 優惠資料
             let myDiscountList = {
                 optional: {},    // 任選 [暫無]
@@ -622,7 +620,8 @@
                 //     type: '物流類型category: pickup|deliver',
                 //     temps: '溫層: 常溫|冷凍|冷藏',
                 //     products: [商品],
-                //     total: '此物流商品金額小記(不含運)',
+                //     total: '此物流商品金額小計(不含運)',
+                //     dis_total: '此物流商品優惠金額小計',
                 //     rules: '[宅配價格]',
                 //     dlv_fee: '運費',
                 // }
@@ -658,7 +657,9 @@
                             delete myCart[`${type}_${event_id}`];
                             $(`#${type}_${event_id}`).remove();
                         }
-                        sumGroupTotal(`${type}_${event_id}`);
+                        // sumGroupTotal(`${type}_${event_id}`);
+                        // 重整優惠
+                        setProductDiscount();
                     }
                 },
                 checkFn: function() {
@@ -842,7 +843,9 @@
                             stock: p.in_stock,
                             qty: 1,
                             total: 0,
-                            dis_price: 0,
+                            discount: [],
+                            dis_total: 0,
+                            dised_total: 0
                         };
                     }
                 }
@@ -979,6 +982,7 @@
                         temps: selectShip.temps,
                         products: [],
                         total: 0,
+                        dis_total: 0,
                         rules: selectShip.rules || null,
                         dlv_fee: 0
                     };
@@ -1089,6 +1093,7 @@
                     }
 
                     sumSubtotal($this, $qty.val());
+                    setProductDiscount();
                 });
                 $('input[name="qty[]"]')
                     .off('keydown.adjust').on('keydown.adjust', function(e) {
@@ -1127,17 +1132,30 @@
                 $this.closest('tr.-cloneElem').find('div[data-td="subtotal"]').text(
                     `$${formatNumber(myProductList[style_id].total)}`);
 
+                sumOneProdDisTotal(style_id);
+
                 const $card = $this.closest('.-detail');
                 sumGroupTotal($card.attr('id'));
             }
+            // 計算 單一商品優惠小計
+            function sumOneProdDisTotal(sid) {
+                if (Object.hasOwnProperty.call(myProductList, sid)) {
+                    for (const dis of myProductList[sid].discount) {
+                        myProductList[sid].dis_total += dis.price;
+                    }
+                    myProductList[sid].dised_total = myProductList[sid].total - myProductList[sid].dis_total;
+                }
+            }
             // 計算 群組小計
             function sumGroupTotal(group_key) {
-                let total = 0;
+                let total = 0, dis_total = 0;
                 if (myCart[group_key]) {
                     (myCart[group_key].products).forEach(sid => {
                         total += myProductList[sid].total;
+                        dis_total += myProductList[sid].dis_total;
                     });
                     myCart[group_key].total = total;
+                    myCart[group_key].dis_total = dis_total;
 
                     // 運費
                     switch (myCart[group_key].type) {
@@ -1176,9 +1194,10 @@
                         const cart = myCart[key];
                         all_total += cart.total;
                         all_dlvFee += cart.dlv_fee;
+                        all_discount += cart.dis_total;
                     }
                 }
-                all_discount = setGlobalDiscount(all_total);
+                all_discount += setGlobalDiscount(all_total);
                 all_discount = (all_discount > all_total) ? all_total : all_discount;
                 all_sum = all_total - all_discount + all_dlvFee;
 
@@ -1202,6 +1221,8 @@
             /*** 優惠 ***/
             $('button.-coupon_sn').off('click').on('click', function () {
                 $('div.--ctype.-code input[name="coupon_sn"]').val('');
+                myDiscountList.code = {};
+                resetProductDiscount();
                 checkCouponSN();
             });
             // 優惠券代碼 -coupon_sn
@@ -1248,8 +1269,8 @@
                             } else {
                                 myDiscountList.code[dis.id] = dis;
                                 consume = sumPordTotal(dis.product_ids);
-                                discount_price = discountUse(dis, consume);
-                                // 回填各商品折扣
+                                setProductDiscount();   // 回填各商品折扣
+                                discount_price = codeDiscountUse(dis, 'code');
                             }
                             // 檢查低消
                             if (discount_price) {
@@ -1326,6 +1347,18 @@
                 }
             }
 
+            // 清空 所有各商品優惠
+            function resetProductDiscount() {
+                $(`.-cloneElem.--selectedP div[data-td="discount"],
+                   .-cloneElem.--selectedP div[data-td="disprice"]`).remove();
+                for (const sid in myProductList) {
+                    if (Object.hasOwnProperty.call(myProductList, sid)) {
+                        myProductList[sid].discount = [];
+                        myProductList[sid].dis_total = 0;
+                        myProductList[sid].dised_total = myProductList[sid].total;
+                    }
+                }
+            }
             /** 
              * set 所有各商品優惠
             */
@@ -1334,31 +1367,36 @@
                     return false;
                 }
                 // 清空
-                $(`.-cloneElem.--selectedP div[data-td="discount"],
-                   .-cloneElem.--selectedP div[data-td="disprice"]`).remove();
-                myProductDiscountList = [];
+                resetProductDiscount();
                 
                 // main: 紀錄商品優惠
                 for (const type of DISC_PRIORITY) {
-                    let tempDis = null;
-                    if (tempDis = myDiscountList[type] && Object.keys(tempDis).length) {
+                    let tempDis = myDiscountList[type];
+                    if (tempDis && Object.keys(tempDis).length) {
                         for (const id in tempDis) {
                             if (Object.hasOwnProperty.call(tempDis, id)) {
-                                const useDis = codeDiscountUse(tempDis[id], type);
-                                myProductDiscountList.push(...useDis);
+                                codeDiscountUse(tempDis[id], type);
                             }
                         }
                     }
                 }
-                // set html
-                myProductDiscountList.forEach(prodDis => {
-                    const $tr = $(`input[name="product_style_id[]"][value="${prodDis.sid}"]`).closest('.-cloneElem.--selectedP');
-                    $tr.find('div[data-td="title"]').after(dicountDIV(myDiscountList[prodDis.type][prodDis.did]));
-                    $tr.find('div[data-td="subtotal"]').after(dispriceDIV(prodDis.price));
-                });
+                // 優惠加總
+                for (const sid in myProductList) {
+                    sumOneProdDisTotal(sid);
+                    // set html
+                    const prod = myProductList[sid];
+                    const $tr = $(`input[name="product_style_id[]"][value="${prod.sid}"]`).closest('.-cloneElem.--selectedP');
+                    prod.discount.forEach(dis => {
+                        $tr.find('div[data-td="title"]').after(discountDIV(myDiscountList[dis.type][dis.id]));
+                        $tr.find('div[data-td="subtotal"]').after(dispriceDIV(dis.price));
+                    });
+                }
+                for (const key in myCart) {
+                    sumGroupTotal(key);
+                }
 
                 // 折扣文字
-                function dicountDIV(dis) {
+                function discountDIV(dis) {
                     return `<div data-td="discount" class="lh-1 small text-secondary">
                         <span class="badge rounded-pill bg-danger fw-normal me-2">已達優惠</span>
                         ${discountNote(dis)}
@@ -1369,16 +1407,18 @@
                     return `<div data-td="disprice" class="lh-1 text-danger">- $${formatNumber(price)}</div>`;
                 }
             }
+
             /** 計算總使用各商品優惠
              * @param {object} dis 優惠
              * @param {string} type 類型'optional'|'code'
+             * @return 使用總優惠金額
             */
             function codeDiscountUse(dis, type) {
                 const pids = dis.product_ids;
                 if (!pids || !pids.length) {
                     return false;
                 }
-                let result = [];
+                let result = 0;
                 let consume = sumPordTotal(pids);
                 if (consume >= dis.min_consume) {
                     let total_dis = 0;  // 總折扣金額
@@ -1397,29 +1437,29 @@
                             break;
                     }
 
-                    for (const sid in myProductList) {
+                    let sid = '';
+                    for (sid in myProductList) {
                         if (Object.hasOwnProperty.call(myProductList, sid)) {
                             const prod = myProductList[sid];
                             if (pids.indexOf(prod.pid) >= 0) {
                                 const price = Math.round(prod.total * ratio);
-                                result.push({
-                                    sid: prod.sid,
-                                    pid: prod.pid,
-                                    did: dis.id,
-                                    price,
-                                    type
+                                myProductList[sid].discount.push({
+                                    type,
+                                    id: dis.id,
+                                    price
                                 });
+                                
                                 if (dis.method_code === 'cash') {
                                     total_dis -= price;
                                 }
-                                myProductList[sid].dis_price = price;
+                                result += price;
                             }
                         }
                     }
-                    result[result.length - 1].price += total_dis;
-                    myProductList[result[result.length - 1].sid].dis_price += total_dis;
+                    myProductList[sid].discount[myProductList[sid].discount.length - 1].price += total_dis;
+                    result += total_dis;
+                    return result;
                 }
-                return result;
             }
 
             /** 計算總使用優惠
