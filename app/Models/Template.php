@@ -107,7 +107,7 @@ class Template extends Model
             ->select(
                 'template.title',
             //    DB::raw('concat("' . FrontendApiUrl::collection() . '") as event'),
-                'template.group_id as id',
+                'template.group_id as collection_id',
                 'template.style_type as type',
                 // 'template.sort',
             )->orderBy('template.sort');
