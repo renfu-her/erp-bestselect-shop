@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enums\Globals\ResponseParam;
+use App\Enums\Purchase\LogEventFeature;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -108,19 +108,20 @@ class ReceiveDepot extends Model
     }
 
     //將收貨資料變更為成立
-    public static function setUpShippingData($event, $delivery_id, $user_id, $user_name) {
-        $dataGet = null;
+    public static function setUpShippingData($event, $event_id, $delivery_id, $user_id, $user_name) {
+        $delivery = Delivery::where('id', $delivery_id)->get()->first();
+        $rcvDepotGet = null;
         if (null != $delivery_id) {
-            $data = ReceiveDepot::where('delivery_id', $delivery_id);
-            $dataGet = $data->get();
+            $rcvDepot = ReceiveDepot::where('delivery_id', $delivery_id);
+            $rcvDepotGet = $rcvDepot->get();
         }
         $result = null;
-        if (null != $dataGet && 0 < count($dataGet)) {
-                $result = DB::transaction(function () use ($data, $dataGet, $event, $delivery_id, $user_id, $user_name
+        if (null != $delivery &&null != $rcvDepotGet && 0 < count($rcvDepotGet)) {
+                $result = DB::transaction(function () use ($delivery, $rcvDepot, $rcvDepotGet, $event, $event_id, $delivery_id, $user_id, $user_name
                 ) {
                     //扣除入庫單庫存
-                    foreach ($dataGet as $item) {
-                        $reShipIb = PurchaseInbound::shippingInbound($event, $item->inbound_id, $item->qty);
+                    foreach ($rcvDepotGet as $item) {
+                        $reShipIb = PurchaseInbound::shippingInbound($event, $event_id, LogEventFeature::order_shipping()->value, $item->inbound_id, $item->qty);
                         if ($reShipIb['success'] == 0) {
                             DB::rollBack();
                             return $reShipIb;
@@ -132,7 +133,7 @@ class ReceiveDepot extends Model
                         'audit_user_id' => $user_id,
                         'audit_user_name' => $user_name,]);
 
-                    $data->update([
+                    $rcvDepot->update([
                         'audit_date' => $curr_date,
                     ]);
                     return ['success' => 1, 'error_msg' => ""];

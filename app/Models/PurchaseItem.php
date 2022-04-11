@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 
 class PurchaseItem extends Model
 {
@@ -100,19 +99,26 @@ class PurchaseItem extends Model
     public static function deleteItems($purchase_id, array $del_item_id_arr, $operator_user_id, $operator_user_name) {
         if (0 < count($del_item_id_arr)) {
             //判斷若其一有到貨 則不可刪除
-            $query = PurchaseItem::whereIn('id', $del_item_id_arr)
-                ->selectRaw('sum(arrived_num) as arrived_num')->get()->first();
-            if (0 < $query->arrived_num) {
+            $arrived_num = 0;
+            $items = PurchaseItem::whereIn('id', $del_item_id_arr)->get();
+            foreach ($items as $item) {
+                $arrived_num += $item->arrived_num ?? 0;
+            }
+
+            if (0 < $arrived_num) {
                 return ['success' => 0, 'error_msg' => "有入庫 不可刪除"];
             } else {
-                return DB::transaction(function () use ($purchase_id, $del_item_id_arr, $operator_user_id, $operator_user_name
+                return DB::transaction(function () use ($items, $purchase_id, $del_item_id_arr, $operator_user_id, $operator_user_name
                 ) {
                     PurchaseItem::whereIn('id', $del_item_id_arr)->delete();
-                    foreach ($del_item_id_arr as $del_id) {
-                        PurchaseLog::stockChange($purchase_id, null, LogEvent::purchase()->value, $del_id, LogEventFeature::style_del()->value, null, null, $operator_user_id, $operator_user_name);
+                    foreach ($items as $item) {
+                        PurchaseLog::stockChange($purchase_id, $item->product_style_id, LogEvent::purchase()->value, $item->id, LogEventFeature::style_del()->value, null, null, $operator_user_id, $operator_user_name);
                     }
+                    return ['success' => 1, 'error_msg' => ""];
                 });
             }
+        } else {
+            return ['success' => 0, 'error_msg' => "刪除數量為0"];
         }
     }
 
@@ -136,14 +142,57 @@ class PurchaseItem extends Model
     }
 
     public static function getDataWithInbound($purchase_id) {
-        $inboundOverviewList = PurchaseInbound::getOverviewInboundList(Event::purchase()->value, $purchase_id);
+        $inboundList = PurchaseInbound::getInboundList(['event' => Event::purchase()->value, 'purchase_id' => $purchase_id])
+            ->select('inbound.event_id as event_id' //採購ID
+                , 'inbound.event_item_id as event_item_id'
+                , 'product.title as product_title' //商品名稱
+                , 'product.user_id as user_id' //負責人
+                , 'style.title as style_title' //款式名稱
+                , 'style.id as product_style_id' //款式id
+                , 'style.sku as style_sku' //款式SKU
+            )
+
+            ->selectRaw('sum(inbound.inbound_num) as inbound_num')
+            ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_name) as inbound_user_name') //入庫人員
+            ->groupBy('inbound.event_id' //採購ID
+                , 'inbound.event_item_id'
+                , 'product.title' //商品名稱
+                , 'product.user_id' //負責人
+                , 'style.title' //款式名稱
+                , 'style.id' //款式id
+                , 'style.sku' //款式SKU
+            )
+            ->orderByDesc('inbound.event_id');
+        ;
+        $queryTotalInboundNum = '( COALESCE((items.num), 0) - COALESCE((inbound.inbound_num), 0) )'; //應進數量
         $query = DB::table('pcs_purchase_items as items')
-            ->leftJoinSub($inboundOverviewList, 'inbound', function($join) {
-                $join->on('inbound.purchase_id', '=', 'items.purchase_id')
+            ->leftJoinSub($inboundList, 'inbound', function($join) {
+                $join->on('inbound.event_id', '=', 'items.purchase_id')
+                    ->on('inbound.event_item_id', '=', 'items.id')
                     ->on('inbound.product_style_id', '=', 'items.product_style_id');
             })
+            ->select('items.id'
+                , 'items.purchase_id'
+                , 'items.product_style_id'
+                , 'items.title as title'
+                , 'items.sku'
+                , 'items.num'
+                , 'items.price'
+                , 'items.memo'
+                , 'inbound.user_id' //負責人
+                , 'inbound.inbound_user_name'
+                , 'inbound.inbound_num'
+            )
+            ->selectRaw($queryTotalInboundNum.' AS should_enter_num') //應進數量
+            ->selectRaw('(case
+                    when '. $queryTotalInboundNum. ' = 0 and COALESCE(inbound.inbound_num, 0) <> 0 then "'.InboundStatus::getDescription(InboundStatus::normal()->value).'"
+                    when COALESCE(inbound.inbound_num, 0) = 0 then "'.InboundStatus::getDescription(InboundStatus::not_yet()->value).'"
+                    when COALESCE((items.num), 0) < COALESCE(inbound.inbound_num) then "'.InboundStatus::getDescription(InboundStatus::overflow()->value).'"
+                    when COALESCE((items.num), 0) > COALESCE(inbound.inbound_num) then "'.InboundStatus::getDescription(InboundStatus::shortage()->value).'"
+                end) as inbound_type') //採購狀態
             ->where('items.purchase_id', $purchase_id)
             ->whereNull('items.deleted_at');
+//        dd(IttmsUtils::getEloquentSqlWithBindings($query));
 //        dd($query->get());
         return $query;
     }

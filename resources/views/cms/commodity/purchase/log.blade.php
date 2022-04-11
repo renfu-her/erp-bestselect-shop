@@ -19,20 +19,23 @@
                      <tr>
                          <td>{{$data->created_at}}</td>
                          <td>{{App\Enums\Purchase\LogEventFeature::getDescription($data->feature)}}
-                             @if($data->event == App\Enums\Purchase\LogEvent::purchase()->value)
-                                 {{$data->title}}
+                             @if($data->event == App\Enums\Delivery\Event::purchase()->value)
                                  @if(isset($data->qty))
                                      @if($data->feature == App\Enums\Purchase\LogEventFeature::style_change_price()->value) 價錢:{{$data->qty}}
                                      @elseif($data->feature == App\Enums\Purchase\LogEventFeature::style_change_qty()->value) 數量:{{$data->qty}}
-                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::style_add()->value)
-                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::style_del()->value)
-                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::inbound_add()->value)@if(isset($data->qty)) 數量:{{$data->qty}} @endif
-                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::inbound_del()->value)@if(isset($data->qty)) 數量:{{$data->qty}} @endif
-                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::inbound_shipping()->value)@if(isset($data->qty)) 數量:{{$data->qty}} @endif
-                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::inbound_send_back()->value)@if(isset($data->qty)) 數量:{{$data->qty}} @endif
-                                     @else    @endif
+                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::style_add()->value){{$data->title}}
+                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::style_del()->value){{$data->title}}
+                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::inbound_add()->value)@if(isset($data->qty)){{$data->title}} 數量:{{$data->qty}} @endif
+                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::inbound_del()->value)@if(isset($data->qty)){{$data->title}} 數量:{{$data->qty}} @endif
+                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::order_shipping()->value)@if(isset($data->qty)){{$data->title}} 數量:{{$data->qty}} @endif
+                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::order_send_back()->value)@if(isset($data->qty)){{$data->title}} 數量:{{$data->qty}} @endif
+                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::consume_shipping()->value)@if(isset($data->qty)){{$data->title}} 數量:{{$data->qty}} @endif
+                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::consume_send_back()->value)@if(isset($data->qty)){{$data->title}} 數量:{{$data->qty}} @endif
+                                     @else {{$data->title}}
+                                     @endif
+                                 @else
+                                         {{$data->title}}
                                  @endif
-                             @elseif($data->event == App\Enums\Purchase\LogEvent::consignment()->value)
                              @endif
                          </td>
                          <td>{{$data->user_name}}</td>

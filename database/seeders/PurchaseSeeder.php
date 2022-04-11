@@ -326,10 +326,10 @@ class PurchaseSeeder extends Seeder
         );
 
         $sellCount = 2;
-        PurchaseInbound::shippingInbound(
-            Event::purchase()->value,
-            $purchaseInboundID2,
-            $sellCount,
-        );
+//        PurchaseInbound::shippingInbound(
+//            Event::purchase()->value,
+//            $purchaseInboundID2,
+//            $sellCount,
+//        );
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Enums\Delivery\Event;
-use App\Enums\Purchase\LogEvent;
 use App\Enums\Purchase\LogEventFeature;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,12 +16,12 @@ class PurchaseLog extends Model
 
     public static function stockChange($event_parent_id, $product_style_id, $event, $event_id, $feature, $qty, $note = null, $operator_user_id, $operator_user_name)
     {
-        if (!LogEvent::hasKey($event)) {
-            return ['success' => 0, 'error_msg' => 'feature error'];
+        if (!Event::hasKey($event)) {
+            return ['success' => 0, 'error_msg' => 'event error '.$event];
         }
 
         if (!LogEventFeature::hasKey($feature)) {
-            return ['success' => 0, 'error_msg' => 'event error'];
+            return ['success' => 0, 'error_msg' => 'feature error '. $feature];
         }
 
         return DB::transaction(function () use ($event_parent_id, $product_style_id, $event, $event_id, $feature, $qty, $note, $operator_user_id, $operator_user_name) {
@@ -43,18 +42,6 @@ class PurchaseLog extends Model
     }
 
     public static function getData($event, $event_id) {
-        $logEventFeatureKey_purchase = [];
-        foreach (LogEventFeature::asArray() as $key => $value) {
-            if (Event::purchase()->value == $event) {
-                if (0 === strpos($key, 'pcs')) {
-                    array_push($logEventFeatureKey_purchase, $key);
-                }
-            } else if (Event::consignment()->value == $event) {
-                if (0 === strpos($key, 'csn')) {
-                    array_push($logEventFeatureKey_purchase, $key);
-                }
-            }
-        }
         $eventTable = '';
         $eventItemTable = '';
         if (Event::purchase()->value == $event) {
@@ -65,12 +52,10 @@ class PurchaseLog extends Model
             $eventItemTable = 'csn_consignment_items';
         }
 
-
         $log_purchase = DB::table('pcs_purchase_log as log')
-            ->leftJoin($eventTable.' as purchase', function($join) use($event, $logEventFeatureKey_purchase) {
-                $join->on('purchase.id', '=', 'log.event_id');
+            ->leftJoin($eventTable.' as purchase', function($join) use($event) {
+                $join->on('purchase.id', '=', 'log.event_parent_id');
                 $join->where('log.event', $event);
-                $join->whereIn('log.feature', $logEventFeatureKey_purchase);
             })
             ->select('log.id'
                 , 'log.event'
@@ -81,6 +66,7 @@ class PurchaseLog extends Model
             )
             ->selectRaw('CONCAT(log.note) as title')
             ->whereNotNull('purchase.id')
+            ->whereNull('log.product_style_id')
             ->where('log.event_parent_id', '=', $event_id)
             ->where('log.event', '=', $event);
 
