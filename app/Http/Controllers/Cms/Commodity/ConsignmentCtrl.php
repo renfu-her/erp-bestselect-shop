@@ -38,6 +38,7 @@ class ConsignmentCtrl extends Controller
         $receive_depot_id = Arr::get($query, 'receive_depot_id', '');
         $csn_sdate = Arr::get($query, 'csn_sdate', '');
         $csn_edate = Arr::get($query, 'csn_edate', '');
+        $audit_status = Arr::get($query, 'audit_status', AuditStatus::unreviewed()->value);
         $inbound_status = Arr::get($query, 'inbound_status', implode(',', array_keys($all_inbound_status)));
 
         $inbound_status_arr = [];
@@ -50,6 +51,7 @@ class ConsignmentCtrl extends Controller
                 , $receive_depot_id
                 , $csn_sdate
                 , $csn_edate
+                , $audit_status
                 , $inbound_status_arr
             )
             ->paginate($data_per_page)->appends($query);
@@ -64,6 +66,7 @@ class ConsignmentCtrl extends Controller
             , 'receive_depot_id' => $receive_depot_id
             , 'csn_sdate' => $csn_sdate
             , 'csn_edate' => $csn_edate
+            , 'audit_status' => $audit_status
             , 'inbound_status' => $inbound_status
             , 'all_inbound_status' => $all_inbound_status
         ]);

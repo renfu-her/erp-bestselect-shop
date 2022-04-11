@@ -225,6 +225,7 @@ class ConsignmentItem extends Model
         , $receive_depot_id = null
         , $csn_sdate = null
         , $csn_edate = null
+        , $audit_status = null
         , $inbound_status = null) {
 
         $consignmentItemData = ConsignmentItem::getOriginInboundDataList();
@@ -247,6 +248,9 @@ class ConsignmentItem extends Model
             $sDate = date('Y-m-d 00:00:00', strtotime($csn_sdate));
             $eDate = date('Y-m-d 23:59:59', strtotime($csn_edate));
             $result->whereBetween('consignment.created_at_withHIS', [$sDate, $eDate]);
+        }
+        if ($audit_status) {
+            $result->where('consignment.audit_status', $audit_status);
         }
         if ($inbound_status) {
             $arr_status = [];
