@@ -278,7 +278,7 @@
                 <h6>折扣明細</h6>
                 <div class="table-responsive">
                     <table class="table table-sm text-right align-middle">
-                        <tbody>{{ dd($discounts) }}
+                        <tbody>
                             @foreach ($discounts as $key => $dis)
                                 <tr>
                                     <td class="col-8">{{ $dis->title }}</td>
