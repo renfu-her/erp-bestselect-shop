@@ -193,11 +193,11 @@ class PurchaseInbound extends Model
                     $stock_event = '';
                     $stock_note = '';
 
+                    //除訂單以外
+                    //訂單耗材、寄倉、寄倉耗材 皆須另外修改通路庫存
                     if (Event::order()->value == $event) {
                         if (LogEventFeature::order_shipping()->value == $feature) {
                             $update_arr['sale_num'] = DB::raw("sale_num + $sale_num");
-                            $stock_event = StockEvent::sale()->value;
-                            $stock_note = LogEventFeature::getDescription(LogEventFeature::order_shipping()->value);
                         } elseif (LogEventFeature::consume_shipping()->value == $feature) {
                             $update_arr['consume_num'] = DB::raw("consume_num + $sale_num");
                             $stock_event = StockEvent::consume()->value;
@@ -214,7 +214,6 @@ class PurchaseInbound extends Model
                             $stock_note = LogEventFeature::getDescription(LogEventFeature::consume_shipping()->value);
                         }
                     }
-
                     PurchaseInbound::where('id', $id)
                         ->update($update_arr);
                     $reStockChange =PurchaseLog::stockChange($event_id, $inboundDataGet->product_style_id, $event, $id, $feature, $sale_num, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
@@ -222,8 +221,9 @@ class PurchaseInbound extends Model
                         DB::rollBack();
                         return $reStockChange;
                     }
+
                     //若為理貨倉can_tally 需修改通路庫存
-                    if ($inboundDataGet->can_tally) {
+                    if ('' != $stock_event && $inboundDataGet->can_tally) {
                         $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $sale_num * -1
                             , $stock_event, $id
                             , $inboundDataGet->inbound_user_name . $stock_note
