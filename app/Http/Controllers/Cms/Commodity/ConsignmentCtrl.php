@@ -299,7 +299,7 @@ class ConsignmentCtrl extends Controller
         }
 
         wToast(__('Close finished.'));
-        return redirect(Route('cms.purchase.inbound', [
+        return redirect(Route('cms.consignment.inbound', [
             'id' => $id,
         ]));
     }
