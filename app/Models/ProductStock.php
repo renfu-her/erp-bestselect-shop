@@ -37,7 +37,8 @@ class ProductStock extends Model
             }
             $style = $style->get()->first();
 
-            if ($style['in_stock'] + $qty < 0) {
+            //若為理貨倉 才需做判斷是否通路庫存in_stock是否足夠
+            if (true == $inbound_can_tally && $style['in_stock'] + $qty < 0) {
                 return ['success' => 0, 'error_msg' => '數量超出範圍', 'event' => 'stock', 'event_id' => $product_style_id];
             }
 
