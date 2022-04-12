@@ -85,27 +85,11 @@ class Product extends Model
         }
 
         if (isset($options['collection']) && $options['collection']) {
+
             $re->leftJoin('collection_prd as cprd', 'product.id', '=', 'cprd.product_id_fk')
                 ->leftJoin('collection as colc', 'colc.id', '=', 'cprd.collection_id_fk')
-                ->addSelect('colc.name as collection_name')
-                ->where('cprd.collection_id_fk', $options['collection']);
-        }
-
-        // 顯示價格 price的值是銷售通路id
-        if (isset($options['price']) && $options['price']) {
-
-            $subPrice = DB::table('prd_salechannel_style_price as price')
-                ->leftJoin('prd_product_styles as style', 'price.style_id', '=', 'style.id')
-                ->select('product_id', 'price.origin_price')
-                ->selectRaw('min(price.price) as price')
-                ->where('price.sale_channel_id', $options['price'])
-                ->groupBy('style.product_id');
-
-            $re->leftJoin(DB::raw("({$subPrice->toSql()}) as price"), function ($join) {
-                $join->on('product.id', '=', 'price.product_id');
-            })
-                ->mergeBindings($subPrice)
-                ->addSelect(['price.price', 'price.origin_price']);
+                ->addSelect(['colc.name as collection_name', 'collection_id_fk'])
+                ->where('cprd.collection_id_fk', '=', $options['collection']);
 
         }
 
@@ -116,12 +100,55 @@ class Product extends Model
             $re->leftJoin(DB::raw("({$subImg->toSql()}) as img"), function ($join) {
                 $join->on('product.id', '=', 'img.product_id');
             })
-           // ->addSelect('img.url as img_url');
-           ->selectRaw('IF(img.url IS NOT NULL,img.url,"") as img_url');
+                ->selectRaw('IF(img.url IS NOT NULL,img.url,"") as img_url');
 
         }
 
         return $re;
+    }
+
+    public static function getMinPriceProducts($sale_channel_id, $product_id = [], &$product_list = null)
+    {
+
+        if ($product_list) {
+
+            $product_id = array_map(function ($n) {
+                return $n->id;
+            }, $product_list);
+        }
+
+        $subPrice = DB::table('prd_salechannel_style_price as price')
+            ->leftJoin('prd_product_styles as style', 'style.id', '=', 'price.style_id')
+            ->select(['price.*', 'style.product_id'])
+            ->where('price.sale_channel_id', $sale_channel_id)
+            ->orderBy('price.price', 'ASC');
+        if ($product_id) {
+            $subPrice->whereIn('product_id', $product_id);
+        }
+        $price = $subPrice->get()->toArray();
+        $re = [];
+        foreach ($price as $p) {
+            if (!isset($re[$p->product_id])) {
+                $re[$p->product_id] = $p;
+            }
+        }
+
+        if (!$product_list) {
+            return $re;
+        } else {
+            foreach ($product_list as $pp) {
+                if (isset($re[$pp->id])) {
+
+                    $pp->price = $re[$pp->id]->price;
+                    $pp->origin_price = $re[$pp->id]->origin_price;
+
+                } else {
+                    $pp->price = 0;
+                    $pp->origin_price = 0;
+                }
+            }
+        }
+
     }
 
     /**
