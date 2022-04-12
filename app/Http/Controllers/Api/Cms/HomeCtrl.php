@@ -60,10 +60,11 @@ class HomeCtrl extends Controller
         $d = $request->all();
 
         $dataList = Product::productList(null, null, [
-            'price' => 1,
             'img' => 1,
             'collection' => $d['collection_id'],
         ])->get()->toArray();
+
+        Product::getMinPriceProducts(1, null, $dataList);
 
         $data = [];
         if ($dataList) {
