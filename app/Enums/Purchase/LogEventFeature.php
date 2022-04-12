@@ -31,6 +31,8 @@ final class LogEventFeature extends Enum
     const order_send_back = 'order_send_back';
     const consume_shipping = 'consume_shipping';
     const consume_send_back = 'consume_send_back';
+    const consignment_shipping = 'consignment_shipping';
+    const consignment_send_back = 'consignment_send_back';
 
     //付款
     const pay_add = 'pay_add';
@@ -86,11 +88,11 @@ final class LogEventFeature extends Enum
             case self::order_send_back:
                 $result = '訂單退回';
                 break;
-            case self::consume_shipping:
-                $result = '耗材出貨';
+            case self::consignment_shipping:
+                $result = '寄倉出貨';
                 break;
-            case self::consume_send_back:
-                $result = '耗材退回';
+            case self::consignment_send_back:
+                $result = '寄倉退回';
                 break;
 
             case self::pay_add:

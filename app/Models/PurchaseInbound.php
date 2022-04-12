@@ -190,18 +190,28 @@ class PurchaseInbound extends Model
                     return ['success' => 0, 'error_msg' => '入庫單出貨數量超出範圍'];
                 } else {
                     $update_arr = [];
+                    $stock_event = '';
+                    $stock_note = '';
 
                     if (Event::purchase()->value == $event) {
                         if (LogEventFeature::order_shipping()->value == $feature) {
                             $update_arr['sale_num'] = DB::raw("sale_num + $sale_num");
+                            $stock_event = StockEvent::sale()->value;
+                            $stock_note = LogEventFeature::getDescription(LogEventFeature::order_shipping()->value);
                         } elseif (LogEventFeature::consume_shipping()->value == $feature) {
                             $update_arr['consume_num'] = DB::raw("consume_num + $sale_num");
+                            $stock_event = StockEvent::consume()->value;
+                            $stock_note = LogEventFeature::getDescription(LogEventFeature::consume_shipping()->value);
                         }
                     } else if (Event::consignment()->value == $event) {
                         if (LogEventFeature::order_shipping()->value == $feature) {
                             $update_arr['csn_num'] = DB::raw("csn_num + $sale_num");
+                            $stock_event = StockEvent::consignment()->value;
+                            $stock_note = LogEventFeature::getDescription(LogEventFeature::consignment_shipping()->value);
                         } elseif (LogEventFeature::consume_shipping()->value == $feature) {
                             $update_arr['consume_num'] = DB::raw("consume_num + $sale_num");
+                            $stock_event = StockEvent::consume()->value;
+                            $stock_note = LogEventFeature::getDescription(LogEventFeature::consume_shipping()->value);
                         }
                     }
 
@@ -214,8 +224,8 @@ class PurchaseInbound extends Model
                     }
                     //修改通路庫存
                     $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $sale_num * -1
-                        , StockEvent::inbound_del()->value, $id
-                        , $inboundDataGet->inbound_user_name . LogEventFeature::inbound_del()->getDescription(LogEventFeature::inbound_del()->value)
+                        , $stock_event, $id
+                        , $inboundDataGet->inbound_user_name . $stock_note
                         , false, $inboundDataGet->can_tally);
                     if ($rePSSC['success'] == 0) {
                         DB::rollBack();
