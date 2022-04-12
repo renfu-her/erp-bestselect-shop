@@ -54,10 +54,10 @@
                 <div class="row mb-4">
                     <div class="col-12">
 
-                        <label class="form-label">出貨倉庫
+                        <label class="form-label">入庫倉庫
                         <div>
                         @foreach ($depotList as $depotItem)
-                            @if($depotItem['id'] == $purchaseData->send_depot_id)
+                            @if($depotItem['id'] == $purchaseData->receive_depot_id)
                                 <input type="hidden"
                                        class="form-control form-control-sm @error('depot_id') is-invalid @enderror"
                                        name="depot_id" value="{{ $depotItem['id'] }}"
