@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Enums\Delivery\Event;
-use App\Enums\Purchase\LogEvent;
 use App\Models\PayingOrder;
 use App\Models\ProductStyle;
 use App\Models\Purchase;

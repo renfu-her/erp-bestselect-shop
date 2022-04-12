@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Enums\Delivery\Event;
 use App\Enums\Purchase\InboundStatus;
-use App\Enums\Purchase\LogEvent;
 use App\Enums\Purchase\LogEventFeature;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

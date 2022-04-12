@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Cms\Commodity;
 use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Purchase\InboundStatus;
-use App\Enums\Purchase\LogEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Consignment;
 use App\Models\ConsignmentItem;
