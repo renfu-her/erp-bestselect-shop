@@ -230,31 +230,44 @@ class ConsignmentCtrl extends Controller
         }
 
         if (isset($csnItemReq['item_id'])) {
-            foreach ($csnItemReq['item_id'] as $key => $val) {
-                $itemId = $csnItemReq['item_id'][$key];
-                //有值則做更新
-                //itemId = null 代表新資料
-                if (null != $itemId) {
-                    $result = ConsignmentItem::checkToUpdateItemData($itemId, $csnItemReq, $key, $changeStr, $request->user()->id, $request->user()->name);
-                    if ($result['success'] == 0) {
-                        $changeStr = $result['error_msg'];
-                        throw ValidationException::withMessages(['item_error' => $result['error_msg']]);
-                    }
-                } else {
-                    $changeStr .= ' add item:' . $csnItemReq['name'][$key];
+            $resultUpd = DB::transaction(function () use ($request, $csnItemReq, $consignmentData, $changeStr
+            ) {
+                foreach ($csnItemReq['item_id'] as $key => $val) {
+                    $itemId = $csnItemReq['item_id'][$key];
+                    //有值則做更新
+                    //itemId = null 代表新資料
+                    if (null != $itemId) {
+                        $resultUpd = ConsignmentItem::checkToUpdateItemData($itemId, $csnItemReq, $key, $changeStr, $request->user()->id, $request->user()->name);
+                        if ($resultUpd['success'] == 0) {
+                            DB::rollBack();
+                            $changeStr = $resultUpd['error_msg'];
+                            return $changeStr;
+                        }
+                    } else {
+                        $changeStr .= ' add item:' . $csnItemReq['name'][$key];
 
-                    ConsignmentItem::createData(
-                        [
-                            'consignment_id' => $consignmentData->consignment_id,
-                            'product_style_id' => $csnItemReq['product_style_id'][$key],
-                            'title' => $csnItemReq['name'][$key],
-                            'sku' => $csnItemReq['sku'][$key],
-                            'price' => $csnItemReq['price'][$key],
-                            'num' => $csnItemReq['num'][$key],
-                        ],
-                        $request->user()->id, $request->user()->name
-                    );
+                        $resultUpd = ConsignmentItem::createData(
+                            [
+                                'consignment_id' => $consignmentData->consignment_id,
+                                'product_style_id' => $csnItemReq['product_style_id'][$key],
+                                'title' => $csnItemReq['name'][$key],
+                                'sku' => $csnItemReq['sku'][$key],
+                                'price' => $csnItemReq['price'][$key],
+                                'num' => $csnItemReq['num'][$key],
+                            ],
+                            $request->user()->id, $request->user()->name
+                        );
+                        if ($resultUpd['success'] == 0) {
+                            DB::rollBack();
+                            $changeStr = $resultUpd['error_msg'];
+                            return $changeStr;
+                        }
+                    }
                 }
+                return ['success' => 1, 'error_msg' => ""];
+            });
+            if ($resultUpd['success'] == 0) {
+                throw ValidationException::withMessages(['item_error' => $resultUpd['error_msg']]);
             }
         }
         $changeStr = '';

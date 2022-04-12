@@ -137,66 +137,6 @@ class PurchaseItem extends Model
         });
     }
 
-    public static function getData($purchase_id) {
-        return self::where('purchase_id', $purchase_id)->whereNull('deleted_at');
-    }
-
-    public static function getDataWithInbound($purchase_id) {
-        $inboundList = PurchaseInbound::getInboundList(['event' => Event::purchase()->value, 'purchase_id' => $purchase_id])
-            ->select('inbound.event_id as event_id' //採購ID
-                , 'inbound.event_item_id as event_item_id'
-                , 'product.title as product_title' //商品名稱
-                , 'product.user_id as user_id' //負責人
-                , 'style.title as style_title' //款式名稱
-                , 'style.id as product_style_id' //款式id
-                , 'style.sku as style_sku' //款式SKU
-            )
-
-            ->selectRaw('sum(inbound.inbound_num) as inbound_num')
-            ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_name) as inbound_user_name') //入庫人員
-            ->groupBy('inbound.event_id' //採購ID
-                , 'inbound.event_item_id'
-                , 'product.title' //商品名稱
-                , 'product.user_id' //負責人
-                , 'style.title' //款式名稱
-                , 'style.id' //款式id
-                , 'style.sku' //款式SKU
-            )
-            ->orderByDesc('inbound.event_id');
-        ;
-        $queryTotalInboundNum = '( COALESCE((items.num), 0) - COALESCE((inbound.inbound_num), 0) )'; //應進數量
-        $query = DB::table('pcs_purchase_items as items')
-            ->leftJoinSub($inboundList, 'inbound', function($join) {
-                $join->on('inbound.event_id', '=', 'items.purchase_id')
-                    ->on('inbound.event_item_id', '=', 'items.id')
-                    ->on('inbound.product_style_id', '=', 'items.product_style_id');
-            })
-            ->select('items.id'
-                , 'items.purchase_id'
-                , 'items.product_style_id'
-                , 'items.title as title'
-                , 'items.sku'
-                , 'items.num'
-                , 'items.price'
-                , 'items.memo'
-                , 'inbound.user_id' //負責人
-                , 'inbound.inbound_user_name'
-                , 'inbound.inbound_num'
-            )
-            ->selectRaw($queryTotalInboundNum.' AS should_enter_num') //應進數量
-            ->selectRaw('(case
-                    when '. $queryTotalInboundNum. ' = 0 and COALESCE(inbound.inbound_num, 0) <> 0 then "'.InboundStatus::getDescription(InboundStatus::normal()->value).'"
-                    when COALESCE(inbound.inbound_num, 0) = 0 then "'.InboundStatus::getDescription(InboundStatus::not_yet()->value).'"
-                    when COALESCE((items.num), 0) < COALESCE(inbound.inbound_num) then "'.InboundStatus::getDescription(InboundStatus::overflow()->value).'"
-                    when COALESCE((items.num), 0) > COALESCE(inbound.inbound_num) then "'.InboundStatus::getDescription(InboundStatus::shortage()->value).'"
-                end) as inbound_type') //採購狀態
-            ->where('items.purchase_id', $purchase_id)
-            ->whereNull('items.deleted_at');
-//        dd(IttmsUtils::getEloquentSqlWithBindings($query));
-//        dd($query->get());
-        return $query;
-    }
-
     public static function getDataForInbound($purchase_id) {
         $raw = '( COALESCE(items.num, 0) - COALESCE(items.arrived_num, 0) )';
         $result = DB::table('pcs_purchase_items as items')
@@ -219,7 +159,9 @@ class PurchaseItem extends Model
     //採購 明細(會鋪出全部的採購商品)
     //******* 修改時請一併修改採購 總表
     public static function getPurchaseDetailList(
-          $purchase_sn = null
+        $purchase_id = null
+        , $purchase_item_id = null
+        , $purchase_sn = null
         , $title = null
 //        , $sku = null
         , $purchase_user_id = []
@@ -253,13 +195,16 @@ class PurchaseItem extends Model
 
         $tempInboundSql = DB::table('pcs_purchase_inbound as inbound')
             ->select('event_id'
+                , 'event_item_id'
                 , 'product_style_id')
             ->selectRaw('sum(inbound_num) as inbound_num')
+            ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_name) as inbound_user_name') //入庫人員
             ->whereNull('deleted_at');
 
         $tempInboundSql->where('inbound.event', '=', Event::purchase()->value);
 
         $tempInboundSql->groupBy('event_id')
+            ->groupBy('event_item_id')
             ->groupBy('product_style_id');
         if ($depot_id) {
             $tempInboundSql->where('inbound.depot_id', '=', $depot_id);
@@ -289,17 +234,20 @@ class PurchaseItem extends Model
             ->leftJoin('pcs_purchase_items as items', 'purchase.id', '=', 'items.purchase_id')
             ->leftJoinSub($tempInboundSql, 'inbound', function($join) use($tempInboundSql) {
                 $join->on('items.purchase_id', '=', 'inbound.event_id')
+                    ->on('items.id', '=', 'inbound.event_item_id')
                     ->on('items.product_style_id', '=', 'inbound.product_style_id');
             })
             //->select('*')
             ->select('purchase.id as id'
                 ,'purchase.sn as sn'
                 ,'items.id as items_id'
+                ,'items.product_style_id as product_style_id'
                 ,'items.title as title'
                 ,'items.sku as sku'
                 ,'items.price as price'
                 ,'items.num as num'
                 ,'items.arrived_num as arrived_num'
+                ,'inbound.inbound_user_name'
                 ,'purchase.purchase_user_id as purchase_user_id'
                 ,'purchase.supplier_id as supplier_id'
                 ,'purchase.invoice_num as invoice_num'
@@ -322,6 +270,12 @@ class PurchaseItem extends Model
             ->whereNull('purchase.deleted_at')
             ->whereNull('items.deleted_at');
 
+        if ($purchase_id) {
+            $result->where('purchase.id', '=', $purchase_id);
+        }
+        if ($purchase_item_id) {
+            $result->where('items.id', '=', $purchase_item_id);
+        }
         if($purchase_sn) {
             $result->where('purchase.sn', '=', $purchase_sn);
         }

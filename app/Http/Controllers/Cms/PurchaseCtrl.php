@@ -61,7 +61,9 @@ class PurchaseCtrl extends Controller
         $dataList = null;
         if ('0' === $type) {
             $dataList = PurchaseItem::getPurchaseDetailList(
-                $purchase_sn
+                null
+                , null
+                , $purchase_sn
                 , $title
                 , $purchase_user_id
                 , $purchase_sdate
@@ -227,8 +229,7 @@ class PurchaseCtrl extends Controller
     public function edit(Request $request, $id)
     {
         $purchaseData = Purchase::getPurchase($id)->first();
-//        $purchaseItemData = PurchaseItem::getData($id)->get()->toArray();
-        $purchaseItemData = PurchaseItem::getDataWithInbound($id)->get()->toArray();
+        $purchaseItemData = PurchaseItem::getPurchaseDetailList($id)->get()->toArray();
 
         if (!$purchaseData) {
             return abort(404);
@@ -310,7 +311,6 @@ class PurchaseCtrl extends Controller
         $purchaseItemReq = $request->only('item_id', 'product_style_id', 'name', 'sku', 'num', 'price', 'memo');
         $purchasePayReq = $request->only('tax', 'logistics_price', 'logistics_memo', 'invoice_num', 'invoice_date');
 
-
         //判斷是否有付款單，有則不可新增刪除商品款式
         $payingOrderList = PayingOrder::getPayingOrdersWithPurchaseID($id)->get();
         if (0 < count($payingOrderList)) {
@@ -347,30 +347,45 @@ class PurchaseCtrl extends Controller
         }
 
         if (isset($purchaseItemReq['item_id'])) {
-            foreach ($purchaseItemReq['item_id'] as $key => $val) {
-                $itemId = $purchaseItemReq['item_id'][$key];
-                //有值則做更新
-                //itemId = null 代表新資料
-                if (null != $itemId) {
-                    $result = PurchaseItem::checkToUpdatePurchaseItemData($itemId, $purchaseItemReq, $key, $changeStr, $request->user()->id, $request->user()->name, $purchasePayReq);
-                    $changeStr = $result['error_msg'];
-                } else {
-                    $changeStr .= ' add item:' . $purchaseItemReq['name'][$key];
+            $result = DB::transaction(function () use ($request, $id, $purchaseItemReq, $purchasePayReq, $changeStr
+            ) {
+                foreach ($purchaseItemReq['item_id'] as $key => $val) {
+                    $itemId = $purchaseItemReq['item_id'][$key];
+                    //有值則做更新
+                    //itemId = null 代表新資料
+                    if (null != $itemId) {
+                        $result = PurchaseItem::checkToUpdatePurchaseItemData($itemId, $purchaseItemReq, $key, $changeStr, $request->user()->id, $request->user()->name, $purchasePayReq);
+                        $changeStr = $result['error_msg'];
+                        if ($result['success'] == 0) {
+                            DB::rollBack();
+                            return $result;
+                        }
+                    } else {
+                        $changeStr .= ' add item:' . $purchaseItemReq['name'][$key];
 
-                    PurchaseItem::createPurchase(
-                        [
-                            'purchase_id' => $id,
-                            'product_style_id' => $purchaseItemReq['product_style_id'][$key],
-                            'title' => $purchaseItemReq['name'][$key],
-                            'sku' => $purchaseItemReq['sku'][$key],
-                            'price' => $purchaseItemReq['price'][$key],
-                            'num' => $purchaseItemReq['num'][$key],
-                            'temp_id' => $purchaseItemReq['temp_id'][$key] ?? null,
-                            'memo' => $purchaseItemReq['memo'][$key],
-                        ],
-                        $request->user()->id, $request->user()->name
-                    );
+                        $result = PurchaseItem::createPurchase(
+                            [
+                                'purchase_id' => $id,
+                                'product_style_id' => $purchaseItemReq['product_style_id'][$key],
+                                'title' => $purchaseItemReq['name'][$key],
+                                'sku' => $purchaseItemReq['sku'][$key],
+                                'price' => $purchaseItemReq['price'][$key],
+                                'num' => $purchaseItemReq['num'][$key],
+                                'temp_id' => $purchaseItemReq['temp_id'][$key] ?? null,
+                                'memo' => $purchaseItemReq['memo'][$key],
+                            ],
+                            $request->user()->id, $request->user()->name
+                        );
+                        if ($result['success'] == 0) {
+                            DB::rollBack();
+                            return $result;
+                        }
+                    }
                 }
+                return ['success' => 1, 'error_msg' => ""];
+            });
+            if ($result['success'] == 0) {
+                throw ValidationException::withMessages(['item_error' => $result['error_msg']]);
             }
         }
         $changeStr = '';
