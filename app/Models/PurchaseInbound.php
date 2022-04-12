@@ -193,7 +193,7 @@ class PurchaseInbound extends Model
                     $stock_event = '';
                     $stock_note = '';
 
-                    if (Event::purchase()->value == $event) {
+                    if (Event::order()->value == $event) {
                         if (LogEventFeature::order_shipping()->value == $feature) {
                             $update_arr['sale_num'] = DB::raw("sale_num + $sale_num");
                             $stock_event = StockEvent::sale()->value;
@@ -222,14 +222,16 @@ class PurchaseInbound extends Model
                         DB::rollBack();
                         return $reStockChange;
                     }
-                    //修改通路庫存
-                    $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $sale_num * -1
-                        , $stock_event, $id
-                        , $inboundDataGet->inbound_user_name . $stock_note
-                        , false, $inboundDataGet->can_tally);
-                    if ($rePSSC['success'] == 0) {
-                        DB::rollBack();
-                        return $rePSSC;
+                    //若為理貨倉can_tally 需修改通路庫存
+                    if ($inboundDataGet->can_tally) {
+                        $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $sale_num * -1
+                            , $stock_event, $id
+                            , $inboundDataGet->inbound_user_name . $stock_note
+                            , false, $inboundDataGet->can_tally);
+                        if ($rePSSC['success'] == 0) {
+                            DB::rollBack();
+                            return $rePSSC;
+                        }
                     }
                 }
             }

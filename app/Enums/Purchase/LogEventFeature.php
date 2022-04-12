@@ -88,6 +88,12 @@ final class LogEventFeature extends Enum
             case self::order_send_back:
                 $result = '訂單退回';
                 break;
+            case self::consume_shipping:
+                $result = '耗材出貨';
+                break;
+            case self::consume_send_back:
+                $result = '耗材退回';
+                break;
             case self::consignment_shipping:
                 $result = '寄倉出貨';
                 break;
