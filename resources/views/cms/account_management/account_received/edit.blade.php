@@ -1,12 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
 
-
-    <div class="pt-2 mb-3">
-        <a href="{{ Route('cms.ar.index', [], true) }}" class="btn btn-primary" role="button">
-            <i class="bi bi-arrow-left"></i> 返回收款作業管理
-        </a>
-    </div>
     <form method="post" action="{{ $formAction }}">
         <input type="hidden" name="id[ord_orders]" value="{{ $ord_orders_id }}">
     @csrf
