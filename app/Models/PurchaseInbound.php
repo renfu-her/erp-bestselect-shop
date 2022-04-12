@@ -180,7 +180,10 @@ class PurchaseInbound extends Model
             $id,
             $sale_num
         ) {
-            $inboundData = PurchaseInbound::where('id', '=', $id);
+            $inboundData = DB::table('pcs_purchase_inbound as inbound')
+                ->leftJoin('depot', 'depot.id', 'inbound.depot_id')
+                ->where('inbound.id', '=', $id)
+                ->whereNull('inbound.deleted_at');
             $inboundDataGet = $inboundData->get()->first();
             if (null != $inboundDataGet) {
                 if (($inboundDataGet->inbound_num - $inboundDataGet->sale_num - $inboundDataGet->csn_num - $inboundDataGet->consume_num - $sale_num) < 0) {
@@ -208,6 +211,15 @@ class PurchaseInbound extends Model
                     if ($reStockChange['success'] == 0) {
                         DB::rollBack();
                         return $reStockChange;
+                    }
+                    //修改通路庫存
+                    $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $sale_num * -1
+                        , StockEvent::inbound_del()->value, $id
+                        , $inboundDataGet->inbound_user_name . LogEventFeature::inbound_del()->getDescription(LogEventFeature::inbound_del()->value)
+                        , false, $inboundDataGet->can_tally);
+                    if ($rePSSC['success'] == 0) {
+                        DB::rollBack();
+                        return $rePSSC;
                     }
                 }
             }
