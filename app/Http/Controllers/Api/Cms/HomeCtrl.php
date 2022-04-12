@@ -69,8 +69,8 @@ class HomeCtrl extends Controller
         if ($dataList) {
             $data['name'] = $dataList[0]->collection_name;
             $data['list'] = array_map(function ($n) {
-                if ($n->url) {
-                    $n->url = asset($n->url);
+                if ($n->img_url) {
+                    $n->img_url = asset($n->img_url);
                 }
 
                 return $n;
