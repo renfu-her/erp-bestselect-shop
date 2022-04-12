@@ -278,14 +278,16 @@
                 <h6>折扣明細</h6>
                 <div class="table-responsive">
                     <table class="table table-sm text-right align-middle">
-                        <tbody>
+                        <tbody>{{ dd($discounts) }}
                             @foreach ($discounts as $key => $dis)
                                 <tr>
                                     <td class="col-8">{{ $dis->title }}</td>
                                     @if ($dis->method_code == 'coupon')
                                         <td class="text-end pe-4">{{ $dis->extra_title }}</td>
+                                    @elseif (is_numeric($dis->discount_value))
+                                        <td class="text-end pe-4 text-danger">- ${{ number_format($dis->discount_value) }}</td>
                                     @else
-                                        <td class="text-end pe-4 text-danger">- ${{ $dis->discount_value }}</td>
+                                        <td class="text-end pe-4">{{ $dis->discount_value || '' }}</td>
                                     @endif
                                 </tr>
                             @endforeach

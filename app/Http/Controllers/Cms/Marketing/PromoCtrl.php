@@ -47,7 +47,6 @@ class PromoCtrl extends Controller
         $cond['method_code'] = $cond['method_code'] ? $cond['method_code'] : [];
 
         return view('cms.marketing.promo.list', [
-            'dataList' => [],
             'dis_methods' => DisMethod::getValueWithDesc(),
             'dis_status' => DisStatus::getValueWithDesc(),
             'data_per_page' => $data_per_page,
