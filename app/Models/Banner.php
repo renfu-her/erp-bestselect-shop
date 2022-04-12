@@ -188,50 +188,42 @@ class Banner extends Model
         return $result;
     }
 
-    public static function getListWithWeb($is_public = null) {
-
-
-        //type
-        //1：內部連結，不含網域
-        //　群組：collection/群組id/群組名稱
-        //　商品頁：product/商品sku/商品名稱
-        //　搜尋：search/搜尋文字
-        //　* 註：中文名稱文字不可含有url相關符號，如（/ \ & : + ? % # =）
-        //2：外部連結，完整網址
-        $queryCase_type = 'case
-            when event_id is not null
-                then "'.LinkType::internal()->value.'"
-            when event_url is not null
-                then "'.LinkType::external()->value.'"
-            else null
-            end';
-
+    /**
+     * @param $is_public bool 是否公開顯示橫幅廣告區塊
+     * API回傳banner橫幅廣告區塊資訊
+     * @return \Illuminate\Database\Query\Builder
+     */
+    public static function getListWithWeb($is_public = null)
+    {
+        // 回傳群組：群組id
+        // 連結完整的URL
         $queryCase_link = 'case
-            when event_id = collection.id
-                then concat("'. frontendUrl(FrontendApiUrl::collection()). '", collection.id, "\/", collection.name)
-            when event_id = products.id
-                then concat("'. frontendUrl(FrontendApiUrl::product()). '", products.id, "\/", products.title)
-            when event_url is not null
+            when event_type = "collection"
+                then banner.event_id
+            when event_type = "url"
                 then banner.event_url
             else null
             end';
 
         $result = DB::table('idx_banner as banner')
-            ->leftJoin('collection', function($join) {
-                $join->on('collection.id', '=', 'banner.event_id');
-                $join->where('banner.event_type', '=', FrontendApiUrl::collection()->key);
+            ->leftJoin('collection', function ($join) {
+                $join->on('collection.id', '=', 'banner.event_id')
+                    ->where('collection.is_public', '=', 1)
+                    ->where('banner.event_type', '=', FrontendApiUrl::collection);
             })
-            ->leftJoin('prd_products as products', function($join) {
+            ->leftJoin('prd_products as products', function ($join) {
                 $join->on('products.id', '=', 'banner.event_id');
-                $join->where('banner.event_type', '=', FrontendApiUrl::product()->key);
+                $join->where('banner.event_type', '=', FrontendApiUrl::product);
             })
             ->select(
-                'banner.img_pc as src',
                 'banner.title',
                 'banner.target',
+                'banner.event_type as type',
             )
-            ->selectRaw('('. $queryCase_type . ') as type')
-            ->selectRaw('('. $queryCase_link . ') as link');
+            ->selectRaw(
+                'IFNULL(banner.img_pc, "") as src'
+            )
+            ->selectRaw('('. $queryCase_link . ') as type_value');
         if ($is_public) {
             $result->where('banner.is_public', '=', $is_public);
         }

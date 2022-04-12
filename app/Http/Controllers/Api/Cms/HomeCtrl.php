@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Cms;
 
+use App\Enums\Globals\ApiStatusMessage;
 use App\Enums\Globals\ResponseParam;
 use App\Http\Controllers\Controller;
 use App\Models\Banner;
@@ -22,8 +23,8 @@ class HomeCtrl extends Controller
             }
         }
         $re = [];
-        $re[ResponseParam::status()->key] = '0';
-        $re[ResponseParam::msg()->key] = '';
+        $re[ResponseParam::status()->key] = ApiStatusMessage::Succeed;
+        $re[ResponseParam::msg()->key] = ApiStatusMessage::getDescription(ApiStatusMessage::Succeed);
         $re[ResponseParam::data()->key] = $dataList->toArray();
         //   $re['data'] = json_decode(json_encode($re['data']), true);
         return response()->json($re);
