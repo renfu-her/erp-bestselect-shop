@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
+use App\Models\ThirdGrade;
 class IncomeExpenditureSeeder extends Seeder
 {
     /**
@@ -95,16 +96,14 @@ class IncomeExpenditureSeeder extends Seeder
         ]);
 
         //其他
-        DB::table('acc_income_expenditure')->insert([
-            'acc_income_type_fk' => $incomeType_6,
-            'grade_id_fk' => 1,
-            'acc_currency_fk' => null,
-        ]);
-        DB::table('acc_income_expenditure')->insert([
-            'acc_income_type_fk' => $incomeType_6,
-            'grade_id_fk' => 3,
-            'acc_currency_fk' => null,
-        ]);
+        $third_grade = ThirdGrade::all();
+        foreach($third_grade as $value){
+            DB::table('acc_income_expenditure')->insert([
+                'acc_income_type_fk' => $incomeType_6,
+                'grade_id_fk' => $value->id,
+                'acc_currency_fk' => null,
+            ]);
+        }
 
         //外幣
         $currencyArray = include 'currency.php';

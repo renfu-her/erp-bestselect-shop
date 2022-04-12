@@ -86,7 +86,7 @@
                     @endforeach
                 </select>
             </div>
-            <div class="col-12 mb-3">
+            <div class="col-12 mb-3 d-none">
                 <label class="form-label" for="select5-multiple">其它</label>
                 <select name="income_type[{{ $thirdGradesDataList['selectedResult']['其它']['acc_income_type_fk'] }}][]"
                         id="select5-multiple"
@@ -98,9 +98,12 @@
                         data-placeholder="可複選">
                     @foreach($thirdGradesDataList['allGradeOptions'] as $thirdGrade)
                         <option
+                            selected
+                        {{--
                             @if(in_array($thirdGrade['id'], $thirdGradesDataList['selectedResult']['其它']['grade_id_fk_arr']))
                             selected
                             @endif
+                        --}}
                             value="{{ $thirdGrade['id'] }}">{{ $thirdGrade['code'] . ' ' . $thirdGrade['name'] }}
                         </option>
                     @endforeach

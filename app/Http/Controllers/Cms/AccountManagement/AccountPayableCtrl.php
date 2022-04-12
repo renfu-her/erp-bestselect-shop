@@ -94,9 +94,9 @@ class AccountPayableCtrl extends Controller
         ];
 
         $pay_order = PayingOrder::find($payOrdId);
-        $thirdGradesDataList = IncomeExpenditure::getOptionDataByGrade(3);
-        $fourthGradesDataList = IncomeExpenditure::getOptionDataByGrade(4);
-        $currencyData = IncomeExpenditure::getCurrencyOptionData();
+        // $thirdGradesDataList = IncomeExpenditure::getOptionDataByGrade(3);
+        // $fourthGradesDataList = IncomeExpenditure::getOptionDataByGrade(4);
+        // $currencyData = IncomeExpenditure::getCurrencyOptionData();
 
         // $payStatusArray = [
         //     [
@@ -109,10 +109,17 @@ class AccountPayableCtrl extends Controller
         //     ]
         // ];
 
-        $payingOrderData = PayingOrder::getPayingOrdersWithPurchaseID($pay_order->purchase_id, request('isFinalPay'))->first();
-        $payingOrderQuery = PayingOrder::find($payingOrderData->id);
-        $product_grade_name = AllGrade::find($payingOrderQuery->product_grade_id)->eachGrade->code . ' - ' . AllGrade::find($payingOrderQuery->product_grade_id)->eachGrade->name;
-        $logistics_grade_name = AllGrade::find($payingOrderQuery->logistics_grade_id)->eachGrade->code . ' - ' . AllGrade::find($payingOrderQuery->logistics_grade_id)->eachGrade->name;
+        $paying_order = PayingOrder::where([
+            'purchase_id'=>$pay_order->purchase_id,
+            'type'=>request('isFinalPay'),
+        ])->first();
+
+        $product_grade_name = '';
+        $logistics_grade_name = '';
+        if($paying_order){
+            $product_grade_name = AllGrade::find($paying_order->product_grade_id)->eachGrade->code . ' - ' . AllGrade::find($paying_order->product_grade_id)->eachGrade->name;
+            $logistics_grade_name = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' - ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
+        }
 
         $deposit_payment_price = 0;
         $final_payment_price = 0;
@@ -152,16 +159,18 @@ class AccountPayableCtrl extends Controller
 
         return view('cms.account_management.account_payable.edit', [
             'tw_price' => $pay_order->price,
-            'thirdGradesDataList' => $thirdGradesDataList,
-            'fourthGradesDataList' => $fourthGradesDataList,
+            'payable_data' => AccountPayable::where('pay_order_id', $deposit_payment_data ? $deposit_payment_data->id : null)->first(),
+
+            // 'thirdGradesDataList' => $thirdGradesDataList,
+            // 'fourthGradesDataList' => $fourthGradesDataList,
+            // 'currencyData' => $currencyData,
+            // 'paymentStatusList' => $payStatusArray,
             'cashDefault' => AccountPayable::getThirdGradeDefaultById(1),
             'chequeDefault' => AccountPayable::getFourthGradeDefaultById(2),
             'remitDefault' => AccountPayable::getFourthGradeDefaultById(3),
             'currencyDefault' => AccountPayable::getFourthGradeDefaultById(4),
             'accountPayableDefault' => AccountPayable::getFourthGradeDefaultById(5),
             'otherDefault' => AccountPayable::getThirdGradeDefaultById(6),
-            // 'paymentStatusList' => $payStatusArray,
-            'currencyData' => $currencyData,
             'method' => 'create',
             'transactTypeList' => AccountPayable::getTransactTypeList(),
             'chequeStatus' => AccountPayable::getChequeStatus(),
@@ -331,9 +340,9 @@ class AccountPayableCtrl extends Controller
         ];
 
         $pay_order = PayingOrder::find($payOrdId);
-        $thirdGradesDataList = IncomeExpenditure::getOptionDataByGrade(3);
-        $fourthGradesDataList = IncomeExpenditure::getOptionDataByGrade(4);
-        $currencyData = IncomeExpenditure::getCurrencyOptionData();
+        // $thirdGradesDataList = IncomeExpenditure::getOptionDataByGrade(3);
+        // $fourthGradesDataList = IncomeExpenditure::getOptionDataByGrade(4);
+        // $currencyData = IncomeExpenditure::getCurrencyOptionData();
 
         // $payStatusArray = [
         //     [
@@ -346,10 +355,17 @@ class AccountPayableCtrl extends Controller
         //     ]
         // ];
 
-        $payingOrderData = PayingOrder::getPayingOrdersWithPurchaseID($pay_order->purchase_id, request('isFinalPay'))->first();
-        $payingOrderQuery = PayingOrder::find($payingOrderData->id);
-        $product_grade_name = AllGrade::find($payingOrderQuery->product_grade_id)->eachGrade->code . ' - ' . AllGrade::find($payingOrderQuery->product_grade_id)->eachGrade->name;
-        $logistics_grade_name = AllGrade::find($payingOrderQuery->logistics_grade_id)->eachGrade->code . ' - ' . AllGrade::find($payingOrderQuery->logistics_grade_id)->eachGrade->name;
+        $paying_order = PayingOrder::where([
+            'purchase_id'=>$pay_order->purchase_id,
+            'type'=>request('isFinalPay'),
+        ])->first();
+
+        $product_grade_name = '';
+        $logistics_grade_name = '';
+        if($paying_order){
+            $product_grade_name = AllGrade::find($paying_order->product_grade_id)->eachGrade->code . ' - ' . AllGrade::find($paying_order->product_grade_id)->eachGrade->name;
+            $logistics_grade_name = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' - ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
+        }
 
         $deposit_payment_price = 0;
         $final_payment_price = 0;
@@ -393,16 +409,16 @@ class AccountPayableCtrl extends Controller
             'all_payable_type_data' => $all_payable_type_data,
             'payment_date' => explode(' ', $payable_data->payment_date)[0],
             // 'note' => $payable_data->note ?? '',
-            'thirdGradesDataList' => $thirdGradesDataList,
-            'fourthGradesDataList' => $fourthGradesDataList,
+            // 'thirdGradesDataList' => $thirdGradesDataList,
+            // 'fourthGradesDataList' => $fourthGradesDataList,
+            // 'currencyData' => $currencyData,
+            // 'paymentStatusList' => $payStatusArray,
             'cashDefault' => AccountPayable::getThirdGradeDefaultById(1),
             'chequeDefault' => AccountPayable::getFourthGradeDefaultById(2),
             'remitDefault' => AccountPayable::getFourthGradeDefaultById(3),
             'currencyDefault' => AccountPayable::getFourthGradeDefaultById(4),
             'accountPayableDefault' => AccountPayable::getFourthGradeDefaultById(5),
             'otherDefault' => AccountPayable::getThirdGradeDefaultById(6),
-            // 'paymentStatusList' => $payStatusArray,
-            'currencyData' => $currencyData,
             'method' => 'edit',
             'transactTypeList' => AccountPayable::getTransactTypeList(),
             'chequeStatus' => AccountPayable::getChequeStatus(),

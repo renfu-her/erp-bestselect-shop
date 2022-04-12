@@ -56,7 +56,7 @@
                         <tbody class="product_list">
                             @if($type === 'deposit')
                                 <tr>
-                                    <td>{{ $pay_order->sn }}</td>
+                                    <td>{{ $deposit_payment_data->sn }}</td>
                                     <td>{{ $purchase_data->purchase_sn }}</td>
                                     <td>{{ $product_grade_name }}</td>
                                     <td>{{ $deposit_payment_data->summary }}</td>
@@ -65,7 +65,7 @@
                                     <td class="text-end">{{ $currency->rate }}</td>
                                     <td>{{ $currency->name }}</td>
                                     <td class="text-end">{{ number_format($deposit_payment_data->price) }}</td>
-                                    <td>{{-- number_format($payable_data->tw_price) --}}</td>
+                                    <td class="text-end">{{-- $payable_data ? number_format($payable_data->tw_price) : '' --}}</td>
 
                                     {{--
                                     <td>{{ $deposit_payment_data->memo }}</td>
@@ -92,7 +92,7 @@
                                         <td class="text-end">{{ $currency->rate }}</td>
                                         <td>{{ $currency->name }}</td>
                                         <td class="text-end">{{ number_format($value->total_price) }}</td>
-                                        <td>{{-- '已付款項' --}}</td>
+                                        <td class="text-end">{{-- '已付款項' --}}</td>
 
                                         {{--
                                         <td>{{ $value->memo }}</td>
@@ -110,7 +110,7 @@
                                         <td class="text-end">{{ $currency->rate }}</td>
                                         <td>{{ $currency->name }}</td>
                                         <td>{{ $logistics_price }}</td>
-                                        <td>{{-- '已付款項' --}}</td>
+                                        <td class="text-end">{{-- '已付款項' --}}</td>
 
                                         {{--
                                         <td>{{ $purchase_data->logistics_memo }}</td>
@@ -128,7 +128,7 @@
                                         <td class="text-end">{{ $currency->rate }}</td>
                                         <td>{{ $currency->name }}</td>
                                         <td class="text-end">-{{ number_format($deposit_payment_data->price) }}</td>
-                                        <td>{{-- '已付款項' --}}</td>
+                                        <td class="text-end">{{-- $payable_data ? number_format($payable_data->tw_price) : '' --}}</td>
 
                                         {{--
                                         <td>{{$deposit_payment_data->memo}}</td>
