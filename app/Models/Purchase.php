@@ -155,7 +155,7 @@ class Purchase extends Model
     //結案
     public static function close($id, $operator_user_id, $operator_user_name) {
         $currDate = date('Y-m-d H:i:s');
-        Purchase::where('id', $id)->update(['close_date' => date('Y-m-d H:i:s')]);
+        Purchase::where('id', $id)->update(['close_date' => $currDate]);
         PurchaseInbound::where('event', Event::purchase()->value)
             ->where('event_id', '=', $id)
             ->whereNull('deleted_at')
