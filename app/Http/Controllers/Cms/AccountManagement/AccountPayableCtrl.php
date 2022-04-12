@@ -2,22 +2,32 @@
 
 namespace App\Http\Controllers\Cms\AccountManagement;
 
+
+
+use App\Http\Controllers\Controller;
+
+use Illuminate\Http\Request;
+
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
 use App\Enums\Payable\PayableModelType;
 use App\Enums\Supplier\Payment;
-use App\Http\Controllers\Controller;
+use App\Enums\Payable\PayableStatus;
+
+use App\Models\AllGrade;
 use App\Models\AccountPayable;
+use App\Models\IncomeExpenditure;
 use App\Models\PayableAccount;
 use App\Models\PayableCash;
-use App\Models\IncomeExpenditure;
 use App\Models\PayableCheque;
 use App\Models\PayableForeignCurrency;
 use App\Models\PayableOther;
 use App\Models\PayableRemit;
 use App\Models\PayingOrder;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use App\Enums\Payable\PayableStatus;
-use Illuminate\Support\Facades\DB;
+use App\Models\Purchase;
+use App\Models\PurchaseItem;
+use App\Models\Supplier;
 
 class AccountPayableCtrl extends Controller
 {
@@ -62,48 +72,123 @@ class AccountPayableCtrl extends Controller
     public function create(Request $request)
     {
         $request->validate([
-            'payOrdType'    => ['required', 'string', 'regex:/^(pcs)$/'],
-            'payOrdId' => ['required', 'int', 'min:1']
+            'payOrdType' => 'required|regex:/^(pcs)$/',
+            'payOrdId' => 'required|exists:pcs_paying_orders,id',
+            'isFinalPay' => 'required|in:0,1',
+            'purchaseId' => 'required|exists:pcs_purchase,id',
         ]);
 
         $payOrdId = $request['payOrdId'];
 
-        if ($request['type'] === 'pcs') {
-            $type = 'App\Models\PayingOrder';
-        }
+        // if ($request['type'] === 'pcs') {
+        //     $type = 'App\Models\PayingOrder';
+        // }
 
-        $payOrder = PayingOrder::find($payOrdId);
-        $thirdGradesDataList = IncomeExpenditure::getOptionDataByGrade(3);
-        $fourthGradesDataList = IncomeExpenditure::getOptionDataByGrade(4);
-        $currencyData = IncomeExpenditure::getCurrencyOptionData();
-
-        $payStatusArray = [
-            [
-                'id' => PayableStatus::Unpaid,
-                'payment_status' => PayableStatus::getDescription(PayableStatus::Unpaid)
-            ],
-            [
-                'id' => PayableStatus::Paid,
-                'payment_status' => PayableStatus::getDescription(PayableStatus::Paid)
-            ]
+        $all_payable_type_data = [
+            'payableCash' => [],
+            'payableCheque' => [],
+            'payableRemit' => [],
+            'payableForeignCurrency' => [],
+            'payableAccount' => [],
+            'payableOther' => [],
         ];
 
+        $pay_order = PayingOrder::find($payOrdId);
+        // $thirdGradesDataList = IncomeExpenditure::getOptionDataByGrade(3);
+        // $fourthGradesDataList = IncomeExpenditure::getOptionDataByGrade(4);
+        // $currencyData = IncomeExpenditure::getCurrencyOptionData();
+
+        // $payStatusArray = [
+        //     [
+        //         'id' => PayableStatus::Unpaid,
+        //         'payment_status' => PayableStatus::getDescription(PayableStatus::Unpaid)
+        //     ],
+        //     [
+        //         'id' => PayableStatus::Paid,
+        //         'payment_status' => PayableStatus::getDescription(PayableStatus::Paid)
+        //     ]
+        // ];
+
+        $paying_order = PayingOrder::where([
+            'purchase_id'=>$pay_order->purchase_id,
+            'type'=>request('isFinalPay'),
+        ])->first();
+
+        $product_grade_name = '';
+        $logistics_grade_name = '';
+        if($paying_order){
+            $product_grade_name = AllGrade::find($paying_order->product_grade_id)->eachGrade->code . ' - ' . AllGrade::find($paying_order->product_grade_id)->eachGrade->name;
+            $logistics_grade_name = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' - ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
+        }
+
+        $deposit_payment_price = 0;
+        $final_payment_price = 0;
+        $total_price = 0;
+
+        $purchase_item_data = PurchaseItem::getPurchaseItemsByPurchaseId($pay_order->purchase_id);
+        foreach ($purchase_item_data as $purchaseItem) {
+            $total_price += $purchaseItem->total_price;
+        }
+        $logistics = Purchase::findOrFail($pay_order->purchase_id);
+        $total_price += $logistics->logistics_price;
+
+        $deposit_payment_order = PayingOrder::getPayingOrdersWithPurchaseID($pay_order->purchase_id, 0)->first();
+        if ($deposit_payment_order) {
+            $deposit_payment_price = $deposit_payment_order->price;
+            $final_payment_price = $total_price - $deposit_payment_price;
+        } else {
+            $deposit_payment_price = 0;
+            $final_payment_price = $total_price;
+        }
+
+        if ($deposit_payment_price > 0) {
+            $deposit_payment_data = PayingOrder::getPayingOrdersWithPurchaseID($pay_order->purchase_id, 0)->first();
+        } else {
+            $deposit_payment_data = null;
+        }
+
+        $purchase_data = Purchase::getPurchase($pay_order->purchase_id)->first();
+        $supplier = Supplier::where('id', '=', $purchase_data->supplier_id)->first();
+        $currency = DB::table('acc_currency')->find($pay_order->acc_currency_fk);
+        if(!$currency){
+            $currency = (object)[
+                'name'=>'NTD',
+                'rate'=>1,
+            ];
+        }
+
         return view('cms.account_management.account_payable.edit', [
-            'tw_price' => $payOrder->price,
-            'thirdGradesDataList' => $thirdGradesDataList,
-            'fourthGradesDataList' => $fourthGradesDataList,
+            'tw_price' => $pay_order->price,
+            'payable_data' => AccountPayable::where('pay_order_id', $deposit_payment_data ? $deposit_payment_data->id : null)->first(),
+
+            // 'thirdGradesDataList' => $thirdGradesDataList,
+            // 'fourthGradesDataList' => $fourthGradesDataList,
+            // 'currencyData' => $currencyData,
+            // 'paymentStatusList' => $payStatusArray,
             'cashDefault' => AccountPayable::getThirdGradeDefaultById(1),
             'chequeDefault' => AccountPayable::getFourthGradeDefaultById(2),
             'remitDefault' => AccountPayable::getFourthGradeDefaultById(3),
             'currencyDefault' => AccountPayable::getFourthGradeDefaultById(4),
             'accountPayableDefault' => AccountPayable::getFourthGradeDefaultById(5),
             'otherDefault' => AccountPayable::getThirdGradeDefaultById(6),
-            'paymentStatusList' => $payStatusArray,
-            'currencyData' => $currencyData,
             'method' => 'create',
             'transactTypeList' => AccountPayable::getTransactTypeList(),
             'chequeStatus' => AccountPayable::getChequeStatus(),
             'formAction' => Route('cms.ap.store'),
+
+            'breadcrumb_data' => ['id' => $pay_order->purchase_id, 'sn' => $purchase_data->purchase_sn, 'type' => request('isFinalPay')],
+            'product_grade_name' => $product_grade_name,
+            'logistics_grade_name' => $logistics_grade_name,
+            'logistics_price' => $logistics->logistics_price,
+            'purchase_item_data' => $purchase_item_data,
+            'deposit_payment_data' => $deposit_payment_data,
+            'final_payment_price' => $final_payment_price,
+            'pay_order' => $pay_order,
+            'currency' => $currency,
+            'type' => request('isFinalPay') === '0' ? 'deposit' : 'final',
+            'all_payable_type_data' => $all_payable_type_data,
+            'purchase_data' => $purchase_data,
+            'supplier' => $supplier,
         ]);
     }
 
@@ -144,9 +229,10 @@ class AccountPayableCtrl extends Controller
                 break;
         }
 
-        return redirect()->route('cms.purchase.view-pay-order',
-                                        ['id' => $req['purchase_id'],
-                                        'type' => $req['is_final_payment']]);
+        return redirect()->route('cms.purchase.view-pay-order', [
+            'id' => $req['purchase_id'],
+            'type' => $req['is_final_payment']
+        ]);
     }
 
     /**
@@ -155,7 +241,7 @@ class AccountPayableCtrl extends Controller
      * @param  \App\Models\AccountPayable  $accountPayable
      * @return \Illuminate\Http\Response
      */
-    public function show(AccountPayable $accountPayable)
+    public function show()
     {
         //
     }
@@ -169,22 +255,29 @@ class AccountPayableCtrl extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function edit(AccountPayable $accountPayable, Request $request, int $id)
+    public function edit(Request $request, int $id)
     {
+        $request->merge([
+            'id'=>$id,
+        ]);
+
         $request->validate([
-            'payOrdType'    => ['required', 'string', 'regex:/^(pcs)$/'],
-            'payOrdId' => ['required', 'int', 'min:1']
+            'id' => 'required|exists:acc_payable,id',
+            'payOrdType' => 'required|regex:/^(pcs)$/',
+            'payOrdId' => 'required|exists:pcs_paying_orders,id',
+            'isFinalPay' => 'required|in:0,1',
+            'purchaseId' => 'required|exists:pcs_purchase,id',
         ]);
 
         $payOrdId = $request['payOrdId'];
 
-        $payableData = $accountPayable::find($id);
-        $payableType = $payableData->acc_income_type_fk;
+        $payable_data = AccountPayable::find($id);
+        $pay_method = $payable_data->acc_income_type_fk;
 
-        $payableTypeData = $payableData->payable;
+        $payableTypeData = $payable_data->payable;
         $grade = $payableTypeData->grade;
 
-        switch ($payableType) {
+        switch ($pay_method) {
             case Payment::Cash:
                 $payableCash = [
                     'grade_id_fk' => $grade->id,
@@ -237,53 +330,113 @@ class AccountPayableCtrl extends Controller
                 ];
                 break;
         }
-        $allPayableTypeData = [
-          'payableCash' => $payableCash ?? [],
-          'payableCheque' => $payableCheque ?? [],
-          'payableRemit' => $payableRemit ?? [],
-          'payableForeignCurrency' => $payableForeignCurrency ?? [],
-          'payableAccount' => $payableAccount ?? [],
-          'payableOther' => $payableOther ?? [],
+        $all_payable_type_data = [
+            'payableCash' => $payableCash ?? [],
+            'payableCheque' => $payableCheque ?? [],
+            'payableRemit' => $payableRemit ?? [],
+            'payableForeignCurrency' => $payableForeignCurrency ?? [],
+            'payableAccount' => $payableAccount ?? [],
+            'payableOther' => $payableOther ?? [],
         ];
 
-        $payOrder = PayingOrder::find($payOrdId);
-        $thirdGradesDataList = IncomeExpenditure::getOptionDataByGrade(3);
-        $fourthGradesDataList = IncomeExpenditure::getOptionDataByGrade(4);
-        $currencyData = IncomeExpenditure::getCurrencyOptionData();
+        $pay_order = PayingOrder::find($payOrdId);
+        // $thirdGradesDataList = IncomeExpenditure::getOptionDataByGrade(3);
+        // $fourthGradesDataList = IncomeExpenditure::getOptionDataByGrade(4);
+        // $currencyData = IncomeExpenditure::getCurrencyOptionData();
 
-        $payStatusArray = [
-            [
-                'id' => PayableStatus::Unpaid,
-                'payment_status' => PayableStatus::getDescription(PayableStatus::Unpaid)
-            ],
-            [
-                'id' => PayableStatus::Paid,
-                'payment_status' => PayableStatus::getDescription(PayableStatus::Paid)
-            ]
-        ];
+        // $payStatusArray = [
+        //     [
+        //         'id' => PayableStatus::Unpaid,
+        //         'payment_status' => PayableStatus::getDescription(PayableStatus::Unpaid)
+        //     ],
+        //     [
+        //         'id' => PayableStatus::Paid,
+        //         'payment_status' => PayableStatus::getDescription(PayableStatus::Paid)
+        //     ]
+        // ];
+
+        $paying_order = PayingOrder::where([
+            'purchase_id'=>$pay_order->purchase_id,
+            'type'=>request('isFinalPay'),
+        ])->first();
+
+        $product_grade_name = '';
+        $logistics_grade_name = '';
+        if($paying_order){
+            $product_grade_name = AllGrade::find($paying_order->product_grade_id)->eachGrade->code . ' - ' . AllGrade::find($paying_order->product_grade_id)->eachGrade->name;
+            $logistics_grade_name = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' - ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
+        }
+
+        $deposit_payment_price = 0;
+        $final_payment_price = 0;
+        $total_price = 0;
+
+        $purchase_item_data = PurchaseItem::getPurchaseItemsByPurchaseId($pay_order->purchase_id);
+        foreach ($purchase_item_data as $purchaseItem) {
+            $total_price += $purchaseItem->total_price;
+        }
+        $logistics = Purchase::findOrFail($pay_order->purchase_id);
+        $total_price += $logistics->logistics_price;
+
+        $deposit_payment_order = PayingOrder::getPayingOrdersWithPurchaseID($pay_order->purchase_id, 0)->first();
+        if ($deposit_payment_order) {
+            $deposit_payment_price = $deposit_payment_order->price;
+            $final_payment_price = $total_price - $deposit_payment_price;
+        } else {
+            $deposit_payment_price = 0;
+            $final_payment_price = $total_price;
+        }
+
+        if ($deposit_payment_price > 0) {
+            $deposit_payment_data = PayingOrder::getPayingOrdersWithPurchaseID($pay_order->purchase_id, 0)->first();
+        } else {
+            $deposit_payment_data = null;
+        }
+
+        $purchase_data = Purchase::getPurchase($pay_order->purchase_id)->first();
+        $supplier = Supplier::where('id', '=', $purchase_data->supplier_id)->first();
+        $currency = DB::table('acc_currency')->find($pay_order->acc_currency_fk);
+        if(!$currency){
+            $currency = (object)[
+                'name'=>'NTD',
+                'rate'=>1,
+            ];
+        }
 
         return view('cms.account_management.account_payable.edit', [
-            'tw_price' => $payableData->tw_price,
-            'payableData' => $payableData,
-            'allPayableTypeData' => $allPayableTypeData,
-            'payment_date' => explode(' ', $payableData->payment_date)[0],
-//            'note' => $payableData->note ?? '',
-            'thirdGradesDataList' => $thirdGradesDataList,
-            'fourthGradesDataList' => $fourthGradesDataList,
+            'tw_price' => $payable_data->tw_price,
+            'payable_data' => $payable_data,
+            'all_payable_type_data' => $all_payable_type_data,
+            'payment_date' => explode(' ', $payable_data->payment_date)[0],
+            // 'note' => $payable_data->note ?? '',
+            // 'thirdGradesDataList' => $thirdGradesDataList,
+            // 'fourthGradesDataList' => $fourthGradesDataList,
+            // 'currencyData' => $currencyData,
+            // 'paymentStatusList' => $payStatusArray,
             'cashDefault' => AccountPayable::getThirdGradeDefaultById(1),
             'chequeDefault' => AccountPayable::getFourthGradeDefaultById(2),
             'remitDefault' => AccountPayable::getFourthGradeDefaultById(3),
             'currencyDefault' => AccountPayable::getFourthGradeDefaultById(4),
             'accountPayableDefault' => AccountPayable::getFourthGradeDefaultById(5),
             'otherDefault' => AccountPayable::getThirdGradeDefaultById(6),
-            'paymentStatusList' => $payStatusArray,
-            'currencyData' => $currencyData,
             'method' => 'edit',
             'transactTypeList' => AccountPayable::getTransactTypeList(),
             'chequeStatus' => AccountPayable::getChequeStatus(),
             'formAction' => Route('cms.ap.update', ['id' => $id]),
+
+            'breadcrumb_data' => ['id' => $pay_order->purchase_id, 'sn' => $purchase_data->purchase_sn, 'type' => request('isFinalPay')],
+            'product_grade_name' => $product_grade_name,
+            'logistics_grade_name' => $logistics_grade_name,
+            'logistics_price' => $logistics->logistics_price,
+            'purchase_item_data' => $purchase_item_data,
+            'deposit_payment_data' => $deposit_payment_data,
+            'final_payment_price' => $final_payment_price,
+            'pay_order' => $pay_order,
+            'currency' => $currency,
+            'type' => request('isFinalPay') === '0' ? 'deposit' : 'final',
+            'purchase_data' => $purchase_data,
+            'supplier' => $supplier,
         ]);
-        //
     }
 
     /**

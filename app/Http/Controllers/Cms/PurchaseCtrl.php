@@ -633,6 +633,10 @@ class PurchaseCtrl extends Controller
                             ->name;
         }
 
+        // session([
+        //     '_url'=>request()->fullUrl()
+        // ]);
+
         return view('cms.commodity.purchase.pay_order', [
             'id' => $id,
             'accountant' => $accountant ?? '',
