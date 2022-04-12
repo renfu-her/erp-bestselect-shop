@@ -39,7 +39,7 @@ class ConsignmentItem extends Model
                     "memo" => $newData['memo'] ?? null,
                 ])->id;
 
-                $rePcsLSC = PurchaseLog::stockChange($newData['consignment_id'], $newData['product_style_id'], LogEvent::consignment()->value, $id, LogEventFeature::style_add()->value, $newData['num'], null, $operator_user_id, $operator_user_name);
+                $rePcsLSC = PurchaseLog::stockChange($newData['consignment_id'], $newData['product_style_id'], Event::consignment()->value, $id, LogEventFeature::style_add()->value, $newData['num'], null, $operator_user_id, $operator_user_name);
 
                 if ($rePcsLSC['success'] == 0) {
                     DB::rollBack();

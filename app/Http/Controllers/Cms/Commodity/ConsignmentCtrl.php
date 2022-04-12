@@ -417,7 +417,7 @@ class ConsignmentCtrl extends Controller
      */
     public function historyLog(Request $request, $id) {
         $purchaseData = Consignment::getData($id)->first();
-        $purchaseLog = PurchaseLog::getData(LogEvent::consignment()->value, $id)->get();
+        $purchaseLog = PurchaseLog::getData(Event::consignment()->value, $id)->get();
         if (!$purchaseData) {
             return abort(404);
         }

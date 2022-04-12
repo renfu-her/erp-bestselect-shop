@@ -55,7 +55,7 @@ class Purchase extends Model
                 'invoice_date' => $invoice_date ?? null,
             ])->id;
 
-            $rePcsLSC = PurchaseLog::stockChange($id, null, LogEvent::purchase()->value, $id, LogEventFeature::pcs_add()->value, null, null, $purchase_user_id, $purchase_user_name);
+            $rePcsLSC = PurchaseLog::stockChange($id, null, Event::purchase()->value, $id, LogEventFeature::pcs_add()->value, null, null, $purchase_user_id, $purchase_user_name);
             if ($rePcsLSC['success'] == 0) {
                 DB::rollBack();
                 return $rePcsLSC;
@@ -116,7 +116,7 @@ class Purchase extends Model
                         $event = '修改發票日期';
                     }
                     $changeStr .= ' ' . $key . ' change to ' . $val;
-                    $rePcsLSC = PurchaseLog::stockChange($id, null, LogEvent::purchase()->value, $id, LogEventFeature::pcs_change_data()->value, null, $event, $operator_user_id, $operator_user_name);
+                    $rePcsLSC = PurchaseLog::stockChange($id, null, Event::purchase()->value, $id, LogEventFeature::pcs_change_data()->value, null, $event, $operator_user_id, $operator_user_name);
                     if ($rePcsLSC['success'] == 0) {
                         DB::rollBack();
                         return $rePcsLSC;
@@ -142,7 +142,7 @@ class Purchase extends Model
         //判斷若有入庫、付款單 則不可刪除
         return DB::transaction(function () use ($id, $operator_user_id, $operator_user_name
         ) {
-            $rePcsLSC = PurchaseLog::stockChange($id, null, LogEvent::purchase()->value, $id, LogEventFeature::pcs_del()->value, null, null, $operator_user_id, $operator_user_name);
+            $rePcsLSC = PurchaseLog::stockChange($id, null, Event::purchase()->value, $id, LogEventFeature::pcs_del()->value, null, null, $operator_user_id, $operator_user_name);
             if ($rePcsLSC['success'] == 0) {
                 DB::rollBack();
                 return $rePcsLSC;
@@ -161,7 +161,7 @@ class Purchase extends Model
             ->whereNull('deleted_at')
             ->update([ 'close_date' => $currDate ]);
 
-        PurchaseLog::stockChange($id, null, LogEvent::purchase()->value, $id, LogEventFeature::pcs_close()->value, null, null, $operator_user_id, $operator_user_name);
+        PurchaseLog::stockChange($id, null, Event::purchase()->value, $id, LogEventFeature::pcs_close()->value, null, null, $operator_user_id, $operator_user_name);
     }
 
     //起日 訖日 是否含已結單 發票號碼
