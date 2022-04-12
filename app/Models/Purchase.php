@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Delivery\Event;
 use App\Enums\Purchase\LogEvent;
 use App\Enums\Purchase\LogEventFeature;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -153,7 +154,13 @@ class Purchase extends Model
 
     //結案
     public static function close($id, $operator_user_id, $operator_user_name) {
+        $currDate = date('Y-m-d H:i:s');
         Purchase::where('id', $id)->update(['close_date' => date('Y-m-d H:i:s')]);
+        PurchaseInbound::where('event', Event::purchase()->value)
+            ->where('event_id', '=', $id)
+            ->whereNull('deleted_at')
+            ->update([ 'close_date' => $currDate ]);
+
         PurchaseLog::stockChange($id, null, LogEvent::purchase()->value, $id, LogEventFeature::pcs_close()->value, null, null, $operator_user_id, $operator_user_name);
     }
 
