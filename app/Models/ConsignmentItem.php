@@ -270,6 +270,7 @@ class ConsignmentItem extends Model
 
             $result->whereIn('inbound_type', $arr_status);
         }
+        $result->orderByDesc('consignment.consignment_id');
         return $result;
     }
 }

@@ -219,7 +219,7 @@ class Delivery extends Model
             $delivery_edate = date('Y-m-d 23:59:59', strtotime($param['delivery_edate']));
             $query->whereBetween('delivery.created_at', [$delivery_sdate, $delivery_edate]);
         }
-        $query->orderBy('delivery.created_at');
+        $query->orderByDesc('delivery.id');
 
         return $query;
     }
