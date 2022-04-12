@@ -39,7 +39,7 @@ class Logistic extends Model
             $result = Logistic::create([
                 'sn' => $sn,
                 'delivery_id' => $delivery->id,
-                'ship_group_id' => $delivery->ship_group_id,
+//                'ship_group_id' => $delivery->ship_group_id,
             ])->id;
             return ['success' => 1, 'error_msg' => "", 'id' => $result];
         } else {

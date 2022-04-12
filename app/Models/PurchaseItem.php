@@ -247,6 +247,7 @@ class PurchaseItem extends Model
                 ,'items.price as price'
                 ,'items.num as num'
                 ,'items.arrived_num as arrived_num'
+                ,'items.memo as memo'
                 ,'inbound.inbound_user_name'
                 ,'purchase.purchase_user_id as purchase_user_id'
                 ,'purchase.supplier_id as supplier_id'
