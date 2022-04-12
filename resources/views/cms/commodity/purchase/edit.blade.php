@@ -137,7 +137,7 @@
                         <th scope="col">商品名稱</th>
                         <th scope="col">SKU</th>
                         <th scope="col">採購數量</th>
-                        <th scope="col">採購價錢</th>
+                        <th scope="col">採購總價</th>
                         @if ($method === 'edit')
                             <th scope="col">狀態</th>
                             <th scope="col">入庫人員</th>
