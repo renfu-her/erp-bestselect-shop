@@ -152,6 +152,7 @@
                     @if(null == $purchaseData->audit_date)
                         <th scope="col" class="text-center">取消入庫</th>
                     @endif
+                    <th scope="col">入庫單號</th>
                     <th scope="col">入庫日期</th>
                     <th scope="col">商品名稱</th>
                     <th scope="col">款式名稱</th>
@@ -177,6 +178,7 @@
                                 @endif
                             </th>
                         @endif
+                        <td>{{ $inbound->inbound_sn }}</td>
                         <td>{{ $inbound->inbound_date }}</td>
                         <td>{{ $inbound->product_title }}</td>
                         <td>{{ $inbound->style_title }}</td>
