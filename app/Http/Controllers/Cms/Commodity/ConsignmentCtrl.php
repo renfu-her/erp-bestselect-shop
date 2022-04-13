@@ -277,6 +277,17 @@ class ConsignmentCtrl extends Controller
         ]));
     }
 
+    public function destroy(Request $request, $id)
+    {
+        $result = Consignment::del($id, $request->user()->id, $request->user()->name);
+        if ($result['success'] == 0) {
+            wToast($result['error_msg']);
+        } else {
+            wToast(__('Delete finished.'));
+        }
+        return redirect(Route('cms.consignment.index'));
+    }
+
     //入庫結案
     public function close(Request $request, $id) {
         $inboundOverviewList = PurchaseInbound::getOverviewInboundList(Event::consignment()->value, $id)->get()->toArray();
