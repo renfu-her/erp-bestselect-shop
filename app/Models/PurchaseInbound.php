@@ -240,7 +240,7 @@ class PurchaseInbound extends Model
     }
 
     //歷史入庫
-    public static function getInboundList($param)
+    public static function getInboundList($param, $showDelete = true)
     {
         $result = DB::table('pcs_purchase_inbound as inbound')
             ->leftJoin('prd_product_styles as style', 'style.id', '=', 'inbound.product_style_id')
@@ -265,8 +265,12 @@ class PurchaseInbound extends Model
             ->selectRaw('DATE_FORMAT(inbound.expiry_date,"%Y-%m-%d") as expiry_date') //有效期限
             ->selectRaw('DATE_FORMAT(inbound.inbound_date,"%Y-%m-%d") as inbound_date') //入庫日期
             ->selectRaw('DATE_FORMAT(inbound.deleted_at,"%Y-%m-%d") as deleted_at') //刪除日期
-            ->whereNotNull('inbound.id')
-            ->whereNull('inbound.deleted_at');
+            ->whereNotNull('inbound.id');
+
+        //判斷不顯示刪除歷史
+        if (false == $showDelete) {
+            $result->whereNull('inbound.deleted_at');
+        }
         if (isset($param['event'])) {
             $result->where('inbound.event', '=', $param['event']);
         }
