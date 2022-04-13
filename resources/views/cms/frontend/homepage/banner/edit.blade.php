@@ -113,7 +113,7 @@
                 </div>
             </fieldset>
             <div class="col-12 mb-3">
-                <label class="form-label">橫幅廣告圖片（可將檔案拖拉至框中上傳</label>
+                <label class="form-label">橫幅廣告圖片（可將檔案拖拉至框中上傳）</label>
                 <div class="upload_image_block">
                     <label>
                         <!-- 按鈕 -->
