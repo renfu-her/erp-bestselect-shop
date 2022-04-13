@@ -161,11 +161,21 @@ class NaviNode extends Model
             $re->addSelect('lv' . $i . '.url as lv' . $i . '_url');
             $re->addSelect('lv' . $i . '.target as lv' . $i . '_target');
             $re->addSelect('lv' . $i . '.has_child as lv' . $i . '_has_child');
-            $re->addSelect('lv' . $i . '.event_id as lv' . $i . '_event_id');
-            $re->addSelect('lv' . $i . '.event as lv' . $i . '_event');
+
             $re->addSelect('lv' . $i . '.level as lv' . $i . '_level');
             $re->addSelect('lv' . $i . '.event_title as lv' . $i . '_event_title');
-            $re->addSelect('lv' . $i . '.sub_title as lv' . $i . '_sub_title');
+
+            $event_id_col = 'lv' . $i . '.event_id';
+            $event_id_as = 'lv' . $i . '_event_id';
+            $re->selectRaw("IF($event_id_col IS NULL,\"\",$event_id_col) as $event_id_as");
+
+            $event_col = 'lv' . $i . '.event';
+            $event_as = 'lv' . $i . '_event';
+            $re->selectRaw("IF($event_col IS NULL,\"\",$event_col) as $event_as");
+
+            $sub_title_col = 'lv' . $i . '.sub_title';
+            $sub_title_as = 'lv' . $i . '_sub_title';
+            $re->selectRaw("IF($sub_title_col IS NULL,\"\",$sub_title_col) as $sub_title_as");
         }
 
         $re = $re->where('lv1.parent_id', $id)
@@ -175,7 +185,6 @@ class NaviNode extends Model
             ->mergeBindings($sub)
             ->get()->toArray();
 
-        
         $tree = [];
         $ids = [];
         foreach ($re as $key => $value) {
@@ -214,15 +223,14 @@ class NaviNode extends Model
             'level' => $v->{"lv" . $level . "_level"},
         ];
 
-
-
         if ($v->{"lv" . $level . "_has_child"} == 0) {
             if ($v->{"lv" . $level . "_event_id"}) {
                 $re['event_id'] = $v->{"lv" . $level . "_event_id"};
                 $re['url'] = FrontendApiUrl::collection() . "/" . ($v->{"lv" . $level . "_event_id"}) . "/" . ($v->{"lv" . $level . "_event_title"});
             } else {
-                $re['event_id'] = null;
-                $re['url'] = $v->{"lv" . $level . "_url"};
+                $re['event_id'] = '';
+                $re['url'] = $v->{"lv" . $level . "_url"} ? $v->{"lv" . $level . "_url"} : '';
+
             }
             $re['target'] = $v->{"lv" . $level . "_target"};
         } else {
