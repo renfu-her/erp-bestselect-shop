@@ -107,20 +107,20 @@ class PurchaseLog extends Model
                 $join->where('log.event', $event);
                 $join->whereIn('log.feature', $logEventFeatureKey_inbound);
             })
-            ->leftJoin('pcs_purchase_items as items', 'items.id', '=', 'inbound.event_item_id')
+            ->leftJoin('prd_product_styles as style', 'style.id', '=', 'inbound.product_style_id')
+            ->leftJoin('prd_products as product', 'product.id', '=', 'style.product_id')
             ->select('log.id'
                 , 'log.event'
                 , 'log.feature'
                 , 'log.user_name'
                 , 'log.created_at'
                 , 'log.qty'
-                , 'items.title as title'
+                , DB::raw('CONCAT(product.title, "-", style.title) as title')
             )
             ->whereNotNull('inbound.id')
             ->where('log.event_parent_id', '=', $event_id)
             ->where('log.event', '=', $event);
 
-//        dd($log_inbound->get());
         $logEventFeatureKey_pay = [];
         foreach (LogEventFeature::asArray() as $key => $value) {
             if (0 === strpos($key, 'pay')) {
