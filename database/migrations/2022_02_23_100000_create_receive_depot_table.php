@@ -35,6 +35,8 @@ class CreateReceiveDepotTable extends Migration
             $table->string('audit_user_name', 20)->nullable()->comment('審核者名稱');
             $table->timestamps();
             $table->softDeletes();
+
+            $table->unique(['event', 'event_id']); //不可選重複的款式
         });
 
         Schema::create('dlv_receive_depot', function (Blueprint $table) {
