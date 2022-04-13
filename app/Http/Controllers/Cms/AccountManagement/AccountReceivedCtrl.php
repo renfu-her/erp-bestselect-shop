@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Cms\AccountManagement;
 
+use App\Enums\Accounting\GradeModelClass;
 use App\Enums\Received\ReceivedMethod;
 use App\Http\Controllers\Controller;
 use App\Models\AccountReceived;
 use App\Models\AllGrade;
+use App\Models\GeneralLedger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -33,7 +35,75 @@ class AccountReceivedCtrl extends Controller
         $receivedMethods = ReceivedMethod::asSelectArray();
         $totalPrice = DB::table('ord_orders')->where('id', '=', $req['id']['ord_orders'])->value('total_price');
 
+        /**
+         * key:收款方式
+         * value：true為「收款支付」沒有做預設，會補上全部的會計科目
+         */
+        $defaultData = [];
+        foreach (ReceivedMethod::asArray() as $receivedMethod) {
+            $defaultData[$receivedMethod] = DB::table('acc_received_default')
+                                                    ->where('name', '=', $receivedMethod)
+                                                    ->doesntExistOr(function () use ($receivedMethod) {
+                                                        return DB::table('acc_received_default')
+                                                            ->where('name', '=', $receivedMethod)
+                                                            ->select('default_grade_id')
+                                                            ->get();
+                                                    });
+        }
+
+        $firstGrades = GeneralLedger::getAllFirstGrade();
+        $totalGrades = array();
+        foreach ($firstGrades as $firstGrade) {
+            $totalGrades[] = $firstGrade;
+            foreach (GeneralLedger::getSecondGradeById($firstGrade['id']) as $secondGrade) {
+                $totalGrades[] = $secondGrade;
+                foreach (GeneralLedger::getThirdGradeById($secondGrade['id']) as $thirdGrade) {
+                    $totalGrades[] = $thirdGrade;
+                    foreach (GeneralLedger::getFourthGradeById($thirdGrade['id']) as $fourthGrade) {
+                        $totalGrades[] = $fourthGrade;
+                    }
+                }
+            }
+        }
+
+        $allGradeArray = [];
+//        $allGrade = AllGrade::all();
+//        $gradeModelArray = GradeModelClass::asSelectArray();
+
+//        foreach ($allGrade as $grade) {
+//            $allGradeArray[$grade->id] = [
+//                'grade_id' => $grade->id,
+//                'grade_num' => array_keys($gradeModelArray, $grade->grade_type)[0],
+//                'code' => $grade->eachGrade->code,
+//                'name' => $grade->eachGrade->name,
+//            ];
+//        }
+
+        foreach ($totalGrades as $grade) {
+            $allGradeArray[$grade['primary_id']] = $grade;
+        }
+        $defaultArray = [];
+        foreach ($defaultData as $recMethod => $ids) {
+            //收款方式若沒有預設、或是方式為「其它」，則自動帶入所有會計科目
+            if ($ids !== true &&
+                $recMethod !== 'other') {
+                foreach ($ids as $id) {
+                    $defaultArray[$recMethod][$id->default_grade_id] = [
+//                        'methodName' => $recMethod,
+                        'method' => ReceivedMethod::getDescription($recMethod),
+                        'grade_id' => $id->default_grade_id,
+                        'grade_num' => $allGradeArray[$id->default_grade_id]['grade_num'],
+                        'code' => $allGradeArray[$id->default_grade_id]['code'],
+                        'name' => $allGradeArray[$id->default_grade_id]['name'],
+                    ];
+                }
+            } else {
+                $defaultArray[$recMethod] = $allGradeArray;
+            }
+        }
+
         return view('cms.account_management.account_received.edit', [
+            'defaultArray' => $defaultArray,
             'tw_price' => $totalPrice,
             'receivedMethods' => $receivedMethods,
             'formAction' => Route('cms.ar.store'),
