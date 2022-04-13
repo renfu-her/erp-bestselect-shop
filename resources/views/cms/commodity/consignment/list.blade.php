@@ -132,7 +132,7 @@
                         <th scope="col">入庫倉庫</th>
 
                         <th scope="col" class="text-center">編輯</th>
-{{--                        <th scope="col" class="text-center">刪除</th>--}}
+                        <th scope="col" class="text-center">刪除</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -161,15 +161,15 @@
                                     </a>
                                     @endcan
                                 </td>
-{{--                                <td class="text-center">--}}
-{{--                                    @can('admin.consignment.delete')--}}
-{{--                                    <a href="javascript:void(0)" data-href="{{ Route('cms.consignment.delete', ['id' => $data->id], true) }}"--}}
-{{--                                       data-bs-toggle="modal" data-bs-target="#confirm-delete"--}}
-{{--                                       class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">--}}
-{{--                                        <i class="bi bi-trash"></i>--}}
-{{--                                    </a>--}}
-{{--                                    @endcan--}}
-{{--                                </td>--}}
+                                <td class="text-center">
+                                    @can('admin.consignment.delete')
+                                    <a href="javascript:void(0)" data-href="{{ Route('cms.consignment.delete', ['id' => $data->consignment_id], true) }}"
+                                       data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                                       class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                    @endcan
+                                </td>
                             </tr>
                         @endforeach
                     @endif
