@@ -513,7 +513,7 @@ class PurchaseInbound extends Model
             ->selectRaw('DATE_FORMAT(inbound.inbound_date,"%Y-%m-%d") as inbound_date') //入庫日期
             ->selectRaw('DATE_FORMAT(inbound.deleted_at,"%Y-%m-%d") as deleted_at') //刪除日期
             ->whereNotNull('inbound.id')
-            ->whereNotNull('inbound.close_date') //只篩選入庫有結案的
+//            ->whereNotNull('inbound.close_date') //只篩選入庫有結案的
             ->whereNull('inbound.deleted_at');
 
         if (isset($param['product_style_id'])) {
@@ -556,7 +556,7 @@ class PurchaseInbound extends Model
             ->whereNull('inbound.deleted_at')
             ->whereNotNull('style.sku')
             ->whereNull('style.deleted_at')
-            ->whereNotNull('inbound.close_date') //只篩選入庫有結案的
+//            ->whereNotNull('inbound.close_date') //只篩選入庫有結案的
             ->where(DB::raw('(inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num)'), '>', 0)
             ->groupBy('inbound.product_style_id')
             ->groupBy('inbound.depot_id')
