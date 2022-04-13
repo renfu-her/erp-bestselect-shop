@@ -30,9 +30,13 @@
                 <dt>審核人員</dt>
                 <dd>{{ $consignmentData->audit_user_name ?? '-' }}</dd>
             </div>
-            <div class="col-sm-5">
+            <div class="col">
                 <dt>審核日期</dt>
                 <dd>{{ $consignmentData->audit_date ?? '-' }}</dd>
+            </div>
+            <div class="col-sm-5">
+                <dt></dt>
+                <dd></dd>
             </div>
         </dl>
         <dl class="row">
@@ -64,10 +68,6 @@
             </div>
         </dl>
         <dl class="row">
-            <div class="col">
-                <dt></dt>
-                <dd></dd>
-            </div>
             <div class="col-auto" style="width: calc(100%/12*8.5);">
                 <dt>寄倉單備註</dt>
                 <dd>{{ $consignmentData->memo ?? '-' }}</dd>
