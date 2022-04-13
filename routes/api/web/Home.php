@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\Cms\HomeCtrl;
+use App\Http\Controllers\Api\Web\HomeCtrl;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'home', 'as' => 'home.'], function () {

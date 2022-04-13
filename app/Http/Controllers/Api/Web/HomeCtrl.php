@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Cms;
+namespace App\Http\Controllers\Api\Web;
 
 use App\Enums\Globals\ApiStatusMessage;
 use App\Enums\Globals\ResponseParam;
