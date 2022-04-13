@@ -20,7 +20,7 @@
                        value="{{ old('category', $category ?? '')}}"
                          aria-label="商品類別" />
                 @error('category')
-                    <div class="alert-danger"> {{ '請輸入商品類別' }} </div>
+                    <div class="alert-danger"> {{ $message }} </div>
                 @enderror
             </x-b-form-group>
             @if ($method === 'edit')

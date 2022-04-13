@@ -4,6 +4,11 @@ namespace App\Enums\Globals;
 
 use BenSampo\Enum\Enum;
 
+/**
+ * 前端內部、外部連結 Enum
+ * @method static static internal 內部連結常數
+ * @method static static external 外部連結常數
+ */
 class LinkType extends Enum
 {
     const internal = '1';
