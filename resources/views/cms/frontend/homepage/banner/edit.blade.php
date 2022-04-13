@@ -134,7 +134,7 @@
                         <input type="hidden" name="del_img_pc">
                     </label>
                 </div>
-                <p><mark>圖片尺寸建議：1200x400px，不超過300KB，可上傳JPG/ JPEG/ PNG/ GIF格式</mark></p>
+                <p><mark>圖片尺寸建議：1200x400px，不超過3000KB，可上傳JPG/ JPEG/ PNG/ GIF格式</mark></p>
                 @error('files')
                 <div class="alert alert-danger" role="alert">{{ $message }}</div>
                 @enderror
@@ -177,7 +177,7 @@
             bindReadImageFile($('input[name="img_pc"]'), {
                 num: 'single',
                 fileInputName: 'img_pc',
-                maxSize: 300,
+                maxSize: 3000,
                 delFn: function ($x) {
                     $x.siblings('img').attr('src', '');
                     let img_box = $x.closest('.box');
