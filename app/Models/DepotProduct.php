@@ -71,4 +71,53 @@ class DepotProduct extends Model
 
         return $re;
     }
+
+    /** 寄倉 出貨倉可入到入庫倉的商品款式庫存列表
+     * @param null $send_depot_id 出貨倉
+     * @param null $receive_depot_id 入庫倉
+     * @param null $type 'all' => '不限', 'p' => '一般', 'c' => '組合包',
+     */
+    public static function productExistInboundList($send_depot_id = null, $receive_depot_id = null, $type = null)
+    {
+        $extPrdStyleList_send = PurchaseInbound::getExistInboundProductStyleList($send_depot_id);
+
+        $re = DB::table('prd_product_depot_select as select_list')
+            ->leftJoin('prd_salechannel_style_price as p', 'select_list.product_style_id', '=', 'p.style_id')
+            ->leftJoinSub($extPrdStyleList_send, 'inbound', function($join) use($send_depot_id) {
+                //對應到入庫倉可入到進貨倉 相同的product_style_id
+                $join->on('inbound.product_style_id', '=', 'select_list.product_style_id');
+                if ($send_depot_id) {
+                    $join->where('inbound.depot_id', $send_depot_id);
+                }
+            })
+            ->select(
+                'select_list.id as select_id',
+                'select_list.depot_id',
+                'select_list.depot_product_no',
+                'select_list.ost_price',
+                'select_list.depot_price',
+                'inbound.product_id as product_id',
+                'inbound.depot_id as inbound_depot_id',
+                'inbound.product_style_id as id',
+                'inbound.product_title as product_title',
+                'inbound.title as spec',
+                'inbound.sku',
+                'inbound.total_in_stock_num',
+                DB::raw('CASE inbound.product_type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title'),
+            )
+            ->whereNull('select_list.deleted_at')
+            ->where('p.sale_channel_id', 1)
+
+            ->orderBy('inbound.product_id', 'ASC')
+            ->orderBy('inbound.product_style_id', 'ASC');
+
+        if ($receive_depot_id) {
+            $re->where('select_list.depot_id', $receive_depot_id);
+        }
+
+        if ($type && $type != 'all') {
+            $re->where('inbound.product_type', $type);
+        }
+        return $re;
+    }
 }
