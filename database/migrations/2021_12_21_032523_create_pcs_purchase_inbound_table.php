@@ -16,9 +16,9 @@ class CreatePcsPurchaseInboundTable extends Migration
         Schema::create('pcs_purchase_inbound', function (Blueprint $table) {
             $table->id()->comment('採購入庫id');
             $table->string('sn', 20)->comment('入庫單SN');
-            $table->string('event')->comment('事件 採購 寄倉');
-            $table->string('event_id')->comment('事件ID');
-            $table->integer('event_item_id')->comment('採購款式id');
+            $table->string('event')->comment('事件 採購purchase、寄倉consignment');
+            $table->string('event_id')->comment('事件ID 採購pcs_purchase.id、寄倉csn_consignment.id');
+            $table->integer('event_item_id')->comment('採購款式id 採購pcs_purchase_items.id、寄倉dlv_receive_depot.id');
             $table->integer('product_style_id')->comment('款式product_style_id 帶出款式sku碼');
             $table->dateTime('expiry_date')->nullable()->comment('有效期限');
             $table->dateTime('inbound_date')->nullable()->comment('入庫日期');
