@@ -41,10 +41,7 @@ class TemplateCtrl extends Controller
         $query = $request->query();
         $templateID = Template::storeNew($request);
         wToast(__('Add finished.'));
-        return redirect(Route('cms.homepage.template.edit', [
-            'id' => $templateID,
-            'query' => $query,
-        ]));
+        return redirect(Route('cms.homepage.template.index'));
     }
     public function edit(Request $request, $id)
     {
@@ -68,10 +65,7 @@ class TemplateCtrl extends Controller
         $query = $request->query();
         Template::updateData($request, $id);
         wToast(__('Edit finished.'));
-        return redirect(Route('cms.homepage.template.edit', [
-            'id' => $id,
-            'query' => $query,
-        ]));
+        return redirect(Route('cms.homepage.template.index'));
     }
 
     public function destroy($id)
