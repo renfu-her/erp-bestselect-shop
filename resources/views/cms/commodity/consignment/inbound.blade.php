@@ -40,7 +40,7 @@
         @enderror
     </div>
 
-    @if(null == $purchaseData->audit_date)
+    @if(null != $purchaseData->audit_date)
         <div class="card shadow p-4 mb-4">
             <form id="form1" method="post" action="{{ $formAction }}">
                 @method('POST')
@@ -54,10 +54,10 @@
                 <div class="row mb-4">
                     <div class="col-12">
 
-                        <label class="form-label">出貨倉庫
+                        <label class="form-label">入庫倉庫
                         <div>
                         @foreach ($depotList as $depotItem)
-                            @if($depotItem['id'] == $purchaseData->send_depot_id)
+                            @if($depotItem['id'] == $purchaseData->receive_depot_id)
                                 <input type="hidden"
                                        class="form-control form-control-sm @error('depot_id') is-invalid @enderror"
                                        name="depot_id" value="{{ $depotItem['id'] }}"
@@ -152,6 +152,7 @@
                     @if(null == $purchaseData->audit_date)
                         <th scope="col" class="text-center">取消入庫</th>
                     @endif
+                    <th scope="col">入庫單號</th>
                     <th scope="col">入庫日期</th>
                     <th scope="col">商品名稱</th>
                     <th scope="col">款式名稱</th>
@@ -177,6 +178,7 @@
                                 @endif
                             </th>
                         @endif
+                        <td>{{ $inbound->inbound_sn }}</td>
                         <td>{{ $inbound->inbound_date }}</td>
                         <td>{{ $inbound->product_title }}</td>
                         <td>{{ $inbound->style_title }}</td>

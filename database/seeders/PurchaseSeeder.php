@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Enums\Delivery\Event;
-use App\Enums\Purchase\LogEvent;
 use App\Models\PayingOrder;
 use App\Models\ProductStyle;
 use App\Models\Purchase;
@@ -326,10 +325,10 @@ class PurchaseSeeder extends Seeder
         );
 
         $sellCount = 2;
-        PurchaseInbound::shippingInbound(
-            Event::purchase()->value,
-            $purchaseInboundID2,
-            $sellCount,
-        );
+//        PurchaseInbound::shippingInbound(
+//            Event::purchase()->value,
+//            $purchaseInboundID2,
+//            $sellCount,
+//        );
     }
 }

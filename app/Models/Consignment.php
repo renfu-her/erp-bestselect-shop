@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Enums\Delivery\Event;
-use App\Enums\Purchase\LogEvent;
 use App\Enums\Purchase\LogEventFeature;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -50,7 +49,7 @@ class Consignment extends Model
                 'scheduled_date' => $scheduled_date ?? null,
             ])->id;
 
-            $rePcsLSC = PurchaseLog::stockChange($id, null, LogEvent::consignment()->value, $id, LogEventFeature::csn_add()->value, null, null, $create_user_id, $create_user_name);
+            $rePcsLSC = PurchaseLog::stockChange($id, null, Event::consignment()->value, $id, LogEventFeature::csn_add()->value, null, null, $create_user_id, $create_user_name);
             if ($rePcsLSC['success'] == 0) {
                 DB::rollBack();
                 return $rePcsLSC;
@@ -102,7 +101,7 @@ class Consignment extends Model
                         $event = '預計入庫日期';
                     }
                     $changeStr .= ' ' . $key . ' change to ' . $val;
-                    $rePcsLSC = PurchaseLog::stockChange($id, null, LogEvent::consignment()->value, $id, LogEventFeature::csn_change_data()->value, null, $event, $operator_user_id, $operator_user_name);
+                    $rePcsLSC = PurchaseLog::stockChange($id, null, Event::consignment()->value, $id, LogEventFeature::csn_change_data()->value, null, $event, $operator_user_id, $operator_user_name);
                     if ($rePcsLSC['success'] == 0) {
                         DB::rollBack();
                         return $rePcsLSC;
@@ -127,7 +126,7 @@ class Consignment extends Model
         //判斷若有入庫、付款單 則不可刪除
         return DB::transaction(function () use ($id, $operator_user_id, $operator_user_name
         ) {
-            $rePcsLSC = PurchaseLog::stockChange($id, null, LogEvent::consignment()->value, $id, LogEventFeature::csn_del()->value, null, null, $operator_user_id, $operator_user_name);
+            $rePcsLSC = PurchaseLog::stockChange($id, null, Event::consignment()->value, $id, LogEventFeature::csn_del()->value, null, null, $operator_user_id, $operator_user_name);
             if ($rePcsLSC['success'] == 0) {
                 DB::rollBack();
                 return $rePcsLSC;
@@ -139,8 +138,14 @@ class Consignment extends Model
 
     //結案
     public static function close($id, $operator_user_id, $operator_user_name) {
-        self::where('id', $id)->update(['close_date' => date('Y-m-d H:i:s')]);
-        PurchaseLog::stockChange($id, null, LogEvent::consignment()->value, $id, LogEventFeature::csn_close()->value, null, null, $operator_user_id, $operator_user_name);
+        $currDate = date('Y-m-d H:i:s');
+        self::where('id', $id)->update(['close_date' => $currDate]);
+        PurchaseInbound::where('event', Event::consignment()->value)
+            ->where('event_id', '=', $id)
+            ->whereNull('deleted_at')
+            ->update([ 'close_date' => $currDate ]);
+
+        PurchaseLog::stockChange($id, null, Event::consignment()->value, $id, LogEventFeature::csn_close()->value, null, null, $operator_user_id, $operator_user_name);
     }
 
     //起日 訖日 是否含已結單 發票號碼

@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Enums\Delivery\Event;
 use App\Enums\Purchase\InboundStatus;
-use App\Enums\Purchase\LogEvent;
 use App\Enums\Purchase\LogEventFeature;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -39,7 +38,7 @@ class ConsignmentItem extends Model
                     "memo" => $newData['memo'] ?? null,
                 ])->id;
 
-                $rePcsLSC = PurchaseLog::stockChange($newData['consignment_id'], $newData['product_style_id'], LogEvent::consignment()->value, $id, LogEventFeature::style_add()->value, $newData['num'], null, $operator_user_id, $operator_user_name);
+                $rePcsLSC = PurchaseLog::stockChange($newData['consignment_id'], $newData['product_style_id'], Event::consignment()->value, $id, LogEventFeature::style_add()->value, $newData['num'], null, $operator_user_id, $operator_user_name);
 
                 if ($rePcsLSC['success'] == 0) {
                     DB::rollBack();
@@ -104,7 +103,8 @@ class ConsignmentItem extends Model
             } else {
                 return DB::transaction(function () use ($purchase_id, $del_item_id_arr, $operator_user_id, $operator_user_name
                 ) {
-                    ConsignmentItem::whereIn('id', $del_item_id_arr)->delete();
+                    //寄倉商品改直接刪除 因需要審核後才會做入庫
+                    ConsignmentItem::whereIn('id', $del_item_id_arr)->forceDelete();
                     foreach ($del_item_id_arr as $del_id) {
                         PurchaseLog::stockChange($purchase_id, null, Event::consignment()->value, $del_id, LogEventFeature::style_del()->value, null, null, $operator_user_id, $operator_user_name);
                     }
@@ -225,6 +225,7 @@ class ConsignmentItem extends Model
         , $receive_depot_id = null
         , $csn_sdate = null
         , $csn_edate = null
+        , $audit_status = null
         , $inbound_status = null) {
 
         $consignmentItemData = ConsignmentItem::getOriginInboundDataList();
@@ -248,6 +249,9 @@ class ConsignmentItem extends Model
             $eDate = date('Y-m-d 23:59:59', strtotime($csn_edate));
             $result->whereBetween('consignment.created_at_withHIS', [$sDate, $eDate]);
         }
+        if ($audit_status) {
+            $result->where('consignment.audit_status', $audit_status);
+        }
         if ($inbound_status) {
             $arr_status = [];
             if (in_array(InboundStatus::not_yet()->value, $inbound_status)) {
@@ -265,6 +269,7 @@ class ConsignmentItem extends Model
 
             $result->whereIn('inbound_type', $arr_status);
         }
+        $result->orderByDesc('consignment.consignment_id');
         return $result;
     }
 }

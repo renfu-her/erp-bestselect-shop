@@ -26,8 +26,13 @@ final class LogEventFeature extends Enum
     //入庫
     const inbound_add = 'inbound_add';
     const inbound_del = 'inbound_del';
-    const inbound_shipping = 'inbound_shipping';
-    const inbound_send_back = 'inbound_send_back';
+
+    const order_shipping = 'order_shipping';
+    const order_send_back = 'order_send_back';
+    const consume_shipping = 'consume_shipping';
+    const consume_send_back = 'consume_send_back';
+    const consignment_shipping = 'consignment_shipping';
+    const consignment_send_back = 'consignment_send_back';
 
     //付款
     const pay_add = 'pay_add';
@@ -35,7 +40,7 @@ final class LogEventFeature extends Enum
     const pay_change_pay_type = 'pay_change_pay_type';
     const pay_change_shipping_fee = 'pay_change_shipping_fee';
 
-    //寄賣
+    //寄倉
     const csn_add = 'csn_add';
     const csn_del = 'csn_del';
     const csn_close = 'csn_close';
@@ -77,11 +82,23 @@ final class LogEventFeature extends Enum
             case self::inbound_del:
                 $result = '刪除入庫';
                 break;
-            case self::inbound_shipping:
-                $result = '庫存出貨';
+            case self::order_shipping:
+                $result = '訂單出貨';
                 break;
-            case self::inbound_send_back:
-                $result = '庫存退回';
+            case self::order_send_back:
+                $result = '訂單退回';
+                break;
+            case self::consume_shipping:
+                $result = '耗材出貨';
+                break;
+            case self::consume_send_back:
+                $result = '耗材退回';
+                break;
+            case self::consignment_shipping:
+                $result = '寄倉出貨';
+                break;
+            case self::consignment_send_back:
+                $result = '寄倉退回';
                 break;
 
             case self::pay_add:
@@ -98,16 +115,16 @@ final class LogEventFeature extends Enum
                 break;
 
             case self::csn_add:
-                $result = '新增寄賣單';
+                $result = '新增寄倉單';
                 break;
             case self::csn_del:
-                $result = '刪除寄賣單';
+                $result = '刪除寄倉單';
                 break;
             case self::csn_close:
-                $result = '寄賣單結單';
+                $result = '寄倉單結單';
                 break;
             case self::csn_change_data:
-                $result = '寄賣單修改內容';
+                $result = '寄倉單修改內容';
                 break;
             default:
                 $result = parent::getDescription($value);

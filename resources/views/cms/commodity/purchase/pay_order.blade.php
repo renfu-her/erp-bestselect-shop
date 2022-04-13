@@ -14,23 +14,23 @@
 {{--    <button type="submit" class="btn btn-primary">新增細項</button>--}}
 {{--    <button type="submit" class="btn btn-primary">變更支付對象</button>--}}
 {{--    <button type="submit" class="btn btn-primary">取消訂金折抵</button>--}}
-    <button type="button" class="btn btn-primary">
-        @if($hasReceivedPayment)
-        <a href="{{ Route('cms.ap.edit', ['payOrdId' => $payOrdId,
-                                         'id' => $accountPayableId,
-                                         'payOrdType' => 'pcs',
-                                         'isFinalPay' => ($type === 'final' ? 1 : 0),
-                                         'purchaseId' => $id], true) }}"
-           class="text-white">編輯付款</a>
-        @else
-        <a href="{{ Route('cms.ap.create', ['payOrdId' => $payOrdId,
-                                             'id' => $accountPayableId,
-                                            'payOrdType' => 'pcs',
-                                            'isFinalPay' => ($type === 'final' ? 1 : 0),
-                                            'purchaseId' => $id], true) }}"
-           class="text-white">付款</a>
-        @endif
-    </button>
+    @if($hasReceivedPayment)
+    {{--
+    <a href="{{ Route('cms.ap.edit', ['payOrdId' => $payOrdId,
+                                        'id' => $accountPayableId,
+                                        'payOrdType' => 'pcs',
+                                        'isFinalPay' => ($type === 'final' ? 1 : 0),
+                                        'purchaseId' => $id], true) }}"
+        class="btn btn-primary" role="button">編輯付款</a>
+    --}}
+    @else
+    <a href="{{ Route('cms.ap.create', ['payOrdId' => $payOrdId,
+                                            'id' => $accountPayableId,
+                                        'payOrdType' => 'pcs',
+                                        'isFinalPay' => ($type === 'final' ? 1 : 0),
+                                        'purchaseId' => $id], true) }}"
+        class="btn btn-primary" role="button">付款</a>
+    @endif
     <button type="submit" class="btn btn-danger">中一刀列印畫面</button>
     <button type="submit" class="btn btn-danger">A4列印畫面</button>
     <button type="submit" class="btn btn-danger">圖片管理</button>

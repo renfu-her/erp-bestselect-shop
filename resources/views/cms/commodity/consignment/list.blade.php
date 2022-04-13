@@ -54,6 +54,20 @@
                         </div>
                     </div>
                 </div>
+                <fieldset class="col-12 mb-3">
+                    <legend class="col-form-label p-0 mb-2">審核狀態</legend>
+                    <div class="px-1 pt-1">
+                        @foreach (App\Enums\Consignment\AuditStatus::asArray() as $key => $val)
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="audit_status" type="radio"
+                                           value="{{ $val }}" @if (old('audit_status', $audit_status ?? App\Enums\Consignment\AuditStatus::unreviewed()->value) == $val) checked @endif>
+                                    {{ App\Enums\Consignment\AuditStatus::getDescription($val) }}
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                </fieldset>
                 <div class="col-12 col-md-6 mb-3">
                     <label class="form-label" for="iStatus">入庫狀態</label>
                     <div class="input-group">

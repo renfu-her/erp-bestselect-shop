@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Cms\Commodity;
 use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Purchase\InboundStatus;
-use App\Enums\Purchase\LogEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Consignment;
 use App\Models\ConsignmentItem;
@@ -38,6 +37,7 @@ class ConsignmentCtrl extends Controller
         $receive_depot_id = Arr::get($query, 'receive_depot_id', '');
         $csn_sdate = Arr::get($query, 'csn_sdate', '');
         $csn_edate = Arr::get($query, 'csn_edate', '');
+        $audit_status = Arr::get($query, 'audit_status', AuditStatus::unreviewed()->value);
         $inbound_status = Arr::get($query, 'inbound_status', implode(',', array_keys($all_inbound_status)));
 
         $inbound_status_arr = [];
@@ -50,6 +50,7 @@ class ConsignmentCtrl extends Controller
                 , $receive_depot_id
                 , $csn_sdate
                 , $csn_edate
+                , $audit_status
                 , $inbound_status_arr
             )
             ->paginate($data_per_page)->appends($query);
@@ -64,6 +65,7 @@ class ConsignmentCtrl extends Controller
             , 'receive_depot_id' => $receive_depot_id
             , 'csn_sdate' => $csn_sdate
             , 'csn_edate' => $csn_edate
+            , 'audit_status' => $audit_status
             , 'inbound_status' => $inbound_status
             , 'all_inbound_status' => $all_inbound_status
         ]);
@@ -227,31 +229,44 @@ class ConsignmentCtrl extends Controller
         }
 
         if (isset($csnItemReq['item_id'])) {
-            foreach ($csnItemReq['item_id'] as $key => $val) {
-                $itemId = $csnItemReq['item_id'][$key];
-                //有值則做更新
-                //itemId = null 代表新資料
-                if (null != $itemId) {
-                    $result = ConsignmentItem::checkToUpdateItemData($itemId, $csnItemReq, $key, $changeStr, $request->user()->id, $request->user()->name);
-                    if ($result['success'] == 0) {
-                        $changeStr = $result['error_msg'];
-                        throw ValidationException::withMessages(['item_error' => $result['error_msg']]);
-                    }
-                } else {
-                    $changeStr .= ' add item:' . $csnItemReq['name'][$key];
+            $resultUpd = DB::transaction(function () use ($request, $csnItemReq, $consignmentData, $changeStr
+            ) {
+                foreach ($csnItemReq['item_id'] as $key => $val) {
+                    $itemId = $csnItemReq['item_id'][$key];
+                    //有值則做更新
+                    //itemId = null 代表新資料
+                    if (null != $itemId) {
+                        $resultUpd = ConsignmentItem::checkToUpdateItemData($itemId, $csnItemReq, $key, $changeStr, $request->user()->id, $request->user()->name);
+                        if ($resultUpd['success'] == 0) {
+                            DB::rollBack();
+                            $changeStr = $resultUpd['error_msg'];
+                            return $changeStr;
+                        }
+                    } else {
+                        $changeStr .= ' add item:' . $csnItemReq['name'][$key];
 
-                    ConsignmentItem::createData(
-                        [
-                            'consignment_id' => $consignmentData->consignment_id,
-                            'product_style_id' => $csnItemReq['product_style_id'][$key],
-                            'title' => $csnItemReq['name'][$key],
-                            'sku' => $csnItemReq['sku'][$key],
-                            'price' => $csnItemReq['price'][$key],
-                            'num' => $csnItemReq['num'][$key],
-                        ],
-                        $request->user()->id, $request->user()->name
-                    );
+                        $resultUpd = ConsignmentItem::createData(
+                            [
+                                'consignment_id' => $consignmentData->consignment_id,
+                                'product_style_id' => $csnItemReq['product_style_id'][$key],
+                                'title' => $csnItemReq['name'][$key],
+                                'sku' => $csnItemReq['sku'][$key],
+                                'price' => $csnItemReq['price'][$key],
+                                'num' => $csnItemReq['num'][$key],
+                            ],
+                            $request->user()->id, $request->user()->name
+                        );
+                        if ($resultUpd['success'] == 0) {
+                            DB::rollBack();
+                            $changeStr = $resultUpd['error_msg'];
+                            return $changeStr;
+                        }
+                    }
                 }
+                return ['success' => 1, 'error_msg' => ""];
+            });
+            if ($resultUpd['success'] == 0) {
+                throw ValidationException::withMessages(['item_error' => $resultUpd['error_msg']]);
             }
         }
         $changeStr = '';
@@ -283,7 +298,7 @@ class ConsignmentCtrl extends Controller
         }
 
         wToast(__('Close finished.'));
-        return redirect(Route('cms.purchase.inbound', [
+        return redirect(Route('cms.consignment.inbound', [
             'id' => $id,
         ]));
     }
@@ -292,7 +307,9 @@ class ConsignmentCtrl extends Controller
         $purchaseData  = Consignment::getData($id)->get()->first();
         $purchaseItemList = ReceiveDepot::getShouldEnterNumDataList(Event::consignment()->value, $id);
 
-        $inboundList = PurchaseInbound::getInboundList(['event' => Event::consignment()->value, 'purchase_id' => $id])->get()->toArray();
+        $inboundList = PurchaseInbound::getInboundList(['event' => Event::consignment()->value, 'purchase_id' => $id])
+            ->orderByDesc('inbound.created_at')
+            ->get()->toArray();
         $inboundOverviewList = PurchaseInbound::getOverviewInboundList(Event::consignment()->value, $id)->get()->toArray();
 
 
@@ -399,7 +416,7 @@ class ConsignmentCtrl extends Controller
      */
     public function historyLog(Request $request, $id) {
         $purchaseData = Consignment::getData($id)->first();
-        $purchaseLog = PurchaseLog::getData(LogEvent::consignment()->value, $id)->get();
+        $purchaseLog = PurchaseLog::getData(Event::consignment()->value, $id)->get();
         if (!$purchaseData) {
             return abort(404);
         }

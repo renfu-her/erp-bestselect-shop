@@ -4,11 +4,19 @@ namespace App\Enums\Globals;
 
 use BenSampo\Enum\Enum;
 
+/**
+ * 前端連結API ENUM
+ * @method static static collection 群組常數
+ * @method static static product 產品常數
+ * @method static static url 連結常數
+ * @method static static search 搜尋常數
+ */
 class FrontendApiUrl extends Enum
 {
     const collection = 'collection';
     const product = 'product';
     const url = 'url';
+    const search = 'search';
 
     public static function getDescription($value): string
     {
@@ -22,6 +30,9 @@ class FrontendApiUrl extends Enum
                 break;
             case self::url:
                 $result = '連結';
+                break;
+            case self::search:
+                $result = '搜尋';
                 break;
             default:
                 $result = parent::getDescription($value);

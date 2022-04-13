@@ -15,7 +15,11 @@ class Category extends Model
     public function storeNewCategory(Request $request)
     {
         $request->validate([
-            'category' => 'required|string'
+            'category' => [
+                'required',
+                'string',
+                'unique:App\Models\Category',
+            ]
         ]);
 
         Category::create(['category' => $request->input('category')]);
@@ -29,7 +33,11 @@ class Category extends Model
     public function updateCategory(Request $request, int $id)
     {
         $request->validate([
-            'category' => 'required|string'
+            'category' => [
+                'required',
+                'string',
+                'unique:App\Models\Category',
+            ]
         ]);
 
         Category::where('id', '=', $id)

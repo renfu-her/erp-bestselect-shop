@@ -4,13 +4,11 @@ namespace App\Models;
 
 use App\Enums\Delivery\Event;
 use App\Enums\Purchase\InboundStatus;
-use App\Enums\Purchase\LogEvent;
 use App\Enums\Purchase\LogEventFeature;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 
 class PurchaseItem extends Model
 {
@@ -41,7 +39,7 @@ class PurchaseItem extends Model
                     "memo" => $newData['memo']?? null
                 ])->id;
 
-                $rePcsLSC = PurchaseLog::stockChange($newData['purchase_id'], $newData['product_style_id'], LogEvent::purchase()->value, $id, LogEventFeature::style_add()->value, $newData['num'], null, $operator_user_id, $operator_user_name);
+                $rePcsLSC = PurchaseLog::stockChange($newData['purchase_id'], $newData['product_style_id'], Event::purchase()->value, $id, LogEventFeature::style_add()->value, $newData['num'], null, $operator_user_id, $operator_user_name);
 
                 if ($rePcsLSC['success'] == 0) {
                     DB::rollBack();
@@ -78,7 +76,7 @@ class PurchaseItem extends Model
                     }
                     if ('' != $event && null != $logEventFeature) {
                         $rePcsLSC = PurchaseLog::stockChange($purchaseItem->purchase_id, $purchaseItem->product_style_id
-                            , LogEvent::purchase()->value, $itemId
+                            , Event::purchase()->value, $itemId
                             , $logEventFeature, $dirtyval, $event
                             , $operator_user_id, $operator_user_name);
                         if ($rePcsLSC['success'] == 0) {
@@ -100,19 +98,26 @@ class PurchaseItem extends Model
     public static function deleteItems($purchase_id, array $del_item_id_arr, $operator_user_id, $operator_user_name) {
         if (0 < count($del_item_id_arr)) {
             //判斷若其一有到貨 則不可刪除
-            $query = PurchaseItem::whereIn('id', $del_item_id_arr)
-                ->selectRaw('sum(arrived_num) as arrived_num')->get()->first();
-            if (0 < $query->arrived_num) {
+            $arrived_num = 0;
+            $items = PurchaseItem::whereIn('id', $del_item_id_arr)->get();
+            foreach ($items as $item) {
+                $arrived_num += $item->arrived_num ?? 0;
+            }
+
+            if (0 < $arrived_num) {
                 return ['success' => 0, 'error_msg' => "有入庫 不可刪除"];
             } else {
-                return DB::transaction(function () use ($purchase_id, $del_item_id_arr, $operator_user_id, $operator_user_name
+                return DB::transaction(function () use ($items, $purchase_id, $del_item_id_arr, $operator_user_id, $operator_user_name
                 ) {
                     PurchaseItem::whereIn('id', $del_item_id_arr)->delete();
-                    foreach ($del_item_id_arr as $del_id) {
-                        PurchaseLog::stockChange($purchase_id, null, LogEvent::purchase()->value, $del_id, LogEventFeature::style_del()->value, null, null, $operator_user_id, $operator_user_name);
+                    foreach ($items as $item) {
+                        PurchaseLog::stockChange($purchase_id, $item->product_style_id, Event::purchase()->value, $item->id, LogEventFeature::style_del()->value, null, null, $operator_user_id, $operator_user_name);
                     }
+                    return ['success' => 1, 'error_msg' => ""];
                 });
             }
+        } else {
+            return ['success' => 0, 'error_msg' => "刪除數量為0"];
         }
     }
 
@@ -129,23 +134,6 @@ class PurchaseItem extends Model
                 ->update($updateArr);
             return ['success' => 1, 'error_msg' => ""];
         });
-    }
-
-    public static function getData($purchase_id) {
-        return self::where('purchase_id', $purchase_id)->whereNull('deleted_at');
-    }
-
-    public static function getDataWithInbound($purchase_id) {
-        $inboundOverviewList = PurchaseInbound::getOverviewInboundList(Event::purchase()->value, $purchase_id);
-        $query = DB::table('pcs_purchase_items as items')
-            ->leftJoinSub($inboundOverviewList, 'inbound', function($join) {
-                $join->on('inbound.purchase_id', '=', 'items.purchase_id')
-                    ->on('inbound.product_style_id', '=', 'items.product_style_id');
-            })
-            ->where('items.purchase_id', $purchase_id)
-            ->whereNull('items.deleted_at');
-//        dd($query->get());
-        return $query;
     }
 
     public static function getDataForInbound($purchase_id) {
@@ -170,7 +158,9 @@ class PurchaseItem extends Model
     //採購 明細(會鋪出全部的採購商品)
     //******* 修改時請一併修改採購 總表
     public static function getPurchaseDetailList(
-          $purchase_sn = null
+        $purchase_id = null
+        , $purchase_item_id = null
+        , $purchase_sn = null
         , $title = null
 //        , $sku = null
         , $purchase_user_id = []
@@ -204,13 +194,16 @@ class PurchaseItem extends Model
 
         $tempInboundSql = DB::table('pcs_purchase_inbound as inbound')
             ->select('event_id'
+                , 'event_item_id'
                 , 'product_style_id')
             ->selectRaw('sum(inbound_num) as inbound_num')
+            ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_name) as inbound_user_name') //入庫人員
             ->whereNull('deleted_at');
 
         $tempInboundSql->where('inbound.event', '=', Event::purchase()->value);
 
         $tempInboundSql->groupBy('event_id')
+            ->groupBy('event_item_id')
             ->groupBy('product_style_id');
         if ($depot_id) {
             $tempInboundSql->where('inbound.depot_id', '=', $depot_id);
@@ -240,17 +233,21 @@ class PurchaseItem extends Model
             ->leftJoin('pcs_purchase_items as items', 'purchase.id', '=', 'items.purchase_id')
             ->leftJoinSub($tempInboundSql, 'inbound', function($join) use($tempInboundSql) {
                 $join->on('items.purchase_id', '=', 'inbound.event_id')
+                    ->on('items.id', '=', 'inbound.event_item_id')
                     ->on('items.product_style_id', '=', 'inbound.product_style_id');
             })
             //->select('*')
             ->select('purchase.id as id'
                 ,'purchase.sn as sn'
                 ,'items.id as items_id'
+                ,'items.product_style_id as product_style_id'
                 ,'items.title as title'
                 ,'items.sku as sku'
                 ,'items.price as price'
                 ,'items.num as num'
                 ,'items.arrived_num as arrived_num'
+                ,'items.memo as memo'
+                ,'inbound.inbound_user_name'
                 ,'purchase.purchase_user_id as purchase_user_id'
                 ,'purchase.supplier_id as supplier_id'
                 ,'purchase.invoice_num as invoice_num'
@@ -273,6 +270,12 @@ class PurchaseItem extends Model
             ->whereNull('purchase.deleted_at')
             ->whereNull('items.deleted_at');
 
+        if ($purchase_id) {
+            $result->where('purchase.id', '=', $purchase_id);
+        }
+        if ($purchase_item_id) {
+            $result->where('items.id', '=', $purchase_item_id);
+        }
         if($purchase_sn) {
             $result->where('purchase.sn', '=', $purchase_sn);
         }

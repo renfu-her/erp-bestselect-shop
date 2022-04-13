@@ -120,7 +120,7 @@
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">廠商訂單號</label>
                         <input class="form-control" name="supplier_sn" type="text" aria-label="廠商訂單號"
-                               value="{{ old('supplier_sn', $purchaseData->supplier_sn  ?? '-') }}"
+                               value="{{ old('supplier_sn', $purchaseData->supplier_sn  ?? '') }}"
                                @if ($hasCreatedFinalPayment) disabled @endif placeholder="請輸入廠商訂單號">
                     </div>
                 @endif
@@ -137,7 +137,7 @@
                         <th scope="col">商品名稱</th>
                         <th scope="col">SKU</th>
                         <th scope="col">採購數量</th>
-                        <th scope="col">採購價錢</th>
+                        <th scope="col">採購總價</th>
                         @if ($method === 'edit')
                             <th scope="col">狀態</th>
                             <th scope="col">入庫人員</th>
@@ -166,7 +166,7 @@
                             <td>
                                 <div class="input-group input-group-sm flex-nowrap">
                                     <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                    <input type="number" class="form-control form-control-sm" name="price[]" min="0" step="0.01" value="" required/>
+                                    <input type="number" class="form-control form-control-sm" name="price[]" min="0" step="1" value="" required/>
                                 </div>
                             </td>
                             <td>
@@ -181,7 +181,7 @@
                                             class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                         <i class="bi bi-trash"></i>
                                     </button>
-                                    <input type="hidden" name="item_id[]" value="{{ old('item_id.'. $psItemKey, $psItemVal->id?? '') }}">
+                                    <input type="hidden" name="item_id[]" value="{{ old('item_id.'. $psItemKey, $psItemVal->items_id?? '') }}">
                                     <input type="hidden" name="product_style_id[]" value="{{ old('product_style_id.'. $psItemKey, $psItemVal->product_style_id?? '') }}">
                                     <input type="hidden" name="name[]" value="{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}">
                                     <input type="hidden" name="sku[]" value="{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}">
@@ -190,7 +190,7 @@
                                 <td data-td="sku">{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}</td>
                                 <td>
                                     <input type="number" class="form-control form-control-sm @error('num.' . $psItemKey) is-invalid @enderror"
-                                           name="num[]" value="{{ old('num.'. $psItemKey, $psItemVal->num?? '') }}" min="1" step="0.01" required/>
+                                           name="num[]" value="{{ old('num.'. $psItemKey, $psItemVal->num?? '') }}" min="1" step="1" required/>
                                 </td>
                                 <td>
                                     <div class="input-group input-group-sm flex-nowrap">
@@ -200,7 +200,7 @@
                                     </div>
                                 </td>
                                 @if ($method === 'edit')
-                                    <td data-td="inbound_type">{{$psItemVal->inbound_type?? ''}}</td>
+                                    <td data-td="inbound_status">{{$psItemVal->inbound_status?? ''}}</td>
                                     <td data-td="inbound_user_name">{{$psItemVal->inbound_user_name?? ''}}</td>
                                 @endif
                                 <td>

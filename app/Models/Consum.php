@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enums\Delivery\Event;
+use App\Enums\Purchase\LogEventFeature;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -76,7 +76,7 @@ class Consum extends Model
 
     //將物流資料變更為成立
     public static function setUpLogisticData($logistic_id, $user_id, $user_name) {
-        $logistic = Logistic::where('id', '=', $logistic_id)->get();
+        $logistic = Logistic::where('id', '=', $logistic_id)->get()->first();
 
         $dataGet = null;
         if (null != $logistic_id) {
@@ -85,11 +85,12 @@ class Consum extends Model
         }
         $result = null;
         if (null != $logistic && null != $dataGet && 0 <= count($dataGet)) {
-            $result = DB::transaction(function () use ($data, $dataGet, $logistic_id, $user_id, $user_name
+            $delivery = Delivery::where('id', '=', $logistic->delivery_id)->get()->first();
+            $result = DB::transaction(function () use ($delivery, $data, $dataGet, $logistic_id, $user_id, $user_name
             ) {
                 //扣除入庫單庫存
                 foreach ($dataGet as $item) {
-                    $reShipIb = PurchaseInbound::shippingInbound(Event::consume()->value, $item->inbound_id, $item->qty);
+                    $reShipIb = PurchaseInbound::shippingInbound($delivery->event, $delivery->event_id, LogEventFeature::consume_shipping()->value, $item->inbound_id, $item->qty);
                     if ($reShipIb['success'] == 0) {
                         DB::rollBack();
                         return $reShipIb;
