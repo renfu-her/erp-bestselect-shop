@@ -80,7 +80,6 @@
         @csrf
     <div>
         <div class="card-header px-4 d-flex align-items-center bg-white flex-wrap justify-content-end">
-
             {{--寄倉審核OK後才可做出貨--}}
             @if ($consignmentData->audit_status == App\Enums\Consignment\AuditStatus::approved()->value)
                 <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">配送狀態</a>
@@ -96,6 +95,10 @@
                 <div class="col">
                     <dt>預計入庫日期</dt>
                     <dd>{{ $consignmentData->scheduled_date ?? '-' }}</dd>
+                    <input type="hidden" id="scheduled_date" name="scheduled_date"
+                           value="{{ old('scheduled_date', $consignmentData->scheduled_date  ?? '') }}"
+                           class="form-control @error('scheduled_date') is-invalid @enderror" aria-label="預計入庫日期"
+                           required readonly/>
                 </div>
                 <div class="col">
                     <dt>物流編號</dt>
