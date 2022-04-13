@@ -410,6 +410,7 @@ class PurchaseInbound extends Model
         return $result;
     }
 
+    //判斷是否已有購買紀錄
     public static function purchaseInboundList($purchase_id) {
         $result = DB::table('pcs_purchase as purchase')
             ->leftJoin('pcs_purchase_inbound as inbound', function($join) {
@@ -417,6 +418,7 @@ class PurchaseInbound extends Model
                 $join->where('inbound.event', '=', Event::purchase()->value);
             })
             ->whereNull('purchase.deleted_at')
+            ->whereNotNull('inbound.inbound_num')
             ->where('purchase.id', '=', $purchase_id);
         return $result;
     }
