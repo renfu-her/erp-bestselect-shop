@@ -534,10 +534,11 @@ class PurchaseInbound extends Model
                 'inbound.product_style_id'
                 , 'inbound.depot_id'
                 , DB::raw('sum(inbound.inbound_num) as inbound_num')
-                , DB::raw('sum(inbound.inbound_num) as sale_num')
-                , DB::raw('sum(inbound.inbound_num) as csn_num')
-                , DB::raw('sum(inbound.inbound_num) as consume_num')
+                , DB::raw('sum(inbound.sale_num) as sale_num')
+                , DB::raw('sum(inbound.csn_num) as csn_num')
+                , DB::raw('sum(inbound.consume_num) as consume_num')
             )
+            ->whereNull('inbound.deleted_at')
             ->where(DB::raw('(inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num)'), '>', 0)
 //            ->whereNotNull('inbound.close_date')
             ->groupBy('inbound.product_style_id')
