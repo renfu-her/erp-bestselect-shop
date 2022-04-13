@@ -115,8 +115,10 @@
                 axios.post(_URL, DATA).then((result) => {
                     if (currentStatus === ON) {
                         $(this).val(OFF);
+                        toast.show('群組已下架', { type: 'warning' });
                     } else if (currentStatus === OFF) {
                         $(this).val(ON);
+                        toast.show('群組已公開');
                     }
                 }).catch((error) => {
                     console.log('post error:' + error);
