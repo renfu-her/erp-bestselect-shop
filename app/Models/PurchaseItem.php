@@ -212,7 +212,9 @@ class PurchaseItem extends Model
             $tempInboundSql->whereIn('inbound.inbound_user_id', $inbound_user_id);
         }
         if ($inbound_sdate && $inbound_edate) {
-            $tempInboundSql->whereBetween('inbound.inbound_date', [date((string) $inbound_sdate), date((string) $inbound_edate)]);
+            $sDate = date('Y-m-d 00:00:00', strtotime($inbound_sdate));
+            $eDate = date('Y-m-d 23:59:59', strtotime($inbound_edate));
+            $tempInboundSql->whereBetween('inbound.inbound_date', [$sDate, $eDate]);
         }
         if ($expire_day) {
             if (0 < $expire_day) {
@@ -289,7 +291,9 @@ class PurchaseItem extends Model
             $result->whereIn('purchase.purchase_user_id', $purchase_user_id);
         }
         if ($purchase_sdate && $purchase_edate) {
-            $result->whereBetween('purchase.created_at', [date((string) $purchase_sdate), date((string) $purchase_edate)]);
+            $sDate = date('Y-m-d 00:00:00', strtotime($purchase_sdate));
+            $eDate = date('Y-m-d 23:59:59', strtotime($purchase_edate));
+            $result->whereBetween('purchase.created_at', [$sDate, $eDate]);
         }
         if ($supplier_id) {
             $result->where('purchase.supplier_id', '=', $supplier_id);
@@ -373,7 +377,9 @@ class PurchaseItem extends Model
             $tempInboundSql->whereIn('inbound.inbound_user_id', $inbound_user_id);
         }
         if ($inbound_sdate && $inbound_edate) {
-            $tempInboundSql->whereBetween('inbound.inbound_date', [date((string) $inbound_sdate), date((string) $inbound_edate)]);
+            $sDate = date('Y-m-d 00:00:00', strtotime($inbound_sdate));
+            $eDate = date('Y-m-d 23:59:59', strtotime($inbound_edate));
+            $tempInboundSql->whereBetween('inbound.inbound_date', [$sDate, $eDate]);
         }
         if ($expire_day) {
             if (0 < $expire_day) {
@@ -462,7 +468,9 @@ class PurchaseItem extends Model
             $result->whereIn('purchase.purchase_user_id', $purchase_user_id);
         }
         if ($purchase_sdate && $purchase_edate) {
-            $result->whereBetween('purchase.created_at', [date((string) $purchase_sdate), date((string) $purchase_edate)]);
+            $sDate = date('Y-m-d 00:00:00', strtotime($purchase_sdate));
+            $eDate = date('Y-m-d 23:59:59', strtotime($purchase_edate));
+            $result->whereBetween('purchase.created_at', [$sDate, $eDate]);
         }
         if ($supplier_id) {
             $result->where('purchase.supplier_id', '=', $supplier_id);
