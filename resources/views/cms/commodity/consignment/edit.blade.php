@@ -327,7 +327,7 @@
                         <th scope="col">商品名稱</th>
                         <th scope="col">款式</th>
                         <th scope="col">SKU</th>
-                        <th scope="col">庫存數量</th>
+                        <th scope="col">出貨倉庫存數量</th>
                         <th scope="col">寄倉價(單價)</th>
                     </tr>
                     </thead>
@@ -524,7 +524,7 @@
                             <td data-td="name">${p.product_title}</td>
                             <td data-td="spec">${p.spec || ''}</td>
                             <td data-td="sku">${p.sku}</td>
-                            <td>${p.in_stock}</td>
+                            <td>${p.total_in_stock_num}</td>
                             <td data-td="price">${p.depot_price}</td>
                         </tr>`);
                         $('#addProduct .-appendClone.--product').append($tr);

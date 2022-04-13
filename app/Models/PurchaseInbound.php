@@ -507,6 +507,7 @@ class PurchaseInbound extends Model
             ->selectRaw('DATE_FORMAT(inbound.inbound_date,"%Y-%m-%d") as inbound_date') //入庫日期
             ->selectRaw('DATE_FORMAT(inbound.deleted_at,"%Y-%m-%d") as deleted_at') //刪除日期
             ->whereNotNull('inbound.id')
+            ->whereNotNull('inbound.close_date') //只篩選入庫有結案的
             ->whereNull('inbound.deleted_at');
 
         if (isset($param['product_style_id'])) {
@@ -530,20 +531,37 @@ class PurchaseInbound extends Model
     //取得商品款式現有數量
     public static function getExistInboundProductStyleList($depot_id) {
         $result = DB::table('pcs_purchase_inbound as inbound')
+            ->leftJoin('prd_product_styles as style', 'style.id', '=', 'inbound.product_style_id')
+            ->leftJoin('prd_products as product', 'product.id', '=', 'style.product_id')
             ->select(
                 'inbound.product_style_id'
                 , 'inbound.depot_id'
-                , DB::raw('sum(inbound.inbound_num) as inbound_num')
-                , DB::raw('sum(inbound.sale_num) as sale_num')
-                , DB::raw('sum(inbound.csn_num) as csn_num')
-                , DB::raw('sum(inbound.consume_num) as consume_num')
+                , 'product.id as product_id'
+                , 'product.title as product_title'
+                , 'product.type as product_type'
+                , 'style.title'
+                , 'style.sku'
+                , DB::raw('sum(inbound.inbound_num) as total_inbound_num')
+                , DB::raw('sum(inbound.sale_num) as total_sale_num')
+                , DB::raw('sum(inbound.csn_num) as total_csn_num')
+                , DB::raw('sum(inbound.consume_num) as total_consume_num')
             )
+            ->selectRaw('(sum(inbound.inbound_num) - sum(inbound.sale_num) - sum(inbound.csn_num) - sum(inbound.consume_num)) as total_in_stock_num')
             ->whereNull('inbound.deleted_at')
+            ->whereNotNull('style.sku')
+            ->whereNull('style.deleted_at')
+            ->whereNotNull('inbound.close_date') //只篩選入庫有結案的
             ->where(DB::raw('(inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num)'), '>', 0)
-//            ->whereNotNull('inbound.close_date')
             ->groupBy('inbound.product_style_id')
             ->groupBy('inbound.depot_id')
-        ;
+            ->groupBy('product.id')
+            ->groupBy('product.title')
+            ->groupBy('product.type')
+            ->groupBy('style.title')
+            ->groupBy('style.sku');
+        if ($depot_id) {
+            $result->where('inbound.depot_id', $depot_id);
+        }
         return $result;
     }
 }
