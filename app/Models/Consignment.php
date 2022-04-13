@@ -123,17 +123,22 @@ class Consignment extends Model
 
     //刪除
     public static function del($id, $operator_user_id, $operator_user_name) {
-        //判斷若有入庫、付款單 則不可刪除
-        return DB::transaction(function () use ($id, $operator_user_id, $operator_user_name
-        ) {
-            $rePcsLSC = PurchaseLog::stockChange($id, null, Event::consignment()->value, $id, LogEventFeature::csn_del()->value, null, null, $operator_user_id, $operator_user_name);
-            if ($rePcsLSC['success'] == 0) {
-                DB::rollBack();
-                return $rePcsLSC;
-            }
-            self::where('id', '=', $id)->delete();
-            return ['success' => 1, 'error_msg' => ""];
-        });
+        //判斷若有審核、否決 則不可刪除
+        $consignment = Consignment::where('id', $id)->get()->first();
+        if (null != $consignment->audit_date) {
+            return ['success' => 0, 'error_msg' => '已審核無法刪除'];
+        } else {
+            return DB::transaction(function () use ($id, $operator_user_id, $operator_user_name
+            ) {
+                $rePcsLSC = PurchaseLog::stockChange($id, null, Event::consignment()->value, $id, LogEventFeature::csn_del()->value, null, null, $operator_user_id, $operator_user_name);
+                if ($rePcsLSC['success'] == 0) {
+                    DB::rollBack();
+                    return $rePcsLSC;
+                }
+                self::where('id', '=', $id)->delete();
+                return ['success' => 1, 'error_msg' => ""];
+            });
+        }
     }
 
     //結案

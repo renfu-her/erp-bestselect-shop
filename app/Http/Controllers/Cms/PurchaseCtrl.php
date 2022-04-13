@@ -397,24 +397,12 @@ class PurchaseCtrl extends Controller
 
     public function destroy(Request $request, $id)
     {
-        //判斷若有入庫、付款單 則不可刪除
-        $returnMsg = [];
-        $inbounds = PurchaseInbound::purchaseInboundList($id)->get()->toArray();
-        $payingOrderList = PayingOrder::getPayingOrdersWithPurchaseID($id)->get();
-        if (null != $inbounds && 0 < count($inbounds)) {
-            $returnMsg = '已入庫無法刪除';
-        } else if (null != $payingOrderList && 0 < count($payingOrderList)) {
-            $returnMsg = '已有付款單無法刪除';
+        $result = Purchase::del($id, $request->user()->id, $request->user()->name);
+        if ($result['success'] == 0) {
+            wToast($result['error_msg']);
         } else {
-            $result = Purchase::del($id, $request->user()->id, $request->user()->name);
-            if ($result['success'] == 0) {
-                wToast($result['error_msg']);
-            } else {
-                $returnMsg = __('Delete finished.');
-            }
+            wToast(__('Delete finished.'));
         }
-
-        wToast($returnMsg);
         return redirect(Route('cms.purchase.index'));
     }
 
