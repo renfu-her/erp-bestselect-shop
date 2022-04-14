@@ -190,30 +190,28 @@ class PurchaseInbound extends Model
                     return ['success' => 0, 'error_msg' => '入庫單出貨數量超出範圍'];
                 } else {
                     $update_arr = [];
-                    $stock_event = '';
-                    $stock_note = '';
 
-                    //除訂單以外
-                    //訂單耗材、寄倉、寄倉耗材 皆須另外修改通路庫存
                     if (Event::order()->value == $event) {
                         if (LogEventFeature::order_shipping()->value == $feature) {
                             $update_arr['sale_num'] = DB::raw("sale_num + $sale_num");
-                        } elseif (LogEventFeature::consume_shipping()->value == $feature) {
-                            $update_arr['consume_num'] = DB::raw("consume_num + $sale_num");
-                            $stock_event = StockEvent::consume()->value;
-                            $stock_note = LogEventFeature::getDescription(LogEventFeature::consume_shipping()->value);
                         }
                     } else if (Event::consignment()->value == $event) {
                         if (LogEventFeature::order_shipping()->value == $feature) {
                             $update_arr['csn_num'] = DB::raw("csn_num + $sale_num");
-                            $stock_event = StockEvent::consignment()->value;
-                            $stock_note = LogEventFeature::getDescription(LogEventFeature::consignment_shipping()->value);
-                        } elseif (LogEventFeature::consume_shipping()->value == $feature) {
-                            $update_arr['consume_num'] = DB::raw("consume_num + $sale_num");
-                            $stock_event = StockEvent::consume()->value;
-                            $stock_note = LogEventFeature::getDescription(LogEventFeature::consume_shipping()->value);
                         }
                     }
+
+                    $stock_event = '';
+                    $stock_note = '';
+                    //商品款式若在理貨倉
+                    //除訂單、寄倉 已先扣除通路庫存以外
+                    //訂單耗材、寄倉耗材 皆須另外扣除通路庫存
+                    if (LogEventFeature::consume_shipping()->value == $feature) {
+                        $update_arr['consume_num'] = DB::raw("consume_num + $sale_num");
+                        $stock_event = StockEvent::consume()->value;
+                        $stock_note = LogEventFeature::getDescription(LogEventFeature::consume_shipping()->value);
+                    }
+
                     PurchaseInbound::where('id', $id)
                         ->update($update_arr);
                     $reStockChange =PurchaseLog::stockChange($event_id, $inboundDataGet->product_style_id, $event, $id, $feature, $sale_num, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
@@ -240,7 +238,7 @@ class PurchaseInbound extends Model
     }
 
     //歷史入庫
-    public static function getInboundList($param)
+    public static function getInboundList($param, $showDelete = true)
     {
         $result = DB::table('pcs_purchase_inbound as inbound')
             ->leftJoin('prd_product_styles as style', 'style.id', '=', 'inbound.product_style_id')
@@ -265,8 +263,12 @@ class PurchaseInbound extends Model
             ->selectRaw('DATE_FORMAT(inbound.expiry_date,"%Y-%m-%d") as expiry_date') //有效期限
             ->selectRaw('DATE_FORMAT(inbound.inbound_date,"%Y-%m-%d") as inbound_date') //入庫日期
             ->selectRaw('DATE_FORMAT(inbound.deleted_at,"%Y-%m-%d") as deleted_at') //刪除日期
-            ->whereNotNull('inbound.id')
-            ->whereNull('inbound.deleted_at');
+            ->whereNotNull('inbound.id');
+
+        //判斷不顯示刪除歷史
+        if (false == $showDelete) {
+            $result->whereNull('inbound.deleted_at');
+        }
         if (isset($param['event'])) {
             $result->where('inbound.event', '=', $param['event']);
         }
@@ -410,6 +412,7 @@ class PurchaseInbound extends Model
         return $result;
     }
 
+    //判斷是否已有購買紀錄
     public static function purchaseInboundList($purchase_id) {
         $result = DB::table('pcs_purchase as purchase')
             ->leftJoin('pcs_purchase_inbound as inbound', function($join) {
@@ -417,6 +420,7 @@ class PurchaseInbound extends Model
                 $join->where('inbound.event', '=', Event::purchase()->value);
             })
             ->whereNull('purchase.deleted_at')
+            ->whereNotNull('inbound.inbound_num')
             ->where('purchase.id', '=', $purchase_id);
         return $result;
     }
@@ -507,6 +511,7 @@ class PurchaseInbound extends Model
             ->selectRaw('DATE_FORMAT(inbound.inbound_date,"%Y-%m-%d") as inbound_date') //入庫日期
             ->selectRaw('DATE_FORMAT(inbound.deleted_at,"%Y-%m-%d") as deleted_at') //刪除日期
             ->whereNotNull('inbound.id')
+//            ->whereNotNull('inbound.close_date') //只篩選入庫有結案的
             ->whereNull('inbound.deleted_at');
 
         if (isset($param['product_style_id'])) {
@@ -530,20 +535,37 @@ class PurchaseInbound extends Model
     //取得商品款式現有數量
     public static function getExistInboundProductStyleList($depot_id) {
         $result = DB::table('pcs_purchase_inbound as inbound')
+            ->leftJoin('prd_product_styles as style', 'style.id', '=', 'inbound.product_style_id')
+            ->leftJoin('prd_products as product', 'product.id', '=', 'style.product_id')
             ->select(
                 'inbound.product_style_id'
                 , 'inbound.depot_id'
-                , DB::raw('sum(inbound.inbound_num) as inbound_num')
-                , DB::raw('sum(inbound.sale_num) as sale_num')
-                , DB::raw('sum(inbound.csn_num) as csn_num')
-                , DB::raw('sum(inbound.consume_num) as consume_num')
+                , 'product.id as product_id'
+                , 'product.title as product_title'
+                , 'product.type as product_type'
+                , 'style.title'
+                , 'style.sku'
+                , DB::raw('sum(inbound.inbound_num) as total_inbound_num')
+                , DB::raw('sum(inbound.sale_num) as total_sale_num')
+                , DB::raw('sum(inbound.csn_num) as total_csn_num')
+                , DB::raw('sum(inbound.consume_num) as total_consume_num')
             )
+            ->selectRaw('(sum(inbound.inbound_num) - sum(inbound.sale_num) - sum(inbound.csn_num) - sum(inbound.consume_num)) as total_in_stock_num')
             ->whereNull('inbound.deleted_at')
+            ->whereNotNull('style.sku')
+            ->whereNull('style.deleted_at')
+//            ->whereNotNull('inbound.close_date') //只篩選入庫有結案的
             ->where(DB::raw('(inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num)'), '>', 0)
-//            ->whereNotNull('inbound.close_date')
             ->groupBy('inbound.product_style_id')
             ->groupBy('inbound.depot_id')
-        ;
+            ->groupBy('product.id')
+            ->groupBy('product.title')
+            ->groupBy('product.type')
+            ->groupBy('style.title')
+            ->groupBy('style.sku');
+        if ($depot_id) {
+            $result->where('inbound.depot_id', $depot_id);
+        }
         return $result;
     }
 }

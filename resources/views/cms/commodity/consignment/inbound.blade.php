@@ -89,7 +89,7 @@
                         </tr>
                         </thead>
                         <tbody class="-appendClone">
-                        @foreach (old('product_style_id', $purchaseItemList ?? []) as $styleKey => $styleVal)
+                        @foreach ($purchaseItemList ?? [] as $styleKey => $styleVal)
                             <tr class="-cloneElem">
                                 <th class="text-center">
                                     <button type="button"
@@ -109,23 +109,23 @@
                                            name="inbound_date[]"
                                            value="{{ old('inbound_date.'. $styleKey, date('Y-m-d')) }}" required/>
                                 </td>
-                                <td data-td="title">{{ old('title.'. $styleKey, $styleVal->product_title?? '') }}</td>
-                                <td data-td="sku">{{ old('sku.'. $styleKey, $styleVal->sku?? '') }}</td>
-                                <td data-td="should_enter_num">{{ old('should_enter_num.'. $styleKey, $styleVal->should_enter_num?? '') }}</td>
+                                <td data-td="title">{{ $styleVal->product_title?? '' }}</td>
+                                <td data-td="sku">{{ $styleVal->sku?? '' }}</td>
+                                <td data-td="should_enter_num">{{ $styleVal->should_enter_num?? '' }}</td>
                                 <td>
                                     <input type="number"
                                            class="form-control form-control-sm @error('inbound_num.' . $styleKey) is-invalid @enderror"
-                                           name="inbound_num[]" value="{{ old('inbound_num.'. $styleKey, '') }}" min="1"
+                                           name="inbound_num[]" value="{{ old('inbound_num.'. $styleKey, '') }}"
                                            required/>
                                 </td>
                                 <td>
                                     <input type="date"
                                            class="form-control form-control-sm @error('expiry_date.' . $styleKey) is-invalid @enderror"
-                                           name="expiry_date[]" value="{{ old('sku.'. $styleKey, $styleVal->expiry_date?? '') }}"
+                                           name="expiry_date[]" value="{{ old('expiry_date.'. $styleKey, $styleVal->expiry_date?? '') }}"
                                            required readonly/>
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm" name="inbound_memo[]"
+                                    <input type="text" class="form-control form-control-sm @error('inbound_memo.' . $styleKey) is-invalid @enderror" name="inbound_memo[]"
                                            value="{{ old('inbound_memo.'. $styleKey, '') }}"/>
                                 </td>
                             </tr>
@@ -150,7 +150,7 @@
                 <thead>
                 <tr>
                     @if(null == $purchaseData->audit_date)
-                        <th scope="col" class="text-center">取消入庫</th>
+{{--                        <th scope="col" class="text-center">取消入庫</th>--}}
                     @endif
                     <th scope="col">入庫單號</th>
                     <th scope="col">入庫日期</th>
@@ -167,16 +167,16 @@
                 @foreach ($inboundList as $inbound)
                     <tr>
                         @if(null == $purchaseData->audit_date)
-                            <th class="text-center">
-                                @if(null == $inbound->deleted_at)
-                                <button type="button"
-                                        data-href="{{ Route('cms.consignment.delete_inbound', ['id' => $inbound->inbound_id], true) }}"
-                                        data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                                @endif
-                            </th>
+{{--                            <th class="text-center">--}}
+{{--                                @if(null == $inbound->deleted_at)--}}
+{{--                                <button type="button"--}}
+{{--                                        data-href="{{ Route('cms.consignment.delete_inbound', ['id' => $inbound->inbound_id], true) }}"--}}
+{{--                                        data-bs-toggle="modal" data-bs-target="#confirm-delete"--}}
+{{--                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">--}}
+{{--                                    <i class="bi bi-trash"></i>--}}
+{{--                                </button>--}}
+{{--                                @endif--}}
+{{--                            </th>--}}
                         @endif
                         <td>{{ $inbound->inbound_sn }}</td>
                         <td>{{ $inbound->inbound_date }}</td>

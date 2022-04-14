@@ -437,10 +437,16 @@ class Product extends Model
         }
 
         $re->styles = json_decode($re->styles);
-        $re->imgs = array_map(function ($n) {
-            $n->url = asset($n->url);
-            return $n;
-        }, json_decode($re->imgs));
+        if ($re->imgs) {
+            $re->imgs = array_map(function ($n) {
+                $n->url = asset($n->url);
+                return $n;
+            }, json_decode($re->imgs));
+        } else {
+            $re->imgs = [];
+        }
+        $shipment = self::getProductShipments($re->id);
+        $re->shipment = $shipment ? $shipment : '';
 
         return $re;
     }

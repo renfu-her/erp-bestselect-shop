@@ -190,7 +190,7 @@ class ReceiveDepot extends Model
             )
             ->selectRaw('DATE_FORMAT(expiry_date,"%Y-%m-%d") as expiry_date')
             ->selectRaw($raw.' as should_enter_num')
-            ->where(DB::raw($raw), '>', 0)
+//            ->where(DB::raw($raw), '>', 0)
             ->where('delivery.event', $event)
             ->where('delivery.event_id', $event_id)
             ->whereNotNull('rcv_depot.id');

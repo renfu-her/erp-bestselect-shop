@@ -16,9 +16,9 @@ class CreateReceiveDepotTable extends Migration
         Schema::create('dlv_delivery', function (Blueprint $table) {
             $table->id()->comment('出貨單');
             $table->string('sn', 20)->comment('出貨單號');
-            $table->string('event', 30)->comment('事件 訂單/轉倉/寄倉');
-            $table->unsignedBigInteger('event_id')->comment('事件ID');
-            $table->string('event_sn', 20)->comment('單號');
+            $table->string('event', 30)->comment('事件 訂單order、寄倉consignment');
+            $table->unsignedBigInteger('event_id')->comment('事件ID 訂單ord_sub_orders.id、寄倉csn_consignment.id');
+            $table->string('event_sn', 20)->comment('單號 訂單ord_sub_orders.sn、寄倉csn_consignment.sn');
             $table->unsignedBigInteger('temp_id')->nullable()->comment('溫層id');
             $table->string('temp_name', 10)->nullable()->comment('溫層');
             $table->string('ship_category', 30)->nullable()->comment('物流代碼');
@@ -35,12 +35,14 @@ class CreateReceiveDepotTable extends Migration
             $table->string('audit_user_name', 20)->nullable()->comment('審核者名稱');
             $table->timestamps();
             $table->softDeletes();
+
+            $table->unique(['event', 'event_id']); //不可選重複的款式
         });
 
         Schema::create('dlv_receive_depot', function (Blueprint $table) {
             $table->id()->comment('收貨倉ID');
             $table->unsignedBigInteger('delivery_id')->comment('出貨單ID');
-            $table->unsignedBigInteger('event_item_id')->nullable()->comment('事件物品ID');
+            $table->unsignedBigInteger('event_item_id')->nullable()->comment('事件物品ID 訂單ord_items.id、寄倉csn_consignment_items.id');
             $table->boolean('freebies')->default(0)->comment('贈品類型 0:一般 / 1:贈品');
             $table->unsignedBigInteger('inbound_id')->comment('入庫單ID');
             $table->string('inbound_sn', 20)->comment('入庫單SN');

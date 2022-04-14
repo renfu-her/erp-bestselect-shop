@@ -23,7 +23,7 @@ class CreateIdxBannerTable extends Migration
             $table->string('img_phone')->nullable()->comment('圖片_手機');
             $table->string('target')->nullable()->comment('開啟方式 _self _blank');
             $table->tinyInteger('is_public')->default(0)->comment('開關 0:false 1:true');
-            $table->integer('sort')->default(100)->comment('排序');
+            $table->integer('sort')->default(9999)->comment('排序');
             $table->timestamps();
         });
     }

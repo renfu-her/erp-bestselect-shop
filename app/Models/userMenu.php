@@ -105,7 +105,7 @@ return
             [
                 "title" => "首頁設定",
                 "controller_name" => "NavbarCtrl",
-                "route_name" => "cms.homepage.navbar.index",
+                "route_name" => "cms.homepage.banner.index",
             ],
             [
                 "title" => "商品群組",

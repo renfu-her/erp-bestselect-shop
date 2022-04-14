@@ -102,11 +102,11 @@
                                 </td>
                                 <td>
                                     <a href="{{ Route('cms.product.edit-stock', ['id' => $product->id, 'sid' => $style->id]) }}"
-                                        class="-text -stock">{{ $style->safety_stock }}</a>
+                                        class="-text -stock">{{ $style->in_stock }}</a>
                                 </td>
                                 <td>
                                     <a href="{{ Route('cms.product.edit-stock', ['id' => $product->id, 'sid' => $style->id]) }}"
-                                        class="-text -stock">{{ $style->in_stock }}</a>
+                                        class="-text -stock">{{ $style->safety_stock }}</a>
                                 </td>
                                 <!--
                                     <td>

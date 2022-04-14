@@ -30,9 +30,13 @@
                 <dt>審核人員</dt>
                 <dd>{{ $consignmentData->audit_user_name ?? '-' }}</dd>
             </div>
-            <div class="col-sm-5">
+            <div class="col">
                 <dt>審核日期</dt>
                 <dd>{{ $consignmentData->audit_date ?? '-' }}</dd>
+            </div>
+            <div class="col-sm-5">
+                <dt></dt>
+                <dd></dd>
             </div>
         </dl>
         <dl class="row">
@@ -64,10 +68,6 @@
             </div>
         </dl>
         <dl class="row">
-            <div class="col">
-                <dt></dt>
-                <dd></dd>
-            </div>
             <div class="col-auto" style="width: calc(100%/12*8.5);">
                 <dt>寄倉單備註</dt>
                 <dd>{{ $consignmentData->memo ?? '-' }}</dd>
@@ -80,7 +80,6 @@
         @csrf
     <div>
         <div class="card-header px-4 d-flex align-items-center bg-white flex-wrap justify-content-end">
-
             {{--寄倉審核OK後才可做出貨--}}
             @if ($consignmentData->audit_status == App\Enums\Consignment\AuditStatus::approved()->value)
                 <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">配送狀態</a>
@@ -96,6 +95,10 @@
                 <div class="col">
                     <dt>預計入庫日期</dt>
                     <dd>{{ $consignmentData->scheduled_date ?? '-' }}</dd>
+                    <input type="hidden" id="scheduled_date" name="scheduled_date"
+                           value="{{ old('scheduled_date', $consignmentData->scheduled_date  ?? '') }}"
+                           class="form-control @error('scheduled_date') is-invalid @enderror" aria-label="預計入庫日期"
+                           required readonly/>
                 </div>
                 <div class="col">
                     <dt>物流編號</dt>
@@ -194,6 +197,9 @@
                         </table>
                     </div>
                     <div class="d-grid mt-3">
+                        @error('product_style_id.*')
+                        <div class="alert alert-danger mt-3">商品SKU不可重複</div>
+                        @enderror
                         @error('sku_repeat')
                         <div class="alert alert-danger mt-3">{{ $message }}</div>
                         @enderror
@@ -327,7 +333,7 @@
                         <th scope="col">商品名稱</th>
                         <th scope="col">款式</th>
                         <th scope="col">SKU</th>
-                        <th scope="col">庫存數量</th>
+                        <th scope="col">出貨倉庫存數量</th>
                         <th scope="col">寄倉價(單價)</th>
                     </tr>
                     </thead>
@@ -524,7 +530,7 @@
                             <td data-td="name">${p.product_title}</td>
                             <td data-td="spec">${p.spec || ''}</td>
                             <td data-td="sku">${p.sku}</td>
-                            <td>${p.in_stock}</td>
+                            <td>${p.total_in_stock_num}</td>
                             <td data-td="price">${p.depot_price}</td>
                         </tr>`);
                         $('#addProduct .-appendClone.--product').append($tr);

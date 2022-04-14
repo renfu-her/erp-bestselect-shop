@@ -124,16 +124,20 @@ Breadcrumbs::for('cms.purchase.edit', function (BreadcrumbTrail $trail, $value) 
     $trail->push('[單號：' . $value['sn'] . '] 採購單資訊', route('cms.purchase.edit', ['id' => $value['id']]));
 });
 // 編輯 - 採購單資訊 - 新增訂金付款單
-Breadcrumbs::for('cms.ap.create', function (BreadcrumbTrail $trail, $value) {
+Breadcrumbs::for('cms.purchase.pay-deposit', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.purchase.edit', $value);
-    $trail->push('付款單', route('cms.purchase.view-pay-order', ['id' => $value['id'], 'type' => $value['type']]));
-    // $trail->push('新增訂金付款單');
-    $trail->push('新增付款');
+    $trail->push('新增訂金付款單');
 });
 // 編輯 - 採購單資訊 - 新增尾款付款單
-Breadcrumbs::for('cms.purchase.pay-final', function (BreadcrumbTrail $trail, $value) {
+// Breadcrumbs::for('cms.purchase.pay-final', function (BreadcrumbTrail $trail, $value) {
+//     $trail->parent('cms.purchase.edit', $value);
+//     $trail->push('新增尾款付款單');
+// });
+// 編輯 - 採購單資訊 - 新增付款單--訂金&&尾款
+Breadcrumbs::for('cms.ap.create', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.purchase.edit', $value);
-    $trail->push('新增尾款付款單');
+    $trail->push( $value['type'] == 0 ? '訂金付款單' : '尾款付款單', route('cms.purchase.view-pay-order', ['id' => $value['id'], 'type' => $value['type']]));
+    $trail->push('新增付款');
 });
 // 編輯 - 採購單資訊 - 編輯付款單
 Breadcrumbs::for('cms.ap.edit', function (BreadcrumbTrail $trail, $value) {
@@ -146,11 +150,13 @@ Breadcrumbs::for('cms.ap.edit', function (BreadcrumbTrail $trail, $value) {
 //顯示訂單付款單
 Breadcrumbs::for('cms.purchase.pay-order', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.purchase.edit', $value);
-    $trail->push('付款單');
+    // $trail->push('付款單');
+    $trail->push('尾款付款單');
 });
 Breadcrumbs::for('cms.purchase.view-pay-order', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.purchase.edit', $value);
-    $trail->push('付款單');
+    // $trail->push('付款單');
+    $trail->push('訂金付款單');
 });
 // 編輯 - 變更紀錄
 Breadcrumbs::for('cms.purchase.log', function (BreadcrumbTrail $trail, $value) {

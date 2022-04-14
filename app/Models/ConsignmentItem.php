@@ -50,9 +50,9 @@ class ConsignmentItem extends Model
             return ['success' => 0, 'error_msg' => "未建立採購單"];
         }
     }
-    public static function checkToUpdateItemData($itemId, array $purchaseItemReq, $key, string $changeStr, $operator_user_id, $operator_user_name)
+    public static function checkToUpdateItemData($itemId, array $purchaseItemReq, $key, $operator_user_id, $operator_user_name)
     {
-        return DB::transaction(function () use ($itemId, $purchaseItemReq, $key, $changeStr, $operator_user_id, $operator_user_name
+        return DB::transaction(function () use ($itemId, $purchaseItemReq, $key, $operator_user_id, $operator_user_name
         ) {
             $purchaseItem = ConsignmentItem::where('id', '=', $itemId)
                 //->select('price', 'num')
@@ -60,7 +60,6 @@ class ConsignmentItem extends Model
             $purchaseItem->num = $purchaseItemReq['num'][$key];
             if ($purchaseItem->isDirty()) {
                 foreach ($purchaseItem->getDirty() as $dirtykey => $dirtyval) {
-                    $changeStr .= ' itemID:' . $itemId . ' ' . $dirtykey . ' change to ' . $dirtyval;
                     $event = '';
                     $logEventFeature = null;
                     if($dirtykey == 'num') {
@@ -82,7 +81,7 @@ class ConsignmentItem extends Model
                     "num" => $purchaseItemReq['num'][$key],
                 ]);
             }
-            return ['success' => 1, 'error_msg' => $changeStr];
+            return ['success' => 1, 'error_msg' => ''];
         });
     }
 

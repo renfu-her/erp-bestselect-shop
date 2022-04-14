@@ -46,7 +46,7 @@
 
     <div class="row flex-column-reverse flex-sm-row">
         <div class="col-auto">
-            <a href="{{ Route('cms.purchase.index', [], true) }}" class="btn btn-outline-primary px-4"
+            <a href="{{ Route('cms.consignment.index', [], true) }}" class="btn btn-outline-primary px-4"
                 role="button">返回列表</a>
         </div>
         <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">

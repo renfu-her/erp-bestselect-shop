@@ -70,7 +70,7 @@
                         <div class="input-group has-validation">
                             <input type="date" id="scheduled_date" name="scheduled_date"
                                    value="{{ old('scheduled_date', $consignmentData->scheduled_date  ?? '') }}"
-                                   class="form-control @error('scheduled_date') is-invalid @enderror" aria-label="寄貨日期"
+                                   class="form-control @error('scheduled_date') is-invalid @enderror" aria-label="預計入庫日期"
                                    required/>
                             <button class="btn btn-outline-secondary icon" type="button" data-clear
                                     data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
@@ -158,6 +158,9 @@
                 </table>
             </div>
             <div class="d-grid mt-3">
+                @error('product_style_id.*')
+                <div class="alert alert-danger mt-3">商品SKU不可重複</div>
+                @enderror
                 @error('sku_repeat')
                 <div class="alert alert-danger mt-3">{{ $message }}</div>
                 @enderror
@@ -212,7 +215,7 @@
                         <th scope="col">商品名稱</th>
                         <th scope="col">款式</th>
                         <th scope="col">SKU</th>
-                        <th scope="col">庫存數量</th>
+                        <th scope="col">出貨倉庫存數量</th>
                         <th scope="col">寄倉價(單價)</th>
                     </tr>
                     </thead>
@@ -409,7 +412,7 @@
                             <td data-td="name">${p.product_title}</td>
                             <td data-td="spec">${p.spec || ''}</td>
                             <td data-td="sku">${p.sku}</td>
-                            <td>${p.in_stock}</td>
+                            <td>${p.total_in_stock_num}</td>
                             <td data-td="price">${p.depot_price}</td>
                         </tr>`);
                         $('#addProduct .-appendClone.--product').append($tr);

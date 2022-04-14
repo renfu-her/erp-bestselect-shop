@@ -13,10 +13,21 @@ class ProductCtrl extends Controller
 {
     //
 
-    public static function getSingleProduct(Request $request, $sku)
+    public static function getSingleProduct(Request $request)
     {
 
-        $re = Product::singleProduct($sku);
+        $validator = Validator::make($request->all(), [
+            'sku' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'E01',
+                'message' => $validator->messages(),
+            ]);
+        }
+        $d = $request->all();
+        $re = Product::singleProduct($d['sku']);
 
         if ($re) {
             return response()->json(['status' => 0, 'data' => $re]);

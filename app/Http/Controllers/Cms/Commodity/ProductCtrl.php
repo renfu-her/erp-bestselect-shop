@@ -768,20 +768,22 @@ class ProductCtrl extends Controller
 
     public function updateCombo(Request $request, $id)
     {
-
+        
         $d = $request->all();
         $sale_id = (SaleChannel::where('code', '01')->select('id')->get()->first())->id;
 
         if (isset($d['sid'])) {
             for ($i = 0; $i < count($d['sid']); $i++) {
-                if (isset($d['sold_out_event'][$i])) {
-                    ProductStyle::where('id', $d['sid'][$i])->update(['sold_out_event' => $d['sold_out_event'][$i]]);
+              //  if (isset($d['sold_out_event'][$i])) {
+                //    dd($d['sold_out_event'][$i]);
+                  //  ProductStyle::where('id', $d['sid'][$i])->update(['sold_out_event' => $d['sold_out_event'][$i]]);
 
                     SaleChannel::changePrice($sale_id, $d['sid'][$i], $d['dealer_price'][$i], $d['price'][$i], $d['origin_price'][$i], $d['bonus'][$i], $d['dividend'][$i]);
-                }
+             //   }
             }
         }
 
+      //  dd('aaa');
         if (isset($d['active_id'])) {
             ProductStyle::activeStyle($id, $d['active_id']);
         }
