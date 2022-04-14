@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\Received\ReceivedMethod;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -105,16 +106,29 @@ class IncomeExpenditureSeeder extends Seeder
             ]);
         }
 
-        //外幣
+        //付款單科目外幣
         $currencyArray = include 'currency.php';
-        foreach ($currencyArray as $currencyRate) {
-            DB::table('acc_currency')->insert($currencyRate);
+        foreach ($currencyArray as $key => $currencyRate) {
+            DB::table('acc_currency')->insert([
+                'name' => $currencyRate['name'],
+                'rate' => $currencyRate['rate'],
+                //收款單科目外幣
+                'received_default_fk' => $key + 1,
+            ]);
         }
         for ($index = 1; $index <= 13; $index++) {
             DB::table('acc_income_expenditure')->insert([
                 'acc_income_type_fk' => $incomeType_4,
                 'grade_id_fk' => $index + 3,
                 'acc_currency_fk' => $index,
+            ]);
+        }
+
+        //收款單科目外幣
+        for ($gradeId = 116; $gradeId <= 128; $gradeId++) {
+            DB::table('acc_received_default')->insert([
+                'name' => ReceivedMethod::ForeignCurrency,
+                'default_grade_id' => $gradeId,
             ]);
         }
 
