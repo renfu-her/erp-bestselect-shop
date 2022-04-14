@@ -373,10 +373,16 @@ class Product extends Model
         }
 
         $re->styles = json_decode($re->styles);
-        $re->imgs = array_map(function ($n) {
-            $n->url = asset($n->url);
-            return $n;
-        }, json_decode($re->imgs));
+        if ($re->imgs) {
+            $re->imgs = array_map(function ($n) {
+                $n->url = asset($n->url);
+                return $n;
+            }, json_decode($re->imgs));
+        } else {
+            $re->imgs = [];
+        }
+        $shipment = self::getProductShipments($re->id);
+        $re->shipment = $shipment ? $shipment : '';
 
         return $re;
     }
@@ -509,15 +515,15 @@ class Product extends Model
         $conditionQuery = DB::table('prd_products as product')
             ->where([
                 ['product.sku', '=', $sku],
-                ['product.public', '=', 1]
+                ['product.public', '=', 1],
             ]);
 
         $isPublic = $conditionQuery->exists();
         if (!$isPublic) {
             return response()->json([
                 'status' => 0,
-                'msg'    => '不公開',
-                'data'   => []
+                'msg' => '不公開',
+                'data' => [],
             ]);
         }
 
@@ -529,7 +535,7 @@ class Product extends Model
             return response()->json([
                 'status' => 0,
                 'msg' => '已下架',
-                'data' => []
+                'data' => [],
             ]);
         }
 
@@ -551,8 +557,8 @@ class Product extends Model
         ) {
             return response()->json([
                 'status' => 0,
-                'msg'    => '已過下架時間',
-                'data'   => []
+                'msg' => '已過下架時間',
+                'data' => [],
             ]);
         } elseif (!is_null($startDate)
             && is_null($endDate)
@@ -560,8 +566,8 @@ class Product extends Model
         ) {
             return response()->json([
                 'status' => 0,
-                'msg'    => '未到上架時間',
-                'data'   => []
+                'msg' => '未到上架時間',
+                'data' => [],
             ]);
         } elseif (!is_null($startDate)
             && !is_null($endDate)
@@ -569,14 +575,14 @@ class Product extends Model
             if ($now < $startDate) {
                 return response()->json([
                     'status' => 0,
-                    'msg'    => '還未上架',
-                    'data'   => []
+                    'msg' => '還未上架',
+                    'data' => [],
                 ]);
             } elseif ($now > $endDate) {
                 return response()->json([
                     'status' => 0,
-                    'msg'    => '已經下架',
-                    'data'   => []
+                    'msg' => '已經下架',
+                    'data' => [],
                 ]);
             }
         }
@@ -586,7 +592,7 @@ class Product extends Model
         $query = DB::table('prd_products as product')
             ->where([
                 ['product.sku', '=', $sku],
-                ['product.public', '=', 1]
+                ['product.public', '=', 1],
             ])
             ->whereNull('product.deleted_at');
 
@@ -660,7 +666,7 @@ class Product extends Model
             })
             ->select('depot.name as pickup')
             ->get()
-        ->unique();
+            ->unique();
 
         $pickupArray = [];
         foreach ($pickupBuilder as $key => $pickup) {
@@ -677,21 +683,21 @@ class Product extends Model
 
         return response()->json([
             'status' => 0,
-            'msg'    => 'ok',
-            'data'   => [
+            'msg' => 'ok',
+            'data' => [
                 'info' => [
-                    'name'    => $productQuery->first()->title,
-                    'slogan'  => $productQuery->first()->slogan,
+                    'name' => $productQuery->first()->title,
+                    'slogan' => $productQuery->first()->slogan,
                     'feature' => $productQuery->first()->feature,
-                    'image'   => $imageArray,
+                    'image' => $imageArray,
                 ],
                 'introduction' => $productQuery->first()->introduction,
-                'transport'    => $transport,
-                'spec'         => $spec,
-                'logist_desc'  => $productQuery->first()->logist_desc,
-                'pickup'       => $pickupArray,
-                'item'         => $productStyleProduct,
-            ]
+                'transport' => $transport,
+                'spec' => $spec,
+                'logist_desc' => $productQuery->first()->logist_desc,
+                'pickup' => $pickupArray,
+                'item' => $productStyleProduct,
+            ],
         ]);
     }
 }
