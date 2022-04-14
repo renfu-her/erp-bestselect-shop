@@ -84,7 +84,71 @@ class Product extends Model
 
         }
 
+        if (isset($options['collection']) && $options['collection']) {
+
+            $re->leftJoin('collection_prd as cprd', 'product.id', '=', 'cprd.product_id_fk')
+                ->leftJoin('collection as colc', 'colc.id', '=', 'cprd.collection_id_fk')
+                ->addSelect(['colc.name as collection_name', 'collection_id_fk'])
+                ->where('cprd.collection_id_fk', '=', $options['collection']);
+
+        }
+
+        if (isset($options['img'])) {
+            $subImg = DB::table('prd_product_images as img')
+                ->limit(1);
+
+            $re->leftJoin(DB::raw("({$subImg->toSql()}) as img"), function ($join) {
+                $join->on('product.id', '=', 'img.product_id');
+            })
+                ->selectRaw('IF(img.url IS NOT NULL,img.url,"") as img_url');
+
+        }
+
         return $re;
+    }
+
+    public static function getMinPriceProducts($sale_channel_id, $product_id = [], &$product_list = null)
+    {
+
+        if ($product_list) {
+
+            $product_id = array_map(function ($n) {
+                return $n->id;
+            }, $product_list);
+        }
+
+        $subPrice = DB::table('prd_salechannel_style_price as price')
+            ->leftJoin('prd_product_styles as style', 'style.id', '=', 'price.style_id')
+            ->select(['price.*', 'style.product_id'])
+            ->where('price.sale_channel_id', $sale_channel_id)
+            ->orderBy('price.price', 'ASC');
+        if ($product_id) {
+            $subPrice->whereIn('product_id', $product_id);
+        }
+        $price = $subPrice->get()->toArray();
+        $re = [];
+        foreach ($price as $p) {
+            if (!isset($re[$p->product_id])) {
+                $re[$p->product_id] = $p;
+            }
+        }
+
+        if (!$product_list) {
+            return $re;
+        } else {
+            foreach ($product_list as $pp) {
+                if (isset($re[$pp->id])) {
+
+                    $pp->price = $re[$pp->id]->price;
+                    $pp->origin_price = $re[$pp->id]->origin_price;
+
+                } else {
+                    $pp->price = 0;
+                    $pp->origin_price = 0;
+                }
+            }
+        }
+
     }
 
     /**
@@ -509,15 +573,15 @@ class Product extends Model
         $conditionQuery = DB::table('prd_products as product')
             ->where([
                 ['product.sku', '=', $sku],
-                ['product.public', '=', 1]
+                ['product.public', '=', 1],
             ]);
 
         $isPublic = $conditionQuery->exists();
         if (!$isPublic) {
             return response()->json([
                 'status' => 0,
-                'msg'    => '不公開',
-                'data'   => []
+                'msg' => '不公開',
+                'data' => [],
             ]);
         }
 
@@ -529,7 +593,7 @@ class Product extends Model
             return response()->json([
                 'status' => 0,
                 'msg' => '已下架',
-                'data' => []
+                'data' => [],
             ]);
         }
 
@@ -551,8 +615,8 @@ class Product extends Model
         ) {
             return response()->json([
                 'status' => 0,
-                'msg'    => '已過下架時間',
-                'data'   => []
+                'msg' => '已過下架時間',
+                'data' => [],
             ]);
         } elseif (!is_null($startDate)
             && is_null($endDate)
@@ -560,8 +624,8 @@ class Product extends Model
         ) {
             return response()->json([
                 'status' => 0,
-                'msg'    => '未到上架時間',
-                'data'   => []
+                'msg' => '未到上架時間',
+                'data' => [],
             ]);
         } elseif (!is_null($startDate)
             && !is_null($endDate)
@@ -569,14 +633,14 @@ class Product extends Model
             if ($now < $startDate) {
                 return response()->json([
                     'status' => 0,
-                    'msg'    => '還未上架',
-                    'data'   => []
+                    'msg' => '還未上架',
+                    'data' => [],
                 ]);
             } elseif ($now > $endDate) {
                 return response()->json([
                     'status' => 0,
-                    'msg'    => '已經下架',
-                    'data'   => []
+                    'msg' => '已經下架',
+                    'data' => [],
                 ]);
             }
         }
@@ -586,7 +650,7 @@ class Product extends Model
         $query = DB::table('prd_products as product')
             ->where([
                 ['product.sku', '=', $sku],
-                ['product.public', '=', 1]
+                ['product.public', '=', 1],
             ])
             ->whereNull('product.deleted_at');
 
@@ -660,7 +724,7 @@ class Product extends Model
             })
             ->select('depot.name as pickup')
             ->get()
-        ->unique();
+            ->unique();
 
         $pickupArray = [];
         foreach ($pickupBuilder as $key => $pickup) {
@@ -677,21 +741,21 @@ class Product extends Model
 
         return response()->json([
             'status' => 0,
-            'msg'    => 'ok',
-            'data'   => [
+            'msg' => 'ok',
+            'data' => [
                 'info' => [
-                    'name'    => $productQuery->first()->title,
-                    'slogan'  => $productQuery->first()->slogan,
+                    'name' => $productQuery->first()->title,
+                    'slogan' => $productQuery->first()->slogan,
                     'feature' => $productQuery->first()->feature,
-                    'image'   => $imageArray,
+                    'image' => $imageArray,
                 ],
                 'introduction' => $productQuery->first()->introduction,
-                'transport'    => $transport,
-                'spec'         => $spec,
-                'logist_desc'  => $productQuery->first()->logist_desc,
-                'pickup'       => $pickupArray,
-                'item'         => $productStyleProduct,
-            ]
+                'transport' => $transport,
+                'spec' => $spec,
+                'logist_desc' => $productQuery->first()->logist_desc,
+                'pickup' => $pickupArray,
+                'item' => $productStyleProduct,
+            ],
         ]);
     }
 }
