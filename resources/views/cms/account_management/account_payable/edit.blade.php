@@ -142,7 +142,7 @@
                                     <td class="text-end">{{ number_format($value->tw_price) }}</td>
                                 </tr>
                                 @endif
-                            @endforeach
+                                @endforeach
                             @endif
                         </tbody>
 

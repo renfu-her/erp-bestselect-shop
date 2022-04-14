@@ -36,7 +36,7 @@
             <div class="card shadow p-4 mb-4">
                 {{-- <h6>付款紀錄</h6> --}}
 
-                <div class="card-body">
+                {{-- <div class="card-body">
                     <div class="col">
                         <dl class="row mb-0">
                             <dt>支付對象：{{ $supplier->name . ' - ' . $supplier->contact_person }}</dt>
@@ -73,20 +73,24 @@
                                     <td class="text-end">{{ $currency->rate }}</td>
                                     <td>{{ $currency->name }}</td>
                                     <td class="text-end">{{ number_format($deposit_payment_data->price) }}</td>
-                                    <td class="text-end">{{-- $payable_data ? number_format($payable_data->tw_price) : '' --}}</td>
-
-                                    {{--
-                                    <td>{{ $deposit_payment_data->memo }}</td>
-                                    --}}
+                                    <td class="text-end"></td>
                                 </tr>
-                                {{--
-                                <tr class="table-light">
-                                    <td colspan="8" class="text-start">合計：</td>
-                                    <td class="text-end">{{ number_format($deposit_payment_data->price) }}</td>
-                                    <td></td>
-                                </tr>
-                                --}}
-
+                                @foreach($payable_data as $value)
+                                @if($value->payingOrder->type == 0)
+                                    <tr>
+                                        <td>{{ $deposit_payment_data->sn }}</td>
+                                        <td>{{ $purchase_data->purchase_sn }}</td>
+                                        <td>{{ $value->payable->grade->code . ' - ' . $value->payable->grade->name }}</td>
+                                        <td>{{ $value->note }}</td>
+                                        <td class="text-end">{{ number_format($value->tw_price, 2) }}</td>
+                                        <td class="text-end">1</td>
+                                        <td class="text-end">{{ $currency->rate }}</td>
+                                        <td>{{ $currency->name }}</td>
+                                        <td class="text-end"></td>
+                                        <td class="text-end">{{ number_format($value->tw_price) }}</td>
+                                    </tr>
+                                @endif
+                                @endforeach
 
                             @elseif($type === 'final')
                                 @foreach($purchase_item_data as $value)
@@ -100,11 +104,7 @@
                                         <td class="text-end">{{ $currency->rate }}</td>
                                         <td>{{ $currency->name }}</td>
                                         <td class="text-end">{{ number_format($value->total_price) }}</td>
-                                        <td class="text-end">{{-- '已付款項' --}}</td>
-
-                                        {{--
-                                        <td>{{ $value->memo }}</td>
-                                        --}}
+                                        <td class="text-end"></td>
                                     </tr>
                                 @endforeach
                                 @if($logistics_price > 0)
@@ -117,12 +117,8 @@
                                         <td class="text-end">1</td>
                                         <td class="text-end">{{ $currency->rate }}</td>
                                         <td>{{ $currency->name }}</td>
-                                        <td>{{ $logistics_price }}</td>
-                                        <td class="text-end">{{-- '已付款項' --}}</td>
-
-                                        {{--
-                                        <td>{{ $purchase_data->logistics_memo }}</td>
-                                        --}}
+                                        <td class="text-end">{{ $logistics_price }}</td>
+                                        <td class="text-end"></td>
                                     </tr>
                                 @endif
                                 @if(!is_null($deposit_payment_data))
@@ -136,30 +132,35 @@
                                         <td class="text-end">{{ $currency->rate }}</td>
                                         <td>{{ $currency->name }}</td>
                                         <td class="text-end">-{{ number_format($deposit_payment_data->price) }}</td>
-                                        <td class="text-end">{{-- $payable_data ? number_format($payable_data->tw_price) : '' --}}</td>
-
-                                        {{--
-                                        <td>{{$deposit_payment_data->memo}}</td>
-                                        --}}
+                                        <td class="text-end"></td>
                                     </tr>
                                 @endif
-                                {{--
-                                <tr class="table-light">
-                                    <td colspan="8" class="text-start">合計：</td>
-                                    <td class="text-end">{{ number_format($final_payment_price) }}</td>
-                                    <td></td>
+                                @foreach($payable_data as $value)
+                                @if($value->payingOrder->type == 1)
+                                <tr>
+                                    <td>{{ $pay_order->sn }}</td>
+                                    <td>{{ $purchase_data->purchase_sn }}</td>
+                                    <td>{{ $value->payable->grade->code . ' - ' . $value->payable->grade->name }}</td>
+                                    <td>{{ $value->note }}</td>
+                                    <td class="text-end">{{ number_format($value->tw_price, 2) }}</td>
+                                    <td class="text-end">1</td>
+                                    <td class="text-end">{{ $currency->rate }}</td>
+                                    <td>{{ $currency->name }}</td>
+                                    <td class="text-end"></td>
+                                    <td class="text-end">{{ number_format($value->tw_price) }}</td>
                                 </tr>
-                                --}}
+                                @endif
+                                @endforeach
                             @endif
                         </tbody>
 
                         <tfoot>
                             <tr>
-                                <th scope="row" colspan="10" class="text-end">應付總計金額：{{ $type === 'deposit' ? number_format($deposit_payment_data->price) : number_format($final_payment_price) }}</th>
+                                <th scope="row" colspan="10" class="text-end">應付總計金額：{{ number_format($tw_price) }}</th>
                             </tr>
                         </tfoot>
                     </table>
-                </div>
+                </div> --}}
             </div>
 
             <div class="card shadow p-4 mb-4">
@@ -280,7 +281,7 @@
                            id="rate"
                            type="number"
                            step="0.01"
-                           value="{{ old($FOREIGN_CURRENCY . '[rate]', $data ?? '') }}"/>
+                           value="{{ old($FOREIGN_CURRENCY . '[rate]', $data['rate'] ?? '') }}"/>
                 </x-b-form-group>
                 <x-b-form-group name="{{ $FOREIGN_CURRENCY }}[foreign_price]" title="金額（外幣）" required="true"
                                 class="col-12 col-sm-4 mb-3 {{ $FOREIGN_CURRENCY }}"
