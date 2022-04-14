@@ -146,7 +146,7 @@
                            id="rate"
                            type="number"
                            step="0.01"
-                           value="{{ old('foreign_currency[rate]', $all_payable_type_data['payableForeignCurrency']['rate'] ?? '') }}"/>
+                           value="{{ old($FOREIGN_CURRENCY . '[rate]', $data ?? '') }}"/>
                 </x-b-form-group>
                 <x-b-form-group name="{{ $FOREIGN_CURRENCY }}[foreign_price]" title="金額（外幣）" required="true"
                                 class="col-12 col-sm-4 mb-3 {{ $FOREIGN_CURRENCY }}"
@@ -232,10 +232,18 @@
             const otherNameAttr = $('[name^=' + OTHER + ']');
             const refundNameAttr = $('[name^=' + REFUND + ']');
 
+            const currencyJson = @json($currencyDefaultArray);
             const currencyRateEle = $('#rate');
-            const currencyEle = $('[name^="foreign_currency[currency]"]');
-            const foreignPriceEle = $('[name^="foreign_currency[foreign_price]"]');
+            const foreignPriceEle = $('[name^="' + FOREIGN_CURRENCY + '[foreign_price]"]');
             const twPriceEle = $('[name=tw_price]');
+
+            //選擇外幣後，自動帶入匯率、外幣金額、會計科目
+            foreignCurrencyEle.on('change', function () {
+                $selectedCurrency = $('.' + FOREIGN_CURRENCY + ' select');
+                currencyRateEle.val(currencyJson[$selectedCurrency.select2().val()][0]['rate']);
+                let foreignPrice = (twPriceEle.val() / currencyRateEle.val()).toFixed(2);
+                foreignPriceEle.val(foreignPrice);
+            });
 
             const transactTypeEle = $('.transactType');
             const transactTypeSelectedRadioEle = $('.transactType input:checked');

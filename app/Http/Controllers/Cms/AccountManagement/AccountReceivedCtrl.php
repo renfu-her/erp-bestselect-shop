@@ -102,8 +102,30 @@ class AccountReceivedCtrl extends Controller
             }
         }
 
+        $currencyDefault = DB::table('acc_currency')
+            ->leftJoin('acc_received_default', 'acc_currency.received_default_fk', '=', 'acc_received_default.id')
+            ->select(
+                'acc_currency.name as currency_name',
+                'acc_currency.id as currency_id',
+                'acc_currency.rate',
+                'default_grade_id',
+                'acc_received_default.name as method_name'
+            )
+            ->orderBy('acc_currency.id')
+            ->get();
+        $currencyDefaultArray = [];
+        foreach ($currencyDefault as $default) {
+            $currencyDefaultArray[$default->default_grade_id][] = [
+                'currency_id'    => $default->currency_id,
+                'currency_name'    => $default->currency_name,
+                'rate'             => $default->rate,
+                'default_grade_id' => $default->default_grade_id,
+            ];
+        }
+
         return view('cms.account_management.account_received.edit', [
             'defaultArray' => $defaultArray,
+            'currencyDefaultArray' => $currencyDefaultArray,
             'tw_price' => $totalPrice,
             'receivedMethods' => $receivedMethods,
             'formAction' => Route('cms.ar.store'),
