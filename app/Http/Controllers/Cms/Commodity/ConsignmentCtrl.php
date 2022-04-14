@@ -87,7 +87,7 @@ class ConsignmentCtrl extends Controller
             'send_depot_id' => 'required|numeric',
             'receive_depot_id' => 'required|numeric',
             'scheduled_date' => 'required|string',
-            'product_style_id.*' => 'required|numeric',
+            'product_style_id.*' => 'required|numeric|distinct',
             'name.*' => 'required|string',
             'sku.*' => 'required|string',
             'price.*' => 'required|numeric',
@@ -187,7 +187,7 @@ class ConsignmentCtrl extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'product_style_id.*' => 'required|numeric',
+            'product_style_id.*' => 'required|numeric|distinct',
             'name.*' => 'required|string',
             'sku.*' => 'required|string',
             'price.*' => 'required|numeric',

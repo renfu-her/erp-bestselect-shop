@@ -158,6 +158,9 @@
                 </table>
             </div>
             <div class="d-grid mt-3">
+                @error('product_style_id.*')
+                <div class="alert alert-danger mt-3">商品SKU不可重複</div>
+                @enderror
                 @error('sku_repeat')
                 <div class="alert alert-danger mt-3">{{ $message }}</div>
                 @enderror
