@@ -280,7 +280,7 @@
                            id="rate"
                            type="number"
                            step="0.01"
-                           value="{{ old($FOREIGN_CURRENCY . '[rate]', $data ?? '') }}"/>
+                           value="{{ old($FOREIGN_CURRENCY . '[rate]', $data['rate'] ?? '') }}"/>
                 </x-b-form-group>
                 <x-b-form-group name="{{ $FOREIGN_CURRENCY }}[foreign_price]" title="金額（外幣）" required="true"
                                 class="col-12 col-sm-4 mb-3 {{ $FOREIGN_CURRENCY }}"
