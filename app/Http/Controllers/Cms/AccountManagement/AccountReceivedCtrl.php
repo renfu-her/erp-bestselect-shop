@@ -67,29 +67,29 @@ class AccountReceivedCtrl extends Controller
         }
 
         $allGradeArray = [];
-//        $allGrade = AllGrade::all();
-//        $gradeModelArray = GradeModelClass::asSelectArray();
+        // $allGrade = AllGrade::all();
+        // $gradeModelArray = GradeModelClass::asSelectArray();
 
-//        foreach ($allGrade as $grade) {
-//            $allGradeArray[$grade->id] = [
-//                'grade_id' => $grade->id,
-//                'grade_num' => array_keys($gradeModelArray, $grade->grade_type)[0],
-//                'code' => $grade->eachGrade->code,
-//                'name' => $grade->eachGrade->name,
-//            ];
-//        }
+        // foreach ($allGrade as $grade) {
+        //     $allGradeArray[$grade->id] = [
+        //         'grade_id' => $grade->id,
+        //         'grade_num' => array_keys($gradeModelArray, $grade->grade_type)[0],
+        //         'code' => $grade->eachGrade->code,
+        //         'name' => $grade->eachGrade->name,
+        //     ];
+        // }
 
         foreach ($totalGrades as $grade) {
             $allGradeArray[$grade['primary_id']] = $grade;
         }
         $defaultArray = [];
         foreach ($defaultData as $recMethod => $ids) {
-            //收款方式若沒有預設、或是方式為「其它」，則自動帶入所有會計科目
+            // 收款方式若沒有預設、或是方式為「其它」，則自動帶入所有會計科目
             if ($ids !== true &&
                 $recMethod !== 'other') {
                 foreach ($ids as $id) {
                     $defaultArray[$recMethod][$id->default_grade_id] = [
-//                        'methodName' => $recMethod,
+                        // 'methodName' => $recMethod,
                         'method' => ReceivedMethod::getDescription($recMethod),
                         'grade_id' => $id->default_grade_id,
                         'grade_num' => $allGradeArray[$id->default_grade_id]['grade_num'],
@@ -219,7 +219,7 @@ class AccountReceivedCtrl extends Controller
      * @param  \App\Models\AccountReceived  $accountReceived
      * @return \Illuminate\Http\Response
      */
-    public function show(AccountReceived $accountReceived)
+    public function show()
     {
         //
     }
@@ -230,7 +230,7 @@ class AccountReceivedCtrl extends Controller
      * @param  \App\Models\AccountReceived  $accountReceived
      * @return \Illuminate\Http\Response
      */
-    public function edit(AccountReceived $accountReceived)
+    public function edit()
     {
         //
     }
@@ -242,7 +242,7 @@ class AccountReceivedCtrl extends Controller
      * @param  \App\Models\AccountReceived  $accountReceived
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, AccountReceived $accountReceived)
+    public function update(Request $request)
     {
         //
     }
@@ -258,7 +258,6 @@ class AccountReceivedCtrl extends Controller
         return view('cms.account_management.account_received.review', [
 
         ]);
-        //
     }
 
     /**
@@ -267,7 +266,7 @@ class AccountReceivedCtrl extends Controller
      * @param  \App\Models\AccountReceived  $accountReceived
      * @return \Illuminate\Http\Response
      */
-    public function destroy(AccountReceived $accountReceived)
+    public function destroy()
     {
         //
     }
