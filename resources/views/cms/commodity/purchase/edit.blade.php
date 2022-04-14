@@ -301,7 +301,7 @@
                                 已付完尾款（無訂金付款單）
                             @else
                                 <button type="button" class="btn btn-link btn-sm">
-                                <a href="{{ Route('cms.purchase.pay-deposit', ['id' => $id], true) }}">新增付款單</a>
+                                <a href="{{ Route('cms.purchase.pay-deposit', ['id' => $id], true) }}">新增訂金付款單</a>
                                 </button>
                             @endif
                         </div>
@@ -317,9 +317,10 @@
                                 </button>
                             @else
                                 @if($hasCreatedDepositPayment && !$hasReceivedDepositPayment)
-                                    尚未收到訂金
+                                    {{-- 尚未收到訂金 --}}
+                                    訂金尚未補齊
                                 @else
-                                    <button type="submit" id="finalPayment" class="btn btn-link btn-sm">新增付款單</button>
+                                    <button type="submit" id="finalPayment" class="btn btn-link btn-sm">新增尾款付款單</button>
                                 @endif
                             @endif
                         </div>

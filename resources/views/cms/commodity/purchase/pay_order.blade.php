@@ -14,7 +14,7 @@
 {{--    <button type="submit" class="btn btn-primary">新增細項</button>--}}
 {{--    <button type="submit" class="btn btn-primary">變更支付對象</button>--}}
 {{--    <button type="submit" class="btn btn-primary">取消訂金折抵</button>--}}
-    @if($hasReceivedPayment)
+    @if($pay_off)
     {{--
     <a href="{{ Route('cms.ap.edit', ['payOrdId' => $payOrdId,
                                         'id' => $accountPayableId,
@@ -24,19 +24,18 @@
         class="btn btn-primary" role="button">編輯付款</a>
     --}}
     @else
-    <a href="{{ Route('cms.ap.create', ['payOrdId' => $payOrdId,
-                                            'id' => $accountPayableId,
-                                        'payOrdType' => 'pcs',
-                                        'isFinalPay' => ($type === 'final' ? 1 : 0),
-                                        'purchaseId' => $id], true) }}"
-        class="btn btn-primary" role="button">付款</a>
+        <a href="{{ Route('cms.ap.create', [
+            'payOrdId' => $payOrdId,
+            'payOrdType' => 'pcs',
+            'isFinalPay' => ($type === 'final' ? 1 : 0),
+            'purchaseId' => $id
+        ], true) }}" class="btn btn-primary" role="button">付款</a>
     @endif
     <button type="submit" class="btn btn-danger">中一刀列印畫面</button>
     <button type="submit" class="btn btn-danger">A4列印畫面</button>
     <button type="submit" class="btn btn-danger">圖片管理</button>
     <br>
-    <form id="" method="post" action="{{ $formAction }}">
-        @method('POST')
+    <form id="" method="POST" action="{{ $formAction }}">
         @csrf
 
         @error('id')
@@ -45,7 +44,7 @@
 
         <div class="card shadow mb-4 -detail -detail-primary">
             <div class="card-body px-4">
-                <h2>付款單</h2>
+                <h2>{{ $type === 'deposit' ? '訂金' : '尾款'}}付款單</h2>
                 <dl class="row">
                     <div class="col">
                         <dt>喜鴻國際企業股份有限公司</dt>
@@ -72,7 +71,7 @@
                         <dd></dd>
                     </div>
                     <div class="col">
-                        <dt>日期：{{ $payingOrderData->created_at }}</dt>
+                        <dt>製表日期：{{ $payingOrderData->created_at }}</dt>
                         <dd></dd>
                     </div>
                 </dl>
@@ -86,6 +85,12 @@
                         </dt>
                         <dd></dd>
                     </div>
+                    @if($pay_off)
+                    <div class="col">
+                        <dt>付款日期：{{ $pay_off_date }}</dt>
+                        <dd></dd>
+                    </div>
+                    @endif
                 </dl>
                 <dl class="row mb-0">
                     <div class="col">
@@ -191,11 +196,7 @@
                         <dd></dd>
                     </div>
                     <div class="col">
-                        <dt>會計：
-                            @if($hasReceivedPayment)
-                                {{ $accountant ?? '' }}
-                            @endif
-                        </dt>
+                        <dt>會計：{{ $accountant ?? '' }}</dt>
                         <dd></dd>
                     </div>
                     <div class="col">
