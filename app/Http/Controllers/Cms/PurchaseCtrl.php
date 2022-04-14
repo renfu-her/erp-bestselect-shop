@@ -461,7 +461,7 @@ class PurchaseCtrl extends Controller
             'event_item_id.*' => 'required|numeric',
             'product_style_id.*' => 'required|numeric',
             'inbound_date.*' => 'required|string',
-            'inbound_num.*' => 'required|numeric|min:1',
+            'inbound_num.*' => 'required|numeric',
             'error_num.*' => 'required|numeric|min:0',
             'status.*' => 'required|numeric|min:0',
             'expiry_date.*' => 'required|string',
@@ -470,6 +470,13 @@ class PurchaseCtrl extends Controller
         $inboundItemReq = $request->only('event_item_id', 'product_style_id', 'inbound_date', 'inbound_num', 'error_num', 'inbound_memo', 'status', 'expiry_date', 'inbound_memo');
 
         if (isset($inboundItemReq['product_style_id'])) {
+            //檢查若輸入實進數量小於0，打負數時備註欄位要必填說明原因
+            foreach ($inboundItemReq['product_style_id'] as $key => $val) {
+                if (1 > $inboundItemReq['inbound_num'][$key] && true == empty($inboundItemReq['inbound_memo'][$key])) {
+                    throw ValidationException::withMessages(['inbound_memo.'.$key => '打負數時備註欄位要必填說明原因']);
+                }
+            }
+
             $depot = Depot::where('id', '=', $depot_id)->get()->first();
 
             $result = DB::transaction(function () use ($inboundItemReq, $id, $depot_id, $depot, $request

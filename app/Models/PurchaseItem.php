@@ -148,7 +148,7 @@ class PurchaseItem extends Model
                 , 'items.arrived_num'
                 , DB::raw($raw. ' as should_enter_num')
             )
-            ->where(DB::raw($raw), '>', 0)
+//            ->where(DB::raw($raw), '>', 0)
             ->where('purchase_id', $purchase_id)
             ->whereNull('deleted_at');
 

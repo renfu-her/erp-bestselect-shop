@@ -88,7 +88,7 @@
                         </tr>
                         </thead>
                         <tbody class="-appendClone">
-                        @foreach (old('product_style_id', $purchaseItemList ?? []) as $styleKey => $styleVal)
+                        @foreach ($purchaseItemList ?? [] as $styleKey => $styleVal)
                             <tr class="-cloneElem">
                                 <th class="text-center">
                                     <button type="button"
@@ -106,13 +106,13 @@
                                            name="inbound_date[]"
                                            value="{{ old('inbound_date.'. $styleKey, date('Y-m-d')) }}" required/>
                                 </td>
-                                <td data-td="title">{{ old('title.'. $styleKey, $styleVal->title?? '') }}</td>
-                                <td data-td="sku">{{ old('sku.'. $styleKey, $styleVal->sku?? '') }}</td>
-                                <td data-td="should_enter_num">{{ old('should_enter_num.'. $styleKey, $styleVal->should_enter_num?? '') }}</td>
+                                <td data-td="title">{{ $styleVal->product_title?? '' }}</td>
+                                <td data-td="sku">{{ $styleVal->sku?? '' }}</td>
+                                <td data-td="should_enter_num">{{ $styleVal->should_enter_num?? '' }}</td>
                                 <td>
                                     <input type="number"
                                            class="form-control form-control-sm @error('inbound_num.' . $styleKey) is-invalid @enderror"
-                                           name="inbound_num[]" value="{{ old('inbound_num.'. $styleKey, '') }}" min="1"
+                                           name="inbound_num[]" value="{{ old('inbound_num.'. $styleKey, '') }}"
                                            required/>
                                 </td>
                                 <td>
@@ -122,7 +122,7 @@
                                            required/>
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm" name="inbound_memo[]"
+                                    <input type="text" class="form-control form-control-sm @error('inbound_memo.' . $styleKey) is-invalid @enderror" name="inbound_memo[]"
                                            value="{{ old('inbound_memo.'. $styleKey, '') }}"/>
                                 </td>
                             </tr>
