@@ -109,43 +109,14 @@ class AccountPayableCtrl extends Controller
         //     ]
         // ];
 
-        $paying_order = PayingOrder::where([
-            'purchase_id'=>$pay_order->purchase_id,
-            'type'=>request('isFinalPay'),
-        ])->first();
+        $product_grade_name = AllGrade::find($pay_order->product_grade_id)->eachGrade->code . ' - ' . AllGrade::find($pay_order->product_grade_id)->eachGrade->name;
+        $logistics_grade_name = AllGrade::find($pay_order->logistics_grade_id)->eachGrade->code . ' - ' . AllGrade::find($pay_order->logistics_grade_id)->eachGrade->name;
 
-        $product_grade_name = '';
-        $logistics_grade_name = '';
-        if($paying_order){
-            $product_grade_name = AllGrade::find($paying_order->product_grade_id)->eachGrade->code . ' - ' . AllGrade::find($paying_order->product_grade_id)->eachGrade->name;
-            $logistics_grade_name = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' - ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
-        }
-
-        $deposit_payment_price = 0;
-        $final_payment_price = 0;
-        $total_price = 0;
 
         $purchase_item_data = PurchaseItem::getPurchaseItemsByPurchaseId($pay_order->purchase_id);
-        foreach ($purchase_item_data as $purchaseItem) {
-            $total_price += $purchaseItem->total_price;
-        }
         $logistics = Purchase::findOrFail($pay_order->purchase_id);
-        $total_price += $logistics->logistics_price;
 
-        $deposit_payment_order = PayingOrder::getPayingOrdersWithPurchaseID($pay_order->purchase_id, 0)->first();
-        if ($deposit_payment_order) {
-            $deposit_payment_price = $deposit_payment_order->price;
-            $final_payment_price = $total_price - $deposit_payment_price;
-        } else {
-            $deposit_payment_price = 0;
-            $final_payment_price = $total_price;
-        }
-
-        if ($deposit_payment_price > 0) {
-            $deposit_payment_data = PayingOrder::getPayingOrdersWithPurchaseID($pay_order->purchase_id, 0)->first();
-        } else {
-            $deposit_payment_data = null;
-        }
+        $deposit_payment_data = PayingOrder::getPayingOrdersWithPurchaseID($pay_order->purchase_id, 0)->first();
 
         $purchase_data = Purchase::getPurchase($pay_order->purchase_id)->first();
         $supplier = Supplier::where('id', '=', $purchase_data->supplier_id)->first();
@@ -157,9 +128,16 @@ class AccountPayableCtrl extends Controller
             ];
         }
 
+        $paid_paying_order_data = PayingOrder::where([
+                'purchase_id'=>$pay_order->purchase_id,
+                'deleted_at'=>null,
+            ])->get();
+        $payable_data = AccountPayable::whereIn('pay_order_id', $paid_paying_order_data->pluck('id')->toArray())->get();
+        $tw_price = $paid_paying_order_data->sum('price') - $payable_data->sum('tw_price');
+
         return view('cms.account_management.account_payable.edit', [
-            'tw_price' => $pay_order->price,
-            'payable_data' => AccountPayable::where('pay_order_id', $deposit_payment_data ? $deposit_payment_data->id : null)->first(),
+            'tw_price' => $tw_price,
+            'payable_data' => $payable_data,
 
             // 'thirdGradesDataList' => $thirdGradesDataList,
             // 'fourthGradesDataList' => $fourthGradesDataList,
@@ -182,7 +160,6 @@ class AccountPayableCtrl extends Controller
             'logistics_price' => $logistics->logistics_price,
             'purchase_item_data' => $purchase_item_data,
             'deposit_payment_data' => $deposit_payment_data,
-            'final_payment_price' => $final_payment_price,
             'pay_order' => $pay_order,
             'currency' => $currency,
             'type' => request('isFinalPay') === '0' ? 'deposit' : 'final',
@@ -203,7 +180,7 @@ class AccountPayableCtrl extends Controller
         $request->validate([
             'acc_transact_type_fk'    => ['required', 'string', 'regex:/^[1-6]$/'],
             'pay_order_type' => ['required', 'string', 'regex:/^(pcs)$/'],
-            'pay_order_id' => ['required', 'int', 'min:1'],
+            'pay_order_id' => 'required|exists:pcs_paying_orders,id',
             'is_final_payment' => ['required', 'int', 'regex:/^(0|1)$/']
         ]);
         $req = $request->all();
@@ -229,10 +206,21 @@ class AccountPayableCtrl extends Controller
                 break;
         }
 
-        return redirect()->route('cms.purchase.view-pay-order', [
-            'id' => $req['purchase_id'],
-            'type' => $req['is_final_payment']
-        ]);
+        $pay_order = PayingOrder::find(request('pay_order_id'));
+        if ($pay_order->price == AccountPayable::where('pay_order_id', request('pay_order_id'))->sum('tw_price')) {
+            return redirect()->route('cms.purchase.view-pay-order', [
+                'id' => $req['purchase_id'],
+                'type' => $req['is_final_payment']
+            ]);
+
+        } else {
+            return redirect()->route('cms.ap.create', [
+                'payOrdId' => request('pay_order_id'),
+                'payOrdType' => 'pcs',
+                'isFinalPay' => request('is_final_payment'),
+                'purchaseId' => $pay_order->purchase_id
+            ]);
+        }
     }
 
     /**
@@ -355,43 +343,17 @@ class AccountPayableCtrl extends Controller
         //     ]
         // ];
 
-        $paying_order = PayingOrder::where([
-            'purchase_id'=>$pay_order->purchase_id,
-            'type'=>request('isFinalPay'),
-        ])->first();
+        $product_grade_name = AllGrade::find($pay_order->product_grade_id)->eachGrade->code . ' - ' . AllGrade::find($pay_order->product_grade_id)->eachGrade->name;
+        $logistics_grade_name = AllGrade::find($pay_order->logistics_grade_id)->eachGrade->code . ' - ' . AllGrade::find($pay_order->logistics_grade_id)->eachGrade->name;
 
-        $product_grade_name = '';
-        $logistics_grade_name = '';
-        if($paying_order){
-            $product_grade_name = AllGrade::find($paying_order->product_grade_id)->eachGrade->code . ' - ' . AllGrade::find($paying_order->product_grade_id)->eachGrade->name;
-            $logistics_grade_name = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' - ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
-        }
 
         $deposit_payment_price = 0;
-        $final_payment_price = 0;
         $total_price = 0;
 
         $purchase_item_data = PurchaseItem::getPurchaseItemsByPurchaseId($pay_order->purchase_id);
-        foreach ($purchase_item_data as $purchaseItem) {
-            $total_price += $purchaseItem->total_price;
-        }
         $logistics = Purchase::findOrFail($pay_order->purchase_id);
-        $total_price += $logistics->logistics_price;
 
-        $deposit_payment_order = PayingOrder::getPayingOrdersWithPurchaseID($pay_order->purchase_id, 0)->first();
-        if ($deposit_payment_order) {
-            $deposit_payment_price = $deposit_payment_order->price;
-            $final_payment_price = $total_price - $deposit_payment_price;
-        } else {
-            $deposit_payment_price = 0;
-            $final_payment_price = $total_price;
-        }
-
-        if ($deposit_payment_price > 0) {
-            $deposit_payment_data = PayingOrder::getPayingOrdersWithPurchaseID($pay_order->purchase_id, 0)->first();
-        } else {
-            $deposit_payment_data = null;
-        }
+        $deposit_payment_data = PayingOrder::getPayingOrdersWithPurchaseID($pay_order->purchase_id, 0)->first();
 
         $purchase_data = Purchase::getPurchase($pay_order->purchase_id)->first();
         $supplier = Supplier::where('id', '=', $purchase_data->supplier_id)->first();
@@ -403,8 +365,15 @@ class AccountPayableCtrl extends Controller
             ];
         }
 
+        $paid_paying_order_data = PayingOrder::where([
+                'purchase_id'=>$pay_order->purchase_id,
+                'deleted_at'=>null,
+            ])->get();
+        $payable_data = AccountPayable::whereIn('pay_order_id', $paid_paying_order_data->pluck('id')->toArray())->get();
+        $tw_price = $paid_paying_order_data->sum('price') - $payable_data->sum('tw_price');
+
         return view('cms.account_management.account_payable.edit', [
-            'tw_price' => $payable_data->tw_price,
+            'tw_price' => $tw_price,
             'payable_data' => $payable_data,
             'all_payable_type_data' => $all_payable_type_data,
             'payment_date' => explode(' ', $payable_data->payment_date)[0],
@@ -430,7 +399,6 @@ class AccountPayableCtrl extends Controller
             'logistics_price' => $logistics->logistics_price,
             'purchase_item_data' => $purchase_item_data,
             'deposit_payment_data' => $deposit_payment_data,
-            'final_payment_price' => $final_payment_price,
             'pay_order' => $pay_order,
             'currency' => $currency,
             'type' => request('isFinalPay') === '0' ? 'deposit' : 'final',

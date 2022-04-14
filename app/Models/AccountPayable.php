@@ -27,6 +27,7 @@ class AccountPayable extends Model
 //        'payable_status',
         'payment_date',
         'accountant_id_fk',
+        'note',
     ];
 
     /**

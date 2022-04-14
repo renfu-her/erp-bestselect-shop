@@ -65,20 +65,22 @@
                                     <td class="text-end">{{ $currency->rate }}</td>
                                     <td>{{ $currency->name }}</td>
                                     <td class="text-end">{{ number_format($deposit_payment_data->price) }}</td>
-                                    <td class="text-end">{{-- $payable_data ? number_format($payable_data->tw_price) : '' --}}</td>
-
-                                    {{--
-                                    <td>{{ $deposit_payment_data->memo }}</td>
-                                    --}}
+                                    <td class="text-end"></td>
                                 </tr>
-                                {{--
-                                <tr class="table-light">
-                                    <td colspan="8" class="text-start">合計：</td>
-                                    <td class="text-end">{{ number_format($deposit_payment_data->price) }}</td>
-                                    <td></td>
-                                </tr>
-                                --}}
-
+                                @foreach($payable_data as $value)
+                                    <tr>
+                                        <td>{{ $deposit_payment_data->sn }}</td>
+                                        <td>{{ $purchase_data->purchase_sn }}</td>
+                                        <td>{{ $value->payable->grade->code . ' - ' . $value->payable->grade->name }}</td>
+                                        <td>{{ $value->note }}</td>
+                                        <td class="text-end">-{{ number_format($value->tw_price, 2) }}</td>
+                                        <td class="text-end">1</td>
+                                        <td class="text-end">{{ $currency->rate }}</td>
+                                        <td>{{ $currency->name }}</td>
+                                        <td class="text-end"></td>
+                                        <td class="text-end">{{ number_format($value->tw_price) }}</td>
+                                    </tr>
+                                @endforeach
 
                             @elseif($type === 'final')
                                 @foreach($purchase_item_data as $value)
@@ -92,11 +94,7 @@
                                         <td class="text-end">{{ $currency->rate }}</td>
                                         <td>{{ $currency->name }}</td>
                                         <td class="text-end">{{ number_format($value->total_price) }}</td>
-                                        <td class="text-end">{{-- '已付款項' --}}</td>
-
-                                        {{--
-                                        <td>{{ $value->memo }}</td>
-                                        --}}
+                                        <td class="text-end"></td>
                                     </tr>
                                 @endforeach
                                 @if($logistics_price > 0)
@@ -109,12 +107,8 @@
                                         <td class="text-end">1</td>
                                         <td class="text-end">{{ $currency->rate }}</td>
                                         <td>{{ $currency->name }}</td>
-                                        <td>{{ $logistics_price }}</td>
-                                        <td class="text-end">{{-- '已付款項' --}}</td>
-
-                                        {{--
-                                        <td>{{ $purchase_data->logistics_memo }}</td>
-                                        --}}
+                                        <td class="text-end">{{ $logistics_price }}</td>
+                                        <td class="text-end"></td>
                                     </tr>
                                 @endif
                                 @if(!is_null($deposit_payment_data))
@@ -128,26 +122,31 @@
                                         <td class="text-end">{{ $currency->rate }}</td>
                                         <td>{{ $currency->name }}</td>
                                         <td class="text-end">-{{ number_format($deposit_payment_data->price) }}</td>
-                                        <td class="text-end">{{-- $payable_data ? number_format($payable_data->tw_price) : '' --}}</td>
-
-                                        {{--
-                                        <td>{{$deposit_payment_data->memo}}</td>
-                                        --}}
+                                        <td class="text-end"></td>
                                     </tr>
                                 @endif
-                                {{--
-                                <tr class="table-light">
-                                    <td colspan="8" class="text-start">合計：</td>
-                                    <td class="text-end">{{ number_format($final_payment_price) }}</td>
-                                    <td></td>
+                                @foreach($payable_data as $value)
+                                @if($value->payingOrder->type == 1)
+                                <tr>
+                                    <td>{{ $pay_order->sn }}</td>
+                                    <td>{{ $purchase_data->purchase_sn }}</td>
+                                    <td>{{ $value->payable->grade->code . ' - ' . $value->payable->grade->name }}</td>
+                                    <td>{{ $value->note }}</td>
+                                    <td class="text-end">{{ number_format($value->tw_price, 2) }}</td>
+                                    <td class="text-end">1</td>
+                                    <td class="text-end">{{ $currency->rate }}</td>
+                                    <td>{{ $currency->name }}</td>
+                                    <td class="text-end"></td>
+                                    <td class="text-end">{{ number_format($value->tw_price) }}</td>
                                 </tr>
-                                --}}
+                                @endif
+                            @endforeach
                             @endif
                         </tbody>
 
                         <tfoot>
                             <tr>
-                                <th scope="row" colspan="10" class="text-end">應付總計金額：{{ $type === 'deposit' ? number_format($deposit_payment_data->price) : number_format($final_payment_price) }}</th>
+                                <th scope="row" colspan="10" class="text-end">應付總計金額：{{ number_format($tw_price) }}</th>
                             </tr>
                         </tfoot>
                     </table>
@@ -162,7 +161,7 @@
                     @foreach($transactTypeList as $transactData)
                         <div class="form-check form-check-inline">
                             <label class="form-check-label transactType" data-type="{{ $transactData['key'] }}">
-                                <input class="form-check-input" name="acc_transact_type_fk" type="radio" {{ ($payable_data->acc_income_type_fk ?? 0) === $transactData['value'] ? 'checked' : ''}} value="{{ $transactData['value'] }}">
+                                <input class="form-check-input" name="acc_transact_type_fk" type="radio" {{ ( $method == 'edit' && count($payable_data) > 0 ? $payable_data->last()->acc_income_type_fk : 0) === $transactData['value'] ? 'checked' : ''}} value="{{ $transactData['value'] }}" required>
                                 {{ $transactData['name'] }}
                             </label>
                         </div>
@@ -220,7 +219,7 @@
                            name="cheque[maturity_date]"
                            required
                            type="date"
-                           value="{{ old('cheque[maturity_date]', $all_payable_type_data['payableCheque']['maturity_date'] ?? '') }}"/>
+                           value="{{ old('cheque[maturity_date]', $all_payable_type_data['payableCheque']['maturity_date'] ?? date('Y-m-d', strtotime( date('Y-m-d'))) ) }}"/>
                 </x-b-form-group>
                 <x-b-form-group name="cheque[cash_cheque_date]" title="兌現日" required="true"
                                 class="col-12 col-sm-4 mb-3 cheque"
@@ -229,7 +228,7 @@
                            name="cheque[cash_cheque_date]"
                            required
                            type="date"
-                           value="{{ old('cheque[cash_cheque_date]', $all_payable_type_data['payableCheque']['cash_cheque_date'] ?? '') }}"/>
+                           value="{{ old('cheque[cash_cheque_date]', $all_payable_type_data['payableCheque']['cash_cheque_date'] ?? date('Y-m-d', strtotime( date('Y-m-d'))) ) }}"/>
                 </x-b-form-group>
                 <div class="col-12 col-sm-4 mb-3 cheque">
                     <label class="form-label">狀態
@@ -271,7 +270,7 @@
                            name="remit[remit_date]"
                            type="date"
                            required
-                           value="{{ old('remit[remit_date]',  $all_payable_type_data['payableRemit']['remit_date'] ?? '') }}"/>
+                           value="{{ old('remit[remit_date]',  $all_payable_type_data['payableRemit']['remit_date'] ?? date('Y-m-d', strtotime( date('Y-m-d'))) ) }}"/>
                 </x-b-form-group>
 
                 <div class="col-12 col-sm-4 mb-3 foreign_currency">
@@ -367,10 +366,10 @@
                 --}}
 
                 <x-b-form-group name="payment_date" title="付款日期" required="true" class="col-12 col-sm-6">
-                    <input class="form-control @error('payment_date') is-invalid @enderror" name="payment_date" required type="date" value="{{ old('payment_date', $payment_date ?? '') }}"/>
+                    <input class="form-control @error('payment_date') is-invalid @enderror" name="payment_date" required type="date" value="{{ old('payment_date', $payment_date ?? date('Y-m-d', strtotime( date('Y-m-d'))) ) }}"/>
                 </x-b-form-group>
                 <x-b-form-group name="note" title="備註" required="false">
-                    <input class="form-control @error('note') is-invalid @enderror" name="note" type="text" value="{{ old('note', $payable_data->note ?? '') }}"/>
+                    <input class="form-control @error('note') is-invalid @enderror" name="note" type="text" value="{{ old('note', ($method == 'edit' && count($payable_data) > 0 ? $payable_data->last()->note : '')) }}"/>
                 </x-b-form-group>
             </div>
             <div class="px-0">

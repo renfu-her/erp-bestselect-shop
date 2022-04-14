@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cms;
 
 use App\Enums\Delivery\Event;
 use App\Http\Controllers\Controller;
+
 use App\Models\AllGrade;
 use App\Models\Depot;
 use App\Models\PayingOrder;
@@ -14,12 +15,15 @@ use App\Models\PurchaseLog;
 use App\Models\Supplier;
 use App\Models\SupplierPayment;
 use App\Models\User;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use App\Enums\Purchase\InboundStatus;
+
+use App\Models\AccountPayable;
 
 class PurchaseCtrl extends Controller
 {
@@ -265,13 +269,13 @@ class PurchaseCtrl extends Controller
                 if ($payingOrderItem->type === 0) {
                     $hasCreatedDepositPayment = true;
                     $depositPayData = $payingOrderItem;
-                    if (PayingOrder::find($payingOrderId)->accountPayable) {
+                    if ($payingOrderItem->price == AccountPayable::where('pay_order_id', $payingOrderItem->id)->sum('tw_price')) {
                         $hasReceivedDepositPayment = true;
                     }
                 } elseif ($payingOrderItem->type === 1) {
                     $hasCreatedFinalPayment = true;
                     $finalPayData = $payingOrderItem;
-                    if (PayingOrder::find($payingOrderId)->accountPayable) {
+                    if ($payingOrderItem->price == AccountPayable::where('pay_order_id', $payingOrderItem->id)->sum('tw_price')) {
                         $hasReceivedFinalPayment = true;
                     }
                 }
@@ -614,6 +618,19 @@ class PurchaseCtrl extends Controller
                             ->first();
         $accountPayable = PayingOrder::find($payingOrderData->id)->accountPayable;
 
+        $pay_off = 0;
+        $pay_off_date = null;
+        $pay_record = AccountPayable::where('pay_order_id', $payingOrderData->id);
+        $sum_pay = $pay_record->sum('tw_price');
+        if($payingOrderData->price == $sum_pay ){
+            $pay_off = 1;
+            if($payingOrderData->price == 0 && $pay_record->count() == 0){
+                $pay_off_date = date('Y-m-d', strtotime($payingOrderData->created_at));
+            } else {
+                $pay_off_date = date('Y-m-d', strtotime($pay_record->get()->last()->payment_date));
+            }
+        }
+
         if ($accountPayable) {
             $accountant = DB::table('usr_users')
                             ->find($accountPayable->accountant_id_fk, ['name'])
@@ -634,7 +651,8 @@ class PurchaseCtrl extends Controller
             'formAction' => Route('cms.purchase.index', ['id' => $id,]),
             'supplierUrl' => Route('cms.supplier.edit', ['id' => $supplier->id,]),
             'purchaseData' => $purchaseData,
-            'hasReceivedPayment' => !is_null($accountPayable),
+            'pay_off' => $pay_off,
+            'pay_off_date' => $pay_off_date,
             'payingOrderData' => $payingOrderData,
             'productGradeName' => $productGradeName,
             'logisticsGradeName' => $logisticsGradeName,
