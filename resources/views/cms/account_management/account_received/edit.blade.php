@@ -24,10 +24,144 @@
         $REMIT = \App\Enums\Received\ReceivedMethod::Remittance;
     @endphp
 
+    <div class="pt-2 mb-3">
+        <a href="{{ Route('cms.order.detail', ['id' => $ord_orders_id]) }}" class="btn btn-primary" role="button">
+            <i class="bi bi-arrow-left"></i> 回到上一頁
+        </a>
+    </div>
     <form method="post" action="{{ $formAction }}">
         <input type="hidden" name="id[ord_orders]" value="{{ $ord_orders_id }}">
     @csrf
         <div class="row justify-content-end mb-4">
+            <div class="card shadow p-4 mb-4">
+                {{-- <h6>付款紀錄</h6> --}}
+
+                <div class="card-body">
+                    <div class="col">
+                        <dl class="row mb-0">
+                            <dt>支付對象：{{ $supplier->name . ' - ' . $supplier->contact_person }}</dt>
+                        </dl>
+                    </div>
+                </div>
+
+                <div class="table-responsive tableOverBox">
+                    <table class="table table-hover table-bordered tableList mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col">付款單號</th>
+                                <th scope="col">採購單號</th>
+                                <th scope="col">會計科目</th>
+                                <th scope="col">摘要</th>
+                                <th scope="col">金額</th>
+                                <th scope="col">數量</th>
+                                <th scope="col">匯率</th>
+                                <th scope="col">幣別</th>
+                                <th scope="col">應付款項</th>
+                                <th scope="col">已付款項</th>
+                            </tr>
+                        </thead>
+
+                        <tbody class="product_list">
+                            @if($type === 'deposit')
+                                <tr>
+                                    <td>{{ $deposit_payment_data->sn }}</td>
+                                    <td>{{ $purchase_data->purchase_sn }}</td>
+                                    <td>{{ $product_grade_name }}</td>
+                                    <td>{{ $deposit_payment_data->summary }}</td>
+                                    <td class="text-end">{{ number_format($deposit_payment_data->price, 2) }}</td>
+                                    <td class="text-end">1</td>
+                                    <td class="text-end">{{ $currency->rate }}</td>
+                                    <td>{{ $currency->name }}</td>
+                                    <td class="text-end">{{ number_format($deposit_payment_data->price) }}</td>
+                                    <td class="text-end">{{-- $payable_data ? number_format($payable_data->tw_price) : '' --}}</td>
+
+                                    {{--
+                                    <td>{{ $deposit_payment_data->memo }}</td>
+                                    --}}
+                                </tr>
+                                {{--
+                                <tr class="table-light">
+                                    <td colspan="8" class="text-start">合計：</td>
+                                    <td class="text-end">{{ number_format($deposit_payment_data->price) }}</td>
+                                    <td></td>
+                                </tr>
+                                --}}
+
+
+                            @elseif($type === 'final')
+                                @foreach($purchase_item_data as $value)
+                                    <tr>
+                                        <td>{{ $pay_order->sn }}</td>
+                                        <td>{{ $purchase_data->purchase_sn }}</td>
+                                        <td>{{ $product_grade_name }}</td>
+                                        <td>{{ $value->title . '（負責人：' . $value->name }}）</td>
+                                        <td class="text-end">{{ number_format($value->total_price / $value->num, 2) }}</td>
+                                        <td class="text-end">{{ $value->num }}</td>
+                                        <td class="text-end">{{ $currency->rate }}</td>
+                                        <td>{{ $currency->name }}</td>
+                                        <td class="text-end">{{ number_format($value->total_price) }}</td>
+                                        <td class="text-end">{{-- '已付款項' --}}</td>
+
+                                        {{--
+                                        <td>{{ $value->memo }}</td>
+                                        --}}
+                                    </tr>
+                                @endforeach
+                                @if($logistics_price > 0)
+                                    <tr>
+                                        <td>{{ $pay_order->sn }}</td>
+                                        <td>{{ $purchase_data->purchase_sn }}</td>
+                                        <td>{{ $logistics_grade_name }}</td>
+                                        <td>{{ '物流費用' }}</td>
+                                        <td class="text-end">{{ number_format($logistics_price, 2) }}</td>
+                                        <td class="text-end">1</td>
+                                        <td class="text-end">{{ $currency->rate }}</td>
+                                        <td>{{ $currency->name }}</td>
+                                        <td>{{ $logistics_price }}</td>
+                                        <td class="text-end">{{-- '已付款項' --}}</td>
+
+                                        {{--
+                                        <td>{{ $purchase_data->logistics_memo }}</td>
+                                        --}}
+                                    </tr>
+                                @endif
+                                @if(!is_null($deposit_payment_data))
+                                    <tr>
+                                        <td>{{ $deposit_payment_data->sn }}</td>
+                                        <td>{{ $purchase_data->purchase_sn }}</td>
+                                        <td>{{ $product_grade_name }}</td>
+                                        <td>訂金抵扣</td>
+                                        <td class="text-end">-{{ number_format($deposit_payment_data->price, 2) }}</td>
+                                        <td class="text-end">1</td>
+                                        <td class="text-end">{{ $currency->rate }}</td>
+                                        <td>{{ $currency->name }}</td>
+                                        <td class="text-end">-{{ number_format($deposit_payment_data->price) }}</td>
+                                        <td class="text-end">{{-- $payable_data ? number_format($payable_data->tw_price) : '' --}}</td>
+
+                                        {{--
+                                        <td>{{$deposit_payment_data->memo}}</td>
+                                        --}}
+                                    </tr>
+                                @endif
+                                {{--
+                                <tr class="table-light">
+                                    <td colspan="8" class="text-start">合計：</td>
+                                    <td class="text-end">{{ number_format($final_payment_price) }}</td>
+                                    <td></td>
+                                </tr>
+                                --}}
+                            @endif
+                        </tbody>
+
+                        <tfoot>
+                            <tr>
+                                <th scope="row" colspan="10" class="text-end">應付總計金額：{{ $type === 'deposit' ? number_format($deposit_payment_data->price) : number_format($final_payment_price) }}</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
             <div class="card shadow p-4 mb-4">
                 <fieldset class="col-12 mb-4 ">
                     <h6>收款方式

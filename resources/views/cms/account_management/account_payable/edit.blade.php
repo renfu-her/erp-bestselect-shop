@@ -68,18 +68,20 @@
                                     <td class="text-end"></td>
                                 </tr>
                                 @foreach($payable_data as $value)
+                                @if($value->payingOrder->type == 0)
                                     <tr>
                                         <td>{{ $deposit_payment_data->sn }}</td>
                                         <td>{{ $purchase_data->purchase_sn }}</td>
                                         <td>{{ $value->payable->grade->code . ' - ' . $value->payable->grade->name }}</td>
                                         <td>{{ $value->note }}</td>
-                                        <td class="text-end">-{{ number_format($value->tw_price, 2) }}</td>
+                                        <td class="text-end">{{ number_format($value->tw_price, 2) }}</td>
                                         <td class="text-end">1</td>
                                         <td class="text-end">{{ $currency->rate }}</td>
                                         <td>{{ $currency->name }}</td>
                                         <td class="text-end"></td>
                                         <td class="text-end">{{ number_format($value->tw_price) }}</td>
                                     </tr>
+                                @endif
                                 @endforeach
 
                             @elseif($type === 'final')
