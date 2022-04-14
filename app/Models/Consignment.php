@@ -59,7 +59,8 @@ class Consignment extends Model
         });
     }
 
-    public static function checkToUpdateConsignmentData($id, array $purchaseReq, string $changeStr,
+    //更新現有資料
+    public static function checkToUpdateConsignmentData($id, array $purchaseReq,
                                                         $operator_user_id, $operator_user_name
     )
     {
@@ -92,7 +93,7 @@ class Consignment extends Model
         $purchase->memo = $purchaseReq['memo'] ?? null;
         $purchase->audit_status = $purchaseReq['audit_status'] ?? null;
 
-        return DB::transaction(function () use ($purchase, $id, $purchaseReq, $changeStr, $operator_user_id, $operator_user_name
+        return DB::transaction(function () use ($purchase, $id, $purchaseReq, $operator_user_id, $operator_user_name
         ) {
             if ($purchase->isDirty()) {
                 foreach ($purchase->getDirty() as $key => $val) {
@@ -100,7 +101,6 @@ class Consignment extends Model
                     if($key == 'scheduled_date') {
                         $event = '預計入庫日期';
                     }
-                    $changeStr .= ' ' . $key . ' change to ' . $val;
                     $rePcsLSC = PurchaseLog::stockChange($id, null, Event::consignment()->value, $id, LogEventFeature::csn_change_data()->value, null, $event, $operator_user_id, $operator_user_name);
                     if ($rePcsLSC['success'] == 0) {
                         DB::rollBack();
@@ -117,7 +117,7 @@ class Consignment extends Model
                     "audit_status" => $purchaseReq['audit_status'] ?? App\Enums\Consignment\AuditStatus::unreviewed()->value,
                 ]);
             }
-            return ['success' => 1, 'error_msg' => $changeStr];
+            return ['success' => 1, 'error_msg' => ''];
         });
     }
 
@@ -255,10 +255,12 @@ class Consignment extends Model
                 , 'consignment.send_depot_name as send_depot_name'
                 , 'send.tel as send_depot_tel'
                 , 'send.address as send_depot_address'
+                , 'send.can_tally as send_can_tally'
                 , 'consignment.receive_depot_id as receive_depot_id'
                 , 'consignment.receive_depot_name as receive_depot_name'
                 , 'rcv.tel as receive_depot_tel'
                 , 'rcv.address as receive_depot_address'
+                , 'rcv.can_tally as rcv_can_tally'
                 , 'consignment.logistic_status_code as logistic_status_code'
                 , 'consignment.logistic_status as logistic_status'
                 , 'consignment.create_user_id as create_user_id'

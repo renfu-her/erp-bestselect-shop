@@ -190,30 +190,28 @@ class PurchaseInbound extends Model
                     return ['success' => 0, 'error_msg' => '入庫單出貨數量超出範圍'];
                 } else {
                     $update_arr = [];
-                    $stock_event = '';
-                    $stock_note = '';
 
-                    //除訂單以外
-                    //訂單耗材、寄倉、寄倉耗材 皆須另外修改通路庫存
                     if (Event::order()->value == $event) {
                         if (LogEventFeature::order_shipping()->value == $feature) {
                             $update_arr['sale_num'] = DB::raw("sale_num + $sale_num");
-                        } elseif (LogEventFeature::consume_shipping()->value == $feature) {
-                            $update_arr['consume_num'] = DB::raw("consume_num + $sale_num");
-                            $stock_event = StockEvent::consume()->value;
-                            $stock_note = LogEventFeature::getDescription(LogEventFeature::consume_shipping()->value);
                         }
                     } else if (Event::consignment()->value == $event) {
                         if (LogEventFeature::order_shipping()->value == $feature) {
                             $update_arr['csn_num'] = DB::raw("csn_num + $sale_num");
-                            $stock_event = StockEvent::consignment()->value;
-                            $stock_note = LogEventFeature::getDescription(LogEventFeature::consignment_shipping()->value);
-                        } elseif (LogEventFeature::consume_shipping()->value == $feature) {
-                            $update_arr['consume_num'] = DB::raw("consume_num + $sale_num");
-                            $stock_event = StockEvent::consume()->value;
-                            $stock_note = LogEventFeature::getDescription(LogEventFeature::consume_shipping()->value);
                         }
                     }
+
+                    $stock_event = '';
+                    $stock_note = '';
+                    //商品款式若在理貨倉
+                    //除訂單、寄倉 已先扣除通路庫存以外
+                    //訂單耗材、寄倉耗材 皆須另外扣除通路庫存
+                    if (LogEventFeature::consume_shipping()->value == $feature) {
+                        $update_arr['consume_num'] = DB::raw("consume_num + $sale_num");
+                        $stock_event = StockEvent::consume()->value;
+                        $stock_note = LogEventFeature::getDescription(LogEventFeature::consume_shipping()->value);
+                    }
+
                     PurchaseInbound::where('id', $id)
                         ->update($update_arr);
                     $reStockChange =PurchaseLog::stockChange($event_id, $inboundDataGet->product_style_id, $event, $id, $feature, $sale_num, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);

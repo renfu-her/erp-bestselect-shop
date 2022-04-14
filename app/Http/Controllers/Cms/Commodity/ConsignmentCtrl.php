@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Cms\Commodity;
 use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Purchase\InboundStatus;
+use App\Enums\Purchase\LogEventFeature;
+use App\Enums\StockEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Consignment;
 use App\Models\ConsignmentItem;
 use App\Models\Delivery;
 use App\Models\Depot;
+use App\Models\ProductStock;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseLog;
 use App\Models\ReceiveDepot;
@@ -213,38 +216,36 @@ class ConsignmentCtrl extends Controller
             }
         }
 
-        $changeStr = '';
-        $repcsCTPD = Consignment::checkToUpdateConsignmentData($id, $csnReq, $changeStr, $request->user()->id, $request->user()->name);
-        $changeStr .= $repcsCTPD['error_msg'];
-
-        //刪除現有款式
-        if (isset($request['del_item_id']) && null != $request['del_item_id']) {
-            $changeStr .= 'delete purchaseItem id:' . $request['del_item_id'];
-            $del_item_id_arr = explode(",", $request['del_item_id']);
-            $rePcsDI = ConsignmentItem::deleteItems($consignmentData->consignment_id, $del_item_id_arr, $request->user()->id, $request->user()->name);
-            if ($rePcsDI['success'] == 0) {
-                $changeStr = $rePcsDI['error_msg'];
-                throw ValidationException::withMessages(['item_error' => $rePcsDI['error_msg']]);
+        $msg = DB::transaction(function () use ($id, $csnReq, $request, $consignmentData
+        ) {
+            $repcsCTPD = Consignment::checkToUpdateConsignmentData($id, $csnReq, $request->user()->id, $request->user()->name);
+            if ($repcsCTPD['success'] == 0) {
+                DB::rollBack();
+                return $repcsCTPD;
             }
-        }
 
-        if (isset($csnItemReq['item_id'])) {
-            $resultUpd = DB::transaction(function () use ($request, $csnItemReq, $consignmentData, $changeStr
-            ) {
+            //刪除現有款式
+            if (isset($request['del_item_id']) && null != $request['del_item_id']) {
+                $del_item_id_arr = explode(",", $request['del_item_id']);
+                $rePcsDI = ConsignmentItem::deleteItems($consignmentData->consignment_id, $del_item_id_arr, $request->user()->id, $request->user()->name);
+                if ($rePcsDI['success'] == 0) {
+                    DB::rollBack();
+                    return $rePcsDI;
+                }
+            }
+
+            if (isset($csnItemReq['item_id'])) {
                 foreach ($csnItemReq['item_id'] as $key => $val) {
                     $itemId = $csnItemReq['item_id'][$key];
                     //有值則做更新
                     //itemId = null 代表新資料
                     if (null != $itemId) {
-                        $resultUpd = ConsignmentItem::checkToUpdateItemData($itemId, $csnItemReq, $key, $changeStr, $request->user()->id, $request->user()->name);
+                        $resultUpd = ConsignmentItem::checkToUpdateItemData($itemId, $csnItemReq, $key, $request->user()->id, $request->user()->name);
                         if ($resultUpd['success'] == 0) {
                             DB::rollBack();
-                            $changeStr = $resultUpd['error_msg'];
-                            return $changeStr;
+                            return $resultUpd;
                         }
                     } else {
-                        $changeStr .= ' add item:' . $csnItemReq['name'][$key];
-
                         $resultUpd = ConsignmentItem::createData(
                             [
                                 'consignment_id' => $consignmentData->consignment_id,
@@ -258,19 +259,39 @@ class ConsignmentCtrl extends Controller
                         );
                         if ($resultUpd['success'] == 0) {
                             DB::rollBack();
-                            $changeStr = $resultUpd['error_msg'];
-                            return $changeStr;
+                            return $resultUpd;
                         }
                     }
                 }
-                return ['success' => 1, 'error_msg' => ""];
-            });
-            if ($resultUpd['success'] == 0) {
-                throw ValidationException::withMessages(['item_error' => $resultUpd['error_msg']]);
             }
+
+            //若判斷audit_status變成核可，則表示商品款式資料不會再做更動，此時判斷出貨倉是理貨倉，則須扣除數量
+            if(AuditStatus::approved()->value == $csnReq['audit_status'] && 1 == $consignmentData->send_can_tally){
+                $queryCsnItems = DB::table('csn_consignment as csn')
+                    ->leftJoin('csn_consignment_items as csn_items', 'csn_items.consignment_id', 'csn.id')
+                    ->where('csn.id', $id)
+                    ->get();
+                $stock_event = StockEvent::consignment()->value;
+                $stock_note = LogEventFeature::getDescription(LogEventFeature::consignment_shipping()->value);
+                $user_name = $request->user()->name;
+                foreach($queryCsnItems as $item) {
+                    $rePSSC = ProductStock::stockChange($item->product_style_id, $item->num * -1
+                        , $stock_event, $id
+                        , $user_name . $stock_note
+                        , false, $consignmentData->send_can_tally);
+                    if ($rePSSC['success'] == 0) {
+                        DB::rollBack();
+                        return $rePSSC;
+                    }
+                }
+            }
+            return ['success' => 1, 'error_msg' => 'all ok'];
+        });
+        if ($msg['success'] == 0) {
+            throw ValidationException::withMessages(['item_error' => $msg['error_msg']]);
         }
-        $changeStr = '';
-        wToast(__('Edit finished.') . ' ' . $changeStr);
+
+        wToast(__('Edit finished.'));
         return redirect(Route('cms.consignment.edit', [
             'id' => $id,
             'query' => $query
