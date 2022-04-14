@@ -555,7 +555,7 @@ class PurchaseInbound extends Model
             ->whereNotNull('style.sku')
             ->whereNull('style.deleted_at')
 //            ->whereNotNull('inbound.close_date') //只篩選入庫有結案的
-            ->where(DB::raw('(inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num)'), '>', 0)
+//            ->where(DB::raw('(inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num)'), '>', 0)
             ->groupBy('inbound.product_style_id')
             ->groupBy('inbound.depot_id')
             ->groupBy('product.id')
