@@ -114,17 +114,18 @@
                     </tbody>
                 </table>
             </div>
-            <div class="">
-                <button type="button" class="btn btn-primary px-4" id="editBtn">
-                        編輯
-                </button>
-                <button type="submit" class="btn btn-primary px-4" id="submitBtn">
-                        儲存
-                </button>
-                <a href="{{ Route('cms.received_default.index', [], true) }}">
-                    <button type="button" class="btn btn-outline-primary px-4" id="cancelBtn">取消</button>
-                </a>
-            </div>
+        </div>
+
+        <div>
+            <button type="button" class="btn btn-primary px-4" id="editBtn">
+                    編輯
+            </button>
+            <button type="submit" class="btn btn-primary px-4" id="submitBtn">
+                    儲存
+            </button>
+            <a href="{{ Route('cms.received_default.index', [], true) }}">
+                <button type="button" class="btn btn-outline-primary px-4" id="cancelBtn">取消</button>
+            </a>
         </div>
     </form>
     @if ($errors->any())

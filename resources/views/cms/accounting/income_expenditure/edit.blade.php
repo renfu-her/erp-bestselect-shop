@@ -214,14 +214,14 @@
                 </select>
             </div>
         </div>
-        <div class="">
-            <button type="submit" class="btn btn-primary px-4">
-                @if($isViewMode === true)
-                    編輯
-                @else
-                    儲存
-                @endif
-            </button>
+        <div>
+            @if($isViewMode === true)
+                <a href="{{ Route('cms.income_expenditure.edit', [], true) }}">
+                    <button type="button" class="btn btn-primary px-4">編輯</button>
+                </a>
+            @else
+                <button type="submit" class="btn btn-primary px-4">儲存</button>
+            @endif
             @if($isViewMode === false)
                 <a href="{{ Route('cms.income_expenditure.index', [], true) }}">
                     <button type="button" class="btn btn-outline-primary px-4">取消</button>
