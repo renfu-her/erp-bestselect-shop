@@ -73,6 +73,8 @@ class HomeCtrl extends Controller
             $data['list'] = array_map(function ($n) {
                 if ($n->img_url) {
                     $n->img_url = asset($n->img_url);
+                }else{
+                    $n->img_url = '';
                 }
 
                 return $n;
