@@ -124,7 +124,7 @@
                         <tr>
                             <td>{{ $currencyOption->name }}</td>
                             <td>
-                                <div class="col-12 col-sm-4 mb-3">
+                                <div class="col-12 col-sm-4">
                                     <input name="currency[{{ $currencyOption->acc_currency_fk }}][rate]"
                                            class="form-control @error('currency.' . $currencyOption->acc_currency_fk . '.rate') is-invalid @enderror"
                                            @if($isViewMode === true)

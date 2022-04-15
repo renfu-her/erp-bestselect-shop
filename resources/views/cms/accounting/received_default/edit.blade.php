@@ -68,7 +68,7 @@
                             <tr>
                                 <td>{{ $currencyDefault['currency_name'] ?? ''}}</td>
                                 <td>
-                                    <div class="col-12 col-sm-4 mb-3">
+                                    <div class="col-12 col-sm-4">
                                         <input name="{{ $type }}[rate][{{$currencyDefault['currency_id']}}]"
                                                class="form-control @error($type . '.[rate].' . $currencyDefault['currency_id']) is-invalid @enderror"
                                                disabled

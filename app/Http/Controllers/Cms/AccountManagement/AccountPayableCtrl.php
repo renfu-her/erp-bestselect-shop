@@ -128,12 +128,23 @@ class AccountPayableCtrl extends Controller
             ];
         }
 
-        $paid_paying_order_data = PayingOrder::where([
-                'purchase_id'=>$pay_order->purchase_id,
-                'deleted_at'=>null,
-            ])->get();
+        $paid_paying_order_data = PayingOrder::where(function ($q) use($request){
+                $q->where([
+                    'purchase_id'=>$request['purchaseId'],
+                    'deleted_at'=>null,
+                ]);
+
+                if($request['isFinalPay'] === '0'){
+                    $q->where([
+                        'type'=>0,
+                    ]);
+                }
+
+            })->get();
+
         $payable_data = AccountPayable::whereIn('pay_order_id', $paid_paying_order_data->pluck('id')->toArray())->get();
         $tw_price = $paid_paying_order_data->sum('price') - $payable_data->sum('tw_price');
+        if(request('isFinalPay') === '1') $tw_price += $logistics->logistics_price;
 
         return view('cms.account_management.account_payable.edit', [
             'tw_price' => $tw_price,
