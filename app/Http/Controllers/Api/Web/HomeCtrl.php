@@ -1,13 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Api\Cms;
+namespace App\Http\Controllers\Api\Web;
 
 use App\Enums\Globals\ApiStatusMessage;
 use App\Enums\Globals\ResponseParam;
 use App\Http\Controllers\Controller;
 use App\Models\Banner;
+use App\Models\Product;
 use App\Models\Template;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class HomeCtrl extends Controller
 {
@@ -38,6 +40,51 @@ class HomeCtrl extends Controller
         $re[ResponseParam::status()->key] = '0';
         $re[ResponseParam::msg()->key] = '';
         $re[ResponseParam::data()->key] = $dataList->toArray();
+        return response()->json($re);
+    }
+
+    public function getType1(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'collection_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $re = [];
+            $re[ResponseParam::status()->key] = 'E01';
+            $re[ResponseParam::msg()->key] = $validator->messages();
+
+            return response()->json($re);
+        }
+
+        $d = $request->all();
+
+        $dataList = Product::productList(null, null, [
+            'img' => 1,
+            'collection' => $d['collection_id'],
+        ])->get()->toArray();
+
+        Product::getMinPriceProducts(1, null, $dataList);
+
+        $data = [];
+        if ($dataList) {
+            $data['name'] = $dataList[0]->collection_name;
+            $data['list'] = array_map(function ($n) {
+                if ($n->img_url) {
+                    $n->img_url = asset($n->img_url);
+                }else{
+                    $n->img_url = '';
+                }
+
+                return $n;
+            }, $dataList);
+        }
+
+        $re = [];
+        $re[ResponseParam::status()->key] = '0';
+        $re[ResponseParam::msg()->key] = '';
+        $re[ResponseParam::data()->key] = $data;
         return response()->json($re);
     }
 

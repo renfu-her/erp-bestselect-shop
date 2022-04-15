@@ -482,12 +482,8 @@ Breadcrumbs::for('cms.income_expenditure.index', function (BreadcrumbTrail $trai
     $trail->push('付款單科目', route('cms.income_expenditure.index'));
 });
 Breadcrumbs::for('cms.income_expenditure.edit', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.dashboard');
-    $trail->push('付款單科目', route('cms.income_expenditure.edit'));
-});
-Breadcrumbs::for('cms.income_expenditure.update', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.dashboard');
-    $trail->push('付款單科目', route('cms.income_expenditure.update'));
+    $trail->parent('cms.income_expenditure.index');
+    $trail->push('編輯付款單科目', route('cms.income_expenditure.edit'));
 });
 
 //收款單科目
@@ -496,12 +492,8 @@ Breadcrumbs::for('cms.received_default.index', function (BreadcrumbTrail $trail)
     $trail->push('收款單科目', route('cms.received_default.index'));
 });
 Breadcrumbs::for('cms.received_default.edit', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.dashboard');
-    $trail->push('收款單科目', route('cms.received_default.edit'));
-});
-Breadcrumbs::for('cms.received_default.update', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.dashboard');
-    $trail->push('收款單科目', route('cms.received_default.update'));
+    $trail->parent('cms.received_default.index');
+    $trail->push('編輯收款單科目', route('cms.received_default.edit'));
 });
 
 // 會計科目

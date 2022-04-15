@@ -16,6 +16,6 @@ class NaviCtrl extends Controller
             NaviNode::cacheProcess();
         }
 
-        return response()->json(['status' => 0, 'data' => Cache::get('tree')]);
+        return response()->json(['status' => '0', 'data' => Cache::get('tree')]);
     }
 }

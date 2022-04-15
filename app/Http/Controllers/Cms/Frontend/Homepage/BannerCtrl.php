@@ -46,10 +46,7 @@ class BannerCtrl extends Controller
         $query = $request->query();
         $bannerID = Banner::storeNewBanner($request);
         wToast(__('Add finished.'));
-        return redirect(Route('cms.homepage.banner.edit', [
-            'id' => $bannerID,
-            'query' => $query,
-        ]));
+        return redirect(Route('cms.homepage.banner.index'));
     }
 
     public function edit(Request $request, $id)
@@ -80,10 +77,7 @@ class BannerCtrl extends Controller
         }
         Banner::updateBanner($request, $id, $is_del_old_img);
         wToast(__('Edit finished.'));
-        return redirect(Route('cms.homepage.banner.edit', [
-            'id' => $id,
-            'query' => $query,
-        ]));
+        return redirect(Route('cms.homepage.banner.index'));
     }
 
     public function destroy($id)

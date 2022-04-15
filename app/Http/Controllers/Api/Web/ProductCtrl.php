@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api\Web;
 
+use App\Enums\Globals\ResponseParam;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\Collection;
 use App\Models\Product;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class ProductCtrl extends Controller
@@ -33,5 +35,60 @@ class ProductCtrl extends Controller
             return response()->json(['status' => 'E04', 'msg' => '查無資料']);
         }
 
+    }
+
+    public function getCollectionList(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'collection_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $re = [];
+            $re[ResponseParam::status()->key] = 'E01';
+            $re[ResponseParam::msg()->key] = $validator->messages();
+
+            return response()->json($re);
+        }
+
+        $d = $request->all();
+
+        $collection = Collection::where('id', $d['collection_id'])
+            ->select(['id', 'name', 'meta_title', 'meta_description', 'url'])
+            ->where('is_public', '1')
+            ->get()->first();
+
+        if (!$collection) {
+            $re = [];
+            $re[ResponseParam::status()->key] = 'E02';
+            $re[ResponseParam::msg()->key] = '查無此群組';
+
+            return response()->json($re);
+        }
+
+        $dataList = Product::productList(null, null, [
+            'price' => 1,
+            'img' => 1,
+            'collection' => $d['collection_id'],
+        ])->get()->toArray();
+
+        if ($dataList) {
+            $collection->list = array_map(function ($n) {
+                if ($n->img_url) {
+                    $n->img_url = asset($n->img_url);
+                }
+
+                return $n;
+            }, $dataList);
+
+            Product::getMinPriceProducts(1, null, $dataList);
+
+        }
+
+        $re[ResponseParam::status()->key] = '0';
+        $re[ResponseParam::msg()->key] = '';
+        $re[ResponseParam::data()->key] = $collection;
+        return response()->json($re);
     }
 }

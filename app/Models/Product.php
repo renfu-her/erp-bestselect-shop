@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Customer\Identity;
+use App\Enums\Globals\ApiStatusMessage;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -84,7 +85,71 @@ class Product extends Model
 
         }
 
+        if (isset($options['collection']) && $options['collection']) {
+
+            $re->leftJoin('collection_prd as cprd', 'product.id', '=', 'cprd.product_id_fk')
+                ->leftJoin('collection as colc', 'colc.id', '=', 'cprd.collection_id_fk')
+                ->addSelect(['colc.name as collection_name', 'collection_id_fk'])
+                ->where('cprd.collection_id_fk', '=', $options['collection']);
+
+        }
+
+        if (isset($options['img'])) {
+            $subImg = DB::table('prd_product_images as img')
+            ->select('img.url')
+            ->whereRaw('img.product_id = product.id')
+            ->limit(1);
+
+            $re->addSelect(DB::raw("({$subImg->toSql()}) as img_url"));
+           
+
+        }
+
         return $re;
+    }
+
+    public static function getMinPriceProducts($sale_channel_id, $product_id = [], &$product_list = null)
+    {
+
+        if ($product_list) {
+
+            $product_id = array_map(function ($n) {
+                return $n->id;
+            }, $product_list);
+        }
+
+        $subPrice = DB::table('prd_salechannel_style_price as price')
+            ->leftJoin('prd_product_styles as style', 'style.id', '=', 'price.style_id')
+            ->select(['price.*', 'style.product_id'])
+            ->where('price.sale_channel_id', $sale_channel_id)
+            ->orderBy('price.price', 'ASC');
+        if ($product_id) {
+            $subPrice->whereIn('product_id', $product_id);
+        }
+        $price = $subPrice->get()->toArray();
+        $re = [];
+        foreach ($price as $p) {
+            if (!isset($re[$p->product_id])) {
+                $re[$p->product_id] = $p;
+            }
+        }
+
+        if (!$product_list) {
+            return $re;
+        } else {
+            foreach ($product_list as $pp) {
+                if (isset($re[$pp->id])) {
+
+                    $pp->price = $re[$pp->id]->price;
+                    $pp->origin_price = $re[$pp->id]->origin_price;
+
+                } else {
+                    $pp->price = 0;
+                    $pp->origin_price = 0;
+                }
+            }
+        }
+
     }
 
     /**
@@ -360,7 +425,11 @@ class Product extends Model
             ->leftJoin(DB::raw("({$imgQuery->toSql()}) as i"), function ($join) {
                 $join->on('p.id', '=', 'i.product_id');
             })
-            ->select('p.id', 'p.title', 'p.sku', 'p.desc', 's.styles', 'i.imgs')
+            ->select(['p.id', 'p.title',
+                'p.sku', 'p.desc', 'p.feature',
+                'p.logistic_desc',
+                'p.slogan', 's.styles', 'i.imgs',
+            ])
             ->mergeBindings($styleQuery)
             ->mergeBindings($imgQuery)
             ->where('sku', $sku)
@@ -372,19 +441,35 @@ class Product extends Model
             return;
         }
 
-        $re->styles = json_decode($re->styles);
+        $output = [
+            "info" => [
+                "title" => $re->title,
+                "slogan" => $re->slogan,
+                "feature" => $re->feature,
+                "image" => [],
+            ],
+            "desc" => $re->desc,
+            "spec" => [],
+            "logistic_desc" => "logistic_desc",
+            "styles" => json_decode($re->styles),
+            "shipment" => '',
+
+        ];
+        //  $re->styles = json_decode($re->styles);
+
         if ($re->imgs) {
-            $re->imgs = array_map(function ($n) {
+            $output['info']['image'] = array_map(function ($n) {
                 $n->url = asset($n->url);
                 return $n;
             }, json_decode($re->imgs));
-        } else {
-            $re->imgs = [];
         }
-        $shipment = self::getProductShipments($re->id);
-        $re->shipment = $shipment ? $shipment : '';
 
-        return $re;
+        $shipment = self::getProductShipments($re->id);
+        $output['shipment'] = $shipment ? $shipment : '';
+        $output['spec'] = ProductSpecList::where('product_id', $re->id)
+            ->select('title', 'content')->get()->toArray();
+
+        return $output;
     }
 
     public static function changeShipment($product_id, $category_id, $group_id)
@@ -521,7 +606,7 @@ class Product extends Model
         $isPublic = $conditionQuery->exists();
         if (!$isPublic) {
             return response()->json([
-                'status' => 0,
+                'status' => ApiStatusMessage::Fail,
                 'msg' => '不公開',
                 'data' => [],
             ]);
@@ -533,7 +618,7 @@ class Product extends Model
             ->exists();
         if (!$isActive) {
             return response()->json([
-                'status' => 0,
+                'status' => ApiStatusMessage::Fail,
                 'msg' => '已下架',
                 'data' => [],
             ]);
@@ -556,7 +641,7 @@ class Product extends Model
             && $now > $endDate
         ) {
             return response()->json([
-                'status' => 0,
+                'status' => ApiStatusMessage::Fail,
                 'msg' => '已過下架時間',
                 'data' => [],
             ]);
@@ -565,7 +650,7 @@ class Product extends Model
             && $now < $startDate
         ) {
             return response()->json([
-                'status' => 0,
+                'status' => ApiStatusMessage::Fail,
                 'msg' => '未到上架時間',
                 'data' => [],
             ]);
@@ -574,13 +659,13 @@ class Product extends Model
         ) {
             if ($now < $startDate) {
                 return response()->json([
-                    'status' => 0,
+                    'status' => ApiStatusMessage::Fail,
                     'msg' => '還未上架',
                     'data' => [],
                 ]);
             } elseif ($now > $endDate) {
                 return response()->json([
-                    'status' => 0,
+                    'status' => ApiStatusMessage::Fail,
                     'msg' => '已經下架',
                     'data' => [],
                 ]);
@@ -682,8 +767,8 @@ class Product extends Model
             ->get();
 
         return response()->json([
-            'status' => 0,
-            'msg' => 'ok',
+            'status' => ApiStatusMessage::Succeed,
+            'msg' => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
             'data' => [
                 'info' => [
                     'name' => $productQuery->first()->title,
