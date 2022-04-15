@@ -166,7 +166,7 @@
                         </table>
                     </div>
                 </div>
-                
+
                 <h6>應付金額</h6>
                 <div class="table-responsive">
                     <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
@@ -268,6 +268,9 @@
                     <label class="small fw-normal text-body ms-3">
                         <input id="rec_same" class="form-check-input mt-0 me-1" type="checkbox">同購買人
                     </label>
+                    <mark class="fw-light small">
+                        <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>請填寫<b>真實姓名、電話及地址</b>，以免無法正常收取貨
+                    </mark>
                 </h6>
                 <div class="row">
                     <div class="col-12 col-sm-6 mb-3">
@@ -651,13 +654,13 @@
                         const event_id = $this.siblings('input[name="shipment_event_id[]"]').val();
                         const index = (myCart[`${type}_${event_id}`].products).indexOf(product_style_id);
                         (myCart[`${type}_${event_id}`].products).splice(index, 1);
-                            
+
                         // 檢查若該物流沒商品，則刪除該物流
                         if (myCart[`${type}_${event_id}`].products.length <= 0) {
                             delete myCart[`${type}_${event_id}`];
                             $(`#${type}_${event_id}`).remove();
                         }
-                        
+
                         // 商品優惠
                         checkSNProductDiscount();
                     }
@@ -1001,7 +1004,7 @@
                 }
 
                 // 關閉懸浮視窗
-                setShipmentModal.hide();                
+                setShipmentModal.hide();
 
                 // 新增一個物流
                 function createNewShip(s) {
@@ -1371,7 +1374,7 @@
                     }
                 }
             }
-            
+
             // set 所有各商品優惠
             function setProductDiscount() {
                 if (Object.keys(myDiscountList.code).length === 0 && Object.keys(myDiscountList.optional).length === 0) {
@@ -1379,7 +1382,7 @@
                 }
                 // 清空
                 resetProductDiscount();
-                
+
                 // main: 紀錄商品優惠
                 for (const type of DISC_PRIORITY) {
                     let tempDis = myDiscountList[type];
