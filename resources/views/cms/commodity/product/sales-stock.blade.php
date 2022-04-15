@@ -64,7 +64,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">預購(超賣)數量
+                            <th scope="row">預購、超賣、廠商出貨數量
                                 <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="當庫存不足時，尚可訂購的數量"></i>
                             </th>
                             <td>
