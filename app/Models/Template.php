@@ -23,17 +23,18 @@ class Template extends Model
                 'title' => $request->input('title')
                 , 'group_id' => $request->input('group_id')
                 , 'style_type' => $request->input('style_type')
-                , 'is_public' => $request->input('is_public')?? 1
+                , 'is_public' => $request->input('is_public') ?? 1,
             ])->id;
             return $id;
         });
     }
 
-    public static function validInputValue(Request $request) {
+    public static function validInputValue(Request $request)
+    {
         $request->validate([
             'title' => 'required|string'
             , 'group_id' => 'required|numeric'
-            , 'style_type' => 'required|numeric'
+            , 'style_type' => 'required|numeric',
         ]);
         return $request;
     }
@@ -50,7 +51,7 @@ class Template extends Model
                     'title' => $request->input('title')
                     , 'group_id' => $request->input('group_id')
                     , 'style_type' => $request->input('style_type')
-                    , 'is_public' => $request->input('is_public')?? 1
+                    , 'is_public' => $request->input('is_public') ?? 1,
                 ];
 
                 Template::where('id', '=', $id)
@@ -73,16 +74,17 @@ class Template extends Model
             $template_ids = implode(',', $req_template_ids);
             $condtion = '';
             foreach ($req_template_ids as $sort => $id) {
-                $condtion = $condtion. ' when '. $id. ' then '. $sort;
+                $condtion = $condtion . ' when ' . $id . ' then ' . $sort;
             }
             DB::update('update idx_template set sort = case id'
                 . $condtion
-                . ' end where id in ('. $template_ids. ')'
+                . ' end where id in (' . $template_ids . ')'
             );
         }
     }
 
-    public static function getList($is_public = null) {
+    public static function getList($is_public = null)
+    {
         $result = DB::table('idx_template as template')
             ->select(
                 'template.id',
@@ -98,16 +100,17 @@ class Template extends Model
         return $result;
     }
 
-    public static function getListWithWeb($is_public = null) {
+    public static function getListWithWeb($is_public = null)
+    {
         $groupDoman = frontendUrl(FrontendApiUrl::collection());
         $result = DB::table('idx_template as template')
             ->select(
                 'template.title',
-                DB::raw('concat("'. FrontendApiUrl::collection(). '") as event'),
-                'template.group_id as event_id',
-                'template.style_type',
-                'template.sort',
-            );
+            //    DB::raw('concat("' . FrontendApiUrl::collection() . '") as event'),
+                'template.group_id as collection_id',
+                'template.style_type as type',
+                // 'template.sort',
+            )->orderBy('template.sort');
         if ($is_public) {
             $result->where('template.is_public', '=', $is_public);
         }

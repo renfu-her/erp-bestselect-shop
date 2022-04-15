@@ -31,6 +31,9 @@ class ProductCtrl extends Controller
      */
     public function index(Request $request)
     {
+
+        // dd(Product::productList(null, null, ['collection' => 1, 'price' => 1,'img'=>1])->get()->toArray());
+
         $query = $request->query();
         $productTypes = [['all', '不限'], ['p', '一般商品'], ['c', '組合包商品']];
         $consumes = [['all', '不限'], ['1', '耗材'], ['0', '商品']];
@@ -310,7 +313,7 @@ class ProductCtrl extends Controller
                         $itemIds[] = $d['nsk_spec' . $i][$key];
                     }
                 }
-               // $updateData['sold_out_event'] = $d['nsk_sold_out_event'][$key];
+                // $updateData['sold_out_event'] = $d['nsk_sold_out_event'][$key];
 
                 //  ProductStyle::where('id', $value)->whereNull('sku')->update($updateData);
                 ProductStyle::updateStyle($value, $id, $itemIds, $updateData);
@@ -321,7 +324,7 @@ class ProductCtrl extends Controller
         if (isset($d['sk_style_id'])) {
             foreach ($d['sk_style_id'] as $key => $value) {
                 $updateData = [];
-              //  $updateData['sold_out_event'] = $d['sk_sold_out_event'][$key];
+                //  $updateData['sold_out_event'] = $d['sk_sold_out_event'][$key];
                 ProductStyle::where('id', $value)->whereNotNull('sku')->update($updateData);
                 SaleChannel::changePrice($sale_id, $value, $d['sk_dealer_price'][$key], $d['sk_price'][$key], $d['sk_origin_price'][$key], $d['sk_bonus'][$key], $d['sk_dividend'][$key]);
 

@@ -101,7 +101,13 @@ class ProductCtrl extends Controller
         return response()->json(['status' => '0', 'data' => $re]);
     }
 
-    public function getProductInfo(Request $request) {
+    /**
+     * @param  Request  $request
+     * 購物2.0 商品資訊 API
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getProductInfo(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'sku' => ['required'],
             'm_class' => ['nullable', 'string', 'regex:/^(customer|employee|company)$/']
