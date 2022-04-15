@@ -192,7 +192,7 @@ class Order extends Model
      * @param array $items
      * @param string $note
      * @param array $coupon_obj [type,value]
-     * 
+     *
      */
     public static function createOrder($email, $sale_channel_id, $address, $items, $note = null, $coupon_obj = null)
     {
@@ -205,7 +205,7 @@ class Order extends Model
                 return $order;
             }
 
-            $order_sn = date("Ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
+            $order_sn = "O" . date("Ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
                     ->get()
                     ->count()) + 1, 2, '0', STR_PAD_LEFT);
 
