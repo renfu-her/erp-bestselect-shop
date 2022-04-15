@@ -55,7 +55,7 @@
                 <div class="col-12 mb-3">
                     <label class="form-label">商品名稱 <span class="text-danger">*</span></label>
                     <input class="form-control @error('title') is-invalid @enderror" name="title" type="text"
-                        placeholder="例：女休閒短T" maxlength="30" value="{{ old('title', $product->title ?? '') }}"
+                        placeholder="例：女休閒短T" maxlength="60" value="{{ old('title', $product->title ?? '') }}"
                         aria-label="商品名稱" required />
                     @error('title')
                         <div class="invalid-feedback">{{ $message }}</div>
