@@ -424,7 +424,11 @@ class Product extends Model
             ->leftJoin(DB::raw("({$imgQuery->toSql()}) as i"), function ($join) {
                 $join->on('p.id', '=', 'i.product_id');
             })
-            ->select('p.id', 'p.title', 'p.sku', 'p.desc', 's.styles', 'i.imgs')
+            ->select(['p.id', 'p.title',
+                'p.sku', 'p.desc', 'p.feature',
+                'p.logistic_desc',
+                'p.slogan', 's.styles', 'i.imgs',
+            ])
             ->mergeBindings($styleQuery)
             ->mergeBindings($imgQuery)
             ->where('sku', $sku)
@@ -436,13 +440,35 @@ class Product extends Model
             return;
         }
 
-        $re->styles = json_decode($re->styles);
-        $re->imgs = array_map(function ($n) {
-            $n->url = asset($n->url);
-            return $n;
-        }, json_decode($re->imgs));
+        $output = [
+            "info" => [
+                "title" => $re->title,
+                "slogan" => $re->slogan,
+                "feature" => $re->feature,
+                "image" => [],
+            ],
+            "desc" => $re->desc,
+            "spec" => [],
+            "logistic_desc" => "logistic_desc",
+            "styles" => json_decode($re->styles),
+            "shipment" => '',
 
-        return $re;
+        ];
+        //  $re->styles = json_decode($re->styles);
+
+        if ($re->imgs) {
+            $output['info']['image'] = array_map(function ($n) {
+                $n->url = asset($n->url);
+                return $n;
+            }, json_decode($re->imgs));
+        }
+
+        $shipment = self::getProductShipments($re->id);
+        $output['shipment'] = $shipment ? $shipment : '';
+        $output['spec'] = ProductSpecList::where('product_id', $re->id)
+            ->select('title', 'content')->get()->toArray();
+
+        return $output;
     }
 
     public static function changeShipment($product_id, $category_id, $group_id)
