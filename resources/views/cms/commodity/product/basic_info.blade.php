@@ -38,14 +38,14 @@
                     <div class="form-check-inline ms-3 ps-3 border-start border-3 border-secondary">
                         <div class="form-check">
                             <label class="form-check-label">
-                                <input class="form-check-input" value="1" name="consume" type="checkbox" 
+                                <input class="form-check-input" value="1" name="consume" type="checkbox"
                                     @if (old('consume', $product->consume ?? 0)) checked @endif>
                                 屬於耗材 <span class="text-danger">*</span>
                             </label>
                             <i class="bi bi-question-circle" data-bs-toggle="tooltip" title="若屬於耗材請打勾"></i>
                         </div>
                     </div>
-                    
+
                 </div>
                 @error('type')
                     <div class="invalid-feedback">{{ $message }}</div>
@@ -116,7 +116,7 @@
                     @enderror
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label" for="supplier">廠商 <span class="text-danger">*</span></label>
+                    <label class="form-label" for="supplier">廠商 <span class="text-danger">*</span>(有設定才可採購)</label>
                     <select name="supplier[]" id="supplier" multiple hidden
                         class="-select2 -multiple form-select @error('supplier') is-invalid @enderror"
                         data-placeholder="請選擇廠商" required>
@@ -183,7 +183,7 @@
                 <fieldset class="col-12 col-lg-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">公開 <span class="text-danger">*</span></legend>
                     <div class="form-check form-switch form-switch-lg">
-                        <input class="form-check-input" type="checkbox" name="public" value="1" 
+                        <input class="form-check-input" type="checkbox" name="public" value="1"
                             @if (old('consume', $product->public ?? 1)) checked @endif>
                     </div>
                 </fieldset>
