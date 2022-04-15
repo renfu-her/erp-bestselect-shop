@@ -85,6 +85,18 @@
                         @endforeach
                     </select>
                 </div>
+                <div class="event_type -product"
+                     @if (old('event_type', $data->event_type ?? '') != App\Enums\Globals\FrontendApiUrl::product()->key) hidden @endif>
+                    <label class="form-label">商品 <span class="text-danger">*</span></label>
+                    {{-- @if ($event_type === 'group') <select> 加 required @else 加 disabled --}}
+                    <select name="event_id" class="form-select -select2"
+                            @if (old('event_type', $data->event_type ?? '') == App\Enums\Globals\FrontendApiUrl::product()->key) required @else disabled @endif>
+                        <option value="" @if('' == old('event_id', $data->event_id ?? '')) selected @endif disabled>請選擇</option>
+                        @foreach($productList as $key => $product)
+                            <option value="{{$product->id}}" @if($product->id == old('event_id', $data->event_id ?? '')) selected @endif>{{$product->title}}</option>
+                        @endforeach
+                    </select>
+                </div>
                 <div class="event_type -url"
                      @if (old('event_type', $data->event_type ?? '') != App\Enums\Globals\FrontendApiUrl::url()->key) hidden @endif>
                     <label class="form-label">橫幅廣告連結 <span class="text-danger">*</span></label>

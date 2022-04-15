@@ -200,6 +200,8 @@ class Banner extends Model
         $queryCase_link = 'case
             when event_type = "collection"
                 then banner.event_id
+            when event_type = "product"
+                then banner.event_id
             when event_type = "url"
                 then banner.event_url
             else null
