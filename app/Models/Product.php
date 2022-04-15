@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Customer\Identity;
+use App\Enums\Globals\ApiStatusMessage;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -605,7 +606,7 @@ class Product extends Model
         $isPublic = $conditionQuery->exists();
         if (!$isPublic) {
             return response()->json([
-                'status' => 0,
+                'status' => ApiStatusMessage::Fail,
                 'msg' => '不公開',
                 'data' => [],
             ]);
@@ -617,7 +618,7 @@ class Product extends Model
             ->exists();
         if (!$isActive) {
             return response()->json([
-                'status' => 0,
+                'status' => ApiStatusMessage::Fail,
                 'msg' => '已下架',
                 'data' => [],
             ]);
@@ -640,7 +641,7 @@ class Product extends Model
             && $now > $endDate
         ) {
             return response()->json([
-                'status' => 0,
+                'status' => ApiStatusMessage::Fail,
                 'msg' => '已過下架時間',
                 'data' => [],
             ]);
@@ -649,7 +650,7 @@ class Product extends Model
             && $now < $startDate
         ) {
             return response()->json([
-                'status' => 0,
+                'status' => ApiStatusMessage::Fail,
                 'msg' => '未到上架時間',
                 'data' => [],
             ]);
@@ -658,13 +659,13 @@ class Product extends Model
         ) {
             if ($now < $startDate) {
                 return response()->json([
-                    'status' => 0,
+                    'status' => ApiStatusMessage::Fail,
                     'msg' => '還未上架',
                     'data' => [],
                 ]);
             } elseif ($now > $endDate) {
                 return response()->json([
-                    'status' => 0,
+                    'status' => ApiStatusMessage::Fail,
                     'msg' => '已經下架',
                     'data' => [],
                 ]);
@@ -766,8 +767,8 @@ class Product extends Model
             ->get();
 
         return response()->json([
-            'status' => 0,
-            'msg' => 'ok',
+            'status' => ApiStatusMessage::Succeed,
+            'msg' => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
             'data' => [
                 'info' => [
                     'name' => $productQuery->first()->title,
