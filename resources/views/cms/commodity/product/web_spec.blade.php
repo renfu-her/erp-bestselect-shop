@@ -18,7 +18,7 @@
                             </div>
                             <div class="col px-0 px-sm-2 pb-2 pb-sm-0">
                                 <input type="text" name="content[]" value="{{ $list['content'] }}" class="form-control" placeholder="請輸入內文。例：棉 / 聚脂纖維"
-                                    aria-label="規格說明內文">
+                                    aria-label="規格說明內文" maxlength="100">
                             </div>
                         </div>
                         <div class="col-auto d-flex flex-column flex-sm-row ps-0">
