@@ -367,7 +367,7 @@ class ConsignmentCtrl extends Controller
             'event_item_id.*' => 'required|numeric',
             'product_style_id.*' => 'required|numeric',
             'inbound_date.*' => 'required|string',
-            'inbound_num.*' => 'required|numeric',
+            'inbound_num.*' => 'required|numeric|min:1',
             'error_num.*' => 'required|numeric|min:0',
             'status.*' => 'required|numeric|min:0',
             'expiry_date.*' => 'required|string',
