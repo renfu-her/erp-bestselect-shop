@@ -5,9 +5,9 @@ namespace App\Enums\Order;
 use BenSampo\Enum\Enum;
 
 /**
- * @method static static OptionOne()
- * @method static static OptionTwo()
- * @method static static OptionThree()
+ * @method static static reciver() 收件者
+ * @method static static orderer()  訂購者
+ * @method static static sender() 寄件者
  */
 final class UserAddrType extends Enum
 {
