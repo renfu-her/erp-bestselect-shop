@@ -426,10 +426,13 @@ class Product extends Model
                 $join->on('p.id', '=', 'i.product_id');
             })
             ->select(['p.id', 'p.title',
-                'p.sku', 'p.desc', 'p.feature',
-                'p.logistic_desc',
-                'p.slogan', 's.styles', 'i.imgs',
+                'p.sku', 's.styles', 'i.imgs',
             ])
+            ->selectRaw('IF(p.desc IS NULL,"",p.desc) as _desc')
+            ->selectRaw('IF(p.feature IS NULL,"",p.feature) as _feature')
+            ->selectRaw('IF(p.logistic_desc IS NULL,"",p.logistic_desc) as _logistic_desc')
+            ->selectRaw('IF(p.slogan IS NULL,"",p.slogan) as _slogan')
+
             ->mergeBindings($styleQuery)
             ->mergeBindings($imgQuery)
             ->where('sku', $sku)
@@ -444,13 +447,13 @@ class Product extends Model
         $output = [
             "info" => [
                 "title" => $re->title,
-                "slogan" => $re->slogan,
-                "feature" => $re->feature,
+                "slogan" => $re->_slogan,
+                "feature" => $re->_feature,
                 "image" => [],
             ],
-            "desc" => $re->desc,
+            "desc" => $re->_desc,
             "spec" => [],
-            "logistic_desc" => "logistic_desc",
+            "logistic_desc" => $re->_logistic_desc,
             "styles" => json_decode($re->styles),
             "shipment" => '',
 
@@ -884,7 +887,7 @@ class Product extends Model
             )
             ->orderBy('price', $isPriceDescend ? 'desc' : 'asc')
             ->get()
-            //用groupBy(product_id)及transform min(price, origin_price) 取得product_id的不同款式中價錢最小
+        //用groupBy(product_id)及transform min(price, origin_price) 取得product_id的不同款式中價錢最小
             ->groupBy('id')
             ->transform(function ($item) {
                 return [
@@ -923,7 +926,7 @@ class Product extends Model
             'data' => [
                 'page' => $totalPages,
                 'list' => $productData,
-            ]
+            ],
         ]);
     }
 }
