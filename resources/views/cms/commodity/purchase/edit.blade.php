@@ -32,7 +32,7 @@
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">狀態</label>
-                        <div class="form-control" readonly>-</div>
+                        <div class="form-control" readonly> {{ App\Enums\Consignment\AuditStatus::getDescription($purchaseData->audit_status) }}</div>
                     </div>
                     <div class="col-12 col-md-6 mb-3">
                         <label class="form-label">入庫人員</label>
