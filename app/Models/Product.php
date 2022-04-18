@@ -806,6 +806,59 @@ class Product extends Model
             ->first()
             ->sale_channel_id;
 
+        // start to check 產品的上下架時間
+        $activeDateQuery = DB::table('prd_products as prd')
+            ->where('prd.title', 'LIKE', "%$data%")
+            ->orWhere('prd.sku', 'LIKE', "%$data%")
+            ->where('prd.public', '=', 1)
+            ->select(
+                'active_sdate',
+                'active_edate',
+            )
+            ->get()
+            ->first();
+        $startDate = $activeDateQuery->active_sdate ?? null;
+        $endDate = $activeDateQuery->active_edate ?? null;
+        date_default_timezone_set('Asia/Taipei');
+        $now = date('Y-m-d H:i:s');
+
+        if (is_null($startDate)
+            && !is_null($endDate)
+            && $now > $endDate
+        ) {
+            return response()->json([
+                'status' => ApiStatusMessage::NotFound,
+                'msg' => ApiStatusMessage::getDescription(ApiStatusMessage::NotFound),
+                'data' => [],
+            ]);
+        } elseif (!is_null($startDate)
+            && is_null($endDate)
+            && $now < $startDate
+        ) {
+            return response()->json([
+                'status' => ApiStatusMessage::NotFound,
+                'msg' => ApiStatusMessage::getDescription(ApiStatusMessage::NotFound),
+                'data' => [],
+            ]);
+        } elseif (!is_null($startDate)
+            && !is_null($endDate)
+        ) {
+            if ($now < $startDate) {
+                return response()->json([
+                    'status' => ApiStatusMessage::NotFound,
+                    'msg' => ApiStatusMessage::getDescription(ApiStatusMessage::NotFound),
+                    'data' => [],
+                ]);
+            } elseif ($now > $endDate) {
+                return response()->json([
+                    'status' => ApiStatusMessage::NotFound,
+                    'msg' => ApiStatusMessage::getDescription(ApiStatusMessage::NotFound),
+                    'data' => [],
+                ]);
+            }
+        }
+        // end to check 產品的上下架時間
+
         $productQueries = DB::table('prd_products as prd')
             ->where('prd.title', 'LIKE', "%$data%")
             ->orWhere('prd.sku', 'LIKE', "%$data%")
