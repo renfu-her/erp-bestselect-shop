@@ -193,6 +193,7 @@ class ReceiveDepot extends Model
 //            ->where(DB::raw($raw), '>', 0)
             ->where('delivery.event', $event)
             ->where('delivery.event_id', $event_id)
+            ->whereNotNull('delivery.audit_date') //判斷有做過出貨審核才給入
             ->whereNotNull('rcv_depot.id');
         return $result;
     }
