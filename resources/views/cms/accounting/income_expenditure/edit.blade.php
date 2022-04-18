@@ -2,13 +2,12 @@
 @section('sub-content')
     <h2 class="mb-3">付款單科目</h2>
     <form  method="{{ $formMethod }}" action="{{ $formAction }}">
-{{--        @method('POST')--}}
         @csrf
         <div class="card shadow p-4 mb-4">
             <h4 class="mb-3">付款管理預設</h4>
             <div class="col-12 mb-3">
                 <label class="form-label" for="select1-multiple">現金</label>
-                <select name="income_type[{{ $thirdGradesDataList['selectedResult']['現金']['acc_income_type_fk'] }}][]"
+                <select name="income_type[{{ $selectedResult['現金']['acc_income_type_fk'] }}][]"
                         id="select1-multiple"
                         multiple
                         class="-select2 -multiple form-select"
@@ -16,19 +15,19 @@
                             disabled
                         @endif
                         data-placeholder="可複選">
-                    @foreach($thirdGradesDataList['allGradeOptions'] as $thirdGrade)
+                    @foreach($totalGrades as $value)
                         <option
-                            @if(in_array($thirdGrade['id'], $thirdGradesDataList['selectedResult']['現金']['grade_id_fk_arr']))
+                            @if(in_array($value['primary_id'], $selectedResult['現金']['grade_id_fk_arr']))
                             selected
                             @endif
-                            value="{{ $thirdGrade['id'] }}">{{ $thirdGrade['code'] . ' ' . $thirdGrade['name'] }}
+                            value="{{ $value['primary_id'] }}">{{ $value['code'] . ' ' . $value['name'] }}
                         </option>
                     @endforeach
                 </select>
             </div>
             <div class="col-12 mb-3">
                 <label class="form-label" for="select2-multiple">支票（支付銀行）</label>
-                <select name="income_type[{{ $thirdGradesDataList['selectedResult']['支票']['acc_income_type_fk'] }}][]"
+                <select name="income_type[{{ $selectedResult['支票']['acc_income_type_fk'] }}][]"
                         id="select2-multiple"
                         multiple
                         class="-select2 -multiple form-select"
@@ -36,19 +35,19 @@
                         disabled
                         @endif
                         data-placeholder="可複選">
-                    @foreach($fourthGradesDataList['allGradeOptions'] as $fourthGrade)
+                    @foreach($totalGrades as $value)
                         <option
-                            @if(in_array($fourthGrade['id'], $fourthGradesDataList['selectedResult']['支票']['grade_id_fk_arr']))
+                            @if(in_array($value['primary_id'], $selectedResult['支票']['grade_id_fk_arr']))
                             selected
                             @endif
-                            value="{{ $fourthGrade['id'] }}">{{ $fourthGrade['code'] . ' ' . $fourthGrade['name'] }}
+                            value="{{ $value['primary_id'] }}">{{ $value['code'] . ' ' . $value['name'] }}
                         </option>
                     @endforeach
                 </select>
             </div>
             <div class="col-12 mb-3">
                 <label class="form-label" for="select3-multiple">匯款（匯款銀行）</label>
-                <select name="income_type[{{ $thirdGradesDataList['selectedResult']['匯款']['acc_income_type_fk'] }}][]"
+                <select name="income_type[{{ $selectedResult['匯款']['acc_income_type_fk'] }}][]"
                         id="select3-multiple"
                         multiple
                         class="-select2 -multiple form-select"
@@ -56,19 +55,19 @@
                         disabled
                         @endif
                         data-placeholder="可複選">
-                    @foreach($fourthGradesDataList['allGradeOptions'] as $fourthGrade)
+                    @foreach($totalGrades as $value)
                         <option
-                            @if(in_array($fourthGrade['id'], $fourthGradesDataList['selectedResult']['匯款']['grade_id_fk_arr']))
+                            @if(in_array($value['primary_id'], $selectedResult['匯款']['grade_id_fk_arr']))
                             selected
                             @endif
-                            value="{{ $fourthGrade['id'] }}">{{ $fourthGrade['code'] . ' ' . $fourthGrade['name'] }}
+                            value="{{ $value['primary_id'] }}">{{ $value['code'] . ' ' . $value['name'] }}
                         </option>
                     @endforeach
                 </select>
             </div>
             <div class="col-12 mb-3">
                 <label class="form-label" for="select4-multiple">應付帳款</label>
-                <select name="income_type[{{ $thirdGradesDataList['selectedResult']['應付帳款']['acc_income_type_fk'] }}][]"
+                <select name="income_type[{{ $selectedResult['應付帳款']['acc_income_type_fk'] }}][]"
                         id="select4-multiple"
                         multiple
                         class="-select2 -multiple form-select"
@@ -76,19 +75,19 @@
                         disabled
                         @endif
                         data-placeholder="可複選">
-                    @foreach($fourthGradesDataList['allGradeOptions'] as $fourthGrade)
+                    @foreach($totalGrades as $value)
                         <option
-                            @if(in_array($fourthGrade['id'], $fourthGradesDataList['selectedResult']['應付帳款']['grade_id_fk_arr']))
+                            @if(in_array($value['primary_id'], $selectedResult['應付帳款']['grade_id_fk_arr']))
                             selected
                             @endif
-                            value="{{ $fourthGrade['id'] }}">{{ $fourthGrade['code'] . ' ' . $fourthGrade['name'] }}
+                            value="{{ $value['primary_id'] }}">{{ $value['code'] . ' ' . $value['name'] }}
                         </option>
                     @endforeach
                 </select>
             </div>
             <div class="col-12 mb-3 d-none">
                 <label class="form-label" for="select5-multiple">其它</label>
-                <select name="income_type[{{ $thirdGradesDataList['selectedResult']['其它']['acc_income_type_fk'] }}][]"
+                <select name="income_type[{{ $selectedResult['其它']['acc_income_type_fk'] }}][]"
                         id="select5-multiple"
                         multiple
                         class="-select2 -multiple form-select"
@@ -96,15 +95,15 @@
                         disabled
                         @endif
                         data-placeholder="可複選">
-                    @foreach($thirdGradesDataList['allGradeOptions'] as $thirdGrade)
+                    @foreach($totalGrades as $value)
                         <option
                             selected
                         {{--
-                            @if(in_array($thirdGrade['id'], $thirdGradesDataList['selectedResult']['其它']['grade_id_fk_arr']))
+                            @if(in_array($value['primary_id'], $selectedResult['其它']['grade_id_fk_arr']))
                             selected
                             @endif
                         --}}
-                            value="{{ $thirdGrade['id'] }}">{{ $thirdGrade['code'] . ' ' . $thirdGrade['name'] }}
+                            value="{{ $value['primary_id'] }}">{{ $value['code'] . ' ' . $value['name'] }}
                         </option>
                     @endforeach
                 </select>
@@ -148,14 +147,14 @@
                                         data-placeholder="單選">
                                 <option disabled selected value> -- select an option -- </option>
 
-                                @foreach($currencyData['allGradeOptions'] as $allGradeOption)
-                                        <option
-                                            @if($allGradeOption['id'] === $currencyOption->grade_id_fk)
-                                            selected
-                                            @endif
-                                            value="{{ $allGradeOption['id'] }}">{{ $allGradeOption['code'] . ' ' . $allGradeOption['name'] }}
-                                        </option>
-                                    @endforeach
+                                @foreach($totalGrades as $value)
+                                    <option
+                                        @if($value['primary_id'] === $currencyOption->grade_id_fk)
+                                        selected
+                                        @endif
+                                        value="{{ $value['primary_id'] }}">{{ $value['code'] . ' ' . $value['name'] }}
+                                    </option>
+                                @endforeach
                                 </select>
                                 @error('currency.' . $currencyOption->acc_currency_fk . '.gradeOption') {{ $message }} @enderror
                             </td>
@@ -179,13 +178,12 @@
                     class="-select2 -single form-select col-12 @error('orderDefault[product]') is-invalid @enderror"
                     data-placeholder="請選擇">
                     <option disabled selected value> -- select an option --</option>
-                    @foreach($allThirdGrades as $thirdGrade)
+                    @foreach($totalGrades as $value)
                         <option
-                            @if(!is_null($productGradeDefaultArray) &&
-                                $productGradeDefaultArray['id'] === $thirdGrade['id'])
-                                selected
+                            @if(!is_null($productGradeDefaultArray) && $value['primary_id'] === $productGradeDefaultArray['id'])
+                            selected
                             @endif
-                            value="{{ $thirdGrade['id'] }}">{{ $thirdGrade['code'] . ' ' . $thirdGrade['name'] }}
+                            value="{{ $value['primary_id'] }}">{{ $value['code'] . ' ' . $value['name'] }}
                         </option>
                     @endforeach
                 </select>
@@ -202,13 +200,12 @@
                     class="-select2 -single form-select col-12 @error('orderDefault[logistics]') is-invalid @enderror"
                     data-placeholder="請選擇">
                     <option disabled selected value> -- select an option --</option>
-                    @foreach($allThirdGrades as $thirdGrade)
+                    @foreach($totalGrades as $value)
                         <option
-                            @if(!is_null($logisticsGradeDefaultArray) &&
-                                $logisticsGradeDefaultArray['id'] === $thirdGrade['id'])
-                                selected
+                            @if(!is_null($logisticsGradeDefaultArray) && $value['primary_id'] === $logisticsGradeDefaultArray['id'])
+                            selected
                             @endif
-                            value="{{ $thirdGrade['id'] }}">{{ $thirdGrade['code'] . ' ' . $thirdGrade['name'] }}
+                            value="{{ $value['primary_id'] }}">{{ $value['code'] . ' ' . $value['name'] }}
                         </option>
                     @endforeach
                 </select>

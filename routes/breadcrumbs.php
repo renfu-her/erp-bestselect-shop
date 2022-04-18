@@ -192,7 +192,17 @@ Breadcrumbs::for('cms.order.create', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
     $trail->push('新增訂單');
 });
-
+// 新增收款單
+Breadcrumbs::for('cms.ar.create', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id'=>$value['id']]));
+    $trail->push('新增收款單');
+});
+// Breadcrumbs::for('cms.ap.create', function (BreadcrumbTrail $trail, $value) {
+//     $trail->parent('cms.purchase.edit', $value);
+//     $trail->push( $value['type'] == 0 ? '訂金付款單' : '尾款付款單', route('cms.purchase.view-pay-order', ['id' => $value['id'], 'type' => $value['type']]));
+//     $trail->push('新增付款');
+// });
 // 出貨管理
 Breadcrumbs::for('cms.delivery.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');

@@ -35,10 +35,15 @@ class PayableCash extends Model
         return $this->morphTo();
     }
 
+    public function all_grade()
+    {
+        return $this->belongsTo(AllGrade::class, 'grade_id', 'id');
+    }
+
     public static function storePayableCash($req)
     {
         $payableData =self::create([
-            'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::Cash),
+            'grade_type' => AllGrade::findOrFail($req['cash']['grade_id_fk'])->grade_type,
             'grade_id' => $req['cash']['grade_id_fk']
         ]);
 

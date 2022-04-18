@@ -3,16 +3,19 @@
 namespace App\Http\Controllers\Cms\Accounting;
 
 use App\Http\Controllers\Controller;
+
+use Illuminate\Http\Request;
+
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+
+use App\Enums\Accounting\ItemNameGradeDefault;
+
 use App\Models\AllGrade;
 use App\Models\FirstGrade;
 use App\Models\GeneralLedger;
 use App\Models\IncomeExpenditure;
 use App\Models\GradeDefault;
-use App\Enums\Accounting\ItemNameGradeDefault;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
-
 class IncomeExpenditureCtrl extends Controller
 {
     /**
@@ -22,16 +25,58 @@ class IncomeExpenditureCtrl extends Controller
      */
     public function index()
     {
+        $currencyData = IncomeExpenditure::getCurrencyOptionData();
         $productGradeDefaultArray = IncomeExpenditure::productGradeDefault();
         $logisticsGradeDefaultArray = IncomeExpenditure::logisticsGradeDefault();
         $allThirdGrades = GeneralLedger::getGradeData(3);
-        $thirdGradesDataList = IncomeExpenditure::getOptionDataByGrade(3);
-        $fourthGradesDataList = IncomeExpenditure::getOptionDataByGrade(4);
-        $currencyData = IncomeExpenditure::getCurrencyOptionData();
+        // $thirdGradesDataList = IncomeExpenditure::getOptionDataByGrade(3);
+        // $fourthGradesDataList = IncomeExpenditure::getOptionDataByGrade(4);
+
+        $firstGrades = GeneralLedger::getAllFirstGrade();
+        $totalGrades = array();
+        foreach ($firstGrades as $firstGrade) {
+            $totalGrades[] = $firstGrade;
+            foreach (GeneralLedger::getSecondGradeById($firstGrade['id']) as $secondGrade) {
+                $totalGrades[] = $secondGrade;
+                foreach (GeneralLedger::getThirdGradeById($secondGrade['id']) as $thirdGrade) {
+                    $totalGrades[] = $thirdGrade;
+                    foreach (GeneralLedger::getFourthGradeById($thirdGrade['id']) as $fourthGrade) {
+                        $totalGrades[] = $fourthGrade;
+                    }
+                }
+            }
+        }
+
+        $query = DB::table('acc_income_expenditure')
+            ->leftJoin('acc_all_grades', 'acc_all_grades.id', '=', 'acc_income_expenditure.grade_id_fk')
+            ->leftJoin('acc_income_type', 'acc_income_type_fk', '=', 'acc_income_type.id')
+            ->where('acc_income_type.type', '<>', '外幣')
+            ->select(
+                'acc_income_expenditure.acc_income_type_fk',
+                'acc_income_expenditure.grade_id_fk',
+                'acc_income_type.type',
+            )
+            ->get()
+            ->groupBy('type');
+
+        $selectedResult = [];
+        foreach ($query as $typeName => $dataItem) {
+            $temp = [];
+            foreach ($dataItem as $data) {
+                $temp[] = $data->grade_id_fk;
+            }
+            $selectedResult[$typeName] = [
+                'grade_id_fk_arr' => $temp,
+                'acc_income_type_fk' => $dataItem[0]->acc_income_type_fk
+            ];
+        }
 
         return view('cms.accounting.income_expenditure.edit', [
-            'thirdGradesDataList' => $thirdGradesDataList,
-            'fourthGradesDataList' => $fourthGradesDataList,
+            'totalGrades' => $totalGrades,
+            'selectedResult' => $selectedResult,
+
+            // 'thirdGradesDataList' => $thirdGradesDataList,
+            // 'fourthGradesDataList' => $fourthGradesDataList,
             'currencyData' => $currencyData,
             'productGradeDefaultArray' => $productGradeDefaultArray,
             'logisticsGradeDefaultArray' => $logisticsGradeDefaultArray,
@@ -81,23 +126,65 @@ class IncomeExpenditureCtrl extends Controller
      */
     public function edit()
     {
+        $currencyData = IncomeExpenditure::getCurrencyOptionData();
         $productGradeDefaultArray = IncomeExpenditure::productGradeDefault();
         $logisticsGradeDefaultArray = IncomeExpenditure::logisticsGradeDefault();
         $allThirdGrades = GeneralLedger::getGradeData(3);
-        $thirdGradesDataList = IncomeExpenditure::getOptionDataByGrade(3);
-        $fourthGradesDataList = IncomeExpenditure::getOptionDataByGrade(4);
-        $currencyData = IncomeExpenditure::getCurrencyOptionData();
+        // $thirdGradesDataList = IncomeExpenditure::getOptionDataByGrade(3);
+        // $fourthGradesDataList = IncomeExpenditure::getOptionDataByGrade(4);
+
+        $firstGrades = GeneralLedger::getAllFirstGrade();
+        $totalGrades = array();
+        foreach ($firstGrades as $firstGrade) {
+            $totalGrades[] = $firstGrade;
+            foreach (GeneralLedger::getSecondGradeById($firstGrade['id']) as $secondGrade) {
+                $totalGrades[] = $secondGrade;
+                foreach (GeneralLedger::getThirdGradeById($secondGrade['id']) as $thirdGrade) {
+                    $totalGrades[] = $thirdGrade;
+                    foreach (GeneralLedger::getFourthGradeById($thirdGrade['id']) as $fourthGrade) {
+                        $totalGrades[] = $fourthGrade;
+                    }
+                }
+            }
+        }
+
+        $query = DB::table('acc_income_expenditure')
+            ->leftJoin('acc_all_grades', 'acc_all_grades.id', '=', 'acc_income_expenditure.grade_id_fk')
+            ->leftJoin('acc_income_type', 'acc_income_type_fk', '=', 'acc_income_type.id')
+            ->where('acc_income_type.type', '<>', '外幣')
+            ->select(
+                'acc_income_expenditure.acc_income_type_fk',
+                'acc_income_expenditure.grade_id_fk',
+                'acc_income_type.type',
+            )
+            ->get()
+            ->groupBy('type');
+
+        $selectedResult = [];
+        foreach ($query as $typeName => $dataItem) {
+            $temp = [];
+            foreach ($dataItem as $data) {
+                $temp[] = $data->grade_id_fk;
+            }
+            $selectedResult[$typeName] = [
+                'grade_id_fk_arr' => $temp,
+                'acc_income_type_fk' => $dataItem[0]->acc_income_type_fk
+            ];
+        }
 
         return view('cms.accounting.income_expenditure.edit', [
-            'thirdGradesDataList'  => $thirdGradesDataList,
-            'fourthGradesDataList' => $fourthGradesDataList,
-            'currencyData'         => $currencyData,
+            'totalGrades' => $totalGrades,
+            'selectedResult' => $selectedResult,
+
+            // 'thirdGradesDataList' => $thirdGradesDataList,
+            // 'fourthGradesDataList' => $fourthGradesDataList,
+            'currencyData' => $currencyData,
             'productGradeDefaultArray' => $productGradeDefaultArray,
             'logisticsGradeDefaultArray' => $logisticsGradeDefaultArray,
             'allThirdGrades' => $allThirdGrades,
-            'isViewMode'           => false,
-            'formAction'           => Route('cms.income_expenditure.update', [], true),
-            'formMethod'           => 'POST'
+            'isViewMode' => false,
+            'formAction' => Route('cms.income_expenditure.update', [], true),
+            'formMethod' => 'POST'
         ]);
     }
 
@@ -131,6 +218,7 @@ class IncomeExpenditureCtrl extends Controller
         ]);
 
         $validatedReq = $val->validated();
+
         IncomeExpenditure::updateCurrency($validatedReq);
         IncomeExpenditure::updateIncomeExpenditure($validatedReq);
 

@@ -35,10 +35,15 @@ class PayableAccount extends Model
         return $this->morphTo();
     }
 
+    public function all_grade()
+    {
+        return $this->belongsTo(AllGrade::class, 'grade_id', 'id');
+    }
+
     public static function storePayablePayableAccount($req)
     {
         $payableData =self::create([
-            'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::AccountsPayable),
+            'grade_type' => AllGrade::findOrFail($req['payable_account']['grade_id_fk'])->grade_type,
             'grade_id' => $req['payable_account']['grade_id_fk'],
         ]);
 
