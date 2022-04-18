@@ -43,6 +43,8 @@ final class LogEventFeature extends Enum
     //寄倉
     const csn_add = 'csn_add';
     const csn_del = 'csn_del';
+    const csn_chang_scheduled_date = 'csn_chang_scheduled_date';
+    const csn_audit_status = 'csn_audit_status';
     const csn_close = 'csn_close';
     const csn_change_data = 'csn_change_data';
 
@@ -119,6 +121,12 @@ final class LogEventFeature extends Enum
                 break;
             case self::csn_del:
                 $result = '刪除寄倉單';
+                break;
+            case self::csn_chang_scheduled_date:
+                $result = '預計入庫日期';
+                break;
+            case self::csn_audit_status:
+                $result = '修改審核狀態';
                 break;
             case self::csn_close:
                 $result = '寄倉單結單';

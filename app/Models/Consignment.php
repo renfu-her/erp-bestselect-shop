@@ -89,10 +89,15 @@ class Consignment extends Model
             if ($purchase->isDirty()) {
                 foreach ($purchase->getDirty() as $key => $val) {
                     $event = '';
+                    $logEventFeature = null;
                     if($key == 'scheduled_date') {
                         $event = '預計入庫日期';
+                        $logEventFeature = LogEventFeature::csn_chang_scheduled_date()->value;
+                    } else if($key == 'audit_status') {
+                        $event = '修改審核狀態';
+                        $logEventFeature = LogEventFeature::csn_audit_status()->value;
                     }
-                    $rePcsLSC = PurchaseLog::stockChange($id, null, Event::consignment()->value, $id, LogEventFeature::csn_change_data()->value, null, $event, $operator_user_id, $operator_user_name);
+                    $rePcsLSC = PurchaseLog::stockChange($id, null, Event::consignment()->value, $id, $logEventFeature, null, $event, $operator_user_id, $operator_user_name);
                     if ($rePcsLSC['success'] == 0) {
                         DB::rollBack();
                         return $rePcsLSC;
