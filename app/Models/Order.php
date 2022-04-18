@@ -21,7 +21,7 @@ class Order extends Model
         $order = DB::table('ord_orders as order')
             ->select(['order.id as id',
                 'order.status as order_status',
-                'customer.name',
+                'ord_address.name',
                 'sale.title as sale_title',
                 'so.ship_category_name',
                 'so.ship_event', 'so.ship_sn',
@@ -33,7 +33,10 @@ class Order extends Model
             ->leftJoin('ord_sub_orders as so', 'order.id', '=', 'so.order_id')
             ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
             ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id')
-
+            ->leftJoin('ord_address', function ($join) {
+                $join->on('ord_address.order_id', '=', 'order.id')
+                    ->where('ord_address.type', '=', UserAddrType::orderer);
+            })
             ->leftJoin('dlv_delivery', function ($join) {
                 $join->on('dlv_delivery.event_id', '=', 'so.id');
                 $join->where('dlv_delivery.event', '=', Event::order()->value);
