@@ -533,7 +533,7 @@ class PurchaseInbound extends Model
     }
 
     //取得商品款式現有數量
-    public static function getExistInboundProductStyleList($depot_id) {
+    public static function getExistInboundProductStyleList($depot_id = null) {
         $result = DB::table('pcs_purchase_inbound as inbound')
             ->leftJoin('prd_product_styles as style', 'style.id', '=', 'inbound.product_style_id')
             ->leftJoin('prd_products as product', 'product.id', '=', 'style.product_id')
