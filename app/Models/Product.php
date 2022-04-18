@@ -785,4 +785,92 @@ class Product extends Model
             ],
         ]);
     }
+
+    /**
+     * @param $data
+     * model for search 商品編號、商品名稱
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public static function searchProduct(
+        string $data,
+        $pageSize,
+        int $currentPageNumber = 1,
+        bool $isPriceDescend = true,
+        string $m_class = 'customer'
+    ) {
+        $sale_channel_id = DB::table('usr_identity')
+            ->where('code', '=', $m_class)
+            ->leftJoin('usr_identity_salechannel', 'usr_identity.id', '=', 'usr_identity_salechannel.identity_id')
+            ->select('sale_channel_id')
+            ->get()
+            ->first()
+            ->sale_channel_id;
+
+        $productQueries = DB::table('prd_products as prd')
+            ->where('prd.title', 'LIKE', "%$data%")
+            ->orWhere('prd.sku', 'LIKE', "%$data%")
+            ->where('prd.public', '=', 1)
+            ->leftJoin('prd_product_styles as product_style', function ($join) {
+                $join->on('product_style.product_id', '=', 'prd.id')
+                    ->where('product_style.is_active', '=', 1);
+            })
+            ->leftJoin('prd_salechannel_style_price as sale_channel', function ($join) use ($sale_channel_id) {
+                $join->on('sale_channel.style_id', '=', 'product_style.id')
+                    ->where('sale_channel.sale_channel_id', '=', $sale_channel_id);
+            })
+            ->leftJoin('prd_product_images as images', 'images.product_id', '=', 'prd.id')
+            ->whereNull('prd.deleted_at')
+            ->whereNotNull('sale_channel.price')
+            ->select(
+                'prd.id as id',
+                'prd.sku as sku',
+                'prd.title as title',
+                'sale_channel.price as price',
+                'sale_channel.origin_price as origin_price',
+                'images.url as img_url',
+            )
+            ->orderBy('price', $isPriceDescend ? 'desc' : 'asc')
+            ->get()
+            //用groupBy(product_id)及transform min(price, origin_price) 取得product_id的不同款式中價錢最小
+            ->groupBy('id')
+            ->transform(function ($item) {
+                return [
+                    'id' => $item[0]->id,
+                    'sku' => $item[0]->sku,
+                    'title' => $item[0]->title,
+                    'price' => $item->min('price'),
+                    'origin_price' => $item->min('origin_price'),
+                    'img_url' => $item[0]->img_url,
+                ];
+            })
+        ;
+
+        $totalPages = $productQueries->count();
+        if (empty($pageSize)) {
+            $productQueries = $productQueries->forPage(1, $totalPages);
+        } else {
+            $productQueries = $productQueries->forPage($currentPageNumber, $pageSize);
+        }
+
+        $productData = [];
+        foreach ($productQueries as $productQuery) {
+            $productData[] = [
+                'id' => $productQuery['id'],
+                'sku' => $productQuery['sku'],
+                'title' => $productQuery['title'],
+                'img_url' => $productQuery['img_url'] ?? [],
+                'price' => $productQuery['price'],
+                'origin_price' => $productQuery['origin_price'],
+            ];
+        }
+
+        return response()->json([
+            'status' => ApiStatusMessage::Succeed,
+            'msg' => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
+            'data' => [
+                'page' => $totalPages,
+                'list' => $productData,
+            ]
+        ]);
+    }
 }
