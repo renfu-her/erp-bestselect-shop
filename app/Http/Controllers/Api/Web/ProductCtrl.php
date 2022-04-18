@@ -30,7 +30,7 @@ class ProductCtrl extends Controller
         $re = Product::singleProduct($d['sku']);
 
         if ($re) {
-            return response()->json(['status' => 0, 'data' => $re]);
+            return response()->json(['status' => '0', 'data' => $re]);
         } else {
             return response()->json(['status' => 'E04', 'msg' => '查無資料']);
         }
