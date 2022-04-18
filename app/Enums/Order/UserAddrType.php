@@ -5,13 +5,13 @@ namespace App\Enums\Order;
 use BenSampo\Enum\Enum;
 
 /**
- * @method static static reciver() 收件者
+ * @method static static receiver() 收件者
  * @method static static orderer()  訂購者
  * @method static static sender() 寄件者
  */
 final class UserAddrType extends Enum
 {
-    const reciver = 'reciver';
+    const receiver = 'receiver';
     const orderer = 'orderer';
     const sender = 'sender';
 
@@ -19,7 +19,7 @@ final class UserAddrType extends Enum
     {
         $result = '';
         switch ($value) {
-            case self::reciver:
+            case self::receiver:
                 $result = '收件者';
                 break;
             case self::orderer:

@@ -169,7 +169,7 @@ class Order extends Model
                     ->where($value . '.type', '=', $value);
             });
             switch ($value) {
-                case UserAddrType::reciver()->value:
+                case UserAddrType::receiver()->value:
                     $prefix = 'rec_';
                     break;
                 case UserAddrType::orderer()->value:
