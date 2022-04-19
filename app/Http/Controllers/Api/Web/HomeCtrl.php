@@ -53,7 +53,7 @@ class HomeCtrl extends Controller
         if ($validator->fails()) {
             $re = [];
             $re[ResponseParam::status()->key] = 'E01';
-            $re[ResponseParam::msg()->key] = $validator->messages();
+            $re[ResponseParam::msg()->key] = $validator->errors();
 
             return response()->json($re);
         }

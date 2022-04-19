@@ -23,7 +23,7 @@ class ProductCtrl extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'E01',
-                'message' => $validator->messages(),
+                'message' => $validator->errors(),
             ]);
         }
         $d = $request->all();
@@ -47,7 +47,7 @@ class ProductCtrl extends Controller
         if ($validator->fails()) {
             $re = [];
             $re[ResponseParam::status()->key] = 'E01';
-            $re[ResponseParam::msg()->key] = $validator->messages();
+            $re[ResponseParam::msg()->key] = $validator->errors();
 
             return response()->json($re);
         }
