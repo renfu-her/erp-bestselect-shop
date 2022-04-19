@@ -49,7 +49,7 @@ class CreateAccountReceivedTable extends Migration
 
         Schema::create('acc_received_remit', function (Blueprint $table) {
             $table->id()->comment('收款方式：匯款');
-            $table->dateTime('匯款日期');
+            $table->dateTime('remittance')->comment('匯款日期');
             $table->string('memo')->comment('水單末5碼、匯款人姓名');
             $table->timestamps();
         });
