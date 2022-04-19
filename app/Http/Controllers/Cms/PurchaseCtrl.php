@@ -56,6 +56,7 @@ class PurchaseCtrl extends Controller
         $inbound_edate = Arr::get($query, 'inbound_edate', '');
         $expire_day = Arr::get($query, 'expire_day', '');
         $type = Arr::get($query, 'type', '0'); //0:明細 1:總表
+        $audit_status = Arr::get($query, 'audit_status', null);
 
         $inbound_status_arr = [];
         if ('' != $inbound_status) {
@@ -78,7 +79,8 @@ class PurchaseCtrl extends Controller
                 , $inbound_status_arr
                 , $inbound_sdate
                 , $inbound_edate
-                , $expire_day)
+                , $expire_day
+                , $audit_status)
                 ->paginate($data_per_page)->appends($query);
         } else {
             $dataList = PurchaseItem::getPurchaseOverviewList(
@@ -93,7 +95,8 @@ class PurchaseCtrl extends Controller
                 , $inbound_status_arr
                 , $inbound_sdate
                 , $inbound_edate
-                , $expire_day)
+                , $expire_day
+                , $audit_status)
                 ->paginate($data_per_page)->appends($query);
         }
 
@@ -120,6 +123,7 @@ class PurchaseCtrl extends Controller
             , 'inbound_edate' => $inbound_edate
             , 'expire_day' => $expire_day
             , 'type' => $type
+            , 'audit_status' => $audit_status
         ]);
     }
 

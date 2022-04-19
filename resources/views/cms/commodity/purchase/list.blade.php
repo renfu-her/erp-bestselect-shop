@@ -152,6 +152,20 @@
                         </div>
                     </div>
                 </div>
+                <fieldset class="col-12 mb-3">
+                    <legend class="col-form-label p-0 mb-2">審核狀態</legend>
+                    <div class="px-1 pt-1">
+                        @foreach (App\Enums\Consignment\AuditStatus::asArray() as $key => $val)
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="audit_status" type="radio"
+                                           value="{{ $val }}" @if (old('audit_status', $audit_status ?? null) == $val) checked @endif>
+                                    {{ App\Enums\Consignment\AuditStatus::getDescription($val) }}
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                </fieldset>
             </div>
 
             <div class="col">
@@ -190,6 +204,7 @@
                         <th scope="col">採購單號</th>
                         <th scope="col">商品名稱</th>
                         <th scope="col">採購日期</th>
+                        <th scope="col">審核狀態</th>
                         <th scope="col">入庫狀態</th>
                         <th scope="col">訂金單號</th>
                         <th scope="col">尾款單號</th>
@@ -215,6 +230,7 @@
                                 <td>{{ $data->sn }}</td>
                                 <td>{{ $data->title }}</td>
                                 <td>{{ $data->created_at }}</td>
+                                <td>{{ $data->audit_status }}</td>
                                 <td>{{ $data->inbound_status }}</td>
                                 <td>{{ $data->deposit_num }}</td>
                                 <td>{{ $data->final_pay_num }}</td>

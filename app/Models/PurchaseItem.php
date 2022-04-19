@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Purchase\InboundStatus;
 use App\Enums\Purchase\LogEventFeature;
+use App\Helpers\IttmsUtils;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -178,6 +180,7 @@ class PurchaseItem extends Model
         , $inbound_sdate = null
         , $inbound_edate = null
         , $expire_day = null
+        , $audit_status = null
     ) {
 
         //訂金單號
@@ -261,6 +264,11 @@ class PurchaseItem extends Model
                 ,'purchase.purchase_user_name as purchase_user_name'
                 ,'purchase.supplier_name as supplier_name'
                 ,'purchase.supplier_nickname as supplier_nickname'
+                , DB::raw('(case
+                    when purchase.audit_status ='. AuditStatus::unreviewed()->value. ' then "'. AuditStatus::getDescription(AuditStatus::unreviewed()->value). '"
+                    when purchase.audit_status ='. AuditStatus::approved()->value. ' then "'. AuditStatus::getDescription(AuditStatus::approved()->value). '"
+                    when purchase.audit_status ='. AuditStatus::veto()->value. ' then "'. AuditStatus::getDescription(AuditStatus::veto()->value). '"
+                    end ) as audit_status')
 
             )
             ->selectRaw('DATE_FORMAT(purchase.created_at,"%Y-%m-%d") as created_at')
@@ -303,6 +311,10 @@ class PurchaseItem extends Model
         if ($supplier_id) {
             $result->where('purchase.supplier_id', '=', $supplier_id);
         }
+        if (isset($audit_status)) {
+            $result->where('purchase.audit_status', $audit_status);
+        }
+
         $result2 = DB::table(DB::raw("({$result->toSql()}) as tb"))
             ->select('*')
             ->orderByDesc('id')
@@ -347,6 +359,7 @@ class PurchaseItem extends Model
         , $inbound_sdate = null
         , $inbound_edate = null
         , $expire_day = null
+        , $audit_status = null
     ) {
         //訂金單號
         $subColumn = DB::table('pcs_paying_orders as order')
@@ -451,6 +464,11 @@ class PurchaseItem extends Model
                 ,'purchase.purchase_user_name as purchase_user_name'
                 ,'purchase.supplier_name as supplier_name'
                 ,'purchase.supplier_nickname as supplier_nickname'
+                , DB::raw('(case
+                    when purchase.audit_status ='. AuditStatus::unreviewed()->value. ' then "'. AuditStatus::getDescription(AuditStatus::unreviewed()->value). '"
+                    when purchase.audit_status ='. AuditStatus::approved()->value. ' then "'. AuditStatus::getDescription(AuditStatus::approved()->value). '"
+                    when purchase.audit_status ='. AuditStatus::veto()->value. ' then "'. AuditStatus::getDescription(AuditStatus::veto()->value). '"
+                    end ) as audit_status')
             )
             ->selectRaw('DATE_FORMAT(purchase.created_at,"%Y-%m-%d") as created_at')
             ->selectRaw('DATE_FORMAT(purchase.scheduled_date,"%Y-%m-%d") as scheduled_date')
@@ -483,6 +501,9 @@ class PurchaseItem extends Model
 
         if ($inbound_user_id) {
             $result->whereIn('itemtb_new.inbound_user_ids', $inbound_user_id);
+        }
+        if (isset($audit_status)) {
+            $result->where('purchase.audit_status', $audit_status);
         }
 
         $result2 = DB::table(DB::raw("({$result->toSql()}) as tb"))
