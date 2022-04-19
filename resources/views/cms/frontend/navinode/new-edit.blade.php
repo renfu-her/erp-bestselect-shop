@@ -24,24 +24,28 @@
         <div class="card mb-4">
             <div class="card-header">選單內容</div>
             <div class="card-body">
-                <x-b-form-group name="event" title="內容類型" required="true">
+                <div class="form-group">
+                    <label for="event" class="col-form-label">內容類型 <span class="text-danger">*</span> (若有子選單可先任一指定群組或網址)</label>
                     <div class="px-1">
                         <div class="form-check form-check-inline">
                             <label class="form-check-label">
                                 <input class="form-check-input" name="event" type="radio" value="group" required
-                                    @if (old('event', $data->event ?? 'group') == 'group') checked @endif>
+                                       @if (old('event', $data->event ?? 'group') == 'group') checked @endif>
                                 群組
                             </label>
                         </div>
                         <div class="form-check form-check-inline">
                             <label class="form-check-label">
                                 <input class="form-check-input" name="event" type="radio" value="url" required
-                                    @if (old('event', $data->event ?? '') == 'url') checked @endif>
+                                       @if (old('event', $data->event ?? '') == 'url') checked @endif>
                                 網址
                             </label>
                         </div>
                     </div>
-                </x-b-form-group>
+                    @error('event')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
                 <div class="menu_type -group" @if (old('event', $data->event ?? 'group') !== 'group') hidden @endif>
                     <x-b-form-group name="event_id" title="群組" required="true">
                         <select class="form-select" name="event_id" aria-label="Default select example"

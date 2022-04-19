@@ -60,6 +60,15 @@
                         @endforeach
                     </div>
                 </fieldset>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">倉庫</label>
+                    <select class="form-select -select2" name="depot_id" aria-label="倉庫" data-placeholder="請選擇倉庫">
+                        @foreach ($depotList as $key => $data)
+                            <option value="{{ $data->id }}"
+                                    @if ($data->id == $searchParam['depot_id']) selected @endif>{{ $data->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
 
             <div class="col">
@@ -92,8 +101,10 @@
                         <th scope="col">款式</th>
                         <th scope="col">類型</th>
                         <th scope="col">SKU</th>
+                        <th scope="col">倉庫名稱</th>
                         <th scope="col">進貨數量</th>
                         <th scope="col">實際庫存</th>
+                        <th scope="col">官網可售數量</th>
                         <!--<th scope="col">預扣庫存</th>-->
                         <th scope="col">安全庫存</th>
                         <th scope="col">廠商名稱</th>
@@ -110,10 +121,12 @@
                             <td>{{ $data->spec }}</td>
                             <td>{{ $data->type_title }}</td>
                             <td>{{ $data->sku }}</td>
+                            <td>{{ $data->depot_name }}</td>
                             <td>
                                 <!--<a href="{{ Route('cms.purchase.index', ['title' => $data->sku], true) }}">{{ $data->total_inbound }}</a>-->
-                                {{ $data->total_inbound }}
+                                {{ $data->total_inbound_num }}
                             </td>
+                            <td>{{ $data->total_in_stock_num }}</td>
                             <td>
                                 <!--<a href="{{ Route('cms.product.edit-stock', ['id' => $data->product_id, 'sid' => $data->id]) }}">{{ $data->in_stock }}</a>-->
                                 {{ $data->in_stock }}

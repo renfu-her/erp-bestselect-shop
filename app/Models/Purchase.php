@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Purchase\LogEventFeature;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,6 +15,10 @@ class Purchase extends Model
     use HasFactory,SoftDeletes;
     protected $table = 'pcs_purchase';
     protected $guarded = [];
+    protected $casts = [
+        'scheduled_date'  => 'datetime:Y-m-d',
+        'audit_date'  => 'datetime:Y-m-d',
+    ];
 
     public static function createPurchase($supplier_id, $supplier_name, $supplier_nickname, $supplier_sn = null, $purchase_user_id, $purchase_user_name
         , $scheduled_date
@@ -63,7 +68,7 @@ class Purchase extends Model
         });
     }
 
-    public static function checkToUpdatePurchaseData($id, array $purchaseReq, string $changeStr, $operator_user_id, $operator_user_name, $tax, array $purchasePayReq
+    public static function checkToUpdatePurchaseData($id, array $purchaseReq, $operator_user_id, $operator_user_name, $tax, array $purchasePayReq
     )
     {
         $purchase = Purchase::where('id', '=', $id)
@@ -74,24 +79,36 @@ class Purchase extends Model
                 , 'logistics_memo'
                 , 'invoice_num'
                 , 'invoice_date'
+                , 'audit_status'
             )
             ->selectRaw('DATE_FORMAT(scheduled_date,"%Y-%m-%d") as scheduled_date')
+            ->selectRaw('DATE_FORMAT(audit_date,"%Y-%m-%d") as audit_date')
             ->get()->first();
 
-        $purchase->supplier_id = $purchaseReq['supplier'];
-        $purchase->supplier_sn = $purchaseReq['supplier_sn'] ?? null;
-        $purchase->scheduled_date = $purchaseReq['scheduled_date'];
-        $purchase->has_tax = $tax;
-        $purchase->logistics_price = $purchasePayReq['logistics_price'] ?? 0;
-        $purchase->logistics_memo = $purchasePayReq['logistics_memo'] ?? null;
-        $purchase->invoice_num = $purchasePayReq['invoice_num'] ?? null;
-        $purchase->invoice_date = $purchasePayReq['invoice_date'] ?? null;
+        //尚未審核可修改任一選項
+        //核可、否決後 不可修改採購商品清單 物流、需可修改付款發票資訊
+        $orign_audit_status = $purchase->audit_status;
+        if (AuditStatus::unreviewed()->value == $purchase->audit_status) {
+            $purchase->supplier_sn = $purchaseReq['supplier_sn'] ?? null;
+            $purchase->scheduled_date = $purchaseReq['scheduled_date'];
+            $purchase->audit_status = $purchaseReq['audit_status'];
+            $purchase->has_tax = $tax;
+            $purchase->logistics_price = $purchasePayReq['logistics_price'] ?? 0;
+            $purchase->logistics_memo = $purchasePayReq['logistics_memo'] ?? null;
+        } else {
+            $purchase->supplier_sn = $purchaseReq['supplier_sn'] ?? null;
+            $purchase->scheduled_date = $purchaseReq['scheduled_date'];
+            $purchase->has_tax = $tax;
+            $purchase->invoice_num = $purchasePayReq['invoice_num'] ?? null;
+            $purchase->invoice_date = $purchasePayReq['invoice_date'] ?? null;
+        }
 
-        return DB::transaction(function () use ($purchase, $id, $purchaseReq, $changeStr, $operator_user_id, $operator_user_name, $tax, $purchasePayReq
+        return DB::transaction(function () use ($purchase, $id, $purchaseReq, $operator_user_id, $operator_user_name, $tax, $purchasePayReq, $orign_audit_status
         ) {
             if ($purchase->isDirty()) {
                 foreach ($purchase->getDirty() as $key => $val) {
                     $event = '';
+                    $logEventFeature = LogEventFeature::pcs_change_data()->value;
                     if ($key == 'supplier_id') {
                         $event = '修改廠商';
                     } else if($key == 'supplier_sn') {
@@ -105,6 +122,8 @@ class Purchase extends Model
                         } else if (1 == $val) {
                             $val = '免稅';
                         }
+                    } else if($key == 'audit_status') {
+                        $event = '修改審核狀態';
                     } else if($key == 'logistics_price') {
                         $event = '修改物流費用';
                     } else if($key == 'logistics_memo') {
@@ -114,14 +133,14 @@ class Purchase extends Model
                     } else if($key == 'invoice_date') {
                         $event = '修改發票日期';
                     }
-                    $changeStr .= ' ' . $key . ' change to ' . $val;
+
                     $rePcsLSC = PurchaseLog::stockChange($id, null, Event::purchase()->value, $id, LogEventFeature::pcs_change_data()->value, null, $event, $operator_user_id, $operator_user_name);
                     if ($rePcsLSC['success'] == 0) {
                         DB::rollBack();
                         return $rePcsLSC;
                     }
                 }
-                Purchase::where('id', $id)->update([
+                $updArr = [
                     "supplier_id" => $purchaseReq['supplier'],
                     "supplier_sn" => $purchaseReq['supplier_sn'],
                     "scheduled_date" => $purchaseReq['scheduled_date'],
@@ -130,9 +149,18 @@ class Purchase extends Model
                     'logistics_memo' => $purchasePayReq['logistics_memo'] ?? null,
                     'invoice_num' => $purchasePayReq['invoice_num'] ?? null,
                     'invoice_date' => $purchasePayReq['invoice_date'] ?? null,
-                ]);
+                ];
+                $curr_date = date('Y-m-d H:i:s');
+                if (AuditStatus::unreviewed()->value == $orign_audit_status) {
+                    $updArr['audit_date'] = $curr_date;
+                    $updArr['audit_user_id'] = $operator_user_id;
+                    $updArr['audit_user_name'] = $operator_user_name;
+                    $updArr['audit_status'] = $purchaseReq['audit_status'] ?? App\Enums\Consignment\AuditStatus::unreviewed()->value;
+                }
+
+                Purchase::where('id', $id)->update($updArr);
             }
-            return ['success' => 1, 'error_msg' => $changeStr];
+            return ['success' => 1, 'error_msg' => ''];
         });
     }
 
@@ -217,8 +245,12 @@ class Purchase extends Model
                 , 'purchase.has_tax as has_tax'
                 , 'purchase.logistics_price as logistics_price'
                 , 'purchase.logistics_memo as logistics_memo'
+                , 'purchase.audit_status as audit_status'
+                , 'purchase.audit_user_id as audit_user_id'
+                , 'purchase.audit_user_name as audit_user_name'
             )
             ->selectRaw('DATE_FORMAT(purchase.close_date,"%Y-%m-%d") as close_date')
+            ->selectRaw('DATE_FORMAT(purchase.audit_date,"%Y-%m-%d") as audit_date')
             ->selectRaw('DATE_FORMAT(purchase.scheduled_date,"%Y-%m-%d") as scheduled_date')
             ->selectRaw('DATE_FORMAT(purchase.invoice_date,"%Y-%m-%d") as invoice_date')
             ->whereNull('purchase.deleted_at')

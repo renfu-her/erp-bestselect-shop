@@ -96,12 +96,12 @@ class Product extends Model
 
         if (isset($options['img'])) {
             $subImg = DB::table('prd_product_images as img')
-                ->limit(1);
+            ->select('img.url')
+            ->whereRaw('img.product_id = product.id')
+            ->limit(1);
 
-            $re->leftJoin(DB::raw("({$subImg->toSql()}) as img"), function ($join) {
-                $join->on('product.id', '=', 'img.product_id');
-            })
-                ->selectRaw('IF(img.url IS NOT NULL,img.url,"") as img_url');
+            $re->addSelect(DB::raw("({$subImg->toSql()}) as img_url"));
+           
 
         }
 

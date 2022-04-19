@@ -219,11 +219,14 @@ $(function () {
         bindLevelBtn();
 
         $('div.oneItem').find('span.badge').removeClass('d-none');
+        $('.-subTitle').removeClass('d-none');
         /**
-         * 隱藏類型標籤 span.badge
-         * 1. 有子項
+         * 有子項
+         * 1. 隱藏類型標籤 span.badge
+         * 2. 隱藏子標題
          */
         $('div.oneItem').closest('ul.level').prev('div.oneItem').find('span.badge').addClass('d-none');
+        $('.oneItem + ul.level > li').parent('ul.level').prev('.oneItem').find('.-subTitle').addClass('d-none');
 
         /**
          * 綁定事件: click 調階層按鈕 [←] [→]

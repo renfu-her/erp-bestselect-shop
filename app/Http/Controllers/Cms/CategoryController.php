@@ -18,7 +18,7 @@ class CategoryController extends Controller
     public function index(Request $request)
     {
         $query = $request->query();
-        $dataList = Category::paginate(10)->appends($query);
+        $dataList = Category::All();
 
         return view('cms.settings.category.list', [
             'dataList' => $dataList

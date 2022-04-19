@@ -17,7 +17,7 @@ class OrderSeeder extends Seeder
      */
     public function run()
     {
-        
+
         DB::table('ord_order_status')->insert([
             [
                 'title' => '新增',
@@ -52,17 +52,17 @@ class OrderSeeder extends Seeder
 
         ]);
 
-        Product::changePickup(1, [1, 2, 3]);
-        Product::changePickup(2, [1, 2, 3]);
-        Product::changeShipment(1, 1, 1);
-        Product::changeShipment(2, 1, 1);
+//        Product::changePickup(1, [1, 2, 3]);
+//        Product::changePickup(2, [1, 2, 3]);
+//        Product::changeShipment(1, 1, 1);
+//        Product::changeShipment(2, 1, 1);
+//
+//
+//        ProductStock::comboProcess(4, 5);
+//        ProductStock::comboProcess(5, 6);
 
-
-        ProductStock::comboProcess(4, 5);
-        ProductStock::comboProcess(5, 6);
-        
         $address = [
-            ['name' => 'hans', 'phone' => '0123313', 'address' => '桃園市八德區永福街', 'type' => 'reciver'],
+            ['name' => 'hans', 'phone' => '0123313', 'address' => '桃園市八德區永福街', 'type' => 'receiver'],
             ['name' => 'hans', 'phone' => '0123313', 'address' => '桃園市八德區永福街', 'type' => 'orderer'],
             ['name' => 'hans', 'phone' => '0123313', 'address' => '桃園市八德區永福街', 'type' => 'sender'],
         ];
@@ -102,7 +102,7 @@ class OrderSeeder extends Seeder
             ],
         ];
 
-        $val = Order::createOrder('hayashi0126@gmail.com', 1, $address, $items, '備註');
+//        $val = Order::createOrder('hayashi0126@gmail.com', 1, $address, $items, '備註');
 
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Cms;
 
+use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
 use App\Http\Controllers\Controller;
 
@@ -310,86 +311,80 @@ class PurchaseCtrl extends Controller
         $this->validInputValue($request);
 
         $taxReq = $request->input('tax');
-        $purchaseReq = $request->only('supplier', 'scheduled_date', 'supplier_sn');
+        $purchaseReq = $request->only('supplier', 'scheduled_date', 'supplier_sn', 'audit_status');
         $purchaseItemReq = $request->only('item_id', 'product_style_id', 'name', 'sku', 'num', 'price', 'memo');
         $purchasePayReq = $request->only('tax', 'logistics_price', 'logistics_memo', 'invoice_num', 'invoice_date');
 
         //判斷是否有付款單，有則不可新增刪除商品款式
-        $payingOrderList = PayingOrder::getPayingOrdersWithPurchaseID($id)->get();
-        if (0 < count($payingOrderList)) {
-            if (isset($request['del_item_id']) && null != $request['del_item_id']) {
-                throw ValidationException::withMessages(['item_error' => '有付款單，有則不可刪除商品款式']);
-            }
-            if (isset($purchaseItemReq['item_id'])) {
-                foreach ($purchaseItemReq['item_id'] as $key => $val) {
-                    $itemId = $purchaseItemReq['item_id'][$key];
-                    //有值則做更新
-                    //itemId = null 代表新資料
-                    if (null == $itemId) {
-                        throw ValidationException::withMessages(['item_error' => '有付款單，有則不可新增商品款式']);
-                        break;
-                    }
-                }
-            }
-        }
-
-        $changeStr = '';
-        $repcsCTPD = Purchase::checkToUpdatePurchaseData($id, $purchaseReq, $changeStr, $request->user()->id, $request->user()->name, $taxReq, $purchasePayReq);
-        $changeStr .= $repcsCTPD['error_msg'];
-
         $purchaseGet = Purchase::where('id', '=', $id)->get()->first();
-        //刪除現有款式
-        if (isset($request['del_item_id']) && null != $request['del_item_id']) {
-            $changeStr .= 'delete purchaseItem id:' . $request['del_item_id'];
-            $del_item_id_arr = explode(",", $request['del_item_id']);
-            $rePcsDI = PurchaseItem::deleteItems($purchaseGet->id, $del_item_id_arr, $request->user()->id, $request->user()->name);
-            if ($rePcsDI['success'] == 0) {
-                $changeStr .= $rePcsDI['error_msg'];
-                throw ValidationException::withMessages(['item_error' => $rePcsDI['error_msg']]);
+
+//        if (null != $purchaseGet && AuditStatus::unreviewed()->value != $purchaseGet->audit_status) {
+//            throw ValidationException::withMessages(['item_error' => '已寄倉審核，無法再修改']);
+//        }
+//        if (null != $purchaseGet->audit_date) {
+//            if (isset($request['del_item_id']) && null != $request['del_item_id']) {
+//                throw ValidationException::withMessages(['item_error' => '已審核，不可刪除商品款式']);
+//            }
+//            if (isset($purchaseItemReq['item_id'])) {
+//                throw ValidationException::withMessages(['item_error' => '已審核，不可新增修改商品款式']);
+//            }
+//        }
+
+        $msg = DB::transaction(function () use ($request, $id, $purchaseReq, $purchaseItemReq, $taxReq, $purchasePayReq, $purchaseGet
+        ) {
+            $repcsCTPD = Purchase::checkToUpdatePurchaseData($id, $purchaseReq, $request->user()->id, $request->user()->name, $taxReq, $purchasePayReq);
+            if ($repcsCTPD['success'] == 0) {
+                DB::rollBack();
+                return $repcsCTPD;
             }
-        }
 
-        if (isset($purchaseItemReq['item_id'])) {
-            $result = DB::transaction(function () use ($request, $id, $purchaseItemReq, $purchasePayReq, $changeStr
-            ) {
-                foreach ($purchaseItemReq['item_id'] as $key => $val) {
-                    $itemId = $purchaseItemReq['item_id'][$key];
-                    //有值則做更新
-                    //itemId = null 代表新資料
-                    if (null != $itemId) {
-                        $result = PurchaseItem::checkToUpdatePurchaseItemData($itemId, $purchaseItemReq, $key, $changeStr, $request->user()->id, $request->user()->name, $purchasePayReq);
-                        $changeStr = $result['error_msg'];
-                        if ($result['success'] == 0) {
-                            DB::rollBack();
-                            return $result;
-                        }
-                    } else {
-                        $changeStr .= ' add item:' . $purchaseItemReq['name'][$key];
-
-                        $result = PurchaseItem::createPurchase(
-                            [
-                                'purchase_id' => $id,
-                                'product_style_id' => $purchaseItemReq['product_style_id'][$key],
-                                'title' => $purchaseItemReq['name'][$key],
-                                'sku' => $purchaseItemReq['sku'][$key],
-                                'price' => $purchaseItemReq['price'][$key],
-                                'num' => $purchaseItemReq['num'][$key],
-                                'temp_id' => $purchaseItemReq['temp_id'][$key] ?? null,
-                                'memo' => $purchaseItemReq['memo'][$key],
-                            ],
-                            $request->user()->id, $request->user()->name
-                        );
-                        if ($result['success'] == 0) {
-                            DB::rollBack();
-                            return $result;
+            if (null != $purchaseGet && AuditStatus::unreviewed()->value == $purchaseGet->audit_status) {
+                //刪除現有款式
+                if (isset($request['del_item_id']) && null != $request['del_item_id']) {
+                    $del_item_id_arr = explode(",", $request['del_item_id']);
+                    $rePcsDI = PurchaseItem::deleteItems($purchaseGet->id, $del_item_id_arr, $request->user()->id, $request->user()->name);
+                    if ($rePcsDI['success'] == 0) {
+                        DB::rollBack();
+                        return $rePcsDI;
+                    }
+                }
+                if (isset($purchaseItemReq['item_id'])) {
+                    foreach ($purchaseItemReq['item_id'] as $key => $val) {
+                        $itemId = $purchaseItemReq['item_id'][$key];
+                        //有值則做更新
+                        //itemId = null 代表新資料
+                        if (null != $itemId) {
+                            $result = PurchaseItem::checkToUpdatePurchaseItemData($itemId, $purchaseItemReq, $key, $request->user()->id, $request->user()->name, $purchasePayReq);
+                            if ($result['success'] == 0) {
+                                DB::rollBack();
+                                return $result;
+                            }
+                        } else {
+                            $result = PurchaseItem::createPurchase(
+                                [
+                                    'purchase_id' => $id,
+                                    'product_style_id' => $purchaseItemReq['product_style_id'][$key],
+                                    'title' => $purchaseItemReq['name'][$key],
+                                    'sku' => $purchaseItemReq['sku'][$key],
+                                    'price' => $purchaseItemReq['price'][$key],
+                                    'num' => $purchaseItemReq['num'][$key],
+                                    'temp_id' => $purchaseItemReq['temp_id'][$key] ?? null,
+                                    'memo' => $purchaseItemReq['memo'][$key],
+                                ],
+                                $request->user()->id, $request->user()->name
+                            );
+                            if ($result['success'] == 0) {
+                                DB::rollBack();
+                                return $result;
+                            }
                         }
                     }
                 }
-                return ['success' => 1, 'error_msg' => ""];
-            });
-            if ($result['success'] == 0) {
-                throw ValidationException::withMessages(['item_error' => $result['error_msg']]);
             }
+            return ['success' => 1, 'error_msg' => 'all ok'];
+        });
+        if ($msg['success'] == 0) {
+            throw ValidationException::withMessages(['item_error' => $msg['error_msg']]);
         }
         $changeStr = '';
         wToast(__('Edit finished.') . ' ' . $changeStr);

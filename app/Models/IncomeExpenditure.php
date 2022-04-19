@@ -12,6 +12,8 @@ class IncomeExpenditure extends Model
 {
     use HasFactory;
 
+    protected $table = 'acc_income_expenditure';
+
     /**
      * 取得所有外匯收支設定選項
      *
@@ -156,7 +158,7 @@ class IncomeExpenditure extends Model
      */
     public static function getModelNameByPayableTypeId($type)
     {
-        return DB::table('acc_income_type')
+        return DB::table('acc_all_grades')
             ->find($type, ['grade_type'])
             ->grade_type;
     }

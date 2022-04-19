@@ -192,7 +192,17 @@ Breadcrumbs::for('cms.order.create', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
     $trail->push('新增訂單');
 });
-
+// 新增收款單
+Breadcrumbs::for('cms.ar.create', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id'=>$value['id']]));
+    $trail->push('新增收款單');
+});
+// Breadcrumbs::for('cms.ap.create', function (BreadcrumbTrail $trail, $value) {
+//     $trail->parent('cms.purchase.edit', $value);
+//     $trail->push( $value['type'] == 0 ? '訂金付款單' : '尾款付款單', route('cms.purchase.view-pay-order', ['id' => $value['id'], 'type' => $value['type']]));
+//     $trail->push('新增付款');
+// });
 // 出貨管理
 Breadcrumbs::for('cms.delivery.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
@@ -482,12 +492,8 @@ Breadcrumbs::for('cms.income_expenditure.index', function (BreadcrumbTrail $trai
     $trail->push('付款單科目', route('cms.income_expenditure.index'));
 });
 Breadcrumbs::for('cms.income_expenditure.edit', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.dashboard');
-    $trail->push('付款單科目', route('cms.income_expenditure.edit'));
-});
-Breadcrumbs::for('cms.income_expenditure.update', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.dashboard');
-    $trail->push('付款單科目', route('cms.income_expenditure.update'));
+    $trail->parent('cms.income_expenditure.index');
+    $trail->push('編輯付款單科目', route('cms.income_expenditure.edit'));
 });
 
 //收款單科目
@@ -496,12 +502,8 @@ Breadcrumbs::for('cms.received_default.index', function (BreadcrumbTrail $trail)
     $trail->push('收款單科目', route('cms.received_default.index'));
 });
 Breadcrumbs::for('cms.received_default.edit', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.dashboard');
-    $trail->push('收款單科目', route('cms.received_default.edit'));
-});
-Breadcrumbs::for('cms.received_default.update', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.dashboard');
-    $trail->push('收款單科目', route('cms.received_default.update'));
+    $trail->parent('cms.received_default.index');
+    $trail->push('編輯收款單科目', route('cms.received_default.edit'));
 });
 
 // 會計科目

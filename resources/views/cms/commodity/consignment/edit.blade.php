@@ -285,7 +285,7 @@
                         </label>
                     </div>
                 @endforeach
-                @error('target')
+                @error('audit_status')
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>

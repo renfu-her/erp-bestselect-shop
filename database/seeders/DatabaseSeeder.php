@@ -25,13 +25,13 @@ class DatabaseSeeder extends Seeder
             ShipmentSeeder::class,
             SaleChannelSeeder::class,
             ProductSeeder::class,
-            PurchaseSeeder::class,
+//            PurchaseSeeder::class,
             AccountingSeeder::class,
             naviNodeSeeder::class,
             IncomeExpenditureSeeder::class,
             DiscountSeeder::class,
             OrderSeeder::class,
-            DeliverySeeder::class,
+//            DeliverySeeder::class,
         ]);
     }
 }

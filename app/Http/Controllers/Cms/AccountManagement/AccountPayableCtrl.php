@@ -28,6 +28,7 @@ use App\Models\PayingOrder;
 use App\Models\Purchase;
 use App\Models\PurchaseItem;
 use App\Models\Supplier;
+use App\Models\GeneralLedger;
 
 class AccountPayableCtrl extends Controller
 {
@@ -128,12 +129,46 @@ class AccountPayableCtrl extends Controller
             ];
         }
 
-        $paid_paying_order_data = PayingOrder::where([
-                'purchase_id'=>$pay_order->purchase_id,
-                'deleted_at'=>null,
-            ])->get();
+        $paid_paying_order_data = PayingOrder::where(function ($q){
+                $q->where([
+                    'purchase_id'=>request('purchaseId'),
+                    'deleted_at'=>null,
+                ]);
+
+                if(request('isFinalPay') === '0'){
+                    $q->where([
+                        'type'=>request('isFinalPay'),
+                    ]);
+                }
+            })->get();
+
         $payable_data = AccountPayable::whereIn('pay_order_id', $paid_paying_order_data->pluck('id')->toArray())->get();
+        foreach($payable_data as $value){
+            if($value->acc_income_type_fk == 4){
+                $value->currency_name = DB::table('acc_currency')->find($value->payable->acc_currency_fk)->name;
+                $value->currency_rate = $value->payable->rate;
+            } else {
+                $value->currency_name = 'NTD';
+                $value->currency_rate = 1;
+            }
+        }
         $tw_price = $paid_paying_order_data->sum('price') - $payable_data->sum('tw_price');
+        if(request('isFinalPay') === '1') $tw_price += $logistics->logistics_price;
+
+        $firstGrades = GeneralLedger::getAllFirstGrade();
+        $totalGrades = array();
+        foreach ($firstGrades as $firstGrade) {
+            $totalGrades[] = $firstGrade;
+            foreach (GeneralLedger::getSecondGradeById($firstGrade['id']) as $secondGrade) {
+                $totalGrades[] = $secondGrade;
+                foreach (GeneralLedger::getThirdGradeById($secondGrade['id']) as $thirdGrade) {
+                    $totalGrades[] = $thirdGrade;
+                    foreach (GeneralLedger::getFourthGradeById($thirdGrade['id']) as $fourthGrade) {
+                        $totalGrades[] = $fourthGrade;
+                    }
+                }
+            }
+        }
 
         return view('cms.account_management.account_payable.edit', [
             'tw_price' => $tw_price,
@@ -143,12 +178,14 @@ class AccountPayableCtrl extends Controller
             // 'fourthGradesDataList' => $fourthGradesDataList,
             // 'currencyData' => $currencyData,
             // 'paymentStatusList' => $payStatusArray,
-            'cashDefault' => AccountPayable::getThirdGradeDefaultById(1),
-            'chequeDefault' => AccountPayable::getFourthGradeDefaultById(2),
-            'remitDefault' => AccountPayable::getFourthGradeDefaultById(3),
+            'cashDefault' => IncomeExpenditure::where('acc_income_type_fk', 1)->pluck('grade_id_fk')->toArray(),
+            'chequeDefault' => IncomeExpenditure::where('acc_income_type_fk', 2)->pluck('grade_id_fk')->toArray(),
+            'remitDefault' => IncomeExpenditure::where('acc_income_type_fk', 3)->pluck('grade_id_fk')->toArray(),
             'currencyDefault' => AccountPayable::getFourthGradeDefaultById(4),
-            'accountPayableDefault' => AccountPayable::getFourthGradeDefaultById(5),
-            'otherDefault' => AccountPayable::getThirdGradeDefaultById(6),
+            'currency_select' => IncomeExpenditure::where('acc_income_type_fk', 4)->pluck('grade_id_fk')->toArray(),
+            'accountPayableDefault' => IncomeExpenditure::where('acc_income_type_fk', 5)->pluck('grade_id_fk')->toArray(),
+            'otherDefault' => IncomeExpenditure::where('acc_income_type_fk', 6)->pluck('grade_id_fk')->toArray(),
+
             'method' => 'create',
             'transactTypeList' => AccountPayable::getTransactTypeList(),
             'chequeStatus' => AccountPayable::getChequeStatus(),
@@ -166,6 +203,8 @@ class AccountPayableCtrl extends Controller
             'all_payable_type_data' => $all_payable_type_data,
             'purchase_data' => $purchase_data,
             'supplier' => $supplier,
+
+            'totalGrades' => $totalGrades,
         ]);
     }
 
@@ -185,6 +224,7 @@ class AccountPayableCtrl extends Controller
         ]);
         $req = $request->all();
         $payableType = $req['acc_transact_type_fk'];
+
         switch ($payableType) {
             case Payment::Cash:
                 PayableCash::storePayableCash($req);

@@ -153,7 +153,7 @@ class OrderCtrl extends Controller
         $arrVali = [];
         foreach (UserAddrType::asArray() as $value) {
             switch ($value) {
-                case 'reciver':
+                case 'receiver':
                     $prefix = 'rec';
                     break;
                 case 'orderer':
@@ -197,7 +197,7 @@ class OrderCtrl extends Controller
         $address = [];
         foreach (UserAddrType::asArray() as $value) {
             switch ($value) {
-                case 'reciver':
+                case 'receiver':
                     $prefix = 'rec';
                     break;
                 case 'orderer':
@@ -233,7 +233,7 @@ class OrderCtrl extends Controller
                         case UserAddrType::orderer()->value:
                             $errors['ord_address'] = "格式錯誤";
                             break;
-                        case UserAddrType::reciver()->value:
+                        case UserAddrType::receiver()->value:
                             $errors['rec_address'] = "格式錯誤";
                             break;
                         case UserAddrType::sender()->value:

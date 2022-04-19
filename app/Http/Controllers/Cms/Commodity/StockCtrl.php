@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Http\Controllers\Controller;
+use App\Models\Depot;
 use App\Models\Product;
+use App\Models\PurchaseInbound;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -25,6 +27,7 @@ class StockCtrl extends Controller
         $searchParam['user'] = Arr::get($query, 'user');
         $searchParam['supplier'] = Arr::get($query, 'supplier');
         $searchParam['stock'] = Arr::get($query, 'stock',[]);
+        $searchParam['depot_id'] = Arr::get($query, 'depot_id',null);
         $searchParam['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 10));
       //  dd($searchParam['stock']);
         $typeRadios = [
@@ -41,17 +44,43 @@ class StockCtrl extends Controller
         if (!in_array($searchParam['type'], array_keys($typeRadios))) {
             $searchParam['type'] = 'all';
         }
+        $depot_id = $searchParam['depot_id'];
         //   dd( $searchParam['user']);
+
+        $extPrdStyleList_send = PurchaseInbound::getExistInboundProductStyleList($depot_id);
         $products = Product::productStyleList($searchParam['keyword'], $searchParam['type'],$searchParam['stock'],
             ['supplier' => ['condition' => $searchParam['supplier'], 'show' => true],
                 'user' => ['show' => true, 'condition' => $searchParam['user']]])
-            ->paginate($searchParam['data_per_page'])
+
+            ->leftJoinSub($extPrdStyleList_send, 'inbound', function($join) use($depot_id) {
+                //對應到入庫倉可入到進貨倉 相同的product_style_id
+                $join->on('inbound.product_style_id', '=', 's.id');
+                if ($depot_id) {
+                    $join->where('inbound.depot_id', $depot_id);
+                }
+            })
+            ->leftJoin('depot', 'depot.id', '=', 'inbound.depot_id')
+            ->addSelect(
+                'inbound.product_style_id'
+                , 'inbound.depot_id'
+                , 'depot.name as depot_name'
+                , 'inbound.total_inbound_num'
+                , 'inbound.total_sale_num'
+                , 'inbound.total_csn_num'
+                , 'inbound.total_consume_num'
+                , 'inbound.total_in_stock_num'
+            )
+        ;
+        if ($depot_id) {
+            $products->where('inbound.depot_id', $depot_id);
+        }
+        $products = $products->paginate($searchParam['data_per_page'])
             ->appends($query);
 
-       
         return view('cms.commodity.stock.list', [
             'dataList' => $products,
             'suppliers' => Supplier::select('name', 'id', 'vat_no')->get()->toArray(),
+            'depotList' => Depot::all(),
             'users' => User::select('id', 'name')->get()->toArray(),
             'typeRadios' => $typeRadios,
             'stockRadios' => $stockRadios,

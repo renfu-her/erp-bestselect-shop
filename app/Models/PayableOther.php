@@ -35,10 +35,15 @@ class PayableOther extends Model
         return $this->morphTo();
     }
 
+    public function all_grade()
+    {
+        return $this->belongsTo(AllGrade::class, 'grade_id', 'id');
+    }
+
     public static function storePayableOther($req)
     {
         $payableData =self::create([
-            'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::Other),
+            'grade_type' => AllGrade::findOrFail($req['other']['grade_id_fk'])->grade_type,
             'grade_id' => $req['other']['grade_id_fk']
         ]);
 

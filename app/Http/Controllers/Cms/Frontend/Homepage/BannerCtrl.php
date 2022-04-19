@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Cms\Frontend\Homepage;
 use App\Http\Controllers\Controller;
 use App\Models\Banner;
 use App\Models\Collection;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class BannerCtrl extends Controller
@@ -30,9 +31,12 @@ class BannerCtrl extends Controller
 
     public function create(Request $request)
     {
+        $productList = Product::productList();
+
         return view('cms.frontend.homepage.banner.edit', [
             'method' => 'create',
             'collectionList' => Collection::all(),
+            'productList' => $productList->get(),
             'formAction' => Route('cms.homepage.banner.create'),
         ]);
     }
@@ -48,6 +52,7 @@ class BannerCtrl extends Controller
     public function edit(Request $request, $id)
     {
         $data = Banner::where('id', '=', $id)->first();
+        $productList = Product::productList();
 
         if (!$data) {
             return abort(404);
@@ -57,6 +62,7 @@ class BannerCtrl extends Controller
             'data' => $data,
             'method' => 'edit',
             'collectionList' => Collection::all(),
+            'productList' => $productList->get(),
             'formAction' => Route('cms.homepage.banner.edit', ['id' => $id]),
             'breadcrumb_data' => $id,
         ]);

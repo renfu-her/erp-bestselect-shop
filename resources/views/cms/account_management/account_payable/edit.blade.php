@@ -72,12 +72,12 @@
                                     <tr>
                                         <td>{{ $deposit_payment_data->sn }}</td>
                                         <td>{{ $purchase_data->purchase_sn }}</td>
-                                        <td>{{ $value->payable->grade->code . ' - ' . $value->payable->grade->name }}</td>
+                                        <td>{{ $value->payable->all_grade->eachGrade->code . ' - ' . $value->payable->all_grade->eachGrade->name }}</td>
                                         <td>{{ $value->note }}</td>
                                         <td class="text-end">{{ number_format($value->tw_price, 2) }}</td>
                                         <td class="text-end">1</td>
-                                        <td class="text-end">{{ $currency->rate }}</td>
-                                        <td>{{ $currency->name }}</td>
+                                        <td class="text-end">{{ $value->currency_rate }}</td>
+                                        <td>{{ $value->currency_name }}</td>
                                         <td class="text-end"></td>
                                         <td class="text-end">{{ number_format($value->tw_price) }}</td>
                                     </tr>
@@ -132,12 +132,12 @@
                                 <tr>
                                     <td>{{ $pay_order->sn }}</td>
                                     <td>{{ $purchase_data->purchase_sn }}</td>
-                                    <td>{{ $value->payable->grade->code . ' - ' . $value->payable->grade->name }}</td>
+                                    <td>{{ $value->payable->all_grade->eachGrade->code . ' - ' . $value->payable->all_grade->eachGrade->name }}</td>
                                     <td>{{ $value->note }}</td>
                                     <td class="text-end">{{ number_format($value->tw_price, 2) }}</td>
                                     <td class="text-end">1</td>
-                                    <td class="text-end">{{ $currency->rate }}</td>
-                                    <td>{{ $currency->name }}</td>
+                                    <td class="text-end">{{ $value->currency_rate }}</td>
+                                    <td>{{ $value->currency_name }}</td>
                                     <td class="text-end"></td>
                                     <td class="text-end">{{ number_format($value->tw_price) }}</td>
                                 </tr>
@@ -185,8 +185,10 @@
                     </label>
                     <select name="cash[grade_id_fk]" class="form-select -select2 -single cash @error('cash[grade_id_fk]') is-invalid @enderror" required data-placeholder="請選擇科目">
                         <option value="" selected disabled>請選擇</option>
-                        @foreach($cashDefault as $cashData)
-                            <option value="{{ $cashData['grade_id_fk'] }}" {{ count($all_payable_type_data['payableCash']) > 0 && $all_payable_type_data['payableCash']['grade_id_fk'] == $cashData['grade_id_fk'] ? 'selected' : ''}}>{{ $cashData['code'] . ' ' . $cashData['name'] }}</option>
+                        @foreach($totalGrades as $value)
+                            @if(in_array($value['primary_id'], $cashDefault))
+                            <option value="{{ $value['primary_id'] }}" {{ count($all_payable_type_data['payableCash']) > 0 && $all_payable_type_data['payableCash']['grade_id_fk'] == $value['primary_id'] ? 'selected' : ''}}>{{ $value['code'] . ' ' . $value['name'] }}</option>
+                            @endif
                         @endforeach
                     </select>
                 </div>
@@ -197,8 +199,10 @@
                     </label>
                     <select name="cheque[grade_id_fk]" class="form-select -select2 -single cheque @error('cheque[grade_id_fk]') is-invalid @enderror" required data-placeholder="請選擇支存銀行">
                         <option value="" selected disabled>請選擇</option>
-                        @foreach($chequeDefault as $chequeData)
-                        <option value="{{ $chequeData['grade_id_fk'] }}" {{ count($all_payable_type_data['payableCheque']) > 0 && $all_payable_type_data['payableCheque']['grade_id_fk'] == $chequeData['grade_id_fk'] ? 'selected' : '' }}>{{ $chequeData['code'] . ' ' . $chequeData['name'] }}</option>
+                        @foreach($totalGrades as $value)
+                            @if(in_array($value['primary_id'], $chequeDefault))
+                            <option value="{{ $value['primary_id'] }}" {{ count($all_payable_type_data['payableCheque']) > 0 && $all_payable_type_data['payableCheque']['grade_id_fk'] == $value['primary_id'] ? 'selected' : '' }}>{{ $value['code'] . ' ' . $value['name'] }}</option>
+                            @endif
                         @endforeach
                     </select>
                 </div>
@@ -260,8 +264,10 @@
                     </label>
                     <select name="remit[grade_id_fk]" class="form-select -select2 -single remit @error('remit[grade_id_fk]') is-invalid @enderror" required data-placeholder="請選擇匯款銀行">
                         <option value="" selected disabled>請選擇</option>
-                        @foreach($remitDefault as $remitData)
-                            <option value="{{ $remitData['grade_id_fk'] }}" {{ count($all_payable_type_data['payableRemit']) > 0 && $all_payable_type_data['payableRemit']['grade_id_fk'] == $remitData['grade_id_fk'] ? 'selected' : ''}}>{{ $remitData['code'] . ' ' . $remitData['name'] }}</option>
+                        @foreach($totalGrades as $value)
+                            @if(in_array($value['primary_id'], $remitDefault))
+                                <option value="{{ $value['primary_id'] }}" {{ count($all_payable_type_data['payableRemit']) > 0 && $all_payable_type_data['payableRemit']['grade_id_fk'] == $value['primary_id'] ? 'selected' : ''}}>{{ $value['code'] . ' ' . $value['name'] }}</option>
+                            @endif
                         @endforeach
                     </select>
                 </div>
@@ -314,8 +320,10 @@
                     </label>
                     <select name="foreign_currency[grade_id_fk]" class="form-select -select2 -single foreign_currency @error('foreign_currency[grade_id_fk]') is-invalid @enderror" required data-placeholder="請選擇科目">
                         <option value="" selected disabled>請選擇</option>
-                        @foreach($currencyDefault as $currencyData)
-                            <option value="{{ $currencyData['grade_id_fk'] }}" {{ count($all_payable_type_data['payableForeignCurrency']) > 0 && $all_payable_type_data['payableForeignCurrency']['grade_id_fk'] == $currencyData['grade_id_fk'] ? 'selected' : ''}}>{{ $currencyData['code'] . ' ' . $currencyData['name'] }}</option>
+                        @foreach($totalGrades as $value)
+                            @if(in_array($value['primary_id'], $currency_select))
+                                <option value="{{ $value['primary_id'] }}" {{ count($all_payable_type_data['payableForeignCurrency']) > 0 && $all_payable_type_data['payableForeignCurrency']['grade_id_fk'] == $value['primary_id'] ? 'selected' : ''}}>{{ $value['code'] . ' ' . $value['name'] }}</option>
+                            @endif
                         @endforeach
                     </select>
                 </div>
@@ -326,8 +334,10 @@
                     </label>
                     <select name="payable_account[grade_id_fk]" class="form-select -select2 -single payable_account @error('payable_account[grade_id_fk]') is-invalid @enderror" required data-placeholder="請選擇科目">
                         <option value="" selected disabled>請選擇</option>
-                        @foreach($accountPayableDefault ?? [] as $accountPayableData)
-                            <option value="{{ $accountPayableData['grade_id_fk'] }}" {{ count($all_payable_type_data['payableAccount']) > 0 && $all_payable_type_data['payableAccount']['grade_id_fk'] == $accountPayableData['grade_id_fk'] ? 'selected' : ''}}>{{ $accountPayableData['code'] . ' ' . $accountPayableData['name'] }}</option>
+                        @foreach($totalGrades ?? [] as $value)
+                            @if(in_array($value['primary_id'], $accountPayableDefault))
+                                <option value="{{ $value['primary_id'] }}" {{ count($all_payable_type_data['payableAccount']) > 0 && $all_payable_type_data['payableAccount']['grade_id_fk'] == $value['primary_id'] ? 'selected' : ''}}>{{ $value['code'] . ' ' . $value['name'] }}</option>
+                            @endif
                         @endforeach
                     </select>
                 </div>
@@ -338,8 +348,8 @@
                     </label>
                     <select name="other[grade_id_fk]" class="form-select -select2 -single other @error('other[grade_id_fk]') is-invalid @enderror" required data-placeholder="請選擇次科目">
                         <option value="" selected disabled>請選擇</option>
-                        @foreach($otherDefault as $otherData)
-                            <option value="{{ $otherData['grade_id_fk'] }}" {{ count($all_payable_type_data['payableOther']) > 0 && $all_payable_type_data['payableOther']['grade_id_fk'] == $otherData['grade_id_fk'] ? 'selected' : ''}}>{{ $otherData['code'] . ' ' . $otherData['name'] }}</option>
+                        @foreach($totalGrades as $otherData)
+                            <option value="{{ $otherData['primary_id'] }}" {{ count($all_payable_type_data['payableOther']) > 0 && $all_payable_type_data['payableOther']['grade_id_fk'] == $otherData['primary_id'] ? 'selected' : ''}}>{{ $otherData['code'] . ' ' . $otherData['name'] }}</option>
                         @endforeach
                     </select>
                 </div>

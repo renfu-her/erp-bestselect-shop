@@ -42,7 +42,7 @@ class PurchaseInbound extends Model
             $sn = "IB" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
                         ->withTrashed()
                         ->get()
-                        ->count()) + 1, 4, '0', STR_PAD_LEFT);
+                        ->count()) + 1, 5, '0', STR_PAD_LEFT);
 
             $insert_data = [
                 'sn' => $sn,
@@ -533,7 +533,7 @@ class PurchaseInbound extends Model
     }
 
     //取得商品款式現有數量
-    public static function getExistInboundProductStyleList($depot_id) {
+    public static function getExistInboundProductStyleList($depot_id = null) {
         $result = DB::table('pcs_purchase_inbound as inbound')
             ->leftJoin('prd_product_styles as style', 'style.id', '=', 'inbound.product_style_id')
             ->leftJoin('prd_products as product', 'product.id', '=', 'style.product_id')
@@ -555,7 +555,7 @@ class PurchaseInbound extends Model
             ->whereNotNull('style.sku')
             ->whereNull('style.deleted_at')
 //            ->whereNotNull('inbound.close_date') //只篩選入庫有結案的
-            ->where(DB::raw('(inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num)'), '>', 0)
+//            ->where(DB::raw('(inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num)'), '>', 0)
             ->groupBy('inbound.product_style_id')
             ->groupBy('inbound.depot_id')
             ->groupBy('product.id')

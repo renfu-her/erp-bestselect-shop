@@ -52,9 +52,9 @@ class PurchaseItem extends Model
         }
     }
 
-    public static function checkToUpdatePurchaseItemData($itemId, array $purchaseItemReq, $key, string $changeStr, $operator_user_id, $operator_user_name)
+    public static function checkToUpdatePurchaseItemData($itemId, array $purchaseItemReq, $key, $operator_user_id, $operator_user_name)
     {
-        return DB::transaction(function () use ($itemId, $purchaseItemReq, $key, $changeStr, $operator_user_id, $operator_user_name
+        return DB::transaction(function () use ($itemId, $purchaseItemReq, $key, $operator_user_id, $operator_user_name
         ) {
             $purchaseItem = PurchaseItem::where('id', '=', $itemId)
                 //->select('price', 'num')
@@ -64,7 +64,6 @@ class PurchaseItem extends Model
             $purchaseItem->memo = $purchaseItemReq['memo'][$key];
             if ($purchaseItem->isDirty()) {
                 foreach ($purchaseItem->getDirty() as $dirtykey => $dirtyval) {
-                    $changeStr .= ' itemID:' . $itemId . ' ' . $dirtykey . ' change to ' . $dirtyval;
                     $event = '';
                     $logEventFeature = null;
                     if ($dirtykey == 'price') {
@@ -91,7 +90,7 @@ class PurchaseItem extends Model
                     "memo" => $purchaseItemReq['memo'][$key],
                 ]);
             }
-            return ['success' => 1, 'error_msg' => $changeStr];
+            return ['success' => 1, 'error_msg' => ''];
         });
     }
 

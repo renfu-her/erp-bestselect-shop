@@ -216,7 +216,7 @@ class ConsignmentCtrl extends Controller
             }
         }
 
-        $msg = DB::transaction(function () use ($id, $csnReq, $request, $consignmentData
+        $msg = DB::transaction(function () use ($request, $id, $csnReq, $csnItemReq, $consignmentData
         ) {
             $repcsCTPD = Consignment::checkToUpdateConsignmentData($id, $csnReq, $request->user()->id, $request->user()->name);
             if ($repcsCTPD['success'] == 0) {
@@ -240,7 +240,9 @@ class ConsignmentCtrl extends Controller
                     //有值則做更新
                     //itemId = null 代表新資料
                     if (null != $itemId) {
-                        $resultUpd = ConsignmentItem::checkToUpdateItemData($itemId, $csnItemReq, $key, $request->user()->id, $request->user()->name);
+                        $resultUpd = ConsignmentItem::checkToUpdateItemData($itemId
+                            , ['num' => $csnItemReq['num']]
+                            , $key, $request->user()->id, $request->user()->name);
                         if ($resultUpd['success'] == 0) {
                             DB::rollBack();
                             return $resultUpd;
@@ -367,7 +369,7 @@ class ConsignmentCtrl extends Controller
             'event_item_id.*' => 'required|numeric',
             'product_style_id.*' => 'required|numeric',
             'inbound_date.*' => 'required|string',
-            'inbound_num.*' => 'required|numeric',
+            'inbound_num.*' => 'required|numeric|min:1',
             'error_num.*' => 'required|numeric|min:0',
             'status.*' => 'required|numeric|min:0',
             'expiry_date.*' => 'required|string',

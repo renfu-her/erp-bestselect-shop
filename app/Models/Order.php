@@ -21,7 +21,7 @@ class Order extends Model
         $order = DB::table('ord_orders as order')
             ->select(['order.id as id',
                 'order.status as order_status',
-                'customer.name',
+                'ord_address.name',
                 'sale.title as sale_title',
                 'so.ship_category_name',
                 'so.ship_event', 'so.ship_sn',
@@ -33,7 +33,10 @@ class Order extends Model
             ->leftJoin('ord_sub_orders as so', 'order.id', '=', 'so.order_id')
             ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
             ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id')
-
+            ->leftJoin('ord_address', function ($join) {
+                $join->on('ord_address.order_id', '=', 'order.id')
+                    ->where('ord_address.type', '=', UserAddrType::orderer);
+            })
             ->leftJoin('dlv_delivery', function ($join) {
                 $join->on('dlv_delivery.event_id', '=', 'so.id');
                 $join->where('dlv_delivery.event', '=', Event::order()->value);
@@ -166,7 +169,7 @@ class Order extends Model
                     ->where($value . '.type', '=', $value);
             });
             switch ($value) {
-                case UserAddrType::reciver()->value:
+                case UserAddrType::receiver()->value:
                     $prefix = 'rec_';
                     break;
                 case UserAddrType::orderer()->value:
@@ -192,7 +195,7 @@ class Order extends Model
      * @param array $items
      * @param string $note
      * @param array $coupon_obj [type,value]
-     * 
+     *
      */
     public static function createOrder($email, $sale_channel_id, $address, $items, $note = null, $coupon_obj = null)
     {
@@ -205,7 +208,7 @@ class Order extends Model
                 return $order;
             }
 
-            $order_sn = date("Ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
+            $order_sn = "O" . date("Ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
                     ->get()
                     ->count()) + 1, 2, '0', STR_PAD_LEFT);
 

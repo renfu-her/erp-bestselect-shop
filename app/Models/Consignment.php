@@ -26,8 +26,6 @@ class Consignment extends Model
     {
         return DB::transaction(function () use (
             $send_depot_id, $send_depot_name, $receive_depot_id, $receive_depot_name
-//            , $ship_temp_id, $ship_temp_name, $ship_event_id, $ship_event
-//            , $dlv_fee, $logistic_status_code, $logistic_status
             , $create_user_id, $create_user_name
             , $scheduled_date
 //            , $audit_date, $audit_user_id, $audit_user_name, $audit_status
@@ -69,13 +67,6 @@ class Consignment extends Model
                 , 'send_depot_name'
                 , 'receive_depot_id'
                 , 'receive_depot_name'
-                , 'ship_temp_id'
-                , 'ship_temp_name'
-                , 'ship_event_id'
-                , 'ship_event'
-                , 'dlv_fee'
-                , 'logistic_status_code'
-                , 'logistic_status'
                 , 'create_user_id'
                 , 'create_user_name'
                 , 'scheduled_date'
@@ -100,6 +91,8 @@ class Consignment extends Model
                     $event = '';
                     if($key == 'scheduled_date') {
                         $event = '預計入庫日期';
+                    } else if($key == 'audit_status') {
+                        $event = '修改審核狀態';
                     }
                     $rePcsLSC = PurchaseLog::stockChange($id, null, Event::consignment()->value, $id, LogEventFeature::csn_change_data()->value, null, $event, $operator_user_id, $operator_user_name);
                     if ($rePcsLSC['success'] == 0) {
@@ -164,13 +157,6 @@ class Consignment extends Model
                 , 'consignment.send_depot_name as send_depot_name'
                 , 'consignment.receive_depot_id as receive_depot_id'
                 , 'consignment.receive_depot_name as receive_depot_name'
-                , 'consignment.ship_temp_id as ship_temp_id'
-                , 'consignment.ship_temp_name as ship_temp_name'
-                , 'consignment.ship_event_id as ship_event_id'
-                , 'consignment.ship_event as ship_event'
-                , 'consignment.dlv_fee as dlv_fee'
-                , 'consignment.logistic_status_code as logistic_status_code'
-                , 'consignment.logistic_status as logistic_status'
                 , 'consignment.create_user_id as create_user_id'
                 , 'consignment.create_user_name as create_user_name'
                 , 'consignment.audit_user_id as audit_user_id'
@@ -211,13 +197,6 @@ class Consignment extends Model
                 , 'consignment.receive_depot_name as receive_depot_name'
                 , 'rcv.tel as receive_depot_tel'
                 , 'rcv.address as receive_depot_address'
-                , 'consignment.ship_temp_id as ship_temp_id'
-                , 'consignment.ship_temp_name as ship_temp_name'
-                , 'consignment.ship_event_id as ship_event_id'
-                , 'consignment.ship_event as ship_event'
-                , 'consignment.dlv_fee as dlv_fee'
-                , 'consignment.logistic_status_code as logistic_status_code'
-                , 'consignment.logistic_status as logistic_status'
                 , 'consignment.create_user_id as create_user_id'
                 , 'consignment.create_user_name as create_user_name'
                 , 'consignment.audit_user_id as audit_user_id'
@@ -261,8 +240,6 @@ class Consignment extends Model
                 , 'rcv.tel as receive_depot_tel'
                 , 'rcv.address as receive_depot_address'
                 , 'rcv.can_tally as rcv_can_tally'
-                , 'consignment.logistic_status_code as logistic_status_code'
-                , 'consignment.logistic_status as logistic_status'
                 , 'consignment.create_user_id as create_user_id'
                 , 'consignment.create_user_name as create_user_name'
                 , 'consignment.audit_user_id as audit_user_id'
@@ -276,8 +253,6 @@ class Consignment extends Model
                 , DB::raw('DATE_FORMAT(consignment.close_date,"%Y-%m-%d") as close_date')
 
                 , 'dlv_delivery.sn as dlv_sn'
-                , 'dlv_delivery.logistic_status as dlv_logistic_status'
-                , 'dlv_delivery.logistic_status_code as dlv_logistic_status_code'
                 , 'dlv_delivery.audit_date as dlv_audit_date'
                 , 'dlv_delivery.audit_user_id as dlv_audit_user_id'
                 , 'dlv_delivery.audit_user_name as dlv_audit_user_name'

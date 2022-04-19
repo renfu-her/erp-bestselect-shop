@@ -38,12 +38,18 @@ class PayableForeignCurrency extends Model
         return $this->morphTo();
     }
 
+    public function all_grade()
+    {
+        return $this->belongsTo(AllGrade::class, 'grade_id', 'id');
+    }
+
+
     public static function storePayableCurrency($req)
     {
         $payableData =self::create([
             'foreign_currency' => $req['foreign_currency']['foreign_price'],
             'rate' => $req['foreign_currency']['rate'],
-            'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::ForeignCurrency),
+            'grade_type' => AllGrade::findOrFail($req['foreign_currency']['grade_id_fk'])->grade_type,
             'grade_id' => $req['foreign_currency']['grade_id_fk'],
             'acc_currency_fk' => $req['foreign_currency']['currency'],
         ]);

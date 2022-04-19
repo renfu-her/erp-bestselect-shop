@@ -32,7 +32,7 @@
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">狀態</label>
-                        <div class="form-control" readonly>-</div>
+                        <div class="form-control" readonly> {{ App\Enums\Consignment\AuditStatus::getDescription($purchaseData->audit_status) }}</div>
                     </div>
                     <div class="col-12 col-md-6 mb-3">
                         <label class="form-label">入庫人員</label>
@@ -283,70 +283,93 @@
                 </div>
             </div>
 
-            <div class="card shadow p-4 mb-4">
-                <h6>付款資訊</h6>
-                <div class="row">
-                    <div class="col-12 col-sm-6 mb-3">
-                        <label class="form-label">訂金付款單@if($hasCreatedDepositPayment && $hasReceivedDepositPayment)<span class="text-danger">（已付完訂金）</span>@endif</label>
-                        <div class="form-control p-sm-1" readonly>
-                            @if($hasCreatedDepositPayment)
-                                <button type="button" class="btn btn-link btn-sm">
-                                <a href="{{ Route('cms.purchase.view-pay-order', ['id' => $id, 'type' => '0'], true) }}" >
-                                    付款單號-{{ $depositPayData->sn }}
-                                </a>
-                                </button>
-                            @elseif($hasCreatedFinalPayment)
-                                已先建立尾款（無訂金付款單）
-                            @elseif($hasReceivedFinalPayment)
-                                已付完尾款（無訂金付款單）
-                            @else
-                                <button type="button" class="btn btn-link btn-sm">
-                                <a href="{{ Route('cms.purchase.pay-deposit', ['id' => $id], true) }}">新增訂金付款單</a>
-                                </button>
-                            @endif
-                        </div>
-                    </div>
-                    <div class="col-12 col-sm-6 mb-3 ">
-                        <label class="form-label">尾款付款單@if($hasCreatedFinalPayment && $hasReceivedFinalPayment)<span class="text-danger">（已付完尾款）</span>@endif</label>
-                        <div class="form-control p-sm-1" readonly>
-                            @if($hasCreatedFinalPayment)
-                                <button type="button" class="btn btn-link btn-sm">
-                                <a href="{{ Route('cms.purchase.view-pay-order', ['id' => $id, 'type' => '1'], true) }}">
-                                    付款單號-{{ $finalPayData->sn }}
-                                </a>
-                                </button>
-                            @else
-                                @if($hasCreatedDepositPayment && !$hasReceivedDepositPayment)
-                                    {{-- 尚未收到訂金 --}}
-                                    訂金尚未補齊
+            @if(null != $purchaseData->audit_date)
+                <div class="card shadow p-4 mb-4">
+                    <h6>付款資訊</h6>
+                    <div class="row">
+                        <div class="col-12 col-sm-6 mb-3">
+                            <label class="form-label">訂金付款單@if($hasCreatedDepositPayment && $hasReceivedDepositPayment)<span class="text-danger">（已付完訂金）</span>@endif</label>
+                            <div class="form-control p-sm-1" readonly>
+                                @if($hasCreatedDepositPayment)
+                                    <button type="button" class="btn btn-link btn-sm">
+                                        <a href="{{ Route('cms.purchase.view-pay-order', ['id' => $id, 'type' => '0'], true) }}" >
+                                            付款單號-{{ $depositPayData->sn }}
+                                        </a>
+                                    </button>
+                                @elseif($hasCreatedFinalPayment)
+                                    已先建立尾款（無訂金付款單）
+                                @elseif($hasReceivedFinalPayment)
+                                    已付完尾款（無訂金付款單）
                                 @else
-                                    <button type="submit" id="finalPayment" class="btn btn-link btn-sm">新增尾款付款單</button>
+                                    <button type="button" class="btn btn-link btn-sm">
+                                        <a href="{{ Route('cms.purchase.pay-deposit', ['id' => $id], true) }}">新增訂金付款單</a>
+                                    </button>
                                 @endif
-                            @endif
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-12 col-sm-6 mb-3">
-                        <label class="form-label">發票號碼</label>
-                        <input class="form-control" name="invoice_num" type="text" placeholder="請輸入發票號碼" maxlength="10" aria-label="發票號碼" value="{{ old('invoice_num', $purchaseData->invoice_num  ?? '') }}">
-                    </div>
-                    <div class="col-12 col-sm-6 mb-3">
-                        <label class="form-label">發票日期</label>
-                        <div class="input-group has-validation">
-                            <input type="date" id="invoice_date" name="invoice_date"
-                                   value="{{ old('invoice_date', $purchaseData->invoice_date  ?? '') }}"
-                                   class="form-control @error('scheduled_date') is-invalid @enderror" aria-label="發票日期"/>
-                            <button class="btn btn-outline-secondary icon" type="button" data-clear
-                                    data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
-                            </button>
-                            <div class="invalid-feedback">
-                                @error('invoice_date')
-                                {{ $message }}
-                                @enderror
+                        <div class="col-12 col-sm-6 mb-3 ">
+                            <label class="form-label">尾款付款單@if($hasCreatedFinalPayment && $hasReceivedFinalPayment)<span class="text-danger">（已付完尾款）</span>@endif</label>
+                            <div class="form-control p-sm-1" readonly>
+                                @if($hasCreatedFinalPayment)
+                                    <button type="button" class="btn btn-link btn-sm">
+                                        <a href="{{ Route('cms.purchase.view-pay-order', ['id' => $id, 'type' => '1'], true) }}">
+                                            付款單號-{{ $finalPayData->sn }}
+                                        </a>
+                                    </button>
+                                @else
+                                    @if($hasCreatedDepositPayment && !$hasReceivedDepositPayment)
+                                        {{-- 尚未收到訂金 --}}
+                                        訂金尚未補齊
+                                    @else
+                                        <button type="submit" id="finalPayment" class="btn btn-link btn-sm">新增尾款付款單</button>
+                                    @endif
+                                @endif
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 mb-3">
+                            <label class="form-label">發票號碼</label>
+                            <input class="form-control" name="invoice_num" type="text" placeholder="請輸入發票號碼" maxlength="10" aria-label="發票號碼" value="{{ old('invoice_num', $purchaseData->invoice_num  ?? '') }}">
+                        </div>
+                        <div class="col-12 col-sm-6 mb-3">
+                            <label class="form-label">發票日期</label>
+                            <div class="input-group has-validation">
+                                <input type="date" id="invoice_date" name="invoice_date"
+                                       value="{{ old('invoice_date', $purchaseData->invoice_date  ?? '') }}"
+                                       class="form-control @error('scheduled_date') is-invalid @enderror" aria-label="發票日期"/>
+                                <button class="btn btn-outline-secondary icon" type="button" data-clear
+                                        data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
+                                </button>
+                                <div class="invalid-feedback">
+                                    @error('invoice_date')
+                                    {{ $message }}
+                                    @enderror
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            @endif
+        @endif
+
+        @if(null != $purchaseData)
+        <fieldset class="col-12 col-sm-6 mb-3">
+            <legend class="col-form-label p-0 mb-2">審核狀態 <span class="text-danger">*</span></legend>
+            <div class="px-1 pt-1">
+                @foreach (App\Enums\Consignment\AuditStatus::asArray() as $key => $val)
+                    <div class="form-check form-check-inline @error('audit_status')is-invalid @enderror">
+                        <label class="form-check-label">
+                            <input class="form-check-input @error('audit_status')is-invalid @enderror" name="audit_status"
+                                   value="{{ $val }}" type="radio" required
+                                   @if (old('audit_status', $purchaseData->audit_status ?? '') == $val) checked @endif>
+                            {{ App\Enums\Consignment\AuditStatus::getDescription($val) }}
+                        </label>
+                    </div>
+                @endforeach
+                @error('audit_status')
+                <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
+        </fieldset>
         @endif
 
         @error('del_error')
@@ -356,13 +379,25 @@
         <div id="submitDiv">
             <div class="col-auto">
                 <input type="hidden" name="del_item_id">
-                @if(!$hasCreatedFinalPayment && ($purchaseData == null || $purchaseData->close_date == null))
-                    <button type="submit" class="btn btn-primary px-4">儲存</button>
-                @else
-                    <button type="submit" class="btn btn-primary px-4">登錄發票</button>
+                @if($purchaseData != null)
+                <div class="col">
+                    <mark class="fw-light small">
+                        <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>審核狀態改為<b> 核可 或 否決 </b>就不能再修改預計進貨日期、採購清單和物流呦！
+                    </mark>
+                </div>
                 @endif
-                <a href="{{ Route('cms.purchase.index', [], true) }}" class="btn btn-outline-primary px-4"
-                   role="button">返回列表</a>
+                <div class="col">
+                    @if(null == $purchaseData)
+                        <button type="submit" class="btn btn-primary px-4">儲存</button>
+                    @elseif(!$hasCreatedFinalPayment && $purchaseData->close_date == null
+                        && $purchaseData->audit_status == App\Enums\Consignment\AuditStatus::unreviewed()->value)
+                        <button type="submit" class="btn btn-primary px-4">儲存</button>
+                    @elseif($purchaseData->audit_status == App\Enums\Consignment\AuditStatus::approved()->value)
+                        <button type="submit" class="btn btn-primary px-4">登錄發票</button>
+                    @endif
+                    <a href="{{ Route('cms.purchase.index', [], true) }}" class="btn btn-outline-primary px-4"
+                       role="button">返回列表</a>
+                </div>
             </div>
         </div>
     </form>
