@@ -180,10 +180,10 @@
                 </x-b-form-group>
 
                 <div class="col-12 col-sm-4 mb-3 cash">
-                    <label for="" class="form-label cash">科目
+                    <label for="" class="form-label cash">會計科目
                         <span class="text-danger">*</span>
                     </label>
-                    <select name="cash[grade_id_fk]" class="form-select -select2 -single cash @error('cash[grade_id_fk]') is-invalid @enderror" required data-placeholder="請選擇科目">
+                    <select name="cash[grade_id_fk]" class="form-select -select2 -single cash @error('cash[grade_id_fk]') is-invalid @enderror" required data-placeholder="請選擇會計科目">
                         <option value="" selected disabled>請選擇</option>
                         @foreach($totalGrades as $value)
                             @if(in_array($value['primary_id'], $cashDefault))
@@ -315,10 +315,10 @@
                 </x-b-form-group>
 
                 <div class="col-12 col-sm-4 mb-3 foreign_currency">
-                    <label for="" class="form-label foreign_currency">科目
+                    <label for="" class="form-label foreign_currency">會計科目
                         <span class="text-danger">*</span>
                     </label>
-                    <select name="foreign_currency[grade_id_fk]" class="form-select -select2 -single foreign_currency @error('foreign_currency[grade_id_fk]') is-invalid @enderror" required data-placeholder="請選擇科目">
+                    <select name="foreign_currency[grade_id_fk]" class="form-select -select2 -single foreign_currency @error('foreign_currency[grade_id_fk]') is-invalid @enderror" required data-placeholder="請選擇會計科目">
                         <option value="" selected disabled>請選擇</option>
                         @foreach($totalGrades as $value)
                             @if(in_array($value['primary_id'], $currency_select))
@@ -329,10 +329,10 @@
                 </div>
 
                 <div class="col-12 col-sm-4 mb-3 payable_account">
-                    <label for="" class="form-label payable_account">科目
+                    <label for="" class="form-label payable_account">會計科目
                         <span class="text-danger">*</span>
                     </label>
-                    <select name="payable_account[grade_id_fk]" class="form-select -select2 -single payable_account @error('payable_account[grade_id_fk]') is-invalid @enderror" required data-placeholder="請選擇科目">
+                    <select name="payable_account[grade_id_fk]" class="form-select -select2 -single payable_account @error('payable_account[grade_id_fk]') is-invalid @enderror" required data-placeholder="請選擇會計科目">
                         <option value="" selected disabled>請選擇</option>
                         @foreach($totalGrades ?? [] as $value)
                             @if(in_array($value['primary_id'], $accountPayableDefault))
@@ -343,10 +343,10 @@
                 </div>
 
                 <div class="col-12 col-sm-4 mb-3 other">
-                    <label for="" class="form-label other">次科目
+                    <label for="" class="form-label other">會計科目
                         <span class="text-danger">*</span>
                     </label>
-                    <select name="other[grade_id_fk]" class="form-select -select2 -single other @error('other[grade_id_fk]') is-invalid @enderror" required data-placeholder="請選擇次科目">
+                    <select name="other[grade_id_fk]" class="form-select -select2 -single other @error('other[grade_id_fk]') is-invalid @enderror" required data-placeholder="請選擇會計科目">
                         <option value="" selected disabled>請選擇</option>
                         @foreach($totalGrades as $otherData)
                             <option value="{{ $otherData['primary_id'] }}" {{ count($all_payable_type_data['payableOther']) > 0 && $all_payable_type_data['payableOther']['grade_id_fk'] == $otherData['primary_id'] ? 'selected' : ''}}>{{ $otherData['code'] . ' ' . $otherData['name'] }}</option>
