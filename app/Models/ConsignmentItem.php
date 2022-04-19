@@ -248,7 +248,7 @@ class ConsignmentItem extends Model
             $eDate = date('Y-m-d 23:59:59', strtotime($csn_edate));
             $result->whereBetween('consignment.created_at_withHIS', [$sDate, $eDate]);
         }
-        if ($audit_status) {
+        if (isset($audit_status)) {
             $result->where('consignment.audit_status', $audit_status);
         }
         if ($inbound_status) {

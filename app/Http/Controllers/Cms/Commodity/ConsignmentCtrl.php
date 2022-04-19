@@ -40,7 +40,7 @@ class ConsignmentCtrl extends Controller
         $receive_depot_id = Arr::get($query, 'receive_depot_id', '');
         $csn_sdate = Arr::get($query, 'csn_sdate', '');
         $csn_edate = Arr::get($query, 'csn_edate', '');
-        $audit_status = Arr::get($query, 'audit_status', AuditStatus::unreviewed()->value);
+        $audit_status = Arr::get($query, 'audit_status', null);
         $inbound_status = Arr::get($query, 'inbound_status', implode(',', array_keys($all_inbound_status)));
 
         $inbound_status_arr = [];

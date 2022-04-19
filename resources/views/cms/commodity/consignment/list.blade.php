@@ -61,7 +61,7 @@
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
                                     <input class="form-check-input" name="audit_status" type="radio"
-                                           value="{{ $val }}" @if (old('audit_status', $audit_status ?? App\Enums\Consignment\AuditStatus::unreviewed()->value) == $val) checked @endif>
+                                           value="{{ $val }}" @if (old('audit_status', $audit_status ?? null) == $val) checked @endif>
                                     {{ App\Enums\Consignment\AuditStatus::getDescription($val) }}
                                 </label>
                             </div>
