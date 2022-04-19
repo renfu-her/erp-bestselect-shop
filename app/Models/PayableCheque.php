@@ -39,11 +39,16 @@ class PayableCheque extends Model
         return $this->morphTo();
     }
 
+    public function all_grade()
+    {
+        return $this->belongsTo(AllGrade::class, 'grade_id', 'id');
+    }
+
     public static function storePayableCheque($req)
     {
         $payableData =self::create([
             'check_num' => $req['cheque']['check_num'],
-            'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::Cheque),
+            'grade_type' => AllGrade::findOrFail($req['cheque']['grade_id_fk'])->grade_type,
             'grade_id' => $req['cheque']['grade_id_fk'],
             'maturity_date' => $req['cheque']['maturity_date'],
             'cash_cheque_date' => $req['cheque']['cash_cheque_date'],

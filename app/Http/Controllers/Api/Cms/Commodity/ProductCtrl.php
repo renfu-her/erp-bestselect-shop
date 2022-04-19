@@ -127,6 +127,34 @@ class ProductCtrl extends Controller
         }
     }
 
+    /**
+     * @param  Request  $request
+     * 商品搜尋API controller
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function searchProductInfo(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'data' => ['required', 'string'],
+            'sort.is_price_desc' => ['nullable', 'bool'],
+            'page_size' => ['nullable', 'int', 'min:1'],
+            'm_class' => ['nullable', 'string', 'regex:/^(customer|employee|company)$/']
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'E01',
+                'msg' => $validator->messages(),
+            ]);
+        }
+
+        return Product::searchProduct(
+            $request['data'],
+            $request['page_size'] ?? '',
+            $request['page'] ?? '',
+            $request['sort']['is_price_desc'] ?? true
+        );
+    }
     // Product::getProductShipments($id);
 
 }

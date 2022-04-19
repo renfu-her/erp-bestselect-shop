@@ -124,7 +124,7 @@ class CreateIncomeExpenditureTable extends Migration
             $table->unsignedBigInteger('acc_income_type_fk')->default(null)->comment('入款方式, foreign key');
             $table->foreign('acc_income_type_fk')->references('id')->on('acc_income_type');
 
-            $table->integer('grade_id_fk')->nullable()->comment('對應到1～4級科目table的primary key');
+            $table->integer('grade_id_fk')->nullable()->comment('acc_all_grades table id');
 
             $table->unsignedBigInteger('acc_currency_fk')->nullable()->unique()->default(null)->comment('外幣, foreign key');
             $table->foreign('acc_currency_fk')->references('id')->on('acc_currency');

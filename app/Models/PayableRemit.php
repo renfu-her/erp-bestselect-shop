@@ -36,10 +36,15 @@ class PayableRemit extends Model
         return $this->morphTo();
     }
 
+    public function all_grade()
+    {
+        return $this->belongsTo(AllGrade::class, 'grade_id', 'id');
+    }
+
     public static function storePayableRemit($req)
     {
         $payableData =self::create([
-            'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::Remittance),
+            'grade_type' => AllGrade::findOrFail($req['remit']['grade_id_fk'])->grade_type,
             'grade_id' => $req['remit']['grade_id_fk'],
             'remit_date' => $req['remit']['remit_date']
         ]);
