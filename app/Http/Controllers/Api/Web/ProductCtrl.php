@@ -103,6 +103,7 @@ class ProductCtrl extends Controller
             'data' => ['required', 'string'],
             'sort.is_price_desc' => ['nullable', 'bool'],
             'page_size' => ['nullable', 'int', 'min:1'],
+            'page' => ['nullable', 'int', 'min:1'],
             'm_class' => ['nullable', 'string', 'regex:/^(customer|employee|company)$/']
         ]);
 
@@ -116,7 +117,7 @@ class ProductCtrl extends Controller
         return Product::searchProduct(
             $request['data'],
             $request['page_size'] ?? '',
-            $request['page'] ?? '',
+            $request['page'] ?? 1,
             $request['sort']['is_price_desc'] ?? true
         );
     }
