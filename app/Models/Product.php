@@ -101,7 +101,7 @@ class Product extends Model
             ->limit(1);
 
             $re->addSelect(DB::raw("({$subImg->toSql()}) as img_url"));
-           
+
 
         }
 
@@ -901,11 +901,13 @@ class Product extends Model
             })
         ;
 
-        $totalPages = $productQueries->count();
+        $totalCounts = $productQueries->count();
         if (empty($pageSize)) {
-            $productQueries = $productQueries->forPage(1, $totalPages);
+            $productQueries = $productQueries->forPage(1, $totalCounts);
+            $totalPages = $totalCounts;
         } else {
             $productQueries = $productQueries->forPage($currentPageNumber, $pageSize);
+            $totalPages = ceil($totalCounts / $pageSize);
         }
 
         $productData = [];
