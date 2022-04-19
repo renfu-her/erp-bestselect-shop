@@ -916,7 +916,7 @@ class Product extends Model
                 'id' => $productQuery['id'],
                 'sku' => $productQuery['sku'],
                 'title' => $productQuery['title'],
-                'img_url' => $productQuery['img_url'] ?? [],
+                'img_url' => $productQuery['img_url'] ?? '',
                 'price' => $productQuery['price'],
                 'origin_price' => $productQuery['origin_price'],
             ];
