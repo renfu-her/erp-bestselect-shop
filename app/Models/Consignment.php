@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Purchase\LogEventFeature;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -244,7 +245,11 @@ class Consignment extends Model
                 , 'consignment.create_user_name as create_user_name'
                 , 'consignment.audit_user_id as audit_user_id'
                 , 'consignment.audit_user_name as audit_user_name'
-                , 'consignment.audit_status as audit_status'
+                , DB::raw('(case
+                    when consignment.audit_status ='. AuditStatus::unreviewed()->value. ' then "'. AuditStatus::getDescription(AuditStatus::unreviewed()->value). '"
+                    when consignment.audit_status ='. AuditStatus::approved()->value. ' then "'. AuditStatus::getDescription(AuditStatus::approved()->value). '"
+                    when consignment.audit_status ='. AuditStatus::veto()->value. ' then "'. AuditStatus::getDescription(AuditStatus::veto()->value). '"
+                    end ) as audit_status')
                 , 'consignment.memo as memo'
                 , 'consignment.created_at as created_at_withHIS'
                 , DB::raw('DATE_FORMAT(consignment.created_at,"%Y-%m-%d") as created_at')

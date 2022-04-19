@@ -16,7 +16,7 @@ class AuditStatus extends Enum
         $result = '';
         switch ($value) {
             case self::unreviewed:
-                $result = '未審核';
+                $result = '尚未審核';
                 break;
 
             case self::approved:
