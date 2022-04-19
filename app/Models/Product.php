@@ -904,7 +904,7 @@ class Product extends Model
         $totalCounts = $productQueries->count();
         if (empty($pageSize)) {
             $productQueries = $productQueries->forPage(1, $totalCounts);
-            $totalPages = $totalCounts;
+            $totalPages = 1;
         } else {
             $productQueries = $productQueries->forPage($currentPageNumber, $pageSize);
             $totalPages = ceil($totalCounts / $pageSize);
