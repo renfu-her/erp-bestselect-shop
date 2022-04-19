@@ -305,6 +305,9 @@ class PurchaseCtrl extends Controller
         ]);
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function update(Request $request, $id)
     {
         $query = $request->query();
@@ -318,17 +321,32 @@ class PurchaseCtrl extends Controller
         //判斷是否有付款單，有則不可新增刪除商品款式
         $purchaseGet = Purchase::where('id', '=', $id)->get()->first();
 
-//        if (null != $purchaseGet && AuditStatus::unreviewed()->value != $purchaseGet->audit_status) {
-//            throw ValidationException::withMessages(['item_error' => '已寄倉審核，無法再修改']);
-//        }
-//        if (null != $purchaseGet->audit_date) {
-//            if (isset($request['del_item_id']) && null != $request['del_item_id']) {
-//                throw ValidationException::withMessages(['item_error' => '已審核，不可刪除商品款式']);
-//            }
-//            if (isset($purchaseItemReq['item_id'])) {
-//                throw ValidationException::withMessages(['item_error' => '已審核，不可新增修改商品款式']);
-//            }
-//        }
+        //判斷原採購單已審核
+        if (null != $purchaseGet && AuditStatus::unreviewed()->value != $purchaseGet->audit_status) {
+            $purchase = Purchase::checkInputApprovedDataDirty($id, $taxReq, $purchaseReq, $purchasePayReq);
+            if ($purchase->isDirty()) {
+                throw ValidationException::withMessages(['item_error' => '已審核，無法再修改']);
+            }
+
+            //刪除現有款式
+            if (isset($request['del_item_id']) && null != $request['del_item_id']) {
+                throw ValidationException::withMessages(['item_error' => '已審核，不可刪除商品款式']);
+            }
+
+            if (isset($purchaseItemReq['item_id'])) {
+                foreach ($purchaseItemReq['item_id'] as $key => $val) {
+                    $itemId = $purchaseItemReq['item_id'][$key];
+                    if (null != $itemId) {
+                        $purchaseItem = PurchaseItem::checkInputItemDirty($itemId, $purchaseItemReq, $key);
+                        if ($purchaseItem->isDirty()) {
+                            throw ValidationException::withMessages(['item_error' => '已審核，不可新增修改商品款式']);
+                        }
+                    } else {
+                        throw ValidationException::withMessages(['item_error' => '已審核，不可新增修改商品款式']);
+                    }
+                }
+            }
+        }
 
         $msg = DB::transaction(function () use ($request, $id, $purchaseReq, $purchaseItemReq, $taxReq, $purchasePayReq, $purchaseGet
         ) {
@@ -337,46 +355,43 @@ class PurchaseCtrl extends Controller
                 DB::rollBack();
                 return $repcsCTPD;
             }
-
-            if (null != $purchaseGet && AuditStatus::unreviewed()->value == $purchaseGet->audit_status) {
-                //刪除現有款式
-                if (isset($request['del_item_id']) && null != $request['del_item_id']) {
-                    $del_item_id_arr = explode(",", $request['del_item_id']);
-                    $rePcsDI = PurchaseItem::deleteItems($purchaseGet->id, $del_item_id_arr, $request->user()->id, $request->user()->name);
-                    if ($rePcsDI['success'] == 0) {
-                        DB::rollBack();
-                        return $rePcsDI;
-                    }
+            //刪除現有款式
+            if (isset($request['del_item_id']) && null != $request['del_item_id']) {
+                $del_item_id_arr = explode(",", $request['del_item_id']);
+                $rePcsDI = PurchaseItem::deleteItems($purchaseGet->id, $del_item_id_arr, $request->user()->id, $request->user()->name);
+                if ($rePcsDI['success'] == 0) {
+                    DB::rollBack();
+                    return $rePcsDI;
                 }
-                if (isset($purchaseItemReq['item_id'])) {
-                    foreach ($purchaseItemReq['item_id'] as $key => $val) {
-                        $itemId = $purchaseItemReq['item_id'][$key];
-                        //有值則做更新
-                        //itemId = null 代表新資料
-                        if (null != $itemId) {
-                            $result = PurchaseItem::checkToUpdatePurchaseItemData($itemId, $purchaseItemReq, $key, $request->user()->id, $request->user()->name, $purchasePayReq);
-                            if ($result['success'] == 0) {
-                                DB::rollBack();
-                                return $result;
-                            }
-                        } else {
-                            $result = PurchaseItem::createPurchase(
-                                [
-                                    'purchase_id' => $id,
-                                    'product_style_id' => $purchaseItemReq['product_style_id'][$key],
-                                    'title' => $purchaseItemReq['name'][$key],
-                                    'sku' => $purchaseItemReq['sku'][$key],
-                                    'price' => $purchaseItemReq['price'][$key],
-                                    'num' => $purchaseItemReq['num'][$key],
-                                    'temp_id' => $purchaseItemReq['temp_id'][$key] ?? null,
-                                    'memo' => $purchaseItemReq['memo'][$key],
-                                ],
-                                $request->user()->id, $request->user()->name
-                            );
-                            if ($result['success'] == 0) {
-                                DB::rollBack();
-                                return $result;
-                            }
+            }
+            if (isset($purchaseItemReq['item_id'])) {
+                foreach ($purchaseItemReq['item_id'] as $key => $val) {
+                    $itemId = $purchaseItemReq['item_id'][$key];
+                    //有值則做更新
+                    //itemId = null 代表新資料
+                    if (null != $itemId) {
+                        $result = PurchaseItem::checkToUpdatePurchaseItemData($itemId, $purchaseItemReq, $key, $request->user()->id, $request->user()->name, $purchasePayReq);
+                        if ($result['success'] == 0) {
+                            DB::rollBack();
+                            return $result;
+                        }
+                    } else {
+                        $result = PurchaseItem::createPurchase(
+                            [
+                                'purchase_id' => $id,
+                                'product_style_id' => $purchaseItemReq['product_style_id'][$key],
+                                'title' => $purchaseItemReq['name'][$key],
+                                'sku' => $purchaseItemReq['sku'][$key],
+                                'price' => $purchaseItemReq['price'][$key],
+                                'num' => $purchaseItemReq['num'][$key],
+                                'temp_id' => $purchaseItemReq['temp_id'][$key] ?? null,
+                                'memo' => $purchaseItemReq['memo'][$key],
+                            ],
+                            $request->user()->id, $request->user()->name
+                        );
+                        if ($result['success'] == 0) {
+                            DB::rollBack();
+                            return $result;
                         }
                     }
                 }

@@ -68,6 +68,21 @@ class Purchase extends Model
         });
     }
 
+    //判斷已核可的採購單有被編輯審核狀態、物流資訊
+    public static function checkInputApprovedDataDirty($id, $tax, array $purchaseReq, array $purchasePayReq) {
+        $purchase = Purchase::where('id', '=', $id)
+            ->select('supplier_id'
+                , 'logistics_price'
+                , 'logistics_memo'
+                , 'audit_status'
+            )
+            ->get()->first();
+
+        //判斷在尚未審核時才能編輯的資料是否被編輯過
+        $purchase = Purchase::verifyPcsNormalCanEditData($purchase, $tax, $purchaseReq, $purchasePayReq);
+        return $purchase;
+    }
+
     public static function checkToUpdatePurchaseData($id, array $purchaseReq, $operator_user_id, $operator_user_name, $tax, array $purchasePayReq
     )
     {
@@ -82,29 +97,23 @@ class Purchase extends Model
                 , 'audit_status'
             )
             ->selectRaw('DATE_FORMAT(scheduled_date,"%Y-%m-%d") as scheduled_date')
+            ->selectRaw('DATE_FORMAT(invoice_date,"%Y-%m-%d") as invoice_date')
             ->selectRaw('DATE_FORMAT(audit_date,"%Y-%m-%d") as audit_date')
             ->get()->first();
 
         //尚未審核可修改任一選項
         //核可、否決後 不可修改採購商品清單 物流、需可修改付款發票資訊
         $orign_audit_status = $purchase->audit_status;
-        if (AuditStatus::unreviewed()->value == $purchase->audit_status) {
-            $purchase->supplier_sn = $purchaseReq['supplier_sn'] ?? null;
-            $purchase->scheduled_date = $purchaseReq['scheduled_date'];
-            $purchase->audit_status = $purchaseReq['audit_status'];
-            $purchase->has_tax = $tax;
-            $purchase->logistics_price = $purchasePayReq['logistics_price'] ?? 0;
-            $purchase->logistics_memo = $purchasePayReq['logistics_memo'] ?? null;
+        if (AuditStatus::unreviewed()->value == $orign_audit_status) {
+            $purchase = Purchase::verifyPcsNormalCanEditData($purchase, $tax, $purchaseReq, $purchasePayReq);
+            $purchase = Purchase::verifyPcsApprovedCanEditData($purchase, $tax, $purchaseReq, $purchasePayReq);
         } else {
-            $purchase->supplier_sn = $purchaseReq['supplier_sn'] ?? null;
-            $purchase->scheduled_date = $purchaseReq['scheduled_date'];
-            $purchase->has_tax = $tax;
-            $purchase->invoice_num = $purchasePayReq['invoice_num'] ?? null;
-            $purchase->invoice_date = $purchasePayReq['invoice_date'] ?? null;
+            $purchase = Purchase::verifyPcsApprovedCanEditData($purchase, $tax, $purchaseReq, $purchasePayReq);
         }
 
         return DB::transaction(function () use ($purchase, $id, $purchaseReq, $operator_user_id, $operator_user_name, $tax, $purchasePayReq, $orign_audit_status
         ) {
+//            dd($purchase->isDirty(), $purchase);
             if ($purchase->isDirty()) {
                 foreach ($purchase->getDirty() as $key => $val) {
                     $event = '';
@@ -140,28 +149,67 @@ class Purchase extends Model
                         return $rePcsLSC;
                     }
                 }
-                $updArr = [
-                    "supplier_id" => $purchaseReq['supplier'],
-                    "supplier_sn" => $purchaseReq['supplier_sn'],
-                    "scheduled_date" => $purchaseReq['scheduled_date'],
-                    "has_tax" => $tax,
-                    'logistics_price' => $purchasePayReq['logistics_price'] ?? 0,
-                    'logistics_memo' => $purchasePayReq['logistics_memo'] ?? null,
-                    'invoice_num' => $purchasePayReq['invoice_num'] ?? null,
-                    'invoice_date' => $purchasePayReq['invoice_date'] ?? null,
-                ];
-                $curr_date = date('Y-m-d H:i:s');
+                $updArr = [];
                 if (AuditStatus::unreviewed()->value == $orign_audit_status) {
+                    $updArr = [
+//                        "supplier_id" => $purchaseReq['supplier'],
+                        "supplier_sn" => $purchaseReq['supplier_sn'],
+                        "scheduled_date" => $purchaseReq['scheduled_date'],
+                        "has_tax" => $tax,
+                        'invoice_num' => $purchasePayReq['invoice_num'] ?? null,
+                        'invoice_date' => $purchasePayReq['invoice_date'] ?? null,
+
+                        'logistics_price' => $purchasePayReq['logistics_price'] ?? 0,
+                        'logistics_memo' => $purchasePayReq['logistics_memo'] ?? null,
+                    ];
+
+                    $curr_date = date('Y-m-d H:i:s');
                     $updArr['audit_date'] = $curr_date;
                     $updArr['audit_user_id'] = $operator_user_id;
                     $updArr['audit_user_name'] = $operator_user_name;
                     $updArr['audit_status'] = $purchaseReq['audit_status'] ?? App\Enums\Consignment\AuditStatus::unreviewed()->value;
+                } else {
+                    $updArr = [
+                        "supplier_sn" => $purchaseReq['supplier_sn'],
+                        "scheduled_date" => $purchaseReq['scheduled_date'],
+                        "has_tax" => $tax,
+                        'invoice_num' => $purchasePayReq['invoice_num'] ?? null,
+                        'invoice_date' => $purchasePayReq['invoice_date'] ?? null,
+                    ];
                 }
-
                 Purchase::where('id', $id)->update($updArr);
             }
             return ['success' => 1, 'error_msg' => ''];
         });
+    }
+
+    /**
+     * 核可否決後 可修改的欄位
+     */
+    public static function verifyPcsApprovedCanEditData($purchase, $tax, array $purchaseReq, array $purchasePayReq)
+    {
+        if (null != $purchase && null != $purchasePayReq) {
+            $purchase->supplier_sn = $purchaseReq['supplier_sn'] ?? null;
+            $purchase->scheduled_date = $purchaseReq['scheduled_date'];
+            $purchase->has_tax = $tax;
+            $purchase->invoice_num = $purchasePayReq['invoice_num'] ?? null;
+            $purchase->invoice_date = $purchasePayReq['invoice_date'] ?? null;
+        }
+        return $purchase;
+    }
+
+    /**
+     * 尚未審核時 可修改的欄位
+     **** 尚未審核時 可修改任一欄位，所以檢查時，要一併同時檢查另一個method verifyPcsApprovedCanEditData 核可否決後 可修改的欄位 物件才會知道有改那些東西 ***
+     */
+    public static function verifyPcsNormalCanEditData($purchase, $tax, array $purchaseReq, array $purchasePayReq)
+    {
+        if (null != $purchase && null != $purchaseReq && null != $purchasePayReq) {
+            $purchase->audit_status = $purchaseReq['audit_status'];
+            $purchase->logistics_price = $purchasePayReq['logistics_price'] ?? 0;
+            $purchase->logistics_memo = $purchasePayReq['logistics_memo'] ?? null;
+        }
+        return $purchase;
     }
 
     //刪除
