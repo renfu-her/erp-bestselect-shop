@@ -23,7 +23,7 @@ class ProductCtrl extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'E01',
-                'message' => $validator->messages(),
+                'message' => $validator->errors(),
             ]);
         }
         $d = $request->all();
@@ -47,7 +47,7 @@ class ProductCtrl extends Controller
         if ($validator->fails()) {
             $re = [];
             $re[ResponseParam::status()->key] = 'E01';
-            $re[ResponseParam::msg()->key] = $validator->messages();
+            $re[ResponseParam::msg()->key] = $validator->errors();
 
             return response()->json($re);
         }
@@ -90,5 +90,35 @@ class ProductCtrl extends Controller
         $re[ResponseParam::msg()->key] = '';
         $re[ResponseParam::data()->key] = $collection;
         return response()->json($re);
+    }
+
+    /**
+     * @param  Request  $request
+     * 商品搜尋API controller
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function searchProductInfo(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'data' => ['required', 'string'],
+            'sort.is_price_desc' => ['nullable', 'bool'],
+            'page_size' => ['nullable', 'int', 'min:1'],
+            'page' => ['nullable', 'int', 'min:1'],
+            'm_class' => ['nullable', 'string', 'regex:/^(customer|employee|company)$/']
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'E01',
+                'msg' => $validator->errors(),
+            ]);
+        }
+
+        return Product::searchProduct(
+            $request['data'],
+            $request['page_size'] ?? '',
+            $request['page'] ?? 1,
+            $request['sort']['is_price_desc'] ?? true
+        );
     }
 }
