@@ -71,7 +71,7 @@ Route::group(['middleware' => 'guest:customer'], function () {
     Route::get('/reset-password/{token?}', [CustomerResetCtrl::class, 'reset_password'])->name('password.reset');
     Route::post('/reset-password', [CustomerResetCtrl::class, 'reset_password_store'])->name('password.update');
 
-    Route::get('/login-test', function () {
+    Route::get('/login-result', function () {
         return session('status');
     })->name('login');
 });

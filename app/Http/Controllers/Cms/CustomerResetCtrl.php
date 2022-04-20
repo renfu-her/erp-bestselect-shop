@@ -11,6 +11,8 @@ use Illuminate\Support\Str;
 
 class CustomerResetCtrl extends Controller
 {
+    protected static $customers = 'customers';
+
     public function forgot_password(Request $request)
     {
         return view('auth.forgot-password');
@@ -20,7 +22,7 @@ class CustomerResetCtrl extends Controller
     {
         $request->validate(['email' => 'required|email']);
 
-        $broker = Password::broker('customers');;
+        $broker = Password::broker(self::$customers);;
         $status = $broker->sendResetLink(
             $request->only('email')
         );
@@ -44,7 +46,7 @@ class CustomerResetCtrl extends Controller
             'password' => 'required|min:4|confirmed',
         ]);
 
-        $broker = Password::broker('customers');;
+        $broker = Password::broker(self::$customers);;
         $status = $broker->reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user, $password) use ($request) {
