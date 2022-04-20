@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
+use App\Enums\Delivery\LogisticStatus;
 use App\Enums\Purchase\LogEventFeature;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -81,11 +82,12 @@ class Consignment extends Model
             ->selectRaw('DATE_FORMAT(audit_date,"%Y-%m-%d") as audit_date')
             ->get()->first();
 
+        $orign_audit_status = $purchase->audit_status;
 //        $purchase->scheduled_date = $purchaseReq['scheduled_date'] ?? null;
         $purchase->memo = $purchaseReq['memo'] ?? null;
         $purchase->audit_status = $purchaseReq['audit_status'] ?? null;
 
-        return DB::transaction(function () use ($purchase, $id, $purchaseReq, $operator_user_id, $operator_user_name
+        return DB::transaction(function () use ($purchase, $id, $purchaseReq, $operator_user_id, $operator_user_name, $orign_audit_status
         ) {
             if ($purchase->isDirty()) {
                 foreach ($purchase->getDirty() as $key => $val) {
@@ -110,6 +112,23 @@ class Consignment extends Model
                     "audit_user_name" => $operator_user_name,
                     "audit_status" => $purchaseReq['audit_status'] ?? App\Enums\Consignment\AuditStatus::unreviewed()->value,
                 ]);
+
+                //從尚未審核 變成 核可後物態自動變檢貨中
+                if (AuditStatus::unreviewed()->value == $orign_audit_status
+                    && AuditStatus::approved()->value == $purchase->audit_status
+                ) {
+                    $user = new \stdClass();
+                    $user->id = $operator_user_id;
+                    $user->name = $operator_user_name;
+                    $delivery = Delivery::where('event', Event::consignment()->value)
+                        ->where('event_id', $id)->get()->first();
+
+                    $reLFCDS = LogisticFlow::createDeliveryStatus($user, $delivery->id, [LogisticStatus::A2000()]);
+                    if ($reLFCDS['success'] == 0) {
+                        DB::rollBack();
+                        return $reLFCDS;
+                    }
+                }
             }
             return ['success' => 1, 'error_msg' => ''];
         });
@@ -262,6 +281,7 @@ class Consignment extends Model
                 , 'dlv_delivery.audit_date as dlv_audit_date'
                 , 'dlv_delivery.audit_user_id as dlv_audit_user_id'
                 , 'dlv_delivery.audit_user_name as dlv_audit_user_name'
+                , 'dlv_delivery.logistic_status as logistic_status'
 
                 , 'dlv_logistic.sn as lgt_sn'
                 , 'dlv_logistic.package_sn'
