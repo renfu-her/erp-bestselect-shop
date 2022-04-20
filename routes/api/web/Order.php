@@ -5,6 +5,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
     Route::post('global-discount', [OrderCtrl::class, 'getGlobalDiscount']);
-    Route::post('payinfo', [OrderCtrl::class, 'payinfo']);
+    Route::get('payinfo', [OrderCtrl::class, 'payinfo']);
     
 });
