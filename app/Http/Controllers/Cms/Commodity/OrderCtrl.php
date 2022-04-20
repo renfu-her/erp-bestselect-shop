@@ -16,6 +16,10 @@ use App\Models\ShipmentStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
+use Illuminate\Support\Facades\DB;
+
+use App\Models\ReceivedOrder;
+
 class OrderCtrl extends Controller
 {
     /**
@@ -293,6 +297,16 @@ class OrderCtrl extends Controller
         //  dd( Discount::orderDiscountList('main', $id)->get()->toArray());
 
         $sn = $order->sn;
+
+        $receivable = false;
+        $received_order_collection = ReceivedOrder::where([
+            'order_id'=>$id,
+            'deleted_at'=>null,
+        ]);
+        if ($received_order_collection->sum('price') == DB::table('acc_received')->whereIn('received_order_id', $received_order_collection->pluck('id')->toArray())->sum('tw_price')) {
+            $receivable = true;
+        }
+
         return view('cms.commodity.order.detail', [
             'sn' => $sn,
             'order' => $order,
@@ -300,6 +314,7 @@ class OrderCtrl extends Controller
             'breadcrumb_data' => $sn,
             'subOrderId' => $subOrderId,
             'discounts' => Discount::orderDiscountList('main', $id)->get()->toArray(),
+            'receivable'=>$receivable,
         ]);
     }
 

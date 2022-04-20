@@ -6,7 +6,9 @@
         $route = $receivedId ? 'show' : 'create';
     @endphp
 
-    <a href="{{ Route('cms.ar.' . $route, ['id'=>$order->id]) }}" class="btn btn-danger" role="button">{{ !$receivedId ? '新增' : '' }}收款單（暫放）</a>
+    @if(!$receivable)
+        <a href="{{ Route('cms.ar.' . $route, ['id'=>$order->id]) }}" class="btn btn-danger" role="button">{{ !$receivedId ? '新增' : '' }}收款單（暫放）</a>
+    @endif
 
     <form id="form1" method="post" action="">
         @method('POST')
