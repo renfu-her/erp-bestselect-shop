@@ -928,24 +928,18 @@ class Product extends Model
                 'origin_price' => $productQuery['origin_price'],
             ];
         }
-        $collectProductData = collect($productData)->mapWithKeys(function ($item, $key) use ($productData) {
-            return [
-                $item['price'] => $item
-            ];
-        });
         if ($isPriceDescend) {
-            $collectProductData->sortDesc();
+            $listData = collect($productData)->sortByDesc('price')->values()->all();
         } else {
-            $collectProductData->sort();
+            $listData = collect($productData)->sortBy('price')->values()->all();
         }
-        $collectProducts = $collectProductData->values();
 
         return response()->json([
             'status' => ApiStatusMessage::Succeed,
             'msg' => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
             'data' => [
                 'page' => $totalPages,
-                'list' => $collectProducts->all(),
+                'list' => $listData,
             ],
         ]);
     }
