@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\CustomerPasswordReset;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -56,6 +57,11 @@ class Customer extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new CustomerPasswordReset($token));
+    }
 
     public static function createCustomer($name, $email, $password
         , $phone = null, $birthday = null, $acount_status = 0, $bind_customer_id = null

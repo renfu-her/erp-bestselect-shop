@@ -64,6 +64,7 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/Consignment.php');
 });
 
+//消費者重設密碼
 Route::group(['middleware' => 'guest:customer'], function () {
     Route::get('/forgot-password', [CustomerResetCtrl::class, 'forgot_password'])->name('password.request');
     Route::post('/forgot-password', [CustomerResetCtrl::class, 'send_reset_pw_mail'])->name('password.email');
@@ -73,5 +74,5 @@ Route::group(['middleware' => 'guest:customer'], function () {
 
     Route::get('/login-result', function () {
         return session('status');
-    })->name('login');
+    })->name('customer.login');
 });
