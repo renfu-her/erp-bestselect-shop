@@ -902,6 +902,13 @@ class Product extends Model
         ;
 
         $totalCounts = $productQueries->count();
+        if ($totalCounts === 0) {
+            return response()->json([
+                'status' => ApiStatusMessage::NotFound,
+                'msg' => ApiStatusMessage::getDescription(ApiStatusMessage::NotFound),
+                'data' => [],
+            ]);
+        }
         if (empty($pageSize)) {
             $productQueries = $productQueries->forPage(1, $totalCounts);
             $totalPages = 1;
