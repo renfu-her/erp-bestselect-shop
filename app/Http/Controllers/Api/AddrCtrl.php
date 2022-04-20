@@ -9,6 +9,14 @@ use Illuminate\Http\Request;
 class AddrCtrl extends Controller
 {
     //
+    public function getCitys(Request $request)
+    {
+
+        return [
+            'status' => '0',
+            'data' => Addr::getCitys(),
+        ];
+    }
 
     public function getRegions(Request $request, $id = 1)
     {
@@ -44,6 +52,4 @@ class AddrCtrl extends Controller
         ];
     }
 
-  
-   
 }
