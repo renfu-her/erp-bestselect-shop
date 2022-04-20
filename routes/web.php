@@ -73,7 +73,10 @@ Route::group(['middleware' => 'guest:customer'], function () {
     Route::get('/reset-password/{token?}', [CustomerResetCtrl::class, 'reset_password'])->name('password.reset');
     Route::post('/reset-password', [CustomerResetCtrl::class, 'reset_password_store'])->name('password.update');
 
-    Route::get('/login-result', function () {
-        return session('status');
-    })->name('customer.login');
+    Route::get('/login-reset-status', function () {
+        return view('cms.customerLoginResetStatus', [
+            'status' => session('status'),
+            'formAction' => 'https://dev-shopp.bestselection.com.tw/',
+        ]);
+    })->name('customer.login-reset-status');
 });

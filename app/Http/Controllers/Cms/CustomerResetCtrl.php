@@ -61,7 +61,7 @@ class CustomerResetCtrl extends Controller
         );
 
         return $status == Password::PASSWORD_RESET
-            ? redirect()->route('customer.login')->with('status', __($status))
+            ? redirect()->route('customer.login-reset-status')->with('status', __($status))
             : back()->withErrors(['email' => [__($status)]]);
     }
 
