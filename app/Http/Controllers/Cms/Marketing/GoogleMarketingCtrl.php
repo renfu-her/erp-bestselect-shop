@@ -15,7 +15,8 @@ class GoogleMarketingCtrl extends Controller
      */
     public function index()
     {
-        //
+        return view('cms.marketing.google_marketing.list', [
+        ]);
     }
 
     /**
@@ -82,5 +83,33 @@ class GoogleMarketingCtrl extends Controller
     public function destroy(GoogleMarketing $googleMarketing)
     {
         //
+    }
+
+    /**
+     * 新增Google廣告轉換追蹤事件
+     */
+    public function createGoogleAdsEvents()
+    {
+        return view('cms.marketing.google_marketing.ads_events_edit', [
+        ]);
+    }
+
+    /**
+     *
+     * 建立Google廣告轉換追蹤事件
+     */
+    public function storeGoogleAdsEvents()
+    {
+        return view('cms.marketing.google_marketing.list', [
+        ]);
+    }
+
+    /**
+     * 編輯Google廣告轉換追蹤事件
+     */
+    public function editGoogleAdsEvents()
+    {
+        return view('cms.marketing.google_marketing.ads_events_edit', [
+        ]);
     }
 }
