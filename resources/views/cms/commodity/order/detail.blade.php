@@ -5,15 +5,8 @@
         $receivedId = false;
         $route = $receivedId ? 'show' : 'create';
     @endphp
-    <form id="receivedForm" method="post" action="{{ Route('cms.ar.' . $route ) }}">
-        @csrf
-        <button type="submit" class="btn btn-danger" name="id[ord_orders]" value="{{ $order->id }}">
-            @if(!$receivedId)
-                新增
-            @endif
-                收款單（暫放）
-        </button>
-    </form>
+
+    <a href="{{ Route('cms.ar.' . $route, ['id'=>$order->id]) }}" class="btn btn-danger" role="button">{{ !$receivedId ? '新增' : '' }}收款單（暫放）</a>
 
     <form id="form1" method="post" action="">
         @method('POST')

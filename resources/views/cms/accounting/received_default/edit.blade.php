@@ -23,7 +23,7 @@
         <div class="card shadow p-4 mb-4">
             <h4 class="mb-3">收款管理預設</h4>
             @foreach($defaultArray as $type => $default)
-                <div class="col-12 mb-3">
+                <div class="col-12 mb-3 {{$type == 'other' ? 'd-none' : ''}}">
                     <label class="form-label" for="">{{$default['description']}}</label>
                     <select name="{{$type}}[default_grade_id][]"
                             id=""
@@ -33,7 +33,7 @@
                             data-placeholder="可複選">
                         @foreach($totalGrades as $totalGrade)
                             <option
-                                @if(in_array($totalGrade['primary_id'], $default['default_grade_id']))
+                                @if(in_array($totalGrade['primary_id'], $default['default_grade_id']) || $type == 'other')
                                 selected
                                 @endif
                                 @if($totalGrade['grade_num'] === 1)
