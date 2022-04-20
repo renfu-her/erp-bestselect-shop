@@ -112,7 +112,7 @@
                                 <td>
                                     <input type="number"
                                            class="form-control form-control-sm @error('inbound_num.' . $styleKey) is-invalid @enderror"
-                                           name="inbound_num[]" value="{{ old('inbound_num.'. $styleKey, '') }}"
+                                           name="inbound_num[]" value="{{ old('inbound_num.'. $styleKey, '') }}" min="1"
                                            required/>
                                 </td>
                                 <td>
