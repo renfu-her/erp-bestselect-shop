@@ -283,7 +283,7 @@
                 </div>
             </div>
 
-            @if(null != $purchaseData->audit_date)
+            @if($purchaseData->audit_status == App\Enums\Consignment\AuditStatus::approved()->value)
                 <div class="card shadow p-4 mb-4">
                     <h6>付款資訊</h6>
                     <div class="row">
@@ -382,7 +382,6 @@
                 @if($purchaseData != null)
                 <div class="col">
                     <mark class="fw-light small">
-                        {{var_dump($purchaseData->close_date, '; ', $purchaseData->audit_status)}}
                         <i class="bi bi-exclamation-diamond-fill mx-2 text-warning">
                         </i>審核狀態改為<b> 核可 或 否決 </b>就不能再修改預計進貨日期、採購清單和物流呦！
                     </mark>
