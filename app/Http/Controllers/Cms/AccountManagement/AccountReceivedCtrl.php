@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 use App\Enums\Received\ReceivedMethod;
-
+use App\Models\AllGrade;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\GeneralLedger;
@@ -87,25 +87,20 @@ class AccountReceivedCtrl extends Controller
         }
 
         $received_order_data = $received_order_collection->get();
-        $received_data = DB::table('acc_received')->whereIn('received_order_id', $received_order_data->pluck('id')->toArray())->get([
-            'received_type',
-            'received_order_id',
-            DB::raw('CASE received_method
-                WHEN "cash" THEN "現金"
-                WHEN "cheque" THEN "支票"
-                WHEN "credit_card" THEN "信用卡"
-                WHEN "remit" THEN "匯款"
-                WHEN "foreign_currency" THEN "外幣"
-                WHEN "account_received" THEN "應收帳款"
-                WHEN "other" THEN "其它"
-                WHEN "refund" THEN "退還" END as received_method'),
-            'received_method_id',
-            'all_grades_id',
-            'tw_price',
-            'review_date',
-            'accountant_id_fk',
-            'note',
-        ]);
+        $received_data = DB::table('acc_received')->whereIn('received_order_id', $received_order_data->pluck('id')->toArray())->get();
+        foreach($received_data as $value){
+            $value->received_method_name = ReceivedMethod::getDescription($value->received_method);
+            $value->account = AllGrade::find($value->all_grades_id)->eachGrade;
+
+            if($value->received_method == 'foreign_currency'){
+                $arr = explode('-', AllGrade::find($value->all_grades_id)->eachGrade->name);
+                $value->currency_name = $arr[0] == '外幣' ? $arr[1] . ' - ' . $arr[2] : 'NTD';
+                $value->currency_rate = DB::table('acc_received_currency')->find($value->received_method_id)->currency;
+            } else {
+                $value->currency_name = 'NTD';
+                $value->currency_rate = 1;
+            }
+        }
         $tw_price = $received_order_data->sum('price') - $received_data->sum('tw_price');
         if ($tw_price == 0) {
             // dd('此付款單金額已收齊');
