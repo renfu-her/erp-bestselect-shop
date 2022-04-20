@@ -145,7 +145,7 @@
                                 <td>{{ $data->origin_inbound_sn }}</td>
                                 <td>{{ $data->title }}</td>
                                 <td>{{ $data->sku }}</td>
-                                <td>{{ $data->audit_status }}</td>
+                                <td>{{ $data->audit_status_str }}</td>
                                 <td>{{ $data->created_at }}</td>
                                 <td>{{ $data->num }}</td>
                                 <td>{{ $data->inbound_type }}</td>
