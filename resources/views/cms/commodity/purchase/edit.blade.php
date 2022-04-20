@@ -382,7 +382,9 @@
                 @if($purchaseData != null)
                 <div class="col">
                     <mark class="fw-light small">
-                        <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>審核狀態改為<b> 核可 或 否決 </b>就不能再修改預計進貨日期、採購清單和物流呦！
+                        {{var_dump($purchaseData->close_date, '; ', $purchaseData->audit_status)}}
+                        <i class="bi bi-exclamation-diamond-fill mx-2 text-warning">
+                        </i>審核狀態改為<b> 核可 或 否決 </b>就不能再修改預計進貨日期、採購清單和物流呦！
                     </mark>
                 </div>
                 @endif
