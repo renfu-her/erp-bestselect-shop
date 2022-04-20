@@ -69,6 +69,8 @@ Route::group(['prefix' => 'web', 'as' => 'web.'], function () {
     require base_path('routes/api/web/Home.php');
     require base_path('routes/api/Collection.php');
     require base_path('routes/api/web/Product.php');
+    require base_path('routes/api/web/Order.php');
+
 });
 
 require base_path('routes/api/Addr.php');

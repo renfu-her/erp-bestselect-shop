@@ -101,7 +101,7 @@ class Product extends Model
             ->limit(1);
 
             $re->addSelect(DB::raw("({$subImg->toSql()}) as img_url"));
-           
+
 
         }
 
@@ -901,11 +901,13 @@ class Product extends Model
             })
         ;
 
-        $totalPages = $productQueries->count();
+        $totalCounts = $productQueries->count();
         if (empty($pageSize)) {
-            $productQueries = $productQueries->forPage(1, $totalPages);
+            $productQueries = $productQueries->forPage(1, $totalCounts);
+            $totalPages = 1;
         } else {
             $productQueries = $productQueries->forPage($currentPageNumber, $pageSize);
+            $totalPages = ceil($totalCounts / $pageSize);
         }
 
         $productData = [];
@@ -914,18 +916,29 @@ class Product extends Model
                 'id' => $productQuery['id'],
                 'sku' => $productQuery['sku'],
                 'title' => $productQuery['title'],
-                'img_url' => $productQuery['img_url'] ?? [],
+                'img_url' => is_null($productQuery['img_url']) ? '' : asset($productQuery['img_url']),
                 'price' => $productQuery['price'],
                 'origin_price' => $productQuery['origin_price'],
             ];
         }
+        $collectProductData = collect($productData)->mapWithKeys(function ($item, $key) use ($productData) {
+            return [
+                $item['price'] => $item
+            ];
+        });
+        if ($isPriceDescend) {
+            $collectProductData->sortDesc();
+        } else {
+            $collectProductData->sort();
+        }
+        $collectProducts = $collectProductData->values();
 
         return response()->json([
             'status' => ApiStatusMessage::Succeed,
             'msg' => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
             'data' => [
                 'page' => $totalPages,
-                'list' => $productData,
+                'list' => $collectProducts->all(),
             ],
         ]);
     }
