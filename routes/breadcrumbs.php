@@ -274,6 +274,18 @@ Breadcrumbs::for('cms.promo.edit', function (BreadcrumbTrail $trail, $value) {
     $trail->push('[' . $value . '] 編輯');
 });
 
+// Google數位行銷
+Breadcrumbs::for('cms.google_marketing.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('Google數位行銷', route('cms.google_marketing.index'));
+});
+//新增Google Ads 轉換追蹤
+Breadcrumbs::for('cms.google_marketing.create_ads_events', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('Google數位行銷', route('cms.google_marketing.index'));
+    $trail->push('新增Google Ads 轉換追蹤 ');
+});
+
 /**
  * 設定
  **/
