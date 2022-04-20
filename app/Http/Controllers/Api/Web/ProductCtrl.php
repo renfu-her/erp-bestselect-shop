@@ -110,7 +110,7 @@ class ProductCtrl extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'E01',
-                'msg' => $validator->messages(),
+                'msg' => $validator->errors(),
             ]);
         }
 
