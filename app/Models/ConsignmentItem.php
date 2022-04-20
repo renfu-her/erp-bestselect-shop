@@ -250,7 +250,7 @@ class ConsignmentItem extends Model
             $result->whereBetween('consignment.created_at_withHIS', [$sDate, $eDate]);
         }
         if (isset($audit_status)) {
-            $result->where('consignment.audit_status', AuditStatus::getDescription($audit_status));
+            $result->where('consignment.audit_status', $audit_status);
         }
         if ($inbound_status) {
             $arr_status = [];
