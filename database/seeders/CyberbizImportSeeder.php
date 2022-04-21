@@ -61,6 +61,7 @@ class CyberbizImportSeeder extends Seeder
                 //把商品的SKU從購物網2.0預設改成Cyberbiz的product sku
                 Product::where('id', $productId)
                     ->update([
+                        'spec_locked' => 1,
                         'sku' => explode('-', $productArray['variants'][0]['sku'])[0]
                     ]);
                 Product::where('id', $productId)
