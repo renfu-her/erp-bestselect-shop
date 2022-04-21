@@ -42,7 +42,7 @@ class CustomerPasswordReset extends Notification
      */
     public function toMail($notifiable)
     {
-        $url = route('password.reset', ['token' => $this->token], true);
+        $url = route('customer.password.reset', ['token' => $this->token], true);
         return (new MailMessage)
                     ->subject('重設密碼')
                     ->line('點選連結進行重設')

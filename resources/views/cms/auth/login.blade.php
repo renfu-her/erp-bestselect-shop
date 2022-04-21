@@ -35,7 +35,7 @@
                 <p class="mt-5 mb-3 text-muted">&copy; 2022</p>
 
 
-                <a href="{{ Route('password.request') }}" class="btn btn-primary" role="button">
+                <a href="{{ Route('customer.password.request') }}" class="btn btn-primary" role="button">
                     <i class="bi"></i> 消費者忘記密碼
                 </a>
             </form>
