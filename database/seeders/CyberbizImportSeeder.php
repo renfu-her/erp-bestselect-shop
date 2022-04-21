@@ -63,6 +63,8 @@ class CyberbizImportSeeder extends Seeder
                     ->update([
                         'sku' => explode('-', $productArray['variants'][0]['sku'])[0]
                     ]);
+                Product::where('id', $productId)
+                    ->update(['desc' => $productArray['body_html']]);
 
                 $specCount = count($productArray['options']);
                 foreach ($productArray['options'] as $specIndex => $specName) {
