@@ -13,7 +13,6 @@ class CustomerCtrl extends Controller
 {
     function login(Request $request)
     {
-        dd(env('ASDF', ''));
         $validator = Validator::make($request->all(), [
             'account' => 'required',
             'password' => 'required',
@@ -37,11 +36,12 @@ class CustomerCtrl extends Controller
             ]);
         }
 
-        $token = $customer->createToken('eee');
+        $token = $customer->createToken($customer->name);
+        $customer['token'] = $token->plainTextToken;
+
         return response()->json([
             'status' => '0',
             'data' =>  $customer,
-            'token' => $token->plainTextToken
         ]);
     }
 }

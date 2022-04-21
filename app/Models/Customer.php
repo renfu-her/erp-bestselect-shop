@@ -36,7 +36,6 @@ class Customer extends Authenticatable
         'acount_status',
         'bind_customer_id',
         'password',
-        'api_token',
     ];
 
     /**
@@ -47,6 +46,10 @@ class Customer extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'api_token',
+        'created_at',
+        'updated_at',
+        'deleted_at',
     ];
 
     /**

@@ -11,7 +11,7 @@ class AuthIdentityApiCustomer
 
     public function handle(Request $request, Closure $next)
     {
-        $user = CustomerIdentity::where('customer_id', $request->user()->id)->where('identity', 'customer');
+        $user = CustomerIdentity::where('customer_id', $request->user()->id)->where('identity_code', 'customer');
         $userGet = $user->get()->first();
         if (null != $userGet && $userGet) {
             return $next($request);
