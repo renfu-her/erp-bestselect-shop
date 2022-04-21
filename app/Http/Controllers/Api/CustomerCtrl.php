@@ -36,7 +36,7 @@ class CustomerCtrl extends Controller
             ]);
         }
 
-        $token = $customer->createToken($customer->name);
+        $token = $customer->createToken($request->device_name ?? $customer->name);
         $customer['token'] = $token->plainTextToken;
 
         return response()->json([
