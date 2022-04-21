@@ -95,7 +95,9 @@ class CyberbizImportSeeder extends Seeder
                     'spec_item1_id' => $itemArray[0] ?? null,
                     'spec_item2_id' => $itemArray[1] ?? null,
                     'spec_item3_id' => $itemArray[2] ?? null,
-                ])->update(['sku' => $variant['sku']]);
+                    ])->update([
+                        'sku' => str_replace('-', '', $variant['sku'])
+                    ]);
 
                 // 銷售通路價格
                 $styleId = ProductStyle::where([
