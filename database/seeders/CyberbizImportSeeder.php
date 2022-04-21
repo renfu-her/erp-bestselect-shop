@@ -37,7 +37,8 @@ class CyberbizImportSeeder extends Seeder
 
             $re = Product::createProduct(
                 $productArray['title'],
-                1,
+                    // user_id 3 ,施理查
+                    3,
                 1,
                 'p',
                 $productArray['brief'],

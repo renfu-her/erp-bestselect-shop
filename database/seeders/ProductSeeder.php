@@ -27,7 +27,7 @@ class ProductSeeder extends Seeder
             ['title' => '品項']
         ]);
 
-        Category::create((['category' => '食品', 'rank' => 100]));
+        Category::create((['category' => '喜鴻', 'rank' => 100]));
         Category::create((['category' => '清潔用品', 'rank' => 100]));
 
         $re = Product::createProduct('測試商品', 1, 1, 'p', '測試', null, '好吃商品', null, null, [1, 2], 1);
