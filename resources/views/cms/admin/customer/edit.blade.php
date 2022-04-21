@@ -41,6 +41,19 @@
                     <input class="form-control @error('name') is-invalid @enderror" name="name"
                         value="{{ old('name', $data->name ?? '') }}" />
                 </x-b-form-group>
+                <x-b-form-group name="sex" title="性別">
+                    <div class="px-1">
+                        @foreach (\App\Enums\Customer\Sex::asSelectArray() as $key => $value)
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    {{$value}} {{$key}}
+                                    <input class="form-check-input @error('sex') is-invalid @enderror" value="{{ $key }}"
+                                           name="sex" type="radio" @if ($key === $data->sex) checked @endif>
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                </x-b-form-group>
                 <x-b-form-group name="email" title="帳號" required="true">
                     @if ($method === 'create')
                         <input class="form-control @error('email') is-invalid @enderror" name="email"
@@ -103,6 +116,20 @@
                 <x-b-form-group name="birthday" title="生日">
                     <input class="form-control @error('birthday') is-invalid @enderror" type="date" name="birthday"
                         value="{{ old('birthday', $data->birthday ?? '') }}" />
+                </x-b-form-group>
+
+                <x-b-form-group name="newsletter" title="訂閱電子報">
+                    <div class="px-1">
+                        @foreach (\App\Enums\Customer\Newsletter::asSelectArray() as $key => $value)
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    {{$value}} {{$key}}
+                                    <input class="form-check-input @error('newsletter') is-invalid @enderror" value="{{ $key }}"
+                                           name="newsletter" type="radio" @if ($key === $data->newsletter) checked @endif>
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
                 </x-b-form-group>
 
                 <x-b-form-group name="bind_customer_id" title="綁定消費者帳號">

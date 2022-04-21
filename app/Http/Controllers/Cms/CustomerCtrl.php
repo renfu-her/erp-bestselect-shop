@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Cms;
 
+use App\Enums\Customer\Newsletter;
 use App\Http\Controllers\Controller;
 use App\Models\Addr;
 use App\Models\Customer;
@@ -9,6 +10,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class CustomerCtrl extends Controller
@@ -165,8 +167,8 @@ class CustomerCtrl extends Controller
      */
     public function update(Request $request, $id)
     {
-        $uData = $request->only('email', 'name'
-            , 'phone', 'birthday', 'acount_status', 'bind_customer_id'
+        $uData = $request->only('email', 'name', 'sex'
+            , 'phone', 'birthday', 'acount_status', 'newsletter', 'bind_customer_id'
             , 'address', 'city_id', 'region_id', 'addr'
         );
 
@@ -177,12 +179,14 @@ class CustomerCtrl extends Controller
 
         $updateArr = [
             'name' => $uData['name'],
+            'sex' => $uData['sex'] ?? null,
             'phone' => $uData['phone'],
             'birthday' => $uData['birthday'] ?? null,
             'address' => $address,
             'city_id' => is_numeric($uData['city_id']) ? $uData['city_id'] : null,
             'region_id' => is_numeric($uData['region_id']) ? $uData['region_id'] : null,
             'addr' => $uData['addr'] ?? null,
+            'newsletter' => $uData['newsletter'] ?? Newsletter::subscribe()->value,
             'bind_customer_id' => $uData['bind_customer_id'] ?? null,
         ];
         $password = $request->input('password');
@@ -193,7 +197,11 @@ class CustomerCtrl extends Controller
         if (0 == $acount_status || 1 == $acount_status) {
             $updateArr['acount_status'] = $acount_status;
         }
-        Customer::where('id', $id)->update($updateArr);
+        DB::transaction(function () use ($id, $updateArr
+        ) {
+            Customer::where('id', $id)->update($updateArr);
+            return ['success' => 1, 'error_msg' => "", 'id' => $id];
+        });
 
         wToast('檔案更新完成');
         return redirect(Route('cms.customer.edit', ['id' => $id]));

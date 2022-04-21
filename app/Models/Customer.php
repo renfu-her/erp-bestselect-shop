@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\Customer\Newsletter;
+use App\Enums\Customer\Sex;
 use App\Notifications\CustomerPasswordReset;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -25,8 +27,8 @@ class Customer extends Authenticatable
     protected $guarded = ['email'];
     protected $fillable = [
         'email',
-        'email_verified_at',
         'name',
+        'sex',
         'phone',
         'address',
         'city_id',
@@ -34,6 +36,7 @@ class Customer extends Authenticatable
         'addr',
         'birthday',
         'acount_status',
+        'newsletter',
         'bind_customer_id',
         'password',
     ];
@@ -44,6 +47,7 @@ class Customer extends Authenticatable
      * @var array
      */
     protected $hidden = [
+        'email_verified_at',
         'password',
         'remember_token',
         'api_token',
@@ -134,6 +138,18 @@ class Customer extends Authenticatable
                 , 'city_id'
                 , 'region_id'
                 , 'addr'
+                , 'sex'
+                , DB::raw('(case
+                        when sex = '. Sex::female()->value .' then "'. Sex::getDescription(Sex::female()->value) .'"
+                        when sex = '. Sex::male()->value .' then "'. Sex::getDescription(Sex::male()->value) .'"
+                        else "'. '' .'"
+                    end) as sex_title') //性別
+                , 'newsletter'
+                , DB::raw('(case
+                        when newsletter = '. Newsletter::un_subscribe()->value .' then "'. Newsletter::getDescription(Newsletter::un_subscribe()->value) .'"
+                        when newsletter = '. Newsletter::subscribe()->value .' then "'. Newsletter::getDescription(Newsletter::subscribe()->value) .'"
+                        else "'. '' .'"
+                    end) as newsletter_title') //訂閱電子報
                 , 'acount_status'
                 , 'bind_customer_id'
                 , 'password'

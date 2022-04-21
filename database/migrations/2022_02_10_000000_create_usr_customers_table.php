@@ -15,11 +15,11 @@ class CreateUsrCustomersTable extends Migration
     {
         Schema::create('usr_customers', function (Blueprint $table) {
             $table->id()->comment('消費者ID');
-            $table->string('email')->unique()->comment('email');
+            $table->string('email',100)->unique()->comment('email');
             $table->timestamp('email_verified_at')->nullable()->comment('email驗證');
-            $table->string('name')->nullable()->comment('姓名');
+            $table->string('name',100)->nullable()->comment('姓名');
 
-            $table->string('phone')->nullable()->comment('手機');
+            $table->string('phone',20)->nullable()->comment('手機');
             $table->string('address')->nullable()->comment('詳細地址');
             $table->integer('city_id')->nullable()->comment('城市ID');
             $table->integer('region_id')->nullable()->comment('區域ID');
@@ -34,7 +34,7 @@ class CreateUsrCustomersTable extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
-        
+
     }
 
     /**
