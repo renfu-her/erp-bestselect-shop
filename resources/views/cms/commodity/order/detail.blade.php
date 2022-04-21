@@ -10,6 +10,42 @@
         <a href="{{ Route('cms.ar.' . $route, ['id'=>$order->id]) }}" class="btn btn-danger" role="button">{{ !$receivedId ? '新增' : '' }}收款單（暫放）</a>
     @endif
 
+    @php
+        include (app_path() . '/Helpers/auth_mpi_mac.php');
+
+        $str_mer_id = '77725';
+        $str_merchant_id = '8220300000043';
+        $str_terminal_id = '90300043';
+
+        $str_url = 'https://testepos.ctbcbank.com/mauth/SSLAuthUI.jsp';
+
+        $arr_data = [
+            'MerchantID'=>$str_merchant_id,
+            'TerminalID'=>$str_terminal_id,
+            'lidm'=>$order->sn,
+            'purchAmt'=>$order->total_price,
+            'txType'=>'0',
+            'Option'=>0,
+            'Key'=>'LPCvSznVxZ4CFjnWbtg4mUWo',
+            'MerchantName'=>mb_convert_encoding($order->sale_title, 'BIG5', ['BIG5', 'UTF-8']),
+            'AuthResURL'=>route('api.web.order.credit_card_checkout'),
+            'OrderDetail'=>mb_convert_encoding($order->note, 'BIG5', ['BIG5', 'UTF-8']),
+            'AutoCap'=>'1',
+            'Customize'=>' ',
+            'debug'=>'0'
+        ];
+
+        $str_mac_string = auth_in_mac($arr_data['MerchantID'], $arr_data['TerminalID'], $arr_data['lidm'], $arr_data['purchAmt'], $arr_data['txType'], $arr_data['Option'], $arr_data['Key'], $arr_data['MerchantName'], $arr_data['AuthResURL'], $arr_data['OrderDetail'], $arr_data['AutoCap'], $arr_data['Customize'], $arr_data['debug']);
+
+        $str_url_enc = get_auth_urlenc($arr_data['MerchantID'], $arr_data['TerminalID'], $arr_data['lidm'], $arr_data['purchAmt'], $arr_data['txType'], $arr_data['Option'], $arr_data['Key'], $arr_data['MerchantName'], $arr_data['AuthResURL'], $arr_data['OrderDetail'], $arr_data['AutoCap'], $arr_data['Customize'], $str_mac_string, $arr_data['debug']);
+    @endphp
+    <form action="{{$str_url}}" method="POST" style="display: inline-block;">
+        <input type="hidden" name="MACString" value="{{ $str_mac_string }}">
+        <input type="hidden" name="merID" value="{{ $str_mer_id }}">
+        <input type="hidden" name="URLEnc" value="{{ $str_url_enc }}">
+        <button type="submit" class="btn btn-primary">信用卡結帳付款</button>
+    </form>
+
     <form id="form1" method="post" action="">
         @method('POST')
         @csrf
