@@ -49,9 +49,11 @@ class CyberbizImportSeeder extends Seeder
                 [1]);
             $productId = $re['id'];
 
-            //把商品的SKU從購物網2.0預設改成Cyberbiz的product_id
+                //把商品的SKU從購物網2.0預設改成Cyberbiz的product sku
             Product::where('id', $productId)
-                ->update(['sku' => $productArray['id']]);
+                    ->update([
+                        'sku' => explode('-', $productArray['variants'][0]['sku'])[0]
+                    ]);
 
             foreach ($productArray['options'] as $specIndex => $specName) {
                 $specId = ProductSpec::where('title', $specName)->get()
