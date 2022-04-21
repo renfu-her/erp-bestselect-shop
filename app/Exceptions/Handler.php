@@ -4,7 +4,6 @@ namespace App\Exceptions;
 
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -56,6 +55,9 @@ class Handler extends ExceptionHandler
         }
 
         switch ($guard) {
+            case 'sanctum':
+                return response()->json(['status' => 'T01', 'message' => $exception->getMessage()], 401);
+                break;
             default:
                 return redirect(Route('cms.login'));
         }
