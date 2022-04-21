@@ -273,7 +273,7 @@ class PurchaseItem extends Model
             )
             ->selectRaw('DATE_FORMAT(purchase.created_at,"%Y-%m-%d") as created_at')
             ->selectRaw('DATE_FORMAT(purchase.scheduled_date,"%Y-%m-%d") as scheduled_date')
-            ->selectRaw('FORMAT(items.price / items.num, 2) as single_price')
+            ->selectRaw('convert(items.price / items.num, decimal) as single_price')
             ->selectRaw('(items.num - items.arrived_num) as error_num')
             ->selectRaw('(case
                     when '. $query_not_yet. ' then "'. InboundStatus::getDescription(InboundStatus::not_yet()->value). '"
