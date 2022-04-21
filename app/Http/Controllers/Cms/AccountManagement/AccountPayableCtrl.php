@@ -153,7 +153,6 @@ class AccountPayableCtrl extends Controller
             }
         }
         $tw_price = $paid_paying_order_data->sum('price') - $payable_data->sum('tw_price');
-        if(request('isFinalPay') === '1') $tw_price += $logistics->logistics_price;
 
         $firstGrades = GeneralLedger::getAllFirstGrade();
         $totalGrades = array();
