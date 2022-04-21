@@ -41,6 +41,15 @@
                         @endforeach
                     </select>
                 </div>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">物流型態</label>
+                    <select class="form-select -select2" name="ship_category" aria-label="物流型態" data-placeholder="物流型態">
+                        @foreach ($shipmentCategory as $key => $value)
+                            <option value="{{ $value->code }}"
+                                    @if ($value->code == old('ship_category', $searchParam['ship_category'] ?? '')) selected @endif>{{ $value->category }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
                 <div class="col-12 mb-3">
                     <label class="form-label">訂單起訖日期</label>
@@ -118,6 +127,7 @@
                         <th scope="col">單據編號</th>
                         <th scope="col">寄件倉</th>
                         <th scope="col">物態</th>
+                        <th scope="col">型態</th>
                         <th scope="col">物流分類</th>
                         <th scope="col">寄件人姓名</th>
                         <th scope="col">收件人姓名</th>
@@ -133,6 +143,7 @@
                             <td>{{ $data->event_sn }}</td>
                             <td>{{ $data->depot_name }}</td>
                             <td>{{ $data->logistic_status }}</td>
+                            <td>{{ $data->ship_category_name }}</td>
                             <td>{{ $data->method }}</td>
                             <td>{{ $data->rec_name }}</td>
                             <td>{{ $data->ord_name }}</td>

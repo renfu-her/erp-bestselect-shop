@@ -143,6 +143,8 @@ class Delivery extends Model
             ->select('order.id as order_id'
                 , 'order.created_at as order_created_at'
                 , 'ord_sub_orders.id as sub_order_id'
+                , 'ord_sub_orders.ship_category as ship_category'
+                , 'ord_sub_orders.ship_category_name as ship_category_name'
             );
         Order::orderAddress($query_order, 'order', 'order_id');
 
@@ -208,6 +210,9 @@ class Delivery extends Model
         }
         if (isset($param['logistic_status_code']) && 0 < count($param['logistic_status_code'])) {
             $query->whereIn('delivery.logistic_status_code', $param['logistic_status_code']);
+        }
+        if (isset($param['ship_category'])) {
+            $query->where('query_order.ship_category', '=', $param['ship_category']);
         }
         if (isset($param['order_sdate']) && isset($param['order_edate'])) {
             $order_sdate = date('Y-m-d 00:00:00', strtotime($param['order_sdate']));

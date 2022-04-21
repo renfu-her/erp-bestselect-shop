@@ -9,6 +9,7 @@ use App\Models\Consignment;
 use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\ReceiveDepot;
+use App\Models\ShipmentCategory;
 use App\Models\SubOrders;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -24,6 +25,7 @@ class DeliveryCtrl extends Controller
         $cond['receive_depot_id'] = Arr::get($query, 'receive_depot_id', []);
         $cond['ship_method'] = Arr::get($query, 'ship_method', null);
         $cond['logistic_status_code'] = Arr::get($query, 'logistic_status_code', null);
+        $cond['ship_category'] = Arr::get($query, 'ship_category', null);
 
         $cond['order_sdate'] = Arr::get($query, 'order_sdate', null);
         $cond['order_edate'] = Arr::get($query, 'order_edate', null);
@@ -37,6 +39,7 @@ class DeliveryCtrl extends Controller
         return view('cms.commodity.delivery.list', [
             'dataList' => $delivery,
             'depotList' => Depot::all(),
+            'shipmentCategory' => ShipmentCategory::all(),
             'logisticStatus' => LogisticStatus::asArray(),
             'searchParam' => $cond,
             'data_per_page' => $cond['data_per_page']]);
