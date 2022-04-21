@@ -46,7 +46,7 @@
                         @foreach (\App\Enums\Customer\Sex::asSelectArray() as $key => $value)
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    {{$value}} {{$key}}
+                                    {{$value}}
                                     <input class="form-check-input @error('sex') is-invalid @enderror" value="{{ $key }}"
                                            name="sex" type="radio" @if ($key === $data->sex) checked @endif>
                                 </label>
@@ -123,7 +123,7 @@
                         @foreach (\App\Enums\Customer\Newsletter::asSelectArray() as $key => $value)
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    {{$value}} {{$key}}
+                                    {{$value}}
                                     <input class="form-check-input @error('newsletter') is-invalid @enderror" value="{{ $key }}"
                                            name="newsletter" type="radio" @if ($key === $data->newsletter) checked @endif>
                                 </label>
