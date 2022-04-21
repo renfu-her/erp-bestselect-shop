@@ -34,6 +34,7 @@ Route::get('/tokens/create', function (Request $request) {
     return ['token' => $token->plainTextToken];
 });
 
+Route::post('customer-register', [CustomerCtrl::class, 'register']);
 Route::post('customer-login', [CustomerCtrl::class, 'login']);
 Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => ['auth:sanctum', 'identity.api.customer']], function () {
     Route::get('/tokens/delete-all', function (Request $request) {

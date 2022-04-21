@@ -73,6 +73,7 @@ class Customer extends Authenticatable
     public static function createCustomer($name, $email, $password
         , $phone = null, $birthday = null, $acount_status = 0
         , $address = null, $city_id = null, $region_id = null, $addr = null
+        , $newsletter = null
     ) {
         $arr = [
             'name' => $name,
@@ -86,6 +87,7 @@ class Customer extends Authenticatable
             'region_id' => $region_id,
             'addr' => $addr,
             'api_token' => Str::random(80),
+            'newsletter' => $newsletter ?? Newsletter::subscribe()->value,
         ];
         if (0 == $acount_status || 1 == $acount_status) {
             $arr['acount_status'] = $acount_status;
