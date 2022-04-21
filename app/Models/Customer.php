@@ -37,7 +37,6 @@ class Customer extends Authenticatable
         'birthday',
         'acount_status',
         'newsletter',
-        'bind_customer_id',
         'password',
     ];
 
@@ -63,6 +62,7 @@ class Customer extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'birthday'  => 'datetime:Y-m-d',
     ];
 
     public function sendPasswordResetNotification($token)
@@ -71,7 +71,7 @@ class Customer extends Authenticatable
     }
 
     public static function createCustomer($name, $email, $password
-        , $phone = null, $birthday = null, $acount_status = 0, $bind_customer_id = null
+        , $phone = null, $birthday = null, $acount_status = 0
         , $address = null, $city_id = null, $region_id = null, $addr = null
     ) {
         $arr = [
@@ -85,7 +85,6 @@ class Customer extends Authenticatable
             'city_id' => $city_id,
             'region_id' => $region_id,
             'addr' => $addr,
-            'bind_customer_id' => $bind_customer_id,
             'api_token' => Str::random(80),
         ];
         if (0 == $acount_status || 1 == $acount_status) {
@@ -151,7 +150,6 @@ class Customer extends Authenticatable
                         else "'. '' .'"
                     end) as newsletter_title') //訂閱電子報
                 , 'acount_status'
-                , 'bind_customer_id'
                 , 'password'
                 , 'api_token'
                 , 'remember_token')

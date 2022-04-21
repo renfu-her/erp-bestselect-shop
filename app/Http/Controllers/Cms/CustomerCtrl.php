@@ -82,7 +82,7 @@ class CustomerCtrl extends Controller
         ]);
 
         $uData = $request->only('email', 'name', 'password'
-            , 'phone', 'birthday', 'acount_status', 'bind_customer_id'
+            , 'phone', 'birthday', 'acount_status'
             , 'address', 'city_id', 'region_id', 'addr'
         );
 
@@ -97,7 +97,6 @@ class CustomerCtrl extends Controller
             , $uData['phone'] ?? null
             , $uData['birthday'] ?? null
             , $uData['acount_status'] ?? 0
-            , $uData['bind_customer_id'] ?? null
             , $address
             , is_numeric($uData['city_id']) ? $uData['city_id'] : null
             , is_numeric($uData['region_id']) ? $uData['region_id'] : null
@@ -168,7 +167,7 @@ class CustomerCtrl extends Controller
     public function update(Request $request, $id)
     {
         $uData = $request->only('email', 'name', 'sex'
-            , 'phone', 'birthday', 'acount_status', 'newsletter', 'bind_customer_id'
+            , 'phone', 'birthday', 'acount_status', 'newsletter'
             , 'address', 'city_id', 'region_id', 'addr'
         );
 
@@ -187,7 +186,6 @@ class CustomerCtrl extends Controller
             'region_id' => is_numeric($uData['region_id']) ? $uData['region_id'] : null,
             'addr' => $uData['addr'] ?? null,
             'newsletter' => $uData['newsletter'] ?? Newsletter::subscribe()->value,
-            'bind_customer_id' => $uData['bind_customer_id'] ?? null,
         ];
         $password = $request->input('password');
         if ($password) {
