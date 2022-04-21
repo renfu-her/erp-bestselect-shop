@@ -303,7 +303,7 @@ class OrderCtrl extends Controller
             'order_id'=>$id,
             'deleted_at'=>null,
         ]);
-        if ($received_order_collection->sum('price') == DB::table('acc_received')->whereIn('received_order_id', $received_order_collection->pluck('id')->toArray())->sum('tw_price')) {
+        if (count($received_order_collection->get()) > 0 && $received_order_collection->sum('price') == DB::table('acc_received')->whereIn('received_order_id', $received_order_collection->pluck('id')->toArray())->sum('tw_price')) {
             $receivable = true;
         }
 
