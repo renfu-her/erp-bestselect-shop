@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\Globals\ApiStatusMessage;
+use App\Enums\Globals\ResponseParam;
 use App\Http\Controllers\Api\CustomerCtrl;
 use App\Http\Controllers\Api\Web\NaviCtrl;
 use App\Models\User;
@@ -32,23 +34,25 @@ Route::get('/tokens/create', function (Request $request) {
     return ['token' => $token->plainTextToken];
 });
 
+Route::post('customer-login', [CustomerCtrl::class, 'login']);
 Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => ['auth:sanctum', 'identity.api.customer']], function () {
     Route::get('/tokens/delete-all', function (Request $request) {
-        // $token = $request->user()->createToken($request->token_name);
-        // dd($request->token_name);
         $request->user()->tokens()->delete();
-        return 'ok';
+        return response()->json([
+            ResponseParam::status()->key => ApiStatusMessage::Succeed,
+            ResponseParam::msg()->key =>  ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
+        ]);
     });
 
     Route::get('/tokens/delete-current', function (Request $request) {
-        // $token = $request->user()->createToken($request->token_name);
-        // dd($request->token_name);
         $request->user()->currentAccessToken()->delete();
-        return 'ok';
+        return response()->json([
+            ResponseParam::status()->key => ApiStatusMessage::Succeed,
+            ResponseParam::msg()->key =>  ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
+        ]);
     });
 
     Route::get('/user', function (Request $request) {
-
         return $request->user();
     });
 });
@@ -75,4 +79,3 @@ Route::group(['prefix' => 'web', 'as' => 'web.'], function () {
 
 require base_path('routes/api/Addr.php');
 
-Route::post('customer-login', [CustomerCtrl::class, 'login']);
