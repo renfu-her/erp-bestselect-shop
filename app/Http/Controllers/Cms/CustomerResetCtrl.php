@@ -13,11 +13,13 @@ class CustomerResetCtrl extends Controller
 {
     protected static $customers = 'customers';
 
+    //消費者重設密碼
     public function forgot_password(Request $request)
     {
         return view('auth.forgot-password');
     }
 
+    //發送郵件
     public function send_reset_pw_mail(Request $request)
     {
         $request->validate(['email' => 'required|email']);
@@ -32,6 +34,7 @@ class CustomerResetCtrl extends Controller
             : back()->withErrors(['email' => __($status)]);
     }
 
+    //重設密碼頁
     public function reset_password(Request $request, $token = 'token=')
     {
         $arr = explode("=", $token);
@@ -65,4 +68,12 @@ class CustomerResetCtrl extends Controller
             : back()->withErrors(['email' => [__($status)]]);
     }
 
+    //重設結果頁
+    public function login_reset_status(Request $request)
+    {
+        return view('cms.customerLoginResetStatus', [
+            'status' => session('status'),
+            'formAction' => 'https://dev-shopp.bestselection.com.tw/',
+        ]);
+    }
 }
