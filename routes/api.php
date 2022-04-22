@@ -37,25 +37,10 @@ Route::get('/tokens/create', function (Request $request) {
 Route::post('customer-register', [CustomerCtrl::class, 'register']);
 Route::post('customer-login', [CustomerCtrl::class, 'login']);
 Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => ['auth:sanctum', 'identity.api.customer']], function () {
-    Route::get('/tokens/delete-all', function (Request $request) {
-        $request->user()->tokens()->delete();
-        return response()->json([
-            ResponseParam::status()->key => ApiStatusMessage::Succeed,
-            ResponseParam::msg()->key =>  ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
-        ]);
-    });
+    Route::post('/user', [CustomerCtrl::class, 'customerInfo'])->name('customer_info');
 
-    Route::get('/tokens/delete-current', function (Request $request) {
-        $request->user()->currentAccessToken()->delete();
-        return response()->json([
-            ResponseParam::status()->key => ApiStatusMessage::Succeed,
-            ResponseParam::msg()->key =>  ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
-        ]);
-    });
-
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
+    Route::get('/tokens/delete-all', [CustomerCtrl::class, 'tokensDeleteAll']);
+    Route::get('/tokens/delete-current', [CustomerCtrl::class, 'tokensDeleteCurrent']);
 });
 
 Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:cms-api'], function () {

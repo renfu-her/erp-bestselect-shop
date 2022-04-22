@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Validator;
 
 class CustomerCtrl extends Controller
 {
+    //註冊
     function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -55,6 +56,7 @@ class CustomerCtrl extends Controller
         ]);
     }
 
+    //登入
     function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -87,6 +89,32 @@ class CustomerCtrl extends Controller
             ResponseParam::status()->key => ApiStatusMessage::Succeed,
             ResponseParam::msg()->key => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
             ResponseParam::data()->key =>  $customer,
+        ]);
+    }
+
+    //客戶資訊
+    function customerInfo(Request $request)
+    {
+        return $request->user();
+    }
+
+    //撤销所有令牌
+    function tokensDeleteAll(Request $request)
+    {
+        $request->user()->tokens()->delete();
+        return response()->json([
+            ResponseParam::status()->key => ApiStatusMessage::Succeed,
+            ResponseParam::msg()->key =>  ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
+        ]);
+    }
+
+    //撤销當前令牌
+    function tokensDeleteCurrent(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+        return response()->json([
+            ResponseParam::status()->key => ApiStatusMessage::Succeed,
+            ResponseParam::msg()->key =>  ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
         ]);
     }
 }
