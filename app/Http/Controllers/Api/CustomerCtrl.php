@@ -60,25 +60,25 @@ class CustomerCtrl extends Controller
     function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'account' => 'required',
+            'email' => 'required',
             'password' => 'required',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'status' => 'E01',
-                'message' => $validator->messages()
+                ResponseParam::status()->key => 'E01',
+                ResponseParam::msg()->key => $validator->messages()
             ]);
         }
 
-        $data = $request->only('account', 'password');
+        $data = $request->only('email', 'password');
 
-        $customer = Customer::where('email', $data['account'])->get()->first();
+        $customer = Customer::where('email', $data['email'])->get()->first();
 
         if (! $customer || ! Hash::check($data['password'], $customer->password)) {
             return response()->json([
-                'status' => 'E02',
-                'message' => '帳號密碼錯誤'
+                ResponseParam::status() => 'E02',
+                ResponseParam::msg()->key => '帳號密碼錯誤'
             ]);
         }
 
