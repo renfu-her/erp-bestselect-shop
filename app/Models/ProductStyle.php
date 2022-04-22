@@ -41,7 +41,6 @@ class ProductStyle extends Model
      *          $item_ids只需傳入[1, 3],[1, 4],[2, 3], [2,4]
      * @param int $is_active 上下架
      *
-     * @return void
      */
     public static function createStyle($product_id, $item_ids, $is_active = 1)
     {
@@ -92,12 +91,12 @@ class ProductStyle extends Model
 
         $channelSub = DB::table('prd_sale_channels as sale_channel')
             ->leftJoin('prd_salechannel_style_price as price', 'sale_channel.id', '=', 'price.sale_channel_id')
-            ->select('price.style_id') 
+            ->select('price.style_id')
             ->selectRaw('IF(price.dealer_price,price.dealer_price,0) as dealer_price')
             ->selectRaw('IF(price.origin_price,price.origin_price,0) as origin_price')
             ->selectRaw('IF(price.price,price.price,0) as price')
             ->selectRaw('IF(price.bonus,price.bonus,0) as bonus')
-            ->selectRaw('IF(price.dividend,price.dividend,0) as dividend')   
+            ->selectRaw('IF(price.dividend,price.dividend,0) as dividend')
             ->where('is_master', '1');
 
         $re = DB::table('prd_product_styles as style')
