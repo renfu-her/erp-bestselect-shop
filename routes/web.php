@@ -73,5 +73,5 @@ Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => 'gues
     Route::get('/reset-password/{token?}', [CustomerResetCtrl::class, 'resetPassword'])->name('password.reset');
     Route::post('/reset-password', [CustomerResetCtrl::class, 'resetPasswordStore'])->name('password.update');
 
-    Route::post('/login-reset-status', [CustomerResetCtrl::class, 'loginResetStatus'])->name('login-reset-status');
+    Route::get('/login-reset-status', [CustomerResetCtrl::class, 'loginResetStatus'])->name('login-reset-status');
 });
