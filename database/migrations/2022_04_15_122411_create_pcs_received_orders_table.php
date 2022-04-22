@@ -24,8 +24,8 @@ class CreatePcsReceivedOrdersTable extends Migration
             $table->decimal('rate')->nullable()->default(null)->comment('訂單當時的匯率,暫留欄位');
             $table->unsignedBigInteger('logistics_grade_id')->comment('物流會計科目id，對應到acc_all_grade的primary key');
             $table->unsignedBigInteger('product_grade_id')->comment('商品會計科目id，對應到acc_all_grade的primary key');
-            $table->dateTime('expecte_receipt_date')->nullable()->comment('期望收款日期');
-            $table->string('receipt_date')->nullable()->comment('收款日期');
+            $table->dateTime('receipt_date')->nullable()->comment('入帳日期');
+            $table->string('invoice_number')->nullable()->comment('發票號碼');
             $table->string('summary')->nullable()->comment('摘要');
             $table->string('memo')->nullable()->comment('備註');
             $table->timestamps();
