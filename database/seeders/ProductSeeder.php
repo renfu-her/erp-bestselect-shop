@@ -24,7 +24,8 @@ class ProductSeeder extends Seeder
             ['title' => '尺寸'],
             ['title' => '容量'],
             ['title' => '顏色'],
-            ['title' => '品項']
+            ['title' => '品項'],
+            ['title' => '規格'],
         ]);
 
         Category::create((['category' => '喜鴻', 'rank' => 100]));

@@ -68,25 +68,31 @@ class CyberbizImportSeeder extends Seeder
                     ->update(['desc' => $productArray['body_html']]);
 
                 $specCount = count($productArray['options']);
-                foreach ($productArray['options'] as $specIndex => $specName) {
-                    $specId = ProductSpec::where('title', $specName)->get()
-                        ->first()->id;
-                    Product::setProductSpec($productId, $specId);
-                }
 
                 //開始建立「款式」商品
                 foreach ($productArray['variants'] as $variant) {
                     //只建立「一般商品」，不建立「組合包」
                     if ($variant['sku'][0] === 'P') {
                         $optionArray = array();
-                        for ($index = 1; $index <= $specCount; $index++) {
-                            $optionArray[] = $variant['option'.$index];
-                        }
-                        foreach ($productArray['options'] as $specIndex => $specName) {
-                            $specId = ProductSpec::where('title', $specName)->get()
+                        //只有單一規格款式，塞入'規格'、'單一款式'
+                        if (count($productArray['options']) === 0) {
+                            $optionArray = ['單一款式'];
+                            $specId = ProductSpec::where('title', '規格')->get()
                                 ->first()->id;
-                            $optionData = (count($optionArray) === 1) ? $optionArray[0] : $optionArray;
-                            ProductSpecItem::createItems($productId, $specId, $optionData);
+                            Product::setProductSpec($productId, $specId);
+                            ProductSpecItem::createItems($productId, $specId, '單一款式');
+                        } else {
+                            for ($index = 1; $index <= $specCount; $index++) {
+                                $optionArray[] = $variant['option'.$index];
+                            }
+                            foreach ($productArray['options'] as $specIndex => $specName) {
+                                $specId = ProductSpec::where('title', $specName)
+                                    ->get()
+                                    ->first()->id;
+                                Product::setProductSpec($productId, $specId);
+                                $optionData = (count($optionArray) === 1) ? $optionArray[0] : $optionArray;
+                                ProductSpecItem::createItems($productId, $specId, $optionData);
+                            }
                         }
                         $item_ids = DB::table('prd_spec_items')
                             ->where(['product_id' => $productId,])
