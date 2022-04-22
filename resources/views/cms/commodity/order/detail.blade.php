@@ -9,7 +9,7 @@
     @if(!$receivable)
         <a href="{{ Route('cms.ar.' . $route, ['id'=>$order->id]) }}" class="btn btn-danger" role="button">{{ !$receivedId ? '新增' : '' }}收款單（暫放）</a>
     @endif
-
+{{--
     @php
         include (app_path() . '/Helpers/auth_mpi_mac.php');
 
@@ -43,9 +43,9 @@
         <input type="hidden" name="MACString" value="{{ $str_mac_string }}">
         <input type="hidden" name="merID" value="{{ $str_mer_id }}">
         <input type="hidden" name="URLEnc" value="{{ $str_url_enc }}">
-        <button type="submit" class="btn btn-primary">信用卡結帳付款</button>
+        <button type="submit" class="btn btn-primary">線上刷卡連結</button>
     </form>
-
+--}}
     <form id="form1" method="post" action="">
         @method('POST')
         @csrf
@@ -82,8 +82,11 @@
                 <div class="col-sm-5">
                     <dt>收款單號</dt>
                     <dd>
-                        <span>(待處理)</span>
-                        <span>(待處理)</span>
+                        @if($receivable)
+                        <a href="{{ route('cms.ar.receipt', ['id'=>$order->id]) }}" class="-text">{{ $received_order_data ? $received_order_data->sn : '' }}</a>
+                        @else
+                        <span>尚未完成收款</span>
+                        @endif
                     </dd>
                 </div>
             </dl>
