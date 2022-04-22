@@ -34,8 +34,12 @@ Route::get('/tokens/create', function (Request $request) {
     return ['token' => $token->plainTextToken];
 });
 
-Route::post('customer-register', [CustomerCtrl::class, 'register']);
-Route::post('customer-login', [CustomerCtrl::class, 'login']);
+
+Route::group(['prefix' => 'customer', 'as' => 'customer.'], function () {
+    Route::post('register', [CustomerCtrl::class, 'register']);
+    Route::post('login', [CustomerCtrl::class, 'login']);
+});
+
 Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => ['auth:sanctum', 'identity.api.customer']], function () {
     Route::get('/user', [CustomerCtrl::class, 'customerInfo'])->name('customer_info');
 
