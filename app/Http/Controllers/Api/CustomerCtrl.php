@@ -83,7 +83,8 @@ class CustomerCtrl extends Controller
             ]);
         }
 
-        $token = $customer->createToken($request->device_name ?? $customer->name);
+        $scope = []; //設定令牌能力
+        $token = $customer->createToken($request->device_name ?? $customer->name, $scope);
         $customer['token'] = $token->plainTextToken;
 
         return response()->json([
