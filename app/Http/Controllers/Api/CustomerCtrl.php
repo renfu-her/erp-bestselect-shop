@@ -33,7 +33,7 @@ class CustomerCtrl extends Controller
             return response()->json($re);
         }
 
-        $uData = $request->only('email', 'name', 'phone', 'password', 'birthday', 'newsletter');
+        $uData = $request->only('email', 'name', 'phone', 'password', 'birthday', 'sex', 'newsletter');
 
         $id = Customer::createCustomer(
             $uData['name']
@@ -41,6 +41,7 @@ class CustomerCtrl extends Controller
             , $uData['password']
             , $uData['phone'] ?? null
             , $uData['birthday'] ?? null
+            , $uData['sex'] ?? null
             , 0
             , null
             , null

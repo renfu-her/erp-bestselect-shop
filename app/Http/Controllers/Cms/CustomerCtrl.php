@@ -82,7 +82,7 @@ class CustomerCtrl extends Controller
         ]);
 
         $uData = $request->only('email', 'name', 'password'
-            , 'phone', 'birthday', 'acount_status'
+            , 'phone', 'birthday', 'sex', 'acount_status'
             , 'address', 'city_id', 'region_id', 'addr'
         );
 
@@ -96,6 +96,7 @@ class CustomerCtrl extends Controller
             , $uData['password']
             , $uData['phone'] ?? null
             , $uData['birthday'] ?? null
+            , $uData['sex'] ?? null
             , $uData['acount_status'] ?? 0
             , $address
             , is_numeric($uData['city_id']) ? $uData['city_id'] : null

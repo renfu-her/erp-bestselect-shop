@@ -71,7 +71,7 @@ class Customer extends Authenticatable
     }
 
     public static function createCustomer($name, $email, $password
-        , $phone = null, $birthday = null, $acount_status = 0
+        , $phone = null, $birthday = null, $sex = null, $acount_status = 0
         , $address = null, $city_id = null, $region_id = null, $addr = null
         , $newsletter = null
     ) {
@@ -80,6 +80,7 @@ class Customer extends Authenticatable
             'email' => $email,
             'phone' => $phone,
             'birthday' => $birthday,
+            'sex' => $sex,
             'acount_status' => $acount_status,
             'password' => Hash::make($password),
             'address' => $address,
