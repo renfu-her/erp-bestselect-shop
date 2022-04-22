@@ -43,8 +43,8 @@ Route::group(['prefix' => 'customer', 'as' => 'customer.'], function () {
 Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => ['auth:sanctum', 'identity.api.customer']], function () {
     Route::get('/user', [CustomerCtrl::class, 'customerInfo'])->name('customer_info');
 
-    Route::get('/tokens/delete-all', [CustomerCtrl::class, 'tokensDeleteAll']);
-    Route::get('/tokens/delete-current', [CustomerCtrl::class, 'tokensDeleteCurrent']);
+    Route::get('/logout-all', [CustomerCtrl::class, 'tokensDeleteAll']);
+    Route::get('/logout', [CustomerCtrl::class, 'tokensDeleteCurrent']);
 });
 
 Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:cms-api'], function () {
