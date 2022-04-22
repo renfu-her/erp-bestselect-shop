@@ -52,13 +52,13 @@ class OrderCtrl extends Controller
         $payLoad = json_decode(request()->getContent(), true);
 
         $validator = Validator::make($payLoad, [
+            'email' => 'required|email',
             "orderer.name" => "required",
             "orderer.phone" => "required",
             "orderer.address" => "required",
             "orderer.city_id" => "required|numeric",
             "orderer.region_id" => "required|numeric",
-            "orderer.addr" => "required",
-            'orderer.email' => 'required|email',
+            "orderer.addr" => "required", 
             "recipient.name" => "required",
             "recipient.phone" => "required",
             "recipient.address" => "required",
@@ -83,12 +83,12 @@ class OrderCtrl extends Controller
 
         DB::beginTransaction();
 
-        $customer = Customer::where('email', $payLoad['orderer']['email'])->get()->first();
+        $customer = Customer::where('email', $payLoad['email'])->get()->first();
 
         if (!$customer) {
             $udata = [
                 'name' => $payLoad['orderer']['name'],
-                'email' => $payLoad['orderer']['email'],
+                'email' => $payLoad['email'],
                 'password' => '1234',
             ];
 
@@ -110,7 +110,7 @@ class OrderCtrl extends Controller
             'address' => $payLoad['recipient']['address'],
             'type' => UserAddrType::receiver()->value];
 
-        $re = Order::createOrder($payLoad['orderer']['email'], 1, $address, $payLoad['products']);
+        $re = Order::createOrder($payLoad['email'], 1, $address, $payLoad['products']);
 
         if ($re['success'] == '1') {
             DB::commit();
