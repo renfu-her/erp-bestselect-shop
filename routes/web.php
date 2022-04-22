@@ -67,11 +67,11 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
 
 Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => 'guest:customer'], function () {
 
-    Route::get('/forgot-password', [CustomerResetCtrl::class, 'forgot_password'])->name('password.request');
-    Route::post('/forgot-password', [CustomerResetCtrl::class, 'send_reset_pw_mail'])->name('password.email');
+    Route::get('/forgot-password', [CustomerResetCtrl::class, 'forgotPassword'])->name('password.request');
+    Route::post('/forgot-password', [CustomerResetCtrl::class, 'sendResetPwMail'])->name('password.email');
 
-    Route::get('/reset-password/{token?}', [CustomerResetCtrl::class, 'reset_password'])->name('password.reset');
-    Route::post('/reset-password', [CustomerResetCtrl::class, 'reset_password_store'])->name('password.update');
+    Route::get('/reset-password/{token?}', [CustomerResetCtrl::class, 'resetPassword'])->name('password.reset');
+    Route::post('/reset-password', [CustomerResetCtrl::class, 'resetPasswordStore'])->name('password.update');
 
-    Route::post('/login-reset-status', [CustomerResetCtrl::class, 'login_reset_status'])->name('login-reset-status');
+    Route::post('/login-reset-status', [CustomerResetCtrl::class, 'loginResetStatus'])->name('login-reset-status');
 });
