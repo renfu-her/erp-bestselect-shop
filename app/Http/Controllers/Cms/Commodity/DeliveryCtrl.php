@@ -23,9 +23,9 @@ class DeliveryCtrl extends Controller
         $cond['delivery_sn'] = Arr::get($query, 'delivery_sn', null);
         $cond['event_sn'] = Arr::get($query, 'event_sn', null);
         $cond['receive_depot_id'] = Arr::get($query, 'receive_depot_id', []);
-        $cond['ship_method'] = Arr::get($query, 'ship_method', null);
-        $cond['logistic_status_code'] = Arr::get($query, 'logistic_status_code', null);
-        $cond['ship_category'] = Arr::get($query, 'ship_category', null);
+        $cond['ship_method'] = Arr::get($query, 'ship_method', []);
+        $cond['logistic_status_code'] = Arr::get($query, 'logistic_status_code', []);
+        $cond['ship_category'] = Arr::get($query, 'ship_category', '');
 
         $cond['order_sdate'] = Arr::get($query, 'order_sdate', null);
         $cond['order_edate'] = Arr::get($query, 'order_edate', null);
@@ -34,7 +34,19 @@ class DeliveryCtrl extends Controller
 
         $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 10));
 
-        $delivery = Delivery::getList($cond)->paginate($cond['data_per_page']);
+        $delivery = null;
+        if (false == empty($cond['ship_category'])) {
+            $ship_method = $cond['ship_method'];
+            $ship_category = $cond['ship_category'];
+            if ('pickup' == $ship_category) {
+                $cond['ship_method'] = [];
+            }
+            $delivery = Delivery::getList($cond)->paginate($cond['data_per_page']);
+            $cond['ship_method'] = $ship_method;
+            $cond['ship_category'] = $ship_category;
+        } else {
+            $delivery = Delivery::getList($cond)->paginate($cond['data_per_page']);
+        }
 
         return view('cms.commodity.delivery.list', [
             'dataList' => $delivery,

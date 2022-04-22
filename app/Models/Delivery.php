@@ -211,7 +211,7 @@ class Delivery extends Model
         if (isset($param['logistic_status_code']) && 0 < count($param['logistic_status_code'])) {
             $query->whereIn('delivery.logistic_status_code', $param['logistic_status_code']);
         }
-        if (isset($param['ship_category'])) {
+        if (false == empty($param['ship_category'])) {
             $query->where('query_order.ship_category', '=', $param['ship_category']);
         }
         if (isset($param['order_sdate']) && isset($param['order_edate'])) {
