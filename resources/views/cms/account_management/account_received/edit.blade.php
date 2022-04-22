@@ -29,17 +29,18 @@
             <i class="bi bi-arrow-left"></i> 回到上一頁
         </a>
     </div>
-    <form method="post" action="{{ $formAction }}">
-        <input type="hidden" name="id[ord_orders]" value="{{ $ord_orders_id }}">
-    @csrf
+    <form method="POST" action="{{ $formAction }}">
+        @csrf
+        <input type="hidden" name="id" value="{{ $ord_orders_id }}">
         <div class="row justify-content-end mb-4">
+            <h2 class="mb-4">收款管理</h2>
             <div class="card shadow p-4 mb-4">
-                {{-- <h6>付款紀錄</h6> --}}
+                {{-- <h6>收款紀錄</h6> --}}
 
-                {{-- <div class="card-body">
+                <div class="card-body">
                     <div class="col">
                         <dl class="row mb-0">
-                            <dt>支付對象：{{ $supplier->name . ' - ' . $supplier->contact_person }}</dt>
+                            <dt>收款單明細：{{ $order_purchaser->name }}</dt>
                         </dl>
                     </div>
                 </div>
@@ -48,119 +49,75 @@
                     <table class="table table-hover table-bordered tableList mb-0">
                         <thead>
                             <tr>
-                                <th scope="col">付款單號</th>
-                                <th scope="col">採購單號</th>
-                                <th scope="col">會計科目</th>
-                                <th scope="col">摘要</th>
-                                <th scope="col">金額</th>
+                                <th scope="col">請款單號</th>
+                                <th scope="col">說明</th>
+                                <th scope="col">單價</th>
                                 <th scope="col">數量</th>
                                 <th scope="col">匯率</th>
                                 <th scope="col">幣別</th>
-                                <th scope="col">應付款項</th>
-                                <th scope="col">已付款項</th>
+                                <th scope="col">應收款項</th>
+                                <th scope="col">已收款項</th>
                             </tr>
                         </thead>
 
                         <tbody class="product_list">
-                            @if($type === 'deposit')
-                                <tr>
-                                    <td>{{ $deposit_payment_data->sn }}</td>
-                                    <td>{{ $purchase_data->purchase_sn }}</td>
-                                    <td>{{ $product_grade_name }}</td>
-                                    <td>{{ $deposit_payment_data->summary }}</td>
-                                    <td class="text-end">{{ number_format($deposit_payment_data->price, 2) }}</td>
-                                    <td class="text-end">1</td>
-                                    <td class="text-end">{{ $currency->rate }}</td>
-                                    <td>{{ $currency->name }}</td>
-                                    <td class="text-end">{{ number_format($deposit_payment_data->price) }}</td>
-                                    <td class="text-end"></td>
-                                </tr>
-                                @foreach($payable_data as $value)
-                                @if($value->payingOrder->type == 0)
-                                    <tr>
-                                        <td>{{ $deposit_payment_data->sn }}</td>
-                                        <td>{{ $purchase_data->purchase_sn }}</td>
-                                        <td>{{ $value->payable->grade->code . ' - ' . $value->payable->grade->name }}</td>
-                                        <td>{{ $value->note }}</td>
-                                        <td class="text-end">{{ number_format($value->tw_price, 2) }}</td>
-                                        <td class="text-end">1</td>
-                                        <td class="text-end">{{ $currency->rate }}</td>
-                                        <td>{{ $currency->name }}</td>
-                                        <td class="text-end"></td>
-                                        <td class="text-end">{{ number_format($value->tw_price) }}</td>
-                                    </tr>
-                                @endif
-                                @endforeach
-
-                            @elseif($type === 'final')
-                                @foreach($purchase_item_data as $value)
-                                    <tr>
-                                        <td>{{ $pay_order->sn }}</td>
-                                        <td>{{ $purchase_data->purchase_sn }}</td>
-                                        <td>{{ $product_grade_name }}</td>
-                                        <td>{{ $value->title . '（負責人：' . $value->name }}）</td>
-                                        <td class="text-end">{{ number_format($value->total_price / $value->num, 2) }}</td>
-                                        <td class="text-end">{{ $value->num }}</td>
-                                        <td class="text-end">{{ $currency->rate }}</td>
-                                        <td>{{ $currency->name }}</td>
-                                        <td class="text-end">{{ number_format($value->total_price) }}</td>
-                                        <td class="text-end"></td>
-                                    </tr>
-                                @endforeach
-                                @if($logistics_price > 0)
-                                    <tr>
-                                        <td>{{ $pay_order->sn }}</td>
-                                        <td>{{ $purchase_data->purchase_sn }}</td>
-                                        <td>{{ $logistics_grade_name }}</td>
-                                        <td>{{ '物流費用' }}</td>
-                                        <td class="text-end">{{ number_format($logistics_price, 2) }}</td>
-                                        <td class="text-end">1</td>
-                                        <td class="text-end">{{ $currency->rate }}</td>
-                                        <td>{{ $currency->name }}</td>
-                                        <td class="text-end">{{ $logistics_price }}</td>
-                                        <td class="text-end"></td>
-                                    </tr>
-                                @endif
-                                @if(!is_null($deposit_payment_data))
-                                    <tr>
-                                        <td>{{ $deposit_payment_data->sn }}</td>
-                                        <td>{{ $purchase_data->purchase_sn }}</td>
-                                        <td>{{ $product_grade_name }}</td>
-                                        <td>訂金抵扣</td>
-                                        <td class="text-end">-{{ number_format($deposit_payment_data->price, 2) }}</td>
-                                        <td class="text-end">1</td>
-                                        <td class="text-end">{{ $currency->rate }}</td>
-                                        <td>{{ $currency->name }}</td>
-                                        <td class="text-end">-{{ number_format($deposit_payment_data->price) }}</td>
-                                        <td class="text-end"></td>
-                                    </tr>
-                                @endif
-                                @foreach($payable_data as $value)
-                                @if($value->payingOrder->type == 1)
-                                <tr>
-                                    <td>{{ $pay_order->sn }}</td>
-                                    <td>{{ $purchase_data->purchase_sn }}</td>
-                                    <td>{{ $value->payable->grade->code . ' - ' . $value->payable->grade->name }}</td>
-                                    <td>{{ $value->note }}</td>
-                                    <td class="text-end">{{ number_format($value->tw_price, 2) }}</td>
-                                    <td class="text-end">1</td>
-                                    <td class="text-end">{{ $currency->rate }}</td>
-                                    <td>{{ $currency->name }}</td>
-                                    <td class="text-end"></td>
-                                    <td class="text-end">{{ number_format($value->tw_price) }}</td>
-                                </tr>
-                                @endif
-                                @endforeach
+                            @foreach($order_list_data as $value)
+                            <tr>
+                                <td>{{ $received_order_data->first()->sn }}</td>
+                                <td>{{ $value->product_title }}{{'（' . $value->del_even . ' - ' . $value->del_category_name . '）'}}{{'（' . $value->product_price . ' * ' . $value->product_qty . '）'}}</td>
+                                <td class="text-end">{{ number_format($value->product_price, 2) }}</td>
+                                <td class="text-end">{{$value->product_qty}}</td>
+                                <td class="text-end">1</td>
+                                <td>NTD</td>
+                                <td class="text-end">{{ number_format($value->product_origin_price) }}</td>
+                                <td class="text-end"></td>
+                            </tr>
+                            @endforeach
+                            @if($order_data->dlv_fee > 0)
+                            <tr>
+                                <td>{{ $received_order_data->first()->sn }}</td>
+                                <td>物流費用</td>
+                                <td class="text-end">{{ number_format($order_data->dlv_fee, 2) }}</td>
+                                <td class="text-end">1</td>
+                                <td class="text-end">1</td>
+                                <td>NTD</td>
+                                <td class="text-end">{{ number_format($order_data->dlv_fee) }}</td>
+                                <td class="text-end"></td>
+                            </tr>
                             @endif
+                            @if($order_data->discount_value > 0)
+                            <tr>
+                                <td>{{ $received_order_data->first()->sn }}</td>
+                                <td>折扣</td>
+                                <td class="text-end">-{{ number_format($order_data->discount_value, 2) }}</td>
+                                <td class="text-end">1</td>
+                                <td class="text-end">1</td>
+                                <td>NTD</td>
+                                <td class="text-end">-{{ number_format($order_data->discount_value) }}</td>
+                                <td class="text-end"></td>
+                            </tr>
+                            @endif
+                            @foreach($received_data as $value)
+                            <tr>
+                                <td>{{ $received_order_data->first()->sn }}</td>
+                                <td>{{ $value->received_method_name }} {{ $value->note }}{{ '（' . $value->account->code . ' - ' . $value->account->name . '）'}}</td>
+                                <td class="text-end">{{ number_format($value->tw_price, 2) }}</td>
+                                <td class="text-end">1</td>
+                                <td class="text-end">{{ $value->currency_rate }}</td>
+                                <td>{{ $value->currency_name }}</td>
+                                <td class="text-end"></td>
+                                <td class="text-end">{{ number_format($value->tw_price) }}</td>
+                            </tr>
+                            @endforeach
                         </tbody>
 
                         <tfoot>
                             <tr>
-                                <th scope="row" colspan="10" class="text-end">應付總計金額：{{ number_format($tw_price) }}</th>
+                                <th scope="row" colspan="10" class="text-end">應收總計金額：{{ number_format($tw_price) }}</th>
                             </tr>
                         </tfoot>
                     </table>
-                </div> --}}
+                </div>
             </div>
 
             <div class="card shadow p-4 mb-4">
@@ -189,7 +146,7 @@
                         </div>
                     @endforeach
                 </fieldset>
-                <x-b-form-group title="金額（台幣）" required="true" class="col-12 col-sm-6 mb-2">
+                <x-b-form-group title="金額（台幣）" required="true" class="col-12 col-sm-4 mb-3">
                     <input class="form-control @error('tw_price') is-invalid @enderror"
                            name="tw_price"
                            required
@@ -229,37 +186,37 @@
                         </select>
                     </div>
                 @endforeach
-                <x-b-form-group name="{{ $CHEQUE }}[check_num]"
+                <x-b-form-group name="{{ $CHEQUE }}[ticket_number]"
                                 title="票號"
                                 required="true"
                                 class="col-12 col-sm-4 mb-3 {{ $CHEQUE }}"
-                                id="check_num">
+                                id="ticket_number">
                     <input class="form-control
-                                @error($CHEQUE . '[check_num]') is-invalid @enderror"
-                           name="{{ $CHEQUE }}[check_num]"
+                                @error($CHEQUE . '[ticket_number]') is-invalid @enderror"
+                           name="{{ $CHEQUE }}[ticket_number]"
                            required
                            type="text"
-                           value="{{ old( $CHEQUE . '[check_num]', $all_payable_type_data['payableCheque']['check_num'] ?? '') }}"/>
+                           value="{{ old( $CHEQUE . '[ticket_number]', $all_payable_type_data['payableCheque']['ticket_number'] ?? '') }}"/>
                 </x-b-form-group>
-                <x-b-form-group name="{{ $CHEQUE }}[maturity_date]"
+                <x-b-form-group name="{{ $CHEQUE }}[due_date]"
                                 title="到期日"
                                 required="true"
                                 class="col-12 col-sm-4 mb-3 {{ $CHEQUE }}"
-                                id="{{ $CHEQUE }}[maturity_date]">
-                    <input class="form-control @error($CHEQUE . '[maturity_date]') is-invalid @enderror"
-                           name="{{ $CHEQUE }}[maturity_date]"
+                                id="{{ $CHEQUE }}[due_date]">
+                    <input class="form-control @error($CHEQUE . '[due_date]') is-invalid @enderror"
+                           name="{{ $CHEQUE }}[due_date]"
                            required
                            type="date"
-                           value="{{ old($CHEQUE . '[maturity_date]', $all_payable_type_data['payableCheque']['maturity_date'] ?? '') }}"/>
+                           value="{{ old($CHEQUE . '[due_date]', $all_payable_type_data['payableCheque']['due_date'] ?? date('Y-m-d', strtotime( date('Y-m-d')))) }}"/>
                 </x-b-form-group>
 
-                <x-b-form-group name="{{ $REMIT }}[remit_date]" title="匯款日期" required="true"
+                <x-b-form-group name="{{ $REMIT }}[remittance]" title="匯款日期" required="true"
                                 class="col-12 col-sm-4 mb-3 remit">
-                    <input class="form-control @error($REMIT . '[remit_date]') is-invalid @enderror"
-                           name="{{ $REMIT }}[remit_date]"
+                    <input class="form-control @error($REMIT . '[remittance]') is-invalid @enderror"
+                           name="{{ $REMIT }}[remittance]"
                            type="date"
                            required
-                           value="{{ old($REMIT . '[remit_date]',  $all_payable_type_data['payableRemit']['remit_date'] ?? '') }}"/>
+                           value="{{ old($REMIT . '[remittance]',  $all_payable_type_data['payableRemit']['remittance'] ?? date('Y-m-d', strtotime( date('Y-m-d')))) }}"/>
                 </x-b-form-group>
                 <x-b-form-group name="{{ $REMIT }}[bank_slip_name]"
                                 title="水單末5碼或匯款人姓名"
@@ -305,11 +262,9 @@
                 </x-b-form-group>
             </div>
 
-            <div>
-                <button type="submit" class="btn btn-primary px-4">確認</button>
-                <a onclick="history.back()"
-                   class="btn btn-outline-primary px-4"
-                   role="button">取消</a>
+            <div class="px-0">
+                <button type="submit" class="btn btn-primary px-4">儲存</button>
+                <a onclick="history.back()" class="btn btn-outline-primary px-4" role="button">取消</a>
             </div>
         </div>
     </form>
