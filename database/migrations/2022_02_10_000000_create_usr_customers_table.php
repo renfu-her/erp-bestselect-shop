@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Customer\AccountStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -26,7 +27,7 @@ class CreateUsrCustomersTable extends Migration
             $table->string('addr')->nullable()->comment('簡易地址');
             $table->timestamp('birthday')->nullable()->comment('生日');
 
-            $table->tinyInteger('acount_status')->default(0)->comment('帳號狀態 0:未開通 1:開通');
+            $table->tinyInteger('acount_status')->default(AccountStatus::close()->value)->comment('帳號狀態 0:未開通 1:開通');
             $table->unsignedBigInteger('bind_customer_id')->nullable()->comment('綁定對象customer_id');
             $table->string('password')->nullable()->comment('密碼');
             $table->string('api_token')->nullable()->default(null)->comment('');

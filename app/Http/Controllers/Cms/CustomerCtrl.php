@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Cms;
 
+use App\Enums\Customer\AccountStatus;
 use App\Enums\Customer\Newsletter;
 use App\Http\Controllers\Controller;
 use App\Models\Addr;
@@ -97,7 +98,7 @@ class CustomerCtrl extends Controller
             , $uData['phone'] ?? null
             , $uData['birthday'] ?? null
             , $uData['sex'] ?? null
-            , $uData['acount_status'] ?? 0
+            , $uData['acount_status'] ?? AccountStatus::close()->value
             , $address
             , is_numeric($uData['city_id']) ? $uData['city_id'] : null
             , is_numeric($uData['region_id']) ? $uData['region_id'] : null

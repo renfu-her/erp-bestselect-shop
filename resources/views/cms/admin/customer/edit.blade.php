@@ -24,14 +24,14 @@
                         <div class="form-check form-check-inline">
                             <label class="form-check-label">
                                 關閉
-                                <input class="form-check-input @error('acount_status') is-invalid @enderror" value="0"
+                                <input class="form-check-input @error('acount_status') is-invalid @enderror" value="{{\App\Enums\Customer\AccountStatus::close()->value}}"
                                     name="acount_status" type="radio" @if ($method === 'create' || ($method === 'edit' && !$data->acount_status)) checked @endif>
                             </label>
                         </div>
                         <div class="form-check form-check-inline">
                             <label class="form-check-label">
                                 開放
-                                <input class="form-check-input @error('acount_status') is-invalid @enderror" value="1"
+                                <input class="form-check-input @error('acount_status') is-invalid @enderror" value="{{\App\Enums\Customer\AccountStatus::open()->value}}"
                                     name="acount_status" type="radio" @if ($method === 'edit' && $data->acount_status) checked @endif>
                             </label>
                         </div>

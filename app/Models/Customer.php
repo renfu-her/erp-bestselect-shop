@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Customer\AccountStatus;
 use App\Enums\Customer\Newsletter;
 use App\Enums\Customer\Sex;
 use App\Notifications\CustomerPasswordReset;
@@ -90,7 +91,7 @@ class Customer extends Authenticatable
             'api_token' => Str::random(80),
             'newsletter' => $newsletter ?? Newsletter::subscribe()->value,
         ];
-        if (0 == $acount_status || 1 == $acount_status) {
+        if (AccountStatus::close()->value == $acount_status || AccountStatus::open()->value == $acount_status) {
             $arr['acount_status'] = $acount_status;
         }
 //        dd($arr);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\Customer\AccountStatus;
 use App\Enums\Globals\ApiStatusMessage;
 use App\Enums\Globals\ResponseParam;
 use App\Http\Controllers\Controller;
@@ -42,7 +43,7 @@ class CustomerCtrl extends Controller
             , $uData['phone'] ?? null
             , $uData['birthday'] ?? null
             , $uData['sex'] ?? null
-            , 0
+            , AccountStatus::open()->value
             , null
             , null
             , null
@@ -76,9 +77,12 @@ class CustomerCtrl extends Controller
 
         $customer = Customer::where('email', $data['email'])->get()->first();
 
-        if (! $customer || ! Hash::check($data['password'], $customer->password)) {
+        if (null == $customer
+            || false == Hash::check($data['password'], $customer->password)
+            || AccountStatus::open()->value != $customer->acount_status
+        ) {
             return response()->json([
-                ResponseParam::status() => 'E02',
+                ResponseParam::status()->key => 'E02',
                 ResponseParam::msg()->key => '帳號密碼錯誤'
             ]);
         }
