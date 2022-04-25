@@ -101,4 +101,32 @@ class OrderItem extends Model
         return $query_ship_overview;
     }
 
+
+    public static function item_order($order_id)
+    {
+        $query = self::leftJoin('ord_orders', 'ord_orders.id', '=', 'ord_items.order_id')
+            ->leftJoin('ord_sub_orders', 'ord_sub_orders.id', '=', 'ord_items.sub_order_id')
+            ->where([
+                'ord_orders.id'=>$order_id,
+            ])
+            ->select(
+                'ord_orders.id AS order_id',
+                'ord_orders.status AS order_status',
+
+                'ord_sub_orders.sn AS del_sn',
+                'ord_sub_orders.ship_category_name AS del_category_name',
+                'ord_sub_orders.ship_event AS del_even',
+                'ord_sub_orders.ship_temp AS del_temp',
+
+                'ord_items.sku AS product_sku',
+                'ord_items.product_title AS product_title',
+                'ord_items.price AS product_price',
+                'ord_items.qty AS product_qty',
+                'ord_items.origin_price AS product_origin_price',
+                'ord_items.discount_value AS product_discount',
+                'ord_items.discounted_price AS product_after_discounting_price',
+            );
+
+        return $query;
+    }
 }

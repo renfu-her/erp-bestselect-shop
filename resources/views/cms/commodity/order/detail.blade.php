@@ -10,6 +10,8 @@
         <a href="{{ Route('cms.ar.' . $route, ['id'=>$order->id]) }}" class="btn btn-danger" role="button">{{ !$receivedId ? '新增' : '' }}收款單（暫放）</a>
     @endif
 
+    <a href="{{ Route('api.web.order.payment_credit_card', ['id'=>$order->id, 'unique_id'=>$order->unique_id]) }}" class="btn btn-primary" role="button" target="_blank">線上刷卡連結</a>
+
     @php
         include (app_path() . '/Helpers/auth_mpi_mac.php');
 

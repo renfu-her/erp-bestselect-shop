@@ -98,6 +98,7 @@ class Order extends Model
                 'order.status',
                 'order.total_price',
                 'order.created_at',
+                'order.unique_id',
                 'customer.name',
                 'customer.email',
                 'sale.title as sale_title'])
