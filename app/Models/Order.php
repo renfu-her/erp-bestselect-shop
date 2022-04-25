@@ -222,6 +222,7 @@ class Order extends Model
                 "discount_value" => $order['discount_value'],
                 "discounted_price" => $order['discounted_price'],
                 'note' => $note,
+                'unique_id' => substr(base_convert(sha1(uniqid(mt_rand())), 16, 36), 0, 9),// return 9 characters
             ])->id;
 
             Discount::createOrderDiscount('main', $order_id, $order['discounts']);
