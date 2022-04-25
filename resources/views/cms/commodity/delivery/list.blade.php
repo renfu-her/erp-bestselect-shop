@@ -123,7 +123,8 @@
             <table class="table table-striped tableList">
                 <thead>
                     <tr>
-                        <th scope="col" style="width:10%">#</th>
+                        <th scope="col">#</th>
+                        <th scope="col" class="text-center">編輯</th>
                         <th scope="col">出貨單號</th>
                         <th scope="col">單據編號</th>
                         <th scope="col">寄件倉</th>
@@ -133,13 +134,25 @@
                         <th scope="col">寄件人姓名</th>
                         <th scope="col">收件人姓名</th>
                         <th scope="col">收件人地址</th>
-                        <th scope="col" class="text-center">編輯</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($dataList as $key => $data)
                         <tr>
-                            <th scope="row">{{ $key + 1 }}</th>
+                            <th scope="row">{{ $key + 1 }}324354353</th>
+                            <td class="text-center">
+
+                                <a href="
+                                    @if($data->event == App\Enums\Delivery\Event::order()->value)
+                                {{ Route('cms.order.detail', ['id' => $data->order_id, 'subOrderId' => $data->sub_order_id], true) }}
+                                @elseif($data->event == App\Enums\Delivery\Event::consignment()->value)
+                                {{ Route('cms.consignment.edit', ['id' => $data->event_id], true) }}
+                                @endif"
+                                   data-bs-toggle="tooltip" title="編輯"
+                                   class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                            </td>
                             <td>{{ $data->delivery_sn }}</td>
                             <td>{{ $data->event_sn }}</td>
                             <td>{{ $data->depot_name }}</td>
@@ -149,19 +162,6 @@
                             <td>{{ $data->rec_name }}</td>
                             <td>{{ $data->ord_name }}</td>
                             <td>{{ $data->ord_address }}</td>
-                            <td class="text-center">
-
-                                    <a href="
-                                    @if($data->event == App\Enums\Delivery\Event::order()->value)
-                                        {{ Route('cms.order.detail', ['id' => $data->order_id, 'subOrderId' => $data->sub_order_id], true) }}
-                                    @elseif($data->event == App\Enums\Delivery\Event::consignment()->value)
-                                        {{ Route('cms.consignment.edit', ['id' => $data->event_id], true) }}
-                                    @endif"
-                                       data-bs-toggle="tooltip" title="編輯"
-                                       class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </a>
-                            </td>
                         </tr>
                     @endforeach
                 </tbody>
