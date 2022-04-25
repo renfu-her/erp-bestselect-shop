@@ -197,10 +197,10 @@ class Delivery extends Model
                 , 'query_receive_depot.*'
             );
         if (isset($param['delivery_sn'])) {
-            $query->where('delivery.sn', '=', $param['delivery_sn']);
+            $query->where('delivery.sn', 'like', "%".$param['delivery_sn']."%");
         }
         if (isset($param['event_sn'])) {
-            $query->where('delivery.event_sn', '=', $param['event_sn']);
+            $query->where('delivery.event_sn', 'like', "%".$param['event_sn']."%");
         }
         if (isset($param['receive_depot_id']) && 0 < count($param['receive_depot_id'])) {
             $query->whereIn('query_receive_depot.depot_id', $param['receive_depot_id']);
