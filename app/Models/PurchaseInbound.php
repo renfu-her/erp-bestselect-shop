@@ -533,7 +533,7 @@ class PurchaseInbound extends Model
     }
 
     //取得商品款式現有數量
-    public static function getExistInboundProductStyleList($depot_id = null) {
+    public static function getExistInboundProductStyleList($depot_id = []) {
         $result = DB::table('pcs_purchase_inbound as inbound')
             ->leftJoin('prd_product_styles as style', 'style.id', '=', 'inbound.product_style_id')
             ->leftJoin('prd_products as product', 'product.id', '=', 'style.product_id')
@@ -563,8 +563,9 @@ class PurchaseInbound extends Model
             ->groupBy('product.type')
             ->groupBy('style.title')
             ->groupBy('style.sku');
-        if ($depot_id) {
-            $result->where('inbound.depot_id', $depot_id);
+
+        if (null != $depot_id && 0 < count($depot_id)) {
+            $result->whereIn('inbound.depot_id', $depot_id);
         }
         return $result;
     }

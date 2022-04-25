@@ -62,10 +62,10 @@
                 </fieldset>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">倉庫</label>
-                    <select class="form-select -select2" name="depot_id" aria-label="倉庫" data-placeholder="請選擇倉庫">
+                    <select class="form-select -select2  -multiple" multiple name="depot_id[]" aria-label="倉庫" data-placeholder="請選擇倉庫">
                         @foreach ($depotList as $key => $data)
                             <option value="{{ $data->id }}"
-                                    @if ($data->id == $searchParam['depot_id']) selected @endif>{{ $data->name }}</option>
+                                    @if (in_array($data->id, $searchParam['depot_id'])) selected @endif >{{ $data->name }}</option>
                         @endforeach
                     </select>
                 </div>

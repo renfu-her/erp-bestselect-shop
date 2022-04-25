@@ -27,7 +27,7 @@ class StockCtrl extends Controller
         $searchParam['user'] = Arr::get($query, 'user');
         $searchParam['supplier'] = Arr::get($query, 'supplier');
         $searchParam['stock'] = Arr::get($query, 'stock',[]);
-        $searchParam['depot_id'] = Arr::get($query, 'depot_id',null);
+        $searchParam['depot_id'] = Arr::get($query, 'depot_id',[]);
         $searchParam['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 10));
       //  dd($searchParam['stock']);
         $typeRadios = [
@@ -55,8 +55,8 @@ class StockCtrl extends Controller
             ->leftJoinSub($extPrdStyleList_send, 'inbound', function($join) use($depot_id) {
                 //對應到入庫倉可入到進貨倉 相同的product_style_id
                 $join->on('inbound.product_style_id', '=', 's.id');
-                if ($depot_id) {
-                    $join->where('inbound.depot_id', $depot_id);
+                if (null != $depot_id && 0 < count($depot_id)) {
+                    $join->whereIn('inbound.depot_id', $depot_id);
                 }
             })
             ->leftJoin('depot', 'depot.id', '=', 'inbound.depot_id')
@@ -71,8 +71,8 @@ class StockCtrl extends Controller
                 , 'inbound.total_in_stock_num'
             )
         ;
-        if ($depot_id) {
-            $products->where('inbound.depot_id', $depot_id);
+        if (null != $depot_id && 0 < count($depot_id)) {
+            $products->whereIn('inbound.depot_id', $depot_id);
         }
         $products = $products->paginate($searchParam['data_per_page'])
             ->appends($query);
