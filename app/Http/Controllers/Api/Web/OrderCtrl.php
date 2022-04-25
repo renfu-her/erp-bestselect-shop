@@ -6,6 +6,7 @@ use App\Enums\Globals\ResponseParam;
 use App\Enums\Order\UserAddrType;
 use App\Enums\Received\ReceivedMethod;
 use App\Http\Controllers\Controller;
+use App\Models\Addr;
 use App\Models\Customer;
 use App\Models\Discount;
 use App\Models\Order;
@@ -13,7 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use App\Models\Addr;
+
 class OrderCtrl extends Controller
 {
     //
@@ -56,7 +57,7 @@ class OrderCtrl extends Controller
             "orderer.name" => "required",
             "orderer.phone" => "required",
             "orderer.region_id" => "required|numeric",
-            "orderer.addr" => "required", 
+            "orderer.addr" => "required",
             "recipient.name" => "required",
             "recipient.phone" => "required",
             "recipient.region_id" => "required|numeric",
@@ -93,19 +94,19 @@ class OrderCtrl extends Controller
         $address = [];
         $address[] = ['name' => $payLoad['orderer']['name'],
             'phone' => $payLoad['orderer']['phone'],
-            'address' => Addr::fullAddr($payLoad['orderer']['region_id'],$payLoad['orderer']['addr']),
+            'address' => Addr::fullAddr($payLoad['orderer']['region_id'], $payLoad['orderer']['addr']),
             'type' => UserAddrType::orderer()->value];
 
         $address[] = ['name' => $payLoad['orderer']['name'],
             'phone' => $payLoad['orderer']['phone'],
-            'address' => Addr::fullAddr($payLoad['orderer']['region_id'],$payLoad['orderer']['addr']),
+            'address' => Addr::fullAddr($payLoad['orderer']['region_id'], $payLoad['orderer']['addr']),
             'type' => UserAddrType::sender()->value];
 
         $address[] = ['name' => $payLoad['recipient']['name'],
             'phone' => $payLoad['recipient']['phone'],
-            'address' => Addr::fullAddr($payLoad['recipient']['region_id'],$payLoad['recipient']['addr']),
+            'address' => Addr::fullAddr($payLoad['recipient']['region_id'], $payLoad['recipient']['addr']),
             'type' => UserAddrType::receiver()->value];
-        
+
         $re = Order::createOrder($payLoad['email'], 1, $address, $payLoad['products']);
 
         if ($re['success'] == '1') {
@@ -124,5 +125,42 @@ class OrderCtrl extends Controller
             'stauts' => 'E05',
             'message' => $re,
         ];
+    }
+
+    public function orderDetail(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'order_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $re = [];
+            $re[ResponseParam::status()->key] = 'E01';
+            $re[ResponseParam::msg()->key] = $validator->errors();
+
+            return response()->json($re);
+        }
+        $d = $request->all();
+
+        $order = Order::orderDetail($d['order_id'], $d['email'])->get()->first();
+        if (!$order) {
+            $re = [];
+            $re[ResponseParam::status()->key] = 'E04';
+            $re[ResponseParam::msg()->key] = "查無訂單";
+
+            return response()->json($re);
+        }
+        $subOrder = Order::subOrderDetail($d['order_id'])->get()->toArray();
+        $order->sub_order = array_map(function ($n) {
+            $n->items = json_decode($n->items);
+            return $n;
+        }, $subOrder);
+
+        $re = [];
+        $re[ResponseParam::status()->key] = '0';
+        $re[ResponseParam::data()->key] = $order;
+
+        return response()->json($re);
     }
 }
