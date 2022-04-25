@@ -108,22 +108,6 @@ class Customer extends Authenticatable
         return $id;
     }
 
-    //綁定消費者
-    public static function bindCustomer($user_id, $customer_id)
-    {
-        $user = User::where('id', $user_id)->get()->first();
-        $customer = Customer::where('id', $customer_id)->get()->first();
-        if (null != $user && null != $customer) {
-            return DB::transaction(function () use ($user_id, $customer_id
-            ) {
-                User::where('id', $user_id)->update([
-                    'customer_id' => $customer_id,
-                ]);
-                return $user_id;
-            });
-        }
-    }
-
     public static function deleteById(int $id)
     {
         Customer::where('id', $id)->delete();
