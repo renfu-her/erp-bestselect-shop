@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-
+use App\Models\Addr;
 class OrderCtrl extends Controller
 {
     //
@@ -55,14 +55,10 @@ class OrderCtrl extends Controller
             'email' => 'required|email',
             "orderer.name" => "required",
             "orderer.phone" => "required",
-            "orderer.address" => "required",
-            "orderer.city_id" => "required|numeric",
             "orderer.region_id" => "required|numeric",
             "orderer.addr" => "required", 
             "recipient.name" => "required",
             "recipient.phone" => "required",
-            "recipient.address" => "required",
-            "recipient.city_id" => "required|numeric",
             "recipient.region_id" => "required|numeric",
             "recipient.addr" => "required",
             "payment" => Rule::in([ReceivedMethod::Cash()->value, ReceivedMethod::CreditCard()->value]),
@@ -97,19 +93,19 @@ class OrderCtrl extends Controller
         $address = [];
         $address[] = ['name' => $payLoad['orderer']['name'],
             'phone' => $payLoad['orderer']['phone'],
-            'address' => $payLoad['orderer']['address'],
+            'address' => Addr::fullAddr($payLoad['orderer']['region_id'],$payLoad['orderer']['addr']),
             'type' => UserAddrType::orderer()->value];
 
         $address[] = ['name' => $payLoad['orderer']['name'],
             'phone' => $payLoad['orderer']['phone'],
-            'address' => $payLoad['orderer']['address'],
+            'address' => Addr::fullAddr($payLoad['orderer']['region_id'],$payLoad['orderer']['addr']),
             'type' => UserAddrType::sender()->value];
 
         $address[] = ['name' => $payLoad['recipient']['name'],
             'phone' => $payLoad['recipient']['phone'],
-            'address' => $payLoad['recipient']['address'],
+            'address' => Addr::fullAddr($payLoad['recipient']['region_id'],$payLoad['recipient']['addr']),
             'type' => UserAddrType::receiver()->value];
-
+        
         $re = Order::createOrder($payLoad['email'], 1, $address, $payLoad['products']);
 
         if ($re['success'] == '1') {
