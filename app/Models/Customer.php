@@ -81,7 +81,7 @@ class Customer extends Authenticatable
             'phone' => $phone,
             'birthday' => $birthday,
             'sex' => $sex,
-            'acount_status' => $acount_status,
+            //'acount_status' => $acount_status,
             'password' => Hash::make($password),
             'address' => $address,
             'city_id' => $city_id,
