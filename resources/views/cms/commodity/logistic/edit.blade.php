@@ -294,6 +294,8 @@
     </script>
     @if (is_null($logistic->audit_date))
     <script>
+        const depot_id = @json($depot_id ?? '');
+
         let addConsumeModal = new bootstrap.Modal(document.getElementById('addConsume'));
         let addInboundModal = new bootstrap.Modal(document.getElementById('addInbound'));
         let consPages = new Pagination($('#addConsume .-pages'));
@@ -417,6 +419,9 @@
             const Data = {
                 product_style_id: selectedConsume.sid
             };
+            if (depot_id) {
+                Data.depot_id = depot_id;
+            }
             resetAddInboundModal();
             $('#addInbound blockquote h6').text(`${selectedConsume.name} [${selectedConsume.spec}]`);
             $('#addInbound figcaption').text(selectedConsume.sku);

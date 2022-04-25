@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Cms\Commodity;
 use App\Enums\Delivery\Event;
 use App\Enums\Delivery\LogisticStatus;
 use App\Http\Controllers\Controller;
+use App\Models\Consignment;
 use App\Models\Consum;
 use App\Models\Delivery;
 use App\Models\Logistic;
@@ -18,6 +19,8 @@ class LogisticCtrl extends Controller
 {
     public function create($event, $eventId)
     {
+        $rsp_arr = [];
+
         $delivery = null;
         $delivery_id = null;
         $returnAction = '';
@@ -47,6 +50,9 @@ class LogisticCtrl extends Controller
                 $delivery_id = $delivery->id;
             }
             $deliveryList = Delivery::getCsnListToLogistic($delivery_id, $eventId)->get();
+
+            $consignment = Consignment::where('id', $delivery->event_id)->get()->first();
+            $rsp_arr['depot_id'] = $consignment->send_depot_id;
         }
 
         if (null == $delivery) {
@@ -78,15 +84,14 @@ class LogisticCtrl extends Controller
             $consumWithInboundList[$key]->groupconcat = json_decode($value->groupconcat);
         }
 
-        return view('cms.commodity.logistic.edit', [
-            'returnAction' => $returnAction,
-            'delivery' => $delivery,
-            'logistic' => $logistic,
-            'deliveryList' => $deliveryList,
-            'shipmentGroup' => $shipmentGroupWithCost, //物流列表
-            'consumWithInboundList' => $consumWithInboundList,
-            'breadcrumb_data' => $logistic->sn
-        ]);
+        $rsp_arr['returnAction'] = $returnAction;
+        $rsp_arr['delivery'] = $delivery;
+        $rsp_arr['logistic'] = $logistic;
+        $rsp_arr['deliveryList'] = $deliveryList;
+        $rsp_arr['shipmentGroup'] = $shipmentGroupWithCost;
+        $rsp_arr['consumWithInboundList'] = $consumWithInboundList;
+        $rsp_arr['breadcrumb_data'] = $logistic->sn;
+        return view('cms.commodity.logistic.edit', $rsp_arr);
     }
 
     //儲存物流相關資料
