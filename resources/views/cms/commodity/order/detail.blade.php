@@ -9,7 +9,7 @@
     @if(!$receivable)
         <a href="{{ Route('cms.ar.' . $route, ['id'=>$order->id]) }}" class="btn btn-danger" role="button">{{ !$receivedId ? '新增' : '' }}收款單（暫放）</a>
     @endif
-{{--
+
     @php
         include (app_path() . '/Helpers/auth_mpi_mac.php');
 
@@ -45,7 +45,7 @@
         <input type="hidden" name="URLEnc" value="{{ $str_url_enc }}">
         <button type="submit" class="btn btn-primary">線上刷卡連結</button>
     </form>
---}}
+
     <form id="form1" method="post" action="">
         @method('POST')
         @csrf
