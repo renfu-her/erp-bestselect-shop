@@ -51,7 +51,11 @@ class Order extends Model
         ;
 
         if ($keyword) {
-            $order->where('so.sn', 'like', "%$keyword%");
+            $order->where(function ($query) use ($keyword) {
+                $query->Where('so.sn', 'like', "%{$keyword}%")
+                    ->orWhere('ord_address.name', 'like', "%{$keyword}%")
+                    ->orWhere('ord_address.phone', 'like', "%{$keyword}%");
+            });
         }
 
         if ($sale_channel_id) {
