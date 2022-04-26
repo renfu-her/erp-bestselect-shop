@@ -3,10 +3,21 @@
 namespace App\Http\Controllers\Api\Web;
 
 use App\Enums\Globals\ResponseParam;
+use App\Enums\Order\UserAddrType;
 use App\Enums\Received\ReceivedMethod;
 use App\Http\Controllers\Controller;
+<<<<<<< HEAD
 
+=======
+use App\Models\Addr;
+use App\Models\Customer;
+use App\Models\Discount;
+use App\Models\Order;
+>>>>>>> 9751c4c14d295290b766a10a69be671b7bbe53ff
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 use Illuminate\Support\Facades\DB;
 
@@ -46,6 +57,7 @@ class OrderCtrl extends Controller
 
     }
 
+<<<<<<< HEAD
 
     public function payment_credit_card(Request $request, $id, $unique_id)
     {
@@ -185,5 +197,121 @@ class OrderCtrl extends Controller
         echo '<br>';
         echo '<a href="' . route('cms.order.index') . '">回到訂單管理</a>';
         // return redirect()->back();
+=======
+    public function createOrder(Request $request)
+    {
+        $payLoad = json_decode(request()->getContent(), true);
+
+        $validator = Validator::make($payLoad, [
+            'email' => 'required|email',
+            "orderer.name" => "required",
+            "orderer.phone" => "required",
+            "orderer.region_id" => "required|numeric",
+            "orderer.addr" => "required",
+            "recipient.name" => "required",
+            "recipient.phone" => "required",
+            "recipient.region_id" => "required|numeric",
+            "recipient.addr" => "required",
+            "payment" => Rule::in([ReceivedMethod::Cash()->value, ReceivedMethod::CreditCard()->value]),
+            "products" => 'array|required',
+            "products.*.qty" => "required|numeric",
+            "products.*.product_id" => "required",
+            "products.*.product_style_id" => "required",
+            "products.*.shipment_type" => "required",
+            "products.*.shipment_event_id" => "required",
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'E01',
+                'message' => $validator->errors(),
+            ]);
+        }
+
+        DB::beginTransaction();
+
+        $customer = Customer::where('email', $payLoad['email'])->get()->first();
+
+        if (!$customer) {
+            $udata = [
+                'name' => $payLoad['orderer']['name'],
+                'email' => $payLoad['email'],
+                'password' => '1234',
+            ];
+
+            Customer::createCustomer($udata['name'], $udata['email'], $udata['password']);
+        }
+        $address = [];
+        $address[] = ['name' => $payLoad['orderer']['name'],
+            'phone' => $payLoad['orderer']['phone'],
+            'address' => Addr::fullAddr($payLoad['orderer']['region_id'], $payLoad['orderer']['addr']),
+            'type' => UserAddrType::orderer()->value];
+
+        $address[] = ['name' => $payLoad['orderer']['name'],
+            'phone' => $payLoad['orderer']['phone'],
+            'address' => Addr::fullAddr($payLoad['orderer']['region_id'], $payLoad['orderer']['addr']),
+            'type' => UserAddrType::sender()->value];
+
+        $address[] = ['name' => $payLoad['recipient']['name'],
+            'phone' => $payLoad['recipient']['phone'],
+            'address' => Addr::fullAddr($payLoad['recipient']['region_id'], $payLoad['recipient']['addr']),
+            'type' => UserAddrType::receiver()->value];
+
+        $re = Order::createOrder($payLoad['email'], 1, $address, $payLoad['products']);
+
+        if ($re['success'] == '1') {
+            DB::commit();
+            return [
+                'status' => '0',
+                'message' => '',
+                'data' => [
+                    'order_id' => $re['order_id'],
+                ],
+            ];
+        }
+
+        DB::rollBack();
+        return [
+            'stauts' => 'E05',
+            'message' => $re,
+        ];
+    }
+
+    public function orderDetail(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'order_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $re = [];
+            $re[ResponseParam::status()->key] = 'E01';
+            $re[ResponseParam::msg()->key] = $validator->errors();
+
+            return response()->json($re);
+        }
+        $d = $request->all();
+
+        $order = Order::orderDetail($d['order_id'], $d['email'])->get()->first();
+        if (!$order) {
+            $re = [];
+            $re[ResponseParam::status()->key] = 'E04';
+            $re[ResponseParam::msg()->key] = "查無訂單";
+
+            return response()->json($re);
+        }
+        $subOrder = Order::subOrderDetail($d['order_id'])->get()->toArray();
+        $order->sub_order = array_map(function ($n) {
+            $n->items = json_decode($n->items);
+            return $n;
+        }, $subOrder);
+
+        $re = [];
+        $re[ResponseParam::status()->key] = '0';
+        $re[ResponseParam::data()->key] = $order;
+
+        return response()->json($re);
+>>>>>>> 9751c4c14d295290b766a10a69be671b7bbe53ff
     }
 }

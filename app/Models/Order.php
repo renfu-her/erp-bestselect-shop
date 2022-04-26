@@ -82,7 +82,7 @@ class Order extends Model
         //   dd($order->get()->toArray());
     }
 
-    public static function orderDetail($order_id)
+    public static function orderDetail($order_id, $email = null)
     {
         $orderQuery = DB::table('ord_orders as order')
             ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
@@ -103,6 +103,10 @@ class Order extends Model
                 'customer.email',
                 'sale.title as sale_title'])
             ->where('order.id', $order_id);
+
+        if ($email) {
+            $orderQuery->where('order.email', $email);
+        }
         self::orderAddress($orderQuery);
 
         return $orderQuery;

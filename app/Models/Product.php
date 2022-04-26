@@ -96,12 +96,11 @@ class Product extends Model
 
         if (isset($options['img'])) {
             $subImg = DB::table('prd_product_images as img')
-            ->select('img.url')
-            ->whereRaw('img.product_id = product.id')
-            ->limit(1);
+                ->select('img.url')
+                ->whereRaw('img.product_id = product.id')
+                ->limit(1);
 
             $re->addSelect(DB::raw("({$subImg->toSql()}) as img_url"));
-
 
         }
 
@@ -449,6 +448,7 @@ class Product extends Model
                 "title" => $re->title,
                 "slogan" => $re->_slogan,
                 "feature" => $re->_feature,
+                'id' => $re->id,
                 "image" => [],
             ],
             "desc" => $re->_desc,
