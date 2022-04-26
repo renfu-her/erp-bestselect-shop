@@ -302,6 +302,40 @@ class OrderCtrl extends Controller
             return $n;
         }, $subOrder);
 
+        // credit card start
+        include (app_path() . '/Helpers/auth_mpi_mac.php');
+
+        $str_mer_id = '77725';
+        $str_merchant_id = '8220300000043';
+        $str_terminal_id = '90300043';
+
+        $str_url = 'https://testepos.ctbcbank.com/mauth/SSLAuthUI.jsp';
+
+        $arr_data = [
+            'MerchantID'=>$str_merchant_id,
+            'TerminalID'=>$str_terminal_id,
+            'lidm'=>$order->sn,
+            'purchAmt'=>$order->total_price,
+            'txType'=>'0',
+            'Option'=>0,
+            'Key'=>'LPCvSznVxZ4CFjnWbtg4mUWo',
+            'MerchantName'=>mb_convert_encoding($order->sale_title, 'BIG5', ['BIG5', 'UTF-8']),
+            'AuthResURL'=>route('api.web.order.credit_card_checkout'),
+            'OrderDetail'=>mb_convert_encoding($order->note, 'BIG5', ['BIG5', 'UTF-8']),
+            'AutoCap'=>'1',
+            'Customize'=>' ',
+            'debug'=>'0'
+        ];
+
+        $str_mac_string = auth_in_mac($arr_data['MerchantID'], $arr_data['TerminalID'], $arr_data['lidm'], $arr_data['purchAmt'], $arr_data['txType'], $arr_data['Option'], $arr_data['Key'], $arr_data['MerchantName'], $arr_data['AuthResURL'], $arr_data['OrderDetail'], $arr_data['AutoCap'], $arr_data['Customize'], $arr_data['debug']);
+
+        $str_url_enc = get_auth_urlenc($arr_data['MerchantID'], $arr_data['TerminalID'], $arr_data['lidm'], $arr_data['purchAmt'], $arr_data['txType'], $arr_data['Option'], $arr_data['Key'], $arr_data['MerchantName'], $arr_data['AuthResURL'], $arr_data['OrderDetail'], $arr_data['AutoCap'], $arr_data['Customize'], $str_mac_string, $arr_data['debug']);
+        $order->str_url = $str_url;
+        $order->str_mac_string = $str_mac_string;
+        $order->str_mer_id = $str_mer_id;
+        $order->str_url_enc = $str_url_enc;
+        // credit card end
+
         $re = [];
         $re[ResponseParam::status()->key] = '0';
         $re[ResponseParam::data()->key] = $order;
