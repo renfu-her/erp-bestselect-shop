@@ -6,21 +6,14 @@ use App\Enums\Globals\ResponseParam;
 use App\Enums\Order\UserAddrType;
 use App\Enums\Received\ReceivedMethod;
 use App\Http\Controllers\Controller;
-<<<<<<< HEAD
 
-=======
-use App\Models\Addr;
-use App\Models\Customer;
-use App\Models\Discount;
-use App\Models\Order;
->>>>>>> 9751c4c14d295290b766a10a69be671b7bbe53ff
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-
 use Illuminate\Support\Facades\DB;
 
+use App\Models\Addr;
+use App\Models\Customer;
 use App\Models\Discount;
 use App\Models\Order;
 
@@ -57,7 +50,6 @@ class OrderCtrl extends Controller
 
     }
 
-<<<<<<< HEAD
 
     public function payment_credit_card(Request $request, $id, $unique_id)
     {
@@ -197,7 +189,9 @@ class OrderCtrl extends Controller
         echo '<br>';
         echo '<a href="' . route('cms.order.index') . '">回到訂單管理</a>';
         // return redirect()->back();
-=======
+    }
+
+
     public function createOrder(Request $request)
     {
         $payLoad = json_decode(request()->getContent(), true);
@@ -277,6 +271,7 @@ class OrderCtrl extends Controller
         ];
     }
 
+
     public function orderDetail(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -312,6 +307,5 @@ class OrderCtrl extends Controller
         $re[ResponseParam::data()->key] = $order;
 
         return response()->json($re);
->>>>>>> 9751c4c14d295290b766a10a69be671b7bbe53ff
     }
 }
