@@ -425,14 +425,8 @@ class PurchaseInbound extends Model
         return $result;
     }
 
-
-    /**
-     * 取得可入庫單 可出貨列表
-     * @param $param [product_style_id]
-     * @param false $showNegativeVal 顯示負值 若為true 則只顯示大於1的數量 預設為false 不顯示
-     * @return \Illuminate\Database\Query\Builder
-     */
-    public static function getSelectInboundList($param, $showNegativeVal = false) {
+    // 取得出貨單內 寄倉單尚未出貨的數量
+    public static function getEstimatedShipmentsWithConsignmentReceiveDepot() {
         $receive_depotQuerySub = DB::table('dlv_delivery')
             ->leftJoin('dlv_receive_depot', function ($join) {
                 $join->on('dlv_receive_depot.delivery_id', '=', 'dlv_delivery.id');
@@ -450,7 +444,11 @@ class PurchaseInbound extends Model
             ->groupBy('dlv_receive_depot.inbound_id')
             ->groupBy('dlv_receive_depot.product_style_id')
             ->groupBy('dlv_receive_depot.product_title');
+        return $receive_depotQuerySub;
+    }
 
+    // 取得物流單內 耗材尚未出貨的數量
+    public static function getEstimatedShipmentsWithLogisticConsum() {
         $logistic_consumQuerySub = DB::table('dlv_logistic')
             ->leftJoin('dlv_consum', 'dlv_consum.logistic_id', '=', 'dlv_logistic.id')
             ->select('dlv_consum.inbound_id as inbound_id'
@@ -464,6 +462,19 @@ class PurchaseInbound extends Model
             ->groupBy('dlv_consum.inbound_id')
             ->groupBy('dlv_consum.product_style_id')
             ->groupBy('dlv_consum.product_title');
+        return $logistic_consumQuerySub;
+    }
+
+    /**
+     * 取得可入庫單 可出貨列表
+     * @param $param [product_style_id]
+     * @param false $showNegativeVal 顯示負值 若為true 則只顯示大於1的數量 預設為false 不顯示
+     * @return \Illuminate\Database\Query\Builder
+     */
+    public static function getSelectInboundList($param, $showNegativeVal = false) {
+        $receive_depotQuerySub = PurchaseInbound::getEstimatedShipmentsWithConsignmentReceiveDepot();
+
+        $logistic_consumQuerySub = PurchaseInbound::getEstimatedShipmentsWithLogisticConsum();
 
         $receive_depotQuerySub->union($logistic_consumQuerySub);
 
