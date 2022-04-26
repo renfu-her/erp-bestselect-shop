@@ -12,6 +12,7 @@
 
     <a href="{{ Route('api.web.order.payment_credit_card', ['id'=>$order->id, 'unique_id'=>$order->unique_id]) }}" class="btn btn-primary" role="button" target="_blank">線上刷卡連結</a>
 
+    {{--
     @php
         include (app_path() . '/Helpers/auth_mpi_mac.php');
 
@@ -47,6 +48,7 @@
         <input type="hidden" name="URLEnc" value="{{ $str_url_enc }}">
         <button type="submit" class="btn btn-primary">線上刷卡連結</button>
     </form>
+    --}}
 
     <form id="form1" method="post" action="">
         @method('POST')

@@ -10,7 +10,7 @@ Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
 
     Route::get('payment/credit_card/{id}/{unique_id}', [OrderCtrl::class, 'payment_credit_card'])->name('payment_credit_card');
     Route::post('credit_card_checkout', [OrderCtrl::class, 'credit_card_checkout'])->name('credit_card_checkout');
-    Route::post('api_credit_card_checkout', [OrderCtrl::class, 'api_credit_card_checkout'])->name('api_credit_card_checkout');
+    Route::post('credit_card_checkout_api/{id}', [OrderCtrl::class, 'credit_card_checkout_api'])->name('credit_card_checkout_api');
 
     Route::post('detail', [OrderCtrl::class, 'orderDetail']);
 });
