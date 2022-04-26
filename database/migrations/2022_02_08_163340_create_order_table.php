@@ -22,11 +22,12 @@ class CreateOrderTable extends Migration
             $table->string('status', 20)->nullable()->comment('訂單狀態');
             $table->integer('rcode')->nullable()->comment('rcode消費者id');
             $table->integer('dlv_fee')->default(0)->comment('運費');
-            $table->integer('origin_price')->default(0)->comment('小計'); 
+            $table->integer('origin_price')->default(0)->comment('小計');
             $table->integer('total_price')->default(0)->comment('總金額');
             $table->integer('discount_value')->default(0)->comment('折扣');
             $table->integer('discounted_price')->default(0)->comment('折扣後金額');
             $table->string('note')->nullable()->comment('備註');
+            $table->string('unique_id')->comment('訂單唯一ID加密值');
             $table->timestamps();
         });
 

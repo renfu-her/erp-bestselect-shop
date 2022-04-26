@@ -82,7 +82,7 @@ class Order extends Model
         //   dd($order->get()->toArray());
     }
 
-    public static function orderDetail($order_id)
+    public static function orderDetail($order_id, $email = null)
     {
         $orderQuery = DB::table('ord_orders as order')
             ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
@@ -98,10 +98,15 @@ class Order extends Model
                 'order.status',
                 'order.total_price',
                 'order.created_at',
+                'order.unique_id',
                 'customer.name',
                 'customer.email',
                 'sale.title as sale_title'])
             ->where('order.id', $order_id);
+
+        if ($email) {
+            $orderQuery->where('order.email', $email);
+        }
         self::orderAddress($orderQuery);
 
         return $orderQuery;
@@ -222,6 +227,7 @@ class Order extends Model
                 "discount_value" => $order['discount_value'],
                 "discounted_price" => $order['discounted_price'],
                 'note' => $note,
+                'unique_id' => substr(base_convert(sha1(uniqid(mt_rand())), 16, 36), 0, 9),// return 9 characters
             ])->id;
 
             Discount::createOrderDiscount('main', $order_id, $order['discounts']);
