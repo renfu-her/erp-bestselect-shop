@@ -79,7 +79,7 @@ class DepotProduct extends Model
      */
     public static function productExistInboundList($send_depot_id = null, $receive_depot_id = null, $type = null)
     {
-        $extPrdStyleList_send = PurchaseInbound::getExistInboundProductStyleList($send_depot_id);
+        $extPrdStyleList_send = PurchaseInbound::getExistInboundProductStyleList([$send_depot_id]);
 
         $re = DB::table('prd_product_depot_select as select_list')
             ->leftJoin('prd_salechannel_style_price as p', 'select_list.product_style_id', '=', 'p.style_id')
