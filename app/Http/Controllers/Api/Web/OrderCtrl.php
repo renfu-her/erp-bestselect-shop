@@ -362,12 +362,12 @@ class OrderCtrl extends Controller
 
                 if(empty($status) && $status == '0'){
                     // echo '交易完成';
-                    return  redirect('/payfin/' . $order->id . '/' . $lidm . '/' . $status );
+                    return  redirect('https://dev-shopp.bestselection.com.tw/payfin/' . $order->id . '/' . $lidm . '/' . $status );
                 }
             }
         }
 
         // echo '交易失敗';
-        return  redirect('/payfin/' . $order->id . '/' . $lidm . '/1');
+        return  redirect('https://dev-shopp.bestselection.com.tw/payfin/' . $order->id . '/' . $lidm . '/1');
     }
 }
