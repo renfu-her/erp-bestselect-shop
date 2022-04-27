@@ -320,7 +320,7 @@ class OrderCtrl extends Controller
             'Option'=>0,
             'Key'=>'LPCvSznVxZ4CFjnWbtg4mUWo',
             'MerchantName'=>mb_convert_encoding($order->sale_title, 'BIG5', ['BIG5', 'UTF-8']),
-            'AuthResURL'=>route('api.web.order.credit_card_checkout'),
+            'AuthResURL'=>route('api.web.order.credit_card_checkout_api', ['id'=>$order->id]),
             'OrderDetail'=>mb_convert_encoding($order->note, 'BIG5', ['BIG5', 'UTF-8']),
             'AutoCap'=>'1',
             'Customize'=>' ',
@@ -341,5 +341,33 @@ class OrderCtrl extends Controller
         $re[ResponseParam::data()->key] = $order;
 
         return response()->json($re);
+    }
+
+
+    public function credit_card_checkout_api(Request $request, $id)
+    {
+        include (app_path() . '/Helpers/auth_mpi_mac.php');
+
+        // $EncRes = isset($_POST['URLResEnc']) ? $_POST['URLResEnc'] : null;
+        $EncRes = request('URLResEnc') ? request('URLResEnc') : null;
+        if($EncRes){
+            $Key = 'LPCvSznVxZ4CFjnWbtg4mUWo';
+            $debug = '0';
+            $EncArray = gendecrypt($EncRes, $Key, $debug);
+
+            if(is_array($EncArray) && count($EncArray) > 0){
+                $status = isset($EncArray['status']) ? $EncArray['status'] : "";
+                $lidm = isset($EncArray['lidm']) ? $EncArray['lidm'] : "";
+                // $order = Order::where('sn', $lidm)->first();
+
+                if(empty($status) && $status == '0'){
+                    // echo '交易完成';
+                    return  redirect('https://dev-shopp.bestselection.com.tw/payfin/' . $id . '/' . $lidm . '/' . $status );
+                }
+            }
+        }
+
+        // echo '交易失敗';
+        return  redirect('https://dev-shopp.bestselection.com.tw/payfin/' . $id . '/' . $lidm . '/1');
     }
 }

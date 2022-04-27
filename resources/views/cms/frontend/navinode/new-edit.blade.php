@@ -89,9 +89,9 @@
             <button type="submit" class="btn btn-primary px-4">儲存</button>
         </div>
     </form>
-    @if($errors->any())
-    {!! implode('', $errors->all('<div>:message</div>')) !!}
-@endif
+    {{-- @if($errors->any()) --}}
+        {{-- {!! implode('', $errors->all('<div>:message</div>')) !!} --}}
+    {{-- @endif --}}
 @endsection
 @once
     @push('sub-scripts')
