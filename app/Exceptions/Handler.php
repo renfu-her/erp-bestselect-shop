@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use App\Enums\Globals\ResponseParam;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
@@ -51,12 +52,18 @@ class Handler extends ExceptionHandler
 
         $guard = $exception->guards()[0];
         if ($request->expectsJson()) {
-            return response()->json(['status' => 'A01', 'message' => 'Unauthenticated'], 401);
+            return response()->json([
+                ResponseParam::status()->key => 'A01',
+                ResponseParam::msg()->key =>  'Unauthenticated',
+            ], 401);
         }
 
         switch ($guard) {
             case 'sanctum':
-                return response()->json(['status' => 'T01', 'message' => $exception->getMessage()], 401);
+                return response()->json([
+                    ResponseParam::status()->key => 'T01',
+                    ResponseParam::msg()->key =>  $exception->getMessage(),
+                ], 401);
                 break;
             default:
                 return redirect(Route('cms.login'));

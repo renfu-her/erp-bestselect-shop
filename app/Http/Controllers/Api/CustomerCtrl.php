@@ -101,7 +101,11 @@ class CustomerCtrl extends Controller
     //客戶資訊
     function customerInfo(Request $request)
     {
-        return $request->user();
+        return response()->json([
+            ResponseParam::status()->key => ApiStatusMessage::Succeed,
+            ResponseParam::msg()->key =>  ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
+            ResponseParam::data()->key =>  $request->user(),
+        ]);
     }
 
     //撤销所有令牌
