@@ -112,7 +112,7 @@ class CyberbizImportSeeder extends Seeder
                             'spec_item2_id' => $itemArray[1] ?? null,
                             'spec_item3_id' => $itemArray[2] ?? null,
                         ])->update([
-                            'sku' => str_replace('-', '', $variant['sku'])
+                            'sku' => $variant['sku']
                         ]);
 
                         // 銷售通路價格
