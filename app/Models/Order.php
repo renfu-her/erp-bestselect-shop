@@ -102,10 +102,11 @@ class Order extends Model
                 'order.status',
                 'order.total_price',
                 'order.created_at',
-                'order.unique_id',
+                // 'order.unique_id',
                 'customer.name',
                 'customer.email',
                 'sale.title as sale_title'])
+            ->selectRaw("IF(order.unique_id IS NULL,'',order.unique_id) as unique_id")
             ->where('order.id', $order_id);
 
         if ($email) {
@@ -155,17 +156,25 @@ class Order extends Model
             ->select('sub_order.*', 'i.items'
                 , 'dlv_delivery.sn as delivery_sn'
                 , 'dlv_delivery.logistic_status as logistic_status'
-                , 'dlv_logistic.sn as logistic_sn'
-                , 'dlv_logistic.package_sn as package_sn'
-                , 'dlv_logistic.ship_group_id as ship_group_id'
-                , 'shi_group.name as ship_group_name'
-                , 'shi_group.note as ship_group_note')
+            )
+            ->selectRaw("IF(sub_order.ship_sn IS NULL,'',sub_order.ship_sn) as ship_sn")
+            ->selectRaw("IF(sub_order.actual_ship_group_id IS NULL,'',sub_order.actual_ship_group_id) as actual_ship_group_id")
+            ->selectRaw("IF(sub_order.statu IS NULL,'',sub_order.statu) as statu")
+            ->selectRaw("IF(sub_order.statu_code IS NULL,'',sub_order.statu_code) as statu_code")
+            ->selectRaw("IF(dlv_logistic.sn IS NULL,'',dlv_logistic.sn) as logistic_sn")
+            ->selectRaw("IF(dlv_logistic.package_sn IS NULL,'',dlv_logistic.package_sn) as package_sn")
+            ->selectRaw("IF(dlv_logistic.ship_group_id IS NULL,'',dlv_logistic.ship_group_id) as ship_group_id")
+            ->selectRaw("IF(shi_group.name IS NULL,'',shi_group.name) as ship_group_name")
+            ->selectRaw("IF(shi_group.note IS NULL,'',shi_group.note) as ship_group_note")
+            ->selectRaw("IF(sub_order.ship_temp IS NULL,'',sub_order.ship_temp) as ship_temp")
+            ->selectRaw("IF(sub_order.ship_temp_id IS NULL,'',sub_order.ship_temp_id) as ship_temp_id")
+            ->selectRaw("IF(sub_order.ship_rule_id IS NULL,'',sub_order.ship_rule_id) as ship_rule_id")
+
             ->where('order_id', $order_id);
 
         if ($sub_order_id) {
             $orderQuery->where('sub_order.id', $sub_order_id);
         }
-
         return $orderQuery;
 
     }
@@ -188,11 +197,15 @@ class Order extends Model
                     $prefix = 'sed_';
                     break;
             }
+            $_name = "IF($value.name IS NULL,'',$value.name) as ${prefix}name";
+            $_address = "IF($value.address IS NULL,'',$value.address) as ${prefix}address";
+            $_phone = "IF($value.phone IS NULL,'',$value.phone) as ${prefix}phone";
+            $_zipcode = "IF($value.zipcode IS NULL,'',$value.zipcode) as ${prefix}zipcode";
 
-            $query->addSelect($value . '.name as ' . $prefix . 'name');
-            $query->addSelect($value . '.address as ' . $prefix . 'address');
-            $query->addSelect($value . '.phone as ' . $prefix . 'phone');
-            $query->addSelect($value . '.zipcode as ' . $prefix . 'zipcode');
+            $query->selectRaw($_name);
+            $query->selectRaw($_address);
+            $query->selectRaw($_phone);
+            $query->selectRaw($_zipcode);
 
         }
     }
@@ -231,7 +244,7 @@ class Order extends Model
                 "discount_value" => $order['discount_value'],
                 "discounted_price" => $order['discounted_price'],
                 'note' => $note,
-                'unique_id' => substr(base_convert(sha1(uniqid(mt_rand())), 16, 36), 0, 9),// return 9 characters
+                'unique_id' => substr(base_convert(sha1(uniqid(mt_rand())), 16, 36), 0, 9), // return 9 characters
             ])->id;
 
             Discount::createOrderDiscount('main', $order_id, $order['discounts']);
@@ -253,7 +266,7 @@ class Order extends Model
             }
             try {
                 DB::table('ord_address')->insert($address);
-            } catch (\Exception$e) {
+            } catch (\Exception $e) {
                 DB::rollBack();
                 return ['success' => '0', 'error_msg' => 'address format error', 'event' => 'address', 'event_id' => ''];
             }
