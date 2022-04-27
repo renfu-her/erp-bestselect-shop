@@ -125,15 +125,15 @@ class Order extends Model
             'sku' => 'item.sku',
             'price' => 'item.price',
             'qty' => 'item.qty',
-            'img_url' => 'item.img_url',
+            'img_url' => 'IF(item.img_url IS NULL,"",item.img_url)',
             'total_price' => 'item.origin_price']);
 
         $itemQuery = DB::table('ord_items as item')
             ->groupBy('item.sub_order_id')
             ->select('item.sub_order_id')
             ->selectRaw($concatString . ' as items')
-            ->where('item.order_id', $order_id);
-        // dd($itemQuery->get()->toArray());
+             ->where('item.order_id', $order_id);
+
         if ($sub_order_id) {
             $itemQuery->where('item.sub_order_id', $sub_order_id);
         }
