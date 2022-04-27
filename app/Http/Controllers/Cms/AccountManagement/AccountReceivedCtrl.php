@@ -10,12 +10,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 use App\Enums\Received\ReceivedMethod;
+
 use App\Models\AllGrade;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\GeneralLedger;
 use App\Models\OrderItem;
 use App\Models\ReceivedOrder;
+use App\Models\User;
 
 class AccountReceivedCtrl extends Controller
 {
@@ -43,29 +45,7 @@ class AccountReceivedCtrl extends Controller
                 'email'=>$order_data->email,
                 // 'deleted_at'=>null,
             ])->first();
-        $order_list_data = OrderItem::leftJoin('ord_orders', 'ord_orders.id', '=', 'ord_items.order_id')
-            ->leftJoin('ord_sub_orders', 'ord_sub_orders.id', '=', 'ord_items.sub_order_id')
-            ->where([
-                'ord_orders.id'=>$order_id,
-            ])
-            ->select(
-                'ord_orders.id AS order_id',
-                'ord_orders.status AS order_status',
-                // 'ord_orders.dlv_fee AS order_dlv_fee',
-
-                'ord_sub_orders.sn AS del_sn',
-                'ord_sub_orders.ship_category_name AS del_category_name',
-                'ord_sub_orders.ship_event AS del_even',
-                'ord_sub_orders.ship_temp AS del_temp',
-
-                'ord_items.sku AS product_sku',
-                'ord_items.product_title AS product_title',
-                'ord_items.price AS product_price',
-                'ord_items.qty AS product_qty',
-                'ord_items.origin_price AS product_origin_price',
-                'ord_items.discount_value AS product_discount',
-                'ord_items.discounted_price AS product_after_discounting_price',
-            )->get();
+        $order_list_data = OrderItem::item_order($order_id)->get();
 
         $received_order_collection = ReceivedOrder::where([
             'order_id'=>$order_id,
@@ -76,7 +56,7 @@ class AccountReceivedCtrl extends Controller
             ReceivedOrder::create([
                 'order_id'=>$order_id,
                 'usr_users_id'=>auth('user')->user() ? auth('user')->user()->id : null,
-                'sn'=>'KSG' . date('ymd') . str_pad( count(ReceivedOrder::whereDate('created_at', '=', date('Y-m-d'))->withTrashed()->get()) + 1, 3, '0', STR_PAD_LEFT),
+                'sn'=>'MSG' . date('ymd') . str_pad( count(ReceivedOrder::whereDate('created_at', '=', date('Y-m-d'))->withTrashed()->get()) + 1, 3, '0', STR_PAD_LEFT),
                 'price'=>$order_data->total_price,
                 // 'tw_dollar'=>0,
                 // 'rate'=>1,
@@ -278,61 +258,134 @@ class AccountReceivedCtrl extends Controller
         }
     }
 
-    /**
-     * 查看「收款單」
-     *
-     * @param  \App\Models\AccountReceived  $accountReceived
-     * @return \Illuminate\Http\Response
-     */
-    public function show()
-    {
-        //
-    }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\AccountReceived  $accountReceived
-     * @return \Illuminate\Http\Response
-     */
-    public function edit()
+    public function receipt(Request $request, $id)
     {
-        //
-    }
+        $request->merge([
+            'id'=>$id,
+        ]);
+        $request->validate([
+            'id' => 'required|exists:ord_orders,id',
+        ]);
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\AccountReceived  $accountReceived
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request)
-    {
-        //
-    }
+        $order = Order::findOrFail(request('id'));
+        $received_order_collection = ReceivedOrder::where([
+            'order_id'=>request('id'),
+            'deleted_at'=>null,
+        ]);
 
-    /**
-     * 收款單「入款審核」
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function review(Request $request)
-    {
-        return view('cms.account_management.account_received.review', [
+        $received_order_data = $received_order_collection->get();
+        if (count($received_order_data) == 0 || $received_order_collection->sum('price') != DB::table('acc_received')->whereIn('received_order_id', $received_order_collection->pluck('id')->toArray())->sum('tw_price')) {
+            return abort(404);
+        }
 
+        $order_list_data = OrderItem::item_order(request('id'))->get();
+        $product_qc = $order_list_data->pluck('product_user_name')->toArray();
+        $product_qc = array_unique($product_qc);
+        asort($product_qc);
+
+        $received_data = DB::table('acc_received')->whereIn('received_order_id', $received_order_data->pluck('id')->toArray())->get();
+        $order_purchaser = Customer::where([
+            'email'=>$order->email,
+            // 'deleted_at'=>null,
+        ])->first();
+        $undertaker = User::find($received_order_collection->first()->usr_users_id);
+
+        $accountant = User::whereIn('id', $received_data->pluck('accountant_id_fk')->toArray())->get();
+        $accountant = array_unique($accountant->pluck('name')->toArray());
+        asort($accountant);
+
+        return view('cms.account_management.account_received.receipt', [
+            'received_order'=>$received_order_collection->first(),
+            'order'=>$order,
+            'order_list_data' => $order_list_data,
+            'received_data' => $received_data,
+            'order_purchaser' => $order_purchaser,
+            'undertaker'=>$undertaker,
+            'product_qc'=>implode(',', $product_qc),
+            'accountant'=>implode(',', $accountant),
+
+            'breadcrumb_data' => ['id'=>$order->id, 'sn'=>$order->sn],
         ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\AccountReceived  $accountReceived
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy()
+
+    public function review(Request $request, $id)
     {
-        //
+        $request->merge([
+            'id'=>$id,
+        ]);
+        $request->validate([
+            'id' => 'required|exists:ord_orders,id',
+        ]);
+
+        $received_order_collection = ReceivedOrder::where([
+            'order_id'=>request('id'),
+            'deleted_at'=>null,
+        ]);
+
+        $received_order_data = $received_order_collection->get();
+        if (count($received_order_data) == 0 || $received_order_collection->sum('price') != DB::table('acc_received')->whereIn('received_order_id', $received_order_collection->pluck('id')->toArray())->sum('tw_price')) {
+            return abort(404);
+        }
+
+        $received_order = $received_order_collection->first();
+
+        if($request->isMethod('post')){
+            $request->validate([
+                'receipt_date' => 'required|date_format:"Y-m-d"',
+                'invoice_number' => 'required|string',
+            ]);
+
+            $received_order->update([
+                'receipt_date'=>request('receipt_date'),
+                'invoice_number'=>request('invoice_number'),
+            ]);
+
+            wToast(__('入帳日期更新成功'));
+            return redirect()->route('cms.ar.receipt', ['id'=>request('id')]);
+
+        } else if($request->isMethod('get')){
+            if($received_order->receipt_date){
+                $received_order->update([
+                    'receipt_date'=>null,
+                ]);
+
+                wToast(__('入帳日期已取消'));
+                return redirect()->route('cms.ar.receipt', ['id'=>request('id')]);
+
+            } else {
+                $undertaker = User::find($received_order->usr_users_id);
+                $order = Order::findOrFail(request('id'));
+
+                $order_list_data = OrderItem::item_order(request('id'))->get();
+
+                $received_data = DB::table('acc_received')->whereIn('received_order_id', $received_order_data->pluck('id')->toArray())->get();
+                foreach($received_data as $value){
+                    $value->received_method_name = ReceivedMethod::getDescription($value->received_method);
+                    $value->account = AllGrade::find($value->all_grades_id)->eachGrade;
+
+                    if($value->received_method == 'foreign_currency'){
+                        $arr = explode('-', AllGrade::find($value->all_grades_id)->eachGrade->name);
+                        $value->currency_name = $arr[0] == '外幣' ? $arr[1] . ' - ' . $arr[2] : 'NTD';
+                        $value->currency_rate = DB::table('acc_received_currency')->find($value->received_method_id)->currency;
+                    } else {
+                        $value->currency_name = 'NTD';
+                        $value->currency_rate = 1;
+                    }
+                }
+
+                return view('cms.account_management.account_received.review', [
+                    'form_action'=>route('cms.ar.review' , ['id'=>request('id')]),
+                    'received_order'=>$received_order,
+                    'order'=>$order,
+                    'order_list_data' => $order_list_data,
+                    'received_data' => $received_data,
+
+                    'undertaker'=>$undertaker,
+                    'breadcrumb_data' => ['id'=>$order->id, 'sn'=>$order->sn],
+                ]);
+            }
+        }
     }
 }

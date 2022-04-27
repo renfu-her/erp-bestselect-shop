@@ -106,6 +106,10 @@ class OrderItem extends Model
     {
         $query = self::leftJoin('ord_orders', 'ord_orders.id', '=', 'ord_items.order_id')
             ->leftJoin('ord_sub_orders', 'ord_sub_orders.id', '=', 'ord_items.sub_order_id')
+            ->leftJoin('prd_product_styles as styles', 'styles.id', '=', 'ord_items.product_style_id')
+            ->leftJoin('prd_products as products', 'products.id', '=', 'styles.product_id')
+            ->leftJoin('usr_users as users', 'users.id', '=', 'products.user_id')
+
             ->where([
                 'ord_orders.id'=>$order_id,
             ])
@@ -125,6 +129,9 @@ class OrderItem extends Model
                 'ord_items.origin_price AS product_origin_price',
                 'ord_items.discount_value AS product_discount',
                 'ord_items.discounted_price AS product_after_discounting_price',
+
+                'users.id as product_user_id',
+                'users.name as product_user_name'
             );
 
         return $query;
