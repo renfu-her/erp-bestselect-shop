@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\Customer\AccountStatus;
 use App\Models\Customer;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -31,16 +32,16 @@ class CustomerSeeder extends Seeder
             'can_bind' => 0,
         ]]);
 
-        Customer::createCustomer('Hans', 'hayashi0126@gmail.com', '12345');
+        Customer::createCustomer('Hans', 'hayashi0126@gmail.com', '12345', null, null, null , AccountStatus::open()->value);
         User::customerBinding(1, 'hayashi0126@gmail.com');
-        Customer::createCustomer('小姜', 'program03@ittms.com.tw', '12345');
-        Customer::createCustomer('理查', 'richardyuan30@gmail.com', '12345');
-        Customer::createCustomer('阿君', 'ccps961032326@gmail.com', '12345');
-        Customer::createCustomer('之谷', 'pntcwz@gmail.com', '12345');
-        Customer::createCustomer('烏梅', 'hsihung08079@gmail.com', '12345');
+        Customer::createCustomer('小姜', 'program03@ittms.com.tw', '12345', null, null, null , AccountStatus::open()->value);
+        Customer::createCustomer('理查', 'richardyuan30@gmail.com', '12345', null, null, null , AccountStatus::open()->value);
+        Customer::createCustomer('阿君', 'ccps961032326@gmail.com', '12345', null, null, null , AccountStatus::open()->value);
+        Customer::createCustomer('之谷', 'pntcwz@gmail.com', '12345', null, null, null , AccountStatus::open()->value);
+        Customer::createCustomer('烏梅', 'hsihung08079@gmail.com', '12345', null, null, null , AccountStatus::open()->value);
         User::customerBinding(6, 'hsihung08079@gmail.com');
 
-        Customer::createCustomer('yoyo', 'yoyo@writingbeing.com', '12345');
+        Customer::createCustomer('yoyo', 'yoyo@writingbeing.com', '12345', null, null, null , AccountStatus::open()->value);
         Customer::createCustomer('andy', 'andy', '1111');
     }
 }
