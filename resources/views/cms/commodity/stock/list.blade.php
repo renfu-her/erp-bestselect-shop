@@ -46,6 +46,20 @@
                         @endforeach
                     </div>
                 </fieldset>
+                <fieldset class="col-12 col-sm-6 mb-3">
+                    <legend class="col-form-label p-0 mb-2">耗材</legend>
+                    <div class="px-1 pt-1">
+                        @foreach ($consumes as $key => $consume)
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="consume" type="radio"
+                                           value="{{ $consume[0] }}" @if ($consume[0] == $searchParam['consume']) checked @endif>
+                                    {{ $consume[1] }}
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                </fieldset>
                 <fieldset class="col-12 mb-3">
                     <legend class="col-form-label p-0 mb-2">庫存狀態</legend>
                     <div class="px-1 pt-1">

@@ -24,6 +24,7 @@ class StockCtrl extends Controller
         $searchParam = [];
         $searchParam['keyword'] = Arr::get($query, 'keyword');
         $searchParam['type'] = Arr::get($query, 'type');
+        $searchParam['consume'] = Arr::get($query, 'consume', 'all');
         $searchParam['user'] = Arr::get($query, 'user');
         $searchParam['supplier'] = Arr::get($query, 'supplier');
         $searchParam['stock'] = Arr::get($query, 'stock',[]);
@@ -35,6 +36,7 @@ class StockCtrl extends Controller
             'p' => '一般',
             'c' => '組合包',
         ];
+        $consumes = [['all', '不限'], ['1', '耗材'], ['0', '商品']];
 
         $stockRadios = [
             'warning' => '低於安全庫存',
@@ -48,9 +50,11 @@ class StockCtrl extends Controller
         //   dd( $searchParam['user']);
 
         $extPrdStyleList_send = PurchaseInbound::getExistInboundProductStyleList($depot_id);
-        $products = Product::productStyleList($searchParam['keyword'], $searchParam['type'],$searchParam['stock'],
+        $products = Product::productStyleList($searchParam['keyword'], $searchParam['type'], $searchParam['stock'],
             ['supplier' => ['condition' => $searchParam['supplier'], 'show' => true],
-                'user' => ['show' => true, 'condition' => $searchParam['user']]])
+                'user' => ['show' => true, 'condition' => $searchParam['user']],
+                'consume' => $searchParam['consume'] == 'all' ? null : $searchParam['consume'],
+            ])
 
             ->leftJoinSub($extPrdStyleList_send, 'inbound', function($join) use($depot_id) {
                 //對應到入庫倉可入到進貨倉 相同的product_style_id
@@ -84,6 +88,7 @@ class StockCtrl extends Controller
             'users' => User::select('id', 'name')->get()->toArray(),
             'typeRadios' => $typeRadios,
             'stockRadios' => $stockRadios,
+            'consumes' => $consumes,
             'searchParam' => $searchParam,
         ]);
     }
