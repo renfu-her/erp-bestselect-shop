@@ -17,9 +17,9 @@
         </a>
         --}}
         <a href="{{ Route('cms.purchase.view-pay-order', ['id' => request('purchaseId'), 'type' => request('isFinalPay')], true) }}" class="btn btn-primary" role="button">
-            <i class="bi bi-arrow-left"></i> 回到上一頁
+            <i class="bi bi-arrow-left"></i> 返回上一頁
         </a>
-        {{-- <button type="button" class="btn btn-primary" onclick={{ session('_url') ? "location.href='" . session('_url') . "'" : 'history.go(-1)' }}><i class="bi bi-arrow-left"></i> 回到上一頁</button> --}}
+        {{-- <button type="button" class="btn btn-primary" onclick={{ session('_url') ? "location.href='" . session('_url') . "'" : 'history.go(-1)' }}><i class="bi bi-arrow-left"></i> 返回上一頁</button> --}}
     </div>
     <form method="POST" action="{{ $formAction }}">
         @csrf

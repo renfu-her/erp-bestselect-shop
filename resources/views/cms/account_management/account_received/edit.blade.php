@@ -26,7 +26,7 @@
 
     <div class="pt-2 mb-3">
         <a href="{{ Route('cms.order.detail', ['id' => $ord_orders_id]) }}" class="btn btn-primary" role="button">
-            <i class="bi bi-arrow-left"></i> 回到上一頁
+            <i class="bi bi-arrow-left"></i> 返回上一頁
         </a>
     </div>
     <form method="POST" action="{{ $formAction }}">
