@@ -98,15 +98,15 @@ class Order extends Model
                 'order.discounted_price',
                 'order.dlv_fee',
                 'order.origin_price',
-                'order.note',
                 'order.status',
                 'order.total_price',
                 'order.created_at',
-                // 'order.unique_id',
                 'customer.name',
                 'customer.email',
                 'sale.title as sale_title'])
             ->selectRaw("IF(order.unique_id IS NULL,'',order.unique_id) as unique_id")
+            ->selectRaw("IF(order.note IS NULL,'',order.note) as note")
+
             ->where('order.id', $order_id);
 
         if ($email) {
