@@ -67,6 +67,16 @@ class CyberbizImportSeeder extends Seeder
 
                 $specCount = count($productArray['options']);
 
+                //建立主圖圖片路徑
+                foreach ($productArray['photo_urls'] as $photoUrl) {
+                    preg_match('/.*\\/(product_imgs\\/.*)/', $photoUrl["maximum"], $fullMaxUrl);
+                    DB::table('prd_product_images')
+                        ->insert([
+                            'product_id' => $productId,
+                            'url' => $fullMaxUrl[1],
+                        ]);
+                }
+
                 //開始建立「款式」商品
                 foreach ($productArray['variants'] as $variant) {
                     //只建立「一般商品」，不建立「組合包」
