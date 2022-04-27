@@ -139,7 +139,7 @@
                 <tbody>
                     @foreach ($dataList as $key => $data)
                         <tr>
-                            <th scope="row">{{ $key + 1 }}324354353</th>
+                            <th scope="row">{{ $key + 1 }}</th>
                             <td class="text-center">
 
                                 <a href="
