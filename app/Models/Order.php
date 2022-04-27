@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Delivery\Event;
+use App\Enums\Order\OrderStatus;
 use App\Enums\Order\UserAddrType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -124,7 +125,7 @@ class Order extends Model
             'sku' => 'item.sku',
             'price' => 'item.price',
             'qty' => 'item.qty',
-            'img_url'=>'item.img_url',
+            'img_url' => 'item.img_url',
             'total_price' => 'item.origin_price']);
 
         $itemQuery = DB::table('ord_items as item')
@@ -225,7 +226,7 @@ class Order extends Model
 
         return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $note, $coupon_obj) {
             $order = OrderCart::cartFormater($items, $coupon_obj);
-          
+
             if ($order['success'] != 1) {
                 DB::rollBack();
                 return $order;
@@ -342,7 +343,7 @@ class Order extends Model
                         'discounted_price' => $product->discounted_price,
                         'discount_value' => $product->discount_value,
                         'origin_price' => $product->origin_price,
-                        'img_url' => $product->img_url
+                        'img_url' => $product->img_url,
                     ]);
 
                     Discount::createOrderDiscount('item', $pid, $product->discounts);
@@ -351,7 +352,7 @@ class Order extends Model
 
             }
 
-            OrderFlow::changeOrderStatus($order_id, 'O01');
+            OrderFlow::changeOrderStatus($order_id, OrderStatus::Add());
 
             return ['success' => '1', 'order_id' => $order_id];
         });

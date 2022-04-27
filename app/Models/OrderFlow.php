@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\Order\OrderStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 
 class OrderFlow extends Model
 {
@@ -12,19 +12,18 @@ class OrderFlow extends Model
     protected $table = 'ord_order_flow';
     protected $guarded = [];
 
-    public static function changeOrderStatus($order_id, $code)
+    public static function changeOrderStatus($order_id, OrderStatus $stauts)
     {
-        $code = DB::table('ord_order_status')->where('code', $code)->get()->first();
 
         Order::where('id', $order_id)->update([
-            'status' => $code->title,
-            'status_code' => $code->code,
+            'status_code' => $stauts->value,
+            'status' => $stauts->description,
         ]);
 
         self::create([
             'order_id' => $order_id,
-            'status' => $code->title,
-            'status_code' => $code->code,
+            'status_code' => $stauts->value,
+            'status' => $stauts->description,
         ]);
     }
 }
