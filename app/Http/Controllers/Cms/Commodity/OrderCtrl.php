@@ -315,7 +315,7 @@ class OrderCtrl extends Controller
             'breadcrumb_data' => $sn,
             'subOrderId' => $subOrderId,
             'discounts' => Discount::orderDiscountList('main', $id)->get()->toArray(),
-            'receivable'=>$receivable,
+            'receivable' => $receivable,
             'received_order_data'=>$received_order_collection->first(),
         ]);
     }

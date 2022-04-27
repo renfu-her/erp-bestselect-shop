@@ -60,7 +60,7 @@ class OrderCtrl extends Controller
 
         $request->validate([
             'id' => 'required|exists:ord_orders,id',
-            'unique_id' => 'required|exists:ord_orders,unique_id',
+            // 'unique_id' => 'required|exists:ord_orders,unique_id',
         ]);
 
         $order = DB::table('ord_orders as order')

@@ -1,4 +1,5 @@
 @extends('layouts.main')
+
 @section('sub-content')
     <style>
         .grade_1 {
@@ -116,16 +117,65 @@
             </div>
         </div>
 
+        <div class="card shadow p-4 mb-4">
+            <h4 class="mb-3">收款單預設</h4>
+            <div class="col-12 mb-3">
+                <label class="form-label" for="">商品</label>
+                <select name="orderDefault[product]" required {{ $isViewMode === true ? 'disabled' : '' }} class="select3 -select2 -single form-select col-12 @error('orderDefault[product]') is-invalid @enderror" data-placeholder="請選擇">
+                    <option disabled selected value>-- select an option --</option>
+                    @foreach($totalGrades as $value)
+                        <option
+                            @if(!is_null($default_product_grade) && $value['primary_id'] === $default_product_grade)
+                            selected
+                            @endif
+
+                            @if($value['grade_num'] === 1)
+                            class="grade_1"
+                            @elseif($value['grade_num'] === 2)
+                            class="grade_2"
+                            @elseif($value['grade_num'] === 3)
+                            class="grade_3"
+                            @elseif($value['grade_num'] === 4)
+                            class="grade_4"
+                            @endif
+
+                            value="{{ $value['primary_id'] }}">{{ $value['code'] . ' ' . $value['name'] }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-12 mb-3">
+                <label class="form-label" for="">物流費用</label>
+                <select name="orderDefault[logistics]" required {{ $isViewMode === true ? 'disabled' : '' }} class="select3 -select2 -single form-select col-12 @error('orderDefault[logistics]') is-invalid @enderror" data-placeholder="請選擇">
+                    <option disabled selected value>-- select an option --</option>
+                    @foreach($totalGrades as $value)
+                        <option
+                            @if(!is_null($default_logistics_grade) && $value['primary_id'] === $default_logistics_grade)
+                            selected
+                            @endif
+
+                            @if($value['grade_num'] === 1)
+                            class="grade_1"
+                            @elseif($value['grade_num'] === 2)
+                            class="grade_2"
+                            @elseif($value['grade_num'] === 3)
+                            class="grade_3"
+                            @elseif($value['grade_num'] === 4)
+                            class="grade_4"
+                            @endif
+
+                            value="{{ $value['primary_id'] }}">{{ $value['code'] . ' ' . $value['name'] }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+
         <div>
-            <button type="button" class="btn btn-primary px-4" id="editBtn">
-                    編輯
-            </button>
-            <button type="submit" class="btn btn-primary px-4" id="submitBtn">
-                    儲存
-            </button>
-            <a href="{{ Route('cms.received_default.index', [], true) }}">
-                <button type="button" class="btn btn-outline-primary px-4" id="cancelBtn">取消</button>
-            </a>
+            <button type="button" class="btn btn-primary px-4" id="editBtn">編輯</button>
+            <button type="submit" class="btn btn-primary px-4" id="submitBtn">儲存</button>
+            <a class="btn btn-outline-primary px-4" href="{{ Route('cms.received_default.index', [], true) }}" role="button" id="cancelBtn">取消</a>
         </div>
     </form>
     @if ($errors->any())
@@ -137,8 +187,8 @@
             </ul>
         </div>
     @endif
-
 @endsection
+
 @once
     @push('sub-scripts')
         <script>

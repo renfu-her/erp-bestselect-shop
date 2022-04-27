@@ -11,6 +11,10 @@ class ReceivedDefault extends Model
 {
     use HasFactory;
 
+    protected $table = 'acc_received_default';
+    protected $guarded = [];
+
+
     public static function updateCurrency(array $currencyData)
     {
         foreach ($currencyData['rate'] as $currencyId => $rate) {

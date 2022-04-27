@@ -17,6 +17,7 @@ use App\Models\Order;
 use App\Models\GeneralLedger;
 use App\Models\OrderItem;
 use App\Models\ReceivedOrder;
+use App\Models\ReceivedDefault;
 use App\Models\User;
 
 class AccountReceivedCtrl extends Controller
@@ -60,8 +61,8 @@ class AccountReceivedCtrl extends Controller
                 'price'=>$order_data->total_price,
                 // 'tw_dollar'=>0,
                 // 'rate'=>1,
-                // 'logistics_grade_id'=>ReceivedDefault::where('name', 'logistics')->first()->default_grade_id,
-                // 'product_grade_id'=>ReceivedDefault::where('name', 'product')->first()->default_grade_id,
+                'logistics_grade_id'=>ReceivedDefault::where('name', 'logistics')->first()->default_grade_id,
+                'product_grade_id'=>ReceivedDefault::where('name', 'product')->first()->default_grade_id,
                 // 'created_at'=>date("Y-m-d H:i:s"),
             ]);
         }
@@ -295,6 +296,9 @@ class AccountReceivedCtrl extends Controller
         $accountant = array_unique($accountant->pluck('name')->toArray());
         asort($accountant);
 
+        $product_grade_name = AllGrade::find($received_order_collection->first()->product_grade_id)->eachGrade->code . ' - ' . AllGrade::find($received_order_collection->first()->product_grade_id)->eachGrade->name;
+        $logistics_grade_name = AllGrade::find($received_order_collection->first()->logistics_grade_id)->eachGrade->code . ' - ' . AllGrade::find($received_order_collection->first()->logistics_grade_id)->eachGrade->name;
+
         return view('cms.account_management.account_received.receipt', [
             'received_order'=>$received_order_collection->first(),
             'order'=>$order,
@@ -304,6 +308,8 @@ class AccountReceivedCtrl extends Controller
             'undertaker'=>$undertaker,
             'product_qc'=>implode(',', $product_qc),
             'accountant'=>implode(',', $accountant),
+            'product_grade_name'=>$product_grade_name,
+            'logistics_grade_name'=>$logistics_grade_name,
 
             'breadcrumb_data' => ['id'=>$order->id, 'sn'=>$order->sn],
         ]);
@@ -375,14 +381,19 @@ class AccountReceivedCtrl extends Controller
                     }
                 }
 
+                $product_grade_name = AllGrade::find($received_order->product_grade_id)->eachGrade->code . ' - ' . AllGrade::find($received_order->product_grade_id)->eachGrade->name;
+                $logistics_grade_name = AllGrade::find($received_order->logistics_grade_id)->eachGrade->code . ' - ' . AllGrade::find($received_order->logistics_grade_id)->eachGrade->name;
+
                 return view('cms.account_management.account_received.review', [
                     'form_action'=>route('cms.ar.review' , ['id'=>request('id')]),
                     'received_order'=>$received_order,
                     'order'=>$order,
                     'order_list_data' => $order_list_data,
                     'received_data' => $received_data,
-
                     'undertaker'=>$undertaker,
+                    'product_grade_name'=>$product_grade_name,
+                    'logistics_grade_name'=>$logistics_grade_name,
+
                     'breadcrumb_data' => ['id'=>$order->id, 'sn'=>$order->sn],
                 ]);
             }
