@@ -73,7 +73,7 @@ class CustomerResetCtrl extends Controller
     {
         return view('cms.customerLoginResetStatus', [
             'status' => session('status'),
-            'formAction' => 'https://dev-shopp.bestselection.com.tw/',
+            'formAction' => env('FRONTEND_URL'),
         ]);
     }
 }

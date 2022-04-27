@@ -102,7 +102,6 @@ class Template extends Model
 
     public static function getListWithWeb($is_public = null)
     {
-        $groupDoman = frontendUrl(FrontendApiUrl::collection());
         $result = DB::table('idx_template as template')
             ->select(
                 'template.title',
