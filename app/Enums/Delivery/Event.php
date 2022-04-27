@@ -9,7 +9,6 @@ class Event extends Enum
     const purchase = 'purchase'; //採購
 
     const order = 'order'; //訂單
-    const turnover = 'turnover'; //轉倉
     const consignment = 'consignment'; //寄倉
 
     public static function getDescription($value): string
@@ -21,9 +20,6 @@ class Event extends Enum
                 break;
             case self::order:
                 $result = '訂單';
-                break;
-            case self::turnover:
-                $result = '轉倉';
                 break;
             case self::consignment:
                 $result = '寄倉';
