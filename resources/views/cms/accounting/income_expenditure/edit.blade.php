@@ -252,7 +252,7 @@
         <div class="card shadow p-4 mb-4">
             <h4 class="mb-3">付款單預設</h4>
             <div class="col-12 mb-3">
-                <label class="form-label" for="">商品支出</label>
+                <label class="form-label" for="">商品</label>
                 <select
                     name="orderDefault[product]"
                     required

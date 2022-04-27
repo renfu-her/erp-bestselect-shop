@@ -81,10 +81,15 @@ class ReceivedDefaultCtrl extends Controller
                 ];
         }
 
+        $default_product_grade = ReceivedDefault::where('name', 'logistics')->first() ? ReceivedDefault::where('name', 'logistics')->first()->default_grade_id : null;
+        $default_logistics_grade = ReceivedDefault::where('name', 'product')->first() ? ReceivedDefault::where('name', 'product')->first()->default_grade_id : null;
+
         return view('cms.accounting.received_default.edit', [
             'totalGrades' => $totalGrades,
             'defaultArray' => $defaultArray,
             'currencyDefaultArray' => $currencyDefaultArray,
+            'default_product_grade' => $default_product_grade,
+            'default_logistics_grade' => $default_logistics_grade,
             'isViewMode' => true,
             'formAction' => Route('cms.received_default.edit', [], true),
             'formMethod' => 'post'
@@ -170,13 +175,40 @@ class ReceivedDefaultCtrl extends Controller
             ReceivedMethod::ForeignCurrency . '.grade_id_fk' => ['nullable', 'array'],
             //若有回傳會計科目的id，不得小於1
             ReceivedMethod::ForeignCurrency . '.grade_id_fk.*' => ['required', 'int', 'min:1'],
-        ]);
 
+            'orderDefault'=>'required|array:product,logistics',
+            'orderDefault.product'=>'nullable|exists:acc_all_grades,id',
+            'orderDefault.logistics'=>'nullable|exists:acc_all_grades,id',
+        ]);
 
         $req = $request->all();
 
         ReceivedDefault::updateCurrency($req['foreign_currency']);
         ReceivedDefault::updateReceivedDefault($req);
+
+        $default_product_grade = ReceivedDefault::where('name', 'product')->first();
+        if($default_product_grade){
+            ReceivedDefault::where('name', 'product')->update([
+                'default_grade_id' => $req['orderDefault']['product'],
+            ]);
+        } else {
+            ReceivedDefault::create([
+                'name' => 'product',
+                'default_grade_id' => $req['orderDefault']['product'],
+            ]);
+        }
+
+        $default_logistics_grade = ReceivedDefault::where('name', 'logistics')->first();
+        if($default_logistics_grade){
+            ReceivedDefault::where('name', 'logistics')->update([
+                'default_grade_id' => $req['orderDefault']['logistics'],
+            ]);
+        } else {
+            ReceivedDefault::create([
+                'name' => 'logistics',
+                'default_grade_id' => $req['orderDefault']['logistics'],
+            ]);
+        }
 
         return redirect()->route('cms.received_default.index');
     }

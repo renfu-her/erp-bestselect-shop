@@ -103,7 +103,7 @@
                     <tbody>
                         @foreach($order_list_data as $value)
                             <tr>
-                                <td>{{ $value->product_title }}{{'（' . $value->del_even . ' - ' . $value->del_category_name . '）'}}{{'（' . $value->product_price . ' * ' . $value->product_qty . '）'}}</td>
+                                <td>{{ $product_grade_name }} --- {{ $value->product_title }}{{'（' . $value->del_even . ' - ' . $value->del_category_name . '）'}}{{'（' . $value->product_price . ' * ' . $value->product_qty . '）'}}</td>
                                 <td>{{ $value->product_qty }}</td>
                                 <td>{{ number_format($value->product_price, 2) }}</td>
                                 <td>{{ number_format($value->product_origin_price) }}</td>
@@ -112,7 +112,7 @@
                         @endforeach
                         @if($order->dlv_fee > 0)
                             <tr>
-                                <td>這裡是會計科目 - 物流費用</td>
+                                <td>{{ $logistics_grade_name }} --- 物流費用</td>
                                 <td></td>
                                 <td>{{ number_format($order->dlv_fee, 2) }}</td>
                                 <td>{{ number_format($order->dlv_fee) }}</td>

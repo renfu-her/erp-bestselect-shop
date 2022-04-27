@@ -34,6 +34,7 @@ class CreateProductsTable extends Migration
             $table->integer('consume')->default(0)->comment('是否耗材');
             $table->integer('public')->default(1)->comment('是否公開');
             $table->tinyInteger('spec_locked')->default(0);
+            $table->string('cyberbiz_id')->nullable()->default(null)->comment('Cyberbiz的商品ID，若為null代表商品不是由Cyberbiz匯入');
             $table->timestamps();
             $table->softDeletes();
         });

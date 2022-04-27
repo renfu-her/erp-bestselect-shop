@@ -68,11 +68,11 @@
                         <th scope="row"></th>
                         <td>
                             @foreach($order_list_data as $value)
-                                {{ $value->product_title }}{{'（' . $value->del_even . ' - ' . $value->del_category_name . '）'}}{{'（' . $value->product_price . ' * ' . $value->product_qty . '）'}}
+                                {{ $product_grade_name }} --- {{ $value->product_title }}{{'（' . $value->del_even . ' - ' . $value->del_category_name . '）'}}{{'（' . $value->product_price . ' * ' . $value->product_qty . '）'}}
                                 <br>
                             @endforeach
                             @if($order->dlv_fee > 0)
-                                物流費用
+                                {{ $logistics_grade_name }} --- 物流費用
                                 <br>
                             @endif
                             @if($order->discount_value > 0)

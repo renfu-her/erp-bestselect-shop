@@ -58,16 +58,24 @@ class CyberbizImportSeeder extends Seeder
                     [1]);
                 $productId = $re['id'];
 
-                //把商品的SKU從購物網2.0預設改成Cyberbiz的product sku
                 Product::where('id', $productId)
                     ->update([
                         'spec_locked' => 1,
-                        'sku' => explode('-', $productArray['variants'][0]['sku'])[0]
                     ]);
                 Product::where('id', $productId)
                     ->update(['desc' => $productArray['body_html']]);
 
                 $specCount = count($productArray['options']);
+
+                //建立主圖圖片路徑
+                foreach ($productArray['photo_urls'] as $photoUrl) {
+                    preg_match('/.*\\/(product_imgs\\/.*)/', $photoUrl["maximum"], $fullMaxUrl);
+                    DB::table('prd_product_images')
+                        ->insert([
+                            'product_id' => $productId,
+                            'url' => $fullMaxUrl[1],
+                        ]);
+                }
 
                 //開始建立「款式」商品
                 foreach ($productArray['variants'] as $variant) {
@@ -114,7 +122,7 @@ class CyberbizImportSeeder extends Seeder
                             'spec_item2_id' => $itemArray[1] ?? null,
                             'spec_item3_id' => $itemArray[2] ?? null,
                         ])->update([
-                            'sku' => str_replace('-', '', $variant['sku'])
+                            'sku' => $variant['sku']
                         ]);
 
                         // 銷售通路價格
@@ -135,6 +143,7 @@ class CyberbizImportSeeder extends Seeder
                             0,
                             $variant['max_usable_bonus'] ?? 0
                         );
+                        SaleChannel::addPriceForStyle($styleId);
                     }
                 }
             }
