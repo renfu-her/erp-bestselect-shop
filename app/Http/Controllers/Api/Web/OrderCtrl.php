@@ -2,14 +2,20 @@
 
 namespace App\Http\Controllers\Api\Web;
 
+use App\Enums\Delivery\Event;
 use App\Enums\Globals\ResponseParam;
+use App\Enums\Order\OrderStatus;
 use App\Enums\Order\UserAddrType;
+// use App\Enums\;
 use App\Enums\Received\ReceivedMethod;
 use App\Http\Controllers\Controller;
 use App\Models\Addr;
 use App\Models\Customer;
+use App\Models\Delivery;
 use App\Models\Discount;
+use App\Models\LogisticFlow;
 use App\Models\Order;
+use App\Models\OrderFlow;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -298,8 +304,13 @@ class OrderCtrl extends Controller
 
             return response()->json($re);
         }
+
         $subOrder = Order::subOrderDetail($d['order_id'])->get()->toArray();
+        //  dd($subOrder);
         $order->sub_order = array_map(function ($n) {
+            $delivery = Delivery::getDeliveryWithEventWithSn(Event::order()->value, $n->order_id)->get()->first();
+            $n->shipment_flow = LogisticFlow::getListByDeliveryId($delivery->id)->select('status', 'created_at')->get()->toArray();
+
             $n->items = json_decode($n->items);
             foreach ($n->items as $key => $value) {
                 if ($value->img_url) {
@@ -378,6 +389,7 @@ class OrderCtrl extends Controller
 
                 if (empty($status) && $status == '0') {
                     // echo '交易完成';
+                    OrderFlow::changeOrderStatus($id, OrderStatus::Paided());
                     return redirect('https://dev-shopp.bestselection.com.tw/payfin/' . $id . '/' . $lidm . '/' . $status);
                 }
             }
