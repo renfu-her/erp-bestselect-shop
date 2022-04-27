@@ -133,6 +133,7 @@ class CyberbizImportSeeder extends Seeder
                             0,
                             $variant['max_usable_bonus'] ?? 0
                         );
+                        SaleChannel::addPriceForStyle($styleId);
                     }
                 }
             }
