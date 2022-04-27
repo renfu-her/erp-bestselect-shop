@@ -6,16 +6,14 @@ use App\Enums\Globals\ResponseParam;
 use App\Enums\Order\UserAddrType;
 use App\Enums\Received\ReceivedMethod;
 use App\Http\Controllers\Controller;
-
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\DB;
-
 use App\Models\Addr;
 use App\Models\Customer;
 use App\Models\Discount;
 use App\Models\Order;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class OrderCtrl extends Controller
 {
@@ -50,12 +48,11 @@ class OrderCtrl extends Controller
 
     }
 
-
     public function payment_credit_card(Request $request, $id, $unique_id)
     {
         $request->merge([
-            'id'=>$id,
-            'unique_id'=>$unique_id,
+            'id' => $id,
+            'unique_id' => $unique_id,
         ]);
 
         $request->validate([
@@ -85,17 +82,17 @@ class OrderCtrl extends Controller
                 'received.sn as received_sn',
             ])
             ->where([
-                'order.id'=>$id,
-                'order.unique_id'=>$unique_id,
-                'received.deleted_at'=>null,
+                'order.id' => $id,
+                'order.unique_id' => $unique_id,
+                'received.deleted_at' => null,
             ])
             ->first();
 
-        if(! $order){
+        if (!$order) {
             return abort(404);
         }
 
-        include (app_path() . '/Helpers/auth_mpi_mac.php');
+        include app_path() . '/Helpers/auth_mpi_mac.php';
 
         $str_mer_id = '77725';
         $str_merchant_id = '8220300000043';
@@ -104,19 +101,19 @@ class OrderCtrl extends Controller
         $str_url = 'https://testepos.ctbcbank.com/mauth/SSLAuthUI.jsp';
 
         $arr_data = [
-            'MerchantID'=>$str_merchant_id,
-            'TerminalID'=>$str_terminal_id,
-            'lidm'=>$order->sn,
-            'purchAmt'=>$order->total_price,
-            'txType'=>'0',
-            'Option'=>0,
-            'Key'=>'LPCvSznVxZ4CFjnWbtg4mUWo',
-            'MerchantName'=>mb_convert_encoding($order->sale_title, 'BIG5', ['BIG5', 'UTF-8']),
-            'AuthResURL'=>route('api.web.order.credit_card_checkout'),
-            'OrderDetail'=>mb_convert_encoding($order->note, 'BIG5', ['BIG5', 'UTF-8']),
-            'AutoCap'=>'1',
-            'Customize'=>' ',
-            'debug'=>'0'
+            'MerchantID' => $str_merchant_id,
+            'TerminalID' => $str_terminal_id,
+            'lidm' => $order->sn,
+            'purchAmt' => $order->total_price,
+            'txType' => '0',
+            'Option' => 0,
+            'Key' => 'LPCvSznVxZ4CFjnWbtg4mUWo',
+            'MerchantName' => mb_convert_encoding($order->sale_title, 'BIG5', ['BIG5', 'UTF-8']),
+            'AuthResURL' => route('api.web.order.credit_card_checkout'),
+            'OrderDetail' => mb_convert_encoding($order->note, 'BIG5', ['BIG5', 'UTF-8']),
+            'AutoCap' => '1',
+            'Customize' => ' ',
+            'debug' => '0',
         ];
 
         $str_mac_string = auth_in_mac($arr_data['MerchantID'], $arr_data['TerminalID'], $arr_data['lidm'], $arr_data['purchAmt'], $arr_data['txType'], $arr_data['Option'], $arr_data['Key'], $arr_data['MerchantName'], $arr_data['AuthResURL'], $arr_data['OrderDetail'], $arr_data['AutoCap'], $arr_data['Customize'], $arr_data['debug']);
@@ -124,29 +121,28 @@ class OrderCtrl extends Controller
         $str_url_enc = get_auth_urlenc($arr_data['MerchantID'], $arr_data['TerminalID'], $arr_data['lidm'], $arr_data['purchAmt'], $arr_data['txType'], $arr_data['Option'], $arr_data['Key'], $arr_data['MerchantName'], $arr_data['AuthResURL'], $arr_data['OrderDetail'], $arr_data['AutoCap'], $arr_data['Customize'], $str_mac_string, $arr_data['debug']);
 
         return view('cms.frontend.checkout', [
-            'order'=>$order,
-            'str_url'=>$str_url,
-            'str_mac_string'=>$str_mac_string,
-            'str_mer_id'=>$str_mer_id,
-            'str_url_enc'=>$str_url_enc,
+            'order' => $order,
+            'str_url' => $str_url,
+            'str_mac_string' => $str_mac_string,
+            'str_mer_id' => $str_mer_id,
+            'str_url_enc' => $str_url_enc,
         ]);
     }
 
-
     public function credit_card_checkout(Request $request)
     {
-        include (app_path() . '/Helpers/auth_mpi_mac.php');
+        include app_path() . '/Helpers/auth_mpi_mac.php';
 
         // $EncRes = isset($_POST['URLResEnc']) ? $_POST['URLResEnc'] : null;
         $EncRes = request('URLResEnc') ? request('URLResEnc') : null;
-        if($EncRes){
+        if ($EncRes) {
             $Key = 'LPCvSznVxZ4CFjnWbtg4mUWo';
             $debug = '0';
             $EncArray = gendecrypt($EncRes, $Key, $debug);
 
-            if(is_array($EncArray) && count($EncArray) > 0){
-                foreach($EncArray AS $key_name => $value){
-                    echo $key_name . " => " . mb_convert_encoding(trim($value, "\x00..\x08"), 'UTF-8', ['BIG5', 'UTF-8']) ."<br>\n";
+            if (is_array($EncArray) && count($EncArray) > 0) {
+                foreach ($EncArray as $key_name => $value) {
+                    echo $key_name . " => " . mb_convert_encoding(trim($value, "\x00..\x08"), 'UTF-8', ['BIG5', 'UTF-8']) . "<br>\n";
                     // echo $key_name . " => " . urlencode(trim($value, "\x00..\x08")) ."<br>\n";
                 }
 
@@ -170,12 +166,12 @@ class OrderCtrl extends Controller
                 //     // then the result is right!
                 // }
 
-                $pidResult= isset($EncArray['pidresult']) ? $EncArray['pidresult'] : "";
+                $pidResult = isset($EncArray['pidresult']) ? $EncArray['pidresult'] : "";
                 $CardNumber = isset($EncArray['cardnumber']) ? $EncArray['cardnumber'] : "";
                 $CardNo = isset($EncArray['cardno']) ? $EncArray['cardno'] : "";
                 $EInvoice = isset($EncArray['einvoice']) ? $EncArray['einvoice'] : "";
 
-                if(empty($status) && $status == '0'){
+                if (empty($status) && $status == '0') {
                     echo '交易完成';
                     echo '<br>';
                     echo '<a href="' . route('cms.order.index') . '">回到訂單管理</a>';
@@ -190,7 +186,6 @@ class OrderCtrl extends Controller
         echo '<a href="' . route('cms.order.index') . '">回到訂單管理</a>';
         // return redirect()->back();
     }
-
 
     public function createOrder(Request $request)
     {
@@ -271,7 +266,6 @@ class OrderCtrl extends Controller
         ];
     }
 
-
     public function orderDetail(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -299,11 +293,18 @@ class OrderCtrl extends Controller
         $subOrder = Order::subOrderDetail($d['order_id'])->get()->toArray();
         $order->sub_order = array_map(function ($n) {
             $n->items = json_decode($n->items);
+            foreach ($n->items as $key => $value) {
+                if ($value->img_url) {
+                    $n->items[$key]->img_url = asset($n->items[$key]->img_url);
+                } else {
+                    $n->items[$key]->img_url = '';
+                }
+            }
             return $n;
         }, $subOrder);
 
         // credit card start
-        include (app_path() . '/Helpers/auth_mpi_mac.php');
+        include app_path() . '/Helpers/auth_mpi_mac.php';
 
         $str_mer_id = '77725';
         $str_merchant_id = '8220300000043';
@@ -312,19 +313,19 @@ class OrderCtrl extends Controller
         $str_url = 'https://testepos.ctbcbank.com/mauth/SSLAuthUI.jsp';
 
         $arr_data = [
-            'MerchantID'=>$str_merchant_id,
-            'TerminalID'=>$str_terminal_id,
-            'lidm'=>$order->sn,
-            'purchAmt'=>$order->total_price,
-            'txType'=>'0',
-            'Option'=>0,
-            'Key'=>'LPCvSznVxZ4CFjnWbtg4mUWo',
-            'MerchantName'=>mb_convert_encoding($order->sale_title, 'BIG5', ['BIG5', 'UTF-8']),
-            'AuthResURL'=>route('api.web.order.credit_card_checkout_api', ['id'=>$order->id]),
-            'OrderDetail'=>mb_convert_encoding($order->note, 'BIG5', ['BIG5', 'UTF-8']),
-            'AutoCap'=>'1',
-            'Customize'=>' ',
-            'debug'=>'0'
+            'MerchantID' => $str_merchant_id,
+            'TerminalID' => $str_terminal_id,
+            'lidm' => $order->sn,
+            'purchAmt' => $order->total_price,
+            'txType' => '0',
+            'Option' => 0,
+            'Key' => 'LPCvSznVxZ4CFjnWbtg4mUWo',
+            'MerchantName' => mb_convert_encoding($order->sale_title, 'BIG5', ['BIG5', 'UTF-8']),
+            'AuthResURL' => route('api.web.order.credit_card_checkout_api', ['id' => $order->id]),
+            'OrderDetail' => mb_convert_encoding($order->note, 'BIG5', ['BIG5', 'UTF-8']),
+            'AutoCap' => '1',
+            'Customize' => ' ',
+            'debug' => '0',
         ];
 
         $str_mac_string = auth_in_mac($arr_data['MerchantID'], $arr_data['TerminalID'], $arr_data['lidm'], $arr_data['purchAmt'], $arr_data['txType'], $arr_data['Option'], $arr_data['Key'], $arr_data['MerchantName'], $arr_data['AuthResURL'], $arr_data['OrderDetail'], $arr_data['AutoCap'], $arr_data['Customize'], $arr_data['debug']);
@@ -343,31 +344,30 @@ class OrderCtrl extends Controller
         return response()->json($re);
     }
 
-
     public function credit_card_checkout_api(Request $request, $id)
     {
-        include (app_path() . '/Helpers/auth_mpi_mac.php');
+        include app_path() . '/Helpers/auth_mpi_mac.php';
 
         // $EncRes = isset($_POST['URLResEnc']) ? $_POST['URLResEnc'] : null;
         $EncRes = request('URLResEnc') ? request('URLResEnc') : null;
-        if($EncRes){
+        if ($EncRes) {
             $Key = 'LPCvSznVxZ4CFjnWbtg4mUWo';
             $debug = '0';
             $EncArray = gendecrypt($EncRes, $Key, $debug);
 
-            if(is_array($EncArray) && count($EncArray) > 0){
+            if (is_array($EncArray) && count($EncArray) > 0) {
                 $status = isset($EncArray['status']) ? $EncArray['status'] : "";
                 $lidm = isset($EncArray['lidm']) ? $EncArray['lidm'] : "";
                 // $order = Order::where('sn', $lidm)->first();
 
-                if(empty($status) && $status == '0'){
+                if (empty($status) && $status == '0') {
                     // echo '交易完成';
-                    return  redirect('https://dev-shopp.bestselection.com.tw/payfin/' . $id . '/' . $lidm . '/' . $status );
+                    return redirect('https://dev-shopp.bestselection.com.tw/payfin/' . $id . '/' . $lidm . '/' . $status);
                 }
             }
         }
 
         // echo '交易失敗';
-        return  redirect('https://dev-shopp.bestselection.com.tw/payfin/' . $id . '/' . $lidm . '/1');
+        return redirect('https://dev-shopp.bestselection.com.tw/payfin/' . $id . '/' . $lidm . '/1');
     }
 }
