@@ -61,7 +61,7 @@
                         @endforeach
                     </div>
                 </fieldset>
-              
+
             </div>
             <div class="col">
                 <input type="hidden" name="data_per_page" value="{{ $data_per_page }}" />
@@ -94,19 +94,26 @@
                 <thead>
                     <tr>
                         <th scope="col" style="width:10%">#</th>
+                        <th scope="col" class="text-center">編輯</th>
                         <th scope="col">商品名稱</th>
                         <th scope="col">SKU</th>
                         <th scope="col">負責人</th>
                         <th scope="col">類型</th>
                         <th scope="col">耗材</th>
                         <th scope="col">公開</th>
-                        <th scope="col" class="text-center">編輯</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
+                            <td class="text-center">
+                                <a href="{{ Route('cms.product.edit', ['id' => $data->id], true) }}"
+                                   data-bs-toggle="tooltip" title="編輯"
+                                   class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                            </td>
                             <td>{{ $data->title }}</td>
                             <td>{{ $data->sku }}</td>
                             <td>{{ $data->user_name }}</td>
@@ -120,13 +127,6 @@
                                 @if ($data->public == '1')
                                     是
                                 @endif
-                            </td>
-                            <td class="text-center">
-                                <a href="{{ Route('cms.product.edit', ['id' => $data->id], true) }}"
-                                    data-bs-toggle="tooltip" title="編輯"
-                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                    <i class="bi bi-pencil-square"></i>
-                                </a>
                             </td>
                         </tr>
                     @endforeach
