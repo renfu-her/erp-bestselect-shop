@@ -202,6 +202,7 @@
                     <tr>
                         <th scope="col" style="width:10%">#</th>
                         <th scope="col">採購單號</th>
+                        <th scope="col" class="text-center">編輯</th>
                         <th scope="col">商品名稱</th>
                         <th scope="col">採購日期</th>
                         <th scope="col">審核狀態</th>
@@ -218,7 +219,6 @@
                         <th scope="col">廠商</th>
                         <th scope="col">發票號碼</th>
 
-                        <th scope="col" class="text-center">編輯</th>
                         <th scope="col" class="text-center">刪除</th>
                     </tr>
                     </thead>
@@ -228,6 +228,15 @@
                             <tr>
                                 <th scope="row">{{ $key + 1 }}</th>
                                 <td>{{ $data->sn }}</td>
+                                <td class="text-center">
+                                    {{--                            @can('admin.purchase.edit')--}}
+                                    <a href="{{ Route('cms.purchase.edit', ['id' => $data->id], true) }}"
+                                       data-bs-toggle="tooltip" title="編輯"
+                                       class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    {{--                            @endcan--}}
+                                </td>
                                 <td>{{ $data->title }}</td>
                                 <td>{{ $data->created_at }}</td>
                                 <td>{{ $data->audit_status }}</td>
@@ -244,15 +253,6 @@
                                 <td>{{ $data->supplier_name }}</td>
                                 <td>{{ $data->invoice_num }}</td>
 
-                                <td class="text-center">
-                                    {{--                            @can('admin.purchase.edit')--}}
-                                    <a href="{{ Route('cms.purchase.edit', ['id' => $data->id], true) }}"
-                                       data-bs-toggle="tooltip" title="編輯"
-                                       class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </a>
-                                    {{--                            @endcan--}}
-                                </td>
                                 <td class="text-center">
                                     {{--                            @can('admin.purchase.delete')--}}
                                     <a href="javascript:void(0)" data-href="{{ Route('cms.purchase.delete', ['id' => $data->id], true) }}"
