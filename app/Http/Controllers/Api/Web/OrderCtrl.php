@@ -306,9 +306,9 @@ class OrderCtrl extends Controller
         }
 
         $subOrder = Order::subOrderDetail($d['order_id'])->get()->toArray();
-        //  dd($subOrder);
+       
         $order->sub_order = array_map(function ($n) {
-            $delivery = Delivery::getDeliveryWithEventWithSn(Event::order()->value, $n->order_id)->get()->first();
+            $delivery = Delivery::getDeliveryWithEventWithSn(Event::order()->value, $n->id)->get()->first();
             $n->shipment_flow = LogisticFlow::getListByDeliveryId($delivery->id)->select('status', 'created_at')->get()->toArray();
 
             $n->items = json_decode($n->items);
