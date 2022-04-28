@@ -79,6 +79,7 @@ class OrderCtrl extends Controller
                 'order.dlv_fee',
                 'order.origin_price',
                 'order.note',
+                'order.status_code',
                 'order.status',
                 'order.total_price',
                 'order.created_at',
@@ -93,6 +94,9 @@ class OrderCtrl extends Controller
                 'order.unique_id' => $unique_id,
                 'received.deleted_at' => null,
             ])
+            ->where(function ($q) {
+                $q->whereRaw('(order.status_code NOT IN ("canceled","closed","paided"))');
+            })
             ->first();
 
         if (!$order) {
@@ -116,7 +120,7 @@ class OrderCtrl extends Controller
             'Option' => 0,
             'Key' => 'LPCvSznVxZ4CFjnWbtg4mUWo',
             'MerchantName' => mb_convert_encoding($order->sale_title, 'BIG5', ['BIG5', 'UTF-8']),
-            'AuthResURL' => route('api.web.order.credit_card_checkout', ['id' => $id]),
+            'AuthResURL' => route('api.web.order.credit_card_checkout', ['id' => $id, 'unique_id' => $unique_id]),
             'OrderDetail' => mb_convert_encoding($order->note, 'BIG5', ['BIG5', 'UTF-8']),
             'AutoCap' => '1',
             'Customize' => ' ',
@@ -144,66 +148,92 @@ class OrderCtrl extends Controller
      *
      * @return reidrect
      */
-    public function credit_card_checkout(Request $request, $id)
+    public function credit_card_checkout(Request $request, $id, $unique_id)
     {
-        include app_path() . '/Helpers/auth_mpi_mac.php';
+        $EncArray = [];
 
-        $EncRes = request('URLResEnc') ? request('URLResEnc') : null;
-        if ($EncRes) {
-            $Key = 'LPCvSznVxZ4CFjnWbtg4mUWo';
-            $debug = '0';
-            $EncArray = gendecrypt($EncRes, $Key, $debug);
+        if($request->isMethod('post')){
+            // avoid f5 reload
+            // $log = OrderPayCreditCard::where([
+            //     'order_id'=>$id,
+            //     'status'=>0,
+            //     ])->first();
 
-            if (is_array($EncArray) && count($EncArray) > 0) {
-                foreach ($EncArray as $key_name => $value) {
-                    echo $key_name . " => " . mb_convert_encoding(trim($value, "\x00..\x08"), 'UTF-8', ['BIG5', 'UTF-8']) . "<br>\n";
-                    // echo $key_name . " => " . urlencode(trim($value, "\x00..\x08")) ."<br>\n";
-                }
+            // if($log){
+            //     return abort(404);
+            // }
 
-                $MACString = '';
-                $status = isset($EncArray['status']) ? $EncArray['status'] : '';
-                $errCode = isset($EncArray['errcode']) ? $EncArray['errcode'] : '';
-                $authCode = isset($EncArray['authcode']) ? $EncArray['authcode'] : '';
-                $authAmt = isset($EncArray['authamt']) ? $EncArray['authamt'] : '';
-                $lidm = isset($EncArray['lidm']) ? $EncArray['lidm'] : '';
-                $OffsetAmt = isset($EncArray['offsetamt']) ? $EncArray['offsetamt'] : '';
-                $OriginalAmt = isset($EncArray['originalamt']) ? $EncArray['originalamt'] : '';
-                $UtilizedPoint = isset($EncArray['utilizedpoint']) ? $EncArray['utilizedpoint'] : '';
-                $Option = isset($EncArray['numberofpay']) ? $EncArray['numberofpay'] : '';
-                //紅利交易時請帶入prodcode
-                //$Option = isset($EncArray['prodcode']) ? $EncArray['prodcode'] : '';
-                $Last4digitPAN = isset($EncArray['last4digitpan']) ? $EncArray['last4digitpan'] : '';
+            include app_path() . '/Helpers/auth_mpi_mac.php';
 
-                $MACString = auth_out_mac($status, $errCode, $authCode, $authAmt, $lidm, $OffsetAmt, $OriginalAmt, $UtilizedPoint, $Option, $Last4digitPAN, $Key, $debug);
-                echo "產生伺服器所回傳的資料壓碼(MACString)==> $MACString\n" . '<br>';
-                // if ($MACString == $EncArray['outmac']){
-                //     // then the result is right!
-                // }
+            $EncRes = request('URLResEnc') ? request('URLResEnc') : null;
+            if ($EncRes) {
+                $Key = 'LPCvSznVxZ4CFjnWbtg4mUWo';
+                $debug = '0';
+                $EncArray = gendecrypt($EncRes, $Key, $debug);
 
-                $pidResult = isset($EncArray['pidresult']) ? $EncArray['pidresult'] : '';
-                $CardNumber = isset($EncArray['cardnumber']) ? $EncArray['cardnumber'] : '';
-                $CardNo = isset($EncArray['cardno']) ? $EncArray['cardno'] : '';
-                $EInvoice = isset($EncArray['einvoice']) ? $EncArray['einvoice'] : '';
+                if (is_array($EncArray) && count($EncArray) > 0) {
+                    $status = isset($EncArray['status']) ? $EncArray['status'] : '';
 
-                if (empty($status) && $status == '0') {
-                    OrderFlow::changeOrderStatus($id, OrderStatus::Paided());
+                    if (empty($status) && $status == '0') {
+                        OrderFlow::changeOrderStatus($id, OrderStatus::Paided());
+                    }
+
                     OrderPayCreditCard::create_log($id, (object)$EncArray);
-
-                    echo '交易完成';
-                    echo '<br>';
-                    echo '<a href="' . route('cms.order.detail', ['id' => $id]) . '">回到訂單明細</a>';
-                    die();
-                    // return redirect()->back();
                 }
-
-                OrderPayCreditCard::create_log($id, (object)$EncArray);
             }
         }
 
-        echo '交易失敗';
-        echo '<br>';
-        echo '<a href="' . route('cms.order.detail', ['id' => $id]) . '">回到訂單明細</a>';
-        // return redirect()->back();
+        $order = DB::table('ord_orders as order')
+            ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
+            ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id')
+            ->leftJoin('pcs_received_orders as received', 'received.order_id', '=', 'order.id')
+            ->join('ord_payment_credit_card_log as cc_log', 'cc_log.order_id', '=', 'order.id')
+            ->select([
+                'order.id',
+                'order.sn',
+                'order.discount_value',
+                'order.discounted_price',
+                'order.dlv_fee',
+                'order.origin_price',
+                'order.note',
+                'order.status_code',
+                'order.status',
+                'order.total_price',
+                'order.created_at',
+                'order.unique_id',
+                'customer.name',
+                'customer.email',
+                'sale.title as sale_title',
+                'received.sn as received_sn',
+                'cc_log.status as log_status',
+                'cc_log.errdesc as log_errdesc',
+                'cc_log.authcode as log_authcode',
+                'cc_log.authamt as log_authamt',
+                'cc_log.cardnumber as log_cardnumber',
+                'cc_log.created_at as log_created_at',
+            ])
+            ->where([
+                'order.id' => $id,
+                'order.unique_id' => $unique_id,
+                'received.deleted_at' => null,
+            ])
+            ->where(function ($q) use($EncArray) {
+                if(count($EncArray) > 0){
+                    $q->where([
+                        'cc_log.status' => $EncArray['status'],
+                    ]);
+                }
+            })
+            ->get()
+            ->last();
+
+        if (!$order) {
+            return abort(404);
+        }
+
+        return view('cms.frontend.checkout_result', [
+            'order'=>$order,
+        ]);
     }
 
     public function createOrder(Request $request)
@@ -394,6 +424,7 @@ class OrderCtrl extends Controller
                     // echo '交易完成';
                     OrderFlow::changeOrderStatus($id, OrderStatus::Paided());
                     OrderPayCreditCard::create_log($id, (object)$EncArray);
+
                     return redirect('https://dev-shopp.bestselection.com.tw/payfin/' . $id . '/' . $lidm . '/' . $status);
                 }
 

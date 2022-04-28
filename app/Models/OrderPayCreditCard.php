@@ -14,25 +14,7 @@ class OrderPayCreditCard extends Model
 
     public static function create_log(int $order_id, object $response)
     {
-        $ipaddress = '';
-
-        if (getenv('HTTP_CLIENT_IP'))
-            $ipaddress = getenv('HTTP_CLIENT_IP');
-        else if(getenv('HTTP_X_FORWARDED_FOR'))
-            $ipaddress = getenv('HTTP_X_FORWARDED_FOR');
-        else if(getenv('HTTP_X_FORWARDED'))
-            $ipaddress = getenv('HTTP_X_FORWARDED');
-        else if(getenv('HTTP_FORWARDED_FOR'))
-            $ipaddress = getenv('HTTP_FORWARDED_FOR');
-        else if(getenv('HTTP_FORWARDED'))
-            $ipaddress = getenv('HTTP_FORWARDED');
-        else if(getenv('REMOTE_ADDR'))
-            $ipaddress = getenv('REMOTE_ADDR');
-        else
-            $ipaddress = 'Unknown';
-
-
-        $agent = $_SERVER['HTTP_USER_AGENT'];
+        $agent = request()->server('HTTP_USER_AGENT');
         $platform = 'Unknown OS Platform';
         $browser = 'Unknown Browser';
 
@@ -63,8 +45,7 @@ class OrderPayCreditCard extends Model
         ];
 
         foreach ($platform_arr as $key => $value)
-            if (preg_match($key, $agent))
-                $platform = $value;
+            if (preg_match($key, $agent)) $platform = $value;
 
         $browser_arr = [
             '/msie/i' => 'Internet Explorer',
@@ -80,8 +61,7 @@ class OrderPayCreditCard extends Model
         ];
 
         foreach ($browser_arr as $key => $value)
-            if (preg_match($key, $agent))
-                $browser = $value;
+            if (preg_match($key, $agent)) $browser = $value;
 
         self::create([
             'order_id'=>$order_id,
@@ -98,7 +78,7 @@ class OrderPayCreditCard extends Model
             'last4digitpan'=>property_exists($response, 'last4digitpan') ? $response->last4digitpan : null,
             'cardnumber'=>property_exists($response, 'cardnumber') ? $response->cardnumber : null,
             'authresurl'=>property_exists($response, 'authresurl') ? $response->authresurl : null,
-            'hostname'=>$ipaddress,
+            'hostname'=>request()->ip() ? request()->ip() : 'Unknown',
             'os'=>$platform,
             'browser'=>$browser,
             'full_agent_msg'=>$agent,
