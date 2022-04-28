@@ -15,6 +15,7 @@ yarn-error.log
 /.vscode
 /public/dist
 /public/product_imgs
+/public/product_intro
 /public/idx_banner
 /public/fonts/vendor
 /yarn.lock
