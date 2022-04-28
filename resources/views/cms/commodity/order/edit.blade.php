@@ -268,9 +268,6 @@
                     <label class="small fw-normal text-body ms-3">
                         <input id="rec_same" class="form-check-input mt-0 me-1" type="checkbox">同購買人
                     </label>
-                    <mark class="fw-light small">
-                        <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>請填寫<b>真實姓名、電話及地址</b>，以免無法正常收取貨
-                    </mark>
                 </h6>
                 <div class="row">
                     <div class="col-12 col-sm-6 mb-3">
@@ -318,6 +315,9 @@
                         </div>
                     </div>
                 </div>
+                <mark class="fw-light small">
+                    <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>請填寫真實姓名、電話及地址，以免無法正常收取貨
+                </mark>
                 <h6 class="d-flex align-items-end">寄件人
                     <label class="small fw-normal text-body ms-3">
                         <input id="sed_same" class="form-check-input mt-0 me-1" type="checkbox">同購買人
