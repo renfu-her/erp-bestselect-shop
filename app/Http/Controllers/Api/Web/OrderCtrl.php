@@ -16,6 +16,7 @@ use App\Models\Discount;
 use App\Models\LogisticFlow;
 use App\Models\Order;
 use App\Models\OrderFlow;
+use App\Models\OrderPayCreditCard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -147,7 +148,6 @@ class OrderCtrl extends Controller
     {
         include app_path() . '/Helpers/auth_mpi_mac.php';
 
-        // $EncRes = isset($_POST['URLResEnc']) ? $_POST['URLResEnc'] : null;
         $EncRes = request('URLResEnc') ? request('URLResEnc') : null;
         if ($EncRes) {
             $Key = 'LPCvSznVxZ4CFjnWbtg4mUWo';
@@ -161,18 +161,18 @@ class OrderCtrl extends Controller
                 }
 
                 $MACString = '';
-                $status = isset($EncArray['status']) ? $EncArray['status'] : "";
-                $errCode = isset($EncArray['errcode']) ? $EncArray['errcode'] : "";
-                $authCode = isset($EncArray['authcode']) ? $EncArray['authcode'] : "";
-                $authAmt = isset($EncArray['authamt']) ? $EncArray['authamt'] : "";
-                $lidm = isset($EncArray['lidm']) ? $EncArray['lidm'] : "";
-                $OffsetAmt = isset($EncArray['offsetamt']) ? $EncArray['offsetamt'] : "";
-                $OriginalAmt = isset($EncArray['originalamt']) ? $EncArray['originalamt'] : "";
-                $UtilizedPoint = isset($EncArray['utilizedpoint']) ? $EncArray['utilizedpoint'] : "";
-                $Option = isset($EncArray['numberofpay']) ? $EncArray['numberofpay'] : "";
+                $status = isset($EncArray['status']) ? $EncArray['status'] : '';
+                $errCode = isset($EncArray['errcode']) ? $EncArray['errcode'] : '';
+                $authCode = isset($EncArray['authcode']) ? $EncArray['authcode'] : '';
+                $authAmt = isset($EncArray['authamt']) ? $EncArray['authamt'] : '';
+                $lidm = isset($EncArray['lidm']) ? $EncArray['lidm'] : '';
+                $OffsetAmt = isset($EncArray['offsetamt']) ? $EncArray['offsetamt'] : '';
+                $OriginalAmt = isset($EncArray['originalamt']) ? $EncArray['originalamt'] : '';
+                $UtilizedPoint = isset($EncArray['utilizedpoint']) ? $EncArray['utilizedpoint'] : '';
+                $Option = isset($EncArray['numberofpay']) ? $EncArray['numberofpay'] : '';
                 //紅利交易時請帶入prodcode
-                //$Option = isset($EncArray['prodcode']) ? $EncArray['prodcode'] : "";
-                $Last4digitPAN = isset($EncArray['last4digitpan']) ? $EncArray['last4digitpan'] : "";
+                //$Option = isset($EncArray['prodcode']) ? $EncArray['prodcode'] : '';
+                $Last4digitPAN = isset($EncArray['last4digitpan']) ? $EncArray['last4digitpan'] : '';
 
                 $MACString = auth_out_mac($status, $errCode, $authCode, $authAmt, $lidm, $OffsetAmt, $OriginalAmt, $UtilizedPoint, $Option, $Last4digitPAN, $Key, $debug);
                 echo "產生伺服器所回傳的資料壓碼(MACString)==> $MACString\n" . '<br>';
@@ -180,24 +180,29 @@ class OrderCtrl extends Controller
                 //     // then the result is right!
                 // }
 
-                $pidResult = isset($EncArray['pidresult']) ? $EncArray['pidresult'] : "";
-                $CardNumber = isset($EncArray['cardnumber']) ? $EncArray['cardnumber'] : "";
-                $CardNo = isset($EncArray['cardno']) ? $EncArray['cardno'] : "";
-                $EInvoice = isset($EncArray['einvoice']) ? $EncArray['einvoice'] : "";
+                $pidResult = isset($EncArray['pidresult']) ? $EncArray['pidresult'] : '';
+                $CardNumber = isset($EncArray['cardnumber']) ? $EncArray['cardnumber'] : '';
+                $CardNo = isset($EncArray['cardno']) ? $EncArray['cardno'] : '';
+                $EInvoice = isset($EncArray['einvoice']) ? $EncArray['einvoice'] : '';
 
                 if (empty($status) && $status == '0') {
+                    OrderFlow::changeOrderStatus($id, OrderStatus::Paided());
+                    OrderPayCreditCard::create_log($id, (object)$EncArray);
+
                     echo '交易完成';
                     echo '<br>';
-                    echo '<a href="' . route('cms.order.detail', ['id' => $id]) . '">回到訂單管理</a>';
+                    echo '<a href="' . route('cms.order.detail', ['id' => $id]) . '">回到訂單明細</a>';
                     die();
                     // return redirect()->back();
                 }
+
+                OrderPayCreditCard::create_log($id, (object)$EncArray);
             }
         }
 
         echo '交易失敗';
         echo '<br>';
-        echo '<a href="' . route('cms.order.detail', ['id' => $id]) . '">回到訂單管理</a>';
+        echo '<a href="' . route('cms.order.detail', ['id' => $id]) . '">回到訂單明細</a>';
         // return redirect()->back();
     }
 
@@ -375,7 +380,6 @@ class OrderCtrl extends Controller
     {
         include app_path() . '/Helpers/auth_mpi_mac.php';
 
-        // $EncRes = isset($_POST['URLResEnc']) ? $_POST['URLResEnc'] : null;
         $EncRes = request('URLResEnc') ? request('URLResEnc') : null;
         if ($EncRes) {
             $Key = 'LPCvSznVxZ4CFjnWbtg4mUWo';
@@ -383,19 +387,22 @@ class OrderCtrl extends Controller
             $EncArray = gendecrypt($EncRes, $Key, $debug);
 
             if (is_array($EncArray) && count($EncArray) > 0) {
-                $status = isset($EncArray['status']) ? $EncArray['status'] : "";
-                $lidm = isset($EncArray['lidm']) ? $EncArray['lidm'] : "";
-                // $order = Order::where('sn', $lidm)->first();
+                $status = isset($EncArray['status']) ? $EncArray['status'] : '';
+                $lidm = isset($EncArray['lidm']) ? $EncArray['lidm'] : '';
 
                 if (empty($status) && $status == '0') {
                     // echo '交易完成';
                     OrderFlow::changeOrderStatus($id, OrderStatus::Paided());
+                    OrderPayCreditCard::create_log($id, (object)$EncArray);
                     return redirect('https://dev-shopp.bestselection.com.tw/payfin/' . $id . '/' . $lidm . '/' . $status);
                 }
+
+                OrderPayCreditCard::create_log($id, (object)$EncArray);
             }
         }
 
         // echo '交易失敗';
+        // return redirect(env('FRONTEND_URL') . 'payfin/' . $id . '/' . $lidm . '/' . $status);
         return redirect('https://dev-shopp.bestselection.com.tw/payfin/' . $id . '/' . $lidm . '/1');
     }
 }

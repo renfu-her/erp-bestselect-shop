@@ -1,6 +1,8 @@
+@extends('layouts.layout')
+@section('content')
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-8">
+            <div class="col-md-12 mt-5">
                 <div class="card">
                     <div class="card-header">線上刷卡</div>
 
@@ -22,7 +24,7 @@
                                     </tr>
                                     <tr>
                                         <th>應付金額</th>
-                                        <td>{{ $order->total_price }}</td>
+                                        <td>{{ number_format($order->total_price) }}</td>
                                     </tr>
                                     <tr>
                                         <th>付款摘要</th>
@@ -47,3 +49,4 @@
             </div>
         </div>
     </div>
+@endsection
