@@ -247,7 +247,7 @@ class LogisticCtrl extends Controller
         $request->validate([
             'statusCode.*' => 'required|string',
         ]);
-        $statusCodes = $request->input('statusCode');
+        $statusCodes = $request->input('statusCode', []);
         $logistic_status_arr = [];
         //反轉送上來的順序再做儲存
         foreach ($statusCodes as $code) {
