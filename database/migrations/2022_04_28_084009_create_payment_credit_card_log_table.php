@@ -30,6 +30,9 @@ class CreatePaymentCreditCardLogTable extends Migration
             $table->string('cardnumber')->nullable()->comment('隱碼卡號');
             $table->text('authresurl')->nullable()->comment('交易結束要導回的網址');
             $table->string('hostname')->nullable();
+            $table->string('os')->nullable();
+            $table->string('browser')->nullable();
+            $table->text('full_agent_msg')->nullable();
             $table->timestamps();
         });
     }
