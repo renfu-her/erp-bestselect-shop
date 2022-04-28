@@ -188,7 +188,7 @@ class OrderCtrl extends Controller
                 if (empty($status) && $status == '0') {
                     echo '交易完成';
                     echo '<br>';
-                    echo '<a href="' . route('cms.order.detail', ['id'=>$id]) . '">回到訂單管理</a>';
+                    echo '<a href="' . route('cms.order.detail', ['id' => $id]) . '">回到訂單管理</a>';
                     die();
                     // return redirect()->back();
                 }
@@ -197,7 +197,7 @@ class OrderCtrl extends Controller
 
         echo '交易失敗';
         echo '<br>';
-        echo '<a href="' . route('cms.order.detail', ['id'=>$id]) . '">回到訂單管理</a>';
+        echo '<a href="' . route('cms.order.detail', ['id' => $id]) . '">回到訂單管理</a>';
         // return redirect()->back();
     }
 
@@ -260,7 +260,7 @@ class OrderCtrl extends Controller
             'address' => Addr::fullAddr($payLoad['recipient']['region_id'], $payLoad['recipient']['addr']),
             'type' => UserAddrType::receiver()->value];
 
-        $re = Order::createOrder($payLoad['email'], 1, $address, $payLoad['products']);
+        $re = Order::createOrder($payLoad['email'], 1, $address, $payLoad['products'], null, null, ReceivedMethod::fromValue($payLoad['payment']));
 
         if ($re['success'] == '1') {
             DB::commit();
@@ -306,7 +306,7 @@ class OrderCtrl extends Controller
         }
 
         $subOrder = Order::subOrderDetail($d['order_id'])->get()->toArray();
-       
+
         $order->sub_order = array_map(function ($n) {
             $delivery = Delivery::getDeliveryWithEventWithSn(Event::order()->value, $n->id)->get()->first();
             $n->shipment_flow = LogisticFlow::getListByDeliveryId($delivery->id)->select('status', 'created_at')->get()->toArray();

@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Enums\Delivery\Event;
 use App\Enums\Order\OrderStatus;
+use App\Enums\Order\PaymentStatus;
 use App\Enums\Order\UserAddrType;
+use App\Enums\Received\ReceivedMethod;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -107,6 +109,11 @@ class Order extends Model
                 'sale.title as sale_title'])
             ->selectRaw("IF(order.unique_id IS NULL,'',order.unique_id) as unique_id")
             ->selectRaw("IF(order.note IS NULL,'',order.note) as note")
+            ->selectRaw("IF(order.payment_status IS NULL,'',order.payment_status) as payment_status")
+            ->selectRaw("IF(order.payment_status_title IS NULL,'',order.payment_status_title) as payment_status_title")
+            ->selectRaw("IF(order.payment_method IS NULL,'',order.payment_method) as payment_method")
+            ->selectRaw("IF(order.payment_method_title IS NULL,'',order.payment_method_title) as payment_method_title")
+
 
             ->where('order.id', $order_id);
 
@@ -130,13 +137,13 @@ class Order extends Model
             'total_price' => 'item.origin_price']);
 
         $itemQuery = DB::table('ord_items as item')
-            ->leftJoin('prd_product_styles as style','item.product_style_id','=','style.id')
-            ->leftJoin('prd_products as product','style.product_id','=','product.id')
+            ->leftJoin('prd_product_styles as style', 'item.product_style_id', '=', 'style.id')
+            ->leftJoin('prd_products as product', 'style.product_id', '=', 'product.id')
             ->groupBy('item.sub_order_id')
             ->select('item.sub_order_id')
             ->selectRaw($concatString . ' as items')
-             ->where('item.order_id', $order_id);
-             
+            ->where('item.order_id', $order_id);
+
         if ($sub_order_id) {
             $itemQuery->where('item.sub_order_id', $sub_order_id);
         }
@@ -224,10 +231,11 @@ class Order extends Model
      * @param array $coupon_obj [type,value]
      *
      */
-    public static function createOrder($email, $sale_channel_id, $address, $items, $note = null, $coupon_obj = null)
+    public static function createOrder($email, $sale_channel_id, $address, $items, $note = null, $coupon_obj = null, ReceivedMethod $payment = null)
     {
 
-        return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $note, $coupon_obj) {
+        return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $note, $coupon_obj, $payment) {
+
             $order = OrderCart::cartFormater($items, $coupon_obj);
 
             if ($order['success'] != 1) {
@@ -239,7 +247,7 @@ class Order extends Model
                     ->get()
                     ->count()) + 1, 2, '0', STR_PAD_LEFT);
 
-            $order_id = self::create([
+            $updateData = [
                 "sn" => $order_sn,
                 "sale_channel_id" => $sale_channel_id,
                 "email" => $email,
@@ -250,7 +258,16 @@ class Order extends Model
                 "discounted_price" => $order['discounted_price'],
                 'note' => $note,
                 'unique_id' => substr(base_convert(sha1(uniqid(mt_rand())), 16, 36), 0, 9), // return 9 characters
-            ])->id;
+                'payment_status' => PaymentStatus::Unpaid()->value,
+                'payment_status_title' => PaymentStatus::Unpaid()->description,
+            ];
+
+            if ($payment) {
+                $updateData['payment_method'] = $payment->value;
+                $updateData['payment_method_title'] = $payment->description;
+            }
+
+            $order_id = self::create($updateData)->id;
 
             Discount::createOrderDiscount('main', $order_id, $order['discounts']);
 
