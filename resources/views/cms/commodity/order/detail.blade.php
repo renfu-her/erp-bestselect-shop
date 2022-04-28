@@ -77,7 +77,7 @@
             <dl class="row">
                 <div class="col">
                     <dt>付款方式</dt>
-                    <dd>(待處理)</dd>
+                    <dd>{{ $order->payment_method_title }}</dd>
                 </div>
                 <div class="col">
                     <dt>訂單狀態</dt>
@@ -155,9 +155,13 @@
                     <dt>銷售通路</dt>
                     <dd>{{ $order->sale_title }}</dd>
                 </div>
-                <div class="col-auto" style="width: calc(100%/12*8.5);">
+                <div class="col">
                     <dt>訂單備註</dt>
                     <dd>{{ $order->note }}</dd>
+                </div>
+                <div class="col-5" >
+                    <dt>付款狀態</dt>
+                    <dd>{{ $order->payment_status_title }}</dd>
                 </div>
             </dl>
         </div>
