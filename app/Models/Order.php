@@ -122,6 +122,7 @@ class Order extends Model
     {
         $concatString = concatStr([
             'product_title' => 'item.product_title',
+            'product_sku' => 'product.sku',
             'sku' => 'item.sku',
             'price' => 'item.price',
             'qty' => 'item.qty',
@@ -129,11 +130,13 @@ class Order extends Model
             'total_price' => 'item.origin_price']);
 
         $itemQuery = DB::table('ord_items as item')
+            ->leftJoin('prd_product_styles as style','item.product_style_id','=','style.id')
+            ->leftJoin('prd_products as product','style.product_id','=','product.id')
             ->groupBy('item.sub_order_id')
             ->select('item.sub_order_id')
             ->selectRaw($concatString . ' as items')
              ->where('item.order_id', $order_id);
-
+             
         if ($sub_order_id) {
             $itemQuery->where('item.sub_order_id', $sub_order_id);
         }
