@@ -264,7 +264,7 @@
                     <option disabled selected value> -- select an option --</option>
                     @foreach($totalGrades as $value)
                         <option
-                            @if(!is_null($productGradeDefaultArray) && $value['primary_id'] === $productGradeDefaultArray['id'])
+                            @if(!is_null($productGradeDefaultArray) && $value['primary_id'] === $productGradeDefaultArray['default_grade_id'])
                             selected
                             @endif
 
@@ -297,7 +297,7 @@
                     <option disabled selected value> -- select an option --</option>
                     @foreach($totalGrades as $value)
                         <option
-                            @if(!is_null($logisticsGradeDefaultArray) && $value['primary_id'] === $logisticsGradeDefaultArray['id'])
+                            @if(!is_null($logisticsGradeDefaultArray) && $value['primary_id'] === $logisticsGradeDefaultArray['default_grade_id'])
                             selected
                             @endif
 

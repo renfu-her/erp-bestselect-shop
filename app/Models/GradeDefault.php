@@ -13,6 +13,8 @@ class GradeDefault extends Model
 
     protected $table = 'acc_grade_default';
 
+    protected $guarded = [];
+
 
     /**
      * @param string \App\Enums\Accounting\ItemGradeDefault constant $name

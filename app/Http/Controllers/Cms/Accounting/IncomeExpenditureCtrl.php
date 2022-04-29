@@ -16,6 +16,8 @@ use App\Models\FirstGrade;
 use App\Models\GeneralLedger;
 use App\Models\IncomeExpenditure;
 use App\Models\GradeDefault;
+use PHPUnit\Framework\IncompleteTest;
+
 class IncomeExpenditureCtrl extends Controller
 {
     /**
@@ -26,8 +28,12 @@ class IncomeExpenditureCtrl extends Controller
     public function index()
     {
         $currencyData = IncomeExpenditure::getCurrencyOptionData();
-        $productGradeDefaultArray = IncomeExpenditure::productGradeDefault();
-        $logisticsGradeDefaultArray = IncomeExpenditure::logisticsGradeDefault();
+        // $productGradeDefaultArray = IncomeExpenditure::productGradeDefault();
+        // $logisticsGradeDefaultArray = IncomeExpenditure::logisticsGradeDefault();
+
+        $productGradeDefaultArray = GradeDefault::where('name', 'product')->first();
+        $logisticsGradeDefaultArray = GradeDefault::where('name', 'logistics')->first();
+
         $allThirdGrades = GeneralLedger::getGradeData(3);
         // $thirdGradesDataList = IncomeExpenditure::getOptionDataByGrade(3);
         // $fourthGradesDataList = IncomeExpenditure::getOptionDataByGrade(4);
@@ -127,11 +133,15 @@ class IncomeExpenditureCtrl extends Controller
     public function edit()
     {
         $currencyData = IncomeExpenditure::getCurrencyOptionData();
-        $productGradeDefaultArray = IncomeExpenditure::productGradeDefault();
-        $logisticsGradeDefaultArray = IncomeExpenditure::logisticsGradeDefault();
+        // $productGradeDefaultArray = IncomeExpenditure::productGradeDefault();
+        // $logisticsGradeDefaultArray = IncomeExpenditure::logisticsGradeDefault();
+
         $allThirdGrades = GeneralLedger::getGradeData(3);
         // $thirdGradesDataList = IncomeExpenditure::getOptionDataByGrade(3);
         // $fourthGradesDataList = IncomeExpenditure::getOptionDataByGrade(4);
+
+        $productGradeDefaultArray = GradeDefault::where('name', 'product')->first();
+        $logisticsGradeDefaultArray = GradeDefault::where('name', 'logistics')->first();
 
         $firstGrades = GeneralLedger::getAllFirstGrade();
         $totalGrades = array();
@@ -222,8 +232,16 @@ class IncomeExpenditureCtrl extends Controller
         IncomeExpenditure::updateCurrency($validatedReq);
         IncomeExpenditure::updateIncomeExpenditure($validatedReq);
 
-        GradeDefault::updateGradeDefault(ItemNameGradeDefault::Product, $request['orderDefault']['product']);
-        GradeDefault::updateGradeDefault(ItemNameGradeDefault::Logistics, $request['orderDefault']['logistics']);
+        // GradeDefault::updateGradeDefault(ItemNameGradeDefault::Product, $request['orderDefault']['product']);
+        // GradeDefault::updateGradeDefault(ItemNameGradeDefault::Logistics, $request['orderDefault']['logistics']);
+
+        GradeDefault::where('name', 'product')->first()->update([
+            'default_grade_id'=>$request['orderDefault']['product'],
+        ]);
+
+        GradeDefault::where('name', 'logistics')->first()->update([
+            'default_grade_id'=>$request['orderDefault']['logistics'],
+        ]);
 
         return redirect()->route('cms.income_expenditure.index');
     }
