@@ -29,6 +29,7 @@ use App\Models\Purchase;
 use App\Models\PurchaseItem;
 use App\Models\Supplier;
 use App\Models\GeneralLedger;
+use App\Models\PayableDefault;
 
 class AccountPayableCtrl extends Controller
 {
@@ -95,9 +96,9 @@ class AccountPayableCtrl extends Controller
         ];
 
         $pay_order = PayingOrder::find($payOrdId);
-        // $thirdGradesDataList = IncomeExpenditure::getOptionDataByGrade(3);
-        // $fourthGradesDataList = IncomeExpenditure::getOptionDataByGrade(4);
-        // $currencyData = IncomeExpenditure::getCurrencyOptionData();
+        // $thirdGradesDataList = PayableDefault::getOptionDataByGrade(3);
+        // $fourthGradesDataList = PayableDefault::getOptionDataByGrade(4);
+        // $currencyData = PayableDefault::getCurrencyOptionData();
 
         // $payStatusArray = [
         //     [
@@ -177,13 +178,13 @@ class AccountPayableCtrl extends Controller
             // 'fourthGradesDataList' => $fourthGradesDataList,
             // 'currencyData' => $currencyData,
             // 'paymentStatusList' => $payStatusArray,
-            'cashDefault' => IncomeExpenditure::where('acc_income_type_fk', 1)->pluck('grade_id_fk')->toArray(),
-            'chequeDefault' => IncomeExpenditure::where('acc_income_type_fk', 2)->pluck('grade_id_fk')->toArray(),
-            'remitDefault' => IncomeExpenditure::where('acc_income_type_fk', 3)->pluck('grade_id_fk')->toArray(),
-            'currencyDefault' => AccountPayable::getFourthGradeDefaultById(4),
-            'currency_select' => IncomeExpenditure::where('acc_income_type_fk', 4)->pluck('grade_id_fk')->toArray(),
-            'accountPayableDefault' => IncomeExpenditure::where('acc_income_type_fk', 5)->pluck('grade_id_fk')->toArray(),
-            'otherDefault' => IncomeExpenditure::where('acc_income_type_fk', 6)->pluck('grade_id_fk')->toArray(),
+            'cashDefault' => PayableDefault::where('name', 'cash')->pluck('default_grade_id')->toArray(),
+            'chequeDefault' => PayableDefault::where('name', 'cheque')->pluck('default_grade_id')->toArray(),
+            'remitDefault' => PayableDefault::where('name', 'remittance')->pluck('default_grade_id')->toArray(),
+            'all_currency' => PayableDefault::getCurrencyOptionData()['selectedCurrencyResult']->toArray(),
+            'currencyDefault' => PayableDefault::where('name', 'foreign_currency')->pluck('default_grade_id')->toArray(),
+            'accountPayableDefault' => PayableDefault::where('name', 'accounts_payable')->pluck('default_grade_id')->toArray(),
+            'otherDefault' => PayableDefault::where('name', 'other')->pluck('default_grade_id')->toArray(),
 
             'method' => 'create',
             'transactTypeList' => AccountPayable::getTransactTypeList(),
@@ -367,9 +368,9 @@ class AccountPayableCtrl extends Controller
         ];
 
         $pay_order = PayingOrder::find($payOrdId);
-        // $thirdGradesDataList = IncomeExpenditure::getOptionDataByGrade(3);
-        // $fourthGradesDataList = IncomeExpenditure::getOptionDataByGrade(4);
-        // $currencyData = IncomeExpenditure::getCurrencyOptionData();
+        // $thirdGradesDataList = PayableDefault::getOptionDataByGrade(3);
+        // $fourthGradesDataList = PayableDefault::getOptionDataByGrade(4);
+        // $currencyData = PayableDefault::getCurrencyOptionData();
 
         // $payStatusArray = [
         //     [
@@ -421,12 +422,13 @@ class AccountPayableCtrl extends Controller
             // 'fourthGradesDataList' => $fourthGradesDataList,
             // 'currencyData' => $currencyData,
             // 'paymentStatusList' => $payStatusArray,
-            'cashDefault' => AccountPayable::getThirdGradeDefaultById(1),
-            'chequeDefault' => AccountPayable::getFourthGradeDefaultById(2),
-            'remitDefault' => AccountPayable::getFourthGradeDefaultById(3),
-            'currencyDefault' => AccountPayable::getFourthGradeDefaultById(4),
-            'accountPayableDefault' => AccountPayable::getFourthGradeDefaultById(5),
-            'otherDefault' => AccountPayable::getThirdGradeDefaultById(6),
+
+            'cashDefault' => PayableDefault::where('name', 'cash')->pluck('default_grade_id')->toArray(),
+            'chequeDefault' => PayableDefault::where('name', 'cheque')->pluck('default_grade_id')->toArray(),
+            'remitDefault' => PayableDefault::where('name', 'remittance')->pluck('default_grade_id')->toArray(),
+            'currencyDefault' => PayableDefault::where('name', 'foreign_currency')->pluck('default_grade_id')->toArray(),
+            'accountPayableDefault' => PayableDefault::where('name', 'accounts_payable')->pluck('default_grade_id')->toArray(),
+            'otherDefault' => PayableDefault::where('name', 'other')->pluck('default_grade_id')->toArray(),
             'method' => 'edit',
             'transactTypeList' => AccountPayable::getTransactTypeList(),
             'chequeStatus' => AccountPayable::getChequeStatus(),
@@ -487,7 +489,7 @@ class AccountPayableCtrl extends Controller
             switch ($requestPayableTypeId) {
                 case Payment::Cash:
                     PayableModelType::where('id', $payableId)->update([
-                        'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::Cash),
+                        'grade_type' => PayableDefault::getModelNameByPayableTypeId(Payment::Cash),
                         'grade_id' => $req['cash']['grade_id_fk']
                     ]);
                     AccountPayable::where('id', $id)->update([
@@ -506,7 +508,7 @@ class AccountPayableCtrl extends Controller
                 case Payment::Cheque:
                     PayableCheque::where('id', $payableId)->update([
                         'check_num' => $req['cheque']['check_num'],
-                        'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::Cheque),
+                        'grade_type' => PayableDefault::getModelNameByPayableTypeId(Payment::Cheque),
                         'grade_id' => $req['cheque']['grade_id_fk'],
                         'maturity_date' => $req['cheque']['maturity_date'],
                         'cash_cheque_date' => $req['cheque']['cash_cheque_date'],
@@ -527,7 +529,7 @@ class AccountPayableCtrl extends Controller
                     break;
                 case Payment::Remittance:
                     PayableRemit::where('id', $payableId)->update([
-                        'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::Remittance),
+                        'grade_type' => PayableDefault::getModelNameByPayableTypeId(Payment::Remittance),
                         'grade_id' => $req['remit']['grade_id_fk'],
                         'remit_date' => $req['remit']['remit_date']
                     ]);
@@ -549,7 +551,7 @@ class AccountPayableCtrl extends Controller
                     PayableForeignCurrency::where('id', $payableId)->update([
                         'foreign_currency' => $req['foreign_currency']['foreign_price'],
                         'rate' => $req['foreign_currency']['rate'],
-                        'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::ForeignCurrency),
+                        'grade_type' => PayableDefault::getModelNameByPayableTypeId(Payment::ForeignCurrency),
                         'grade_id' => $req['foreign_currency']['grade_id_fk'],
                         'acc_currency_fk' => $req['foreign_currency']['currency'],
                     ]);
@@ -568,7 +570,7 @@ class AccountPayableCtrl extends Controller
                     break;
                 case Payment::AccountsPayable:
                     PayableAccount::where('id', $payableId)->update([
-                        'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::AccountsPayable),
+                        'grade_type' => PayableDefault::getModelNameByPayableTypeId(Payment::AccountsPayable),
                         'grade_id' => $req['payable_account']['grade_id_fk'],
                     ]);
                     AccountPayable::where('id', $id)->update([
@@ -586,7 +588,7 @@ class AccountPayableCtrl extends Controller
                     break;
                 case Payment::Other:
                     PayableOther::where('id', $payableId)->update([
-                        'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::Other),
+                        'grade_type' => PayableDefault::getModelNameByPayableTypeId(Payment::Other),
                         'grade_id' => $req['other']['grade_id_fk']
                     ]);
                     AccountPayable::where('id', $id)->update([
@@ -608,7 +610,7 @@ class AccountPayableCtrl extends Controller
             switch ($requestPayableTypeId) {
                 case Payment::Cash:
                     $payableData = PayableCash::create([
-                        'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::Cash),
+                        'grade_type' => PayableDefault::getModelNameByPayableTypeId(Payment::Cash),
                         'grade_id' => $req['cash']['grade_id_fk']
                     ]);
                     AccountPayable::where('id', $id)->update([
@@ -627,7 +629,7 @@ class AccountPayableCtrl extends Controller
                 case Payment::Cheque:
                     $payableData = PayableCheque::create([
                         'check_num' => $req['cheque']['check_num'],
-                        'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::Cheque),
+                        'grade_type' => PayableDefault::getModelNameByPayableTypeId(Payment::Cheque),
                         'grade_id' => $req['cheque']['grade_id_fk'],
                         'maturity_date' => $req['cheque']['maturity_date'],
                         'cash_cheque_date' => $req['cheque']['cash_cheque_date'],
@@ -648,7 +650,7 @@ class AccountPayableCtrl extends Controller
                     break;
                 case Payment::Remittance:
                     $payableData = PayableRemit::create([
-                        'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::Remittance),
+                        'grade_type' => PayableDefault::getModelNameByPayableTypeId(Payment::Remittance),
                         'grade_id' => $req['remit']['grade_id_fk'],
                         'remit_date' => $req['remit']['remit_date']
                     ]);
@@ -669,7 +671,7 @@ class AccountPayableCtrl extends Controller
                     $payableData = PayableForeignCurrency::create([
                         'foreign_currency' => $req['foreign_currency']['foreign_price'],
                         'rate' => $req['foreign_currency']['rate'],
-                        'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::ForeignCurrency),
+                        'grade_type' => PayableDefault::getModelNameByPayableTypeId(Payment::ForeignCurrency),
                         'grade_id' => $req['foreign_currency']['grade_id_fk'],
                         'acc_currency_fk' => $req['foreign_currency']['currency'],
                     ]);
@@ -688,7 +690,7 @@ class AccountPayableCtrl extends Controller
                     break;
                 case Payment::AccountsPayable:
                     $payableData = AccountPayable::create([
-                        'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::AccountsPayable),
+                        'grade_type' => PayableDefault::getModelNameByPayableTypeId(Payment::AccountsPayable),
                         'grade_id' => $req['payable_account']['grade_id_fk'],
                     ]);
                     AccountPayable::where('id', $id)->update([
@@ -706,7 +708,7 @@ class AccountPayableCtrl extends Controller
                     break;
                 case Payment::Other:
                     $payableData =PayableOther::create([
-                        'grade_type' => IncomeExpenditure::getModelNameByPayableTypeId(Payment::Other),
+                        'grade_type' => PayableDefault::getModelNameByPayableTypeId(Payment::Other),
                         'grade_id' => $req['other']['grade_id_fk']
                     ]);
                     AccountPayable::where('id', $id)->update([

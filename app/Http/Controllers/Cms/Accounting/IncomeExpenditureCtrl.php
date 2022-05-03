@@ -9,14 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-use App\Enums\Accounting\ItemNameGradeDefault;
-
-use App\Models\AllGrade;
-use App\Models\FirstGrade;
 use App\Models\GeneralLedger;
 use App\Models\IncomeExpenditure;
-use App\Models\GradeDefault;
-use PHPUnit\Framework\IncompleteTest;
+use App\Models\PayableDefault;
 
 class IncomeExpenditureCtrl extends Controller
 {
@@ -27,16 +22,10 @@ class IncomeExpenditureCtrl extends Controller
      */
     public function index()
     {
-        $currencyData = IncomeExpenditure::getCurrencyOptionData();
-        // $productGradeDefaultArray = IncomeExpenditure::productGradeDefault();
-        // $logisticsGradeDefaultArray = IncomeExpenditure::logisticsGradeDefault();
+        $currencyData = PayableDefault::getCurrencyOptionData();
 
-        $productGradeDefaultArray = GradeDefault::where('name', 'product')->first();
-        $logisticsGradeDefaultArray = GradeDefault::where('name', 'logistics')->first();
-
-        $allThirdGrades = GeneralLedger::getGradeData(3);
-        // $thirdGradesDataList = IncomeExpenditure::getOptionDataByGrade(3);
-        // $fourthGradesDataList = IncomeExpenditure::getOptionDataByGrade(4);
+        $productGradeDefaultArray = PayableDefault::where('name', 'product')->first();
+        $logisticsGradeDefaultArray = PayableDefault::where('name', 'logistics')->first();
 
         $firstGrades = GeneralLedger::getAllFirstGrade();
         $totalGrades = array();
@@ -53,77 +42,32 @@ class IncomeExpenditureCtrl extends Controller
             }
         }
 
-        $query = DB::table('acc_income_expenditure')
-            ->leftJoin('acc_all_grades', 'acc_all_grades.id', '=', 'acc_income_expenditure.grade_id_fk')
-            ->leftJoin('acc_income_type', 'acc_income_type_fk', '=', 'acc_income_type.id')
-            ->where('acc_income_type.type', '<>', '外幣')
-            ->select(
-                'acc_income_expenditure.acc_income_type_fk',
-                'acc_income_expenditure.grade_id_fk',
-                'acc_income_type.type',
-            )
-            ->get()
-            ->groupBy('type');
-
-        $selectedResult = [];
-        foreach ($query as $typeName => $dataItem) {
-            $temp = [];
-            foreach ($dataItem as $data) {
-                $temp[] = $data->grade_id_fk;
-            }
-            $selectedResult[$typeName] = [
-                'grade_id_fk_arr' => $temp,
-                'acc_income_type_fk' => $dataItem[0]->acc_income_type_fk
-            ];
-        }
+        $cash_data = PayableDefault::where('name', 'cash')->pluck('default_grade_id')->toArray();
+        $cheque_data = PayableDefault::where('name', 'cheque')->pluck('default_grade_id')->toArray();
+        $remittance_data = PayableDefault::where('name', 'remittance')->pluck('default_grade_id')->toArray();
+        $accounts_payable_data = PayableDefault::where('name', 'accounts_payable')->pluck('default_grade_id')->toArray();
+        $other_data = PayableDefault::where('name', 'other')->pluck('default_grade_id')->toArray();
 
         return view('cms.accounting.income_expenditure.edit', [
             'totalGrades' => $totalGrades,
-            'selectedResult' => $selectedResult,
 
-            // 'thirdGradesDataList' => $thirdGradesDataList,
-            // 'fourthGradesDataList' => $fourthGradesDataList,
             'currencyData' => $currencyData,
+
+            'cash_data' => $cash_data,
+            'cheque_data' => $cheque_data,
+            'remittance_data' => $remittance_data,
+            'accounts_payable_data' => $accounts_payable_data,
+            'other_data' => $other_data,
+
             'productGradeDefaultArray' => $productGradeDefaultArray,
             'logisticsGradeDefaultArray' => $logisticsGradeDefaultArray,
-            'allThirdGrades' => $allThirdGrades,
+
             'isViewMode' => true,
             'formAction' => Route('cms.income_expenditure.edit', [], true),
             'formMethod' => 'GET'
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\IncomeExpenditure  $incomeExpenditure
-     * @return \Illuminate\Http\Response
-     */
-    public function show(IncomeExpenditure $incomeExpenditure)
-    {
-        //
-    }
 
     /**
      * Show the form for editing the specified resource.
@@ -132,16 +76,10 @@ class IncomeExpenditureCtrl extends Controller
      */
     public function edit()
     {
-        $currencyData = IncomeExpenditure::getCurrencyOptionData();
-        // $productGradeDefaultArray = IncomeExpenditure::productGradeDefault();
-        // $logisticsGradeDefaultArray = IncomeExpenditure::logisticsGradeDefault();
+        $currencyData = PayableDefault::getCurrencyOptionData();
 
-        $allThirdGrades = GeneralLedger::getGradeData(3);
-        // $thirdGradesDataList = IncomeExpenditure::getOptionDataByGrade(3);
-        // $fourthGradesDataList = IncomeExpenditure::getOptionDataByGrade(4);
-
-        $productGradeDefaultArray = GradeDefault::where('name', 'product')->first();
-        $logisticsGradeDefaultArray = GradeDefault::where('name', 'logistics')->first();
+        $productGradeDefaultArray = PayableDefault::where('name', 'product')->first();
+        $logisticsGradeDefaultArray = PayableDefault::where('name', 'logistics')->first();
 
         $firstGrades = GeneralLedger::getAllFirstGrade();
         $totalGrades = array();
@@ -158,40 +96,25 @@ class IncomeExpenditureCtrl extends Controller
             }
         }
 
-        $query = DB::table('acc_income_expenditure')
-            ->leftJoin('acc_all_grades', 'acc_all_grades.id', '=', 'acc_income_expenditure.grade_id_fk')
-            ->leftJoin('acc_income_type', 'acc_income_type_fk', '=', 'acc_income_type.id')
-            ->where('acc_income_type.type', '<>', '外幣')
-            ->select(
-                'acc_income_expenditure.acc_income_type_fk',
-                'acc_income_expenditure.grade_id_fk',
-                'acc_income_type.type',
-            )
-            ->get()
-            ->groupBy('type');
-
-        $selectedResult = [];
-        foreach ($query as $typeName => $dataItem) {
-            $temp = [];
-            foreach ($dataItem as $data) {
-                $temp[] = $data->grade_id_fk;
-            }
-            $selectedResult[$typeName] = [
-                'grade_id_fk_arr' => $temp,
-                'acc_income_type_fk' => $dataItem[0]->acc_income_type_fk
-            ];
-        }
+        $cash_data = PayableDefault::where('name', 'cash')->pluck('default_grade_id')->toArray();
+        $cheque_data = PayableDefault::where('name', 'cheque')->pluck('default_grade_id')->toArray();
+        $remittance_data = PayableDefault::where('name', 'remittance')->pluck('default_grade_id')->toArray();
+        $accounts_payable_data = PayableDefault::where('name', 'accounts_payable')->pluck('default_grade_id')->toArray();
+        $other_data = PayableDefault::where('name', 'other')->pluck('default_grade_id')->toArray();
 
         return view('cms.accounting.income_expenditure.edit', [
             'totalGrades' => $totalGrades,
-            'selectedResult' => $selectedResult,
 
-            // 'thirdGradesDataList' => $thirdGradesDataList,
-            // 'fourthGradesDataList' => $fourthGradesDataList,
             'currencyData' => $currencyData,
+            'cash_data' => $cash_data,
+            'cheque_data' => $cheque_data,
+            'remittance_data' => $remittance_data,
+            'accounts_payable_data' => $accounts_payable_data,
+            'other_data' => $other_data,
+
             'productGradeDefaultArray' => $productGradeDefaultArray,
             'logisticsGradeDefaultArray' => $logisticsGradeDefaultArray,
-            'allThirdGrades' => $allThirdGrades,
+
             'isViewMode' => false,
             'formAction' => Route('cms.income_expenditure.update', [], true),
             'formMethod' => 'POST'
@@ -205,7 +128,7 @@ class IncomeExpenditureCtrl extends Controller
      * @param  \App\Models\IncomeExpenditure  $incomeExpenditure
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, IncomeExpenditure $incomeExpenditure)
+    public function update(Request $request)
     {
         $allCurrencyIds = DB::table('acc_currency')
                             ->select('id')
@@ -218,7 +141,7 @@ class IncomeExpenditureCtrl extends Controller
         }
 
         $val = Validator::make($request->all(), [
-            'income_type' => ['required', 'array'],
+            'income_type' => 'required|array:cash,cheque,remittance,accounts_payable,other',
             'income_type.*' => ['required', 'array'],
             'income_type.*.*' => ['nullable', 'int', 'min:1'],
             'currency' => ['required', 'array:' . implode(',', $allCurrencyIdArray)],
@@ -229,31 +152,17 @@ class IncomeExpenditureCtrl extends Controller
 
         $validatedReq = $val->validated();
 
-        IncomeExpenditure::updateCurrency($validatedReq);
-        IncomeExpenditure::updateIncomeExpenditure($validatedReq);
+        PayableDefault::updateCurrency($validatedReq);
+        PayableDefault::updateIncomeExpenditure($validatedReq);
 
-        // GradeDefault::updateGradeDefault(ItemNameGradeDefault::Product, $request['orderDefault']['product']);
-        // GradeDefault::updateGradeDefault(ItemNameGradeDefault::Logistics, $request['orderDefault']['logistics']);
-
-        GradeDefault::where('name', 'product')->first()->update([
+        PayableDefault::where('name', 'product')->first()->update([
             'default_grade_id'=>$request['orderDefault']['product'],
         ]);
 
-        GradeDefault::where('name', 'logistics')->first()->update([
+        PayableDefault::where('name', 'logistics')->first()->update([
             'default_grade_id'=>$request['orderDefault']['logistics'],
         ]);
 
         return redirect()->route('cms.income_expenditure.index');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\IncomeExpenditure  $incomeExpenditure
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(IncomeExpenditure $incomeExpenditure)
-    {
-        //
     }
 }
