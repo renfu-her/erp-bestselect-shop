@@ -166,27 +166,27 @@
                     <legend class="col-form-label p-0 mb-2">公開 <span class="text-danger">*</span></legend>
                     <div class="form-check form-switch form-switch-lg">
                         <input class="form-check-input" type="checkbox" name="public" value="1"
-                            @if (old('consume', $product->public ?? 1)) checked @endif>
+                            @if (old('public', $product->public ?? 1)) checked @endif>
                     </div>
                 </fieldset>
                 <fieldset class="col-12 col-sm-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">開放通路 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
                         {{-- @foreach ($publics as $key => $public) --}}
-                            <div class="form-check form-check-inline">
-                                <label class="form-check-label">
-                                    <input class="form-check-input" name="" type="checkbox"
-                                        value="online" checked >
-                                    線上 (對外網站)
-                                </label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <label class="form-check-label">
-                                    <input class="form-check-input" name="" type="checkbox"
-                                        value="offline" checked >
-                                    線下 (ERP)
-                                </label>
-                            </div>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" name="online" type="checkbox" value="1"
+                                    @if (old('online', $product->online ?? 1)) checked @endif>
+                                線上 (對外網站)
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" name="offline" type="checkbox" value="1"
+                                    @if (old('offline', $product->offline ?? 1)) checked @endif>
+                                線下 (ERP)
+                            </label>
+                        </div>
                         {{-- @endforeach --}}
                     </div>
                 </fieldset>

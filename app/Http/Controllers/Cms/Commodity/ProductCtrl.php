@@ -36,6 +36,7 @@ class ProductCtrl extends Controller
 
         $query = $request->query();
         $productTypes = [['all', '不限'], ['p', '一般商品'], ['c', '組合包商品']];
+        $onlineTypes = [['all', '不限'], ['online', '線上 (對外網站)'], ['offline', '線下 (ERP)']];
         $consumes = [['all', '不限'], ['1', '耗材'], ['0', '商品']];
         $publics = [['all', '不限'], ['1', '公開'], ['0', '不公開']];
         $page = getPageCount(Arr::get($query, 'data_per_page'));
@@ -45,17 +46,21 @@ class ProductCtrl extends Controller
         $cond['product_type'] = Arr::get($query, 'product_type', 'all');
         $cond['consume'] = Arr::get($query, 'consume', 'all');
         $cond['public'] = Arr::get($query, 'public', 'all');
+        $cond['online'] = Arr::get($query, 'online', 'all');
+      
 
         $products = Product::productList($cond['keyword'], null, ['user' => $cond['user'],
             'product_type' => $cond['product_type'],
             'consume' => $cond['consume'] == 'all' ? null : $cond['consume'],
             'public' => $cond['public'] == 'all' ? null : $cond['public'],
+            'online' => $cond['online'],
         ])
             ->paginate($page);
 
         return view('cms.commodity.product.list', [
             'dataList' => $products,
             'productTypes' => $productTypes,
+            'onlineTypes' => $onlineTypes,
             'users' => User::get(),
             'data_per_page' => $page,
             'consumes' => $consumes,
@@ -119,7 +124,9 @@ class ProductCtrl extends Controller
             $d['supplier'],
             $d['has_tax'],
             isset($d['consume']) ? $d['consume'] : '0',
-            isset($d['public']) ? $d['public'] : '0');
+            isset($d['public']) ? $d['public'] : '0',
+            isset($d['online']) ? $d['online'] : '0',
+            isset($d['offline']) ? $d['offline'] : '0');
 
         if ($request->hasfile('files')) {
             foreach ($request->file('files') as $file) {
@@ -192,7 +199,6 @@ class ProductCtrl extends Controller
      */
     public function update(Request $request, $id)
     {
-
         $request->validate([
             'files.*' => 'max:5000|mimes:jpg,jpeg,png,bmp',
             //  'url' => ["unique:App\Models\Product,url,$id,id", 'nullable'],
@@ -220,7 +226,9 @@ class ProductCtrl extends Controller
             $d['supplier'],
             $d['has_tax'],
             isset($d['consume']) ? $d['consume'] : '0',
-            isset($d['public']) ? $d['public'] : '0');
+            isset($d['public']) ? $d['public'] : '0',
+            isset($d['online']) ? $d['online'] : '0',
+            isset($d['offline']) ? $d['offline'] : '0');
 
         if ($request->hasfile('files')) {
             foreach ($request->file('files') as $file) {
@@ -768,22 +776,22 @@ class ProductCtrl extends Controller
 
     public function updateCombo(Request $request, $id)
     {
-        
+
         $d = $request->all();
         $sale_id = (SaleChannel::where('code', '01')->select('id')->get()->first())->id;
 
         if (isset($d['sid'])) {
             for ($i = 0; $i < count($d['sid']); $i++) {
-              //  if (isset($d['sold_out_event'][$i])) {
+                //  if (isset($d['sold_out_event'][$i])) {
                 //    dd($d['sold_out_event'][$i]);
-                  //  ProductStyle::where('id', $d['sid'][$i])->update(['sold_out_event' => $d['sold_out_event'][$i]]);
+                //  ProductStyle::where('id', $d['sid'][$i])->update(['sold_out_event' => $d['sold_out_event'][$i]]);
 
-                    SaleChannel::changePrice($sale_id, $d['sid'][$i], $d['dealer_price'][$i], $d['price'][$i], $d['origin_price'][$i], $d['bonus'][$i], $d['dividend'][$i]);
-             //   }
+                SaleChannel::changePrice($sale_id, $d['sid'][$i], $d['dealer_price'][$i], $d['price'][$i], $d['origin_price'][$i], $d['bonus'][$i], $d['dividend'][$i]);
+                //   }
             }
         }
 
-      //  dd('aaa');
+        //  dd('aaa');
         if (isset($d['active_id'])) {
             ProductStyle::activeStyle($id, $d['active_id']);
         }

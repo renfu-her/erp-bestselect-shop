@@ -24,6 +24,8 @@ class Product extends Model
                 'product.sku as sku',
                 'product.type as type',
                 'product.consume as consume',
+                'product.online as online',
+                'product.offline as offline',
                 'product.public as public')
             ->selectRaw('CASE product.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title')
 
@@ -104,6 +106,41 @@ class Product extends Model
 
         }
 
+        if (isset($options['active_date'])) {
+
+            $re->where(function ($query) {
+                $now = date('Y-m-d H:i:s');
+                $query->where('product.active_sdate', '<=', $now)
+                    ->where('product.active_edate', '>=', $now)
+                    ->orWhereNull('product.active_sdate')
+                    ->orWhereNull('product.active_edate');
+            });
+
+        }
+        
+        if (isset($options['sale_channel_id'])) {
+
+            $sales_type = SaleChannel::where('id', $options['sale_channel_id'])->get()->first()->sales_type;
+
+            if ($sales_type == '1') {
+                $re->where('product.online', 1);
+            } else {
+                $re->where('product.offline', 1);
+            }
+
+        }
+
+        if (isset($options['online'])) {
+            if ($options['online'] != 'all') {
+                if ($options['online'] == 'online') {
+                    $re->where('online', '1');
+                } else {
+                    $re->where('offline', '1');
+                }
+            }
+
+        }
+
         return $re;
     }
 
@@ -111,7 +148,6 @@ class Product extends Model
     {
 
         if ($product_list) {
-
             $product_id = array_map(function ($n) {
                 return $n->id;
             }, $product_list);
@@ -169,7 +205,7 @@ class Product extends Model
     public static function createProduct($title,
         $user_id, $category_id, $type = 'p',
         $feature = null, $url = null, $slogan = null, $active_sdate = null,
-        $active_edate = null, $supplier = null, $has_tax = 0, $consume = 0, $public = 1) {
+        $active_edate = null, $supplier = null, $has_tax = 0, $consume = 0, $public = 1, $online = 0, $offline = 0) {
         return DB::transaction(function () use ($title,
             $user_id,
             $category_id,
@@ -182,7 +218,9 @@ class Product extends Model
             $supplier,
             $has_tax,
             $consume,
-            $public) {
+            $public,
+            $online,
+            $offline) {
 
             switch ($type) {
                 case 'p':
@@ -219,6 +257,8 @@ class Product extends Model
                 "has_tax" => $has_tax,
                 'consume' => $consume,
                 'public' => $public,
+                'online' => $online,
+                'offline' => $offline,
             ])->id;
 
             if ($supplier) {
@@ -245,7 +285,9 @@ class Product extends Model
         $supplier,
         $has_tax = 0,
         $consume = 0,
-        $public = 1) {
+        $public = 1,
+        $online = null,
+        $offline = null) {
 
         $url = $url ? $url : $title;
 
@@ -265,6 +307,8 @@ class Product extends Model
             "has_tax" => $has_tax,
             'consume' => $consume,
             'public' => $public,
+            'online' => $online,
+            'offline' => $offline,
         ]);
 
         Supplier::updateProductSupplier($id, $supplier);
@@ -290,7 +334,7 @@ class Product extends Model
 
     public static function productStyleList($keyword = null, $type = null, $stock_status = [], $options = [])
     {
-        
+
         $re = DB::table('prd_products as p')
             ->leftJoin('prd_product_styles as s', 'p.id', '=', 's.product_id')
             ->select('s.id', 's.sku', 'p.title as product_title', 'p.id as product_id', 's.title as spec', 's.safety_stock', 's.total_inbound')
@@ -307,8 +351,6 @@ class Product extends Model
             })
             ->whereNotNull('s.sku')
             ->whereNull('s.deleted_at');
-
-       
 
         if ($type && $type != 'all') {
             $re->where('s.type', $type);
