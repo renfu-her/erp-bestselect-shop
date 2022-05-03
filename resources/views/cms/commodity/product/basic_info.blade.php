@@ -163,6 +163,34 @@
                     </div>
                 </div>
                 <fieldset class="col-12 col-lg-6 mb-3">
+                    <legend class="col-form-label p-0 mb-2">公開 <span class="text-danger">*</span></legend>
+                    <div class="form-check form-switch form-switch-lg">
+                        <input class="form-check-input" type="checkbox" name="public" value="1"
+                            @if (old('consume', $product->public ?? 1)) checked @endif>
+                    </div>
+                </fieldset>
+                <fieldset class="col-12 col-sm-6 mb-3">
+                    <legend class="col-form-label p-0 mb-2">開放通路 <span class="text-danger">*</span></legend>
+                    <div class="px-1 pt-1">
+                        {{-- @foreach ($publics as $key => $public) --}}
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="" type="checkbox"
+                                        value="online" checked >
+                                    線上 (對外網站)
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="" type="checkbox"
+                                        value="offline" checked >
+                                    線下 (ERP)
+                                </label>
+                            </div>
+                        {{-- @endforeach --}}
+                    </div>
+                </fieldset>
+                <fieldset class="col-12 col-lg-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">應稅免稅 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline @error('has_tax') is-invalid @enderror">
@@ -178,13 +206,6 @@
                         @error('has_tax')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                    </div>
-                </fieldset>
-                <fieldset class="col-12 col-lg-6 mb-3">
-                    <legend class="col-form-label p-0 mb-2">公開 <span class="text-danger">*</span></legend>
-                    <div class="form-check form-switch form-switch-lg">
-                        <input class="form-check-input" type="checkbox" name="public" value="1"
-                            @if (old('consume', $product->public ?? 1)) checked @endif>
                     </div>
                 </fieldset>
             </div>

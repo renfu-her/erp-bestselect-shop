@@ -19,7 +19,7 @@
                         @endforeach
                     </select>
                 </div>
-                <fieldset class="col-12 mb-3">
+                <fieldset class="col-12 col-sm-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">類型</legend>
                     <div class="px-1 pt-1">
                         @foreach ($productTypes as $key => $type)
@@ -59,6 +59,27 @@
                                 </label>
                             </div>
                         @endforeach
+                    </div>
+                </fieldset>
+                <fieldset class="col-12 col-sm-6 mb-3">
+                    <legend class="col-form-label p-0 mb-2">開放通路</legend>
+                    <div class="px-1 pt-1">
+                        {{-- @foreach ($publics as $key => $public) --}}
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="" type="checkbox"
+                                        value="online" checked >
+                                    線上 (對外網站)
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="" type="checkbox"
+                                        value="offline" checked >
+                                    線下 (ERP)
+                                </label>
+                            </div>
+                        {{-- @endforeach --}}
                     </div>
                 </fieldset>
 
