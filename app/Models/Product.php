@@ -117,7 +117,7 @@ class Product extends Model
             });
 
         }
-        
+
         if (isset($options['sale_channel_id'])) {
 
             $sales_type = SaleChannel::where('id', $options['sale_channel_id'])->get()->first()->sales_type;
@@ -463,6 +463,14 @@ class Product extends Model
             ->selectRaw($concatImg . ' as imgs')
             ->groupBy('product_id');
 
+        $sales_type = SaleChannel::where('id', $sale_channel_id)->get()->first()->sales_type;
+
+        if ($sales_type == '1') {
+            $sales_type = 'p.online';
+        } else {
+            $sales_type = 'p.offline';
+        }
+
         $re = DB::table('prd_products as p')
             ->leftJoin(DB::raw("({$styleQuery->toSql()}) as s"), function ($join) {
                 $join->on('p.id', '=', 's.product_id');
@@ -483,6 +491,15 @@ class Product extends Model
             ->where('sku', $sku)
             ->whereNull('p.deleted_at')
             ->whereNotNull('s.styles')
+            ->where(function ($query) {
+                $now = date('Y-m-d H:i:s');
+                $query->where('p.active_sdate', '<=', $now)
+                    ->where('p.active_edate', '>=', $now)
+                    ->orWhereNull('p.active_sdate')
+                    ->orWhereNull('p.active_edate');
+            })
+            ->where('p.public', '1')
+            ->where($sales_type, 1)
             ->get()->first();
 
         if (!$re) {
