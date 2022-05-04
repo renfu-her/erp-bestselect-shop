@@ -401,8 +401,13 @@ class AccountReceivedCtrl extends Controller
                     GeneralLedger::classification_processing($value, 'product', $debit, $credit, $product_master_account->code, $value->product_origin_price);
                 }
 
-                GeneralLedger::classification_processing($logistics_grade_name, 'logistics', $debit, $credit, $logistics_master_account->code, $order->dlv_fee);
-                GeneralLedger::classification_processing('折扣', 'discount', $debit, $credit, 4, $order->discount_value);
+                if($order->dlv_fee > 0){
+                    GeneralLedger::classification_processing($logistics_grade_name, 'logistics', $debit, $credit, $logistics_master_account->code, $order->dlv_fee);
+                }
+
+                if($order->discount_value > 0){
+                    GeneralLedger::classification_processing('折扣', 'discount', $debit, $credit, 4, $order->discount_value);
+                }
 
                 return view('cms.account_management.account_received.review', [
                     'form_action'=>route('cms.ar.review' , ['id'=>request('id')]),
