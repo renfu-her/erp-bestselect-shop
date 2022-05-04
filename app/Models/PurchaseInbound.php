@@ -425,12 +425,68 @@ class PurchaseInbound extends Model
         return $result;
     }
 
-    // 取得出貨單內 寄倉單尚未出貨的數量
-    public static function getEstimatedShipmentsWithConsignmentReceiveDepot() {
+    // 取得寄倉單內 尚未出貨審核的預計出貨數量
+    public static function getEstimatedShipmentsWithCsnItems($depot_id = []) {
+        $re = DB::table('csn_consignment as consignment')
+            ->leftJoin('csn_consignment_items as items', function ($join) {
+                $join->on('items.consignment_id', '=', 'consignment.id');
+            })
+            ->leftJoin('dlv_delivery', function ($join) {
+                $join->on('dlv_delivery.event_id', '=', 'consignment.id');
+                $join->where('dlv_delivery.event', Event::consignment()->value);
+            })
+            ->select(
+                'consignment.send_depot_id as depot_id'
+                , 'items.product_style_id as product_style_id'
+                , 'items.title as product_title'
+            )
+            ->selectRaw('sum(items.num) as qty')
+            ->whereNull('dlv_delivery.audit_date')
+            ->whereNull('consignment.deleted_at')
+            ->whereNull('items.deleted_at')
+            ->groupBy('consignment.send_depot_id')
+            ->groupBy('items.product_style_id')
+            ->groupBy('items.title');
+        if (null != $depot_id && 0 < count($depot_id)) {
+            $re->whereIn('consignment.send_depot_id', $depot_id);
+        }
+
+        return $re;
+    }
+
+    // 取得訂單 正在選擇庫存的數量
+    public static function getEstimatedShipmentsWithOrder($depot_id = []) {
+        $re = DB::table('dlv_delivery')
+            ->leftJoin('dlv_receive_depot', function ($join) {
+                $join->on('dlv_receive_depot.delivery_id', '=', 'dlv_delivery.id');
+            })
+            ->select(//'dlv_receive_depot.inbound_id as inbound_id'
+                'dlv_receive_depot.depot_id as depot_id'
+                 , 'dlv_receive_depot.product_style_id as product_style_id'
+                , 'dlv_receive_depot.product_title as product_title'
+            )
+            ->selectRaw('sum(dlv_receive_depot.qty) as qty')
+            ->whereNotNull('qty')
+            ->whereNull('dlv_delivery.audit_date')
+            ->whereNull('dlv_receive_depot.audit_date')
+            ->whereNull('dlv_receive_depot.deleted_at')
+            ->where('dlv_delivery.event', Event::order()->value)
+            //->groupBy('dlv_receive_depot.inbound_id')
+            ->groupBy('dlv_receive_depot.depot_id')
+            ->groupBy('dlv_receive_depot.product_style_id')
+            ->groupBy('dlv_receive_depot.product_title');
+        if (null != $depot_id && 0 < count($depot_id)) {
+            $re->whereIn('dlv_receive_depot.depot_id', $depot_id);
+        }
+
+        return $re;
+    }
+
+    // 取得出貨 正在選擇庫存的數量
+    public static function getEstimatedShipmentsWithReceiveDepot() {
         $receive_depotQuerySub = DB::table('dlv_delivery')
             ->leftJoin('dlv_receive_depot', function ($join) {
                 $join->on('dlv_receive_depot.delivery_id', '=', 'dlv_delivery.id');
-                $join->where('dlv_delivery.event', '=', Event::consignment()->value);
             })
             ->select('dlv_receive_depot.inbound_id as inbound_id'
                 , 'dlv_receive_depot.product_style_id as product_style_id'
@@ -472,8 +528,7 @@ class PurchaseInbound extends Model
      * @return \Illuminate\Database\Query\Builder
      */
     public static function getSelectInboundList($param, $showNegativeVal = false) {
-        $receive_depotQuerySub = PurchaseInbound::getEstimatedShipmentsWithConsignmentReceiveDepot();
-
+        $receive_depotQuerySub = PurchaseInbound::getEstimatedShipmentsWithReceiveDepot();
         $logistic_consumQuerySub = PurchaseInbound::getEstimatedShipmentsWithLogisticConsum();
 
         $receive_depotQuerySub->union($logistic_consumQuerySub);
@@ -545,7 +600,23 @@ class PurchaseInbound extends Model
 
     //取得商品款式現有數量
     public static function getExistInboundProductStyleList($depot_id = []) {
-        $result = DB::table('pcs_purchase_inbound as inbound')
+        $esCsnItems = PurchaseInbound::getEstimatedShipmentsWithCsnItems($depot_id);
+        $esOrder = PurchaseInbound::getEstimatedShipmentsWithOrder($depot_id);
+        $esCsnItems->union($esOrder);
+
+        $querySub = DB::table(DB::raw("({$esCsnItems->toSql()}) as tb_rd"))
+            ->select('tb_rd.depot_id as depot_id'
+                , 'tb_rd.product_style_id as product_style_id'
+                , 'tb_rd.product_title as product_title'
+            )
+            ->selectRaw('sum(tb_rd.qty) as qty')
+            ->mergeBindings($esCsnItems)
+            ->whereNotNull('qty')
+            ->groupBy('tb_rd.depot_id')
+            ->groupBy('tb_rd.product_style_id')
+            ->groupBy('tb_rd.product_title');
+
+        $queryInbound = DB::table('pcs_purchase_inbound as inbound')
             ->leftJoin('prd_product_styles as style', 'style.id', '=', 'inbound.product_style_id')
             ->leftJoin('prd_products as product', 'product.id', '=', 'style.product_id')
             ->select(
@@ -576,8 +647,32 @@ class PurchaseInbound extends Model
             ->groupBy('style.sku');
 
         if (null != $depot_id && 0 < count($depot_id)) {
-            $result->whereIn('inbound.depot_id', $depot_id);
+            $queryInbound->whereIn('inbound.depot_id', $depot_id);
         }
+        $result = DB::query()->fromSub($queryInbound, 'inbound')
+            ->leftJoinSub($querySub, 'tb_rd', function($join) {
+                $join->on('tb_rd.depot_id', '=', 'inbound.depot_id');
+                $join->on('tb_rd.product_style_id', '=', 'inbound.product_style_id');
+            })
+            ->mergeBindings($queryInbound)
+            ->select(
+                'inbound.product_style_id'
+                , 'inbound.depot_id'
+                , 'inbound.product_id'
+                , 'inbound.product_title'
+                , 'inbound.product_type'
+                , 'inbound.title'
+                , 'inbound.sku'
+
+                , 'inbound.total_inbound_num'
+                , 'inbound.total_sale_num'
+                , 'inbound.total_csn_num'
+                , 'inbound.total_consume_num'
+            )
+            ->selectRaw('(case when tb_rd.qty is not null then (inbound.total_in_stock_num - tb_rd.qty)
+                 else inbound.total_in_stock_num
+                 end
+                 )as total_in_stock_num');
         return $result;
     }
 }

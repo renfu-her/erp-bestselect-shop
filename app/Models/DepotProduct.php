@@ -118,6 +118,8 @@ class DepotProduct extends Model
         if ($type && $type != 'all') {
             $re->where('inbound.product_type', $type);
         }
+        //修正未知錯誤 底層做mergebinding時，多一個值
+        unset($re->bindings['join'][6]);
         return $re;
     }
 }
