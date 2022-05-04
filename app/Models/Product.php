@@ -864,19 +864,26 @@ class Product extends Model
         bool $isPriceDescend = true,
         string $m_class = 'customer'
     ) {
-        $sale_channel_id = DB::table('usr_identity')
-            ->where('code', '=', $m_class)
+        $sale_channel = DB::table('usr_identity')
+            ->where('usr_identity.code', '=', $m_class)
             ->leftJoin('usr_identity_salechannel', 'usr_identity.id', '=', 'usr_identity_salechannel.identity_id')
-            ->select('sale_channel_id')
+            ->leftJoin('prd_sale_channels as sale_channel', 'usr_identity_salechannel.sale_channel_id', '=', 'sale_channel.id')
+            ->select('sale_channel_id', 'sale_channel.sales_type')
             ->get()
-            ->first()
-            ->sale_channel_id;
+            ->first();
+
+
+        if ($sale_channel->sales_type == '1') {
+            $sales_type = 'prd.online';
+        } else {
+            $sales_type = 'prd.offline';
+        }
 
         // start to check 產品的上下架時間
         $activeDateQuery = DB::table('prd_products as prd')
             ->where('prd.title', 'LIKE', "%$data%")
             ->orWhere('prd.sku', 'LIKE', "%$data%")
-            ->where('prd.public', '=', 1)
+            ->where('prd.public', '=', 1)   
             ->select(
                 'active_sdate',
                 'active_edate',
@@ -933,12 +940,13 @@ class Product extends Model
                 $join->on('product_style.product_id', '=', 'prd.id')
                     ->where('product_style.is_active', '=', 1);
             })
-            ->leftJoin('prd_salechannel_style_price as sale_channel', function ($join) use ($sale_channel_id) {
+            ->leftJoin('prd_salechannel_style_price as sale_channel', function ($join) use ($sale_channel) {
                 $join->on('sale_channel.style_id', '=', 'product_style.id')
-                    ->where('sale_channel.sale_channel_id', '=', $sale_channel_id);
+                    ->where('sale_channel.sale_channel_id', '=', $sale_channel->sale_channel_id);
             })
             ->leftJoin('prd_product_images as images', 'images.product_id', '=', 'prd.id')
             ->whereNull('prd.deleted_at')
+            ->where($sales_type, '1')
             ->whereNotNull('sale_channel.price')
             ->select(
                 'prd.id as id',

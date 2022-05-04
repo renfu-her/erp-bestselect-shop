@@ -111,6 +111,8 @@ class ProductCtrl extends Controller
             'm_class' => ['nullable', 'string', 'regex:/^(customer|employee|company)$/'],
         ]);
 
+        
+        
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'E01',
