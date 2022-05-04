@@ -119,7 +119,8 @@ class DepotProduct extends Model
             $re->where('inbound.product_type', $type);
         }
         //修正未知錯誤 底層做mergebinding時，多一個值
-        unset($re->bindings['join'][6]);
+        unset($re->bindings['join'][count($re->bindings['join']) - 1]);
+//        dd($re->bindings, $re->getBindings(), $re->get(), IttmsUtils::getEloquentSqlWithBindings($re));
         return $re;
     }
 }
