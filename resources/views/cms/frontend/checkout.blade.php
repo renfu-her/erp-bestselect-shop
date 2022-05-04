@@ -12,27 +12,27 @@
                             <table class="table table-hover table-bordered tableList mb-0">
                                 <tbody class="product_list">
                                     <tr>
-                                        <th>公司</th>
+                                        <td>公司</td>
                                         <td>{{ $order->sale_title}}</td>
                                     </tr>
                                     <tr>
-                                        <th>客戶</th>
+                                        <td>客戶</td>
                                         <td>{{ $order->name }}</td>
                                     </tr>
                                     <tr>
-                                        <th>請款單號</th>
+                                        <td>請款單號</td>
                                         <td>{{ $order->received_sn }}</td>
                                     </tr>
                                     <tr>
-                                        <th>應付金額</th>
+                                        <td>應付金額</td>
                                         <td>{{ number_format($order->total_price) }}</td>
                                     </tr>
                                     <tr>
-                                        <th>付款摘要</th>
+                                        <td>付款摘要</td>
                                         <td>{{ $order->note }}</td>
                                     </tr>
                                     <tr>
-                                        <th>付款方式</th>
+                                        <td>付款方式</td>
                                         <td>
                                             <form action="{{$str_url}}" method="POST" style="display: inline-block;">
                                                 <input type="hidden" name="MACString" value="{{ $str_mac_string }}">

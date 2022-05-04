@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 use App\Enums\Received\ReceivedMethod;
 
+use App\Models\FirstGrade;
 use App\Models\AllGrade;
 use App\Models\Customer;
 use App\Models\Order;
@@ -367,9 +368,14 @@ class AccountReceivedCtrl extends Controller
                 $order_list_data = OrderItem::item_order(request('id'))->get();
 
                 $received_data = DB::table('acc_received')->whereIn('received_order_id', $received_order_data->pluck('id')->toArray())->get();
+
+                $debit = [];
+                $credit = [];
+
                 foreach($received_data as $value){
                     $value->received_method_name = ReceivedMethod::getDescription($value->received_method);
                     $value->account = AllGrade::find($value->all_grades_id)->eachGrade;
+                    $value->master_account = FirstGrade::find($value->account->code[0]);
 
                     if($value->received_method == 'foreign_currency'){
                         $arr = explode('-', AllGrade::find($value->all_grades_id)->eachGrade->name);
@@ -379,10 +385,24 @@ class AccountReceivedCtrl extends Controller
                         $value->currency_name = 'NTD';
                         $value->currency_rate = 1;
                     }
+
+                    GeneralLedger::classification_processing($value, 'received', $debit, $credit, $value->master_account->code, $value->tw_price);
+
                 }
 
                 $product_grade_name = AllGrade::find($received_order->product_grade_id)->eachGrade->code . ' - ' . AllGrade::find($received_order->product_grade_id)->eachGrade->name;
+                $product_master_account = FirstGrade::find(AllGrade::find($received_order->product_grade_id)->eachGrade->code[0]);
+
                 $logistics_grade_name = AllGrade::find($received_order->logistics_grade_id)->eachGrade->code . ' - ' . AllGrade::find($received_order->logistics_grade_id)->eachGrade->name;
+                $logistics_master_account = FirstGrade::find(AllGrade::find($received_order->logistics_grade_id)->eachGrade->code[0]);
+
+                foreach($order_list_data as $value){
+                    $value->product_grade_name = $product_grade_name;
+                    GeneralLedger::classification_processing($value, 'product', $debit, $credit, $product_master_account->code, $value->product_origin_price);
+                }
+
+                GeneralLedger::classification_processing($logistics_grade_name, 'logistics', $debit, $credit, $logistics_master_account->code, $order->dlv_fee);
+                GeneralLedger::classification_processing('折扣', 'discount', $debit, $credit, 4, $order->discount_value);
 
                 return view('cms.account_management.account_received.review', [
                     'form_action'=>route('cms.ar.review' , ['id'=>request('id')]),
@@ -393,6 +413,8 @@ class AccountReceivedCtrl extends Controller
                     'undertaker'=>$undertaker,
                     'product_grade_name'=>$product_grade_name,
                     'logistics_grade_name'=>$logistics_grade_name,
+                    'debit'=>$debit,
+                    'credit'=>$credit,
 
                     'breadcrumb_data' => ['id'=>$order->id, 'sn'=>$order->sn],
                 ]);
