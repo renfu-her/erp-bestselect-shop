@@ -584,8 +584,8 @@ class PurchaseCtrl extends Controller
             } elseif (isset($validatedReq['price'])) {
                 $totalPrice = intval($validatedReq['price']);
             }
-            $productDefault = DB::table('acc_grade_default')->where('name', '=', 'product')->get()->first();
-            $logisticsDefault = DB::table('acc_grade_default')->where('name', '=', 'logistics')->get()->first();
+            $productDefault = DB::table('acc_payable_default')->where('name', '=', 'product')->get()->first();
+            $logisticsDefault = DB::table('acc_payable_default')->where('name', '=', 'logistics')->get()->first();
             $prdDefault = json_decode(json_encode($productDefault), true);
             $lgsDefault = json_decode(json_encode($logisticsDefault), true);
 

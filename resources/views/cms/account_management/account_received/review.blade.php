@@ -66,34 +66,8 @@
                     <tbody>
                     <tr>
                         <th scope="row"></th>
-                        <td>
-                            @foreach($order_list_data as $value)
-                                {{ $product_grade_name }} --- {{ $value->product_title }}{{'（' . $value->del_even . ' - ' . $value->del_category_name . '）'}}{{'（' . $value->product_price . ' * ' . $value->product_qty . '）'}}
-                                <br>
-                            @endforeach
-                            @if($order->dlv_fee > 0)
-                                {{ $logistics_grade_name }} --- 物流費用
-                                <br>
-                            @endif
-                            @if($order->discount_value > 0)
-                                折扣
-                                <br>
-                            @endif
-                        </td>
-                        <td>
-                            @foreach($order_list_data as $value)
-                                {{ number_format($value->product_origin_price)}}
-                                <br>
-                            @endforeach
-                            @if($order->dlv_fee > 0)
-                                {{ number_format($order->dlv_fee) }}
-                                <br>
-                            @endif
-                            @if($order->discount_value > 0)
-                                -{{ number_format($order->discount_value) }}
-                                <br>
-                            @endif
-                        </td>
+                        {{-- 借方 --}}
+                        {{--
                         <td>
                             @foreach($received_data as $value)
                             {{ $value->received_method_name }} {{ $value->note }}{{ '（' . $value->account->code . ' - ' . $value->account->name . '）'}}
@@ -106,13 +80,87 @@
                             <br>
                             @endforeach
                         </td>
+                        --}}
+                        <td>
+                            @foreach($debit as $value)
+                            {{ $value->name }}
+                            <br>
+                            @endforeach
+                        </td>
+                        <td>
+                            @php
+                            $total_debit_price = 0;
+                            foreach($debit as $value){
+                                echo number_format($value->price) . "<br>";
+                                $total_debit_price += $value->price;
+                            }
+                            @endphp
+                        </td>
+
+                        {{-- 貸方 --}}
+                        {{--
+                        <td>
+                            商品
+                            @foreach($order_list_data as $value)
+                                {{ $product_grade_name }} --- {{ $value->product_title }}{{'（' . $value->del_even . ' - ' . $value->del_category_name . '）'}}{{'（' . $value->product_price . ' * ' . $value->product_qty . '）'}}
+                                <br>
+                            @endforeach
+
+                            物流
+                            @if($order->dlv_fee > 0)
+                                {{ $logistics_grade_name }} --- 物流費用
+                                <br>
+                            @endif
+
+                            折扣
+                            @if($order->discount_value > 0)
+                                折扣
+                                <br>
+                            @endif
+                        </td>
+                        <td>
+                            商品
+                            @foreach($order_list_data as $value)
+                                {{ number_format($value->product_origin_price)}}
+                                <br>
+                            @endforeach
+
+                            物流
+                            @if($order->dlv_fee > 0)
+                                {{ number_format($order->dlv_fee) }}
+                                <br>
+                            @endif
+
+                            折扣
+                            @if($order->discount_value > 0)
+                                -{{ number_format($order->discount_value) }}
+                                <br>
+                            @endif
+                        </td>
+                        --}}
+                        <td>
+                            @foreach($credit as $value)
+                            {{ $value->name }}
+                            <br>
+                            @endforeach
+                        </td>
+                        <td>
+                            @php
+                            $total_credit_price = 0;
+                            foreach($credit as $value){
+                                echo number_format($value->price) . "<br>";
+                                $total_credit_price += $value->price;
+                            }
+                            @endphp
+                        </td>
                     </tr>
+
                     <tr class="table-light">
                         <td>合計：</td>
                         <td></td>
-                        <td>{{ number_format($received_order->price) }}</td>
+                        <td>{{ number_format($total_debit_price) }}{{-- number_format($received_order->price) --}}</td>
                         <td></td>
-                        <td>{{ number_format($received_order->price) }}</td>
+                        <td>{{ number_format($total_credit_price) }}{{-- number_format($received_order->price) --}}</td>
                     </tr>
                     </tbody>
                 </table>

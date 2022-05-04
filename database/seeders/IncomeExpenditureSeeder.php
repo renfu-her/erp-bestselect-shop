@@ -7,6 +7,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\ThirdGrade;
+use App\Models\PayableDefault;
 class IncomeExpenditureSeeder extends Seeder
 {
     /**
@@ -48,63 +49,6 @@ class IncomeExpenditureSeeder extends Seeder
             'grade_type' => 'App\Models\ThirdGrade'
         ]);
 
-        //現金
-        DB::table('acc_income_expenditure')->insert([
-            'acc_income_type_fk' => $incomeType_1,
-            'grade_id_fk' => 2,
-            'acc_currency_fk' => null,
-        ]);
-        DB::table('acc_income_expenditure')->insert([
-            'acc_income_type_fk' => $incomeType_1,
-            'grade_id_fk' => 3,
-            'acc_currency_fk' => null,
-        ]);
-
-        //支票
-        DB::table('acc_income_expenditure')->insert([
-            'acc_income_type_fk' => $incomeType_2,
-            'grade_id_fk' => 1,
-            'acc_currency_fk' => null,
-        ]);
-        DB::table('acc_income_expenditure')->insert([
-            'acc_income_type_fk' => $incomeType_2,
-            'grade_id_fk' => 3,
-            'acc_currency_fk' => null,
-        ]);
-
-        //匯款
-        DB::table('acc_income_expenditure')->insert([
-            'acc_income_type_fk' => $incomeType_3,
-            'grade_id_fk' => 1,
-            'acc_currency_fk' => null,
-        ]);
-        DB::table('acc_income_expenditure')->insert([
-            'acc_income_type_fk' => $incomeType_3,
-            'grade_id_fk' => 2,
-            'acc_currency_fk' => null,
-        ]);
-
-        //應付帳款
-        DB::table('acc_income_expenditure')->insert([
-            'acc_income_type_fk' => $incomeType_5,
-            'grade_id_fk' => 2,
-            'acc_currency_fk' => null,
-        ]);
-        DB::table('acc_income_expenditure')->insert([
-            'acc_income_type_fk' => $incomeType_5,
-            'grade_id_fk' => 4,
-            'acc_currency_fk' => null,
-        ]);
-
-        //其他
-        $third_grade = ThirdGrade::all();
-        foreach($third_grade as $value){
-            DB::table('acc_income_expenditure')->insert([
-                'acc_income_type_fk' => $incomeType_6,
-                'grade_id_fk' => $value->id,
-                'acc_currency_fk' => null,
-            ]);
-        }
 
         //付款單科目外幣
         $currencyArray = include 'currency.php';
@@ -114,13 +58,6 @@ class IncomeExpenditureSeeder extends Seeder
                 'rate' => $currencyRate['rate'],
                 //收款單科目外幣
                 'received_default_fk' => $key + 1,
-            ]);
-        }
-        for ($index = 1; $index <= 13; $index++) {
-            DB::table('acc_income_expenditure')->insert([
-                'acc_income_type_fk' => $incomeType_4,
-                'grade_id_fk' => $index + 3,
-                'acc_currency_fk' => $index,
             ]);
         }
 
@@ -160,11 +97,46 @@ class IncomeExpenditureSeeder extends Seeder
             'cheque_status' => 1
         ]);
 
-        DB::table('acc_grade_default')->insert([
+
+
+
+        PayableDefault::create([
+            'name' => 'cash',
+            'default_grade_id' => 18,
+        ]);
+        PayableDefault::create([
+            'name' => 'cheque',
+            'default_grade_id' => 21,
+        ]);
+        PayableDefault::create([
+            'name' => 'remittance',
+            'default_grade_id' => 19,
+        ]);
+
+        for ($i = 116; $i <= 128; $i++) {
+            $id = PayableDefault::create([
+                'name' => 'foreign_currency',
+                'default_grade_id' => $i,
+            ])->id;
+
+            DB::table('acc_currency')->where('id', $i - 115)->update([
+                'payable_default_fk'=>$id,
+            ]);
+        }
+
+        PayableDefault::create([
+            'name' => 'accounts_payable',
+            'default_grade_id' => 22,
+        ]);
+        PayableDefault::create([
+            'name' => 'other',
+            'default_grade_id' => 29,
+        ]);
+        PayableDefault::create([
             'name' => 'product',
             'default_grade_id' => 35,
         ]);
-        DB::table('acc_grade_default')->insert([
+        PayableDefault::create([
             'name' => 'logistics',
             'default_grade_id' => 100,
         ]);

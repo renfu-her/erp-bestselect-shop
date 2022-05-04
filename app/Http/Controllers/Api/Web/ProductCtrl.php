@@ -67,10 +67,14 @@ class ProductCtrl extends Controller
             return response()->json($re);
         }
 
+        $sale_channel_id = 2;
         $dataList = Product::productList(null, null, [
             'price' => 1,
             'img' => 1,
             'collection' => $d['collection_id'],
+            'public' => '1',
+            'active_date' => '1',
+            'sale_channel_id' => $sale_channel_id,
         ])->get()->toArray();
 
         if ($dataList) {
@@ -82,7 +86,7 @@ class ProductCtrl extends Controller
                 return $n;
             }, $dataList);
 
-            Product::getMinPriceProducts(1, null, $dataList);
+            Product::getMinPriceProducts($sale_channel_id, null, $dataList);
 
         }
 
@@ -104,9 +108,11 @@ class ProductCtrl extends Controller
             'sort.is_price_desc' => ['nullable', 'bool'],
             'page_size' => ['nullable', 'int', 'min:1'],
             'page' => ['nullable', 'int', 'min:1'],
-            'm_class' => ['nullable', 'string', 'regex:/^(customer|employee|company)$/']
+            'm_class' => ['nullable', 'string', 'regex:/^(customer|employee|company)$/'],
         ]);
 
+        
+        
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'E01',

@@ -287,8 +287,8 @@
                     </label>
                     <select name="foreign_currency[currency]" class="form-select -select2 -single foreign_currency @error('foreign_currency[currency]') is-invalid @enderror" required data-placeholder="請選擇外幣">
                         <option value="" selected disabled>請選擇</option>
-                        @foreach($currencyDefault as $currencyData)
-                            <option value="{{ $currencyData['currency_id'] }}" {{ count($all_payable_type_data['payableForeignCurrency']) > 0 && $all_payable_type_data['payableForeignCurrency']['acc_currency_fk'] === $currencyData['currency_id'] ? 'selected' : '' }}>{{ $currencyData['currency'] }}</option>
+                        @foreach($all_currency as $value)
+                            <option value="{{ $value->currency_id }}" {{ count($all_payable_type_data['payableForeignCurrency']) > 0 && $all_payable_type_data['payableForeignCurrency']['acc_currency_fk'] === $value->currency_id ? 'selected' : '' }}>{{ $value->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -321,7 +321,7 @@
                     <select name="foreign_currency[grade_id_fk]" class="form-select -select2 -single foreign_currency @error('foreign_currency[grade_id_fk]') is-invalid @enderror" required data-placeholder="請選擇會計科目">
                         <option value="" selected disabled>請選擇</option>
                         @foreach($totalGrades as $value)
-                            @if(in_array($value['primary_id'], $currency_select))
+                            @if(in_array($value['primary_id'], $currencyDefault))
                                 <option value="{{ $value['primary_id'] }}" {{ count($all_payable_type_data['payableForeignCurrency']) > 0 && $all_payable_type_data['payableForeignCurrency']['grade_id_fk'] == $value['primary_id'] ? 'selected' : ''}}>{{ $value['code'] . ' ' . $value['name'] }}</option>
                             @endif
                         @endforeach
@@ -399,7 +399,7 @@
 @once
     @push('sub-scripts')
         <script>
-            const currencyJson = @json($currencyDefault);
+            const currencyJson = @json($all_currency);
 
             const transactTypeEle = $('.transactType');
             const transactTypeSelectedRadioEle = $('.transactType input:checked');

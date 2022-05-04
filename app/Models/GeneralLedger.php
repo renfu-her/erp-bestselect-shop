@@ -374,4 +374,61 @@ class GeneralLedger extends Model
             'grade_id' => $newGradeId,
         ]);
     }
+
+
+    public static function classification_processing($object, $type, &$debit = [], &$credit = [], $single_code = null, $single_price = null)
+    {
+        if($type == 'received'){
+            $name = $object->received_method_name . $object->note . '（' . $object->account->code . ' - ' . $object->account->name . '）';
+
+        } else if($type == 'payable'){
+            $name = '';
+
+        } else if($type == 'product'){
+            $name = $object->product_grade_name . '---' . $object->product_title . '（' . $object->del_even . ' - ' . $object->del_category_name . '）（' . $object->product_price . ' * ' . $object->product_qty . '）';
+
+        } else if($type == 'logistics'){
+            $name = $object . ' --- 物流費用';
+
+        } else if($type == 'discount'){
+            $name = $object;
+
+        }
+
+        $code = $single_code ? $single_code : $object->code;
+        $price = $single_price ? $single_price : 0;
+
+        if(in_array($code, [1, 5]) && $price >= 0){
+            // 借方
+            $tmp = (object)[
+                'name'=>$name,
+                'price'=>$price
+            ];
+            array_push($debit, $tmp);
+
+        } else if(in_array($code, [1, 5]) && $price < 0){
+            // 貸方
+            $tmp = (object)[
+                'name'=>$name,
+                'price'=>$price
+            ];
+            array_push($credit, $tmp);
+
+        } else if(in_array($code, [2, 3, 4]) && $price >= 0){
+            // 貸方
+            $tmp = (object)[
+                'name'=>$name,
+                'price'=>$price
+            ];
+            array_push($credit, $tmp);
+
+        } else if(in_array($code, [2, 3, 4]) && $price < 0){
+            // 借方
+            $tmp = (object)[
+                'name'=>$name,
+                'price'=>$price
+            ];
+            array_push($debit, $tmp);
+        }
+    }
 }

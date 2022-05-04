@@ -25,7 +25,7 @@
             <h4 class="mb-3">付款管理預設</h4>
             <div class="col-12 mb-3">
                 <label class="form-label" for="select1-multiple">現金</label>
-                <select name="income_type[{{ $selectedResult['現金']['acc_income_type_fk'] }}][]"
+                <select name="income_type[cash][]"
                         id="select1-multiple"
                         multiple
                         class="select2 -select2 -multiple form-select"
@@ -35,7 +35,7 @@
                         data-placeholder="可複選">
                     @foreach($totalGrades as $value)
                         <option
-                            @if(in_array($value['primary_id'], $selectedResult['現金']['grade_id_fk_arr']))
+                            @if(in_array($value['primary_id'], $cash_data))
                             selected
                             @endif
 
@@ -56,7 +56,7 @@
             </div>
             <div class="col-12 mb-3">
                 <label class="form-label" for="select2-multiple">支票</label>
-                <select name="income_type[{{ $selectedResult['支票']['acc_income_type_fk'] }}][]"
+                <select name="income_type[cheque][]"
                         id="select2-multiple"
                         multiple
                         class="select2 -select2 -multiple form-select"
@@ -66,7 +66,7 @@
                         data-placeholder="可複選">
                     @foreach($totalGrades as $value)
                         <option
-                            @if(in_array($value['primary_id'], $selectedResult['支票']['grade_id_fk_arr']))
+                            @if(in_array($value['primary_id'], $cheque_data))
                             selected
                             @endif
 
@@ -87,7 +87,7 @@
             </div>
             <div class="col-12 mb-3">
                 <label class="form-label" for="select3-multiple">匯款</label>
-                <select name="income_type[{{ $selectedResult['匯款']['acc_income_type_fk'] }}][]"
+                <select name="income_type[remittance][]"
                         id="select3-multiple"
                         multiple
                         class="select2 -select2 -multiple form-select"
@@ -97,7 +97,7 @@
                         data-placeholder="可複選">
                     @foreach($totalGrades as $value)
                         <option
-                            @if(in_array($value['primary_id'], $selectedResult['匯款']['grade_id_fk_arr']))
+                            @if(in_array($value['primary_id'], $remittance_data))
                             selected
                             @endif
 
@@ -118,7 +118,7 @@
             </div>
             <div class="col-12 mb-3">
                 <label class="form-label" for="select4-multiple">應付帳款</label>
-                <select name="income_type[{{ $selectedResult['應付帳款']['acc_income_type_fk'] }}][]"
+                <select name="income_type[accounts_payable][]"
                         id="select4-multiple"
                         multiple
                         class="select2 -select2 -multiple form-select"
@@ -128,7 +128,7 @@
                         data-placeholder="可複選">
                     @foreach($totalGrades as $value)
                         <option
-                            @if(in_array($value['primary_id'], $selectedResult['應付帳款']['grade_id_fk_arr']))
+                            @if(in_array($value['primary_id'], $accounts_payable_data))
                             selected
                             @endif
 
@@ -149,7 +149,7 @@
             </div>
             <div class="col-12 mb-3 d-none">
                 <label class="form-label" for="select5-multiple">其它</label>
-                <select name="income_type[{{ $selectedResult['其它']['acc_income_type_fk'] }}][]"
+                <select name="income_type[other][]"
                         id="select5-multiple"
                         multiple
                         class="select2 -select2 -multiple form-select"
@@ -161,7 +161,7 @@
                         <option
                             selected
                         {{--
-                            @if(in_array($value['primary_id'], $selectedResult['其它']['grade_id_fk_arr']))
+                            @if(in_array($value['primary_id'], $other_data))
                             selected
                             @endif
                         --}}
@@ -197,8 +197,8 @@
                             <td>{{ $currencyOption->name }}</td>
                             <td>
                                 <div class="col-12 col-sm-4">
-                                    <input name="currency[{{ $currencyOption->acc_currency_fk }}][rate]"
-                                           class="form-control @error('currency.' . $currencyOption->acc_currency_fk . '.rate') is-invalid @enderror"
+                                    <input name="currency[{{ $currencyOption->currency_id }}][rate]"
+                                           class="form-control @error('currency.' . $currencyOption->currency_id . '.rate') is-invalid @enderror"
                                            @if($isViewMode === true)
                                            disabled
                                            @endif
@@ -208,12 +208,12 @@
                                            placeholder=""
                                            aria-label="Input">
                                 </div>
-                                @error('currency.' . $currencyOption->acc_currency_fk . '.rate') {{ $message }} @enderror
+                                @error('currency.' . $currencyOption->currency_id . '.rate') {{ $message }} @enderror
                             </td>
                             <td>
-                                <select name="currency[{{ $currencyOption->acc_currency_fk }}][gradeOption]"
-                                        id="select-data-{{ $currencyOption->acc_currency_fk }}-single"
-                                        class="select3 -select2 -single form-select @error('currency.' . $currencyOption->acc_currency_fk . '.gradeOption') is-invalid @enderror"
+                                <select name="currency[{{ $currencyOption->currency_id }}][gradeOption]"
+                                        id="select-data-{{ $currencyOption->currency_id }}-single"
+                                        class="select3 -select2 -single form-select @error('currency.' . $currencyOption->currency_id . '.gradeOption') is-invalid @enderror"
                                         @if($isViewMode === true)
                                         disabled
                                         @endif
@@ -222,7 +222,7 @@
 
                                 @foreach($totalGrades as $value)
                                     <option
-                                        @if($value['primary_id'] === $currencyOption->grade_id_fk)
+                                        @if($value['primary_id'] === $currencyOption->default_grade_id)
                                         selected
                                         @endif
 
@@ -240,7 +240,7 @@
                                     </option>
                                 @endforeach
                                 </select>
-                                @error('currency.' . $currencyOption->acc_currency_fk . '.gradeOption') {{ $message }} @enderror
+                                @error('currency.' . $currencyOption->currency_id . '.gradeOption') {{ $message }} @enderror
                             </td>
                         </tr>
                     @endforeach
