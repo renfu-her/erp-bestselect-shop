@@ -24,6 +24,8 @@ class Product extends Model
                 'product.sku as sku',
                 'product.type as type',
                 'product.consume as consume',
+                'product.online as online',
+                'product.offline as offline',
                 'product.public as public')
             ->selectRaw('CASE product.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title')
 
@@ -104,6 +106,41 @@ class Product extends Model
 
         }
 
+        if (isset($options['active_date'])) {
+
+            $re->where(function ($query) {
+                $now = date('Y-m-d H:i:s');
+                $query->where('product.active_sdate', '<=', $now)
+                    ->where('product.active_edate', '>=', $now)
+                    ->orWhereNull('product.active_sdate')
+                    ->orWhereNull('product.active_edate');
+            });
+
+        }
+
+        if (isset($options['sale_channel_id'])) {
+
+            $sales_type = SaleChannel::where('id', $options['sale_channel_id'])->get()->first()->sales_type;
+
+            if ($sales_type == '1') {
+                $re->where('product.online', 1);
+            } else {
+                $re->where('product.offline', 1);
+            }
+
+        }
+
+        if (isset($options['online'])) {
+            if ($options['online'] != 'all') {
+                if ($options['online'] == 'online') {
+                    $re->where('online', '1');
+                } else {
+                    $re->where('offline', '1');
+                }
+            }
+
+        }
+
         return $re;
     }
 
@@ -111,7 +148,6 @@ class Product extends Model
     {
 
         if ($product_list) {
-
             $product_id = array_map(function ($n) {
                 return $n->id;
             }, $product_list);
@@ -169,7 +205,7 @@ class Product extends Model
     public static function createProduct($title,
         $user_id, $category_id, $type = 'p',
         $feature = null, $url = null, $slogan = null, $active_sdate = null,
-        $active_edate = null, $supplier = null, $has_tax = 0, $consume = 0, $public = 1) {
+        $active_edate = null, $supplier = null, $has_tax = 0, $consume = 0, $public = 1, $online = 0, $offline = 0) {
         return DB::transaction(function () use ($title,
             $user_id,
             $category_id,
@@ -182,7 +218,9 @@ class Product extends Model
             $supplier,
             $has_tax,
             $consume,
-            $public) {
+            $public,
+            $online,
+            $offline) {
 
             switch ($type) {
                 case 'p':
@@ -219,6 +257,8 @@ class Product extends Model
                 "has_tax" => $has_tax,
                 'consume' => $consume,
                 'public' => $public,
+                'online' => $online,
+                'offline' => $offline,
             ])->id;
 
             if ($supplier) {
@@ -245,7 +285,9 @@ class Product extends Model
         $supplier,
         $has_tax = 0,
         $consume = 0,
-        $public = 1) {
+        $public = 1,
+        $online = null,
+        $offline = null) {
 
         $url = $url ? $url : $title;
 
@@ -265,6 +307,8 @@ class Product extends Model
             "has_tax" => $has_tax,
             'consume' => $consume,
             'public' => $public,
+            'online' => $online,
+            'offline' => $offline,
         ]);
 
         Supplier::updateProductSupplier($id, $supplier);
@@ -290,7 +334,7 @@ class Product extends Model
 
     public static function productStyleList($keyword = null, $type = null, $stock_status = [], $options = [])
     {
-        
+
         $re = DB::table('prd_products as p')
             ->leftJoin('prd_product_styles as s', 'p.id', '=', 's.product_id')
             ->select('s.id', 's.sku', 'p.title as product_title', 'p.id as product_id', 's.title as spec', 's.safety_stock', 's.total_inbound')
@@ -307,8 +351,6 @@ class Product extends Model
             })
             ->whereNotNull('s.sku')
             ->whereNull('s.deleted_at');
-
-       
 
         if ($type && $type != 'all') {
             $re->where('s.type', $type);
@@ -421,6 +463,14 @@ class Product extends Model
             ->selectRaw($concatImg . ' as imgs')
             ->groupBy('product_id');
 
+        $sales_type = SaleChannel::where('id', $sale_channel_id)->get()->first()->sales_type;
+
+        if ($sales_type == '1') {
+            $sales_type = 'p.online';
+        } else {
+            $sales_type = 'p.offline';
+        }
+
         $re = DB::table('prd_products as p')
             ->leftJoin(DB::raw("({$styleQuery->toSql()}) as s"), function ($join) {
                 $join->on('p.id', '=', 's.product_id');
@@ -441,6 +491,15 @@ class Product extends Model
             ->where('sku', $sku)
             ->whereNull('p.deleted_at')
             ->whereNotNull('s.styles')
+            ->where(function ($query) {
+                $now = date('Y-m-d H:i:s');
+                $query->where('p.active_sdate', '<=', $now)
+                    ->where('p.active_edate', '>=', $now)
+                    ->orWhereNull('p.active_sdate')
+                    ->orWhereNull('p.active_edate');
+            })
+            ->where('p.public', '1')
+            ->where($sales_type, 1)
             ->get()->first();
 
         if (!$re) {
@@ -805,19 +864,26 @@ class Product extends Model
         bool $isPriceDescend = true,
         string $m_class = 'customer'
     ) {
-        $sale_channel_id = DB::table('usr_identity')
-            ->where('code', '=', $m_class)
+        $sale_channel = DB::table('usr_identity')
+            ->where('usr_identity.code', '=', $m_class)
             ->leftJoin('usr_identity_salechannel', 'usr_identity.id', '=', 'usr_identity_salechannel.identity_id')
-            ->select('sale_channel_id')
+            ->leftJoin('prd_sale_channels as sale_channel', 'usr_identity_salechannel.sale_channel_id', '=', 'sale_channel.id')
+            ->select('sale_channel_id', 'sale_channel.sales_type')
             ->get()
-            ->first()
-            ->sale_channel_id;
+            ->first();
+
+
+        if ($sale_channel->sales_type == '1') {
+            $sales_type = 'prd.online';
+        } else {
+            $sales_type = 'prd.offline';
+        }
 
         // start to check 產品的上下架時間
         $activeDateQuery = DB::table('prd_products as prd')
             ->where('prd.title', 'LIKE', "%$data%")
             ->orWhere('prd.sku', 'LIKE', "%$data%")
-            ->where('prd.public', '=', 1)
+            ->where('prd.public', '=', 1)   
             ->select(
                 'active_sdate',
                 'active_edate',
@@ -874,12 +940,13 @@ class Product extends Model
                 $join->on('product_style.product_id', '=', 'prd.id')
                     ->where('product_style.is_active', '=', 1);
             })
-            ->leftJoin('prd_salechannel_style_price as sale_channel', function ($join) use ($sale_channel_id) {
+            ->leftJoin('prd_salechannel_style_price as sale_channel', function ($join) use ($sale_channel) {
                 $join->on('sale_channel.style_id', '=', 'product_style.id')
-                    ->where('sale_channel.sale_channel_id', '=', $sale_channel_id);
+                    ->where('sale_channel.sale_channel_id', '=', $sale_channel->sale_channel_id);
             })
             ->leftJoin('prd_product_images as images', 'images.product_id', '=', 'prd.id')
             ->whereNull('prd.deleted_at')
+            ->where($sales_type, '1')
             ->whereNotNull('sale_channel.price')
             ->select(
                 'prd.id as id',

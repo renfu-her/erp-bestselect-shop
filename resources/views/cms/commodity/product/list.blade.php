@@ -19,7 +19,7 @@
                         @endforeach
                     </select>
                 </div>
-                <fieldset class="col-12 mb-3">
+                <fieldset class="col-12 col-sm-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">類型</legend>
                     <div class="px-1 pt-1">
                         @foreach ($productTypes as $key => $type)
@@ -39,8 +39,8 @@
                         @foreach ($consumes as $key => $consume)
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" name="consume" type="radio"
-                                        value="{{ $consume[0] }}" @if ($consume[0] == $cond['consume']) checked @endif>
+                                    <input class="form-check-input" name="consume" type="radio" value="{{ $consume[0] }}"
+                                        @if ($consume[0] == $cond['consume']) checked @endif>
                                     {{ $consume[1] }}
                                 </label>
                             </div>
@@ -53,13 +53,28 @@
                         @foreach ($publics as $key => $public)
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" name="public" type="radio"
-                                        value="{{ $public[0] }}" @if ($public[0] == $cond['public']) checked @endif>
+                                    <input class="form-check-input" name="public" type="radio" value="{{ $public[0] }}"
+                                        @if ($public[0] == $cond['public']) checked @endif>
                                     {{ $public[1] }}
                                 </label>
                             </div>
                         @endforeach
                     </div>
+                </fieldset>
+                <fieldset class="col-12 col-sm-6 mb-3">
+                    <legend class="col-form-label p-0 mb-2">開放通路</legend>
+                    <div class="px-1 pt-1">
+                        @foreach ($onlineTypes as $key => $types)
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="online" type="radio" value="{{ $types[0] }}"
+                                        @if ($types[0] == $cond['online']) checked @endif>
+                                    {{ $types[1] }}
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                 
                 </fieldset>
 
             </div>
@@ -101,6 +116,8 @@
                         <th scope="col">類型</th>
                         <th scope="col">耗材</th>
                         <th scope="col">公開</th>
+                        <th scope="col">線上</th>
+                        <th scope="col">線下</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -109,8 +126,8 @@
                             <th scope="row">{{ $key + 1 }}</th>
                             <td class="text-center">
                                 <a href="{{ Route('cms.product.edit', ['id' => $data->id], true) }}"
-                                   data-bs-toggle="tooltip" title="編輯"
-                                   class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                    data-bs-toggle="tooltip" title="編輯"
+                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-pencil-square"></i>
                                 </a>
                             </td>
@@ -128,6 +145,16 @@
                                     是
                                 @endif
                             </td>
+                            <td>
+                                @if ($data->online == '1')
+                                    是
+                                @endif
+                            </td>
+                            <td>
+                                @if ($data->offline == '1')
+                                    是
+                                @endif
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -136,7 +163,7 @@
     </div>
     <div class="row flex-column-reverse flex-sm-row">
         <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">
-            @if($dataList)
+            @if ($dataList)
                 <div class="mx-3">共 {{ $dataList->lastPage() }} 頁(共找到 {{ $dataList->total() }} 筆資料)</div>
                 {{-- 頁碼 --}}
                 <div class="d-flex justify-content-center">{{ $dataList->links() }}</div>
