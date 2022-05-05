@@ -221,6 +221,7 @@ class Banner extends Model
                 'banner.title',
                 'banner.target',
                 'banner.event_type as type',
+                'products.sku'
             )
             ->selectRaw(
                 'IFNULL(banner.img_pc, "") as src'
