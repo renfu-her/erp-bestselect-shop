@@ -669,12 +669,12 @@
                 checkFn: function() {
                     if ($('.-cloneElem.--selectedP').length) {
                         $('#STEP_1 .-next_step').prop('disabled', false);
-                        $('#customer').prop('disabled', true);
+                        $('#customer, #salechannel').prop('disabled', true);
                     }
                     // 無商品不可下一步
                     if (!$('.-cloneElem.--selectedP').length) {
                         $('#STEP_1 .-next_step').prop('disabled', true);
-                        $('#customer').prop('disabled', false);
+                        $('#customer, #salechannel').prop('disabled', false);
                     }
                 }
             };
@@ -720,7 +720,7 @@
             // 無商品不可下一步
             if (!$('.-cloneElem.--selectedP').length) {
                 $('#STEP_1 .-next_step').prop('disabled', true);
-                $('#customer').prop('disabled', false);
+                $('#customer, #salechannel').prop('disabled', false);
             }
 
             // 第一步-下一步
@@ -1001,7 +1001,7 @@
                 sumSubtotal($(`input[name="product_style_id[]"][value="${selectedProduct.sid}"]`), selectedProduct.qty);
 
                 if ($('.-cloneElem.--selectedP').length) {
-                    $('#customer').prop('disabled', true);
+                    $('#customer, #salechannel').prop('disabled', true);
                 }
 
                 // 關閉懸浮視窗
