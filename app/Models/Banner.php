@@ -201,7 +201,7 @@ class Banner extends Model
             when event_type = "collection"
                 then banner.event_id
             when event_type = "product"
-                then banner.event_id
+                then products.sku
             when event_type = "url"
                 then banner.event_url
             else null
@@ -220,8 +220,7 @@ class Banner extends Model
             ->select(
                 'banner.title',
                 'banner.target',
-                'banner.event_type as type',
-                'products.sku'
+                'banner.event_type as type'
             )
             ->selectRaw(
                 'IFNULL(banner.img_pc, "") as src'
