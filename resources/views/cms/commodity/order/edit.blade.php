@@ -22,13 +22,14 @@
                                     {{ $customer->name }}</option>
                             @endforeach
                         </select>
+                        
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">銷售通路</label>
                         <select id="salechannel" class="form-select">
                             @foreach ($salechannels as $salechannel)
-                                <option value="{{ $salechannel->sale_channel_id }}">
-                                    {{ $salechannel->sale_channel_title }}</option>
+                                <option value="{{ $salechannel->id }}">
+                                    {{ $salechannel->title }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -497,7 +498,7 @@
 
             // 取得客戶身份
             function getSaleChannel() {
-                const _URL = @json(route('api.cms.user.get-customer-salechannels'));
+                const _URL = @json(route('api.cms.user.get-user-salechannels'));
                 let Data = {
                     customer_id: $('#customer').val()
                 };
@@ -514,7 +515,7 @@
                                 $('#addProductBtn').prop('disabled', false);
                                 (res.data).forEach(sale => {
                                     $('#salechannel').append(
-                                        `<option value="${sale.sale_channel_id}">${sale.sale_channel_title}</option>`
+                                        `<option value="${sale.id}">${sale.title}</option>`
                                     );
                                 });
                             } else {

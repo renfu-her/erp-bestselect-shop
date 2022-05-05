@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class UserSalechannel extends Model
 {
@@ -14,7 +15,7 @@ class UserSalechannel extends Model
 
     public static function updateSalechannel($user_id, $channel_ids)
     {
-        self::where('user_id')->delete();
+        self::where('user_id', $user_id)->delete();
         if (!$channel_ids || count($channel_ids) == 0) {
             return;
         }
@@ -25,5 +26,13 @@ class UserSalechannel extends Model
             ];
         }, $channel_ids));
 
+    }
+
+    public static function getSalechannels($user_id)
+    {
+        return DB::table('usr_user_salechannel as us')
+            ->leftJoin('prd_sale_channels as channel', 'channel.id', '=', 'us.salechannel_id')
+            ->select('channel.*')
+            ->where('us.user_id', $user_id);
     }
 }
