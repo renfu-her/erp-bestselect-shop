@@ -20,20 +20,75 @@ class GeneralLedgerCtrl extends Controller
      */
     public function index(Request $request)
     {
-        $totalGrades = GeneralLedger::getGradeData(0);
-//        $query = $request->query();
-//        $data_per_page = Arr::get($query, 'data_per_page', 10);
-//        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
-//
-//        $currentFirstGradeId = Arr::get($query, 'firstGrade', 1);
-//        $currentFirstGradeId = is_numeric($currentFirstGradeId) ? $currentFirstGradeId : 1;
+        $firstGrades = GeneralLedger::getAllFirstGrade();
+        $totalGrades = [];
+
+        foreach ($firstGrades as $firstGrade) {
+            foreach (GeneralLedger::getSecondGradeById($firstGrade['id']) as $secondGrade) {
+                foreach (GeneralLedger::getThirdGradeById($secondGrade['id']) as $thirdGrade) {
+                    $thirdGrade['fourth'] = GeneralLedger::getFourthGradeById($thirdGrade['id']);
+                    $secondGrade['third'][] = $thirdGrade;
+                }
+                $firstGrade['second'][] = $secondGrade;
+            }
+            $totalGrades[] = $firstGrade;
+        }
 
         return view('cms.general_ledger.gl.list', [
             'totalGrades' => $totalGrades,
-//            'currentFirstGradeId' => $currentFirstGradeId,
-//            'data_per_page' => $data_per_page,
         ]);
     }
+
+
+    /**
+     * Display the specified resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Request $request, int $id, $type)
+    {
+        if(! array_key_exists($type[0], GeneralLedger::GRADE_TABALE_NAME_ARRAY)){
+            return abort(404);
+        }
+
+        $table = GeneralLedger::GRADE_TABALE_NAME_ARRAY[$type[0]];
+
+        $request->merge([
+            'id'=>$id,
+            'type'=>$type,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:' . $table . ',id',
+            'type' => 'required|in:1st,2nd,3rd,4th',
+        ]);
+
+        $isFourthGradeExist = ($type == '4th') ? true : false;
+
+        $nextGrade = '';
+        if (!$isFourthGradeExist) {
+            $gradeNameArray = [
+                '1st',
+                '2nd',
+                '3rd',
+                '4th',
+            ];
+            $key = array_search($type, $gradeNameArray);
+            for ($i = 0; $i <= $key; $i++) {
+                $nextGrade = next($gradeNameArray);
+            }
+        }
+
+        return view('cms.general_ledger.gl.show', [
+            'method' => 'show',
+            'dataList' => GeneralLedger::getDataByGrade($id, $table),
+            'isFourthGradeExist' => $isFourthGradeExist,
+            'currentGrade' => $type,
+            'nextGrade' => $nextGrade,
+            'formAction' => ''
+        ]);
+    }
+
 
     /**
      * Show the form for creating a new resource.
@@ -42,23 +97,36 @@ class GeneralLedgerCtrl extends Controller
      */
     public function create(Request $request)
     {
-        if (isset($request['currentGrade'])){
-            $grade = $request['currentGrade'];
+        $request->merge([
+            'currentGrade'=>request('currentGrade'),
+            'nextGrade'=>request('nextGrade'),
+            'code'=>request('code'),
+        ]);
+
+        $request->validate([
+            'currentGrade' => 'nullable|in:1st,2nd,3rd,4th',
+            'nextGrade' => 'nullable|in:1st,2nd,3rd,4th',
+            'code' => 'required',
+        ]);
+
+        $grade = '1st';
+
+        if(request('nextGrade')){
+            $grade = request('nextGrade');
         }
-        if (isset($request['nextGrade'])){
-            $grade = $request['nextGrade'];
+
+        if(request('currentGrade')){
+            $grade = request('currentGrade');
         }
 
         return view('cms.general_ledger.gl.edit', [
             'method' => 'create',
             'currentCode' => $request['code'],
-//            'data' => GeneralLedger::getDataByGrade($id, $currentGrade[1])[0],
             'allCompanies' => DB::table('acc_company')->get(),
             'allCategories' => DB::table('acc_income_statement')->get(),
             'isFourthGradeExist' => ($grade === '4th') ? true : false,
-            'formAction' => Route('cms.general_ledger.store-' . $grade),
+            'formAction' => Route('cms.general_ledger.store', ['type'=>$grade]),
         ]);
-        //
     }
 
     /**
@@ -67,12 +135,14 @@ class GeneralLedgerCtrl extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, $type)
     {
-        $currentUri = Route::getCurrentRoute()->uri;
-        preg_match('/cms\\/general_ledger\\/create\\/(1st|2nd|3rd|4th)$/', $currentUri, $currentGrade);
+        $request->merge([
+            'type'=>$type,
+        ]);
 
         $request->validate([
+            'type' => 'required|in:1st,2nd,3rd,4th',
             'name' => 'required|string',
             'code' => 'required|string',
             'has_next_grade' => 'required|string',
@@ -92,48 +162,11 @@ class GeneralLedgerCtrl extends Controller
             'note_2',
         );
 
-        GeneralLedger::storeGradeData($req, $currentGrade[1][0]);
+        GeneralLedger::storeGradeData($req, $type[0]);
 
         return redirect(Route('cms.general_ledger.index'));
-        //
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Request $request, int $id)
-    {
-        $currentUri = Route::getCurrentRoute()->uri;
-        preg_match('/cms\\/general_ledger\\/show\\/{id}\\/(1st|2nd|3rd|4th)$/', $currentUri, $currentGrade);
-
-        $isFourthGradeExist = ($currentGrade[1] == '4th') ? true : false;
-
-        $nextGrade = '';
-        if (!$isFourthGradeExist) {
-            $gradeNameArray = [
-                '1st',
-                '2nd',
-                '3rd',
-                '4th',
-            ];
-            $key = array_search($currentGrade[1], $gradeNameArray);
-            for ($i = 0; $i <= $key; $i++) {
-                $nextGrade = next($gradeNameArray);
-            }
-        }
-
-        return view('cms.general_ledger.gl.show', [
-            'method' => 'show',
-            'dataList' => GeneralLedger::getDataByGrade($id, $currentGrade[1][0]),
-            'isFourthGradeExist' => $isFourthGradeExist,
-            'currentGrade' => $currentGrade[1],
-            'nextGrade' => $nextGrade,
-            'formAction' => ''
-            //            'data_per_page' => $data_per_page,
-        ]);
-    }
 
     /**
      * Show the form for editing the specified resource.
@@ -141,20 +174,32 @@ class GeneralLedgerCtrl extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function edit(Request $request, int $id)
+    public function edit(Request $request, int $id, $type)
     {
-        $currentUri = Route::getCurrentRoute()->uri;
-        preg_match('/cms\\/general_ledger\\/edit\\/{id}\\/(1st|2nd|3rd|4th)$/', $currentUri, $currentGrade);
+        if(! array_key_exists($type[0], GeneralLedger::GRADE_TABALE_NAME_ARRAY)){
+            return abort(404);
+        }
+
+        $table = GeneralLedger::GRADE_TABALE_NAME_ARRAY[$type[0]];
+
+        $request->merge([
+            'id'=>$id,
+            'type'=>$type,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:' . $table . ',id',
+            'type' => 'required|in:1st,2nd,3rd,4th',
+        ]);
 
         return view('cms.general_ledger.gl.edit', [
             'method' => 'edit',
-            'data' => GeneralLedger::getDataByGrade($id, $currentGrade[1][0])[0],
-            'isFourthGradeExist' => ($currentGrade[1] == '4th') ? true : false,
+            'data' => GeneralLedger::getDataByGrade($id, $table)->first(),
+            'isFourthGradeExist' => ($type == '4th') ? true : false,
             'allCompanies' => DB::table('acc_company')->get(),
             'allCategories' => DB::table('acc_income_statement')->get(),
-            'currentGrade' => $currentGrade[1],
-            'formAction' => Route('cms.general_ledger.update-' . $currentGrade[1], ['id' => $id])
-            //            'data_per_page' => $data_per_page,
+            'currentGrade' => $type,
+            'formAction' => Route('cms.general_ledger.update', ['id' => $id, 'type' => $type])
         ]);
     }
 
@@ -164,18 +209,31 @@ class GeneralLedgerCtrl extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, int $id)
+    public function update(Request $request, int $id, $type)
     {
-        $currentUri = Route::getCurrentRoute()->uri;
-        preg_match('/cms\\/general_ledger\\/edit\\/{id}\\/(1st|2nd|3rd|4th)$/', $currentUri, $currentGrade);
+        if(! array_key_exists($type[0], GeneralLedger::GRADE_TABALE_NAME_ARRAY)){
+            return abort(404);
+        }
+
+        $table = GeneralLedger::GRADE_TABALE_NAME_ARRAY[$type[0]];
+
+        $request->merge([
+            'id'=>$id,
+            'type'=>$type,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:' . $table . ',id',
+            'type' => 'required|in:1st,2nd,3rd,4th',
+        ]);
 
         $request->validate([
             'name' => 'required|string',
             'has_next_grade' => 'required|string',
             'acc_company_fk' => 'nullable|string',
             'acc_income_statement_fk' => 'nullable|string',
-            'note_1' => 'nullable|sting',
-            'note_2' => 'nullable|sting',
+            'note_1' => 'nullable|string',
+            'note_2' => 'nullable|string',
         ]);
 
         $req = $request->only(
@@ -187,16 +245,8 @@ class GeneralLedgerCtrl extends Controller
             'note_2',
         );
 
-        $tableNameArray = [
-            '1st' => 'acc_first_grade',
-            '2nd' => 'acc_second_grade',
-            '3rd' => 'acc_third_grade',
-            '4th' => 'acc_fourth_grade',
-        ];
+        DB::table($table)->where('id', '=', $id)->update($req);
 
-        DB::table($tableNameArray[$currentGrade[1]])
-            ->where('id', '=', $id)
-            ->update($req);
         return redirect(Route('cms.general_ledger.index'));
     }
 

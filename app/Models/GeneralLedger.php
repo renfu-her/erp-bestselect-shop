@@ -15,8 +15,7 @@ class GeneralLedger extends Model
 {
     use HasFactory;
 
-    public const GRADE_TABALE_NAME_ARRAY
-        = [
+    public const GRADE_TABALE_NAME_ARRAY = [
             '1' => 'acc_first_grade',
             '2' => 'acc_second_grade',
             '3' => 'acc_third_grade',
@@ -143,88 +142,29 @@ class GeneralLedger extends Model
     }
 
     /**
-     *
-     * 取得1~4層級科目的所有資料
-     *
-     * @return array[][][][]
-     * 第一級科目[]
-     *     second[]
-     *         third[]
-     *             fourth[]
-     */
-    public static function getAllGradesData()
-    {
-        $firstGrades = self::getAllFirstGrade();
-        $totalGrades = array();
-
-        foreach ($firstGrades as $firstGrade) {
-            foreach (self::getSecondGradeById($firstGrade['id']) as $secondGrade) {
-                foreach (self::getThirdGradeById($secondGrade['id']) as $thirdGrade) {
-                    $thirdGrade['fourth'] = self::getFourthGradeById($thirdGrade['id']);
-                    $secondGrade['third'][] = $thirdGrade;
-                }
-                $firstGrade['second'][] = $secondGrade;
-            }
-            $totalGrades[] = $firstGrade;
-        }
-
-        return $totalGrades;
-    }
-
-    /**
-     * 取得某層級科目的所有資料
-     * 第1級科目（母科目、會計分類）
-     * 第2級科目（子科目）
-     * 第3級科目（子次科目）
-     * 第4級科目（子底科目）
-     * @param  int  $grade  取得哪一層級科目的所有資料？ 1,2,3,4。   參數0：代表取得所有（1～4）級科目資料
-     *
-     * @return array 若無資料則回傳empty array[]
-     * 參數0: 所有級的科目資料回傳格式 array[][][][]
-     * 第一級科目[]
-     *     second[]
-     *         third[]
-     *             fourth[]
-     *
-     */
-    public static function getGradeData(int $grade)
-    {
-        if ($grade === 0) {
-            return self::getAllGradesData();
-        } else {
-            $stdResult = self::getDataByGrade(1, strval($grade), true);
-            if (!$stdResult) {
-                return array();
-            }
-            return json_decode(json_encode($stdResult), true);
-        }
-    }
-
-    /**
      * @param  int|string  $id  層級科目table 的 primary_id
      * @param  string  $grade  1,2,3,4 層級科目
      * @param  bool  $all  是否取得該層級科目的所有資料?
      *
      * @return \Illuminate\Support\Collection
      */
-    public static function getDataByGrade($id = 1, string $grade = '1', bool $all = false)
+    public static function getDataByGrade($id = 1, string $table = self::GRADE_TABALE_NAME_ARRAY[1], bool $all = false)
     {
-        $tableName = self::GRADE_TABALE_NAME_ARRAY[$grade];
+        $query = DB::table($table);
 
-        $query = DB::table($tableName);
         if (!$all) {
-            $query = $query->where($tableName . '.id', '=', $id);
+            $query = $query->where($table . '.id', '=', $id);
         }
 
-        return $query->leftJoin('acc_company', 'acc_company_fk', '=', 'acc_company.id')
-            ->leftJoin('acc_income_statement', 'acc_income_statement_fk', '=', 'acc_income_statement.id')
+        return $query->leftJoin('acc_company', $table . '.acc_company_fk', '=', 'acc_company.id')
+            ->leftJoin('acc_income_statement', $table . '.acc_income_statement_fk', '=', 'acc_income_statement.id')
             ->select(
-                $tableName . '.id',
-                $tableName . '.code',
-                $tableName . '.name',
-                $tableName . '.has_next_grade',
-                $tableName . '.note_1',
-                $tableName . '.note_2',
+                $table . '.id',
+                $table . '.code',
+                $table . '.name',
+                $table . '.has_next_grade',
+                $table . '.note_1',
+                $table . '.note_2',
                 'acc_company.company',
                 'acc_income_statement.name as category'
             )

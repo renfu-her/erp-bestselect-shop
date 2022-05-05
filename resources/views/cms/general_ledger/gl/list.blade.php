@@ -1,29 +1,11 @@
 @extends('layouts.main')
+
 @section('sub-content')
 
 <h2 class="mb-4">會計科目</h2>
-
-{{--<form id="search" action="{{ Route('cms.general_ledger.index') }}" method="GET">--}}
-{{--        <div class="col">--}}
-{{--            <input type="hidden" name="data_per_page" value="{{ $data_per_page }}" />--}}
-{{--        </div>--}}
-{{--</form>--}}
-
 <form id="actionForms">
     @csrf
     <div class=" p-4 mb-4">
-{{--        <div class="row justify-content-end mb-4">--}}
-{{--            <div class="col-auto">--}}
-{{--                顯示--}}
-{{--                <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">--}}
-{{--                    @foreach (config('global.dataPerPage') as $value)--}}
-{{--                        <option value="{{ $value }}" @if ($data_per_page == $value) selected @endif>{{ $value }}</option>--}}
-{{--                    @endforeach--}}
-{{--                </select>--}}
-{{--                筆--}}
-{{--            </div>--}}
-{{--        </div>--}}
-
         <div class="table-responsive tableOverBox">
             <table class="table table-bordered border-secondary tableList">
                 <thead>
@@ -41,11 +23,9 @@
                 <tbody>
                 @foreach($totalGrades ?? [] as $firstGrade)
                     <tr>
-                        <th>
-                            <a href="{{ Route('cms.general_ledger.show-1st', ['id' => $firstGrade['id']]) }}">
-                                {{ $firstGrade['code'] . ' ' . $firstGrade['name'] }}
-                            </a>
-                        </th>
+                        <td>
+                            <a href="{{ Route('cms.general_ledger.show', ['id' => $firstGrade['id'], 'type'=>'1st']) }}">{{ $firstGrade['code'] . ' ' . $firstGrade['name'] }}</a>
+                        </td>
                         <td></td>
                         <td></td>
                         <td></td>
@@ -58,7 +38,7 @@
                         <tr>
                             <th></th>
                             <td>
-                                <a href="{{ Route('cms.general_ledger.show-2nd', ['id' => $secondGrade['id']]) }}">
+                                <a href="{{ Route('cms.general_ledger.show', ['id' => $secondGrade['id'], 'type'=>'2nd']) }}">
                                     {{ $secondGrade['code'] . ' ' . $secondGrade['name'] }}
                                 </a>
                             </td>
@@ -74,7 +54,7 @@
                                 <th></th>
                                 <td></td>
                                 <td>
-                                    <a href="{{ Route('cms.general_ledger.show-3rd', ['id' => $thirdGrade['id']]) }}">{{ $thirdGrade['code'] . ' ' . $thirdGrade['name'] }}
+                                    <a href="{{ Route('cms.general_ledger.show', ['id' => $thirdGrade['id'], 'type'=>'3rd']) }}">{{ $thirdGrade['code'] . ' ' . $thirdGrade['name'] }}
                                 </td>
                                 <td></td>
                                 <td>{{ $thirdGrade['category'] }}</td>
@@ -88,7 +68,7 @@
                                     <td></td>
                                     <td></td>
                                     <td>
-                                        <a href="{{ Route('cms.general_ledger.show-4th', ['id' => $fourthGrade['id']]) }}"> {{ $fourthGrade['code'] }}
+                                        <a href="{{ Route('cms.general_ledger.show', ['id' => $fourthGrade['id'], 'type'=>'4th']) }}"> {{ $fourthGrade['code'] }}
                                             <br>
                                             {{ ' ' . $fourthGrade['name'] }}</a></td>
                                     <td>{{ $fourthGrade['category'] }}</td>
@@ -102,14 +82,6 @@
                 @endforeach
                 </tbody>
             </table>
-        </div>
-    </div>
-
-    <div class="row flex-column-reverse flex-sm-row">
-        <div class="col-auto">
-
-        </div>
-        <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">
         </div>
     </div>
 </form>
