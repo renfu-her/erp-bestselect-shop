@@ -13,23 +13,27 @@ class ProductCtrl extends Controller
     //
     public function getProductStyles(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             //   'supplier_id' => ['required'],
-            'price' => 'numeric',
+            'price' => 'numeric|required',
         ]);
+
+        
 
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'E01',
-                'message' => $validator->messages(),
+                'message' => $validator->errors(),
             ]);
         }
         $d = $request->all();
+        
         $options = [];
         if (isset($d['price'])) {
             $options['price'] = $d['price'];
         }
+
+    
         if (isset($d['supplier_id'])) {
             $options['supplier'] = ['condition' => $d['supplier_id']];
         }
@@ -37,8 +41,6 @@ class ProductCtrl extends Controller
         if (isset($d['consume'])) {
             $options['consume'] = $d['consume'];
         }
-
-
 
         // Arr::get($d, 'supplier_id',''),
 
@@ -65,7 +67,7 @@ class ProductCtrl extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'E01',
-                'message' => $validator->messages(),
+                'message' => $validator->errors(),
             ]);
         }
 
@@ -91,7 +93,7 @@ class ProductCtrl extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'E01',
-                'message' => $validator->messages(),
+                'message' => $validator->errors(),
             ]);
         }
         $re = Product::getProductShipments($request->input('product_id'));
@@ -116,7 +118,7 @@ class ProductCtrl extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'E01',
-                'msg' => $validator->messages(),
+                'msg' => $validator->errors(),
             ]);
         }
 
