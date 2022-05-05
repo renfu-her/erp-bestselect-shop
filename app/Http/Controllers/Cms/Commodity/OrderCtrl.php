@@ -95,7 +95,7 @@ class OrderCtrl extends Controller
                 ];
             }
 
-            $cart = OrderCart::cartFormater($oldData, false);
+            $cart = OrderCart::cartFormater($oldData, old('salechannel_id'), null, false);
             if ($cart['success'] != 1) {
                 dd($cart);
             }
@@ -126,8 +126,6 @@ class OrderCtrl extends Controller
         } else {
             $salechannels = [];
         }
-        
-      
 
         $citys = Addr::getCitys();
 
