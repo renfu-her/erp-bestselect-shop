@@ -26,7 +26,7 @@
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">銷售通路</label>
-                        <select id="salechannel" class="form-select">
+                        <select id="salechannel" class="form-select" name="salechannel_id">
                             @foreach ($salechannels as $salechannel)
                                 <option value="{{ $salechannel->id }}">
                                     {{ $salechannel->title }}</option>
@@ -758,7 +758,7 @@
                 const _URL = `${Laravel.apiUrl.productStyles}?page=${page}`;
                 const Data = {
                     keyword: $('#addProduct .-searchBar input').val(),
-                    price: 1,
+                    price: $('#salechannel').val(),
                     salechannel_id: $('#salechannel').val()
                 };
                 resetAddProductModal();
