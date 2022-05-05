@@ -63,7 +63,7 @@ class OrderCart extends Model
      * @param array $coupon_obj ["type"=>"code/sn","value"=>"string"]
      */
 
-    public static function cartFormater($data, $coupon_obj = null, $checkInStock = true)
+    public static function cartFormater($data, $salechannel_id, $coupon_obj = null, $checkInStock = true)
     {
         $shipmentGroup = [];
         $shipmentKeys = [];
@@ -80,7 +80,7 @@ class OrderCart extends Model
         $_tempProducts = [];
 
         foreach ($data as $value) {
-            $style = Product::productStyleList(null, null, null, ['price' => 1])->where('s.id', $value['product_style_id'])
+            $style = Product::productStyleList(null, null, null, ['price' => $salechannel_id])->where('s.id', $value['product_style_id'])
                 ->get()->first();
 
             if (!$style) {
@@ -264,7 +264,7 @@ class OrderCart extends Model
                         break;
                     case DisMethod::percent():
                         $tPrice = $order['discounted_price'];
-                        $discount_value = floor($tPrice - $tPrice / 100 * $currentCoupon->discount_value);     
+                        $discount_value = floor($tPrice - $tPrice / 100 * $currentCoupon->discount_value);
                         break;
                     default:
                 }

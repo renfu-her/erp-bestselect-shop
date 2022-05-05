@@ -114,7 +114,6 @@ class Order extends Model
             ->selectRaw("IF(order.payment_method IS NULL,'',order.payment_method) as payment_method")
             ->selectRaw("IF(order.payment_method_title IS NULL,'',order.payment_method_title) as payment_method_title")
 
-
             ->where('order.id', $order_id);
 
         if ($email) {
@@ -236,7 +235,7 @@ class Order extends Model
 
         return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $note, $coupon_obj, $payment) {
 
-            $order = OrderCart::cartFormater($items, $coupon_obj);
+            $order = OrderCart::cartFormater($items, $sale_channel_id, $coupon_obj);
 
             if ($order['success'] != 1) {
                 DB::rollBack();
