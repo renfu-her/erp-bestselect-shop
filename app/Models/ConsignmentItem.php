@@ -23,6 +23,7 @@ class ConsignmentItem extends Model
         if (isset($newData['consignment_id'])
             && $newData['product_style_id']
             && $newData['title']
+            && $newData['prd_type']
             && $newData['num']
             && $newData['price']
             && $newData['sku']
@@ -33,6 +34,7 @@ class ConsignmentItem extends Model
                     "consignment_id" => $newData['consignment_id'],
                     "product_style_id" => $newData['product_style_id'],
                     "title" => $newData['title'],
+                    "prd_type" => $newData['prd_type'],
                     "num" => $newData['num'],
                     "price" => $newData['price'],
                     "sku" => $newData['sku'],

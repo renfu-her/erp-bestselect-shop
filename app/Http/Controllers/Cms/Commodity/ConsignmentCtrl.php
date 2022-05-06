@@ -92,6 +92,7 @@ class ConsignmentCtrl extends Controller
             'scheduled_date' => 'required|string',
             'product_style_id.*' => 'required|numeric|distinct',
             'name.*' => 'required|string',
+            'prd_type.*' => 'required|string',
             'sku.*' => 'required|string',
             'price.*' => 'required|numeric',
             'num.*' => 'required|numeric',
@@ -99,7 +100,7 @@ class ConsignmentCtrl extends Controller
         $query = $request->query();
 
         $csnReq = $request->only('send_depot_id', 'receive_depot_id', 'scheduled_date');
-        $csnItemReq = $request->only('product_style_id', 'name', 'sku', 'num', 'price', 'memo');
+        $csnItemReq = $request->only('product_style_id', 'name', 'prd_type', 'sku', 'num', 'price', 'memo');
 //        $purchasePayReq = $request->only('logistics_price', 'logistics_memo', 'invoice_num', 'invoice_date');
 
         $send_depot = Depot::where('id', $csnReq['send_depot_id'])->get()->first();
@@ -126,6 +127,7 @@ class ConsignmentCtrl extends Controller
                             'consignment_id' => $consignmentID,
                             'product_style_id' => $val,
                             'title' => $csnItemReq['name'][$key],
+                            'prd_type' => $csnItemReq['prd_type'][$key],
                             'sku' => $csnItemReq['sku'][$key],
                             'price' => $csnItemReq['price'][$key],
                             'num' => $csnItemReq['num'][$key],
@@ -199,7 +201,7 @@ class ConsignmentCtrl extends Controller
         $query = $request->query();
 
         $csnReq = $request->only('scheduled_date', 'audit_status');
-        $csnItemReq = $request->only('item_id', 'product_style_id', 'name', 'sku', 'num', 'price');
+        $csnItemReq = $request->only('item_id', 'product_style_id', 'name', 'prd_type', 'sku', 'num', 'price');
 
         //判斷是否有出貨審核，有則不可新增刪除商品款式
 //        $consignmentGet = Consignment::where('id', '=', $id)->get()->first();
@@ -253,6 +255,7 @@ class ConsignmentCtrl extends Controller
                                 'consignment_id' => $consignmentData->consignment_id,
                                 'product_style_id' => $csnItemReq['product_style_id'][$key],
                                 'title' => $csnItemReq['name'][$key],
+                                'prd_type' => $csnItemReq['prd_type'][$key],
                                 'sku' => $csnItemReq['sku'][$key],
                                 'price' => $csnItemReq['price'][$key],
                                 'num' => $csnItemReq['num'][$key],

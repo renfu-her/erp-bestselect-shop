@@ -36,6 +36,7 @@ class OrderItem extends Model
                 , 'ord_items.order_id AS order_id'
                 , 'ord_items.sub_order_id AS sub_order_id'
                 , 'ord_items.product_title AS combo_product_title'
+                , DB::raw('@tb_combo.type:="c" as prd_type')
                 , 'tb_combo.id AS product_style_id'
                 , 'tb_combo.product_id'
                 , 'tb_combo.sku'
@@ -55,6 +56,7 @@ class OrderItem extends Model
                 , 'ord_items.order_id AS order_id'
                 , 'ord_items.sub_order_id AS sub_order_id'
                 , 'ord_items.product_title'
+                , 'prd_product_styles.type as prd_type'
                 , 'prd_product_styles.id  AS product_style_id'
                 , 'prd_product_styles.product_id'
                 , 'prd_product_styles.sku'

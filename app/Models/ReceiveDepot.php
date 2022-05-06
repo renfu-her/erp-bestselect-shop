@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Delivery\Event;
 use App\Enums\Purchase\LogEventFeature;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,7 +16,7 @@ class ReceiveDepot extends Model
     public $timestamps = false;
     protected $guarded = [];
 
-    public static function setData($id = null, $delivery_id, $event_item_id = null, $freebies, $inbound_id, $inbound_sn, $depot_id, $depot_name, $product_style_id, $sku, $product_title, $qty, $expiry_date)
+    public static function setData($id = null, $delivery_id, $event_item_id = null, $combo_id = null, $type = null, $freebies, $inbound_id, $inbound_sn, $depot_id, $depot_name, $product_style_id, $sku, $product_title, $qty, $expiry_date)
     {
         $data = null;
         $dataGet = null;
@@ -28,6 +29,8 @@ class ReceiveDepot extends Model
             $result = ReceiveDepot::create([
                 'delivery_id' => $delivery_id,
                 'event_item_id' => $event_item_id,
+                //'combo_id' => $combo_id, //剛創建不會有 須等到出貨送出 確認是組合包的元素商品 才會回寫
+                'type' => $type,
                 'freebies' => $freebies,
                 'inbound_id' => $inbound_id,
                 'inbound_sn' => $inbound_sn,
@@ -40,10 +43,12 @@ class ReceiveDepot extends Model
                 'expiry_date' => $expiry_date,
             ])->id;
         } else {
-            $result = DB::transaction(function () use ($data, $dataGet, $freebies, $inbound_id, $inbound_sn, $depot_id, $depot_name, $product_style_id, $sku, $product_title, $qty, $expiry_date
+            $result = DB::transaction(function () use ($data, $dataGet, $combo_id, $type, $freebies, $inbound_id, $inbound_sn, $depot_id, $depot_name, $product_style_id, $sku, $product_title, $qty, $expiry_date
             ) {
                 $data->update([
                     'freebies' => $freebies,
+                    'combo_id' => $combo_id, //剛創建不會有 須等到出貨送出 確認是組合包的元素商品 才會回寫
+                    'type' => $type,
                     'inbound_id' => $inbound_id,
                     'inbound_sn' => $inbound_sn,
                     'depot_id' => $depot_id,
@@ -68,11 +73,26 @@ class ReceiveDepot extends Model
      * @return array|mixed|void
      */
     public static function setDatasWithDeliveryIdWithItemId($input_arr, $delivery_id, $itemId) {
-            return DB::transaction(function () use ($delivery_id, $itemId, $input_arr
+        $delivery = Delivery::where('id', $delivery_id)->get()->first();
+
+            return DB::transaction(function () use ($delivery_id, $delivery, $itemId, $input_arr
             ) {
                 if (null != $input_arr['qty'] && 0 < count($input_arr['qty'])) {
                     $addIds = [];
                     foreach($input_arr['qty'] as $key => $val) {
+                        //取得delivery event = consignment
+                        //	用event_item_id取得csn_consignment_items prd_type
+                        //		若c 則寫入element
+                        //		若p 則寫入product
+                        $rcv_depot_type = '';
+                        if (Event::consignment()->value == $delivery->event) {
+                            $csn_item = ConsignmentItem::where('id', $itemId)->get()->first();
+                            if ('p' == $csn_item->prd_type) {
+                                $rcv_depot_type = 'product';
+                            } elseif ('c' == $csn_item->prd_type) {
+                                $rcv_depot_type = 'element';
+                            }
+                        }
                         $inbound = PurchaseInbound::getSelectInboundList(['inbound_id' => $input_arr['inbound_id'][$key]])->get()->first();
                         if (null != $inbound) {
                             if (0 > $inbound->qty - $val) {
@@ -82,6 +102,8 @@ class ReceiveDepot extends Model
                                 null,
                                 $delivery_id, //出貨單ID
                                 $itemId ?? null, //子訂單商品ID
+                                null, //組合包商品ID
+                                $rcv_depot_type ?? null, //商品類型
                                 $input_arr['freebies'][$key] ?? 0, //是否為贈品 0:否
                                 $inbound->inbound_id,
                                 $inbound->inbound_sn,
@@ -115,10 +137,77 @@ class ReceiveDepot extends Model
             $rcvDepot = ReceiveDepot::where('delivery_id', $delivery_id);
             $rcvDepotGet = $rcvDepot->get();
         }
-        $result = null;
         if (null != $delivery &&null != $rcvDepotGet && 0 < count($rcvDepotGet)) {
                 $result = DB::transaction(function () use ($delivery, $rcvDepot, $rcvDepotGet, $event, $event_id, $delivery_id, $user_id, $user_name
                 ) {
+                    //判斷若為組合包商品 則需新建立一筆資料組合成組合包 並回寫新id
+                    if (Event::consignment()->value == $delivery->event) {
+                        $queryComboElement = DB::table('dlv_delivery as delivery')
+                            ->leftJoin('dlv_receive_depot as rcv_depot', 'rcv_depot.delivery_id', '=', 'delivery.id')
+                            ->leftJoin('csn_consignment_items as items', 'items.id', '=', 'rcv_depot.event_item_id')
+                            ->leftJoin('csn_consignment as consignment', 'consignment.id', '=', 'items.consignment_id')
+                            ->where('delivery.id', $delivery_id)
+                            ->where('delivery.event', Event::consignment()->value)
+                            ->where('rcv_depot.type', 'element')
+                            ->whereNull('delivery.deleted_at')
+                            ->whereNull('delivery.deleted_at')
+                            ->whereNull('items.deleted_at')
+                            ->select(
+                                'rcv_depot.delivery_id'
+                                , 'rcv_depot.event_item_id'
+                                , DB::raw('min(rcv_depot.expiry_date) as expiry_date')
+                                , 'items.product_style_id'
+                                , 'items.title'
+                                , 'items.prd_type'
+                                , 'items.sku'
+                                , 'items.num'
+                                , 'consignment.send_depot_id as depot_id'
+                                , 'consignment.send_depot_name as depot_name'
+                            )
+                            ->groupBy('rcv_depot.delivery_id')
+                            ->groupBy('rcv_depot.event_item_id')
+                            ->groupBy('items.product_style_id')
+                            ->groupBy('items.title')
+                            ->groupBy('items.prd_type')
+                            ->groupBy('items.sku')
+                            ->groupBy('consignment.send_depot_id')
+                            ->groupBy('consignment.send_depot_name')
+                            ->get();
+                        if (null != $queryComboElement && 0 < count($queryComboElement)) {
+                            //新增並回寫ID
+                            foreach($queryComboElement as $key => $element) {
+                                $reSD = ReceiveDepot::setData(
+                                    null,
+                                    $delivery_id, //出貨單ID
+                                    $element->event_item_id, //子訂單商品ID
+                                    null, //組合包商品ID
+                                    'combo', //商品類型
+                                    0, //是否為贈品 0:否
+                                    0,
+                                    '',
+                                    $element->depot_id,
+                                    $element->depot_name,
+                                    $element->product_style_id,
+                                    $element->sku,
+                                    $element->title,
+                                    $element->num, //數量
+                                    $element->expiry_date);
+                                if ($reSD['success'] == 0) {
+                                    DB::rollBack();
+                                    return $reSD;
+                                } else {
+                                    $rcvDepot_elements = ReceiveDepot::where('delivery_id', $delivery_id)
+                                        ->where('event_item_id', $element->event_item_id)
+                                        ->where('type', 'element')
+                                    ;
+                                    $rcvDepot_elements->update([
+                                        'combo_id' => $reSD['id'],
+                                    ]);
+                                }
+                            }
+                        }
+                    }
+
                     //扣除入庫單庫存
                     foreach ($rcvDepotGet as $item) {
                         $reShipIb = PurchaseInbound::shippingInbound($event, $event_id, LogEventFeature::order_shipping()->value, $item->inbound_id, $item->qty);
@@ -127,6 +216,7 @@ class ReceiveDepot extends Model
                             return $reShipIb;
                         }
                     }
+
                     $curr_date = date('Y-m-d H:i:s');
                     Delivery::where('id', '=', $delivery_id)->update([
                         'audit_date' => $curr_date,
@@ -136,6 +226,7 @@ class ReceiveDepot extends Model
                     $rcvDepot->update([
                         'audit_date' => $curr_date,
                     ]);
+
                     return ['success' => 1, 'error_msg' => ""];
                 });
         } else {
@@ -248,26 +339,67 @@ class ReceiveDepot extends Model
     }
 
     public static function getCSNShipItemWithDeliveryWithReceiveDepotList($event, $consignment_id, $delivery_id, $product_style_id = null) {
-        // 寄倉單的商品列表
-        $csn_items = DB::table('csn_consignment_items')
-            ->select('id as item_id'
-                , 'consignment_id'
-                , 'product_style_id'
-                , DB::raw('@title:=null as combo_product_title')
-                , 'title as product_title'
-                , 'sku'
-                , 'price'
-                , 'num as qty'
-                , 'memo'
-                , 'created_at'
-                , 'updated_at'
-                , 'deleted_at'
+        $query_combo = DB::table('prd_style_combos')
+            ->leftJoin('prd_product_styles', 'prd_product_styles.id', '=', 'prd_style_combos.product_style_child_id')
+            ->select('prd_style_combos.product_style_id'
+                , 'prd_style_combos.qty'
+                , 'prd_product_styles.id'
+                , 'prd_product_styles.product_id'
+                , 'prd_product_styles.title'
+                , 'prd_product_styles.sku'
+                , 'prd_product_styles.type'
+            );
+
+        //取得子訂單商品內 組合包拆解內容
+        $query_ship_combo = DB::table('csn_consignment_items as item')
+            ->leftJoin(DB::raw("({$query_combo->toSql()}) as tb_combo"), function ($join) {
+                $join->on('tb_combo.product_style_id', '=', 'item.product_style_id');
+            })
+            ->leftJoin('prd_products', 'prd_products.id', '=', 'tb_combo.product_id')
+            ->select('item.id AS item_id'
+                , 'item.consignment_id AS consignment_id'
+                , 'item.price'
+                , 'item.prd_type'
+                , 'item.memo'
+                , 'item.created_at'
+                , 'item.updated_at'
+                , 'item.deleted_at'
+
+                , 'item.title AS combo_product_title'
+                , 'tb_combo.id AS product_style_id'
+                , 'tb_combo.sku'
             )
-            ->whereNull('deleted_at')
-            ->where('consignment_id', $consignment_id)
-            ->get();
+            ->selectRaw(DB::raw('( item.num * tb_combo.qty ) AS qty'))
+            ->selectRaw(DB::raw('Concat(prd_products.title, "-", tb_combo.title) AS product_title'))
+            ->whereNotNull('tb_combo.type')
+            ->whereNull('item.deleted_at')
+            ->where('item.consignment_id', $consignment_id)
+            ->mergeBindings($query_combo);
+
+        //取得寄倉單 一般商品
+        $csn_items = DB::table('csn_consignment_items as item')
+            ->leftJoin('prd_product_styles', 'prd_product_styles.id', '=', 'item.product_style_id')
+            ->select('item.id as item_id'
+                , 'item.consignment_id'
+                , 'item.price'
+                , 'item.prd_type'
+                , 'item.memo'
+                , 'item.created_at'
+                , 'item.updated_at'
+                , 'item.deleted_at'
+                , DB::raw('@item.title:=null as combo_product_title')
+                , 'item.product_style_id'
+                , 'item.sku'
+                , 'item.num as qty'
+                , 'item.title as product_title'
+            )
+            ->whereNull('item.deleted_at')
+            ->where('prd_product_styles.type', '=', 'p')
+            ->where('item.consignment_id', $consignment_id);
+        $query_ship_overview = $csn_items->union($query_ship_combo);
+
         // 對應的出貨資料
-        $ord_items_arr = ReceiveDepot::getReceiveDepotParseData($event, $consignment_id, $delivery_id, $product_style_id, $csn_items);
+        $ord_items_arr = ReceiveDepot::getReceiveDepotParseData($event, $consignment_id, $delivery_id, $product_style_id, $query_ship_overview->get());
         return $ord_items_arr;
     }
 

@@ -83,6 +83,8 @@ class DepotProduct extends Model
 
         $re = DB::table('prd_product_depot_select as select_list')
             ->leftJoin('prd_salechannel_style_price as p', 'select_list.product_style_id', '=', 'p.style_id')
+            ->leftJoin('prd_products as product', 'select_list.product_id', '=', 'product.id')
+            ->leftJoin('prd_product_styles as style', 'select_list.product_style_id', '=', 'style.id')
             ->leftJoinSub($extPrdStyleList_send, 'inbound', function($join) use($send_depot_id) {
                 //對應到入庫倉可入到進貨倉 相同的product_style_id
                 $join->on('inbound.product_style_id', '=', 'select_list.product_style_id');
@@ -96,14 +98,16 @@ class DepotProduct extends Model
                 'select_list.depot_product_no',
                 'select_list.ost_price',
                 'select_list.depot_price',
-                'inbound.product_id as product_id',
+                'select_list.product_id as product_id',
+                'select_list.product_style_id as id',
                 'inbound.depot_id as inbound_depot_id',
-                'inbound.product_style_id as id',
-                'inbound.product_title as product_title',
-                'inbound.title as spec',
-                'inbound.sku',
-                'inbound.total_in_stock_num',
-                DB::raw('CASE inbound.product_type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title'),
+                'product.title as product_title',
+                'product.type as prd_type',
+                'style.title as spec',
+                'style.sku as sku',
+//                'inbound.total_in_stock_num',
+                DB::raw('CASE style.type WHEN "p" THEN inbound.total_in_stock_num WHEN "c" THEN "" END as total_in_stock_num'),
+                DB::raw('CASE style.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title'),
             )
             ->whereNull('select_list.deleted_at')
             ->where('p.sale_channel_id', 1)
