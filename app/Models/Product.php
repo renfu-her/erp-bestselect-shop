@@ -334,7 +334,6 @@ class Product extends Model
 
     public static function productStyleList($keyword = null, $type = null, $stock_status = [], $options = [])
     {
-
         $re = DB::table('prd_products as p')
             ->leftJoin('prd_product_styles as s', 'p.id', '=', 's.product_id')
             ->select('s.id', 's.sku', 'p.title as product_title', 'p.id as product_id', 's.title as spec', 's.safety_stock', 's.total_inbound')
@@ -342,19 +341,24 @@ class Product extends Model
             ->selectRaw('s.in_stock + s.overbought as in_stock')
             ->selectRaw('(SELECT `url` FROM prd_product_images WHERE product_id=p.id LIMIT 1) as img_url')
             ->whereNotNull('s.sku')
-            ->where(function ($q) use ($keyword) {
-                if ($keyword) {
-                    $q->where('p.title', 'like', "%$keyword%");
-                    $q->orWhere('s.title', 'like', "%$keyword%");
-                    $q->orWhere('s.sku', 'like', "%$keyword%");
-                }
-            })
-            ->whereNotNull('s.sku')
             ->whereNull('s.deleted_at');
+
+        if ($keyword) {
+            $re->where(function ($q) use ($keyword) {
+
+                $q->where('p.title', 'like', "%$keyword%");
+                $q->orWhere('s.title', 'like', "%$keyword%");
+                $q->orWhere('s.sku', 'like', "%$keyword%");
+
+            });
+
+        }
+      
 
         if ($type && $type != 'all') {
             $re->where('s.type', $type);
         }
+
 
         if ($stock_status) {
             $re->where(function ($_q) use ($stock_status) {
@@ -419,8 +423,9 @@ class Product extends Model
         if (isset($options['price'])) {
             $re->leftJoin('prd_salechannel_style_price as price', 's.id', '=', 'price.style_id')
                 ->addSelect('price.price')
-                ->where('price.sale_channel_id', $options['price']);
+               ->where('price.sale_channel_id', $options['price']);
         }
+      
 
         if (isset($options['consume']) && !is_null($options['consume'])) {
             $re->where('p.consume', $options['consume']);
@@ -429,7 +434,6 @@ class Product extends Model
         if (isset($options['public']) && !is_null($options['public'])) {
             $re->where('p.public', $options['public']);
         }
-
         return $re;
 
     }
@@ -872,7 +876,6 @@ class Product extends Model
             ->get()
             ->first();
 
-
         if ($sale_channel->sales_type == '1') {
             $sales_type = 'prd.online';
         } else {
@@ -883,7 +886,7 @@ class Product extends Model
         $activeDateQuery = DB::table('prd_products as prd')
             ->where('prd.title', 'LIKE', "%$data%")
             ->orWhere('prd.sku', 'LIKE', "%$data%")
-            ->where('prd.public', '=', 1)   
+            ->where('prd.public', '=', 1)
             ->select(
                 'active_sdate',
                 'active_edate',

@@ -22,13 +22,14 @@
                                     {{ $customer->name }}</option>
                             @endforeach
                         </select>
+                        
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">銷售通路</label>
-                        <select id="salechannel" class="form-select">
+                        <select id="salechannel" class="form-select" name="salechannel_id">
                             @foreach ($salechannels as $salechannel)
-                                <option value="{{ $salechannel->sale_channel_id }}">
-                                    {{ $salechannel->sale_channel_title }}</option>
+                                <option value="{{ $salechannel->id }}">
+                                    {{ $salechannel->title }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -497,7 +498,7 @@
 
             // 取得客戶身份
             function getSaleChannel() {
-                const _URL = @json(route('api.cms.user.get-customer-salechannels'));
+                const _URL = @json(route('api.cms.user.get-user-salechannels'));
                 let Data = {
                     customer_id: $('#customer').val()
                 };
@@ -514,7 +515,7 @@
                                 $('#addProductBtn').prop('disabled', false);
                                 (res.data).forEach(sale => {
                                     $('#salechannel').append(
-                                        `<option value="${sale.sale_channel_id}">${sale.sale_channel_title}</option>`
+                                        `<option value="${sale.id}">${sale.title}</option>`
                                     );
                                 });
                             } else {
@@ -668,12 +669,12 @@
                 checkFn: function() {
                     if ($('.-cloneElem.--selectedP').length) {
                         $('#STEP_1 .-next_step').prop('disabled', false);
-                        $('#customer').prop('disabled', true);
+                        $('#customer, #salechannel').prop('disabled', true);
                     }
                     // 無商品不可下一步
                     if (!$('.-cloneElem.--selectedP').length) {
                         $('#STEP_1 .-next_step').prop('disabled', true);
-                        $('#customer').prop('disabled', false);
+                        $('#customer, #salechannel').prop('disabled', false);
                     }
                 }
             };
@@ -719,7 +720,7 @@
             // 無商品不可下一步
             if (!$('.-cloneElem.--selectedP').length) {
                 $('#STEP_1 .-next_step').prop('disabled', true);
-                $('#customer').prop('disabled', false);
+                $('#customer, #salechannel').prop('disabled', false);
             }
 
             // 第一步-下一步
@@ -757,7 +758,7 @@
                 const _URL = `${Laravel.apiUrl.productStyles}?page=${page}`;
                 const Data = {
                     keyword: $('#addProduct .-searchBar input').val(),
-                    price: 1,
+                    price: $('#salechannel').val(),
                     salechannel_id: $('#salechannel').val()
                 };
                 resetAddProductModal();
@@ -1000,7 +1001,7 @@
                 sumSubtotal($(`input[name="product_style_id[]"][value="${selectedProduct.sid}"]`), selectedProduct.qty);
 
                 if ($('.-cloneElem.--selectedP').length) {
-                    $('#customer').prop('disabled', true);
+                    $('#customer, #salechannel').prop('disabled', true);
                 }
 
                 // 關閉懸浮視窗

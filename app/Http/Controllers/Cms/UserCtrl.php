@@ -3,15 +3,16 @@
 namespace App\Http\Controllers\Cms;
 
 use App\Http\Controllers\Controller;
-use App\Models\Customer;
+use App\Models\Permission;
+use App\Models\Role;
+use App\Models\SaleChannel;
 use App\Models\User;
+use App\Models\UserSalechannel;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use App\Models\Permission;
-use App\Models\Role;
 
 class UserCtrl extends Controller
 {
@@ -40,11 +41,11 @@ class UserCtrl extends Controller
         //
 
         return view('cms.admin.user.edit', [
-            'method'         => 'create',
-            'formAction'     => Route('cms.user.create'),
-            'permissions'    => Permission::getPermissionGroups('user'),
-            'roles'          => Role::roleList('user'),
-            'is_super_admin' => Auth::user()->hasrole('Super Admin')
+            'method' => 'create',
+            'formAction' => Route('cms.user.create'),
+            'permissions' => Permission::getPermissionGroups('user'),
+            'roles' => Role::roleList('user'),
+            'is_super_admin' => Auth::user()->hasRole('Super Admin'),
         ]);
     }
 
@@ -59,8 +60,8 @@ class UserCtrl extends Controller
     {
         $request->validate([
             'password' => 'confirmed|min:4', 'name' => 'required|string',
-            'account'  => ['required', 'unique:App\Models\User'],
-            
+            'account' => ['required', 'unique:App\Models\User'],
+
         ]);
 
         $uData = $request->only('account', 'name', 'password');
@@ -131,12 +132,12 @@ class UserCtrl extends Controller
         );
 
         return view('cms.admin.user.edit', [
-            'method'         => 'edit', 'id' => $id,
-            'formAction'     => Route('cms.user.edit', ['id' => $id]),
-            'data'           => $data,
-            'permissions'    => Permission::getPermissionGroups('user'),
-            'permission_id'  => $permission_id,
-            'roles'          => Role::roleList('user'), 'role_ids' => $role_ids,
+            'method' => 'edit', 'id' => $id,
+            'formAction' => Route('cms.user.edit', ['id' => $id]),
+            'data' => $data,
+            'permissions' => Permission::getPermissionGroups('user'),
+            'permission_id' => $permission_id,
+            'roles' => Role::roleList('user'), 'role_ids' => $role_ids,
             'is_super_admin' => Auth::user()->hasrole('Super Admin'),
         ]);
     }
@@ -154,7 +155,7 @@ class UserCtrl extends Controller
         //
         $request->validate([
             'password' => 'confirmed|min:4|nullable',
-            'name'     => 'required|string', 'role_id' => 'array',
+            'name' => 'required|string', 'role_id' => 'array',
         ]);
 
         $userData = $request->only('name');
@@ -190,5 +191,37 @@ class UserCtrl extends Controller
 
         wToast('資料刪除完成');
         return redirect(Route('cms.user.index'));
+    }
+
+    public function salechannel(Request $request, $id)
+    {
+        //  dd(SaleChannel::get()->toArray());
+
+        $current_channel = array_map(function ($n) {
+            return $n['salechannel_id'];
+        }, UserSalechannel::where('user_id', $id)->get()->toArray());
+      
+        return view('cms.admin.user.salechannel', [
+            'method' => 'edit',
+            'id' => $id,
+            'formAction' => Route('cms.user.salechannel', ['id' => $id]),
+            'channels' => SaleChannel::get()->toArray(),
+            'current_channel'=>$current_channel
+        ]);
+
+    }
+
+    public function updateSalechannel(Request $request, $id)
+    {
+        $d = $request->input('channel_id');
+
+        if (!$d) {
+            $d = [];
+        }
+
+        UserSalechannel::updateSalechannel($id, $d);
+        wToast('儲存完成');
+        return redirect(Route('cms.user.index'));
+
     }
 }

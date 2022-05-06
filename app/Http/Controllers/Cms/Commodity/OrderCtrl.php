@@ -6,19 +6,17 @@ use App\Enums\Order\UserAddrType;
 use App\Http\Controllers\Controller;
 use App\Models\Addr;
 use App\Models\Customer;
-use App\Models\CustomerIdentity;
 use App\Models\Discount;
 use App\Models\Order;
 use App\Models\OrderCart;
 use App\Models\OrderStatus;
+use App\Models\ReceivedOrder;
 use App\Models\SaleChannel;
 use App\Models\ShipmentStatus;
+use App\Models\UserSalechannel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-
 use Illuminate\Support\Facades\DB;
-
-use App\Models\ReceivedOrder;
 
 class OrderCtrl extends Controller
 {
@@ -97,7 +95,7 @@ class OrderCtrl extends Controller
                 ];
             }
 
-            $cart = OrderCart::cartFormater($oldData, false);
+            $cart = OrderCart::cartFormater($oldData, old('salechannel_id'), null, false);
             if ($cart['success'] != 1) {
                 dd($cart);
             }
@@ -124,7 +122,7 @@ class OrderCtrl extends Controller
 
         $customer_id = $request->user()->customer_id;
         if ($customer_id) {
-            $salechannels = CustomerIdentity::getSalechannels($customer_id, [1])->get()->toArray();
+            $salechannels = UserSalechannel::getSalechannels($request->user()->id)->get()->toArray();
         } else {
             $salechannels = [];
         }
@@ -300,8 +298,8 @@ class OrderCtrl extends Controller
 
         $receivable = false;
         $received_order_collection = ReceivedOrder::where([
-            'order_id'=>$id,
-            'deleted_at'=>null,
+            'order_id' => $id,
+            'deleted_at' => null,
         ]);
         $received_order_data = $received_order_collection->get();
         if (count($received_order_data) > 0 && $received_order_collection->sum('price') == DB::table('acc_received')->whereIn('received_order_id', $received_order_collection->pluck('id')->toArray())->sum('tw_price')) {
@@ -316,7 +314,7 @@ class OrderCtrl extends Controller
             'subOrderId' => $subOrderId,
             'discounts' => Discount::orderDiscountList('main', $id)->get()->toArray(),
             'receivable' => $receivable,
-            'received_order_data'=>$received_order_collection->first(),
+            'received_order_data' => $received_order_collection->first(),
         ]);
     }
 
