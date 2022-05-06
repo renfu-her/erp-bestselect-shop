@@ -316,59 +316,66 @@ class GeneralLedger extends Model
     }
 
 
-    public static function classification_processing($object, $type, &$debit = [], &$credit = [], $single_code = null, $single_price = null)
+    // $type in r = received_orders, p = paying_orders
+    // $d_type in received, payable, product, logistics, discount
+    public static function classification_processing(&$debit = [], &$credit = [], $single_code = null, $name_var = '', $single_price = 0, $type = null, $d_type = null)
     {
-        if($type == 'received'){
-            $name = $object->received_method_name . $object->note . '（' . $object->account->code . ' - ' . $object->account->name . '）';
+        $name = $name_var ?? '';
+        $price = $single_price ?? 0;
+        $code = $single_code ?? null;
 
-        } else if($type == 'payable'){
-            $name = '';
+        if($type == 'r'){
+            if(in_array($code, [1, 5]) && $price >= 0){
+                // 借方
+                $tmp = (object)[
+                    'name'=>$name,
+                    'price'=>$price
+                ];
+                array_push($debit, $tmp);
 
-        } else if($type == 'product'){
-            $name = $object->product_grade_name . '---' . $object->product_title . '（' . $object->del_even . ' - ' . $object->del_category_name . '）（' . $object->product_price . ' * ' . $object->product_qty . '）';
+            } else if(in_array($code, [1, 5]) && $price < 0){
+                // 貸方
+                $tmp = (object)[
+                    'name'=>$name,
+                    'price'=>$price
+                ];
+                array_push($credit, $tmp);
 
-        } else if($type == 'logistics'){
-            $name = $object . ' --- 物流費用';
+            } else if(in_array($code, [2, 3, 4]) && $price >= 0){
+                // 貸方
+                if( in_array($d_type, ['discount']) && $code == 4){
+                    $tmp = (object)[
+                        'name'=>$name,
+                        'price'=>-$price
+                    ];
 
-        } else if($type == 'discount'){
-            $name = $object;
+                } else {
+                    $tmp = (object)[
+                        'name'=>$name,
+                        'price'=>$price
+                    ];
+                }
 
-        }
+                array_push($credit, $tmp);
 
-        $code = $single_code ? $single_code : $object->code;
-        $price = $single_price ? $single_price : 0;
+            } else if(in_array($code, [2, 3, 4]) && $price < 0){
+                $tmp = (object)[
+                    'name'=>$name,
+                    'price'=>$price
+                ];
 
-        if(in_array($code, [1, 5]) && $price >= 0){
-            // 借方
-            $tmp = (object)[
-                'name'=>$name,
-                'price'=>$price
-            ];
-            array_push($debit, $tmp);
+                if( in_array($d_type, ['logistics']) && $code == 4){
+                    // 貸方
+                    array_push($credit, $tmp);
 
-        } else if(in_array($code, [1, 5]) && $price < 0){
-            // 貸方
-            $tmp = (object)[
-                'name'=>$name,
-                'price'=>$price
-            ];
-            array_push($credit, $tmp);
+                } else {
+                    // 借方
+                    array_push($debit, $tmp);
+                }
+            }
 
-        } else if(in_array($code, [2, 3, 4]) && $price >= 0){
-            // 貸方
-            $tmp = (object)[
-                'name'=>$name,
-                'price'=>$price
-            ];
-            array_push($credit, $tmp);
+        } else if($type == 'p'){
 
-        } else if(in_array($code, [2, 3, 4]) && $price < 0){
-            // 借方
-            $tmp = (object)[
-                'name'=>$name,
-                'price'=>$price
-            ];
-            array_push($debit, $tmp);
         }
     }
 }

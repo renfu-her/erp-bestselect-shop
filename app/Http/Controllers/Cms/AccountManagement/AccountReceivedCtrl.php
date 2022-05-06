@@ -386,8 +386,9 @@ class AccountReceivedCtrl extends Controller
                         $value->currency_rate = 1;
                     }
 
-                    GeneralLedger::classification_processing($value, 'received', $debit, $credit, $value->master_account->code, $value->tw_price);
-
+                    // 收款項目
+                    $name = $value->received_method_name . $value->note . '（' . $value->account->code . ' - ' . $value->account->name . '）';
+                    GeneralLedger::classification_processing($debit, $credit, $value->master_account->code, $name, $value->tw_price, 'r', 'received');
                 }
 
                 $product_grade_name = AllGrade::find($received_order->product_grade_id)->eachGrade->code . ' - ' . AllGrade::find($received_order->product_grade_id)->eachGrade->name;
@@ -397,16 +398,21 @@ class AccountReceivedCtrl extends Controller
                 $logistics_master_account = FirstGrade::find(AllGrade::find($received_order->logistics_grade_id)->eachGrade->code[0]);
 
                 foreach($order_list_data as $value){
-                    $value->product_grade_name = $product_grade_name;
-                    GeneralLedger::classification_processing($value, 'product', $debit, $credit, $product_master_account->code, $value->product_origin_price);
+                    // 商品
+                    $name = $product_grade_name . '---' . $value->product_title . '（' . $value->del_even . ' - ' . $value->del_category_name . '）（' . $value->product_price . ' * ' . $value->product_qty . '）';
+                    GeneralLedger::classification_processing($debit, $credit, $product_master_account->code, $name, $value->product_origin_price, 'r', 'product');
                 }
 
-                if($order->dlv_fee > 0){
-                    GeneralLedger::classification_processing($logistics_grade_name, 'logistics', $debit, $credit, $logistics_master_account->code, $order->dlv_fee);
+                if($order->dlv_fee <> 0){
+                    // 物流費用
+                    $name = $logistics_grade_name;
+                    GeneralLedger::classification_processing($debit, $credit, $logistics_master_account->code, $name, $order->dlv_fee, 'r', 'logistics');
                 }
 
                 if($order->discount_value > 0){
-                    GeneralLedger::classification_processing('折扣', 'discount', $debit, $credit, 4, $order->discount_value);
+                    // 折扣
+                    $name = '折扣';
+                    GeneralLedger::classification_processing($debit, $credit, 4, $name, $order->discount_value, 'r', 'discount');
                 }
 
                 return view('cms.account_management.account_received.review', [

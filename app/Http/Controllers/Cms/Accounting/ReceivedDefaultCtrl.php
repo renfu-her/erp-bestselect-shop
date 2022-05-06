@@ -81,8 +81,8 @@ class ReceivedDefaultCtrl extends Controller
                 ];
         }
 
-        $default_product_grade = ReceivedDefault::where('name', 'logistics')->first() ? ReceivedDefault::where('name', 'logistics')->first()->default_grade_id : null;
-        $default_logistics_grade = ReceivedDefault::where('name', 'product')->first() ? ReceivedDefault::where('name', 'product')->first()->default_grade_id : null;
+        $default_product_grade = ReceivedDefault::where('name', 'product')->first() ? ReceivedDefault::where('name', 'product')->first()->default_grade_id : null;
+        $default_logistics_grade = ReceivedDefault::where('name', 'logistics')->first() ? ReceivedDefault::where('name', 'logistics')->first()->default_grade_id : null;
 
         return view('cms.accounting.received_default.edit', [
             'totalGrades' => $totalGrades,
