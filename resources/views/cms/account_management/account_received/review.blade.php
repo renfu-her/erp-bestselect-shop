@@ -30,7 +30,7 @@
                 <div class="col-3 mb-3">
                     <div class="input-group">
                         <div><span class="text-danger">*</span>審核日期：</div>
-                        <input type="date" class="form-control @error('receipt_date') is-invalid @enderror" name="receipt_date" value="{{ old('receipt_date', $received_order->receipt_date ?? date('Y-m-d', strtotime( date('Y-m-d'))) ) }}" aria-label="付款日">
+                        <input type="date" class="form-control @error('receipt_date') is-invalid @enderror" name="receipt_date" value="{{ old('receipt_date', $received_order->receipt_date ?? date('Y-m-d', strtotime( date('Y-m-d'))) ) }}" aria-label="審核日期">
                         <div class="invalid-feedback">
                             @error('receipt_date')
                             {{ $message }}
@@ -41,8 +41,8 @@
 
                 <div class="col-3 mb-3">
                     <div class="input-group">
-                        <div><span class="text-danger">*</span>發票號碼：</div>
-                        <input type="text" class="form-control @error('invoice_number') is-invalid @enderror" name="invoice_number" value="{{ old('invoice_number', (isset($received_order)?($received_order->invoice_number ? explode(' ', $received_order->invoice_number)[0] : ''): '')) }}" aria-label="付款日"/>
+                        <div>發票號碼：</div>
+                        <input type="text" class="form-control @error('invoice_number') is-invalid @enderror" name="invoice_number" value="{{ old('invoice_number', $received_order->invoice_number) }}" aria-label="發票號碼"/>
                         <div class="invalid-feedback">
                             @error('invoice_number')
                             {{ $message }}

@@ -341,7 +341,7 @@ class AccountReceivedCtrl extends Controller
         if($request->isMethod('post')){
             $request->validate([
                 'receipt_date' => 'required|date_format:"Y-m-d"',
-                'invoice_number' => 'required|string',
+                'invoice_number' => 'nullable|string',
             ]);
 
             $received_order->update([
