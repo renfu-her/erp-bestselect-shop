@@ -78,77 +78,180 @@ class OrderCart extends Model
         ];
 
         $_tempProducts = [];
-
+        $errors = [];
+        //  step1 validate;
         foreach ($data as $value) {
-            $style = Product::productStyleList(null, null, null, ['price' => $salechannel_id])->where('s.id', $value['product_style_id'])
-                ->get()->first();
+
+            $style = Product::productStyleList(null, null, null, ['price' => $salechannel_id])
+                ->where('s.id', $value['product_style_id'])
+                ->get()
+                ->first();
 
             if (!$style) {
-                return ['success' => 0, 'error_msg' => '查無此商品', 'event' => 'product', 'event_id' => $value['product_style_id']];
+                $errors[$value['product_style_id']][] = [
+                    'error_msg' => '查無此商品',
+                    'error_stauts' => 'no_product',
+                ];
             }
-            if ($checkInStock) {
-                if ($value['qty'] > $style->in_stock) {
-                    return ['success' => 0, 'error_msg' => '購買超過上限', 'event' => 'product', 'event_id' => $value['product_style_id']];
+            if (!isset($errors[$value['product_style_id']])) {
+
+                if ($checkInStock) {
+                    if ($value['qty'] > $style->in_stock) {
+                        $errors[$value['product_style_id']][] = [
+                            'error_msg' => '購買超過上限',
+                            'error_stauts' => 'overbought',
+                        ];
+                        //  return ['success' => 0, 'error_msg' => '購買超過上限', 'event' => 'product', 'event_id' => $value['product_style_id']];
+                    }
+                }
+                // shipment
+                switch ($value['shipment_type']) {
+                    case 'pickup':
+                        $shipment = Product::getPickup($value['product_id'])->where('depot.id', $value['shipment_event_id'])->get()->first();
+                        if (!$shipment) {
+                            $errors[$value['product_style_id']][] = [
+                                'error_msg' => '無運送方式(自取)',
+                                'error_stauts' => 'shipment',
+                            ];
+                            //  return ['success' => 0, 'error_msg' => '無運送方式(自取)', 'event' => 'product', 'event_id' => $value['product_style_id']];
+                        }
+
+                        $shipment->category_name = "自取";
+
+                        break;
+                    case 'deliver':
+                        $shipment = Product::getShipment($value['product_id'])->where('g.id', $value['shipment_event_id'])->get()->first();
+
+                        if (!$shipment) {
+                            $errors[$value['product_style_id']][] = [
+                                'error_msg' => '無運送方式(宅配)',
+                                'error_stauts' => 'shipment',
+                            ];
+                            //  return ['success' => 0, 'error_msg' => '無運送方式(宅配)', 'event' => 'product', 'event_id' => $value['product_style_id']];
+                        }
+                        $shipment->rules = json_decode($shipment->rules);
+
+                        break;
+                    default:
+                        $errors[$value['product_style_id']][] = [
+                            'error_msg' => '無運送方式',
+                            'error_stauts' => 'shipment',
+                        ];
+                        //   return ['success' => 0, 'error_msg' => '無運送方式', 'event' => 'product', 'event_id' => $value['product_style_id']];
+                }
+
+                if (!isset($errors[$value['product_style_id']])) {
+
+                    $groupKey = $value['shipment_type'] . '-' . $value['shipment_event_id'];
+
+                    if (!in_array($groupKey, $shipmentKeys)) {
+                        $shipmentKeys[] = $groupKey;
+                        $shipment->products = [];
+                        $shipment->origin_price = 0;
+                        $shipment->discounted_price = 0;
+                        $shipment->discount_value = 0;
+                        $shipment->category = $value['shipment_type'];
+                        $shipmentGroup[] = $shipment;
+                    }
+
+                    $idx = array_search($groupKey, $shipmentKeys);
+                    $style->shipment_type = $value['shipment_type'];
+                    $style->product_id = $value['product_id'];
+                    $style->product_style_id = $value['product_style_id'];
+                    $style->qty = $value['qty'];
+                    $style->origin_price = $value['qty'] * $style->price;
+                    $style->discount_value = 0;
+                    $style->discounted_price = $style->origin_price;
+                    $style->discounts = [];
+                    $shipmentGroup[$idx]->products[] = $style;
+                    $shipmentGroup[$idx]->origin_price += $style->origin_price;
+                    $shipmentGroup[$idx]->discounted_price = $shipmentGroup[$idx]->origin_price;
+                    $_tempProducts[] = [
+                        'groupIdx' => $idx,
+                        'productIdx' => count($shipmentGroup[$idx]->products) - 1,
+                        'total_price' => $style->origin_price,
+                        'product_id' => $style->product_id,
+                    ];
                 }
             }
-            // shipment
-            switch ($value['shipment_type']) {
-                case 'pickup':
-                    $shipment = Product::getPickup($value['product_id'])->where('depot.id', $value['shipment_event_id'])->get()->first();
-                    if (!$shipment) {
-                        return ['success' => 0, 'error_msg' => '無運送方式(自取)', 'event' => 'product', 'event_id' => $value['product_style_id']];
-                    }
-
-                    $shipment->category_name = "自取";
-
-                    break;
-                case 'deliver':
-                    $shipment = Product::getShipment($value['product_id'])->where('g.id', $value['shipment_event_id'])->get()->first();
-
-                    if (!$shipment) {
-                        return ['success' => 0, 'error_msg' => '無運送方式(宅配)', 'event' => 'product', 'event_id' => $value['product_style_id']];
-                    }
-                    $shipment->rules = json_decode($shipment->rules);
-
-                    break;
-                default:
-                    return ['success' => 0, 'error_msg' => '無運送方式', 'event' => 'product', 'event_id' => $value['product_style_id']];
-            }
-
-            $groupKey = $value['shipment_type'] . '-' . $value['shipment_event_id'];
-            if (!in_array($groupKey, $shipmentKeys)) {
-                $shipmentKeys[] = $groupKey;
-                $shipment->products = [];
-                $shipment->origin_price = 0;
-                $shipment->discounted_price = 0;
-                $shipment->discount_value = 0;
-                $shipment->category = $value['shipment_type'];
-                $shipmentGroup[] = $shipment;
-            }
-
-            $idx = array_search($groupKey, $shipmentKeys);
-            $style->shipment_type = $value['shipment_type'];
-            $style->product_id = $value['product_id'];
-            $style->product_style_id = $value['product_style_id'];
-            $style->qty = $value['qty'];
-            $style->origin_price = $value['qty'] * $style->price;
-            $style->discount_value = 0;
-            $style->discounted_price = $style->origin_price;
-            $style->discounts = [];
-            $shipmentGroup[$idx]->products[] = $style;
-            $shipmentGroup[$idx]->origin_price += $style->origin_price;
-            $shipmentGroup[$idx]->discounted_price = $shipmentGroup[$idx]->origin_price;
-            $_tempProducts[] = [
-                'groupIdx' => $idx,
-                'productIdx' => count($shipmentGroup[$idx]->products) - 1,
-                'total_price' => $style->origin_price,
-                'product_id' => $style->product_id,
-            ];
-
-            $order['origin_price'] += $shipmentGroup[$idx]->origin_price;
         }
 
-        // get coupon
+        //  dd($errors);
+
+        /*
+        foreach ($data as $value) {
+        $style = Product::productStyleList(null, null, null, ['price' => $salechannel_id])->where('s.id', $value['product_style_id'])
+        ->get()->first();
+
+        if (!$style) {
+        return ['success' => 0, 'error_msg' => '查無此商品', 'event' => 'product', 'event_id' => $value['product_style_id']];
+        }
+        if ($checkInStock) {
+        if ($value['qty'] > $style->in_stock) {
+        return ['success' => 0, 'error_msg' => '購買超過上限', 'event' => 'product', 'event_id' => $value['product_style_id']];
+        }
+        }
+        // shipment
+        switch ($value['shipment_type']) {
+        case 'pickup':
+        $shipment = Product::getPickup($value['product_id'])->where('depot.id', $value['shipment_event_id'])->get()->first();
+        if (!$shipment) {
+        return ['success' => 0, 'error_msg' => '無運送方式(自取)', 'event' => 'product', 'event_id' => $value['product_style_id']];
+        }
+
+        $shipment->category_name = "自取";
+
+        break;
+        case 'deliver':
+        $shipment = Product::getShipment($value['product_id'])->where('g.id', $value['shipment_event_id'])->get()->first();
+
+        if (!$shipment) {
+        return ['success' => 0, 'error_msg' => '無運送方式(宅配)', 'event' => 'product', 'event_id' => $value['product_style_id']];
+        }
+        $shipment->rules = json_decode($shipment->rules);
+
+        break;
+        default:
+        return ['success' => 0, 'error_msg' => '無運送方式', 'event' => 'product', 'event_id' => $value['product_style_id']];
+        }
+
+        $groupKey = $value['shipment_type'] . '-' . $value['shipment_event_id'];
+
+        if (!in_array($groupKey, $shipmentKeys)) {
+        $shipmentKeys[] = $groupKey;
+        $shipment->products = [];
+        $shipment->origin_price = 0;
+        $shipment->discounted_price = 0;
+        $shipment->discount_value = 0;
+        $shipment->category = $value['shipment_type'];
+        $shipmentGroup[] = $shipment;
+        }
+
+        $idx = array_search($groupKey, $shipmentKeys);
+        $style->shipment_type = $value['shipment_type'];
+        $style->product_id = $value['product_id'];
+        $style->product_style_id = $value['product_style_id'];
+        $style->qty = $value['qty'];
+        $style->origin_price = $value['qty'] * $style->price;
+        $style->discount_value = 0;
+        $style->discounted_price = $style->origin_price;
+        $style->discounts = [];
+        $shipmentGroup[$idx]->products[] = $style;
+        $shipmentGroup[$idx]->origin_price += $style->origin_price;
+        $shipmentGroup[$idx]->discounted_price = $shipmentGroup[$idx]->origin_price;
+        $_tempProducts[] = [
+        'groupIdx' => $idx,
+        'productIdx' => count($shipmentGroup[$idx]->products) - 1,
+        'total_price' => $style->origin_price,
+        'product_id' => $style->product_id,
+        ];
+        }
+         */
+        $order['shipments'] = $shipmentGroup;
+        foreach ($shipmentGroup as $shipments) {
+            $order['origin_price'] += $shipments->origin_price;
+        }
+
         $currentCoupon = null;
         if ($coupon_obj && $coupon_obj[0]) {
             switch ($coupon_obj[0]) {
@@ -169,10 +272,11 @@ class OrderCart extends Model
         // discounted init
         $order['discounted_price'] = $order['origin_price'];
         //   dd($order);
-        $order['shipments'] = $shipmentGroup;
+
         // 全館
 
-        self::globalStage($order);
+        self::globalStage($order, $_tempProducts);
+        dd($order);
         self::couponStage($order, $currentCoupon, $_tempProducts);
         self::shipmentStage($order);
 
@@ -183,7 +287,7 @@ class OrderCart extends Model
 
     }
 
-    private static function globalStage(&$order)
+    private static function globalStage(&$order, $_tempProducts)
     {
         $discounts = Discount::getDiscounts('global-normal');
 
@@ -193,6 +297,7 @@ class OrderCart extends Model
         foreach ($discounts as $key => $value) {
 
             switch ($key) {
+
                 case DisMethod::cash()->value:
 
                     foreach ($value as $cash) {
@@ -214,9 +319,10 @@ class OrderCart extends Model
 
                     foreach ($value as $cash) {
                         if ($cash->min_consume == 0 || $cash->min_consume < $order['origin_price']) {
-                            $cash->currentDiscount = $order['origin_price'] - intval($order['origin_price'] / 100 * $cash->discount_value);
-                            $cash->discount_value = $cash->discount_value;
+                            $discount_rate = 100 - $cash->discount_value;
+                            $cash->currentDiscount = ceil($order['origin_price'] / 100 * $discount_rate);
                             $dis[] = $cash;
+                            self::_discountReturnToProducts($cash, $order, $_tempProducts);
                         }
                     }
                     break;
@@ -247,6 +353,30 @@ class OrderCart extends Model
             $order['discounts'][] = $coupon;
         }
 
+    }
+
+    private static function _discountReturnToProducts($discount, &$order, $_tempProducts)
+    {
+        switch ($discount->method_code) {
+            case DisMethod::percent():
+                $discount_rate = 100 - $discount->discount_value;
+
+                foreach ($_tempProducts as $p) {
+                    $discounted_price = $order['shipments'][$p['groupIdx']]->products[$p['productIdx']]->discounted_price;
+
+                    $currentDiscount = ceil($discounted_price / 100 * $discount_rate);
+                    $discount2 = clone $discount;
+                    $discount2->currentDiscount = $currentDiscount;
+                    $order['shipments'][$p['groupIdx']]->products[$p['productIdx']]->discounts[] = $discount2;
+                    $order['shipments'][$p['groupIdx']]->products[$p['productIdx']]->discount_value += $currentDiscount;
+                    $order['shipments'][$p['groupIdx']]->products[$p['productIdx']]->discounted_price -= $currentDiscount;
+                    $order['shipments'][$p['groupIdx']]->discount_value += $currentDiscount;
+                    $order['shipments'][$p['groupIdx']]->discounted_price -= $currentDiscount;
+
+                }
+
+                break;
+        }
     }
 
     private static function couponStage(&$order, $currentCoupon, $_tempProducts)
