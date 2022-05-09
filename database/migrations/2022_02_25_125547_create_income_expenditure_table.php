@@ -156,13 +156,15 @@ class CreateIncomeExpenditureTable extends Migration
      */
     public function down()
     {
-        Schema::table('acc_income_expenditure', function (Blueprint $table) {
-            $table->dropForeign(['acc_income_type_fk']);
-            $table->dropColumn('acc_income_type_fk');
+        if (Schema::hasColumns('acc_income_expenditure', ['acc_currency_fk', 'acc_income_type_fk'])) {
+            Schema::table('acc_income_expenditure', function (Blueprint $table) {
+                    $table->dropForeign(['acc_income_type_fk']);
+                    $table->dropColumn('acc_income_type_fk');
 
-            $table->dropForeign(['acc_currency_fk']);
-            $table->dropColumn('acc_currency_fk');
-        });
+                    $table->dropForeign(['acc_currency_fk']);
+                    $table->dropColumn('acc_currency_fk');
+            });
+        }
 
         if (Schema::hasColumns('pcs_purchase_items', ['acc_currency_fk'])) {
             Schema::table('pcs_purchase_items', function (Blueprint $table) {
