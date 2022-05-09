@@ -286,6 +286,8 @@ class ReceiveDepot extends Model
             ->where('delivery.event_id', $event_id)
             ->whereNotNull('delivery.audit_date') //判斷有做過出貨審核才給入
             ->whereNotNull('rcv_depot.id');
+        //判斷寄倉 則會有組合包 需去除組合元素
+        $result->where('rcv_depot.type', '<>', 'element');
         return $result;
     }
 
