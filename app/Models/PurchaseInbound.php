@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Purchase\InboundStatus;
 use App\Enums\Purchase\LogEventFeature;
@@ -444,6 +445,7 @@ class PurchaseInbound extends Model
             ->whereNull('dlv_delivery.audit_date')
             ->whereNull('consignment.deleted_at')
             ->whereNull('items.deleted_at')
+            ->whereIn('consignment.audit_status', [AuditStatus::unreviewed()->value, AuditStatus::approved()->value])
             ->groupBy('consignment.send_depot_id')
             ->groupBy('items.product_style_id')
             ->groupBy('items.title');
@@ -580,6 +582,13 @@ class PurchaseInbound extends Model
             ->whereNotNull('inbound.id')
 //            ->whereNotNull('inbound.close_date') //只篩選入庫有結案的
             ->whereNull('inbound.deleted_at');
+
+        //判斷是否計算寄倉商品
+        if (isset($param['select_consignment']) && true == $param['select_consignment']) {
+            $result->where('inbound.event', '=', Event::consignment()->value);
+        } else {
+            $result->where('inbound.event', '<>', Event::consignment()->value);
+        }
 
         if (isset($param['product_style_id'])) {
             $result->where('inbound.product_style_id', '=', $param['product_style_id']);
