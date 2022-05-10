@@ -10,6 +10,7 @@ use App\Models\ProductStyle;
 use App\Models\ProductStyleCombo;
 use App\Models\ProductStock;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\App;
 
 class ProductSeeder extends Seeder
 {
@@ -29,7 +30,11 @@ class ProductSeeder extends Seeder
         ]);
 
         Category::create((['category' => '喜鴻', 'rank' => 100]));
-        Category::create((['category' => '清潔用品', 'rank' => 100]));
+        if (App::environment(['dev'])) {
+            Category::create((['category' => '清潔用品', 'rank' => 100]));
+        } else {
+            Category::create((['category' => '無類別', 'rank' => 100]));
+        }
 
         $re = Product::createProduct('測試商品', 1, 1, 'p', '測試', null, '好吃商品', null, null, [1, 2], 1);
 

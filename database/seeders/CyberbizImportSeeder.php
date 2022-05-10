@@ -12,6 +12,7 @@ use App\Models\ProductSpecItem;
 use App\Models\ProductStyle;
 use App\Models\ProductStyleCombo;
 use App\Models\ProductStock;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use League\Flysystem\Config;
 
@@ -24,6 +25,16 @@ class CyberbizImportSeeder extends Seeder
      */
     public function run()
     {
+        if (App::environment('dev')) {
+            $categoryId = 50;
+            $supplierId = 9;
+            $devStyleSku = '-test-' . strval(time());
+        } else {
+            $categoryId = 2;
+            $supplierId = 2;
+            $devStyleSku = '';
+        }
+
         $allJsonFile = preg_grep("~\.(json)$~",
             scandir(database_path('seeders/Json/')));
 
@@ -48,14 +59,14 @@ class CyberbizImportSeeder extends Seeder
                     $productArray['title'],
                     // user_id 3 ,施理查
                     3,
-                    1,
+                    $categoryId,
                     'p',
                     $productArray['brief'],
                     explode('/', $productArray['url'])[2],
                     $productArray['slogan'],
                     $productArray['sell_from'],
                     explode(' ', $productArray['sell_to'])[0],
-                    [1]);
+                    [$supplierId]);
                 $productId = $re['id'];
 
                 Product::where('id', $productId)
@@ -123,7 +134,7 @@ class CyberbizImportSeeder extends Seeder
                             'spec_item2_id' => $itemArray[1] ?? null,
                             'spec_item3_id' => $itemArray[2] ?? null,
                         ])->update([
-                            'sku' => $variant['sku']
+                            'sku' => $variant['sku'] . $devStyleSku
                         ]);
 
                         // 銷售通路價格
