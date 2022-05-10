@@ -72,10 +72,13 @@ class CyberbizImportSeeder extends Seeder
                 Product::where('id', $productId)
                     ->update([
                         'spec_locked' => 1,
-                        'cyberbiz_id' => $productArray['id'],
+                        'desc' => $productArray['body_html'],
                     ]);
-                Product::where('id', $productId)
-                    ->update(['desc' => $productArray['body_html']]);
+
+                if (App::environment(['local', 'prod'])) {
+                    Product::where('id', $productId)
+                        ->update(['cyberbiz_id' => $productArray['id']]);
+                }
 
                 $specCount = count($productArray['options']);
 
