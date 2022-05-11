@@ -32,6 +32,7 @@ class DatabaseSeeder extends Seeder
             DiscountSeeder::class,
             OrderSeeder::class,
 //            DeliverySeeder::class,
+            AccDiscountTypeSeeder::class
         ]);
     }
 }
