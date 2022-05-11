@@ -221,6 +221,7 @@ class OrderCart extends Model
 
         $dis = [];
         $coupons = [];
+
         foreach ($discounts as $key => $value) {
 
             switch ($key) {
@@ -231,7 +232,7 @@ class OrderCart extends Model
                         if ($cash->min_consume == 0 || $cash->min_consume < $order['origin_price']) {
 
                             if ($cash->is_grand_total == 1) {
-                               
+
                                 $cash->currentDiscount = intval(floor($order['origin_price'] / $cash->min_consume) * $cash->discount_value);
                                 $cash->title = $cash->title . "(累計)";
 
@@ -240,7 +241,7 @@ class OrderCart extends Model
                             }
 
                             $dis[] = $cash;
-                            self::_discountReturnToProducts($cash, $order, $_tempProducts);
+
                         }
 
                     }
@@ -250,10 +251,11 @@ class OrderCart extends Model
 
                     foreach ($value as $cash) {
                         if ($cash->min_consume == 0 || $cash->min_consume < $order['origin_price']) {
+
                             $discount_rate = 100 - $cash->discount_value;
                             $cash->currentDiscount = ceil($order['origin_price'] / 100 * $discount_rate);
+
                             $dis[] = $cash;
-                            self::_discountReturnToProducts($cash, $order, $_tempProducts);
                         }
                     }
                     break;
@@ -271,13 +273,14 @@ class OrderCart extends Model
         }
 
         usort($dis, function ($a, $b) {
-            return strcmp($b->currentDiscount, $a->currentDiscount);
+            return $b->currentDiscount > $a->currentDiscount;
         });
 
         if ($dis && $dis[0]) {
             $order['discounts'][] = $dis[0];
             $order['discount_value'] += $dis[0]->currentDiscount;
             $order['discounted_price'] -= $dis[0]->currentDiscount;
+            self::_discountReturnToProducts($dis[0], $order, $_tempProducts);
         }
 
         foreach ($coupons as $coupon) {
