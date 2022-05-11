@@ -574,9 +574,7 @@ input.form-control[type="month"] {
 
   // 多圖片可排序區塊
   &.-multiple {
-    .sortabled,
-    .sortabled > div,
-    .sortabled > label {
+    .sortabled {
       display: inline-flex;
       vertical-align: top;
       flex-wrap: wrap;

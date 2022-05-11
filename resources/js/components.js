@@ -192,7 +192,7 @@
         fileInputName = '',  // saved iamge input's name
         maxSize = 1024,    // (單位 KB) 圖片最大容量
         delFn = null,   // 刪除圖片 fn
-        movable = true, // 可拖曳排序的 (多檔 only)
+        movable = false, // 可拖曳排序的 (多檔 only)
         moveOpt = {},   // 拖曳排序 option (多檔 only)
         addImageBoxFn = addImageBox    // 新增的 image box fn (多檔 only)
     } = {}) {
@@ -268,7 +268,7 @@
                         $img_box = $upload_image_block.children('label');
                     } else {
                         // 新增圖Box
-                        $img_box = addImageBoxFn($upload_image_block.children('.sortabled'), delFn, movable, moveOpt);
+                        $img_box = addImageBoxFn($upload_image_block.children('.sortabled'), delFn, movable, moveOpt, num, fileInputName);
                     }
                     
                     // 存檔案
@@ -372,19 +372,19 @@
     }
 
     // 新增圖Box
-    function addImageBox($upload_bolck, delFn, movable, moveOpt) {
-        let hideMove = (movable) ? '' : 'hidden';
+    function addImageBox($upload_bolck, delFn, movable, moveOpt, num, fileInputName) {
+        const moveBtn = (movable) ? '<span class="icon -move"><i class="bi bi-arrows-move"></i></span>' : '';
 
         let $sortabled_box = $('<div class="sortabled_box"></div>');
         let $browser_box = $(`<span class="browser_box box">
-            <span class="icon -move" ${hideMove}><i class="bi bi-arrows-move"></i></span>
+            ${moveBtn}
             <span class="icon -x"><i class="bi bi-x"></i></span>
             <img src="" /></span>`);
         let $progress = $(`<div class="progress" hidden>
             <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" 
                 aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width: 1%"></div>
             </div>`);
-        let $file_input = $('<input type="file" name="files[]" accept=".jpg,.jpeg,.png,.gif" multiple hidden>');
+        let $file_input = $(`<input type="file" name="${fileInputName}" accept=".jpg,.jpeg,.png,.gif" ${num} hidden>`);
         $sortabled_box.append([$browser_box, $progress, $file_input]);
         $upload_bolck.prepend($sortabled_box);
 
