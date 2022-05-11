@@ -571,7 +571,7 @@
             // 優惠方式
             const DISC_METHOD = ['cash', 'percent', 'coupon'];
             // 優惠類型 折扣順序：任選 > 全館 > 優惠券/序號 > 紅利
-            const DISC_PRIORITY = ['optional', 'global', 'code'];
+            const DISC_PRIORITY = ['optional', 'global', 'code', 'bonus'];
             // 目前有效優惠
             let DiscountData = {
                 optional: {},    // 任選 [暫無] (固定)
@@ -605,6 +605,13 @@
                     });
                 }
             }
+            // 未達優惠使用條件
+            let notMeetDiscount = [
+                /** {
+                 * note: '',
+                 * pids: []
+                 * } */
+            ];
             /*** 選取 ***/
             // 商品
             let selectedProduct = {
@@ -698,10 +705,15 @@
                         if (myCart[`${type}_${event_id}`].products.length <= 0) {
                             delete myCart[`${type}_${event_id}`];
                             $(`#${type}_${event_id}`).remove();
+                        } else {
+                            // 否則重計算total
+                            myCart[`${type}_${event_id}`].total = calc_ProductTotalBySid(myCart[`${type}_${event_id}`].products);
                         }
-
-                        // 商品優惠
-                        checkSNProductDiscount();
+                        
+                        // 檢查優惠
+                        check_AllDiscount();
+                        // 應付金額 HTML
+                        calc_set_AllAmount();
                     }
                 },
                 checkFn: function() {
@@ -1210,48 +1222,81 @@
                 for (const type of DISC_PRIORITY) {
                     const tempDis = DiscountData[type];
                     if (tempDis && Object.keys(tempDis).length) {
+                        // 若全館優惠(type===global)同時存在多個，擇取最優惠擇一個計算(cash|percent)
+                        let bestDiscount = null;
+                        let bestUse = {total: 0};
                         for (const d_id in tempDis) {
                             if (Object.hasOwnProperty.call(tempDis, d_id)) {
                                 // 使用單一優惠
                                 const dis = tempDis[d_id];
                                 const useDis = calc_OneDiscountUse(dis);
-                                const note = discountNote(dis);
 
-                                // 寫入 myProductList
-                                for (const sid in useDis.prod_list) {
-                                    if (Object.hasOwnProperty.call(useDis.prod_list, sid)) {
-                                        const price = useDis.prod_list[sid];
-                                        myProductList[sid].discount[useDis.did] = price;
-                                        setOneMyProdDisTotal(sid);
-                                        // HTML
-                                        appendDiscountHtml(sid, note, price);
+                                /** 條件
+                                 * 1. useDis !== false
+                                 * 2-1. type !== global
+                                 * 2-2. dis.method_code === coupon
+                                */
+                                if (useDis) {
+                                    if (type !== 'global' || dis.method_code === 'coupon') {
+                                        setDiscountToMyData(dis, useDis);
+                                    } else if (useDis.total > bestUse.total) {
+                                        bestDiscount = dis;
+                                        bestUse = useDis;
                                     }
                                 }
-                                // 寫入 myCart
-                                setAllMyCartDisTotal();
-                                // 寫入 myDiscount
-                                myDiscount[useDis.did] = {
-                                    id: dis.id,
-                                    name: dis.title,
-                                    type: dis.category_code,
-                                    method: dis.method_code,
-                                    note: note,
-                                    total: useDis.total
-                                };
-                                if (dis.category_code === 'code') {
-                                    myDiscount[useDis.did].code = dis.sn;
-                                }
-                                if (dis.method_code === 'coupon') {
-                                    myDiscount[useDis.did].coupon = dis.coupon_title;
-                                }
-
                             }
+                        }
+                        if (bestDiscount) {
+                            setDiscountToMyData(bestDiscount, bestUse);
                         }
                     }
                 }
 
                 // 優惠折扣總覽 HTML
                 appendDiscountOverview();
+                // 未達使用條件之優惠 HTML
+                notMeetDiscount.forEach(notMeet => {
+                    if (notMeet.pids.length > 0) {
+                        notMeet.pids.forEach(pid => {
+                            appendDiscountHtmlByPid(pid, notMeet.note, '-', false);
+                        });
+                    } else {
+                        appendDiscountHtmlByPid('all', notMeet.note, '-', false);
+                    }
+                });
+
+                // 寫入 myData
+                function setDiscountToMyData(dis, useDis) {
+                    const note = discountNote(dis);
+
+                    // 寫入 myProductList
+                    for (const sid in useDis.prod_list) {
+                        if (Object.hasOwnProperty.call(useDis.prod_list, sid)) {
+                            const price = useDis.prod_list[sid];
+                            myProductList[sid].discount[useDis.did] = price;
+                            setOneMyProdDisTotal(sid);
+                            // HTML
+                            appendDiscountHtmlBySid(sid, note, price, true);
+                        }
+                    }
+                    // 寫入 myCart
+                    setAllMyCartDisTotal();
+                    // 寫入 myDiscount
+                    myDiscount[useDis.did] = {
+                        id: dis.id,
+                        name: dis.title,
+                        type: dis.category_code,
+                        method: dis.method_code,
+                        note: note,
+                        total: useDis.total
+                    };
+                    if (dis.category_code === 'code') {
+                        myDiscount[useDis.did].code = dis.sn;
+                    }
+                    if (dis.method_code === 'coupon') {
+                        myDiscount[useDis.did].coupon = dis.coupon_title;
+                    }
+                }
             }
 
             // #計算單一優惠使用
@@ -1269,6 +1314,10 @@
                 // 1. 折扣後小計
                 const original_total = calc_ProductDisedTotalByPid(pids);
                 if (original_total < dis.min_consume) {
+                    notMeetDiscount.push({
+                        note: discountNote(dis),
+                        pids
+                    });
                     return false;   // 不滿低消
                 }
                 // 2. 折抵金額、折扣比例
@@ -1376,7 +1425,7 @@
                 setAllMyCartDisTotal();
             }
 
-            // #清空優惠 myProductList, myCart, myDiscount
+            // #清空優惠 myProductList, myCart, myDiscount, notMeetDiscount
             function resetDiscountData() {
                 // myProductList
                 for (const sid in myProductList) {
@@ -1395,6 +1444,8 @@
                 }
                 // myDiscount
                 myDiscount = {};
+                // notMeetDiscount
+                notMeetDiscount = [];
 
                 // HTML
                 $('.-cloneElem.--selectedP .-dis-data').remove();
@@ -1435,26 +1486,40 @@
             }
 
             // #產生單一商品優惠HTML
-            function appendDiscountHtml(sid, note, price) {
+            // meet: booling 是否達成優惠條件
+            function appendDiscountHtmlBySid(sid, note, price, meet = true) {
                 const $tr = $(`tr.-cloneElem.--selectedP:has(input[name="product_style_id[]"][value="${sid}"])`);
-                $tr.find('div[data-td="title"]').after(createDiscountDiv(note));
-                $tr.find('div[data-td="subtotal"]').after(createDispriceDiv(price));
+                appendDiscountHtml($tr, note, price, meet);
+            }
+            function appendDiscountHtmlByPid(pid, note, price, meet = true) {
+                let $tr = null;
+                if (pid === 'all') {
+                    $tr = $(`tr.-cloneElem.--selectedP`);
+                } else {
+                    $tr = $(`tr.-cloneElem.--selectedP:has(input[name="product_id[]"][value="${pid}"])`);
+                }
+                appendDiscountHtml($tr, note, price, meet);
+            }
+            function appendDiscountHtml($tr, note, price, meet) {
+                $tr.find('div[data-td="title"]').parent('td').append(createDiscountDiv(note));
+                $tr.find('div[data-td="subtotal"]').parent('td').append(createDispriceDiv(price));
 
                 // 優惠內容
                 function createDiscountDiv(note) {
                     return `<div data-td="discount" class="lh-1 small text-secondary -dis-data">
-                        <span class="badge rounded-pill bg-danger fw-normal me-2">已達優惠</span>
+                        <span class="badge rounded-pill bg-${meet ? 'danger' : 'secondary'} fw-normal me-2">
+                            ${meet ? '已達優惠' : '未達優惠'}</span>
                         ${note}
                     </div>`;
                 }
                 // 折扣金額
                 function createDispriceDiv(price) {
-                    return `<div data-td="disprice" class="lh-1 text-danger -dis-data">
-                        - $${price}</div>`;
+                    return `<div data-td="disprice" class="lh-1 text-${meet ? 'danger' : 'secondary'} -dis-data">
+                        ${meet ? '- $' : ''}${price}</div>`;
                 }
             }
 
-            // 產生優惠折扣總覽HTML
+            // #產生優惠折扣總覽HTML
             function appendDiscountOverview() {
                 let overviewList = [];
                 for (const did in myDiscount) {
