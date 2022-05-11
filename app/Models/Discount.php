@@ -94,6 +94,7 @@ class Discount extends Model
             'sub.min_consume',
             'sub.coupon_id',
             'sub.coupon_title',
+            'sub.acc_type_id',
         ];
 
         $re = DB::table(DB::raw("({$sub->toSql()}) as sub"))
@@ -282,7 +283,7 @@ class Discount extends Model
 
     }
 
-    public static function checkCode( $sn = null, $product_id = null)
+    public static function checkCode($sn = null, $product_id = null)
     {
         $sub = self::_discountStatus();
 
@@ -300,6 +301,7 @@ class Discount extends Model
             'sub.usage_count',
             'sub.max_usage',
             'sub.is_global',
+            'sub.acc_type_id',
         ];
 
         $re = DB::table(DB::raw("({$sub->toSql()}) as sub"))
@@ -359,8 +361,27 @@ class Discount extends Model
         DisMethod $method,
         $discount_value,
         $options = []) {
+
+        switch ($disCategory) {
+            case DisCategory::normal();
+                $disc = "global";
+                break;
+            case DisCategory::code():
+            case DisCategory::coupon():
+                $disc = "coupon";
+                break;
+            case DisCategory::combine():
+                $disc = "optional";
+                break;
+        }
+
+        $acc_type_id = DB::table('acc_discount_type')->where('code', $disc)->get()->first()->id;
+        if ($method == DisMethod::coupon()) {
+            $acc_type_id = null;
+        }
         $data = [
             'title' => $title,
+            'acc_type_id' => $acc_type_id,
             //   'status_code' => DisStatus::D00()->value,
             //  'status_title' => DisStatus::D00()->description,
             'category_code' => $disCategory->value,
@@ -450,7 +471,7 @@ class Discount extends Model
         DB::table('dis_discount_collection')->where('discount_id', $id)->delete();
     }
 
-    public static function createOrderDiscount($type, $order_id, $datas = [])
+    public static function createOrderDiscount($type, $order_id, $datas = [], $sub_order_id = null, $order_item_id = null)
     {
 
         // dd($datas);
@@ -459,7 +480,7 @@ class Discount extends Model
             return;
         }
 
-        DB::table('ord_discounts')->insert(array_map(function ($n) use ($type, $order_id) {
+        DB::table('ord_discounts')->insert(array_map(function ($n) use ($type, $order_id, $sub_order_id, $order_item_id) {
             $category = $n->category_code;
             $method = $n->method_code;
 
@@ -475,6 +496,9 @@ class Discount extends Model
                 'method_code' => $n->method_code,
                 'discount_value' => isset($n->currentDiscount) ? $n->currentDiscount : null,
                 'is_grand_total' => $n->is_grand_total,
+                'acc_type_id' => $n->acc_type_id,
+                'sub_order_id' => $sub_order_id,
+                'order_item_id' => $order_item_id,
             ];
 
             switch ($method) {

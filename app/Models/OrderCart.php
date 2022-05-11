@@ -215,7 +215,7 @@ class OrderCart extends Model
 
     }
 
-    private static function globalStage(&$order, $_tempProducts)
+    private static function globalStage(&$order, &$_tempProducts)
     {
         $discounts = Discount::getDiscounts('global-normal');
 
@@ -289,7 +289,7 @@ class OrderCart extends Model
 
     }
 
-    private static function _discountReturnToProducts($discount, &$order, $_tempProducts)
+    private static function _discountReturnToProducts($discount, &$order, &$_tempProducts)
     {
 
         switch ($discount->method_code) {
@@ -302,7 +302,7 @@ class OrderCart extends Model
         }
 
         $calc = 0;
-        foreach ($_tempProducts as $p) {
+        foreach ($_tempProducts as $key => $p) {
             $discounted_price = $order['shipments'][$p['groupIdx']]->products[$p['productIdx']]->discounted_price;
 
             $currentDiscount = floor($discounted_price / 100 * $discount_rate);
@@ -314,6 +314,8 @@ class OrderCart extends Model
             $order['shipments'][$p['groupIdx']]->products[$p['productIdx']]->discounted_price -= $currentDiscount;
             $order['shipments'][$p['groupIdx']]->discount_value += $currentDiscount;
             $order['shipments'][$p['groupIdx']]->discounted_price -= $currentDiscount;
+
+            $_tempProducts[$key]['total_price'] = $order['shipments'][$p['groupIdx']]->products[$p['productIdx']]->discounted_price;
 
         }
 
@@ -333,25 +335,29 @@ class OrderCart extends Model
         if (!$currentCoupon) {
             return;
         }
+
         $discount_value = 0;
         if ($currentCoupon->is_global == '1') {
             if ($order['discounted_price'] > $currentCoupon->min_consume) {
 
                 switch ($currentCoupon->method_code) {
                     case DisMethod::cash():
+                        $currentCoupon->currentDiscount = $currentCoupon->discount_value;
                         $discount_value = $currentCoupon->discount_value;
                         break;
                     case DisMethod::percent():
-                        $tPrice = $order['discounted_price'];
-                        $discount_value = floor($tPrice - $tPrice / 100 * $currentCoupon->discount_value);
+                        $discount_rate = 100 - $currentCoupon->discount_value;
+                        $currentCoupon->currentDiscount = ceil($order['discounted_price'] / 100 * $discount_rate);
+                        $discount_value = $currentCoupon->currentDiscount;
                         break;
                     default:
                 }
 
                 $order['discounts'][] = $currentCoupon;
-
+                self::_discountReturnToProducts($currentCoupon, $order, $_tempProducts);
             }
         } else {
+
             $couponTargetProducts = ['styles' => [],
                 'total_price' => 0,
                 'discount' => 0];
@@ -363,60 +369,26 @@ class OrderCart extends Model
                 }
             }
 
+            // dd($order, $_tempProducts, $couponTargetProducts);
+
             if (count($couponTargetProducts['styles']) > 0) {
                 switch ($currentCoupon->method_code) {
                     case DisMethod::cash():
-                        $couponTargetProducts['discount'] = $currentCoupon->discount_value;
-                        $couponTargetProducts['discounted_price'] = $couponTargetProducts['total_price'] - $couponTargetProducts['discount'];
+                        $currentCoupon->currentDiscount = $currentCoupon->discount_value;
+                        $discount_value = $currentCoupon->discount_value;
                         break;
                     case DisMethod::percent():
-                        $tPrice = $couponTargetProducts['total_price'];
-                        $couponTargetProducts['discount'] = floor($tPrice - $tPrice / 100 * $currentCoupon->discount_value);
-                        $couponTargetProducts['discounted_price'] = $tPrice - $couponTargetProducts['discount'];
+                        $discount_rate = 100 - $currentCoupon->discount_value;
+                        $currentCoupon->currentDiscount = ceil($couponTargetProducts['total_price'] / 100 * $discount_rate);
+                        $discount_value = $currentCoupon->currentDiscount;
 
                         break;
                     default:
 
                 }
+                self::_discountReturnToProducts($currentCoupon, $order, $couponTargetProducts['styles']);
 
-                $proportion = $couponTargetProducts['discounted_price'] / $couponTargetProducts['total_price'];
-                $tempDiscount = 0;
-                $_positions = [];
-                foreach ($couponTargetProducts['styles'] as $value) {
-                    $gIdx = $value['groupIdx'];
-                    $pIdx = $value['productIdx'];
-                    $tPrice = $order['shipments'][$gIdx]->products[$pIdx]->origin_price;
-                    $discount_value = floor($tPrice - $tPrice * $proportion);
-                    $order['shipments'][$gIdx]->products[$pIdx]->discount_value = $discount_value;
-                    $order['shipments'][$gIdx]->products[$pIdx]->discounted_price = $tPrice - $discount_value;
-
-                    $tempDiscount += $discount_value;
-                    $order['shipments'][$gIdx]->products[$pIdx]->discounts[] = clone $currentCoupon;
-                    $order['shipments'][$gIdx]->discount_value += $discount_value;
-                    $order['shipments'][$gIdx]->discounted_price -= $discount_value;
-
-                    $discount_idx = count($order['shipments'][$gIdx]->products[$pIdx]->discounts) - 1;
-                    $_positions[] = [$gIdx, $pIdx, $discount_idx];
-
-                    $order['shipments'][$gIdx]->products[$pIdx]->discounts[$discount_idx]->currentDiscount = $discount_value;
-
-                }
-
-                if ($currentCoupon->method_code == DisMethod::cash() && $currentCoupon->discount_value > $tempDiscount && count($couponTargetProducts['styles']) > 0) {
-                    $lastStyle = $_positions[count($_positions) - 1];
-
-                    $gIdx = $lastStyle[0];
-                    $pIdx = $lastStyle[1];
-                    $dIdx = $lastStyle[2];
-                    $fix_value = $currentCoupon->discount_value - $tempDiscount;
-                    $order['shipments'][$gIdx]->products[$pIdx]->discount_value += $fix_value;
-                    $order['shipments'][$gIdx]->products[$pIdx]->discounted_price -= $fix_value;
-                    $order['shipments'][$gIdx]->discount_value += $fix_value;
-                    $order['shipments'][$gIdx]->discounted_price -= $fix_value;
-                    $order['shipments'][$gIdx]->products[$pIdx]->discounts[$dIdx]->currentDiscount += $fix_value;
-                }
-
-                $discount_value = $couponTargetProducts['discount'];
+                $order['discounts'][] = $currentCoupon;
 
             }
 
