@@ -1171,17 +1171,7 @@
                 myCart[shipKey].total = calc_ProductTotalBySid(myCart[shipKey].products);
             }
 
-            //--- #寫回 myCart所有: 小計 total
-            function setAllMyCartTotalData() {
-                // myCart
-                for (const key in myCart) {
-                    if (Object.hasOwnProperty.call(myCart, key)) {
-                        myCart[key].total = calc_ProductTotalBySid(myCart[key].products);
-                    }
-                }
-            }
-
-            // bind 計數器按鈕
+            // #bind 計數器按鈕
             function bindAdjusterBtn() {
                 // +/- btn
                 $('button.-minus, button.-plus').off('click.adjust').on('click.adjust', function() {
@@ -1230,7 +1220,7 @@
             }
 
             /*** 優惠 fn ***/
-            // 檢查優惠
+            // #檢查優惠
             function check_AllDiscount() {
                 // 清空使用優惠
                 resetDiscountData();
@@ -1396,23 +1386,6 @@
                 };
             }
 
-            //--- #寫回 myProductList, myDiscount: 單一優惠
-            function setOneDiscountData(dis, disUse) {
-                if (!disUse) {
-                    return false;
-                }
-                // set myProductList
-                if (disUse.prod_list) {
-                    for (const sid in disUse.prod_list) {
-                        if (Object.hasOwnProperty.call(disUse.prod_list, sid)) {
-                            myProductList[sid].discount[disUse.did] = disUse.prod_list[sid];
-                        }
-                    }
-                }
-                // set myDiscount
-                myDiscount[disUse.did].total = disUse.total;
-            }
-
             // #寫回 myProductList單一商品: 優惠總金額 dis_total、折後小計 dised_total
             function setOneMyProdDisTotal(sid) {
                 let dis_total = 0;
@@ -1438,17 +1411,6 @@
                         myCart[key].dised_total = myCart[key].total - dis_total;
                     }
                 }
-            }
-            //--- #寫回 myProductList, myCart所有: 優惠總金額 dis_total、折後小計 dised_total
-            function setAllMyDiscTotalData() {
-                // myProductList
-                for (const sid in myProductList) {
-                    if (Object.hasOwnProperty.call(myProductList, sid)) {
-                        setOneMyProdDisTotal(sid);
-                    }
-                }
-                // myCart
-                setAllMyCartDisTotal();
             }
 
             // #清空優惠 myProductList, myCart, myDiscount, notMeetDiscount
@@ -1590,13 +1552,14 @@
             }
 
             /*** 優惠券 fn ***/
-            // 優惠券代碼 -coupon_sn
+            // #優惠券代碼 -coupon_sn
             $('button.-coupon_sn').off('click').on('click', function () {
                 $('div.--ctype.-code input[name="coupon_sn"]').val('');
                 resetCouponData();
                 // call API
                 getCouponCheckAPI($('input.-coupon_sn').val());
             });
+            // #檢查優惠代碼API
             function getCouponCheckAPI(sn) {
                 const _URL = @json(route('api.cms.discount.check-discount-code'));
                 let Data = {
@@ -1665,7 +1628,7 @@
                 });
             }
 
-            // 清空優惠券
+            // #清空優惠券
             function resetCouponData() {
                 // Data
                 DiscountData.code = {};
@@ -1674,7 +1637,7 @@
             }
 
             /*** 運費 fn ***/
-            // 檢查運費
+            // #檢查運費
             function check_AllDlvFee() {
                 // 清空運費
                 resetDlvFeeData();
@@ -1734,7 +1697,7 @@
                 $('.-detail div[data-td="dlv_fee"]').text('-');
             }
 
-            // 運費說明文字
+            // #運費說明文字
             function deliverNote(rules) {
                 let note = '';
                 for (const rule of rules) {
@@ -1757,30 +1720,6 @@
                     }
                 }
                 return total;
-            }
-            
-            //--- #計算商品total by pid
-            function calc_ProductTotalByPid(pids = []) {
-                let total = 0;
-                for (const sid in myProductList) {
-                    if (Object.hasOwnProperty.call(myProductList, sid)
-                        && (pids.length === 0 || pids.indexOf(myProductList[sid].pid) >= 0)) {
-                        total += myProductList[sid].total;
-                    }
-                }
-                return total;
-            }
-
-            //--- #計算商品總折扣金額 by sid
-            function calc_ProductDisTotalBySid(sids = []) {
-                let dis_total = 0;
-                for (const sid in myProductList) {
-                    if (Object.hasOwnProperty.call(myProductList, sid)
-                        && (sids.length === 0 || sids.indexOf(Number(sid)) >= 0)) {
-                        dis_total += myProductList[sid].dis_total;
-                    }
-                }
-                return dis_total;
             }
 
             // #計算商品總折扣後小計 by pid
