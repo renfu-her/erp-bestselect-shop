@@ -98,7 +98,9 @@
                     {{-- 運費 --}}
                     <div class="card-body px-4 py-2 border-top">
                         <div class="d-flex lh-lg">
-                            <div scope="col" class="col">運費</div>
+                            <div scope="col" class="col">運費
+                                {{-- 運費說明 --}}
+                            </div>
                             <div class="co-auto" data-td="dlv_fee">${{ number_format(0) }}</div>
                         </div>
                     </div>
@@ -133,7 +135,7 @@
                     </div>
                     <div class="col-12 mb-3 --ctype -code" hidden>
                         <div class="d-flex -coupon_sn @error('coupon') is-invalid @enderror">
-                            <input type="text" class="form-control col -coupon_sn" placeholder="請輸入優惠券代碼" disabled>
+                            <input type="text" class="form-control col -coupon_sn @error('coupon') is-invalid @enderror" placeholder="請輸入優惠券代碼" disabled>
                             <input type="hidden" name="coupon_sn" disabled>
                             <button type="button" class="btn btn-outline-primary mx-1 px-4 col-auto -coupon_sn">確認</button>
                         </div>
@@ -575,7 +577,9 @@
             // 目前有效優惠
             let DiscountData = {
                 optional: {},    // 任選 [暫無] (固定)
-                global: {},     // 全館 (固定)
+                global: {     // 全館 (固定)
+                    // id: {}
+                },
                 code: {},     // 優惠券/代碼 (變動)
             };
             /** global/code:
@@ -712,6 +716,8 @@
                         
                         // 檢查優惠
                         check_AllDiscount();
+                        // 檢查運費
+                        check_AllDlvFee();
                         // 應付金額 HTML
                         calc_set_AllAmount();
                     }
@@ -767,6 +773,8 @@
                 }
                 // 檢查優惠
                 check_AllDiscount();
+                // 檢查運費
+                check_AllDlvFee();
                 // 應付金額 HTML
                 calc_set_AllAmount();
             }
@@ -776,7 +784,6 @@
             bindAdjusterBtn();
             // 刪除商品
             Clone_bindDelElem($('.-cloneElem.--selectedP .-del'), cloneProductsOption);
-            // 優惠
 
             // 初始結束隱藏loading
             $('#Loading_spinner').removeClass('d-flex');
@@ -999,10 +1006,16 @@
                                     addToCart(selectShip, selectedProduct);
                                     const shipKey = `${selectShip.category}_${selectShip.group_id}`;
                                     myCart[shipKey].total = calc_ProductTotalBySid(myCart[shipKey].products);
-                                    // 檢查優惠
-                                    check_AllDiscount();
-                                    // 應付金額 HTML
-                                    calc_set_AllAmount();
+                                    if (DiscountData.code.sn) {     // 有使用優惠券
+                                        getCouponCheckAPI(DiscountData.code.sn);
+                                    } else {
+                                        // 檢查優惠
+                                        check_AllDiscount();
+                                        // 檢查運費
+                                        check_AllDlvFee();
+                                        // 應付金額 HTML
+                                        calc_set_AllAmount();
+                                    }
                                 } else {
                                     return false;
                                 }
@@ -1158,7 +1171,7 @@
                 myCart[shipKey].total = calc_ProductTotalBySid(myCart[shipKey].products);
             }
 
-            // #寫回 myCart所有: 小計 total
+            //--- #寫回 myCart所有: 小計 total
             function setAllMyCartTotalData() {
                 // myCart
                 for (const key in myCart) {
@@ -1187,6 +1200,8 @@
                     setMyQty($qty);
                     // 檢查優惠
                     check_AllDiscount();
+                    // 檢查運費
+                    check_AllDlvFee();
                     // 應付金額 HTML
                     calc_set_AllAmount();
                 });
@@ -1204,9 +1219,11 @@
                     qty = (qty < min) ? min : ((qty > max) ? max : qty);
                     $this.val(qty);
 
-                    setMyQty($qty);
+                    setMyQty($this);
                     // 檢查優惠
                     check_AllDiscount();
+                    // 檢查運費
+                    check_AllDlvFee();
                     // 應付金額 HTML
                     calc_set_AllAmount();
                 });
@@ -1222,32 +1239,41 @@
                 for (const type of DISC_PRIORITY) {
                     const tempDis = DiscountData[type];
                     if (tempDis && Object.keys(tempDis).length) {
-                        // 若全館優惠(type===global)同時存在多個，擇取最優惠擇一個計算(cash|percent)
-                        let bestDiscount = null;
-                        let bestUse = {total: 0};
-                        for (const d_id in tempDis) {
-                            if (Object.hasOwnProperty.call(tempDis, d_id)) {
-                                // 使用單一優惠
-                                const dis = tempDis[d_id];
-                                const useDis = calc_OneDiscountUse(dis);
+                        if (type === 'code') {
+                            // 使用優惠券 (只會有一個)
+                            const dis = tempDis;
+                            const useDis = calc_OneDiscountUse(dis);
+                            if (useDis) {
+                                setDiscountToMyData(dis, useDis);
+                            }
+                        } else {
+                            // 若全館優惠(type===global)同時存在多個，擇取最優惠擇一個計算(cash|percent)
+                            let bestDiscount = null;
+                            let bestUse = {total: 0};
+                            for (const d_id in tempDis) {
+                                if (Object.hasOwnProperty.call(tempDis, d_id)) {
+                                    // 使用單一優惠
+                                    const dis = tempDis[d_id];
+                                    const useDis = calc_OneDiscountUse(dis);
 
-                                /** 條件
-                                 * 1. useDis !== false
-                                 * 2-1. type !== global
-                                 * 2-2. dis.method_code === coupon
-                                */
-                                if (useDis) {
-                                    if (type !== 'global' || dis.method_code === 'coupon') {
-                                        setDiscountToMyData(dis, useDis);
-                                    } else if (useDis.total > bestUse.total) {
-                                        bestDiscount = dis;
-                                        bestUse = useDis;
+                                    /** 條件
+                                     * 1. useDis !== false
+                                     * 2-1. type !== global
+                                     * 2-2. dis.method_code === coupon
+                                    */
+                                    if (useDis) {
+                                        if (type !== 'global' || dis.method_code === 'coupon') {
+                                            setDiscountToMyData(dis, useDis);
+                                        } else if (useDis.total > bestUse.total) {
+                                            bestDiscount = dis;
+                                            bestUse = useDis;
+                                        }
                                     }
                                 }
                             }
-                        }
-                        if (bestDiscount) {
-                            setDiscountToMyData(bestDiscount, bestUse);
+                            if (bestDiscount) {
+                                setDiscountToMyData(bestDiscount, bestUse);
+                            }
                         }
                     }
                 }
@@ -1265,7 +1291,7 @@
                     }
                 });
 
-                // 寫入 myData
+                // 寫入 myData (含HTML)
                 function setDiscountToMyData(dis, useDis) {
                     const note = discountNote(dis);
 
@@ -1370,7 +1396,7 @@
                 };
             }
 
-            // #寫回 myProductList, myDiscount: 單一優惠
+            //--- #寫回 myProductList, myDiscount: 單一優惠
             function setOneDiscountData(dis, disUse) {
                 if (!disUse) {
                     return false;
@@ -1413,7 +1439,7 @@
                     }
                 }
             }
-            // #寫回 myProductList, myCart所有: 優惠總金額 dis_total、折後小計 dised_total
+            //--- #寫回 myProductList, myCart所有: 優惠總金額 dis_total、折後小計 dised_total
             function setAllMyDiscTotalData() {
                 // myProductList
                 for (const sid in myProductList) {
@@ -1454,12 +1480,17 @@
             }
 
             // #優惠文字
-            // ex. 消費滿 $100 折 $10（不得折抵運費），可累計優惠
+            // ex. 消費滿 $100 折 $10（不得折抵運費），可累計折扣
             // ex. 消費滿 $100 享 88 折優惠（不含運費）
             // ex. 消費不限金額享 88 折優惠（不含運費）
             // ex. 消費滿 $100 送優惠券
             function discountNote(dis) {
                 let note = '';
+
+                // 使用優惠券
+                if (dis.category_code === 'code') {
+                    note += `【${dis.title}】`;
+                }
                 // 低消
                 if (dis.min_consume > 0) {
                     note += `消費滿 $${dis.min_consume} `;
@@ -1480,7 +1511,7 @@
                 }
                 // 累計
                 if (dis.is_grand_total > 0) {
-                    note += '，可累計優惠';
+                    note += '，可累計折扣';
                 }
                 return note;
             }
@@ -1536,7 +1567,7 @@
                 }
                 
                 function createDiscountTr(dis) {
-                    let className = '', total = '';
+                    let className = '', total = '', title = '';
                     if (isFinite(dis.total)) {
                         className = 'text-danger';
                         total = '- $' + dis.total;
@@ -1544,13 +1575,175 @@
                         className = 'text-primary';
                         total = '【' + dis.total + '】';
                     }
+                    if (dis.type === 'code') {
+                        title = '使用優惠券';
+                    } else {
+                        title = dis.name;
+                    }
                     return `<tr data-id="${dis.id}">
-                        <td class="col-8">${dis.name}
+                        <td class="col-8">${title}
                             <span class="small text-secondary">－${dis.note}</span>
                         </td>
                         <td class="text-end pe-4 ${className}">${total}</td>
                     </tr>`;
                 }
+            }
+
+            /*** 優惠券 fn ***/
+            // 優惠券代碼 -coupon_sn
+            $('button.-coupon_sn').off('click').on('click', function () {
+                $('div.--ctype.-code input[name="coupon_sn"]').val('');
+                resetCouponData();
+                // call API
+                getCouponCheckAPI($('input.-coupon_sn').val());
+            });
+            function getCouponCheckAPI(sn) {
+                const _URL = @json(route('api.cms.discount.check-discount-code'));
+                let Data = {
+                    sn,
+                    product_id: []
+                };
+                // init Html
+                $('.d-flex.-coupon_sn, input.-coupon_sn').removeClass('is-valid is-invalid');
+                $('.-feedback.-coupon_sn').removeClass('valid-feedback invalid-feedback').prop('hidden', true);
+                
+                // Data - sn
+                if (!Data.sn) {
+                    toast.show('請輸入優惠代碼', { type: 'danger' });
+                    return false;
+                }
+                // Data - product_id
+                $('input[name="product_id[]"]').each(function (index, element) {
+                    // element == this
+                    if ((Data.product_id).indexOf($(element).val()) < 0) {
+                        (Data.product_id).push($(element).val());
+                    }
+                });
+                if (Data.product_id.length <= 0) {
+                    toast.show('請先加入商品', { type: 'danger' });
+                    return false;
+                }
+                Data.product_id = (Data.product_id).toString();
+
+                axios.post(_URL, Data)
+                .then((result) => {
+                    const res = result.data;
+                    console.log(res);
+                    let valid_cls = '', msg = '';
+                    if (res.status === '0') {
+                        const dis = res.data;
+
+                        DiscountData.code = dis;
+                    
+                        // 檢查優惠
+                        check_AllDiscount();
+                        // 檢查運費
+                        check_AllDlvFee();
+                        // 應付金額 HTML
+                        calc_set_AllAmount();
+
+                        // 紀錄sn
+                        $('div.--ctype.-code input[name="coupon_sn"]').val(Data.sn);
+
+                        valid_cls = 'valid';
+                        msg = `使用優惠券${discountNote(dis)}`;
+                    } else {
+                        // 清空優惠券
+                        resetCouponData();
+
+                        valid_cls = 'invalid';
+                        msg = res.message;
+                    }
+
+                    $('.d-flex.-coupon_sn, input.-coupon_sn').addClass(`is-${valid_cls}`);
+                    $('.-feedback.-coupon_sn').addClass(`${valid_cls}-feedback`)
+                        .prop('hidden', false).text(msg);
+                }).catch((err) => {
+                    // 清空優惠券
+                    resetCouponData();
+                    console.error(err);
+                });
+            }
+
+            // 清空優惠券
+            function resetCouponData() {
+                // Data
+                DiscountData.code = {};
+                // Html
+                $('div.--ctype.-code input[name="coupon_sn"]').val('');
+            }
+
+            /*** 運費 fn ***/
+            // 檢查運費
+            function check_AllDlvFee() {
+                // 清空運費
+                resetDlvFeeData();
+
+                // loop 所有物流
+                for (const key in myCart) {
+                    if (Object.hasOwnProperty.call(myCart, key)) {
+                        // 寫入 myCart
+                        myCart[key].dlv_fee = calc_OneDlvFeeByShipKey(key);
+                        // HTML
+                        if (myCart[key].dlv_fee > 0) {
+                            $(`#${key}.-detail div[data-td="dlv_fee"]`).prev('div').append(
+                                `<span class="lh-1 small text-secondary ms-2 -dlv-data">
+                                    ${deliverNote(myCart[key].rules)}</span>`
+                            );
+                            $(`#${key}.-detail div[data-td="dlv_fee"]`).text(`$${formatNumber(myCart[key].dlv_fee)}`);
+                        } else {
+                            $(`#${key}.-detail div[data-td="dlv_fee"]`).text('免運');
+                        }
+                    }
+                }
+            }
+
+            // #計算運費dlv_fee by ship_key
+            function calc_OneDlvFeeByShipKey(ship_key) {
+                let dlv_fee = 0;
+                switch (myCart[ship_key].type) {
+                    case 'deliver':
+                        const total = myCart[ship_key].dised_total;
+                        for (const rule of myCart[ship_key].rules) {
+                            if ((rule.is_above === 'false' && total >= rule.min_price && total < rule.max_price) ||
+                                (rule.is_above === 'true' && total >= rule.max_price)) {
+                                dlv_fee = Number(rule.dlv_fee);
+                                break;
+                            }
+                        }
+                        break;
+                
+                    case 'pickup':
+                    default:
+                        dlv_fee = 0;
+                        break;
+                }
+                return dlv_fee;
+            }
+
+            // #清空運費 myCart
+            function resetDlvFeeData() {
+                // myCart
+                for (const key in myCart) {
+                    if (Object.hasOwnProperty.call(myCart, key)) {
+                        myCart[key].dlv_fee = 0;
+                    }
+                }
+                // HTML
+                $('.-detail .-dlv-data').remove();
+                $('.-detail div[data-td="dlv_fee"]').text('-');
+            }
+
+            // 運費說明文字
+            function deliverNote(rules) {
+                let note = '';
+                for (const rule of rules) {
+                    if (rule.is_above === 'true') {
+                        note = '消費滿 $' + formatNumber(rule.max_price) + '免運';
+                        break;
+                    }
+                }
+                return note;
             }
 
             /*** 計算 fn ***/
@@ -1566,7 +1759,7 @@
                 return total;
             }
             
-            // #計算商品total by pid
+            //--- #計算商品total by pid
             function calc_ProductTotalByPid(pids = []) {
                 let total = 0;
                 for (const sid in myProductList) {
@@ -1578,7 +1771,7 @@
                 return total;
             }
 
-            // #計算商品總折扣金額 by sid
+            //--- #計算商品總折扣金額 by sid
             function calc_ProductDisTotalBySid(sids = []) {
                 let dis_total = 0;
                 for (const sid in myProductList) {
