@@ -66,7 +66,13 @@ class CyberbizImportSeeder extends Seeder
                     $productArray['slogan'],
                     $productArray['sell_from'],
                     explode(' ', $productArray['sell_to'])[0],
-                    [$supplierId]);
+                    [$supplierId],
+                    1,
+                    0,
+                    1,
+                    1,
+                    1,
+                );
                 $productId = $re['id'];
 
                 Product::where('id', $productId)
