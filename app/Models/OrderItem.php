@@ -116,6 +116,7 @@ class OrderItem extends Model
             ->select(
                 'ord_orders.id AS order_id',
                 'ord_orders.status AS order_status',
+                'ord_orders.note AS order_note',
 
                 'ord_sub_orders.sn AS del_sn',
                 'ord_sub_orders.ship_category_name AS del_category_name',

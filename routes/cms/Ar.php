@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Cms\AccountManagement\AccountReceivedCtrl;
 
 Route::group(['prefix' => 'ar', 'as' => 'ar.'], function () {
-    // Route::get('', [AccountReceivedCtrl::class, 'index'])->name('index')->middleware('permission:cms.ar.index');
+    Route::get('', [AccountReceivedCtrl::class, 'index'])->name('index')->middleware('permission:cms.ar.index');
     Route::get('create/{id}', [AccountReceivedCtrl::class, 'create'])->name('create')->middleware('permission:cms.ar.create');
     // Route::get('show', [AccountReceivedCtrl::class, 'show'])->name('show')->middleware('permission:cms.ar.show');
     Route::post('store', [AccountReceivedCtrl::class, 'store'])->name('store');

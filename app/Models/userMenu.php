@@ -134,11 +134,11 @@ return
                 "controller_name" => "AccountPayableCtrl",
                 "route_name" => "cms.ap.index",
             ],
-//            [
-//                "title" => "收款作業",
-//                "controller_name" => "AccountReceivedCtrl",
-//                "route_name" => "cms.ar.index",
-//            ],
+            [
+                "title" => "收款作業",
+                "controller_name" => "AccountReceivedCtrl",
+                "route_name" => "cms.ar.index",
+            ],
         ],
     ],
     [

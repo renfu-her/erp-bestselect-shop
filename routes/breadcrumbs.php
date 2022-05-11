@@ -547,6 +547,18 @@ Breadcrumbs::for('cms.received_default.edit', function (BreadcrumbTrail $trail) 
     $trail->push('編輯收款單科目', route('cms.received_default.edit'));
 });
 
+// 付款作業
+Breadcrumbs::for('cms.ap.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('付款作業', route('cms.ap.index'));
+});
+
+// 收款作業
+Breadcrumbs::for('cms.ar.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('收款作業', route('cms.ar.index'));
+});
+
 // 會計科目
 Breadcrumbs::for('cms.general_ledger.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');

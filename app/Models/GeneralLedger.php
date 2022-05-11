@@ -316,19 +316,43 @@ class GeneralLedger extends Model
     }
 
 
-    // $type in r = received_orders, p = paying_orders
-    // $d_type in received, payable, product, logistics, discount
-    public static function classification_processing(&$debit = [], &$credit = [], $single_code = null, $name_var = '', $single_price = 0, $type = null, $d_type = null)
+    // $parameter['type'] in r = received_orders, p = paying_orders
+    // $parameter['d_type'] in received, payable, product, logistics, discount
+    public static function classification_processing(&$debit = [], &$credit = [], $parameter = [])
     {
-        $name = $name_var ?? '';
-        $price = $single_price ?? 0;
-        $code = $single_code ?? null;
+        $code = $parameter['account_code'] ? $parameter['account_code'][0] : null;
+        $name = $parameter['name'] ?? '';
+        $price = $parameter['price'] ?? 0;
+        $type = $parameter['type'] ?? null;
+        $d_type = $parameter['d_type'] ?? null;
+
+        $account_code = $parameter['account_code'] ? $parameter['account_code'] : null;
+        $account_name = $parameter['account_name'] ? $parameter['account_name'] : '';
+        $method_name = $parameter['method_name'] ? $parameter['method_name'] : '';
+        $note = $parameter['note'] ? $parameter['note'] : '';
+        $product_title = $parameter['product_title'] ? $parameter['product_title'] : '';
+        $del_even = $parameter['del_even'] ? $parameter['del_even'] : '';
+        $del_category_name = $parameter['del_category_name'] ? $parameter['del_category_name'] : '';
+        $product_price = $parameter['product_price'] ? $parameter['product_price'] : '';
+        $product_qty = $parameter['product_qty'] ? $parameter['product_qty'] : '';
 
         if($type == 'r'){
             if(in_array($code, [1, 5]) && $price >= 0){
                 $tmp = (object)[
                     'name'=>$name,
-                    'price'=>$price
+                    'price'=>+$price,
+                    'type'=>$type,
+                    'd_type'=>$d_type,
+
+                    'account_code'=>$account_code,
+                    'account_name'=>$account_name,
+                    'method_name'=>$method_name,
+                    'note'=>$note,
+                    'product_title'=>$product_title,
+                    'del_even'=>$del_even,
+                    'del_category_name'=>$del_category_name,
+                    'product_price'=>$product_price,
+                    'product_qty'=>$product_qty,
                 ];
 
                 if( in_array($d_type, ['logistics']) && $code == 5){
@@ -344,7 +368,19 @@ class GeneralLedger extends Model
                 // 貸方
                 $tmp = (object)[
                     'name'=>$name,
-                    'price'=>$price
+                    'price'=>+$price,
+                    'type'=>$type,
+                    'd_type'=>$d_type,
+
+                    'account_code'=>$account_code,
+                    'account_name'=>$account_name,
+                    'method_name'=>$method_name,
+                    'note'=>$note,
+                    'product_title'=>$product_title,
+                    'del_even'=>$del_even,
+                    'del_category_name'=>$del_category_name,
+                    'product_price'=>$product_price,
+                    'product_qty'=>$product_qty,
                 ];
                 array_push($credit, $tmp);
 
@@ -353,13 +389,37 @@ class GeneralLedger extends Model
                 if( in_array($d_type, ['discount']) && $code == 4){
                     $tmp = (object)[
                         'name'=>$name,
-                        'price'=>-$price
+                        'price'=>-$price,
+                        'type'=>$type,
+                        'd_type'=>$d_type,
+
+                        'account_code'=>$account_code,
+                        'account_name'=>$account_name,
+                        'method_name'=>$method_name,
+                        'note'=>$note,
+                        'product_title'=>$product_title,
+                        'del_even'=>$del_even,
+                        'del_category_name'=>$del_category_name,
+                        'product_price'=>$product_price,
+                        'product_qty'=>$product_qty,
                     ];
 
                 } else {
                     $tmp = (object)[
                         'name'=>$name,
-                        'price'=>$price
+                        'price'=>+$price,
+                        'type'=>$type,
+                        'd_type'=>$d_type,
+
+                        'account_code'=>$account_code,
+                        'account_name'=>$account_name,
+                        'method_name'=>$method_name,
+                        'note'=>$note,
+                        'product_title'=>$product_title,
+                        'del_even'=>$del_even,
+                        'del_category_name'=>$del_category_name,
+                        'product_price'=>$product_price,
+                        'product_qty'=>$product_qty,
                     ];
                 }
 
@@ -369,7 +429,19 @@ class GeneralLedger extends Model
                 // 借方
                 $tmp = (object)[
                     'name'=>$name,
-                    'price'=>$price
+                    'price'=>+$price,
+                    'type'=>$type,
+                    'd_type'=>$d_type,
+
+                    'account_code'=>$account_code,
+                    'account_name'=>$account_name,
+                    'method_name'=>$method_name,
+                    'note'=>$note,
+                    'product_title'=>$product_title,
+                    'del_even'=>$del_even,
+                    'del_category_name'=>$del_category_name,
+                    'product_price'=>$product_price,
+                    'product_qty'=>$product_qty,
                 ];
 
                 array_push($debit, $tmp);
