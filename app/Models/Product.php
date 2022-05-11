@@ -199,6 +199,10 @@ class Product extends Model
      * @param $active_edate
      * @param $supplier
      * @param int $has_tax 應稅免稅
+     * @param int $consume 是否耗材
+     * @param  int $public 公開
+     * @param  int $online 開放通路 *線上 (對外網站)
+     * @param  int $offline 開放通路 *線下 (ERP)
      *
      * @return string[]
      */
@@ -353,7 +357,7 @@ class Product extends Model
             });
 
         }
-      
+
 
         if ($type && $type != 'all') {
             $re->where('s.type', $type);
@@ -425,7 +429,7 @@ class Product extends Model
                 ->addSelect('price.price')
                ->where('price.sale_channel_id', $options['price']);
         }
-      
+
 
         if (isset($options['consume']) && !is_null($options['consume'])) {
             $re->where('p.consume', $options['consume']);
