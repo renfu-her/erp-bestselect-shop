@@ -138,16 +138,12 @@ class ConsignmentItem extends Model
     public static function getOriginInboundDataList($consignment_id = null) {
         //取得原對應採購單
         $subQuery = DB::table('pcs_purchase_inbound as inbound1')
-            ->leftJoin('pcs_purchase_inbound as inbound2', function ($join) {
-                $join->on('inbound2.id', '=', 'inbound1.origin_inbound_id')
-                    ->where('inbound1.event', '=', Event::consignment()->value);
-            })
             ->select('inbound1.event'
                 , 'inbound1.event_id'
                 , 'inbound1.event_item_id'
                 , 'inbound1.product_style_id'
                 , DB::raw('GROUP_CONCAT(DISTINCT inbound1.id) as inbound_id')
-                , DB::raw('GROUP_CONCAT(DISTINCT inbound2.sn) as inbound_sn')
+                , DB::raw('GROUP_CONCAT(DISTINCT inbound1.sn) as inbound_sn')
             )
             ->groupBy('inbound1.event')
             ->groupBy('inbound1.event_id')
