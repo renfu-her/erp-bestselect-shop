@@ -2,11 +2,13 @@
 
 namespace Database\Seeders;
 
-use App\Enums\Received\ReceivedMethod;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-use App\Models\ThirdGrade;
+use App\Enums\Received\ReceivedMethod;
+use App\Enums\Discount\DisCategory;
+
+use App\Models\ReceivedDefault;
 use App\Models\PayableDefault;
 class IncomeExpenditureSeeder extends Seeder
 {
@@ -63,56 +65,13 @@ class IncomeExpenditureSeeder extends Seeder
 
         //收款單科目外幣
         for ($gradeId = 116; $gradeId <= 128; $gradeId++) {
-            DB::table('acc_received_default')->insert([
+            ReceivedDefault::insert([
                 'name' => ReceivedMethod::ForeignCurrency,
                 'default_grade_id' => $gradeId,
             ]);
         }
 
-        DB::table('acc_payable')->insert([
-            'pay_order_type' => 'App\Models\PayingOrder',
-            'payable_type' => 'App\Models\PayableRemit',
-            'payable_id' => 1,
-            'acc_income_type_fk' => 3,
-            'pay_order_id' => 1,
-            'tw_price' => 100,
-//            'payable_status' => 1,
-            'payment_date' => '2022-03-01',
-            'accountant_id_fk' => 1,
-            'note' => 'aaa',
-        ]);
-
-        DB::table('acc_payable_remit')->insert([
-            'grade_type' => 'App\Models\FourthGrade',
-            'grade_id' => 1,
-            'remit_date' => '2022-02-15'
-        ]);
-
-        DB::table('acc_payable_cheque')->insert([
-            'grade_type' => 'App\Models\FourthGrade',
-            'grade_id' => 2,
-            'check_num' => "YA12345",
-            'maturity_date' => '2022-02-16',
-            'cash_cheque_date' => '2022-02-17',
-            'cheque_status' => 1
-        ]);
-
-
-
-
-        PayableDefault::create([
-            'name' => 'cash',
-            'default_grade_id' => 18,
-        ]);
-        PayableDefault::create([
-            'name' => 'cheque',
-            'default_grade_id' => 21,
-        ]);
-        PayableDefault::create([
-            'name' => 'remittance',
-            'default_grade_id' => 19,
-        ]);
-
+        // 付款單外幣科目
         for ($i = 116; $i <= 128; $i++) {
             $id = PayableDefault::create([
                 'name' => 'foreign_currency',
@@ -124,21 +83,113 @@ class IncomeExpenditureSeeder extends Seeder
             ]);
         }
 
-        PayableDefault::create([
-            'name' => 'accounts_payable',
-            'default_grade_id' => 22,
-        ]);
-        PayableDefault::create([
-            'name' => 'other',
-            'default_grade_id' => 29,
-        ]);
-        PayableDefault::create([
-            'name' => 'product',
-            'default_grade_id' => 35,
-        ]);
-        PayableDefault::create([
-            'name' => 'logistics',
-            'default_grade_id' => 100,
-        ]);
+
+
+        if(env('APP_ENV') == 'local' || env('APP_ENV') == 'dev'){
+            // 付款單-實付
+            DB::table('acc_payable')->insert([
+                'pay_order_type' => 'App\Models\PayingOrder',
+                'payable_type' => 'App\Models\PayableRemit',
+                'payable_id' => 1,
+                'acc_income_type_fk' => 3,
+                'pay_order_id' => 1,
+                'tw_price' => 100,
+                'payment_date' => '2022-03-01',
+                'accountant_id_fk' => 1,
+                'note' => 'aaa',
+            ]);
+
+            // 付款單-實付-付款方式
+            DB::table('acc_payable_remit')->insert([
+                'grade_type' => 'App\Models\FourthGrade',
+                'grade_id' => 1,
+                'remit_date' => '2022-02-15'
+            ]);
+            DB::table('acc_payable_cheque')->insert([
+                'grade_type' => 'App\Models\FourthGrade',
+                'grade_id' => 2,
+                'check_num' => "YA12345",
+                'maturity_date' => '2022-02-16',
+                'cash_cheque_date' => '2022-02-17',
+                'cheque_status' => 1
+            ]);
+
+            // 收款單科目
+            ReceivedDefault::create([
+                'name' => 'cash',
+                'default_grade_id' => 18,
+            ]);
+            ReceivedDefault::create([
+                'name' => 'cheque',
+                'default_grade_id' => 21,
+            ]);
+            ReceivedDefault::create([
+                'name' => 'credit_card',
+                'default_grade_id' => 18,
+            ]);
+            ReceivedDefault::create([
+                'name' => 'remit',
+                'default_grade_id' => 113,
+            ]);
+            ReceivedDefault::create([
+                'name' => 'account_received',
+                'default_grade_id' => 129,
+            ]);
+            ReceivedDefault::create([
+                'name' => 'other',
+                'default_grade_id' => 122,
+            ]);
+            ReceivedDefault::create([
+                'name' => 'refund',
+                'default_grade_id' => 156,
+            ]);
+            ReceivedDefault::create([
+                'name' => 'product',
+                'default_grade_id' => 61,
+            ]);
+            ReceivedDefault::create([
+                'name' => 'logistics',
+                'default_grade_id' => 100,
+            ]);
+            $discount_category = DisCategory::asArray();
+            ksort($discount_category);
+            foreach($discount_category as $dis_value){
+                ReceivedDefault::create([
+                    'name' => $dis_value,
+                    'default_grade_id' => 64,
+                ]);
+            }
+
+
+            // 付款單科目
+            PayableDefault::create([
+                'name' => 'cash',
+                'default_grade_id' => 18,
+            ]);
+            PayableDefault::create([
+                'name' => 'cheque',
+                'default_grade_id' => 21,
+            ]);
+            PayableDefault::create([
+                'name' => 'remittance',
+                'default_grade_id' => 19,
+            ]);
+            PayableDefault::create([
+                'name' => 'accounts_payable',
+                'default_grade_id' => 22,
+            ]);
+            PayableDefault::create([
+                'name' => 'other',
+                'default_grade_id' => 29,
+            ]);
+            PayableDefault::create([
+                'name' => 'product',
+                'default_grade_id' => 35,
+            ]);
+            PayableDefault::create([
+                'name' => 'logistics',
+                'default_grade_id' => 100,
+            ]);
+        }
     }
 }
