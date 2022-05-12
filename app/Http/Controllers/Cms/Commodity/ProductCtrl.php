@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Cms\Commodity;
 
+use App\Enums\Globals\AppEnvClass;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Collection;
@@ -20,6 +21,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 // use Illuminate\Routing\Route;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 
 class ProductCtrl extends Controller
@@ -130,7 +132,11 @@ class ProductCtrl extends Controller
 
         if ($request->hasfile('files')) {
             foreach ($request->file('files') as $file) {
+                if (App::environment(AppEnvClass::Release)) {
+                    $imgData[] = $file->store('product_imgs/' . $re['id'], 'ftp');
+                } else {
                 $imgData[] = $file->store('product_imgs/' . $re['id']);
+            }
             }
             ProductImg::createImgs($re['id'], $imgData);
         }
@@ -232,7 +238,11 @@ class ProductCtrl extends Controller
 
         if ($request->hasfile('files')) {
             foreach ($request->file('files') as $file) {
+                if (App::environment(AppEnvClass::Release)) {
+                    $imgData[] = $file->store('product_imgs/' . $id, 'ftp');
+                } else {
                 $imgData[] = $file->store('product_imgs/' . $id);
+            }
             }
             ProductImg::createImgs($id, $imgData);
         }

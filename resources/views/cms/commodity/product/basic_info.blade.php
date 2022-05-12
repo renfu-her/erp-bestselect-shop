@@ -242,7 +242,11 @@
                             <span class="browser_box box">
                                 <span class="icon -move" hidden><i class="bi bi-arrows-move"></i></span>
                                 <span class="icon -x"><i class="bi bi-x"></i></span>
-                                <img src="{{ asset($image->url) }}" />
+                                @if(\Illuminate\Support\Facades\App::environment(\App\Enums\Globals\AppEnvClass::Release))
+                                    <img src="{{ 'https://img.bestselection.com.tw/' . $image->url }}" />
+                                @else
+                                    <img src="{{ asset($image->url) }}" />
+                                @endif
                             </span>
                             <!-- /* 進度條 */ -->
                             <div class="progress" hidden>
