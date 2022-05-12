@@ -61,7 +61,7 @@ class PurchaseInbound extends Model
                 "inbound_user_id" => $inbound_user_id,
                 "inbound_user_name" => $inbound_user_name,
                 "memo" => $memo,
-                "prd_type" => $prd_type,
+                "prd_type" => $prd_type ?? 'p',
                 "parent_inbound_id" => $parent_inbound_id,
                 "origin_inbound_id" => $origin_inbound_id,
             ];
@@ -87,11 +87,15 @@ class PurchaseInbound extends Model
                 DB::rollBack();
                 return $rePcsLSC;
             }
-            //寫入ProductStock
-            $rePSSC = ProductStock::stockChange($product_style_id, $inbound_num, StockEvent::inbound()->value, $id, null, $is_pcs_inbound, $can_tally);
-            if ($rePSSC['success'] == 0) {
-                DB::rollBack();
-                return $rePSSC;
+
+            //只有採購才須記錄到ProductStock
+            if ($event == Event::purchase()->value) {
+                //寫入ProductStock
+                $rePSSC = ProductStock::stockChange($product_style_id, $inbound_num, StockEvent::inbound()->value, $id, null, $is_pcs_inbound, $can_tally);
+                if ($rePSSC['success'] == 0) {
+                    DB::rollBack();
+                    return $rePSSC;
+                }
             }
             return ['success' => 1, 'error_msg' => "", 'id' => $id];
         });
@@ -640,6 +644,7 @@ class PurchaseInbound extends Model
             ->leftJoin('prd_products as product', 'product.id', '=', 'style.product_id')
             ->select(
                 'inbound.product_style_id'
+                , 'inbound.event'
                 , 'inbound.depot_id'
                 , 'product.id as product_id'
                 , 'product.title as product_title'
@@ -658,6 +663,7 @@ class PurchaseInbound extends Model
 //            ->whereNotNull('inbound.close_date') //只篩選入庫有結案的
 //            ->where(DB::raw('(inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num)'), '>', 0)
             ->groupBy('inbound.product_style_id')
+            ->groupBy('inbound.event')
             ->groupBy('inbound.depot_id')
             ->groupBy('product.id')
             ->groupBy('product.title')
@@ -665,17 +671,52 @@ class PurchaseInbound extends Model
             ->groupBy('style.title')
             ->groupBy('style.sku');
 
+        $queryInbound_purchase = DB::query()->fromSub($queryInbound, 'ib_purchase')
+            ->where('ib_purchase.event', Event::purchase()->value);
+
+        $queryInbound_bind_pcs_csn = DB::query()->fromSub($queryInbound_purchase, 'ib_purchase')
+            ->leftJoinSub($queryInbound, 'ib_csn', function($join) {
+                $join->on('ib_csn.depot_id', '=', 'ib_purchase.depot_id')
+                    ->on('ib_csn.product_id', '=', 'ib_purchase.product_id')
+                    ->on('ib_csn.product_style_id', '=', 'ib_purchase.product_style_id')
+                    ->where('ib_csn.event', Event::consignment()->value)
+                    ->where('ib_csn.product_type', 'p');
+            })
+            ->select('ib_purchase.*', 'ib_csn.total_in_stock_num as total_in_stock_num_csn');
+
+        $queryInbound_csn_combo = DB::query()->fromSub($queryInbound, 'ib_csn')
+            ->where('ib_csn.event', Event::consignment()->value)
+            ->where('ib_csn.product_type', 'c')
+            ->select(
+                'ib_csn.product_style_id'
+                , 'ib_csn.event'
+                , 'ib_csn.depot_id'
+                , 'ib_csn.product_id'
+                , 'ib_csn.product_title'
+                , 'ib_csn.product_type'
+                , 'ib_csn.title'
+                , 'ib_csn.sku'
+                , DB::raw('@0:=0 as total_inbound_num')
+                , DB::raw('@0:=0 as total_sale_num')
+                , DB::raw('@0:=0 as total_csn_num')
+                , DB::raw('@0:=0 as total_consume_num')
+                , DB::raw('@0:=0 as total_in_stock_num')
+                , 'ib_csn.total_in_stock_num as total_in_stock_num_csn'
+            );
+        $queryInbound_bind_pcs_csn = $queryInbound_bind_pcs_csn->union($queryInbound_csn_combo);
+
         if (null != $depot_id && 0 < count($depot_id)) {
-            $queryInbound->whereIn('inbound.depot_id', $depot_id);
+            $queryInbound_bind_pcs_csn->whereIn('inbound.depot_id', $depot_id);
         }
-        $result = DB::query()->fromSub($queryInbound, 'inbound')
+        $result = DB::query()->fromSub($queryInbound_bind_pcs_csn, 'inbound')
             ->leftJoinSub($querySub, 'tb_rd', function($join) {
                 $join->on('tb_rd.depot_id', '=', 'inbound.depot_id');
                 $join->on('tb_rd.product_style_id', '=', 'inbound.product_style_id');
             })
-            ->mergeBindings($queryInbound)
+            ->mergeBindings($queryInbound_bind_pcs_csn)
             ->select(
                 'inbound.product_style_id'
+                , 'inbound.event'
                 , 'inbound.depot_id'
                 , 'inbound.product_id'
                 , 'inbound.product_title'
@@ -687,11 +728,16 @@ class PurchaseInbound extends Model
                 , 'inbound.total_sale_num'
                 , 'inbound.total_csn_num'
                 , 'inbound.total_consume_num'
-            )
-            ->selectRaw('(case when tb_rd.qty is not null then (inbound.total_in_stock_num - tb_rd.qty)
+                , DB::raw('(case when tb_rd.qty is not null then (inbound.total_in_stock_num - tb_rd.qty)
                  else inbound.total_in_stock_num
                  end
-                 )as total_in_stock_num');
+                 )as total_in_stock_num')
+                , DB::raw('(case when inbound.total_in_stock_num_csn is null then 0
+                 else inbound.total_in_stock_num_csn
+                 end
+                 )as total_in_stock_num_csn')
+            );
+
         return $result;
     }
 }
