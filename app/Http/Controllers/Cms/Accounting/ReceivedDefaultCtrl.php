@@ -2,12 +2,18 @@
 
 namespace App\Http\Controllers\Cms\Accounting;
 
-use App\Enums\Received\ReceivedMethod;
 use App\Http\Controllers\Controller;
+
+use Illuminate\Http\Request;
+
+use Illuminate\Support\Facades\DB;
+
+use App\Enums\Discount\DisCategory;
+use App\Enums\Received\ReceivedMethod;
+
+use App\Models\Discount;
 use App\Models\GeneralLedger;
 use App\Models\ReceivedDefault;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class ReceivedDefaultCtrl extends Controller
 {
@@ -84,7 +90,23 @@ class ReceivedDefaultCtrl extends Controller
         $default_product_grade = ReceivedDefault::where('name', 'product')->first() ? ReceivedDefault::where('name', 'product')->first()->default_grade_id : null;
         $default_logistics_grade = ReceivedDefault::where('name', 'logistics')->first() ? ReceivedDefault::where('name', 'logistics')->first()->default_grade_id : null;
 
+        // $discount_type = Discount::whereNull('deleted_at')->distinct('category_code')->orderBY('category_code', 'ASC')->pluck('category_title', 'category_code')->toArray();
+        $discount_category = DisCategory::asArray();
+        $discount_type = [];
+        foreach($discount_category as $dis_value){
+            $discount_type[$dis_value] = DisCategory::getDescription($dis_value);
+        }
+        ksort($discount_type);
+
+        $default_discount_grade = [];
+        foreach($discount_type as $key => $value){
+            $default_discount_grade[$key] =  ReceivedDefault::where('name', $key)->first() ? ReceivedDefault::where('name', $key)->first()->default_grade_id : null;
+        }
+
         return view('cms.accounting.received_default.edit', [
+            'discount_type' => $discount_type,
+            'default_discount_grade' => $default_discount_grade,
+
             'totalGrades' => $totalGrades,
             'defaultArray' => $defaultArray,
             'currencyDefaultArray' => $currencyDefaultArray,
@@ -180,6 +202,29 @@ class ReceivedDefaultCtrl extends Controller
             'orderDefault.product'=>'nullable|exists:acc_all_grades,id',
             'orderDefault.logistics'=>'nullable|exists:acc_all_grades,id',
         ]);
+
+
+        $discount_category = DisCategory::asArray();
+        ksort($discount_category);
+
+        foreach($discount_category as $dis_value){
+            $request->validate([
+                $dis_value=>'required|exists:acc_all_grades,id',
+            ]);
+
+            $query = ReceivedDefault::where('name', $dis_value)->first();
+            if($query){
+                $query->update([
+                    'default_grade_id' => request($dis_value),
+                ]);
+
+            } else {
+                ReceivedDefault::create([
+                    'name' => $dis_value,
+                    'default_grade_id' => request($dis_value),
+                ]);
+            }
+        }
 
         $req = $request->all();
 
