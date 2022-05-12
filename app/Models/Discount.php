@@ -94,7 +94,7 @@ class Discount extends Model
             'sub.min_consume',
             'sub.coupon_id',
             'sub.coupon_title',
-            'sub.acc_type_id',
+            'sub.discount_grade_id',
         ];
 
         $re = DB::table(DB::raw("({$sub->toSql()}) as sub"))
@@ -301,7 +301,7 @@ class Discount extends Model
             'sub.usage_count',
             'sub.max_usage',
             'sub.is_global',
-            'sub.acc_type_id',
+            'sub.discount_grade_id',
         ];
 
         $re = DB::table(DB::raw("({$sub->toSql()}) as sub"))
@@ -375,13 +375,11 @@ class Discount extends Model
                 break;
         }
 
-        $acc_type_id = DB::table('acc_discount_type')->where('code', $disc)->get()->first()->id;
-        if ($method == DisMethod::coupon()) {
-            $acc_type_id = null;
-        }
+        $discount_grade_id = null;
+        
         $data = [
             'title' => $title,
-            'acc_type_id' => $acc_type_id,
+            'discount_grade_id' => $discount_grade_id,
             //   'status_code' => DisStatus::D00()->value,
             //  'status_title' => DisStatus::D00()->description,
             'category_code' => $disCategory->value,
@@ -496,7 +494,7 @@ class Discount extends Model
                 'method_code' => $n->method_code,
                 'discount_value' => isset($n->currentDiscount) ? $n->currentDiscount : null,
                 'is_grand_total' => $n->is_grand_total,
-                'acc_type_id' => $n->acc_type_id,
+                'discount_grade_id' => $n->discount_grade_id,
                 'sub_order_id' => $sub_order_id,
                 'order_item_id' => $order_item_id,
             ];
