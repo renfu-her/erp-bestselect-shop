@@ -128,6 +128,7 @@
                     </fieldset>
                     <div class="col-12 mb-3 --ctype -coupon" hidden>
                         <select class="form-select" aria-label="Select" name="coupon_sn" disabled>
+                            <option value="">請選擇優惠券</option>
                             <option value="1">item 1</option>
                             <option value="2">item 2</option>
                             <option value="3">item 3</option>
@@ -528,15 +529,6 @@
                 }
             }
 
-            // 優惠使用
-            $('input[name="coupon_type"]').off('change').on('change', function () {
-                const type = $('input[name="coupon_type"]:checked').val();
-                $('div.--ctype').prop('hidden', true);
-                $('div.--ctype select, div.--ctype input').prop('disabled', true);
-                $(`div.--ctype.-${type}`).prop('hidden', false);
-                $(`div.--ctype.-${type} select, div.--ctype.-${type} input`).prop('disabled', false);
-            });
-
             // 禁用鍵盤 Enter submit
             $('form').on('keydown', ':input:not(textarea)', function(e) {
                 return e.key !== 'Enter';
@@ -714,12 +706,8 @@
                             myCart[`${type}_${event_id}`].total = calc_ProductTotalBySid(myCart[`${type}_${event_id}`].products);
                         }
                         
-                        // 檢查優惠
-                        check_AllDiscount();
-                        // 檢查運費
-                        check_AllDlvFee();
-                        // 應付金額 HTML
-                        calc_set_AllAmount();
+                        // 檢查試算
+                        calcAndCheckAllOrder();
                     }
                 },
                 checkFn: function() {
@@ -771,12 +759,9 @@
                     const shipKey = `${ship.category}_${ship.group_id}`;
                     myCart[shipKey].total = calc_ProductTotalBySid(myCart[shipKey].products);
                 }
-                // 檢查優惠
-                check_AllDiscount();
-                // 檢查運費
-                check_AllDlvFee();
-                // 應付金額 HTML
-                calc_set_AllAmount();
+                
+                // 檢查試算
+                calcAndCheckAllOrder();
             }
 
             /*** init ***/
@@ -809,12 +794,11 @@
                 const _URL = `${Laravel.apiUrl.productStyles}?page=${page}`;
                 const Data = {
                     keyword: $('#addProduct .-searchBar input').val(),
-                    price: $('#salechannel').val(),
-                    salechannel_id: $('#salechannel').val()
+                    price: $('#salechannel').val()
                 };
                 resetAddProductModal();
 
-                if (!Data.salechannel_id) {
+                if (!Data.price) {
                     toast.show('客戶未綁定身份，無法訂購。', {
                         type: 'danger',
                         title: '無法訂購'
@@ -1006,15 +990,12 @@
                                     addToCart(selectShip, selectedProduct);
                                     const shipKey = `${selectShip.category}_${selectShip.group_id}`;
                                     myCart[shipKey].total = calc_ProductTotalBySid(myCart[shipKey].products);
+
                                     if (DiscountData.code.sn) {     // 有使用優惠券
                                         getCouponCheckAPI(DiscountData.code.sn);
                                     } else {
-                                        // 檢查優惠
-                                        check_AllDiscount();
-                                        // 檢查運費
-                                        check_AllDlvFee();
-                                        // 應付金額 HTML
-                                        calc_set_AllAmount();
+                                        // 檢查試算
+                                        calcAndCheckAllOrder();
                                     }
                                 } else {
                                     return false;
@@ -1188,12 +1169,8 @@
                     }
 
                     setMyQty($qty);
-                    // 檢查優惠
-                    check_AllDiscount();
-                    // 檢查運費
-                    check_AllDlvFee();
-                    // 應付金額 HTML
-                    calc_set_AllAmount();
+                    // 檢查試算
+                    calcAndCheckAllOrder();
                 });
                 $('input[name="qty[]"]')
                 .off('keydown.adjust').on('keydown.adjust', function(e) {
@@ -1210,12 +1187,8 @@
                     $this.val(qty);
 
                     setMyQty($this);
-                    // 檢查優惠
-                    check_AllDiscount();
-                    // 檢查運費
-                    check_AllDlvFee();
-                    // 應付金額 HTML
-                    calc_set_AllAmount();
+                    // 檢查試算
+                    calcAndCheckAllOrder();
                 });
             }
 
@@ -1439,6 +1412,7 @@
                 $('.-cloneElem.--selectedP .-dis-data').remove();
                 $('#Discount_overview table tbody').empty();
                 $('#Discount_overview').prop('hidden', true);
+                $('div[data-td="subtotal"]').removeClass('text-decoration-line-through');
             }
 
             // #優惠文字
@@ -1482,7 +1456,7 @@
             // meet: booling 是否達成優惠條件
             function appendDiscountHtmlBySid(sid, note, price, meet = true) {
                 const $tr = $(`tr.-cloneElem.--selectedP:has(input[name="product_style_id[]"][value="${sid}"])`);
-                appendDiscountHtml($tr, note, price, meet);
+                appendDiscountHtml($tr, note, price, meet, myProductList[sid].dised_total);
             }
             function appendDiscountHtmlByPid(pid, note, price, meet = true) {
                 let $tr = null;
@@ -1493,9 +1467,17 @@
                 }
                 appendDiscountHtml($tr, note, price, meet);
             }
-            function appendDiscountHtml($tr, note, price, meet) {
+            function appendDiscountHtml($tr, note, price, meet, dised_total = null) {
+                let disprice = '';
+                if (meet) {
+                    // 折扣價
+                    $tr.find('div[data-td="subtotal"]').addClass('text-decoration-line-through');
+                    $tr.find('div[data-td="disedprice"]').remove();
+                    $tr.find('div[data-td="subtotal"]').parent('td').append(createDispriceDiv(dised_total));
+                    // 折扣金額
+                    disprice = `<span class="text-danger fw-bold">折扣 $${formatNumber(price)}</span>`;
+                }
                 $tr.find('div[data-td="title"]').parent('td').append(createDiscountDiv(note));
-                $tr.find('div[data-td="subtotal"]').parent('td').append(createDispriceDiv(price));
 
                 // 優惠內容
                 function createDiscountDiv(note) {
@@ -1503,12 +1485,16 @@
                         <span class="badge rounded-pill bg-${meet ? 'danger' : 'secondary'} fw-normal me-2">
                             ${meet ? '已達優惠' : '未達優惠'}</span>
                         ${note}
+                        ${disprice}
                     </div>`;
                 }
-                // 折扣金額
-                function createDispriceDiv(price) {
-                    return `<div data-td="disprice" class="lh-1 text-${meet ? 'danger' : 'secondary'} -dis-data">
-                        ${meet ? '- $' : ''}${price}</div>`;
+                // 折扣價
+                function createDispriceDiv(dised) {
+                    if (dised === null) {
+                        return '';
+                    }
+                    return `<div data-td="disedprice" class="lh-1 text-danger fw-bold -dis-data">
+                        $${formatNumber(dised)}</div>`;
                 }
             }
 
@@ -1551,11 +1537,31 @@
                 }
             }
 
-            /*** 優惠券 fn ***/
+            // 優惠使用（二擇一）
+            $('input[name="coupon_type"]').off('change').on('change', function () {
+                const type = $('input[name="coupon_type"]:checked').val();
+                $('div.--ctype').prop('hidden', true);
+                $('div.--ctype select, div.--ctype input').prop('disabled', true);
+                $(`div.--ctype.-${type}`).prop('hidden', false);
+                $(`div.--ctype.-${type} select, div.--ctype.-${type} input`).prop('disabled', false);
+                
+                switch (type) {
+                    case 'coupon':  // 優惠券
+                        resetCouponCodeData();
+                        break;
+                    case 'code':    // 優惠代碼
+                        resetCouponCouponData();
+                        break;
+                }
+                // 檢查試算
+                calcAndCheckAllOrder();
+            })
+
+            /*** 優惠代碼 fn ***/
             // #優惠券代碼 -coupon_sn
             $('button.-coupon_sn').off('click').on('click', function () {
                 $('div.--ctype.-code input[name="coupon_sn"]').val('');
-                resetCouponData();
+                DiscountData.code = {};
                 // call API
                 getCouponCheckAPI($('input.-coupon_sn').val());
             });
@@ -1595,46 +1601,61 @@
                     let valid_cls = '', msg = '';
                     if (res.status === '0') {
                         const dis = res.data;
-
                         DiscountData.code = dis;
-                    
-                        // 檢查優惠
-                        check_AllDiscount();
-                        // 檢查運費
-                        check_AllDlvFee();
-                        // 應付金額 HTML
-                        calc_set_AllAmount();
-
                         // 紀錄sn
                         $('div.--ctype.-code input[name="coupon_sn"]').val(Data.sn);
 
                         valid_cls = 'valid';
                         msg = `使用優惠券${discountNote(dis)}`;
                     } else {
-                        // 清空優惠券
-                        resetCouponData();
+                        // 清空
+                        $('div.--ctype.-code input[name="coupon_sn"]').val('');
+                        DiscountData.code = {};
 
                         valid_cls = 'invalid';
                         msg = res.message;
                     }
+                    
+                    // 檢查試算
+                    calcAndCheckAllOrder();
 
                     $('.d-flex.-coupon_sn, input.-coupon_sn').addClass(`is-${valid_cls}`);
                     $('.-feedback.-coupon_sn').addClass(`${valid_cls}-feedback`)
                         .prop('hidden', false).text(msg);
                 }).catch((err) => {
                     // 清空優惠券
-                    resetCouponData();
+                    resetCouponCodeData();
                     console.error(err);
                 });
             }
 
-            // #清空優惠券
-            function resetCouponData() {
+            // #清空優惠代碼
+            function resetCouponCodeData() {
                 // Data
                 DiscountData.code = {};
                 // Html
-                $('div.--ctype.-code input[name="coupon_sn"]').val('');
+                $('div.--ctype.-code input').val('');
+                $('div.-feedback.-coupon_sn').empty();
+                $('div.--ctype.-code .-coupon_sn').removeClass('is-valid is-invalid valid-feedback invalid-feedback');
             }
+            
+            /*** 優惠券 fn ***/
+            // 優惠券 -coupon
+            $('div.--ctype.-coupon select[name="coupon_sn"]').off('change').on('change', function () {
+                // DiscountData.code = {優惠券};
+                
+                // 檢查試算
+                calcAndCheckAllOrder();
+            });
+
+            // #清空優惠券
+            function resetCouponCouponData() {
+                // Data
+                DiscountData.code = {};
+                // Html
+                $('div.--ctype.-coupon select[name="coupon_sn"]').val('');
+            }
+
 
             /*** 運費 fn ***/
             // #檢查運費
@@ -1762,6 +1783,16 @@
                 $('#Total_price td[data-td="sum"]').text(`$${formatNumber(all_sum)}`);
 
                 return { all_total, all_discount, all_dlvFee, all_sum };
+            }
+
+            /*** 試算訂單 ***/
+            function calcAndCheckAllOrder() {
+                // 檢查優惠
+                check_AllDiscount();
+                // 檢查運費
+                check_AllDlvFee();
+                // 應付金額 HTML
+                calc_set_AllAmount();
             }
 
         </script>
