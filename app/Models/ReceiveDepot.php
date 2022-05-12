@@ -16,7 +16,7 @@ class ReceiveDepot extends Model
     public $timestamps = false;
     protected $guarded = [];
 
-    public static function setData($id = null, $delivery_id, $event_item_id = null, $combo_id = null, $type = null, $freebies, $inbound_id, $inbound_sn, $depot_id, $depot_name, $product_style_id, $sku, $product_title, $qty, $expiry_date)
+    public static function setData($id = null, $delivery_id, $event_item_id = null, $combo_id = null, $prd_type = null, $freebies, $inbound_id, $inbound_sn, $depot_id, $depot_name, $product_style_id, $sku, $product_title, $qty, $expiry_date)
     {
         $data = null;
         $dataGet = null;
@@ -30,7 +30,7 @@ class ReceiveDepot extends Model
                 'delivery_id' => $delivery_id,
                 'event_item_id' => $event_item_id,
                 //'combo_id' => $combo_id, //剛創建不會有 須等到出貨送出 確認是組合包的元素商品 才會回寫
-                'type' => $type,
+                'prd_type' => $prd_type,
                 'freebies' => $freebies,
                 'inbound_id' => $inbound_id,
                 'inbound_sn' => $inbound_sn,
@@ -43,12 +43,12 @@ class ReceiveDepot extends Model
                 'expiry_date' => $expiry_date,
             ])->id;
         } else {
-            $result = DB::transaction(function () use ($data, $dataGet, $combo_id, $type, $freebies, $inbound_id, $inbound_sn, $depot_id, $depot_name, $product_style_id, $sku, $product_title, $qty, $expiry_date
+            $result = DB::transaction(function () use ($data, $dataGet, $combo_id, $prd_type, $freebies, $inbound_id, $inbound_sn, $depot_id, $depot_name, $product_style_id, $sku, $product_title, $qty, $expiry_date
             ) {
                 $data->update([
                     'freebies' => $freebies,
                     'combo_id' => $combo_id, //剛創建不會有 須等到出貨送出 確認是組合包的元素商品 才會回寫
-                    'type' => $type,
+                    'prd_type' => $prd_type,
                     'inbound_id' => $inbound_id,
                     'inbound_sn' => $inbound_sn,
                     'depot_id' => $depot_id,
@@ -96,9 +96,9 @@ class ReceiveDepot extends Model
                             $item = ConsignmentItem::where('id', $itemId)->get()->first();
                         }
                         if ('p' == $item->prd_type) {
-                            $rcv_depot_type = 'product';
+                            $rcv_depot_type = 'p';
                         } elseif ('c' == $item->prd_type) {
-                            $rcv_depot_type = 'element';
+                            $rcv_depot_type = 'ce';
                         }
                         $inbound = PurchaseInbound::getSelectInboundList(['inbound_id' => $input_arr['inbound_id'][$key]])->get()->first();
                         if (null != $inbound) {
@@ -159,7 +159,7 @@ class ReceiveDepot extends Model
                             })
                             ->where('delivery.id', $delivery_id)
                             ->where('delivery.event', Event::order()->value)
-                            ->where('rcv_depot.type', 'element')
+                            ->where('rcv_depot.prd_type', 'ce')
                             ->where('sub_orders.ship_category', 'pickup')
                             ->whereNull('delivery.deleted_at')
                             ->whereNull('delivery.deleted_at')
@@ -192,7 +192,7 @@ class ReceiveDepot extends Model
                             ->leftJoin('csn_consignment as consignment', 'consignment.id', '=', 'items.consignment_id')
                             ->where('delivery.id', $delivery_id)
                             ->where('delivery.event', Event::consignment()->value)
-                            ->where('rcv_depot.type', 'element')
+                            ->where('rcv_depot.prd_type', 'ce')
                             ->whereNull('delivery.deleted_at')
                             ->whereNull('delivery.deleted_at')
                             ->whereNull('items.deleted_at')
@@ -227,7 +227,7 @@ class ReceiveDepot extends Model
                                 $delivery_id, //出貨單ID
                                 $element->event_item_id, //子訂單商品ID
                                 null, //組合包商品ID
-                                'combo', //商品類型
+                                'c', //商品類型
                                 0, //是否為贈品 0:否
                                 0,
                                 '',
@@ -244,7 +244,7 @@ class ReceiveDepot extends Model
                             } else {
                                 $rcvDepot_elements = ReceiveDepot::where('delivery_id', $delivery_id)
                                     ->where('event_item_id', $element->event_item_id)
-                                    ->where('type', 'element')
+                                    ->where('prd_type', 'ce')
                                 ;
                                 $rcvDepot_elements->update([
                                     'combo_id' => $reSD['id'],
@@ -332,7 +332,7 @@ class ReceiveDepot extends Model
             ->whereNotNull('delivery.audit_date') //判斷有做過出貨審核才給入
             ->whereNotNull('rcv_depot.id');
         //判斷寄倉 則會有組合包 需去除組合元素
-        $result->where('rcv_depot.type', '<>', 'element');
+        $result->where('rcv_depot.prd_type', '<>', 'ce');
         return $result;
     }
 

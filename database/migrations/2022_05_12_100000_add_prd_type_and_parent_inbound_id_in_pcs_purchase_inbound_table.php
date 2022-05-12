@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddComboIdInDlvReceiveDepotTable extends Migration
+class AddPrdTypeAndParentInboundIdInPcsPurchaseInboundTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,10 @@ class AddComboIdInDlvReceiveDepotTable extends Migration
      */
     public function up()
     {
-        Schema::table('dlv_receive_depot', function (Blueprint $table) {
-            $table->after('event_item_id', function ($tb) {
-                $tb->unsignedBigInteger('combo_id')->nullable()->comment('組成組合包的新id');
+        Schema::table('pcs_purchase_inbound', function (Blueprint $table) {
+            $table->after('consume_num', function ($tb) {
                 $tb->string('prd_type', 2)->default('p')->comment('商品類別p=商品,c=組合包,ce=組合包元素');
+                $tb->unsignedBigInteger('parent_inbound_id')->nullable()->comment('父層入庫來源ID');
             });
         });
     }
@@ -28,8 +28,9 @@ class AddComboIdInDlvReceiveDepotTable extends Migration
      */
     public function down()
     {
-        Schema::table('dlv_receive_depot', function (Blueprint $table) {
-            $table->dropColumn('combo_id');
+        Schema::table('pcs_purchase_inbound', function (Blueprint $table) {
+            $table->dropColumn('prd_type');
+            $table->dropColumn('parent_inbound_id');
         });
     }
 }

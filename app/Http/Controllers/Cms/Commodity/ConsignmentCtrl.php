@@ -376,9 +376,10 @@ class ConsignmentCtrl extends Controller
             'error_num.*' => 'required|numeric|min:0',
             'status.*' => 'required|numeric|min:0',
             'expiry_date.*' => 'required|string',
+            'prd_type.*' => 'required|string',
         ]);
         $depot_id = $request->input('depot_id');
-        $inboundItemReq = $request->only('event_item_id', 'product_style_id', 'inbound_date', 'inbound_num', 'error_num', 'inbound_memo', 'status', 'expiry_date', 'inbound_memo');
+        $inboundItemReq = $request->only('event_item_id', 'product_style_id', 'inbound_date', 'inbound_num', 'error_num', 'inbound_memo', 'status', 'expiry_date', 'inbound_memo', 'prd_type');
 
         if (isset($inboundItemReq['product_style_id'])) {
             //檢查若輸入實進數量小於0，打負數時備註欄位要必填說明原因
@@ -407,6 +408,7 @@ class ConsignmentCtrl extends Controller
                         $request->user()->id,
                         $request->user()->name,
                         $inboundItemReq['inbound_memo'][$key],
+                        $inboundItemReq['prd_type'][$key],
                     );
                     if ($re['success'] == 0) {
                         DB::rollBack();

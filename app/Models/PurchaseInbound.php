@@ -19,7 +19,7 @@ class PurchaseInbound extends Model
     protected $table = 'pcs_purchase_inbound';
     protected $guarded = [];
 
-    public static function createInbound($event, $event_id, $event_item_id, $product_style_id, $expiry_date = null, $inbound_date = null, $inbound_num = 0, $depot_id = null, $depot_name = null, $inbound_user_id = null, $inbound_user_name = null, $memo = null, $origin_inbound_id = null)
+    public static function createInbound($event, $event_id, $event_item_id, $product_style_id, $expiry_date = null, $inbound_date = null, $inbound_num = 0, $depot_id = null, $depot_name = null, $inbound_user_id = null, $inbound_user_name = null, $memo = null, $prd_type = null, $parent_inbound_id = null, $origin_inbound_id = null)
     {
         $can_tally = Depot::can_tally($depot_id);
 
@@ -37,6 +37,8 @@ class PurchaseInbound extends Model
             , $inbound_user_name
             , $memo
             , $can_tally
+            , $prd_type
+            , $parent_inbound_id
             , $origin_inbound_id
         ) {
 
@@ -59,7 +61,9 @@ class PurchaseInbound extends Model
                 "inbound_user_id" => $inbound_user_id,
                 "inbound_user_name" => $inbound_user_name,
                 "memo" => $memo,
-                "origin_inbound_id" => $origin_inbound_id
+                "prd_type" => $prd_type,
+                "parent_inbound_id" => $parent_inbound_id,
+                "origin_inbound_id" => $origin_inbound_id,
             ];
 
             $id = self::create($insert_data)->id;
@@ -303,7 +307,8 @@ class PurchaseInbound extends Model
         $tempInboundSql = DB::table('pcs_purchase_inbound as inbound')
 
             ->select('inbound.event_id as event_id'
-                , 'inbound.product_style_id as product_style_id')
+                , 'inbound.product_style_id as product_style_id'
+                , 'inbound.prd_type as prd_type')
             ->selectRaw('sum(inbound.inbound_num) as inbound_num')
             ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_name) as inbound_user_name'); //入庫人員
 
@@ -337,6 +342,7 @@ class PurchaseInbound extends Model
                     , 'styles.title as style_title' //款式名稱
                     , 'users.name as user_name' //商品負責人
                     , 'inbound.inbound_user_name as inbound_user_name' //入庫人員
+                    , 'inbound.prd_type as prd_type'
                 )
                 ->selectRaw('min(items.sku) as sku') //款式SKU
                 ->selectRaw('sum(items.num) as num') //採購數量
@@ -359,6 +365,7 @@ class PurchaseInbound extends Model
                     , 'users.name'
                     , 'inbound.inbound_num'
                     , 'inbound.inbound_user_name'
+                    , 'inbound.prd_type'
                 )
                 ->orderBy('purchase.id')
                 ->orderBy('items.product_style_id');
@@ -381,6 +388,7 @@ class PurchaseInbound extends Model
                     , 'styles.title as style_title' //款式名稱
                     , 'users.name as user_name' //商品負責人
                     , 'inbound.inbound_user_name as inbound_user_name' //入庫人員
+                    , 'inbound.prd_type as prd_type'
                 )
                 ->selectRaw('min(items.sku) as sku') //款式SKU
                 ->selectRaw('sum(items.num) as num') //採購數量
@@ -403,6 +411,7 @@ class PurchaseInbound extends Model
                     , 'users.name'
                     , 'inbound.inbound_num'
                     , 'inbound.inbound_user_name'
+                    , 'inbound.prd_type'
                 )
                 ->orderBy('consignment.id')
                 ->orderBy('items.product_style_id');
@@ -464,7 +473,7 @@ class PurchaseInbound extends Model
             })
             ->select(//'dlv_receive_depot.inbound_id as inbound_id'
                 'dlv_receive_depot.depot_id as depot_id'
-                 , 'dlv_receive_depot.product_style_id as product_style_id'
+                , 'dlv_receive_depot.product_style_id as product_style_id'
                 , 'dlv_receive_depot.product_title as product_title'
             )
             ->selectRaw('sum(dlv_receive_depot.qty) as qty')
