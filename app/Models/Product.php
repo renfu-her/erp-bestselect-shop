@@ -4,9 +4,11 @@ namespace App\Models;
 
 use App\Enums\Customer\Identity;
 use App\Enums\Globals\ApiStatusMessage;
+use App\Enums\Globals\AppEnvClass;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 
 class Product extends Model
@@ -533,7 +535,11 @@ class Product extends Model
 
         if ($re->imgs) {
             $output['info']['image'] = array_map(function ($n) {
-                $n->url = asset($n->url);
+                if (App::environment(AppEnvClass::Release)) {
+                    $n->url = 'https://img.bestselection.com.tw/' . $n->url;
+                } else {
+                    $n->url = asset($n->url);
+                }
                 return $n;
             }, json_decode($re->imgs));
         }
@@ -997,11 +1003,21 @@ class Product extends Model
 
         $productData = [];
         foreach ($productQueries as $productQuery) {
+            if (!is_null($productQuery['img_url'])) {
+                if (App::environment(AppEnvClass::Release)) {
+                    $imageUrl = 'https://img.bestselection.com.tw/' . $productQuery['img_url'];
+                } else {
+                    $imageUrl = asset($productQuery['img_url']);
+                }
+            } else {
+                $imageUrl = '';
+            }
+
             $productData[] = [
                 'id' => $productQuery['id'],
                 'sku' => $productQuery['sku'],
                 'title' => $productQuery['title'],
-                'img_url' => is_null($productQuery['img_url']) ? '' : asset($productQuery['img_url']),
+                'img_url' => $imageUrl,
                 'price' => $productQuery['price'],
                 'origin_price' => $productQuery['origin_price'],
             ];
