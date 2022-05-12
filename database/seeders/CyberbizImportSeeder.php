@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\Globals\AppEnvClass;
 use App\Models\SaleChannel;
 use Illuminate\Database\Seeder;
 
@@ -25,16 +26,16 @@ class CyberbizImportSeeder extends Seeder
      */
     public function run()
     {
-        if (App::environment('dev')) {
-            $userId = 10;
-            $categoryId = 50;
-            $supplierId = 9;
-            $devStyleSku = '-test-' . strval(time());
+        if (App::environment(AppEnvClass::Release)) {
+            $userId = 1;
+            $categoryId = 1;
+            $supplierId = 1;
+            $devStyleSku = '';
         } else {
             $userId = 9;
-            $categoryId = 2;
+            $categoryId = 3;
             $supplierId = 2;
-            $devStyleSku = '';
+            $devStyleSku = '-test-' . strval(time());
         }
 
         $allJsonFile = preg_grep("~\.(json)$~",

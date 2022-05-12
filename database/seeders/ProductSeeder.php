@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\Globals\AppEnvClass;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductSpec;
@@ -29,10 +30,11 @@ class ProductSeeder extends Seeder
             ['title' => '規格'],
         ]);
 
-        Category::create((['category' => '喜鴻', 'rank' => 100]));
-        if (App::environment(['dev'])) {
-            Category::create((['category' => '清潔用品', 'rank' => 100]));
+        if (App::environment(AppEnvClass::Release)) {
+            Category::create((['category' => '無類別', 'rank' => 100]));
         } else {
+            Category::create((['category' => '喜鴻', 'rank' => 100]));
+            Category::create((['category' => '清潔用品', 'rank' => 100]));
             Category::create((['category' => '無類別', 'rank' => 100]));
         }
 
