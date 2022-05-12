@@ -15,7 +15,7 @@ class ProductCtrl extends Controller
     {
         $validator = Validator::make($request->all(), [
             //   'supplier_id' => ['required'],
-            'price' => 'numeric|required',
+         //   'price' => 'numeric|required',
         ]);
 
         
