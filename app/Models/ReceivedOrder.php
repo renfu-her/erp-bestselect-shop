@@ -95,6 +95,7 @@ class ReceivedOrder extends Model
                         "created_at":"\', created_at,\'"
                     }\' ORDER BY acc_received.id), \']\') AS list
                 FROM acc_received
+                GROUP BY received_order_id
                 ) AS v_table_1'), function ($join){
                     $join->on('v_table_1.received_order_id', '=', 'ro.id');
             })
@@ -112,6 +113,7 @@ class ReceivedOrder extends Model
                         "discounted_price":"\', discounted_price, \'"
                     }\' ORDER BY ord_items.id), \']\') AS item
                 FROM ord_items
+                GROUP BY order_id
                 ) AS v_table_2'), function ($join){
                     $join->on('v_table_2.order_id', '=', 'order.id');
             })
