@@ -22,6 +22,7 @@ class UserSeeder extends Seeder
         User::createUser('烏梅', 'hsihung08079@gmail.com', null, '1234');
         User::createUser('yoyo', 'yoyo@writingbeing.com', null, '1234');
         User::createUser('andy', 'andy', null, '1111');
+        User::createUser('尚未設定負責人', 'unknown', null, 'qwer6789');
 
         $users = User::get();
         foreach ($users as $user) {

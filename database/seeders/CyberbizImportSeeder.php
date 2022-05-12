@@ -26,10 +26,12 @@ class CyberbizImportSeeder extends Seeder
     public function run()
     {
         if (App::environment('dev')) {
+            $userId = 10;
             $categoryId = 50;
             $supplierId = 9;
             $devStyleSku = '-test-' . strval(time());
         } else {
+            $userId = 9;
             $categoryId = 2;
             $supplierId = 2;
             $devStyleSku = '';
@@ -57,8 +59,7 @@ class CyberbizImportSeeder extends Seeder
             if ($containProductSku) {
                 $re = Product::createProduct(
                     $productArray['title'],
-                    // user_id 3 ,施理查
-                    3,
+                    $userId,
                     $categoryId,
                     'p',
                     $productArray['brief'],
