@@ -249,6 +249,7 @@
                 </table>
             </div>
         </div>
+
         <div class="card shadow p-4 mb-4">
             <h4 class="mb-3">付款單預設</h4>
             <div class="col-12 mb-3">
@@ -317,16 +318,17 @@
                 </select>
             </div>
         </div>
+
         <div>
             @if($isViewMode === true)
-                <a href="{{ Route('cms.income_expenditure.edit', [], true) }}">
+                <a href="{{ Route('cms.payable_default.edit', [], true) }}">
                     <button type="button" class="btn btn-primary px-4">編輯</button>
                 </a>
             @else
                 <button type="submit" class="btn btn-primary px-4">儲存</button>
             @endif
             @if($isViewMode === false)
-                <a href="{{ Route('cms.income_expenditure.index', [], true) }}">
+                <a href="{{ Route('cms.payable_default.index', [], true) }}">
                     <button type="button" class="btn btn-outline-primary px-4">取消</button>
                 </a>
             @endif
@@ -341,7 +343,6 @@
             </ul>
         </div>
     @endif
-
 @endsection
 
 @once

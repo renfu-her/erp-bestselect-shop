@@ -10,10 +10,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 use App\Models\GeneralLedger;
-use App\Models\IncomeExpenditure;
 use App\Models\PayableDefault;
 
-class IncomeExpenditureCtrl extends Controller
+class PayableDefaultCtrl extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -48,7 +47,7 @@ class IncomeExpenditureCtrl extends Controller
         $accounts_payable_data = PayableDefault::where('name', 'accounts_payable')->pluck('default_grade_id')->toArray();
         $other_data = PayableDefault::where('name', 'other')->pluck('default_grade_id')->toArray();
 
-        return view('cms.accounting.income_expenditure.edit', [
+        return view('cms.accounting.payable_default.edit', [
             'totalGrades' => $totalGrades,
 
             'currencyData' => $currencyData,
@@ -63,7 +62,7 @@ class IncomeExpenditureCtrl extends Controller
             'logisticsGradeDefaultArray' => $logisticsGradeDefaultArray,
 
             'isViewMode' => true,
-            'formAction' => Route('cms.income_expenditure.edit', [], true),
+            'formAction' => Route('cms.payable_default.edit', [], true),
             'formMethod' => 'GET'
         ]);
     }
@@ -102,7 +101,7 @@ class IncomeExpenditureCtrl extends Controller
         $accounts_payable_data = PayableDefault::where('name', 'accounts_payable')->pluck('default_grade_id')->toArray();
         $other_data = PayableDefault::where('name', 'other')->pluck('default_grade_id')->toArray();
 
-        return view('cms.accounting.income_expenditure.edit', [
+        return view('cms.accounting.payable_default.edit', [
             'totalGrades' => $totalGrades,
 
             'currencyData' => $currencyData,
@@ -116,7 +115,7 @@ class IncomeExpenditureCtrl extends Controller
             'logisticsGradeDefaultArray' => $logisticsGradeDefaultArray,
 
             'isViewMode' => false,
-            'formAction' => Route('cms.income_expenditure.update', [], true),
+            'formAction' => Route('cms.payable_default.update', [], true),
             'formMethod' => 'POST'
         ]);
     }
@@ -125,7 +124,6 @@ class IncomeExpenditureCtrl extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\IncomeExpenditure  $incomeExpenditure
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request)
@@ -163,6 +161,6 @@ class IncomeExpenditureCtrl extends Controller
             'default_grade_id'=>$request['orderDefault']['logistics'],
         ]);
 
-        return redirect()->route('cms.income_expenditure.index');
+        return redirect()->route('cms.payable_default.index');
     }
 }

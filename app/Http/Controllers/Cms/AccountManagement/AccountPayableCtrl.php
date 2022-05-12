@@ -17,7 +17,6 @@ use App\Enums\Payable\PayableStatus;
 
 use App\Models\AllGrade;
 use App\Models\AccountPayable;
-use App\Models\IncomeExpenditure;
 use App\Models\PayableAccount;
 use App\Models\PayableCash;
 use App\Models\PayableCheque;

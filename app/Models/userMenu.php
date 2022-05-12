@@ -170,8 +170,8 @@ return
             ],
             [
                 "title" => "付款單科目",
-                "controller_name" => "IncomeExpenditureCtrl",
-                "route_name" => "cms.income_expenditure.index",
+                "controller_name" => "PayableDefaultCtrl",
+                "route_name" => "cms.payable_default.index",
             ],
             [
                 "title" => "收款單科目",

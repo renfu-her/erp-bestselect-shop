@@ -202,6 +202,13 @@
 @endsection
 
 @once
+    @push('styles')
+        <style>
+            tr td span:last-child {
+                border: none !important;
+            }
+        </style>
+    @endpush
     @push('sub-scripts')
         <script>
             // 顯示筆數

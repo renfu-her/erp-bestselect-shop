@@ -230,7 +230,7 @@ return [
         ],
     ],
     [
-        "unit" => "收款科目",
+        "unit" => "收款作業",
         "permissions" => [
             [
                 "cms.ar.index",

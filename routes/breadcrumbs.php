@@ -528,13 +528,13 @@ Breadcrumbs::for('cms.income_statement.create', function (BreadcrumbTrail $trail
 });
 
 //付款單科目
-Breadcrumbs::for('cms.income_expenditure.index', function (BreadcrumbTrail $trail) {
+Breadcrumbs::for('cms.payable_default.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('付款單科目', route('cms.income_expenditure.index'));
+    $trail->push('付款單科目', route('cms.payable_default.index'));
 });
-Breadcrumbs::for('cms.income_expenditure.edit', function (BreadcrumbTrail $trail) {
-    $trail->parent('cms.income_expenditure.index');
-    $trail->push('編輯付款單科目', route('cms.income_expenditure.edit'));
+Breadcrumbs::for('cms.payable_default.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.payable_default.index');
+    $trail->push('編輯付款單科目', route('cms.payable_default.edit'));
 });
 
 //收款單科目
