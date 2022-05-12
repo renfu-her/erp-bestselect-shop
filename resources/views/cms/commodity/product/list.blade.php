@@ -108,7 +108,7 @@
             <table class="table table-striped tableList">
                 <thead>
                     <tr>
-                        <th scope="col" style="width:10%">#</th>
+                        <th scope="col">#</th>
                         <th scope="col" class="text-center">編輯</th>
                         <th scope="col">商品名稱</th>
                         <th scope="col">SKU</th>
