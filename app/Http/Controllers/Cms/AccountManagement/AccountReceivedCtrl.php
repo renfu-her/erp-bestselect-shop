@@ -85,69 +85,65 @@ class AccountReceivedCtrl extends Controller
             $debit = [];
             $credit = [];
 
-            if(json_decode($value->received_list)){
-                foreach(json_decode($value->received_list) as $r_value){
-                    $r_value->received_method_name = ReceivedMethod::getDescription($r_value->received_method);
-                    $r_value->account = AllGrade::find($r_value->all_grades_id)->eachGrade;
+            foreach(json_decode($value->received_list) as $r_value){
+                $r_value->received_method_name = ReceivedMethod::getDescription($r_value->received_method);
+                $r_value->account = AllGrade::find($r_value->all_grades_id)->eachGrade;
 
-                    if($r_value->received_method == 'foreign_currency'){
-                        $arr = explode('-', AllGrade::find($r_value->all_grades_id)->eachGrade->name);
-                        $r_value->currency_name = $arr[0] == '外幣' ? $arr[1] . ' - ' . $arr[2] : 'NTD';
-                        $r_value->currency_rate = DB::table('acc_received_currency')->find($r_value->received_method_id)->currency;
-                    } else {
-                        $r_value->currency_name = 'NTD';
-                        $r_value->currency_rate = 1;
-                    }
-
-                    // 收款項目
-                    $name = $r_value->received_method_name . $r_value->note . '（' . $r_value->account->code . ' - ' . $r_value->account->name . '）';
-
-                    $tmp = [
-                        'account_code'=>$r_value->account->code,
-                        'name'=>$name,
-                        'price'=>$r_value->tw_price,
-                        'type'=>'r',
-                        'd_type'=>'received',
-
-                        'account_name'=>$r_value->account->name,
-                        'method_name'=>$r_value->received_method_name,
-                        'note'=>$r_value->note,
-                        'product_title'=>null,
-                        'del_even'=>null,
-                        'del_category_name'=>null,
-                        'product_price'=>null,
-                        'product_qty'=>null,
-                    ];
-                    GeneralLedger::classification_processing($debit, $credit, $tmp);
+                if($r_value->received_method == 'foreign_currency'){
+                    $arr = explode('-', AllGrade::find($r_value->all_grades_id)->eachGrade->name);
+                    $r_value->currency_name = $arr[0] == '外幣' ? $arr[1] . ' - ' . $arr[2] : 'NTD';
+                    $r_value->currency_rate = DB::table('acc_received_currency')->find($r_value->received_method_id)->currency;
+                } else {
+                    $r_value->currency_name = 'NTD';
+                    $r_value->currency_rate = 1;
                 }
+
+                // 收款項目
+                $name = $r_value->received_method_name . $r_value->note . '（' . $r_value->account->code . ' - ' . $r_value->account->name . '）';
+
+                $tmp = [
+                    'account_code'=>$r_value->account->code,
+                    'name'=>$name,
+                    'price'=>$r_value->tw_price,
+                    'type'=>'r',
+                    'd_type'=>'received',
+
+                    'account_name'=>$r_value->account->name,
+                    'method_name'=>$r_value->received_method_name,
+                    'note'=>$r_value->note,
+                    'product_title'=>null,
+                    'del_even'=>null,
+                    'del_category_name'=>null,
+                    'product_price'=>null,
+                    'product_qty'=>null,
+                ];
+                GeneralLedger::classification_processing($debit, $credit, $tmp);
             }
 
             $product_grade_name = AllGrade::find($value->ro_product_grade_id)->eachGrade->code . ' - ' . AllGrade::find($value->ro_product_grade_id)->eachGrade->name;
             $logistics_grade_name = AllGrade::find($value->ro_logistics_grade_id)->eachGrade->code . ' - ' . AllGrade::find($value->ro_logistics_grade_id)->eachGrade->name;
 
-            if(json_decode($value->order_item)){
-                foreach(json_decode($value->order_item) as $o_value){
-                    // 商品
-                    $name = $product_grade_name . '---' . $o_value->product_title . '（' . $o_value->price . ' * ' . $o_value->qty . '）';
+            foreach(json_decode($value->order_item) as $o_value){
+                // 商品
+                $name = $product_grade_name . '---' . $o_value->product_title . '（' . $o_value->price . ' * ' . $o_value->qty . '）';
 
-                    $tmp = [
-                        'account_code'=>AllGrade::find($value->ro_product_grade_id)->eachGrade->code,
-                        'name'=>$name,
-                        'price'=>$o_value->origin_price,
-                        'type'=>'r',
-                        'd_type'=>'product',
+                $tmp = [
+                    'account_code'=>AllGrade::find($value->ro_product_grade_id)->eachGrade->code,
+                    'name'=>$name,
+                    'price'=>$o_value->origin_price,
+                    'type'=>'r',
+                    'd_type'=>'product',
 
-                        'account_name'=>AllGrade::find($value->ro_product_grade_id)->eachGrade->name,
-                        'method_name'=>null,
-                        'note'=>null,
-                        'product_title'=>$o_value->product_title,
-                        'del_even'=>null,
-                        'del_category_name'=>null,
-                        'product_price'=>$o_value->price,
-                        'product_qty'=>$o_value->qty,
-                    ];
-                    GeneralLedger::classification_processing($debit, $credit, $tmp);
-                }
+                    'account_name'=>AllGrade::find($value->ro_product_grade_id)->eachGrade->name,
+                    'method_name'=>null,
+                    'note'=>null,
+                    'product_title'=>$o_value->product_title,
+                    'del_even'=>null,
+                    'del_category_name'=>null,
+                    'product_price'=>$o_value->price,
+                    'product_qty'=>$o_value->qty,
+                ];
+                GeneralLedger::classification_processing($debit, $credit, $tmp);
             }
 
             if($value->order_dlv_fee <> 0){

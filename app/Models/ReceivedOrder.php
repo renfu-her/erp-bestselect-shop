@@ -119,7 +119,9 @@ class ReceivedOrder extends Model
             })
 
             ->whereNull('ro.deleted_at')
-            ->whereColumn('ro.price', 'v_table_1.received_price')
+            ->whereColumn([
+                ['ro.price', '=', 'v_table_1.received_price'],
+            ])
 
             ->select(
                 'ro.sn as ro_sn',
