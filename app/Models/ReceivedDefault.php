@@ -52,7 +52,7 @@ class ReceivedDefault extends Model
             //外匯付款方式使用其它function處理
             if (in_array($receivedMethod, ReceivedMethod::asArray()) &&
                 $receivedMethod !== ReceivedMethod::ForeignCurrency) {
-                foreach ($gradeIds['default_grade_id'] as $gradeId) {
+                foreach ($gradeIds as $gradeId) {
                     DB::table('acc_received_default')
                         ->insert([
                             'name'             => $receivedMethod,
