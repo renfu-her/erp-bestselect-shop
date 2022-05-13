@@ -23,5 +23,5 @@ Route::group(['prefix' => 'consignment', 'as' => 'consignment.'], function () {
     Route::get('log/{id}', [ConsignmentCtrl::class, 'historyLog'])->name('log')->middleware('permission:cms.consignment.historyLog');
 
     Route::get('orderlist', [ConsignmentCtrl::class, 'orderlist'])->name('orderlist')->middleware('permission:cms.consignment.create');
-    Route::get('stock', [ConsignmentCtrl::class, 'stock'])->name('stock')->middleware('permission:cms.consignment.create');
+    Route::get('stocklist', [ConsignmentCtrl::class, 'stocklist'])->name('stocklist')->middleware('permission:cms.consignment.create');
 });

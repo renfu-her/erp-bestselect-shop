@@ -7,6 +7,7 @@ use App\Enums\Delivery\Event;
 use App\Enums\Purchase\InboundStatus;
 use App\Enums\Purchase\LogEventFeature;
 use App\Enums\StockEvent;
+use App\Helpers\IttmsUtils;
 use App\Http\Controllers\Controller;
 use App\Models\Consignment;
 use App\Models\ConsignmentItem;
@@ -476,10 +477,23 @@ class ConsignmentCtrl extends Controller
 
     //寄倉訂購
     public function orderlist(Request $request) {
+        return view('cms.commodity.consignment.order', [
+        ]);
+    }
+
+    //寄倉庫存
+    public function stocklist(Request $request) {
+        $query = $request->query();
+        $data_per_page = Arr::get($query, 'data_per_page', 10);
+        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
+
+        $depot_id = Arr::get($query, 'depot_id', 2);
+
         $queryInbound = DB::table('pcs_purchase_inbound as inbound')
             ->where('inbound.event', Event::consignment()->value)
             ->select(
-                 'inbound.product_style_id as product_style_id'
+                'inbound.event as event'
+                , 'inbound.product_style_id as product_style_id'
                 , 'inbound.depot_id as depot_id'  //入庫倉庫ID
                 , 'inbound.depot_name as depot_name'  //入庫倉庫名稱
                 , 'inbound.prd_type as prd_type'
@@ -492,6 +506,7 @@ class ConsignmentCtrl extends Controller
             ->groupBy('inbound.depot_name')
             ->groupBy('inbound.prd_type');
 
+//        dd($queryInbound->get());
         $queryDepotProduct = DB::query()->fromSub(DepotProduct::product_list(), 'prd_list')
             ->leftJoinSub($queryInbound, 'inbound', function($join) {
                 $join->on('inbound.product_style_id', 'prd_list.id')
@@ -506,21 +521,28 @@ class ConsignmentCtrl extends Controller
                 ,'prd_list.spec as spec'
                 ,'prd_list.depot_price as depot_price'
 
+                , 'inbound.event as event'
                 , 'inbound.depot_name as depot_name'  //入庫倉庫名稱
+                , 'inbound.inbound_num as inbound_num'
+                , 'inbound.sale_num as sale_num'
                 , 'inbound.available_num as available_num'
                 , 'inbound.prd_type as prd_type'
             )
             //->where('inbound.available_num', '<>', 0)
         ;
 
-//        dd(IttmsUtils::getEloquentSqlWithBindings($queryDepotProduct));
-        return view('cms.commodity.consignment.order', [
-        ]);
-    }
+        if ($depot_id) {
+            $queryDepotProduct->where('prd_list.depot_id', $depot_id);
+        }
+        $queryDepotProduct = $queryDepotProduct->paginate($data_per_page)->appends($query);
 
-    //寄倉庫存
-    public function stock(Request $request) {
+//        dd(IttmsUtils::getEloquentSqlWithBindings($queryDepotProduct));
+//        dd($queryDepotProduct);
         return view('cms.commodity.consignment.stock', [
+            'dataList' => $queryDepotProduct
+            , 'data_per_page' => $data_per_page
+            , 'depotList' => Depot::all()
+            , 'depot_id' => $depot_id
         ]);
     }
 }

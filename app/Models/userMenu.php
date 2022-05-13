@@ -56,7 +56,7 @@ return
             [
                 "title" => "寄倉庫存",
                 "controller_name" => "ConsignmentCtrl",
-                "route_name" => "cms.consignment.stock",
+                "route_name" => "cms.consignment.stocklist",
             ],
         ],
     ],

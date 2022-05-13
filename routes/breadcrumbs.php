@@ -272,9 +272,9 @@ Breadcrumbs::for('cms.consignment.orderlist', function (BreadcrumbTrail $trail) 
     $trail->push('寄倉訂購', route('cms.consignment.orderlist'));
 });
 //寄倉庫存
-Breadcrumbs::for('cms.consignment.stock', function (BreadcrumbTrail $trail) {
+Breadcrumbs::for('cms.consignment.stocklist', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('寄倉庫存', route('cms.consignment.stock'));
+    $trail->push('寄倉庫存', route('cms.consignment.stocklist'));
 });
 
 /**
