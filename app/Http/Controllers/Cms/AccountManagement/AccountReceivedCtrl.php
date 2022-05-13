@@ -121,21 +121,22 @@ class AccountReceivedCtrl extends Controller
                 GeneralLedger::classification_processing($debit, $credit, $tmp);
             }
 
-            $product_grade_name = AllGrade::find($value->ro_product_grade_id)->eachGrade->code . ' - ' . AllGrade::find($value->ro_product_grade_id)->eachGrade->name;
-            $logistics_grade_name = AllGrade::find($value->ro_logistics_grade_id)->eachGrade->code . ' - ' . AllGrade::find($value->ro_logistics_grade_id)->eachGrade->name;
-
+            // 商品
+            $product_account = AllGrade::find($value->ro_product_grade_id) ? AllGrade::find($value->ro_product_grade_id)->eachGrade : null;
+            $account_code = $product_account ? $product_account->code : '4000';
+            $account_name = $product_account ? $product_account->name : '無設定會計科目';
+            $product_name = $account_code . ' - ' . $account_name;
             foreach(json_decode($value->order_item) as $o_value){
-                // 商品
-                $name = $product_grade_name . '---' . $o_value->product_title . '（' . $o_value->price . ' * ' . $o_value->qty . '）';
+                $name = $product_name . '---' . $o_value->product_title . '（' . $o_value->price . ' * ' . $o_value->qty . '）';
 
                 $tmp = [
-                    'account_code'=>AllGrade::find($value->ro_product_grade_id)->eachGrade->code,
+                    'account_code'=>$account_code,
                     'name'=>$name,
                     'price'=>$o_value->origin_price,
                     'type'=>'r',
                     'd_type'=>'product',
 
-                    'account_name'=>AllGrade::find($value->ro_product_grade_id)->eachGrade->name,
+                    'account_name'=>$account_name,
                     'method_name'=>null,
                     'note'=>null,
                     'product_title'=>$o_value->product_title,
@@ -148,17 +149,21 @@ class AccountReceivedCtrl extends Controller
                 GeneralLedger::classification_processing($debit, $credit, $tmp);
             }
 
+            // 物流
             if($value->order_dlv_fee <> 0){
-                // 物流費用
-                $name = $logistics_grade_name;
+                $log_account = AllGrade::find($value->ro_logistics_grade_id) ? AllGrade::find($value->ro_logistics_grade_id)->eachGrade : null;
+                $account_code = $log_account ? $log_account->code : '4000';
+                $account_name = $log_account ? $log_account->name : '無設定會計科目';
+                $name = $account_code . ' - ' . $account_name;
+
                 $tmp = [
-                    'account_code'=>AllGrade::find($value->ro_logistics_grade_id)->eachGrade->code,
+                    'account_code'=>$account_code,
                     'name'=>$name,
                     'price'=>$value->order_dlv_fee,
                     'type'=>'r',
                     'd_type'=>'logistics',
 
-                    'account_name'=>AllGrade::find($value->ro_logistics_grade_id)->eachGrade->name,
+                    'account_name'=>$account_name,
                     'method_name'=>null,
                     'note'=>null,
                     'product_title'=>null,
@@ -174,24 +179,19 @@ class AccountReceivedCtrl extends Controller
             // 折扣
             if($value->order_discount_value > 0){
                 foreach(json_decode($value->order_discount) ?? [] as $d_value){
-                    $a_code = '4103';
-                    $a_name = '紅利折扣';
-
-                    if(AllGrade::find($d_value->discount_grade_id)){
-                        $a_code = AllGrade::find($d_value->discount_grade_id)->eachGrade->code;
-                        $a_name = AllGrade::find($d_value->discount_grade_id)->eachGrade->name;
-                    }
-
-                    $name = $a_code . ' - ' . $a_name;
+                    $dis_account = AllGrade::find($d_value->discount_grade_id) ? AllGrade::find($d_value->discount_grade_id)->eachGrade : null;
+                    $account_code = $dis_account ? $dis_account->code : '4000';
+                    $account_name = $dis_account ? $dis_account->name : '無設定會計科目';
+                    $name = $account_code . ' - ' . $account_name;
 
                     $tmp = [
-                        'account_code'=>$a_code,
+                        'account_code'=>$account_code,
                         'name'=>$name,
                         'price'=>$d_value->discount_value,
                         'type'=>'r',
                         'd_type'=>'discount',
 
-                        'account_name'=>$a_name,
+                        'account_name'=>$account_name,
                         'method_name'=>null,
                         'note'=>null,
                         'product_title'=>null,
