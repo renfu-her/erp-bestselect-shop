@@ -487,7 +487,7 @@ class ConsignmentCtrl extends Controller
         $data_per_page = Arr::get($query, 'data_per_page', 10);
         $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
 
-        $depot_id = Arr::get($query, 'depot_id', 2);
+        $depot_id = Arr::get($query, 'depot_id', 1);
 
         $queryInbound = DB::table('pcs_purchase_inbound as inbound')
             ->where('inbound.event', Event::consignment()->value)
