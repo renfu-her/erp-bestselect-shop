@@ -86,8 +86,8 @@ class AccountReceivedCtrl extends Controller
             $credit = [];
 
             foreach(json_decode($value->received_list) as $r_value){
-                $r_value->received_method_name = ReceivedMethod::getDescription($r_value->received_method);
-                $r_value->account = AllGrade::find($r_value->all_grades_id)->eachGrade;
+                $received_method_name = ReceivedMethod::getDescription($r_value->received_method);
+                $received_account = AllGrade::find($r_value->all_grades_id)->eachGrade;
 
                 if($r_value->received_method == 'foreign_currency'){
                     $arr = explode('-', AllGrade::find($r_value->all_grades_id)->eachGrade->name);
@@ -99,23 +99,24 @@ class AccountReceivedCtrl extends Controller
                 }
 
                 // 收款項目
-                $name = $r_value->received_method_name . $r_value->note . '（' . $r_value->account->code . ' - ' . $r_value->account->name . '）';
+                $name = $received_method_name . $r_value->note . '（' . $received_account->code . ' - ' . $received_account->name . '）';
 
                 $tmp = [
-                    'account_code'=>$r_value->account->code,
+                    'account_code'=>$received_account->code,
                     'name'=>$name,
                     'price'=>$r_value->tw_price,
                     'type'=>'r',
                     'd_type'=>'received',
 
-                    'account_name'=>$r_value->account->name,
-                    'method_name'=>$r_value->received_method_name,
+                    'account_name'=>$received_account->name,
+                    'method_name'=>$received_method_name,
                     'note'=>$r_value->note,
                     'product_title'=>null,
                     'del_even'=>null,
                     'del_category_name'=>null,
                     'product_price'=>null,
                     'product_qty'=>null,
+                    'discount_title'=>null,
                 ];
                 GeneralLedger::classification_processing($debit, $credit, $tmp);
             }
@@ -142,6 +143,7 @@ class AccountReceivedCtrl extends Controller
                     'del_category_name'=>null,
                     'product_price'=>$o_value->price,
                     'product_qty'=>$o_value->qty,
+                    'discount_title'=>null,
                 ];
                 GeneralLedger::classification_processing($debit, $credit, $tmp);
             }
@@ -164,30 +166,36 @@ class AccountReceivedCtrl extends Controller
                     'del_category_name'=>null,
                     'product_price'=>null,
                     'product_qty'=>null,
+                    'discount_title'=>null,
                 ];
                 GeneralLedger::classification_processing($debit, $credit, $tmp);
             }
 
+            // 折扣
             if($value->order_discount_value > 0){
-                // 折扣
-                $name = '4103 - 紅利折扣';
-                $tmp = [
-                    'account_code'=>'4103',
-                    'name'=>$name,
-                    'price'=>$value->order_discount_value,
-                    'type'=>'r',
-                    'd_type'=>'discount',
+                foreach(json_decode($value->order_discount) ?? [] as $d_value){
+                    $dis_account = AllGrade::find($d_value->discount_grade_id)->eachGrade;
+                    $name = $dis_account ? $dis_account->code . ' - ' . $dis_account->name : '4103 - 紅利折扣';
 
-                    'account_name'=>'紅利折扣',
-                    'method_name'=>null,
-                    'note'=>null,
-                    'product_title'=>null,
-                    'del_even'=>null,
-                    'del_category_name'=>null,
-                    'product_price'=>null,
-                    'product_qty'=>null,
-                ];
-                GeneralLedger::classification_processing($debit, $credit, $tmp);
+                    $tmp = [
+                        'account_code'=>$dis_account->code,
+                        'name'=>$name,
+                        'price'=>$d_value->discount_value,
+                        'type'=>'r',
+                        'd_type'=>'discount',
+
+                        'account_name'=>$dis_account->name,
+                        'method_name'=>null,
+                        'note'=>null,
+                        'product_title'=>null,
+                        'del_even'=>null,
+                        'del_category_name'=>null,
+                        'product_price'=>null,
+                        'product_qty'=>null,
+                        'discount_title'=>$d_value->title,
+                    ];
+                    GeneralLedger::classification_processing($debit, $credit, $tmp);
+                }
             }
 
             $value->debit = $debit;
@@ -577,6 +585,7 @@ class AccountReceivedCtrl extends Controller
                         'del_category_name'=>null,
                         'product_price'=>null,
                         'product_qty'=>null,
+                        'discount_title'=>null,
                     ];
                     GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }
@@ -607,6 +616,7 @@ class AccountReceivedCtrl extends Controller
                         'del_category_name'=>$value->del_category_name,
                         'product_price'=>$value->product_price,
                         'product_qty'=>$value->product_qty,
+                        'discount_title'=>null,
                     ];
                     GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }
@@ -631,6 +641,7 @@ class AccountReceivedCtrl extends Controller
                         'del_category_name'=>null,
                         'product_price'=>null,
                         'product_qty'=>null,
+                        'discount_title'=>null,
                     ];
                     GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }
@@ -655,6 +666,7 @@ class AccountReceivedCtrl extends Controller
                         'del_category_name'=>null,
                         'product_price'=>null,
                         'product_qty'=>null,
+                        'discount_title'=>null,
                     ];
                     GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }

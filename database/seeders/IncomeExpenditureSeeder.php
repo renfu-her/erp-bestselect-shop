@@ -86,34 +86,6 @@ class IncomeExpenditureSeeder extends Seeder
 
 
         if(env('APP_ENV') == 'local' || env('APP_ENV') == 'dev'){
-            // 付款單-實付
-            DB::table('acc_payable')->insert([
-                'pay_order_type' => 'App\Models\PayingOrder',
-                'payable_type' => 'App\Models\PayableRemit',
-                'payable_id' => 1,
-                'acc_income_type_fk' => 3,
-                'pay_order_id' => 1,
-                'tw_price' => 100,
-                'payment_date' => '2022-03-01',
-                'accountant_id_fk' => 1,
-                'note' => 'aaa',
-            ]);
-
-            // 付款單-實付-付款方式
-            DB::table('acc_payable_remit')->insert([
-                'grade_type' => 'App\Models\FourthGrade',
-                'grade_id' => 1,
-                'remit_date' => '2022-02-15'
-            ]);
-            DB::table('acc_payable_cheque')->insert([
-                'grade_type' => 'App\Models\FourthGrade',
-                'grade_id' => 2,
-                'check_num' => "YA12345",
-                'maturity_date' => '2022-02-16',
-                'cash_cheque_date' => '2022-02-17',
-                'cheque_status' => 1
-            ]);
-
             // 收款單科目
             $received = ReceivedMethod::asArray();
             ksort($received);
