@@ -12,6 +12,7 @@ use App\Models\Consignment;
 use App\Models\ConsignmentItem;
 use App\Models\Delivery;
 use App\Models\Depot;
+use App\Models\DepotProduct;
 use App\Models\ProductStock;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseLog;
@@ -470,6 +471,56 @@ class ConsignmentCtrl extends Controller
             'purchaseData' => $purchaseData,
             'purchaseLog' => $purchaseLog,
             'breadcrumb_data' => $purchaseData->consignment_sn,
+        ]);
+    }
+
+    //寄倉訂購
+    public function orderlist(Request $request) {
+        $queryInbound = DB::table('pcs_purchase_inbound as inbound')
+            ->where('inbound.event', Event::consignment()->value)
+            ->select(
+                 'inbound.product_style_id as product_style_id'
+                , 'inbound.depot_id as depot_id'  //入庫倉庫ID
+                , 'inbound.depot_name as depot_name'  //入庫倉庫名稱
+                , 'inbound.prd_type as prd_type'
+                , DB::raw('sum(inbound.inbound_num) as inbound_num')
+                , DB::raw('sum(inbound.sale_num) as sale_num')
+                , DB::raw('(sum(inbound.inbound_num) - sum(inbound.sale_num)) as available_num')
+            )
+            ->groupBy('inbound.product_style_id')
+            ->groupBy('inbound.depot_id')
+            ->groupBy('inbound.depot_name')
+            ->groupBy('inbound.prd_type');
+
+        $queryDepotProduct = DB::query()->fromSub(DepotProduct::product_list(), 'prd_list')
+            ->leftJoinSub($queryInbound, 'inbound', function($join) {
+                $join->on('inbound.product_style_id', 'prd_list.id')
+                    ->on('inbound.depot_id', 'prd_list.depot_id');
+            })
+            ->select(
+                'prd_list.product_id as product_id'
+                ,'prd_list.depot_id as depot_id'
+                ,'prd_list.sku as sku'
+                ,'prd_list.id as product_style_id'
+                ,'prd_list.product_title as product_title'
+                ,'prd_list.spec as spec'
+                ,'prd_list.depot_price as depot_price'
+
+                , 'inbound.depot_name as depot_name'  //入庫倉庫名稱
+                , 'inbound.available_num as available_num'
+                , 'inbound.prd_type as prd_type'
+            )
+            //->where('inbound.available_num', '<>', 0)
+        ;
+
+//        dd(IttmsUtils::getEloquentSqlWithBindings($queryDepotProduct));
+        return view('cms.commodity.consignment.order', [
+        ]);
+    }
+
+    //寄倉庫存
+    public function stock(Request $request) {
+        return view('cms.commodity.consignment.stock', [
         ]);
     }
 }
