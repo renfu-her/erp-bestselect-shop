@@ -39,31 +39,18 @@ class ReceivedDefaultCtrl extends Controller
             }
         }
 
-        $allReceivedMethod = ReceivedMethod::asArray();
-        $queries = DB::table('acc_received_default')
-            ->whereIn('name', $allReceivedMethod)
-            //「外幣」另外會分類處理
-            ->whereNotIn('name', [ReceivedMethod::ForeignCurrency])
-            ->get();
-
-        $defaultList = [];
-        foreach ($queries as $query) {
-            $defaultList[$query->name]['description'] = ReceivedMethod::getDescription($query->name);
-            $defaultList[$query->name]['default_grade_id'][] = $query->default_grade_id;
-        }
-        foreach ($allReceivedMethod as $receivedMethod) {
-            // 若使用者無設定「付款方式」，則補上[]數值，只在前端顯示「付款方式」文字，至於「外幣」另外分類處理
-            if (!array_key_exists($receivedMethod, $defaultList) &&
-                $receivedMethod !== ReceivedMethod::ForeignCurrency) {
-                $defaultList[$receivedMethod]['description'] = ReceivedMethod::getDescription($receivedMethod);
-                $defaultList[$receivedMethod]['default_grade_id'] = [];
+        $all_received_method = ReceivedMethod::asArray();
+        $received_method = [];
+        foreach($all_received_method as $d_r_m_value){
+            if($d_r_m_value != 'foreign_currency'){
+                $received_method[$d_r_m_value] = ReceivedMethod::getDescription($d_r_m_value);
             }
         }
 
-        //sort defaultList by the design order of ReceivedMethod Enum
-        $defaultArray = array_replace(array_flip(ReceivedMethod::asArray()), $defaultList);
-        //「外幣」另外處理
-        unset($defaultArray[ReceivedMethod::ForeignCurrency]);
+        $default_received_grade = [];
+        foreach($received_method as $key => $value){
+            $default_received_grade[$key] = ReceivedDefault::where('name', $key)->pluck('default_grade_id')->toArray();
+        }
 
         $currencyDefault = DB::table('acc_currency')
             ->leftJoin('acc_received_default', 'acc_currency.received_default_fk', '=', 'acc_received_default.id')
@@ -104,14 +91,19 @@ class ReceivedDefaultCtrl extends Controller
         }
 
         return view('cms.accounting.received_default.edit', [
+            'totalGrades' => $totalGrades,
+
+            'received_method' => $received_method,
+            'default_received_grade' => $default_received_grade,
+
+            'currencyDefaultArray' => $currencyDefaultArray,
+
+            'default_product_grade' => $default_product_grade,
+            'default_logistics_grade' => $default_logistics_grade,
+
             'discount_type' => $discount_type,
             'default_discount_grade' => $default_discount_grade,
 
-            'totalGrades' => $totalGrades,
-            'defaultArray' => $defaultArray,
-            'currencyDefaultArray' => $currencyDefaultArray,
-            'default_product_grade' => $default_product_grade,
-            'default_logistics_grade' => $default_logistics_grade,
             'isViewMode' => true,
             'formAction' => Route('cms.received_default.edit', [], true),
             'formMethod' => 'post'
@@ -180,13 +172,13 @@ class ReceivedDefaultCtrl extends Controller
             ReceivedMethod::Refund => ['nullable', 'array'],
 
             //若有回傳會計科目的id，不得小於1
-            ReceivedMethod::Cash . '.default_grade_id.*' => ['nullable', 'numeric', 'min:1'],
-            ReceivedMethod::Cheque . '.default_grade_id.*' => ['nullable', 'numeric', 'min:1'],
-            ReceivedMethod::CreditCard . '.default_grade_id.*' => ['nullable', 'numeric', 'min:1'],
-            ReceivedMethod::Remittance . '.default_grade_id.*' => ['nullable', 'numeric', 'min:1'],
-            ReceivedMethod::AccountsReceivable . '.default_grade_id.*' => ['nullable', 'numeric', 'min:1'],
-            ReceivedMethod::Other . '.default_grade_id.*' => ['nullable', 'numeric', 'min:1'],
-            ReceivedMethod::Refund . '.default_grade_id.*' => ['nullable', 'numeric', 'min:1'],
+            ReceivedMethod::Cash . '.*' => ['nullable', 'numeric', 'min:1'],
+            ReceivedMethod::Cheque . '.*' => ['nullable', 'numeric', 'min:1'],
+            ReceivedMethod::CreditCard . '.*' => ['nullable', 'numeric', 'min:1'],
+            ReceivedMethod::Remittance . '.*' => ['nullable', 'numeric', 'min:1'],
+            ReceivedMethod::AccountsReceivable . '.*' => ['nullable', 'numeric', 'min:1'],
+            ReceivedMethod::Other . '.*' => ['nullable', 'numeric', 'min:1'],
+            ReceivedMethod::Refund . '.*' => ['nullable', 'numeric', 'min:1'],
 
             ReceivedMethod::ForeignCurrency => ['required', 'array'],
             ReceivedMethod::ForeignCurrency . '.rate' => ['required', 'array'],
@@ -198,9 +190,8 @@ class ReceivedDefaultCtrl extends Controller
             //若有回傳會計科目的id，不得小於1
             ReceivedMethod::ForeignCurrency . '.grade_id_fk.*' => ['required', 'int', 'min:1'],
 
-            'orderDefault'=>'required|array:product,logistics',
-            'orderDefault.product'=>'nullable|exists:acc_all_grades,id',
-            'orderDefault.logistics'=>'nullable|exists:acc_all_grades,id',
+            'product'=>'required|exists:acc_all_grades,id',
+            'logistics'=>'required|exists:acc_all_grades,id',
         ]);
 
 
@@ -234,24 +225,24 @@ class ReceivedDefaultCtrl extends Controller
         $default_product_grade = ReceivedDefault::where('name', 'product')->first();
         if($default_product_grade){
             ReceivedDefault::where('name', 'product')->update([
-                'default_grade_id' => $req['orderDefault']['product'],
+                'default_grade_id' => $req['product'],
             ]);
         } else {
             ReceivedDefault::create([
                 'name' => 'product',
-                'default_grade_id' => $req['orderDefault']['product'],
+                'default_grade_id' => $req['product'],
             ]);
         }
 
         $default_logistics_grade = ReceivedDefault::where('name', 'logistics')->first();
         if($default_logistics_grade){
             ReceivedDefault::where('name', 'logistics')->update([
-                'default_grade_id' => $req['orderDefault']['logistics'],
+                'default_grade_id' => $req['logistics'],
             ]);
         } else {
             ReceivedDefault::create([
                 'name' => 'logistics',
-                'default_grade_id' => $req['orderDefault']['logistics'],
+                'default_grade_id' => $req['logistics'],
             ]);
         }
 
