@@ -17,9 +17,6 @@
                        value="{{ old('collection_name', $collectionData->name ?? '')}}"
                        required
                        aria-label="商品群組名稱"/>
-                @error('collection_name')
-                <div class="alert-danger"> {{ $message }} </div>
-                @enderror
             </x-b-form-group>
             <p class="mark m-0"><i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>
                 系統會自動將「商品群組名稱」代入網頁連結、標題、描述中
@@ -32,9 +29,6 @@
                        name="url"
                        value="{{ old('url', $collectionData->url ?? '')}}"
                        aria-label="網頁連結"/>
-                @error('url')
-                <div class="alert-danger"> {{ $message }} </div>
-                @enderror
             </x-b-form-group>
             <x-b-form-group name="meta_title" title="網頁標題" required="false">
                 <input type="text"
@@ -43,9 +37,6 @@
                        name="meta_title"
                        value="{{ old('meta_title', $collectionData->meta_title ?? '')}}"
                        aria-label="網頁標題"/>
-                @error('meta_title')
-                <div class="alert-danger"> {{ $message }} </div>
-                @enderror
             </x-b-form-group>
             <x-b-form-group name="meta_description" title="網頁描述" required="false">
                 <input type="text"
@@ -54,9 +45,6 @@
                        name="meta_description"
                        value="{{ old('meta_description', $collectionData->meta_description ?? '')}}"
                        aria-label="網頁描述"/>
-                @error('meta_description')
-                <div class="alert-danger"> {{ $message }} </div>
-                @enderror
             </x-b-form-group>
             </div>
         </div>

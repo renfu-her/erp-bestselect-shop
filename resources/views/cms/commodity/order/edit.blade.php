@@ -561,7 +561,7 @@
             /*** 優惠資料 ***/
             // 全館優惠
             const GlobalDiscounts = @json($discounts);
-            console.log(GlobalDiscounts);
+            console.log('全館優惠', GlobalDiscounts);
             // 優惠方式
             const DISC_METHOD = ['cash', 'percent', 'coupon'];
             // 優惠類型 折扣順序：任選 > 全館 > 優惠券/序號 > 紅利
@@ -1597,7 +1597,7 @@
                 axios.post(_URL, Data)
                 .then((result) => {
                     const res = result.data;
-                    console.log(res);
+                    console.log('檢查優惠代碼API', res);
                     let valid_cls = '', msg = '';
                     if (res.status === '0') {
                         const dis = res.data;
