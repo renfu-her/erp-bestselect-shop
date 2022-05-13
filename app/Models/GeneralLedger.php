@@ -335,6 +335,7 @@ class GeneralLedger extends Model
         $del_category_name = $parameter['del_category_name'] ? $parameter['del_category_name'] : '';
         $product_price = $parameter['product_price'] ? $parameter['product_price'] : '';
         $product_qty = $parameter['product_qty'] ? $parameter['product_qty'] : '';
+        $discount_title = $parameter['discount_title'] ? $parameter['discount_title'] : '';
 
         if($type == 'r'){
             if(in_array($code, [1, 5]) && $price >= 0){
@@ -353,6 +354,7 @@ class GeneralLedger extends Model
                     'del_category_name'=>$del_category_name,
                     'product_price'=>$product_price,
                     'product_qty'=>$product_qty,
+                    'discount_title'=>$discount_title,
                 ];
 
                 if( in_array($d_type, ['logistics']) && $code == 5){
@@ -381,6 +383,7 @@ class GeneralLedger extends Model
                     'del_category_name'=>$del_category_name,
                     'product_price'=>$product_price,
                     'product_qty'=>$product_qty,
+                    'discount_title'=>$discount_title,
                 ];
                 array_push($credit, $tmp);
 
@@ -402,7 +405,8 @@ class GeneralLedger extends Model
                         'del_category_name'=>$del_category_name,
                         'product_price'=>$product_price,
                         'product_qty'=>$product_qty,
-                    ];
+                        'discount_title'=>$discount_title,
+                ];
 
                 } else {
                     $tmp = (object)[
@@ -420,7 +424,8 @@ class GeneralLedger extends Model
                         'del_category_name'=>$del_category_name,
                         'product_price'=>$product_price,
                         'product_qty'=>$product_qty,
-                    ];
+                        'discount_title'=>$discount_title,
+                ];
                 }
 
                 array_push($credit, $tmp);
@@ -442,6 +447,7 @@ class GeneralLedger extends Model
                     'del_category_name'=>$del_category_name,
                     'product_price'=>$product_price,
                     'product_qty'=>$product_qty,
+                    'discount_title'=>$discount_title,
                 ];
 
                 array_push($debit, $tmp);

@@ -117,6 +117,26 @@ class ReceivedOrder extends Model
                 ) AS v_table_2'), function ($join){
                     $join->on('v_table_2.order_id', '=', 'order.id');
             })
+            ->leftJoin(DB::raw('(
+                SELECT order_id,
+                CONCAT(\'[\', GROUP_CONCAT(\'{
+                        "sub_order_id":"\', COALESCE(sub_order_id, ""), \'",
+                        "order_item_id":"\', COALESCE(order_item_id, ""), \'",
+                        "discount_grade_id":"\', COALESCE(discount_grade_id, ""), \'",
+                        "title":"\', COALESCE(title, ""), \'",
+                        "sn":"\', COALESCE(sn, ""), \'",
+                        "category_title":"\', category_title, \'",
+                        "category_code":"\', category_code, \'",
+                        "extra_id":"\', COALESCE(extra_id, ""), \'",
+                        "extra_title":"\', COALESCE(extra_title, ""), \'",
+                        "discount_value":"\', COALESCE(discount_value, ""), \'"
+                    }\' ORDER BY ord_discounts.id), \']\') AS discount_list
+                FROM ord_discounts
+                WHERE discount_value IS NOT NULL AND order_type = "main"
+                GROUP BY order_id
+                ) AS v_table_3'), function ($join){
+                    $join->on('v_table_3.order_id', '=', 'order.id');
+            })
 
             ->whereNull('ro.deleted_at')
             ->whereColumn([
@@ -145,6 +165,7 @@ class ReceivedOrder extends Model
                 'v_table_1.received_date as received_date',// 收款單完成收款日期
                 'v_table_1.received_price as received_price',// 收款單金額(實收)
                 'v_table_2.item as order_item',
+                'v_table_3.discount_list as order_discount',
 
                 'customer.id as customer_id',
                 'customer.name as customer_name',

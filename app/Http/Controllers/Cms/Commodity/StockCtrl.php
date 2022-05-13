@@ -66,6 +66,7 @@ class StockCtrl extends Controller
             ->leftJoin('depot', 'depot.id', '=', 'inbound.depot_id')
             ->addSelect(
                 'inbound.product_style_id'
+                , 'inbound.event'
                 , 'inbound.depot_id'
                 , 'depot.name as depot_name'
                 , 'inbound.total_inbound_num'
@@ -73,6 +74,7 @@ class StockCtrl extends Controller
                 , 'inbound.total_csn_num'
                 , 'inbound.total_consume_num'
                 , 'inbound.total_in_stock_num'
+                , 'inbound.total_in_stock_num_csn'
             )
         ;
         if (null != $depot_id && 0 < count($depot_id)) {

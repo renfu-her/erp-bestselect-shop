@@ -100,8 +100,8 @@
                                            value="{{ old('event_item_id.'. $styleKey, $styleVal->rcv_deppot_id?? '') }}">
                                     <input type="hidden" name="product_style_id[]"
                                            value="{{ old('product_style_id.'. $styleKey, $styleVal->product_style_id?? '') }}">
-                                    <input type="hidden" name="origin_inbound_id[]"
-                                           value="{{ old('product_style_id.'. $styleKey, $styleVal->inbound_id?? '') }}">
+                                    <input type="hidden" name="prd_type[]"
+                                           value="{{ old('prd_type.'. $styleKey, $styleVal->prd_type?? '') }}">
                                 </th>
                                 <td>
                                     <input type="date"

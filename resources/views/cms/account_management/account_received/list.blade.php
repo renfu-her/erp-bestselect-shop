@@ -162,7 +162,7 @@
                                     @if($c_value->d_type == 'logistics')
                                         {{$c_value->account_name}} - {{$data->order_sn}}
                                     @elseif($c_value->d_type == 'discount')
-                                        {{$c_value->account_name}} - {{$data->order_sn}}
+                                        {{$c_value->discount_title}} - {{$data->order_sn}}
                                     @else
                                         {{$c_value->product_title}}({{ $c_value->product_price }} * {{$c_value->product_qty}}) - {{$data->order_sn}}
                                     @endif

@@ -142,6 +142,7 @@
                             <th>
                                 <input class="form-check-input" type="checkbox"
                                    value="" data-td="ib_id" aria-label="選取入庫單">
+                                <input type="hidden" name="prd_type" value="">
                             </th>
                             <td data-td="sn"></td>
                             <td data-td="depot"></td>

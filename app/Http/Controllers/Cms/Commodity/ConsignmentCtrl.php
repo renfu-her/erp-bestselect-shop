@@ -7,11 +7,13 @@ use App\Enums\Delivery\Event;
 use App\Enums\Purchase\InboundStatus;
 use App\Enums\Purchase\LogEventFeature;
 use App\Enums\StockEvent;
+use App\Helpers\IttmsUtils;
 use App\Http\Controllers\Controller;
 use App\Models\Consignment;
 use App\Models\ConsignmentItem;
 use App\Models\Delivery;
 use App\Models\Depot;
+use App\Models\DepotProduct;
 use App\Models\ProductStock;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseLog;
@@ -92,6 +94,7 @@ class ConsignmentCtrl extends Controller
             'scheduled_date' => 'required|string',
             'product_style_id.*' => 'required|numeric|distinct',
             'name.*' => 'required|string',
+            'prd_type.*' => 'required|string',
             'sku.*' => 'required|string',
             'price.*' => 'required|numeric',
             'num.*' => 'required|numeric',
@@ -99,7 +102,7 @@ class ConsignmentCtrl extends Controller
         $query = $request->query();
 
         $csnReq = $request->only('send_depot_id', 'receive_depot_id', 'scheduled_date');
-        $csnItemReq = $request->only('product_style_id', 'name', 'sku', 'num', 'price', 'memo');
+        $csnItemReq = $request->only('product_style_id', 'name', 'prd_type', 'sku', 'num', 'price', 'memo');
 //        $purchasePayReq = $request->only('logistics_price', 'logistics_memo', 'invoice_num', 'invoice_date');
 
         $send_depot = Depot::where('id', $csnReq['send_depot_id'])->get()->first();
@@ -126,6 +129,7 @@ class ConsignmentCtrl extends Controller
                             'consignment_id' => $consignmentID,
                             'product_style_id' => $val,
                             'title' => $csnItemReq['name'][$key],
+                            'prd_type' => $csnItemReq['prd_type'][$key],
                             'sku' => $csnItemReq['sku'][$key],
                             'price' => $csnItemReq['price'][$key],
                             'num' => $csnItemReq['num'][$key],
@@ -199,7 +203,7 @@ class ConsignmentCtrl extends Controller
         $query = $request->query();
 
         $csnReq = $request->only('scheduled_date', 'audit_status');
-        $csnItemReq = $request->only('item_id', 'product_style_id', 'name', 'sku', 'num', 'price');
+        $csnItemReq = $request->only('item_id', 'product_style_id', 'name', 'prd_type', 'sku', 'num', 'price');
 
         //判斷是否有出貨審核，有則不可新增刪除商品款式
 //        $consignmentGet = Consignment::where('id', '=', $id)->get()->first();
@@ -253,6 +257,7 @@ class ConsignmentCtrl extends Controller
                                 'consignment_id' => $consignmentData->consignment_id,
                                 'product_style_id' => $csnItemReq['product_style_id'][$key],
                                 'title' => $csnItemReq['name'][$key],
+                                'prd_type' => $csnItemReq['prd_type'][$key],
                                 'sku' => $csnItemReq['sku'][$key],
                                 'price' => $csnItemReq['price'][$key],
                                 'num' => $csnItemReq['num'][$key],
@@ -373,10 +378,10 @@ class ConsignmentCtrl extends Controller
             'error_num.*' => 'required|numeric|min:0',
             'status.*' => 'required|numeric|min:0',
             'expiry_date.*' => 'required|string',
-            'origin_inbound_id.*' => 'required|numeric',
+            'prd_type.*' => 'required|string',
         ]);
         $depot_id = $request->input('depot_id');
-        $inboundItemReq = $request->only('event_item_id', 'product_style_id', 'inbound_date', 'inbound_num', 'error_num', 'inbound_memo', 'status', 'expiry_date', 'inbound_memo', 'origin_inbound_id');
+        $inboundItemReq = $request->only('event_item_id', 'product_style_id', 'inbound_date', 'inbound_num', 'error_num', 'inbound_memo', 'status', 'expiry_date', 'inbound_memo', 'prd_type');
 
         if (isset($inboundItemReq['product_style_id'])) {
             //檢查若輸入實進數量小於0，打負數時備註欄位要必填說明原因
@@ -405,7 +410,7 @@ class ConsignmentCtrl extends Controller
                         $request->user()->id,
                         $request->user()->name,
                         $inboundItemReq['inbound_memo'][$key],
-                        $inboundItemReq['origin_inbound_id'][$key]
+                        $inboundItemReq['prd_type'][$key],
                     );
                     if ($re['success'] == 0) {
                         DB::rollBack();
@@ -467,6 +472,77 @@ class ConsignmentCtrl extends Controller
             'purchaseData' => $purchaseData,
             'purchaseLog' => $purchaseLog,
             'breadcrumb_data' => $purchaseData->consignment_sn,
+        ]);
+    }
+
+    //寄倉訂購
+    public function orderlist(Request $request) {
+        return view('cms.commodity.consignment.order', [
+        ]);
+    }
+
+    //寄倉庫存
+    public function stocklist(Request $request) {
+        $query = $request->query();
+        $data_per_page = Arr::get($query, 'data_per_page', 10);
+        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
+
+        $depot_id = Arr::get($query, 'depot_id', 1);
+
+        $queryInbound = DB::table('pcs_purchase_inbound as inbound')
+            ->where('inbound.event', Event::consignment()->value)
+            ->select(
+                'inbound.event as event'
+                , 'inbound.product_style_id as product_style_id'
+                , 'inbound.depot_id as depot_id'  //入庫倉庫ID
+                , 'inbound.depot_name as depot_name'  //入庫倉庫名稱
+                , 'inbound.prd_type as prd_type'
+                , DB::raw('sum(inbound.inbound_num) as inbound_num')
+                , DB::raw('sum(inbound.sale_num) as sale_num')
+                , DB::raw('(sum(inbound.inbound_num) - sum(inbound.sale_num)) as available_num')
+            )
+            ->groupBy('inbound.product_style_id')
+            ->groupBy('inbound.depot_id')
+            ->groupBy('inbound.depot_name')
+            ->groupBy('inbound.prd_type');
+
+//        dd($queryInbound->get());
+        $queryDepotProduct = DB::query()->fromSub(DepotProduct::product_list(), 'prd_list')
+            ->leftJoinSub($queryInbound, 'inbound', function($join) {
+                $join->on('inbound.product_style_id', 'prd_list.id')
+                    ->on('inbound.depot_id', 'prd_list.depot_id');
+            })
+            ->select(
+                'prd_list.product_id as product_id'
+                ,'prd_list.depot_id as depot_id'
+                ,'prd_list.sku as sku'
+                ,'prd_list.id as product_style_id'
+                ,'prd_list.product_title as product_title'
+                ,'prd_list.spec as spec'
+                ,'prd_list.depot_price as depot_price'
+
+                , 'inbound.event as event'
+                , 'inbound.depot_name as depot_name'  //入庫倉庫名稱
+                , 'inbound.inbound_num as inbound_num'
+                , 'inbound.sale_num as sale_num'
+                , 'inbound.available_num as available_num'
+                , 'inbound.prd_type as prd_type'
+            )
+            //->where('inbound.available_num', '<>', 0)
+        ;
+
+        if ($depot_id) {
+            $queryDepotProduct->where('prd_list.depot_id', $depot_id);
+        }
+        $queryDepotProduct = $queryDepotProduct->paginate($data_per_page)->appends($query);
+
+//        dd(IttmsUtils::getEloquentSqlWithBindings($queryDepotProduct));
+//        dd($queryDepotProduct);
+        return view('cms.commodity.consignment.stock', [
+            'dataList' => $queryDepotProduct
+            , 'data_per_page' => $data_per_page
+            , 'depotList' => Depot::all()
+            , 'depot_id' => $depot_id
         ]);
     }
 }

@@ -16,10 +16,12 @@ class DeliveryCtrl extends Controller
         $request->validate([
             'product_style_id' => 'required|int',
             'depot_id' => 'filled|int',
+            'select_consignment' => 'filled|bool',
         ]);
         $product_style_id = $request->input('product_style_id') ?? null;
         $depot_id = $request->input('depot_id') ?? null;
-        $selectInboundList = PurchaseInbound::getSelectInboundList(['product_style_id' => $product_style_id, 'depot_id' => $depot_id])->get();
+        $select_consignment = $request->input('select_consignment') ?? false;
+        $selectInboundList = PurchaseInbound::getSelectInboundList(['product_style_id' => $product_style_id, 'depot_id' => $depot_id, 'select_consignment' => $select_consignment])->get();
 
         $re = [];
         $re[ResponseParam::status()->key] = '0';

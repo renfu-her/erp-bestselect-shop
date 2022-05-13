@@ -23,18 +23,18 @@
         @csrf
         <div class="card shadow p-4 mb-4">
             <h4 class="mb-3">收款管理預設</h4>
-            @foreach($defaultArray as $type => $default)
-                <div class="col-12 mb-3 {{$type == 'other' ? 'd-none' : ''}}">
-                    <label class="form-label" for="">{{$default['description']}}</label>
-                    <select name="{{$type}}[default_grade_id][]"
+            @foreach($received_method as $key => $value)
+                <div class="col-12 mb-3 {{$key == 'other' ? 'd-none' : ''}}">
+                    <label class="form-label" for="">{{$value}}</label>
+                    <select name="{{$key}}[]"
                             id=""
                             multiple
-                            class="select2 -multiple form-select @error($type . '.default_grade_id.*') is-invalid @enderror"
+                            class="select2 -multiple form-select @error($key . '.*') is-invalid @enderror"
                             disabled
                             data-placeholder="可複選">
                         @foreach($totalGrades as $totalGrade)
                             <option
-                                @if(in_array($totalGrade['primary_id'], $default['default_grade_id']) || $type == 'other')
+                                @if(in_array($totalGrade['primary_id'], $default_received_grade[$key]) || $key == 'other')
                                 selected
                                 @endif
                                 @if($totalGrade['grade_num'] === 1)
@@ -48,11 +48,12 @@
                                 @endif
                                 value="{{ $totalGrade['primary_id'] }}">{{ $totalGrade['code'] . ' ' . $totalGrade['name'] }}
                             </option>
-                            @error($type . '.default_grade_id.*') {{ $message }} @enderror
+                            @error($key . '.*') {{ $message }} @enderror
                         @endforeach
                     </select>
                 </div>
             @endforeach
+
             <h6 class="flex-grow-1 mb-3">外匯</h6>
             <div class="table-responsive tableOverBox">
                 <table class="table table-hover tableList">
@@ -104,7 +105,7 @@
                                                 @endif
                                                 value="{{ $totalGrade['primary_id'] }}">{{ $totalGrade['code'] . ' ' . $totalGrade['name'] }}
                                             </option>
-                                                                @error($type . '.[grade_id_fk].' . $currencyDefault['currency_id']) {{ $message }} @enderror
+                                            @error($type . '.[grade_id_fk].' . $currencyDefault['currency_id']) {{ $message }} @enderror
                                         @endforeach
                                     </select>
 
@@ -121,7 +122,7 @@
             <h4 class="mb-3">收款單預設</h4>
             <div class="col-12 mb-3">
                 <label class="form-label" for="">商品</label>
-                <select name="orderDefault[product]" required {{ $isViewMode === true ? 'disabled' : '' }} class="select3 -select2 -single form-select col-12 @error('orderDefault[product]') is-invalid @enderror" data-placeholder="請選擇">
+                <select name="product" required {{ $isViewMode === true ? 'disabled' : '' }} class="select3 -select2 -single form-select col-12 @error('product') is-invalid @enderror" data-placeholder="請選擇">
                     <option disabled selected value>-- select an option --</option>
                     @foreach($totalGrades as $value)
                         <option
@@ -147,7 +148,7 @@
 
             <div class="col-12 mb-3">
                 <label class="form-label" for="">物流費用</label>
-                <select name="orderDefault[logistics]" required {{ $isViewMode === true ? 'disabled' : '' }} class="select3 -select2 -single form-select col-12 @error('orderDefault[logistics]') is-invalid @enderror" data-placeholder="請選擇">
+                <select name="logistics" required {{ $isViewMode === true ? 'disabled' : '' }} class="select3 -select2 -single form-select col-12 @error('logistics') is-invalid @enderror" data-placeholder="請選擇">
                     <option disabled selected value>-- select an option --</option>
                     @foreach($totalGrades as $value)
                         <option
@@ -170,6 +171,37 @@
                     @endforeach
                 </select>
             </div>
+        </div>
+
+        <div class="card shadow p-4 mb-4">
+            <h4 class="mb-3">折扣預設</h4>
+            @foreach($discount_type as $key => $dt_value)
+            <div class="col-12 mb-3">
+                <label class="form-label" for="">{{$dt_value}}</label>
+                <select name="{{$key}}" required {{ $isViewMode === true ? 'disabled' : '' }} class="select3 -select2 -single form-select col-12 @error('{{$key}}') is-invalid @enderror" data-placeholder="請選擇">
+                    <option disabled selected value>-- select an option --</option>
+                    @foreach($totalGrades as $value)
+                        <option
+                            @if($default_discount_grade[$key] == $value['primary_id'])
+                            selected
+                            @endif
+
+                            @if($value['grade_num'] === 1)
+                            class="grade_1"
+                            @elseif($value['grade_num'] === 2)
+                            class="grade_2"
+                            @elseif($value['grade_num'] === 3)
+                            class="grade_3"
+                            @elseif($value['grade_num'] === 4)
+                            class="grade_4"
+                            @endif
+
+                            value="{{ $value['primary_id'] }}">{{ $value['code'] . ' ' . $value['name'] }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            @endforeach
         </div>
 
         <div>

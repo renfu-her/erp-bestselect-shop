@@ -116,8 +116,8 @@
                         <th scope="col">類型</th>
                         <th scope="col">SKU</th>
                         <th scope="col">倉庫名稱</th>
-                        <th scope="col">進貨數量</th>
-                        <th scope="col">實際庫存</th>
+                        <th scope="col">理貨倉庫存</th>
+                        <th scope="col">寄倉庫存</th>
                         <th scope="col">官網可售數量</th>
                         <!--<th scope="col">預扣庫存</th>-->
                         <th scope="col">安全庫存</th>
@@ -136,13 +136,9 @@
                             <td>{{ $data->type_title }}</td>
                             <td>{{ $data->sku }}</td>
                             <td>{{ $data->depot_name }}</td>
-                            <td>
-                                <!--<a href="{{ Route('cms.purchase.index', ['title' => $data->sku], true) }}">{{ $data->total_inbound }}</a>-->
-                                {{ $data->total_inbound_num }}
-                            </td>
                             <td>{{ $data->total_in_stock_num }}</td>
+                            <td>{{ $data->total_in_stock_num_csn }}</td>
                             <td>
-                                <!--<a href="{{ Route('cms.product.edit-stock', ['id' => $data->product_id, 'sid' => $data->id]) }}">{{ $data->in_stock }}</a>-->
                                 {{ $data->in_stock }}
                             </td>
                             <!--

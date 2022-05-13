@@ -31,7 +31,7 @@ final class DisCategory extends Helper
                 $result = '全館優惠';
                 break;
             case self::combine:
-                $result = '任選則扣';
+                $result = '任選折扣';
                 break;
             default:
                 $result = parent::getDescription($value);
