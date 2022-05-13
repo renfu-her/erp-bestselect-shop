@@ -174,17 +174,24 @@ class AccountReceivedCtrl extends Controller
             // 折扣
             if($value->order_discount_value > 0){
                 foreach(json_decode($value->order_discount) ?? [] as $d_value){
-                    $dis_account = AllGrade::find($d_value->discount_grade_id)->eachGrade;
-                    $name = $dis_account ? $dis_account->code . ' - ' . $dis_account->name : '4103 - 紅利折扣';
+                    $a_code = '4103';
+                    $a_name = '紅利折扣';
+
+                    if(AllGrade::find($d_value->discount_grade_id)){
+                        $a_code = AllGrade::find($d_value->discount_grade_id)->eachGrade->code;
+                        $a_name = AllGrade::find($d_value->discount_grade_id)->eachGrade->name;
+                    }
+
+                    $name = $a_code . ' - ' . $a_name;
 
                     $tmp = [
-                        'account_code'=>$dis_account->code,
+                        'account_code'=>$a_code,
                         'name'=>$name,
                         'price'=>$d_value->discount_value,
                         'type'=>'r',
                         'd_type'=>'discount',
 
-                        'account_name'=>$dis_account->name,
+                        'account_name'=>$a_name,
                         'method_name'=>null,
                         'note'=>null,
                         'product_title'=>null,
