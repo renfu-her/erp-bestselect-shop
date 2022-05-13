@@ -31,6 +31,11 @@ return
                 "controller_name" => "OrderCtrl",
                 "route_name" => "cms.order.index",
             ],
+            [
+                "title" => "出貨管理",
+                "controller_name" => "DeliveryCtrl",
+                "route_name" => "cms.delivery.index",
+            ],
         ],
     ],
     [
@@ -38,11 +43,6 @@ return
         "icon" => "bi-basket",
         "menu_id" => "9",
         "child" => [
-            [
-                "title" => "出貨管理",
-                "controller_name" => "DeliveryCtrl",
-                "route_name" => "cms.delivery.index",
-            ],
             [
                 "title" => "寄倉搜尋",
                 "controller_name" => "ConsignmentCtrl",
