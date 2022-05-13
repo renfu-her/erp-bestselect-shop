@@ -132,7 +132,7 @@ class ReceivedOrder extends Model
                         "discount_value":"\', COALESCE(discount_value, ""), \'"
                     }\' ORDER BY ord_discounts.id), \']\') AS discount_list
                 FROM ord_discounts
-                WHERE discount_value IS NOT NULL
+                WHERE discount_value IS NOT NULL AND order_type = "main"
                 GROUP BY order_id
                 ) AS v_table_3'), function ($join){
                     $join->on('v_table_3.order_id', '=', 'order.id');
