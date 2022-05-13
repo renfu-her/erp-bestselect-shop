@@ -26,18 +26,6 @@ class CreatePayableDefaultTable extends Migration
                 $tb->unsignedBigInteger('payable_default_fk')->nullable()->unique()->comment('付款單的會計科目預設值acc_payable_default foreign key');
             });
         });
-
-        Schema::table('acc_income_expenditure', function (Blueprint $table) {
-            $table->dropForeign(['acc_income_type_fk']);
-            $table->dropColumn('acc_income_type_fk');
-
-            $table->dropForeign(['acc_currency_fk']);
-            $table->dropColumn('acc_currency_fk');
-        });
-
-        Schema::dropIfExists('acc_grade_default');
-
-        Schema::dropIfExists('acc_income_expenditure');
     }
 
     /**

@@ -115,42 +115,28 @@ class IncomeExpenditureSeeder extends Seeder
             ]);
 
             // 收款單科目
-            ReceivedDefault::create([
-                'name' => 'cash',
-                'default_grade_id' => 18,
-            ]);
-            ReceivedDefault::create([
-                'name' => 'cheque',
-                'default_grade_id' => 21,
-            ]);
-            ReceivedDefault::create([
-                'name' => 'credit_card',
-                'default_grade_id' => 18,
-            ]);
-            ReceivedDefault::create([
-                'name' => 'remit',
-                'default_grade_id' => 113,
-            ]);
-            ReceivedDefault::create([
-                'name' => 'account_received',
-                'default_grade_id' => 129,
-            ]);
-            ReceivedDefault::create([
-                'name' => 'other',
-                'default_grade_id' => 122,
-            ]);
-            ReceivedDefault::create([
-                'name' => 'refund',
-                'default_grade_id' => 156,
-            ]);
+            $received = ReceivedMethod::asArray();
+            ksort($received);
+            $r_grade_id = [129, 18, 21, 18, 122, 156, 113];
+            $i = 0;
+            foreach($received as $r_value){
+                if($r_value != 'foreign_currency'){
+                    ReceivedDefault::create([
+                        'name' => $r_value,
+                        'default_grade_id' => $r_grade_id[$i],
+                    ]);
+                    $i++;
+                }
+            }
             ReceivedDefault::create([
                 'name' => 'product',
                 'default_grade_id' => 61,
             ]);
             ReceivedDefault::create([
                 'name' => 'logistics',
-                'default_grade_id' => 100,
+                'default_grade_id' => 74,
             ]);
+
             $discount_category = DisCategory::asArray();
             ksort($discount_category);
             foreach($discount_category as $dis_value){

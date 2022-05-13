@@ -118,27 +118,6 @@ class CreateIncomeExpenditureTable extends Migration
                 $table->timestamps();
         });
 
-        Schema::create('acc_income_expenditure', function (Blueprint $table) {
-            $table->id()->comment('收支科目設定');
-
-            $table->unsignedBigInteger('acc_income_type_fk')->default(null)->comment('入款方式, foreign key');
-            $table->foreign('acc_income_type_fk')->references('id')->on('acc_income_type');
-
-            $table->integer('grade_id_fk')->nullable()->comment('acc_all_grades table id');
-
-            $table->unsignedBigInteger('acc_currency_fk')->nullable()->unique()->default(null)->comment('外幣, foreign key');
-            $table->foreign('acc_currency_fk')->references('id')->on('acc_currency');
-
-            $table->timestamps();
-        });
-
-        Schema::create('acc_grade_default', function (Blueprint $table) {
-            $table->id()->comment('付款單的會計科目預設值');
-            $table->string('name')->comment('項目名稱，用來設計「預設會計科目」的項目，例如：商品存貨、物流費用');
-            $table->unsignedBigInteger('default_grade_id')->comment('會計科目預設值，對應到acc_all_grades table的primary key');
-            $table->timestamps();
-        });
-
         Schema::create('acc_received_default', function (Blueprint $table) {
             $table->id()->comment('收款單的會計科目預設值');
             $table->string('name')->comment('項目名稱，用來設計「預設會計科目」的項目，例如：信用卡、退貨');
@@ -156,16 +135,6 @@ class CreateIncomeExpenditureTable extends Migration
      */
     public function down()
     {
-        if (Schema::hasColumns('acc_income_expenditure', ['acc_currency_fk', 'acc_income_type_fk'])) {
-            Schema::table('acc_income_expenditure', function (Blueprint $table) {
-                    $table->dropForeign(['acc_income_type_fk']);
-                    $table->dropColumn('acc_income_type_fk');
-
-                    $table->dropForeign(['acc_currency_fk']);
-                    $table->dropColumn('acc_currency_fk');
-            });
-        }
-
         if (Schema::hasColumns('pcs_purchase_items', ['acc_currency_fk'])) {
             Schema::table('pcs_purchase_items', function (Blueprint $table) {
                 $table->dropForeign(['acc_currency_fk']);
@@ -180,7 +149,6 @@ class CreateIncomeExpenditureTable extends Migration
             });
         }
 
-        Schema::dropIfExists('acc_grade_default');
         Schema::dropIfExists('acc_received_default');
         Schema::dropIfExists('acc_payable_cash');
         Schema::dropIfExists('acc_payable_cheque');
@@ -191,6 +159,5 @@ class CreateIncomeExpenditureTable extends Migration
         Schema::dropIfExists('acc_payable');
         Schema::dropIfExists('acc_income_type');
         Schema::dropIfExists('acc_currency');
-        Schema::dropIfExists('acc_income_expenditure');
     }
 }
