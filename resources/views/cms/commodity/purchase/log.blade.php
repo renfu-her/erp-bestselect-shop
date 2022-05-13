@@ -27,7 +27,7 @@
                                      @elseif($data->feature == App\Enums\Purchase\LogEventFeature::style_del()->value){{$data->title}}
                                      @elseif($data->feature == App\Enums\Purchase\LogEventFeature::inbound_add()->value)@if(isset($data->qty)){{$data->title}} 數量:{{$data->qty}} @endif
                                      @elseif($data->feature == App\Enums\Purchase\LogEventFeature::inbound_del()->value)@if(isset($data->qty)){{$data->title}} 數量:{{$data->qty}} @endif
-                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::order_shipping()->value)@if(isset($data->qty)){{$data->title}} 數量:{{$data->qty}} @endif
+                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::delivery()->value)@if(isset($data->qty)){{$data->title}} 數量:{{$data->qty}} @endif
                                      @elseif($data->feature == App\Enums\Purchase\LogEventFeature::order_send_back()->value)@if(isset($data->qty)){{$data->title}} 數量:{{$data->qty}} @endif
                                      @elseif($data->feature == App\Enums\Purchase\LogEventFeature::consume_shipping()->value)@if(isset($data->qty)){{$data->title}} 數量:{{$data->qty}} @endif
                                      @elseif($data->feature == App\Enums\Purchase\LogEventFeature::consume_send_back()->value)@if(isset($data->qty)){{$data->title}} 數量:{{$data->qty}} @endif

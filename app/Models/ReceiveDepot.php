@@ -149,41 +149,46 @@ class ReceiveDepot extends Model
                 ) {
                     //判斷若為組合包商品 則需新建立一筆資料組合成組合包 並回寫新id
                     $queryComboElement = null;
-                    if (Event::order()->value == $delivery->event && 'pickup' == $delivery->ship_category) {
-                        $queryComboElement = DB::table('dlv_delivery as delivery')
-                            ->leftJoin('dlv_receive_depot as rcv_depot', 'rcv_depot.delivery_id', '=', 'delivery.id')
-                            ->leftJoin('ord_items as items', 'items.id', '=', 'rcv_depot.event_item_id')
-                            ->leftJoin('ord_sub_orders as sub_orders', function ($join) {
-                                $join->on('sub_orders.id', '=', 'items.sub_order_id');
-                                $join->on('sub_orders.order_id', 'items.order_id');
-                            })
-                            ->where('delivery.id', $delivery_id)
-                            ->where('delivery.event', Event::order()->value)
-                            ->where('rcv_depot.prd_type', 'ce')
-                            ->where('sub_orders.ship_category', 'pickup')
-                            ->whereNull('delivery.deleted_at')
-                            ->whereNull('delivery.deleted_at')
-                            ->select(
-                                'rcv_depot.delivery_id'
-                                , 'rcv_depot.event_item_id'
-                                , DB::raw('min(rcv_depot.expiry_date) as expiry_date')
-                                , 'items.product_style_id'
-                                , 'items.product_title as title'
-                                , 'rcv_depot.type as prd_type'
-                                , 'items.sku'
-                                , 'items.qty as num'
-                                , 'rcv_depot.depot_id as depot_id'
-                                , 'rcv_depot.depot_name as depot_name'
-                            )
-                            ->groupBy('rcv_depot.delivery_id')
-                            ->groupBy('rcv_depot.event_item_id')
-                            ->groupBy('items.product_style_id')
-                            ->groupBy('items.product_title')
-                            ->groupBy('rcv_depot.type')
-                            ->groupBy('items.sku')
-                            ->groupBy('rcv_depot.depot_id')
-                            ->groupBy('rcv_depot.depot_name')
-                            ->get();
+                    if (Event::order()->value == $delivery->event) {
+                        if ('deliver' == $delivery->ship_category) {
+
+                        } else if ('pickup' == $delivery->ship_category) {
+                            $event = 'ord_pickup';
+                            $queryComboElement = DB::table('dlv_delivery as delivery')
+                                ->leftJoin('dlv_receive_depot as rcv_depot', 'rcv_depot.delivery_id', '=', 'delivery.id')
+                                ->leftJoin('ord_items as items', 'items.id', '=', 'rcv_depot.event_item_id')
+                                ->leftJoin('ord_sub_orders as sub_orders', function ($join) {
+                                    $join->on('sub_orders.id', '=', 'items.sub_order_id');
+                                    $join->on('sub_orders.order_id', 'items.order_id');
+                                })
+                                ->where('delivery.id', $delivery_id)
+                                ->where('delivery.event', Event::order()->value)
+                                ->where('rcv_depot.prd_type', 'ce')
+                                ->where('sub_orders.ship_category', 'pickup')
+                                ->whereNull('delivery.deleted_at')
+                                ->whereNull('delivery.deleted_at')
+                                ->select(
+                                    'rcv_depot.delivery_id'
+                                    , 'rcv_depot.event_item_id'
+                                    , DB::raw('min(rcv_depot.expiry_date) as expiry_date')
+                                    , 'items.product_style_id'
+                                    , 'items.product_title as title'
+                                    , 'rcv_depot.type as prd_type'
+                                    , 'items.sku'
+                                    , 'items.qty as num'
+                                    , 'rcv_depot.depot_id as depot_id'
+                                    , 'rcv_depot.depot_name as depot_name'
+                                )
+                                ->groupBy('rcv_depot.delivery_id')
+                                ->groupBy('rcv_depot.event_item_id')
+                                ->groupBy('items.product_style_id')
+                                ->groupBy('items.product_title')
+                                ->groupBy('rcv_depot.type')
+                                ->groupBy('items.sku')
+                                ->groupBy('rcv_depot.depot_id')
+                                ->groupBy('rcv_depot.depot_name')
+                                ->get();
+                        }
                     }
                     if (Event::consignment()->value == $delivery->event) {
                         $queryComboElement = DB::table('dlv_delivery as delivery')
@@ -255,7 +260,7 @@ class ReceiveDepot extends Model
 
                     //扣除入庫單庫存
                     foreach ($rcvDepotGet as $item) {
-                        $reShipIb = PurchaseInbound::shippingInbound($event, $event_id, LogEventFeature::order_shipping()->value, $item->inbound_id, $item->qty);
+                        $reShipIb = PurchaseInbound::shippingInbound($event, $event_id, LogEventFeature::delivery()->value, $item->inbound_id, $item->qty);
                         if ($reShipIb['success'] == 0) {
                             DB::rollBack();
                             return $reShipIb;

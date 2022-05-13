@@ -27,7 +27,7 @@ final class LogEventFeature extends Enum
     const inbound_add = 'inbound_add';
     const inbound_del = 'inbound_del';
 
-    const order_shipping = 'order_shipping';
+    const delivery = 'delivery';
     const order_send_back = 'order_send_back';
     const consume_shipping = 'consume_shipping';
     const consume_send_back = 'consume_send_back';
@@ -82,7 +82,7 @@ final class LogEventFeature extends Enum
             case self::inbound_del:
                 $result = '刪除入庫';
                 break;
-            case self::order_shipping:
+            case self::delivery:
                 $result = '訂單出貨';
                 break;
             case self::order_send_back:

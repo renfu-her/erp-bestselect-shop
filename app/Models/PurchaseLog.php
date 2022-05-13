@@ -15,7 +15,7 @@ class PurchaseLog extends Model
     protected $table = 'pcs_purchase_log';
     protected $guarded = [];
 
-    public static function stockChange($event_parent_id, $product_style_id, $event, $event_id, $feature, $qty, $note = null, $operator_user_id, $operator_user_name)
+    public static function stockChange($event_parent_id, $product_style_id, $event, $event_id, $feature, $inbound_id = null, $qty, $note = null, $operator_user_id, $operator_user_name)
     {
         if (!Event::hasKey($event)) {
             return ['success' => 0, 'error_msg' => 'event error '.$event];

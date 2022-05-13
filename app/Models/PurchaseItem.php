@@ -41,7 +41,7 @@ class PurchaseItem extends Model
                     "memo" => $newData['memo']?? null
                 ])->id;
 
-                $rePcsLSC = PurchaseLog::stockChange($newData['purchase_id'], $newData['product_style_id'], Event::purchase()->value, $id, LogEventFeature::style_add()->value, $newData['num'], null, $operator_user_id, $operator_user_name);
+                $rePcsLSC = PurchaseLog::stockChange($newData['purchase_id'], $newData['product_style_id'], Event::purchase()->value, $id, LogEventFeature::style_add()->value, null, $newData['num'], null, $operator_user_id, $operator_user_name);
 
                 if ($rePcsLSC['success'] == 0) {
                     DB::rollBack();
@@ -84,7 +84,7 @@ class PurchaseItem extends Model
                     if ('' != $event && null != $logEventFeature) {
                         $rePcsLSC = PurchaseLog::stockChange($purchaseItem->purchase_id, $purchaseItem->product_style_id
                             , Event::purchase()->value, $itemId
-                            , $logEventFeature, $dirtyval, $event
+                            , $logEventFeature, null, $dirtyval, $event
                             , $operator_user_id, $operator_user_name);
                         if ($rePcsLSC['success'] == 0) {
                             DB::rollBack();
