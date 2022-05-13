@@ -321,6 +321,16 @@
                 moveOpt: moveOpt
             });
             bindSortableMove($('#mediaSettings .upload_image_block > .sortabled'), moveOpt);
+
+            //若為組合包商品 不可勾選屬於耗材
+            $( 'input[name="type"]' ).change(function() {
+                let bool = $( 'input[name="type"]' ).prop("checked");
+                if (false == bool) {
+                    $( 'input[name="consume"]' ).prop('checked', false).prop('disabled', true);
+                } else {
+                    $( 'input[name="consume"]' ).prop('disabled', false);
+                }
+            });
         </script>
     @endpush
 @endOnce

@@ -157,6 +157,7 @@ $(function () {
                 <th class="text-center">
                     <input class="form-check-input" type="checkbox" ${checked}
                         value="${ib.inbound_id}" data-td="ib_id" aria-label="選取入庫單">
+                    <input type="hidden" name="prd_type" value="${ib.prd_type}">
                 </th>
                 <td data-td="sn">${ib.inbound_sn}</td>
                 <td data-td="depot">${ib.depot_name}</td>

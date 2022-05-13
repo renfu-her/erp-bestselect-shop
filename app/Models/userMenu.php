@@ -31,15 +31,32 @@ return
                 "controller_name" => "OrderCtrl",
                 "route_name" => "cms.order.index",
             ],
+        ],
+    ],
+    [
+        "title" => "寄倉管理",
+        "icon" => "bi-basket",
+        "menu_id" => "9",
+        "child" => [
             [
                 "title" => "出貨管理",
                 "controller_name" => "DeliveryCtrl",
                 "route_name" => "cms.delivery.index",
             ],
             [
-                "title" => "寄倉管理",
+                "title" => "寄倉搜尋",
                 "controller_name" => "ConsignmentCtrl",
                 "route_name" => "cms.consignment.index",
+            ],
+            [
+                "title" => "寄倉訂購",
+                "controller_name" => "ConsignmentCtrl",
+                "route_name" => "cms.consignment.orderlist",
+            ],
+            [
+                "title" => "寄倉庫存",
+                "controller_name" => "ConsignmentCtrl",
+                "route_name" => "cms.consignment.stock",
             ],
         ],
     ],

@@ -111,6 +111,7 @@
                                 <input type="hidden" name="item_id[]" value="">
                                 <input type="hidden" name="product_style_id[]" value="">
                                 <input type="hidden" name="name[]" value="">
+                                <input type="hidden" name="prd_type[]" value="">
                                 <input type="hidden" name="sku[]" value="">
                                 <input type="hidden" name="price[]" value="">
                             </th>
@@ -132,6 +133,7 @@
                                     <input type="hidden" name="item_id[]" value="{{ old('item_id.'. $psItemKey, $psItemVal->id?? '') }}">
                                     <input type="hidden" name="product_style_id[]" value="{{ old('product_style_id.'. $psItemKey, $psItemVal->product_style_id?? '') }}">
                                     <input type="hidden" name="name[]" value="{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}">
+                                    <input type="hidden" name="prd_type[]" value="{{ old('prd_type.'. $psItemKey, $psItemVal->prd_type?? '') }}">
                                     <input type="hidden" name="sku[]" value="{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}">
                                     <input type="hidden" name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}">
                                 </th>
@@ -353,7 +355,7 @@
             function getProductList(page) {
                 let _URL = `${Laravel.apiUrl.selectProductList}?page=${page}`;
                 let Data = {
-                    product_type: 'p',
+                    // product_type: 'p',
                     send_depot_id: $('input:hidden[name="send_depot_id"]').val(),
                     receive_depot_id: $('input:hidden[name="receive_depot_id"]').val()
                 };
@@ -410,6 +412,7 @@
                                     value="${p.id}" data-td="p_id" aria-label="選取商品">
                             </th>
                             <td data-td="name">${p.product_title}</td>
+                            <td data-td="prd_type">${p.prd_type}</td>
                             <td data-td="spec">${p.spec || ''}</td>
                             <td data-td="sku">${p.sku}</td>
                             <td>${p.total_in_stock_num}</td>
@@ -432,6 +435,7 @@
                             selectedProduct.push({
                                 id: $(element).val(),
                                 name: $(element).parent('th').siblings('[data-td="name"]').text(),
+                                prd_type: $(element).parent('th').siblings('[data-td="prd_type"]').text(),
                                 sku: sku,
                                 spec: $(element).parent('th').siblings('[data-td="spec"]').text(),
                                 price: $(element).parent('th').siblings('[data-td="price"]').text()
@@ -473,6 +477,7 @@
                         if (p) {
                             cloneElem.find('input[name="product_style_id[]"]').val(p.id);
                             cloneElem.find('input[name="name[]"]').val(`${p.name}-${p.spec}`);
+                            cloneElem.find('input[name="prd_type[]"]').val(p.prd_type);
                             cloneElem.find('input[name="sku[]"]').val(p.sku);
                             cloneElem.find('input[name="price[]"]').val(p.price);
                             cloneElem.find('td[data-td="name"]').text(`${p.name}-${p.spec}`);
