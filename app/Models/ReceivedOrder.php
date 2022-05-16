@@ -16,7 +16,7 @@ class ReceivedOrder extends Model
 {
     use HasFactory,SoftDeletes;
 
-    protected $table = 'pcs_received_orders';
+    protected $table = 'ord_received_orders';
     protected $guarded = [];
 
 
@@ -77,7 +77,7 @@ class ReceivedOrder extends Model
         $received_date = null,
         $check_review = 'all'
     ){
-        $received_order = DB::table('pcs_received_orders as ro')
+        $received_order = DB::table('ord_received_orders as ro')
             ->leftJoin('ord_orders as order', 'order.id', '=', 'ro.order_id')
             ->leftJoin('usr_customers as customer', 'customer.email', '=', 'order.email')
             ->leftJoin('usr_users as user', 'user.id', '=', 'ro.usr_users_id')

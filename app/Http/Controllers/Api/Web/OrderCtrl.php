@@ -70,7 +70,7 @@ class OrderCtrl extends Controller
         $order = DB::table('ord_orders as order')
             ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
             ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id')
-            ->leftJoin('pcs_received_orders as received', 'received.order_id', '=', 'order.id')
+            ->leftJoin('ord_received_orders as received', 'received.order_id', '=', 'order.id')
             ->select([
                 'order.id',
                 'order.sn',
@@ -186,7 +186,7 @@ class OrderCtrl extends Controller
         $order = DB::table('ord_orders as order')
             ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
             ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id')
-            ->leftJoin('pcs_received_orders as received', 'received.order_id', '=', 'order.id')
+            ->leftJoin('ord_received_orders as received', 'received.order_id', '=', 'order.id')
             ->join('ord_payment_credit_card_log as cc_log', 'cc_log.order_id', '=', 'order.id')
             ->select([
                 'order.id',
