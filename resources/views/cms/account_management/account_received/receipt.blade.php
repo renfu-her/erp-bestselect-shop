@@ -110,23 +110,27 @@
                                 <td>{{ $received_order->memo }}</td>
                             </tr>
                         @endforeach
+
                         @if($order->dlv_fee > 0)
                             <tr>
-                                <td>{{ $logistics_grade_name }} --- 物流費用</td>
-                                <td></td>
+                                <td>{{ $logistics_grade_name }}</td>
+                                <td>1</td>
                                 <td>{{ number_format($order->dlv_fee, 2) }}</td>
                                 <td>{{ number_format($order->dlv_fee) }}</td>
                                 <td>{{ $received_order->memo }}</td>
                             </tr>
                         @endif
+
                         @if($order->discount_value > 0)
+                        @foreach($order_discount ?? [] as $d_value)
                             <tr>
-                                <td>這裡是會計科目 - 折扣</td>
+                                <td>{{ $d_value->account_code }} - {{ $d_value->account_name }} - {{ $d_value->title }}</td>
                                 <td>1</td>
-                                <td>-{{ number_format($order->discount_value, 2) }}</td>
-                                <td>-{{ number_format($order->discount_value) }}</td>
-                                <td>{{$received_order->memo}}</td>
+                                <td>-{{ number_format($d_value->discount_value, 2) }}</td>
+                                <td>-{{ number_format($d_value->discount_value) }}</td>
+                                <td>{{ $received_order->memo }}</td>
                             </tr>
+                        @endforeach
                         @endif
 
                         <tr class="table-light">

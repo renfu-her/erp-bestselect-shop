@@ -127,7 +127,7 @@ class AccountReceivedCtrl extends Controller
             $account_name = $product_account ? $product_account->name : '無設定會計科目';
             $product_name = $account_code . ' - ' . $account_name;
             foreach(json_decode($value->order_item) as $o_value){
-                $name = $product_name . '---' . $o_value->product_title . '（' . $o_value->price . ' * ' . $o_value->qty . '）';
+                $name = $product_name . ' --- ' . $o_value->product_title . '（' . $o_value->price . ' * ' . $o_value->qty . '）';
 
                 $tmp = [
                     'account_code'=>$account_code,
@@ -487,9 +487,20 @@ class AccountReceivedCtrl extends Controller
         $product_grade_name = AllGrade::find($received_order_collection->first()->product_grade_id)->eachGrade->code . ' - ' . AllGrade::find($received_order_collection->first()->product_grade_id)->eachGrade->name;
         $logistics_grade_name = AllGrade::find($received_order_collection->first()->logistics_grade_id)->eachGrade->code . ' - ' . AllGrade::find($received_order_collection->first()->logistics_grade_id)->eachGrade->name;
 
+        $order_discount = DB::table('ord_discounts')->where([
+                'order_type'=>'main',
+                'order_id'=>request('id'),
+            ])->whereNotNull('discount_value')->get()->toArray();
+
+        foreach($order_discount as $value){
+            $value->account_code = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->code : '4000';
+            $value->account_name = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->name : '無設定會計科目';
+        }
+
         return view('cms.account_management.account_received.receipt', [
             'received_order'=>$received_order_collection->first(),
             'order'=>$order,
+            'order_discount'=>$order_discount,
             'order_list_data' => $order_list_data,
             'received_data' => $received_data,
             'order_purchaser' => $order_purchaser,
@@ -597,25 +608,23 @@ class AccountReceivedCtrl extends Controller
                     GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }
 
-                $product_grade_name = AllGrade::find($received_order->product_grade_id)->eachGrade->code . ' - ' . AllGrade::find($received_order->product_grade_id)->eachGrade->name;
-                // $product_master_account = FirstGrade::find(AllGrade::find($received_order->product_grade_id)->eachGrade->code[0]);
-
-                $logistics_grade_name = AllGrade::find($received_order->logistics_grade_id)->eachGrade->code . ' - ' . AllGrade::find($received_order->logistics_grade_id)->eachGrade->name;
-                // $logistics_master_account = FirstGrade::find(AllGrade::find($received_order->logistics_grade_id)->eachGrade->code[0]);
-
+                // 商品
+                $product_account = AllGrade::find($received_order->product_grade_id) ? AllGrade::find($received_order->product_grade_id)->eachGrade : null;
+                $account_code = $product_account ? $product_account->code : '4000';
+                $account_name = $product_account ? $product_account->name : '無設定會計科目';
+                $product_grade_name = $account_code . ' - ' . $account_name;
                 foreach($order_list_data as $value){
-                    // 商品
-                    $name = $product_grade_name . '---' . $value->product_title . '（' . $value->del_even . ' - ' . $value->del_category_name . '）（' . $value->product_price . ' * ' . $value->product_qty . '）';
+                    $name = $product_grade_name . ' --- ' . $value->product_title . '（' . $value->del_even . ' - ' . $value->del_category_name . '）（' . $value->product_price . ' * ' . $value->product_qty . '）';
                     // GeneralLedger::classification_processing($debit, $credit, $product_master_account->code, $name, $value->product_origin_price, 'r', 'product');
 
                     $tmp = [
-                        'account_code'=>AllGrade::find($received_order->product_grade_id)->eachGrade->code,
+                        'account_code'=>$account_code,
                         'name'=>$name,
                         'price'=>$value->product_origin_price,
                         'type'=>'r',
                         'd_type'=>'product',
 
-                        'account_name'=>AllGrade::find($received_order->product_grade_id)->eachGrade->name,
+                        'account_name'=>$account_name,
                         'method_name'=>null,
                         'note'=>$value->note,
                         'product_title'=>$value->product_title,
@@ -628,19 +637,23 @@ class AccountReceivedCtrl extends Controller
                     GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }
 
+                // 物流
                 if($order->dlv_fee <> 0){
-                    // 物流費用
-                    $name = $logistics_grade_name;
+                    $log_account = AllGrade::find($received_order->logistics_grade_id) ? AllGrade::find($received_order->logistics_grade_id)->eachGrade : null;
+                    $account_code = $log_account ? $log_account->code : '4000';
+                    $account_name = $log_account ? $log_account->name : '無設定會計科目';
+                    // $name = $logistics_grade_name = $account_code . ' - ' . $account_name;
+                    $name = $account_code . ' - ' . $account_name;
                     // GeneralLedger::classification_processing($debit, $credit, $logistics_master_account->code, $name, $order->dlv_fee, 'r', 'logistics');
 
                     $tmp = [
-                        'account_code'=>AllGrade::find($received_order->logistics_grade_id)->eachGrade->code,
+                        'account_code'=>$account_code,
                         'name'=>$name,
                         'price'=>$order->dlv_fee,
                         'type'=>'r',
                         'd_type'=>'logistics',
 
-                        'account_name'=>AllGrade::find($received_order->logistics_grade_id)->eachGrade->name,
+                        'account_name'=>$account_name,
                         'method_name'=>null,
                         'note'=>null,
                         'product_title'=>null,
@@ -653,29 +666,39 @@ class AccountReceivedCtrl extends Controller
                     GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }
 
+                // 折扣
                 if($order->discount_value > 0){
-                    // 折扣
-                    $name = '4103 - 紅利折扣';
-                    // GeneralLedger::classification_processing($debit, $credit, 4, $name, $order->discount_value, 'r', 'discount');
+                    $order_discount = DB::table('ord_discounts')->where([
+                        'order_type'=>'main',
+                        'order_id'=>request('id'),
+                    ])->whereNotNull('discount_value')->get()->toArray();
 
-                    $tmp = [
-                        'account_code'=>'4103',
-                        'name'=>$name,
-                        'price'=>$order->discount_value,
-                        'type'=>'r',
-                        'd_type'=>'discount',
+                    foreach($order_discount as $value){
+                        $dis_account = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade : null;
+                        $account_code = $dis_account ? $dis_account->code : '4000';
+                        $account_name = $dis_account ? $dis_account->name : '無設定會計科目';
+                        $name = $account_code . ' - ' . $account_name . ' - ' . $value->title;
+                        // GeneralLedger::classification_processing($debit, $credit, 4, $name, $order->discount_value, 'r', 'discount');
 
-                        'account_name'=>'紅利折扣',
-                        'method_name'=>null,
-                        'note'=>null,
-                        'product_title'=>null,
-                        'del_even'=>null,
-                        'del_category_name'=>null,
-                        'product_price'=>null,
-                        'product_qty'=>null,
-                        'discount_title'=>null,
-                    ];
-                    GeneralLedger::classification_processing($debit, $credit, $tmp);
+                        $tmp = [
+                            'account_code'=>$account_code,
+                            'name'=>$name,
+                            'price'=>$value->discount_value,
+                            'type'=>'r',
+                            'd_type'=>'discount',
+
+                            'account_name'=>$account_name,
+                            'method_name'=>null,
+                            'note'=>null,
+                            'product_title'=>null,
+                            'del_even'=>null,
+                            'del_category_name'=>null,
+                            'product_price'=>null,
+                            'product_qty'=>null,
+                            'discount_title'=>$value->title,
+                        ];
+                        GeneralLedger::classification_processing($debit, $credit, $tmp);
+                    }
                 }
 
                 return view('cms.account_management.account_received.review', [
@@ -686,7 +709,7 @@ class AccountReceivedCtrl extends Controller
                     'received_data'=>$received_data,
                     'undertaker'=>$undertaker,
                     'product_grade_name'=>$product_grade_name,
-                    'logistics_grade_name'=>$logistics_grade_name,
+                    // 'logistics_grade_name'=>$logistics_grade_name,
                     'debit'=>$debit,
                     'credit'=>$credit,
 
