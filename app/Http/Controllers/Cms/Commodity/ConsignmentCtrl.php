@@ -475,9 +475,9 @@ class ConsignmentCtrl extends Controller
         ]);
     }
 
-    //寄倉訂購
+    //寄倉訂購列表
     public function orderlist(Request $request) {
-        return view('cms.commodity.consignment.order', [
+        return view('cms.commodity.consignment.orderlist', [
         ]);
     }
 
@@ -545,5 +545,12 @@ class ConsignmentCtrl extends Controller
             , 'depot_id' => $depot_id
         ]);
     }
+
+    //寄倉訂購
+    public function order(Request $request) {
+        return view('cms.commodity.consignment.order', [
+        ]);
+    }
+
 }
 
