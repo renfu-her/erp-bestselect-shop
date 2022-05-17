@@ -374,9 +374,12 @@ class Discount extends Model
                 $disc = "optional";
                 break;
         }
-
         $discount_grade_id = null;
-        
+        $receivedDefault = ReceivedDefault::where('name', $disCategory)->get()->first();
+        if ($receivedDefault->default_grade_id) {
+            $discount_grade_id = $receivedDefault->default_grade_id;
+        }
+
         $data = [
             'title' => $title,
             'discount_grade_id' => $discount_grade_id,
