@@ -39,7 +39,8 @@
                         <div class="form-check">
                             <label class="form-check-label">
                                 <input class="form-check-input" value="1" name="consume" type="checkbox"
-                                    @if (old('consume', $product->consume ?? 0)) checked @endif>
+                                       @if (old('consume', $product->consume ?? 0)) checked @endif
+                                       @if (old('type', $product->type ?? '') == 'c') disabled @endif>
                                 屬於耗材 <span class="text-danger">*</span>
                             </label>
                             <i class="bi bi-question-circle" data-bs-toggle="tooltip" title="若屬於耗材請打勾"></i>
