@@ -83,7 +83,7 @@ final class LogEventFeature extends Enum
                 $result = '刪除入庫';
                 break;
             case self::delivery:
-                $result = '訂單出貨';
+                $result = '出貨';
                 break;
             case self::order_send_back:
                 $result = '訂單退回';
