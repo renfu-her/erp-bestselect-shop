@@ -375,10 +375,6 @@ class Discount extends Model
                 break;
         }
         $discount_grade_id = null;
-        $receivedDefault = ReceivedDefault::where('name', $disCategory)->get()->first();
-        if ($receivedDefault->default_grade_id) {
-            $discount_grade_id = $receivedDefault->default_grade_id;
-        }
 
         $data = [
             'title' => $title,
@@ -485,6 +481,13 @@ class Discount extends Model
             $category = $n->category_code;
             $method = $n->method_code;
 
+            $discount_grade_id = null;
+            $receivedDefault = ReceivedDefault::where('name', $n->category_code)->get()->first();
+
+            if ($receivedDefault) {
+                $discount_grade_id = $receivedDefault->default_grade_id;
+            }
+
             $d = [
                 'order_type' => $type,
                 'order_id' => $order_id,
@@ -497,7 +500,7 @@ class Discount extends Model
                 'method_code' => $n->method_code,
                 'discount_value' => isset($n->currentDiscount) ? $n->currentDiscount : null,
                 'is_grand_total' => $n->is_grand_total,
-                'discount_grade_id' => $n->discount_grade_id,
+                'discount_grade_id' => $discount_grade_id,
                 'sub_order_id' => $sub_order_id,
                 'order_item_id' => $order_item_id,
             ];
