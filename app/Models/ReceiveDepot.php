@@ -173,7 +173,7 @@ class ReceiveDepot extends Model
                                     , DB::raw('min(rcv_depot.expiry_date) as expiry_date')
                                     , 'items.product_style_id'
                                     , 'items.product_title as title'
-                                    , 'rcv_depot.type as prd_type'
+                                    , 'rcv_depot.prd_type as prd_type'
                                     , 'items.sku'
                                     , 'items.qty as num'
                                     , 'rcv_depot.depot_id as depot_id'
@@ -183,7 +183,7 @@ class ReceiveDepot extends Model
                                 ->groupBy('rcv_depot.event_item_id')
                                 ->groupBy('items.product_style_id')
                                 ->groupBy('items.product_title')
-                                ->groupBy('rcv_depot.type')
+                                ->groupBy('rcv_depot.prd_type')
                                 ->groupBy('items.sku')
                                 ->groupBy('rcv_depot.depot_id')
                                 ->groupBy('rcv_depot.depot_name')

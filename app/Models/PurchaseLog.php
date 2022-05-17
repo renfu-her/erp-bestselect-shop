@@ -25,13 +25,14 @@ class PurchaseLog extends Model
             return ['success' => 0, 'error_msg' => 'feature error '. $feature];
         }
 
-        return DB::transaction(function () use ($event_parent_id, $product_style_id, $event, $event_id, $feature, $qty, $note, $operator_user_id, $operator_user_name) {
+        return DB::transaction(function () use ($event_parent_id, $product_style_id, $event, $event_id, $feature, $inbound_id, $qty, $note, $operator_user_id, $operator_user_name) {
             self::create([
                 'event_parent_id' => $event_parent_id,
                 'product_style_id' => $product_style_id,
                 'event' => $event,
                 'event_id' => $event_id,
                 'feature' => $feature,
+                'inbound_id' => $inbound_id,
                 'qty' => $qty,
                 'note' => $note,
                 'user_id' => $operator_user_id,

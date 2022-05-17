@@ -201,7 +201,7 @@ class PurchaseInbound extends Model
                 } else {
                     $update_arr = [];
 
-                    if (Event::order()->value == $event) {
+                    if (Event::order()->value == $event || Event::ord_pickup()->value == $event) {
                         if (LogEventFeature::delivery()->value == $feature) {
                             $update_arr['sale_num'] = DB::raw("sale_num + $sale_num");
                         }
@@ -224,7 +224,7 @@ class PurchaseInbound extends Model
 
                     PurchaseInbound::where('id', $id)
                         ->update($update_arr);
-                    $reStockChange =PurchaseLog::stockChange($event_parent_id, $inboundDataGet->product_style_id, $event, $event_id, $inboundDataGet->event_item_id, $feature, $id, $sale_num, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
+                    $reStockChange =PurchaseLog::stockChange($event_parent_id, $inboundDataGet->product_style_id, $event, $event_id, $feature, $id, $sale_num, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
                     if ($reStockChange['success'] == 0) {
                         DB::rollBack();
                         return $reStockChange;
