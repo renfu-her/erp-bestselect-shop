@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Cms\Commodity;
 
 use App\Http\Controllers\Controller;
+use App\Models\CustomerCoupon;
 use App\Models\Discount;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -20,7 +21,7 @@ class DiscountCtrl extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'E01',
-                'message' => $validator->messages(),
+                'message' => $validator->errors(),
             ]);
         }
 
@@ -48,7 +49,7 @@ class DiscountCtrl extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'E01',
-                'message' => $validator->messages(),
+                'message' => $validator->errors(),
             ]);
         }
         Discount::where('id', $request->input('id'))->update(['active' => $request->input('active')]);
@@ -69,7 +70,7 @@ class DiscountCtrl extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'E01',
-                'message' => $validator->messages(),
+                'message' => $validator->errors(),
             ]);
         }
 
@@ -89,7 +90,7 @@ class DiscountCtrl extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'E01',
-                'message' => $validator->messages(),
+                'message' => $validator->errors(),
             ]);
         }
         $d = $request->all();
@@ -107,6 +108,28 @@ class DiscountCtrl extends Controller
                 'message' => $re['message'],
             ]);
         }
+
+    }
+
+    public static function getCoupons(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'customer_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'E01',
+                'message' => $validator->errors(),
+            ]);
+        }
+
+        $customer_id = $request->input('customer_id');
+
+        return response()->json([
+            'status' => '0',
+            'data' => CustomerCoupon::getList($customer_id)->get(),
+        ]);
 
     }
 

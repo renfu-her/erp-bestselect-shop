@@ -3,8 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\SaleChannel;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+
 
 class SaleChannelSeeder extends Seeder
 {
@@ -88,6 +90,9 @@ class SaleChannelSeeder extends Seeder
         SaleChannel::changePrice(1, 1, 90, 120, 130, 5, 10);
         SaleChannel::changePrice(1, 4, 180, 230, 250, 5, 10);
         SaleChannel::changePrice(1, 5, 185, 235, 255, 5, 10);
+
+        User::customerBinding(6, 'hsihung08079@gmail.com');
+        User::customerBinding(1, 'hayashi0126@gmail.com');
 
     }
 }

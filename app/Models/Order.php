@@ -267,8 +267,8 @@ class Order extends Model
             }
 
             $order_id = self::create($updateData)->id;
-
-            Discount::createOrderDiscount('main', $order_id, $order['discounts']);
+            $customer = Customer::where('email', $email)->get()->first();
+            Discount::createOrderDiscount('main', $order_id, $customer, $order['discounts']);
 
             foreach ($address as $key => $user) {
 
@@ -365,7 +365,7 @@ class Order extends Model
                         'img_url' => $product->img_url,
                     ]);
 
-                    Discount::createOrderDiscount('item', $order_id, $product->discounts, $subOrderId, $pid);
+                    Discount::createOrderDiscount('item', $order_id, $customer, $product->discounts, $subOrderId, $pid);
 
                 }
 

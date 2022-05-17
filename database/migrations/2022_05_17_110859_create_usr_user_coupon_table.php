@@ -13,8 +13,11 @@ class CreateUsrUserCouponTable extends Migration
      */
     public function up()
     {
-        Schema::create('usr_user_coupon', function (Blueprint $table) {
+        Schema::create('usr_customer_coupon', function (Blueprint $table) {
             $table->id();
+            $table->integer('customer_id')->comment('會員id');
+            $table->integer('discount_id')->comment('優惠券id');
+            $table->tinyInteger('used')->default(0)->comment('是否使用過');
             $table->timestamps();
         });
     }
@@ -26,6 +29,6 @@ class CreateUsrUserCouponTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('usr_user_coupon');
+        Schema::dropIfExists('usr_customer_coupon');
     }
 }

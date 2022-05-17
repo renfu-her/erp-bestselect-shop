@@ -17,7 +17,7 @@ class Discount extends Model
     protected $table = 'dis_discounts';
     protected $guarded = [];
 
-    private static function _discountStatus()
+    public static function _discountStatus()
     {
         $now = date('Y-m-d H:i:s');
 
@@ -472,7 +472,7 @@ class Discount extends Model
         DB::table('dis_discount_collection')->where('discount_id', $id)->delete();
     }
 
-    public static function createOrderDiscount($type, $order_id, $datas = [], $sub_order_id = null, $order_item_id = null)
+    public static function createOrderDiscount($type, $order_id, $customer, $datas = [], $sub_order_id = null, $order_item_id = null)
     {
 
         // dd($datas);
@@ -481,7 +481,7 @@ class Discount extends Model
             return;
         }
 
-        DB::table('ord_discounts')->insert(array_map(function ($n) use ($type, $order_id, $sub_order_id, $order_item_id) {
+        DB::table('ord_discounts')->insert(array_map(function ($n) use ($type, $order_id, $sub_order_id, $order_item_id, $customer) {
             $category = $n->category_code;
             $method = $n->method_code;
 
@@ -506,6 +506,10 @@ class Discount extends Model
                 case DisCategory::coupon()->value:
                     $d['extra_title'] = $n->coupon_title;
                     $d['extra_id'] = $n->coupon_id;
+                    CustomerCoupon::create([
+                        'customer_id' => $customer->id,
+                        'discount_id' => $n->coupon_id,
+                    ]);
                     break;
 
                 default:
