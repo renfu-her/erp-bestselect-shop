@@ -160,7 +160,7 @@ class PurchaseInbound extends Model
                         DB::rollBack();
                         return $rePcsItemUAN;
                     }
-                    $rePcsLSC = PurchaseLog::stockChange($inboundDataGet->event_id, $inboundDataGet->product_style_id, $event, $purchaseData->id, LogEventFeature::inbound_del()->value, $id, $qty, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
+                    $rePcsLSC = PurchaseLog::stockChange($purchaseData->id, $inboundDataGet->product_style_id, $event, $inboundDataGet->event_id, LogEventFeature::inbound_del()->value, $id, $qty, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
                     if ($rePcsLSC['success'] == 0) {
                         DB::rollBack();
                         return $rePcsLSC;
@@ -180,10 +180,11 @@ class PurchaseInbound extends Model
     }
 
     //售出 更新資料
-    public static function shippingInbound($event, $event_id, $feature, $id, $sale_num = 0)
+    public static function shippingInbound($event, $event_parent_id, $event_id, $feature, $id, $sale_num = 0)
     {
         return DB::transaction(function () use (
             $event,
+            $event_parent_id,
             $event_id,
             $feature,
             $id,
@@ -223,7 +224,7 @@ class PurchaseInbound extends Model
 
                     PurchaseInbound::where('id', $id)
                         ->update($update_arr);
-                    $reStockChange =PurchaseLog::stockChange($event_id, $inboundDataGet->product_style_id, $event, $inboundDataGet->event_item_id, $feature, $id, $sale_num, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
+                    $reStockChange =PurchaseLog::stockChange($event_parent_id, $inboundDataGet->product_style_id, $event, $event_id, $inboundDataGet->event_item_id, $feature, $id, $sale_num, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
                     if ($reStockChange['success'] == 0) {
                         DB::rollBack();
                         return $reStockChange;
@@ -682,7 +683,21 @@ class PurchaseInbound extends Model
                     ->where('ib_csn.event', Event::consignment()->value)
                     ->where('ib_csn.product_type', 'p');
             })
-            ->select('ib_purchase.*', 'ib_csn.total_in_stock_num as total_in_stock_num_csn');
+            ->select('ib_purchase.product_style_id'
+                , 'ib_purchase.event'
+                , 'ib_purchase.depot_id'
+                , 'ib_purchase.product_id'
+                , 'ib_purchase.product_title'
+                , 'ib_purchase.product_type'
+                , 'ib_purchase.title'
+                , 'ib_purchase.sku'
+                , 'ib_purchase.total_inbound_num'
+                , 'ib_purchase.total_sale_num'
+                , 'ib_purchase.total_csn_num'
+                , 'ib_purchase.total_consume_num'
+                , 'ib_purchase.total_in_stock_num'
+                , 'ib_csn.total_in_stock_num as total_in_stock_num_csn'
+            );
 
         $queryInbound_csn_combo = DB::query()->fromSub($queryInbound, 'ib_csn')
             ->where('ib_csn.event', Event::consignment()->value)
@@ -706,7 +721,8 @@ class PurchaseInbound extends Model
         $queryInbound_bind_pcs_csn = $queryInbound_bind_pcs_csn->union($queryInbound_csn_combo);
 
         if (null != $depot_id && 0 < count($depot_id)) {
-            $queryInbound_bind_pcs_csn->whereIn('inbound.depot_id', $depot_id);
+            $queryInbound_bind_pcs_csn = DB::query()->fromSub($queryInbound_bind_pcs_csn, 'inbound')
+                ->whereIn('inbound.depot_id', $depot_id);
         }
         $result = DB::query()->fromSub($queryInbound_bind_pcs_csn, 'inbound')
             ->leftJoinSub($querySub, 'tb_rd', function($join) {

@@ -260,7 +260,7 @@ class ReceiveDepot extends Model
 
                     //扣除入庫單庫存
                     foreach ($rcvDepotGet as $item) {
-                        $reShipIb = PurchaseInbound::shippingInbound($event, $event_id, LogEventFeature::delivery()->value, $item->inbound_id, $item->qty);
+                        $reShipIb = PurchaseInbound::shippingInbound($event, $event_id, $item->id, LogEventFeature::delivery()->value, $item->inbound_id, $item->qty);
                         if ($reShipIb['success'] == 0) {
                             DB::rollBack();
                             return $reShipIb;
