@@ -17,7 +17,9 @@ class CreateUsrUserCouponTable extends Migration
             $table->id();
             $table->integer('customer_id')->comment('會員id');
             $table->integer('discount_id')->comment('優惠券id');
+            $table->integer('order_id')->nullable()->comment('訂單id');
             $table->tinyInteger('used')->default(0)->comment('是否使用過');
+            $table->dateTime('used_at')->nullable();
             $table->timestamps();
         });
     }
