@@ -17,7 +17,7 @@ class Discount extends Model
     protected $table = 'dis_discounts';
     protected $guarded = [];
 
-    private static function _discountStatus()
+    public static function _discountStatus()
     {
         $now = date('Y-m-d H:i:s');
 
@@ -196,7 +196,7 @@ class Discount extends Model
         // dd($re->get()->toArray());
     }
 
-    public static function createDiscount($title, $min_consume, DisMethod $method, $value, $start_date = null, $end_date = null, $is_grand_total = 1, $collection_ids = [])
+    public static function createDiscount($title, $min_consume, DisMethod $method, $value, $start_date = null, $end_date = null, $is_grand_total = 0, $collection_ids = [])
     {
         if (count($collection_ids) > 0) {
             $is_global = 0;
@@ -219,7 +219,7 @@ class Discount extends Model
 
     }
 
-    public static function createCoupon($title, $min_consume, DisMethod $method, $value, $is_grand_total = 1, $collection_ids = [], $life_cycle = 0)
+    public static function createCoupon($title, $min_consume, DisMethod $method, $value, $is_grand_total = 0, $collection_ids = [], $life_cycle = 0)
     {
 
         return DB::transaction(function () use ($title, $min_consume, $method, $value, $is_grand_total, $collection_ids, $life_cycle) {
@@ -468,7 +468,7 @@ class Discount extends Model
         DB::table('dis_discount_collection')->where('discount_id', $id)->delete();
     }
 
-    public static function createOrderDiscount($type, $order_id, $datas = [], $sub_order_id = null, $order_item_id = null)
+    public static function createOrderDiscount($type, $order_id, $customer, $datas = [], $sub_order_id = null, $order_item_id = null)
     {
 
         // dd($datas);
@@ -477,7 +477,7 @@ class Discount extends Model
             return;
         }
 
-        DB::table('ord_discounts')->insert(array_map(function ($n) use ($type, $order_id, $sub_order_id, $order_item_id) {
+        DB::table('ord_discounts')->insert(array_map(function ($n) use ($type, $order_id, $sub_order_id, $order_item_id, $customer) {
             $category = $n->category_code;
             $method = $n->method_code;
 
@@ -509,12 +509,25 @@ class Discount extends Model
                 case DisCategory::coupon()->value:
                     $d['extra_title'] = $n->coupon_title;
                     $d['extra_id'] = $n->coupon_id;
+                    CustomerCoupon::create([
+                        'customer_id' => $customer->id,
+                        'discount_id' => $n->coupon_id,
+                    ]);
                     break;
 
                 default:
                     $d['extra_title'] = null;
                     $d['extra_id'] = null;
 
+            }
+            // 處理coupon
+            if ($n->category_code == DisCategory::coupon() && !$sub_order_id && !$order_item_id) {
+                //  dd($n);
+                CustomerCoupon::where('id', $n->user_coupon_id)->update([
+                    'used' => 1,
+                    'used_at' => now(),
+                    'order_id' => $order_id,
+                ]);
             }
 
             return $d;

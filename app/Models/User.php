@@ -36,7 +36,7 @@ class User extends Authenticatable
         'password',
         'uuid',
         'api_token',
-        'company_code'
+        'company_code',
     ];
 
     /**
@@ -71,7 +71,7 @@ class User extends Authenticatable
             $company_code = config('global.company_code');
         }
 
-    //    dd($company_code);
+        //    dd($company_code);
 
         $id = self::create([
             'name' => $name,
@@ -152,6 +152,11 @@ class User extends Authenticatable
             User::where('id', $user_id)->update(['customer_id' => $customer->id]);
             CustomerIdentity::add($customer->id, 'employee');
 
+            $saleChannel = SaleChannel::where('code', '02')->get()->first();
+
+            if ($saleChannel) {
+                UserSalechannel::create(['user_id' => $user_id, 'salechannel_id' => $saleChannel->id]);
+            }
         }
     }
 

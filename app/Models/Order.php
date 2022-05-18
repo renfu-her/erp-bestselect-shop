@@ -235,7 +235,8 @@ class Order extends Model
 
         return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $note, $coupon_obj, $payment) {
 
-            $order = OrderCart::cartFormater($items, $sale_channel_id, $coupon_obj);
+            $customer = Customer::where('email', $email)->get()->first();
+            $order = OrderCart::cartFormater($items, $sale_channel_id, $coupon_obj, true, $customer);
 
             if ($order['success'] != 1) {
                 DB::rollBack();
@@ -267,8 +268,7 @@ class Order extends Model
             }
 
             $order_id = self::create($updateData)->id;
-
-            Discount::createOrderDiscount('main', $order_id, $order['discounts']);
+            Discount::createOrderDiscount('main', $order_id, $customer, $order['discounts']);
 
             foreach ($address as $key => $user) {
 
@@ -365,7 +365,7 @@ class Order extends Model
                         'img_url' => $product->img_url,
                     ]);
 
-                    Discount::createOrderDiscount('item', $order_id, $product->discounts, $subOrderId, $pid);
+                    Discount::createOrderDiscount('item', $order_id, $customer, $product->discounts, $subOrderId, $pid);
 
                 }
 
