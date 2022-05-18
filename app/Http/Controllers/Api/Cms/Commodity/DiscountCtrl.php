@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Cms\Commodity;
 
+use App\Enums\Discount\DisStatus;
 use App\Http\Controllers\Controller;
 use App\Models\CustomerCoupon;
 use App\Models\Discount;
@@ -128,7 +129,7 @@ class DiscountCtrl extends Controller
 
         return response()->json([
             'status' => '0',
-            'data' => CustomerCoupon::getList($customer_id)->get(),
+            'data' => CustomerCoupon::getList($customer_id, 0, DisStatus::D01())->get(),
         ]);
 
     }
