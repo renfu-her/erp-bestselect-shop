@@ -128,11 +128,9 @@
                     </fieldset>
                     <div class="col-12 mb-3 --ctype -coupon" hidden>
                         <select class="form-select" aria-label="Select" name="coupon_sn" disabled>
-                            <option value="">請選擇優惠券</option>
-                            <option value="1">item 1</option>
-                            <option value="2">item 2</option>
-                            <option value="3">item 3</option>
+                            <option value="" selected>請選擇優惠券</option>
                         </select>
+                        <span class="-note small text-success"></span>
                     </div>
                     <div class="col-12 mb-3 --ctype -code" hidden>
                         <div class="d-flex -coupon_sn @error('coupon') is-invalid @enderror">
@@ -565,14 +563,17 @@
             // 優惠方式
             const DISC_METHOD = ['cash', 'percent', 'coupon'];
             // 優惠類型 折扣順序：任選 > 全館 > 優惠券/序號 > 紅利
-            const DISC_PRIORITY = ['optional', 'global', 'code', 'bonus'];
+            const DISC_PRIORITY = ['optional', 'global', 'coupon', 'code', 'bonus'];
+            // 訂購會員持有優惠券
+            let UserCoupons = {};
             // 目前有效優惠
             let DiscountData = {
                 optional: {},    // 任選 [暫無] (固定)
                 global: {     // 全館 (固定)
                     // id: {}
                 },
-                code: {},     // 優惠券/代碼 (變動)
+                coupon: {},   // 優惠券 (變動)
+                code: {},     // 優惠代碼 (變動)
             };
             /** global/code:
              * {
@@ -580,7 +581,7 @@
                 "sn": '優惠券序號' (code only),
                 "title": "優惠名稱",
                 "category_title": "優惠類型名稱",
-                "category_code": "優惠類型: optional|global|code",
+                "category_code": "優惠類型: optional|global|code|coupon",
                 "method_code": "優惠方式: cash|percent|coupon",
                 "method_title": "優惠方式名稱",
                 "discount_value": 優惠內容 (依 method_code 而定),
@@ -1202,41 +1203,46 @@
                 for (const type of DISC_PRIORITY) {
                     const tempDis = DiscountData[type];
                     if (tempDis && Object.keys(tempDis).length) {
-                        if (type === 'code') {
-                            // 使用優惠券 (只會有一個)
-                            const dis = tempDis;
-                            const useDis = calc_OneDiscountUse(dis);
-                            if (useDis) {
-                                setDiscountToMyData(dis, useDis);
-                            }
-                        } else {
-                            // 若全館優惠(type===global)同時存在多個，擇取最優惠擇一個計算(cash|percent)
-                            let bestDiscount = null;
-                            let bestUse = {total: 0};
-                            for (const d_id in tempDis) {
-                                if (Object.hasOwnProperty.call(tempDis, d_id)) {
-                                    // 使用單一優惠
-                                    const dis = tempDis[d_id];
-                                    const useDis = calc_OneDiscountUse(dis);
+                        switch (type) {
+                            case 'code':
+                            case 'coupon':
+                                // 使用優惠券/代碼 (只會有一個)
+                                const dis = tempDis;
+                                const useDis = calc_OneDiscountUse(dis);
+                                if (useDis) {
+                                    setDiscountToMyData(dis, useDis);
+                                }
+                                break;
+                        
+                            default:
+                                // 若全館優惠(type===global)同時存在多個，擇取最優惠擇一個計算(cash|percent)
+                                let bestDiscount = null;
+                                let bestUse = {total: 0};
+                                for (const d_id in tempDis) {
+                                    if (Object.hasOwnProperty.call(tempDis, d_id)) {
+                                        // 使用單一優惠
+                                        const dis = tempDis[d_id];
+                                        const useDis = calc_OneDiscountUse(dis);
 
-                                    /** 條件
-                                     * 1. useDis !== false
-                                     * 2-1. type !== global
-                                     * 2-2. dis.method_code === coupon
-                                    */
-                                    if (useDis) {
-                                        if (type !== 'global' || dis.method_code === 'coupon') {
-                                            setDiscountToMyData(dis, useDis);
-                                        } else if (useDis.total > bestUse.total) {
-                                            bestDiscount = dis;
-                                            bestUse = useDis;
+                                        /** 條件
+                                         * 1. useDis !== false
+                                         * 2-1. type !== global
+                                         * 2-2. dis.method_code === coupon
+                                        */
+                                        if (useDis) {
+                                            if (type !== 'global' || dis.method_code === 'coupon') {
+                                                setDiscountToMyData(dis, useDis);
+                                            } else if (useDis.total > bestUse.total) {
+                                                bestDiscount = dis;
+                                                bestUse = useDis;
+                                            }
                                         }
                                     }
                                 }
-                            }
-                            if (bestDiscount) {
-                                setDiscountToMyData(bestDiscount, bestUse);
-                            }
+                                if (bestDiscount) {
+                                    setDiscountToMyData(bestDiscount, bestUse);
+                                }
+                                break;
                         }
                     }
                 }
@@ -1548,6 +1554,7 @@
                 switch (type) {
                     case 'coupon':  // 優惠券
                         resetCouponCodeData();
+                        getCouponsApi();
                         break;
                     case 'code':    // 優惠代碼
                         resetCouponCouponData();
@@ -1642,18 +1649,54 @@
             /*** 優惠券 fn ***/
             // 優惠券 -coupon
             $('div.--ctype.-coupon select[name="coupon_sn"]').off('change').on('change', function () {
-                // DiscountData.code = {優惠券};
+                const id = $(this).val();
+                DiscountData.coupon = UserCoupons[id];
+                $('div.--ctype.-coupon .-note').text('優惠內容：' + discountNote(UserCoupons[id]));
                 
                 // 檢查試算
                 calcAndCheckAllOrder();
             });
+            function getCouponsApi() {
+                const _URL = @json(route('api.cms.discount.get-coupons'));
+                const Data = {
+                    customer_id: $('#customer').val()
+                };
+                // init
+                UserCoupons = {};
+                $('div.--ctype.-coupon select[name="coupon_sn"], div.--ctype.-coupon .-note').empty();
+                $('div.--ctype.-coupon select[name="coupon_sn"]').append(
+                    '<option value="" selected>請選擇優惠券</option>'
+                );
+
+                axios.post(_URL, Data)
+                .then((result) => {
+                    const res = result.data;
+                    console.log('持有優惠券', res);
+                    if (res.status === '0') {
+                        const coupons = res.data;
+                        coupons.forEach(c => {
+                            $('div.--ctype.-coupon select[name="coupon_sn"]').append(
+                                `<option value="${c.id}" title="${discountNote(c)}">${c.title}</option>`
+                            );
+                            UserCoupons[c.id] = c;
+                        });
+                    }
+                }).catch((err) => {
+                    console.error(err);
+                });
+            }
 
             // #清空優惠券
             function resetCouponCouponData() {
                 // Data
-                DiscountData.code = {};
+                DiscountData.coupon = {};
+                UserCoupons = {};
                 // Html
                 $('div.--ctype.-coupon select[name="coupon_sn"]').val('');
+                $('div.--ctype.-coupon select[name="coupon_sn"], div.--ctype.-coupon .-note').empty();
+                $('div.--ctype.-coupon select[name="coupon_sn"]').append(
+                    '<option value="" selected>請選擇優惠券</option>'
+                );
             }
 
 
