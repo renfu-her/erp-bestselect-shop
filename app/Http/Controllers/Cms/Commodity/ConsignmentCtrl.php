@@ -569,9 +569,9 @@ class ConsignmentCtrl extends Controller
                 }
             }
 
-            $csn = Consignment::where('id', $consignmentID)->get()->first();
+            $csn = CsnOrder::where('id', $consignmentID)->get()->first();
             $reDelivery = Delivery::createData(
-                Event::consignment()->value
+                Event::csn_order()->value
                 , $consignmentID
                 , $csn->sn
             );
@@ -588,11 +588,135 @@ class ConsignmentCtrl extends Controller
             $consignmentID = $result['consignmentID'];
         }
 
-        return redirect(Route('cms.consignment.order', [
+        return redirect(Route('cms.consignment.order_edit', [
             'id' => $consignmentID,
             'query' => $query
         ]));
     }
 
+    public function orderEdit(Request $request, $id)
+    {
+        $query = $request->query();
+        $consignmentData  = CsnOrder::getData($id)->get()->first();
+        $consignmentItemData = CsnOrderItem::getData($id)->get();
+        if (!$consignmentData) {
+            return abort(404);
+        }
+
+        return view('cms.commodity.consignment.order_create', [
+            'id' => $id,
+            'query' => $query,
+            'method' => 'edit',
+            'depotList' => Depot::all(),
+            'formAction' => Route('cms.consignment.order'),
+
+            'consignmentData' => $consignmentData,
+            'consignmentItemData' => $consignmentItemData,
+            'method' => 'edit',
+            'formAction' => Route('cms.consignment.order_edit', ['id' => $id]),
+            'breadcrumb_data' => ['id' => $id, 'sn' => $consignmentData->sn],
+        ]);
+    }
+
+    public function orderUpdate(Request $request, $id)
+    {
+        $request->validate([
+            'depot_id' => 'required|numeric',
+            'scheduled_date' => 'required|string',
+            'product_style_id.*' => 'required|numeric|distinct',
+            'name.*' => 'required|string',
+            'prd_type.*' => 'required|string',
+            'sku.*' => 'required|string',
+            'price.*' => 'required|numeric',
+            'num.*' => 'required|numeric|min:1',
+        ]);
+        $query = $request->query();
+
+//        dd(111, $request->all());
+        $csnReq = $request->only('scheduled_date');
+        $csnItemReq = $request->only('item_id', 'product_style_id', 'name', 'prd_type', 'sku', 'num', 'price', 'memo');
+
+        //判斷是否有出貨審核，有則不可新增刪除商品款式
+        $consignmentData  = CsnOrder::getData($id)->get()->first();
+        $delivery  = Delivery::getData(Event::csn_order()->value, $id)->get()->first();
+        if (null != $consignmentData && null != $consignmentData->close_date) {
+            throw ValidationException::withMessages(['item_error' => '已結案，無法再修改']);
+        }
+        if (null != $delivery->audit_date) {
+            if (isset($request['del_item_id']) && null != $request['del_item_id']) {
+                throw ValidationException::withMessages(['item_error' => '已審核，不可刪除商品款式']);
+            }
+            if (isset($csnItemReq['item_id'])) {
+                throw ValidationException::withMessages(['item_error' => '已審核，不可新增修改商品款式']);
+            }
+        }
+
+        $msg = DB::transaction(function () use ($request, $id, $csnReq, $csnItemReq, $consignmentData
+        ) {
+            $repcsCTPD = CsnOrder::checkToUpdateConsignmentData($id, $csnReq, $request->user()->id, $request->user()->name);
+            if ($repcsCTPD['success'] == 0) {
+                DB::rollBack();
+                return $repcsCTPD;
+            }
+
+            //刪除現有款式
+            if (isset($request['del_item_id']) && null != $request['del_item_id']) {
+                //dd(222, $request['del_item_id']);
+                $del_item_id_arr = explode(",", $request['del_item_id']);
+                $rePcsDI = CsnOrderItem::deleteItems($consignmentData->id, $del_item_id_arr, $request->user()->id, $request->user()->name);
+                if ($rePcsDI['success'] == 0) {
+                    DB::rollBack();
+                    return $rePcsDI;
+                }
+            }
+//            dd(999999);
+            if (isset($csnItemReq['item_id'])) {
+                foreach ($csnItemReq['item_id'] as $key => $val) {
+                    $itemId = $csnItemReq['item_id'][$key];
+                    //有值則做更新
+                    //itemId = null 代表新資料
+                    if (null != $itemId) {
+                        $resultUpd = CsnOrderItem::checkToUpdateItemData($itemId
+                            , ['num' => $csnItemReq['num'], 'memo' => $csnItemReq['memo']]
+                            , $key, $request->user()->id, $request->user()->name);
+                        if ($resultUpd['success'] == 0) {
+                            DB::rollBack();
+                            return $resultUpd;
+                        }
+                    } else {
+                        $resultUpd = CsnOrderItem::createData(
+                            [
+                                'csnord_id' => $id,
+                                'product_style_id' => $csnItemReq['product_style_id'][$key],
+                                'prd_type' => $csnItemReq['prd_type'][$key],
+                                'product_title' => $csnItemReq['name'][$key],
+                                'sku' => $csnItemReq['sku'][$key],
+                                'price' => $csnItemReq['price'][$key],
+                                'num' => $csnItemReq['num'][$key],
+                                'memo' => $csnItemReq['memo'][$key],
+                            ],
+                            $request->user()->id, $request->user()->name
+                        );
+                        if ($resultUpd['success'] == 0) {
+                            DB::rollBack();
+                            return $resultUpd;
+                        }
+                    }
+                }
+            }
+
+            return ['success' => 1, 'error_msg' => 'all ok'];
+        });
+
+        if ($msg['success'] == 0) {
+            throw ValidationException::withMessages(['item_error' => $msg['error_msg']]);
+        }
+
+        wToast(__('Edit finished.'));
+        return redirect(Route('cms.consignment.order_edit', [
+            'id' => $id,
+            'query' => $query
+        ]));
+    }
 }
 

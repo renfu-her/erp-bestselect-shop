@@ -77,9 +77,9 @@ class CsnOrder extends Model
             ->get()->first();
 
         $orign_audit_status = $purchase->audit_status;
-//        $purchase->scheduled_date = $purchaseReq['scheduled_date'] ?? null;
-        $purchase->memo = $purchaseReq['memo'] ?? null;
-        $purchase->audit_status = $purchaseReq['audit_status'] ?? null;
+        $purchase->scheduled_date = $purchaseReq['scheduled_date'] ?? $purchase->scheduled_date;
+        $purchase->memo = $purchaseReq['memo'] ?? $purchase->memo;
+        $purchase->audit_status = $purchaseReq['audit_status'] ?? $purchase->audit_status;
 
         return DB::transaction(function () use ($purchase, $id, $purchaseReq, $operator_user_id, $operator_user_name, $orign_audit_status
         ) {
@@ -104,16 +104,18 @@ class CsnOrder extends Model
                     "audit_date" => $curr_date,
                     "audit_user_id" => $operator_user_id,
                     "audit_user_name" => $operator_user_name,
-                    "audit_status" => $purchaseReq['audit_status'] ?? App\Enums\Consignment\AuditStatus::unreviewed()->value,
+                    "audit_status" => $purchaseReq['audit_status'] ?? AuditStatus::unreviewed()->value,
                 ]);
 
                 //從尚未審核 變成 核可後物態自動變檢貨中
                 if (AuditStatus::unreviewed()->value == $orign_audit_status
                     && AuditStatus::approved()->value == $purchase->audit_status
                 ) {
-                    $user = new \stdClass();
-                    $user->id = $operator_user_id;
-                    $user->name = $operator_user_name;
+                    $delivery = Delivery::where('event', Event::csn_order()->value)
+                        ->where('event_id', $id)->update([
+                        'logistic_status' => '寄倉售出',
+                        'logistic_status_code' => 'D9000',
+                    ]);
                 }
             }
             return ['success' => 1, 'error_msg' => ''];
@@ -146,5 +148,31 @@ class CsnOrder extends Model
         self::where('id', $id)->update(['close_date' => $currDate]);
 
         PurchaseLog::stockChange($id, null, Event::csn_order()->value, $id, LogEventFeature::csn_order_close()->value, null,null, null, $operator_user_id, $operator_user_name);
+    }
+
+    public static function getData($id) {
+        $re = DB::table('csn_orders as csn_orders')
+            ->where('id', $id)
+            ->whereNull('deleted_at')
+            ->select(
+                'csn_orders.id'
+                , 'csn_orders.sn'
+                , 'csn_orders.depot_id'
+                , 'csn_orders.depot_name'
+                , 'csn_orders.create_user_id'
+                , 'csn_orders.create_user_name'
+                , DB::raw('DATE_FORMAT(csn_orders.scheduled_date,"%Y-%m-%d") as scheduled_date')
+                , 'csn_orders.audit_date'
+                , 'csn_orders.close_date'
+                , 'csn_orders.audit_user_id'
+                , 'csn_orders.audit_user_name'
+                , 'csn_orders.audit_status'
+                , 'csn_orders.memo'
+                , 'csn_orders.created_at'
+                , 'csn_orders.updated_at'
+                , 'csn_orders.deleted_at'
+            )
+            ;
+        return $re;
     }
 }

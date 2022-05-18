@@ -21,21 +21,27 @@
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">訂購倉庫 <span class="text-danger">*</span></label>
 
-                    <select id="depot_id" aria-label="訂購倉庫" required
-                            class="form-select -select2 -single @error('depot_id') is-invalid @enderror">
-                        <option value="" selected disabled>請選擇</option>
-                        @foreach ($depotList as $depot)
-                            <option value="{{ $depot->id }}"
-                                    @if ($depot->id == old('depot_id')) selected @endif>
-                                {{ $depot->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <div class="invalid-feedback">
-                        @error('depot_id')
-                        {{ $message }}
-                        @enderror
-                    </div>
+                    @if ($method === 'edit')
+                        <div class="form-control" readonly>
+                            {{ $consignmentData->depot_name }}
+                        </div>
+                    @else
+                        <select id="depot_id" aria-label="訂購倉庫" required
+                                class="form-select -select2 -single @error('depot_id') is-invalid @enderror">
+                            <option value="" selected disabled>請選擇</option>
+                            @foreach ($depotList as $depot)
+                                <option value="{{ $depot->id }}"
+                                        @if ($depot->id == old('depot_id', $consignmentData->depot_id ?? '')) selected @endif>
+                                    {{ $depot->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <div class="invalid-feedback">
+                            @error('depot_id')
+                            {{ $message }}
+                            @enderror
+                        </div>
+                    @endif
                     <input type="hidden" name="depot_id" value="{{ old('depot_id', $consignmentData->depot_id  ?? '') }}">
                 </div>
 
@@ -108,12 +114,12 @@
                                     </button>
                                     <input type="hidden" name="item_id[]" value="{{ old('item_id.'. $psItemKey, $psItemVal->id?? '') }}">
                                     <input type="hidden" name="product_style_id[]" value="{{ old('product_style_id.'. $psItemKey, $psItemVal->product_style_id?? '') }}">
-                                    <input type="hidden" name="name[]" value="{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}">
+                                    <input type="hidden" name="name[]" value="{{ old('name.'. $psItemKey, $psItemVal->product_title?? '') }}">
                                     <input type="hidden" name="prd_type[]" value="{{ old('prd_type.'. $psItemKey, $psItemVal->prd_type?? '') }}">
                                     <input type="hidden" name="sku[]" value="{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}">
                                     <input type="hidden" name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}">
                                 </th>
-                                <td data-td="name">{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}</td>
+                                <td data-td="name">{{ old('name.'. $psItemKey, $psItemVal->product_title?? '') }}</td>
                                 <td data-td="sku">{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}</td>
                                 <td>
                                     <input type="number" class="form-control form-control-sm @error('num.' . $psItemKey) is-invalid @enderror"
