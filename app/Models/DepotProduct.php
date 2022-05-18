@@ -143,4 +143,40 @@ class DepotProduct extends Model
 //        dd($re->bindings, $re->getBindings(), $re->get(), IttmsUtils::getEloquentSqlWithBindings($re));
         return $re;
     }
+
+    public static function ProductCsnExistInboundList($depot_id, $type = null) {
+        $queryInbound = PurchaseInbound::getCsnExistInboundProductStyleList();
+
+        $queryDepotProduct = DB::query()->fromSub(DepotProduct::product_list(), 'prd_list')
+            ->leftJoinSub($queryInbound, 'inbound', function($join) {
+                $join->on('inbound.product_style_id', 'prd_list.id')
+                    ->on('inbound.depot_id', 'prd_list.depot_id');
+            })
+            ->select(
+                'prd_list.product_id as product_id'
+                ,'prd_list.depot_id as depot_id'
+                ,'prd_list.sku as sku'
+                ,'prd_list.id as product_style_id'
+                ,'prd_list.product_title as product_title'
+                ,'prd_list.spec as spec'
+                ,'prd_list.depot_price as depot_price'
+
+                , DB::raw('ifnull(inbound.depot_name, "") as depot_name')  //入庫倉庫名稱
+                , DB::raw('ifnull(inbound.inbound_num, 0) as inbound_num')
+                , DB::raw('ifnull(inbound.sale_num, 0) as sale_num')
+                , DB::raw('ifnull(inbound.available_num, 0) as available_num')
+                , DB::raw('ifnull(inbound.prd_type, "") as prd_type')
+            )
+            //->where('inbound.available_num', '<>', 0)
+        ;
+
+        if ($depot_id) {
+            $queryDepotProduct->where('prd_list.depot_id', $depot_id);
+        }
+
+        if ($type && $type != 'all') {
+            $queryDepotProduct->where('inbound.prd_type', $type);
+        }
+        return $queryDepotProduct;
+    }
 }

@@ -11,6 +11,7 @@ class Event extends Enum
     const order = 'order'; //訂單
     const ord_pickup = 'ord_pickup'; //訂單自取
     const consignment = 'consignment'; //寄倉
+    const csn_order = 'csn_order'; //寄倉訂購
 
     public static function getDescription($value): string
     {
@@ -27,6 +28,9 @@ class Event extends Enum
                 break;
             case self::consignment:
                 $result = '寄倉';
+                break;
+            case self::csn_order:
+                $result = '寄倉訂購';
                 break;
             default:
                 $result = parent::getDescription($value);

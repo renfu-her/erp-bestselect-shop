@@ -24,4 +24,7 @@ Route::group(['prefix' => 'consignment', 'as' => 'consignment.'], function () {
 
     Route::get('orderlist', [ConsignmentCtrl::class, 'orderlist'])->name('orderlist')->middleware('permission:cms.consignment.create');
     Route::get('stocklist', [ConsignmentCtrl::class, 'stocklist'])->name('stocklist')->middleware('permission:cms.consignment.create');
+
+    Route::get('order', [ConsignmentCtrl::class, 'order'])->name('order')->middleware('permission:cms.consignment.create');
+    Route::post('order', [ConsignmentCtrl::class, 'orderStore']);
 });

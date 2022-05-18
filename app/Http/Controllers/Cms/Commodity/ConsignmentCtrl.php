@@ -11,6 +11,8 @@ use App\Helpers\IttmsUtils;
 use App\Http\Controllers\Controller;
 use App\Models\Consignment;
 use App\Models\ConsignmentItem;
+use App\Models\CsnOrder;
+use App\Models\CsnOrderItem;
 use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\DepotProduct;
@@ -489,55 +491,10 @@ class ConsignmentCtrl extends Controller
 
         $depot_id = Arr::get($query, 'depot_id', 1);
 
-        $queryInbound = DB::table('pcs_purchase_inbound as inbound')
-            ->where('inbound.event', Event::consignment()->value)
-            ->select(
-                'inbound.event as event'
-                , 'inbound.product_style_id as product_style_id'
-                , 'inbound.depot_id as depot_id'  //入庫倉庫ID
-                , 'inbound.depot_name as depot_name'  //入庫倉庫名稱
-                , 'inbound.prd_type as prd_type'
-                , DB::raw('sum(inbound.inbound_num) as inbound_num')
-                , DB::raw('sum(inbound.sale_num) as sale_num')
-                , DB::raw('(sum(inbound.inbound_num) - sum(inbound.sale_num)) as available_num')
-            )
-            ->groupBy('inbound.product_style_id')
-            ->groupBy('inbound.depot_id')
-            ->groupBy('inbound.depot_name')
-            ->groupBy('inbound.prd_type');
+        $queryDepotProduct = DepotProduct::ProductCsnExistInboundList($depot_id);
 
-//        dd($queryInbound->get());
-        $queryDepotProduct = DB::query()->fromSub(DepotProduct::product_list(), 'prd_list')
-            ->leftJoinSub($queryInbound, 'inbound', function($join) {
-                $join->on('inbound.product_style_id', 'prd_list.id')
-                    ->on('inbound.depot_id', 'prd_list.depot_id');
-            })
-            ->select(
-                'prd_list.product_id as product_id'
-                ,'prd_list.depot_id as depot_id'
-                ,'prd_list.sku as sku'
-                ,'prd_list.id as product_style_id'
-                ,'prd_list.product_title as product_title'
-                ,'prd_list.spec as spec'
-                ,'prd_list.depot_price as depot_price'
-
-                , 'inbound.event as event'
-                , 'inbound.depot_name as depot_name'  //入庫倉庫名稱
-                , 'inbound.inbound_num as inbound_num'
-                , 'inbound.sale_num as sale_num'
-                , 'inbound.available_num as available_num'
-                , 'inbound.prd_type as prd_type'
-            )
-            //->where('inbound.available_num', '<>', 0)
-        ;
-
-        if ($depot_id) {
-            $queryDepotProduct->where('prd_list.depot_id', $depot_id);
-        }
         $queryDepotProduct = $queryDepotProduct->paginate($data_per_page)->appends($query);
 
-//        dd(IttmsUtils::getEloquentSqlWithBindings($queryDepotProduct));
-//        dd($queryDepotProduct);
         return view('cms.commodity.consignment.stock', [
             'dataList' => $queryDepotProduct
             , 'data_per_page' => $data_per_page
@@ -548,8 +505,93 @@ class ConsignmentCtrl extends Controller
 
     //寄倉訂購
     public function order(Request $request) {
-        return view('cms.commodity.consignment.order', [
+        return view('cms.commodity.consignment.order_create', [
+            'method' => 'create',
+            'depotList' => Depot::all(),
+            'formAction' => Route('cms.consignment.order'),
         ]);
+    }
+
+    //寄倉訂購
+    public function orderStore(Request $request) {
+
+        $request->validate([
+            'depot_id' => 'required|numeric',
+            'scheduled_date' => 'required|string',
+            'product_style_id.*' => 'required|numeric|distinct',
+            'name.*' => 'required|string',
+            'prd_type.*' => 'required|string',
+            'sku.*' => 'required|string',
+            'price.*' => 'required|numeric',
+            'num.*' => 'required|numeric|min:1',
+        ]);
+        $query = $request->query();
+
+//        dd(111, $request->all());
+        $csnReq = $request->only('depot_id', 'scheduled_date');
+        $csnItemReq = $request->only('product_style_id', 'name', 'prd_type', 'sku', 'num', 'price', 'memo');
+
+        $depot = Depot::where('id', $csnReq['depot_id'])->get()->first();
+
+        $consignmentID = null;
+        $result = null;
+        $result = DB::transaction(function () use ($csnReq, $csnItemReq, $request, $depot
+        ) {
+            $reCsn = CsnOrder::createData($depot->id, $depot->name
+                , $request->user()->id, $request->user()->name
+                , $csnReq['scheduled_date']);
+
+            $consignmentID = null;
+            if (isset($reCsn['id'])) {
+                $consignmentID = $reCsn['id'];
+            }
+
+            if (isset($csnItemReq['product_style_id']) && isset($consignmentID)) {
+
+                foreach ($csnItemReq['product_style_id'] as $key => $val) {
+                    $reCsnIC = CsnOrderItem::createData(
+                        [
+                            'csnord_id' => $consignmentID,
+                            'product_style_id' => $val,
+                            'prd_type' => $csnItemReq['prd_type'][$key],
+                            'product_title' => $csnItemReq['name'][$key],
+                            'sku' => $csnItemReq['sku'][$key],
+                            'price' => $csnItemReq['price'][$key],
+                            'num' => $csnItemReq['num'][$key],
+                            'memo' => $csnItemReq['memo'][$key],
+                        ],
+                        $request->user()->id, $request->user()->name
+                    );
+                    if ($reCsnIC['success'] == 0) {
+                        DB::rollBack();
+                        return $reCsnIC;
+                    }
+                }
+            }
+
+            $csn = Consignment::where('id', $consignmentID)->get()->first();
+            $reDelivery = Delivery::createData(
+                Event::consignment()->value
+                , $consignmentID
+                , $csn->sn
+            );
+            if ($reDelivery['success'] == 0) {
+                return $reDelivery;
+            }
+            return ['success' => 1, 'error_msg' => "", 'consignmentID' => $consignmentID];
+        });
+
+        if ($result['success'] == 0) {
+            wToast($result['error_msg']);
+        } else {
+            wToast(__('Add finished.'));
+            $consignmentID = $result['consignmentID'];
+        }
+
+        return redirect(Route('cms.consignment.order', [
+            'id' => $consignmentID,
+            'query' => $query
+        ]));
     }
 
 }

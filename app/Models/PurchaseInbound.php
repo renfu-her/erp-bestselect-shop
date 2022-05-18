@@ -628,6 +628,7 @@ class PurchaseInbound extends Model
         $esOrder = PurchaseInbound::getEstimatedShipmentsWithOrder($depot_id);
         $esCsnItems->union($esOrder);
 
+        //計算預扣採購入庫單數量
         $querySub = DB::table(DB::raw("({$esCsnItems->toSql()}) as tb_rd"))
             ->select('tb_rd.depot_id as depot_id'
                 , 'tb_rd.product_style_id as product_style_id'
@@ -673,17 +674,13 @@ class PurchaseInbound extends Model
             ->groupBy('style.sku');
 
         $queryInbound_purchase = DB::query()->fromSub($queryInbound, 'ib_purchase')
-            ->where('ib_purchase.event', Event::purchase()->value);
-
-        $queryInbound_bind_pcs_csn = DB::query()->fromSub($queryInbound_purchase, 'ib_purchase')
-            ->leftJoinSub($queryInbound, 'ib_csn', function($join) {
-                $join->on('ib_csn.depot_id', '=', 'ib_purchase.depot_id')
-                    ->on('ib_csn.product_id', '=', 'ib_purchase.product_id')
-                    ->on('ib_csn.product_style_id', '=', 'ib_purchase.product_style_id')
-                    ->where('ib_csn.event', Event::consignment()->value)
-                    ->where('ib_csn.product_type', 'p');
+            ->leftJoinSub($querySub, 'tb_rd', function($join) {
+                $join->on('tb_rd.depot_id', '=', 'ib_purchase.depot_id');
+                $join->on('tb_rd.product_style_id', '=', 'ib_purchase.product_style_id');
             })
-            ->select('ib_purchase.product_style_id'
+            ->where('ib_purchase.event', Event::purchase()->value)
+            ->select(
+                'ib_purchase.product_style_id'
                 , 'ib_purchase.event'
                 , 'ib_purchase.depot_id'
                 , 'ib_purchase.product_id'
@@ -695,65 +692,82 @@ class PurchaseInbound extends Model
                 , 'ib_purchase.total_sale_num'
                 , 'ib_purchase.total_csn_num'
                 , 'ib_purchase.total_consume_num'
-                , 'ib_purchase.total_in_stock_num'
-                , 'ib_csn.total_in_stock_num as total_in_stock_num_csn'
+                , DB::raw('(ifnull(ib_purchase.total_in_stock_num, 0) - ifnull(tb_rd.qty, 0)) as total_in_stock_num')
+                , DB::raw('@0:="0" as total_in_stock_num_csn')
             );
 
-        $queryInbound_csn_combo = DB::query()->fromSub($queryInbound, 'ib_csn')
-            ->where('ib_csn.event', Event::consignment()->value)
-            ->where('ib_csn.product_type', 'c')
+        $queryInbound_consignment = DB::query()->fromSub($queryInbound, 'ib_consignment')
+            ->where('ib_consignment.event', Event::consignment()->value)
             ->select(
-                'ib_csn.product_style_id'
-                , 'ib_csn.event'
-                , 'ib_csn.depot_id'
-                , 'ib_csn.product_id'
-                , 'ib_csn.product_title'
-                , 'ib_csn.product_type'
-                , 'ib_csn.title'
-                , 'ib_csn.sku'
-                , DB::raw('@0:=0 as total_inbound_num')
-                , DB::raw('@0:=0 as total_sale_num')
-                , DB::raw('@0:=0 as total_csn_num')
-                , DB::raw('@0:=0 as total_consume_num')
-                , DB::raw('@0:=0 as total_in_stock_num')
-                , 'ib_csn.total_in_stock_num as total_in_stock_num_csn'
+                'ib_consignment.product_style_id'
+                , 'ib_consignment.event'
+                , 'ib_consignment.depot_id'
+                , 'ib_consignment.product_id'
+                , 'ib_consignment.product_title'
+                , 'ib_consignment.product_type'
+                , 'ib_consignment.title'
+                , 'ib_consignment.sku'
+                , DB::raw('@0:="0" as total_inbound_num')
+                , DB::raw('@0:="0" as total_sale_num')
+                , DB::raw('@0:="0" as total_csn_num')
+                , DB::raw('@0:="0" as total_consume_num')
+                , DB::raw('@0:="0" as total_in_stock_num')
+                , DB::raw('(ifnull(ib_consignment.total_inbound_num, 0) - ifnull(ib_consignment.total_sale_num, 0) - ifnull(ib_consignment.total_csn_num, 0) - ifnull(ib_consignment.total_consume_num, 0)) as total_in_stock_num_csn')
             );
-        $queryInbound_bind_pcs_csn = $queryInbound_bind_pcs_csn->union($queryInbound_csn_combo);
+
+        $queryInbound_union_pcs_csn = $queryInbound_purchase->union($queryInbound_consignment);
+
+        $queryInbound_group_pcs_csn = DB::query()->fromSub($queryInbound_union_pcs_csn, 'ib')
+            ->select('ib.product_style_id'
+                //, 'ib.event'
+                , 'ib.depot_id'
+                , 'ib.product_id'
+                , 'ib.product_title'
+                , 'ib.product_type'
+                , 'ib.title'
+                , 'ib.sku'
+                , DB::raw('sum(ib.total_inbound_num) as total_inbound_num')
+                , DB::raw('sum(ib.total_sale_num) as total_sale_num')
+                , DB::raw('sum(ib.total_csn_num) as total_csn_num')
+                , DB::raw('sum(ib.total_consume_num) as total_consume_num')
+                , DB::raw('sum(ib.total_in_stock_num) as total_in_stock_num')
+                , DB::raw('sum(ib.total_in_stock_num_csn) as total_in_stock_num_csn')
+            )
+            ->groupBy('ib.product_style_id')
+            ->groupBy('ib.depot_id')
+            ->groupBy('ib.product_id')
+            ->groupBy('ib.product_title')
+            ->groupBy('ib.product_type')
+            ->groupBy('ib.title')
+            ->groupBy('ib.sku');
 
         if (null != $depot_id && 0 < count($depot_id)) {
-            $queryInbound_bind_pcs_csn = DB::query()->fromSub($queryInbound_bind_pcs_csn, 'inbound')
+            $queryInbound_group_pcs_csn = DB::query()->fromSub($queryInbound_group_pcs_csn, 'inbound')
                 ->whereIn('inbound.depot_id', $depot_id);
         }
-        $result = DB::query()->fromSub($queryInbound_bind_pcs_csn, 'inbound')
-            ->leftJoinSub($querySub, 'tb_rd', function($join) {
-                $join->on('tb_rd.depot_id', '=', 'inbound.depot_id');
-                $join->on('tb_rd.product_style_id', '=', 'inbound.product_style_id');
-            })
-            ->mergeBindings($queryInbound_bind_pcs_csn)
-            ->select(
-                'inbound.product_style_id'
-                , 'inbound.event'
-                , 'inbound.depot_id'
-                , 'inbound.product_id'
-                , 'inbound.product_title'
-                , 'inbound.product_type'
-                , 'inbound.title'
-                , 'inbound.sku'
-
-                , 'inbound.total_inbound_num'
-                , 'inbound.total_sale_num'
-                , 'inbound.total_csn_num'
-                , 'inbound.total_consume_num'
-                , DB::raw('(case when tb_rd.qty is not null then (inbound.total_in_stock_num - tb_rd.qty)
-                 else inbound.total_in_stock_num
-                 end
-                 )as total_in_stock_num')
-                , DB::raw('(case when inbound.total_in_stock_num_csn is null then 0
-                 else inbound.total_in_stock_num_csn
-                 end
-                 )as total_in_stock_num_csn')
-            );
+        $result = $queryInbound_group_pcs_csn;
 
         return $result;
+    }
+
+    //取得寄倉商品款式現有數量
+    public static function getCsnExistInboundProductStyleList() {
+        $queryInbound = DB::table('pcs_purchase_inbound as inbound')
+            ->where('inbound.event', Event::consignment()->value)
+            ->select(
+                'inbound.product_style_id as product_style_id'
+                , 'inbound.depot_id as depot_id'  //入庫倉庫ID
+                , 'inbound.depot_name as depot_name'  //入庫倉庫名稱
+                , 'inbound.prd_type as prd_type'
+                , DB::raw('sum(inbound.inbound_num) as inbound_num')
+                , DB::raw('sum(inbound.sale_num) as sale_num')
+                , DB::raw('(sum(inbound.inbound_num) - sum(inbound.sale_num)) as available_num')
+            )
+            ->groupBy('inbound.product_style_id')
+            ->groupBy('inbound.depot_id')
+            ->groupBy('inbound.depot_name')
+            ->groupBy('inbound.prd_type');
+
+        return $queryInbound;
     }
 }
