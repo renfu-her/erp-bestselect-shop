@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Discount\DisCategory;
 use App\Enums\Discount\DisMethod;
+use App\Enums\Discount\DisStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -63,7 +64,7 @@ class OrderCart extends Model
      * @param array $coupon_obj ["type"=>"code/sn","value"=>"string"]
      */
 
-    public static function cartFormater($data, $salechannel_id, $coupon_obj = null, $checkInStock = true)
+    public static function cartFormater($data, $salechannel_id, $coupon_obj = null, $checkInStock = true, $customer = null)
     {
         $shipmentGroup = [];
         $shipmentKeys = [];
@@ -184,7 +185,7 @@ class OrderCart extends Model
         $currentCoupon = null;
         if ($coupon_obj && $coupon_obj[0]) {
             switch ($coupon_obj[0]) {
-                case DisCategory::code();
+                case DisCategory::code():
                     $currentCoupon = Discount::checkCode($coupon_obj[1], array_map(function ($n) {
                         return $n['product_id'];
                     }, $_tempProducts));
@@ -193,6 +194,16 @@ class OrderCart extends Model
                         $currentCoupon = $currentCoupon['data'];
                     } else {
                         return ['success' => 0, 'error_msg' => $currentCoupon['message'], 'event' => 'coupon'];
+                    }
+                    break;
+                case DisCategory::coupon():
+                    if ($customer) {
+                        $currentCoupon = CustomerCoupon::getList($customer->id, 0, DisStatus::D01())
+                            ->where('discount.id', $coupon_obj[1])->get()->first();
+                        
+                        if (!$currentCoupon) {
+                            return ['success' => 0, 'error_msg' => "查無優惠券", 'event' => 'coupon'];
+                        }
                     }
                     break;
             }

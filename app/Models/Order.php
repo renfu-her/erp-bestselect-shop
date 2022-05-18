@@ -235,7 +235,9 @@ class Order extends Model
 
         return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $note, $coupon_obj, $payment) {
 
-            $order = OrderCart::cartFormater($items, $sale_channel_id, $coupon_obj);
+            $customer = Customer::where('email', $email)->get()->first();
+
+            $order = OrderCart::cartFormater($items, $sale_channel_id, $coupon_obj, $customer);
 
             if ($order['success'] != 1) {
                 DB::rollBack();
@@ -267,7 +269,6 @@ class Order extends Model
             }
 
             $order_id = self::create($updateData)->id;
-            $customer = Customer::where('email', $email)->get()->first();
             Discount::createOrderDiscount('main', $order_id, $customer, $order['discounts']);
 
             foreach ($address as $key => $user) {
