@@ -517,6 +517,15 @@ class Discount extends Model
                     $d['extra_id'] = null;
 
             }
+            // 處理coupon
+            if ($n->category_code == DisCategory::coupon() && !$sub_order_id && !$order_item_id) {
+                //  dd($n);
+                CustomerCoupon::where('id', $n->user_coupon_id)->update([
+                    'used' => 1,
+                    'used_at' => now(),
+                    'order_id' => $order_id,
+                ]);
+            }
 
             return $d;
 
