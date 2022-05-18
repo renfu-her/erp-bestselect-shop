@@ -196,7 +196,7 @@ class Discount extends Model
         // dd($re->get()->toArray());
     }
 
-    public static function createDiscount($title, $min_consume, DisMethod $method, $value, $start_date = null, $end_date = null, $is_grand_total = 1, $collection_ids = [])
+    public static function createDiscount($title, $min_consume, DisMethod $method, $value, $start_date = null, $end_date = null, $is_grand_total = 0, $collection_ids = [])
     {
         if (count($collection_ids) > 0) {
             $is_global = 0;
@@ -219,7 +219,7 @@ class Discount extends Model
 
     }
 
-    public static function createCoupon($title, $min_consume, DisMethod $method, $value, $is_grand_total = 1, $collection_ids = [], $life_cycle = 0)
+    public static function createCoupon($title, $min_consume, DisMethod $method, $value, $is_grand_total = 0, $collection_ids = [], $life_cycle = 0)
     {
 
         return DB::transaction(function () use ($title, $min_consume, $method, $value, $is_grand_total, $collection_ids, $life_cycle) {
