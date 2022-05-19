@@ -278,20 +278,7 @@ class AccountPayableCtrl extends Controller
         }
         $tw_price = $paid_paying_order_data->sum('price') - $payable_data->sum('tw_price');
 
-        $firstGrades = GeneralLedger::getAllFirstGrade();
-        $totalGrades = array();
-        foreach ($firstGrades as $firstGrade) {
-            $totalGrades[] = $firstGrade;
-            foreach (GeneralLedger::getSecondGradeById($firstGrade['id']) as $secondGrade) {
-                $totalGrades[] = $secondGrade;
-                foreach (GeneralLedger::getThirdGradeById($secondGrade['id']) as $thirdGrade) {
-                    $totalGrades[] = $thirdGrade;
-                    foreach (GeneralLedger::getFourthGradeById($thirdGrade['id']) as $fourthGrade) {
-                        $totalGrades[] = $fourthGrade;
-                    }
-                }
-            }
-        }
+        $total_grades = GeneralLedger::total_grade_list();
 
         return view('cms.account_management.account_payable.edit', [
             'tw_price' => $tw_price,
@@ -327,7 +314,7 @@ class AccountPayableCtrl extends Controller
             'purchase_data' => $purchase_data,
             'supplier' => $supplier,
 
-            'totalGrades' => $totalGrades,
+            'total_grades' => $total_grades,
         ]);
     }
 

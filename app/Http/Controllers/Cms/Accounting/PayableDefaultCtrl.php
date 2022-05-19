@@ -26,20 +26,7 @@ class PayableDefaultCtrl extends Controller
         $productGradeDefaultArray = PayableDefault::where('name', 'product')->first();
         $logisticsGradeDefaultArray = PayableDefault::where('name', 'logistics')->first();
 
-        $firstGrades = GeneralLedger::getAllFirstGrade();
-        $totalGrades = array();
-        foreach ($firstGrades as $firstGrade) {
-            $totalGrades[] = $firstGrade;
-            foreach (GeneralLedger::getSecondGradeById($firstGrade['id']) as $secondGrade) {
-                $totalGrades[] = $secondGrade;
-                foreach (GeneralLedger::getThirdGradeById($secondGrade['id']) as $thirdGrade) {
-                    $totalGrades[] = $thirdGrade;
-                    foreach (GeneralLedger::getFourthGradeById($thirdGrade['id']) as $fourthGrade) {
-                        $totalGrades[] = $fourthGrade;
-                    }
-                }
-            }
-        }
+        $total_grades = GeneralLedger::total_grade_list();
 
         $cash_data = PayableDefault::where('name', 'cash')->pluck('default_grade_id')->toArray();
         $cheque_data = PayableDefault::where('name', 'cheque')->pluck('default_grade_id')->toArray();
@@ -48,7 +35,7 @@ class PayableDefaultCtrl extends Controller
         $other_data = PayableDefault::where('name', 'other')->pluck('default_grade_id')->toArray();
 
         return view('cms.accounting.payable_default.edit', [
-            'totalGrades' => $totalGrades,
+            'total_grades' => $total_grades,
 
             'currencyData' => $currencyData,
 
@@ -80,20 +67,7 @@ class PayableDefaultCtrl extends Controller
         $productGradeDefaultArray = PayableDefault::where('name', 'product')->first();
         $logisticsGradeDefaultArray = PayableDefault::where('name', 'logistics')->first();
 
-        $firstGrades = GeneralLedger::getAllFirstGrade();
-        $totalGrades = array();
-        foreach ($firstGrades as $firstGrade) {
-            $totalGrades[] = $firstGrade;
-            foreach (GeneralLedger::getSecondGradeById($firstGrade['id']) as $secondGrade) {
-                $totalGrades[] = $secondGrade;
-                foreach (GeneralLedger::getThirdGradeById($secondGrade['id']) as $thirdGrade) {
-                    $totalGrades[] = $thirdGrade;
-                    foreach (GeneralLedger::getFourthGradeById($thirdGrade['id']) as $fourthGrade) {
-                        $totalGrades[] = $fourthGrade;
-                    }
-                }
-            }
-        }
+        $total_grades = GeneralLedger::total_grade_list();
 
         $cash_data = PayableDefault::where('name', 'cash')->pluck('default_grade_id')->toArray();
         $cheque_data = PayableDefault::where('name', 'cheque')->pluck('default_grade_id')->toArray();
@@ -102,7 +76,7 @@ class PayableDefaultCtrl extends Controller
         $other_data = PayableDefault::where('name', 'other')->pluck('default_grade_id')->toArray();
 
         return view('cms.accounting.payable_default.edit', [
-            'totalGrades' => $totalGrades,
+            'total_grades' => $total_grades,
 
             'currencyData' => $currencyData,
             'cash_data' => $cash_data,

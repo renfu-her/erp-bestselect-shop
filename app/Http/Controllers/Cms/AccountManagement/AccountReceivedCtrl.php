@@ -299,20 +299,7 @@ class AccountReceivedCtrl extends Controller
                                                     });
         }
 
-        $firstGrades = GeneralLedger::getAllFirstGrade();
-        $totalGrades = array();
-        foreach ($firstGrades as $firstGrade) {
-            $totalGrades[] = $firstGrade;
-            foreach (GeneralLedger::getSecondGradeById($firstGrade['id']) as $secondGrade) {
-                $totalGrades[] = $secondGrade;
-                foreach (GeneralLedger::getThirdGradeById($secondGrade['id']) as $thirdGrade) {
-                    $totalGrades[] = $thirdGrade;
-                    foreach (GeneralLedger::getFourthGradeById($thirdGrade['id']) as $fourthGrade) {
-                        $totalGrades[] = $fourthGrade;
-                    }
-                }
-            }
-        }
+        $total_grades = GeneralLedger::total_grade_list();
 
         $allGradeArray = [];
         // $allGrade = AllGrade::all();
@@ -327,7 +314,7 @@ class AccountReceivedCtrl extends Controller
         //     ];
         // }
 
-        foreach ($totalGrades as $grade) {
+        foreach ($total_grades as $grade) {
             $allGradeArray[$grade['primary_id']] = $grade;
         }
         $defaultArray = [];

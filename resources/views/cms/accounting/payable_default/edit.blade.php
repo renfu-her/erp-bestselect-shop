@@ -33,7 +33,7 @@
                             disabled
                         @endif
                         data-placeholder="可複選">
-                    @foreach($totalGrades as $value)
+                    @foreach($total_grades as $value)
                         <option
                             @if(in_array($value['primary_id'], $cash_data))
                             selected
@@ -64,7 +64,7 @@
                         disabled
                         @endif
                         data-placeholder="可複選">
-                    @foreach($totalGrades as $value)
+                    @foreach($total_grades as $value)
                         <option
                             @if(in_array($value['primary_id'], $cheque_data))
                             selected
@@ -95,7 +95,7 @@
                         disabled
                         @endif
                         data-placeholder="可複選">
-                    @foreach($totalGrades as $value)
+                    @foreach($total_grades as $value)
                         <option
                             @if(in_array($value['primary_id'], $remittance_data))
                             selected
@@ -126,7 +126,7 @@
                         disabled
                         @endif
                         data-placeholder="可複選">
-                    @foreach($totalGrades as $value)
+                    @foreach($total_grades as $value)
                         <option
                             @if(in_array($value['primary_id'], $accounts_payable_data))
                             selected
@@ -157,7 +157,7 @@
                         disabled
                         @endif
                         data-placeholder="可複選">
-                    @foreach($totalGrades as $value)
+                    @foreach($total_grades as $value)
                         <option
                             selected
                         {{--
@@ -220,7 +220,7 @@
                                         data-placeholder="單選">
                                 <option disabled selected value> -- select an option -- </option>
 
-                                @foreach($totalGrades as $value)
+                                @foreach($total_grades as $value)
                                     <option
                                         @if($value['primary_id'] === $currencyOption->default_grade_id)
                                         selected
@@ -263,7 +263,7 @@
                     class="select3 -select2 -single form-select col-12 @error('orderDefault[product]') is-invalid @enderror"
                     data-placeholder="請選擇">
                     <option disabled selected value> -- select an option --</option>
-                    @foreach($totalGrades as $value)
+                    @foreach($total_grades as $value)
                         <option
                             @if(!is_null($productGradeDefaultArray) && $value['primary_id'] === $productGradeDefaultArray['default_grade_id'])
                             selected
@@ -296,7 +296,7 @@
                     class="select3 -select2 -single form-select col-12 @error('orderDefault[logistics]') is-invalid @enderror"
                     data-placeholder="請選擇">
                     <option disabled selected value> -- select an option --</option>
-                    @foreach($totalGrades as $value)
+                    @foreach($total_grades as $value)
                         <option
                             @if(!is_null($logisticsGradeDefaultArray) && $value['primary_id'] === $logisticsGradeDefaultArray['default_grade_id'])
                             selected

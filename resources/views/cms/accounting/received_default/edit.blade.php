@@ -32,21 +32,21 @@
                             class="select2 -multiple form-select @error($key . '.*') is-invalid @enderror"
                             disabled
                             data-placeholder="可複選">
-                        @foreach($totalGrades as $totalGrade)
+                        @foreach($total_grades as $grade_value)
                             <option
-                                @if(in_array($totalGrade['primary_id'], $default_received_grade[$key]) || $key == 'other')
+                                @if(in_array($grade_value['primary_id'], $default_received_grade[$key]) || $key == 'other')
                                 selected
                                 @endif
-                                @if($totalGrade['grade_num'] === 1)
+                                @if($grade_value['grade_num'] === 1)
                                 class="grade_1"
-                                @elseif($totalGrade['grade_num'] === 2)
+                                @elseif($grade_value['grade_num'] === 2)
                                 class="grade_2"
-                                @elseif($totalGrade['grade_num'] === 3)
+                                @elseif($grade_value['grade_num'] === 3)
                                 class="grade_3"
-                                @elseif($totalGrade['grade_num'] === 4)
+                                @elseif($grade_value['grade_num'] === 4)
                                 class="grade_4"
                                 @endif
-                                value="{{ $totalGrade['primary_id'] }}">{{ $totalGrade['code'] . ' ' . $totalGrade['name'] }}
+                                value="{{ $grade_value['primary_id'] }}">{{ $grade_value['code'] . ' ' . $grade_value['name'] }}
                             </option>
                             @error($key . '.*') {{ $message }} @enderror
                         @endforeach
@@ -89,21 +89,21 @@
                                             data-placeholder="單選">
                                         <option disabled selected value>請選擇</option>
 
-                                        @foreach($totalGrades as $totalGrade)
+                                        @foreach($total_grades as $grade_value)
                                             <option
-                                                @if($totalGrade['primary_id'] === $currencyDefault['default_grade_id'])
+                                                @if($grade_value['primary_id'] === $currencyDefault['default_grade_id'])
                                                 selected
                                                 @endif
-                                                @if($totalGrade['grade_num'] === 1)
+                                                @if($grade_value['grade_num'] === 1)
                                                 class="grade_1"
-                                                @elseif($totalGrade['grade_num'] === 2)
+                                                @elseif($grade_value['grade_num'] === 2)
                                                 class="grade_2"
-                                                @elseif($totalGrade['grade_num'] === 3)
+                                                @elseif($grade_value['grade_num'] === 3)
                                                 class="grade_3"
-                                                @elseif($totalGrade['grade_num'] === 4)
+                                                @elseif($grade_value['grade_num'] === 4)
                                                 class="grade_4"
                                                 @endif
-                                                value="{{ $totalGrade['primary_id'] }}">{{ $totalGrade['code'] . ' ' . $totalGrade['name'] }}
+                                                value="{{ $grade_value['primary_id'] }}">{{ $grade_value['code'] . ' ' . $grade_value['name'] }}
                                             </option>
                                             @error($type . '.[grade_id_fk].' . $currencyDefault['currency_id']) {{ $message }} @enderror
                                         @endforeach
@@ -124,7 +124,7 @@
                 <label class="form-label" for="">商品</label>
                 <select name="product" required {{ $isViewMode === true ? 'disabled' : '' }} class="select3 -select2 -single form-select col-12 @error('product') is-invalid @enderror" data-placeholder="請選擇">
                     <option disabled selected value>-- select an option --</option>
-                    @foreach($totalGrades as $value)
+                    @foreach($total_grades as $value)
                         <option
                             @if(!is_null($default_product_grade) && $value['primary_id'] === $default_product_grade)
                             selected
@@ -150,7 +150,7 @@
                 <label class="form-label" for="">物流費用</label>
                 <select name="logistics" required {{ $isViewMode === true ? 'disabled' : '' }} class="select3 -select2 -single form-select col-12 @error('logistics') is-invalid @enderror" data-placeholder="請選擇">
                     <option disabled selected value>-- select an option --</option>
-                    @foreach($totalGrades as $value)
+                    @foreach($total_grades as $value)
                         <option
                             @if(!is_null($default_logistics_grade) && $value['primary_id'] === $default_logistics_grade)
                             selected
@@ -180,7 +180,7 @@
                 <label class="form-label" for="">{{$dt_value}}</label>
                 <select name="{{$key}}" required {{ $isViewMode === true ? 'disabled' : '' }} class="select3 -select2 -single form-select col-12 @error('{{$key}}') is-invalid @enderror" data-placeholder="請選擇">
                     <option disabled selected value>-- select an option --</option>
-                    @foreach($totalGrades as $value)
+                    @foreach($total_grades as $value)
                         <option
                             @if($default_discount_grade[$key] == $value['primary_id'])
                             selected

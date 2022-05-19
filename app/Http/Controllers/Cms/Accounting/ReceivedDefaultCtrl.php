@@ -24,20 +24,7 @@ class ReceivedDefaultCtrl extends Controller
      */
     public function index()
     {
-        $firstGrades = GeneralLedger::getAllFirstGrade();
-        $totalGrades = array();
-        foreach ($firstGrades as $firstGrade) {
-            $totalGrades[] = $firstGrade;
-            foreach (GeneralLedger::getSecondGradeById($firstGrade['id']) as $secondGrade) {
-                $totalGrades[] = $secondGrade;
-                foreach (GeneralLedger::getThirdGradeById($secondGrade['id']) as $thirdGrade) {
-                    $totalGrades[] = $thirdGrade;
-                    foreach (GeneralLedger::getFourthGradeById($thirdGrade['id']) as $fourthGrade) {
-                        $totalGrades[] = $fourthGrade;
-                    }
-                }
-            }
-        }
+        $total_grades = GeneralLedger::total_grade_list();
 
         $all_received_method = ReceivedMethod::asArray();
         $received_method = [];
@@ -91,7 +78,7 @@ class ReceivedDefaultCtrl extends Controller
         }
 
         return view('cms.accounting.received_default.edit', [
-            'totalGrades' => $totalGrades,
+            'total_grades' => $total_grades,
 
             'received_method' => $received_method,
             'default_received_grade' => $default_received_grade,

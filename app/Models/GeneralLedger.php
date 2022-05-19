@@ -316,6 +316,28 @@ class GeneralLedger extends Model
     }
 
 
+    public static function total_grade_list()
+    {
+        $first_grade = self::getAllFirstGrade();
+        $list = [];
+
+        foreach ($first_grade as $first_v) {
+            $list[] = $first_v;
+            foreach (self::getSecondGradeById($first_v['id']) as $second_v) {
+                $list[] = $second_v;
+                foreach (self::getThirdGradeById($second_v['id']) as $third_v) {
+                    $list[] = $third_v;
+                    foreach (self::getFourthGradeById($third_v['id']) as $fourth_v) {
+                        $list[] = $fourth_v;
+                    }
+                }
+            }
+        }
+
+        return $list;
+    }
+
+
     // $parameter['type'] in r = received_orders, p = paying_orders
     // $parameter['d_type'] in received, payable, product, logistics, discount
     public static function classification_processing(&$debit = [], &$credit = [], $parameter = [])
