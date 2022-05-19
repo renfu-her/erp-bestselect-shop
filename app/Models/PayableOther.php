@@ -53,6 +53,7 @@ class PayableOther extends Model
             'acc_income_type_fk' => Payment::Other,
             'payable_type' => 'App\Models\PayableOther',
             'payable_id' => $payableData->id,
+            'all_grades_id' => $req['other']['grade_id_fk'],
             'tw_price' => $req['tw_price'],
             //            'payable_status' => $req['payable_status'],
             'payment_date' => $req['payment_date'],

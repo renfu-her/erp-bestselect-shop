@@ -85,6 +85,7 @@ class AccountReceivedCtrl extends Controller
             $debit = [];
             $credit = [];
 
+            // 收款項目
             foreach(json_decode($value->received_list) as $r_value){
                 $received_method_name = ReceivedMethod::getDescription($r_value->received_method);
                 $received_account = AllGrade::find($r_value->all_grades_id)->eachGrade;
@@ -98,8 +99,7 @@ class AccountReceivedCtrl extends Controller
                     $r_value->currency_rate = 1;
                 }
 
-                // 收款項目
-                $name = $received_method_name . $r_value->note . '（' . $received_account->code . ' - ' . $received_account->name . '）';
+                $name = $received_method_name . ' ' . $r_value->note . '（' . $received_account->code . ' - ' . $received_account->name . '）';
 
                 $tmp = [
                     'account_code'=>$received_account->code,
@@ -116,7 +116,9 @@ class AccountReceivedCtrl extends Controller
                     'del_category_name'=>null,
                     'product_price'=>null,
                     'product_qty'=>null,
+                    'product_owner'=>null,
                     'discount_title'=>null,
+                    'payable_type'=>null,
                 ];
                 GeneralLedger::classification_processing($debit, $credit, $tmp);
             }
@@ -144,7 +146,9 @@ class AccountReceivedCtrl extends Controller
                     'del_category_name'=>null,
                     'product_price'=>$o_value->price,
                     'product_qty'=>$o_value->qty,
+                    'product_owner'=>null,
                     'discount_title'=>null,
+                    'payable_type'=>null,
                 ];
                 GeneralLedger::classification_processing($debit, $credit, $tmp);
             }
@@ -171,7 +175,9 @@ class AccountReceivedCtrl extends Controller
                     'del_category_name'=>null,
                     'product_price'=>null,
                     'product_qty'=>null,
+                    'product_owner'=>null,
                     'discount_title'=>null,
+                    'payable_type'=>null,
                 ];
                 GeneralLedger::classification_processing($debit, $credit, $tmp);
             }
@@ -199,7 +205,9 @@ class AccountReceivedCtrl extends Controller
                         'del_category_name'=>null,
                         'product_price'=>null,
                         'product_qty'=>null,
+                        'product_owner'=>null,
                         'discount_title'=>$d_value->title,
+                        'payable_type'=>null,
                     ];
                     GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }
@@ -603,7 +611,9 @@ class AccountReceivedCtrl extends Controller
                         'del_category_name'=>null,
                         'product_price'=>null,
                         'product_qty'=>null,
+                        'product_owner'=>null,
                         'discount_title'=>null,
+                        'payable_type'=>null,
                     ];
                     GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }
@@ -632,7 +642,9 @@ class AccountReceivedCtrl extends Controller
                         'del_category_name'=>$value->del_category_name,
                         'product_price'=>$value->product_price,
                         'product_qty'=>$value->product_qty,
+                        'product_owner'=>null,
                         'discount_title'=>null,
+                        'payable_type'=>null,
                     ];
                     GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }
@@ -661,7 +673,9 @@ class AccountReceivedCtrl extends Controller
                         'del_category_name'=>null,
                         'product_price'=>null,
                         'product_qty'=>null,
+                        'product_owner'=>null,
                         'discount_title'=>null,
+                        'payable_type'=>null,
                     ];
                     GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }
@@ -695,7 +709,9 @@ class AccountReceivedCtrl extends Controller
                             'del_category_name'=>null,
                             'product_price'=>null,
                             'product_qty'=>null,
+                            'product_owner'=>null,
                             'discount_title'=>$value->title,
+                            'payable_type'=>null,
                         ];
                         GeneralLedger::classification_processing($debit, $credit, $tmp);
                     }

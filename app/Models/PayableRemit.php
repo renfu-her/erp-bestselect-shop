@@ -55,6 +55,7 @@ class PayableRemit extends Model
             'acc_income_type_fk' => Payment::Remittance,
             'payable_type' => 'App\Models\PayableRemit',
             'payable_id' => $payableData->id,
+            'all_grades_id' => $req['remit']['remit_date'],
             'tw_price' => $req['tw_price'],
             //            'payable_status' => $req['payable_status'],
             'payment_date' => $req['payment_date'],

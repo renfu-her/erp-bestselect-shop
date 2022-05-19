@@ -9,11 +9,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 use App\Enums\Payable\PayableModelType;
 use App\Enums\Supplier\Payment;
-use App\Enums\Payable\PayableStatus;
 
 use App\Models\AllGrade;
 use App\Models\AccountPayable;
@@ -32,36 +32,160 @@ use App\Models\PayableDefault;
 
 class AccountPayableCtrl extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index(AccountPayable $accountPayable)
+    public function index(Request $request)
     {
-        $payableDataList = $accountPayable->all();
+        $query = $request->query();
+        $page = getPageCount(Arr::get($query, 'data_per_page', 10)) > 0 ? getPageCount(Arr::get($query, 'data_per_page', 10)) : 10;
 
-        $dataList = [];
-        foreach ($payableDataList as $payableData) {
-            $payingOrderRepresentative = DB::table('usr_users')
-                                                ->find($payableData->payingOrder->usr_users_id, 'name')
-                                                ->name;
-            $accountant = DB::table('usr_users')
-                            ->find($payableData->accountant_id_fk, 'name')
-                            ->name;
-            $dataList[] = [
-                'tw_price' => $payableData->tw_price,
-                //TODO use Enum Type to define PayingOrder Model
-                'payingOrderType' => '採購',
-                'paying_order_sn' => $payableData->payingOrder->sn,
-                'paying_order_representative' => $payingOrderRepresentative,
-                'payableTypeName' => AccountPayable::getPayableNameByModelName($payableData->payable_type),
-                'accountant' => $accountant,
-            ];
+        $cond = [];
+
+        $cond['supplier_id'] = Arr::get($query, 'supplier_id', []);
+        if (gettype($cond['supplier_id']) == 'string') {
+            $cond['supplier_id'] = explode(',', $cond['supplier_id']);
+        } else {
+            $cond['supplier_id'] = [];
         }
 
+        $cond['p_order_sn'] = Arr::get($query, 'p_order_sn', null);
+        $cond['purchase_sn'] = Arr::get($query, 'purchase_sn', null);
+
+        $cond['p_order_min_price'] = Arr::get($query, 'p_order_min_price', null);
+        $cond['p_order_max_price'] = Arr::get($query, 'p_order_max_price', null);
+        $p_order_price = [
+            $cond['p_order_min_price'],
+            $cond['p_order_max_price']
+        ];
+
+        $cond['p_order_sdate'] = Arr::get($query, 'p_order_sdate', null);
+        $cond['p_order_edate'] = Arr::get($query, 'p_order_edate', null);
+        $p_order_payment_date = [
+            $cond['p_order_sdate'],
+            $cond['p_order_edate']
+        ];
+
+        $dataList = PayingOrder::paying_order_list(
+            $cond['supplier_id'],
+            $cond['p_order_sn'],
+            $cond['purchase_sn'],
+            $p_order_price,
+            $p_order_payment_date,
+        )->paginate($page)->appends($query);
+
+        // accounting classification start
+        foreach($dataList as $value){
+            $debit = [];
+            $credit = [];
+
+            // 付款項目
+            foreach(json_decode($value->payable_list) as $pay_v){
+                $payment_method_name = Payment::getDescription($pay_v->acc_income_type_fk);
+                $payment_account = AllGrade::find($pay_v->all_grades_id) ? AllGrade::find($pay_v->all_grades_id)->eachGrade : null;
+                $account_code = $payment_account ? $payment_account->code : '1000';
+                $account_name = $payment_account ? $payment_account->name : '無設定會計科目';
+
+                // if($pay_v->acc_income_type_fk == 4){
+                //     $arr = explode('-', AllGrade::find($pay_v->all_grades_id)->eachGrade->name);
+                //     $pay_v->currency_name = $arr[0] == '外幣' ? $arr[1] . ' - ' . $arr[2] : 'NTD';
+                //     $pay_v->currency_rate = DB::table('acc_payment_currency')->find($pay_v->payment_method_id)->currency;
+                // } else {
+                //     $pay_v->currency_name = 'NTD';
+                //     $pay_v->currency_rate = 1;
+                // }
+
+                $name = $payment_method_name . ' ' . $pay_v->note . '（' . $account_code . ' - ' . $account_name . '）';
+
+                $tmp = [
+                    'account_code'=>$account_code,
+                    'name'=>$name,
+                    'price'=>$pay_v->tw_price,
+                    'type'=>'p',
+                    'd_type'=>'payable',
+
+                    'account_name'=>$account_name,
+                    'method_name'=>$payment_method_name,
+                    'note'=>$pay_v->note,
+                    'product_title'=>null,
+                    'del_even'=>null,
+                    'del_category_name'=>null,
+                    'product_price'=>null,
+                    'product_qty'=>null,
+                    'product_owner'=>null,
+                    'discount_title'=>null,
+                    'payable_type'=>$pay_v->payable_type,
+                ];
+                GeneralLedger::classification_processing($debit, $credit, $tmp);
+            }
+
+            // 商品
+            $product_account = AllGrade::find($value->po_product_grade_id) ? AllGrade::find($value->po_product_grade_id)->eachGrade : null;
+            $account_code = $product_account ? $product_account->code : '1000';
+            $account_name = $product_account ? $product_account->name : '無設定會計科目';
+            $product_name = $account_code . ' - ' . $account_name;
+            foreach(json_decode($value->product_list) as $pro_v){
+                $avg_price = $pro_v->price / $pro_v->num;
+                $name = $product_name . ' --- ' . $pro_v->title . '（' . $avg_price . ' * ' . $pro_v->num . '）';
+
+                $tmp = [
+                    'account_code'=>$account_code,
+                    'name'=>$name,
+                    'price'=>$pro_v->price,
+                    'type'=>'p',
+                    'd_type'=>'product',
+
+                    'account_name'=>$account_name,
+                    'method_name'=>null,
+                    'note'=>null,
+                    'product_title'=>$pro_v->title,
+                    'del_even'=>null,
+                    'del_category_name'=>null,
+                    'product_price'=>$avg_price,
+                    'product_qty'=>$pro_v->num,
+                    'product_owner'=>$pro_v->product_owner,
+                    'discount_title'=>null,
+                    'payable_type'=>null,
+                ];
+                GeneralLedger::classification_processing($debit, $credit, $tmp);
+            }
+
+            // 物流
+            if($value->purchase_logistics_price <> 0){
+                $log_account = AllGrade::find($value->po_logistics_grade_id) ? AllGrade::find($value->po_logistics_grade_id)->eachGrade : null;
+                $account_code = $log_account ? $log_account->code : '5000';
+                $account_name = $log_account ? $log_account->name : '無設定會計科目';
+                $name = $account_code . ' - ' . $account_name;
+
+                $tmp = [
+                    'account_code'=>$account_code,
+                    'name'=>$name,
+                    'price'=>$value->purchase_logistics_price,
+                    'type'=>'p',
+                    'd_type'=>'logistics',
+
+                    'account_name'=>$account_name,
+                    'method_name'=>null,
+                    'note'=>null,
+                    'product_title'=>null,
+                    'del_even'=>null,
+                    'del_category_name'=>null,
+                    'product_price'=>null,
+                    'product_qty'=>null,
+                    'product_owner'=>null,
+                    'discount_title'=>null,
+                    'payable_type'=>null,
+                ];
+                GeneralLedger::classification_processing($debit, $credit, $tmp);
+            }
+
+            $value->debit = $debit;
+            $value->credit = $credit;
+        }
+        // accounting classification end
+
         return view('cms.account_management.account_payable.list', [
+            'data_per_page' => $page,
             'dataList' => $dataList,
+            'cond' => $cond,
+            'supplier' => Supplier::whereNull('deleted_at')->toBase()->get(),
         ]);
     }
 
@@ -487,7 +611,7 @@ class AccountPayableCtrl extends Controller
             $payableId = $accountPayable->find($id)->payable->id;
             switch ($requestPayableTypeId) {
                 case Payment::Cash:
-                    PayableModelType::where('id', $payableId)->update([
+                    PayableCash::where('id', $payableId)->update([
                         'grade_type' => PayableDefault::getModelNameByPayableTypeId(Payment::Cash),
                         'grade_id' => $req['cash']['grade_id_fk']
                     ]);
@@ -496,7 +620,7 @@ class AccountPayableCtrl extends Controller
                         'pay_order_id' => $req['pay_order_id'],
                         'acc_income_type_fk' => Payment::Cash,
                         'payable_type' => 'App\Models\PayableCash',
-//                        'payable_id' => $payableData->id,
+                        'all_grades_id' => $req['cash']['grade_id_fk'],
                         'tw_price' => $req['tw_price'],
                         //            'payable_status' => $req['payable_status'],
                         'payment_date' => $req['payment_date'],
@@ -518,7 +642,7 @@ class AccountPayableCtrl extends Controller
                         'pay_order_id' => $req['pay_order_id'],
                         'acc_income_type_fk' => Payment::Cheque,
                         'payable_type' => 'App\Models\PayableCheque',
-                        //                        'payable_id' => $payableData->id,
+                        'all_grades_id' => $req['cheque']['grade_id_fk'],
                         'tw_price' => $req['tw_price'],
                         //            'payable_status' => $req['payable_status'],
                         'payment_date' => $req['payment_date'],
@@ -538,7 +662,7 @@ class AccountPayableCtrl extends Controller
                         'pay_order_id' => $req['pay_order_id'],
                         'acc_income_type_fk' => Payment::Remittance,
                         'payable_type' => 'App\Models\PayableRemit',
-//                        'payable_id' => $payableData->id,
+                        'all_grades_id' => $req['remit']['grade_id_fk'],
                         'tw_price' => $req['tw_price'],
                         //            'payable_status' => $req['payable_status'],
                         'payment_date' => $req['payment_date'],
@@ -559,7 +683,7 @@ class AccountPayableCtrl extends Controller
                         'pay_order_id' => $req['pay_order_id'],
                         'acc_income_type_fk' => Payment::ForeignCurrency,
                         'payable_type' => 'App\Models\PayableForeignCurrency',
-//                        'payable_id' => $payableData->id,
+                        'all_grades_id' => $req['foreign_currency']['grade_id_fk'],
                         'tw_price' => $req['tw_price'],
                         //            'payable_status' => $req['payable_status'],
                         'payment_date' => $req['payment_date'],
@@ -577,7 +701,7 @@ class AccountPayableCtrl extends Controller
                         'pay_order_id' => $req['pay_order_id'],
                         'acc_income_type_fk' => Payment::AccountsPayable,
                         'payable_type' => 'App\Models\PayableAccount',
-//                        'payable_id' => $payableData->id,
+                        'all_grades_id' => $req['payable_account']['grade_id_fk'],
                         'tw_price' => $req['tw_price'],
                         //            'payable_status' => $req['payable_status'],
                         'payment_date' => $req['payment_date'],
@@ -595,7 +719,7 @@ class AccountPayableCtrl extends Controller
                         'pay_order_id' => $req['pay_order_id'],
                         'acc_income_type_fk' => Payment::Other,
                         'payable_type' => 'App\Models\PayableOther',
-//                        'payable_id' => $payableData->id,
+                        'all_grades_id' => $req['other']['grade_id_fk'],
                         'tw_price' => $req['tw_price'],
                         //            'payable_status' => $req['payable_status'],
                         'payment_date' => $req['payment_date'],
@@ -618,6 +742,7 @@ class AccountPayableCtrl extends Controller
                         'acc_income_type_fk' => Payment::Cash,
                         'payable_type' => 'App\Models\PayableCash',
                         'payable_id' => $payableData->id,
+                        'all_grades_id' => $req['cash']['grade_id_fk'],
                         'tw_price' => $req['tw_price'],
                         //            'payable_status' => $req['payable_status'],
                         'payment_date' => $req['payment_date'],
@@ -640,6 +765,7 @@ class AccountPayableCtrl extends Controller
                         'acc_income_type_fk' => Payment::Cheque,
                         'payable_type' => 'App\Models\PayableCheque',
                         'payable_id' => $payableData->id,
+                        'all_grades_id' => $req['cheque']['grade_id_fk'],
                         'tw_price' => $req['tw_price'],
                         //            'payable_status' => $req['payable_status'],
                         'payment_date' => $req['payment_date'],
@@ -659,6 +785,7 @@ class AccountPayableCtrl extends Controller
                         'acc_income_type_fk' => Payment::Remittance,
                         'payable_type' => 'App\Models\PayableRemit',
                         'payable_id' => $payableData->id,
+                        'all_grades_id' => $req['remit']['grade_id_fk'],
                         'tw_price' => $req['tw_price'],
                         //            'payable_status' => $req['payable_status'],
                         'payment_date' => $req['payment_date'],
@@ -680,6 +807,7 @@ class AccountPayableCtrl extends Controller
                         'acc_income_type_fk' => Payment::ForeignCurrency,
                         'payable_type' => 'App\Models\PayableForeignCurrency',
                         'payable_id' => $payableData->id,
+                        'all_grades_id' => $req['foreign_currency']['grade_id_fk'],
                         'tw_price' => $req['tw_price'],
                         //            'payable_status' => $req['payable_status'],
                         'payment_date' => $req['payment_date'],
@@ -698,6 +826,7 @@ class AccountPayableCtrl extends Controller
                         'acc_income_type_fk' => Payment::AccountsPayable,
                         'payable_type' => 'App\Models\PayableAccount',
                         'payable_id' => $payableData->id,
+                        'all_grades_id' => $req['payable_account']['grade_id_fk'],
                         'tw_price' => $req['tw_price'],
                         //            'payable_status' => $req['payable_status'],
                         'payment_date' => $req['payment_date'],
@@ -716,6 +845,7 @@ class AccountPayableCtrl extends Controller
                         'acc_income_type_fk' => Payment::Other,
                         'payable_type' => 'App\Models\PayableOther',
                         'payable_id' => $payableData->id,
+                        'all_grades_id' => $req['other']['grade_id_fk'],
                         'tw_price' => $req['tw_price'],
                         //            'payable_status' => $req['payable_status'],
                         'payment_date' => $req['payment_date'],

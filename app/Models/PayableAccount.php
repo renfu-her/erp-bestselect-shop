@@ -53,6 +53,7 @@ class PayableAccount extends Model
             'acc_income_type_fk' => Payment::AccountsPayable,
             'payable_type' => 'App\Models\PayableAccount',
             'payable_id' => $payableData->id,
+            'all_grades_id' => $req['payable_account']['grade_id_fk'],
             'tw_price' => $req['tw_price'],
             //            'payable_status' => $req['payable_status'],
             'payment_date' => $req['payment_date'],

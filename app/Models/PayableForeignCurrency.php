@@ -60,6 +60,7 @@ class PayableForeignCurrency extends Model
             'acc_income_type_fk' => Payment::ForeignCurrency,
             'payable_type' => 'App\Models\PayableForeignCurrency',
             'payable_id' => $payableData->id,
+            'all_grades_id' => $req['foreign_currency']['grade_id_fk'],
             'tw_price' => $req['tw_price'],
             //            'payable_status' => $req['payable_status'],
             'payment_date' => $req['payment_date'],

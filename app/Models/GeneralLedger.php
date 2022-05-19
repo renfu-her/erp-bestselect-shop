@@ -335,7 +335,9 @@ class GeneralLedger extends Model
         $del_category_name = $parameter['del_category_name'] ? $parameter['del_category_name'] : '';
         $product_price = $parameter['product_price'] ? $parameter['product_price'] : '';
         $product_qty = $parameter['product_qty'] ? $parameter['product_qty'] : '';
+        $product_owner = $parameter['product_owner'] ? $parameter['product_owner'] : '';
         $discount_title = $parameter['discount_title'] ? $parameter['discount_title'] : '';
+        $payable_type = $parameter['payable_type'] ? $parameter['payable_type'] : '0';
 
         if($type == 'r'){
             if(in_array($code, [1, 5]) && $price >= 0){
@@ -354,7 +356,9 @@ class GeneralLedger extends Model
                     'del_category_name'=>$del_category_name,
                     'product_price'=>$product_price,
                     'product_qty'=>$product_qty,
+                    'product_owner'=>$product_owner,
                     'discount_title'=>$discount_title,
+                    'payable_type'=>$payable_type,
                 ];
 
                 if( in_array($d_type, ['logistics']) && $code == 5){
@@ -383,50 +387,39 @@ class GeneralLedger extends Model
                     'del_category_name'=>$del_category_name,
                     'product_price'=>$product_price,
                     'product_qty'=>$product_qty,
+                    'product_owner'=>$product_owner,
                     'discount_title'=>$discount_title,
+                    'payable_type'=>$payable_type,
                 ];
                 array_push($credit, $tmp);
 
             } else if(in_array($code, [2, 3, 4]) && $price >= 0){
                 // 貸方
                 if( in_array($d_type, ['discount']) && $code == 4){
-                    $tmp = (object)[
-                        'name'=>$name,
-                        'price'=>-$price,
-                        'type'=>$type,
-                        'd_type'=>$d_type,
-
-                        'account_code'=>$account_code,
-                        'account_name'=>$account_name,
-                        'method_name'=>$method_name,
-                        'note'=>$note,
-                        'product_title'=>$product_title,
-                        'del_even'=>$del_even,
-                        'del_category_name'=>$del_category_name,
-                        'product_price'=>$product_price,
-                        'product_qty'=>$product_qty,
-                        'discount_title'=>$discount_title,
-                ];
-
+                    $price = (-$price);
                 } else {
-                    $tmp = (object)[
-                        'name'=>$name,
-                        'price'=>+$price,
-                        'type'=>$type,
-                        'd_type'=>$d_type,
-
-                        'account_code'=>$account_code,
-                        'account_name'=>$account_name,
-                        'method_name'=>$method_name,
-                        'note'=>$note,
-                        'product_title'=>$product_title,
-                        'del_even'=>$del_even,
-                        'del_category_name'=>$del_category_name,
-                        'product_price'=>$product_price,
-                        'product_qty'=>$product_qty,
-                        'discount_title'=>$discount_title,
-                ];
+                    $price = (+$price);
                 }
+
+                $tmp = (object)[
+                    'name'=>$name,
+                    'price'=>$price,
+                    'type'=>$type,
+                    'd_type'=>$d_type,
+
+                    'account_code'=>$account_code,
+                    'account_name'=>$account_name,
+                    'method_name'=>$method_name,
+                    'note'=>$note,
+                    'product_title'=>$product_title,
+                    'del_even'=>$del_even,
+                    'del_category_name'=>$del_category_name,
+                    'product_price'=>$product_price,
+                    'product_qty'=>$product_qty,
+                    'product_owner'=>$product_owner,
+                    'discount_title'=>$discount_title,
+                    'payable_type'=>$payable_type,
+                ];
 
                 array_push($credit, $tmp);
 
@@ -447,14 +440,124 @@ class GeneralLedger extends Model
                     'del_category_name'=>$del_category_name,
                     'product_price'=>$product_price,
                     'product_qty'=>$product_qty,
+                    'product_owner'=>$product_owner,
                     'discount_title'=>$discount_title,
+                    'payable_type'=>$payable_type,
                 ];
 
                 array_push($debit, $tmp);
             }
 
         } else if($type == 'p'){
+            if(in_array($code, [1, 5]) && $price >= 0){
+                $tmp = (object)[
+                    'name'=>$name,
+                    'price'=>+$price,
+                    'type'=>$type,
+                    'd_type'=>$d_type,
 
+                    'account_code'=>$account_code,
+                    'account_name'=>$account_name,
+                    'method_name'=>$method_name,
+                    'note'=>$note,
+                    'product_title'=>$product_title,
+                    'del_even'=>$del_even,
+                    'del_category_name'=>$del_category_name,
+                    'product_price'=>$product_price,
+                    'product_qty'=>$product_qty,
+                    'product_owner'=>$product_owner,
+                    'discount_title'=>$discount_title,
+                    'payable_type'=>$payable_type,
+                ];
+
+                if(in_array($d_type, ['payable'])){
+                    // 貸方
+                    array_push($credit, $tmp);
+
+                } else {
+                    // 借方
+                    array_push($debit, $tmp);
+                }
+
+            } else if(in_array($code, [1, 5]) && $price < 0){
+                $tmp = (object)[
+                    'name'=>$name,
+                    'price'=>+$price,
+                    'type'=>$type,
+                    'd_type'=>$d_type,
+
+                    'account_code'=>$account_code,
+                    'account_name'=>$account_name,
+                    'method_name'=>$method_name,
+                    'note'=>$note,
+                    'product_title'=>$product_title,
+                    'del_even'=>$del_even,
+                    'del_category_name'=>$del_category_name,
+                    'product_price'=>$product_price,
+                    'product_qty'=>$product_qty,
+                    'product_owner'=>$product_owner,
+                    'discount_title'=>$discount_title,
+                    'payable_type'=>$payable_type,
+                ];
+
+                if(in_array($d_type, ['logistics'])){
+                    // 借方
+                    array_push($debit, $tmp);
+                } else {
+                    // 貸方
+                    array_push($credit, $tmp);
+                }
+
+                array_push($credit, $tmp);
+
+            } else if(in_array($code, [2, 3, 4]) && $price >= 0){
+                // 貸方
+                $tmp = (object)[
+                    'name'=>$name,
+                    'price'=>+$price,
+                    'type'=>$type,
+                    'd_type'=>$d_type,
+
+                    'account_code'=>$account_code,
+                    'account_name'=>$account_name,
+                    'method_name'=>$method_name,
+                    'note'=>$note,
+                    'product_title'=>$product_title,
+                    'del_even'=>$del_even,
+                    'del_category_name'=>$del_category_name,
+                    'product_price'=>$product_price,
+                    'product_qty'=>$product_qty,
+                    'product_owner'=>$product_owner,
+                    'discount_title'=>$discount_title,
+                    'payable_type'=>$payable_type,
+                ];
+
+                array_push($credit, $tmp);
+
+            } else if(in_array($code, [2, 3, 4]) && $price < 0){
+                // 借方
+                $tmp = (object)[
+                    'name'=>$name,
+                    'price'=>+$price,
+                    'type'=>$type,
+                    'd_type'=>$d_type,
+
+                    'account_code'=>$account_code,
+                    'account_name'=>$account_name,
+                    'method_name'=>$method_name,
+                    'note'=>$note,
+                    'product_title'=>$product_title,
+                    'del_even'=>$del_even,
+                    'del_category_name'=>$del_category_name,
+                    'product_price'=>$product_price,
+                    'product_qty'=>$product_qty,
+                    'product_owner'=>$product_owner,
+                    'discount_title'=>$discount_title,
+                    'payable_type'=>$payable_type,
+                ];
+
+                array_push($debit, $tmp);
+            }
         }
     }
 }

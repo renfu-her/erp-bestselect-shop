@@ -17,18 +17,8 @@ class AccountPayable extends Model
     use HasFactory;
 
     protected $table = 'acc_payable';
-    protected $fillable = [
-        'pay_order_type',
-        'pay_order_id',
-        'acc_income_type_fk',
-        'payable_type',
-        'payable_id',
-        'tw_price',
-//        'payable_status',
-        'payment_date',
-        'accountant_id_fk',
-        'note',
-    ];
+    protected $guarded = [];
+
 
     /**
      * 取得不同付款方式對應的table資料

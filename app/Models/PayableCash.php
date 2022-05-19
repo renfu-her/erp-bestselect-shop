@@ -54,6 +54,7 @@ class PayableCash extends Model
             'acc_income_type_fk' => Payment::Cash,
             'payable_type' => 'App\Models\PayableCash',
             'payable_id' => $payableData->id,
+            'all_grades_id' => $req['cash']['grade_id_fk'],
             'tw_price' => $req['tw_price'],
             //            'payable_status' => $req['payable_status'],
             'payment_date' => $req['payment_date'],
