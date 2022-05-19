@@ -229,12 +229,11 @@ class Delivery extends Model
         return $query;
     }
 
-    //取得物流頁顯示的 子訂單-出貨商品列表
-    public static function getOrderListToLogistic($delivery_id, $order_id = null, $sub_order_id = null)
-    {
+    private static function getSumQtyWithRecDepot() {
         $sub_rec_depot = DB::table('dlv_receive_depot')
             ->select('dlv_receive_depot.delivery_id'
                 , 'dlv_receive_depot.event_item_id'
+                , 'dlv_receive_depot.prd_type'
                 , 'dlv_receive_depot.freebies'
                 , 'dlv_receive_depot.product_style_id'
                 , 'dlv_receive_depot.sku as rec_sku'
@@ -243,24 +242,32 @@ class Delivery extends Model
             ->selectRaw('sum(dlv_receive_depot.qty) as send_qty')
             ->groupBy('dlv_receive_depot.delivery_id')
             ->groupBy('dlv_receive_depot.event_item_id')
+            ->groupBy('dlv_receive_depot.prd_type')
             ->groupBy('dlv_receive_depot.freebies')
             ->groupBy('dlv_receive_depot.product_style_id')
             ->groupBy('dlv_receive_depot.sku')
             ->groupBy('dlv_receive_depot.product_title');
+        return $sub_rec_depot;
+    }
+
+    //取得物流頁顯示的 子訂單-出貨商品列表
+    public static function getOrderListToLogistic($delivery_id, $order_id = null, $sub_order_id = null)
+    {
+        $sub_rec_depot = self::getSumQtyWithRecDepot();
 
         $sub_orders = DB::table('ord_sub_orders')
-            ->leftJoin('ord_items', function($join) {
-                $join->on('ord_items.sub_order_id', '=', 'ord_sub_orders.id');
+            ->leftJoin('ord_item as items', function($join) {
+                $join->on('items.sub_order_id', '=', 'ord_sub_orders.id');
             })
-            ->select('ord_items.id as item_id'
-                , 'ord_items.order_id'
-                , 'ord_items.sub_order_id'
-                , 'ord_items.product_style_id'
-                , 'ord_items.sku'
-                , 'ord_items.product_title'
-                , 'ord_items.price'
-                , 'ord_items.qty'
-                , 'ord_items.type'
+            ->select('items.id as item_id'
+                , 'items.order_id'
+                , 'items.sub_order_id'
+                , 'items.product_style_id'
+                , 'items.sku'
+                , 'items.product_title'
+                , 'items.price'
+                , 'items.qty'
+                , 'items.type'
             );
 
         $query = DB::table(DB::raw("({$sub_rec_depot->toSql()}) as rec_depot"))
@@ -285,35 +292,21 @@ class Delivery extends Model
     //取得物流頁顯示的 寄倉商品列表
     public static function getCsnListToLogistic($delivery_id, $consignment_id = null)
     {
-        $sub_rec_depot = DB::table('dlv_receive_depot')
-            ->select('dlv_receive_depot.delivery_id'
-                , 'dlv_receive_depot.event_item_id'
-                , 'dlv_receive_depot.freebies'
-                , 'dlv_receive_depot.product_style_id'
-                , 'dlv_receive_depot.sku as rec_sku'
-                , 'dlv_receive_depot.product_title as rec_product_title'
-            )
-            ->selectRaw('sum(dlv_receive_depot.qty) as send_qty')
-            ->groupBy('dlv_receive_depot.delivery_id')
-            ->groupBy('dlv_receive_depot.event_item_id')
-            ->groupBy('dlv_receive_depot.freebies')
-            ->groupBy('dlv_receive_depot.product_style_id')
-            ->groupBy('dlv_receive_depot.sku')
-            ->groupBy('dlv_receive_depot.product_title');
+        $sub_rec_depot = self::getSumQtyWithRecDepot();
 
         $sub_orders = DB::table('csn_consignment')
-            ->leftJoin('csn_consignment_items', function($join) {
-                $join->on('csn_consignment_items.consignment_id', '=', 'csn_consignment.id');
+            ->leftJoin('csn_consignment_items as items', function($join) {
+                $join->on('items.consignment_id', '=', 'csn_consignment.id');
             })
-            ->select('csn_consignment_items.id as item_id'
-                , 'csn_consignment_items.consignment_id'
-                , 'csn_consignment_items.product_style_id'
-                , 'csn_consignment_items.title as product_title'
-                , 'csn_consignment_items.sku'
-                , 'csn_consignment_items.price'
-                , 'csn_consignment_items.num'
-                , 'csn_consignment_items.memo'
-                , 'csn_consignment_items.created_at'
+            ->select('items.id as item_id'
+                , 'items.consignment_id'
+                , 'items.product_style_id'
+                , 'items.title as product_title'
+                , 'items.sku'
+                , 'items.price'
+                , 'items.num'
+                , 'items.memo'
+                , 'items.created_at'
             );
 
         $query = DB::table(DB::raw("({$sub_rec_depot->toSql()}) as rec_depot"))
@@ -332,6 +325,59 @@ class Delivery extends Model
         return $query;
     }
 
+    //取得物流頁顯示的 寄倉商品列表
+    public static function getCsnOrderListToLogistic($delivery_id, $csn_order_id = null)
+    {
+        $sub_rec_depot = self::getSumQtyWithRecDepot();
+
+        $sub_orders = DB::table('csn_orders as csnord')
+            ->leftJoin('csn_order_items as items', function($join) {
+                $join->on('items.csnord_id', '=', 'csnord.id');
+            })
+            ->select('items.id as item_id'
+                , 'items.csnord_id'
+                , 'items.product_style_id'
+                , 'items.product_title as product_title'
+                , 'items.sku'
+                , 'items.price'
+                , 'items.num'
+                , 'items.memo'
+                , 'items.created_at'
+            );
+
+        $query = DB::table(DB::raw("({$sub_rec_depot->toSql()}) as rec_depot"))
+            ->leftJoinSub($sub_orders, 'sub_csnord', function($join) use($delivery_id) {
+                $join->on('sub_csnord.item_id', '=', 'rec_depot.event_item_id');
+                $join->where('rec_depot.delivery_id', $delivery_id);
+            })
+            ->whereNotNull('rec_depot.delivery_id')
+            ->whereNotNull('sub_csnord.item_id')
+            ->select('rec_depot.delivery_id'
+                , 'rec_depot.event_item_id'
+                , 'rec_depot.prd_type'
+                , 'rec_depot.freebies'
+                , 'rec_depot.product_style_id'
+                , 'rec_depot.rec_sku'
+                , 'rec_depot.rec_product_title'
+                , DB::raw('(case when "c" = rec_depot.prd_type then "組合包" else rec_depot.rec_product_title end) as rec_product_title')
+                , 'rec_depot.send_qty'
+                , 'sub_csnord.item_id'
+                , 'sub_csnord.csnord_id'
+                , 'sub_csnord.product_title'
+                , 'sub_csnord.sku'
+                , 'sub_csnord.price'
+                , 'sub_csnord.num'
+                , 'sub_csnord.memo'
+                , 'sub_csnord.created_at'
+            );
+
+        if (isset($csn_order_id)) {
+            $query->where('sub_csnord.csnord_id', $csn_order_id);
+        }
+
+        return $query;
+    }
+
     public static function getDeliveryWithEventWithSn($event, $event_id) {
         $query = DB::table('dlv_delivery as delivery');
         if (isset($event)) {
@@ -342,5 +388,4 @@ class Delivery extends Model
         }
         return $query;
     }
-
 }

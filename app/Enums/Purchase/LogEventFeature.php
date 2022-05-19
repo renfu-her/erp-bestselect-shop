@@ -27,7 +27,7 @@ final class LogEventFeature extends Enum
     const inbound_add = 'inbound_add';
     const inbound_del = 'inbound_del';
 
-    const order_shipping = 'order_shipping';
+    const delivery = 'delivery';
     const order_send_back = 'order_send_back';
     const consume_shipping = 'consume_shipping';
     const consume_send_back = 'consume_send_back';
@@ -45,6 +45,12 @@ final class LogEventFeature extends Enum
     const csn_del = 'csn_del';
     const csn_close = 'csn_close';
     const csn_change_data = 'csn_change_data';
+
+    //寄倉訂購
+    const csn_order_add = 'csn_order_add';
+    const csn_order_del = 'csn_order_del';
+    const csn_order_close = 'csn_order_close';
+    const csn_order_change_data = 'csn_order_change_data';
 
     public static function getDescription($value): string
     {
@@ -82,8 +88,8 @@ final class LogEventFeature extends Enum
             case self::inbound_del:
                 $result = '刪除入庫';
                 break;
-            case self::order_shipping:
-                $result = '訂單出貨';
+            case self::delivery:
+                $result = '出貨';
                 break;
             case self::order_send_back:
                 $result = '訂單退回';
@@ -125,6 +131,19 @@ final class LogEventFeature extends Enum
                 break;
             case self::csn_change_data:
                 $result = '寄倉單修改內容';
+                break;
+
+            case self::csn_order_add:
+                $result = '新增寄倉訂購單';
+                break;
+            case self::csn_order_del:
+                $result = '刪除寄倉訂購單';
+                break;
+            case self::csn_order_close:
+                $result = '寄倉訂購單結單';
+                break;
+            case self::csn_order_change_data:
+                $result = '寄倉訂購單修改內容';
                 break;
             default:
                 $result = parent::getDescription($value);
