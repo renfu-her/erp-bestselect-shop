@@ -479,7 +479,50 @@ class ConsignmentCtrl extends Controller
 
     //寄倉訂購列表
     public function orderlist(Request $request) {
+        $query = $request->query();
+        $data_per_page = Arr::get($query, 'data_per_page', 10);
+        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
+
+        $depot_id = Arr::get($query, 'depot_id', 1);
+
+        $queryCsnOrd = DB::table('csn_orders as csnord')
+            ->leftJoin('csn_order_items as items', 'items.csnord_id', '=', 'csnord.id')
+            ->leftJoin('dlv_delivery as delivery', function ($join) {
+                $join->on('delivery.event_id', '=', 'csnord.id')
+                    ->where('delivery.event', '=', Event::csn_order()->value);
+            })
+            ->whereNull('csnord.deleted_at')
+            ->select('csnord.id'
+                , 'csnord.sn'
+                , 'csnord.depot_id'
+                , 'csnord.depot_name'
+                , 'csnord.create_user_name'
+                , DB::raw('DATE_FORMAT(csnord.scheduled_date,"%Y-%m-%d") as scheduled_date')
+                , 'csnord.memo'
+                , 'csnord.created_at'
+
+                , 'items.product_style_id'
+                , 'items.prd_type'
+                , 'items.product_title'
+                , 'items.sku'
+                , 'items.price'
+                , 'items.num'
+                , DB::raw('(items.price * items.num) as total_price')
+                , 'items.memo as item_memo'
+                , 'delivery.logistic_status as logistic_status'
+                , DB::raw('DATE_FORMAT(delivery.audit_date,"%Y-%m-%d") as audit_date')
+            );
+
+        if ($depot_id) {
+            $queryCsnOrd->where('csnord.depot_id', $depot_id);
+        }
+        $dataList = $queryCsnOrd->paginate($data_per_page)->appends($query);
+
         return view('cms.commodity.consignment.orderlist', [
+            'dataList' => $dataList
+            , 'data_per_page' => $data_per_page
+            , 'depotList' => Depot::all()
+            , 'depot_id' => $depot_id
         ]);
     }
 

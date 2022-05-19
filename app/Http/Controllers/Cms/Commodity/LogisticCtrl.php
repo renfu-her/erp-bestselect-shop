@@ -251,9 +251,14 @@ class LogisticCtrl extends Controller
             $flowList = LogisticFlow::getListByDeliveryId($delivery_id)->get();
         }
 
+        $logisticStatus = LogisticStatus::asArray();
+        if ($event != Event::csn_order()->value) {
+            unset($logisticStatus[LogisticStatus::D9000()->key]);
+        }
+
         return view('cms.commodity.logistic.change_status', [
             'lastPageAction' => $lastPageAction,
-            'logisticStatus' => LogisticStatus::asArray(),
+            'logisticStatus' => $logisticStatus,
             'flowList' => $flowList,
             'event' => $event,
             'eventId' => $eventId,

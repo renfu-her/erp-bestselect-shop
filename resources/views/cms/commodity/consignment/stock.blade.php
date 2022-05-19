@@ -108,10 +108,6 @@
                 $('input[name=data_per_page]').val($(this).val());
                 $('#search').submit();
             });
-            // X btn
-            Chips_regions.onDelete = function(id) {
-                selectStatus.splice(selectStatus.indexOf(id), 1);
-            };
             // 清空
             $('#clear_iStatus').on('click', function(e) {
                 selectStatus = [];
