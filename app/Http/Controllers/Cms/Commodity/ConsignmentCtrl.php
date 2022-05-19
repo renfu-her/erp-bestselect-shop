@@ -505,9 +505,9 @@ class ConsignmentCtrl extends Controller
                 , 'items.prd_type'
                 , 'items.product_title'
                 , 'items.sku'
-                , 'items.price'
+                , DB::raw('round(items.price) as price')
                 , 'items.num'
-                , DB::raw('(items.price * items.num) as total_price')
+                , DB::raw('round(items.price * items.num, 0) as total_price')
                 , 'items.memo as item_memo'
                 , 'delivery.logistic_status as logistic_status'
                 , DB::raw('DATE_FORMAT(delivery.audit_date,"%Y-%m-%d") as audit_date')

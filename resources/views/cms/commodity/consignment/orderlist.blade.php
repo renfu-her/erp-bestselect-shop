@@ -63,7 +63,7 @@
                         <th scope="col">小計</th>
                         <th scope="col">出貨日期</th>
                         <th scope="col">物態</th>
-                        <th scope="col" class="text-center">明細</th>
+                        <th scope="col" class="text-center">編輯</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -86,7 +86,7 @@
                                 <td class="text-center">
                                     @can('admin.consignment.edit')
                                         <a href="{{ Route('cms.consignment.order_edit', ['id' => $data->id], true) }}"
-                                           data-bs-toggle="tooltip" title="明細"
+                                           data-bs-toggle="tooltip" title="編輯"
                                            class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                             <i class="bi bi-pencil-square"></i>
                                         </a>
