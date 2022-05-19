@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Web\NaviCtrl;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\Cms\Commodity\DiscountCtrl;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,6 +65,8 @@ Route::group(['prefix' => 'web', 'as' => 'web.'], function () {
     require base_path('routes/api/Collection.php');
     require base_path('routes/api/web/Product.php');
     require base_path('routes/api/web/Order.php');
+
+    Route::post('check-discount-code', [DiscountCtrl::class, 'checkDiscountCode'])->name('check-discount-code');
 
 });
 
