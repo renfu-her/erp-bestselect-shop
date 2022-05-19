@@ -639,15 +639,16 @@ class ConsignmentCtrl extends Controller
         //判斷是否有出貨審核，有則不可新增刪除商品款式
         $consignmentData  = CsnOrder::getData($id)->get()->first();
         $delivery  = Delivery::getData(Event::csn_order()->value, $id)->get()->first();
+        $receiveDepot = ReceiveDepot::getDataList(['delivery_id' => $delivery->id])->get()->toArray();
         if (null != $consignmentData && null != $consignmentData->close_date) {
             throw ValidationException::withMessages(['item_error' => '已結案，無法再修改']);
         }
-        if (null != $delivery->audit_date) {
+        if (null != $delivery->audit_date || 0 < count($receiveDepot)) {
             if (isset($request['del_item_id']) && null != $request['del_item_id']) {
-                throw ValidationException::withMessages(['item_error' => '已審核，不可刪除商品款式']);
+                throw ValidationException::withMessages(['item_error' => '已出貨，不可刪除商品款式']);
             }
             if (isset($csnItemReq['item_id'])) {
-                throw ValidationException::withMessages(['item_error' => '已審核，不可新增修改商品款式']);
+                throw ValidationException::withMessages(['item_error' => '已出貨，不可新增修改商品款式']);
             }
         }
 

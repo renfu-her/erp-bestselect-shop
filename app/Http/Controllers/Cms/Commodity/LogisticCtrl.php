@@ -7,6 +7,7 @@ use App\Enums\Delivery\LogisticStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Consignment;
 use App\Models\Consum;
+use App\Models\CsnOrder;
 use App\Models\Delivery;
 use App\Models\Logistic;
 use App\Models\LogisticFlow;
@@ -53,6 +54,18 @@ class LogisticCtrl extends Controller
 
             $consignment = Consignment::where('id', $delivery->event_id)->get()->first();
             $rsp_arr['depot_id'] = $consignment->send_depot_id;
+        } else if (Event::csn_order()->value == $event) {
+            $returnAction = Route('cms.consignment.order_edit', ['id' => $eventId ]);
+
+            // 出貨單號ID
+            $delivery = Delivery::getData($event, $eventId)->get()->first();
+            if (null != $delivery) {
+                $delivery_id = $delivery->id;
+            }
+            $deliveryList = Delivery::getCsnOrderListToLogistic($delivery_id, $eventId)->get();
+//            dd($deliveryList);
+            $csnOrder = CsnOrder::where('id', $delivery->event_id)->get()->first();
+            $rsp_arr['depot_id'] = $csnOrder->send_depot_id;
         }
 
         if (null == $delivery) {
@@ -90,6 +103,7 @@ class LogisticCtrl extends Controller
         $rsp_arr['deliveryList'] = $deliveryList;
         $rsp_arr['shipmentGroup'] = $shipmentGroupWithCost;
         $rsp_arr['consumWithInboundList'] = $consumWithInboundList;
+        $rsp_arr['event'] = $event;
         $rsp_arr['breadcrumb_data'] = $logistic->sn;
         return view('cms.commodity.logistic.edit', $rsp_arr);
     }
@@ -224,6 +238,12 @@ class LogisticCtrl extends Controller
             if (null != $delivery) {
                 $delivery_id = $delivery->id;
                 $lastPageAction = Route('cms.consignment.edit', ['id' => $eventId ]);
+            }
+        } else if (Event::csn_order()->value == $event) {
+            $delivery = Delivery::getDeliveryWithEventWithSn($event, $eventId)->get()->first();
+            if (null != $delivery) {
+                $delivery_id = $delivery->id;
+                $lastPageAction = Route('cms.consignment.order_edit', ['id' => $eventId ]);
             }
         }
         $flowList = null;

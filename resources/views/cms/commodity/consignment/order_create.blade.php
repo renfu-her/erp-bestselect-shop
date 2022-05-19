@@ -49,7 +49,7 @@
                     <label class="form-label">訂購日期 <span class="text-danger">*</span></label>
                     <div class="input-group has-validation">
                         <input type="date" id="scheduled_date" name="scheduled_date"
-                               value="{{ old('scheduled_date', $consignmentData->scheduled_date  ?? '') }}"
+                               value="{{ old('scheduled_date', $consignmentData->scheduled_date  ?? date('Y-m-d')) }}"
                                class="form-control @error('scheduled_date') is-invalid @enderror" aria-label="訂購日期"
                                required/>
                         <button class="btn btn-outline-secondary icon" type="button" data-clear
@@ -65,6 +65,16 @@
             </div>
         </div>
 
+        <div class="card-header px-4 d-flex align-items-center bg-white flex-wrap justify-content-end">
+{{--            @if ($consignmentData->audit_status == App\Enums\Consignment\AuditStatus::approved()->value)--}}
+            @if (null != $consignmentData)
+                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::csn_order()->value, 'eventId' => $id], true) }}">配送狀態</a>
+                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::csn_order()->value, 'eventId' => $id], true) }}">物流設定</a>
+                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::csn_order()->value, 'eventId' => $id], true) }}">出貨審核</a>
+
+                {{--                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.consignment.log', ['id' => $id], true) }}">變更紀錄</a>--}}
+            @endif
+        </div>
         <div class="card shadow p-4 mb-4">
             <h6>寄倉訂購清單</h6>
             <div class="table-responsive tableOverBox">
@@ -175,9 +185,11 @@
                 <div class="col">
                     @if(null == $consignmentData)
                         <button type="submit" class="btn btn-primary px-4">儲存</button>
-                    @elseif($consignmentData->close_date == null
-                        && $consignmentData->audit_status == App\Enums\Consignment\AuditStatus::unreviewed()->value)
+                    @elseif($consignmentData->close_date == null)
                         <button type="submit" class="btn btn-primary px-4">儲存</button>
+                        @if(null == $consignmentData->close_date)
+                            <button type="button" data-bs-toggle="modal" data-bs-target="#confirm-close" class="btn btn-primary px-4">結案</button>
+                        @endif
                     @else
                         {{--判斷已審核 則不可再按儲存--}}
                     @endif

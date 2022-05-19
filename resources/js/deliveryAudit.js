@@ -80,6 +80,9 @@ $(function () {
         const Data = {
             product_style_id: sid
         };
+        if('csn_order' == $('input[name="event"]').val()) {
+            Data.select_consignment = true;
+        }
         if($('input[name="depot_id"]').val()) {
             Data.depot_id = $('input[name="depot_id"]').val();
         }

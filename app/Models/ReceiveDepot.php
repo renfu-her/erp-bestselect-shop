@@ -86,21 +86,35 @@ class ReceiveDepot extends Model
                         //		若p 則寫入product
                         $rcv_depot_type = '';
                         $item = null;
+                        $select_consignment = false;
                         if (Event::order()->value == $delivery->event) {
                             $item = DB::table('ord_items as items')
                                 ->leftJoin('prd_product_styles as styles', 'styles.id', '=', 'items.product_style_id')
                                 ->select('items.*', 'styles.type as prd_type')
                                 ->where('items.id', $itemId)
                                 ->get()->first();
+                            if ('p' == $item->prd_type) {
+                                $rcv_depot_type = 'p';
+                            } elseif ('c' == $item->prd_type) {
+                                $rcv_depot_type = 'ce';
+                            }
                         } else if (Event::consignment()->value == $delivery->event) {
                             $item = ConsignmentItem::where('id', $itemId)->get()->first();
+                            if ('p' == $item->prd_type) {
+                                $rcv_depot_type = 'p';
+                            } elseif ('c' == $item->prd_type) {
+                                $rcv_depot_type = 'ce';
+                            }
+                        } else if (Event::csn_order()->value == $delivery->event) {
+                            $item = CsnOrderItem::where('id', $itemId)->get()->first();
+                            $select_consignment = true;
+                            if ('p' == $item->prd_type) {
+                                $rcv_depot_type = 'p';
+                            } elseif ('c' == $item->prd_type) {
+                                $rcv_depot_type = 'c';
+                            }
                         }
-                        if ('p' == $item->prd_type) {
-                            $rcv_depot_type = 'p';
-                        } elseif ('c' == $item->prd_type) {
-                            $rcv_depot_type = 'ce';
-                        }
-                        $inbound = PurchaseInbound::getSelectInboundList(['inbound_id' => $input_arr['inbound_id'][$key]])->get()->first();
+                        $inbound = PurchaseInbound::getSelectInboundList(['inbound_id' => $input_arr['inbound_id'][$key], 'select_consignment' => $select_consignment])->get()->first();
                         if (null != $inbound) {
                             if (0 > $inbound->qty - $val) {
                                 return ['success' => 0, 'error_msg' => "庫存數量不足"];
@@ -305,8 +319,8 @@ class ReceiveDepot extends Model
     public static function getDataList($param) {
         $query = DB::table('dlv_receive_depot as rcv_depot')
             ->select('rcv_depot.id as id'
-                , 'rcv_depot.order_id as order_id'
-                , 'rcv_depot.sub_order_id as sub_order_id'
+                , 'rcv_depot.delivery_id as delivery_id'
+                , 'rcv_depot.event_item_id as event_item_id'
                 , 'rcv_depot.inbound_id as inbound_id'
                 , 'rcv_depot.depot_id as depot_id'
                 , 'rcv_depot.depot_name as depot_name'
@@ -452,6 +466,32 @@ class ReceiveDepot extends Model
 
         // 對應的出貨資料
         $ord_items_arr = ReceiveDepot::getReceiveDepotParseData($event, $consignment_id, $delivery_id, $product_style_id, $query_ship_overview->get());
+        return $ord_items_arr;
+    }
+
+    public static function getCSNOrderShipItemWithDeliveryWithReceiveDepotList($event, $csn_order_id, $delivery_id, $product_style_id = null) {
+        // 子訂單的商品列表
+        $query_ship = DB::table('csn_order_items as items')
+            ->leftJoin('prd_product_styles', 'prd_product_styles.id', '=', 'items.product_style_id')
+            //->where('prd_product_styles.type', '=', 'p')
+            ->where('items.csnord_id', '=', $csn_order_id)
+            ->select('items.id AS item_id'
+                , 'items.csnord_id AS csnord_id'
+                , 'items.product_title'
+                , 'prd_product_styles.type as prd_type'
+                , 'prd_product_styles.id  AS product_style_id'
+                , 'prd_product_styles.product_id'
+                , 'prd_product_styles.sku'
+                , DB::raw('items.num AS qty')
+                //, DB::raw('Concat("") AS combo_product_title')
+                , DB::raw('case when prd_product_styles.type = "c" then "組合包"
+                    else  Concat("") end combo_product_title ')
+            )
+
+        ;
+
+        // 對應的出貨資料
+        $ord_items_arr = ReceiveDepot::getReceiveDepotParseData($event, $csn_order_id, $delivery_id, $product_style_id, $query_ship->get());
         return $ord_items_arr;
     }
 

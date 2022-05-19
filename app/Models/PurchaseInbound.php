@@ -209,6 +209,10 @@ class PurchaseInbound extends Model
                         if (LogEventFeature::delivery()->value == $feature) {
                             $update_arr['csn_num'] = DB::raw("csn_num + $sale_num");
                         }
+                    } else if (Event::csn_order()->value == $event) {
+                        if (LogEventFeature::delivery()->value == $feature) {
+                            $update_arr['sale_num'] = DB::raw("sale_num + $sale_num");
+                        }
                     }
 
                     $stock_event = '';

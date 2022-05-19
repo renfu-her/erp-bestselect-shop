@@ -106,17 +106,6 @@ class CsnOrder extends Model
                     "audit_user_name" => $operator_user_name,
                     "audit_status" => $purchaseReq['audit_status'] ?? AuditStatus::unreviewed()->value,
                 ]);
-
-                //從尚未審核 變成 核可後物態自動變檢貨中
-                if (AuditStatus::unreviewed()->value == $orign_audit_status
-                    && AuditStatus::approved()->value == $purchase->audit_status
-                ) {
-                    $delivery = Delivery::where('event', Event::csn_order()->value)
-                        ->where('event_id', $id)->update([
-                        'logistic_status' => '寄倉售出',
-                        'logistic_status_code' => 'D9000',
-                    ]);
-                }
             }
             return ['success' => 1, 'error_msg' => ''];
         });
