@@ -51,7 +51,8 @@
                 <table class="table table-striped tableList">
                     <thead>
                     <tr>
-                        <th scope="col" style="width:10%">#</th>
+                        <th scope="col">#</th>
+                        <th scope="col" class="text-center">編輯</th>
                         <th scope="col">單號</th>
                         <th scope="col">倉庫名稱</th>
                         <th scope="col">訂購人</th>
@@ -63,7 +64,6 @@
                         <th scope="col">小計</th>
                         <th scope="col">出貨日期</th>
                         <th scope="col">物態</th>
-                        <th scope="col" class="text-center">編輯</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -71,6 +71,15 @@
                         @foreach ($dataList as $key => $data)
                             <tr>
                                 <th scope="row">{{ $key + 1 }}</th>
+                                <td class="text-center">
+                                    @can('admin.consignment.edit')
+                                        <a href="{{ Route('cms.consignment.order_edit', ['id' => $data->id], true) }}"
+                                           data-bs-toggle="tooltip" title="編輯"
+                                           class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                    @endcan
+                                </td>
                                 <td>{{ $data->sn }}</td>
                                 <td>{{ $data->depot_name }}</td>
                                 <td>{{ $data->create_user_name }}</td>
@@ -83,15 +92,6 @@
                                 <td>{{ $data->audit_date }}</td>
                                 <td>{{ $data->logistic_status }}</td>
 
-                                <td class="text-center">
-                                    @can('admin.consignment.edit')
-                                        <a href="{{ Route('cms.consignment.order_edit', ['id' => $data->id], true) }}"
-                                           data-bs-toggle="tooltip" title="編輯"
-                                           class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                            <i class="bi bi-pencil-square"></i>
-                                        </a>
-                                    @endcan
-                                </td>
                             </tr>
                         @endforeach
                     @endif
