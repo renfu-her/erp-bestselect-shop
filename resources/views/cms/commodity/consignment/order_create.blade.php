@@ -187,9 +187,6 @@
                         <button type="submit" class="btn btn-primary px-4">儲存</button>
                     @elseif($consignmentData->close_date == null)
                         <button type="submit" class="btn btn-primary px-4">儲存</button>
-                        @if(null == $consignmentData->close_date)
-                            <button type="button" data-bs-toggle="modal" data-bs-target="#confirm-close" class="btn btn-primary px-4">結案</button>
-                        @endif
                     @else
                         {{--判斷已審核 則不可再按儲存--}}
                     @endif
