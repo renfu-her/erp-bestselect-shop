@@ -31,7 +31,7 @@ class CsnOrder extends Model
             , $scheduled_date
             ) {
 
-            $sn = "CSO" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
+            $sn = "CO" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
                         ->withTrashed()
                         ->get()
                         ->count()) + 1, 4, '0', STR_PAD_LEFT);
