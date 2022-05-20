@@ -68,6 +68,9 @@ Route::group(['prefix' => 'web', 'as' => 'web.'], function () {
 
     Route::post('check-discount-code', [DiscountCtrl::class, 'checkDiscountCode'])->name('check-discount-code');
 
+    Route::post('checksum-test', ['uses' => function () {
+        return 'ok';
+    }, 'middleware' => 'checksum'], );
 });
 
 require base_path('routes/api/Addr.php');
