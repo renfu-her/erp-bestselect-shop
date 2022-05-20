@@ -1,13 +1,11 @@
 <?php
 
-use App\Enums\Globals\ApiStatusMessage;
-use App\Enums\Globals\ResponseParam;
+use App\Http\Controllers\Api\Cms\Commodity\DiscountCtrl;
 use App\Http\Controllers\Api\CustomerCtrl;
 use App\Http\Controllers\Api\Web\NaviCtrl;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\Cms\Commodity\DiscountCtrl;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,7 +33,6 @@ Route::get('/tokens/create', function (Request $request) {
     return ['token' => $token->plainTextToken];
 });
 
-
 Route::group(['prefix' => 'customer', 'as' => 'customer.'], function () {
     Route::post('register', [CustomerCtrl::class, 'register']);
     Route::post('login', [CustomerCtrl::class, 'login']);
@@ -46,6 +43,9 @@ Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => ['aut
 
     Route::get('/logout-all', [CustomerCtrl::class, 'tokensDeleteAll']);
     Route::get('/logout', [CustomerCtrl::class, 'tokensDeleteCurrent']);
+
+    require base_path('routes/api/web/CustomerData.php');
+
 });
 
 Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:cms-api'], function () {
@@ -71,4 +71,3 @@ Route::group(['prefix' => 'web', 'as' => 'web.'], function () {
 });
 
 require base_path('routes/api/Addr.php');
-
