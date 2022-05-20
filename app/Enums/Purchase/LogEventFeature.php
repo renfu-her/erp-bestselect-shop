@@ -11,11 +11,10 @@ use BenSampo\Enum\Enum;
  */
 final class LogEventFeature extends Enum
 {
-    //採購
-    const pcs_add = 'add';
-    const pcs_del = 'del';
-    const pcs_close = 'close';
-    const pcs_change_data = 'change_data';
+    const add = 'add';
+    const del = 'del';
+    const close = 'close';
+    const change_data = 'change_data';
 
     //款式
     const style_add = 'style_add';
@@ -27,11 +26,14 @@ final class LogEventFeature extends Enum
     const inbound_add = 'inbound_add';
     const inbound_del = 'inbound_del';
 
+    const combo = 'combo'; //組成組合包
+    const decompose = 'decompose'; //組合包分解
+    const scrapped = 'scrapped'; //報廢
+
     const delivery = 'delivery';
-    const order_send_back = 'send_back';
-    const consume_shipping = 'consume';
-    const consume_send_back = 'send_back';
-    const consignment_send_back = 'send_back';
+    const send_back = 'send_back';
+    const consume_delivery = 'consume_delivery';
+    const consume_send_back = 'consume_send_back';
 
     //付款
     const pay_add = 'pay_add';
@@ -39,40 +41,21 @@ final class LogEventFeature extends Enum
     const pay_change_pay_type = 'pay_change_pay_type';
     const pay_change_shipping_fee = 'pay_change_shipping_fee';
 
-    //寄倉
-    const csn_add = 'add';
-    const csn_del = 'del';
-    const csn_close = 'close';
-    const csn_change_data = 'change_data';
-
-    //寄倉訂購
-    const csn_order_add = 'add';
-    const csn_order_del = 'del';
-    const csn_order_close = 'close';
-    const csn_order_change_data = 'change_data';
 
     public static function getDescription($value): string
     {
         $result = '';
         switch ($value) {
-            case self::pcs_add:
-            case self::csn_add:
-            case self::csn_order_add:
+            case self::add:
                 $result = '新單';
                 break;
-            case self::pcs_del:
-            case self::csn_del:
-            case self::csn_order_del:
+            case self::del:
                 $result = '刪單';
                 break;
-            case self::pcs_close:
-            case self::csn_close:
-            case self::csn_order_close:
+            case self::close:
                 $result = '結單';
                 break;
-            case self::pcs_change_data:
-            case self::csn_change_data:
-            case self::csn_order_change_data:
+            case self::change_data:
                 $result = '修改內容';
                 break;
 
@@ -95,16 +78,28 @@ final class LogEventFeature extends Enum
             case self::inbound_del:
                 $result = '刪除入庫';
                 break;
+
+            case self::combo:
+                $result = '組成組合包';
+                break;
+            case self::decompose:
+                $result = '組合包分解';
+                break;
+            case self::scrapped:
+                $result = '報廢';
+                break;
+
             case self::delivery:
                 $result = '出貨';
                 break;
-            case self::consume_shipping:
+            case self::consume_delivery:
                 $result = '耗材出貨';
                 break;
-            case self::order_send_back:
-            case self::consume_send_back:
-            case self::consignment_send_back:
+            case self::send_back:
                 $result = '退回';
+                break;
+            case self::consume_send_back:
+                $result = '耗材退回';
                 break;
 
             case self::pay_add:
