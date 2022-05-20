@@ -84,7 +84,7 @@
                                 <td>{{ $data->depot_name }}</td>
                                 <td>{{ $data->create_user_name }}</td>
                                 <td>{{ $data->scheduled_date }}</td>
-                                <td>{{ $data->product_title }}</td>
+                                <td>{{ $data->title }}</td>
                                 <td>{{ $data->sku }}</td>
                                 <td>{{ $data->price }}</td>
                                 <td>{{ $data->num }}</td>

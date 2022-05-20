@@ -71,8 +71,7 @@
                 <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::csn_order()->value, 'eventId' => $id], true) }}">配送狀態</a>
                 <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::csn_order()->value, 'eventId' => $id], true) }}">物流設定</a>
                 <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::csn_order()->value, 'eventId' => $id], true) }}">出貨審核</a>
-
-                {{--                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.consignment.log', ['id' => $id], true) }}">變更紀錄</a>--}}
+{{--                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.consignment.stock_log', ['id' => $id], true) }}">變更紀錄</a>--}}
             @endif
         </div>
         <div class="card shadow p-4 mb-4">
@@ -124,12 +123,12 @@
                                     </button>
                                     <input type="hidden" name="item_id[]" value="{{ old('item_id.'. $psItemKey, $psItemVal->id?? '') }}">
                                     <input type="hidden" name="product_style_id[]" value="{{ old('product_style_id.'. $psItemKey, $psItemVal->product_style_id?? '') }}">
-                                    <input type="hidden" name="name[]" value="{{ old('name.'. $psItemKey, $psItemVal->product_title?? '') }}">
+                                    <input type="hidden" name="name[]" value="{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}">
                                     <input type="hidden" name="prd_type[]" value="{{ old('prd_type.'. $psItemKey, $psItemVal->prd_type?? '') }}">
                                     <input type="hidden" name="sku[]" value="{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}">
                                     <input type="hidden" name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}">
                                 </th>
-                                <td data-td="name">{{ old('name.'. $psItemKey, $psItemVal->product_title?? '') }}</td>
+                                <td data-td="name">{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}</td>
                                 <td data-td="sku">{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}</td>
                                 <td>
                                     <input type="number" class="form-control form-control-sm @error('num.' . $psItemKey) is-invalid @enderror"

@@ -21,7 +21,7 @@ class CsnOrderItem extends Model
         if (isset($newData['csnord_id'])
             && $newData['product_style_id']
             && $newData['prd_type']
-            && $newData['product_title']
+            && $newData['title']
             && $newData['sku']
             && $newData['price']
             && $newData['num']
@@ -32,7 +32,7 @@ class CsnOrderItem extends Model
                     "csnord_id" => $newData['csnord_id'],
                     "product_style_id" => $newData['product_style_id'],
                     "prd_type" => $newData['prd_type'],
-                    "product_title" => $newData['product_title'],
+                    "title" => $newData['title'],
                     "sku" => $newData['sku'],
                     "price" => $newData['price'],
                     "num" => $newData['num'],

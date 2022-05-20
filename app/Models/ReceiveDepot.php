@@ -485,7 +485,7 @@ class ReceiveDepot extends Model
             ->where('items.csnord_id', '=', $csn_order_id)
             ->select('items.id AS item_id'
                 , 'items.csnord_id AS csnord_id'
-                , 'items.product_title'
+                , 'items.title as product_title'
                 , 'prd_product_styles.type as prd_type'
                 , 'prd_product_styles.id  AS product_style_id'
                 , 'prd_product_styles.product_id'
