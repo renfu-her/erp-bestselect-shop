@@ -273,6 +273,13 @@ class ReceiveDepot extends Model
                                     ->where('event_item_id', $element->event_item_id)
                                     ->where('prd_type', 'ce')
                                 ;
+
+                                $reStockChange =PurchaseLog::stockChange($event_id, $element->product_style_id, $event, $event_id,
+                                    LogEventFeature::combo()->value, null, $element->num, null, $user_id, $user_name);
+                                if ($reStockChange['success'] == 0) {
+                                    DB::rollBack();
+                                    return $reStockChange;
+                                }
                                 $rcvDepot_elements->update([
                                     'combo_id' => $reSD['id'],
                                 ]);

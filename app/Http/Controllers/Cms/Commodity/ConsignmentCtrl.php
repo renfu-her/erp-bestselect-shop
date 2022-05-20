@@ -281,7 +281,7 @@ class ConsignmentCtrl extends Controller
                     ->where('csn.id', $id)
                     ->get();
                 $stock_event = StockEvent::consignment()->value;
-                $stock_note = LogEventFeature::getDescription(LogEventFeature::consignment_shipping()->value);
+                $stock_note = LogEventFeature::getDescription(LogEventFeature::delivery()->value);
                 $user_name = $request->user()->name;
                 foreach($queryCsnItems as $item) {
                     $rePSSC = ProductStock::stockChange($item->product_style_id, $item->num * -1
