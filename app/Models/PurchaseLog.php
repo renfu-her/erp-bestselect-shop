@@ -52,6 +52,9 @@ class PurchaseLog extends Model
         } else if (Event::consignment()->value == $event) {
             $eventTable = 'csn_consignment';
             $eventItemTable = 'csn_consignment_items';
+        } else if (Event::csn_order()->value == $event) {
+            $eventTable = 'csn_orders';
+            $eventItemTable = 'csn_order_items';
         }
 
         $log_purchase = DB::table('pcs_purchase_log as log')

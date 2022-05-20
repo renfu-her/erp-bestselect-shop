@@ -337,7 +337,7 @@ class Delivery extends Model
             ->select('items.id as item_id'
                 , 'items.csnord_id'
                 , 'items.product_style_id'
-                , 'items.product_title as product_title'
+                , 'items.title as product_title'
                 , 'items.sku'
                 , 'items.price'
                 , 'items.num'

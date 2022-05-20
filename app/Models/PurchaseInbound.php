@@ -220,10 +220,10 @@ class PurchaseInbound extends Model
                     //商品款式若在理貨倉
                     //除訂單、寄倉 已先扣除通路庫存以外
                     //訂單耗材、寄倉耗材 皆須另外扣除通路庫存
-                    if (LogEventFeature::consume_shipping()->value == $feature) {
+                    if (LogEventFeature::consume_delivery()->value == $feature) {
                         $update_arr['consume_num'] = DB::raw("consume_num + $sale_num");
                         $stock_event = StockEvent::consume()->value;
-                        $stock_note = LogEventFeature::getDescription(LogEventFeature::consume_shipping()->value);
+                        $stock_note = LogEventFeature::getDescription(LogEventFeature::consume_delivery()->value);
                     }
 
                     PurchaseInbound::where('id', $id)

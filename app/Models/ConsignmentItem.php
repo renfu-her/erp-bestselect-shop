@@ -108,7 +108,7 @@ class ConsignmentItem extends Model
                     //寄倉商品改直接刪除 因需要審核後才會做入庫
                     ConsignmentItem::whereIn('id', $del_item_id_arr)->forceDelete();
                     foreach ($del_item_id_arr as $del_id) {
-                        PurchaseLog::stockChange($purchase_id, null, Event::consignment()->value, $del_id, LogEventFeature::style_del()->value, null, null, $operator_user_id, $operator_user_name);
+                        PurchaseLog::stockChange($purchase_id, null, Event::consignment()->value, $del_id, LogEventFeature::style_del()->value, null, null, null, $operator_user_id, $operator_user_name);
                     }
                     return ['success' => 1, 'error_msg' => ''];
                 });
