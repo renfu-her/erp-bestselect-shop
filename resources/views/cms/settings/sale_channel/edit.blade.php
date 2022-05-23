@@ -7,7 +7,11 @@
     </div>
     <div class="card">
         <div class="card-header">
-            @if ($method === 'create') 新增 @else 編輯 @endif 通路
+            @if ($method === 'create')
+                新增
+            @else
+                編輯
+            @endif 通路
         </div>
         <form class="card-body" method="post" action="{{ $formAction }}">
             @method('POST')
@@ -29,8 +33,8 @@
                     value="{{ old('chargeman', $data->chargeman ?? '') }}" />
             </x-b-form-group>
             <x-b-form-group name="chargeman" title="折扣" required="true">
-                <input class="form-control @error('discount') is-invalid @enderror" type="number" max="1" step="0.01" name="discount"
-                    value="{{ old('discount', $data->discount ?? 1) }}" />
+                <input class="form-control @error('discount') is-invalid @enderror" type="number" max="1" step="0.01"
+                    name="discount" value="{{ old('discount', $data->discount ?? 1) }}" />
             </x-b-form-group>
             <x-b-form-group name="sales_type" title="銷售類型" required="true">
                 <select class="form-select @error('sales_type') is-invalid @enderror" name="sales_type" id="sales_type">
@@ -67,6 +71,28 @@
                 </div>
             </x-b-form-group>
 
+            <x-b-form-group name="bonus_limit" title="紅利上限" required="true">
+                <input class="form-control @error('bonus_limit') is-invalid @enderror" type="number" min="50" max="100"
+                    step="1" name="bonus_limit" value="{{ old('bonus_limit', $data->bonus_limit ?? 100) }}" />
+            </x-b-form-group>
+            <x-b-form-group name="bonus_rate" title="紅利回饋比例" required="true">
+                <input class="form-control @error('bonus_rate') is-invalid @enderror" type="number" min="0" max="50"
+                    step="1" name="bonus_rate" value="{{ old('bonus_rate', $data->bonus_rate ?? 0) }}" />
+            </x-b-form-group>
+            <x-b-form-group name="event_bonus_rate" title="活動紅利回饋比例" required="true">
+                <input class="form-control @error('event_bonus_rate') is-invalid @enderror" type="number" min="0" max="50"
+                    step="1" name="event_bonus_rate"
+                    value="{{ old('event_bonus_rate', $data->event_bonus_rate ?? 0) }}" />
+            </x-b-form-group>
+            <x-b-form-group name="event_sdate" title="活動起始時間" required="true">
+                <input class="form-control @error('event_sdate') is-invalid @enderror" type="datetime-local" name="event_sdate"
+                    value="{{ old('event_sdate') ? date('Y-m-d\Th:i', strtotime($data->event_sdate)) : '' }}" />
+            </x-b-form-group>
+            <x-b-form-group name="event_edate" title="活動結束時間" required="true">
+                <input class="form-control @error('event_edate') is-invalid @enderror" type="datetime-local" name="event_edate"
+                    value="{{ old('event_edate') ? date('Y-m-d\Th:i', strtotime($data->event_edate)) : '' }}" />
+            </x-b-form-group>
+
             @if ($method === 'edit')
                 <input type='hidden' name='id' value="{{ old('id', $id) }}" />
             @endif
@@ -78,11 +104,9 @@
             </div>
         </form>
     </div>
-
 @endsection
 @once
     @push('sub-scripts')
-        <script>
-        </script>
+        <script></script>
     @endpush
 @endonce
