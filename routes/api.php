@@ -45,6 +45,8 @@ Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => ['aut
     Route::get('/logout', [CustomerCtrl::class, 'tokensDeleteCurrent']);
 
     require base_path('routes/api/web/CustomerData.php');
+    require base_path('routes/api/web/OrderWithAuth.php');
+
 
 });
 

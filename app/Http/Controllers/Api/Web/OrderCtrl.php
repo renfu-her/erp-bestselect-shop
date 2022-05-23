@@ -18,6 +18,7 @@ use App\Models\Order;
 use App\Models\OrderFlow;
 use App\Models\OrderPayCreditCard;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -152,7 +153,7 @@ class OrderCtrl extends Controller
     {
         $EncArray = [];
 
-        if($request->isMethod('post')){
+        if ($request->isMethod('post')) {
             // avoid f5 reload
             // $log = OrderPayCreditCard::where([
             //     'order_id'=>$id,
@@ -178,7 +179,7 @@ class OrderCtrl extends Controller
                         OrderFlow::changeOrderStatus($id, OrderStatus::Paided());
                     }
 
-                    OrderPayCreditCard::create_log($id, (object)$EncArray);
+                    OrderPayCreditCard::create_log($id, (object) $EncArray);
                 }
             }
         }
@@ -217,8 +218,8 @@ class OrderCtrl extends Controller
                 'order.unique_id' => $unique_id,
                 'received.deleted_at' => null,
             ])
-            ->where(function ($q) use($EncArray) {
-                if(count($EncArray) > 0){
+            ->where(function ($q) use ($EncArray) {
+                if (count($EncArray) > 0) {
                     $q->where([
                         'cc_log.status' => $EncArray['status'],
                     ]);
@@ -232,16 +233,25 @@ class OrderCtrl extends Controller
         }
 
         return view('cms.frontend.checkout_result', [
-            'order'=>$order,
+            'order' => $order,
         ]);
     }
 
     public function createOrder(Request $request)
     {
+
+        $payLoad = request()->getContent();
+
+        if (!$payLoad) {
+            return response()->json([
+                'status' => 'E01',
+                'message' => '參數不能為空值',
+            ]);
+        }
+
         $payLoad = json_decode(request()->getContent(), true);
 
-        $validator = Validator::make($payLoad, [
-            'email' => 'required|email',
+        $valiRule = [
             "orderer.name" => "required",
             "orderer.phone" => "required",
             "orderer.region_id" => "required|numeric",
@@ -257,7 +267,13 @@ class OrderCtrl extends Controller
             "products.*.product_style_id" => "required",
             "products.*.shipment_type" => "required",
             "products.*.shipment_event_id" => "required",
-        ]);
+        ];
+
+        if (!Auth::guard('sanctum')->check()) {
+            $valiRule['email'] = 'required|email';
+        }
+        
+        $validator = Validator::make($payLoad, $valiRule);
 
         if ($validator->fails()) {
             return response()->json([
@@ -423,12 +439,12 @@ class OrderCtrl extends Controller
                 if (empty($status) && $status == '0') {
                     // echo '交易完成';
                     OrderFlow::changeOrderStatus($id, OrderStatus::Paided());
-                    OrderPayCreditCard::create_log($id, (object)$EncArray);
+                    OrderPayCreditCard::create_log($id, (object) $EncArray);
 
                     return redirect('https://dev-shopp.bestselection.com.tw/payfin/' . $id . '/' . $lidm . '/' . $status);
                 }
 
-                OrderPayCreditCard::create_log($id, (object)$EncArray);
+                OrderPayCreditCard::create_log($id, (object) $EncArray);
             }
         }
 
