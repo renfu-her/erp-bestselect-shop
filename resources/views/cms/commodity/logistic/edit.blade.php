@@ -295,6 +295,7 @@
     @if (is_null($logistic->audit_date))
     <script>
         const depot_id = @json($depot_id ?? '');
+        const event = @json($event ?? '');
 
         let addConsumeModal = new bootstrap.Modal(document.getElementById('addConsume'));
         let addInboundModal = new bootstrap.Modal(document.getElementById('addInbound'));
@@ -421,6 +422,9 @@
             };
             if (depot_id) {
                 Data.depot_id = depot_id;
+            }
+            if ('csn_order' == event) {
+                Data.select_consignment = true;
             }
             resetAddInboundModal();
             $('#addInbound blockquote h6').text(`${selectedConsume.name} [${selectedConsume.spec}]`);
