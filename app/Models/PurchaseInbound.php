@@ -544,6 +544,7 @@ class PurchaseInbound extends Model
     /**
      * 取得可入庫單 可出貨列表
      * @param $param [product_style_id]
+     *              [select_consignment false:計算採購庫存  true:改計算與扣寄倉庫存]
      * @param false $showNegativeVal 顯示負值 若為true 則只顯示大於1的數量 預設為false 不顯示
      * @return \Illuminate\Database\Query\Builder
      */
@@ -765,7 +766,8 @@ class PurchaseInbound extends Model
                 , 'inbound.prd_type as prd_type'
                 , DB::raw('sum(inbound.inbound_num) as inbound_num')
                 , DB::raw('sum(inbound.sale_num) as sale_num')
-                , DB::raw('(sum(inbound.inbound_num) - sum(inbound.sale_num)) as available_num')
+                , DB::raw('sum(inbound.consume_num) as consume_num')
+                , DB::raw('(sum(inbound.inbound_num) - sum(inbound.sale_num) - sum(inbound.consume_num)) as available_num')
             )
             ->groupBy('inbound.product_style_id')
             ->groupBy('inbound.depot_id')

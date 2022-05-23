@@ -49,6 +49,7 @@
                         <th scope="col">款式</th>
                         <th scope="col">寄倉數量</th>
                         <th scope="col">已銷售數量</th>
+                        <th scope="col">耗材消耗數量</th>
                         <th scope="col">剩餘數量</th>
                         <th scope="col" class="text-center">明細</th>
                     </tr>
@@ -63,6 +64,7 @@
                                 <td>{{ $data->spec }}</td>
                                 <td>{{ $data->inbound_num }}</td>
                                 <td>{{ $data->sale_num }}</td>
+                                <td>{{ $data->consume_num }}</td>
                                 <td>{{ $data->available_num }}</td>
 
 {{--                                <td class="text-center">--}}
