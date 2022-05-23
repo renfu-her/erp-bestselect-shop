@@ -79,10 +79,10 @@
                 <input class="form-control @error('bonus_rate') is-invalid @enderror" type="number" min="0" max="50"
                     step="1" name="bonus_rate" value="{{ old('bonus_rate', $data->bonus_rate ?? 0) }}" />
             </x-b-form-group>
-            <x-b-form-group name="event_bonus_rate" title="活動紅利回饋比例" required="true">
-                <input class="form-control @error('event_bonus_rate') is-invalid @enderror" type="number" min="0" max="50"
-                    step="1" name="event_bonus_rate"
-                    value="{{ old('event_bonus_rate', $data->event_bonus_rate ?? 0) }}" />
+            <x-b-form-group name="event_dividend_rate" title="活動紅利回饋比例" required="true">
+                <input class="form-control @error('event_dividend_rate') is-invalid @enderror" type="number" min="0" max="50"
+                    step="1" name="event_dividend_rate"
+                    value="{{ old('event_dividend_rate', $data->event_dividend_rate ?? 0) }}" />
             </x-b-form-group>
             <x-b-form-group name="event_sdate" title="活動起始時間" required="true">
                 <input class="form-control @error('event_sdate') is-invalid @enderror" type="datetime-local" name="event_sdate"

@@ -41,9 +41,9 @@ class SaleChannelCtrl extends Controller
             'use_coupon' => $v['use_coupon'],
             'is_realtime' => $v['is_realtime'],
             'discount' => $v['discount'],
-            'bonus_limit' => $v['bonus_limit'],
-            'bonus_rate' => $v['bonus_rate'],
-            'event_bonus_rate' => $v['event_bonus_rate'],
+            'dividend_limit' => $v['dividend_limit'],
+            'dividend_rate' => $v['dividend_rate'],
+            'event_dividend_rate' => $v['event_dividend_rate'],
             'event_sdate' => $v['event_sdate'],
             'event_edate' => $v['event_edate'],
         ]);
@@ -65,9 +65,9 @@ class SaleChannelCtrl extends Controller
             'sales_type' => 'required|numeric',
             'use_coupon' => 'required|numeric',
             'discount' => 'required|numeric',
-            'bonus_limit' => 'required|numeric',
-            'bonus_rate' => 'required|numeric',
-            'event_bonus_rate' => 'required|numeric',
+            'dividend_limit' => 'required|numeric',
+            'dividend_rate' => 'required|numeric',
+            'event_dividend_rate' => 'required|numeric',
             'event_sdate' => 'date|nullable',
             'event_edate' => 'date|nullable',
         ]);
@@ -84,9 +84,9 @@ class SaleChannelCtrl extends Controller
             'use_coupon',
             'is_realtime',
             'discount',
-            'bonus_limit',
-            'bonus_rate',
-            'event_bonus_rate',
+            'dividend_limit',
+            'dividend_rate',
+            'event_dividend_rate',
             'event_sdate',
             'event_edate');
     }
