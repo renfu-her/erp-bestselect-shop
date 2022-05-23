@@ -237,7 +237,7 @@ class Order extends Model
 
             $customer = Customer::where('email', $email)->get()->first();
             $order = OrderCart::cartFormater($items, $sale_channel_id, $coupon_obj, true, $customer);
-
+            
             if ($order['success'] != 1) {
                 DB::rollBack();
                 return $order;

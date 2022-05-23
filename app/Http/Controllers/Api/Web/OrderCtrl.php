@@ -241,15 +241,16 @@ class OrderCtrl extends Controller
     {
 
         $payLoad = request()->getContent();
-
+      
         if (!$payLoad) {
             return response()->json([
                 'status' => 'E01',
                 'message' => '參數不能為空值',
             ]);
         }
+      
+        $payLoad = json_decode($payLoad, true);
 
-        $payLoad = json_decode(request()->getContent(), true);
 
         $valiRule = [
             "orderer.name" => "required",
@@ -272,7 +273,7 @@ class OrderCtrl extends Controller
         if (!Auth::guard('sanctum')->check()) {
             $valiRule['email'] = 'required|email';
         }
-        
+
         $validator = Validator::make($payLoad, $valiRule);
 
         if ($validator->fails()) {
@@ -284,17 +285,22 @@ class OrderCtrl extends Controller
 
         DB::beginTransaction();
 
-        $customer = Customer::where('email', $payLoad['email'])->get()->first();
+        if (!Auth::guard('sanctum')->check()) {
+            $customer = Customer::where('email', $payLoad['email'])->get()->first();
 
-        if (!$customer) {
-            $udata = [
-                'name' => $payLoad['orderer']['name'],
-                'email' => $payLoad['email'],
-                'password' => '1234',
-            ];
+            if (!$customer) {
+                $udata = [
+                    'name' => $payLoad['orderer']['name'],
+                    'email' => $payLoad['email'],
+                    'password' => '1234',
+                ];
 
-            Customer::createCustomer($udata['name'], $udata['email'], $udata['password']);
+                Customer::createCustomer($udata['name'], $udata['email'], $udata['password']);
+            }
+        } else {
+            $customer = $request->user();
         }
+
         $address = [];
         $address[] = ['name' => $payLoad['orderer']['name'],
             'phone' => $payLoad['orderer']['phone'],
@@ -311,7 +317,7 @@ class OrderCtrl extends Controller
             'address' => Addr::fullAddr($payLoad['recipient']['region_id'], $payLoad['recipient']['addr']),
             'type' => UserAddrType::receiver()->value];
 
-        $re = Order::createOrder($payLoad['email'], 1, $address, $payLoad['products'], null, null, ReceivedMethod::fromValue($payLoad['payment']));
+        $re = Order::createOrder($customer->email, 1, $address, $payLoad['products'], null, null, ReceivedMethod::fromValue($payLoad['payment']));
 
         if ($re['success'] == '1') {
             DB::commit();
