@@ -38,7 +38,7 @@ class Consum extends Model
      */
     public static function setDatasWithLogisticId($input_arr, $logistic_id) {
         $logistic = Logistic::where('id', $logistic_id)->get()->first();
-        $delivery = Delivery::where('id', $logistic->id)->get()->first();
+        $delivery = Delivery::where('id', $logistic->delivery_id)->get()->first();
         $select_consignment = false;
         //若為寄倉訂購 則改計算與扣寄倉庫存
         if ('csn_order' == $delivery->event) {
