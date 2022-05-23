@@ -281,7 +281,7 @@ class ConsignmentCtrl extends Controller
                     ->where('csn.id', $id)
                     ->get();
                 $stock_event = StockEvent::consignment()->value;
-                $stock_note = LogEventFeature::getDescription(LogEventFeature::consignment_shipping()->value);
+                $stock_note = LogEventFeature::getDescription(LogEventFeature::delivery()->value);
                 $user_name = $request->user()->name;
                 foreach($queryCsnItems as $item) {
                     $rePSSC = ProductStock::stockChange($item->product_style_id, $item->num * -1
@@ -503,7 +503,7 @@ class ConsignmentCtrl extends Controller
 
                 , 'items.product_style_id'
                 , 'items.prd_type'
-                , 'items.product_title'
+                , 'items.title'
                 , 'items.sku'
                 , DB::raw('round(items.price) as price')
                 , 'items.num'
@@ -520,26 +520,6 @@ class ConsignmentCtrl extends Controller
 
         return view('cms.commodity.consignment.orderlist', [
             'dataList' => $dataList
-            , 'data_per_page' => $data_per_page
-            , 'depotList' => Depot::all()
-            , 'depot_id' => $depot_id
-        ]);
-    }
-
-    //寄倉庫存
-    public function stocklist(Request $request) {
-        $query = $request->query();
-        $data_per_page = Arr::get($query, 'data_per_page', 10);
-        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
-
-        $depot_id = Arr::get($query, 'depot_id', 1);
-
-        $queryDepotProduct = DepotProduct::ProductCsnExistInboundList($depot_id);
-
-        $queryDepotProduct = $queryDepotProduct->paginate($data_per_page)->appends($query);
-
-        return view('cms.commodity.consignment.stock', [
-            'dataList' => $queryDepotProduct
             , 'data_per_page' => $data_per_page
             , 'depotList' => Depot::all()
             , 'depot_id' => $depot_id
@@ -597,7 +577,7 @@ class ConsignmentCtrl extends Controller
                             'csnord_id' => $consignmentID,
                             'product_style_id' => $val,
                             'prd_type' => $csnItemReq['prd_type'][$key],
-                            'product_title' => $csnItemReq['name'][$key],
+                            'title' => $csnItemReq['name'][$key],
                             'sku' => $csnItemReq['sku'][$key],
                             'price' => $csnItemReq['price'][$key],
                             'num' => $csnItemReq['num'][$key],
@@ -733,7 +713,7 @@ class ConsignmentCtrl extends Controller
                                 'csnord_id' => $id,
                                 'product_style_id' => $csnItemReq['product_style_id'][$key],
                                 'prd_type' => $csnItemReq['prd_type'][$key],
-                                'product_title' => $csnItemReq['name'][$key],
+                                'title' => $csnItemReq['name'][$key],
                                 'sku' => $csnItemReq['sku'][$key],
                                 'price' => $csnItemReq['price'][$key],
                                 'num' => $csnItemReq['num'][$key],
@@ -761,6 +741,41 @@ class ConsignmentCtrl extends Controller
             'id' => $id,
             'query' => $query
         ]));
+    }
+
+    //寄倉庫存
+    public function stocklist(Request $request) {
+        $query = $request->query();
+        $data_per_page = Arr::get($query, 'data_per_page', 10);
+        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
+
+        $depot_id = Arr::get($query, 'depot_id', 1);
+
+        $queryDepotProduct = DepotProduct::ProductCsnExistInboundList($depot_id);
+
+        $queryDepotProduct = $queryDepotProduct->paginate($data_per_page)->appends($query);
+
+        return view('cms.commodity.consignment.stock', [
+            'dataList' => $queryDepotProduct
+            , 'data_per_page' => $data_per_page
+            , 'depotList' => Depot::all()
+            , 'depot_id' => $depot_id
+        ]);
+    }
+
+    public function historyStockLog(Request $request, $id) {
+        $purchaseData = CsnOrder::getData($id)->first();
+        $purchaseLog = PurchaseLog::getData(Event::csn_order()->value, $id)->get();
+        if (!$purchaseData) {
+            return abort(404);
+        }
+
+        return view('cms.commodity.consignment.stocklog', [
+            'id' => $id,
+            'purchaseData' => $purchaseData,
+            'purchaseLog' => $purchaseLog,
+            'breadcrumb_data' => $purchaseData->sn,
+        ]);
     }
 }
 

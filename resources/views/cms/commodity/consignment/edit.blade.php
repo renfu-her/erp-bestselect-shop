@@ -527,10 +527,10 @@
                         let $tr = $(`<tr>
                             <th class="text-center">
                                 <input class="form-check-input" type="checkbox" ${checked}
-                                    value="${p.id}" data-td="p_id" aria-label="選取商品">
+                                    value="${p.style_id}" data-td="p_id" aria-label="選取商品">
+                                <input type="hidden" data-td="prd_type" value="${p.prd_type}">
                             </th>
                             <td data-td="name">${p.product_title}</td>
-                            <td data-td="prd_type">${p.prd_type}</td>
                             <td data-td="spec">${p.spec || ''}</td>
                             <td data-td="sku">${p.sku}</td>
                             <td>${p.total_in_stock_num}</td>
@@ -553,7 +553,7 @@
                             selectedProduct.push({
                                 id: $(element).val(),
                                 name: $(element).parent('th').siblings('[data-td="name"]').text(),
-                                prd_type: $(element).parent('th').siblings('[data-td="prd_type"]').text(),
+                                prd_type: $(element).siblings('[data-td="prd_type"]').val(),
                                 sku: sku,
                                 spec: $(element).parent('th').siblings('[data-td="spec"]').text(),
                                 price: $(element).parent('th').siblings('[data-td="price"]').text()

@@ -579,27 +579,35 @@ class PurchaseCtrl extends Controller
 
         //產生付款單
         if ($request->isMethod('POST')) {
-            if ($validatedReq['type'] === '1') {
-                $totalPrice = self::getPaymentPrice($id)['finalPaymentPrice'];
-            } elseif (isset($validatedReq['price'])) {
-                $totalPrice = intval($validatedReq['price']);
-            }
-            $productDefault = DB::table('acc_payable_default')->where('name', '=', 'product')->get()->first();
-            $logisticsDefault = DB::table('acc_payable_default')->where('name', '=', 'logistics')->get()->first();
-            $prdDefault = json_decode(json_encode($productDefault), true);
-            $lgsDefault = json_decode(json_encode($logisticsDefault), true);
+            $paying_order = PayingOrder::where([
+                    'purchase_id'=>$id,
+                    'type'=>1,
+                    'deleted_at'=>null,
+                ])->first();
 
-            PayingOrder::createPayingOrder(
-                $id,
-                $request->user()->id,
-                $validatedReq['type'],
-                $prdDefault['default_grade_id'],
-                $lgsDefault['default_grade_id'],
-                $totalPrice ?? 0,
-                null,
-                $request['deposit_summary'] ?? '',
-                $request['deposit_memo'] ?? '',
-            );
+            if(! $paying_order){
+                if ($validatedReq['type'] === '1') {
+                    $totalPrice = self::getPaymentPrice($id)['finalPaymentPrice'];
+                } elseif (isset($validatedReq['price'])) {
+                    $totalPrice = intval($validatedReq['price']);
+                }
+                $productDefault = DB::table('acc_payable_default')->where('name', '=', 'product')->get()->first();
+                $logisticsDefault = DB::table('acc_payable_default')->where('name', '=', 'logistics')->get()->first();
+                $prdDefault = json_decode(json_encode($productDefault), true);
+                $lgsDefault = json_decode(json_encode($logisticsDefault), true);
+
+                PayingOrder::createPayingOrder(
+                    $id,
+                    $request->user()->id,
+                    $validatedReq['type'],
+                    $prdDefault['default_grade_id'],
+                    $lgsDefault['default_grade_id'],
+                    $totalPrice ?? 0,
+                    null,
+                    $request['deposit_summary'] ?? '',
+                    $request['deposit_memo'] ?? '',
+                );
+            }
         }
 
         $paymentPrice = self::getPaymentPrice($id);

@@ -118,7 +118,7 @@ class PurchaseItem extends Model
                 ) {
                     PurchaseItem::whereIn('id', $del_item_id_arr)->delete();
                     foreach ($items as $item) {
-                        PurchaseLog::stockChange($purchase_id, $item->product_style_id, Event::purchase()->value, $item->id, LogEventFeature::style_del()->value, null, null, $operator_user_id, $operator_user_name);
+                        PurchaseLog::stockChange($purchase_id, $item->product_style_id, Event::purchase()->value, $item->id, LogEventFeature::style_del()->value, null, null, null, $operator_user_id, $operator_user_name);
                     }
                     return ['success' => 1, 'error_msg' => ""];
                 });
