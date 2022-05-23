@@ -62,7 +62,10 @@
                                 <i class="bi bi-info-circle" data-bs-toggle="tooltip"
                                     title="預設：(售價-經銷價) × {{ App\Enums\Customer\Bonus::bonus()->value }}"></i>
                             </th>
-                            <th scope="col">喜鴻紅利抵扣</th>
+                            <th scope="col">喜鴻紅利抵扣
+                                <i class="bi bi-info-circle" data-bs-toggle="tooltip" 
+                                    title="此設定顯示於顧客購買結帳頁面商品可使用之紅利上限，若要調整上限請至【設定】→【銷售通路管理】編輯。預設：售價 × 各通路可抵扣上限"></i>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -103,7 +106,7 @@
                                 <td>
                                     @if ($sale->is_realtime == 1)
                                         <input type="number" class="form-control form-control-sm" name="dividend[]" min="0"
-                                            value="{{ $sale->dividend }}" required>
+                                            value="{{ $sale->dividend }}" data-default="{{ $sale->dividend_limit }}" required>
                                     @else
                                         無法提供
                                         <input type="hidden" name="dividend[]" value="0">
@@ -138,16 +141,27 @@
         <script>
             // 獎金%數
             const BonusRate = Number((@json(App\Enums\Customer\Bonus::bonus()->value)).toFixed(2));
-            const salechannel = @json($sales);
-            $('input[name="price[]"], input[name="dealer_price[]"]').on('change', function() {
-                const $this = $(this);
-                sumBonus($this);
+            $('input[name="price[]"], input[name="dealer_price[]"]').off('change.bonus')
+            .on('change.bonus', function() {
+                sumBonus($(this));
+            });
+            $('input[name="price[]"]').off('change.point')
+            .on('change.point', function () {
+                sumPoints($(this));
             });
 
+            // 計算 獎金
             function sumBonus($target) {
-                const price = $target.closest('tr').find('input[name="price[]"]').val() || 0;
+                const price = Number($target.closest('tr').find('input[name="price[]"]').val()) || 0;
                 const dealer_price = $target.closest('tr').find('input[name="dealer_price[]"]').val() || 0;
                 $target.closest('tr').find('input[name="bonus[]"]').val(Math.floor((price - dealer_price) * BonusRate));
+            }
+            // 計算 紅利
+            function sumPoints($target) {
+                const price = Number($target.val()) || 0;
+                let dividend = Number($target.closest('tr').find('input[name$="dividend[]"]').data('default')) || 0;
+                dividend /= 100;
+                $target.closest('tr').find('input[name$="dividend[]"][type="number"]').val(Math.floor(price * dividend));
             }
 
             $('#batch_price').on('click', function() {
@@ -173,7 +187,11 @@
                         return BasePrice[_name];
                     }
                 });
-                sumBonus($('tr:not(.table-warning) input[name="bonus[]"]'));
+                $('tr:not(.table-warning) input[name="price[]"]').each(function (index, element) {
+                    // element == this
+                    sumBonus($(element));
+                    sumPoints($(element));
+                });
             });
         </script>
     @endpush

@@ -61,12 +61,16 @@
                                 <th scope="col">經銷價</th>
                                 <th scope="col">定價</th>
                                 <th scope="col">獎金
-                                    <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="預設：(售價-經銷價) × 0.97"></i>
+                                    <i class="bi bi-info-circle" data-bs-toggle="tooltip" 
+                                        title="此設定為此商品可賺取之獎金。預設：(售價-經銷價) × {{ App\Enums\Customer\Bonus::bonus()->value }}"></i>
                                 </th>
                                 <th scope="col">庫存</th>
                                 <th scope="col">安全庫存</th>
                                 <!-- <th scope="col">庫存不足</th> -->
-                                <th scope="col">喜鴻紅利抵扣</th>
+                                <th scope="col">喜鴻紅利抵扣
+                                    <i class="bi bi-info-circle" data-bs-toggle="tooltip" 
+                                        title="此設定顯示於顧客購買結帳頁面商品可使用之紅利上限。預設：售價 × {{ $salechannel->dividend_limit/100 }}"></i>
+                                </th>
                             </tr>
                         </thead>
                         <tbody class="-appendClone">
@@ -283,7 +287,7 @@
     @push('sub-scripts')
         <script>
             // 獎金%數
-            const BonusRate = 0.97;
+            const BonusRate = Number((@json(App\Enums\Customer\Bonus::bonus()->value)).toFixed(2));
             const initStyles = @json($initStyles);
             const saleChannel = @json($salechannel);
             // clone 項目
@@ -318,17 +322,27 @@
             });
 
             // 計算 獎金 = (售價-經銷價) × BonusRate
+            // 計算 紅利 = 售價 × (saleChannel.dividend_limit / 100)
             bindCalculate();
 
             function bindCalculate() {
+                // 獎金
                 $('input[name$="_price[]"], input[name$="_dealer_price[]"]').off('change.bonus')
-                    .on('change.bonus', function() {
-                        const $this = $(this);
-                        const price = $this.closest('tr').find('input[name$="_price[]"]').val() || 0;
-                        const dealer_price = $this.closest('tr').find('input[name$="_dealer_price[]"]').val() || 0;
-                        $this.closest('tr').find('input[name$="_bonus[]"]').val(Math.floor((price - dealer_price) *
-                            BonusRate));
-                    });
+                .on('change.bonus', function() {
+                    const $this = $(this);
+                    const price = $this.closest('tr').find('input[name$="_price[]"]').val() || 0;
+                    const dealer_price = $this.closest('tr').find('input[name$="_dealer_price[]"]').val() || 0;
+                    $this.closest('tr').find('input[name$="_bonus[]"]').val(Math.floor((price - dealer_price) *
+                        BonusRate));
+                });
+                // 紅利
+                $('input[name$="_price[]"]').off('change.point')
+                .on('change.point', function () {
+                    const $this = $(this);
+                    const price = $this.val() || 0;
+                    const dividend = saleChannel.dividend_limit / 100;
+                    $this.closest('tr').find('input[name$="_dividend[]"]').val(Math.floor(price * dividend));
+                });
             }
 
             // sku

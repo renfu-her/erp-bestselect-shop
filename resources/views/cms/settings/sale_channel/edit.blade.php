@@ -71,7 +71,7 @@
                 </div>
             </x-b-form-group>
 
-            <x-b-form-group name="dividend_limit" title="紅利上限" required="true">
+            <x-b-form-group name="dividend_limit" title="紅利可抵扣上限(%)" required="true">
                 <input class="form-control @error('dividend_limit') is-invalid @enderror" type="number" max="100" step="1"
                     name="dividend_limit" value="{{ old('dividend_limit', $data->dividend_limit ?? 100) }}" />
             </x-b-form-group>
