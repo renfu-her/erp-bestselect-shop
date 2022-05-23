@@ -65,7 +65,7 @@ class LogisticCtrl extends Controller
             $deliveryList = Delivery::getCsnOrderListToLogistic($delivery_id, $eventId)->get();
 //            dd($deliveryList);
             $csnOrder = CsnOrder::where('id', $delivery->event_id)->get()->first();
-            $rsp_arr['depot_id'] = $csnOrder->send_depot_id;
+            $rsp_arr['depot_id'] = $csnOrder->depot_id;
         }
 
         if (null == $delivery) {
