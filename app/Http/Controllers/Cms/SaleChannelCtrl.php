@@ -48,7 +48,7 @@ class SaleChannelCtrl extends Controller
             'event_edate' => $v['event_edate'],
         ]);
         wToast(__('Add finished.'));
-        return redirect(Route('cms.sale_channel.edit', [
+        return redirect(Route('cms.sale_channel.index', [
             'id' => $id,
             'query' => $query,
         ]));
@@ -114,7 +114,7 @@ class SaleChannelCtrl extends Controller
 
         SaleChannel::where('id', '=', $id)->update($v);
         wToast(__('Edit finished.'));
-        return redirect(Route('cms.sale_channel.edit', [
+        return redirect(Route('cms.sale_channel.index', [
             'id' => $id,
             'query' => $query,
         ]));

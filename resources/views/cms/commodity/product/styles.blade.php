@@ -65,7 +65,7 @@
                                 </th>
                                 <th scope="col">庫存</th>
                                 <th scope="col">安全庫存</th>
-                               <!-- <th scope="col">庫存不足</th> -->
+                                <!-- <th scope="col">庫存不足</th> -->
                                 <th scope="col">喜鴻紅利抵扣</th>
                             </tr>
                         </thead>
@@ -134,15 +134,15 @@
                                     <a href="#" class="-text -stock">庫存管理</a>
                                 </td>
                                 <!--
-                                <td>
-                                    <select name="n_sold_out_event[]" class="form-select form-select-sm">
-                                        <option value="繼續銷售" selected>繼續銷售</option>
-                                        <option value="停止銷售">停止銷售</option>
-                                        <option value="下架">下架</option>
-                                        <option value="預售">預售</option>
-                                    </select>
-                                </td>
-                            -->
+                                    <td>
+                                        <select name="n_sold_out_event[]" class="form-select form-select-sm">
+                                            <option value="繼續銷售" selected>繼續銷售</option>
+                                            <option value="停止銷售">停止銷售</option>
+                                            <option value="下架">下架</option>
+                                            <option value="預售">預售</option>
+                                        </select>
+                                    </td>
+                                -->
                                 <td>
                                     <input type="hidden" name="n_sold_out_event[]" value="0">
                                     <input type="number" class="form-control form-control-sm" name="n_dividend[]" min="0"
@@ -175,15 +175,17 @@
 
                                     @foreach ($specList as $specKey => $spec)
                                         <td>
-                                            @if (isset($style->sku)) 
+                                            @if (isset($style->sku))
                                                 <div class="form-control form-control-sm" readonly>
                                                     {{ $style->{'spec_item' . ($specKey + 1) . '_title'} }}
                                                 </div>
                                             @else
-                                                <select name="{{ $prefix }}spec{{ $specKey + 1 }}[]" class="form-select form-select-sm" required>
+                                                <select name="{{ $prefix }}spec{{ $specKey + 1 }}[]"
+                                                    class="form-select form-select-sm" required>
                                                     <option value="" disabled>請選擇</option>
                                                     @foreach ($spec->items as $key => $value)
-                                                        <option value="{{ $value->key }}" @if ($value->key == $style->{'spec_item' . ($specKey + 1) . '_id'}) selected @endif>
+                                                        <option value="{{ $value->key }}"
+                                                            @if ($value->key == $style->{'spec_item' . ($specKey + 1) . '_id'}) selected @endif>
                                                             {{ $value->value }}</option>
                                                     @endforeach
                                                 </select>
@@ -193,51 +195,58 @@
                                     <td>
                                         <div class="input-group input-group-sm flex-nowrap">
                                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                            <input type="number" class="form-control form-control-sm" name="{{ $prefix }}price[]" min="0"
-                                                value="{{ $style->price }}" required />
+                                            <input type="number" class="form-control form-control-sm"
+                                                name="{{ $prefix }}price[]" min="0" value="{{ $style->price }}"
+                                                required />
                                         </div>
                                     </td>
                                     <td>
                                         <div class="input-group input-group-sm flex-nowrap">
                                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                            <input type="number" class="form-control form-control-sm" name="{{ $prefix }}dealer_price[]"
-                                                min="0" value="{{ $style->dealer_price }}" required />
+                                            <input type="number" class="form-control form-control-sm"
+                                                name="{{ $prefix }}dealer_price[]" min="0"
+                                                value="{{ $style->dealer_price }}" required />
                                         </div>
                                     </td>
                                     <td>
                                         <div class="input-group input-group-sm flex-nowrap">
                                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                            <input type="number" class="form-control form-control-sm" name="{{ $prefix }}origin_price[]"
-                                                min="0" value="{{ $style->origin_price }}" required />
+                                            <input type="number" class="form-control form-control-sm"
+                                                name="{{ $prefix }}origin_price[]" min="0"
+                                                value="{{ $style->origin_price }}" required />
                                         </div>
                                     </td>
                                     <td>
                                         <div class="input-group input-group-sm flex-nowrap">
                                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                                            <input type="number" class="form-control form-control-sm" name="{{ $prefix }}bonus[]" min="0"
-                                                value="{{ $style->bonus }}" required />
+                                            <input type="number" class="form-control form-control-sm"
+                                                name="{{ $prefix }}bonus[]" min="0" value="{{ $style->bonus }}"
+                                                required />
                                         </div>
                                     </td>
                                     <td>
-                                        <a href="{{ Route('cms.product.edit-stock', ['id' => $data->id, 'sid' => $style->id]) }}" class="-text -stock">{{ $style->in_stock }}</a>
+                                        <a href="{{ Route('cms.product.edit-stock', ['id' => $data->id, 'sid' => $style->id]) }}"
+                                            class="-text -stock">{{ $style->in_stock }}</a>
                                     </td>
                                     <td>
-                                        <a href="{{ Route('cms.product.edit-stock', ['id' => $data->id, 'sid' => $style->id]) }}" class="-text -stock">{{ $style->safety_stock }}</a>
+                                        <a href="{{ Route('cms.product.edit-stock', ['id' => $data->id, 'sid' => $style->id]) }}"
+                                            class="-text -stock">{{ $style->safety_stock }}</a>
                                     </td>
                                     <!--
+                                        <td>
+                                            <select name="{{ $prefix }}sold_out_event[]"
+                                                class="form-select form-select-sm">
+                                                <option value="繼續銷售">繼續銷售</option>
+                                                <option value="停止銷售">停止銷售</option>
+                                                <option value="下架">下架</option>
+                                                <option value="預售">預售</option>
+                                            </select>
+                                        </td>
+                                    -->
                                     <td>
-                                        <select name="{{ $prefix }}sold_out_event[]"
-                                            class="form-select form-select-sm">
-                                            <option value="繼續銷售">繼續銷售</option>
-                                            <option value="停止銷售">停止銷售</option>
-                                            <option value="下架">下架</option>
-                                            <option value="預售">預售</option>
-                                        </select>
-                                    </td>
-                                -->
-                                    <td>
-                                        <input type="number" class="form-control form-control-sm" name="{{ $prefix }}dividend[]" min="0"
-                                            value="{{ $style->dividend }}" required>
+                                        <input type="number" class="form-control form-control-sm"
+                                            name="{{ $prefix }}dividend[]" min="0" value="{{ $style->dividend }}"
+                                            required>
                                     </td>
                                 </tr>
                             @endforeach
@@ -268,6 +277,7 @@
                 font-size: .94rem;
                 font-weight: 400;
             }
+
         </style>
     @endpush
     @push('sub-scripts')
@@ -275,14 +285,14 @@
             // 獎金%數
             const BonusRate = 0.97;
             const initStyles = @json($initStyles);
-
+            const saleChannel = @json($salechannel);
             // clone 項目
             const $clone = $('.-cloneElem:first-child').clone();
             $('.-cloneElem.d-none').remove();
 
             // 新增一條款式
             $('.-newClone').off('click').on('click', function() {
-                Clone_bindCloneBtn($clone, function () {  });
+                Clone_bindCloneBtn($clone, function() {});
                 bindCalculate();
             });
             initStyles.forEach(style => {
@@ -309,21 +319,22 @@
 
             // 計算 獎金 = (售價-經銷價) × BonusRate
             bindCalculate();
+
             function bindCalculate() {
                 $('input[name$="_price[]"], input[name$="_dealer_price[]"]').off('change.bonus')
-                .on('change.bonus', function () {
-                    const $this = $(this);
-                    const price = $this.closest('tr').find('input[name$="_price[]"]').val() || 0;
-                    const dealer_price = $this.closest('tr').find('input[name$="_dealer_price[]"]').val() || 0;
-                    $this.closest('tr').find('input[name$="_bonus[]"]').val(Math.floor((price - dealer_price) * BonusRate));
-                });
+                    .on('change.bonus', function() {
+                        const $this = $(this);
+                        const price = $this.closest('tr').find('input[name$="_price[]"]').val() || 0;
+                        const dealer_price = $this.closest('tr').find('input[name$="_dealer_price[]"]').val() || 0;
+                        $this.closest('tr').find('input[name$="_bonus[]"]').val(Math.floor((price - dealer_price) *
+                            BonusRate));
+                    });
             }
 
             // sku
-            $('#form1 button[type="submit"]').on('click.add_sku', function () {
+            $('#form1 button[type="submit"]').on('click.add_sku', function() {
                 $('input[name="add_sku"]').val($(this).hasClass('-add_sku') ? 1 : 0);
             });
-            
         </script>
     @endpush
 @endOnce

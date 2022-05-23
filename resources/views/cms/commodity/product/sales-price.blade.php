@@ -138,7 +138,7 @@
         <script>
             // 獎金%數
             const BonusRate = Number((@json(App\Enums\Customer\Bonus::bonus()->value)).toFixed(2));
-
+            const salechannel = @json($sales);
             $('input[name="price[]"], input[name="dealer_price[]"]').on('change', function() {
                 const $this = $(this);
                 sumBonus($this);

@@ -71,25 +71,27 @@
                 </div>
             </x-b-form-group>
 
-            <x-b-form-group name="bonus_limit" title="紅利上限" required="true">
-                <input class="form-control @error('bonus_limit') is-invalid @enderror" type="number" min="50" max="100"
-                    step="1" name="bonus_limit" value="{{ old('bonus_limit', $data->bonus_limit ?? 100) }}" />
+            <x-b-form-group name="dividend_limit" title="紅利上限" required="true">
+                <input class="form-control @error('dividend_limit') is-invalid @enderror" type="number" max="100" step="1"
+                    name="dividend_limit" value="{{ old('dividend_limit', $data->dividend_limit ?? 100) }}" />
             </x-b-form-group>
-            <x-b-form-group name="bonus_rate" title="紅利回饋比例" required="true">
-                <input class="form-control @error('bonus_rate') is-invalid @enderror" type="number" min="0" max="50"
-                    step="1" name="bonus_rate" value="{{ old('bonus_rate', $data->bonus_rate ?? 0) }}" />
+            <x-b-form-group name="dividend_rate" title="紅利回饋比例" required="true">
+                <input class="form-control @error('dividend_rate') is-invalid @enderror" type="number" max="50" step="1"
+                    name="dividend_rate" value="{{ old('dividend_rate', $data->dividend_rate ?? 0) }}" />
             </x-b-form-group>
             <x-b-form-group name="event_dividend_rate" title="活動紅利回饋比例" required="true">
-                <input class="form-control @error('event_dividend_rate') is-invalid @enderror" type="number" min="0" max="50"
-                    step="1" name="event_dividend_rate"
+                <input class="form-control @error('event_dividend_rate') is-invalid @enderror" type="number" min="0"
+                    max="50" step="1" name="event_dividend_rate"
                     value="{{ old('event_dividend_rate', $data->event_dividend_rate ?? 0) }}" />
             </x-b-form-group>
             <x-b-form-group name="event_sdate" title="活動起始時間" required="true">
-                <input class="form-control @error('event_sdate') is-invalid @enderror" type="datetime-local" name="event_sdate"
+                <input class="form-control @error('event_sdate') is-invalid @enderror" type="datetime-local"
+                    name="event_sdate"
                     value="{{ old('event_sdate') ? date('Y-m-d\Th:i', strtotime($data->event_sdate)) : '' }}" />
             </x-b-form-group>
             <x-b-form-group name="event_edate" title="活動結束時間" required="true">
-                <input class="form-control @error('event_edate') is-invalid @enderror" type="datetime-local" name="event_edate"
+                <input class="form-control @error('event_edate') is-invalid @enderror" type="datetime-local"
+                    name="event_edate"
                     value="{{ old('event_edate') ? date('Y-m-d\Th:i', strtotime($data->event_edate)) : '' }}" />
             </x-b-form-group>
 
