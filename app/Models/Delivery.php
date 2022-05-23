@@ -256,7 +256,7 @@ class Delivery extends Model
         $sub_rec_depot = self::getSumQtyWithRecDepot();
 
         $sub_orders = DB::table('ord_sub_orders')
-            ->leftJoin('ord_item as items', function($join) {
+            ->leftJoin('ord_items as items', function($join) {
                 $join->on('items.sub_order_id', '=', 'ord_sub_orders.id');
             })
             ->select('items.id as item_id'

@@ -101,9 +101,14 @@ class Consum extends Model
             $delivery = Delivery::where('id', '=', $logistic->delivery_id)->get()->first();
             $result = DB::transaction(function () use ($delivery, $data, $dataGet, $logistic_id, $user_id, $user_name
             ) {
+                $event = $delivery->event;
+                if ('pickup' == $delivery->ship_category) {
+                    $event = 'ord_pickup';
+                }
+
                 //扣除入庫單庫存
                 foreach ($dataGet as $item) {
-                    $reShipIb = PurchaseInbound::shippingInbound($delivery->event, $delivery->event_id, $item->id, LogEventFeature::consume_delivery()->value, $item->inbound_id, $item->qty);
+                    $reShipIb = PurchaseInbound::shippingInbound($event, $delivery->event_id, $item->id, LogEventFeature::consume_delivery()->value, $item->inbound_id, $item->qty);
                     if ($reShipIb['success'] == 0) {
                         DB::rollBack();
                         return $reShipIb;
