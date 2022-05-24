@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-3">採購單 {{ $purchaseData->purchase_sn }}</h2>
+    <h2 class="mb-3">{{$title}} {{ $sn }}</h2>
     <x-b-pch-navi :id="$id"></x-b-pch-navi>
 
     <div class="card shadow p-4 mb-4">
@@ -19,24 +19,23 @@
                      <tr>
                          <td>{{$data->created_at}}</td>
                          <td>{{App\Enums\Purchase\LogEventFeature::getDescription($data->feature)}}
-                             @if($data->event == App\Enums\Delivery\Event::purchase()->value)
+{{--                             @if($data->event == App\Enums\Delivery\Event::purchase()->value)--}}
+                                 {{$data->title}}
                                  @if(isset($data->qty))
                                      @if($data->feature == App\Enums\Purchase\LogEventFeature::style_change_price()->value) 價錢:{{$data->qty}}
                                      @elseif($data->feature == App\Enums\Purchase\LogEventFeature::style_change_qty()->value) 數量:{{$data->qty}}
-                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::style_add()->value){{$data->title}}
-                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::style_del()->value){{$data->title}}
-                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::inbound_add()->value)@if(isset($data->qty)){{$data->title}} 數量:{{$data->qty}} @endif
-                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::inbound_del()->value)@if(isset($data->qty)){{$data->title}} 數量:{{$data->qty}} @endif
-                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::delivery()->value)@if(isset($data->qty)){{$data->title}} 數量:{{$data->qty}} @endif
-                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::send_back()->value)@if(isset($data->qty)){{$data->title}} 數量:{{$data->qty}} @endif
-                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::consume_delivery()->value)@if(isset($data->qty)){{$data->title}} 數量:{{$data->qty}} @endif
-                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::consume_send_back()->value)@if(isset($data->qty)){{$data->title}} 數量:{{$data->qty}} @endif
-                                     @else {{$data->title}}
-                                     @endif
-                                 @else
-                                         {{$data->title}}
+                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::style_add()->value)
+                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::style_del()->value)
+                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::inbound_add()->value)@if(isset($data->qty)) 數量:{{$data->qty}} @endif
+                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::inbound_del()->value)@if(isset($data->qty)) 數量:{{$data->qty}} @endif
+                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::delivery()->value)@if(isset($data->qty)) 數量:{{$data->qty}} @endif
+                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::combo()->value)@if(isset($data->qty)) 數量:{{$data->qty}} @endif
+                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::send_back()->value)@if(isset($data->qty)) 數量:{{$data->qty}} @endif
+                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::consume_delivery()->value)@if(isset($data->qty)) 數量:{{$data->qty}} @endif
+                                     @elseif($data->feature == App\Enums\Purchase\LogEventFeature::consume_send_back()->value)@if(isset($data->qty)) 數量:{{$data->qty}} @endif
+                                     @else    @endif
                                  @endif
-                             @endif
+{{--                             @endif--}}
                          </td>
                          <td>{{$data->user_name}}</td>
                      </tr>
@@ -48,7 +47,7 @@
 
     <div class="row flex-column-reverse flex-sm-row">
         <div class="col-auto">
-            <a href="{{ Route('cms.purchase.index', [], true) }}" class="btn btn-outline-primary px-4"
+            <a href="{{ $returnAction }}" class="btn btn-outline-primary px-4"
                 role="button">返回列表</a>
         </div>
         <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">

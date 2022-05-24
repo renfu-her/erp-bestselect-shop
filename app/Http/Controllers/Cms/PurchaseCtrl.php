@@ -798,6 +798,9 @@ class PurchaseCtrl extends Controller
             'id' => $id,
             'purchaseData' => $purchaseData,
             'purchaseLog' => $purchaseLog,
+            'returnAction' => Route('cms.purchase.index', [], true),
+            'title' => '採購單',
+            'sn' => $purchaseData->purchase_sn,
             'breadcrumb_data' => $purchaseData->purchase_sn,
         ]);
     }
