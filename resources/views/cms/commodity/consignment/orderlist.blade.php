@@ -1,8 +1,8 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-3">寄倉庫存</h2>
+    <h2 class="mb-3">寄倉訂購</h2>
 
-    <form id="search" action="{{ Route('cms.consignment.stocklist') }}" method="GET">
+    <form id="search" action="{{ Route('cms.consignment.orderlist') }}" method="GET">
         <div class="card shadow p-4 mb-4">
             <h6>搜尋條件</h6>
             <div class="row">
@@ -27,6 +27,14 @@
     <form id="actionForms">
         @csrf
         <div class="card shadow p-4 mb-4">
+
+            <div class="col">
+                @can('cms.consignment.create')
+                    <a href="{{ Route('cms.consignment.order', null, true) }}" class="btn btn-primary">
+                        <i class="bi bi-plus-lg pe-1"></i> 新增寄倉訂購單
+                    </a>
+                @endcan
+            </div>
             <div class="row justify-content-end mb-4">
                 <div class="col-auto">
                     顯示
@@ -43,15 +51,19 @@
                 <table class="table table-striped tableList">
                     <thead>
                     <tr>
-                        <th scope="col" style="width:10%">#</th>
-                        <th scope="col">SKU碼</th>
+                        <th scope="col">#</th>
+                        <th scope="col" class="text-center">編輯</th>
+                        <th scope="col">單號</th>
+                        <th scope="col">倉庫名稱</th>
+                        <th scope="col">訂購人</th>
+                        <th scope="col">訂購日期</th>
                         <th scope="col">商品名稱</th>
-                        <th scope="col">款式</th>
-                        <th scope="col">寄倉數量</th>
-                        <th scope="col">已銷售數量</th>
-                        <th scope="col">耗材消耗數量</th>
-                        <th scope="col">剩餘數量</th>
-                        <th scope="col" class="text-center">明細</th>
+                        <th scope="col">SKU碼</th>
+                        <th scope="col">單價</th>
+                        <th scope="col">數量</th>
+                        <th scope="col">小計</th>
+                        <th scope="col">出貨日期</th>
+                        <th scope="col">物態</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -59,28 +71,27 @@
                         @foreach ($dataList as $key => $data)
                             <tr>
                                 <th scope="row">{{ $key + 1 }}</th>
+                                <td class="text-center">
+                                    @can('admin.consignment.edit')
+                                        <a href="{{ Route('cms.consignment.order_edit', ['id' => $data->id], true) }}"
+                                           data-bs-toggle="tooltip" title="編輯"
+                                           class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                    @endcan
+                                </td>
+                                <td>{{ $data->sn }}</td>
+                                <td>{{ $data->depot_name }}</td>
+                                <td>{{ $data->create_user_name }}</td>
+                                <td>{{ $data->scheduled_date }}</td>
+                                <td>{{ $data->title }}</td>
                                 <td>{{ $data->sku }}</td>
-                                <td>{{ $data->product_title }}</td>
-                                <td>{{ $data->spec }}</td>
-                                <td>{{ $data->inbound_num }}</td>
-                                <td>{{ $data->sale_num }}</td>
-                                <td>{{ $data->consume_num }}</td>
-                                <td>{{ $data->available_num }}</td>
+                                <td>{{ $data->price }}</td>
+                                <td>{{ $data->num }}</td>
+                                <td>{{ $data->total_price }}</td>
+                                <td>{{ $data->audit_date }}</td>
+                                <td>{{ $data->logistic_status }}</td>
 
-{{--                                <td class="text-center">--}}
-{{--                                    @can('admin.consignment.edit')--}}
-{{--                                        <a href="--}}
-{{--                                        @if($data->event == App\Enums\Delivery\Event::order()->value)--}}
-{{--                                            {{ Route('cms.order.detail', ['id' => $data->order_id, 'subOrderId' => $data->sub_order_id], true) }}--}}
-{{--                                        @elseif($data->event == App\Enums\Delivery\Event::consignment()->value)--}}
-{{--                                            {{ Route('cms.consignment.edit', ['id' => $data->event_id], true) }}--}}
-{{--                                        @endif"--}}
-{{--                                           data-bs-toggle="tooltip" title="明細"--}}
-{{--                                           class="icon icon-btn fs-5 text-primary rounded-circle border-0">--}}
-{{--                                            <i class="bi bi-pencil-square"></i>--}}
-{{--                                        </a>--}}
-{{--                                    @endcan--}}
-{{--                                </td>--}}
                             </tr>
                         @endforeach
                     @endif

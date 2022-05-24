@@ -86,16 +86,18 @@
                             </tr>
                             @endif
                             @if($order_data->discount_value > 0)
-                            <tr>
-                                <td>{{ $received_order_data->first()->sn }}</td>
-                                <td>折扣</td>
-                                <td class="text-end">-{{ number_format($order_data->discount_value, 2) }}</td>
-                                <td class="text-end">1</td>
-                                <td class="text-end">1</td>
-                                <td>NTD</td>
-                                <td class="text-end">-{{ number_format($order_data->discount_value) }}</td>
-                                <td class="text-end"></td>
-                            </tr>
+                                @foreach($order_discount ?? [] as $d_value)
+                                <tr>
+                                    <td>{{ $received_order_data->first()->sn }}</td>
+                                    <td>{{ $d_value->account_code }} - {{ $d_value->account_name }} - {{ $d_value->title }}</td>
+                                    <td class="text-end">-{{ number_format($d_value->discount_value, 2) }}</td>
+                                    <td class="text-end">1</td>
+                                    <td class="text-end">1</td>
+                                    <td>NTD</td>
+                                    <td class="text-end">-{{ number_format($d_value->discount_value) }}</td>
+                                    <td class="text-end"></td>
+                                </tr>
+                                @endforeach
                             @endif
                             @foreach($received_data as $value)
                             <tr>
@@ -295,6 +297,7 @@
             const CASH = "{{ \App\Enums\Received\ReceivedMethod::Cash }}";
             const CHEQUE = "{{ \App\Enums\Received\ReceivedMethod::Cheque }}";
             const CREDIT_CARD = "{{ \App\Enums\Received\ReceivedMethod::CreditCard }}";
+            // const CREDIT_CARD_3 = "{{-- \App\Enums\Received\ReceivedMethod::CreditCard3 --}}";
             const REMIT = "{{ \App\Enums\Received\ReceivedMethod::Remittance }}";
             const FOREIGN_CURRENCY = "{{ \App\Enums\Received\ReceivedMethod::ForeignCurrency }}";
             const ACCOUNTS_RECEIVABLE = "{{ \App\Enums\Received\ReceivedMethod::AccountsReceivable }}";
@@ -306,6 +309,7 @@
             const cashEle = $('.' + CASH);
             const chequeEle = $('.' + CHEQUE);
             const creditCardEle = $('.' + CREDIT_CARD);
+            // const creditCard3Ele = $('.' + CREDIT_CARD_3);
             const remitEle = $('.' + REMIT);
             const foreignCurrencyEle = $('.' + FOREIGN_CURRENCY);
             const accountReceivedEle = $('.' + ACCOUNTS_RECEIVABLE);
@@ -316,6 +320,7 @@
             const cashNameAttr = $('[name^=' + CASH + ']');
             const chequeNameAttr = $('[name^=' + CHEQUE + ']');
             const creditCardNameAttr = $('[name^=' + CREDIT_CARD + ']');
+            // const creditCard3NameAttr = $('[name^=' + CREDIT_CARD_3 + ']');
             const remitNameAttr = $('[name^=' + REMIT + ']');
             const foreignCurrencyNameAttr = $('[name^=' + FOREIGN_CURRENCY + ']');
             const accountReceivedNameAttr = $('[name^=' + ACCOUNTS_RECEIVABLE + ']');
@@ -347,6 +352,7 @@
                     chequeEle.hide();
                     remitEle.hide();
                     creditCardEle.hide();
+                    // creditCard3Ele.hide();
                     foreignCurrencyEle.hide();
                     accountReceivedEle.hide();
                     otherEle.hide();
@@ -355,6 +361,7 @@
                     // cashNameAttr.prop('disabled', true);
                     chequeNameAttr.prop('disabled', true);
                     creditCardNameAttr.prop('disabled', true);
+                    // creditCard3NameAttr.prop('disabled', true);
                     remitNameAttr.prop('disabled', true);
                     foreignCurrencyNameAttr.prop('disabled', true);
                     accountReceivedNameAttr.prop('disabled', true);
@@ -367,6 +374,7 @@
                     cashEle.hide();
                     chequeEle.hide();
                     creditCardEle.hide();
+                    // creditCard3Ele.hide();
                     remitEle.hide();
                     foreignCurrencyEle.hide();
                     accountReceivedEle.hide();
@@ -376,6 +384,7 @@
                     cashNameAttr.prop('disabled', true);
                     chequeNameAttr.prop('disabled', true);
                     creditCardNameAttr.prop('disabled', true);
+                    // creditCard3NameAttr.prop('disabled', true);
                     remitNameAttr.prop('disabled', true);
                     foreignCurrencyNameAttr.prop('disabled', true);
                     accountReceivedNameAttr.prop('disabled', true);
@@ -397,6 +406,10 @@
                         creditCardEle.show();
                         creditCardNameAttr.prop('disabled', false);
                         break;
+                    // case CREDIT_CARD_3:
+                    //     creditCard3Ele.show();
+                    //     creditCard3NameAttr.prop('disabled', false);
+                    //     break;
                     case REMIT:
                         remitEle.show();
                         remitNameAttr.prop('disabled', false);
@@ -429,6 +442,7 @@
                     cashEle.hide();
                     chequeEle.hide();
                     creditCardEle.hide();
+                    // creditCard3Ele.hide();
                     remitEle.hide();
                     foreignCurrencyEle.hide();
                     accountReceivedEle.hide();
@@ -439,6 +453,7 @@
                     cashNameAttr.prop('disabled', true);
                     chequeNameAttr.prop('disabled', true);
                     creditCardNameAttr.prop('disabled', true);
+                    // creditCard3NameAttr.prop('disabled', true);
                     remitNameAttr.prop('disabled', true);
                     foreignCurrencyNameAttr.prop('disabled', true);
                     accountReceivedNameAttr.prop('disabled', true);
@@ -459,6 +474,10 @@
                             creditCardEle.show();
                             creditCardNameAttr.prop('disabled', false);
                             break;
+                        // case CREDIT_CARD_3:
+                        //     creditCard3Ele.show();
+                        //     creditCard3NameAttr.prop('disabled', false);
+                        //     break;
                         case REMIT:
                             remitEle.show();
                             remitNameAttr.prop('disabled', false);

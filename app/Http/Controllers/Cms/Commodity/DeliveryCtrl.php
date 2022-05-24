@@ -6,6 +6,7 @@ use App\Enums\Delivery\Event;
 use App\Enums\Delivery\LogisticStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Consignment;
+use App\Models\CsnOrder;
 use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\ReceiveDepot;
@@ -76,6 +77,9 @@ class DeliveryCtrl extends Controller
         } else if(Event::consignment()->value == $event) {
             // 出貨單號ID
             $delivery = Delivery::getData($event, $eventId)->get();
+        } else if(Event::csn_order()->value == $event) {
+            // 出貨單號ID
+            $delivery = Delivery::getData($event, $eventId)->get();
         }
         $delivery_id = null;
         if (null != $delivery) {
@@ -90,8 +94,13 @@ class DeliveryCtrl extends Controller
                 $ord_items_arr = ReceiveDepot::getCSNShipItemWithDeliveryWithReceiveDepotList($event, $eventId, $delivery_id);
                 $consignment = Consignment::where('id', $delivery->event_id)->get()->first();
                 $rsp_arr['depot_id'] = $consignment->send_depot_id;
+            } else if (Event::csn_order()->value == $event) {
+                $ord_items_arr = ReceiveDepot::getCSNOrderShipItemWithDeliveryWithReceiveDepotList($event, $eventId, $delivery_id);
+                $csn_order = CsnOrder::where('id', $delivery->event_id)->get()->first();
+                $rsp_arr['depot_id'] = $csn_order->depot_id;
             }
         }
+        $rsp_arr['event'] = $event;
         $rsp_arr['delivery'] = $delivery;
         $rsp_arr['delivery_id'] = $delivery_id;
         $rsp_arr['sn'] = $delivery->sn;
@@ -137,6 +146,8 @@ class DeliveryCtrl extends Controller
         if ($event == Event::order()->value) {
             return redirect(Route('cms.order.detail', [$event_id], true));
         } else if ($event == Event::consignment()->value) {
+            return redirect(Route('cms.consignment.edit', [$event_id], true));
+        } else if ($event == Event::csn_order()->value) {
             return redirect(Route('cms.consignment.edit', [$event_id], true));
         } else {
             return redirect(Route('cms.order.detail', [$event_id], true));

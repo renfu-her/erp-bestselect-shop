@@ -1630,7 +1630,7 @@
                     $('.-feedback.-coupon_sn').addClass(`${valid_cls}-feedback`)
                         .prop('hidden', false).text(msg);
                 }).catch((err) => {
-                    // 清空優惠券
+                    // 清空優惠代碼
                     resetCouponCodeData();
                     console.error(err);
                 });

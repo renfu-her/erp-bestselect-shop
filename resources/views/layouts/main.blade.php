@@ -46,6 +46,7 @@
                     'productShipments' => Route('api.cms.product.get-products-shipment'),
                     'inboundList' => Route('api.cms.delivery.get-select-inbound'),
                     'selectProductList' => Route('api.cms.depot.get-select-product'),
+                    'selectCsnProductList' => Route('api.cms.depot.get-select-csn-product'),
                 ],
             ]) !!};
 

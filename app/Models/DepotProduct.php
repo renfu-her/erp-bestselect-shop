@@ -81,17 +81,10 @@ class DepotProduct extends Model
     {
         $extPrdStyleList_send = PurchaseInbound::getExistInboundProductStyleList([$send_depot_id]);
 
-        $re = DB::table('prd_product_depot_select as select_list')
+        $querySelectList = DB::table('prd_product_depot_select as select_list')
             ->leftJoin('prd_salechannel_style_price as p', 'select_list.product_style_id', '=', 'p.style_id')
             ->leftJoin('prd_products as product', 'select_list.product_id', '=', 'product.id')
             ->leftJoin('prd_product_styles as style', 'select_list.product_style_id', '=', 'style.id')
-            ->leftJoinSub($extPrdStyleList_send, 'inbound', function($join) use($send_depot_id) {
-                //對應到入庫倉可入到進貨倉 相同的product_style_id
-                $join->on('inbound.product_style_id', '=', 'select_list.product_style_id');
-                if ($send_depot_id) {
-                    $join->where('inbound.depot_id', $send_depot_id);
-                }
-            })
             ->select(
                 'select_list.id as select_id',
                 'select_list.depot_id',
@@ -99,32 +92,89 @@ class DepotProduct extends Model
                 'select_list.ost_price',
                 'select_list.depot_price',
                 'select_list.product_id as product_id',
-                'select_list.product_style_id as id',
-                'inbound.depot_id as inbound_depot_id',
-                'product.title as product_title',
-                'product.type as prd_type',
+                'select_list.product_style_id as product_style_id',
+                'product.title as title',
+                'product.type as type',
                 'style.title as spec',
                 'style.sku as sku',
-//                'inbound.total_in_stock_num',
-                DB::raw('CASE style.type WHEN "p" THEN inbound.total_in_stock_num WHEN "c" THEN "" END as total_in_stock_num'),
-                DB::raw('CASE style.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title'),
+                'p.sale_channel_id',
             )
             ->whereNull('select_list.deleted_at')
             ->where('p.sale_channel_id', 1)
-
-            ->orderBy('inbound.product_id', 'ASC')
-            ->orderBy('inbound.product_style_id', 'ASC');
-
+        ;
         if ($receive_depot_id) {
-            $re->where('select_list.depot_id', $receive_depot_id);
+            $querySelectList->where('select_list.depot_id', $receive_depot_id);
         }
 
         if ($type && $type != 'all') {
-            $re->where('inbound.product_type', $type);
+            $querySelectList->where('product.type', $type);
         }
-        //修正未知錯誤 底層做mergebinding時，多一個值
-        unset($re->bindings['join'][count($re->bindings['join']) - 1]);
+
+        $re = DB::query()->fromSub($querySelectList, 'select_list')
+            ->leftJoinSub($extPrdStyleList_send, 'inbound', function($join) use($send_depot_id) {
+                //對應到入庫倉可入到進貨倉 相同的product_style_id
+                $join->on('inbound.product_style_id', '=', 'select_list.product_style_id');
+            })
+            ->select(
+                'select_list.select_id as select_id',
+                'select_list.depot_id',
+                'select_list.depot_product_no',
+                'select_list.ost_price',
+                'select_list.depot_price',
+                'select_list.product_id as product_id',
+                'select_list.product_style_id as style_id',
+                'inbound.depot_id as inbound_depot_id',
+                'select_list.title as product_title',
+                'select_list.type as prd_type',
+                'select_list.spec as spec',
+                'select_list.sku as sku',
+                DB::raw('CASE select_list.type
+                    WHEN "p" THEN IFNULL(inbound.total_in_stock_num,"")
+                   ELSE "" END as total_in_stock_num'),
+                DB::raw('CASE select_list.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title'),
+            )
+//            ->whereNotNull('inbound.depot_id')
+            ->orderBy('select_list.product_id', 'ASC')
+            ->orderBy('select_list.product_style_id', 'ASC');
+
 //        dd($re->bindings, $re->getBindings(), $re->get(), IttmsUtils::getEloquentSqlWithBindings($re));
         return $re;
+    }
+
+    public static function ProductCsnExistInboundList($depot_id, $type = null) {
+        $queryInbound = PurchaseInbound::getCsnExistInboundProductStyleList();
+
+        $queryDepotProduct = DB::query()->fromSub(DepotProduct::product_list(), 'prd_list')
+            ->leftJoinSub($queryInbound, 'inbound', function($join) {
+                $join->on('inbound.product_style_id', 'prd_list.id')
+                    ->on('inbound.depot_id', 'prd_list.depot_id');
+            })
+            ->select(
+                'prd_list.product_id as product_id'
+                ,'prd_list.depot_id as depot_id'
+                ,'prd_list.sku as sku'
+                ,'prd_list.id as product_style_id'
+                ,'prd_list.product_title as product_title'
+                ,'prd_list.spec as spec'
+                ,'prd_list.depot_price as depot_price'
+
+                , DB::raw('ifnull(inbound.depot_name, "") as depot_name')  //入庫倉庫名稱
+                , DB::raw('ifnull(inbound.inbound_num, 0) as inbound_num')
+                , DB::raw('ifnull(inbound.sale_num, 0) as sale_num')
+                , DB::raw('ifnull(inbound.consume_num, 0) as consume_num')
+                , DB::raw('ifnull(inbound.available_num, 0) as available_num')
+                , DB::raw('ifnull(inbound.prd_type, "") as prd_type')
+            )
+            //->where('inbound.available_num', '<>', 0)
+        ;
+
+        if ($depot_id) {
+            $queryDepotProduct->where('prd_list.depot_id', $depot_id);
+        }
+
+        if ($type && $type != 'all') {
+            $queryDepotProduct->where('inbound.prd_type', $type);
+        }
+        return $queryDepotProduct;
     }
 }

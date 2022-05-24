@@ -177,14 +177,21 @@ class OrderCart extends Model
             }
         }
 
+        if ($errors) {
+            return [
+                'success' => '0',
+                'error_msg' => $errors,
+                'event' => 'check',
+            ];
+        }
+
         $order['shipments'] = $shipmentGroup;
         foreach ($shipmentGroup as $shipments) {
             $order['origin_price'] += $shipments->origin_price;
         }
 
         $currentCoupon = null;
-        
-       
+
         if ($coupon_obj && $coupon_obj[0]) {
             switch ($coupon_obj[0]) {
                 case DisCategory::code():
@@ -202,8 +209,8 @@ class OrderCart extends Model
                     if ($customer) {
                         $currentCoupon = CustomerCoupon::getList($customer->id, 0, DisStatus::D01())
                             ->where('discount.id', $coupon_obj[1])->get()->first();
-                      
-                        $currentCoupon ->user_coupon_id = $coupon_obj[1];
+
+                        $currentCoupon->user_coupon_id = $coupon_obj[1];
                         if (!$currentCoupon) {
                             return ['success' => 0, 'error_msg' => "查無優惠券", 'event' => 'coupon'];
                         }
@@ -211,7 +218,7 @@ class OrderCart extends Model
                     break;
             }
         }
-       
+
         // discounted init
         $order['discounted_price'] = $order['origin_price'];
         //   dd($order);

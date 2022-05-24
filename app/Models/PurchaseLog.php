@@ -15,7 +15,7 @@ class PurchaseLog extends Model
     protected $table = 'pcs_purchase_log';
     protected $guarded = [];
 
-    public static function stockChange($event_parent_id, $product_style_id, $event, $event_id, $feature, $qty, $note = null, $operator_user_id, $operator_user_name)
+    public static function stockChange($event_parent_id, $product_style_id, $event, $event_id, $feature, $inbound_id = null, $qty, $note = null, $operator_user_id, $operator_user_name)
     {
         if (!Event::hasKey($event)) {
             return ['success' => 0, 'error_msg' => 'event error '.$event];
@@ -25,13 +25,14 @@ class PurchaseLog extends Model
             return ['success' => 0, 'error_msg' => 'feature error '. $feature];
         }
 
-        return DB::transaction(function () use ($event_parent_id, $product_style_id, $event, $event_id, $feature, $qty, $note, $operator_user_id, $operator_user_name) {
+        return DB::transaction(function () use ($event_parent_id, $product_style_id, $event, $event_id, $feature, $inbound_id, $qty, $note, $operator_user_id, $operator_user_name) {
             self::create([
                 'event_parent_id' => $event_parent_id,
                 'product_style_id' => $product_style_id,
                 'event' => $event,
                 'event_id' => $event_id,
                 'feature' => $feature,
+                'inbound_id' => $inbound_id,
                 'qty' => $qty,
                 'note' => $note,
                 'user_id' => $operator_user_id,
@@ -51,6 +52,9 @@ class PurchaseLog extends Model
         } else if (Event::consignment()->value == $event) {
             $eventTable = 'csn_consignment';
             $eventItemTable = 'csn_consignment_items';
+        } else if (Event::csn_order()->value == $event) {
+            $eventTable = 'csn_orders';
+            $eventItemTable = 'csn_order_items';
         }
 
         $log_purchase = DB::table('pcs_purchase_log as log')

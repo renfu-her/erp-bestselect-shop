@@ -31,4 +31,27 @@ class DepotCtrl extends Controller
         $result['status'] = '0';
         return response()->json($result);
     }
+
+
+    public function get_select_csn_product(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'depot_id' => 'exists:depot,id',
+            'product_type' => 'string|in:c,p,all',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'E01',
+                'message' => $validator->messages(),
+            ]);
+        }
+        $type = request('product_type', 'all');//c,p,all
+
+        $result = DepotProduct::ProductCsnExistInboundList(request('depot_id'), $type)
+            ->paginate(10)->toArray();
+
+        $result['status'] = '0';
+        return response()->json($result);
+    }
 }

@@ -6,6 +6,7 @@
         @csrf
         <div class="card shadow p-4 mb-4">
             <h6>商品列表</h6>
+            <input type="hidden" name="event" value="{{$event ?? null}}">
             <input type="hidden" name="depot_id" value="{{$depot_id ?? null}}">
             <div class="table-responsive tableOverBox">
                 <table id="Pord_list" class="table table-striped tableList">
@@ -106,6 +107,8 @@
                     <a href="{{ Route('cms.order.detail', ['id' => $order_id, 'subOrderId' => $eventId ]) }}" class="btn btn-outline-primary px-4" role="button">返回明細</a>
                 @elseif($delivery->event == App\Enums\Delivery\Event::consignment()->value)
                     <a href="{{ Route('cms.consignment.edit', ['id' => $eventId ]) }}" class="btn btn-outline-primary px-4" role="button">返回明細</a>
+                @elseif($delivery->event == App\Enums\Delivery\Event::csn_order()->value)
+                    <a href="{{ Route('cms.consignment.order_edit', ['id' => $eventId ]) }}" class="btn btn-outline-primary px-4" role="button">返回明細</a>
                 @endif
             </div>
         </div>

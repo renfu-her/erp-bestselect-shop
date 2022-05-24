@@ -106,7 +106,7 @@
                                            name="inbound_date[]"
                                            value="{{ old('inbound_date.'. $styleKey, date('Y-m-d')) }}" required/>
                                 </td>
-                                <td data-td="title">{{ $styleVal->product_title?? '' }}</td>
+                                <td data-td="title">{{ $styleVal->title?? '' }}</td>
                                 <td data-td="sku">{{ $styleVal->sku?? '' }}</td>
                                 <td data-td="should_enter_num">{{ $styleVal->should_enter_num?? '' }}</td>
                                 <td>
