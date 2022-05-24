@@ -423,9 +423,9 @@
             if (depot_id) {
                 Data.depot_id = depot_id;
             }
-            // if ('csn_order' == event) {
-            //     Data.select_consignment = true;
-            // }
+            if ('csn_order' == event) {
+                Data.select_consignment = true;
+            }
             resetAddInboundModal();
             $('#addInbound blockquote h6').text(`${selectedConsume.name} [${selectedConsume.spec}]`);
             $('#addInbound figcaption').text(selectedConsume.sku);
