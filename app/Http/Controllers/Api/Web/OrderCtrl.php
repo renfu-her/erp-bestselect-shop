@@ -17,6 +17,8 @@ use App\Models\LogisticFlow;
 use App\Models\Order;
 use App\Models\OrderFlow;
 use App\Models\OrderPayCreditCard;
+use App\Models\ReceivedOrder;
+use App\Models\ReceivedDefault;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -440,11 +442,28 @@ class OrderCtrl extends Controller
 
             if (is_array($EncArray) && count($EncArray) > 0) {
                 $status = isset($EncArray['status']) ? $EncArray['status'] : '';
+                $authAmt = isset($EncArray['authamt']) ? $EncArray['authamt'] : "";
                 $lidm = isset($EncArray['lidm']) ? $EncArray['lidm'] : '';
 
                 if (empty($status) && $status == '0') {
                     // echo '交易完成';
                     OrderFlow::changeOrderStatus($id, OrderStatus::Paided());
+
+                    $received_order = ReceivedOrder::create_received_order($id);
+
+                    $data = [];
+                    $data['acc_transact_type_fk'] = 'credit_card';
+                    $data['credit_card']['installment'] = 'none';
+                    $result_id = ReceivedOrder::store_received_method($data);
+
+                    $parm = [];
+                    $parm['received_order_id'] = $received_order->id;
+                    $parm['received_method'] = 'credit_card';
+                    $parm['received_method_id'] = $result_id;
+                    $parm['grade_id'] = ReceivedDefault::where('name', 'credit_card')->first() ? ReceivedDefault::where('name', 'credit_card')->first()->default_grade_id : 0;
+                    $parm['price'] = $authAmt;
+                    ReceivedOrder::store_received($parm);
+
                     OrderPayCreditCard::create_log($id, (object) $EncArray);
 
                     return redirect('https://dev-shopp.bestselection.com.tw/payfin/' . $id . '/' . $lidm . '/' . $status);

@@ -250,17 +250,7 @@ class AccountReceivedCtrl extends Controller
         ]);
 
         if(! $received_order_collection->first()){
-            ReceivedOrder::create([
-                'order_id'=>$order_id,
-                'usr_users_id'=>auth('user')->user() ? auth('user')->user()->id : null,
-                'sn'=>'MSG' . date('ymd') . str_pad( count(ReceivedOrder::whereDate('created_at', '=', date('Y-m-d'))->withTrashed()->get()) + 1, 3, '0', STR_PAD_LEFT),
-                'price'=>$order_data->total_price,
-                // 'tw_dollar'=>0,
-                // 'rate'=>1,
-                'logistics_grade_id'=>ReceivedDefault::where('name', 'logistics')->first()->default_grade_id,
-                'product_grade_id'=>ReceivedDefault::where('name', 'product')->first()->default_grade_id,
-                // 'created_at'=>date("Y-m-d H:i:s"),
-            ]);
+            ReceivedOrder::create_received_order($order_id);
         }
 
         $received_order_data = $received_order_collection->get();
@@ -417,20 +407,17 @@ class AccountReceivedCtrl extends Controller
         DB::beginTransaction();
 
         try {
-            $result_id = ReceivedOrder::store_received($data);
+            $result_id = ReceivedOrder::store_received_method($data);
 
-            DB::table('acc_received')->insert([
-                'received_type'=>ReceivedOrder::class,
-                'received_order_id'=>$received_order_id,
-                'received_method'=>$data['acc_transact_type_fk'],
-                'received_method_id'=>$result_id,
-                'all_grades_id'=>$data[$data['acc_transact_type_fk']]['grade'],
-                'tw_price'=>$data['tw_price'],
-                'review_date'=>null,
-                'accountant_id_fk'=>auth('user')->user()->id,
-                'note'=>$data['note'],
-                'created_at'=>date("Y-m-d H:i:s"),
-            ]);
+            $parm = [];
+            $parm['received_order_id'] = $received_order_id;
+            $parm['received_method'] = $data['acc_transact_type_fk'];
+            $parm['received_method_id'] = $result_id;
+            $parm['grade_id'] = $data[$data['acc_transact_type_fk']]['grade'];
+            $parm['price'] = $data['tw_price'];
+            $parm['accountant_id_fk'] = auth('user')->user()->id;
+            $parm['note'] = $data['note'];
+            ReceivedOrder::store_received($parm);
 
             DB::commit();
             wToast(__('收款單儲存成功'));
