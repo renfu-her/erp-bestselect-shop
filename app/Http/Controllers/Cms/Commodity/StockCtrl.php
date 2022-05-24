@@ -66,7 +66,7 @@ class StockCtrl extends Controller
             ->leftJoin('depot', 'depot.id', '=', 'inbound.depot_id')
             ->addSelect(
                 'inbound.product_style_id'
-                , 'inbound.event'
+//                , 'inbound.event'
                 , 'inbound.depot_id'
                 , 'depot.name as depot_name'
                 , 'inbound.total_inbound_num'

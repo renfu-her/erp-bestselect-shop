@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CustomerCoupon;
 use App\Models\Discount;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class DiscountCtrl extends Controller
@@ -114,18 +115,24 @@ class DiscountCtrl extends Controller
 
     public static function getCoupons(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'customer_id' => 'required',
-        ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'E01',
-                'message' => $validator->errors(),
+        if (Auth::guard('sanctum')->check()) {
+            $customer_id = $request->user()->id;
+        } else {
+            $validator = Validator::make($request->all(), [
+                'customer_id' => 'required',
             ]);
-        }
 
-        $customer_id = $request->input('customer_id');
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'E01',
+                    'message' => $validator->errors(),
+                ]);
+            }
+
+            $customer_id = $request->input('customer_id');
+
+        }
 
         return response()->json([
             'status' => '0',

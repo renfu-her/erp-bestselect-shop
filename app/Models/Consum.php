@@ -37,12 +37,23 @@ class Consum extends Model
      * @return array|mixed|void
      */
     public static function setDatasWithLogisticId($input_arr, $logistic_id) {
-        return DB::transaction(function () use ($logistic_id, $input_arr
+        $logistic = Logistic::where('id', $logistic_id)->get()->first();
+        $delivery = Delivery::where('id', $logistic->delivery_id)->get()->first();
+        $select_consignment = false;
+        //若為寄倉訂購 則改計算與扣寄倉庫存
+        if ('csn_order' == $delivery->event) {
+            $select_consignment = true;
+        }
+
+        return DB::transaction(function () use ($logistic_id, $input_arr, $select_consignment
         ) {
             if (null != $input_arr['qty'] && 0 < count($input_arr['qty'])) {
                 $addIds = [];
                 foreach($input_arr['qty'] as $key => $val) {
-                    $inbound = PurchaseInbound::getSelectInboundList(['inbound_id' => $input_arr['inbound_id'][$key]])->get()->first();
+                    $inbound = PurchaseInbound::getSelectInboundList([
+                        'inbound_id' => $input_arr['inbound_id'][$key]
+                        , 'select_consignment' => $select_consignment
+                    ])->get()->first();
                     if (null != $inbound) {
                         if (0 > $inbound->qty - $val) {
                             return ['success' => 0, 'error_msg' => "庫存數量不足"];
@@ -65,6 +76,8 @@ class Consum extends Model
                         } else {
                             array_push($addIds, $reSD['id']);
                         }
+                    } else {
+                        return ['success' => 0, 'error_msg' => "找不到庫存"];
                     }
                 }
                 return ['success' => 1, 'error_msg' => "", 'id' => $addIds];
@@ -88,9 +101,14 @@ class Consum extends Model
             $delivery = Delivery::where('id', '=', $logistic->delivery_id)->get()->first();
             $result = DB::transaction(function () use ($delivery, $data, $dataGet, $logistic_id, $user_id, $user_name
             ) {
+                $event = $delivery->event;
+                if ('pickup' == $delivery->ship_category) {
+                    $event = 'ord_pickup';
+                }
+
                 //扣除入庫單庫存
                 foreach ($dataGet as $item) {
-                    $reShipIb = PurchaseInbound::shippingInbound($delivery->event, $delivery->event_id, LogEventFeature::consume_shipping()->value, $item->inbound_id, $item->qty);
+                    $reShipIb = PurchaseInbound::shippingInbound($event, $delivery->event_id, $item->id, LogEventFeature::consume_delivery()->value, $item->inbound_id, $item->qty);
                     if ($reShipIb['success'] == 0) {
                         DB::rollBack();
                         return $reShipIb;

@@ -68,38 +68,6 @@ class OrderItem extends Model
         //一般商品的combo_product_title 設定為空字串
         $query_ship_overview = $query_ship->union($query_ship_combo);
 
-        $result = DB::table( DB::raw("({$query_ship_overview->toSql()}) as tb_ship") )
-            ->leftJoin('dlv_receive_depot', 'dlv_receive_depot.event_item_id', '=', 'tb_ship.item_id')
-            ->mergeBindings($query_ship_overview)
-            ->select('tb_ship.item_id'
-                , 'tb_ship.order_id'
-                , 'tb_ship.sub_order_id'
-                , 'tb_ship.qty as total_qty'
-                , 'tb_ship.combo_product_title'
-                , 'tb_ship.product_title'
-                , 'tb_ship.product_style_id'
-                , 'tb_ship.product_id'
-                , 'tb_ship.sku'
-//                , 'tb_ship.type'
-                , 'dlv_receive_depot.id'
-                , 'dlv_receive_depot.delivery_id'
-                , 'dlv_receive_depot.freebies'
-                , 'dlv_receive_depot.inbound_id'
-                , 'dlv_receive_depot.inbound_sn'
-                , 'dlv_receive_depot.depot_id'
-                , 'dlv_receive_depot.depot_name'
-                , 'dlv_receive_depot.product_style_id'
-                , 'dlv_receive_depot.sku'
-                , 'dlv_receive_depot.product_title'
-                , 'dlv_receive_depot.qty'
-                , 'dlv_receive_depot.expiry_date'
-                , 'dlv_receive_depot.audit_date'
-                , 'dlv_receive_depot.deleted_at')
-            ->whereNull('dlv_receive_depot.deleted_at')
-            ->where('tb_ship.sub_order_id', '=', $sub_order_id)
-            ->orderBy('tb_ship.item_id')
-            ->orderBy('dlv_receive_depot.id');
-
         return $query_ship_overview;
     }
 

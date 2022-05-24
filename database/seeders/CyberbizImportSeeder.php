@@ -83,7 +83,7 @@ class CyberbizImportSeeder extends Seeder
                         'desc' => $productArray['body_html'],
                     ]);
 
-                if (App::environment(['local', 'prod'])) {
+                if (App::environment([AppEnvClass::Local, AppEnvClass::Release])) {
                     Product::where('id', $productId)
                         ->update(['cyberbiz_id' => $productArray['id']]);
                 }
@@ -112,22 +112,39 @@ class CyberbizImportSeeder extends Seeder
                                 ->first()->id;
                             Product::setProductSpec($productId, $specId);
                             ProductSpecItem::createItems($productId, $specId, '單一款式');
+                        } elseif (count($productArray['options']) === 1) {
+                            $optionArray = [$variant['option1']];
+                            foreach ($productArray['options'] as $specIndex => $specName) {
+                                $specId = ProductSpec::where('title', $specName)
+                                                        ->get()
+                                                        ->first()
+                                                        ->id;
+                                Product::setProductSpec($productId, $specId);
+                                ProductSpecItem::createItems($productId, $specId, $optionArray);
+                            }
                         } else {
                             for ($index = 1; $index <= $specCount; $index++) {
-                                $optionArray[] = $variant['option'.$index];
+                                $optionArray[] = $variant['option' . $index];
                             }
                             foreach ($productArray['options'] as $specIndex => $specName) {
                                 $specId = ProductSpec::where('title', $specName)
                                     ->get()
                                     ->first()->id;
                                 Product::setProductSpec($productId, $specId);
-                                $optionData = (count($optionArray) === 1) ? $optionArray[0] : $optionArray;
-                                ProductSpecItem::createItems($productId, $specId, $optionData);
+                                if (!ProductSpecItem::where([
+                                    'product_id' => $productId,
+                                    'spec_id' => $specId,
+                                    'title' => $optionArray[$specIndex]
+                                ])->get()->first()) {
+                                    ProductSpecItem::createItems($productId, $specId, $optionArray[$specIndex]);
+                                }
                             }
                         }
+
                         $item_ids = DB::table('prd_spec_items')
                             ->where(['product_id' => $productId,])
                             ->whereIn('title', $optionArray)
+                            ->orderBy('spec_id', 'ASC')
                             ->select('id')
                             ->get()
                             ->toArray();

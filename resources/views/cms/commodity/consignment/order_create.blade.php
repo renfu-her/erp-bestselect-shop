@@ -1,9 +1,8 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-3">新增寄倉單</h2>
+    <h2 class="mb-3">新增寄倉訂購單</h2>
 
     @php
-        $hasCreatedFinalPayment = $hasCreatedFinalPayment ?? false;
         $consignmentData = $consignmentData ?? null;
     @endphp
 
@@ -20,75 +19,63 @@
             <h6>倉庫資訊</h6>
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">出貨倉 <span class="text-danger">*</span></label>
+                    <label class="form-label">訂購倉庫 <span class="text-danger">*</span></label>
 
-                    <select id="send_depot_id" aria-label="出貨倉" required
-                            class="form-select -select2 -single @error('send_depot_id') is-invalid @enderror">
-                        <option value="" selected disabled>請選擇</option>
-                        @foreach ($depotList as $depot)
-                            <option value="{{ $depot->id }}"
-                                    @if ($depot->id == old('send_depot_id')) selected @endif>
-                                {{ $depot->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <div class="invalid-feedback">
-                        @error('send_depot_id')
-                        {{ $message }}
-                        @enderror
-                    </div>
-                    <input type="hidden" name="send_depot_id" value="{{ $consignmentData->send_depot_id ?? '' }}">
-                </div>
-
-                <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">入庫倉 <span class="text-danger">*</span></label>
-
-                    <select id="receive_depot_id" aria-label="入庫倉" required
-                            class="form-select -select2 -single @error('receive_depot_id') is-invalid @enderror">
-                        <option value="" selected disabled>請選擇</option>
-                        @foreach ($depotList as $depot)
-                            <option value="{{ $depot->id }}"
-                                    @if ($depot->id == old('receive_depot_id')) selected @endif>
-                                {{ $depot->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <div class="invalid-feedback">
-                        @error('receive_depot_id')
-                        {{ $message }}
-                        @enderror
-                    </div>
-                    <input type="hidden" name="receive_depot_id" value="{{ $consignmentData->receive_depot_id ?? '' }}">
-                </div>
-                <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">預計入庫日期 <span class="text-danger">*</span></label>
-                    @if ($hasCreatedFinalPayment)
+                    @if ($method === 'edit')
                         <div class="form-control" readonly>
-                            {{ empty($consignmentData->scheduled_date) ? '-' : date('Y/m/d', strtotime($consignmentData->scheduled_date)) }}
+                            {{ $consignmentData->depot_name }}
                         </div>
                     @else
-                        <div class="input-group has-validation">
-                            <input type="date" id="scheduled_date" name="scheduled_date"
-                                   value="{{ old('scheduled_date', $consignmentData->scheduled_date  ?? '') }}"
-                                   class="form-control @error('scheduled_date') is-invalid @enderror" aria-label="預計入庫日期"
-                                   required/>
-                            <button class="btn btn-outline-secondary icon" type="button" data-clear
-                                    data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
-                            </button>
-                            <div class="invalid-feedback">
-                                @error('scheduled_date')
-                                {{ $message }}
-                                @enderror
-                            </div>
+                        <select id="depot_id" aria-label="訂購倉庫" required
+                                class="form-select -select2 -single @error('depot_id') is-invalid @enderror">
+                            <option value="" selected disabled>請選擇</option>
+                            @foreach ($depotList as $depot)
+                                <option value="{{ $depot->id }}"
+                                        @if ($depot->id == old('depot_id', $consignmentData->depot_id ?? '')) selected @endif>
+                                    {{ $depot->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <div class="invalid-feedback">
+                            @error('depot_id')
+                            {{ $message }}
+                            @enderror
                         </div>
                     @endif
+                    <input type="hidden" name="depot_id" value="{{ old('depot_id', $consignmentData->depot_id  ?? '') }}">
+                </div>
 
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">訂購日期 <span class="text-danger">*</span></label>
+                    <div class="input-group has-validation">
+                        <input type="date" id="scheduled_date" name="scheduled_date"
+                               value="{{ old('scheduled_date', $consignmentData->scheduled_date  ?? date('Y-m-d')) }}"
+                               class="form-control @error('scheduled_date') is-invalid @enderror" aria-label="訂購日期"
+                               required/>
+                        <button class="btn btn-outline-secondary icon" type="button" data-clear
+                                data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
+                        </button>
+                        <div class="invalid-feedback">
+                            @error('scheduled_date')
+                            {{ $message }}
+                            @enderror
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
+        <div class="card-header px-4 d-flex align-items-center bg-white flex-wrap justify-content-end">
+{{--            @if ($consignmentData->audit_status == App\Enums\Consignment\AuditStatus::approved()->value)--}}
+            @if (null != $consignmentData)
+                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::csn_order()->value, 'eventId' => $id], true) }}">配送狀態</a>
+                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::csn_order()->value, 'eventId' => $id], true) }}">物流設定</a>
+                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::csn_order()->value, 'eventId' => $id], true) }}">出貨審核</a>
+{{--                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.consignment.stock_log', ['id' => $id], true) }}">變更紀錄</a>--}}
+            @endif
+        </div>
         <div class="card shadow p-4 mb-4">
-            <h6>寄倉清單</h6>
+            <h6>寄倉訂購清單</h6>
             <div class="table-responsive tableOverBox">
                 <table class="table table-hover tableList mb-0">
                     <thead>
@@ -96,8 +83,9 @@
                         <th scope="col" class="text-center">刪除</th>
                         <th scope="col">商品名稱</th>
                         <th scope="col">SKU</th>
-                        <th scope="col">寄倉數量</th>
-                        <th scope="col">寄倉價錢</th>
+                        <th scope="col">訂購數量</th>
+                        <th scope="col">訂購價錢</th>
+                        <th scope="col">備註</th>
                     </tr>
                     </thead>
                     <tbody class="-appendClone --selectedP">
@@ -121,6 +109,9 @@
                                 <input type="number" class="form-control form-control-sm" name="num[]" min="1" value="" required/>
                             </td>
                             <td data-td="price"></td>
+                            <td>
+                                <input type="text" class="form-control form-control-sm" name="memo[]" />
+                            </td>
                         </tr>
                     @elseif(0 < count(old('item_id', $consignmentItemData?? [])))
                         @foreach (old('item_id', $consignmentItemData ?? []) as $psItemKey => $psItemVal)
@@ -144,6 +135,10 @@
                                            name="num[]" value="{{ old('num.'. $psItemKey, $psItemVal->num?? '') }}" min="1" step="1" required/>
                                 </td>
                                 <td data-td="price">{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}</td>
+                                <td>
+                                    <input type="text" class="form-control form-control-sm @error('memo.' . $psItemKey) is-invalid @enderror"
+                                           name="memo[]" value="{{ old('memo.'. $psItemKey, $psItemVal->memo?? '') }}"/>
+                                </td>
                             </tr>
                         @endforeach
                     @endif
@@ -163,18 +158,19 @@
                 @error('product_style_id.*')
                 <div class="alert alert-danger mt-3">商品SKU不可重複</div>
                 @enderror
+                @error('prd_type.*')
+                <div class="alert alert-danger mt-3">不可選擇庫存零的商品</div>
+                @enderror
                 @error('sku_repeat')
                 <div class="alert alert-danger mt-3">{{ $message }}</div>
                 @enderror
                 @error('item_error')
                 <div class="alert alert-danger mt-3">{{ $message }}</div>
                 @enderror
-                @if(false == ($hasCreatedFinalPayment?? false))
-                    <button id="addProductBtn" type="button"
-                            class="btn btn-outline-primary border-dashed" style="font-weight: 500;">
-                        <i class="bi bi-plus-circle bold"></i> 加入商品
-                    </button>
-                @endif
+                <button id="addProductBtn" type="button"
+                        class="btn btn-outline-primary border-dashed" style="font-weight: 500;">
+                    <i class="bi bi-plus-circle bold"></i> 加入商品
+                </button>
             </div>
         </div>
 
@@ -188,13 +184,12 @@
                 <div class="col">
                     @if(null == $consignmentData)
                         <button type="submit" class="btn btn-primary px-4">儲存</button>
-                    @elseif(!$hasCreatedFinalPayment && $consignmentData->close_date == null
-                        && $consignmentData->audit_status == App\Enums\Consignment\AuditStatus::unreviewed()->value)
+                    @elseif($consignmentData->close_date == null)
                         <button type="submit" class="btn btn-primary px-4">儲存</button>
                     @else
                         {{--判斷已審核 則不可再按儲存--}}
                     @endif
-                    <a href="{{ Route('cms.consignment.index', [], true) }}" class="btn btn-outline-primary px-4"
+                    <a href="{{ Route('cms.consignment.orderlist', [], true) }}" class="btn btn-outline-primary px-4"
                        role="button">返回列表</a>
                 </div>
             </div>
@@ -251,11 +246,6 @@
 @once
     @push('sub-scripts')
         <script>
-            let hasCreatedFinalPayment = @json($hasCreatedFinalPayment?? false);
-
-            if (true == hasCreatedFinalPayment) {
-                $('.-cloneElem.--selectedP :input').prop("disabled", true);
-            }
 
             // 物流
             // -新增
@@ -272,20 +262,14 @@
                 $('#logistics button.-add').prop('hidden', false);
             });
 
-            $('#send_depot_id').on('change', function (e) {
-                $('input:hidden[name="send_depot_id"]').val($('#send_depot_id').val());
-            });
-            $('#receive_depot_id').on('change', function (e) {
-                $('input:hidden[name="receive_depot_id"]').val($('#receive_depot_id').val());
+            $('#depot_id').on('change', function (e) {
+                $('input:hidden[name="depot_id"]').val($('#depot_id').val());
             });
 
             // 儲存前設定name
             $('#form1').submit(function (e) {
-                if ($('#send_depot_id').length) {
-                    $('input:hidden[name="send_depot_id"]').val($('#send_depot_id').val());
-                }
-                if ($('#receive_depot_id').length) {
-                    $('input:hidden[name="receive_depot_id"]').val($('#receive_depot_id').val());
+                if ($('#depot_id').length) {
+                    $('input:hidden[name="depot_id"]').val($('#depot_id').val());
                 }
             });
         </script>
@@ -313,12 +297,10 @@
                 },
                 checkFn: function () {
                     if ($('.-cloneElem.--selectedP').length) {
-                        $('#send_depot_id').prop('disabled', true);
-                        $('#receive_depot_id').prop('disabled', true);
+                        $('#depot_id').prop('disabled', true);
                         $('button[type="submit"]').prop('disabled', false);
                     } else if (@json($method) === 'create') {
-                        $('#send_depot_id').prop('disabled', false);
-                        $('#receive_depot_id').prop('disabled', false);
+                        $('#depot_id').prop('disabled', false);
                     }
                     // 無商品不可儲存
                     if (!$('.-cloneElem.--selectedP').length) {
@@ -353,18 +335,14 @@
 
             // 商品清單 API
             function getProductList(page) {
-                let _URL = `${Laravel.apiUrl.selectProductList}?page=${page}`;
+                let _URL = `${Laravel.apiUrl.selectCsnProductList}?page=${page}`;
                 let Data = {
                     // product_type: 'p',
-                    send_depot_id: $('input:hidden[name="send_depot_id"]').val(),
-                    receive_depot_id: $('input:hidden[name="receive_depot_id"]').val()
+                    depot_id: $('input:hidden[name="depot_id"]').val(),
                 };
 
-                if (!Data.send_depot_id) {
-                    toast.show('請先選擇出貨倉。', {type: 'warning', title: '條件未設'});
-                    return false;
-                } else if (!Data.receive_depot_id) {
-                    toast.show('請先選擇入庫倉。', {type: 'warning', title: '條件未設'});
+                if (!Data.depot_id) {
+                    toast.show('請先選擇倉庫。', {type: 'warning', title: '條件未設'});
                     return false;
                 } else {
                     $('#addProduct tbody.-appendClone.--product').empty();
@@ -411,11 +389,12 @@
                                 <input class="form-check-input" type="checkbox" ${checked}
                                     value="${p.style_id}" data-td="p_id" aria-label="選取商品">
                                 <input type="hidden" data-td="prd_type" value="${p.prd_type}">
+                                <input type="hidden" data-td="product_style_id" value="${p.product_style_id}">
                             </th>
                             <td data-td="name">${p.product_title}</td>
                             <td data-td="spec">${p.spec || ''}</td>
                             <td data-td="sku">${p.sku}</td>
-                            <td>${p.total_in_stock_num}</td>
+                            <td>${p.available_num}</td>
                             <td data-td="price">${p.depot_price}</td>
                         </tr>`);
                         $('#addProduct .-appendClone.--product').append($tr);
@@ -434,6 +413,7 @@
                             selectedProductSku.push(sku);
                             selectedProduct.push({
                                 id: $(element).val(),
+                                product_style_id: $(element).siblings('[data-td="product_style_id"]').val(),
                                 name: $(element).parent('th').siblings('[data-td="name"]').text(),
                                 prd_type: $(element).siblings('[data-td="prd_type"]').val(),
                                 sku: sku,
@@ -454,7 +434,7 @@
             // btn - 加入寄倉清單
             $('#addProduct .btn-ok').off('click').on('click', function () {
                 selectedProduct.forEach(p => {
-                    if (!$(`tr.-cloneElem.--selectedP button[data-id="${p.id}"]`).length) {
+                    if (!$(`tr.-cloneElem.--selectedP button[data-id="${p.product_style_id}"]`).length) {
                         createOneSelected(p);
                     }
                 });
@@ -475,7 +455,7 @@
                         cloneElem.find('td[data-td]').text('');
                         cloneElem.find('.is-invalid').removeClass('is-invalid');
                         if (p) {
-                            cloneElem.find('input[name="product_style_id[]"]').val(p.id);
+                            cloneElem.find('input[name="product_style_id[]"]').val(p.product_style_id);
                             cloneElem.find('input[name="name[]"]').val(`${p.name}-${p.spec}`);
                             cloneElem.find('input[name="prd_type[]"]').val(p.prd_type);
                             cloneElem.find('input[name="sku[]"]').val(p.sku);

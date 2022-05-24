@@ -11,11 +11,10 @@ use BenSampo\Enum\Enum;
  */
 final class LogEventFeature extends Enum
 {
-    //採購
-    const pcs_add = 'pcs_add';
-    const pcs_del = 'pcs_del';
-    const pcs_close = 'pcs_close';
-    const pcs_change_data = 'pcs_change_data';
+    const add = 'add';
+    const del = 'del';
+    const close = 'close';
+    const change_data = 'change_data';
 
     //款式
     const style_add = 'style_add';
@@ -27,12 +26,14 @@ final class LogEventFeature extends Enum
     const inbound_add = 'inbound_add';
     const inbound_del = 'inbound_del';
 
-    const order_shipping = 'order_shipping';
-    const order_send_back = 'order_send_back';
-    const consume_shipping = 'consume_shipping';
+    const combo = 'combo'; //組成組合包
+    const decompose = 'decompose'; //組合包分解
+    const scrapped = 'scrapped'; //報廢
+
+    const delivery = 'delivery';
+    const send_back = 'send_back';
+    const consume_delivery = 'consume_delivery';
     const consume_send_back = 'consume_send_back';
-    const consignment_shipping = 'consignment_shipping';
-    const consignment_send_back = 'consignment_send_back';
 
     //付款
     const pay_add = 'pay_add';
@@ -40,27 +41,22 @@ final class LogEventFeature extends Enum
     const pay_change_pay_type = 'pay_change_pay_type';
     const pay_change_shipping_fee = 'pay_change_shipping_fee';
 
-    //寄倉
-    const csn_add = 'csn_add';
-    const csn_del = 'csn_del';
-    const csn_close = 'csn_close';
-    const csn_change_data = 'csn_change_data';
 
     public static function getDescription($value): string
     {
         $result = '';
         switch ($value) {
-            case self::pcs_add:
-                $result = '新增採購單';
+            case self::add:
+                $result = '新單';
                 break;
-            case self::pcs_del:
-                $result = '刪除採購單';
+            case self::del:
+                $result = '刪單';
                 break;
-            case self::pcs_close:
-                $result = '採購單結單';
+            case self::close:
+                $result = '結單';
                 break;
-            case self::pcs_change_data:
-                $result = '採購單修改內容';
+            case self::change_data:
+                $result = '修改內容';
                 break;
 
             case self::style_add:
@@ -82,23 +78,28 @@ final class LogEventFeature extends Enum
             case self::inbound_del:
                 $result = '刪除入庫';
                 break;
-            case self::order_shipping:
-                $result = '訂單出貨';
+
+            case self::combo:
+                $result = '組成組合包';
                 break;
-            case self::order_send_back:
-                $result = '訂單退回';
+            case self::decompose:
+                $result = '組合包分解';
                 break;
-            case self::consume_shipping:
+            case self::scrapped:
+                $result = '報廢';
+                break;
+
+            case self::delivery:
+                $result = '出貨';
+                break;
+            case self::consume_delivery:
                 $result = '耗材出貨';
+                break;
+            case self::send_back:
+                $result = '退回';
                 break;
             case self::consume_send_back:
                 $result = '耗材退回';
-                break;
-            case self::consignment_shipping:
-                $result = '寄倉出貨';
-                break;
-            case self::consignment_send_back:
-                $result = '寄倉退回';
                 break;
 
             case self::pay_add:
@@ -114,18 +115,7 @@ final class LogEventFeature extends Enum
                 $result = '變更運費';
                 break;
 
-            case self::csn_add:
-                $result = '新增寄倉單';
-                break;
-            case self::csn_del:
-                $result = '刪除寄倉單';
-                break;
-            case self::csn_close:
-                $result = '寄倉單結單';
-                break;
-            case self::csn_change_data:
-                $result = '寄倉單修改內容';
-                break;
+
             default:
                 $result = parent::getDescription($value);
                 break;

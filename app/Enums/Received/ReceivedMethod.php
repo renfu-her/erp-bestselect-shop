@@ -20,6 +20,7 @@ final class ReceivedMethod extends Enum
     const Cash = 'cash';
     const Cheque = 'cheque';
     const CreditCard = 'credit_card';
+    // const CreditCard3 = 'credit_card_3';
     const Remittance = 'remit';
     const ForeignCurrency = 'foreign_currency';
     const AccountsReceivable = 'account_received';
@@ -35,6 +36,8 @@ final class ReceivedMethod extends Enum
                 return '支票';
             case self::CreditCard:
                 return '信用卡';
+            // case self::CreditCard3:
+            //     return '信用卡（3期）';
             case self::Remittance:
                 return '匯款';
             case self::ForeignCurrency:
