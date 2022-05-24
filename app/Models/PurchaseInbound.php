@@ -82,7 +82,7 @@ class PurchaseInbound extends Model
                 DB::rollBack();
                 return $rePcsItemUAN;
             }
-            $rePcsLSC = PurchaseLog::stockChange($event_id, $product_style_id, $event, $event_item_id, LogEventFeature::inbound_add()->value, $id, $inbound_num, null, $inbound_user_id, $inbound_user_name);
+            $rePcsLSC = PurchaseLog::stockChange($event_id, $product_style_id, $event, $event_item_id, LogEventFeature::inbound_add()->value, $id, $inbound_num, $memo, $inbound_user_id, $inbound_user_name);
             if ($rePcsLSC['success'] == 0) {
                 DB::rollBack();
                 return $rePcsLSC;

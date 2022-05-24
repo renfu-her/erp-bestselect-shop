@@ -38,12 +38,12 @@ class Consum extends Model
      */
     public static function setDatasWithLogisticId($input_arr, $logistic_id) {
         $logistic = Logistic::where('id', $logistic_id)->get()->first();
-        $delivery = Delivery::where('id', $logistic->id)->get()->first();
+        $delivery = Delivery::where('id', $logistic->delivery_id)->get()->first();
         $select_consignment = false;
         //若為寄倉訂購 則改計算與扣寄倉庫存
-        if ('csn_order' == $delivery->event) {
-            $select_consignment = true;
-        }
+//        if ('csn_order' == $delivery->event) {
+//            $select_consignment = true;
+//        }
 
         return DB::transaction(function () use ($logistic_id, $input_arr, $select_consignment
         ) {
@@ -101,9 +101,14 @@ class Consum extends Model
             $delivery = Delivery::where('id', '=', $logistic->delivery_id)->get()->first();
             $result = DB::transaction(function () use ($delivery, $data, $dataGet, $logistic_id, $user_id, $user_name
             ) {
+                $event = $delivery->event;
+                if ('pickup' == $delivery->ship_category) {
+                    $event = 'ord_pickup';
+                }
+
                 //扣除入庫單庫存
                 foreach ($dataGet as $item) {
-                    $reShipIb = PurchaseInbound::shippingInbound($delivery->event, $delivery->event_id, $item->id, LogEventFeature::consume_delivery()->value, $item->inbound_id, $item->qty);
+                    $reShipIb = PurchaseInbound::shippingInbound($event, $delivery->event_id, $item->id, LogEventFeature::consume_delivery()->value, $item->inbound_id, $item->qty);
                     if ($reShipIb['success'] == 0) {
                         DB::rollBack();
                         return $reShipIb;
