@@ -41,9 +41,9 @@ class Consum extends Model
         $delivery = Delivery::where('id', $logistic->delivery_id)->get()->first();
         $select_consignment = false;
         //若為寄倉訂購 則改計算與扣寄倉庫存
-        if ('csn_order' == $delivery->event) {
-            $select_consignment = true;
-        }
+//        if ('csn_order' == $delivery->event) {
+//            $select_consignment = true;
+//        }
 
         return DB::transaction(function () use ($logistic_id, $input_arr, $select_consignment
         ) {
