@@ -83,7 +83,7 @@ class CyberbizImportSeeder extends Seeder
                         'desc' => $productArray['body_html'],
                     ]);
 
-                if (App::environment(['local', 'prod'])) {
+                if (App::environment([AppEnvClass::Local, AppEnvClass::Release])) {
                     Product::where('id', $productId)
                         ->update(['cyberbiz_id' => $productArray['id']]);
                 }
