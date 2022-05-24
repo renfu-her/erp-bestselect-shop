@@ -390,7 +390,7 @@ class AccountReceivedCtrl extends Controller
     {
         $request->validate([
             'id' => 'required|exists:ord_orders,id',
-            'acc_transact_type_fk' => 'required|string|in:cash,cheque,credit_card,remit,foreign_currency,account_received,other,refund',
+            'acc_transact_type_fk' => 'required|string|in:' . implode(',', ReceivedMethod::asArray()),
             'tw_price' => 'required|numeric',
             request('acc_transact_type_fk') => 'required|array',
             request('acc_transact_type_fk') . '.grade' => 'required|exists:acc_all_grades,id',

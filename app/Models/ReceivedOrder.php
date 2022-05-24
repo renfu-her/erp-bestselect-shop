@@ -9,8 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
 use App\Enums\Received\ReceivedMethod;
-use App\Enums\Delivery\Event;
-use App\Enums\Order\UserAddrType;
 
 class ReceivedOrder extends Model
 {
@@ -45,8 +43,8 @@ class ReceivedOrder extends Model
     public static function store_received($parm)
     {
         $received_order_id = $parm['received_order_id'];
-        $received_method = $parm['received_method'];
-        $received_method_id = $parm['received_method_id'];
+        $received_method = $parm['received_method'] ? $parm['received_method'] : 'cash';
+        $received_method_id = $parm['received_method_id'] ? $parm['received_method_id'] : null;
         $grade_id = $parm['grade_id'];
         $price = $parm['price'];
         $accountant_id_fk = $parm['accountant_id_fk'] ? $parm['accountant_id_fk'] : 0;
@@ -89,6 +87,13 @@ class ReceivedOrder extends Model
                     'created_at'=>date("Y-m-d H:i:s"),
                 ]);
                 break;
+
+            // case ReceivedMethod::CreditCard3:
+            //     $id = DB::table('acc_received_credit')->insertGetId([
+            //         'installment'=>3,
+            //         'created_at'=>date("Y-m-d H:i:s"),
+            //     ]);
+            //     break;
 
             case ReceivedMethod::Remittance:
                 $id = DB::table('acc_received_remit')->insertGetId([

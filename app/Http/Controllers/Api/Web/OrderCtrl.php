@@ -450,17 +450,18 @@ class OrderCtrl extends Controller
                     OrderFlow::changeOrderStatus($id, OrderStatus::Paided());
 
                     $received_order = ReceivedOrder::create_received_order($id);
+                    $received_method = ReceivedMethod::CreditCard;// 'credit_card'
 
                     $data = [];
-                    $data['acc_transact_type_fk'] = 'credit_card';
-                    $data['credit_card']['installment'] = 'none';
+                    $data['acc_transact_type_fk'] = $received_method;
+                    $data[$received_method]['installment'] = 'none';
                     $result_id = ReceivedOrder::store_received_method($data);
 
                     $parm = [];
                     $parm['received_order_id'] = $received_order->id;
-                    $parm['received_method'] = 'credit_card';
+                    $parm['received_method'] = $received_method;
                     $parm['received_method_id'] = $result_id;
-                    $parm['grade_id'] = ReceivedDefault::where('name', 'credit_card')->first() ? ReceivedDefault::where('name', 'credit_card')->first()->default_grade_id : 0;
+                    $parm['grade_id'] = ReceivedDefault::where('name', $received_method)->first() ? ReceivedDefault::where('name', $received_method)->first()->default_grade_id : 0;
                     $parm['price'] = $authAmt;
                     ReceivedOrder::store_received($parm);
 
