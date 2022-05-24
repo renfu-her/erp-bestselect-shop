@@ -467,7 +467,7 @@ class OrderCtrl extends Controller
 
                     OrderPayCreditCard::create_log($id, (object) $EncArray);
 
-                    return redirect('https://dev-shopp.bestselection.com.tw/payfin/' . $id . '/' . $lidm . '/' . $status);
+                    return redirect(env('FRONTEND_URL') . 'payfin/' . $id . '/' . $lidm . '/' . $status);
                 }
 
                 OrderPayCreditCard::create_log($id, (object) $EncArray);
@@ -475,7 +475,6 @@ class OrderCtrl extends Controller
         }
 
         // echo '交易失敗';
-        // return redirect(env('FRONTEND_URL') . 'payfin/' . $id . '/' . $lidm . '/' . $status);
-        return redirect('https://dev-shopp.bestselection.com.tw/payfin/' . $id . '/' . $lidm . '/1');
+        return redirect(env('FRONTEND_URL') . 'payfin/' . $id . '/' . $lidm . '/1');
     }
 }
