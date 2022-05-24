@@ -89,7 +89,7 @@ class IncomeExpenditureSeeder extends Seeder
             // 收款單科目
             $received = ReceivedMethod::asArray();
             ksort($received);
-            $r_grade_id = [129, 18, 21, 18, 122, 156, 113];
+            $r_grade_id = [129, 18, 26, 18, 122, 156, 113];
             $i = 0;
             foreach($received as $r_value){
                 if($r_value != 'foreign_currency'){

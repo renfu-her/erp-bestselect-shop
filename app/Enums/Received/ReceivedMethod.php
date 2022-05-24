@@ -34,7 +34,7 @@ final class ReceivedMethod extends Enum
             case self::Cheque:
                 return '支票';
             case self::CreditCard:
-                return '信用卡';
+                return '信用卡（一次付清）';
             case self::Remittance:
                 return '匯款';
             case self::ForeignCurrency:

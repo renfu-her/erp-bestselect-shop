@@ -362,6 +362,16 @@ class AccountReceivedCtrl extends Controller
             ];
         }
 
+        $order_discount = DB::table('ord_discounts')->where([
+            'order_type'=>'main',
+            'order_id'=>$order_id,
+        ])->whereNotNull('discount_value')->get()->toArray();
+
+        foreach($order_discount as $value){
+            $value->account_code = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->code : '4000';
+            $value->account_name = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->name : '無設定會計科目';
+        }
+
         return view('cms.account_management.account_received.edit', [
             'defaultArray' => $defaultArray,
             'currencyDefaultArray' => $currencyDefaultArray,
@@ -370,11 +380,11 @@ class AccountReceivedCtrl extends Controller
             'formAction' => Route('cms.ar.store'),
             'ord_orders_id' => $order_id,
 
-
             'breadcrumb_data' => ['id' => $order_data->id, 'sn' => $order_data->sn],
             'order_data' => $order_data,
             'order_purchaser' => $order_purchaser,
             'order_list_data' => $order_list_data,
+            'order_discount'=>$order_discount,
             'received_order_data' => $received_order_data,
             'received_data' => $received_data,
         ]);
