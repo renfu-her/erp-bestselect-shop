@@ -111,13 +111,10 @@ class DepotProduct extends Model
         }
 
         $re = DB::query()->fromSub($querySelectList, 'select_list')
-
-            ->mergeBindings($querySelectList)
             ->leftJoinSub($extPrdStyleList_send, 'inbound', function($join) use($send_depot_id) {
                 //對應到入庫倉可入到進貨倉 相同的product_style_id
                 $join->on('inbound.product_style_id', '=', 'select_list.product_style_id');
             })
-            ->mergeBindings($extPrdStyleList_send)
             ->select(
                 'select_list.select_id as select_id',
                 'select_list.depot_id',
