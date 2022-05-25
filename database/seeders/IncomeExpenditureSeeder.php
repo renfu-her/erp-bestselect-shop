@@ -89,7 +89,7 @@ class IncomeExpenditureSeeder extends Seeder
             // 收款單科目
             $received = ReceivedMethod::asArray();
             ksort($received);
-            $r_grade_id = [129, 18, 26, 18, 122, 156, 113];
+            $r_grade_id = [129, 18, 21, 26, 122, 156, 113];
             $i = 0;
             foreach($received as $r_value){
                 if($r_value != 'foreign_currency'){
@@ -112,11 +112,13 @@ class IncomeExpenditureSeeder extends Seeder
             $discount_category = DisCategory::asArray();
             ksort($discount_category);
             $d_grade_id = [64, 65, 64, 67];
-            foreach($discount_category as $k => $dis_value){
+            $j = 0;
+            foreach($discount_category as $dis_value){
                 ReceivedDefault::create([
                     'name' => $dis_value,
-                    'default_grade_id' => $d_grade_id[$k],
+                    'default_grade_id' => $d_grade_id[$j],
                 ]);
+                $j++;
             }
 
 
