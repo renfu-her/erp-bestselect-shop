@@ -289,9 +289,17 @@
                         <tbody>
                             @foreach ($discounts as $key => $dis)
                                 <tr>
-                                    <td class="col-8">{{ $dis->title }}</td>
+                                    @switch($dis->category_code)
+                                        @case('code')
+                                        @case('coupon')
+                                            <td class="col-8">{{ $dis->category_title }}【{{ $dis->title }}】</td>
+                                            @break
+                                        @default
+                                            <td class="col-8">{{ $dis->title }}</td>
+                                    @endswitch
+                                    
                                     @if ($dis->method_code == 'coupon')
-                                        <td class="text-end pe-4">{{ $dis->extra_title }}</td>
+                                        <td class="text-end pe-4">【{{ $dis->extra_title }}】</td>
                                     @elseif (is_numeric($dis->discount_value))
                                         <td class="text-end pe-4 text-danger">- ${{ number_format($dis->discount_value) }}</td>
                                     @else
