@@ -17,8 +17,8 @@ use App\Models\LogisticFlow;
 use App\Models\Order;
 use App\Models\OrderFlow;
 use App\Models\OrderPayCreditCard;
-use App\Models\ReceivedOrder;
 use App\Models\ReceivedDefault;
+use App\Models\ReceivedOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -243,16 +243,15 @@ class OrderCtrl extends Controller
     {
 
         $payLoad = request()->getContent();
-      
+
         if (!$payLoad) {
             return response()->json([
                 'status' => 'E01',
                 'message' => '參數不能為空值',
             ]);
         }
-      
-        $payLoad = json_decode($payLoad, true);
 
+        $payLoad = json_decode($payLoad, true);
 
         $valiRule = [
             "orderer.name" => "required",
@@ -319,7 +318,12 @@ class OrderCtrl extends Controller
             'address' => Addr::fullAddr($payLoad['recipient']['region_id'], $payLoad['recipient']['addr']),
             'type' => UserAddrType::receiver()->value];
 
-        $re = Order::createOrder($customer->email, 1, $address, $payLoad['products'], null, null, ReceivedMethod::fromValue($payLoad['payment']));
+        $couponObj = null;
+        if (isset($payLoad['coupon_type']) && isset($payLoad['coupon_sn'])) {
+            $couponObj = [$payLoad['coupon_type'], $payLoad['coupon_sn']];
+        }
+
+        $re = Order::createOrder($customer->email, 1, $address, $payLoad['products'], null, $couponObj, ReceivedMethod::fromValue($payLoad['payment']));
 
         if ($re['success'] == '1') {
             DB::commit();
@@ -450,7 +454,7 @@ class OrderCtrl extends Controller
                     OrderFlow::changeOrderStatus($id, OrderStatus::Paided());
 
                     $received_order = ReceivedOrder::create_received_order($id);
-                    $received_method = ReceivedMethod::CreditCard;// 'credit_card'
+                    $received_method = ReceivedMethod::CreditCard; // 'credit_card'
 
                     $data = [];
                     $data['acc_transact_type_fk'] = $received_method;
