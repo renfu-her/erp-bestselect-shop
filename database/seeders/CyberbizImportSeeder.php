@@ -40,6 +40,7 @@ class CyberbizImportSeeder extends Seeder
 
         $allJsonFile = preg_grep("~\.(json)$~",
             scandir(database_path('seeders/Json/')));
+        $allJsonFile = array_unique($allJsonFile);
 
         $totalFileCount = count($allJsonFile);
         foreach ($allJsonFile as $key => $jsonFile) {

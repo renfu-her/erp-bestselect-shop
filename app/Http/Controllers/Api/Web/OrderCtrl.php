@@ -17,8 +17,8 @@ use App\Models\LogisticFlow;
 use App\Models\Order;
 use App\Models\OrderFlow;
 use App\Models\OrderPayCreditCard;
-use App\Models\ReceivedOrder;
 use App\Models\ReceivedDefault;
+use App\Models\ReceivedOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -243,16 +243,15 @@ class OrderCtrl extends Controller
     {
 
         $payLoad = request()->getContent();
-      
+
         if (!$payLoad) {
             return response()->json([
                 'status' => 'E01',
                 'message' => '參數不能為空值',
             ]);
         }
-      
-        $payLoad = json_decode($payLoad, true);
 
+        $payLoad = json_decode($payLoad, true);
 
         $valiRule = [
             "orderer.name" => "required",
@@ -319,7 +318,12 @@ class OrderCtrl extends Controller
             'address' => Addr::fullAddr($payLoad['recipient']['region_id'], $payLoad['recipient']['addr']),
             'type' => UserAddrType::receiver()->value];
 
-        $re = Order::createOrder($customer->email, 1, $address, $payLoad['products'], null, null, ReceivedMethod::fromValue($payLoad['payment']));
+        $couponObj = null;
+        if (isset($payLoad['coupon_type']) && isset($payLoad['coupon_sn'])) {
+            $couponObj = [$payLoad['coupon_type'], $payLoad['coupon_sn']];
+        }
+
+        $re = Order::createOrder($customer->email, 1, $address, $payLoad['products'], null, $couponObj, ReceivedMethod::fromValue($payLoad['payment']));
 
         if ($re['success'] == '1') {
             DB::commit();
@@ -341,10 +345,13 @@ class OrderCtrl extends Controller
 
     public function orderDetail(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
-            'order_id' => 'required',
-        ]);
+        $valiRule = ['order_id' => 'required'];
+
+        if (!Auth::guard('sanctum')->check()) {
+            $valiRule['email'] = 'required|email';
+        }
+
+        $validator = Validator::make($request->all(), $valiRule);
 
         if ($validator->fails()) {
             $re = [];
@@ -355,7 +362,13 @@ class OrderCtrl extends Controller
         }
         $d = $request->all();
 
-        $order = Order::orderDetail($d['order_id'], $d['email'])->get()->first();
+        if (!Auth::guard('sanctum')->check()) {
+            $email = $d['email'];
+        } else {
+            $email = $request->user()->email;
+        }
+
+        $order = Order::orderDetail($d['order_id'], $email)->get()->first();
         if (!$order) {
             $re = [];
             $re[ResponseParam::status()->key] = 'E04';
@@ -450,7 +463,7 @@ class OrderCtrl extends Controller
                     OrderFlow::changeOrderStatus($id, OrderStatus::Paided());
 
                     $received_order = ReceivedOrder::create_received_order($id);
-                    $received_method = ReceivedMethod::CreditCard;// 'credit_card'
+                    $received_method = ReceivedMethod::CreditCard; // 'credit_card'
 
                     $data = [];
                     $data['acc_transact_type_fk'] = $received_method;
@@ -467,7 +480,7 @@ class OrderCtrl extends Controller
 
                     OrderPayCreditCard::create_log($id, (object) $EncArray);
 
-                    return redirect('https://dev-shopp.bestselection.com.tw/payfin/' . $id . '/' . $lidm . '/' . $status);
+                    return redirect(env('FRONTEND_URL') . 'payfin/' . $id . '/' . $lidm . '/' . $status);
                 }
 
                 OrderPayCreditCard::create_log($id, (object) $EncArray);
@@ -475,7 +488,6 @@ class OrderCtrl extends Controller
         }
 
         // echo '交易失敗';
-        // return redirect(env('FRONTEND_URL') . 'payfin/' . $id . '/' . $lidm . '/' . $status);
-        return redirect('https://dev-shopp.bestselection.com.tw/payfin/' . $id . '/' . $lidm . '/1');
+        return redirect(env('FRONTEND_URL') . 'payfin/' . $id . '/' . $lidm . '/1');
     }
 }
