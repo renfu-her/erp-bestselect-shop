@@ -9,8 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
 use App\Enums\Received\ReceivedMethod;
-use App\Enums\Delivery\Event;
-use App\Enums\Order\UserAddrType;
 
 class ReceivedOrder extends Model
 {
@@ -20,7 +18,54 @@ class ReceivedOrder extends Model
     protected $guarded = [];
 
 
-    public static function store_received($request)
+    public static function create_received_order($order_id)
+    {
+        $order_data = Order::findOrFail($order_id);
+        $logistics_grade_id = ReceivedDefault::where('name', 'logistics')->first() ? ReceivedDefault::where('name', 'logistics')->first()->default_grade_id : 0;
+        $product_grade_id = ReceivedDefault::where('name', 'product')->first() ? ReceivedDefault::where('name', 'product')->first()->default_grade_id : 0;
+
+        $re = self::create([
+            'order_id'=>$order_id,
+            'usr_users_id'=>auth('user')->user() ? auth('user')->user()->id : null,
+            'sn'=>'MSG' . date('ymd') . str_pad( count(ReceivedOrder::whereDate('created_at', '=', date('Y-m-d'))->withTrashed()->get()) + 1, 3, '0', STR_PAD_LEFT),
+            'price'=>$order_data->total_price,
+            // 'tw_dollar'=>0,
+            // 'rate'=>1,
+            'logistics_grade_id'=>$logistics_grade_id,
+            'product_grade_id'=>$product_grade_id,
+            // 'created_at'=>date("Y-m-d H:i:s"),
+        ]);
+
+        return $re;
+    }
+
+
+    public static function store_received($parm)
+    {
+        $received_order_id = $parm['received_order_id'];
+        $received_method = isset($parm['received_method']) ? $parm['received_method'] : 'cash';
+        $received_method_id = isset($parm['received_method_id']) ? $parm['received_method_id'] : null;
+        $grade_id = $parm['grade_id'];
+        $price = $parm['price'];
+        $accountant_id_fk = isset($parm['accountant_id_fk']) ? $parm['accountant_id_fk'] : 0;
+        $note = isset($parm['note']) ? $parm['note'] : null;
+
+        DB::table('acc_received')->insert([
+            'received_type'=>ReceivedOrder::class,
+            'received_order_id'=>$received_order_id,
+            'received_method'=>$received_method,
+            'received_method_id'=>$received_method_id,
+            'all_grades_id'=>$grade_id,
+            'tw_price'=>$price,
+            'review_date'=>null,
+            'accountant_id_fk'=>$accountant_id_fk,
+            'note'=>$note,
+            'created_at'=>date("Y-m-d H:i:s"),
+        ]);
+    }
+
+
+    public static function store_received_method($request)
     {
         $id = null;
 
@@ -37,9 +82,18 @@ class ReceivedOrder extends Model
 
             case ReceivedMethod::CreditCard:
                 $id = DB::table('acc_received_credit')->insertGetId([
+                    // 'installment'=>$request[$request['acc_transact_type_fk']]['installment'],
+                    'installment'=>'none',
                     'created_at'=>date("Y-m-d H:i:s"),
                 ]);
                 break;
+
+            // case ReceivedMethod::CreditCard3:
+            //     $id = DB::table('acc_received_credit')->insertGetId([
+            //         'installment'=>3,
+            //         'created_at'=>date("Y-m-d H:i:s"),
+            //     ]);
+            //     break;
 
             case ReceivedMethod::Remittance:
                 $id = DB::table('acc_received_remit')->insertGetId([

@@ -40,6 +40,7 @@ class CyberbizImportSeeder extends Seeder
 
         $allJsonFile = preg_grep("~\.(json)$~",
             scandir(database_path('seeders/Json/')));
+        $allJsonFile = array_unique($allJsonFile);
 
         $totalFileCount = count($allJsonFile);
         foreach ($allJsonFile as $key => $jsonFile) {
@@ -83,7 +84,7 @@ class CyberbizImportSeeder extends Seeder
                         'desc' => $productArray['body_html'],
                     ]);
 
-                if (App::environment(['local', 'prod'])) {
+                if (App::environment([AppEnvClass::Local, AppEnvClass::Release])) {
                     Product::where('id', $productId)
                         ->update(['cyberbiz_id' => $productArray['id']]);
                 }

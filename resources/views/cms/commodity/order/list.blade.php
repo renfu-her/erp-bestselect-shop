@@ -185,8 +185,7 @@
                             <td>{{ $data->sale_title }}</td>
                             <td class="text-success">{{ $data->logistic_status }}</td>
                             <td>
-                                <span class="d-block lh-sm">46456456</span>
-                                <span class="d-block lh-sm">77987979</span>
+                                {{-- <span class="d-block lh-sm"></span> --}}
                             </td>
                             <td>
                                 {{ $data->ship_category_name }}

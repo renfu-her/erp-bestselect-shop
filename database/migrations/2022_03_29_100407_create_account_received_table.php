@@ -29,7 +29,6 @@ class CreateAccountReceivedTable extends Migration
             $table->dateTime('review_date')->nullable()->comment('入款審核日期');
 
             $table->unsignedBigInteger('accountant_id_fk')->comment('會計師, user_id foreign key');
-            $table->foreign('accountant_id_fk')->references('id')->on('usr_users');
 
             $table->text('note')->nullable()->comment('備註');
             $table->timestamps();
@@ -71,7 +70,6 @@ class CreateAccountReceivedTable extends Migration
     {
         if (Schema::hasColumns('acc_received', ['accountant_id_fk'])) {
             Schema::table('acc_received', function (Blueprint $table) {
-                $table->dropForeign(['accountant_id_fk']);
                 $table->dropColumn('accountant_id_fk');
             });
         }
