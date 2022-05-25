@@ -345,10 +345,13 @@ class OrderCtrl extends Controller
 
     public function orderDetail(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
-            'order_id' => 'required',
-        ]);
+        $valiRule = ['order_id' => 'required'];
+
+        if (!Auth::guard('sanctum')->check()) {
+            $valiRule['email'] = 'required|email';
+        }
+
+        $validator = Validator::make($request->all(), $valiRule);
 
         if ($validator->fails()) {
             $re = [];
@@ -359,7 +362,13 @@ class OrderCtrl extends Controller
         }
         $d = $request->all();
 
-        $order = Order::orderDetail($d['order_id'], $d['email'])->get()->first();
+        if (!Auth::guard('sanctum')->check()) {
+            $email = $d['email'];
+        } else {
+            $email = $request->user()->email;
+        }
+
+        $order = Order::orderDetail($d['order_id'], $email)->get()->first();
         if (!$order) {
             $re = [];
             $re[ResponseParam::status()->key] = 'E04';
