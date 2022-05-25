@@ -112,7 +112,6 @@ class CreateIncomeExpenditureTable extends Migration
                 $table->dateTime('payment_date')->comment('付款日期');
 
                 $table->unsignedBigInteger('accountant_id_fk')->comment('會計師, user_id foreign key');
-                $table->foreign('accountant_id_fk')->references('id')->on('usr_users');
 
                 $table->text('note')->nullable()->comment('備註');
                 $table->timestamps();

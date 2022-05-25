@@ -43,12 +43,12 @@ class ReceivedOrder extends Model
     public static function store_received($parm)
     {
         $received_order_id = $parm['received_order_id'];
-        $received_method = $parm['received_method'] ? $parm['received_method'] : 'cash';
-        $received_method_id = $parm['received_method_id'] ? $parm['received_method_id'] : null;
+        $received_method = isset($parm['received_method']) ? $parm['received_method'] : 'cash';
+        $received_method_id = isset($parm['received_method_id']) ? $parm['received_method_id'] : null;
         $grade_id = $parm['grade_id'];
         $price = $parm['price'];
-        $accountant_id_fk = $parm['accountant_id_fk'] ? $parm['accountant_id_fk'] : 0;
-        $note = $parm['note'] ? $parm['note'] : null;
+        $accountant_id_fk = isset($parm['accountant_id_fk']) ? $parm['accountant_id_fk'] : 0;
+        $note = isset($parm['note']) ? $parm['note'] : null;
 
         DB::table('acc_received')->insert([
             'received_type'=>ReceivedOrder::class,

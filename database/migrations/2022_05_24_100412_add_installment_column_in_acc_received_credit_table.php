@@ -21,15 +21,15 @@ class AddInstallmentColumnInAccReceivedCreditTable extends Migration
 
         if (Schema::hasColumns('acc_received', ['accountant_id_fk'])) {
             Schema::table('acc_received', function (Blueprint $table) {
-                $table->dropForeign(['accountant_id_fk']);
-                $table->dropIndex('acc_received_accountant_id_fk_foreign');
+                // $table->dropForeign(['accountant_id_fk']);
+                // $table->dropIndex('acc_received_accountant_id_fk_foreign');
             });
         }
 
         if (Schema::hasColumns('acc_payable', ['accountant_id_fk'])) {
             Schema::table('acc_payable', function (Blueprint $table) {
-                $table->dropForeign(['accountant_id_fk']);
-                $table->dropIndex('acc_payable_accountant_id_fk_foreign');
+                // $table->dropForeign(['accountant_id_fk']);
+                // $table->dropIndex('acc_payable_accountant_id_fk_foreign');
             });
         }
     }

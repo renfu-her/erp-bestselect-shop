@@ -469,10 +469,13 @@ class ConsignmentCtrl extends Controller
             return abort(404);
         }
 
-        return view('cms.commodity.consignment.log', [
+        return view('cms.commodity.purchase.log', [
             'id' => $id,
             'purchaseData' => $purchaseData,
             'purchaseLog' => $purchaseLog,
+            'returnAction' => Route('cms.consignment.index', [], true),
+            'title' => '寄倉單',
+            'sn' => $purchaseData->consignment_sn,
             'breadcrumb_data' => $purchaseData->consignment_sn,
         ]);
     }
@@ -770,10 +773,13 @@ class ConsignmentCtrl extends Controller
             return abort(404);
         }
 
-        return view('cms.commodity.consignment.stocklog', [
+        return view('cms.commodity.purchase.log', [
             'id' => $id,
             'purchaseData' => $purchaseData,
             'purchaseLog' => $purchaseLog,
+            'returnAction' => Route('cms.consignment.index', [], true),
+            'title' => '寄倉訂購單',
+            'sn' => $purchaseData->sn,
             'breadcrumb_data' => $purchaseData->sn,
         ]);
     }

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 
 class RenameProductTitleToTitleInCsnOrderItemsTable extends Migration
 {
@@ -11,7 +12,9 @@ class RenameProductTitleToTitleInCsnOrderItemsTable extends Migration
      */
     public function up()
     {
-        DB::statement('ALTER TABLE csn_order_items RENAME COLUMN product_title TO title');
+        Schema::table('csn_order_items', function (Blueprint $table) {
+            $table->renameColumn('product_title', 'title');
+        });
     }
 
     /**
@@ -21,6 +24,8 @@ class RenameProductTitleToTitleInCsnOrderItemsTable extends Migration
      */
     public function down()
     {
-        DB::statement('ALTER TABLE csn_order_items RENAME COLUMN title TO product_title');
+        Schema::table('csn_order_items', function (Blueprint $table) {
+            $table->renameColumn('title', 'product_title');
+        });
     }
 }

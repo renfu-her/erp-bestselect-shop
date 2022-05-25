@@ -125,6 +125,48 @@ class PurchaseLog extends Model
             ->where('log.event_parent_id', '=', $event_id)
             ->where('log.event', '=', $event);
 
+        $logEventFeatureKey_delivery = [];
+        array_push($logEventFeatureKey_delivery, LogEventFeature::delivery()->value);
+        array_push($logEventFeatureKey_delivery, LogEventFeature::combo()->value);
+        $log_delivery = DB::table('pcs_purchase_log as log')
+            ->leftJoin('dlv_receive_depot as rcv_depot', function($join) use($event, $logEventFeatureKey_delivery) {
+                $join->on('rcv_depot.id', '=', 'log.event_id');
+                $join->where('log.event', $event);
+                $join->whereIn('log.feature', $logEventFeatureKey_delivery);
+            })
+            ->select('log.id'
+                , 'log.event'
+                , 'log.feature'
+                , 'log.user_name'
+                , 'log.created_at'
+                , 'log.qty'
+                , DB::raw('(case when "ce" = rcv_depot.prd_type then CONCAT(rcv_depot.product_title, "(組合包內容)")
+                    else rcv_depot.product_title end) as title')
+            )
+            ->where('log.event_parent_id', '=', $event_id)
+            ->where('log.event', '=', $event)
+            ->whereIn('log.feature', $logEventFeatureKey_delivery);
+
+        $logEventFeatureKey_consume = [];
+        array_push($logEventFeatureKey_consume, LogEventFeature::consume_delivery()->value);
+        $log_consume = DB::table('pcs_purchase_log as log')
+            ->leftJoin('dlv_consum as consum', function($join) use($event, $logEventFeatureKey_consume) {
+                $join->on('consum.id', '=', 'log.event_id');
+                $join->where('log.event', $event);
+                $join->whereIn('log.feature', $logEventFeatureKey_consume);
+            })
+            ->select('log.id'
+                , 'log.event'
+                , 'log.feature'
+                , 'log.user_name'
+                , 'log.created_at'
+                , 'log.qty'
+                , 'consum.product_title as title'
+            )
+            ->where('log.event_parent_id', '=', $event_id)
+            ->where('log.event', '=', $event)
+            ->whereIn('log.feature', $logEventFeatureKey_consume);
+
         $logEventFeatureKey_pay = [];
         foreach (LogEventFeature::asArray() as $key => $value) {
             if (0 === strpos($key, 'pay')) {
@@ -153,6 +195,13 @@ class PurchaseLog extends Model
 
         $log_purchase->union($log_style);
         $log_purchase->union($log_inbound);
+        if (null != $log_delivery) {
+            $log_purchase->union($log_delivery);
+        }
+        if (null != $log_consume) {
+            $log_purchase->union($log_consume);
+        }
+
         if (null != $log_pay_order) {
             $log_purchase->union($log_pay_order);
         }
