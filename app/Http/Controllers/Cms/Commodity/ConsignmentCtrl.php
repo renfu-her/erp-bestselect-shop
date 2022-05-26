@@ -394,16 +394,37 @@ class ConsignmentCtrl extends Controller
             }
 
             $depot = Depot::where('id', '=', $depot_id)->get()->first();
+            $styles = DB::table('prd_products as product')
+                ->leftJoin('prd_product_styles as style', 'style.product_id', '=', 'product.id')
+                ->select('style.id'
+                    , 'product.title'
+                    , 'style.title as spec'
+                )
+                ->get()->toArray();
+            $styles = json_decode(json_encode($styles), true);
+            $style_arr = [];
+            foreach ($inboundItemReq['product_style_id'] as $key => $val) {
+                $style_arr[$key]['id'] = $val;
+            }
 
-            $result = DB::transaction(function () use ($inboundItemReq, $id, $depot_id, $depot, $request
+            foreach ($style_arr as $key => $val) {
+                foreach ($styles as $styleItem) {
+                    if ($style_arr[$key]['id'] == $styleItem['id']) {
+                        $style_arr[$key]['item'] = $styleItem;
+                        break;
+                    }
+                }
+            }
+
+            $result = DB::transaction(function () use ($inboundItemReq, $id, $depot_id, $depot, $request, $style_arr
             ) {
-                foreach ($inboundItemReq['product_style_id'] as $key => $val) {
-
+                foreach ($style_arr as $key => $val) {
                     $re = PurchaseInbound::createInbound(
                         Event::consignment()->value,
                         $id,
                         $inboundItemReq['event_item_id'][$key], //存入 dlv_receive_depot.id
                         $inboundItemReq['product_style_id'][$key],
+                        $val['item']['title'] . '-'. $val['item']['spec'],
                         $inboundItemReq['expiry_date'][$key],
                         $inboundItemReq['inbound_date'][$key],
                         $inboundItemReq['inbound_num'][$key],

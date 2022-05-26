@@ -15,7 +15,9 @@ class PurchaseLog extends Model
     protected $table = 'pcs_purchase_log';
     protected $guarded = [];
 
-    public static function stockChange($event_parent_id, $product_style_id, $event, $event_id, $feature, $inbound_id = null, $qty, $note = null, $operator_user_id, $operator_user_name)
+    public static function stockChange($event_parent_id, $product_style_id, $event, $event_id, $feature, $inbound_id = null, $qty, $note = null
+        , $product_title = null, $prd_type = null
+        , $operator_user_id, $operator_user_name)
     {
         if (!Event::hasKey($event)) {
             return ['success' => 0, 'error_msg' => 'event error '.$event];
@@ -25,7 +27,7 @@ class PurchaseLog extends Model
             return ['success' => 0, 'error_msg' => 'feature error '. $feature];
         }
 
-        return DB::transaction(function () use ($event_parent_id, $product_style_id, $event, $event_id, $feature, $inbound_id, $qty, $note, $operator_user_id, $operator_user_name) {
+        return DB::transaction(function () use ($event_parent_id, $product_style_id, $event, $event_id, $feature, $inbound_id, $qty, $note, $product_title, $prd_type, $operator_user_id, $operator_user_name) {
             self::create([
                 'event_parent_id' => $event_parent_id,
                 'product_style_id' => $product_style_id,
@@ -33,6 +35,8 @@ class PurchaseLog extends Model
                 'event_id' => $event_id,
                 'feature' => $feature,
                 'inbound_id' => $inbound_id,
+                'product_title' => $product_title,
+                'prd_type' => $prd_type,
                 'qty' => $qty,
                 'note' => $note,
                 'user_id' => $operator_user_id,
@@ -93,9 +97,9 @@ class PurchaseLog extends Model
                 , 'log.user_name'
                 , 'log.created_at'
                 , 'log.qty'
-                , 'items.title'
+                , 'log.product_title as title'
             )
-            ->whereNotNull('items.id')
+            ->whereNotNull('items.id') //選擇商品狀態時 可能隨時會被使用者刪除 所以要加此防呆
             ->where('log.event_parent_id', '=', $event_id)
             ->where('log.event', '=', $event);
 
@@ -106,22 +110,14 @@ class PurchaseLog extends Model
             }
         }
         $log_inbound = DB::table('pcs_purchase_log as log')
-            ->leftJoin('pcs_purchase_inbound as inbound', function($join) use($event, $logEventFeatureKey_inbound) {
-                $join->on('inbound.id', '=', 'log.event_id');
-                $join->where('log.event', $event);
-                $join->whereIn('log.feature', $logEventFeatureKey_inbound);
-            })
-            ->leftJoin('prd_product_styles as style', 'style.id', '=', 'inbound.product_style_id')
-            ->leftJoin('prd_products as product', 'product.id', '=', 'style.product_id')
             ->select('log.id'
                 , 'log.event'
                 , 'log.feature'
                 , 'log.user_name'
                 , 'log.created_at'
                 , 'log.qty'
-                , DB::raw('CONCAT(product.title, "-", style.title) as title')
+                , 'log.product_title as title'
             )
-            ->whereNotNull('inbound.id')
             ->where('log.event_parent_id', '=', $event_id)
             ->where('log.event', '=', $event);
 
@@ -150,18 +146,13 @@ class PurchaseLog extends Model
         $logEventFeatureKey_consume = [];
         array_push($logEventFeatureKey_consume, LogEventFeature::consume_delivery()->value);
         $log_consume = DB::table('pcs_purchase_log as log')
-            ->leftJoin('dlv_consum as consum', function($join) use($event, $logEventFeatureKey_consume) {
-                $join->on('consum.id', '=', 'log.event_id');
-                $join->where('log.event', $event);
-                $join->whereIn('log.feature', $logEventFeatureKey_consume);
-            })
             ->select('log.id'
                 , 'log.event'
                 , 'log.feature'
                 , 'log.user_name'
                 , 'log.created_at'
                 , 'log.qty'
-                , 'consum.product_title as title'
+                , 'log.product_title as title'
             )
             ->where('log.event_parent_id', '=', $event_id)
             ->where('log.event', '=', $event)
@@ -210,5 +201,4 @@ class PurchaseLog extends Model
 
         return $log_purchase;
     }
-
 }

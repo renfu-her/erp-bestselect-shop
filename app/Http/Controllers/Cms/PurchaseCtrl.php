@@ -14,7 +14,6 @@ use App\Models\PurchaseInbound;
 use App\Models\PurchaseItem;
 use App\Models\PurchaseLog;
 use App\Models\Supplier;
-use App\Models\SupplierPayment;
 use App\Models\User;
 
 use Illuminate\Http\Request;
@@ -497,15 +496,37 @@ class PurchaseCtrl extends Controller
 
             $depot = Depot::where('id', '=', $depot_id)->get()->first();
 
-            $result = DB::transaction(function () use ($inboundItemReq, $id, $depot_id, $depot, $request
-            ) {
-                foreach ($inboundItemReq['product_style_id'] as $key => $val) {
+            $styles = DB::table('prd_products as product')
+                ->leftJoin('prd_product_styles as style', 'style.product_id', '=', 'product.id')
+                ->select('style.id'
+                    , 'product.title'
+                    , 'style.title as spec'
+                )
+                ->get()->toArray();
+            $styles = json_decode(json_encode($styles), true);
+            $style_arr = [];
+            foreach ($inboundItemReq['product_style_id'] as $key => $val) {
+                $style_arr[$key]['id'] = $val;
+            }
 
+            foreach ($style_arr as $key => $val) {
+                foreach ($styles as $styleItem) {
+                    if ($style_arr[$key]['id'] == $styleItem['id']) {
+                        $style_arr[$key]['item'] = $styleItem;
+                        break;
+                    }
+                }
+            }
+
+            $result = DB::transaction(function () use ($inboundItemReq, $id, $depot_id, $depot, $request, $style_arr
+            ) {
+                foreach ($style_arr as $key => $val) {
                     $re = PurchaseInbound::createInbound(
                         Event::purchase()->value,
                         $id,
                         $inboundItemReq['event_item_id'][$key],
                         $inboundItemReq['product_style_id'][$key],
+                        $val['item']['title'] . '-'. $val['item']['spec'],
                         $inboundItemReq['expiry_date'][$key],
                         $inboundItemReq['inbound_date'][$key],
                         $inboundItemReq['inbound_num'][$key],

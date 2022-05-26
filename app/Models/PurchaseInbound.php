@@ -19,7 +19,7 @@ class PurchaseInbound extends Model
     protected $table = 'pcs_purchase_inbound';
     protected $guarded = [];
 
-    public static function createInbound($event, $event_id, $event_item_id, $product_style_id, $expiry_date = null, $inbound_date = null, $inbound_num = 0, $depot_id = null, $depot_name = null, $inbound_user_id = null, $inbound_user_name = null, $memo = null, $prd_type = null, $parent_inbound_id = null, $origin_inbound_id = null)
+    public static function createInbound($event, $event_id, $event_item_id, $product_style_id, $title, $expiry_date = null, $inbound_date = null, $inbound_num = 0, $depot_id = null, $depot_name = null, $inbound_user_id = null, $inbound_user_name = null, $memo = null, $prd_type = null, $parent_inbound_id = null, $origin_inbound_id = null)
     {
         $can_tally = Depot::can_tally($depot_id);
 
@@ -28,6 +28,7 @@ class PurchaseInbound extends Model
             , $event_id
             , $event_item_id
             , $product_style_id
+            , $title
             , $expiry_date
             , $inbound_date
             , $inbound_num
@@ -47,12 +48,14 @@ class PurchaseInbound extends Model
                         ->get()
                         ->count()) + 1, 5, '0', STR_PAD_LEFT);
 
+            $prd_type = $prd_type ?? 'p';
             $insert_data = [
                 'sn' => $sn,
                 "event" => $event,
                 "event_id" => $event_id,
                 "event_item_id" => $event_item_id,
                 "product_style_id" => $product_style_id,
+                "title" => $title,
                 "expiry_date" => $expiry_date,
                 "inbound_date" => $inbound_date,
                 "inbound_num" => $inbound_num,
@@ -61,7 +64,7 @@ class PurchaseInbound extends Model
                 "inbound_user_id" => $inbound_user_id,
                 "inbound_user_name" => $inbound_user_name,
                 "memo" => $memo,
-                "prd_type" => $prd_type ?? 'p',
+                "prd_type" => $prd_type,
                 "parent_inbound_id" => $parent_inbound_id,
                 "origin_inbound_id" => $origin_inbound_id,
             ];
@@ -82,7 +85,7 @@ class PurchaseInbound extends Model
                 DB::rollBack();
                 return $rePcsItemUAN;
             }
-            $rePcsLSC = PurchaseLog::stockChange($event_id, $product_style_id, $event, $event_item_id, LogEventFeature::inbound_add()->value, $id, $inbound_num, $memo, $inbound_user_id, $inbound_user_name);
+            $rePcsLSC = PurchaseLog::stockChange($event_id, $product_style_id, $event, $event_item_id, LogEventFeature::inbound_add()->value, $id, $inbound_num, $memo, $title, $prd_type, $inbound_user_id, $inbound_user_name);
             if ($rePcsLSC['success'] == 0) {
                 DB::rollBack();
                 return $rePcsLSC;
@@ -160,7 +163,7 @@ class PurchaseInbound extends Model
                         DB::rollBack();
                         return $rePcsItemUAN;
                     }
-                    $rePcsLSC = PurchaseLog::stockChange($purchaseData->id, $inboundDataGet->product_style_id, $event, $inboundDataGet->event_id, LogEventFeature::inbound_del()->value, $id, $qty, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
+                    $rePcsLSC = PurchaseLog::stockChange($purchaseData->id, $inboundDataGet->product_style_id, $event, $inboundDataGet->event_id, LogEventFeature::inbound_del()->value, $id, $qty, null, $inboundDataGet->title, $inboundDataGet->prd_type, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
                     if ($rePcsLSC['success'] == 0) {
                         DB::rollBack();
                         return $rePcsLSC;
@@ -228,7 +231,7 @@ class PurchaseInbound extends Model
 
                     PurchaseInbound::where('id', $id)
                         ->update($update_arr);
-                    $reStockChange =PurchaseLog::stockChange($event_parent_id, $inboundDataGet->product_style_id, $event, $event_id, $feature, $id, $sale_num, null, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
+                    $reStockChange =PurchaseLog::stockChange($event_parent_id, $inboundDataGet->product_style_id, $event, $event_id, $feature, $id, $sale_num, null, $inboundDataGet->title, $inboundDataGet->prd_type, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
                     if ($reStockChange['success'] == 0) {
                         DB::rollBack();
                         return $reStockChange;
