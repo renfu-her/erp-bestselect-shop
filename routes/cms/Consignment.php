@@ -29,4 +29,6 @@ Route::group(['prefix' => 'consignment', 'as' => 'consignment.'], function () {
     Route::post('order', [ConsignmentCtrl::class, 'orderStore']);
     Route::get('order_edit/{id}', [ConsignmentCtrl::class, 'orderEdit'])->name('order_edit')->middleware('permission:cms.consignment.edit');
     Route::post('order_edit/{id}', [ConsignmentCtrl::class, 'orderUpdate']);
+    Route::get('stock_log/{id}', [ConsignmentCtrl::class, 'historyStockLog'])->name('stock_log')->middleware('permission:cms.consignment.edit');
+    Route::get('stock_detail_log/{id}', [ConsignmentCtrl::class, 'historyStockDetailLog'])->name('stock_detail_log')->middleware('permission:cms.consignment.edit');
 });
