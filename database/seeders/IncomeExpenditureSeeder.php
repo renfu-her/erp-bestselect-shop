@@ -106,7 +106,7 @@ class IncomeExpenditureSeeder extends Seeder
             ]);
             ReceivedDefault::create([
                 'name' => 'logistics',
-                'default_grade_id' => 74,
+                'default_grade_id' => 100,
             ]);
 
             $discount_category = DisCategory::asArray();
