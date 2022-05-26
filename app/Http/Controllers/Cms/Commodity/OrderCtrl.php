@@ -301,8 +301,8 @@ class OrderCtrl extends Controller
             'order_id' => $id,
             'deleted_at' => null,
         ]);
-        $received_order_data = $received_order_collection->get();
-        if (count($received_order_data) > 0 && $received_order_collection->sum('price') == DB::table('acc_received')->whereIn('received_order_id', $received_order_collection->pluck('id')->toArray())->sum('tw_price')) {
+        $received_order_data = $received_order_collection->first();
+        if ($received_order_data->balance_date) {
             $receivable = true;
         }
 
@@ -314,7 +314,7 @@ class OrderCtrl extends Controller
             'subOrderId' => $subOrderId,
             'discounts' => Discount::orderDiscountList('main', $id)->get()->toArray(),
             'receivable' => $receivable,
-            'received_order_data' => $received_order_collection->first(),
+            'received_order_data' => $received_order_data,
         ]);
     }
 

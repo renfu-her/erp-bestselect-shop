@@ -99,7 +99,7 @@ class OrderCtrl extends Controller
                 'received.deleted_at' => null,
             ])
             ->where(function ($q) {
-                $q->whereRaw('(order.status_code NOT IN ("canceled","closed","paided"))');
+                $q->whereRaw('(order.status_code NOT IN ("canceled","closed","paided","received"))');
             })
             ->first();
 
@@ -461,10 +461,6 @@ class OrderCtrl extends Controller
 
                 if (empty($status) && $status == '0') {
                     // echo '交易完成';
-                    OrderFlow::changeOrderStatus($id, OrderStatus::Received());
-
-                    Order::change_order_payment_status($id, PaymentStatus::Received(), ReceivedMethod::CreditCard());
-
                     OrderPayCreditCard::create_log($id, (object) $EncArray);
 
                     $received_order_collection = ReceivedOrder::where([

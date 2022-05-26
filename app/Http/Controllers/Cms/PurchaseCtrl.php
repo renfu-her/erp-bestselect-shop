@@ -603,7 +603,6 @@ class PurchaseCtrl extends Controller
                     $prdDefault['default_grade_id'],
                     $lgsDefault['default_grade_id'],
                     $totalPrice ?? 0,
-                    null,
                     $request['deposit_summary'] ?? '',
                     $request['deposit_memo'] ?? '',
                 );
