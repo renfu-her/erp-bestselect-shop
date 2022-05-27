@@ -274,13 +274,13 @@ class PurchaseCtrl extends Controller
                 if ($payingOrderItem->type === 0) {
                     $hasCreatedDepositPayment = true;
                     $depositPayData = $payingOrderItem;
-                    if ($payingOrderItem->price == AccountPayable::where('pay_order_id', $payingOrderItem->id)->sum('tw_price')) {
+                    if ($payingOrderItem->balance_date) {
                         $hasReceivedDepositPayment = true;
                     }
                 } elseif ($payingOrderItem->type === 1) {
                     $hasCreatedFinalPayment = true;
                     $finalPayData = $payingOrderItem;
-                    if ($payingOrderItem->price == AccountPayable::where('pay_order_id', $payingOrderItem->id)->sum('tw_price')) {
+                    if ($payingOrderItem->balance_date) {
                         $hasReceivedFinalPayment = true;
                     }
                 }
@@ -646,16 +646,16 @@ class PurchaseCtrl extends Controller
                             ->first();
         $accountPayable = PayingOrder::find($payingOrderData->id)->accountPayable;
 
-        $pay_off = 0;
+        $pay_off = false;
         $pay_off_date = null;
         $pay_record = AccountPayable::where('pay_order_id', $payingOrderData->id);
         $sum_pay = $pay_record->sum('tw_price');
         if($payingOrderData->price == $sum_pay ){
-            $pay_off = 1;
+            $pay_off = true;
             if($payingOrderData->price == 0 && $pay_record->count() == 0){
                 $pay_off_date = date('Y-m-d', strtotime($payingOrderData->created_at));
             } else {
-                $pay_off_date = date('Y-m-d', strtotime($pay_record->get()->last()->payment_date));
+                $pay_off_date = date('Y-m-d', strtotime($payingOrderData->balance_date));
             }
         }
 

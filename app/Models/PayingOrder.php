@@ -81,6 +81,7 @@ class PayingOrder extends Model
                 'paying_order.summary as summary',
                 'paying_order.memo as memo',
                 'paying_order.price as price',
+                'paying_order.balance_date as balance_date',
             )
             ->selectRaw('DATE_FORMAT(paying_order.created_at,"%Y-%m-%d") as created_at')
             ->where('paying_order.purchase_id', '=', $purchase_id)
