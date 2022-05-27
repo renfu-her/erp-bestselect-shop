@@ -302,7 +302,7 @@ class OrderCtrl extends Controller
             'deleted_at' => null,
         ]);
         $received_order_data = $received_order_collection->first();
-        if ($received_order_data->balance_date) {
+        if ($received_order_data && $received_order_data->balance_date) {
             $receivable = true;
         }
 

@@ -432,7 +432,7 @@ class AccountReceivedCtrl extends Controller
             wToast(__('收款單儲存失敗'));
         }
 
-        if (ReceivedOrder::find($received_order_id)->balance_date) {
+        if (ReceivedOrder::find($received_order_id) && ReceivedOrder::find($received_order_id)->balance_date) {
             return redirect()->route('cms.order.detail', [
                 'id' => $data['id'],
             ]);
