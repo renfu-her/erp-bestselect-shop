@@ -94,17 +94,19 @@ class CustomerCtrl extends Controller
         return response()->json([
             ResponseParam::status()->key => ApiStatusMessage::Succeed,
             ResponseParam::msg()->key => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
-            ResponseParam::data()->key =>  $customer,
+            ResponseParam::data()->key =>  $this->arrayConverNullValToEmpty($customer->toArray()),
         ]);
     }
 
     //客戶資訊
     function customerInfo(Request $request)
     {
+        $user = $request->user()->toArray();
+        $user = $this->arrayConverNullValToEmpty($user);
         return response()->json([
             ResponseParam::status()->key => ApiStatusMessage::Succeed,
             ResponseParam::msg()->key =>  ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
-            ResponseParam::data()->key =>  $request->user(),
+            ResponseParam::data()->key =>  $user,
         ]);
     }
 
@@ -126,5 +128,19 @@ class CustomerCtrl extends Controller
             ResponseParam::status()->key => ApiStatusMessage::Succeed,
             ResponseParam::msg()->key =>  ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
         ]);
+    }
+
+    /**
+     * @param $data
+     * @return mixed
+     */
+    private function arrayConverNullValToEmpty($data)
+    {
+        foreach ($data as $key => $value) {
+            if (is_null($data[$key])) {
+                $data[$key] = '';
+            }
+        }
+        return $data;
     }
 }
