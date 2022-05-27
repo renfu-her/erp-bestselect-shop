@@ -25,21 +25,21 @@
                             <label class="form-check-label">
                                 關閉
                                 <input class="form-check-input @error('acount_status') is-invalid @enderror" value="{{\App\Enums\Customer\AccountStatus::close()->value}}"
-                                    name="acount_status" type="radio" @if ($method === 'create' || ($method === 'edit' && !$data->acount_status)) checked @endif>
+                                       name="acount_status" type="radio" @if ($method === 'create' || ($method === 'edit' && !$data->acount_status)) checked @endif>
                             </label>
                         </div>
                         <div class="form-check form-check-inline">
                             <label class="form-check-label">
                                 開放
                                 <input class="form-check-input @error('acount_status') is-invalid @enderror" value="{{\App\Enums\Customer\AccountStatus::open()->value}}"
-                                    name="acount_status" type="radio" @if ($method === 'edit' && $data->acount_status) checked @endif>
+                                       name="acount_status" type="radio" @if ($method === 'edit' && $data->acount_status) checked @endif>
                             </label>
                         </div>
                     </div>
                 </x-b-form-group>
                 <x-b-form-group name="name" title="姓名" required="true">
                     <input class="form-control @error('name') is-invalid @enderror" name="name"
-                        value="{{ old('name', $data->name ?? '') }}" />
+                           value="{{ old('name', $data->name ?? '') }}" />
                 </x-b-form-group>
                 <x-b-form-group name="sex" title="性別">
                     <div class="px-1">
@@ -48,7 +48,7 @@
                                 <label class="form-check-label">
                                     {{$value}}
                                     <input class="form-check-input @error('sex') is-invalid @enderror" value="{{ $key }}"
-                                           name="sex" type="radio" @if ($key === $data->sex) checked @endif>
+                                           name="sex" type="radio" @if ($key === $data ? '' : $data->sex ?? '') checked @endif>
                                 </label>
                             </div>
                         @endforeach
@@ -57,22 +57,22 @@
                 <x-b-form-group name="email" title="帳號" required="true">
                     @if ($method === 'create')
                         <input class="form-control @error('email') is-invalid @enderror" name="email"
-                            value="{{ old('email', $data->email ?? '') }}" />
+                               value="{{ old('email', $data->email ?? '') }}" />
                     @else
                         <div class="col-form-label">{{ $data->email ?? '' }}</div>
                     @endif
                 </x-b-form-group>
                 <x-b-form-group name="password" title="密碼" required="{{ $method === 'create' ? 'true' : 'false' }}">
                     <input class="form-control @error('password') is-invalid @enderror" type="password" name="password"
-                        value="" />
+                           value="" />
                 </x-b-form-group>
                 <x-b-form-group name="password_confirmation" title="密碼確認">
                     <input class="form-control @error('password_confirmation') is-invalid @enderror" type="password"
-                        name="password_confirmation" value="" />
+                           name="password_confirmation" value="" />
                 </x-b-form-group>
                 <x-b-form-group name="phone" title="手機">
                     <input class="form-control @error('phone') is-invalid @enderror" name="phone"
-                        value="{{ old('phone', $data->phone ?? '') }}" />
+                           value="{{ old('phone', $data->phone ?? '') }}" />
                 </x-b-form-group>
 
                 <div calss="form-group">
@@ -81,7 +81,7 @@
                     </label>
                     <div class="input-group has-validation">
                         <select class="form-select @error('city_id') is-invalid @enderror" style="max-width:20%"
-                            id="city_id" name="city_id">
+                                id="city_id" name="city_id">
                             <option>請選擇</option>
                             @foreach ($citys as $city)
                                 <option value="{{ $city['city_id'] }}" @if (old('city_id', $data->city_id ?? '') == $city['city_id']) selected @endif>
@@ -89,33 +89,33 @@
                             @endforeach
                         </select>
                         <select class="form-select @error('region_id') is-invalid @enderror" style="max-width:20%"
-                            id="region_id" name="region_id">
+                                id="region_id" name="region_id">
                             <option>請選擇</option>
                             @foreach ($regions as $region)
                                 <option value="{{ $region['region_id'] }}"
-                                    @if (old('region_id', $data->region_id ?? '') == $region['region_id']) selected @endif>{{ $region['region_title'] }}
+                                        @if (old('region_id', $data->region_id ?? '') == $region['region_id']) selected @endif>{{ $region['region_title'] }}
                                 </option>
                             @endforeach
                         </select>
                         <input name="addr" type="text" class="form-control @error('addr') is-invalid @enderror"
-                            value="{{ old('addr', $data->addr ?? '') }}">
+                               value="{{ old('addr', $data->addr ?? '') }}">
                         <button class="btn btn-outline-success" type="button" id="format_btn">格式化</button>
                         <div class="invalid-feedback">
                             @error('city_id')
-                                {{ $message }}
+                            {{ $message }}
                             @enderror
                             @error('region_id')
-                                {{ $message }}
+                            {{ $message }}
                             @enderror
                             @error('addr')
-                                {{ $message }}
+                            {{ $message }}
                             @enderror
                         </div>
                     </div>
                 </div>
                 <x-b-form-group name="birthday" title="生日">
                     <input class="form-control @error('birthday') is-invalid @enderror" type="date" name="birthday"
-                        value="{{ old('birthday', $data->birthday ?? '') }}" />
+                           value="{{ old('birthday', $data->birthday ?? '') }}" />
                 </x-b-form-group>
 
                 <x-b-form-group name="newsletter" title="訂閱電子報">
@@ -125,7 +125,7 @@
                                 <label class="form-check-label">
                                     {{$value}}
                                     <input class="form-check-input @error('newsletter') is-invalid @enderror" value="{{ $key }}"
-                                           name="newsletter" type="radio" @if ($key === $data->newsletter) checked @endif>
+                                           name="newsletter" type="radio" @if ($key === $data ? '': $data->newsletter ?? '') checked @endif>
                                 </label>
                             </div>
                         @endforeach
@@ -136,7 +136,7 @@
                     <input type='hidden' name='id' value="{{ old('id', $id) }}" />
                 @endif
                 @error('id')
-                    <div class="alert alert-danger mt-3">{{ $message }}</div>
+                <div class="alert alert-danger mt-3">{{ $message }}</div>
                 @enderror
             </div>
         </div>
