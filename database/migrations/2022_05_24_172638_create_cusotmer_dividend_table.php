@@ -22,6 +22,7 @@ class CreateCusotmerDividendTable extends Migration
             $table->string('flag_title')->comment('行為title');
             $table->integer('weight')->comment('權重')->default(50); //
             $table->integer('points')->comment('點數'); //有期限 無期限
+            $table->integer('used_points')->default(0)->comment('以使用點數'); //有期限 無期限
             $table->tinyInteger('deadline')->default(1)->comment('是否有期限1有0沒有'); //有期限 無期限
 
             

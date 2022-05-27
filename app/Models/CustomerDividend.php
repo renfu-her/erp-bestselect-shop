@@ -104,10 +104,43 @@ class CustomerDividend extends Model
 
     public static function orderDiscount($customer_id, $order_id, $discount_point)
     {
+        DB::beginTransaction();
         $points = self::getPoints($customer_id)->get()->first()->points;
 
         if ($discount_point > $points) {
+            DB::rollBack();
             return;
+        }
+
+        $d = self::where('customer_id', $customer_id)
+            ->where('flag', DividendFlag::Active())
+            ->orderBy('weight', 'ASC')
+            ->get()->toArray();
+
+        $remain_points = $discount_point;
+        foreach ($d as $value) {
+            if ($remain_points > 0) {
+
+                $can_use_point = $value['points'] - $value['used_points'];
+
+                if ($remain_points < $value['points']) {
+                    $can_use_point = $remain_points;
+                }
+
+                $update_data = [];
+                $update_data['used_points'] = DB::raw("used_points + $can_use_point");
+
+                if ($value['points'] == $value['used_points'] + $can_use_point) {
+
+                    $update_data['flag'] = DividendFlag::Consume();
+                    $update_data['flag_title'] = DividendFlag::Consume()->description;
+                }
+
+                self::where('id', $value['id'])->update($update_data);
+                $remain_points -= $can_use_point;
+
+            }
+
         }
 
         $id = self::create([
@@ -119,10 +152,9 @@ class CustomerDividend extends Model
             'flag_title' => DividendFlag::Discount()->description,
             'weight' => 0,
         ])->id;
-
+        DB::commit();
         return $id;
     }
-
 
     public static function checkExpired($customer_id)
     {
@@ -137,8 +169,8 @@ class CustomerDividend extends Model
             ->where('customer_id', $customer_id)
             ->groupBy('customer_id')->get()->first();
 
-        if(!$exp){
-            return ;
+        if (!$exp) {
+            return;
         }
         $expPoint = $exp->points;
 
