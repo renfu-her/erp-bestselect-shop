@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
+use App\Enums\Order\PaymentStatus;
+use App\Enums\Order\OrderStatus;
 use App\Enums\Received\ReceivedMethod;
 
 use App\Models\FirstGrade;
@@ -17,9 +19,9 @@ use App\Models\AllGrade;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\GeneralLedger;
+use App\Models\OrderFlow;
 use App\Models\OrderItem;
 use App\Models\ReceivedOrder;
-use App\Models\ReceivedDefault;
 use App\Models\User;
 
 class AccountReceivedCtrl extends Controller
@@ -251,6 +253,9 @@ class AccountReceivedCtrl extends Controller
 
         if(! $received_order_collection->first()){
             ReceivedOrder::create_received_order($order_id);
+
+            OrderFlow::changeOrderStatus($order_id, OrderStatus::Unbalance());
+            Order::change_order_payment_status($order_id, PaymentStatus::Unbalance(), null);
         }
 
         $received_order_data = $received_order_collection->get();
@@ -427,7 +432,7 @@ class AccountReceivedCtrl extends Controller
             wToast(__('收款單儲存失敗'));
         }
 
-        if ($received_order_collection->sum('price') == DB::table('acc_received')->whereIn('received_order_id', $received_order_collection->pluck('id')->toArray())->sum('tw_price')) {
+        if (ReceivedOrder::find($received_order_id) && ReceivedOrder::find($received_order_id)->balance_date) {
             return redirect()->route('cms.order.detail', [
                 'id' => $data['id'],
             ]);
@@ -456,7 +461,7 @@ class AccountReceivedCtrl extends Controller
         ]);
 
         $received_order_data = $received_order_collection->get();
-        if (count($received_order_data) == 0 || $received_order_collection->sum('price') != DB::table('acc_received')->whereIn('received_order_id', $received_order_collection->pluck('id')->toArray())->sum('tw_price')) {
+        if (count($received_order_data) == 0 || !$received_order_collection->first()->balance_date) {
             return abort(404);
         }
 
@@ -522,7 +527,7 @@ class AccountReceivedCtrl extends Controller
         ]);
 
         $received_order_data = $received_order_collection->get();
-        if (count($received_order_data) == 0 || $received_order_collection->sum('price') != DB::table('acc_received')->whereIn('received_order_id', $received_order_collection->pluck('id')->toArray())->sum('tw_price')) {
+        if (count($received_order_data) == 0 || !$received_order_collection->first()->balance_date) {
             return abort(404);
         }
 

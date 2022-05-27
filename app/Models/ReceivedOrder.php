@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 use Illuminate\Support\Facades\DB;
 
+use App\Enums\Order\OrderStatus;
+use App\Enums\Order\PaymentStatus;
 use App\Enums\Received\ReceivedMethod;
 
 class ReceivedOrder extends Model
@@ -27,7 +29,7 @@ class ReceivedOrder extends Model
         $re = self::create([
             'order_id'=>$order_id,
             'usr_users_id'=>auth('user')->user() ? auth('user')->user()->id : null,
-            'sn'=>'MSG' . date('ymd') . str_pad( count(ReceivedOrder::whereDate('created_at', '=', date('Y-m-d'))->withTrashed()->get()) + 1, 3, '0', STR_PAD_LEFT),
+            'sn'=>'MSG' . date('ymd') . str_pad( count(self::whereDate('created_at', '=', date('Y-m-d'))->withTrashed()->get()) + 1, 3, '0', STR_PAD_LEFT),
             'price'=>$order_data->total_price,
             // 'tw_dollar'=>0,
             // 'rate'=>1,
@@ -51,7 +53,7 @@ class ReceivedOrder extends Model
         $note = isset($parm['note']) ? $parm['note'] : null;
 
         DB::table('acc_received')->insert([
-            'received_type'=>ReceivedOrder::class,
+            'received_type'=>self::class,
             'received_order_id'=>$received_order_id,
             'received_method'=>$received_method,
             'received_method_id'=>$received_method_id,
@@ -62,6 +64,17 @@ class ReceivedOrder extends Model
             'note'=>$note,
             'created_at'=>date("Y-m-d H:i:s"),
         ]);
+
+        $received_order = self::find($received_order_id);
+        $received_list = DB::table('acc_received')->whereIn('received_order_id', [$received_order_id])->get();
+        if ( count($received_list) > 0 && $received_order->price == $received_list->sum('tw_price')) {
+            $received_order->update([
+                'balance_date'=>date("Y-m-d H:i:s"),
+            ]);
+
+            OrderFlow::changeOrderStatus($received_order->order_id, OrderStatus::Paided());
+            Order::change_order_payment_status($received_order->order_id, PaymentStatus::Received(), ReceivedMethod::fromValue($received_method));
+        }
     }
 
 
