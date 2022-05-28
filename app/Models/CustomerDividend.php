@@ -14,7 +14,19 @@ class CustomerDividend extends Model
     protected $table = 'usr_cusotmer_dividend';
     protected $guarded = [];
 
-    public static function forOrder($customer_id, $category_sn, $point, $deadline = 1)
+    public static function getList($customer_id, $type = null)
+    {
+        $re = DB::table('usr_cusotmer_dividend as dividend')
+            ->orderBy('created_at', 'DESC');
+
+        if ($type) {
+            $re->where('type', $type);
+        }
+
+        return $re;
+    }
+
+    public static function fromOrder($customer_id, $order_id, $point, $deadline = 1)
     {
         if ($deadline == 1) {
             $weight = 0;
@@ -25,12 +37,13 @@ class CustomerDividend extends Model
         $id = self::create([
             'customer_id' => $customer_id,
             'category' => DividendCategory::Order(),
-            'category_sn' => $category_sn,
-            'points' => $point,
+            'category_sn' => $order_id,
+            'dividend' => $point,
             'deadline' => $deadline,
             'flag' => DividendFlag::NonActive(),
             'flag_title' => DividendFlag::NonActive()->description,
             'weight' => $weight,
+            'type' => 'get',
         ])->id;
 
         return $id;
@@ -76,11 +89,11 @@ class CustomerDividend extends Model
 
     }
 
-    public static function getPoints($customer_id)
+    public static function getDividend($customer_id)
     {
 
         return self::where('flag', "<>", DividendFlag::NonActive())
-            ->selectRaw("SUM(points) as points")
+            ->selectRaw("SUM(dividend) as dividend")
             ->groupBy('customer_id')
             ->where('customer_id', $customer_id);
 
@@ -93,10 +106,11 @@ class CustomerDividend extends Model
 
         $id = self::create([
             'customer_id' => $customer_id,
-            'points' => $point,
+            'dividend' => $point,
             'flag' => $flag,
             'flag_title' => $flag->description,
             'weight' => 0,
+            'type' => 'used',
         ])->id;
 
         return $id;
@@ -105,9 +119,9 @@ class CustomerDividend extends Model
     public static function orderDiscount($customer_id, $order_id, $discount_point)
     {
         DB::beginTransaction();
-        $points = self::getPoints($customer_id)->get()->first()->points;
+        $dividend = self::getDividend($customer_id)->get()->first()->dividend;
 
-        if ($discount_point > $points) {
+        if ($discount_point > $dividend) {
             DB::rollBack();
             return;
         }
@@ -117,27 +131,27 @@ class CustomerDividend extends Model
             ->orderBy('weight', 'ASC')
             ->get()->toArray();
 
-        $remain_points = $discount_point;
+        $remain_dividend = $discount_point;
         foreach ($d as $value) {
-            if ($remain_points > 0) {
+            if ($remain_dividend > 0) {
 
-                $can_use_point = $value['points'] - $value['used_points'];
+                $can_use_point = $value['dividend'] - $value['used_dividend'];
 
-                if ($remain_points < $value['points']) {
-                    $can_use_point = $remain_points;
+                if ($remain_dividend < $value['dividend']) {
+                    $can_use_point = $remain_dividend;
                 }
 
                 $update_data = [];
-                $update_data['used_points'] = DB::raw("used_points + $can_use_point");
+                $update_data['used_dividend'] = DB::raw("used_dividend + $can_use_point");
 
-                if ($value['points'] == $value['used_points'] + $can_use_point) {
+                if ($value['dividend'] == $value['used_dividend'] + $can_use_point) {
 
                     $update_data['flag'] = DividendFlag::Consume();
                     $update_data['flag_title'] = DividendFlag::Consume()->description;
                 }
 
                 self::where('id', $value['id'])->update($update_data);
-                $remain_points -= $can_use_point;
+                $remain_dividend -= $can_use_point;
 
             }
 
@@ -147,10 +161,11 @@ class CustomerDividend extends Model
             'customer_id' => $customer_id,
             'category' => DividendCategory::Order(),
             'category_sn' => $order_id,
-            'points' => $discount_point * -1,
+            'dividend' => $discount_point * -1,
             'flag' => DividendFlag::Discount(),
             'flag_title' => DividendFlag::Discount()->description,
             'weight' => 0,
+            'type' => 'used',
         ])->id;
         DB::commit();
         return $id;
@@ -164,7 +179,7 @@ class CustomerDividend extends Model
 
         $exp = self::where('active_edate', '<', DB::raw("NOW()"))
             ->where('flag', DividendFlag::Active())
-            ->selectRaw('SUM(points) as points')
+            ->selectRaw('SUM(dividend) as dividend')
             ->selectRaw($concatString . ' as dividends')
             ->where('customer_id', $customer_id)
             ->groupBy('customer_id')->get()->first();
@@ -172,15 +187,15 @@ class CustomerDividend extends Model
         if (!$exp) {
             return;
         }
-        $expPoint = $exp->points;
+        $expPoint = $exp->dividend;
 
         $exp->dividends = json_decode($exp->dividends);
 
         $canDescPoint = self::whereNotIn('flag', [DividendFlag::NonActive(), DividendFlag::Invalid()])
             ->where('deadline', '=', 1)
-            ->selectRaw('SUM(points) as points')
+            ->selectRaw('SUM(dividend) as dividend')
             ->where('customer_id', $customer_id)
-            ->groupBy('customer_id')->get()->first()->points;
+            ->groupBy('customer_id')->get()->first()->dividend;
 
         //   dd($canDescPoint, $expPoint);
 
