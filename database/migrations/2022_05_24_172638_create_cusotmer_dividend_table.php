@@ -41,6 +41,6 @@ class CreateCusotmerDividendTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('cusotmer_dividend');
+        Schema::dropIfExists('usr_cusotmer_dividend');
     }
 }
