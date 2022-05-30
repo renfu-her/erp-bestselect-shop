@@ -26,7 +26,8 @@
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">銷售通路</label>
-                        <select id="salechannel" class="form-select" name="salechannel_id">
+                        <input type="hidden" name="salechannel_id">
+                        <select id="salechannel" class="form-select">
                             @foreach ($salechannels as $salechannel)
                                 <option value="{{ $salechannel->id }}">
                                     {{ $salechannel->title }}</option>
@@ -534,6 +535,7 @@
             // 儲存前設定name
             $('#form1').submit(function(e) {
                 $('input:hidden[name="customer_id"]').val($('#customer').val());
+                $('input:hidden[name="salechannel_id"]').val($('#salechannel').val());
                 $('input:hidden[name$="_address"]').val(function() {
                     const prefix_ = $(this).attr('name').replace('address', '');
                     const city = $(`select[name="${prefix_}city_id"] option:selected`).text().trim();
