@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Cms\Commodity;
 
+use App\Enums\Discount\DividendCategory;
 use App\Enums\Order\UserAddrType;
 use App\Http\Controllers\Controller;
 use App\Models\Addr;
 use App\Models\Customer;
+use App\Models\CustomerDividend;
 use App\Models\Discount;
 use App\Models\Order;
 use App\Models\OrderCart;
@@ -181,6 +183,7 @@ class OrderCtrl extends Controller
             'product_style_id' => 'required|array',
             'shipment_type' => 'required|array',
             'shipment_event_id' => 'required|array',
+            'salechannel_id' => 'required',
         ], $arrVali));
 
         $d = $request->all();
@@ -219,7 +222,7 @@ class OrderCtrl extends Controller
             $coupon = [$d['coupon_type'], $d['coupon_sn']];
         }
 
-        $re = Order::createOrder($customer->email, 1, $address, $items, $d['note'], $coupon);
+        $re = Order::createOrder($customer->email, $d['salechannel_id'], $address, $items, $d['note'], $coupon);
         if ($re['success'] == '1') {
             wToast('訂單新增成功');
             return redirect(route('cms.order.detail', [
@@ -306,6 +309,14 @@ class OrderCtrl extends Controller
             $receivable = true;
         }
 
+        $dividend = CustomerDividend::where('category', DividendCategory::Order())
+            ->where('category_sn', $order->sn)->get()->first();
+        if ($dividend) {
+            $dividend = $dividend->dividend;
+        } else {
+            $dividend = 0;
+        }
+        
         return view('cms.commodity.order.detail', [
             'sn' => $sn,
             'order' => $order,
@@ -315,6 +326,7 @@ class OrderCtrl extends Controller
             'discounts' => Discount::orderDiscountList('main', $id)->get()->toArray(),
             'receivable' => $receivable,
             'received_order_data' => $received_order_collection->first(),
+            'dividend' => $dividend,
         ]);
     }
 
