@@ -10,4 +10,8 @@ Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
     Route::get('detail/{id}/{subOrderId?}', [OrderCtrl::class, 'detail'])->name('detail')->middleware('permission:cms.order.detail');
     Route::post('detail/{id}', [OrderCtrl::class, 'update']);
     Route::get('delete/{id}', [OrderCtrl::class, 'destroy'])->name('delete')->middleware('permission:cms.order.delete');
+
+    Route::get('inbound/{subOrderId}', [OrderCtrl::class, 'inbound'])->name('inbound')->middleware('permission:cms.order.index');
+    Route::post('store_inbound/{id}', [OrderCtrl::class, 'storeInbound'])->name('store_inbound');
+    Route::get('delete_inbound/{id}', [OrderCtrl::class, 'deleteInbound'])->name('delete_inbound')->middleware('permission:cms.order.create');
 });

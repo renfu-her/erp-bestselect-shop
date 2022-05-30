@@ -80,6 +80,9 @@ class PurchaseInbound extends Model
             } else if ($event == Event::consignment()->value) {
                 // 個別紀錄入庫單到達數
                 $rePcsItemUAN = ReceiveDepot::updateCSNArrivedNum($event_item_id, $inbound_num);
+            } else if ($event == Event::ord_pickup()->value) {
+                // 個別紀錄入庫單到達數
+                $rePcsItemUAN = ReceiveDepot::updateCSNArrivedNum($event_item_id, $inbound_num);
             }
             if ($rePcsItemUAN['success'] == 0) {
                 DB::rollBack();
@@ -107,6 +110,19 @@ class PurchaseInbound extends Model
     //取消入庫 刪除資料
     public static function delInbound($id, $user_id)
     {
+        $inboundData = PurchaseInbound::where('id', '=', $id);
+        $inboundDataGet = $inboundData->get()->first();
+        $purchase_id = '';
+        if (null != $inboundDataGet) {
+            $purchase_id = $inboundDataGet->event_id;
+            if (0 < $inboundDataGet->sale_num) {
+                return ['success' => 0, 'error_msg' => '已有售出紀錄 無法刪除'];
+            } else if (0 < $inboundDataGet->csn_num) {
+                return ['success' => 0, 'error_msg' => '已有寄倉紀錄 無法刪除'];
+            } else if (0 < $inboundDataGet->consume_num) {
+                return ['success' => 0, 'error_msg' => '已有耗材紀錄 無法刪除'];
+            }
+        }
         return DB::transaction(function () use (
             $id,
             $user_id
@@ -119,27 +135,26 @@ class PurchaseInbound extends Model
                 //刪除
                 //判斷是否已結單 有則不能刪
                 $purchaseData = null;
+                $main_table = '';
                 if ($event == Event::purchase()->value) {
-                    $purchaseData = DB::table('pcs_purchase as purchase')
-                        ->leftJoin('pcs_purchase_inbound as inbound', 'inbound.event_id', '=', 'purchase.id')
-                        ->select('purchase.id as id', 'purchase.close_date as close_date')
-                        ->where('purchase.id', '=', $inboundDataGet->event_id)
-                        ->where('inbound.event', '=', $event)
-                        ->get()->first();
-                    if (null != $purchaseData && null != $purchaseData->close_date) {
-                        return ['success' => 0, 'error_msg' => 'purchase already close, so cant be delete'];
-                    }
+                    $main_table = 'pcs_purchase';
                 } else if ($event == Event::consignment()->value) {
-                    $purchaseData = DB::table('csn_consignment as consignment')
-                        ->leftJoin('pcs_purchase_inbound as inbound', 'inbound.event_id', '=', 'consignment.id')
-                        ->select('consignment.id as id', 'consignment.close_date as close_date')
-                        ->where('consignment.id', '=', $inboundDataGet->event_id)
+                    $main_table = 'csn_consignment';
+                } else if ($event == Event::ord_pickup()->value) {
+                    $main_table = 'ord_sub_orders';
+                }
+                if (false == empty($main_table)) {
+                    $purchaseData = DB::table($main_table. ' as main_tb')
+                        ->leftJoin('pcs_purchase_inbound as inbound', 'inbound.event_id', '=', 'purchase.id')
+                        ->select('main_tb.id as id', 'main_tb.close_date as close_date')
+                        ->where('main_tb.id', '=', $inboundDataGet->event_id)
                         ->where('inbound.event', '=', $event)
                         ->get()->first();
                     if (null != $purchaseData && null != $purchaseData->close_date) {
-                        return ['success' => 0, 'error_msg' => 'consignment already close, so cant be delete'];
+                        return ['success' => 0, 'error_msg' => '已結案 不可刪除'];
                     }
                 }
+
                 //判斷是否有賣出過 有則不能刪
                 //寫入ProductStock
                 if (is_numeric($inboundDataGet->sale_num) && 0 < $inboundDataGet->sale_num) {
@@ -156,6 +171,8 @@ class PurchaseInbound extends Model
                         $rePcsItemUAN = PurchaseItem::updateArrivedNum($inboundDataGet->event_item_id, $qty, $can_tally);
                     } else if ($event == Event::consignment()->value) {
                         // 個別紀錄入庫單到達數
+                        $rePcsItemUAN = ReceiveDepot::updateCSNArrivedNum($inboundDataGet->event_item_id, $qty);
+                    } else if ($event == Event::ord_pickup()->value) {
                         $rePcsItemUAN = ReceiveDepot::updateCSNArrivedNum($inboundDataGet->event_item_id, $qty);
                     }
 
@@ -336,6 +353,9 @@ class PurchaseInbound extends Model
         $tempInboundSql->groupBy('inbound.product_style_id');
 
         $queryTotalInboundNum = '( COALESCE(sum(items.num), 0) - COALESCE((inbound.inbound_num), 0) )'; //應進數量
+        if (Event::ord_pickup()->value == $event) {
+            $queryTotalInboundNum = '( COALESCE(sum(items.qty), 0) - COALESCE((inbound.inbound_num), 0) )'; //應進數量
+        }
 
         $result = null;
         if (Event::purchase()->value == $event) {
@@ -429,6 +449,56 @@ class PurchaseInbound extends Model
                 ->orderBy('items.product_style_id');
             if ($event_id) {
                 $result->where('consignment.id', $event_id);
+            }
+        } else if (Event::ord_pickup()->value == $event) {
+            $result = DB::table('ord_sub_orders as sub_order')
+                ->leftJoin('ord_items as items', function ($join) {
+                    $join->on('items.sub_order_id', '=', 'sub_order.id')
+                        ->on('items.order_id', '=', 'sub_order.order_id');
+                })
+                ->leftJoinSub($tempInboundSql, 'inbound', function($join) {
+                    $join->on('inbound.event_id', '=', 'items.sub_order_id');
+                    $join->on('inbound.product_style_id', '=', 'items.product_style_id');
+                })
+
+                ->leftJoin('prd_product_styles as styles', 'styles.id', '=', 'items.product_style_id')
+                ->leftJoin('prd_products as products', 'products.id', '=', 'styles.product_id')
+                ->leftJoin('usr_users as users', 'users.id', '=', 'products.user_id')
+                ->select('sub_order.id as sub_order_id' //採購ID
+                    , 'items.product_style_id as product_style_id' //商品款式ID
+                    , 'products.title as product_title' //商品名稱
+                    , 'styles.title as style_title' //款式名稱
+                    , 'users.name as user_name' //商品負責人
+                    , 'inbound.inbound_user_name as inbound_user_name' //入庫人員
+                    , 'inbound.prd_type as prd_type'
+                )
+                ->selectRaw('min(items.sku) as sku') //款式SKU
+                ->selectRaw('sum(items.qty) as num') //採購數量
+                ->selectRaw('(inbound.inbound_num) as inbound_num') //已到數量
+                ->selectRaw($queryTotalInboundNum.' AS should_enter_num') //應進數量
+
+                ->selectRaw('(case
+                    when '. $queryTotalInboundNum. ' = 0 and COALESCE(inbound.inbound_num, 0) <> 0 then "'.InboundStatus::getDescription(InboundStatus::normal()->value).'"
+                    when COALESCE(inbound.inbound_num, 0) = 0 then "'.InboundStatus::getDescription(InboundStatus::not_yet()->value).'"
+                    when COALESCE(sum(items.qty), 0) < COALESCE(inbound.inbound_num) then "'.InboundStatus::getDescription(InboundStatus::overflow()->value).'"
+                    when COALESCE(sum(items.qty), 0) > COALESCE(inbound.inbound_num) then "'.InboundStatus::getDescription(InboundStatus::shortage()->value).'"
+                end) as inbound_type') //採購狀態
+//                ->whereNull('consignment.deleted_at')
+//                ->whereNull('items.deleted_at')
+//                ->where('consignment.id', '=', $event_id)
+                ->groupBy('sub_order.id'
+                    , 'items.product_style_id'
+                    , 'products.title'
+                    , 'styles.title'
+                    , 'users.name'
+                    , 'inbound.inbound_num'
+                    , 'inbound.inbound_user_name'
+                    , 'inbound.prd_type'
+                )
+                ->orderBy('sub_order.id')
+                ->orderBy('items.product_style_id');
+            if ($event_id) {
+                $result->where('sub_order.id', $event_id);
             }
         }
         return $result;
@@ -759,9 +829,9 @@ class PurchaseInbound extends Model
     }
 
     //取得寄倉商品款式現有數量
-    public static function getCsnExistInboundProductStyleList() {
+    public static function getCsnExistInboundProductStyleList($event) {
         $queryInbound = DB::table('pcs_purchase_inbound as inbound')
-            ->where('inbound.event', Event::consignment()->value)
+            ->where('inbound.event', $event)
             ->select(
                 'inbound.product_style_id as product_style_id'
                 , 'inbound.depot_id as depot_id'  //入庫倉庫ID

@@ -462,20 +462,14 @@ class ConsignmentCtrl extends Controller
         $purchase_id = '';
         if (null != $inboundDataGet) {
             $purchase_id = $inboundDataGet->event_id;
-            if (0 < $inboundDataGet->sale_num) {
-                wToast('已有售出紀錄 無法刪除');
-            } else if (0 < $inboundDataGet->csn_num) {
-                wToast('已有寄倉紀錄 無法刪除');
-            } else if (0 < $inboundDataGet->consume_num) {
-                wToast('已有耗材紀錄 無法刪除');
-            } else {
-                $re = PurchaseInbound::delInbound($id, $request->user()->id);
-                if ($re['success'] == 0) {
-                    wToast($re['error_msg']);
-                } else {
-                    wToast(__('Delete finished.'));
-                }
-            }
+        } else {
+            return abort(404);
+        }
+        $re = PurchaseInbound::delInbound($id, $request->user()->id);
+        if ($re['success'] == 0) {
+            wToast($re['error_msg']);
+        } else {
+            wToast(__('Delete finished.'));
         }
         return redirect(Route('cms.consignment.inbound', [
             'id' => $purchase_id,

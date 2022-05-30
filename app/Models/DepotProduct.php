@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Delivery\Event;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -142,7 +143,7 @@ class DepotProduct extends Model
     }
 
     public static function ProductCsnExistInboundList($depot_id, $type = null) {
-        $queryInbound = PurchaseInbound::getCsnExistInboundProductStyleList();
+        $queryInbound = PurchaseInbound::getCsnExistInboundProductStyleList(Event::consignment()->value);
 
         $queryDepotProduct = DB::query()->fromSub(DepotProduct::product_list(), 'prd_list')
             ->leftJoinSub($queryInbound, 'inbound', function($join) {
