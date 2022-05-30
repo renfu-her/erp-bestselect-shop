@@ -28,12 +28,13 @@ class CustomerDividend extends Model
 
     public static function fromOrder($customer_id, $order_id, $point, $deadline = 1)
     {
+        /*
         if ($deadline == 1) {
-            $weight = 0;
+        $weight = 0;
         } else {
-            $weight = 999;
+        $weight = 999;
         }
-
+         */
         $id = self::create([
             'customer_id' => $customer_id,
             'category' => DividendCategory::Order(),
@@ -42,7 +43,7 @@ class CustomerDividend extends Model
             'deadline' => $deadline,
             'flag' => DividendFlag::NonActive(),
             'flag_title' => DividendFlag::NonActive()->description,
-            'weight' => $weight,
+            'weight' => 0,
             'type' => 'get',
         ])->id;
 
@@ -55,15 +56,20 @@ class CustomerDividend extends Model
             ->where('category_sn', $category_sn)
             ->where('flag', DividendFlag::NonActive())->get()->first();
 
+        $dividendSetting = DividendSetting::getData();
+
         if (!$dividend) {
             return;
         }
-
-        $deadline = $dividend->deadline;
+        if ($dividendSetting->limit_day == 0) {
+            $deadline = 0;
+        } else {
+            $deadline = 1;
+        }
 
         if ($deadline == 1) {
             $sdate = now();
-            $edate = date('Y-m-d 23:59:59', strtotime(now() . ' + 180 days'));
+            $edate = date('Y-m-d 23:59:59', strtotime(now() . " + $dividendSetting->limit_day days"));
 
         } else {
             $sdate = now();
@@ -88,6 +94,11 @@ class CustomerDividend extends Model
                 ]
             );
 
+        if (DividendCategory::Order() == $category && $category_sn) {
+            Order::where('sn', $category_sn)->update([
+                'allotted_dividend' => 1,
+            ]);
+        }
     }
 
     public static function getDividend($customer_id)

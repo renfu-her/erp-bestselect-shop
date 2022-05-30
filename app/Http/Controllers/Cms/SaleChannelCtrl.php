@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Cms;
 
 use App\Http\Controllers\Controller;
+use App\Models\DividendSetting;
 use App\Models\SaleChannel;
 use Illuminate\Http\Request;
 
@@ -13,9 +14,11 @@ class SaleChannelCtrl extends Controller
     {
         $query = $request->query();
         $dataList = SaleChannel::saleList()->orderBy('is_master', 'DESC')->paginate(10)->appends($query);
+
         // dd(SaleChannel::saleList()->get()->toArray());
         return view('cms.settings.sale_channel.list', [
             'dataList' => $dataList,
+            'dividend_setting' => DividendSetting::getData(),
         ]);
     }
 
@@ -133,5 +136,20 @@ class SaleChannelCtrl extends Controller
         wToast(__('Edit finished.'));
         return redirect(Route('cms.sale_channel.index'));
 
+    }
+
+    public function updateDividendSetting(Request $request)
+    {
+        $request->validate([
+            'limit_day' => 'required|numeric',
+            'auto_active_day' => 'required|numeric',
+        ]);
+
+        $d = $request->all();
+        
+        DividendSetting::updateSetting($d['limit_day'], $d['auto_active_day']);
+
+        wToast('修改完成');
+        return redirect(Route('cms.sale_channel.index'));
     }
 }

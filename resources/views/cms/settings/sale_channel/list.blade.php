@@ -81,13 +81,14 @@
     
     <div class="card shadow p-4 mb-4">
         <h6>紅利點數設定</h6>
-        <form action="" method="post">
+        <form action="{{ route('cms.sale_channel.update-dividend-setting') }}" method="post">
+            @csrf
             <div class="row g-1 align-items-center mb-4">
                 <div class="col-auto">
                     <label class="col-form-label">每筆紅利有效天數：</label>
                 </div>
                 <div class="col-auto">
-                    <input type="number" name="" value="0" class="form-control short-input text-center" aria-describedby="紅利有效天數">
+                    <input type="number" name="limit_day" value="{{ $dividend_setting->limit_day }}" class="form-control short-input text-center" aria-describedby="紅利有效天數">
                 </div>
                 <div class="col-auto">
                     <label class="col-form-label">天</label>
@@ -103,7 +104,7 @@
                     </label>
                 </div>
                 <div class="col-auto">
-                    <input type="number" name="" value="15" class="form-control short-input text-center" aria-describedby="自動發放紅利天數">
+                    <input type="number" name="auto_active_day" value="{{ $dividend_setting->auto_active_day }}" class="form-control short-input text-center" aria-describedby="自動發放紅利天數">
                 </div>
                 <div class="col-auto">
                     <label class="col-form-label">天</label>

@@ -14,6 +14,7 @@ class DividendSetting extends Model
 
     public static function updateSetting($limit_day, $auto_active_day)
     {
+
         $re = self::get()->toArray();
         if (count($re) == 0) {
             self::create([
@@ -21,10 +22,15 @@ class DividendSetting extends Model
                 'auto_active_day' => $auto_active_day,
             ]);
         } else {
-            self::update([
+            self::where('id', 1)->update([
                 'limit_day' => $limit_day,
                 'auto_active_day' => $auto_active_day,
             ]);
         }
+    }
+
+    public static function getData()
+    {
+        return self::get()->first();
     }
 }

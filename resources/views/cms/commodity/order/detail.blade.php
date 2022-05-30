@@ -340,7 +340,7 @@
                                 <td>${{ number_format($order->discounted_price) }}</td>
                                 <td>${{ number_format($order->dlv_fee) }}</td>
                                 <td class="fw-bold">${{ number_format($order->total_price) }}</td>
-                                <td>{{ number_format($dividend) }} <span class="badge bg-secondary">未發</span></td>
+                                <td>{{ number_format($dividend) }} <span class="badge bg-secondary">未發{{ $order->allotted_dividend }}</span></td>
                             </tr>
                         </tbody>
                     </table>
@@ -369,7 +369,7 @@
                             <tr>
                                 <td class="col-7 table-light lh-sm">預計獲得<a href="#" class="-text">紅利積點</a></td>
                                 <td class="text-end pe-4">
-                                    <span class="badge bg-secondary">未發</span> {{ number_format($dividend) }}
+                                    <span class="badge bg-secondary">未發{{ $order->allotted_dividend }}</span> {{ number_format($dividend) }}
                                 </td>
                             </tr>
                         </tbody>
