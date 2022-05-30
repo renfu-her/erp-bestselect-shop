@@ -140,6 +140,25 @@
             </div>
         </div>
 
+        <div class="card mb-4">
+            <div class="card-body">
+                <h6>消費記錄</h6>
+                <dl class="row">
+                    <div class="col">
+                        <dt>剩餘紅利點數</dt>
+                        <dd>{{ number_format($data->bonus ?? '') }}</dd>
+                    </div>
+                    <div class="col">
+                        <dt>下單次數</dt>
+                        <dd>{{ number_format($data->order_counts ?? '') }}</dd>
+                    </div>
+                    <div class="col-sm-5">
+                        <dt>消費總額</dt>
+                        <dd>{{ number_format($data->total_spending ?? '') }}</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
         <div class="d-flex justify-content-end">
             @if (isset($bind))
                 <input type="hidden" name="bind" value="{{ $bind }}">

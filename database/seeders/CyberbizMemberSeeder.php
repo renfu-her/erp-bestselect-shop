@@ -20,8 +20,11 @@ class CyberbizMemberSeeder extends Seeder
     const COUPON = 8;
     const PHONE = 11;
     const ADDRESS = 14;
+    const ORDER_COUNTS = 15;
+    const TOTAL_SPENDING = 16;
     const CREATED_AT = 17;
     const ACCOUNT_STATUS = 20;
+    const LATEST_ORDER = 22;
 
     /**
      * 匯入Cyberbiz會員
@@ -86,6 +89,10 @@ class CyberbizMemberSeeder extends Seeder
                             'region_id' => $region_id,
                             'addr' => $addressName,
                             'created_at' => $memberData[self::CREATED_AT],
+                            'bonus' => $memberData[self::COUPON],
+                            'order_counts' => $memberData[self::ORDER_COUNTS],
+                            'total_spending' => $memberData[self::TOTAL_SPENDING],
+                            'latest_order' => $memberData[self::LATEST_ORDER] === 'nan' ? null : $memberData[self::LATEST_ORDER],
                         ]);
                 } else {
                     Customer::createCustomer(

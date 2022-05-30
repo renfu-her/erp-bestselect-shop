@@ -140,6 +140,9 @@ class Customer extends Authenticatable
                 , 'acount_status'
                 , 'password'
                 , 'api_token'
+                , 'bonus'
+                , 'order_counts'
+                , 'total_spending'
                 , 'remember_token')
             ->selectRaw('DATE_FORMAT(birthday,"%Y-%m-%d") as birthday')
             ->selectRaw('DATE_FORMAT(created_at,"%Y-%m-%d") as created_at')
