@@ -9,7 +9,6 @@
     <form method="post" action="{{ $formAction }}">
         @method('POST')
         @csrf
-
         <div class="card mb-4">
             <div class="card-header">
                 @if ($method === 'create')
@@ -48,7 +47,7 @@
                                 <label class="form-check-label">
                                     {{$value}}
                                     <input class="form-check-input @error('sex') is-invalid @enderror" value="{{ $key }}"
-                                           name="sex" type="radio" @if ($key === $data ? '' : $data->sex ?? '') checked @endif>
+                                           name="sex" type="radio" @if ($key === $data->sex) checked @endif>
                                 </label>
                             </div>
                         @endforeach
