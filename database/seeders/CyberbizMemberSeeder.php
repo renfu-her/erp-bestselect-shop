@@ -21,7 +21,7 @@ class CyberbizMemberSeeder extends Seeder
     const PHONE = 11;
     const ADDRESS = 14;
     const CREATED_AT = 17;
-    const ACCOUNT_STATUS = 21;
+    const ACCOUNT_STATUS = 20;
 
     /**
      * 匯入Cyberbiz會員
