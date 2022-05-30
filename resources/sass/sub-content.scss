@@ -43,10 +43,10 @@ div.card h6:not(:first-child) {
 }
 th > input.form-check-input[type=checkbox]:checked,
 td > input.form-check-input[type=checkbox]:checked,
-:not(.form-switch) > input.form-check-input[type=checkbox]:checked,
-:not(.form-switch) > input.form-check-input[type=checkbox]:indeterminate,
-:not(.form-switch) > label input.form-check-input[type=checkbox]:checked,
-:not(.form-switch) > label input.form-check-input[type=checkbox]:indeterminate {
+div:not(.form-switch) > input.form-check-input[type=checkbox]:checked,
+div:not(.form-switch) > input.form-check-input[type=checkbox]:indeterminate,
+div:not(.form-switch) > label > input.form-check-input[type=checkbox]:checked,
+div:not(.form-switch) > label > input.form-check-input[type=checkbox]:indeterminate {
   background-position: center;
   background-size: 140%;
 }

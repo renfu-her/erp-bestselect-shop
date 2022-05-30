@@ -319,9 +319,18 @@
                         </table>
                     </div>
                 @endif
-                <div class="d-flex align-items-center mb-4 mt-3">
-                    <h6 class="flex-grow-1 mb-0">訂單總覽</h6>
-                </div>
+                <form action="" method="post">
+                    <div class="d-flex align-items-center mb-4 mt-3">
+                        <h6 class="flex-grow-1 mb-0">訂單總覽</h6>
+                        <div class="form-check form-check-inline form-switch form-switch-lg">
+                            <label class="form-check-label">
+                                <input class="form-check-input -auto-send" type="checkbox" name="" value="" checked>
+                                紅利自動發放
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-success -in-header -auto-send" disabled>發放紅利</button>
+                    </div>
+                </form>
                 
                 <div class="table-responsive">
                     <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
@@ -340,7 +349,13 @@
                                 <td>${{ number_format($order->discounted_price) }}</td>
                                 <td>${{ number_format($order->dlv_fee) }}</td>
                                 <td class="fw-bold">${{ number_format($order->total_price) }}</td>
-                                <td>{{ number_format($dividend) }} <span class="badge bg-secondary">未發{{ $order->allotted_dividend }}</span></td>
+                                <td>{{ number_format($dividend) }}
+                                    @if ($order->allotted_dividend)
+                                        <span class="badge bg-success">已發</span>
+                                    @else
+                                        <span class="badge bg-secondary">未發</span>
+                                    @endif
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -369,7 +384,12 @@
                             <tr>
                                 <td class="col-7 table-light lh-sm">預計獲得<a href="#" class="-text">紅利積點</a></td>
                                 <td class="text-end pe-4">
-                                    <span class="badge bg-secondary">未發{{ $order->allotted_dividend }}</span> {{ number_format($dividend) }}
+                                    @if ($order->allotted_dividend)
+                                        <span class="badge bg-success">已發</span>
+                                    @else
+                                        <span class="badge bg-secondary">未發</span>
+                                    @endif
+                                    {{ number_format($dividend) }}
                                 </td>
                             </tr>
                         </tbody>
@@ -402,5 +422,31 @@
         </style>
     @endpush
     @push('sub-scripts')
+        <script>
+            setAutoSend($('input.-auto-send').prop('checked'));
+            $('input.-auto-send').off('change.auto').on('change.auto', function () {
+                const $switch = $(this);
+                const active = $switch.prop('checked');
+                
+                // API
+                axios.post('url', {})
+                    .then((result) => {
+                        console.log(result.data);
+                        setAutoSend(active);
+                        if (active) {
+                            toast.show('紅利改為自動發放');
+                        } else {
+                            toast.show('紅利改為手動發放', { type: 'warning' });
+                        }
+                    }).catch((err) => {
+                        console.error(err);
+                        toast.show('發生錯誤', { type: 'danger' });
+                    });
+            });
+
+            function setAutoSend(auto) {
+                $('.btn.-auto-send').prop('disabled', auto);
+            }
+        </script>
     @endpush
 @endonce
