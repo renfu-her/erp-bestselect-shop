@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Delivery\Event;
+use App\Enums\Discount\DividendCategory;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Order\PaymentStatus;
 use App\Enums\Order\UserAddrType;
@@ -237,7 +238,7 @@ class Order extends Model
 
             $customer = Customer::where('email', $email)->get()->first();
             $order = OrderCart::cartFormater($items, $sale_channel_id, $coupon_obj, true, $customer);
-            
+
             if ($order['success'] != 1) {
                 DB::rollBack();
                 return $order;
@@ -373,6 +374,9 @@ class Order extends Model
 
             OrderFlow::changeOrderStatus($order_id, OrderStatus::Add());
 
+            CustomerDividend::fromOrder($customer->id, $order_sn, $order['get_dividend']);
+            CustomerDividend::activeDividend(DividendCategory::Order(), $order_sn);
+            
             return ['success' => '1', 'order_id' => $order_id];
         });
 

@@ -49,9 +49,10 @@ class CustomerDividend extends Model
         return $id;
     }
 
-    public static function activeDividend($dividend_id, $expired = 0)
+    public static function activeDividend(DividendCategory $category, $category_sn, $expired = 0)
     {
-        $dividend = self::where('id', $dividend_id)
+        $dividend = self::where('category', $category)
+            ->where('category_sn', $category_sn)
             ->where('flag', DividendFlag::NonActive())->get()->first();
 
         if (!$dividend) {
@@ -76,7 +77,7 @@ class CustomerDividend extends Model
 
         //   print_r($sdate);
 
-        self::where('id', $dividend_id)
+        self::where('id', $dividend->id)
             ->where('flag', DividendFlag::NonActive())
             ->update(
                 [
