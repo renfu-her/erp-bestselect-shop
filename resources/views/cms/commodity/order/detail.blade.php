@@ -423,25 +423,30 @@
     @endpush
     @push('sub-scripts')
         <script>
+            const changeAutoUrl = @json(route('api.cms.order.change-auto-dividend'));
+            const order_id = @json($order->id);
+
             setAutoSend($('input.-auto-send').prop('checked'));
             $('input.-auto-send').off('change.auto').on('change.auto', function () {
                 const $switch = $(this);
                 const active = $switch.prop('checked');
                 
                 // API
-                axios.post('url', {})
-                    .then((result) => {
-                        console.log(result.data);
-                        setAutoSend(active);
-                        if (active) {
-                            toast.show('紅利改為自動發放');
-                        } else {
-                            toast.show('紅利改為手動發放', { type: 'warning' });
-                        }
-                    }).catch((err) => {
-                        console.error(err);
-                        toast.show('發生錯誤', { type: 'danger' });
-                    });
+                axios.post(changeAutoUrl, {
+                    order_id: order_id,
+                    auto_dividend: active ? 1 : 0
+                }).then((result) => {
+                    console.log(result.data);
+                    setAutoSend(active);
+                    if (active) {
+                        toast.show('紅利改為自動發放');
+                    } else {
+                        toast.show('紅利改為手動發放', { type: 'warning' });
+                    }
+                }).catch((err) => {
+                    console.error(err);
+                    toast.show('發生錯誤', { type: 'danger' });
+                });
             });
 
             function setAutoSend(auto) {
