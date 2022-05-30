@@ -324,11 +324,14 @@
                         <h6 class="flex-grow-1 mb-0">訂單總覽</h6>
                         <div class="form-check form-check-inline form-switch form-switch-lg">
                             <label class="form-check-label">
-                                <input class="form-check-input -auto-send" type="checkbox" name="" value="" checked>
+                                <input class="form-check-input -auto-send" type="checkbox" name="" value="" checked
+                                @if ($order->allotted_dividend) disabled @endif>
                                 紅利自動發放
                             </label>
                         </div>
-                        <button type="submit" class="btn btn-sm btn-success -in-header -auto-send" disabled>發放紅利</button>
+                        @if ($order->allotted_dividend === 0)
+                            <button type="submit" class="btn btn-sm btn-success -in-header -auto-send" disabled>發放紅利</button>
+                        @endif
                     </div>
                 </form>
                 
