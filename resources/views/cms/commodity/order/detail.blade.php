@@ -2,18 +2,20 @@
 @section('sub-content')
     <h2 class="mb-3">#{{ $sn }} 訂單明細</h2>
     @php
-        $receivedId = false;
-        $route = $receivedId ? 'show' : 'create';
+    $receivedId = false;
+    $route = $receivedId ? 'show' : 'create';
     @endphp
 
-    @if(!$receivable)
-        <a href="{{ Route('cms.ar.' . $route, ['id'=>$order->id]) }}" class="btn btn-danger" role="button">{{ !$receivedId ? '新增' : '' }}收款單（暫放）</a>
+    @if (!$receivable)
+        <a href="{{ Route('cms.ar.' . $route, ['id' => $order->id]) }}" class="btn btn-danger"
+            role="button">{{ !$receivedId ? '新增' : '' }}收款單（暫放）</a>
     @endif
 
-    @if($order->status == '已付款')
-    <button type="button" class="btn btn-primary" disabled>線上刷卡連結</button>
+    @if ($order->status == '已付款')
+        <button type="button" class="btn btn-primary" disabled>線上刷卡連結</button>
     @else
-    <a href="{{ Route('api.web.order.payment_credit_card', ['id'=>$order->id, 'unique_id'=>$order->unique_id]) }}" class="btn btn-primary" role="button" target="_blank">線上刷卡連結</a>
+        <a href="{{ Route('api.web.order.payment_credit_card', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
+            class="btn btn-primary" role="button" target="_blank">線上刷卡連結</a>
     @endif
 
     <form id="form1" method="post" action="">
@@ -52,10 +54,11 @@
                 <div class="col-sm-5">
                     <dt>收款單號</dt>
                     <dd>
-                        @if($receivable)
-                        <a href="{{ route('cms.ar.receipt', ['id'=>$order->id]) }}" class="-text">{{ $received_order_data ? $received_order_data->sn : '' }}</a>
+                        @if ($receivable)
+                            <a href="{{ route('cms.ar.receipt', ['id' => $order->id]) }}"
+                                class="-text">{{ $received_order_data ? $received_order_data->sn : '' }}</a>
                         @else
-                        <span>尚未完成收款</span>
+                            <span>尚未完成收款</span>
                         @endif
                     </dd>
                 </div>
@@ -125,7 +128,7 @@
                     <dt>訂單備註</dt>
                     <dd>{{ $order->note }}</dd>
                 </div>
-                <div class="col-5" >
+                <div class="col-5">
                     <dt>付款狀態</dt>
                     <dd>{{ $order->payment_status_title }}</dd>
                 </div>
@@ -153,14 +156,17 @@
                 <div class="card-header px-4 d-flex align-items-center bg-white flex-wrap justify-content-end">
                     <strong class="flex-grow-1 mb-0">{{ $subOrder->ship_event }}</strong>
                     <span class="badge -badge fs-6">{{ $subOrder->ship_category_name }}</span>
-                    @if(true == isset($subOrderId))
-                    <div class="col-12 d-flex justify-content-end mt-2">
-                        <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">配送狀態</a>
-                        <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">物流設定</a>
-                        <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">出貨審核</a>
-                        <button type="button" class="btn btn-sm btn-primary -in-header">列印銷貨單</button>
-                        <button type="button" class="btn btn-sm btn-primary -in-header">列印出貨單</button>
-                    </div>
+                    @if (true == isset($subOrderId))
+                        <div class="col-12 d-flex justify-content-end mt-2">
+                            <a class="btn btn-sm btn-success -in-header"
+                                href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">配送狀態</a>
+                            <a class="btn btn-sm btn-success -in-header"
+                                href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">物流設定</a>
+                            <a class="btn btn-sm btn-success -in-header"
+                                href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">出貨審核</a>
+                            <button type="button" class="btn btn-sm btn-primary -in-header">列印銷貨單</button>
+                            <button type="button" class="btn btn-sm btn-primary -in-header">列印出貨單</button>
+                        </div>
                     @endif
                 </div>
                 <div class="card-body px-4">
@@ -283,33 +289,35 @@
         @if (false == isset($subOrderId))
             <div class="card shadow p-4 mb-4">
                 @if (count($discounts) > 0)
-                <h6>折扣明細</h6>
-                <div class="table-responsive">
-                    <table class="table table-sm text-right align-middle">
-                        <tbody>
-                            @foreach ($discounts as $key => $dis)
-                                <tr>
-                                    @switch($dis->category_code)
-                                        @case('code')
-                                        @case('coupon')
-                                            <td class="col-8">{{ $dis->category_title }}【{{ $dis->title }}】</td>
+                    <h6>折扣明細</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm text-right align-middle">
+                            <tbody>
+                                @foreach ($discounts as $key => $dis)
+                                    <tr>
+                                        @switch($dis->category_code)
+                                            @case('code')
+                                            @case('coupon')
+                                                <td class="col-8">{{ $dis->category_title }}【{{ $dis->title }}】</td>
                                             @break
-                                        @default
-                                            <td class="col-8">{{ $dis->title }}</td>
-                                    @endswitch
-                                    
-                                    @if ($dis->method_code == 'coupon')
-                                        <td class="text-end pe-4">【{{ $dis->extra_title }}】</td>
-                                    @elseif (is_numeric($dis->discount_value))
-                                        <td class="text-end pe-4 text-danger">- ${{ number_format($dis->discount_value) }}</td>
-                                    @else
-                                        <td class="text-end pe-4">{{ $dis->discount_value || '' }}</td>
-                                    @endif
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+
+                                            @default
+                                                <td class="col-8">{{ $dis->title }}</td>
+                                        @endswitch
+
+                                        @if ($dis->method_code == 'coupon')
+                                            <td class="text-end pe-4">【{{ $dis->extra_title }}】</td>
+                                        @elseif (is_numeric($dis->discount_value))
+                                            <td class="text-end pe-4 text-danger">-
+                                                ${{ number_format($dis->discount_value) }}</td>
+                                        @else
+                                            <td class="text-end pe-4">{{ $dis->discount_value || '' }}</td>
+                                        @endif
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 @endif
                 <h6>訂單總覽</h6>
                 <div class="table-responsive">
@@ -329,7 +337,7 @@
                                 <td>${{ number_format($order->discounted_price) }}</td>
                                 <td>${{ number_format($order->dlv_fee) }}</td>
                                 <td class="fw-bold">${{ number_format($order->total_price) }}</td>
-                                <td>-</td>
+                                <td>${{ number_format($dividend) }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -357,7 +365,7 @@
                             </tr>
                             <tr>
                                 <td class="col-7 table-light lh-sm">預計獲得<a href="#" class="-text">紅利積點</a></td>
-                                <td class="text-end pe-4">-</td>
+                                <td class="text-end pe-4">${{ number_format($dividend) }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -385,6 +393,7 @@
             .table.table-bordered:not(.table-sm) tr:not(.table-light) {
                 height: 70px;
             }
+
         </style>
     @endpush
     @push('sub-scripts')

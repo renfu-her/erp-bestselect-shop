@@ -428,17 +428,16 @@ class OrderCart extends Model
         $salechannel = SaleChannel::where('id', $order['salechannel_id'])->get()->first();
 
         $today = date('Y-m-d H:i:s');
-        dd($salechannel);
+      
         if ($salechannel->event_sdate && $salechannel->event_edate &&
             ($today >= date('Y-m-d H:i:s', strtotime($salechannel->event_sdate)) &&
                 $today <= strtotime($salechannel->event_edate))
         ) {
             $rate = $salechannel->event_dividend_rate;
-           
         } else {
             $rate = $salechannel->dividend_rate;
         }
-        exit;
+      
 
         foreach ($_tempProducts as $value) {
             $order['get_dividend'] += $value['total_price'] * $rate / 100;
