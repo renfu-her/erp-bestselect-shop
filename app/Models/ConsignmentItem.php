@@ -110,7 +110,7 @@ class ConsignmentItem extends Model
                     ConsignmentItem::whereIn('id', $del_item_id_arr)->forceDelete();
 
                     foreach ($items as $item) {
-                        PurchaseLog::stockChange($purchase_id, $item->product_style_id, Event::consignment()->value, $item->id, LogEventFeature::style_del()->value, null, $item->num, null, $items->title, $items->prd_type, $operator_user_id, $operator_user_name);
+                        PurchaseLog::stockChange($purchase_id, $item->product_style_id, Event::consignment()->value, $item->id, LogEventFeature::style_del()->value, null, $item->num, null, $item->title, $item->prd_type, $operator_user_id, $operator_user_name);
                     }
                     return ['success' => 1, 'error_msg' => ''];
                 });
