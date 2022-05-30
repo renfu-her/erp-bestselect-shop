@@ -12,7 +12,8 @@ final class DividendFlag extends Enum
     const Expired = 'expired';
     const Cancel = 'cancel';
     const Discount = 'discount';
-
+    const Consume = 'consume';
+    const return  = 'return';
     public static function getDescription($value): string
     {
         $result = '';
@@ -29,11 +30,17 @@ final class DividendFlag extends Enum
             case self::Cancel:
                 $result = '取消訂單';
                 break;
+            case self::return :
+                $result = '歸還';
+                break;
             case self::Invalid:
                 $result = '失效';
                 break;
             case self::Discount:
                 $result = '紅利折抵';
+                break;
+            case self::Consume:
+                $result = '已兌換';
                 break;
 
         }
