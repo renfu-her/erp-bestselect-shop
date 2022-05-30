@@ -257,7 +257,7 @@ class Order extends Model
                 "discount_value" => $order['discount_value'],
                 "discounted_price" => $order['discounted_price'],
                 'note' => $note,
-                'unique_id' => substr(base_convert(sha1(uniqid(mt_rand())), 16, 36), 0, 9), // return 9 characters
+                'unique_id' => self::generate_unique_id(),
                 'payment_status' => PaymentStatus::Unpaid()->value,
                 'payment_status_title' => PaymentStatus::Unpaid()->description,
             ];
@@ -376,6 +376,18 @@ class Order extends Model
             return ['success' => '1', 'order_id' => $order_id];
         });
 
+    }
+
+
+    public static function generate_unique_id()
+    {
+        $unique_id = substr(base_convert(sha1(uniqid(mt_rand())), 16, 36), 0, 9);// return 9 characters
+
+		if(self::where('unique_id', $unique_id)->first()){
+			return self::generate_unique_id();
+		} else {
+			return $unique_id;
+		}
     }
 
 

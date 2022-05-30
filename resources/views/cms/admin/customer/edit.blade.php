@@ -115,7 +115,7 @@
                 </div>
                 <x-b-form-group name="birthday" title="生日">
                     <input class="form-control @error('birthday') is-invalid @enderror" type="date" name="birthday"
-                           value="{{ old('birthday', $data->birthday ?? '') }}" />
+                           value="{{ old('birthday', explode(' ', $data->birthday)[0] ?? '') }}" />
                 </x-b-form-group>
 
                 <x-b-form-group name="newsletter" title="訂閱電子報">
