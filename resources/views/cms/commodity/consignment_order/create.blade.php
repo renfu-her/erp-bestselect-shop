@@ -71,7 +71,7 @@
                 <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::csn_order()->value, 'eventId' => $id], true) }}">配送狀態</a>
                 <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::csn_order()->value, 'eventId' => $id], true) }}">物流設定</a>
                 <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::csn_order()->value, 'eventId' => $id], true) }}">出貨審核</a>
-                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.consignment-stock.stock_log', ['id' => $id], true) }}">變更紀錄</a>
+{{--                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.consignment-stock.stock_log', ['id' => $id], true) }}">變更紀錄</a>--}}
             @endif
         </div>
         <div class="card shadow p-4 mb-4">
