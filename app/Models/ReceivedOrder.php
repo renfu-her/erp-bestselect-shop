@@ -74,6 +74,15 @@ class ReceivedOrder extends Model
 
             OrderFlow::changeOrderStatus($received_order->order_id, OrderStatus::Paided());
             Order::change_order_payment_status($received_order->order_id, PaymentStatus::Received(), ReceivedMethod::fromValue($received_method));
+
+            // $r_method_arr = $received_list->pluck('received_method')->toArray();
+            // $r_method_title_arr = [];
+            // foreach($r_method_arr as $v){
+            //     array_push($r_method_title_arr, ReceivedMethod::getDescription($v));
+            // }
+            // $r_method['value'] = implode(',', $r_method_arr);
+            // $r_method['description'] = implode(',', $r_method_title_arr);
+            // Order::change_order_payment_status($received_order->order_id, PaymentStatus::Received(), (object) $r_method);
         }
     }
 
