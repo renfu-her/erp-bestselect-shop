@@ -76,6 +76,8 @@ class OrderCart extends Model
             'discounted_price' => 0,
             'shipments' => [],
             'discounts' => [],
+            'salechannel_id' => $salechannel_id,
+            'get_dividend' => 0,
         ];
 
         $_tempProducts = [];
@@ -227,6 +229,7 @@ class OrderCart extends Model
 
         self::globalStage($order, $_tempProducts);
         self::couponStage($order, $currentCoupon, $_tempProducts);
+        self::dividendStage($order, $_tempProducts);
         self::shipmentStage($order);
 
         $order['total_price'] = $order['discounted_price'] + $order['dlv_fee'];
@@ -418,6 +421,29 @@ class OrderCart extends Model
         $order['discounted_price'] -= $discount_value;
         $order['discount_value'] += $discount_value;
 
+    }
+
+    private static function dividendStage(&$order, $_tempProducts)
+    {
+        $salechannel = SaleChannel::where('id', $order['salechannel_id'])->get()->first();
+
+        $today = date('Y-m-d H:i:s');
+        dd($salechannel);
+        if ($salechannel->event_sdate && $salechannel->event_edate &&
+            ($today >= date('Y-m-d H:i:s', strtotime($salechannel->event_sdate)) &&
+                $today <= strtotime($salechannel->event_edate))
+        ) {
+            $rate = $salechannel->event_dividend_rate;
+           
+        } else {
+            $rate = $salechannel->dividend_rate;
+        }
+        exit;
+
+        foreach ($_tempProducts as $value) {
+            $order['get_dividend'] += $value['total_price'] * $rate / 100;
+        }
+        
     }
 
     private static function shipmentStage(&$order)

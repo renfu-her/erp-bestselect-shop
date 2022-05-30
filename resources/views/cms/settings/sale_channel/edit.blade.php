@@ -85,14 +85,24 @@
                     value="{{ old('event_dividend_rate', $data->event_dividend_rate ?? 0) }}" />
             </x-b-form-group>
             <x-b-form-group name="event_sdate" title="活動起始時間" required="true">
+                @php
+                    $sdate = old('event_sdate', $data->event_sdate ?? '');
+                    if ($sdate) {
+                        $sdate = date('Y-m-d\Th:i', strtotime($sdate));
+                    }
+                @endphp
                 <input class="form-control @error('event_sdate') is-invalid @enderror" type="datetime-local"
-                    name="event_sdate"
-                    value="{{ old('event_sdate') ? date('Y-m-d\Th:i', strtotime($data->event_sdate)) : '' }}" />
+                    name="event_sdate" value="{{ $sdate }}" />
             </x-b-form-group>
             <x-b-form-group name="event_edate" title="活動結束時間" required="true">
+                @php
+                    $edate = old('event_edate', $data->event_edate ?? '');
+                    if ($edate) {
+                        $edate = date('Y-m-d\Th:i', strtotime($edate));
+                    }
+                @endphp
                 <input class="form-control @error('event_edate') is-invalid @enderror" type="datetime-local"
-                    name="event_edate"
-                    value="{{ old('event_edate') ? date('Y-m-d\Th:i', strtotime($data->event_edate)) : '' }}" />
+                    name="event_edate" value="{{ $edate }}" />
             </x-b-form-group>
 
             @if ($method === 'edit')
