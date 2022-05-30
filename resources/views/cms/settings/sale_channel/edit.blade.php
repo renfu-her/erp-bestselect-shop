@@ -88,7 +88,7 @@
                 @php
                     $sdate = old('event_sdate', $data->event_sdate ?? '');
                     if ($sdate) {
-                        $sdate = date('Y-m-d\Th:i', strtotime($sdate));
+                        $sdate = date('Y-m-d\TH:i', strtotime($sdate));
                     }
                 @endphp
                 <input class="form-control @error('event_sdate') is-invalid @enderror" type="datetime-local"
@@ -98,7 +98,7 @@
                 @php
                     $edate = old('event_edate', $data->event_edate ?? '');
                     if ($edate) {
-                        $edate = date('Y-m-d\Th:i', strtotime($edate));
+                        $edate = date('Y-m-d\TH:i', strtotime($edate));
                     }
                 @endphp
                 <input class="form-control @error('event_edate') is-invalid @enderror" type="datetime-local"

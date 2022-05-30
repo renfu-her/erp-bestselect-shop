@@ -319,7 +319,10 @@
                         </table>
                     </div>
                 @endif
-                <h6>訂單總覽</h6>
+                <div class="d-flex align-items-center mb-4 mt-3">
+                    <h6 class="flex-grow-1 mb-0">訂單總覽</h6>
+                </div>
+                
                 <div class="table-responsive">
                     <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
                         <tbody>
@@ -337,7 +340,7 @@
                                 <td>${{ number_format($order->discounted_price) }}</td>
                                 <td>${{ number_format($order->dlv_fee) }}</td>
                                 <td class="fw-bold">${{ number_format($order->total_price) }}</td>
-                                <td>${{ number_format($dividend) }}</td>
+                                <td>{{ number_format($dividend) }} <span class="badge bg-secondary">未發</span></td>
                             </tr>
                         </tbody>
                     </table>
@@ -365,7 +368,9 @@
                             </tr>
                             <tr>
                                 <td class="col-7 table-light lh-sm">預計獲得<a href="#" class="-text">紅利積點</a></td>
-                                <td class="text-end pe-4">${{ number_format($dividend) }}</td>
+                                <td class="text-end pe-4">
+                                    <span class="badge bg-secondary">未發</span> {{ number_format($dividend) }}
+                                </td>
                             </tr>
                         </tbody>
                     </table>
