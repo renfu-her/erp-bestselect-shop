@@ -267,14 +267,14 @@ Breadcrumbs::for('cms.consignment.edit', function (BreadcrumbTrail $trail, $valu
     $trail->push('[單號：' . $value['sn'] . '] 寄倉單資訊', route('cms.consignment.edit', ['id' => $value['id']]));
 });
 //寄倉訂購
-Breadcrumbs::for('cms.consignment.orderlist', function (BreadcrumbTrail $trail) {
+Breadcrumbs::for('cms.consignment-order.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('寄倉訂購', route('cms.consignment.orderlist'));
+    $trail->push('寄倉訂購', route('cms.consignment-order.index'));
 });
 //寄倉庫存
-Breadcrumbs::for('cms.consignment.stocklist', function (BreadcrumbTrail $trail) {
+Breadcrumbs::for('cms.consignment-stock.stocklist', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('寄倉庫存', route('cms.consignment.stocklist'));
+    $trail->push('寄倉庫存', route('cms.consignment-stock.stocklist'));
 });
 
 /**

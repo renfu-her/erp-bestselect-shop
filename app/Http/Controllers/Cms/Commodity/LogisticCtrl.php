@@ -55,7 +55,7 @@ class LogisticCtrl extends Controller
             $consignment = Consignment::where('id', $delivery->event_id)->get()->first();
             $rsp_arr['depot_id'] = $consignment->send_depot_id;
         } else if (Event::csn_order()->value == $event) {
-            $returnAction = Route('cms.consignment.order_edit', ['id' => $eventId ]);
+            $returnAction = Route('cms.consignment-order.edit', ['id' => $eventId ]);
 
             // 出貨單號ID
             $delivery = Delivery::getData($event, $eventId)->get()->first();
@@ -243,7 +243,7 @@ class LogisticCtrl extends Controller
             $delivery = Delivery::getDeliveryWithEventWithSn($event, $eventId)->get()->first();
             if (null != $delivery) {
                 $delivery_id = $delivery->id;
-                $lastPageAction = Route('cms.consignment.order_edit', ['id' => $eventId ]);
+                $lastPageAction = Route('cms.consignment-order.edit', ['id' => $eventId ]);
             }
         }
         $flowList = null;
