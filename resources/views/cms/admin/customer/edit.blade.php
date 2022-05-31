@@ -144,10 +144,10 @@
             <div class="card-body">
                 <h6>消費記錄</h6>
                 <dl class="row">
-                    <div class="col">
-                        <dt>剩餘紅利點數</dt>
-                        <dd>{{ number_format($data->bonus ?? '') }}</dd>
-                    </div>
+{{--                    <div class="col">--}}
+{{--                        <dt>剩餘紅利點數</dt>--}}
+{{--                        <dd>{{ number_format($data->bonus ?? '') }}</dd>--}}
+{{--                    </div>--}}
                     <div class="col">
                         <dt>下單次數</dt>
                         <dd>{{ number_format($data->order_counts ?? '') }}</dd>

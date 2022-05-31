@@ -140,7 +140,6 @@ class Customer extends Authenticatable
                 , 'acount_status'
                 , 'password'
                 , 'api_token'
-                , 'bonus'
                 , 'order_counts'
                 , 'total_spending'
                 , 'remember_token')

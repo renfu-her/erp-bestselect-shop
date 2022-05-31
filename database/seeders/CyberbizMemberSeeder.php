@@ -89,7 +89,6 @@ class CyberbizMemberSeeder extends Seeder
                             'region_id' => $region_id,
                             'addr' => $addressName,
                             'created_at' => $memberData[self::CREATED_AT],
-                            'bonus' => $memberData[self::COUPON],
                             'order_counts' => $memberData[self::ORDER_COUNTS],
                             'total_spending' => $memberData[self::TOTAL_SPENDING],
                             'latest_order' => $memberData[self::LATEST_ORDER] === 'nan' ? null : $memberData[self::LATEST_ORDER],
