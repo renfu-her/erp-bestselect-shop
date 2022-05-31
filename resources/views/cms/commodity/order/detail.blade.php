@@ -6,17 +6,24 @@
     $route = $receivedId ? 'show' : 'create';
     @endphp
 
-    @if (!$receivable)
-        <a href="{{ Route('cms.ar.' . $route, ['id' => $order->id]) }}" class="btn btn-danger"
-            role="button">{{ !$receivedId ? '新增' : '' }}收款單（暫放）</a>
-    @endif
+    <fieldset class="col-12 mb-2">
+        <div class="p-2 border rounded">
+            @if (!$receivable)
+                <a href="{{ Route('cms.ar.' . $route, ['id' => $order->id]) }}" class="btn btn-danger"
+                    role="button">{{ !$receivedId ? '新增' : '' }}收款單（暫放）</a>
+            @endif
 
-    @if ($order->status == '已付款')
-        <button type="button" class="btn btn-primary" disabled>線上刷卡連結</button>
-    @else
-        <a href="{{ Route('api.web.order.payment_credit_card', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
-            class="btn btn-primary" role="button" target="_blank">線上刷卡連結</a>
-    @endif
+            @if ($order->status == '已付款')
+                <button type="button" class="btn btn-primary" disabled>線上刷卡連結</button>
+            @else
+                <a href="{{ Route('api.web.order.payment_credit_card', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
+                    class="btn btn-primary" role="button" target="_blank">線上刷卡連結</a>
+            @endif
+
+            <a href="#" role="button" class="btn btn-success">訂單完成（暫放）</a>
+        </div>
+    </fieldset>
+    
 
     <form id="form1" method="post" action="">
         @method('POST')
@@ -319,21 +326,19 @@
                         </table>
                     </div>
                 @endif
-                <form action="" method="post">
-                    <div class="d-flex align-items-center mb-4 mt-3">
-                        <h6 class="flex-grow-1 mb-0">訂單總覽</h6>
-                        <div class="form-check form-check-inline form-switch form-switch-lg">
-                            <label class="form-check-label">
-                                <input class="form-check-input -auto-send" type="checkbox" name="" value="" checked
-                                @if ($order->allotted_dividend) disabled @endif>
-                                紅利自動發放
-                            </label>
-                        </div>
-                        @if ($order->allotted_dividend === 0)
-                            <button type="submit" class="btn btn-sm btn-success -in-header -auto-send" disabled>發放紅利</button>
-                        @endif
+                <div class="d-flex align-items-center mb-4 mt-3">
+                    <h6 class="flex-grow-1 mb-0">訂單總覽</h6>
+                    <div class="form-check form-check-inline form-switch form-switch-lg">
+                        <label class="form-check-label">
+                            <input class="form-check-input -auto-send" type="checkbox" name="" value="" checked
+                            @if ($order->allotted_dividend) disabled @endif>
+                            紅利自動發放
+                        </label>
                     </div>
-                </form>
+                    @if ($order->allotted_dividend === 0)
+                        <button type="button" class="btn btn-sm btn-success -in-header -active-send" disabled>發放紅利</button>
+                    @endif
+                </div>
                 
                 <div class="table-responsive">
                     <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
@@ -427,7 +432,8 @@
     @push('sub-scripts')
         <script>
             const changeAutoUrl = @json(route('api.cms.order.change-auto-dividend'));
-            const order_id = @json($order->id);
+            const activePointUrl = @json(route('api.cms.order.active-dividend'));
+            const order_sn = @json($order->sn);
 
             setAutoSend($('input.-auto-send').prop('checked'));
             $('input.-auto-send').off('change.auto').on('change.auto', function () {
@@ -436,15 +442,19 @@
                 
                 // API
                 axios.post(changeAutoUrl, {
-                    order_id: order_id,
+                    order_sn: order_sn,
                     auto_dividend: active ? 1 : 0
                 }).then((result) => {
                     console.log(result.data);
-                    setAutoSend(active);
-                    if (active) {
-                        toast.show('紅利改為自動發放');
+                    if (result.data.status === '0') {
+                        setAutoSend(active);
+                        if (active) {
+                            toast.show('紅利改為自動發放');
+                        } else {
+                            toast.show('紅利改為手動發放', { type: 'warning' });
+                        }
                     } else {
-                        toast.show('紅利改為手動發放', { type: 'warning' });
+                        toast.show(`失敗：${result.data.message}`, { type: 'danger' });
                     }
                 }).catch((err) => {
                     console.error(err);
@@ -453,8 +463,29 @@
             });
 
             function setAutoSend(auto) {
-                $('.btn.-auto-send').prop('disabled', auto);
+                $('.btn.-active-send').prop('disabled', auto);
             }
+
+            $('.btn.-active-send').off('click.send').on('click.send', function () {
+                if (!$(this).prop('disabled')) {
+                    // API
+                    axios.post(activePointUrl, {
+                        order_sn: order_sn
+                    }).then((result) => {
+                        console.log(result.data);
+                        if (result.data.status === '0') {
+                            toast.show('已發放紅利');
+                            $('.badge.bg-secondary').removeClass('bg-secondary')
+                                .addClass('bg-success').text('已發');
+                        } else {
+                            toast.show(`失敗：${result.data.message}`, { type: 'danger' });
+                        }
+                    }).catch((err) => {
+                        console.error(err);
+                        toast.show('發生錯誤', { type: 'danger' });
+                    });
+                }
+            });
         </script>
     @endpush
 @endonce
