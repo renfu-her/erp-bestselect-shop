@@ -27,7 +27,7 @@ class AddCloseDateColumnInOrdSubOrdersTable extends Migration
      */
     public function down()
     {
-        Schema::table('ord_received_orders', function (Blueprint $table) {
+        Schema::table('ord_sub_orders', function (Blueprint $table) {
             $table->dropColumn('close_date');
         });
     }
