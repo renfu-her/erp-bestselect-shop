@@ -143,6 +143,21 @@ class Order extends Model
             ->selectRaw($concatString . ' as items')
             ->where('item.order_id', $order_id);
 
+        $concatConsumeString = concatStr([
+            'consum_id' => 'dlv_consum.id',
+            'inbound_id' => 'dlv_consum.inbound_id',
+            'inbound_sn' => 'dlv_consum.inbound_sn',
+            'depot_id' => 'dlv_consum.depot_id',
+            'depot_name' => 'dlv_consum.depot_name',
+            'product_style_id' => 'dlv_consum.product_style_id',
+            'sku' => 'dlv_consum.sku',
+            'product_title' => 'dlv_consum.product_title',
+            'qty' => 'dlv_consum.qty',]);
+        $itemConsumeQuery = DB::table('dlv_consum')
+            ->select('dlv_consum.logistic_id')
+            ->selectRaw($concatConsumeString . ' as consume_items')
+            ->groupBy('dlv_consum.logistic_id');
+
         if ($sub_order_id) {
             $itemQuery->where('item.sub_order_id', $sub_order_id);
         }
@@ -164,19 +179,31 @@ class Order extends Model
                 $join->on('shi_group.id', '=', 'dlv_logistic.ship_group_id');
                 $join->whereNotNull('dlv_logistic.ship_group_id');
             })
+            ->leftJoin('prd_suppliers', function ($join) {
+                $join->on('prd_suppliers.id', '=', 'shi_group.supplier_fk');
+                $join->whereNotNull('shi_group.supplier_fk');
+            })
+            ->leftJoinSub($itemConsumeQuery, 'consume_items', function ($join) {
+                $join->on('consume_items.logistic_id', '=', 'dlv_logistic.id');
+            })
             ->select('sub_order.*', 'i.items'
                 , 'dlv_delivery.sn as delivery_sn'
-                , 'dlv_delivery.logistic_status as logistic_status'
+                , 'dlv_delivery.logistic_status as logistic_status', 'consume_items.consume_items'
             )
             ->selectRaw("IF(sub_order.ship_sn IS NULL,'',sub_order.ship_sn) as ship_sn")
             ->selectRaw("IF(sub_order.actual_ship_group_id IS NULL,'',sub_order.actual_ship_group_id) as actual_ship_group_id")
             ->selectRaw("IF(sub_order.statu IS NULL,'',sub_order.statu) as statu")
             ->selectRaw("IF(sub_order.statu_code IS NULL,'',sub_order.statu_code) as statu_code")
+            ->selectRaw("IF(sub_order.close_date IS NULL,'',DATE_FORMAT(sub_order.close_date,'%Y-%m-%d')) as close_date")
+            ->selectRaw("IF(dlv_logistic.id IS NULL,'',dlv_logistic.id) as logistic_id")
             ->selectRaw("IF(dlv_logistic.sn IS NULL,'',dlv_logistic.sn) as logistic_sn")
             ->selectRaw("IF(dlv_logistic.package_sn IS NULL,'',dlv_logistic.package_sn) as package_sn")
             ->selectRaw("IF(dlv_logistic.ship_group_id IS NULL,'',dlv_logistic.ship_group_id) as ship_group_id")
+            ->selectRaw("IF(dlv_logistic.cost IS NULL,'',dlv_logistic.cost) as logistic_cost")
+            ->selectRaw("IF(dlv_logistic.memo IS NULL,'',dlv_logistic.memo) as logistic_memo")
             ->selectRaw("IF(shi_group.name IS NULL,'',shi_group.name) as ship_group_name")
             ->selectRaw("IF(shi_group.note IS NULL,'',shi_group.note) as ship_group_note")
+            ->selectRaw("IF(prd_suppliers.name IS NULL,'',prd_suppliers.name) as supplier_name")
             ->selectRaw("IF(sub_order.ship_temp IS NULL,'',sub_order.ship_temp) as ship_temp")
             ->selectRaw("IF(sub_order.ship_temp_id IS NULL,'',sub_order.ship_temp_id) as ship_temp_id")
             ->selectRaw("IF(sub_order.ship_rule_id IS NULL,'',sub_order.ship_rule_id) as ship_rule_id")
@@ -237,7 +264,7 @@ class Order extends Model
 
             $customer = Customer::where('email', $email)->get()->first();
             $order = OrderCart::cartFormater($items, $sale_channel_id, $coupon_obj, true, $customer);
-            
+
             if ($order['success'] != 1) {
                 DB::rollBack();
                 return $order;

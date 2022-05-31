@@ -290,6 +290,7 @@ class OrderCtrl extends Controller
 
         foreach ($subOrder as $key => $value) {
             $subOrder[$key]->items = json_decode($value->items);
+            $subOrder[$key]->consume_items = json_decode($value->consume_items);
         }
 
         //    dd($order);
