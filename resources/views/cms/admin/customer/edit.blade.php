@@ -40,6 +40,18 @@
                     <input class="form-control @error('name') is-invalid @enderror" name="name"
                            value="{{ old('name', $data->name ?? '') }}" />
                 </x-b-form-group>
+                <x-b-form-group name="loginMethods" title="帳號類型">
+                    <div class="px-1">
+                        <div class="col-form-label @error('loginMethods') is-invalid @enderror">
+                            @foreach($loginMethods as $key => $loginMethod)
+                                @if($key > 0)
+                                    {{ ',' }}
+                                @endif
+                                {{ old('loginMethod', App\Enums\Customer\Login::getDescription($loginMethod->login_method) ?? '') }}
+                            @endforeach
+                        </div>
+                    </div>
+                </x-b-form-group>
                 <x-b-form-group name="sex" title="性別">
                     <div class="px-1">
                         @foreach (\App\Enums\Customer\Sex::asSelectArray() as $key => $value)

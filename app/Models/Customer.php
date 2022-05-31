@@ -71,10 +71,28 @@ class Customer extends Authenticatable
         $this->notify(new CustomerPasswordReset($token));
     }
 
+    /**
+     * @param $name
+     * @param $email
+     * @param $password
+     * @param $phone
+     * @param $birthday
+     * @param $sex
+     * @param $acount_status
+     * @param $address
+     * @param $city_id
+     * @param $region_id
+     * @param $addr
+     * @param $newsletter
+     * @param  array|string|null  $loginMethods 消費者註冊登入方式, 然後用array傳送登入方式，例如[1, 2], 請參考Enums:Customer:Login
+     *
+     * @return mixed
+     */
     public static function createCustomer($name, $email, $password
         , $phone = null, $birthday = null, $sex = null, $acount_status = 0
         , $address = null, $city_id = null, $region_id = null, $addr = null
         , $newsletter = null
+        , $loginMethods = null
     ) {
         $arr = [
             'name' => $name,
@@ -101,6 +119,8 @@ class Customer extends Authenticatable
         //創建消費者時，直接給一消費者身分
        // $identity = DB::table('usr_identity')->where('code', 'customer')->get()->first();
         CustomerIdentity::add($id, 'customer');
+
+        CustomerLogin::addLoginMethod($id, $loginMethods);
 
 //        self::where('id', '=', $id)->get()->first()->givePermissionTo($permission_id);
 //        self::where('id', '=', $id)->get()->first()->assignRole($role_id);
