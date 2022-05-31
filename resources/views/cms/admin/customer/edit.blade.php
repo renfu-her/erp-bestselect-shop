@@ -9,7 +9,6 @@
     <form method="post" action="{{ $formAction }}">
         @method('POST')
         @csrf
-
         <div class="card mb-4">
             <div class="card-header">
                 @if ($method === 'create')
@@ -41,6 +40,18 @@
                     <input class="form-control @error('name') is-invalid @enderror" name="name"
                            value="{{ old('name', $data->name ?? '') }}" />
                 </x-b-form-group>
+                <x-b-form-group name="loginMethods" title="帳號類型">
+                    <div class="px-1">
+                        <div class="col-form-label @error('loginMethods') is-invalid @enderror">
+                            @foreach($loginMethods as $key => $loginMethod)
+                                @if($key > 0)
+                                    {{ ',' }}
+                                @endif
+                                {{ old('loginMethod', App\Enums\Customer\Login::getDescription($loginMethod->login_method) ?? '') }}
+                            @endforeach
+                        </div>
+                    </div>
+                </x-b-form-group>
                 <x-b-form-group name="sex" title="性別">
                     <div class="px-1">
                         @foreach (\App\Enums\Customer\Sex::asSelectArray() as $key => $value)
@@ -48,7 +59,7 @@
                                 <label class="form-check-label">
                                     {{$value}}
                                     <input class="form-check-input @error('sex') is-invalid @enderror" value="{{ $key }}"
-                                           name="sex" type="radio" @if ($key === $data ? '' : $data->sex ?? '') checked @endif>
+                                           name="sex" type="radio" @if ($key === $data->sex) checked @endif>
                                 </label>
                             </div>
                         @endforeach
@@ -141,6 +152,25 @@
             </div>
         </div>
 
+        <div class="card mb-4">
+            <div class="card-body">
+                <h6>消費記錄</h6>
+                <dl class="row">
+{{--                    <div class="col">--}}
+{{--                        <dt>剩餘紅利點數</dt>--}}
+{{--                        <dd>{{ number_format($data->bonus ?? '') }}</dd>--}}
+{{--                    </div>--}}
+                    <div class="col">
+                        <dt>下單次數</dt>
+                        <dd>{{ number_format($data->order_counts ?? '') }}</dd>
+                    </div>
+                    <div class="col-sm-5">
+                        <dt>消費總額</dt>
+                        <dd>{{ number_format($data->total_spending ?? '') }}</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
         <div class="d-flex justify-content-end">
             @if (isset($bind))
                 <input type="hidden" name="bind" value="{{ $bind }}">

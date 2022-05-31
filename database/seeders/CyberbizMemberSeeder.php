@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\Customer\AccountStatus;
 use App\Models\Customer;
+use App\Models\CustomerLogin;
 use Faker\Factory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -20,8 +21,12 @@ class CyberbizMemberSeeder extends Seeder
     const COUPON = 8;
     const PHONE = 11;
     const ADDRESS = 14;
+    const ORDER_COUNTS = 15;
+    const TOTAL_SPENDING = 16;
     const CREATED_AT = 17;
-    const ACCOUNT_STATUS = 21;
+    const LOGIN_METHOD = 18;
+    const ACCOUNT_STATUS = 20;
+    const LATEST_ORDER = 22;
 
     /**
      * 匯入Cyberbiz會員
@@ -74,6 +79,13 @@ class CyberbizMemberSeeder extends Seeder
             if (!is_null($memberData[self::EMAIL])) {
                 $customerExistQuery = Customer::where('email', '=', $memberData[self::EMAIL])->get()->first();
                 if ($customerExistQuery) {
+                    $loginMethods = is_null($memberData[self::LOGIN_METHOD]) ? null : explode(',', $memberData[self::LOGIN_METHOD]);
+                    $loginMethodQuery = CustomerLogin::where('usr_customers_id_fk', '=', $customerExistQuery->id);
+                    if ($loginMethodQuery) {
+                        $loginMethodQuery->delete();
+                        CustomerLogin::addLoginMethod($customerExistQuery->id, $loginMethods);
+                    }
+
                     Customer::where('email', '=', $memberData[self::EMAIL])
                         ->update([
                             'name' => $memberData[self::NAME] ?? null,
@@ -86,8 +98,12 @@ class CyberbizMemberSeeder extends Seeder
                             'region_id' => $region_id,
                             'addr' => $addressName,
                             'created_at' => $memberData[self::CREATED_AT],
+                            'order_counts' => $memberData[self::ORDER_COUNTS],
+                            'total_spending' => $memberData[self::TOTAL_SPENDING],
+                            'latest_order' => $memberData[self::LATEST_ORDER] === 'nan' ? null : $memberData[self::LATEST_ORDER],
                         ]);
                 } else {
+                    $loginMethods = is_null($memberData[self::LOGIN_METHOD]) ? null : explode(',', $memberData[self::LOGIN_METHOD]);
                     Customer::createCustomer(
                         $memberData[self::NAME] ?? null,
                         $memberData[self::EMAIL] ?? null,
@@ -100,6 +116,8 @@ class CyberbizMemberSeeder extends Seeder
                         $city_id,
                         $region_id,
                         $addressName,
+                        null,
+                        $loginMethods,
                     );
                 }
             }
