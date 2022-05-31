@@ -136,7 +136,7 @@
                                 <label class="form-check-label">
                                     {{$value}}
                                     <input class="form-check-input @error('newsletter') is-invalid @enderror" value="{{ $key }}"
-                                           name="newsletter" type="radio" @if ($key === $data ? '': $data->newsletter ?? '') checked @endif>
+                                           name="newsletter" type="radio" @if ($key === $data->newsletter) checked @endif>
                                 </label>
                             </div>
                         @endforeach
