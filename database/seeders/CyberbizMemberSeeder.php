@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\Customer\AccountStatus;
+use App\Enums\Customer\Newsletter;
 use App\Models\Customer;
 use App\Models\CustomerLogin;
 use Faker\Factory;
@@ -27,6 +28,7 @@ class CyberbizMemberSeeder extends Seeder
     const LOGIN_METHOD = 18;
     const ACCOUNT_STATUS = 20;
     const LATEST_ORDER = 22;
+    const NEWS_LETTER = 24;
 
     /**
      * 匯入Cyberbiz會員
@@ -92,6 +94,7 @@ class CyberbizMemberSeeder extends Seeder
                             'phone' => $memberData[self::PHONE] ?? null,
                             'birthday' => $memberData[self::BIRTH] === 'nan' ? null : $memberData[self::BIRTH],
                             'sex' => is_null($memberData[self::GENDER]) ? null : ($memberData[self::GENDER] === '男' ? 1 : 0),
+                            'newsletter' => $memberData[self::NEWS_LETTER] === true ? Newsletter::subscribe : Newsletter::un_subscribe,
                             'acount_status' => $memberData[self::ACCOUNT_STATUS] === '帳號已啟用' ? 1 : 0,
                             'address' => $address,
                             'city_id' => $city_id,
@@ -116,7 +119,7 @@ class CyberbizMemberSeeder extends Seeder
                         $city_id,
                         $region_id,
                         $addressName,
-                        null,
+                        $memberData[self::NEWS_LETTER] === true ? Newsletter::subscribe : Newsletter::un_subscribe,
                         $loginMethods,
                     );
                 }
