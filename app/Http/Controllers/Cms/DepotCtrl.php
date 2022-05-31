@@ -291,7 +291,7 @@ class DepotCtrl extends Controller
         if($request->isMethod('post')){
             $request->validate([
                 'selected' => 'required|array',
-                'selected.*' => 'required|exists:prd_product_styles,id',
+                'selected.*' => 'required|in:0,' . implode(',', ProductStyle::whereNull('deleted_at')->pluck('id')->toArray()),
                 'select_id' => 'required|array',
                 'select_id.*' => 'required|exists:prd_product_depot_select,id',
                 'product_style_id' => 'required|array',
