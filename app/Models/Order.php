@@ -376,7 +376,7 @@ class Order extends Model
             OrderFlow::changeOrderStatus($order_id, OrderStatus::Add());
 
             CustomerDividend::fromOrder($customer->id, $order_sn, $order['get_dividend']);
-            CustomerDividend::activeDividend(DividendCategory::Order(), $order_sn);
+           // CustomerDividend::activeDividend(DividendCategory::Order(), $order_sn);
             
             return ['success' => '1', 'order_id' => $order_id];
         });

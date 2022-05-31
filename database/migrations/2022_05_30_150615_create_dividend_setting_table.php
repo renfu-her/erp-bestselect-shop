@@ -23,6 +23,8 @@ class CreateDividendSettingTable extends Migration
             $table->after('note', function ($tb) {
                 $tb->tinyInteger('auto_dividend')->default(1)->comment('自動發放紅利');
                 $tb->tinyInteger('allotted_dividend')->default(0)->comment('是否已發放紅利');
+                $tb->tinyInteger('dividend_lifecycle')->default(0)->comment('紅利存活時間0為無限');
+
             });
         });
     }

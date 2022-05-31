@@ -7,6 +7,7 @@ use App\Enums\Discount\DividendFlag;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Models\DividendSetting;
 
 class CustomerDividend extends Model
 {
