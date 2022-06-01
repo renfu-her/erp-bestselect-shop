@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\Cms\Commodity\DiscountCtrl;
+use App\Http\Controllers\Api\Web\DividendCtrl;
+
 use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'discount', 'as' => 'discount.'], function () {
@@ -9,5 +11,6 @@ Route::group(['prefix' => 'discount', 'as' => 'discount.'], function () {
     Route::post('get-normal-discount', [DiscountCtrl::class, 'getNormalDiscount'])->name('get-normal-discount');
     Route::post('check-discount-code', [DiscountCtrl::class, 'checkDiscountCode'])->name('check-discount-code');
     Route::post('get-coupons', [DiscountCtrl::class, 'getCoupons'])->name('get-coupons');
+    Route::post('dividend/point', [DividendCtrl::class, 'getDividendPoint'])->name('get-dividend-point');
 
 });

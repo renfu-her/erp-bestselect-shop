@@ -7,7 +7,6 @@ use App\Enums\Discount\DividendFlag;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use App\Models\DividendSetting;
 
 class CustomerDividend extends Model
 {
@@ -57,9 +56,8 @@ class CustomerDividend extends Model
             ->where('category_sn', $category_sn)
             ->where('flag', DividendFlag::NonActive())->get()->first();
 
-        $order = Order::where('sn',$category_sn)->get()->first();
+        $order = Order::where('sn', $category_sn)->get()->first();
 
-    
         if (!$dividend || !$order) {
             return;
         }
