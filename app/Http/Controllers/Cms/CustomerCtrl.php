@@ -213,6 +213,19 @@ class CustomerCtrl extends Controller
     }
 
     /**
+     * @param  Request  $request
+     * @param $id int 會員id
+     * 列出收件地址管理
+     */
+    public function address(Request $request, $id) {
+
+        return view('cms.admin.customer.address', [
+            'customer' => $id,
+        ]);
+
+    }
+
+    /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id

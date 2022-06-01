@@ -40,6 +40,7 @@ Route::group(['prefix' => 'customer', 'as' => 'customer.'], function () {
 
 Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => ['auth:sanctum', 'identity.api.customer']], function () {
     Route::get('/info', [CustomerCtrl::class, 'customerInfo'])->name('customer_info');
+    Route::get('/address', [CustomerCtrl::class, 'customerAddress'])->name('customer_address');
 
     Route::get('/logout-all', [CustomerCtrl::class, 'tokensDeleteAll']);
     Route::get('/logout', [CustomerCtrl::class, 'tokensDeleteCurrent']);
