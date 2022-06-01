@@ -78,6 +78,7 @@ class OrderCart extends Model
             'discounts' => [],
             'salechannel_id' => $salechannel_id,
             'get_dividend' => 0,
+            'max_dividend' => 0,
         ];
 
         $_tempProducts = [];
@@ -175,9 +176,13 @@ class OrderCart extends Model
                         'total_price' => $style->origin_price,
                         'product_id' => $style->product_id,
                     ];
+
+                    $order['max_dividend'] += ($style->dividend * $value['qty']);
                 }
             }
         }
+        
+      
 
         if ($errors) {
             return [
@@ -428,7 +433,7 @@ class OrderCart extends Model
         $salechannel = SaleChannel::where('id', $order['salechannel_id'])->get()->first();
 
         $today = date('Y-m-d H:i:s');
-      
+
         if ($salechannel->event_sdate && $salechannel->event_edate &&
             ($today >= date('Y-m-d H:i:s', strtotime($salechannel->event_sdate)) &&
                 $today <= strtotime($salechannel->event_edate))
@@ -437,12 +442,11 @@ class OrderCart extends Model
         } else {
             $rate = $salechannel->dividend_rate;
         }
-      
 
         foreach ($_tempProducts as $value) {
             $order['get_dividend'] += $value['total_price'] * $rate / 100;
         }
-        
+
     }
 
     private static function shipmentStage(&$order)
