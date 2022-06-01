@@ -23,7 +23,7 @@
             <a href="#" role="button" class="btn btn-success">訂單完成（暫放）</a>
         </div>
     </fieldset>
-    
+
 
     <form id="form1" method="post" action="">
         @method('POST')
@@ -330,8 +330,10 @@
                     <h6 class="flex-grow-1 mb-0">訂單總覽</h6>
                     <div class="form-check form-check-inline form-switch form-switch-lg">
                         <label class="form-check-label">
-                            <input class="form-check-input -auto-send" type="checkbox" name="" value="" checked
-                            @if ($order->allotted_dividend) disabled @endif>
+                            {{ $order->allotted_dividend }}
+                            <input class="form-check-input -auto-send" type="checkbox" name="" value=""
+                                @if ($order->allotted_dividend == '1') checked @endif
+                                @if ($order->allotted_dividend) disabled @endif>
                             紅利自動發放
                         </label>
                     </div>
@@ -339,7 +341,7 @@
                         <button type="button" class="btn btn-sm btn-success -in-header -active-send" disabled>發放紅利</button>
                     @endif
                 </div>
-                
+
                 <div class="table-responsive">
                     <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
                         <tbody>
@@ -375,7 +377,8 @@
                             </tr>
                             <tr>
                                 <td class="col-7 table-light">折扣 </td>
-                                <td class="text-danger text-end pe-4">- ${{ number_format($order->discount_value) }}</td>
+                                <td class="text-danger text-end pe-4">- ${{ number_format($order->discount_value) }}
+                                </td>
                             </tr>
                             <tr>
                                 <td class="col-7 table-light lh-sm">折扣後 (不含運)</td>
@@ -436,10 +439,10 @@
             const order_sn = @json($order->sn);
 
             setAutoSend($('input.-auto-send').prop('checked'));
-            $('input.-auto-send').off('change.auto').on('change.auto', function () {
+            $('input.-auto-send').off('change.auto').on('change.auto', function() {
                 const $switch = $(this);
                 const active = $switch.prop('checked');
-                
+
                 // API
                 axios.post(changeAutoUrl, {
                     order_sn: order_sn,
@@ -451,14 +454,20 @@
                         if (active) {
                             toast.show('紅利改為自動發放');
                         } else {
-                            toast.show('紅利改為手動發放', { type: 'warning' });
+                            toast.show('紅利改為手動發放', {
+                                type: 'warning'
+                            });
                         }
                     } else {
-                        toast.show(`失敗：${result.data.message}`, { type: 'danger' });
+                        toast.show(`失敗：${result.data.message}`, {
+                            type: 'danger'
+                        });
                     }
                 }).catch((err) => {
                     console.error(err);
-                    toast.show('發生錯誤', { type: 'danger' });
+                    toast.show('發生錯誤', {
+                        type: 'danger'
+                    });
                 });
             });
 
@@ -466,7 +475,7 @@
                 $('.btn.-active-send').prop('disabled', auto);
             }
 
-            $('.btn.-active-send').off('click.send').on('click.send', function () {
+            $('.btn.-active-send').off('click.send').on('click.send', function() {
                 if (!$(this).prop('disabled')) {
                     // API
                     axios.post(activePointUrl, {
@@ -478,11 +487,15 @@
                             $('.badge.bg-secondary').removeClass('bg-secondary')
                                 .addClass('bg-success').text('已發');
                         } else {
-                            toast.show(`失敗：${result.data.message}`, { type: 'danger' });
+                            toast.show(`失敗：${result.data.message}`, {
+                                type: 'danger'
+                            });
                         }
                     }).catch((err) => {
                         console.error(err);
-                        toast.show('發生錯誤', { type: 'danger' });
+                        toast.show('發生錯誤', {
+                            type: 'danger'
+                        });
                     });
                 }
             });
