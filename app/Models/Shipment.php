@@ -40,6 +40,7 @@ class Shipment extends Model
         $name = $req['name'];
         $temps = $req['temps'];
         $method = $req['method'];
+        $supplier_id = $req['supplier_id'];
         $note = $req['note'];
         $min_price = $request->input('min_price');
         $max_price = $request->input('max_price');
@@ -65,6 +66,7 @@ class Shipment extends Model
             'name' => $name ,
             'temps' => $temps ,
             'method' => $method ,
+            'supplier_id' => $supplier_id ,
             'note' => $note ,
             'ruleNumArray' => $ruleNumArray ,
         ];
@@ -76,6 +78,7 @@ class Shipment extends Model
         string $name,
         string $temps,
         string $method,
+        $supplierID,
         $note
     ) {
         $tempsId = Temps::findTempsIdByName($temps);
@@ -87,6 +90,7 @@ class Shipment extends Model
                     'name' => $name,
                     'temps_fk' => $tempsId,
                     'method_fk' => $methodId,
+                    'supplier_fk' => $supplierID,
                     'note' => $note
                 ])->id;
 
@@ -110,6 +114,7 @@ class Shipment extends Model
         string $name,
         string $temps,
         string $method,
+        $supplier_id,
         $note
     ) {
         $tempsId = Temps::findTempsIdByName($temps);
@@ -122,6 +127,7 @@ class Shipment extends Model
                         'name' => $name,
                         'temps_fk' => $tempsId,
                         'method_fk' => $methodId,
+                        'supplier_fk' => $supplier_id,
                         'note' => $note
                     ]);
         self::where('group_id_fk', '=', $groupId)

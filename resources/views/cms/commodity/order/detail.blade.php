@@ -144,7 +144,7 @@
         @php
             $dlv_fee = 0;
             $price = 0;
-            
+
         @endphp
         @foreach ($subOrders as $subOrder)
             @php
@@ -263,7 +263,9 @@
                     <dl class="row">
                         <div class="col">
                             <dt>運費付款單</dt>
-                            <dd>(待處理)</dd>
+                            <dd><button type="button" class="btn btn-link btn-sm">
+                                    <a href="#">新增訂金付款單</a>
+                                </button></dd>
                         </div>
                         <div class="col">
                             <dt>客戶物流方式</dt>
@@ -288,7 +290,44 @@
                             <dd>{{ $subOrder->ship_group_note ?? '(待處理)' }}</dd>
                         </div>
                     </dl>
+                    <dl class="row">
+                        <div class="col">
+                            <dt>物流廠商</dt>
+                            <dd>{{ $subOrder->supplier_name ?? '' }}</dd>
+                        </div>
+                        <div class="col-9">
+                            <dt>物流成本</dt>
+                            <dd>{{ $subOrder->logistic_cost ?? '(待處理)' }}</dd>
+                        </div>
+                    </dl>
                 </div>
+
+                @if (true == isset($subOrder->consume_items) && 0 < count($subOrder->consume_items))
+                    <div class="card-header px-4 text-secondary border-top">物流耗材清單</div>
+                    <div class="card-body px-4 py-0">
+                        <div class="table-responsive tableOverBox">
+                            <table class="table tableList table-sm mb-0">
+                                <thead class="table-light text-secondary">
+                                <tr>
+                                    <th scope="col">耗材名稱</th>
+                                    <th scope="col">SKU</th>
+                                    <th scope="col">數量</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach ($subOrder->consume_items as $consume_key => $consume_item)
+                                    <tr>
+                                        <td><a href="#" class="-text">{{ $consume_item->product_title }}</a></td>
+                                        <td>{{ $consume_item->sku }}</td>
+                                        <td>{{ $consume_item->qty }}</td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                @endif
             </div>
         @endforeach
 

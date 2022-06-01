@@ -50,13 +50,13 @@ return
             ],
             [
                 "title" => "寄倉訂購",
-                "controller_name" => "ConsignmentCtrl",
-                "route_name" => "cms.consignment.orderlist",
+                "controller_name" => "ConsignmentOrderCtrl",
+                "route_name" => "cms.consignment-order.index",
             ],
             [
                 "title" => "寄倉庫存",
-                "controller_name" => "ConsignmentCtrl",
-                "route_name" => "cms.consignment.stocklist",
+                "controller_name" => "ConsignmentStockCtrl",
+                "route_name" => "cms.consignment-stock.stocklist",
             ],
         ],
     ],

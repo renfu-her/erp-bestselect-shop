@@ -14,6 +14,9 @@ final class PaymentStatus extends Enum
     const Unpaid = 'unpaid';
     const Paided = 'paided';
 
+    const Unbalance = 'unbalance';
+    const Received = 'received';
+
     public static function getDescription($value): string
     {
         $result = '';
@@ -22,7 +25,14 @@ final class PaymentStatus extends Enum
                 $result = '已付款';
                 break;
             case self::Unpaid:
-                $result = '尚未付款';
+                $result = '尚未付款';// or 等待付款
+                break;
+
+            case self::Unbalance:
+                $result = '未完成收款';
+                break;
+            case self::Received:
+                $result = '已收到款項';
                 break;
         }
         return $result;

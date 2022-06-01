@@ -41,7 +41,7 @@ class PurchaseItem extends Model
                     "memo" => $newData['memo']?? null
                 ])->id;
 
-                $rePcsLSC = PurchaseLog::stockChange($newData['purchase_id'], $newData['product_style_id'], Event::purchase()->value, $id, LogEventFeature::style_add()->value, null, $newData['num'], null, $operator_user_id, $operator_user_name);
+                $rePcsLSC = PurchaseLog::stockChange($newData['purchase_id'], $newData['product_style_id'], Event::purchase()->value, $id, LogEventFeature::style_add()->value, null, $newData['num'], null, $newData['title'], 'p', $operator_user_id, $operator_user_name);
 
                 if ($rePcsLSC['success'] == 0) {
                     DB::rollBack();
@@ -85,6 +85,7 @@ class PurchaseItem extends Model
                         $rePcsLSC = PurchaseLog::stockChange($purchaseItem->purchase_id, $purchaseItem->product_style_id
                             , Event::purchase()->value, $itemId
                             , $logEventFeature, null, $dirtyval, $event
+                            , $purchaseItem->title, 'p'
                             , $operator_user_id, $operator_user_name);
                         if ($rePcsLSC['success'] == 0) {
                             DB::rollBack();
@@ -118,7 +119,7 @@ class PurchaseItem extends Model
                 ) {
                     PurchaseItem::whereIn('id', $del_item_id_arr)->delete();
                     foreach ($items as $item) {
-                        PurchaseLog::stockChange($purchase_id, $item->product_style_id, Event::purchase()->value, $item->id, LogEventFeature::style_del()->value, null, null, null, $operator_user_id, $operator_user_name);
+                        PurchaseLog::stockChange($purchase_id, $item->product_style_id, Event::purchase()->value, $item->id, LogEventFeature::style_del()->value, null, null, null, $item->title, 'p', $operator_user_id, $operator_user_name);
                     }
                     return ['success' => 1, 'error_msg' => ""];
                 });

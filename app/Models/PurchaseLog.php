@@ -15,7 +15,9 @@ class PurchaseLog extends Model
     protected $table = 'pcs_purchase_log';
     protected $guarded = [];
 
-    public static function stockChange($event_parent_id, $product_style_id, $event, $event_id, $feature, $inbound_id = null, $qty, $note = null, $operator_user_id, $operator_user_name)
+    public static function stockChange($event_parent_id, $product_style_id, $event, $event_id, $feature, $inbound_id = null, $qty, $note = null
+        , $product_title = null, $prd_type = null
+        , $operator_user_id, $operator_user_name)
     {
         if (!Event::hasKey($event)) {
             return ['success' => 0, 'error_msg' => 'event error '.$event];
@@ -25,7 +27,7 @@ class PurchaseLog extends Model
             return ['success' => 0, 'error_msg' => 'feature error '. $feature];
         }
 
-        return DB::transaction(function () use ($event_parent_id, $product_style_id, $event, $event_id, $feature, $inbound_id, $qty, $note, $operator_user_id, $operator_user_name) {
+        return DB::transaction(function () use ($event_parent_id, $product_style_id, $event, $event_id, $feature, $inbound_id, $qty, $note, $product_title, $prd_type, $operator_user_id, $operator_user_name) {
             self::create([
                 'event_parent_id' => $event_parent_id,
                 'product_style_id' => $product_style_id,
@@ -33,6 +35,8 @@ class PurchaseLog extends Model
                 'event_id' => $event_id,
                 'feature' => $feature,
                 'inbound_id' => $inbound_id,
+                'product_title' => $product_title,
+                'prd_type' => $prd_type,
                 'qty' => $qty,
                 'note' => $note,
                 'user_id' => $operator_user_id,
@@ -43,6 +47,7 @@ class PurchaseLog extends Model
         });
     }
 
+    //變更紀錄
     public static function getData($event, $event_id) {
         $eventTable = '';
         $eventItemTable = '';
@@ -93,9 +98,9 @@ class PurchaseLog extends Model
                 , 'log.user_name'
                 , 'log.created_at'
                 , 'log.qty'
-                , 'items.title'
+                , 'log.product_title as title'
             )
-            ->whereNotNull('items.id')
+            ->whereNotNull('items.id') //選擇商品狀態時 可能隨時會被使用者刪除 所以要加此防呆
             ->where('log.event_parent_id', '=', $event_id)
             ->where('log.event', '=', $event);
 
@@ -106,22 +111,14 @@ class PurchaseLog extends Model
             }
         }
         $log_inbound = DB::table('pcs_purchase_log as log')
-            ->leftJoin('pcs_purchase_inbound as inbound', function($join) use($event, $logEventFeatureKey_inbound) {
-                $join->on('inbound.id', '=', 'log.event_id');
-                $join->where('log.event', $event);
-                $join->whereIn('log.feature', $logEventFeatureKey_inbound);
-            })
-            ->leftJoin('prd_product_styles as style', 'style.id', '=', 'inbound.product_style_id')
-            ->leftJoin('prd_products as product', 'product.id', '=', 'style.product_id')
             ->select('log.id'
                 , 'log.event'
                 , 'log.feature'
                 , 'log.user_name'
                 , 'log.created_at'
                 , 'log.qty'
-                , DB::raw('CONCAT(product.title, "-", style.title) as title')
+                , 'log.product_title as title'
             )
-            ->whereNotNull('inbound.id')
             ->where('log.event_parent_id', '=', $event_id)
             ->where('log.event', '=', $event);
 
@@ -140,8 +137,8 @@ class PurchaseLog extends Model
                 , 'log.user_name'
                 , 'log.created_at'
                 , 'log.qty'
-                , DB::raw('(case when "ce" = rcv_depot.prd_type then CONCAT(rcv_depot.product_title, "(組合包內容)")
-                    else rcv_depot.product_title end) as title')
+                , DB::raw('(case when "ce" = rcv_depot.prd_type then CONCAT(log.product_title, "(組合包內容)")
+                    else log.product_title end) as title')
             )
             ->where('log.event_parent_id', '=', $event_id)
             ->where('log.event', '=', $event)
@@ -150,18 +147,13 @@ class PurchaseLog extends Model
         $logEventFeatureKey_consume = [];
         array_push($logEventFeatureKey_consume, LogEventFeature::consume_delivery()->value);
         $log_consume = DB::table('pcs_purchase_log as log')
-            ->leftJoin('dlv_consum as consum', function($join) use($event, $logEventFeatureKey_consume) {
-                $join->on('consum.id', '=', 'log.event_id');
-                $join->where('log.event', $event);
-                $join->whereIn('log.feature', $logEventFeatureKey_consume);
-            })
             ->select('log.id'
                 , 'log.event'
                 , 'log.feature'
                 , 'log.user_name'
                 , 'log.created_at'
                 , 'log.qty'
-                , 'consum.product_title as title'
+                , 'log.product_title as title'
             )
             ->where('log.event_parent_id', '=', $event_id)
             ->where('log.event', '=', $event)
@@ -211,4 +203,65 @@ class PurchaseLog extends Model
         return $log_purchase;
     }
 
+    //寄倉庫存明細
+    public static function getCsnStockData($style_id) {
+
+        $logEvent_event = [];
+        array_push($logEvent_event, Event::consignment()->value);
+        array_push($logEvent_event, Event::csn_order()->value);
+        $logEventFeatureKey_delivery = [];
+        array_push($logEventFeatureKey_delivery, LogEventFeature::delivery()->value);
+//        array_push($logEventFeatureKey_delivery, LogEventFeature::combo()->value);
+
+        $logPurchase = DB::table('pcs_purchase_log as log')
+            ->leftJoin('dlv_receive_depot as rcv_depot', function($join) use($logEvent_event, $logEventFeatureKey_delivery) {
+                $join->on('rcv_depot.id', '=', 'log.event_id');
+                $join->where('log.event', $logEvent_event);
+                $join->whereIn('log.feature', $logEventFeatureKey_delivery);
+            })
+            ->leftJoin('pcs_purchase_inbound as inbound', function($join) use($logEvent_event, $logEventFeatureKey_delivery) {
+                $join->on('inbound.id', '=', 'log.inbound_id');
+            })
+            ->whereIn('log.event', $logEvent_event)
+            ->where('log.product_style_id', $style_id)
+            ->whereNotNull('log.product_style_id')
+            ->whereNotNull('log.inbound_id')
+            ->select(
+                'log.id as id'
+                , 'log.event_parent_id as event_parent_id'
+                , 'log.product_style_id as product_style_id'
+                , DB::raw('(case
+                    when "'. Event::purchase()->value. '" = log.event then "'. Event::getDescription(Event::purchase). '"
+                    when "'. Event::order()->value. '" = log.event then "'. Event::getDescription(Event::order). '"
+                    when "'. Event::ord_pickup()->value. '" = log.event then "'. Event::getDescription(Event::ord_pickup). '"
+                    when "'. Event::consignment()->value. '" = log.event then "'. Event::getDescription(Event::consignment). '"
+                    when "'. Event::csn_order()->value. '" = log.event then "'. Event::getDescription(Event::csn_order). '"
+                    else log.event end) as event')
+                , 'log.event_id as event_id'
+//                , 'log.feature as feature'
+                , DB::raw('(case
+                    when "'. LogEventFeature::inbound_add()->value. '" = log.feature then "'. LogEventFeature::getDescription(LogEventFeature::inbound_add). '"
+                    when "'. LogEventFeature::inbound_del()->value. '" = log.feature then "'. LogEventFeature::getDescription(LogEventFeature::inbound_del). '"
+                    when "'. LogEventFeature::delivery()->value. '" = log.feature then "'. LogEventFeature::getDescription(LogEventFeature::delivery). '"
+                    when "'. LogEventFeature::consume_delivery()->value. '" = log.feature then "'. LogEventFeature::getDescription(LogEventFeature::consume_delivery). '"
+                    when "'. LogEventFeature::send_back()->value. '" = log.feature then "'. LogEventFeature::getDescription(LogEventFeature::send_back). '"
+                    when "'. LogEventFeature::consume_send_back()->value. '" = log.feature then "'. LogEventFeature::getDescription(LogEventFeature::consume_send_back). '"
+                    when "'. LogEventFeature::decompose()->value. '" = log.feature then "'. LogEventFeature::getDescription(LogEventFeature::decompose). '"
+                    when "'. LogEventFeature::scrapped()->value. '" = log.feature then "'. LogEventFeature::getDescription(LogEventFeature::scrapped). '"
+                    else log.feature end) as feature')
+                , 'log.inbound_id as inbound_id'
+                , DB::raw('(case when "ce" = rcv_depot.prd_type then CONCAT(log.product_title, "(組合包內容)")
+                    else log.product_title end) as title')
+                , 'log.prd_type as prd_type'
+                , 'log.qty as qty'
+                , 'log.user_id as user_id'
+                , 'log.user_name as user_name'
+                , 'log.note as note'
+                , 'log.created_at as created_at'
+                , 'inbound.depot_id as depot_id'
+                , 'inbound.depot_name as depot_name'
+            );
+
+        return $logPurchase;
+    }
 }

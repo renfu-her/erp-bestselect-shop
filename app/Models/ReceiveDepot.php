@@ -274,7 +274,7 @@ class ReceiveDepot extends Model
                                     ->where('prd_type', 'ce');
 
                                 $reStockChange =PurchaseLog::stockChange($event_id, $element->product_style_id, $event, $reSD['id'],
-                                    LogEventFeature::combo()->value, null, $element->num, null, $user_id, $user_name);
+                                    LogEventFeature::combo()->value, null, $element->num, null, $element->title, 'c', $user_id, $user_name);
                                 if ($reStockChange['success'] == 0) {
                                     DB::rollBack();
                                     return $reStockChange;

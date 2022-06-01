@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Web;
 use App\Enums\Delivery\Event;
 use App\Enums\Globals\ResponseParam;
 use App\Enums\Order\OrderStatus;
+use App\Enums\Order\PaymentStatus;
 use App\Enums\Order\UserAddrType;
 // use App\Enums\;
 use App\Enums\Received\ReceivedMethod;
@@ -98,7 +99,7 @@ class OrderCtrl extends Controller
                 'received.deleted_at' => null,
             ])
             ->where(function ($q) {
-                $q->whereRaw('(order.status_code NOT IN ("canceled","closed","paided"))');
+                $q->whereRaw('(order.status_code NOT IN ("canceled","closed","paided","received"))');
             })
             ->first();
 
@@ -455,30 +456,35 @@ class OrderCtrl extends Controller
 
             if (is_array($EncArray) && count($EncArray) > 0) {
                 $status = isset($EncArray['status']) ? $EncArray['status'] : '';
-                $authAmt = isset($EncArray['authamt']) ? $EncArray['authamt'] : "";
+                $authAmt = isset($EncArray['authamt']) ? $EncArray['authamt'] : '';
                 $lidm = isset($EncArray['lidm']) ? $EncArray['lidm'] : '';
 
                 if (empty($status) && $status == '0') {
                     // echo '交易完成';
-                    OrderFlow::changeOrderStatus($id, OrderStatus::Paided());
-
-                    $received_order = ReceivedOrder::create_received_order($id);
-                    $received_method = ReceivedMethod::CreditCard; // 'credit_card'
-
-                    $data = [];
-                    $data['acc_transact_type_fk'] = $received_method;
-                    $data[$received_method]['installment'] = 'none';
-                    $result_id = ReceivedOrder::store_received_method($data);
-
-                    $parm = [];
-                    $parm['received_order_id'] = $received_order->id;
-                    $parm['received_method'] = $received_method;
-                    $parm['received_method_id'] = $result_id;
-                    $parm['grade_id'] = ReceivedDefault::where('name', $received_method)->first() ? ReceivedDefault::where('name', $received_method)->first()->default_grade_id : 0;
-                    $parm['price'] = $authAmt;
-                    ReceivedOrder::store_received($parm);
-
                     OrderPayCreditCard::create_log($id, (object) $EncArray);
+
+                    $received_order_collection = ReceivedOrder::where([
+                        'order_id'=>$id,
+                        'deleted_at'=>null,
+                    ]);
+
+                    if(! $received_order_collection->first()){
+                        $received_order = ReceivedOrder::create_received_order($id);
+                        $received_method = ReceivedMethod::CreditCard; // 'credit_card'
+
+                        $data = [];
+                        $data['acc_transact_type_fk'] = $received_method;
+                        $data[$received_method]['installment'] = 'none';
+                        $result_id = ReceivedOrder::store_received_method($data);
+
+                        $parm = [];
+                        $parm['received_order_id'] = $received_order->id;
+                        $parm['received_method'] = $received_method;
+                        $parm['received_method_id'] = $result_id;
+                        $parm['grade_id'] = ReceivedDefault::where('name', $received_method)->first() ? ReceivedDefault::where('name', $received_method)->first()->default_grade_id : 0;
+                        $parm['price'] = $authAmt;
+                        ReceivedOrder::store_received($parm);
+                    }
 
                     return redirect(env('FRONTEND_URL') . 'payfin/' . $id . '/' . $lidm . '/' . $status);
                 }

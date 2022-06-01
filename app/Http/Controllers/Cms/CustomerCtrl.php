@@ -7,6 +7,7 @@ use App\Enums\Customer\Newsletter;
 use App\Http\Controllers\Controller;
 use App\Models\Addr;
 use App\Models\Customer;
+use App\Models\CustomerLogin;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -137,6 +138,9 @@ class CustomerCtrl extends Controller
     public function edit(Request $request, $id)
     {
         $data = Customer::getCustomer($id)->get()->first();
+        $loginMethods = CustomerLogin::where('usr_customers_id_fk', '=', $id)
+                                        ->select('login_method')
+                                        ->get();
         if (!$data) {
             return abort(404);
         }
@@ -155,6 +159,7 @@ class CustomerCtrl extends Controller
             'customer_list' => Customer::all(),
             'citys' => Addr::getCitys(),
             'regions' => $regions,
+            'loginMethods' => $loginMethods,
         ]);
     }
 

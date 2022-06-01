@@ -146,7 +146,7 @@
                             <td>${{ number_format($data->min_consume) }}</td>
                             <td data-td="status" @class([
                                 'text-success' => $data->status === '進行中', 
-                                'text-danger' => $data->status === '已結束' || $data->status === '暫停'
+                                'text-danger' => $data->status === '結束' || $data->status === '暫停'
                             ])>
                                 {{ $data->status }}
                             </td>
