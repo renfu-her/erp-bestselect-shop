@@ -104,6 +104,7 @@ class Order extends Model
                 'order.origin_price',
                 'order.status',
                 'order.allotted_dividend',
+                'order.auto_dividend',
                 'order.total_price',
                 'order.created_at',
                 'customer.name',

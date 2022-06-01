@@ -330,9 +330,8 @@
                     <h6 class="flex-grow-1 mb-0">訂單總覽</h6>
                     <div class="form-check form-check-inline form-switch form-switch-lg">
                         <label class="form-check-label">
-                            {{ $order->allotted_dividend }}
                             <input class="form-check-input -auto-send" type="checkbox" name="" value=""
-                                @if ($order->allotted_dividend == '1') checked @endif
+                                @if ($order->auto_dividend == '1') checked @endif
                                 @if ($order->allotted_dividend) disabled @endif>
                             紅利自動發放
                         </label>
