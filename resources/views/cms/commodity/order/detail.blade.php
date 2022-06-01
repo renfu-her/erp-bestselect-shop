@@ -282,9 +282,13 @@
                             <dt>物流廠商</dt>
                             <dd>{{ $subOrder->supplier_name ?? '' }}</dd>
                         </div>
-                        <div class="col-9">
+                        <div class="col">
                             <dt>物流成本</dt>
                             <dd>{{ $subOrder->logistic_cost ?? '(待處理)' }}</dd>
+                        </div>
+                        <div class="col-6">
+                            <dt>物流備註</dt>
+                            <dd>{{ $subOrder->logistic_memo ?? '(待處理)' }}</dd>
                         </div>
                     </dl>
                 </div>
