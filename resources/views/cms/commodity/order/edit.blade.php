@@ -145,9 +145,12 @@
                             @enderror
                         </div>
                     </div>
-                    <div class="col-12 mb-3" hidden>
+                    <div class="col-12 mb-3">
                         <label class="form-label">
-                            紅利<span class="small text-secondary">（目前紅利點數：11點，可使用紅利上限：10點）</span>
+                            紅利<span class="small text-secondary">
+                                （目前紅利點數：<span id="hasPoints">0</span>
+                                點，可使用紅利上限：<span id="maxPoints">0</span> 點）
+                            </span>
                         </label>
                         <div class="d-flex -bonus_point">
                             <input type="text" class="form-control col -bonus_point" placeholder="請輸入會員紅利折抵點數">
@@ -568,6 +571,8 @@
             const DISC_PRIORITY = ['optional', 'global', 'coupon', 'code', 'bonus'];
             // 訂購會員持有優惠券
             let UserCoupons = {};
+            // 訂購會員持有紅利
+            let UserPoints = 0;
             // 目前有效優惠
             let DiscountData = {
                 optional: {},    // 任選 [暫無] (固定)
@@ -1556,7 +1561,7 @@
                 switch (type) {
                     case 'coupon':  // 優惠券
                         resetCouponCodeData();
-                        getCouponsApi();
+                        getCouponsAPI();
                         break;
                     case 'code':    // 優惠代碼
                         resetCouponCouponData();
@@ -1658,7 +1663,8 @@
                 // 檢查試算
                 calcAndCheckAllOrder();
             });
-            function getCouponsApi() {
+            // 取得持有優惠券API
+            function getCouponsAPI() {
                 const _URL = @json(route('api.cms.discount.get-coupons'));
                 const Data = {
                     customer_id: $('#customer').val()
@@ -1701,6 +1707,16 @@
                 );
             }
 
+            /*** 紅利 fn ***/
+            // 取得持有紅利API
+            function getPointsAPI() {
+                const _URL = @json(route('api.cms.discount.get-dividend-point'));
+                const Data = {
+                    customer_id: $('#customer').val()
+                };
+                // init
+                UserPoints = 0;
+            }
 
             /*** 運費 fn ***/
             // #檢查運費
