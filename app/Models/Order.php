@@ -153,9 +153,12 @@ class Order extends Model
             'sku' => 'dlv_consum.sku',
             'product_title' => 'dlv_consum.product_title',
             'qty' => 'dlv_consum.qty',]);
-        $itemConsumeQuery = DB::table('dlv_consum')
+
+        $itemConsumeQuery = DB::table('dlv_logistic')
+            ->leftJoin('dlv_consum', 'dlv_consum.logistic_id', '=', 'dlv_logistic.id')
             ->select('dlv_consum.logistic_id')
             ->selectRaw($concatConsumeString . ' as consume_items')
+            ->whereNotNull('dlv_logistic.audit_date')
             ->groupBy('dlv_consum.logistic_id');
 
         if ($sub_order_id) {
