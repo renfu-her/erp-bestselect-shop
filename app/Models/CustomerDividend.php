@@ -57,12 +57,13 @@ class CustomerDividend extends Model
             ->where('category_sn', $category_sn)
             ->where('flag', DividendFlag::NonActive())->get()->first();
 
-        $dividendSetting = DividendSetting::getData();
+        $order = Order::where('sn',$category_sn)->get()->first();
 
-        if (!$dividend) {
+    
+        if (!$dividend || !$order) {
             return;
         }
-        if ($dividendSetting->limit_day == 0) {
+        if ($order->dividend_lifecycle == 0) {
             $deadline = 0;
         } else {
             $deadline = 1;
@@ -70,7 +71,7 @@ class CustomerDividend extends Model
 
         if ($deadline == 1) {
             $sdate = now();
-            $edate = date('Y-m-d 23:59:59', strtotime(now() . " + $dividendSetting->limit_day days"));
+            $edate = date('Y-m-d 23:59:59', strtotime(now() . " + $order->dividend_lifecycle days"));
 
         } else {
             $sdate = now();
