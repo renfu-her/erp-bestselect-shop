@@ -317,11 +317,14 @@ class OrderCtrl extends Controller
 
         $dividend = CustomerDividend::where('category', DividendCategory::Order())
             ->where('category_sn', $order->sn)->get()->first();
+
+       
         if ($dividend) {
             $dividend = $dividend->dividend;
         } else {
             $dividend = 0;
-        }
+        }   
+
         
         return view('cms.commodity.order.detail', [
             'sn' => $sn,
@@ -332,6 +335,7 @@ class OrderCtrl extends Controller
             'discounts' => Discount::orderDiscountList('main', $id)->get()->toArray(),
             'receivable' => $receivable,
             'received_order_data' => $received_order_data,
+            'dividend'=>$dividend
         ]);
     }
 

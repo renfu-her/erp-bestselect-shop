@@ -12,6 +12,8 @@ use App\Enums\Received\ReceivedMethod;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Models\OrderCart;
+use App\Models\CustomerDividend;
 
 class Order extends Model
 {
