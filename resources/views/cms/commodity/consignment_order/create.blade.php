@@ -71,7 +71,7 @@
                 <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::csn_order()->value, 'eventId' => $id], true) }}">配送狀態</a>
                 <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::csn_order()->value, 'eventId' => $id], true) }}">物流設定</a>
                 <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::csn_order()->value, 'eventId' => $id], true) }}">出貨審核</a>
-{{--                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.consignment.stock_log', ['id' => $id], true) }}">變更紀錄</a>--}}
+{{--                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.consignment-stock.stock_log', ['id' => $id], true) }}">變更紀錄</a>--}}
             @endif
         </div>
         <div class="card shadow p-4 mb-4">
@@ -189,7 +189,7 @@
                     @else
                         {{--判斷已審核 則不可再按儲存--}}
                     @endif
-                    <a href="{{ Route('cms.consignment.orderlist', [], true) }}" class="btn btn-outline-primary px-4"
+                    <a href="{{ Route('cms.consignment-order.index', [], true) }}" class="btn btn-outline-primary px-4"
                        role="button">返回列表</a>
                 </div>
             </div>

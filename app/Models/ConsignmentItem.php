@@ -41,7 +41,7 @@ class ConsignmentItem extends Model
                     "memo" => $newData['memo'] ?? null,
                 ])->id;
 
-                $rePcsLSC = PurchaseLog::stockChange($newData['consignment_id'], $newData['product_style_id'], Event::consignment()->value, $id, LogEventFeature::style_add()->value, null, $newData['num'], null, $operator_user_id, $operator_user_name);
+                $rePcsLSC = PurchaseLog::stockChange($newData['consignment_id'], $newData['product_style_id'], Event::consignment()->value, $id, LogEventFeature::style_add()->value, null, $newData['num'], null, $newData['title'], $newData['prd_type'], $operator_user_id, $operator_user_name);
 
                 if ($rePcsLSC['success'] == 0) {
                     DB::rollBack();
@@ -72,7 +72,7 @@ class ConsignmentItem extends Model
                     if ('' != $event && null != $logEventFeature) {
                         $rePcsLSC = PurchaseLog::stockChange($purchaseItem->consignment_id, $purchaseItem->product_style_id
                             , Event::consignment()->value, $itemId
-                            , $logEventFeature, null, $dirtyval, $event
+                            , $logEventFeature, null, $dirtyval, $event, $purchaseItem->title, $purchaseItem->prd_type
                             , $operator_user_id, $operator_user_name);
                         if ($rePcsLSC['success'] == 0) {
                             DB::rollBack();
@@ -110,7 +110,7 @@ class ConsignmentItem extends Model
                     ConsignmentItem::whereIn('id', $del_item_id_arr)->forceDelete();
 
                     foreach ($items as $item) {
-                        PurchaseLog::stockChange($purchase_id, $item->product_style_id, Event::consignment()->value, $item->id, LogEventFeature::style_del()->value, null, $item->num, null, $operator_user_id, $operator_user_name);
+                        PurchaseLog::stockChange($purchase_id, $item->product_style_id, Event::consignment()->value, $item->id, LogEventFeature::style_del()->value, null, $item->num, null, $item->title, $item->prd_type, $operator_user_id, $operator_user_name);
                     }
                     return ['success' => 1, 'error_msg' => ''];
                 });

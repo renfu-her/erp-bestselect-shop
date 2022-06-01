@@ -2,7 +2,7 @@
 @section('sub-content')
     <h2 class="mb-3">寄倉庫存</h2>
 
-    <form id="search" action="{{ Route('cms.consignment.stocklist') }}" method="GET">
+    <form id="search" action="{{ Route('cms.consignment-stock.stocklist') }}" method="GET">
         <div class="card shadow p-4 mb-4">
             <h6>搜尋條件</h6>
             <div class="row">
@@ -67,20 +67,13 @@
                                 <td>{{ $data->consume_num }}</td>
                                 <td>{{ $data->available_num }}</td>
 
-{{--                                <td class="text-center">--}}
-{{--                                    @can('admin.consignment.edit')--}}
-{{--                                        <a href="--}}
-{{--                                        @if($data->event == App\Enums\Delivery\Event::order()->value)--}}
-{{--                                            {{ Route('cms.order.detail', ['id' => $data->order_id, 'subOrderId' => $data->sub_order_id], true) }}--}}
-{{--                                        @elseif($data->event == App\Enums\Delivery\Event::consignment()->value)--}}
-{{--                                            {{ Route('cms.consignment.edit', ['id' => $data->event_id], true) }}--}}
-{{--                                        @endif"--}}
-{{--                                           data-bs-toggle="tooltip" title="明細"--}}
-{{--                                           class="icon icon-btn fs-5 text-primary rounded-circle border-0">--}}
-{{--                                            <i class="bi bi-pencil-square"></i>--}}
-{{--                                        </a>--}}
-{{--                                    @endcan--}}
-{{--                                </td>--}}
+                                <td class="text-center">
+                                    <a href="{{ Route('cms.consignment-stock.stock_detail_log', ['id' => $data->product_style_id], true) }}"
+                                       data-bs-toggle="tooltip" title="明細"
+                                       class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                </td>
                             </tr>
                         @endforeach
                     @endif

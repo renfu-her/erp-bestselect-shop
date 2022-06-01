@@ -357,7 +357,14 @@ class AccountPayableCtrl extends Controller
         }
 
         $pay_order = PayingOrder::find(request('pay_order_id'));
-        if ($pay_order->price == AccountPayable::where('pay_order_id', request('pay_order_id'))->sum('tw_price')) {
+        $pay_list = AccountPayable::where('pay_order_id', request('pay_order_id'))->get();
+        if (count($pay_list) > 0 && $pay_order->price == $pay_list->sum('tw_price')) {
+            $pay_order->update([
+                'balance_date'=>date("Y-m-d H:i:s"),
+            ]);
+        }
+
+        if (PayingOrder::find(request('pay_order_id')) && PayingOrder::find(request('pay_order_id'))->balance_date) {
             return redirect()->route('cms.purchase.view-pay-order', [
                 'id' => $req['purchase_id'],
                 'type' => $req['is_final_payment']

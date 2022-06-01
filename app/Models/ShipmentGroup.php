@@ -17,6 +17,7 @@ class ShipmentGroup extends Model
         'name',
         'temps_fk',
         'method_fk',
+        'supplier_fk',
         'note',
     ];
 

@@ -14,7 +14,6 @@ use App\Models\PurchaseInbound;
 use App\Models\PurchaseItem;
 use App\Models\PurchaseLog;
 use App\Models\Supplier;
-use App\Models\SupplierPayment;
 use App\Models\User;
 
 use Illuminate\Http\Request;
@@ -274,13 +273,13 @@ class PurchaseCtrl extends Controller
                 if ($payingOrderItem->type === 0) {
                     $hasCreatedDepositPayment = true;
                     $depositPayData = $payingOrderItem;
-                    if ($payingOrderItem->price == AccountPayable::where('pay_order_id', $payingOrderItem->id)->sum('tw_price')) {
+                    if ($payingOrderItem->balance_date) {
                         $hasReceivedDepositPayment = true;
                     }
                 } elseif ($payingOrderItem->type === 1) {
                     $hasCreatedFinalPayment = true;
                     $finalPayData = $payingOrderItem;
-                    if ($payingOrderItem->price == AccountPayable::where('pay_order_id', $payingOrderItem->id)->sum('tw_price')) {
+                    if ($payingOrderItem->balance_date) {
                         $hasReceivedFinalPayment = true;
                     }
                 }
@@ -497,15 +496,37 @@ class PurchaseCtrl extends Controller
 
             $depot = Depot::where('id', '=', $depot_id)->get()->first();
 
-            $result = DB::transaction(function () use ($inboundItemReq, $id, $depot_id, $depot, $request
-            ) {
-                foreach ($inboundItemReq['product_style_id'] as $key => $val) {
+            $styles = DB::table('prd_products as product')
+                ->leftJoin('prd_product_styles as style', 'style.product_id', '=', 'product.id')
+                ->select('style.id'
+                    , 'product.title'
+                    , 'style.title as spec'
+                )
+                ->get()->toArray();
+            $styles = json_decode(json_encode($styles), true);
+            $style_arr = [];
+            foreach ($inboundItemReq['product_style_id'] as $key => $val) {
+                $style_arr[$key]['id'] = $val;
+            }
 
+            foreach ($style_arr as $key => $val) {
+                foreach ($styles as $styleItem) {
+                    if ($style_arr[$key]['id'] == $styleItem['id']) {
+                        $style_arr[$key]['item'] = $styleItem;
+                        break;
+                    }
+                }
+            }
+
+            $result = DB::transaction(function () use ($inboundItemReq, $id, $depot_id, $depot, $request, $style_arr
+            ) {
+                foreach ($style_arr as $key => $val) {
                     $re = PurchaseInbound::createInbound(
                         Event::purchase()->value,
                         $id,
                         $inboundItemReq['event_item_id'][$key],
                         $inboundItemReq['product_style_id'][$key],
+                        $val['item']['title'] . '-'. $val['item']['spec'],
                         $inboundItemReq['expiry_date'][$key],
                         $inboundItemReq['inbound_date'][$key],
                         $inboundItemReq['inbound_num'][$key],
@@ -540,20 +561,14 @@ class PurchaseCtrl extends Controller
         $purchase_id = '';
         if (null != $inboundDataGet) {
             $purchase_id = $inboundDataGet->event_id;
-            if (0 < $inboundDataGet->sale_num) {
-                wToast('已有售出紀錄 無法刪除');
-            } else if (0 < $inboundDataGet->csn_num) {
-                wToast('已有寄倉紀錄 無法刪除');
-            } else if (0 < $inboundDataGet->consume_num) {
-                wToast('已有耗材紀錄 無法刪除');
-            } else {
-                $re = PurchaseInbound::delInbound($id, $request->user()->id);
-                if ($re['success'] == 0) {
-                    wToast($re['error_msg']);
-                } else {
-                    wToast(__('Delete finished.'));
-                }
-            }
+        } else {
+            return abort(404);
+        }
+        $re = PurchaseInbound::delInbound($id, $request->user()->id);
+        if ($re['success'] == 0) {
+            wToast($re['error_msg']);
+        } else {
+            wToast(__('Delete finished.'));
         }
         return redirect(Route('cms.purchase.inbound', [
             'id' => $purchase_id,
@@ -603,7 +618,6 @@ class PurchaseCtrl extends Controller
                     $prdDefault['default_grade_id'],
                     $lgsDefault['default_grade_id'],
                     $totalPrice ?? 0,
-                    null,
                     $request['deposit_summary'] ?? '',
                     $request['deposit_memo'] ?? '',
                 );
@@ -647,16 +661,16 @@ class PurchaseCtrl extends Controller
                             ->first();
         $accountPayable = PayingOrder::find($payingOrderData->id)->accountPayable;
 
-        $pay_off = 0;
+        $pay_off = false;
         $pay_off_date = null;
         $pay_record = AccountPayable::where('pay_order_id', $payingOrderData->id);
         $sum_pay = $pay_record->sum('tw_price');
         if($payingOrderData->price == $sum_pay ){
-            $pay_off = 1;
+            $pay_off = true;
             if($payingOrderData->price == 0 && $pay_record->count() == 0){
                 $pay_off_date = date('Y-m-d', strtotime($payingOrderData->created_at));
             } else {
-                $pay_off_date = date('Y-m-d', strtotime($pay_record->get()->last()->payment_date));
+                $pay_off_date = date('Y-m-d', strtotime($payingOrderData->balance_date));
             }
         }
 

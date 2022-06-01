@@ -95,6 +95,25 @@
                             @endforeach
                         </div>
                     </x-b-form-group>
+                    <x-b-form-group name="supplier" title="廠商" required="false">
+                        <select id="supplier" aria-label="廠商"
+                                class="form-select -select2 -single @error('supplier') is-invalid @enderror">
+                            <option value="" @if (true == empty(old('supplier', $supplierData->id ?? null))) selected @endif >請選擇</option>
+                            @foreach ($supplierList as $supplierItem)
+                                <option value="{{ $supplierItem->id }}"
+                                        @if ($supplierItem->id == old('supplier', $supplierData->id ?? '')) selected @endif>
+                                    {{ $supplierItem->name }}@if ($supplierItem->nickname)（{{ $supplierItem->nickname }}） @endif
+                                </option>
+                            @endforeach
+                        </select>
+                        <div class="invalid-feedback">
+                            @error('supplier')
+                            {{ $message }}
+                            @enderror
+                        </div>
+                        <input type="hidden" name="supplier_id" value="{{ $supplierData->id ?? '' }}">
+                    </x-b-form-group>
+
                     <x-b-form-group name="note" title="說明" required="false">
                         <textarea name="note" class="form-control" placeholder="請輸入物流說明"
                             rows="6">{{ old('note', $note ?? '') }}</textarea>
@@ -281,6 +300,10 @@
             const trashButtonHtml = '<button type="button" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0"> ' +
                                         '<i class="bi bi-trash"></i> ' +
                                     '</button>';
+
+            $('#supplier').on('change', function (e) {
+                $('input:hidden[name="supplier_id"]').val($('#supplier').val());
+            });
 
             addNewShipElem.on('click', function () {
                 if ($('tbody > tr').length === 1) {

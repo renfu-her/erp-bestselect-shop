@@ -108,7 +108,7 @@
                 @elseif($delivery->event == App\Enums\Delivery\Event::consignment()->value)
                     <a href="{{ Route('cms.consignment.edit', ['id' => $eventId ]) }}" class="btn btn-outline-primary px-4" role="button">返回明細</a>
                 @elseif($delivery->event == App\Enums\Delivery\Event::csn_order()->value)
-                    <a href="{{ Route('cms.consignment.order_edit', ['id' => $eventId ]) }}" class="btn btn-outline-primary px-4" role="button">返回明細</a>
+                    <a href="{{ Route('cms.consignment-order.edit', ['id' => $eventId ]) }}" class="btn btn-outline-primary px-4" role="button">返回明細</a>
                 @endif
             </div>
         </div>
