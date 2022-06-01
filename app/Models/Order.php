@@ -262,6 +262,7 @@ class Order extends Model
                 'unique_id' => substr(base_convert(sha1(uniqid(mt_rand())), 16, 36), 0, 9), // return 9 characters
                 'payment_status' => PaymentStatus::Unpaid()->value,
                 'payment_status_title' => PaymentStatus::Unpaid()->description,
+                'dividend_lifecycle'=> DividendSetting::getData()->limit_day
             ];
 
             if ($payment) {
