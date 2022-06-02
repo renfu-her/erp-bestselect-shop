@@ -86,13 +86,7 @@ class CustomerCtrl extends Controller
 
         $uData = $request->only('email', 'name', 'password'
             , 'phone', 'birthday', 'sex', 'acount_status'
-            , 'address', 'city_id', 'region_id', 'addr'
         );
-
-        $address = null;
-        if (is_numeric($uData['region_id'])) {
-            $address = Addr::fullAddr($uData['region_id'], $uData['addr']);
-        }
 
         Customer::createCustomer($uData['name']
             , $uData['email']
@@ -101,10 +95,6 @@ class CustomerCtrl extends Controller
             , $uData['birthday'] ?? null
             , $uData['sex'] ?? null
             , $uData['acount_status'] ?? AccountStatus::close()->value
-            , $address
-            , is_numeric($uData['city_id']) ? $uData['city_id'] : null
-            , is_numeric($uData['region_id']) ? $uData['region_id'] : null
-            , $uData['addr'] ?? null
         );
 
         if ($request->input('bind') == '1') {

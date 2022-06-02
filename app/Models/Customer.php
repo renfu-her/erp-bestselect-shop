@@ -102,10 +102,6 @@ class Customer extends Authenticatable
             'sex' => $sex,
             //'acount_status' => $acount_status,
             'password' => Hash::make($password),
-            'address' => $address,
-            'city_id' => $city_id,
-            'region_id' => $region_id,
-            'addr' => $addr,
             'api_token' => Str::random(80),
             'newsletter' => $newsletter ?? Newsletter::subscribe()->value,
         ];

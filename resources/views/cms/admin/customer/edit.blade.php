@@ -40,18 +40,20 @@
                     <input class="form-control @error('name') is-invalid @enderror" name="name"
                            value="{{ old('name', $data->name ?? '') }}" />
                 </x-b-form-group>
-                <x-b-form-group name="loginMethods" title="帳號類型">
-                    <div class="px-1">
-                        <div class="col-form-label @error('loginMethods') is-invalid @enderror">
-                            @foreach($loginMethods as $key => $loginMethod)
-                                @if($key > 0)
-                                    {{ ',' }}
-                                @endif
-                                {{ old('loginMethod', App\Enums\Customer\Login::getDescription($loginMethod->login_method) ?? '') }}
-                            @endforeach
+                @if ($method !== 'create')
+                    <x-b-form-group name="loginMethods" title="帳號類型">
+                        <div class="px-1">
+                            <div class="col-form-label @error('loginMethods') is-invalid @enderror">
+                                @foreach($loginMethods as $key => $loginMethod)
+                                    @if($key > 0)
+                                        {{ ',' }}
+                                    @endif
+                                    {{ old('loginMethod', App\Enums\Customer\Login::getDescription($loginMethod->login_method) ?? '') }}
+                                @endforeach
+                            </div>
                         </div>
-                    </div>
-                </x-b-form-group>
+                    </x-b-form-group>
+                @endif
                 <x-b-form-group name="sex" title="性別">
                     <div class="px-1">
                         @foreach (\App\Enums\Customer\Sex::asSelectArray() as $key => $value)
@@ -59,7 +61,7 @@
                                 <label class="form-check-label">
                                     {{$value}}
                                     <input class="form-check-input @error('sex') is-invalid @enderror" value="{{ $key }}"
-                                           name="sex" type="radio" @if ($key === $data->sex) checked @endif>
+                                           name="sex" type="radio" @if ($method !== 'create' && $key === $data->sex) checked @endif>
                                 </label>
                             </div>
                         @endforeach
@@ -88,7 +90,10 @@
 
                 <x-b-form-group name="birthday" title="生日">
                     <input class="form-control @error('birthday') is-invalid @enderror" type="date" name="birthday"
-                           value="{{ old('birthday', explode(' ', $data->birthday)[0] ?? '') }}" />
+                           @if($method !== 'create')
+                               value="{{ old('birthday', explode(' ', $data->birthday)[0] ?? '') }}"
+                           @endif
+                    />
                 </x-b-form-group>
 
                 <x-b-form-group name="newsletter" title="訂閱電子報">
@@ -98,7 +103,7 @@
                                 <label class="form-check-label">
                                     {{$value}}
                                     <input class="form-check-input @error('newsletter') is-invalid @enderror" value="{{ $key }}"
-                                           name="newsletter" type="radio" @if ($key === $data->newsletter) checked @endif>
+                                           name="newsletter" type="radio" @if ($method !== 'create' && $key === $data->newsletter) checked @endif>
                                 </label>
                             </div>
                         @endforeach
@@ -113,7 +118,7 @@
                 @enderror
             </div>
         </div>
-
+        @if($method !== 'create')
         <div class="card mb-4">
             <div class="card-body">
                 <h6>消費記錄</h6>
@@ -133,6 +138,7 @@
                 </dl>
             </div>
         </div>
+        @endif
         <div class="d-flex justify-content-end">
             @if (isset($bind))
                 <input type="hidden" name="bind" value="{{ $bind }}">
