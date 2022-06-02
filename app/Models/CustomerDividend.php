@@ -25,8 +25,8 @@ class CustomerDividend extends Model
 
         return $re;
     }
-
-    public static function fromOrder($customer_id, $order_id, $point, $deadline = 1)
+    // 從訂單取得點數
+    public static function fromOrder($customer_id, $order_sn, $point, $deadline = 1)
     {
         /*
         if ($deadline == 1) {
@@ -38,7 +38,7 @@ class CustomerDividend extends Model
         $id = self::create([
             'customer_id' => $customer_id,
             'category' => DividendCategory::Order(),
-            'category_sn' => $order_id,
+            'category_sn' => $order_sn,
             'dividend' => $point,
             'deadline' => $deadline,
             'flag' => DividendFlag::NonActive(),
@@ -128,14 +128,26 @@ class CustomerDividend extends Model
         return $id;
     }
 
-    public static function orderDiscount($customer_id, $order_id, $discount_point)
+    // 訂單中使用紅利
+    public static function orderDiscount($customer_id, $order_sn, $discount_point)
     {
         DB::beginTransaction();
-        $dividend = self::getDividend($customer_id)->get()->first()->dividend;
+        $dividend = self::getDividend($customer_id)->get()->first();
+
+        if (!$dividend || !$dividend->dividend) {
+            DB::rollBack();
+            return ['success' => '0',
+                'error_msg' => '無紅利餘額',
+                'error_stauts' => 'dividend'];
+        }
+
+        $dividend = $dividend->dividend;
 
         if ($discount_point > $dividend) {
             DB::rollBack();
-            return;
+            return ['success' => '0',
+                'error_msg' => '紅利餘額不足',
+                'error_stauts' => 'dividend'];
         }
 
         $d = self::where('customer_id', $customer_id)
@@ -172,7 +184,7 @@ class CustomerDividend extends Model
         $id = self::create([
             'customer_id' => $customer_id,
             'category' => DividendCategory::Order(),
-            'category_sn' => $order_id,
+            'category_sn' => $order_sn,
             'dividend' => $discount_point * -1,
             'flag' => DividendFlag::Discount(),
             'flag_title' => DividendFlag::Discount()->description,
@@ -180,7 +192,7 @@ class CustomerDividend extends Model
             'type' => 'used',
         ])->id;
         DB::commit();
-        return $id;
+        return ['success' => '1', 'id' => $id];
     }
 
     public static function checkExpired($customer_id)
