@@ -48,10 +48,11 @@ class DividendCtrl extends Controller
             $customer = Customer::where('id', $request->input('customer_id'))->get()->first();
         }
         $dividend = CustomerDividend::getDividend($customer->id)->get()->first();
-
+     
+       
         return response()->json([
             'status' => '0',
-            'data' => $dividend ? $dividend->$dividend : 0,
+            'data' => $dividend ? $dividend->dividend : 0,
         ]);
 
     }
