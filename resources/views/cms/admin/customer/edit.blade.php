@@ -86,44 +86,6 @@
                            value="{{ old('phone', $data->phone ?? '') }}" />
                 </x-b-form-group>
 
-                <div calss="form-group">
-                    <label class="col-form-label">
-                        地址
-                    </label>
-                    <div class="input-group has-validation">
-                        <select class="form-select @error('city_id') is-invalid @enderror" style="max-width:20%"
-                                id="city_id" name="city_id">
-                            <option>請選擇</option>
-                            @foreach ($citys as $city)
-                                <option value="{{ $city['city_id'] }}" @if (old('city_id', $data->city_id ?? '') == $city['city_id']) selected @endif>
-                                    {{ $city['city_title'] }}</option>
-                            @endforeach
-                        </select>
-                        <select class="form-select @error('region_id') is-invalid @enderror" style="max-width:20%"
-                                id="region_id" name="region_id">
-                            <option>請選擇</option>
-                            @foreach ($regions as $region)
-                                <option value="{{ $region['region_id'] }}"
-                                        @if (old('region_id', $data->region_id ?? '') == $region['region_id']) selected @endif>{{ $region['region_title'] }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <input name="addr" type="text" class="form-control @error('addr') is-invalid @enderror"
-                               value="{{ old('addr', $data->addr ?? '') }}">
-                        <button class="btn btn-outline-success" type="button" id="format_btn">格式化</button>
-                        <div class="invalid-feedback">
-                            @error('city_id')
-                            {{ $message }}
-                            @enderror
-                            @error('region_id')
-                            {{ $message }}
-                            @enderror
-                            @error('addr')
-                            {{ $message }}
-                            @enderror
-                        </div>
-                    </div>
-                </div>
                 <x-b-form-group name="birthday" title="生日">
                     <input class="form-control @error('birthday') is-invalid @enderror" type="date" name="birthday"
                            value="{{ old('birthday', explode(' ', $data->birthday)[0] ?? '') }}" />
