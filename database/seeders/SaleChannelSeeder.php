@@ -7,7 +7,6 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-
 class SaleChannelSeeder extends Seeder
 {
     /**
@@ -28,6 +27,7 @@ class SaleChannelSeeder extends Seeder
             'is_realtime' => 1,
             'code' => '01',
             'is_master' => 1,
+            'dividend_rate' => 90,
         ])->id;
 
         $identity = DB::table('usr_identity')->where('code', 'customer')->get()->first();
@@ -87,9 +87,9 @@ class SaleChannelSeeder extends Seeder
             'code' => '05',
         ]);
 
-        SaleChannel::changePrice(1, 1, 90, 120, 130, 5, 10);
-        SaleChannel::changePrice(1, 4, 180, 230, 250, 5, 10);
-        SaleChannel::changePrice(1, 5, 185, 235, 255, 5, 10);
+        SaleChannel::changePrice(1, 1, 90, 120, 130, 5, 0);
+        SaleChannel::changePrice(1, 4, 180, 230, 250, 5, 0);
+        SaleChannel::changePrice(1, 5, 185, 235, 255, 5, 0);
 
         User::customerBinding(6, 'hsihung08079@gmail.com');
         User::customerBinding(1, 'hayashi0126@gmail.com');

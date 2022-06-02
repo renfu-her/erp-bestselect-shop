@@ -59,6 +59,8 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:cms-api']
     require base_path('routes/api/cms/Discount.php');
     require base_path('routes/api/cms/Logistic.php');
     require base_path('routes/api/User.php');
+    require base_path('routes/api/cms/Order.php');
+
 
 });
 

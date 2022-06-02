@@ -83,7 +83,7 @@ class SaleChannel extends Model
     {
         return DB::table('prd_sale_channels as c')
             ->leftJoin('prd_salechannel_style_price as price', 'c.id', '=', 'price.sale_channel_id', 'left outer')
-            ->select('c.id as sale_id', 'c.title', 'c.is_realtime', 'c.is_master', 'c.discount')
+            ->select('c.id as sale_id', 'c.title', 'c.is_realtime', 'c.is_master', 'c.discount','c.dividend_limit')
             ->selectRaw('IF(price.dealer_price,price.dealer_price,0) as dealer_price')
             ->selectRaw('IF(price.origin_price,price.origin_price,0) as origin_price')
             ->selectRaw('IF(price.price,price.price,0) as price')
@@ -139,14 +139,14 @@ class SaleChannel extends Model
 
             $currentSale = self::where('is_master', '<>', 1)
                 ->where('id', $sale_id)
-                ->select('id', 'discount')
+                ->select('id', 'discount','dividend_rate')
                 ->get()
                 ->first();
 
             $originProduct = DB::table('prd_salechannel_style_price')
                 ->where('sale_channel_id', $masterSale->id)
                 ->get();
-
+            
             foreach ($originProduct as $product) {
                 // dd($product);
                 $newPrice = DB::table('prd_salechannel_style_price')
@@ -157,6 +157,7 @@ class SaleChannel extends Model
                 if (!$newPrice) {
                     $price = round($product->price * $currentSale->discount);
                     $bonus = round(($price - $product->dealer_price) * Bonus::bonus()->value);
+                    $dividend = round($price * $currentSale->dividend_rate / 100);
                     DB::table('prd_salechannel_style_price')
                         ->insert([
                             'style_id' => $product->style_id,
@@ -165,6 +166,7 @@ class SaleChannel extends Model
                             'origin_price' => $product->origin_price,
                             'price' => $price,
                             'bonus' => $bonus,
+                            'dividend' => $dividend,
                         ]);
                 }
             }
@@ -180,13 +182,12 @@ class SaleChannel extends Model
                 ->where('price.style_id', $style_id)
                 ->select('ch.id as channel_id', 'price.*')->get()->first();
 
-          
             if (!$masterSale) {
                 return;
             }
-            
+
             $saleChannels = self::where('is_master', '<>', 1)
-                ->select('id', 'discount')
+                ->select('id', 'discount','dividend_rate')
                 ->get();
 
             foreach ($saleChannels as $sale) {
@@ -199,6 +200,8 @@ class SaleChannel extends Model
                 if (!$hasPrice) {
                     $price = round($masterSale->price * $sale->discount);
                     $bonus = round(($price - $masterSale->dealer_price) * Bonus::bonus()->value);
+                    $dividend = round($price * $sale->dividend_rate / 100);
+
                     DB::table('prd_salechannel_style_price')
                         ->insert([
                             'style_id' => $masterSale->style_id,
@@ -207,6 +210,7 @@ class SaleChannel extends Model
                             'origin_price' => $masterSale->origin_price,
                             'price' => $price,
                             'bonus' => $bonus,
+                            'dividend' => $dividend,
                         ]);
                 }
             }

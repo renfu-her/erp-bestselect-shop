@@ -276,6 +276,7 @@
                         }
                     }).catch((err) => {
                         console.error(err);
+                        toast.show('發生錯誤', { type: 'danger' });
                     });
 
             })

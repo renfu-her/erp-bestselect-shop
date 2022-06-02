@@ -69,7 +69,7 @@ class CustomerCtrl extends Controller
         if ($validator->fails()) {
             return response()->json([
                 ResponseParam::status()->key => 'E01',
-                ResponseParam::msg()->key => $validator->messages()
+                ResponseParam::msg()->key => $validator->errors()
             ]);
         }
 

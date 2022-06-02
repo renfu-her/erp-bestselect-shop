@@ -2,19 +2,28 @@
 @section('sub-content')
     <h2 class="mb-3">#{{ $sn }} 訂單明細</h2>
     @php
-        $receivedId = false;
-        $route = $receivedId ? 'show' : 'create';
+    $receivedId = false;
+    $route = $receivedId ? 'show' : 'create';
     @endphp
 
-    @if(!$receivable)
-        <a href="{{ Route('cms.ar.' . $route, ['id'=>$order->id]) }}" class="btn btn-danger" role="button">{{ !$receivedId ? '新增' : '' }}收款單（暫放）</a>
-    @endif
+    <fieldset class="col-12 mb-2">
+        <div class="p-2 border rounded">
+            @if (!$receivable)
+                <a href="{{ Route('cms.ar.' . $route, ['id' => $order->id]) }}" class="btn btn-danger"
+                    role="button">{{ !$receivedId ? '新增' : '' }}收款單（暫放）</a>
+            @endif
 
-    @if($order->status == '已付款')
-    <button type="button" class="btn btn-primary" disabled>線上刷卡連結</button>
-    @else
-    <a href="{{ Route('api.web.order.payment_credit_card', ['id'=>$order->id, 'unique_id'=>$order->unique_id]) }}" class="btn btn-primary" role="button" target="_blank">線上刷卡連結</a>
-    @endif
+            @if ($order->status == '已付款')
+                <button type="button" class="btn btn-primary" disabled>線上刷卡連結</button>
+            @else
+                <a href="{{ Route('api.web.order.payment_credit_card', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
+                    class="btn btn-primary" role="button" target="_blank">線上刷卡連結</a>
+            @endif
+
+            <a href="#" role="button" class="btn btn-success">訂單完成（暫放）</a>
+        </div>
+    </fieldset>
+
 
     <form id="form1" method="post" action="">
         @method('POST')
@@ -52,10 +61,11 @@
                 <div class="col-sm-5">
                     <dt>收款單號</dt>
                     <dd>
-                        @if($receivable)
-                        <a href="{{ route('cms.ar.receipt', ['id'=>$order->id]) }}" class="-text">{{ $received_order_data ? $received_order_data->sn : '' }}</a>
+                        @if ($receivable)
+                            <a href="{{ route('cms.ar.receipt', ['id' => $order->id]) }}"
+                                class="-text">{{ $received_order_data ? $received_order_data->sn : '' }}</a>
                         @else
-                        <span>尚未完成收款</span>
+                            <span>尚未完成收款</span>
                         @endif
                     </dd>
                 </div>
@@ -125,7 +135,7 @@
                     <dt>訂單備註</dt>
                     <dd>{{ $order->note }}</dd>
                 </div>
-                <div class="col-5" >
+                <div class="col-5">
                     <dt>付款狀態</dt>
                     <dd>{{ $order->payment_status_title }}</dd>
                 </div>
@@ -153,14 +163,17 @@
                 <div class="card-header px-4 d-flex align-items-center bg-white flex-wrap justify-content-end">
                     <strong class="flex-grow-1 mb-0">{{ $subOrder->ship_event }}</strong>
                     <span class="badge -badge fs-6">{{ $subOrder->ship_category_name }}</span>
-                    @if(true == isset($subOrderId))
-                    <div class="col-12 d-flex justify-content-end mt-2">
-                        <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">配送狀態</a>
-                        <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">物流設定</a>
-                        <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">出貨審核</a>
-                        <button type="button" class="btn btn-sm btn-primary -in-header">列印銷貨單</button>
-                        <button type="button" class="btn btn-sm btn-primary -in-header">列印出貨單</button>
-                    </div>
+                    @if (true == isset($subOrderId))
+                        <div class="col-12 d-flex justify-content-end mt-2">
+                            <a class="btn btn-sm btn-success -in-header"
+                                href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">配送狀態</a>
+                            <a class="btn btn-sm btn-success -in-header"
+                                href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">物流設定</a>
+                            <a class="btn btn-sm btn-success -in-header"
+                                href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">出貨審核</a>
+                            <button type="button" class="btn btn-sm btn-primary -in-header">列印銷貨單</button>
+                            <button type="button" class="btn btn-sm btn-primary -in-header">列印出貨單</button>
+                        </div>
                     @endif
                 </div>
                 <div class="card-body px-4">
@@ -326,35 +339,51 @@
         @if (false == isset($subOrderId))
             <div class="card shadow p-4 mb-4">
                 @if (count($discounts) > 0)
-                <h6>折扣明細</h6>
-                <div class="table-responsive">
-                    <table class="table table-sm text-right align-middle">
-                        <tbody>
-                            @foreach ($discounts as $key => $dis)
-                                <tr>
-                                    @switch($dis->category_code)
-                                        @case('code')
-                                        @case('coupon')
-                                            <td class="col-8">{{ $dis->category_title }}【{{ $dis->title }}】</td>
+                    <h6>折扣明細</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm text-right align-middle">
+                            <tbody>
+                                @foreach ($discounts as $key => $dis)
+                                    <tr>
+                                        @switch($dis->category_code)
+                                            @case('code')
+                                            @case('coupon')
+                                                <td class="col-8">{{ $dis->category_title }}【{{ $dis->title }}】</td>
                                             @break
-                                        @default
-                                            <td class="col-8">{{ $dis->title }}</td>
-                                    @endswitch
 
-                                    @if ($dis->method_code == 'coupon')
-                                        <td class="text-end pe-4">【{{ $dis->extra_title }}】</td>
-                                    @elseif (is_numeric($dis->discount_value))
-                                        <td class="text-end pe-4 text-danger">- ${{ number_format($dis->discount_value) }}</td>
-                                    @else
-                                        <td class="text-end pe-4">{{ $dis->discount_value || '' }}</td>
-                                    @endif
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                                            @default
+                                                <td class="col-8">{{ $dis->title }}</td>
+                                        @endswitch
+
+                                        @if ($dis->method_code == 'coupon')
+                                            <td class="text-end pe-4">【{{ $dis->extra_title }}】</td>
+                                        @elseif (is_numeric($dis->discount_value))
+                                            <td class="text-end pe-4 text-danger">-
+                                                ${{ number_format($dis->discount_value) }}</td>
+                                        @else
+                                            <td class="text-end pe-4">{{ $dis->discount_value || '' }}</td>
+                                        @endif
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 @endif
-                <h6>訂單總覽</h6>
+                <div class="d-flex align-items-center mb-4 mt-3">
+                    <h6 class="flex-grow-1 mb-0">訂單總覽</h6>
+                    <div class="form-check form-check-inline form-switch form-switch-lg">
+                        <label class="form-check-label">
+                            <input class="form-check-input -auto-send" type="checkbox" name="" value=""
+                                @if ($order->auto_dividend == '1') checked @endif
+                                @if ($order->allotted_dividend) disabled @endif>
+                            紅利自動發放
+                        </label>
+                    </div>
+                    @if ($order->allotted_dividend === 0)
+                        <button type="button" class="btn btn-sm btn-success -in-header -active-send" disabled>發放紅利</button>
+                    @endif
+                </div>
+
                 <div class="table-responsive">
                     <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
                         <tbody>
@@ -372,7 +401,13 @@
                                 <td>${{ number_format($order->discounted_price) }}</td>
                                 <td>${{ number_format($order->dlv_fee) }}</td>
                                 <td class="fw-bold">${{ number_format($order->total_price) }}</td>
-                                <td>-</td>
+                                <td>{{ number_format($dividend) }}
+                                    @if ($order->allotted_dividend)
+                                        <span class="badge bg-success">已發</span>
+                                    @else
+                                        <span class="badge bg-secondary">未發</span>
+                                    @endif
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -384,7 +419,8 @@
                             </tr>
                             <tr>
                                 <td class="col-7 table-light">折扣 </td>
-                                <td class="text-danger text-end pe-4">- ${{ number_format($order->discount_value) }}</td>
+                                <td class="text-danger text-end pe-4">- ${{ number_format($order->discount_value) }}
+                                </td>
                             </tr>
                             <tr>
                                 <td class="col-7 table-light lh-sm">折扣後 (不含運)</td>
@@ -400,7 +436,14 @@
                             </tr>
                             <tr>
                                 <td class="col-7 table-light lh-sm">預計獲得<a href="#" class="-text">紅利積點</a></td>
-                                <td class="text-end pe-4">-</td>
+                                <td class="text-end pe-4">
+                                    @if ($order->allotted_dividend)
+                                        <span class="badge bg-success">已發</span>
+                                    @else
+                                        <span class="badge bg-secondary">未發</span>
+                                    @endif
+                                    {{ number_format($dividend) }}
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -428,8 +471,76 @@
             .table.table-bordered:not(.table-sm) tr:not(.table-light) {
                 height: 70px;
             }
+
         </style>
     @endpush
     @push('sub-scripts')
+        <script>
+            const changeAutoUrl = @json(route('api.cms.order.change-auto-dividend'));
+            const activePointUrl = @json(route('api.cms.order.active-dividend'));
+            const order_sn = @json($order->sn);
+
+            setAutoSend($('input.-auto-send').prop('checked'));
+            $('input.-auto-send').off('change.auto').on('change.auto', function() {
+                const $switch = $(this);
+                const active = $switch.prop('checked');
+
+                // API
+                axios.post(changeAutoUrl, {
+                    order_sn: order_sn,
+                    auto_dividend: active ? 1 : 0
+                }).then((result) => {
+                    console.log(result.data);
+                    if (result.data.status === '0') {
+                        setAutoSend(active);
+                        if (active) {
+                            toast.show('紅利改為自動發放');
+                        } else {
+                            toast.show('紅利改為手動發放', {
+                                type: 'warning'
+                            });
+                        }
+                    } else {
+                        toast.show(`失敗：${result.data.message}`, {
+                            type: 'danger'
+                        });
+                    }
+                }).catch((err) => {
+                    console.error(err);
+                    toast.show('發生錯誤', {
+                        type: 'danger'
+                    });
+                });
+            });
+
+            function setAutoSend(auto) {
+                $('.btn.-active-send').prop('disabled', auto);
+            }
+
+            $('.btn.-active-send').off('click.send').on('click.send', function() {
+                if (!$(this).prop('disabled')) {
+                    // API
+                    axios.post(activePointUrl, {
+                        order_sn: order_sn
+                    }).then((result) => {
+                        console.log(result.data);
+                        if (result.data.status === '0') {
+                            toast.show('已發放紅利');
+                            $('.badge.bg-secondary').removeClass('bg-secondary')
+                                .addClass('bg-success').text('已發');
+                        } else {
+                            toast.show(`失敗：${result.data.message}`, {
+                                type: 'danger'
+                            });
+                        }
+                    }).catch((err) => {
+                        console.error(err);
+                        toast.show('發生錯誤', {
+                            type: 'danger'
+                        });
+                    });
+                }
+            });
+        </script>
     @endpush
 @endonce

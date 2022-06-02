@@ -26,7 +26,8 @@
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">銷售通路</label>
-                        <select id="salechannel" class="form-select" name="salechannel_id">
+                        <input type="hidden" name="salechannel_id">
+                        <select id="salechannel" class="form-select">
                             @foreach ($salechannels as $salechannel)
                                 <option value="{{ $salechannel->id }}">
                                     {{ $salechannel->title }}</option>
@@ -95,10 +96,29 @@
                             </table>
                         </div>
                     </div>
+                    {{-- 使用紅利 --}}
+                    <div class="card-body px-4 py-2 border-top">
+                        <div class="d-flex lh-lg flex-wrap">
+                            <div class="col-12 col-sm pe-2">紅利
+                                <span class="small text-secondary">
+                                    （目前紅利點數：<span class="-hasPoints">0</span>
+                                    點，可抵用紅利上限：<span class="-maxPoints">0</span> 點）
+                                </span>
+                            </div>
+                            <div class="col-12 col-sm-auto">
+                                <div class="d-flex -bonus_point">
+                                    <input type="number" max="0" min="0" placeholder="使用" class="form-control form-control-sm col -bonus_point" >
+                                    <input type="hidden" name="dividend[]">
+                                    <input type="hidden" name="dividend_id[]">
+                                    <button type="button" class="btn btn-sm btn-outline-primary mx-1 px-4 col-auto -bonus_point">確認</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     {{-- 運費 --}}
                     <div class="card-body px-4 py-2 border-top">
                         <div class="d-flex lh-lg">
-                            <div scope="col" class="col">運費
+                            <div class="col">運費
                                 {{-- 運費說明 --}}
                             </div>
                             <div class="co-auto" data-td="dlv_fee">${{ number_format(0) }}</div>
@@ -143,17 +163,6 @@
                                 {{ $message }}
                             @enderror
                         </div>
-                    </div>
-                    <div class="col-12 mb-3" hidden>
-                        <label class="form-label">
-                            紅利<span class="small text-secondary">（目前紅利點數：11點，可使用紅利上限：10點）</span>
-                        </label>
-                        <div class="d-flex -bonus_point">
-                            <input type="text" class="form-control col -bonus_point" placeholder="請輸入會員紅利折抵點數">
-                            <input type="hidden" name="bonus">
-                            <button type="button" class="btn btn-outline-primary mx-1 px-4 col-auto -bonus_point">確認</button>
-                        </div>
-                        <div class="-feedback -bonus_point" hidden></div>
                     </div>
                 </div>
             </div>
@@ -486,6 +495,10 @@
             .-detail-success .badge.-badge::after {
                 content: "超取";
             }
+
+            .-detail input.-bonus_point {
+                min-width: 100px;
+            }
         </style>
     @endpush
     @push('sub-scripts')
@@ -504,7 +517,7 @@
                 $('#salechannel').empty();
 
                 if (!Data.customer_id) {
-                    toast.show('請先選擇訂購客戶。', {type: 'warning', title: '條件未設'});
+                    toast.show('請先選擇訂購客戶。', {type: 'warning', title: '銷售通路'});
                     return false;
                 } else {
                     axios.post(_URL, Data)
@@ -534,6 +547,7 @@
             // 儲存前設定name
             $('#form1').submit(function(e) {
                 $('input:hidden[name="customer_id"]').val($('#customer').val());
+                $('input:hidden[name="salechannel_id"]').val($('#salechannel').val());
                 $('input:hidden[name$="_address"]').val(function() {
                     const prefix_ = $(this).attr('name').replace('address', '');
                     const city = $(`select[name="${prefix_}city_id"] option:selected`).text().trim();
@@ -566,6 +580,8 @@
             const DISC_PRIORITY = ['optional', 'global', 'coupon', 'code', 'bonus'];
             // 訂購會員持有優惠券
             let UserCoupons = {};
+            // 訂購會員持有紅利
+            let UserPoints = 0;
             // 目前有效優惠
             let DiscountData = {
                 optional: {},    // 任選 [暫無] (固定)
@@ -620,6 +636,7 @@
                 // sku: 'SKU',
                 // price: '單價',
                 // stock: '庫存',
+                // point: '紅利上限',
             /* 變動值 */
                 // qty: 數量(預設1),
                 //_total: 小計(不含折扣)(price*qty),
@@ -651,10 +668,11 @@
                 //     temps: '溫層: 常溫|冷凍|冷藏'(deliver only),
                 //     rules: '[宅配價格]'(deliver only),
                     /* 變動值 */
+                //     point: 使用紅利,
                 //     products: [商品sid],
                 //_____total: 此物流商品金額小計(不折扣、含運),
                 //     dis_total: 此物流商品折扣總金額,
-                //     dised_total: 此物流商品折扣後金額小計(total-dis_total),
+                //     dised_total: 此物流商品折扣後金額小計(total-dis_total-point),
                 //     dlv_fee: 運費(以dised_total判斷),
                 // }
             };
@@ -770,6 +788,9 @@
             bindAdjusterBtn();
             // 刪除商品
             Clone_bindDelElem($('.-cloneElem.--selectedP .-del'), cloneProductsOption);
+            // 紅利
+            getPointsAPI();
+            bindPointUseBtn();
 
             // 初始結束隱藏loading
             $('#Loading_spinner').removeClass('d-flex');
@@ -881,6 +902,7 @@
                             sku: p.sku,
                             price: p.price,
                             stock: p.in_stock,
+                            point: p.dividend,
                             qty: 1,
                             total: 0,
                             discount: {},
@@ -1044,6 +1066,7 @@
                         type: selectShip.category,
                         temps: selectShip.temps,
                         rules: selectShip.rules || null,
+                        point: 0,
                         products: [],
                         total: 0,
                         dis_total: 0,
@@ -1061,6 +1084,8 @@
                 (myCart[shipKey].products).push(selectedProduct.sid);
                 // 4. HTML
                 createOneSelected(selectedProduct, selectShip);
+
+                console.log('myProductList', myProductList);
                 
                 if ($('.-cloneElem.--selectedP').length) {
                     $('#customer, #salechannel').prop('disabled', true);
@@ -1075,6 +1100,7 @@
                     $newCart.addClass(`-detail-${EVENT_CLASS[s.category]}`);
                     $newCart.find('.card-header strong').text(s.group_name);
                     $newCart.attr('id', `${s.category}_${s.group_id}`);
+                    $newCart.find('input[name="dividend_id[]"]').val(`${s.category}_${s.group_id}`);
                     if (s.category === 'pickup') { // 自取無價格
                         $newCart.find('div[data-td="dlv_fee"]').text('-');
                     }
@@ -1113,6 +1139,7 @@
                     }, options);
                     // bind click
                     bindAdjusterBtn();
+                    bindPointUseBtn();
                 }
             }
 
@@ -1247,8 +1274,6 @@
                     }
                 }
 
-                // 優惠折扣總覽 HTML
-                appendDiscountOverview();
                 // 未達使用條件之優惠 HTML
                 notMeetDiscount.forEach(notMeet => {
                     if (notMeet.pids.length > 0) {
@@ -1387,7 +1412,7 @@
                             }
                         });
                         myCart[key].dis_total = dis_total;
-                        myCart[key].dised_total = myCart[key].total - dis_total;
+                        myCart[key].dised_total = myCart[key].total - dis_total - myCart[key].point;
                     }
                 }
             }
@@ -1406,7 +1431,7 @@
                 for (const key in myCart) {
                     if (Object.hasOwnProperty.call(myCart, key)) {
                         myCart[key].dis_total = 0;
-                        myCart[key].dised_total = myCart[key].total;
+                        myCart[key].dised_total = myCart[key].total - myCart[key].point;
                     }
                 }
                 // myDiscount
@@ -1507,12 +1532,23 @@
             // #產生優惠折扣總覽HTML
             function appendDiscountOverview() {
                 let overviewList = [];
+                $('#Discount_overview table tbody').empty();
+
                 for (const did in myDiscount) {
                     if (Object.hasOwnProperty.call(myDiscount, did)) {
                         const dis = myDiscount[did];
                         overviewList.push(createDiscountTr(dis));
                     }
                 }
+                const points = calc_AllUsePoint();
+                if (points > 0) {
+                    overviewList.push(createDiscountTr({
+                        total: points,
+                        type: 'bonus',
+                        id: ''
+                    }));
+                }
+                
                 if (overviewList.length) {
                     $('#Discount_overview').prop('hidden', false);
                     $('#Discount_overview table tbody').append(overviewList);
@@ -1521,7 +1557,8 @@
                 }
                 
                 function createDiscountTr(dis) {
-                    let className = '', total = '', title = '';
+                    let className = '', total = '', 
+                        title = '', note = '';
                     if (isFinite(dis.total)) {
                         className = 'text-danger';
                         total = '- $' + dis.total;
@@ -1529,15 +1566,24 @@
                         className = 'text-primary';
                         total = '【' + dis.total + '】';
                     }
-                    if (dis.type === 'code') {
-                        title = '使用優惠券';
-                    } else {
-                        title = dis.name;
+                    switch (dis.type) {
+                        case 'code':
+                            title = '使用優惠券';
+                            break;
+                        case 'bonus':
+                            title = '紅利點數折抵';
+                            break;
+                    
+                        default:
+                            title = dis.name;
+                            break;
                     }
+                    if (dis.note) {
+                        note = `<span class="small text-secondary">－${dis.note}</span>`;
+                    }
+
                     return `<tr data-id="${dis.id}">
-                        <td class="col-8">${title}
-                            <span class="small text-secondary">－${dis.note}</span>
-                        </td>
+                        <td class="col-8">${title}${note}</td>
                         <td class="text-end pe-4 ${className}">${total}</td>
                     </tr>`;
                 }
@@ -1554,7 +1600,7 @@
                 switch (type) {
                     case 'coupon':  // 優惠券
                         resetCouponCodeData();
-                        getCouponsApi();
+                        getCouponsAPI();
                         break;
                     case 'code':    // 優惠代碼
                         resetCouponCouponData();
@@ -1647,7 +1693,7 @@
             }
             
             /*** 優惠券 fn ***/
-            // 優惠券 -coupon
+            // #優惠券 -coupon
             $('div.--ctype.-coupon select[name="coupon_sn"]').off('change').on('change', function () {
                 const id = $(this).val();
                 DiscountData.coupon = UserCoupons[id];
@@ -1656,7 +1702,8 @@
                 // 檢查試算
                 calcAndCheckAllOrder();
             });
-            function getCouponsApi() {
+            // #取得持有優惠券API
+            function getCouponsAPI() {
                 const _URL = @json(route('api.cms.discount.get-coupons'));
                 const Data = {
                     customer_id: $('#customer').val()
@@ -1699,6 +1746,125 @@
                 );
             }
 
+            /*** 紅利 fn -bonus_point ***/
+            $('#customer').off('change.point').on('change.point', function () {
+                getPointsAPI();
+            });
+
+            // #取得持有紅利API
+            function getPointsAPI() {
+                const _URL = @json(route('api.cms.discount.get-dividend-point'));
+                const Data = {
+                    customer_id: $('#customer').val()
+                };
+
+                // init
+                UserPoints = 0;
+                $('.-hasPoints').text(UserPoints);
+                $('input.-bonus_point, input[name="dividend[]"]').val('');
+                $('.d-flex.-bonus_point, input.-bonus_point').removeClass(`is-invalid is-valid`);
+
+                if (!Data.customer_id) {
+                    toast.show('請先選擇訂購客戶。', {type: 'warning', title: '目前紅利點數'});
+                    return false;
+                }
+
+                axios.post(_URL, Data)
+                .then((result) => {
+                    const res = result.data;
+                    console.log('持有紅利', res);
+                    if (res.status === '0') {
+                        UserPoints = res.data || 0;
+                        $('.-hasPoints').text(UserPoints);
+                        $cartClone.find('.-hasPoints').text(UserPoints);
+                        $('input.-bonus_point').prop('max', UserPoints);
+                    }
+                }).catch((err) => {
+                    console.log('取得紅利錯誤', err);
+                });
+            }
+
+            // #計算可用紅利上限總計
+            function calc_maxPoint(ship_key) {
+                let max = 0;
+
+                myCart[ship_key].products.forEach(sid => {
+                    if (myProductList[sid]) {
+                        max += myProductList[sid].point * myProductList[sid].qty;
+                    }
+                });
+
+                return max;
+            }
+
+            // #設定紅利上限總計
+            function setMaxPoint(ship_key) {
+                const max = calc_maxPoint(ship_key);
+
+                $(`#${ship_key} .-maxPoints`).text(max);
+                $(`#${ship_key} input.-bonus_point`).prop('max', max > UserPoints ? UserPoints : max);
+            }
+
+            // bind 使用紅利按鈕 -bonus_point
+            function bindPointUseBtn() {
+                $('button.-bonus_point').off('click').on('click', function () {
+                    const id = $(this).closest('.-detail').attr('id');
+                    check_BonusUse(id);
+                    // 檢查運費
+                    check_AllDlvFee();
+                    // 應付金額 HTML
+                    calc_set_AllAmount();
+
+                    const sum = calc_AllUsePoint();
+                    toast.show(`總共已使用 ${sum} 點紅利點數`);
+                });
+            }
+            
+            // 檢查紅利使用
+            function check_BonusUse(ship_key) {
+                const $bonus = $(`#${ship_key} input.-bonus_point`);
+                let bonus = Number($bonus.val());
+                const max = calc_maxPoint(ship_key);
+                let valid_cls = '';
+                $(`#${ship_key} input.-bonus_point`).removeClass('is-invalid is-valid');
+
+                if (bonus > UserPoints) {
+                    valid_cls = 'invalid';
+                    bonus = 0;
+                    $bonus.val(0);
+                    toast.show('超過目前持有紅利', {type: 'danger'});
+                } else if (bonus > max) {
+                    valid_cls = 'invalid';
+                    bonus = 0;
+                    $bonus.val(0);
+                    toast.show('超過該子訂單使用上限', {type: 'danger'});
+                } else if (bonus >= 0) {
+                    valid_cls = 'valid';
+                }
+                // 紀錄點數
+                $(`#${ship_key} div.-bonus_point input[name="dividend[]"]`).val(bonus);
+                myCart[ship_key].point = bonus;
+                myCart[ship_key].dised_total = myCart[ship_key].total - myCart[ship_key].dis_total - bonus;
+
+                if (valid_cls === 'invalid' || (valid_cls === 'valid' && bonus > 0)) {
+                    $(`#${ship_key} input.-bonus_point`).addClass(`is-${valid_cls}`);
+                }
+                
+                return valid_cls === 'valid' ? bonus : 0;
+            }
+
+            // 計算總使用紅利
+            function calc_AllUsePoint() {
+                let total_use = 0;
+
+                for (const key in myCart) {
+                    if (Object.hasOwnProperty.call(myCart, key)) {
+                        total_use += myCart[key].point;
+                    }
+                }
+
+                return total_use;
+            }
 
             /*** 運費 fn ***/
             // #檢查運費
@@ -1813,7 +1979,7 @@
                     if (Object.hasOwnProperty.call(myCart, key)) {
                         const cart = myCart[key];
                         all_total += cart.total;
-                        all_discount += cart.dis_total;
+                        all_discount += cart.dis_total + cart.point;
                         all_dlvFee += cart.dlv_fee;
                     }
                 }
@@ -1824,6 +1990,7 @@
                 $('#Total_price td[data-td="discount"]').text(`- $${formatNumber(all_discount)}`);
                 $('#Total_price td[data-td="dlv_fee"]').text(`$${formatNumber(all_dlvFee)}`);
                 $('#Total_price td[data-td="sum"]').text(`$${formatNumber(all_sum)}`);
+                appendDiscountOverview();
 
                 return { all_total, all_discount, all_dlvFee, all_sum };
             }
@@ -1832,6 +1999,16 @@
             function calcAndCheckAllOrder() {
                 // 檢查優惠
                 check_AllDiscount();
+
+                for (const key in myCart) {
+                    if (Object.hasOwnProperty.call(myCart, key)) {
+                        // 紅利上限
+                        setMaxPoint(key);
+                        // 檢查紅利
+                        check_BonusUse(key);
+                    }
+                }
+                
                 // 檢查運費
                 check_AllDlvFee();
                 // 應付金額 HTML

@@ -18,8 +18,6 @@
                     <tr>
                         <th scope="col" style="width:10%">#</th>
                         <th scope="col">通路名稱</th>
-{{--                        <th scope="col">通路聯絡人</th>--}}
-{{--                        <th scope="col">通路聯絡電話</th>--}}
                         <th scope="col">庫存類型</th>
                         <th scope="col">銷售類型</th>
                         <th scope="col">紅利點數</th>
@@ -34,14 +32,16 @@
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td>{{ $data->title }}</td>
-{{--                            <td>{{ $data->contact_person }}</td>--}}
-{{--                            <td>{{ $data->contact_tel }}</td>--}}
                             <td>{{ $data->is_realtime_title }}</td>
                             <td>
                                 {{ App\Enums\SaleChannel\SalesType::getDescription($data->sales_type) }}
                             </td>
-                            <td>
-                                {{ App\Enums\SaleChannel\UseCoupon::getDescription($data->use_coupon) }}
+                            <td class="text-center">
+                                @if ($data->use_coupon)
+                                    <i class="bi bi-check-lg text-success fs-5"></i>
+                                @else
+                                    <i class="bi bi-x-lg text-danger fs-5"></i>
+                                @endif
                             </td>
                             <td>{{ $data->discount }}</td>
                             <td class="text-center">
@@ -78,11 +78,46 @@
             </table>
         </div>
     </div>
-    <div class="row flex-column-reverse flex-sm-row">
-        <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">
-            {{-- 頁碼 --}}
-            <div class="d-flex justify-content-center">{{ $dataList->links() }}</div>
-        </div>
+    
+    <div class="card shadow p-4 mb-4">
+        <h6>紅利點數設定</h6>
+        <form action="{{ route('cms.sale_channel.update-dividend-setting') }}" method="post">
+            @csrf
+            <div class="row g-1 align-items-center mb-4">
+                <div class="col-auto">
+                    <label class="col-form-label">每筆紅利有效天數：</label>
+                </div>
+                <div class="col-auto">
+                    <input type="number" name="limit_day" value="{{ $dividend_setting->limit_day }}" class="form-control short-input text-center" aria-describedby="紅利有效天數">
+                </div>
+                <div class="col-auto">
+                    <label class="col-form-label">天</label>
+                </div>
+                <div class="col-auto">
+                    <span class="form-text">（設 0 則為永久有效）</span>
+                </div>
+            </div>
+            <div class="row g-1 align-items-center mb-4">
+                <div class="col-auto">
+                    <label class="col-form-label">
+                        自動發放紅利天數：訂單的付款狀態為<span class="text-decoration-underline text-info">已入款</span>後
+                    </label>
+                </div>
+                <div class="col-auto">
+                    <input type="number" name="auto_active_day" value="{{ $dividend_setting->auto_active_day }}" class="form-control short-input text-center" aria-describedby="自動發放紅利天數">
+                </div>
+                <div class="col-auto">
+                    <label class="col-form-label">天</label>
+                </div>
+                <div class="col-auto">
+                    <span class="form-text">（可至訂單明細更改為手動發放）</span>
+                </div>
+            </div>
+
+            <div class="col">
+                <button type="submit" class="btn btn-primary px-4">儲存</button>
+            </div>
+        </form>
     </div>
 
 
@@ -97,6 +132,14 @@
 @endsection
 
 @once
+    @push('sub-styles')
+        <style>
+            input.short-input {
+                width: 80px;
+                min-width: 80px;
+            }
+        </style>
+    @endpush
     @push('sub-scripts')
         <script>
             $('#confirm-delete').on('show.bs.modal', function(e) {

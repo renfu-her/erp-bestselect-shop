@@ -122,6 +122,7 @@
                     }
                 }).catch((error) => {
                     console.log('post error:' + error);
+                    toast.show('發生錯誤', { type: 'danger' });
                 });
             });
         </script>
