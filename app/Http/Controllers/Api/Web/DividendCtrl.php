@@ -52,7 +52,7 @@ class DividendCtrl extends Controller
        
         return response()->json([
             'status' => '0',
-            'data' => $dividend ? $dividend->dividend : 0,
+            'data' => $dividend ? (int) $dividend->dividend : 0,
         ]);
 
     }
