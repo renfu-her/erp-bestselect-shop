@@ -14,7 +14,7 @@ class Consum extends Model
 //    public $timestamps = false;
     protected $guarded = [];
 
-    public static function createData($logistic_id, $inbound_id, $inbound_sn, $depot_id, $depot_name, $product_style_id, $sku, $product_title, $qty, $expiry_date)
+    public static function createData($logistic_id, $inbound_id, $inbound_sn, $depot_id, $depot_name, $product_style_id, $sku, $product_title, $unit_price, $unit_cost, $qty, $memo)
     {
         $result = Consum::create([
             'logistic_id' => $logistic_id,
@@ -25,7 +25,10 @@ class Consum extends Model
             'product_style_id' => $product_style_id,
             'sku' => $sku,
             'product_title' => $product_title,
+            'unit_price' => $unit_price,
+            'unit_cost' => $unit_cost,
             'qty' => $qty,
+            'memo' => $memo,
         ])->id;
         return ['success' => 1, 'error_msg' => "", 'id' => $result];
     }
@@ -54,6 +57,9 @@ class Consum extends Model
                         'inbound_id' => $input_arr['inbound_id'][$key]
                         , 'select_consignment' => $select_consignment
                     ])->get()->first();
+
+                    $unit_price = $input_arr['unit_price'][$key] ?? 0;
+                    $memo = $input_arr['memo'][$key] ?? null;
                     if (null != $inbound) {
                         if (0 > $inbound->qty - $val) {
                             return ['success' => 0, 'error_msg' => "庫存數量不足"];
@@ -68,8 +74,10 @@ class Consum extends Model
                             $inbound->product_style_id,
                             $inbound->style_sku,
                             $inbound->product_title. '-'. $inbound->style_title,
+                            $unit_price,
+                            $inbound->unit_cost,
                             $val, //數量
-                            $inbound->expiry_date);
+                            $memo);
                         if ($reSD['success'] == 0) {
                             DB::rollBack();
                             return $reSD;
