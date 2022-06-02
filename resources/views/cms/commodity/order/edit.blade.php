@@ -153,7 +153,7 @@
                             </span>
                         </label>
                         <div class="d-flex -bonus_point">
-                            <input type="text" class="form-control col -bonus_point" placeholder="請輸入會員紅利折抵點數">
+                            <input type="number" max="0" min="0" class="form-control col -bonus_point" placeholder="請輸入會員紅利折抵點數">
                             <input type="hidden" name="bonus">
                             <button type="button" class="btn btn-outline-primary mx-1 px-4 col-auto -bonus_point">確認</button>
                         </div>
@@ -508,7 +508,7 @@
                 $('#salechannel').empty();
 
                 if (!Data.customer_id) {
-                    toast.show('請先選擇訂購客戶。', {type: 'warning', title: '條件未設'});
+                    toast.show('請先選擇訂購客戶。', {type: 'warning', title: '銷售通路'});
                     return false;
                 } else {
                     axios.post(_URL, Data)
@@ -627,6 +627,7 @@
                 // sku: 'SKU',
                 // price: '單價',
                 // stock: '庫存',
+                // point: '紅利上限',
             /* 變動值 */
                 // qty: 數量(預設1),
                 //_total: 小計(不含折扣)(price*qty),
@@ -777,6 +778,8 @@
             bindAdjusterBtn();
             // 刪除商品
             Clone_bindDelElem($('.-cloneElem.--selectedP .-del'), cloneProductsOption);
+            // 紅利
+            getPointsAPI();
 
             // 初始結束隱藏loading
             $('#Loading_spinner').removeClass('d-flex');
@@ -888,6 +891,7 @@
                             sku: p.sku,
                             price: p.price,
                             stock: p.in_stock,
+                            point: p.dividend,
                             qty: 1,
                             total: 0,
                             discount: {},
@@ -1068,6 +1072,8 @@
                 (myCart[shipKey].products).push(selectedProduct.sid);
                 // 4. HTML
                 createOneSelected(selectedProduct, selectShip);
+
+                console.log('myProductList', myProductList);
                 
                 if ($('.-cloneElem.--selectedP').length) {
                     $('#customer, #salechannel').prop('disabled', true);
@@ -1707,15 +1713,62 @@
                 );
             }
 
-            /*** 紅利 fn ***/
+            /*** 紅利 fn -bonus_point ***/
+            $('#customer').off('change.point').on('change.point', function () {
+                getPointsAPI();
+            });
+
             // 取得持有紅利API
             function getPointsAPI() {
                 const _URL = @json(route('api.cms.discount.get-dividend-point'));
                 const Data = {
                     customer_id: $('#customer').val()
                 };
+
                 // init
                 UserPoints = 0;
+                $('#hasPoints, #maxPoints').text(UserPoints);
+                $('input.-bonus_point, input[name="bonus"]').val('');
+
+                if (!Data.customer_id) {
+                    toast.show('請先選擇訂購客戶。', {type: 'warning', title: '目前紅利點數'});
+                    return false;
+                }
+
+                axios.post(_URL, Data)
+                .then((result) => {
+                    const res = result.data;
+                    console.log('持有紅利', res);
+                    if (res.status === '0') {
+                        UserPoints = res.data || 0;
+                        $('#hasPoints').text(UserPoints);
+                        $('input.-bonus_point').prop('max', UserPoints);
+                    }
+                }).catch((err) => {
+                    console.log('取得紅利錯誤', err);
+                });
+            }
+
+            // 計算可用紅利上限
+            function calc_maxPoint() {
+                let max = 0;
+
+                for (const sid in myProductList) {
+                    if (Object.hasOwnProperty.call(myProductList, sid)) {
+                        const prod = myProductList[sid];
+                        max += prod.point * prod.qty;
+                    }
+                }
+
+                return max;
+            }
+
+            // 設定紅利上限
+            function setMaxPoint() {
+                const max = calc_maxPoint();
+
+                $('#maxPoints').text(max);
+                $('input.-bonus_point').prop('max', max > UserPoints ? UserPoints : max);
             }
 
             /*** 運費 fn ***/
@@ -1850,6 +1903,8 @@
             function calcAndCheckAllOrder() {
                 // 檢查優惠
                 check_AllDiscount();
+                // 紅利上限
+                setMaxPoint();
                 // 檢查運費
                 check_AllDlvFee();
                 // 應付金額 HTML
