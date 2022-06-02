@@ -89,11 +89,11 @@
                                 <th class="text-center">
                                     <input type="hidden" name="selected[{{$key}}]" value="0">
                                     <input class="form-check-input single_select" type="checkbox" name="selected[{{$key}}]" value="{{ $data->id }}" aria-label="選取商品">
-                                    <input type="hidden" name="product_style_id[]" value="{{ $data->id }}">
+                                    <input type="hidden" name="product_style_id[{{$key}}]" value="{{ $data->id }}">
                                 </th>
                                 @if($method == 'edit')
                                     <td>
-                                        <input class="form-control select_input" type="text" name="depot_product_no[]" placeholder="請輸入寄倉商品編號" value="{{ $data->depot_product_no }}" disabled="disabled">
+                                        <input class="form-control select_input" type="text" name="depot_product_no[{{$key}}]" placeholder="請輸入寄倉商品編號" value="{{ $data->depot_product_no }}" disabled="disabled">
                                     </td>
                                 @endif
                                 <td>{{ $data->product_title }}</td>
@@ -103,7 +103,7 @@
                                 @if($method == 'edit')
                                     <td><span class="o_price">{{-- number_format(intval($data->ost_price ?: 0)) --}}{{ $data->ost_price }}<span></td>
                                     <td>
-                                        <input class="form-control select_input d_price" type="number" step="0.01" min="0" name="depot_price[]" placeholder="請輸入寄倉售價" value="{{ $data->depot_price }}" disabled="disabled">
+                                        <input class="form-control select_input d_price" type="number" step="0.01" min="0" name="depot_price[{{$key}}]" placeholder="請輸入寄倉售價" value="{{ $data->depot_price }}" disabled="disabled">
                                     </td>
                                     <td class="text-center">
                                         @can('cms.depot.product-delete')
@@ -111,7 +111,7 @@
                                                 <i class="bi bi-trash"></i>
                                             </a>
                                         @endcan
-                                        <input type="hidden" name="select_id[]" value="{{ $data->select_id }}">
+                                        <input type="hidden" name="select_id[{{$key}}]" value="{{ $data->select_id }}">
                                     </td>
                                 @endif
                             </tr>

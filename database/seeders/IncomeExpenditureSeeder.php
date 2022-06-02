@@ -111,7 +111,7 @@ class IncomeExpenditureSeeder extends Seeder
 
             $discount_category = DisCategory::asArray();
             ksort($discount_category);
-            $d_grade_id = [64, 65, 64, 67];
+            $d_grade_id = [64, 65, 64, 99, 67];
             $j = 0;
             foreach($discount_category as $dis_value){
                 ReceivedDefault::create([

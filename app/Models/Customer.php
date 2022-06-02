@@ -122,6 +122,20 @@ class Customer extends Authenticatable
 
         CustomerLogin::addLoginMethod($id, $loginMethods);
 
+        if (!is_null($address) &&
+            !is_null($city_id) &&
+            !is_null($region_id) &&
+            !is_null($addr)) {
+            CustomerAddress::create([
+                'usr_customers_id_fk' => $id,
+                'address'             => $address,
+                'city_id'             => $city_id,
+                'region_id'           => $region_id,
+                'addr'                => $addr,
+                'is_default_addr'        => 1,
+            ]);
+        }
+
 //        self::where('id', '=', $id)->get()->first()->givePermissionTo($permission_id);
 //        self::where('id', '=', $id)->get()->first()->assignRole($role_id);
 
@@ -141,10 +155,6 @@ class Customer extends Authenticatable
                 , 'email_verified_at'
                 , 'name'
                 , 'phone'
-                , 'address'
-                , 'city_id'
-                , 'region_id'
-                , 'addr'
                 , 'sex'
                 , DB::raw('(case
                         when sex = '. Sex::female()->value .' then "'. Sex::getDescription(Sex::female()->value) .'"
