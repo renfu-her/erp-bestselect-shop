@@ -9,11 +9,11 @@ use App\Enums\Order\OrderStatus;
 use App\Enums\Order\PaymentStatus;
 use App\Enums\Order\UserAddrType;
 use App\Enums\Received\ReceivedMethod;
+use App\Models\CustomerDividend;
+use App\Models\OrderCart;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use App\Models\OrderCart;
-use App\Models\CustomerDividend;
 
 class Order extends Model
 {
@@ -158,7 +158,7 @@ class Order extends Model
             'product_style_id' => 'dlv_consum.product_style_id',
             'sku' => 'dlv_consum.sku',
             'product_title' => 'dlv_consum.product_title',
-            'qty' => 'dlv_consum.qty',]);
+            'qty' => 'dlv_consum.qty']);
         $itemConsumeQuery = DB::table('dlv_consum')
             ->select('dlv_consum.logistic_id')
             ->selectRaw($concatConsumeString . ' as consume_items')
@@ -288,19 +288,25 @@ class Order extends Model
                         DB::rollBack();
                         return $dividend_re;
                     }
-                    $order['discounts'][] = [
-                        'title' => DisCategory::dividend(),
+                    $order['discounts'][] = (object) [
+                        'title' => DisCategory::dividend()->description . "折抵",
                         'category_title' => DisCategory::dividend()->description,
-                        'category_code' => DisCategory::dividend(),
-                        'method_code' => DisMethod::cash(),
+                        'category_code' => DisCategory::dividend()->value,
+                        'method_code' => DisMethod::cash()->value,
                         'method_title' => DisMethod::cash()->description,
                         'discount_value' => $dividend,
+                        'currentDiscount' => $dividend,
                         'is_grand_total' => 0,
                         'min_consume' => 0,
                         'coupon_id' => null,
                         'coupon_title' => null,
                         'discount_grade_id' => null,
                     ];
+
+                    $order['total_price'] -= $dividend;
+                    $order['discount_value'] += $dividend;
+                    $order['discounted_price'] -= $dividend;
+
                 } else {
                     return ['success' => '0',
                         'error_msg' => '超過紅利折抵額度',
@@ -434,7 +440,7 @@ class Order extends Model
             }
 
             OrderFlow::changeOrderStatus($order_id, OrderStatus::Add());
-
+            /// dd($order);
             CustomerDividend::fromOrder($customer->id, $order_sn, $order['get_dividend']);
             // CustomerDividend::activeDividend(DividendCategory::Order(), $order_sn);
 
@@ -443,18 +449,16 @@ class Order extends Model
 
     }
 
-
     public static function generate_unique_id()
     {
-        $unique_id = substr(base_convert(sha1(uniqid(mt_rand())), 16, 36), 0, 9);// return 9 characters
+        $unique_id = substr(base_convert(sha1(uniqid(mt_rand())), 16, 36), 0, 9); // return 9 characters
 
-		if(self::where('unique_id', $unique_id)->first()){
-			return self::generate_unique_id();
-		} else {
-			return $unique_id;
-		}
+        if (self::where('unique_id', $unique_id)->first()) {
+            return self::generate_unique_id();
+        } else {
+            return $unique_id;
+        }
     }
-
 
     public static function change_order_payment_status($order_id, PaymentStatus $p_status = null, ReceivedMethod $r_method = null)
     {

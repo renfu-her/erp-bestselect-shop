@@ -137,6 +137,7 @@ class CustomerDividend extends Model
         if (!$dividend || !$dividend->dividend) {
             DB::rollBack();
             return ['success' => '0',
+                'event' => 'dividend',
                 'error_msg' => '無紅利餘額',
                 'error_stauts' => 'dividend'];
         }
@@ -146,6 +147,7 @@ class CustomerDividend extends Model
         if ($discount_point > $dividend) {
             DB::rollBack();
             return ['success' => '0',
+                'event' => 'dividend',
                 'error_msg' => '紅利餘額不足',
                 'error_stauts' => 'dividend'];
         }

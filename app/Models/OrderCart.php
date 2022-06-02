@@ -181,8 +181,6 @@ class OrderCart extends Model
                 }
             }
         }
-        
-      
 
         if ($errors) {
             return [
@@ -444,7 +442,7 @@ class OrderCart extends Model
         }
 
         foreach ($_tempProducts as $value) {
-            $order['get_dividend'] += $value['total_price'] * $rate / 100;
+            $order['get_dividend'] += round($value['total_price'] * $rate / 100);
         }
 
     }
