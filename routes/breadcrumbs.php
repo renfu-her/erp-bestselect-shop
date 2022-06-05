@@ -151,12 +151,12 @@ Breadcrumbs::for('cms.ap.edit', function (BreadcrumbTrail $trail, $value) {
 Breadcrumbs::for('cms.purchase.pay-order', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.purchase.edit', $value);
     // $trail->push('付款單');
-    $trail->push('尾款付款單');
+    $trail->push( $value['type'] == 0 ? '訂金付款單' : '尾款付款單');
 });
 Breadcrumbs::for('cms.purchase.view-pay-order', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.purchase.edit', $value);
     // $trail->push('付款單');
-    $trail->push('訂金付款單');
+    $trail->push( $value['type'] == 0 ? '訂金付款單' : '尾款付款單');
 });
 // 編輯 - 變更紀錄
 Breadcrumbs::for('cms.purchase.log', function (BreadcrumbTrail $trail, $value) {
@@ -211,26 +211,17 @@ Breadcrumbs::for('cms.ar.review', function (BreadcrumbTrail $trail, $value) {
     $trail->push('收款單', route('cms.ar.receipt', ['id'=>$value['id']]));
     $trail->push('入款審核');
 });
-// Breadcrumbs::for('cms.ap.create', function (BreadcrumbTrail $trail, $value) {
-//     $trail->parent('cms.purchase.edit', $value);
-//     $trail->push( $value['type'] == 0 ? '訂金付款單' : '尾款付款單', route('cms.purchase.view-pay-order', ['id' => $value['id'], 'type' => $value['type']]));
-//     $trail->push('新增付款');
-// });
-// Route::match(['get', 'post'], 'review/{id}', [AccountReceivedCtrl::class, 'review'])->name('review')->middleware('permission:cms.ar.review');
-// 編輯 - 採購單資訊 - 編輯付款單
-// Breadcrumbs::for('cms.purchase.pay-order', function (BreadcrumbTrail $trail, $value) {
-//     $trail->parent('cms.purchase.edit', $value);
-//     // $trail->push('付款單');
-//     $trail->push('尾款付款單');
-// });
-// Breadcrumbs::for('cms.purchase.view-pay-order', function (BreadcrumbTrail $trail, $value) {
-//     $trail->parent('cms.purchase.edit', $value);
-//     // $trail->push('付款單');
-//     $trail->push('訂金付款單');
-// });
-
-
-
+Breadcrumbs::for('cms.order.pay-order', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
+    $trail->push('物流付款單');
+});
+Breadcrumbs::for('cms.ap.logistics-create', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
+    $trail->push('物流付款單', route('cms.order.pay-order', ['id' => $value['id'], 'sid' => $value['sid']]));
+    $trail->push('新增付款');
+});
 
 // 出貨管理
 Breadcrumbs::for('cms.delivery.index', function (BreadcrumbTrail $trail) {

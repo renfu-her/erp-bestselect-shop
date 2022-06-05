@@ -130,7 +130,7 @@ class Order extends Model
         return $orderQuery;
     }
 
-    public static function subOrderDetail($order_id, $sub_order_id = null)
+    public static function subOrderDetail($order_id, $sub_order_id = null, $get_paying = null)
     {
         $concatString = concatStr([
             'product_title' => 'item.product_title',
@@ -212,6 +212,7 @@ class Order extends Model
             ->selectRaw("IF(dlv_logistic.memo IS NULL,'',dlv_logistic.memo) as logistic_memo")
             ->selectRaw("IF(shi_group.name IS NULL,'',shi_group.name) as ship_group_name")
             ->selectRaw("IF(shi_group.note IS NULL,'',shi_group.note) as ship_group_note")
+            ->selectRaw("IF(prd_suppliers.id IS NULL,'',prd_suppliers.id) as supplier_id")
             ->selectRaw("IF(prd_suppliers.name IS NULL,'',prd_suppliers.name) as supplier_name")
             ->selectRaw("IF(sub_order.ship_temp IS NULL,'',sub_order.ship_temp) as ship_temp")
             ->selectRaw("IF(sub_order.ship_temp_id IS NULL,'',sub_order.ship_temp_id) as ship_temp_id")
@@ -222,6 +223,22 @@ class Order extends Model
         if ($sub_order_id) {
             $orderQuery->where('sub_order.id', $sub_order_id);
         }
+
+        if($get_paying){
+            $orderQuery->leftJoin('pcs_paying_orders as po', function ($join) {
+                    $join->on('po.source_id', '=', 'sub_order.order_id');
+                    $join->where([
+                        'po.source_sub_id' => DB::raw('sub_order.id'),
+                        'po.source_type' => app(Order::class)->getTable(),
+                        'po.type' => 1,
+                        'po.deleted_at' => null,
+                    ]);
+                })
+                // ->selectRaw("('" . app(Order::class)->getTable() . "') as payable_source_type")
+                ->selectRaw("IF(po.sn IS NULL, NULL, po.sn) as payable_sn")
+                ->selectRaw("IF(po.balance_date IS NULL, NULL, po.balance_date) as payable_balance_date");
+        }
+
         return $orderQuery;
 
     }

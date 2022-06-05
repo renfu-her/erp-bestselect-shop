@@ -24,7 +24,9 @@ class PayingOrder extends Model
 
 
     public static function createPayingOrder(
-        $purchase_id,
+        $source_type = null,
+        $source_id,
+        $source_sub_id = null,
         $usr_users_id,
         $type,
         $product_grade_id,
@@ -34,7 +36,9 @@ class PayingOrder extends Model
         $memo = null
     ) {
         return DB::transaction(function () use (
-            $purchase_id,
+            $source_type,
+            $source_id,
+            $source_sub_id,
             $usr_users_id,
             $type,
             $product_grade_id,
@@ -49,7 +53,9 @@ class PayingOrder extends Model
                         ->count()) + 1, 3, '0', STR_PAD_LEFT);
 
             $id = self::create([
-                "purchase_id" => $purchase_id,
+                'source_type'=>$source_type ? $source_type : app(Purchase::class)->getTable(),
+                'source_id'=>$source_id,
+                'source_sub_id'=>$source_sub_id,
                 "usr_users_id" => $usr_users_id,
                 "type" => $type,
                 "sn" => $sn,
@@ -84,7 +90,10 @@ class PayingOrder extends Model
                 'paying_order.balance_date as balance_date',
             )
             ->selectRaw('DATE_FORMAT(paying_order.created_at,"%Y-%m-%d") as created_at')
-            ->where('paying_order.purchase_id', '=', $purchase_id)
+            ->where([
+                'paying_order.source_type'=>app(Purchase::class)->getTable(),
+                'paying_order.source_id'=>$purchase_id,
+            ])
             ->whereNull('paying_order.deleted_at');
 
         if (!is_null($payType)) {
@@ -132,7 +141,8 @@ class PayingOrder extends Model
             ->leftJoin(DB::raw('(
                 SELECT
                     GROUP_CONCAT(id) AS id,
-                    purchase_id,
+                    source_type,
+                    source_id,
                     GROUP_CONCAT(DISTINCT usr_users_id) AS usr_users_id,
                     GROUP_CONCAT(type) AS type,
                     GROUP_CONCAT(sn) AS sn,
@@ -141,9 +151,10 @@ class PayingOrder extends Model
                     GROUP_CONCAT(DISTINCT product_grade_id) AS product_grade_id
                 FROM pcs_paying_orders
                 WHERE deleted_at IS NULL
-                GROUP BY purchase_id
+                GROUP BY source_id
                 ) AS po'), function ($join){
-                    $join->on('po.purchase_id', '=', 'purchase.id');
+                    $join->on('po.source_id', '=', 'purchase.id');
+                    $join->where('po.source_type', '=', app(Purchase::class)->getTable());
             })
             ->leftJoin(DB::raw('(
                 SELECT pay_order_id,
@@ -161,7 +172,7 @@ class PayingOrder extends Model
                     }\' ORDER BY acc_payable.id), \']\') AS pay_list
                 FROM acc_payable
                 LEFT JOIN pcs_paying_orders AS v_po ON v_po.id = acc_payable.pay_order_id WHERE v_po.deleted_at IS NULL
-                GROUP BY v_po.purchase_id
+                GROUP BY v_po.source_id
                 ) AS v_table_2'), function ($join){
                     $join->whereRaw('v_table_2.pay_order_id in (po.id)');
             })
@@ -169,6 +180,7 @@ class PayingOrder extends Model
             ->whereColumn([
                 ['po.price', '=', 'v_table_2.payable_price'],
             ])
+            ->whereRaw('(v_table_1.price + purchase.logistics_price) = v_table_2.payable_price')
 
             ->select(
                 'po.usr_users_id as po_usr_users_id',

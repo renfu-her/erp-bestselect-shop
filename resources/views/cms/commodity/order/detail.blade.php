@@ -262,10 +262,19 @@
                 <div class="card-body px-4 pb-4">
                     <dl class="row">
                         <div class="col">
-                            <dt>運費付款單</dt>
-                            <dd><button type="button" class="btn btn-link btn-sm">
-                                    <a href="#">新增訂金付款單</a>
-                                </button></dd>
+                            <dt>物流付款單@if($subOrder->payable_balance_date)<span class="text-danger">（已付款完成）</span>@endif</dt>
+                            <dd>
+                                @if($subOrder->ship_group_name == '')
+                                    尚未設定物流
+                                @else
+                                    @if($subOrder->payable_sn)
+                                        <a href="{{ Route('cms.order.pay-order', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}" class="text-decoration-none">付款單號-{{ $subOrder->payable_sn }}</a>
+                                    @else
+                                        <input type="hidden" class="form_url" value="{{ Route('cms.order.pay-order', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}">
+                                        <button type="button" class="btn btn-link text-decoration-none p-0 m-0 submit_btn">新增付款單</button>
+                                    @endif
+                                @endif
+                            </dd>
                         </div>
                         <div class="col">
                             <dt>客戶物流方式</dt>
@@ -476,6 +485,12 @@
     @endpush
     @push('sub-scripts')
         <script>
+            $('.submit_btn').on('click', function(e){
+                e.preventDefault();
+                let url = $(this).prev().val();
+                $('#form1').attr('action', url).submit();
+            });
+
             const changeAutoUrl = @json(route('api.cms.order.change-auto-dividend'));
             const activePointUrl = @json(route('api.cms.order.active-dividend'));
             const order_sn = @json($order->sn);

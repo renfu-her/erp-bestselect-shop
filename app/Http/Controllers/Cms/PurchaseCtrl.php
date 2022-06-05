@@ -15,6 +15,9 @@ use App\Models\PurchaseItem;
 use App\Models\PurchaseLog;
 use App\Models\Supplier;
 use App\Models\User;
+use App\Models\Order;
+use App\Models\SubOrders;
+use App\Models\PayableDefault;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -574,11 +577,16 @@ class PurchaseCtrl extends Controller
 
         //產生付款單
         if ($request->isMethod('POST')) {
+            $source_type = app(Purchase::class)->getTable();
+            $source_sub_id = null;
+
             $paying_order = PayingOrder::where([
-                    'purchase_id'=>$id,
-                    'type'=>1,
-                    'deleted_at'=>null,
-                ])->first();
+                'source_type'=>$source_type,
+                'source_id'=>$id,
+                'source_sub_id'=>$source_sub_id,
+                'type'=>1,
+                'deleted_at'=>null,
+            ])->first();
 
             if(! $paying_order){
                 if ($validatedReq['type'] === '1') {
@@ -586,17 +594,17 @@ class PurchaseCtrl extends Controller
                 } elseif (isset($validatedReq['price'])) {
                     $totalPrice = intval($validatedReq['price']);
                 }
-                $productDefault = DB::table('acc_payable_default')->where('name', '=', 'product')->get()->first();
-                $logisticsDefault = DB::table('acc_payable_default')->where('name', '=', 'logistics')->get()->first();
-                $prdDefault = json_decode(json_encode($productDefault), true);
-                $lgsDefault = json_decode(json_encode($logisticsDefault), true);
+                $product_grade = PayableDefault::where('name', '=', 'product')->first()->default_grade_id;
+                $logistics_grade = PayableDefault::where('name', '=', 'logistics')->first()->default_grade_id;
 
                 PayingOrder::createPayingOrder(
+                    $source_type,
                     $id,
+                    $source_sub_id,
                     $request->user()->id,
                     $validatedReq['type'],
-                    $prdDefault['default_grade_id'],
-                    $lgsDefault['default_grade_id'],
+                    $product_grade,
+                    $logistics_grade,
                     $totalPrice ?? 0,
                     $request['deposit_summary'] ?? '',
                     $request['deposit_memo'] ?? '',
@@ -614,7 +622,7 @@ class PurchaseCtrl extends Controller
         $payingOrderData = PayingOrder::getPayingOrdersWithPurchaseID($id, $validatedReq['type'])->get()->first();
         $payingOrderQuery = PayingOrder::find($payingOrderData->id);
         $productGradeName = AllGrade::find($payingOrderQuery->product_grade_id)->eachGrade->name;
-        $logisticsGradeName = AllGrade::find($payingOrderQuery->logistics_grade_id)->eachGrade->name;
+        $logisticsGradeName = AllGrade::find($payingOrderQuery->logistics_grade_id)->eachGrade->code . ' - ' . AllGrade::find($payingOrderQuery->logistics_grade_id)->eachGrade->name;
 
         $purchaseItemData = PurchaseItem::getPurchaseItemsByPurchaseId($id);
 
@@ -670,7 +678,7 @@ class PurchaseCtrl extends Controller
             'accountPayableId' => $accountPayable->id ?? null,
             'payOrdId' => $payingOrderData->id,
             'type' => ($validatedReq['type'] === '0') ? 'deposit' : 'final',
-            'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
+            'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn, 'type' => $validatedReq['type']],
             'formAction' => Route('cms.purchase.index', ['id' => $id,]),
             'supplierUrl' => Route('cms.supplier.edit', ['id' => $supplier->id,]),
             'purchaseData' => $purchaseData,

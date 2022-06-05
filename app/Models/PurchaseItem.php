@@ -187,16 +187,22 @@ class PurchaseItem extends Model
         //訂金單號
         $subColumn = DB::table('pcs_paying_orders as order')
             ->select('order.id')
-            ->whereColumn('order.purchase_id', '=', 'purchase.id')
-            ->where('order.type', '=', DB::raw('0'))
+            ->whereColumn('order.source_id', '=', 'purchase.id')
+            ->where([
+                'order.source_type'=>app(Purchase::class)->getTable(),
+                'order.type'=>DB::raw('0'),
+            ])
             ->whereNull('order.deleted_at')
             ->orderByDesc('order.id')
             ->limit(1);
         //尾款單號
         $subColumn2 = DB::table('pcs_paying_orders as order')
             ->select('order.id')
-            ->whereColumn('order.purchase_id', '=', 'purchase.id')
-            ->where('order.type', '=', DB::raw('1'))
+            ->whereColumn('order.source_id', '=', 'purchase.id')
+            ->where([
+                'order.source_type'=>app(Purchase::class)->getTable(),
+                'order.type'=>DB::raw('1'),
+            ])
             ->whereNull('order.deleted_at')
             ->orderByDesc('order.id')
             ->limit(1);
@@ -365,16 +371,22 @@ class PurchaseItem extends Model
         //訂金單號
         $subColumn = DB::table('pcs_paying_orders as order')
             ->select('order.id')
-            ->whereColumn('order.purchase_id', '=', 'purchase.id')
-            ->where('order.type', '=', DB::raw('0'))
+            ->whereColumn('order.source_id', '=', 'purchase.id')
+            ->where([
+                'order.source_type'=>app(Purchase::class)->getTable(),
+                'order.type'=>DB::raw('0'),
+            ])
             ->whereNull('order.deleted_at')
             ->orderByDesc('order.id')
             ->limit(1);
         //尾款單號
         $subColumn2 = DB::table('pcs_paying_orders as order')
             ->select('order.id')
-            ->whereColumn('order.purchase_id', '=', 'purchase.id')
-            ->where('order.type', '=', DB::raw('1'))
+            ->whereColumn('order.source_id', '=', 'purchase.id')
+            ->where([
+                'order.source_type'=>app(Purchase::class)->getTable(),
+                'order.type'=>DB::raw('1'),
+            ])
             ->whereNull('order.deleted_at')
             ->orderByDesc('order.id')
             ->limit(1);
@@ -554,7 +566,6 @@ class PurchaseItem extends Model
     {
         $result = DB::table('pcs_purchase_items as pcs_items')
             ->where('pcs_items.purchase_id', '=', $purchaseId)
-            ->leftJoin('pcs_paying_orders as pay_orders', 'pcs_items.purchase_id', '=', 'pay_orders.purchase_id')
             ->leftJoin('prd_product_styles as prd_styles', 'pcs_items.product_style_id', '=', 'prd_styles.id')
             ->leftJoin('prd_products', 'prd_styles.product_id', '=', 'prd_products.id')
             ->leftJoin('usr_users', 'prd_products.user_id', '=', 'usr_users.id')
@@ -564,7 +575,6 @@ class PurchaseItem extends Model
                 'pcs_items.num',
                 'pcs_items.memo',
                 'pcs_items.product_style_id as style_ids',
-                'pay_orders.price as pay_order_price',
                 'usr_users.name',
             )
             ->get()

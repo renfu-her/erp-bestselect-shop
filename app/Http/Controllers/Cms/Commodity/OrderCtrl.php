@@ -20,6 +20,12 @@ use App\Models\ReceivedOrder;
 use App\Models\SaleChannel;
 use App\Models\ShipmentStatus;
 use App\Models\UserSalechannel;
+use App\Models\AccountPayable;
+use App\Models\PayingOrder;
+use App\Models\PayableDefault;
+use App\Models\AllGrade;
+use App\Models\Supplier;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -285,9 +291,8 @@ class OrderCtrl extends Controller
      */
     public function detail($id, $subOrderId = null)
     {
-
         $order = Order::orderDetail($id)->get()->first();
-        $subOrder = Order::subOrderDetail($id)->get()->toArray();
+        $subOrder = Order::subOrderDetail($id, $subOrderId, true)->get()->toArray();
 
         //  dd(Discount::orderDiscountList('main',$id)->get()->toArray());
 
@@ -491,5 +496,97 @@ class OrderCtrl extends Controller
         return redirect(Route('cms.order.inbound', [
             'subOrderId' => $purchase_id,
         ]));
+    }
+
+
+    public function pay_order(Request $request, $id, $sid)
+    {
+        $request->merge([
+            'id'=>$id,
+            'sid'=>$sid,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:ord_orders,id',
+            'sid' => 'required|exists:ord_sub_orders,id',
+        ]);
+
+        $source_type = app(Order::class)->getTable();
+        $type = 1;
+
+        $paying_order = PayingOrder::where([
+            'source_type'=>$source_type,
+            'source_id'=>$id,
+            'source_sub_id'=>$sid,
+            'type'=>$type,
+            'deleted_at'=>null,
+        ])->first();
+
+        if($request->isMethod('post')){
+            if(! $paying_order){
+                $price = Order::subOrderDetail($id, $sid, true)->get()->toArray()[0]->logistic_cost;
+                $product_grade = PayableDefault::where('name', '=', 'product')->first()->default_grade_id;
+                $logistics_grade = PayableDefault::where('name', '=', 'logistics')->first()->default_grade_id;
+
+                PayingOrder::createPayingOrder(
+                    $source_type,
+                    $id,
+                    $sid,
+                    $request->user()->id,
+                    $type,
+                    $product_grade,
+                    $logistics_grade,
+                    $price ?? 0,
+                    '',
+                    '',
+                );
+            }
+
+            return redirect(Route('cms.order.pay-order', [
+                'id' => $id,
+                'sid' => $sid,
+            ]));
+
+        } else {
+
+            if(! $paying_order) {
+                return abort(404);
+            }
+
+            $order = Order::orderDetail($id)->get()->first();
+            $sub_order = Order::subOrderDetail($id, $sid, true)->get()->toArray()[0];
+
+            $supplier = Supplier::find($sub_order->supplier_id);
+            $undertaker = User::find($paying_order->usr_users_id);
+            $applied_company = DB::table('acc_company')->where('id', 1)->first();
+
+            $logistics_grade = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' - ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
+
+            $pay_off = false;
+            $pay_off_date = date('Y-m-d', strtotime($paying_order->created_at));
+            $accountant = null;
+
+            if($paying_order->balance_date){
+                $pay_off = true;
+                $pay_off_date = date('Y-m-d', strtotime($paying_order->balance_date));
+                $pay_record = AccountPayable::where('pay_order_id', $paying_order->id);
+                $accountant = User::find($pay_record->latest()->first()->accountant_id_fk);
+            }
+
+            return view('cms.commodity.order.pay_order', [
+                'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
+
+                'paying_order' => $paying_order,
+                'order' => $order,
+                'sub_order' => $sub_order,
+                'supplier' => $supplier,
+                'undertaker' => $undertaker,
+                'applied_company' => $applied_company,
+                'logistics_grade' => $logistics_grade,
+                'pay_off' => $pay_off,
+                'pay_off_date' => $pay_off_date,
+                'accountant' => $accountant,
+            ]);
+        }
     }
 }

@@ -183,7 +183,9 @@ class PurchaseSeeder extends Seeder
         $undertakerUserId = 7;
 
         PayingOrder::createPayingOrder(
+            app(Purchase::class)->getTable(),
             $purchaseID1,
+            null,
             $undertakerUserId,
             0,
             15,
@@ -193,7 +195,9 @@ class PurchaseSeeder extends Seeder
             '第一筆備註 訂金'
         );
         PayingOrder::createPayingOrder(
+            app(Purchase::class)->getTable(),
             $purchaseID1,
+            null,
             $undertakerUserId,
             1,
             15,
