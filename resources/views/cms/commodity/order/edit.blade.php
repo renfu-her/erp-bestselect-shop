@@ -1825,6 +1825,7 @@
                 const $bonus = $(`#${ship_key} input.-bonus_point`);
                 let bonus = Number($bonus.val());
                 const max = calc_maxPoint(ship_key);
+                const totalUse = calc_AllUsePoint() + bonus;
                 let valid_cls = '';
                 $(`#${ship_key} input.-bonus_point`).removeClass('is-invalid is-valid');
 
@@ -1833,6 +1834,11 @@
                     bonus = 0;
                     $bonus.val(0);
                     toast.show('超過目前持有紅利', {type: 'danger'});
+                } else if (totalUse > UserPoints) {
+                    valid_cls = 'invalid';
+                    bonus = 0;
+                    $bonus.val(0);
+                    toast.show('總使用點數超過目前持有紅利', {type: 'danger'});
                 } else if (bonus > max) {
                     valid_cls = 'invalid';
                     bonus = 0;
