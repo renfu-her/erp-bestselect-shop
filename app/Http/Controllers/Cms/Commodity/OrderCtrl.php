@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers\Cms\Commodity;
 
-use App\Enums\Discount\DividendCategory;
 use App\Enums\Delivery\Event;
+use App\Enums\Discount\DividendCategory;
 use App\Enums\Order\UserAddrType;
 use App\Http\Controllers\Controller;
 use App\Models\Addr;
 use App\Models\Customer;
+use App\Models\CustomerDividend;
 use App\Models\Depot;
 use App\Models\Discount;
 use App\Models\Order;
 use App\Models\OrderCart;
-use App\Models\CustomerDividend;
 use App\Models\OrderStatus;
 use App\Models\PurchaseInbound;
 use App\Models\ReceiveDepot;
@@ -158,7 +158,6 @@ class OrderCtrl extends Controller
      */
     public function store(Request $request)
     {
-
         $arrVali = [];
         foreach (UserAddrType::asArray() as $value) {
             switch ($value) {
@@ -193,6 +192,12 @@ class OrderCtrl extends Controller
 
         $d = $request->all();
 
+
+        $dividend = [];
+        foreach($d['dividend_id'] as $key=>$div){
+            $dividend[$div] = $d['dividend'][$key];
+        }
+
         $customer = Customer::where('id', $d['customer_id'])->get()->first();
 
         $items = [];
@@ -226,17 +231,18 @@ class OrderCtrl extends Controller
         if (isset($d['coupon_type']) && isset($d['coupon_sn'])) {
             $coupon = [$d['coupon_type'], $d['coupon_sn']];
         }
-
-        $re = Order::createOrder($customer->email, $d['salechannel_id'], $address, $items, $d['note'], $coupon);
+       
+        $re = Order::createOrder($customer->email, $d['salechannel_id'], $address, $items, $d['note'], $coupon, null, $dividend);
         if ($re['success'] == '1') {
             wToast('訂單新增成功');
             return redirect(route('cms.order.detail', [
                 'id' => $re['order_id'],
             ]));
-        }
+        } 
         $errors = [];
         $addInput = [];
         if (isset($re['event'])) {
+
             switch ($re['event']) {
                 case "address":
                     switch ($re['event_id']) {
@@ -258,6 +264,9 @@ class OrderCtrl extends Controller
                     break;
                 case "coupon":
                     $errors['coupon'] = $re['error_msg'];
+                    break;
+                case "dividend":
+                    $errors['dividend'] = $re['error_msg'];
                     break;
             }
         }
@@ -316,16 +325,15 @@ class OrderCtrl extends Controller
         }
 
         $dividend = CustomerDividend::where('category', DividendCategory::Order())
-            ->where('category_sn', $order->sn)->get()->first();
+            ->where('category_sn', $order->sn)
+            ->where('type', 'get')->get()->first();
 
-       
         if ($dividend) {
             $dividend = $dividend->dividend;
         } else {
             $dividend = 0;
-        }   
+        }
 
-        
         return view('cms.commodity.order.detail', [
             'sn' => $sn,
             'order' => $order,
@@ -335,7 +343,7 @@ class OrderCtrl extends Controller
             'discounts' => Discount::orderDiscountList('main', $id)->get()->toArray(),
             'receivable' => $receivable,
             'received_order_data' => $received_order_data,
-            'dividend'=>$dividend
+            'dividend' => $dividend,
         ]);
     }
 
@@ -362,8 +370,8 @@ class OrderCtrl extends Controller
         //
     }
 
-
-    public function inbound(Request $request, $subOrderId) {
+    public function inbound(Request $request, $subOrderId)
+    {
         $sub_order = DB::table('ord_sub_orders as sub_order')
             ->leftJoin('dlv_delivery as delivery', function ($join) {
                 $join->on('delivery.event_id', '=', 'sub_order.id')
@@ -378,13 +386,12 @@ class OrderCtrl extends Controller
                 , 'sub_order.ship_event_id as depot_id'
             )
             ->get()->first()
-            ;
+        ;
 
         if (!$sub_order || 'pickup' != $sub_order->ship_category) {
             return abort(404);
         }
         $purchaseItemList = ReceiveDepot::getShouldEnterNumDataList(Event::order()->value, $subOrderId);
-
 
         $inboundList = PurchaseInbound::getInboundList(['event' => Event::ord_pickup()->value, 'purchase_id' => $subOrderId])
             ->orderByDesc('inbound.created_at')
@@ -401,7 +408,7 @@ class OrderCtrl extends Controller
             'inboundList' => $inboundList,
             'inboundOverviewList' => $inboundOverviewList,
             'depotList' => $depotList,
-            'formAction' => Route('cms.order.store_inbound', ['id' => $subOrderId,]),
+            'formAction' => Route('cms.order.store_inbound', ['id' => $subOrderId]),
             //'formActionClose' => Route('cms.order.close', ['id' => $subOrderId,]),
             'breadcrumb_data' => $sub_order->sn,
         ]);
@@ -427,7 +434,7 @@ class OrderCtrl extends Controller
             //檢查若輸入實進數量小於0，打負數時備註欄位要必填說明原因
             foreach ($inboundItemReq['product_style_id'] as $key => $val) {
                 if (1 > $inboundItemReq['inbound_num'][$key] && true == empty($inboundItemReq['inbound_memo'][$key])) {
-                    throw ValidationException::withMessages(['inbound_memo.'.$key => '打負數時備註欄位要必填說明原因']);
+                    throw ValidationException::withMessages(['inbound_memo.' . $key => '打負數時備註欄位要必填說明原因']);
                 }
             }
 
@@ -462,7 +469,7 @@ class OrderCtrl extends Controller
                         $id,
                         $inboundItemReq['event_item_id'][$key], //存入 dlv_receive_depot.id
                         $inboundItemReq['product_style_id'][$key],
-                        $val['item']['title'] . '-'. $val['item']['spec'],
+                        $val['item']['title'] . '-' . $val['item']['spec'],
                         $inboundItemReq['expiry_date'][$key],
                         $inboundItemReq['inbound_date'][$key],
                         $inboundItemReq['inbound_num'][$key],

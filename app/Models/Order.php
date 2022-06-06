@@ -3,17 +3,15 @@
 namespace App\Models;
 
 use App\Enums\Delivery\Event;
-use App\Enums\Discount\DisCategory;
-use App\Enums\Discount\DisMethod;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Order\PaymentStatus;
 use App\Enums\Order\UserAddrType;
 use App\Enums\Received\ReceivedMethod;
+use App\Models\CustomerDividend;
+use App\Models\OrderCart;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use App\Models\OrderCart;
-use App\Models\CustomerDividend;
 
 class Order extends Model
 {
@@ -158,7 +156,7 @@ class Order extends Model
             'product_style_id' => 'dlv_consum.product_style_id',
             'sku' => 'dlv_consum.sku',
             'product_title' => 'dlv_consum.product_title',
-            'qty' => 'dlv_consum.qty',]);
+            'qty' => 'dlv_consum.qty']);
         $itemConsumeQuery = DB::table('dlv_consum')
             ->select('dlv_consum.logistic_id')
             ->selectRaw($concatConsumeString . ' as consume_items')
@@ -263,13 +261,13 @@ class Order extends Model
      * @param array $coupon_obj [type,value]
      *
      */
-    public static function createOrder($email, $sale_channel_id, $address, $items, $note = null, $coupon_obj = null, ReceivedMethod $payment = null, $dividend = 0)
+    public static function createOrder($email, $sale_channel_id, $address, $items, $note = null, $coupon_obj = null, ReceivedMethod $payment = null, $dividend = [])
     {
 
         return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $note, $coupon_obj, $payment, $dividend) {
 
             $customer = Customer::where('email', $email)->get()->first();
-            $order = OrderCart::cartFormater($items, $sale_channel_id, $coupon_obj, true, $customer);
+            $order = OrderCart::cartFormater($items, $sale_channel_id, $coupon_obj, true, $customer, $dividend);
 
             if ($order['success'] != 1) {
                 DB::rollBack();
@@ -280,32 +278,10 @@ class Order extends Model
                     ->get()
                     ->count()) + 1, 4, '0', STR_PAD_LEFT);
 
-            if ($dividend) {
-                if ($dividend <= $order['max_dividend']) {
-                    // $customerDividend = CustomerDividend::getDividend($customer->id)->get()->first();
-                    $dividend_re = CustomerDividend::orderDiscount($customer->id, $order_sn, $dividend);
-                    if ($dividend_re['success'] == '0') {
-                        DB::rollBack();
-                        return $dividend_re;
-                    }
-                    $order['discounts'][] = [
-                        'title' => DisCategory::dividend(),
-                        'category_title' => DisCategory::dividend()->description,
-                        'category_code' => DisCategory::dividend(),
-                        'method_code' => DisMethod::cash(),
-                        'method_title' => DisMethod::cash()->description,
-                        'discount_value' => $dividend,
-                        'is_grand_total' => 0,
-                        'min_consume' => 0,
-                        'coupon_id' => null,
-                        'coupon_title' => null,
-                        'discount_grade_id' => null,
-                    ];
-                } else {
-                    return ['success' => '0',
-                        'error_msg' => '超過紅利折抵額度',
-                        'error_stauts' => 'dividend'];
-                }
+            $dividend_re = CustomerDividend::orderDiscount($customer->id, $order_sn, $order['use_dividend']);
+            if ($dividend_re['success'] != '1') {
+                DB::rollBack();
+                return $dividend_re;
             }
 
             $updateData = [
@@ -390,6 +366,8 @@ class Order extends Model
 
                 $subOrderId = DB::table('ord_sub_orders')->insertGetId($insertData);
 
+                Discount::createOrderDiscount('sub', $order_id, $customer, $value->discounts, $subOrderId);
+
                 //TODO 目前做DEMO 在新增訂單時，就新增出貨單，若未來串好付款，則在付款完畢後才新增出貨單
                 $reDelivery = Delivery::createData(
                     Event::order()->value
@@ -434,7 +412,7 @@ class Order extends Model
             }
 
             OrderFlow::changeOrderStatus($order_id, OrderStatus::Add());
-
+            /// dd($order);
             CustomerDividend::fromOrder($customer->id, $order_sn, $order['get_dividend']);
             // CustomerDividend::activeDividend(DividendCategory::Order(), $order_sn);
 
@@ -443,18 +421,16 @@ class Order extends Model
 
     }
 
-
     public static function generate_unique_id()
     {
-        $unique_id = substr(base_convert(sha1(uniqid(mt_rand())), 16, 36), 0, 9);// return 9 characters
+        $unique_id = substr(base_convert(sha1(uniqid(mt_rand())), 16, 36), 0, 9); // return 9 characters
 
-		if(self::where('unique_id', $unique_id)->first()){
-			return self::generate_unique_id();
-		} else {
-			return $unique_id;
-		}
+        if (self::where('unique_id', $unique_id)->first()) {
+            return self::generate_unique_id();
+        } else {
+            return $unique_id;
+        }
     }
-
 
     public static function change_order_payment_status($order_id, PaymentStatus $p_status = null, ReceivedMethod $r_method = null)
     {
