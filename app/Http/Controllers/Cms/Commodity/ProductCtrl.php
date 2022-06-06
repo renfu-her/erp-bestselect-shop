@@ -421,6 +421,13 @@ class ProductCtrl extends Controller
     public function storeSpec(Request $request, $id)
     {
 
+        $vali_rule = [];
+        for ($i = 0; $i < 3; $i++) {
+            $vali_rule["item_new$i.*"] = ['required','regex:/^[^\'\"]*$/' ];
+            $vali_rule["item_value$i.*"] = ['required','regex:/^[^\'\"]*$/'];
+        }
+        $request->validate($vali_rule);
+       
         $d = $request->all();
         for ($i = 0; $i < 3; $i++) {
             if (isset($d["spec" . $i])) {
