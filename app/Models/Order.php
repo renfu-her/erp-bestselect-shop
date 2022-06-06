@@ -280,39 +280,8 @@ class Order extends Model
                     ->get()
                     ->count()) + 1, 4, '0', STR_PAD_LEFT);
 
-            if ($dividend) {
-                if ($dividend <= $order['max_dividend']) {
-                    // $customerDividend = CustomerDividend::getDividend($customer->id)->get()->first();
-                    $dividend_re = CustomerDividend::orderDiscount($customer->id, $order_sn, $dividend);
-                    if ($dividend_re['success'] == '0') {
-                        DB::rollBack();
-                        return $dividend_re;
-                    }
-                    $order['discounts'][] = (object) [
-                        'title' => DisCategory::dividend()->description . "折抵",
-                        'category_title' => DisCategory::dividend()->description,
-                        'category_code' => DisCategory::dividend()->value,
-                        'method_code' => DisMethod::cash()->value,
-                        'method_title' => DisMethod::cash()->description,
-                        'discount_value' => $dividend,
-                        'currentDiscount' => $dividend,
-                        'is_grand_total' => 0,
-                        'min_consume' => 0,
-                        'coupon_id' => null,
-                        'coupon_title' => null,
-                        'discount_grade_id' => null,
-                    ];
-
-                    $order['total_price'] -= $dividend;
-                    $order['discount_value'] += $dividend;
-                    $order['discounted_price'] -= $dividend;
-
-                } else {
-                    return ['success' => '0',
-                        'error_msg' => '超過紅利折抵額度',
-                        'error_stauts' => 'dividend'];
-                }
-            }
+           
+            // $dividend_re = CustomerDividend::orderDiscount($customer->id, $order_sn, $dividend);
 
             $updateData = [
                 "sn" => $order_sn,

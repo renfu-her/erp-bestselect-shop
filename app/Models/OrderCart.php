@@ -146,7 +146,7 @@ class OrderCart extends Model
 
                 if (!isset($errors[$value['product_style_id']])) {
 
-                    $groupKey = $value['shipment_type'] . '-' . $value['shipment_event_id'];
+                    $groupKey = $value['shipment_type'] . '_' . $value['shipment_event_id'];
 
                     if (!in_array($groupKey, $shipmentKeys)) {
                         $shipmentKeys[] = $groupKey;
@@ -232,7 +232,8 @@ class OrderCart extends Model
 
         self::globalStage($order, $_tempProducts);
         self::couponStage($order, $currentCoupon, $_tempProducts);
-        self::dividendStage($order, $_tempProducts);
+        self::useDividendStage($order, $customer);
+        self::getDividendStage($order, $_tempProducts);
         self::shipmentStage($order);
 
         $order['total_price'] = $order['discounted_price'] + $order['dlv_fee'];
@@ -426,7 +427,47 @@ class OrderCart extends Model
 
     }
 
-    private static function dividendStage(&$order, $_tempProducts)
+    private static function useDividendStage(&$order, $customer)
+    {
+        $dividend = 0;
+        $di = CustomerDividend::getDividend($customer->id)->get()->first();
+
+        if ($di && $di->dividend) {
+            $dividend = $di->dividend;
+        }
+
+        if ($dividend) {
+            if ($dividend <= $order['max_dividend']) {
+
+                $order['discounts'][] = (object) [
+                    'title' => DisCategory::dividend()->description . "折抵",
+                    'category_title' => DisCategory::dividend()->description,
+                    'category_code' => DisCategory::dividend()->value,
+                    'method_code' => DisMethod::cash()->value,
+                    'method_title' => DisMethod::cash()->description,
+                    'discount_value' => $dividend,
+                    'currentDiscount' => $dividend,
+                    'is_grand_total' => 0,
+                    'min_consume' => 0,
+                    'coupon_id' => null,
+                    'coupon_title' => null,
+                    'discount_grade_id' => null,
+                ];
+
+                $order['total_price'] -= $dividend;
+                $order['discount_value'] += $dividend;
+                $order['discounted_price'] -= $dividend;
+
+            } else {
+                return ['success' => '0',
+                    'error_msg' => '超過紅利折抵額度',
+                    'error_stauts' => 'dividend'];
+            }
+        }
+
+    }
+
+    private static function getDividendStage(&$order, $_tempProducts)
     {
         $salechannel = SaleChannel::where('id', $order['salechannel_id'])->get()->first();
 
