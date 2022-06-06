@@ -3,8 +3,6 @@
 namespace App\Models;
 
 use App\Enums\Delivery\Event;
-use App\Enums\Discount\DisCategory;
-use App\Enums\Discount\DisMethod;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Order\PaymentStatus;
 use App\Enums\Order\UserAddrType;
@@ -263,13 +261,13 @@ class Order extends Model
      * @param array $coupon_obj [type,value]
      *
      */
-    public static function createOrder($email, $sale_channel_id, $address, $items, $note = null, $coupon_obj = null, ReceivedMethod $payment = null, $dividend = 0)
+    public static function createOrder($email, $sale_channel_id, $address, $items, $note = null, $coupon_obj = null, ReceivedMethod $payment = null, $dividend = [])
     {
 
         return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $note, $coupon_obj, $payment, $dividend) {
 
             $customer = Customer::where('email', $email)->get()->first();
-            $order = OrderCart::cartFormater($items, $sale_channel_id, $coupon_obj, true, $customer);
+            $order = OrderCart::cartFormater($items, $sale_channel_id, $coupon_obj, true, $customer, $dividend);
 
             if ($order['success'] != 1) {
                 DB::rollBack();
@@ -280,8 +278,11 @@ class Order extends Model
                     ->get()
                     ->count()) + 1, 4, '0', STR_PAD_LEFT);
 
-           
-            // $dividend_re = CustomerDividend::orderDiscount($customer->id, $order_sn, $dividend);
+            $dividend_re = CustomerDividend::orderDiscount($customer->id, $order_sn, $order['use_dividend']);
+            if ($dividend_re['success'] != '1') {
+                DB::rollBack();
+                return $dividend_re;
+            }
 
             $updateData = [
                 "sn" => $order_sn,
@@ -364,6 +365,8 @@ class Order extends Model
                 }
 
                 $subOrderId = DB::table('ord_sub_orders')->insertGetId($insertData);
+
+                Discount::createOrderDiscount('sub', $order_id, $customer, $value->discounts, $subOrderId);
 
                 //TODO 目前做DEMO 在新增訂單時，就新增出貨單，若未來串好付款，則在付款完畢後才新增出貨單
                 $reDelivery = Delivery::createData(

@@ -192,6 +192,12 @@ class OrderCtrl extends Controller
 
         $d = $request->all();
 
+
+        $dividend = [];
+        foreach($d['dividend_id'] as $key=>$div){
+            $dividend[$div] = $d['dividend'][$key];
+        }
+
         $customer = Customer::where('id', $d['customer_id'])->get()->first();
 
         $items = [];
@@ -226,7 +232,7 @@ class OrderCtrl extends Controller
             $coupon = [$d['coupon_type'], $d['coupon_sn']];
         }
        
-        $re = Order::createOrder($customer->email, $d['salechannel_id'], $address, $items, $d['note'], $coupon, null, null);
+        $re = Order::createOrder($customer->email, $d['salechannel_id'], $address, $items, $d['note'], $coupon, null, $dividend);
         if ($re['success'] == '1') {
             wToast('訂單新增成功');
             return redirect(route('cms.order.detail', [
