@@ -31,6 +31,7 @@ class ProductCtrl extends Controller
         $options = [];
         if (isset($d['price'])) {
             $options['price'] = $d['price'];
+            $options['salechannel'] = $d['price'];
         }
 
     
@@ -41,6 +42,8 @@ class ProductCtrl extends Controller
         if (isset($d['consume'])) {
             $options['consume'] = $d['consume'];
         }
+
+        
 
         // Arr::get($d, 'supplier_id',''),
 
