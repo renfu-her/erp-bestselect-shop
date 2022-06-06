@@ -438,6 +438,16 @@ class Product extends Model
         if (isset($options['public']) && !is_null($options['public'])) {
             $re->where('p.public', $options['public']);
         }
+
+        if (isset($options['salechannel']) && !is_null($options['salechannel'])) {
+            $sales_type = SaleChannel::where('id', $options['salechannel'])->get()->first()->sales_type;
+            if ($sales_type == '1') {
+                $re->where('p.online', 1);
+            } else {
+                $re->where('p.offline', 1);
+            }
+        }
+
         return $re;
 
     }
