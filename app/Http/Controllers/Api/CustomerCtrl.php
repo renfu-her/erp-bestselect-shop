@@ -124,7 +124,7 @@ class CustomerCtrl extends Controller
             ->leftJoin('usr_customers_address', 'customer.id', '=', 'usr_customers_address.usr_customers_id_fk')
             ->whereNotNull('address')
             ->select([
-                'customer.id as id',
+                'usr_customers_address.id as id',
                 'name',
                 'phone',
                 'city_id',
