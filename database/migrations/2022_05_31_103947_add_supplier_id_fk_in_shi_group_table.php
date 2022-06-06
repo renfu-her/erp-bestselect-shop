@@ -29,6 +29,7 @@ class AddSupplierIdFkInShiGroupTable extends Migration
     public function down()
     {
         Schema::table('shi_group', function (Blueprint $table) {
+            $table->dropForeign('shi_group_supplier_fk_foreign');
             $table->dropColumn('supplier_fk');
         });
     }

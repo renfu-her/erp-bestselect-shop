@@ -39,16 +39,27 @@ class AddPriceCostMemoColumnInDlvConsumTable extends Migration
      */
     public function down()
     {
-        Schema::table('dlv_consum', function (Blueprint $table) {
-            $table->dropColumn('unit_price');
-            $table->dropColumn('cost');
-            $table->dropColumn('memo');
-        });
-        Schema::table('pcs_purchase_inbound', function (Blueprint $table) {
-            $table->dropColumn('unit_price');
-        });
-        Schema::table('dlv_receive_depot', function (Blueprint $table) {
-            $table->dropColumn('unit_price');
-        });
+        if (Schema::hasColumns('dlv_consum', [
+            'unit_price',
+            'cost',
+            'memo',
+        ])) {
+            Schema::table('dlv_consum', function (Blueprint $table) {
+                $table->dropColumn('unit_price');
+                $table->dropColumn('cost');
+                $table->dropColumn('memo');
+            });
+        }
+        if (Schema::hasColumns('pcs_purchase_inbound', ['unit_price',])) {
+            Schema::table('pcs_purchase_inbound', function (Blueprint $table) {
+                $table->dropColumn('unit_price');
+            });
+        }
+
+        if (Schema::hasColumns('dlv_receive_depot', ['unit_price'])){
+            Schema::table('dlv_receive_depot', function (Blueprint $table) {
+                $table->dropColumn('unit_price');
+            });
+        }
     }
 }

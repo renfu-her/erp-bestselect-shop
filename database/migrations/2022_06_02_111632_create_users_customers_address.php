@@ -23,12 +23,19 @@ class CreateUsersCustomersAddress extends Migration
             $table->tinyInteger('is_default_addr')->comment('是否是預設地址 是1、不是0');
         });
 
-        Schema::table('usr_customers', function (Blueprint $table) {
-            $table->dropColumn('address');
-            $table->dropColumn('city_id');
-            $table->dropColumn('region_id');
-            $table->dropColumn('addr');
-        });
+        if (Schema::hasColumns('usr_customers', [
+            'address',
+            'city_id',
+            'region_id',
+            'addr',
+        ])) {
+            Schema::table('usr_customers', function (Blueprint $table) {
+                $table->dropColumn('address');
+                $table->dropColumn('city_id');
+                $table->dropColumn('region_id');
+                $table->dropColumn('addr');
+            });
+        }
     }
 
     /**
@@ -38,5 +45,6 @@ class CreateUsersCustomersAddress extends Migration
      */
     public function down()
     {
+        Schema::dropIfExists('usr_customers_address');
     }
 }
