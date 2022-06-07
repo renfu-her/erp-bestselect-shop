@@ -78,43 +78,45 @@ class AccountPayableCtrl extends Controller
             $credit = [];
 
             // 付款項目
-            foreach(json_decode($value->payable_list) as $pay_v){
-                $payment_method_name = Payment::getDescription($pay_v->acc_income_type_fk);
-                $payment_account = AllGrade::find($pay_v->all_grades_id) ? AllGrade::find($pay_v->all_grades_id)->eachGrade : null;
-                $account_code = $payment_account ? $payment_account->code : '1000';
-                $account_name = $payment_account ? $payment_account->name : '無設定會計科目';
+            if($value->payable_list){
+                foreach(json_decode($value->payable_list) as $pay_v){
+                    $payment_method_name = Payment::getDescription($pay_v->acc_income_type_fk);
+                    $payment_account = AllGrade::find($pay_v->all_grades_id) ? AllGrade::find($pay_v->all_grades_id)->eachGrade : null;
+                    $account_code = $payment_account ? $payment_account->code : '1000';
+                    $account_name = $payment_account ? $payment_account->name : '無設定會計科目';
 
-                // if($pay_v->acc_income_type_fk == 4){
-                //     $arr = explode('-', AllGrade::find($pay_v->all_grades_id)->eachGrade->name);
-                //     $pay_v->currency_name = $arr[0] == '外幣' ? $arr[1] . ' - ' . $arr[2] : 'NTD';
-                //     $pay_v->currency_rate = DB::table('acc_payment_currency')->find($pay_v->payment_method_id)->currency;
-                // } else {
-                //     $pay_v->currency_name = 'NTD';
-                //     $pay_v->currency_rate = 1;
-                // }
+                    // if($pay_v->acc_income_type_fk == 4){
+                    //     $arr = explode('-', AllGrade::find($pay_v->all_grades_id)->eachGrade->name);
+                    //     $pay_v->currency_name = $arr[0] == '外幣' ? $arr[1] . ' - ' . $arr[2] : 'NTD';
+                    //     $pay_v->currency_rate = DB::table('acc_payment_currency')->find($pay_v->payment_method_id)->currency;
+                    // } else {
+                    //     $pay_v->currency_name = 'NTD';
+                    //     $pay_v->currency_rate = 1;
+                    // }
 
-                $name = $payment_method_name . ' ' . $pay_v->note . '（' . $account_code . ' - ' . $account_name . '）';
+                    $name = $payment_method_name . ' ' . $pay_v->note . '（' . $account_code . ' - ' . $account_name . '）';
 
-                $tmp = [
-                    'account_code'=>$account_code,
-                    'name'=>$name,
-                    'price'=>$pay_v->tw_price,
-                    'type'=>'p',
-                    'd_type'=>'payable',
+                    $tmp = [
+                        'account_code'=>$account_code,
+                        'name'=>$name,
+                        'price'=>$pay_v->tw_price,
+                        'type'=>'p',
+                        'd_type'=>'payable',
 
-                    'account_name'=>$account_name,
-                    'method_name'=>$payment_method_name,
-                    'note'=>$pay_v->note,
-                    'product_title'=>null,
-                    'del_even'=>null,
-                    'del_category_name'=>null,
-                    'product_price'=>null,
-                    'product_qty'=>null,
-                    'product_owner'=>null,
-                    'discount_title'=>null,
-                    'payable_type'=>$pay_v->payable_type,
-                ];
-                GeneralLedger::classification_processing($debit, $credit, $tmp);
+                        'account_name'=>$account_name,
+                        'method_name'=>$payment_method_name,
+                        'note'=>$pay_v->note,
+                        'product_title'=>null,
+                        'del_even'=>null,
+                        'del_category_name'=>null,
+                        'product_price'=>null,
+                        'product_qty'=>null,
+                        'product_owner'=>null,
+                        'discount_title'=>null,
+                        'payable_type'=>$pay_v->payable_type,
+                    ];
+                    GeneralLedger::classification_processing($debit, $credit, $tmp);
+                }
             }
 
             // 商品
@@ -122,34 +124,36 @@ class AccountPayableCtrl extends Controller
             $account_code = $product_account ? $product_account->code : '1000';
             $account_name = $product_account ? $product_account->name : '無設定會計科目';
             $product_name = $account_code . ' - ' . $account_name;
-            foreach(json_decode($value->product_list) as $pro_v){
-                $avg_price = $pro_v->price / $pro_v->num;
-                $name = $product_name . ' --- ' . $pro_v->title . '（' . $avg_price . ' * ' . $pro_v->num . '）';
+            if($value->product_list){
+                foreach(json_decode($value->product_list) as $pro_v){
+                    $avg_price = $pro_v->price / $pro_v->num;
+                    $name = $product_name . ' --- ' . $pro_v->title . '（' . $avg_price . ' * ' . $pro_v->num . '）';
 
-                $tmp = [
-                    'account_code'=>$account_code,
-                    'name'=>$name,
-                    'price'=>$pro_v->price,
-                    'type'=>'p',
-                    'd_type'=>'product',
+                    $tmp = [
+                        'account_code'=>$account_code,
+                        'name'=>$name,
+                        'price'=>$pro_v->price,
+                        'type'=>'p',
+                        'd_type'=>'product',
 
-                    'account_name'=>$account_name,
-                    'method_name'=>null,
-                    'note'=>null,
-                    'product_title'=>$pro_v->title,
-                    'del_even'=>null,
-                    'del_category_name'=>null,
-                    'product_price'=>$avg_price,
-                    'product_qty'=>$pro_v->num,
-                    'product_owner'=>$pro_v->product_owner,
-                    'discount_title'=>null,
-                    'payable_type'=>null,
-                ];
-                GeneralLedger::classification_processing($debit, $credit, $tmp);
+                        'account_name'=>$account_name,
+                        'method_name'=>null,
+                        'note'=>null,
+                        'product_title'=>$pro_v->title,
+                        'del_even'=>null,
+                        'del_category_name'=>null,
+                        'product_price'=>$avg_price,
+                        'product_qty'=>$pro_v->num,
+                        'product_owner'=>$pro_v->product_owner,
+                        'discount_title'=>null,
+                        'payable_type'=>null,
+                    ];
+                    GeneralLedger::classification_processing($debit, $credit, $tmp);
+                }
             }
 
             // 物流
-            if($value->purchase_logistics_price <> 0){
+            if($value->purchase_logistics_price <> 0 || $value->order_sub_cost <> 0){
                 $log_account = AllGrade::find($value->po_logistics_grade_id) ? AllGrade::find($value->po_logistics_grade_id)->eachGrade : null;
                 $account_code = $log_account ? $log_account->code : '5000';
                 $account_name = $log_account ? $log_account->name : '無設定會計科目';
@@ -158,7 +162,7 @@ class AccountPayableCtrl extends Controller
                 $tmp = [
                     'account_code'=>$account_code,
                     'name'=>$name,
-                    'price'=>$value->purchase_logistics_price,
+                    'price'=>$value->purchase_logistics_price ?? $value->order_sub_cost,
                     'type'=>'p',
                     'd_type'=>'logistics',
 
