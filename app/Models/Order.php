@@ -22,9 +22,9 @@ class Order extends Model
     protected $guarded = [];
 
     public static function orderList($keyword = null,
-        $order_status = null,
-        $sale_channel_id = null,
-        $order_date = null) {
+                                     $order_status = null,
+                                     $sale_channel_id = null,
+                                     $order_date = null) {
         $order = DB::table('ord_orders as order')
             ->select(['order.id as id',
                 'order.status as order_status',
@@ -226,14 +226,14 @@ class Order extends Model
 
         if($get_paying){
             $orderQuery->leftJoin('pcs_paying_orders as po', function ($join) {
-                    $join->on('po.source_id', '=', 'sub_order.order_id');
-                    $join->where([
-                        'po.source_sub_id' => DB::raw('sub_order.id'),
-                        'po.source_type' => app(Order::class)->getTable(),
-                        'po.type' => 1,
-                        'po.deleted_at' => null,
-                    ]);
-                })
+                $join->on('po.source_id', '=', 'sub_order.order_id');
+                $join->where([
+                    'po.source_sub_id' => DB::raw('sub_order.id'),
+                    'po.source_type' => app(Order::class)->getTable(),
+                    'po.type' => 1,
+                    'po.deleted_at' => null,
+                ]);
+            })
                 // ->selectRaw("('" . app(Order::class)->getTable() . "') as payable_source_type")
                 ->selectRaw("IF(po.sn IS NULL, NULL, po.sn) as payable_sn")
                 ->selectRaw("IF(po.balance_date IS NULL, NULL, po.balance_date) as payable_balance_date");
@@ -283,7 +283,7 @@ class Order extends Model
      * @param array $coupon_obj [type,value]
      *
      */
-    public static function createOrder($email, $sale_channel_id, $address, $items, $note = null, $coupon_obj = null, ReceivedMethod $payment = null, $dividend = 0)
+    public static function createOrder($email, $sale_channel_id, $address, $items, $note = null, $coupon_obj = null, ReceivedMethod $payment = null, $dividend = [])
     {
 
         return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $note, $coupon_obj, $payment, $dividend) {
@@ -297,35 +297,13 @@ class Order extends Model
             }
 
             $order_sn = "O" . date("Ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
-                    ->get()
-                    ->count()) + 1, 4, '0', STR_PAD_LEFT);
+                        ->get()
+                        ->count()) + 1, 4, '0', STR_PAD_LEFT);
 
-            if ($dividend) {
-                if ($dividend <= $order['max_dividend']) {
-                    // $customerDividend = CustomerDividend::getDividend($customer->id)->get()->first();
-                    $dividend_re = CustomerDividend::orderDiscount($customer->id, $order_sn, $dividend);
-                    if ($dividend_re['success'] == '0') {
-                        DB::rollBack();
-                        return $dividend_re;
-                    }
-                    $order['discounts'][] = [
-                        'title' => DisCategory::dividend(),
-                        'category_title' => DisCategory::dividend()->description,
-                        'category_code' => DisCategory::dividend(),
-                        'method_code' => DisMethod::cash(),
-                        'method_title' => DisMethod::cash()->description,
-                        'discount_value' => $dividend,
-                        'is_grand_total' => 0,
-                        'min_consume' => 0,
-                        'coupon_id' => null,
-                        'coupon_title' => null,
-                        'discount_grade_id' => null,
-                    ];
-                } else {
-                    return ['success' => '0',
-                        'error_msg' => '超過紅利折抵額度',
-                        'error_stauts' => 'dividend'];
-                }
+            $dividend_re = CustomerDividend::orderDiscount($customer->id, $order_sn, $order['use_dividend']);
+            if ($dividend_re['success'] != '1') {
+                DB::rollBack();
+                return $dividend_re;
             }
 
             $updateData = [
@@ -376,8 +354,8 @@ class Order extends Model
             //   dd($order);
             foreach ($order['shipments'] as $value) {
                 $sub_order_sn = $order_sn . "-" . str_pad((DB::table('ord_sub_orders')->where('order_id', $order_id)
-                        ->get()
-                        ->count()) + 1, 2, '0', STR_PAD_LEFT);
+                            ->get()
+                            ->count()) + 1, 2, '0', STR_PAD_LEFT);
 
                 $insertData = [
                     'order_id' => $order_id,
@@ -469,11 +447,11 @@ class Order extends Model
     {
         $unique_id = substr(base_convert(sha1(uniqid(mt_rand())), 16, 36), 0, 9);// return 9 characters
 
-		if(self::where('unique_id', $unique_id)->first()){
-			return self::generate_unique_id();
-		} else {
-			return $unique_id;
-		}
+        if(self::where('unique_id', $unique_id)->first()){
+            return self::generate_unique_id();
+        } else {
+            return $unique_id;
+        }
     }
 
 
