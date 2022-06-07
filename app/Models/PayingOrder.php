@@ -52,7 +52,7 @@ class PayingOrder extends Model
             $sn = "PSG" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
                         ->withTrashed()
                         ->get()
-                        ->count()) + 1, 3, '0', STR_PAD_LEFT);
+                        ->count()) + 1, 4, '0', STR_PAD_LEFT);
 
             $id = self::create([
                 'source_type'=>$source_type ? $source_type : app(Purchase::class)->getTable(),

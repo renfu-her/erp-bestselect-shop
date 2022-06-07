@@ -29,7 +29,7 @@ class ReceivedOrder extends Model
         $re = self::create([
             'order_id'=>$order_id,
             'usr_users_id'=>auth('user')->user() ? auth('user')->user()->id : null,
-            'sn'=>'MSG' . date('ymd') . str_pad( count(self::whereDate('created_at', '=', date('Y-m-d'))->withTrashed()->get()) + 1, 3, '0', STR_PAD_LEFT),
+            'sn'=>'MSG' . date('ymd') . str_pad( count(self::whereDate('created_at', '=', date('Y-m-d'))->withTrashed()->get()) + 1, 4, '0', STR_PAD_LEFT),
             'price'=>$order_data->total_price,
             // 'tw_dollar'=>0,
             // 'rate'=>1,
