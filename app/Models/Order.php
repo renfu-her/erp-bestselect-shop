@@ -410,6 +410,7 @@ class Order extends Model
 
                 $subOrderId = DB::table('ord_sub_orders')->insertGetId($insertData);
 
+                Discount::createOrderDiscount('sub', $order_id, $customer, $value->discounts, $subOrderId);
                 //TODO 目前做DEMO 在新增訂單時，就新增出貨單，若未來串好付款，則在付款完畢後才新增出貨單
                 $reDelivery = Delivery::createData(
                     Event::order()->value
@@ -495,3 +496,4 @@ class Order extends Model
         }
     }
 }
+

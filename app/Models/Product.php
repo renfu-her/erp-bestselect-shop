@@ -360,11 +360,9 @@ class Product extends Model
 
         }
 
-
         if ($type && $type != 'all') {
             $re->where('s.type', $type);
         }
-
 
         if ($stock_status) {
             $re->where(function ($_q) use ($stock_status) {
@@ -429,10 +427,9 @@ class Product extends Model
         if (isset($options['price'])) {
             $re->leftJoin('prd_salechannel_style_price as price', 's.id', '=', 'price.style_id')
                 ->addSelect('price.price')
-                ->addSelect('price.dividend')        
-               ->where('price.sale_channel_id', $options['price']);
+                ->addSelect('price.dividend')
+                ->where('price.sale_channel_id', $options['price']);
         }
-
 
         if (isset($options['consume']) && !is_null($options['consume'])) {
             $re->where('p.consume', $options['consume']);
@@ -441,12 +438,23 @@ class Product extends Model
         if (isset($options['public']) && !is_null($options['public'])) {
             $re->where('p.public', $options['public']);
         }
+
+        if (isset($options['salechannel']) && !is_null($options['salechannel'])) {
+            $sales_type = SaleChannel::where('id', $options['salechannel'])->get()->first()->sales_type;
+            if ($sales_type == '1') {
+                $re->where('p.online', 1);
+            } else {
+                $re->where('p.offline', 1);
+            }
+        }
+
         return $re;
 
     }
 
     public static function singleProduct($sku = null, $sale_channel_id = 1)
     {
+
         $concatString = concatStr([
             'id' => 's.id',
             'title' => 's.title',
@@ -454,7 +462,8 @@ class Product extends Model
             'in_stock' => 's.in_stock',
             'overbought' => 's.overbought',
             'origin_price' => 'p.origin_price',
-            'price' => 'p.price']);
+            'price' => 'p.price',
+            'dividend' => 'p.dividend']);
 
         $concatImg = concatStr([
             'url' => 'url',

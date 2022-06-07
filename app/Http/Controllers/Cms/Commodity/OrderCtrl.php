@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Enums\Discount\DividendCategory;
 use App\Enums\Delivery\Event;
+use App\Enums\Discount\DividendCategory;
 use App\Enums\Order\UserAddrType;
 use App\Http\Controllers\Controller;
 use App\Models\Addr;
 use App\Models\Customer;
+use App\Models\CustomerDividend;
 use App\Models\Depot;
 use App\Models\Discount;
 use App\Models\Order;
@@ -199,6 +201,10 @@ class OrderCtrl extends Controller
 
         $d = $request->all();
 
+        $dividend = [];
+        foreach($d['dividend_id'] as $key=>$div){
+            $dividend[$div] = $d['dividend'][$key];
+        }
         $customer = Customer::where('id', $d['customer_id'])->get()->first();
 
         $items = [];
@@ -233,7 +239,7 @@ class OrderCtrl extends Controller
             $coupon = [$d['coupon_type'], $d['coupon_sn']];
         }
 
-        $re = Order::createOrder($customer->email, $d['salechannel_id'], $address, $items, $d['note'], $coupon);
+        $re = Order::createOrder($customer->email, $d['salechannel_id'], $address, $items, $d['note'], $coupon, null, $dividend);
         if ($re['success'] == '1') {
             wToast('訂單新增成功');
             return redirect(route('cms.order.detail', [
@@ -264,6 +270,9 @@ class OrderCtrl extends Controller
                     break;
                 case "coupon":
                     $errors['coupon'] = $re['error_msg'];
+                    break;
+                case "dividend":
+                    $errors['dividend'] = $re['error_msg'];
                     break;
             }
         }
@@ -321,8 +330,8 @@ class OrderCtrl extends Controller
         }
 
         $dividend = CustomerDividend::where('category', DividendCategory::Order())
-            ->where('category_sn', $order->sn)->get()->first();
-
+            ->where('category_sn', $order->sn)
+            ->where('type', 'get')->get()->first();
        
         if ($dividend) {
             $dividend = $dividend->dividend;
@@ -340,7 +349,7 @@ class OrderCtrl extends Controller
             'discounts' => Discount::orderDiscountList('main', $id)->get()->toArray(),
             'receivable' => $receivable,
             'received_order_data' => $received_order_data,
-            'dividend'=>$dividend
+            'dividend' => $dividend,
         ]);
     }
 
@@ -590,3 +599,4 @@ class OrderCtrl extends Controller
         }
     }
 }
+
