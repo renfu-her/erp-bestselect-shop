@@ -4,12 +4,10 @@ namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Enums\Discount\DividendCategory;
 use App\Enums\Delivery\Event;
-use App\Enums\Discount\DividendCategory;
 use App\Enums\Order\UserAddrType;
 use App\Http\Controllers\Controller;
 use App\Models\Addr;
 use App\Models\Customer;
-use App\Models\CustomerDividend;
 use App\Models\Depot;
 use App\Models\Discount;
 use App\Models\Order;
