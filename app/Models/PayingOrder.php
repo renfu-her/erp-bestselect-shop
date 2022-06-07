@@ -228,9 +228,9 @@ class PayingOrder extends Model
                 'po.created_at as po_created_at',
 
                 'purchase.id as purchase_id',
-                'purchase.sn as purchase_sn',
+                // 'purchase.sn as purchase_sn',
                 'purchase.supplier_name as purchase_supplier_name',
-                'purchase.logistics_price as purchase_logistics_price',//運費
+                // 'purchase.logistics_price as purchase_logistics_price',//運費
                 'purchase.logistics_memo as purchase_logistics_memo',
                 'purchase.invoice_num as purchase_invoice_num',
                 'purchase.invoice_date as purchase_invoice_date',
@@ -240,9 +240,9 @@ class PayingOrder extends Model
                 'user.name as purchaser',
                 'audit.name as auditor',
 
-                'supplier.id as supplier_id_p',
-                'supplier.name as supplier_name_p',
-                'supplier.contact_person as supplier_contact_person_p',
+                // 'supplier.id as supplier_id_p',
+                // 'supplier.name as supplier_name_p',
+                // 'supplier.contact_person as supplier_contact_person_p',
 
                 'v_table_1.price as product_price_sum',//採購商品金額總計(未含運費)
                 'v_table_1.item_list as product_list',
@@ -251,13 +251,18 @@ class PayingOrder extends Model
                 'v_table_2.payable_price as payable_price',// 付款單金額(實付)
                 'v_table_2.pay_list as payable_list',
 
-                'dlv_delivery.event_sn as order_sub_sn',
-                'dlv_logistic.cost as order_sub_cost',
+                // 'dlv_delivery.event_sn as order_sub_sn',
+                // 'dlv_logistic.cost as order_sub_cost',
 
-                'prd_suppliers.id as supplier_id_o',
-                'prd_suppliers.name as supplier_name_o',
-                'prd_suppliers.contact_person as supplier_contact_person_o',
-            );
+                // 'prd_suppliers.id as supplier_id_o',
+                // 'prd_suppliers.name as supplier_name_o',
+                // 'prd_suppliers.contact_person as supplier_contact_person_o',
+            )
+            ->selectRaw('IF(purchase.sn IS NULL, dlv_delivery.event_sn, purchase.sn) as purchase_order_sn') // purchase_sn or order_sub_sn
+            ->selectRaw('IF(purchase.logistics_price IS NULL, dlv_logistic.cost, purchase.logistics_price) as logistics_price')
+            ->selectRaw('IF(supplier.id IS NULL, prd_suppliers.id, supplier.id) as supplier_id')
+            ->selectRaw('IF(supplier.name IS NULL, prd_suppliers.name, supplier.name) as supplier_name')
+            ->selectRaw('IF(supplier.contact_person IS NULL, prd_suppliers.contact_person, supplier.contact_person) as supplier_contact_person');
             // ->selectRaw('DATE_FORMAT(purchase.created_at, "%Y-%m-%d") as purchase_date');
 
         if ($supplier_id) {
@@ -288,12 +293,10 @@ class PayingOrder extends Model
                 $min_price = $p_order_price[0] ?? null;
                 $max_price = $p_order_price[1] ?? null;
                 if($min_price){
-                    $paying_order->where('po.price', '>=', $min_price)
-                        ->orWhere('dlv_logistic.cost', '>=', $min_price);
+                    $paying_order->where('po.price', '>=', $min_price);
                 }
                 if($max_price){
-                    $paying_order->where('po.price', '<=', $max_price)
-                        ->orWhere('dlv_logistic.cost', '<=', $max_price);
+                    $paying_order->where('po.price', '<=', $max_price);
                 }
             }
         }

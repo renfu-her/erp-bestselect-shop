@@ -119,7 +119,7 @@
                                 </span>
                                 @endforeach
                             </td>
-                            <td>{{ $data->supplier_name_p ?? $data->supplier_name_o }} - {{ $data->supplier_contact_person_p ?? $data->supplier_contact_person_o }}</td>
+                            <td>{{ $data->supplier_name }} - {{ $data->supplier_contact_person }}</td>
                             <td class="p-0">
                                 @foreach($data->debit as $d_value)
                                 <span class="border-bottom d-block bg-warning p-1">{{$d_value->account_code}} - {{$d_value->account_name}}</span>
@@ -134,20 +134,20 @@
                                 @foreach($data->debit as $d_value)
                                 <span class="border-bottom d-block bg-warning p-1">
                                     @if($d_value->d_type == 'logistics')
-                                        {{$d_value->account_name}} - {{ $data->purchase_sn ?? $data->order_sub_sn }}
+                                        {{$d_value->account_name}} - {{ $data->purchase_order_sn }}
                                     @elseif($d_value->d_type == 'discount')
-                                        {{$d_value->discount_title}} - {{$data->purchase_sn}}
+                                        {{$d_value->discount_title}} - {{$data->purchase_order_sn}}
                                     @else
-                                        {{$d_value->product_title}}({{ $d_value->product_price }} * {{$d_value->product_qty}})({{ $d_value->product_owner }}) - {{$data->purchase_sn}}
+                                        {{$d_value->product_title}}({{ $d_value->product_price }} * {{$d_value->product_qty}})({{ $d_value->product_owner }}) - {{$data->purchase_order_sn}}
                                     @endif
                                 </span>
                                 @endforeach
 
                                 @foreach($data->credit as $c_value)
                                 @if($c_value->payable_type == 0)
-                                <span class="border-bottom d-block bg-white p-1">{{$c_value->method_name}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{ $data->purchase_sn ?? $data->order_sub_sn }} - {{ $po_sn[0] }}</span>
+                                <span class="border-bottom d-block bg-white p-1">{{$c_value->method_name}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{ $data->purchase_order_sn }} - {{ $po_sn[0] }}</span>
                                 @elseif($c_value->payable_type == 1)
-                                <span class="border-bottom d-block bg-white p-1">{{$c_value->method_name}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{ $data->purchase_sn ?? $data->order_sub_sn }} - {{ count($po_sn) > 1 ? $po_sn[1] : $po_sn[0]  }}</span>
+                                <span class="border-bottom d-block bg-white p-1">{{$c_value->method_name}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{ $data->purchase_order_sn }} - {{ count($po_sn) > 1 ? $po_sn[1] : $po_sn[0]  }}</span>
                                 @endif
                                 @endforeach
                             </td>

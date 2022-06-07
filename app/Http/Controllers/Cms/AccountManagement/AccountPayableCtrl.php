@@ -153,7 +153,7 @@ class AccountPayableCtrl extends Controller
             }
 
             // 物流
-            if($value->purchase_logistics_price <> 0 || $value->order_sub_cost <> 0){
+            if($value->logistics_price <> 0){
                 $log_account = AllGrade::find($value->po_logistics_grade_id) ? AllGrade::find($value->po_logistics_grade_id)->eachGrade : null;
                 $account_code = $log_account ? $log_account->code : '5000';
                 $account_name = $log_account ? $log_account->name : '無設定會計科目';
@@ -162,7 +162,7 @@ class AccountPayableCtrl extends Controller
                 $tmp = [
                     'account_code'=>$account_code,
                     'name'=>$name,
-                    'price'=>$value->purchase_logistics_price ?? $value->order_sub_cost,
+                    'price'=>$value->logistics_price,
                     'type'=>'p',
                     'd_type'=>'logistics',
 
