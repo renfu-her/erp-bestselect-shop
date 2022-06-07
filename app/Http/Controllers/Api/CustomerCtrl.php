@@ -7,6 +7,7 @@ use App\Enums\Globals\ApiStatusMessage;
 use App\Enums\Globals\ResponseParam;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use App\Models\CustomerAddress;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -143,6 +144,47 @@ class CustomerCtrl extends Controller
             ResponseParam::msg    => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
             ResponseParam::data   => $data,
         ]);
+    }
+
+    /**
+     * @param  Request  $request
+     * 刪除收件地址
+     * @return
+     */
+    function deleteAddress(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => ['required', 'exists:usr_customers_address,id'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                ResponseParam::status => ApiStatusMessage::Fail,
+                ResponseParam::msg => $validator->errors(),
+                ResponseParam::data => [],
+            ]);
+        }
+
+        $data = $request->only('id');
+        $customerId  = $request->user()->id;
+        $queryExist = CustomerAddress::where('usr_customers_id_fk', '=', $customerId)
+                                        ->where('id', '=', $data['id'])
+                                        ->get()
+                                        ->first();
+        if ($queryExist){
+            CustomerAddress::where('id', '=', $data['id'])->delete();
+            return response()->json([
+                ResponseParam::status => ApiStatusMessage::Succeed,
+                ResponseParam::msg    => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
+                ResponseParam::data   => [],
+            ]);
+        } else {
+            return response()->json([
+                ResponseParam::status => ApiStatusMessage::Fail,
+                ResponseParam::msg => '找不到該使用者的收件地址',
+                ResponseParam::data => [],
+            ]);
+        }
     }
 
     //撤销所有令牌
