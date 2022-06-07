@@ -20,7 +20,7 @@ class CustomerAddress extends Model
         'city_id',
         'region_id',
         'addr',
-        'default_addr',
+        'is_default_addr',
     ];
 
     public $timestamps = false;

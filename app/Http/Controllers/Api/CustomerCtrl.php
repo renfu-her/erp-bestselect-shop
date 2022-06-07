@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 
 class CustomerCtrl extends Controller
@@ -168,7 +169,7 @@ class CustomerCtrl extends Controller
         $data = $request->only('id');
         $customerId  = $request->user()->id;
         $queryExist = CustomerAddress::where('usr_customers_id_fk', '=', $customerId)
-                                        ->where('id', '=', $data['id'])
+                                       ->where('id', '=', $data['id'])
                                         ->get()
                                         ->first();
         if ($queryExist){
@@ -183,6 +184,140 @@ class CustomerCtrl extends Controller
                 ResponseParam::status => ApiStatusMessage::Fail,
                 ResponseParam::msg => '找不到該使用者的收件地址',
                 ResponseParam::data => [],
+            ]);
+        }
+    }
+
+    /**
+     * @param  Request  $request
+     * 編輯/建立 收件地址
+     * @return
+     */
+    function editAddress (Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => ['nullable', 'exists:usr_customers_address,id'],
+            'name' => ['required', 'string'],
+            'phone' => ['required', 'string'],
+            'city_id' => ['required', Rule::exists('loc_addr', 'id')->where(function ($query){
+                $query->whereNull('zipcode')
+                        ->whereNull('parent_id');
+            })],
+            'region_id' => ['required', Rule::exists('loc_addr', 'id')->where(function ($query){
+                $query->whereNotNull('zipcode')
+                    ->whereNotNull('parent_id');
+            })],
+            'addr' => ['required', 'string'],
+            'is_default' => ['required', 'numeric', 'min:0', 'max:1'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                ResponseParam::status => ApiStatusMessage::Fail,
+                ResponseParam::msg => $validator->errors(),
+                ResponseParam::data => [],
+            ]);
+        }
+
+        $data = $request->only(
+            'id',
+            'name',
+            'phone',
+            'city_id',
+            'region_id',
+            'addr',
+            'is_default',
+        );
+
+        $customerId  = $request->user()->id;
+        $cityQuery = DB::table('loc_addr')
+            ->where('id', '=', $data['city_id'])
+            ->select('title')
+            ->get()
+            ->first();
+        $regionQuery = DB::table('loc_addr')
+            ->where('id', '=', $data['region_id'])
+            ->select('title', 'zipcode')
+            ->get()
+            ->first();
+        $address = $regionQuery->zipcode .
+                                ' ' .
+                                $cityQuery->title .
+                                $regionQuery->title .
+                                $data['addr'];
+
+        // update address
+        if ($request->exists('id')) {
+            $queryExist = CustomerAddress::where('usr_customers_id_fk', '=', $customerId)
+                                        ->where('id', '=', $data['id'])
+                                        ->get()
+                                        ->first();
+            if ($queryExist) {
+                DB::table('usr_customers_address')
+                    ->where('id', '=', $data['id'])
+                    ->update([
+                        'usr_customers_id_fk' => $customerId,
+                        'address'             => $address,
+                        'city_id'             => $data['city_id'],
+                        'region_id'           => $data['region_id'],
+                        'addr'                => $data['addr'],
+                    ]);
+
+                $isDefaultQuery = DB::table('usr_customers_address')
+                                    ->where('id', '=', $data['id'])
+                                    ->where('is_default_addr', '=', 1)
+                                    ->get()
+                                    ->first();
+                if ($isDefaultQuery) {
+                    DB::table('usr_customers')
+                        ->where('id', '=', $customerId)
+                        ->update([
+                            'phone' => $data['phone'],
+                        ]);
+                }
+
+                return response()->json([
+                    ResponseParam::status => ApiStatusMessage::Succeed,
+                    ResponseParam::msg    => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
+                    ResponseParam::data   => [],
+                ]);
+            } else {
+                return response()->json([
+                    ResponseParam::status => ApiStatusMessage::Fail,
+                    ResponseParam::msg => '找不到該使用者的收件地址',
+                    ResponseParam::data => [],
+                ]);
+            }
+        } else {
+            //only one default
+            if (intval($data['is_default']) === 1) {
+                DB::table('usr_customers_address')
+                    ->where('usr_customers_id_fk', '=', $customerId)
+                    ->update([
+                        'is_default_addr' => 0,
+                    ]);
+
+                DB::table('usr_customers')
+                    ->where('id', '=', $customerId)
+                    ->update([
+                        'phone' => $data['phone'],
+                    ]);
+            }
+
+            //create address
+            CustomerAddress::create([
+                'usr_customers_id_fk' => $customerId,
+                'address'             => $address,
+                'city_id'             => $data['city_id'],
+                'region_id'           => $data['region_id'],
+                'addr'                => $data['addr'],
+                'is_default_addr'     => intval($data['is_default']),
+            ]);
+
+            return response()->json([
+                ResponseParam::status => ApiStatusMessage::Succeed,
+                ResponseParam::msg    => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
+                ResponseParam::data   => [],
             ]);
         }
     }
