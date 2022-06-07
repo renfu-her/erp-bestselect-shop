@@ -119,9 +119,11 @@ class OrderCart extends Model
                                 'error_stauts' => 'shipment',
                             ];
                             //  return ['success' => 0, 'error_msg' => '無運送方式(自取)', 'event' => 'product', 'event_id' => $value['product_style_id']];
+                        }else{
+                            $shipment->category_name = "自取";
                         }
 
-                        $shipment->category_name = "自取";
+                        
 
                         break;
                     case 'deliver':
@@ -133,9 +135,11 @@ class OrderCart extends Model
                                 'error_stauts' => 'shipment',
                             ];
                             //  return ['success' => 0, 'error_msg' => '無運送方式(宅配)', 'event' => 'product', 'event_id' => $value['product_style_id']];
+                        }else{
+                            $shipment->rules = json_decode($shipment->rules);
                         }
-                        $shipment->rules = json_decode($shipment->rules);
-
+                        
+                       
                         break;
                     default:
                         $errors[$value['product_style_id']][] = [
