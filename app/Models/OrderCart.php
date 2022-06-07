@@ -155,6 +155,7 @@ class OrderCart extends Model
                         $shipment->origin_price = 0;
                         $shipment->discounted_price = 0;
                         $shipment->discount_value = 0;
+                        $shipment->discounts = [];
                         $shipment->category = $value['shipment_type'];
                         $shipmentGroup[] = $shipment;
 
@@ -248,7 +249,7 @@ class OrderCart extends Model
 
         $order['total_price'] = $order['discounted_price'] + $order['dlv_fee'];
         $order['success'] = 1;
-       
+
         return $order;
 
     }
@@ -439,6 +440,10 @@ class OrderCart extends Model
 
     private static function useDividendStage(&$order, $customer)
     {
+        if (!$customer) {
+            return ['success' => '1'];
+        }
+
         $dividend = 0;
         $di = CustomerDividend::getDividend($customer->id)->get()->first();
 
