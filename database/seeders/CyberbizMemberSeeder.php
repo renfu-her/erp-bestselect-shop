@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Enums\Customer\AccountStatus;
 use App\Enums\Customer\Newsletter;
 use App\Models\Customer;
+use App\Models\CustomerAddress;
 use App\Models\CustomerLogin;
 use Faker\Factory;
 use Illuminate\Database\Seeder;
@@ -96,15 +97,29 @@ class CyberbizMemberSeeder extends Seeder
                             'sex' => is_null($memberData[self::GENDER]) ? null : ($memberData[self::GENDER] === '男' ? 1 : 0),
                             'newsletter' => $memberData[self::NEWS_LETTER] === true ? Newsletter::subscribe : Newsletter::un_subscribe,
                             'acount_status' => $memberData[self::ACCOUNT_STATUS] === '帳號已啟用' ? 1 : 0,
-                            'address' => $address,
-                            'city_id' => $city_id,
-                            'region_id' => $region_id,
-                            'addr' => $addressName,
                             'created_at' => $memberData[self::CREATED_AT],
                             'order_counts' => $memberData[self::ORDER_COUNTS],
                             'total_spending' => $memberData[self::TOTAL_SPENDING],
                             'latest_order' => $memberData[self::LATEST_ORDER] === 'nan' ? null : $memberData[self::LATEST_ORDER],
                         ]);
+
+                    $customerAddressExistQuery = CustomerAddress::where('usr_customers_id_fk' , '=', $customerExistQuery->id)->get()->first();
+                    if ($customerAddressExistQuery) {
+                        $customerAddressExistQuery->delete();
+                    }
+                    if (!is_null($address) &&
+                        !is_null($city_id) &&
+                        !is_null($region_id) &&
+                        !is_null($addressName)) {
+                        CustomerAddress::create([
+                            'usr_customers_id_fk' => $customerExistQuery->id,
+                            'address'             => $address,
+                            'city_id'             => $city_id,
+                            'region_id'           => $region_id,
+                            'addr'                => $addressName,
+                            'is_default_addr'        => 1,
+                        ]);
+                    }
                 } else {
                     $loginMethods = is_null($memberData[self::LOGIN_METHOD]) ? null : explode(',', $memberData[self::LOGIN_METHOD]);
                     Customer::createCustomer(

@@ -19,7 +19,7 @@ class PurchaseInbound extends Model
     protected $table = 'pcs_purchase_inbound';
     protected $guarded = [];
 
-    public static function createInbound($event, $event_id, $event_item_id, $product_style_id, $title, $expiry_date = null, $inbound_date = null, $inbound_num = 0, $depot_id = null, $depot_name = null, $inbound_user_id = null, $inbound_user_name = null, $memo = null, $prd_type = null, $parent_inbound_id = null, $origin_inbound_id = null)
+    public static function createInbound($event, $event_id, $event_item_id, $product_style_id, $title, $unit_cost = 0, $expiry_date = null, $inbound_date = null, $inbound_num = 0, $depot_id = null, $depot_name = null, $inbound_user_id = null, $inbound_user_name = null, $memo = null, $prd_type = null, $parent_inbound_id = null, $origin_inbound_id = null)
     {
         $can_tally = Depot::can_tally($depot_id);
 
@@ -29,6 +29,7 @@ class PurchaseInbound extends Model
             , $event_item_id
             , $product_style_id
             , $title
+            , $unit_cost
             , $expiry_date
             , $inbound_date
             , $inbound_num
@@ -56,6 +57,7 @@ class PurchaseInbound extends Model
                 "event_item_id" => $event_item_id,
                 "product_style_id" => $product_style_id,
                 "title" => $title,
+                "unit_cost" => $unit_cost,
                 "expiry_date" => $expiry_date,
                 "inbound_date" => $inbound_date,
                 "inbound_num" => $inbound_num,
@@ -105,6 +107,79 @@ class PurchaseInbound extends Model
             }
             return ['success' => 1, 'error_msg' => "", 'id' => $id];
         });
+    }
+
+    //取得創建入庫單所需資料 (名稱、款式、價格)
+    public static function getCreateData($event, $event_id, array $event_item_id, array $product_style_id) {
+
+        //取得名稱、款式
+        $styles = DB::table('prd_products as product')
+            ->leftJoin('prd_product_styles as style', 'style.product_id', '=', 'product.id')
+            ->select('style.id'
+                , 'product.title'
+                , 'style.title as spec'
+            )
+            ->get()->toArray();
+        $styles = json_decode(json_encode($styles), true);
+
+        $pcs_items = null;
+        //取得成本價
+        if (Event::purchase()->value == $event) {
+            $pcs_items = DB::table('pcs_purchase_items as items')
+                ->select('items.purchase_id as purchase_id'
+                    , 'items.id as item_id'
+                    , 'items.product_style_id as product_style_id'
+                    , DB::raw('(items.price / items.num) as unit_cost')
+                )
+                ->where('items.purchase_id', $event_id)
+                ->whereIn('items.id', $event_item_id)
+                ->get()->toArray();
+        } else if (Event::consignment()->value == $event
+            || Event::ord_pickup()->value == $event
+        ) {
+            $case_event = $event;
+            if (Event::ord_pickup()->value == $event) {
+                //訂單自取在delivery的event紀錄是order
+                $case_event = Event::order()->value;
+            }
+            $pcs_items = DB::table('dlv_receive_depot as rcv_depot')
+                ->leftJoin('dlv_delivery as delivery', function ($join) use($case_event) {
+                    $join->on('delivery.id', '=', 'rcv_depot.delivery_id')
+                        ->where('delivery.event', '=', $case_event);
+                })
+                ->select(
+                    'rcv_depot.id as item_id'
+                    , 'rcv_depot.product_style_id as product_style_id'
+                    , 'rcv_depot.unit_cost as unit_cost'
+                )
+                ->where('delivery.event_id', $event_id)
+                ->whereIn('rcv_depot.id', $event_item_id)
+                ->get()->toArray();
+        }
+        $pcs_items = json_decode(json_encode($pcs_items), true);
+
+        $style_arr = [];
+        foreach ($product_style_id as $key => $val) {
+            $style_arr[$key]['id'] = $val;
+            $style_arr[$key]['event_item_id'] = $event_item_id[$key];
+        }
+
+        foreach ($style_arr as $key => $val) {
+            foreach ($styles as $styleItem) {
+                if ($style_arr[$key]['id'] == $styleItem['id']) {
+                    $style_arr[$key]['item'] = $styleItem;
+                    foreach ($pcs_items as $pcsItem) {
+                        if ($style_arr[$key]['event_item_id'] == $pcsItem['item_id']) {
+                            $style_arr[$key]['unit_cost'] = $pcsItem['unit_cost'];
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        return $style_arr;
     }
 
     //取消入庫 刪除資料
@@ -657,6 +732,7 @@ class PurchaseInbound extends Model
                 , 'inbound.id as inbound_id' //入庫ID
                 , 'inbound.sn as inbound_sn' //入庫sn
                 , 'inbound.product_style_id as product_style_id'
+                , 'inbound.unit_cost as unit_cost'
                 , 'inbound.depot_id as depot_id'  //入庫倉庫ID
                 , 'inbound.depot_name as depot_name'  //入庫倉庫名稱
                 , 'inbound.inbound_user_id as inbound_user_id'  //入庫人員ID

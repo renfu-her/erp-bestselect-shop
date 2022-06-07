@@ -17,6 +17,7 @@ use App\View\Components\Toast as B_Toast;
 use App\View\Components\QtyAdjuster as B_QtyAdjuster;
 
 use App\View\Components\Navbar\ProductNavi;
+use App\View\Components\Navbar\CustomerNavi;
 use App\View\Components\Navbar\PurchaseNavi;
 use App\View\Components\Navbar\HomepageNavi;
 
@@ -52,6 +53,7 @@ class ComponentServiceProvider extends ServiceProvider
         Blade::component('b-qty-adjuster', B_QtyAdjuster::class);
 
         Blade::component('b-prd-navi', ProductNavi::class);
+        Blade::component('b-customer-navi', CustomerNavi::class);
         Blade::component('b-pch-navi', PurchaseNavi::class);
         Blade::component('b-home-navi', HomepageNavi::class);
     }

@@ -15,7 +15,7 @@ class CreatePcsPayingOrdersItemsTable extends Migration
     {
         Schema::create('pcs_paying_orders', function (Blueprint $table) {
             $table->id()->comment('付款單id 採購時使用');
-            $table->integer('purchase_id')->comment('採購id');
+            $table->integer('purchase_id')->comment('資料表來源id');
             $table->integer('usr_users_id')->comment('承辦人，產生付款單的人id，usr_users foreign key');
             $table->tinyInteger('type')->comment('付款單類型 0:訂金 1:尾款');
 

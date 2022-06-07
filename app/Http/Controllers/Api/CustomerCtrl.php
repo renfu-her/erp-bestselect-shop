@@ -8,6 +8,7 @@ use App\Enums\Globals\ResponseParam;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -107,6 +108,40 @@ class CustomerCtrl extends Controller
             ResponseParam::status()->key => ApiStatusMessage::Succeed,
             ResponseParam::msg()->key =>  ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
             ResponseParam::data()->key =>  $user,
+        ]);
+    }
+
+    /**
+     * @param  Request  $request
+     * 消費者收件地址API
+     * @return
+     */
+    function customerAddress(Request $request)
+    {
+        $customerId  = $request->user()->id;
+        $data = DB::table('usr_customers as customer')
+            ->where('customer.id', $customerId)
+            ->leftJoin('usr_customers_address', 'customer.id', '=', 'usr_customers_address.usr_customers_id_fk')
+            ->whereNotNull('address')
+            ->select([
+                'usr_customers_address.id as id',
+                'name',
+                'phone',
+                'city_id',
+                'region_id',
+                'addr',
+                'address',
+                DB::raw('(CASE WHEN usr_customers_address.is_default_addr = 1
+                        THEN TRUE
+                        ELSE FALSE END)
+                        AS is_default')
+            ])
+            ->get();
+
+        return response()->json([
+            ResponseParam::status => ApiStatusMessage::Succeed,
+            ResponseParam::msg    => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
+            ResponseParam::data   => $data,
         ]);
     }
 

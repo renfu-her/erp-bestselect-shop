@@ -23,6 +23,7 @@ class RenamePcsReceivedOrderTable extends Migration
      */
     public function down()
     {
+        Schema::dropIfExists('ord_received_orders');
         //
     }
 }
