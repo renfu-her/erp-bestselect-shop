@@ -2,7 +2,7 @@
 @section('sub-content')
     <h2 class="mb-3">新增訂單</h2>
 
-    <form id="form1" method="post" action="{{ route('cms.order.create') }}">
+    <form id="form1" method="post" action="{{ route('cms.order.create', $query) }}">
         @method('POST')
         @csrf
         <nav class="nav nav-pills nav-fill">
@@ -22,7 +22,7 @@
                                     {{ $customer->name }}</option>
                             @endforeach
                         </select>
-                        
+
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">銷售通路</label>
@@ -107,10 +107,12 @@
                             </div>
                             <div class="col-12 col-sm-auto">
                                 <div class="d-flex -bonus_point">
-                                    <input type="number" max="0" min="0" placeholder="使用" class="form-control form-control-sm col -bonus_point" >
+                                    <input type="number" max="0" min="0" placeholder="使用"
+                                        class="form-control form-control-sm col -bonus_point">
                                     <input type="hidden" name="dividend[]">
                                     <input type="hidden" name="dividend_id[]">
-                                    <button type="button" class="btn btn-sm btn-outline-primary mx-1 px-4 col-auto -bonus_point">確認</button>
+                                    <button type="button"
+                                        class="btn btn-sm btn-outline-primary mx-1 px-4 col-auto -bonus_point">確認</button>
                                 </div>
                             </div>
                         </div>
@@ -154,7 +156,8 @@
                     </div>
                     <div class="col-12 mb-3 --ctype -code" hidden>
                         <div class="d-flex -coupon_sn @error('coupon') is-invalid @enderror">
-                            <input type="text" class="form-control col -coupon_sn @error('coupon') is-invalid @enderror" placeholder="請輸入優惠券代碼" disabled>
+                            <input type="text" class="form-control col -coupon_sn @error('coupon') is-invalid @enderror"
+                                placeholder="請輸入優惠券代碼" disabled>
                             <input type="hidden" name="coupon_sn" disabled>
                             <button type="button" class="btn btn-outline-primary mx-1 px-4 col-auto -coupon_sn">確認</button>
                         </div>
@@ -504,7 +507,7 @@
     @push('sub-scripts')
         <script>
             getSaleChannel();
-            $('#customer').off('change.channel').on('change.channel', function () {
+            $('#customer').off('change.channel').on('change.channel', function() {
                 getSaleChannel();
             });
 
@@ -517,7 +520,10 @@
                 $('#salechannel').empty();
 
                 if (!Data.customer_id) {
-                    toast.show('請先選擇訂購客戶。', {type: 'warning', title: '銷售通路'});
+                    toast.show('請先選擇訂購客戶。', {
+                        type: 'warning',
+                        title: '銷售通路'
+                    });
                     return false;
                 } else {
                     axios.post(_URL, Data)
@@ -525,7 +531,8 @@
                             const res = result.data;
                             if (res.status === '0' && res.data && res.data.length) {
                                 $('#addProductBtn').prop('disabled', false);
-                                (res.data).forEach(sale => {
+                                (res.data)
+                                .forEach(sale => {
                                     $('#salechannel').append(
                                         `<option value="${sale.id}">${sale.title}</option>`
                                     );
@@ -536,7 +543,7 @@
                             }
                         }).catch((err) => {
                             console.error(err);
-                    });
+                        });
                 }
             }
 
@@ -584,12 +591,12 @@
             let UserPoints = 0;
             // 目前有效優惠
             let DiscountData = {
-                optional: {},    // 任選 [暫無] (固定)
-                global: {     // 全館 (固定)
+                optional: {}, // 任選 [暫無] (固定)
+                global: { // 全館 (固定)
                     // id: {}
                 },
-                coupon: {},   // 優惠券 (變動)
-                code: {},     // 優惠代碼 (變動)
+                coupon: {}, // 優惠券 (變動)
+                code: {}, // 優惠代碼 (變動)
             };
             /** global/code:
              * {
@@ -614,7 +621,10 @@
             for (const method of DISC_METHOD) {
                 if (GlobalDiscounts[method]) {
                     GlobalDiscounts[method].map(d => {
-                        DiscountData.global[d.id] = {...d, category_code: 'global'};
+                        DiscountData.global[d.id] = {
+                            ...d,
+                            category_code: 'global'
+                        };
                     });
                 }
             }
@@ -628,7 +638,7 @@
             /*** 選取 ***/
             // 商品
             let selectedProduct = {
-            /* 固定值 */
+                /* 固定值 */
                 // pid: '產品ID',
                 // sid: '樣式ID',
                 // name: '商品名稱',
@@ -637,7 +647,7 @@
                 // price: '單價',
                 // stock: '庫存',
                 // point: '紅利上限',
-            /* 變動值 */
+                /* 變動值 */
                 // qty: 數量(預設1),
                 //_total: 小計(不含折扣)(price*qty),
                 // discount: {'優惠類型_優惠ID': 折扣金額/優惠券名稱},
@@ -661,13 +671,13 @@
             // 購物車資料
             let myCart = { // 購物車
                 // '[category]_[group_id]/[category]_[depots.depot_id]': {
-                    /* 固定值 */
+                /* 固定值 */
                 //     id: '物流ID group_id/depots.depot_id',
                 //     name: '物流名稱group_name/depots.depot_name',
                 //     type: '物流類型category: pickup|deliver',
                 //     temps: '溫層: 常溫|冷凍|冷藏'(deliver only),
                 //     rules: '[宅配價格]'(deliver only),
-                    /* 變動值 */
+                /* 變動值 */
                 //     point: 使用紅利,
                 //     products: [商品sid],
                 //_____total: 此物流商品金額小計(不折扣、含運),
@@ -679,7 +689,7 @@
             // 已使用優惠
             let myDiscount = {
                 // '[優惠類型]_[優惠ID]': {
-                    /* 固定值 */
+                /* 固定值 */
                 //     id: '優惠ID',
                 //     name: '優惠名稱title',
                 //     type: '優惠類型: optional|global|code',
@@ -687,7 +697,7 @@
                 //     note: '優惠說明',
                 //     code: '優惠券序號'(type=code only),
                 //     coupon: '優惠券名稱'(method=coupon only),
-                    /* 變動值 */
+                /* 變動值 */
                 //     total: 優惠折抵總金額
                 // }
             };
@@ -722,9 +732,10 @@
                             $(`#${type}_${event_id}`).remove();
                         } else {
                             // 否則重計算total
-                            myCart[`${type}_${event_id}`].total = calc_ProductTotalBySid(myCart[`${type}_${event_id}`].products);
+                            myCart[`${type}_${event_id}`].total = calc_ProductTotalBySid(myCart[`${type}_${event_id}`]
+                                .products);
                         }
-                        
+
                         // 檢查試算
                         calcAndCheckAllOrder();
                     }
@@ -778,7 +789,7 @@
                     const shipKey = `${ship.category}_${ship.group_id}`;
                     myCart[shipKey].total = calc_ProductTotalBySid(myCart[shipKey].products);
                 }
-                
+
                 // 檢查試算
                 calcAndCheckAllOrder();
             }
@@ -997,8 +1008,8 @@
                                         selectShip = {
                                             category: shipData.pickup.category,
                                             category_name: shipData.pickup.category_name,
-                                            group_id: Number($('select[name="temp_depots"]').val()) 
-                                                || $('select[name="temp_depots"]').val(),
+                                            group_id: Number($('select[name="temp_depots"]').val()) ||
+                                                $('select[name="temp_depots"]').val(),
                                             group_name: $('select[name="temp_depots"] option:selected').text()
                                                 .trim(),
                                             temps: null
@@ -1014,7 +1025,7 @@
                                     const shipKey = `${selectShip.category}_${selectShip.group_id}`;
                                     myCart[shipKey].total = calc_ProductTotalBySid(myCart[shipKey].products);
 
-                                    if (DiscountData.code.sn) {     // 有使用優惠券
+                                    if (DiscountData.code.sn) { // 有使用優惠券
                                         getCouponCheckAPI(DiscountData.code.sn);
                                     } else {
                                         // 檢查試算
@@ -1086,7 +1097,7 @@
                 createOneSelected(selectedProduct, selectShip);
 
                 console.log('myProductList', myProductList);
-                
+
                 if ($('.-cloneElem.--selectedP').length) {
                     $('#customer, #salechannel').prop('disabled', true);
                 }
@@ -1143,7 +1154,7 @@
                 }
             }
 
-            
+
             /*** fn ***/
             // #清空商品 Modal
             function resetAddProductModal() {
@@ -1172,7 +1183,8 @@
                 myProductList[sid].qty = qty;
                 myProductList[sid].total = myProductList[sid].price * qty;
                 // HTML
-                $qty.closest('tr.-cloneElem').find('div[data-td="subtotal"]').text(`$${formatNumber(myProductList[sid].total)}`);
+                $qty.closest('tr.-cloneElem').find('div[data-td="subtotal"]').text(
+                `$${formatNumber(myProductList[sid].total)}`);
                 // myCart
                 const ship_type = $qty.closest('tr.-cloneElem').find('input[name="shipment_type[]"]').val();
                 const ship_id = $qty.closest('tr.-cloneElem').find('input[name="shipment_event_id[]"]').val();
@@ -1201,23 +1213,23 @@
                     calcAndCheckAllOrder();
                 });
                 $('input[name="qty[]"]')
-                .off('keydown.adjust').on('keydown.adjust', function(e) {
-                    if (e.key === 'Enter') {
-                        $(this).trigger('change');
-                    }
-                })
-                .off('change.adjust').on('change.adjust', function() {
-                    const $this = $(this);
-                    let qty = Number($this.val());
-                    const min = Number($this.attr('min'));
-                    const max = Number($this.attr('max'));
-                    qty = (qty < min) ? min : ((qty > max) ? max : qty);
-                    $this.val(qty);
+                    .off('keydown.adjust').on('keydown.adjust', function(e) {
+                        if (e.key === 'Enter') {
+                            $(this).trigger('change');
+                        }
+                    })
+                    .off('change.adjust').on('change.adjust', function() {
+                        const $this = $(this);
+                        let qty = Number($this.val());
+                        const min = Number($this.attr('min'));
+                        const max = Number($this.attr('max'));
+                        qty = (qty < min) ? min : ((qty > max) ? max : qty);
+                        $this.val(qty);
 
-                    setMyQty($this);
-                    // 檢查試算
-                    calcAndCheckAllOrder();
-                });
+                        setMyQty($this);
+                        // 檢查試算
+                        calcAndCheckAllOrder();
+                    });
             }
 
             /*** 優惠 fn ***/
@@ -1240,11 +1252,13 @@
                                     setDiscountToMyData(dis, useDis);
                                 }
                                 break;
-                        
+
                             default:
                                 // 若全館優惠(type===global)同時存在多個，擇取最優惠擇一個計算(cash|percent)
                                 let bestDiscount = null;
-                                let bestUse = {total: 0};
+                                let bestUse = {
+                                    total: 0
+                                };
                                 for (const d_id in tempDis) {
                                     if (Object.hasOwnProperty.call(tempDis, d_id)) {
                                         // 使用單一優惠
@@ -1255,7 +1269,7 @@
                                          * 1. useDis !== false
                                          * 2-1. type !== global
                                          * 2-2. dis.method_code === coupon
-                                        */
+                                         */
                                         if (useDis) {
                                             if (type !== 'global' || dis.method_code === 'coupon') {
                                                 setDiscountToMyData(dis, useDis);
@@ -1325,10 +1339,10 @@
                 const did = `${dis.category_code}_${dis.id}`;
                 // 0. 檢查使用條件
                 if (dis.is_global === 0 && dis.product_ids.length === 0) {
-                    return false;   // 無可使用商品
+                    return false; // 無可使用商品
                 }
                 if (dis.category_code === 'code' && dis.max_usage !== 0 && dis.usage_count >= dis.max_usage) {
-                    return false;   // 已達使用上限
+                    return false; // 已達使用上限
                 }
                 const pids = dis.product_ids || [];
                 // 1. 折扣後小計
@@ -1338,14 +1352,14 @@
                         note: discountNote(dis),
                         pids
                     });
-                    return false;   // 不滿低消
+                    return false; // 不滿低消
                 }
                 // 2. 折抵金額、折扣比例
-                let discount_total = 0,     // 折抵總額
-                    discount_ratio = 0;     // 折扣比例
+                let discount_total = 0, // 折抵總額
+                    discount_ratio = 0; // 折扣比例
                 switch (dis.method_code) {
                     case 'cash':
-                        if (dis.is_grand_total) {   // 累計
+                        if (dis.is_grand_total) { // 累計
                             discount_total = (Math.floor(original_total / dis.min_consume)) * dis.discount_value;
                         } else {
                             discount_total = dis.discount_value;
@@ -1356,7 +1370,7 @@
                         discount_ratio = (100 - dis.discount_value) / 100;
                         discount_total = Math.ceil(original_total * discount_ratio);
                         break;
-                
+
                     default:
                         discount_total = dis.coupon_title || dis.method_title;
                         return {
@@ -1366,8 +1380,8 @@
                 }
                 // 3. 各商品折抵
                 let prod_list = {}; // 優惠使用
-                let last_sid = '',  // 最後一個商品
-                    difference = discount_total;    // 誤差值
+                let last_sid = '', // 最後一個商品
+                    difference = discount_total; // 誤差值
                 for (const sid in myProductList) {
                     if (Object.hasOwnProperty.call(myProductList, sid)) {
                         const prod = myProductList[sid];
@@ -1379,7 +1393,7 @@
                         }
                     }
                 }
-                if (difference !== 0) {   // 差價後補
+                if (difference !== 0) { // 差價後補
                     prod_list[last_sid] += difference;
                 }
 
@@ -1489,6 +1503,7 @@
                 const $tr = $(`tr.-cloneElem.--selectedP:has(input[name="product_style_id[]"][value="${sid}"])`);
                 appendDiscountHtml($tr, note, price, meet, myProductList[sid].dised_total);
             }
+
             function appendDiscountHtmlByPid(pid, note, price, meet = true) {
                 let $tr = null;
                 if (pid === 'all') {
@@ -1498,6 +1513,7 @@
                 }
                 appendDiscountHtml($tr, note, price, meet);
             }
+
             function appendDiscountHtml($tr, note, price, meet, dised_total = null) {
                 let disprice = '';
                 if (meet) {
@@ -1548,17 +1564,19 @@
                         id: ''
                     }));
                 }
-                
+
                 if (overviewList.length) {
                     $('#Discount_overview').prop('hidden', false);
                     $('#Discount_overview table tbody').append(overviewList);
                 } else {
                     $('#Discount_overview').prop('hidden', true);
                 }
-                
+
                 function createDiscountTr(dis) {
-                    let className = '', total = '', 
-                        title = '', note = '';
+                    let className = '',
+                        total = '',
+                        title = '',
+                        note = '';
                     if (isFinite(dis.total)) {
                         className = 'text-danger';
                         total = '- $' + dis.total;
@@ -1573,7 +1591,7 @@
                         case 'bonus':
                             title = '紅利點數折抵';
                             break;
-                    
+
                         default:
                             title = dis.name;
                             break;
@@ -1590,19 +1608,19 @@
             }
 
             // 優惠使用（二擇一）
-            $('input[name="coupon_type"]').off('change').on('change', function () {
+            $('input[name="coupon_type"]').off('change').on('change', function() {
                 const type = $('input[name="coupon_type"]:checked').val();
                 $('div.--ctype').prop('hidden', true);
                 $('div.--ctype select, div.--ctype input').prop('disabled', true);
                 $(`div.--ctype.-${type}`).prop('hidden', false);
                 $(`div.--ctype.-${type} select, div.--ctype.-${type} input`).prop('disabled', false);
-                
+
                 switch (type) {
-                    case 'coupon':  // 優惠券
+                    case 'coupon': // 優惠券
                         resetCouponCodeData();
                         getCouponsAPI();
                         break;
-                    case 'code':    // 優惠代碼
+                    case 'code': // 優惠代碼
                         resetCouponCouponData();
                         break;
                 }
@@ -1612,7 +1630,7 @@
 
             /*** 優惠代碼 fn ***/
             // #優惠券代碼 -coupon_sn
-            $('button.-coupon_sn').off('click').on('click', function () {
+            $('button.-coupon_sn').off('click').on('click', function() {
                 $('div.--ctype.-code input[name="coupon_sn"]').val('');
                 DiscountData.code = {};
                 // call API
@@ -1628,58 +1646,63 @@
                 // init Html
                 $('.d-flex.-coupon_sn, input.-coupon_sn').removeClass('is-valid is-invalid');
                 $('.-feedback.-coupon_sn').removeClass('valid-feedback invalid-feedback').prop('hidden', true);
-                
+
                 // Data - sn
                 if (!Data.sn) {
-                    toast.show('請輸入優惠代碼', { type: 'danger' });
+                    toast.show('請輸入優惠代碼', {
+                        type: 'danger'
+                    });
                     return false;
                 }
                 // Data - product_id
-                $('input[name="product_id[]"]').each(function (index, element) {
+                $('input[name="product_id[]"]').each(function(index, element) {
                     // element == this
                     if ((Data.product_id).indexOf($(element).val()) < 0) {
                         (Data.product_id).push($(element).val());
                     }
                 });
                 if (Data.product_id.length <= 0) {
-                    toast.show('請先加入商品', { type: 'danger' });
+                    toast.show('請先加入商品', {
+                        type: 'danger'
+                    });
                     return false;
                 }
                 Data.product_id = (Data.product_id).toString();
 
                 axios.post(_URL, Data)
-                .then((result) => {
-                    const res = result.data;
-                    console.log('檢查優惠代碼API', res);
-                    let valid_cls = '', msg = '';
-                    if (res.status === '0') {
-                        const dis = res.data;
-                        DiscountData.code = dis;
-                        // 紀錄sn
-                        $('div.--ctype.-code input[name="coupon_sn"]').val(Data.sn);
+                    .then((result) => {
+                        const res = result.data;
+                        console.log('檢查優惠代碼API', res);
+                        let valid_cls = '',
+                            msg = '';
+                        if (res.status === '0') {
+                            const dis = res.data;
+                            DiscountData.code = dis;
+                            // 紀錄sn
+                            $('div.--ctype.-code input[name="coupon_sn"]').val(Data.sn);
 
-                        valid_cls = 'valid';
-                        msg = `使用優惠券${discountNote(dis)}`;
-                    } else {
-                        // 清空
-                        $('div.--ctype.-code input[name="coupon_sn"]').val('');
-                        DiscountData.code = {};
+                            valid_cls = 'valid';
+                            msg = `使用優惠券${discountNote(dis)}`;
+                        } else {
+                            // 清空
+                            $('div.--ctype.-code input[name="coupon_sn"]').val('');
+                            DiscountData.code = {};
 
-                        valid_cls = 'invalid';
-                        msg = res.message;
-                    }
-                    
-                    // 檢查試算
-                    calcAndCheckAllOrder();
+                            valid_cls = 'invalid';
+                            msg = res.message;
+                        }
 
-                    $('.d-flex.-coupon_sn, input.-coupon_sn').addClass(`is-${valid_cls}`);
-                    $('.-feedback.-coupon_sn').addClass(`${valid_cls}-feedback`)
-                        .prop('hidden', false).text(msg);
-                }).catch((err) => {
-                    // 清空優惠代碼
-                    resetCouponCodeData();
-                    console.error(err);
-                });
+                        // 檢查試算
+                        calcAndCheckAllOrder();
+
+                        $('.d-flex.-coupon_sn, input.-coupon_sn').addClass(`is-${valid_cls}`);
+                        $('.-feedback.-coupon_sn').addClass(`${valid_cls}-feedback`)
+                            .prop('hidden', false).text(msg);
+                    }).catch((err) => {
+                        // 清空優惠代碼
+                        resetCouponCodeData();
+                        console.error(err);
+                    });
             }
 
             // #清空優惠代碼
@@ -1691,14 +1714,14 @@
                 $('div.-feedback.-coupon_sn').empty();
                 $('div.--ctype.-code .-coupon_sn').removeClass('is-valid is-invalid valid-feedback invalid-feedback');
             }
-            
+
             /*** 優惠券 fn ***/
             // #優惠券 -coupon
-            $('div.--ctype.-coupon select[name="coupon_sn"]').off('change').on('change', function () {
+            $('div.--ctype.-coupon select[name="coupon_sn"]').off('change').on('change', function() {
                 const id = $(this).val();
                 DiscountData.coupon = UserCoupons[id];
                 $('div.--ctype.-coupon .-note').text('優惠內容：' + discountNote(UserCoupons[id]));
-                
+
                 // 檢查試算
                 calcAndCheckAllOrder();
             });
@@ -1716,21 +1739,21 @@
                 );
 
                 axios.post(_URL, Data)
-                .then((result) => {
-                    const res = result.data;
-                    console.log('持有優惠券', res);
-                    if (res.status === '0') {
-                        const coupons = res.data;
-                        coupons.forEach(c => {
-                            $('div.--ctype.-coupon select[name="coupon_sn"]').append(
-                                `<option value="${c.id}" title="${discountNote(c)}">${c.title}</option>`
-                            );
-                            UserCoupons[c.id] = c;
-                        });
-                    }
-                }).catch((err) => {
-                    console.error(err);
-                });
+                    .then((result) => {
+                        const res = result.data;
+                        console.log('持有優惠券', res);
+                        if (res.status === '0') {
+                            const coupons = res.data;
+                            coupons.forEach(c => {
+                                $('div.--ctype.-coupon select[name="coupon_sn"]').append(
+                                    `<option value="${c.id}" title="${discountNote(c)}">${c.title}</option>`
+                                );
+                                UserCoupons[c.id] = c;
+                            });
+                        }
+                    }).catch((err) => {
+                        console.error(err);
+                    });
             }
 
             // #清空優惠券
@@ -1747,7 +1770,7 @@
             }
 
             /*** 紅利 fn -bonus_point ***/
-            $('#customer').off('change.point').on('change.point', function () {
+            $('#customer').off('change.point').on('change.point', function() {
                 getPointsAPI();
             });
 
@@ -1765,23 +1788,26 @@
                 $('.d-flex.-bonus_point, input.-bonus_point').removeClass(`is-invalid is-valid`);
 
                 if (!Data.customer_id) {
-                    toast.show('請先選擇訂購客戶。', {type: 'warning', title: '目前紅利點數'});
+                    toast.show('請先選擇訂購客戶。', {
+                        type: 'warning',
+                        title: '目前紅利點數'
+                    });
                     return false;
                 }
 
                 axios.post(_URL, Data)
-                .then((result) => {
-                    const res = result.data;
-                    console.log('持有紅利', res);
-                    if (res.status === '0') {
-                        UserPoints = res.data || 0;
-                        $('.-hasPoints').text(UserPoints);
-                        $cartClone.find('.-hasPoints').text(UserPoints);
-                        $('input.-bonus_point').prop('max', UserPoints);
-                    }
-                }).catch((err) => {
-                    console.log('取得紅利錯誤', err);
-                });
+                    .then((result) => {
+                        const res = result.data;
+                        console.log('持有紅利', res);
+                        if (res.status === '0') {
+                            UserPoints = res.data || 0;
+                            $('.-hasPoints').text(UserPoints);
+                            $cartClone.find('.-hasPoints').text(UserPoints);
+                            $('input.-bonus_point').prop('max', UserPoints);
+                        }
+                    }).catch((err) => {
+                        console.log('取得紅利錯誤', err);
+                    });
             }
 
             // #計算可用紅利上限總計
@@ -1807,7 +1833,7 @@
 
             // bind 使用紅利按鈕 -bonus_point
             function bindPointUseBtn() {
-                $('button.-bonus_point').off('click').on('click', function () {
+                $('button.-bonus_point').off('click').on('click', function() {
                     const id = $(this).closest('.-detail').attr('id');
                     check_BonusUse(id);
                     // 檢查運費
@@ -1819,7 +1845,7 @@
                     toast.show(`總共已使用 ${sum} 點紅利點數`);
                 });
             }
-            
+
             // 檢查紅利使用
             function check_BonusUse(ship_key) {
                 const $bonus = $(`#${ship_key} input.-bonus_point`);
@@ -1833,17 +1859,23 @@
                     valid_cls = 'invalid';
                     bonus = 0;
                     $bonus.val(0);
-                    toast.show('超過目前持有紅利', {type: 'danger'});
+                    toast.show('超過目前持有紅利', {
+                        type: 'danger'
+                    });
                 } else if (totalUse > UserPoints) {
                     valid_cls = 'invalid';
                     bonus = 0;
                     $bonus.val(0);
-                    toast.show('總使用點數超過目前持有紅利', {type: 'danger'});
+                    toast.show('總使用點數超過目前持有紅利', {
+                        type: 'danger'
+                    });
                 } else if (bonus > max) {
                     valid_cls = 'invalid';
                     bonus = 0;
                     $bonus.val(0);
-                    toast.show('超過該子訂單使用上限', {type: 'danger'});
+                    toast.show('超過該子訂單使用上限', {
+                        type: 'danger'
+                    });
                 } else if (bonus >= 0) {
                     valid_cls = 'valid';
                 }
@@ -1855,7 +1887,7 @@
                 if (valid_cls === 'invalid' || (valid_cls === 'valid' && bonus > 0)) {
                     $(`#${ship_key} input.-bonus_point`).addClass(`is-${valid_cls}`);
                 }
-                
+
                 return valid_cls === 'valid' ? bonus : 0;
             }
 
@@ -1911,7 +1943,7 @@
                             }
                         }
                         break;
-                
+
                     case 'pickup':
                     default:
                         dlv_fee = 0;
@@ -1950,8 +1982,8 @@
             function calc_ProductTotalBySid(sids = []) {
                 let total = 0;
                 for (const sid in myProductList) {
-                    if (Object.hasOwnProperty.call(myProductList, sid)
-                        && (sids.length === 0 || sids.indexOf(Number(sid)) >= 0)) {
+                    if (Object.hasOwnProperty.call(myProductList, sid) &&
+                        (sids.length === 0 || sids.indexOf(Number(sid)) >= 0)) {
                         total += myProductList[sid].total;
                     }
                 }
@@ -1962,8 +1994,8 @@
             function calc_ProductDisedTotalByPid(pids = []) {
                 let dised_total = 0;
                 for (const sid in myProductList) {
-                    if (Object.hasOwnProperty.call(myProductList, sid)
-                        && (pids.length === 0 || pids.indexOf(myProductList[sid].pid) >= 0)) {
+                    if (Object.hasOwnProperty.call(myProductList, sid) &&
+                        (pids.length === 0 || pids.indexOf(myProductList[sid].pid) >= 0)) {
                         dised_total += myProductList[sid].dised_total;
                     }
                 }
@@ -1998,7 +2030,12 @@
                 $('#Total_price td[data-td="sum"]').text(`$${formatNumber(all_sum)}`);
                 appendDiscountOverview();
 
-                return { all_total, all_discount, all_dlvFee, all_sum };
+                return {
+                    all_total,
+                    all_discount,
+                    all_dlvFee,
+                    all_sum
+                };
             }
 
             /*** 試算訂單 ***/
@@ -2014,13 +2051,12 @@
                         check_BonusUse(key);
                     }
                 }
-                
+
                 // 檢查運費
                 check_AllDlvFee();
                 // 應付金額 HTML
                 calc_set_AllAmount();
             }
-
         </script>
         <script>
             /*** 步驟 ***/
