@@ -131,6 +131,10 @@ class CustomerDividend extends Model
     // 訂單中使用紅利
     public static function orderDiscount($customer_id, $order_sn, $discount_point)
     {
+        if(!$discount_point){
+            return ['success' => '1'];
+        }
+        
         DB::beginTransaction();
         $dividend = self::getDividend($customer_id)->get()->first();
 
