@@ -75,11 +75,11 @@
                 <input class="form-control @error('dividend_limit') is-invalid @enderror" type="number" max="100" step="1"
                     name="dividend_limit" value="{{ old('dividend_limit', $data->dividend_limit ?? 100) }}" />
             </x-b-form-group>
-            <x-b-form-group name="dividend_rate" title="紅利回饋比例" required="true">
+            <x-b-form-group name="dividend_rate" title="紅利回饋比例(%)" required="true">
                 <input class="form-control @error('dividend_rate') is-invalid @enderror" type="number" max="50" step="1"
                     name="dividend_rate" value="{{ old('dividend_rate', $data->dividend_rate ?? 0) }}" />
             </x-b-form-group>
-            <x-b-form-group name="event_dividend_rate" title="活動紅利回饋比例" required="true">
+            <x-b-form-group name="event_dividend_rate" title="活動紅利回饋比例(%)" required="true">
                 <input class="form-control @error('event_dividend_rate') is-invalid @enderror" type="number" min="0"
                     max="50" step="1" name="event_dividend_rate"
                     value="{{ old('event_dividend_rate', $data->event_dividend_rate ?? 0) }}" />
