@@ -7,6 +7,9 @@
             #{{ $breadcrumb_data['sn'] }} 寄倉訂購單
         @endif
     </h2>
+    @if ($method === 'edit')
+        <x-b-csnorder-navi :id="$id"></x-b-csnorder-navi>
+    @endif
 
     @php
         $consignmentData = $consignmentData ?? null;
