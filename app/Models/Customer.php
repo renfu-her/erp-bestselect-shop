@@ -30,6 +30,7 @@ class Customer extends Authenticatable
         'email',
         'name',
         'sex',
+        'phone',
         'address',
         'city_id',
         'region_id',
@@ -95,6 +96,7 @@ class Customer extends Authenticatable
     ) {
         $arr = [
             'name' => $name,
+            'phone' => $phone,
             'email' => $email,
             'birthday' => $birthday,
             'sex' => $sex,

@@ -128,7 +128,7 @@ class CustomerCtrl extends Controller
             ->select([
                 'usr_customers_address.id as id',
                 'usr_customers_address.name',
-                'phone',
+                'usr_customers_address.phone',
                 'city_id',
                 'region_id',
                 'addr',
