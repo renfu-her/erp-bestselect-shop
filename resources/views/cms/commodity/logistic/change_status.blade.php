@@ -1,6 +1,9 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-3">#{{ $breadcrumb_data }} 配送狀態</h2>
+    <h2 class="mb-3">#{{ $breadcrumb_data['sn'] }} 配送狀態</h2>
+    @if ($event === 'consignment')
+        <x-b-consign-navi :id="$eventId"></x-b-consign-navi>
+    @endif
 
     @error('error_msg')
     <div class="alert alert-danger" role="alert">

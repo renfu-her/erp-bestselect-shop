@@ -352,7 +352,7 @@
         @endif
 
         @if(null != $purchaseData)
-        <fieldset class="col-12 col-sm-6 mb-3">
+        <fieldset class="card shadow p-4 col-12 mb-3">
             <legend class="col-form-label p-0 mb-2">審核狀態 <span class="text-danger">*</span></legend>
             <div class="px-1 pt-1">
                 @foreach (App\Enums\Consignment\AuditStatus::asArray() as $key => $val)
@@ -368,6 +368,14 @@
                 @error('audit_status')
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
+                @if($purchaseData != null)
+                <div class="col">
+                    <mark class="fw-light small">
+                        <i class="bi bi-exclamation-diamond-fill mx-2 text-warning">
+                        </i>審核狀態改為<b> 核可 或 否決 </b>就不能再修改預計進貨日期、採購清單和物流呦！
+                    </mark>
+                </div>
+                @endif
             </div>
         </fieldset>
         @endif
@@ -379,14 +387,6 @@
         <div id="submitDiv">
             <div class="col-auto">
                 <input type="hidden" name="del_item_id">
-                @if($purchaseData != null)
-                <div class="col">
-                    <mark class="fw-light small">
-                        <i class="bi bi-exclamation-diamond-fill mx-2 text-warning">
-                        </i>審核狀態改為<b> 核可 或 否決 </b>就不能再修改預計進貨日期、採購清單和物流呦！
-                    </mark>
-                </div>
-                @endif
                 <div class="col">
                     @if(null == $purchaseData)
                         <button type="submit" class="btn btn-primary px-4">儲存</button>
