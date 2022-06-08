@@ -119,9 +119,11 @@ class OrderCart extends Model
                                 'error_stauts' => 'shipment',
                             ];
                             //  return ['success' => 0, 'error_msg' => '無運送方式(自取)', 'event' => 'product', 'event_id' => $value['product_style_id']];
+                        }else{
+                            $shipment->category_name = "自取";
                         }
 
-                        $shipment->category_name = "自取";
+                        
 
                         break;
                     case 'deliver':
@@ -133,9 +135,11 @@ class OrderCart extends Model
                                 'error_stauts' => 'shipment',
                             ];
                             //  return ['success' => 0, 'error_msg' => '無運送方式(宅配)', 'event' => 'product', 'event_id' => $value['product_style_id']];
+                        }else{
+                            $shipment->rules = json_decode($shipment->rules);
                         }
-                        $shipment->rules = json_decode($shipment->rules);
-
+                        
+                       
                         break;
                     default:
                         $errors[$value['product_style_id']][] = [
@@ -239,11 +243,13 @@ class OrderCart extends Model
         // 全館
 
         self::globalStage($order, $_tempProducts);
+
         self::couponStage($order, $currentCoupon, $_tempProducts);
         $re = self::useDividendStage($order, $customer);
         if ($re['success'] == '0') {
             return $re;
         }
+        
         self::getDividendStage($order, $_tempProducts);
         self::shipmentStage($order);
 
@@ -478,9 +484,9 @@ class OrderCart extends Model
 
                 $order['discounts'][] = $discountObj;
 
-                $order['total_price'] -= $dividend;
-                $order['discount_value'] += $dividend;
-                $order['discounted_price'] -= $dividend;
+                $order['total_price'] -= $order['use_dividend'];
+                $order['discount_value'] += $order['use_dividend'];
+                $order['discounted_price'] -= $order['use_dividend'];
 
                 foreach ($order['shipments'] as $idx => $shipment) {
 

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Web;
 use App\Enums\Delivery\Event;
 use App\Enums\Globals\ResponseParam;
 use App\Enums\Order\OrderStatus;
-use App\Enums\Order\PaymentStatus;
 use App\Enums\Order\UserAddrType;
 // use App\Enums\;
 use App\Enums\Received\ReceivedMethod;
@@ -324,7 +323,12 @@ class OrderCtrl extends Controller
             $couponObj = [$payLoad['coupon_type'], $payLoad['coupon_sn']];
         }
 
-        $re = Order::createOrder($customer->email, 1, $address, $payLoad['products'], null, $couponObj, ReceivedMethod::fromValue($payLoad['payment']));
+        $dividend = [];
+        if (isset($payLoad['points']) && isset($payLoad['points'])) {
+            $dividend = $payLoad['points'];
+        }
+
+        $re = Order::createOrder($customer->email, 1, $address, $payLoad['products'], null, $couponObj, ReceivedMethod::fromValue($payLoad['payment']), $dividend);
 
         if ($re['success'] == '1') {
             DB::commit();
@@ -464,11 +468,11 @@ class OrderCtrl extends Controller
                     OrderPayCreditCard::create_log($id, (object) $EncArray);
 
                     $received_order_collection = ReceivedOrder::where([
-                        'order_id'=>$id,
-                        'deleted_at'=>null,
+                        'order_id' => $id,
+                        'deleted_at' => null,
                     ]);
 
-                    if(! $received_order_collection->first()){
+                    if (!$received_order_collection->first()) {
                         $received_order = ReceivedOrder::create_received_order($id);
                         $received_method = ReceivedMethod::CreditCard; // 'credit_card'
 
