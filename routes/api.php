@@ -43,6 +43,7 @@ Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => ['aut
     Route::get('/address-list', [CustomerCtrl::class, 'customerAddress'])->name('customer_address');
     Route::post('/delete-address', [CustomerCtrl::class, 'deleteAddress'])->name('delete_address');
     Route::post('/edit-address', [CustomerCtrl::class, 'editAddress'])->name('edit_address');
+    Route::post('/default-address', [CustomerCtrl::class, 'setDefaultAddress'])->name('default_address');
 
     Route::get('/logout-all', [CustomerCtrl::class, 'tokensDeleteAll']);
     Route::get('/logout', [CustomerCtrl::class, 'tokensDeleteCurrent']);

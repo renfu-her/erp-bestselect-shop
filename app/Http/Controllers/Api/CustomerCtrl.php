@@ -190,6 +190,57 @@ class CustomerCtrl extends Controller
 
     /**
      * @param  Request  $request
+     * 設定預設地址
+     * @return
+     */
+    function setDefaultAddress(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => ['required', 'exists:usr_customers_address,id'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                ResponseParam::status => ApiStatusMessage::Fail,
+                ResponseParam::msg => $validator->errors(),
+                ResponseParam::data => [],
+            ]);
+        }
+
+        $data = $request->only('id');
+        $customerId  = $request->user()->id;
+
+        $queryExist = CustomerAddress::where('usr_customers_id_fk', '=', $customerId)
+            ->where('id', '=', $data['id'])
+            ->get()
+            ->first();
+        if ($queryExist) {
+            CustomerAddress::where('usr_customers_id_fk', '=', $customerId)
+                ->where('id', '<>', $data['id'])
+                ->update([
+                    'is_default_addr' => 0,
+                ]);
+            CustomerAddress::where('usr_customers_id_fk', '=', $customerId)
+                ->where('id', '=', $data['id'])
+                ->update([
+                    'is_default_addr' => 1,
+                ]);
+            return response()->json([
+                ResponseParam::status => ApiStatusMessage::Succeed,
+                ResponseParam::msg    => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
+                ResponseParam::data   => [],
+            ]);
+        } else {
+            return response()->json([
+                ResponseParam::status => ApiStatusMessage::Fail,
+                ResponseParam::msg => '找不到該使用者的收件地址',
+                ResponseParam::data => [],
+            ]);
+        }
+    }
+
+    /**
+     * @param  Request  $request
      * 編輯/建立 收件地址
      * @return
      */
