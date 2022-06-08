@@ -1,29 +1,25 @@
 @extends('layouts.main')
 @section('sub-content')
     <h2 class="mb-3">#{{ $sn }} 訂單明細</h2>
-    @php
-    $receivedId = false;
-    $route = $receivedId ? 'show' : 'create';
-    @endphp
-
     <fieldset class="col-12 mb-2">
         <div class="p-2 border rounded">
             @if (!$receivable)
-                <a href="{{ Route('cms.ar.' . $route, ['id' => $order->id]) }}" class="btn btn-danger"
-                    role="button">{{ !$receivedId ? '新增' : '' }}收款單（暫放）</a>
+                <a href="{{ Route('cms.ar.create', ['id' => $order->id]) }}" class="btn btn-danger" role="button">新增收款單（暫放）</a>
             @endif
 
-            @if ($order->status == '已付款')
-                <button type="button" class="btn btn-primary" disabled>線上刷卡連結</button>
+            @if ($received_order_data || ! in_array($order->status, ['建立']))
+                @if ( ($receivable || in_array($order->status, ['已付款', '已入款'])) && $received_credit_card_log )
+                    <a href="{{ Route('api.web.order.credit_card_checkout', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}" class="btn btn-primary" role="button" target="_blank">線上刷卡連結</a>
+                @else
+                    <button type="button" class="btn btn-primary" disabled>線上刷卡連結</button>
+                @endif
             @else
-                <a href="{{ Route('api.web.order.payment_credit_card', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
-                    class="btn btn-primary" role="button" target="_blank">線上刷卡連結</a>
+                <a href="{{ Route('api.web.order.payment_credit_card', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}" class="btn btn-primary" role="button" target="_blank">線上刷卡連結</a>
             @endif
 
             <a href="#" role="button" class="btn btn-success">訂單完成（暫放）</a>
         </div>
     </fieldset>
-
 
     <form id="form1" method="post" action="">
         @method('POST')

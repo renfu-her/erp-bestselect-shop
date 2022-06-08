@@ -542,6 +542,7 @@ class AccountReceivedCtrl extends Controller
                 'invoice_number'=>request('invoice_number'),
             ]);
 
+            OrderFlow::changeOrderStatus($id, OrderStatus::Received());
             wToast(__('入帳日期更新成功'));
             return redirect()->route('cms.ar.receipt', ['id'=>request('id')]);
 
@@ -551,6 +552,7 @@ class AccountReceivedCtrl extends Controller
                     'receipt_date'=>null,
                 ]);
 
+                OrderFlow::changeOrderStatus($id, OrderStatus::Paided());
                 wToast(__('入帳日期已取消'));
                 return redirect()->route('cms.ar.receipt', ['id'=>request('id')]);
 

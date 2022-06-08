@@ -95,10 +95,11 @@ class OrderCtrl extends Controller
             ->where([
                 'order.id' => $id,
                 'order.unique_id' => $unique_id,
+                'received.balance_date' => null,
                 'received.deleted_at' => null,
             ])
             ->where(function ($q) {
-                $q->whereRaw('(order.status_code NOT IN ("canceled","closed","paided","received"))');
+                $q->whereRaw('(order.status_code IN ("add"))');
             })
             ->first();
 
@@ -155,16 +156,24 @@ class OrderCtrl extends Controller
     {
         $EncArray = [];
 
+        $received_order_collection = ReceivedOrder::where([
+            'order_id'=>$id,
+            'deleted_at'=>null,
+        ]);
+        $log = OrderPayCreditCard::where([
+            'order_id'=>$id,
+            'status'=>0,
+        ])->first();
+
+        if($received_order_collection->first() && !$log){
+            return abort(404);
+        }
+
         if ($request->isMethod('post')) {
             // avoid f5 reload
-            // $log = OrderPayCreditCard::where([
-            //     'order_id'=>$id,
-            //     'status'=>0,
-            //     ])->first();
-
-            // if($log){
-            //     return abort(404);
-            // }
+            if($log){
+                return redirect()->route('api.web.order.credit_card_checkout', ['id' => $id, 'unique_id' => $unique_id]);
+            }
 
             include app_path() . '/Helpers/auth_mpi_mac.php';
 
@@ -176,14 +185,33 @@ class OrderCtrl extends Controller
 
                 if (is_array($EncArray) && count($EncArray) > 0) {
                     $status = isset($EncArray['status']) ? $EncArray['status'] : '';
+                    $authAmt = isset($EncArray['authamt']) ? $EncArray['authamt'] : '';
 
                     if (empty($status) && $status == '0') {
-                        OrderFlow::changeOrderStatus($id, OrderStatus::Paided());
+                        if(! $received_order_collection->first()){
+                            $received_order = ReceivedOrder::create_received_order($id);
+                            $received_method = ReceivedMethod::CreditCard; // 'credit_card'
+
+                            $data = [];
+                            $data['acc_transact_type_fk'] = $received_method;
+                            $data[$received_method]['installment'] = 'none';
+                            $result_id = ReceivedOrder::store_received_method($data);
+
+                            $parm = [];
+                            $parm['received_order_id'] = $received_order->id;
+                            $parm['received_method'] = $received_method;
+                            $parm['received_method_id'] = $result_id;
+                            $parm['grade_id'] = ReceivedDefault::where('name', $received_method)->first() ? ReceivedDefault::where('name', $received_method)->first()->default_grade_id : 0;
+                            $parm['price'] = $authAmt;
+                            ReceivedOrder::store_received($parm);
+                        }
                     }
 
                     OrderPayCreditCard::create_log($id, (object) $EncArray);
                 }
             }
+
+            return redirect()->route('api.web.order.credit_card_checkout', ['id' => $id, 'unique_id' => $unique_id]);
         }
 
         $order = DB::table('ord_orders as order')
