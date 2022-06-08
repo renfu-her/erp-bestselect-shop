@@ -25,6 +25,7 @@ class LogisticCtrl extends Controller
         $delivery = null;
         $delivery_id = null;
         $returnAction = '';
+        $event_sn = '';
 
         //顯示出貨商品列表product_title ; 單價price ; 數量send_qty ; 小計price*數量send_qty
         //組合包判斷兩者欄位不同都顯示:product_title rec_product_title，否則只顯示product_title
@@ -34,6 +35,7 @@ class LogisticCtrl extends Controller
             if (null == $sub_order) {
                 return abort(404);
             }
+            $event_sn = $sub_order->sn;
             $returnAction = Route('cms.order.detail', ['id' => $sub_order->order_id, 'subOrderId' => $eventId ]);
 
             // 出貨單號ID
@@ -53,6 +55,7 @@ class LogisticCtrl extends Controller
             $deliveryList = Delivery::getCsnListToLogistic($delivery_id, $eventId)->get();
 
             $consignment = Consignment::where('id', $delivery->event_id)->get()->first();
+            $event_sn = $consignment->sn;
             $rsp_arr['depot_id'] = $consignment->send_depot_id;
         } else if (Event::csn_order()->value == $event) {
             $returnAction = Route('cms.consignment-order.edit', ['id' => $eventId ]);
@@ -63,8 +66,8 @@ class LogisticCtrl extends Controller
                 $delivery_id = $delivery->id;
             }
             $deliveryList = Delivery::getCsnOrderListToLogistic($delivery_id, $eventId)->get();
-//            dd($deliveryList);
             $csnOrder = CsnOrder::where('id', $delivery->event_id)->get()->first();
+            $event_sn = $csnOrder->sn;
             $rsp_arr['depot_id'] = $csnOrder->depot_id;
         }
 
@@ -104,7 +107,7 @@ class LogisticCtrl extends Controller
         $rsp_arr['shipmentGroup'] = $shipmentGroupWithCost;
         $rsp_arr['consumWithInboundList'] = $consumWithInboundList;
         $rsp_arr['event'] = $event;
-        $rsp_arr['breadcrumb_data'] = ['sn' => $logistic->sn, 'parent' => $event ];
+        $rsp_arr['breadcrumb_data'] = ['sn' => $event_sn, 'parent' => $event ];
         return view('cms.commodity.logistic.edit', $rsp_arr);
     }
 
@@ -226,23 +229,29 @@ class LogisticCtrl extends Controller
     public function changeLogisticStatus(Request $request, $event, $eventId) {
         $lastPageAction = '';
         $delivery_id = null;
+        $event_sn = '';
         if (Event::order()->value == $event) {
             $delivery = Delivery::getDeliveryWithEventWithSn($event, $eventId)->get()->first();
             if (null != $delivery) {
                 $delivery_id = $delivery->id;
-                $subOrder = SubOrders::where('id', $eventId)->get()->first();
-                $lastPageAction = Route('cms.order.detail', ['id' => $subOrder->order_id, 'subOrderId' => $eventId ]);
+                $sub_order = SubOrders::where('id', $eventId)->get()->first();
+                $event_sn = $sub_order->sn;
+                $lastPageAction = Route('cms.order.detail', ['id' => $sub_order->order_id, 'subOrderId' => $eventId ]);
             }
         } else if (Event::consignment()->value == $event) {
             $delivery = Delivery::getDeliveryWithEventWithSn($event, $eventId)->get()->first();
             if (null != $delivery) {
                 $delivery_id = $delivery->id;
+                $consignment = Consignment::where('id', $eventId)->get()->first();
+                $event_sn = $consignment->sn;
                 $lastPageAction = Route('cms.consignment.edit', ['id' => $eventId ]);
             }
         } else if (Event::csn_order()->value == $event) {
             $delivery = Delivery::getDeliveryWithEventWithSn($event, $eventId)->get()->first();
             if (null != $delivery) {
                 $delivery_id = $delivery->id;
+                $csn_order = CsnOrder::where('id', $eventId)->get()->first();
+                $event_sn = $csn_order->sn;
                 $lastPageAction = Route('cms.consignment-order.edit', ['id' => $eventId ]);
             }
         }
@@ -264,7 +273,7 @@ class LogisticCtrl extends Controller
             'eventId' => $eventId,
             'delivery_id' => $delivery_id,
             'user' => $request->user(),
-            'breadcrumb_data' => ['sn' => $delivery->sn, 'parent' => $event ],
+            'breadcrumb_data' => ['sn' => $event_sn, 'parent' => $event ],
         ]);
     }
 

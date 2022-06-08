@@ -1,6 +1,12 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-3">新增寄倉訂購單</h2>
+    <h2 class="mb-3">
+        @if ($method === 'create')
+            新增寄倉訂購單
+        @else
+            #{{ $breadcrumb_data['sn'] }} 寄倉訂購單
+        @endif
+    </h2>
 
     @php
         $consignmentData = $consignmentData ?? null;
