@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-3">寄倉單 {{ $purchaseData->consignment_sn }}</h2>
+    <h2 class="mb-3">#{{ $purchaseData->consignment_sn }} 寄倉單</h2>
     <x-b-consign-navi :id="$id"></x-b-consign-navi>
 
     <div class="card shadow p-4 mb-4">
