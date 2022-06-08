@@ -7,6 +7,7 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\SaleChannel;
 use App\Models\User;
+use App\Models\UserProjLogistics;
 use App\Models\UserSalechannel;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -88,7 +89,7 @@ class UserCtrl extends Controller
         );
 
         $lgt_user = $request->input('lgt_user');
-        $modifyLogisticUser = User::modifyLogisticUser($request->user()->id, $user, ['user' => $lgt_user]);
+        $modifyLogisticUser = UserProjLogistics::modifyLogisticUser($request->user()->id, $user, ['user' => $lgt_user]);
         if ($modifyLogisticUser['success'] == 0) {
             throw ValidationException::withMessages([$modifyLogisticUser['error_key'] => $modifyLogisticUser['error_msg']]);
         }
@@ -178,7 +179,7 @@ class UserCtrl extends Controller
         }
         $lgt_user = $request->input('lgt_user');
 
-        $modifyLogisticUser = User::modifyLogisticUser($request->user()->id, $id, ['user' => $lgt_user]);
+        $modifyLogisticUser = UserProjLogistics::modifyLogisticUser($request->user()->id, $id, ['user' => $lgt_user]);
         if ($modifyLogisticUser['success'] == 0) {
             throw ValidationException::withMessages([$modifyLogisticUser['error_key'] => $modifyLogisticUser['error_msg']]);
         }
