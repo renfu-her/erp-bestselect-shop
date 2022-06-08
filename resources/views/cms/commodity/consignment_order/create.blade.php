@@ -7,7 +7,7 @@
             #{{ $breadcrumb_data['sn'] }} 寄倉訂購單
         @endif
     </h2>
-    @if ($method === 'edit')
+    @if ($method === 'edit' and null != $consignmentData)
         <x-b-csnorder-navi :id="$id"></x-b-csnorder-navi>
     @endif
 
@@ -74,15 +74,6 @@
             </div>
         </div>
 
-        <div class="card-header px-4 d-flex align-items-center bg-white flex-wrap justify-content-end">
-{{--            @if ($consignmentData->audit_status == App\Enums\Consignment\AuditStatus::approved()->value)--}}
-            @if (null != $consignmentData)
-                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::csn_order()->value, 'eventId' => $id], true) }}">配送狀態</a>
-                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::csn_order()->value, 'eventId' => $id], true) }}">物流設定</a>
-                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::csn_order()->value, 'eventId' => $id], true) }}">出貨審核</a>
-{{--                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.consignment-stock.stock_log', ['id' => $id], true) }}">變更紀錄</a>--}}
-            @endif
-        </div>
         <div class="card shadow p-4 mb-4">
             <h6>寄倉訂購清單</h6>
             <div class="table-responsive tableOverBox">
