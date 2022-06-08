@@ -367,7 +367,7 @@ class ConsignmentCtrl extends Controller
             'depotList' => $depotList,
             'formAction' => Route('cms.consignment.store_inbound', ['id' => $id,]),
             'formActionClose' => Route('cms.consignment.close', ['id' => $id,]),
-            'breadcrumb_data' => $purchaseData->consignment_sn,
+            'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->consignment_sn],
         ]);
     }
 

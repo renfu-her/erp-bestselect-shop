@@ -20,6 +20,7 @@ use App\View\Components\Navbar\ProductNavi;
 use App\View\Components\Navbar\CustomerNavi;
 use App\View\Components\Navbar\PurchaseNavi;
 use App\View\Components\Navbar\HomepageNavi;
+use App\View\Components\Navbar\ConsignNavi;
 
 class ComponentServiceProvider extends ServiceProvider
 {
@@ -56,5 +57,6 @@ class ComponentServiceProvider extends ServiceProvider
         Blade::component('b-customer-navi', CustomerNavi::class);
         Blade::component('b-pch-navi', PurchaseNavi::class);
         Blade::component('b-home-navi', HomepageNavi::class);
+        Blade::component('b-consign-navi', ConsignNavi::class);
     }
 }

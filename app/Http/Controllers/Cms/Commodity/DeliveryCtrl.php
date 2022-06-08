@@ -108,7 +108,7 @@ class DeliveryCtrl extends Controller
         $rsp_arr['formAction'] = Route('cms.delivery.store', [
             'deliveryId' => $delivery_id,
         ], true);
-        $rsp_arr['breadcrumb_data'] = $delivery->sn;
+        $rsp_arr['breadcrumb_data'] = ['sn' => $delivery->sn, 'parent' => $event ];
 
         return view('cms.commodity.delivery.edit', $rsp_arr);
     }

@@ -229,19 +229,6 @@ Breadcrumbs::for('cms.delivery.index', function (BreadcrumbTrail $trail) {
     $trail->push('出貨管理', route('cms.delivery.index'));
 });
 
-Breadcrumbs::for('cms.delivery.create', function (BreadcrumbTrail $trail, $value) {
-    $trail->parent('cms.delivery.index');
-    $trail->push('#' . $value . ' 出貨審核');
-});
-Breadcrumbs::for('cms.logistic.create', function (BreadcrumbTrail $trail, $value) {
-    $trail->parent('cms.delivery.index');
-    $trail->push('#' . $value . ' 實際物流設定');
-});
-Breadcrumbs::for('cms.logistic.changeLogisticStatus', function (BreadcrumbTrail $trail, $value) {
-    $trail->parent('cms.delivery.index');
-    $trail->push('#' . $value . ' 配送狀態');
-});
-
 // 寄倉搜尋
 Breadcrumbs::for('cms.consignment.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
@@ -257,16 +244,40 @@ Breadcrumbs::for('cms.consignment.edit', function (BreadcrumbTrail $trail, $valu
     $trail->parent('cms.consignment.index');
     $trail->push('[單號：' . $value['sn'] . '] 寄倉單資訊', route('cms.consignment.edit', ['id' => $value['id']]));
 });
+// 入庫審核
+Breadcrumbs::for('cms.consignment.inbound', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.consignment.index');
+    $trail->push('[單號：' . $value['sn'] . '] 入庫審核', route('cms.consignment.inbound', ['id' => $value['id']]));
+});
+
 //寄倉訂購
 Breadcrumbs::for('cms.consignment-order.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
     $trail->push('寄倉訂購', route('cms.consignment-order.index'));
 });
+
 //寄倉庫存
 Breadcrumbs::for('cms.consignment-stock.stocklist', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
     $trail->push('寄倉庫存', route('cms.consignment-stock.stocklist'));
 });
+
+
+// *** 共用頁 *** //
+Breadcrumbs::for('cms.delivery.create', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.' . $value['parent'] . '.index');
+    $trail->push('#' . $value['sn'] . ' 出貨審核');
+});
+Breadcrumbs::for('cms.logistic.create', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.' . $value['parent'] . '.index');
+    $trail->push('#' . $value['sn'] . ' 實際物流設定');
+});
+
+Breadcrumbs::for('cms.logistic.changeLogisticStatus', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.' . $value['parent'] . '.index');
+    $trail->push('#' . $value['sn'] . ' 配送狀態');
+});
+
 
 /**
  * 行銷設定

@@ -1,6 +1,10 @@
 @extends('layouts.main')
 @section('sub-content')
     <h2 class="mb-3">#{{ $logistic->sn }} 實際物流設定</h2>
+    @if ($event === 'consignment')
+        <x-b-consign-navi :id="$delivery->event_id"></x-b-consign-navi>
+    @endif
+
     @error('error_msg')
     <div class="alert alert-danger" role="alert">
         {{ $message }}

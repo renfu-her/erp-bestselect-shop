@@ -1,10 +1,10 @@
 @extends('layouts.main')
 @section('sub-content')
     <h2 class="mb-3">寄倉單 {{ $purchaseData->consignment_sn }}</h2>
-    <x-b-pch-navi :id="$id"></x-b-pch-navi>
+    <x-b-consign-navi :id="$id"></x-b-consign-navi>
 
     <div class="card shadow p-4 mb-4">
-        <h6>採購單入庫總覽</h6>
+        <h6>入庫總覽</h6>
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList mb-1">
                 <thead>

@@ -323,20 +323,22 @@
 
             // 計算 獎金 = (售價-經銷價) × BonusRate
             // 計算 紅利 = 售價 × (saleChannel.dividend_limit / 100)
+            // $prefix: sk_ | nsk_ | n_
             bindCalculate();
 
             function bindCalculate() {
                 // 獎金
-                $('input[name$="_price[]"], input[name$="_dealer_price[]"]').off('change.bonus')
+                $('input[name="sk_price[]"], input[name="nsk_price[]"], input[name="n_price[]"], input[name$="_dealer_price[]"]').off('change.bonus')
                 .on('change.bonus', function() {
                     const $this = $(this);
-                    const price = $this.closest('tr').find('input[name$="_price[]"]').val() || 0;
+                    const prefix = $this.attr('name').split('_')[0];
+                    const price = $this.closest('tr').find(`input[name="${prefix}_price[]"]`).val() || 0;
                     const dealer_price = $this.closest('tr').find('input[name$="_dealer_price[]"]').val() || 0;
                     $this.closest('tr').find('input[name$="_bonus[]"]').val(Math.floor((price - dealer_price) *
                         BonusRate));
                 });
                 // 紅利
-                $('input[name$="_price[]"]').off('change.point')
+                $('input[name="sk_price[]"], input[name="nsk_price[]"], input[name="n_price[]"]').off('change.point')
                 .on('change.point', function () {
                     const $this = $(this);
                     const price = $this.val() || 0;
