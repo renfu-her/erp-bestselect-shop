@@ -243,11 +243,13 @@ class OrderCart extends Model
         // 全館
 
         self::globalStage($order, $_tempProducts);
+
         self::couponStage($order, $currentCoupon, $_tempProducts);
         $re = self::useDividendStage($order, $customer);
         if ($re['success'] == '0') {
             return $re;
         }
+        
         self::getDividendStage($order, $_tempProducts);
         self::shipmentStage($order);
 
@@ -482,9 +484,9 @@ class OrderCart extends Model
 
                 $order['discounts'][] = $discountObj;
 
-                $order['total_price'] -= $dividend;
-                $order['discount_value'] += $dividend;
-                $order['discounted_price'] -= $dividend;
+                $order['total_price'] -= $order['use_dividend'];
+                $order['discount_value'] += $order['use_dividend'];
+                $order['discounted_price'] -= $order['use_dividend'];
 
                 foreach ($order['shipments'] as $idx => $shipment) {
 
