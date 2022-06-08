@@ -186,7 +186,7 @@ class PurchaseItem extends Model
 
         //訂金單號
         $subColumn = DB::table('pcs_paying_orders as order')
-            ->select('order.id')
+            ->select('order.sn')
             ->whereColumn('order.source_id', '=', 'purchase.id')
             ->where([
                 'order.source_type'=>app(Purchase::class)->getTable(),
@@ -197,7 +197,7 @@ class PurchaseItem extends Model
             ->limit(1);
         //尾款單號
         $subColumn2 = DB::table('pcs_paying_orders as order')
-            ->select('order.id')
+            ->select('order.sn')
             ->whereColumn('order.source_id', '=', 'purchase.id')
             ->where([
                 'order.source_type'=>app(Purchase::class)->getTable(),

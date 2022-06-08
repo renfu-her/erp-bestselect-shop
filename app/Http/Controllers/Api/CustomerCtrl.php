@@ -127,8 +127,8 @@ class CustomerCtrl extends Controller
             ->whereNotNull('address')
             ->select([
                 'usr_customers_address.id as id',
-                'name',
-                'phone',
+                'usr_customers_address.name',
+                'usr_customers_address.phone',
                 'city_id',
                 'region_id',
                 'addr',
@@ -308,24 +308,13 @@ class CustomerCtrl extends Controller
                     ->where('id', '=', $data['id'])
                     ->update([
                         'usr_customers_id_fk' => $customerId,
+                        'name'                => $data['name'],
+                        'phone'               => $data['phone'],
                         'address'             => $address,
                         'city_id'             => $data['city_id'],
                         'region_id'           => $data['region_id'],
                         'addr'                => $data['addr'],
                     ]);
-
-                $isDefaultQuery = DB::table('usr_customers_address')
-                                    ->where('id', '=', $data['id'])
-                                    ->where('is_default_addr', '=', 1)
-                                    ->get()
-                                    ->first();
-                if ($isDefaultQuery) {
-                    DB::table('usr_customers')
-                        ->where('id', '=', $customerId)
-                        ->update([
-                            'phone' => $data['phone'],
-                        ]);
-                }
 
                 return response()->json([
                     ResponseParam::status => ApiStatusMessage::Succeed,
@@ -347,17 +336,13 @@ class CustomerCtrl extends Controller
                     ->update([
                         'is_default_addr' => 0,
                     ]);
-
-                DB::table('usr_customers')
-                    ->where('id', '=', $customerId)
-                    ->update([
-                        'phone' => $data['phone'],
-                    ]);
             }
 
             //create address
             CustomerAddress::create([
                 'usr_customers_id_fk' => $customerId,
+                'name'                => $data['name'],
+                'phone'               => $data['phone'],
                 'address'             => $address,
                 'city_id'             => $data['city_id'],
                 'region_id'           => $data['region_id'],

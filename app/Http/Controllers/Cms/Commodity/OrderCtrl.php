@@ -15,6 +15,7 @@ use App\Models\Depot;
 use App\Models\Discount;
 use App\Models\Order;
 use App\Models\OrderCart;
+use App\Models\OrderPayCreditCard;
 use App\Models\OrderStatus;
 use App\Models\PayableDefault;
 use App\Models\PayingOrder;
@@ -332,6 +333,12 @@ class OrderCtrl extends Controller
         if ($received_order_data && $received_order_data->balance_date) {
             $receivable = true;
         }
+        $received_credit_card_log = OrderPayCreditCard::where([
+            'order_id'=>$id,
+            'status'=>0,
+            'authamt'=>$order->total_price,
+            'lidm'=>$sn,
+        ])->orderBy('created_at', 'DESC')->first();
 
         $dividend = CustomerDividend::where('category', DividendCategory::Order())
             ->where('category_sn', $order->sn)
@@ -352,6 +359,7 @@ class OrderCtrl extends Controller
             'discounts' => Discount::orderDiscountList('main', $id)->get()->toArray(),
             'receivable' => $receivable,
             'received_order_data' => $received_order_data,
+            'received_credit_card_log' => $received_credit_card_log,
             'dividend' => $dividend,
         ]);
     }

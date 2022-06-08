@@ -113,6 +113,8 @@ class CyberbizMemberSeeder extends Seeder
                         !is_null($addressName)) {
                         CustomerAddress::create([
                             'usr_customers_id_fk' => $customerExistQuery->id,
+                            'name'                => $memberData[self::NAME] ?? null,
+                            'phone'               => $memberData[self::PHONE] ?? null,
                             'address'             => $address,
                             'city_id'             => $city_id,
                             'region_id'           => $region_id,

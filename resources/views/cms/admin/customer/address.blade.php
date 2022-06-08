@@ -7,7 +7,7 @@
         <h6>預設地址</h6>
         <div class="col-form-label">{{ $defaultAddress->address ?? '' }}</div>
 
-        @if (!is_null($otherAddress) && count($otherAddress) > 0)
+        @if (!is_null($otherAddress))
             <h6>其它收件地址</h6>
             @foreach($otherAddress as $data)
                 <div class="form-group">
