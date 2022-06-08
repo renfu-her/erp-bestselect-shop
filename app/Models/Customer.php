@@ -30,7 +30,6 @@ class Customer extends Authenticatable
         'email',
         'name',
         'sex',
-        'phone',
         'address',
         'city_id',
         'region_id',
@@ -97,7 +96,6 @@ class Customer extends Authenticatable
         $arr = [
             'name' => $name,
             'email' => $email,
-            'phone' => $phone,
             'birthday' => $birthday,
             'sex' => $sex,
             //'acount_status' => $acount_status,
@@ -124,6 +122,8 @@ class Customer extends Authenticatable
             !is_null($addr)) {
             CustomerAddress::create([
                 'usr_customers_id_fk' => $id,
+                'name'                => $name,
+                'phone'               => $phone,
                 'address'             => $address,
                 'city_id'             => $city_id,
                 'region_id'           => $region_id,

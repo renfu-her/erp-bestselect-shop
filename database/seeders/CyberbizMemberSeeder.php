@@ -92,7 +92,6 @@ class CyberbizMemberSeeder extends Seeder
                     Customer::where('email', '=', $memberData[self::EMAIL])
                         ->update([
                             'name' => $memberData[self::NAME] ?? null,
-                            'phone' => $memberData[self::PHONE] ?? null,
                             'birthday' => $memberData[self::BIRTH] === 'nan' ? null : $memberData[self::BIRTH],
                             'sex' => is_null($memberData[self::GENDER]) ? null : ($memberData[self::GENDER] === '男' ? 1 : 0),
                             'newsletter' => $memberData[self::NEWS_LETTER] === true ? Newsletter::subscribe : Newsletter::un_subscribe,
@@ -113,6 +112,8 @@ class CyberbizMemberSeeder extends Seeder
                         !is_null($addressName)) {
                         CustomerAddress::create([
                             'usr_customers_id_fk' => $customerExistQuery->id,
+                            'name'                => $memberData[self::NAME] ?? null,
+                            'phone'               => $memberData[self::PHONE] ?? null,
                             'address'             => $address,
                             'city_id'             => $city_id,
                             'region_id'           => $region_id,
