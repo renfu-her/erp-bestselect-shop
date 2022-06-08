@@ -17,6 +17,9 @@ class CustomerDividend extends Model
     public static function getList($customer_id, $type = null)
     {
         $re = DB::table('usr_cusotmer_dividend as dividend')
+            ->select('dividend.*')
+            ->selectRaw('IF(active_sdate IS NULL,"",active_sdate) as active_sdate')
+            ->selectRaw('IF(active_edate IS NULL,"",active_edate) as active_edate')
             ->orderBy('created_at', 'DESC');
 
         if ($type) {
