@@ -82,3 +82,4 @@ Route::group(['prefix' => 'web', 'as' => 'web.'], function () {
 });
 
 require base_path('routes/api/Addr.php');
+require base_path('routes/api/Schedule.php');
