@@ -208,7 +208,7 @@
 {{--            </button>--}}
 {{--            @endif--}}
             <a href="{{ Route('cms.order.detail', ['id' => $purchaseData->order_id, 'subOrderId' => $purchaseData->id], true) }}" class="btn btn-outline-primary px-4"
-                role="button">返回列表</a>
+                role="button">返回明細</a>
         </div>
     </div>
 

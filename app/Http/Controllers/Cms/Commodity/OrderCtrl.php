@@ -419,7 +419,7 @@ class OrderCtrl extends Controller
             'depotList' => $depotList,
             'formAction' => Route('cms.order.store_inbound', ['id' => $subOrderId]),
             //'formActionClose' => Route('cms.order.close', ['id' => $subOrderId,]),
-            'breadcrumb_data' => $sub_order->sn,
+            'breadcrumb_data' => ['id' => $sub_order->id, 'sn' => $sub_order->sn],
         ]);
     }
 

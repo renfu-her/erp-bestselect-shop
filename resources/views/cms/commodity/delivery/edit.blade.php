@@ -4,6 +4,9 @@
     @if ($event === 'consignment')
         <x-b-consign-navi :id="$delivery->event_id"></x-b-consign-navi>
     @endif
+    @if ($event === 'csn_order')
+        <x-b-csnorder-navi :id="$delivery->event_id"></x-b-csnorder-navi>
+    @endif
 
     <form method="post" action="{{ $formAction }}">
         @method('POST')

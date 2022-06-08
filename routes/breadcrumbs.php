@@ -192,6 +192,11 @@ Breadcrumbs::for('cms.order.create', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
     $trail->push('新增訂單');
 });
+// 訂單自取入庫審核
+Breadcrumbs::for('cms.order.inbound', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('[單號：' . $value['sn'] . '] 入庫審核', route('cms.order.inbound', ['subOrderId' => $value['id']]));
+});
 // 新增收款單
 Breadcrumbs::for('cms.ar.create', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
@@ -244,7 +249,7 @@ Breadcrumbs::for('cms.consignment.edit', function (BreadcrumbTrail $trail, $valu
     $trail->parent('cms.consignment.index');
     $trail->push('[單號：' . $value['sn'] . '] 寄倉單資訊', route('cms.consignment.edit', ['id' => $value['id']]));
 });
-// 入庫審核
+// 寄倉入庫審核
 Breadcrumbs::for('cms.consignment.inbound', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.consignment.index');
     $trail->push('[單號：' . $value['sn'] . '] 入庫審核', route('cms.consignment.inbound', ['id' => $value['id']]));
@@ -254,6 +259,16 @@ Breadcrumbs::for('cms.consignment.inbound', function (BreadcrumbTrail $trail, $v
 Breadcrumbs::for('cms.consignment-order.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
     $trail->push('寄倉訂購', route('cms.consignment-order.index'));
+});
+// 新增寄倉訂購單
+Breadcrumbs::for('cms.consignment-order.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.consignment-order.index');
+    $trail->push('新增寄倉訂購單');
+});
+// 編輯 - 寄倉訂購單資訊
+Breadcrumbs::for('cms.consignment-order.edit', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.consignment-order.index');
+    $trail->push('#' . $value['sn'] . ' 寄倉訂購單資訊', route('cms.consignment-order.edit', ['id' => $value['id']]));
 });
 
 //寄倉庫存

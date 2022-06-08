@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\View\Components\Navbar\CsnOrderNavi;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
 use App\View\Components\Forms\Input as B_Input;
@@ -58,5 +59,6 @@ class ComponentServiceProvider extends ServiceProvider
         Blade::component('b-pch-navi', PurchaseNavi::class);
         Blade::component('b-home-navi', HomepageNavi::class);
         Blade::component('b-consign-navi', ConsignNavi::class);
+        Blade::component('b-csnorder-navi', CsnOrderNavi::class);
     }
 }

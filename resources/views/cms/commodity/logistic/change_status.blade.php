@@ -4,6 +4,9 @@
     @if ($event === 'consignment')
         <x-b-consign-navi :id="$eventId"></x-b-consign-navi>
     @endif
+    @if ($event === 'csn_order')
+        <x-b-csnorder-navi :id="$eventId"></x-b-csnorder-navi>
+    @endif
 
     @error('error_msg')
     <div class="alert alert-danger" role="alert">
@@ -59,7 +62,7 @@
             </div>
         </div>
     </form>
-    
+
 @endsection
 @once
     @push('sub-styles')
@@ -103,7 +106,7 @@
                 }
             }
         }
-        
+
         // bind btn
         $('button[data-code]').off('click').on('click', function () {
             const code = $(this).data('code');
@@ -117,7 +120,7 @@
                     <td>${logisticStatus[code]}</td>
                     <td>${User}</td>
                     <td>
-                        <button type="button" title="刪除" 
+                        <button type="button" title="刪除"
                             class="icon icon-btn fs-5 text-danger rounded-circle border-0 -del">
                             <i class="bi bi-trash"></i>
                         </button>
