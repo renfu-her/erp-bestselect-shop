@@ -13,6 +13,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class UserCtrl extends Controller
 {
@@ -77,7 +78,7 @@ class UserCtrl extends Controller
             $role_id = $request->input('role_id');
         }
 
-        User::createUser(
+        $user = User::createUser(
             $uData['name'],
             $uData['account'],
             null,
@@ -85,6 +86,13 @@ class UserCtrl extends Controller
             $permission_id,
             $role_id,
         );
+
+        $lgt_user = $request->input('lgt_user');
+        $modifyLogisticUser = User::modifyLogisticUser($request->user()->id, $user, ['user' => $lgt_user]);
+        if ($modifyLogisticUser['success'] == 0) {
+            throw ValidationException::withMessages([$modifyLogisticUser['error_key'] => $modifyLogisticUser['error_msg']]);
+        }
+
         wToast('新增完成');
         return redirect(Route('cms.user.index'));
     }
@@ -114,6 +122,7 @@ class UserCtrl extends Controller
         if (!$data) {
             return abort(404);
         }
+        $user_lgt = User::getLogisticUserIsOpen($id)->get()->first();
 
         $role_ids = Role::getUserRoles($id, 'user', function ($arr) {
             return array_map(function ($n) {
@@ -135,6 +144,7 @@ class UserCtrl extends Controller
             'method' => 'edit', 'id' => $id,
             'formAction' => Route('cms.user.edit', ['id' => $id]),
             'data' => $data,
+            'user_lgt' => $user_lgt,
             'permissions' => Permission::getPermissionGroups('user'),
             'permission_id' => $permission_id,
             'roles' => Role::roleList('user'), 'role_ids' => $role_ids,
@@ -165,6 +175,12 @@ class UserCtrl extends Controller
         $password = $request->input('password');
         if ($password) {
             $userData['password'] = Hash::make($password);
+        }
+        $lgt_user = $request->input('lgt_user');
+
+        $modifyLogisticUser = User::modifyLogisticUser($request->user()->id, $id, ['user' => $lgt_user]);
+        if ($modifyLogisticUser['success'] == 0) {
+            throw ValidationException::withMessages([$modifyLogisticUser['error_key'] => $modifyLogisticUser['error_msg']]);
         }
 
         User::where('id', $id)->update($userData);
@@ -200,7 +216,7 @@ class UserCtrl extends Controller
         $current_channel = array_map(function ($n) {
             return $n['salechannel_id'];
         }, UserSalechannel::where('user_id', $id)->get()->toArray());
-      
+
         return view('cms.admin.user.salechannel', [
             'method' => 'edit',
             'id' => $id,

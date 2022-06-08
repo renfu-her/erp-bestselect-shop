@@ -35,7 +35,7 @@
                     <input class="form-control @error('password_confirmation') is-invalid @enderror" type="password"
                            name="password_confirmation" value=""/>
                 </x-b-form-group>
-              
+
 
                 @if ($method === 'edit')
                     <input type='hidden' name='id' value="{{ old('id', $id) }}"/>
@@ -43,6 +43,32 @@
                 @error('id')
                 <div class="alert alert-danger mt-3">{{ $message }}</div>
                 @enderror
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">物流權限</div>
+            <div class="card-body">
+                <fieldset class="col-12 col-sm-6 mb-3">
+                    <legend class="col-form-label p-0 mb-2">託運人員</legend>
+                    <div class="px-1 pt-1">
+                        <div class="form-check form-check-inline @error('lgt_user')is-invalid @enderror">
+                            <label class="form-check-label">
+                                <input class="form-check-input @error('lgt_user')is-invalid @enderror" name="lgt_user"
+                                       value="0" type="radio"
+                                       @if (old('lgt_user', $user_lgt->user ?? '') == "0") checked @endif>否</label>
+                        </div>
+                        <div class="form-check form-check-inline @error('lgt_user')is-invalid @enderror">
+                            <label class="form-check-label">
+                                <input class="form-check-input @error('lgt_user')is-invalid @enderror" name="lgt_user"
+                                       value="1" type="radio"
+                                       @if (old('lgt_user', $user_lgt->user ?? '') == "1") checked @endif>是</label>
+                        </div>
+                        @error('lgt_user')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </fieldset>
             </div>
         </div>
 
