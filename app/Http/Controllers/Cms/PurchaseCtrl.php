@@ -803,6 +803,7 @@ class PurchaseCtrl extends Controller
             'returnAction' => Route('cms.purchase.index', [], true),
             'title' => '採購單',
             'sn' => $purchaseData->purchase_sn,
+            'event' => Event::purchase()->value,
             'breadcrumb_data' => $purchaseData->purchase_sn,
         ]);
     }

@@ -474,6 +474,7 @@ class ConsignmentCtrl extends Controller
             'returnAction' => Route('cms.consignment.index', [], true),
             'title' => '寄倉單',
             'sn' => $purchaseData->consignment_sn,
+            'event' => Event::consignment()->value,
             'breadcrumb_data' => $purchaseData->consignment_sn,
         ]);
     }

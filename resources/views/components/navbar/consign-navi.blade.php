@@ -18,7 +18,11 @@
     </li>
     <li class="nav-item">
         <a href="{{ Route('cms.consignment.inbound', ['id' => $id], true) }}"
-            class="nav-link {{ isActive('cms.consignment.inbound', $route_name) }}">入庫審核</a>
+           class="nav-link {{ isActive('cms.consignment.inbound', $route_name) }}">入庫審核</a>
     </li>
+{{--    <li class="nav-item">--}}
+{{--        <a href="{{ Route('cms.consignment.log', ['id' => $id], true) }}"--}}
+{{--           class="nav-link {{ isActive('cms.consignment.log', $route_name) }}">變更紀錄</a>--}}
+{{--    </li>--}}
 </ul>
 <hr class="narbarBottomLine mb-3">

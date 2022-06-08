@@ -1,7 +1,15 @@
 @extends('layouts.main')
 @section('sub-content')
     <h2 class="mb-3">{{$title}} {{ $sn }}</h2>
-    <x-b-pch-navi :id="$id"></x-b-pch-navi>
+    @if ($event === \App\Enums\Delivery\Event::purchase()->value)
+        <x-b-pch-navi :id="$id"></x-b-pch-navi>
+    @endif
+    @if ($event === \App\Enums\Delivery\Event::consignment()->value)
+        <x-b-consign-navi :id="$id"></x-b-consign-navi>
+    @endif
+    @if ($event === \App\Enums\Delivery\Event::csn_order()->value)
+        <x-b-csnorder-navi :id="$id"></x-b-csnorder-navi>
+    @endif
 
     <div class="card shadow p-4 mb-4">
         <h6>最近變更紀錄</h6>

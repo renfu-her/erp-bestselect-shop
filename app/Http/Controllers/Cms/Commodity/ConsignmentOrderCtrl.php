@@ -8,6 +8,7 @@ use App\Models\CsnOrder;
 use App\Models\CsnOrderItem;
 use App\Models\Delivery;
 use App\Models\Depot;
+use App\Models\PurchaseLog;
 use App\Models\ReceiveDepot;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -280,6 +281,25 @@ class ConsignmentOrderCtrl extends Controller
             'id' => $id,
             'query' => $query
         ]));
+    }
+
+    public function historyLog(Request $request, $id) {
+        $purchaseData = CsnOrder::getData($id)->first();
+        $purchaseLog = PurchaseLog::getData(Event::csn_order()->value, $id)->get();
+        if (!$purchaseData) {
+            return abort(404);
+        }
+
+        return view('cms.commodity.purchase.log', [
+            'id' => $id,
+            'purchaseData' => $purchaseData,
+            'purchaseLog' => $purchaseLog,
+            'returnAction' => Route('cms.consignment-order.edit', ['id' => $id], true),
+            'title' => '寄倉訂購單',
+            'sn' => $purchaseData->sn,
+            'event' => Event::csn_order()->value,
+            'breadcrumb_data' => $purchaseData->sn,
+        ]);
     }
 }
 

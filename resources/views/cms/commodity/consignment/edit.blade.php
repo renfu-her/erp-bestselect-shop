@@ -89,6 +89,7 @@
                 <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">出貨審核</a>
 
                 <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.consignment.inbound', ['id' => $id], true) }}">入庫審核</a>
+                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.consignment.log', ['id' => $id], true) }}">變更紀錄</a>
             @endif
         </div> --}}
 

@@ -35,24 +35,6 @@ class ConsignmentStockCtrl extends Controller
         ]);
     }
 
-    public function historyStockLog(Request $request, $id) {
-        $purchaseData = CsnOrder::getData($id)->first();
-        $purchaseLog = PurchaseLog::getData(Event::csn_order()->value, $id)->get();
-        if (!$purchaseData) {
-            return abort(404);
-        }
-
-        return view('cms.commodity.purchase.log', [
-            'id' => $id,
-            'purchaseData' => $purchaseData,
-            'purchaseLog' => $purchaseLog,
-            'returnAction' => Route('cms.consignment.index', [], true),
-            'title' => '寄倉訂購單',
-            'sn' => $purchaseData->sn,
-            'breadcrumb_data' => $purchaseData->sn,
-        ]);
-    }
-
     public function historyStockDetailLog(Request $request, $id) {
         $query = $request->query();
         $data_per_page = Arr::get($query, 'data_per_page', 10);
