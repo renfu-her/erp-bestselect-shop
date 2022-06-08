@@ -104,7 +104,7 @@ class LogisticCtrl extends Controller
         $rsp_arr['shipmentGroup'] = $shipmentGroupWithCost;
         $rsp_arr['consumWithInboundList'] = $consumWithInboundList;
         $rsp_arr['event'] = $event;
-        $rsp_arr['breadcrumb_data'] = $logistic->sn;
+        $rsp_arr['breadcrumb_data'] = ['sn' => $logistic->sn, 'parent' => $event ];
         return view('cms.commodity.logistic.edit', $rsp_arr);
     }
 
@@ -264,7 +264,7 @@ class LogisticCtrl extends Controller
             'eventId' => $eventId,
             'delivery_id' => $delivery_id,
             'user' => $request->user(),
-            'breadcrumb_data' => $delivery->sn
+            'breadcrumb_data' => ['sn' => $delivery->sn, 'parent' => $event ],
         ]);
     }
 

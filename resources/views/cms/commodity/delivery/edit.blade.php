@@ -1,6 +1,10 @@
 @extends('layouts.main')
 @section('sub-content')
     <h2 class="mb-3">#{{ $sn }} 出貨審核</h2>
+    @if ($event === 'consignment')
+        <x-b-consign-navi :id="$delivery->event_id"></x-b-consign-navi>
+    @endif
+
     <form method="post" action="{{ $formAction }}">
         @method('POST')
         @csrf
