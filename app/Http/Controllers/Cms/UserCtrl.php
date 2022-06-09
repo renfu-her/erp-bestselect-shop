@@ -89,8 +89,8 @@ class UserCtrl extends Controller
             $role_id,
         );
 
-        $logisticApiToken = User::getLogisticApiToken($request->user()->id);
-        $modifyLogisticUser = UserProjLogistics::modifyLogisticUser($logisticApiToken->user_token, $user, ['user' => $lgt_user]);
+        $logisticUserApiToken = User::getLogisticApiToken($request->user()->id)->user_token;
+        $modifyLogisticUser = UserProjLogistics::modifyLogisticUser($logisticUserApiToken, $user, ['user' => $lgt_user]);
         if ($modifyLogisticUser['success'] == 0) {
             throw ValidationException::withMessages([$modifyLogisticUser['error_key'] => $modifyLogisticUser['error_msg']]);
         }
@@ -180,8 +180,8 @@ class UserCtrl extends Controller
         }
         $lgt_user = $request->input('lgt_user');
 
-        $logisticApiToken = User::getLogisticApiToken($request->user()->id);
-        $modifyLogisticUser = UserProjLogistics::modifyLogisticUser($logisticApiToken->user_token, $id, ['user' => $lgt_user]);
+        $logisticUserApiToken = User::getLogisticApiToken($request->user()->id)->user_token;
+        $modifyLogisticUser = UserProjLogistics::modifyLogisticUser($logisticUserApiToken, $id, ['user' => $lgt_user]);
         if ($modifyLogisticUser['success'] == 0) {
             throw ValidationException::withMessages([$modifyLogisticUser['error_key'] => $modifyLogisticUser['error_msg']]);
         }
