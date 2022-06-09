@@ -92,7 +92,7 @@ class UserCtrl extends Controller
         $logisticUserApiToken = User::getLogisticApiToken($request->user()->id)->user_token;
         $modifyLogisticUser = UserProjLogistics::modifyLogisticUser($logisticUserApiToken, $user, ['user' => $lgt_user]);
         if ($modifyLogisticUser['success'] == 0) {
-            throw ValidationException::withMessages([$modifyLogisticUser['error_key'] => $modifyLogisticUser['error_msg']]);
+            throw ValidationException::withMessages(['lgt_user' => $modifyLogisticUser['error_msg']]);
         }
 
         wToast('新增完成');
@@ -183,7 +183,7 @@ class UserCtrl extends Controller
         $logisticUserApiToken = User::getLogisticApiToken($request->user()->id)->user_token;
         $modifyLogisticUser = UserProjLogistics::modifyLogisticUser($logisticUserApiToken, $id, ['user' => $lgt_user]);
         if ($modifyLogisticUser['success'] == 0) {
-            throw ValidationException::withMessages([$modifyLogisticUser['error_key'] => $modifyLogisticUser['error_msg']]);
+            throw ValidationException::withMessages(['lgt_user' => $modifyLogisticUser['error_msg']]);
         }
 
         User::where('id', $id)->update($userData);

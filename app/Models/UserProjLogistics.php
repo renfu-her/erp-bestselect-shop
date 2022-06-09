@@ -19,7 +19,7 @@ class UserProjLogistics extends Model
     //變更託運人員在物流專案是否開啟
     public static function modifyLogisticUser($user_token, int $user_id, array $lgt_users) {
         if (false == isset($user_token)) {
-            return ['success' => 0, 'error_key' => 'lgt_user', 'error_msg' => '無權限可編輯託運人員'];
+            return ['success' => 0, 'error_msg' => '無權限可編輯託運人員'];
         }
         try {
             $user = User::where('id', $user_id)->get()->first();
@@ -31,7 +31,7 @@ class UserProjLogistics extends Model
                     UserProjLogistics::where('user_fk', '=', $user_id)->where('type', '=', "user")->update(["is_open" => 0]);
                     return ['success' => 1, 'error_msg' => ""];
                 } else {
-                    return ['success' => 0, 'error_key' => 'lgt_user', 'error_msg' => $api_user_delete->message];
+                    return ['success' => 0, 'error_msg' => $api_user_delete->message];
                 }
             } else if ("1" == $lgt_users['user']) {
                 //判斷是否在自己資料表有資料
@@ -67,17 +67,18 @@ class UserProjLogistics extends Model
                             UserProjLogistics::where('user_fk', '=', $user_id)->where('type', '=', "user")->update(["is_open" => 1]);
                             return ['success' => 1, 'error_msg' => ""];
                         } else {
-                            return ['success' => 0, 'error_key' => 'lgt_user', 'error_msg' => '物流專案已有此人員 請工程師手動同步新增到本專案'];
+                            return ['success' => 0, 'error_msg' => '物流專案已有此人員 請工程師手動同步新增到本專案'];
                         }
                     } else {
-                        return ['success' => 0, 'error_key' => 'lgt_user', 'error_msg' => $api_user_recover->message];
+                        return ['success' => 0, 'error_msg' => $api_user_recover->message];
                     }
                 } else {
-                    return ['success' => 0, 'error_key' => 'lgt_user', 'error_msg' => $api_user_create->message];
+                    return ['success' => 0, 'error_msg' => $api_user_create->message];
                 }
             }
         } catch (\Exception $e) {
-            return ['success' => 0, 'error_key' => 'lgt_user', 'error_msg' => $e->getMessage()];
+            return ['success' => 0, 'error_msg' => $e->getMessage()];
         }
     }
+
 }
