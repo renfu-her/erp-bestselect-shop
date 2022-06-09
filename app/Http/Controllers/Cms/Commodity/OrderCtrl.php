@@ -143,12 +143,25 @@ class OrderCtrl extends Controller
         }
 
         $citys = Addr::getCitys();
+        $customers = DB::table('usr_customers')
+            ->where('usr_customers.id', '=', $customer_id)
+            ->leftJoin('usr_customers_address', 'usr_customers.id', '=', 'usr_customers_address.usr_customers_id_fk')
+            ->where('is_default_addr', '=', 1)
+            ->select([
+                'usr_customers.id',
+                'usr_customers.name',
+                'address',
+                'addr',
+                'city_id',
+                'region_id',
+            ])
+            ->get();
 
       //    dd(Discount::getDiscounts('global-normal'));
         //    dd($citys);
         return view('cms.commodity.order.edit', [
             'customer_id' => $customer_id,
-            'customers' => Customer::where('id', $customer_id)->get(),
+            'customers' => $customers,
             'citys' => $citys,
             'cart' => $cart,
             'regions' => $regions,
