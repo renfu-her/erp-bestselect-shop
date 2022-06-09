@@ -6,19 +6,23 @@ use App\Enums\Delivery\Event;
 use App\Enums\Delivery\LogisticStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Consignment;
+use App\Models\ConsignmentItem;
 use App\Models\Consum;
 use App\Models\CsnOrder;
 use App\Models\Delivery;
+use App\Models\Depot;
 use App\Models\Logistic;
 use App\Models\LogisticFlow;
 use App\Models\ShipmentGroup;
 use App\Models\SubOrders;
+use App\Models\User;
+use App\Models\UserProjLogistics;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class LogisticCtrl extends Controller
 {
-    public function create($event, $eventId)
+    public function create(Request $request, $event, $eventId)
     {
         $rsp_arr = [];
 
@@ -100,6 +104,33 @@ class LogisticCtrl extends Controller
             $consumWithInboundList[$key]->groupconcat = json_decode($value->groupconcat);
         }
 
+        $depots = null;
+        $temps = null;
+        $dims = null;
+        if (false == isset($logistic->projlgt_order_sn)) {
+            $logisticUserApiToken = User::getLogisticApiToken($request->user()->id)->user_token;
+            $api_depot = UserProjLogistics::getDepot($logisticUserApiToken);
+            if ($api_depot['success'] == 0) {
+                wToast('取得倉庫列表錯誤 '. $api_depot['error_msg']);
+            } else {
+                $depots = $api_depot['data'];
+            }
+            $api_temp = UserProjLogistics::getTemp($logisticUserApiToken);
+            if ($api_temp['success'] == 0) {
+                wToast('取得溫層列表錯誤 '. $api_temp['error_msg']);
+            } else {
+                $temps = $api_temp['data'];
+
+                $api_dim = UserProjLogistics::getDim($logisticUserApiToken, $temps[0]->id);
+                if ($api_dim['success'] == 0) {
+                    wToast('取得溫層列表錯誤 '. $api_dim['error_msg']);
+                } else {
+                    $dims = $api_dim['data'];
+                }
+
+            }
+        }
+
         $rsp_arr['returnAction'] = $returnAction;
         $rsp_arr['delivery'] = $delivery;
         $rsp_arr['logistic'] = $logistic;
@@ -107,6 +138,10 @@ class LogisticCtrl extends Controller
         $rsp_arr['shipmentGroup'] = $shipmentGroupWithCost;
         $rsp_arr['consumWithInboundList'] = $consumWithInboundList;
         $rsp_arr['event'] = $event;
+        $rsp_arr['depots'] = $depots;
+        $rsp_arr['temps'] = $temps;
+        $rsp_arr['dims'] = $dims;
+        $rsp_arr['DelLogisticOrderAction'] = Route('cms.logistic.deleteLogisticOrder');
         $rsp_arr['breadcrumb_data'] = ['sn' => $event_sn, 'parent' => $event ];
         return view('cms.commodity.logistic.edit', $rsp_arr);
     }
@@ -306,6 +341,102 @@ class LogisticCtrl extends Controller
             'event' => $event,
             'eventId' => $eventId
         ], true));
+    }
+
+    public function createLogisticOrder(Request $request) {
+        $request->validate([
+            'depot_id' => 'required|string',
+            'temp_id' => 'required|string',
+            'dim_id' => 'required|string',
+            'pickup_date' => 'required|date',
+            'delivery_id' => 'required|string',
+            'logistic_id' => 'required|string',
+            'event' => 'required|string',
+            'event_id' => 'required|string',
+        ]);
+
+        $input = $request->only('depot_id', 'temp_id', 'dim_id', 'pickup_date');
+        $pickup_date = date('Y/m/d', strtotime($input['pickup_date']));
+
+        $logistic_id = $request->input('logistic_id');
+        $delivery_id = $request->input('delivery_id');
+        $event = $request->input('event');
+        $eventId = $request->input('event_id');
+
+        $delivery = Delivery::where('id', $delivery_id)->get()->first();
+        $order_no = $delivery->event_sn;
+        $rcv_name = '';
+        $rcv_tel = '';
+        $rcv_addr = '';
+        $items = null;
+        if (Event::consignment()->value == $event) {
+            $consignment = Consignment::where('id', '=', $delivery->event_id)->get()->first();
+            $send_depot = Depot::where('id', $consignment->send_depot_id)->get()->first();
+            $send_name = $send_depot->name;
+            $send_tel = $send_depot->tel;
+            $send_addr = $send_depot->address;
+
+            $receive_depot = Depot::where('id', $consignment->receive_depot_id)->get()->first();
+            $rcv_name = $receive_depot->name;
+            $rcv_tel = $receive_depot->tel;
+            $rcv_addr = $receive_depot->address;
+
+            $consignment_item = ConsignmentItem::getProjLogisticItemData($delivery->event_id);
+            $items = $consignment_item;
+        }
+
+        $logisticUserApiToken = User::getLogisticApiToken($request->user()->id)->user_token;
+        $createOrder = UserProjLogistics::createOrder($logisticUserApiToken
+            , $input['depot_id'], $input['temp_id'], $input['dim_id']
+            , $rcv_name, $rcv_tel, $rcv_addr
+            , $order_no, $pickup_date
+            , $items
+            , $send_name, $send_tel, $send_addr
+        );
+        if ($createOrder['success'] == 0) {
+            throw ValidationException::withMessages(['createOrder' => $createOrder['error_msg']]);
+        } else {
+            Logistic::where('id', $logistic_id)->update([
+                'projlgt_order_sn' => $createOrder['sn']
+            ]);
+            wToast('新增託運單成功');
+        }
+
+        return redirect(Route('cms.logistic.create', [
+            'event' => $event,
+            'eventId' => $eventId], true));
+    }
+
+    public function deleteLogisticOrder(Request $request) {
+        $request->validate([
+            'event' => 'required|string',
+            'event_id' => 'required|string',
+            'logistic_id' => 'required|string',
+            'sn' => 'required|string',
+        ]);
+        $sn = $request->input('sn');
+        $event = $request->input('event');
+        $eventId = $request->input('event_id');
+        $logisticId = $request->input('logistic_id');
+
+        $logistic = Logistic::where('id', $logisticId)->get()->first();
+        if (null == $logistic) {
+            return abort(404);
+        }
+
+        $logisticUserApiToken = User::getLogisticApiToken($request->user()->id)->user_token;
+        $delSn = UserProjLogistics::delSn($logisticUserApiToken, $sn);
+        if ($delSn['success'] == 0) {
+            throw ValidationException::withMessages(['sn' => $delSn['error_msg']]);
+        } else {
+            Logistic::where('id', $logisticId)->update([
+                'projlgt_order_sn' => null
+            ]);
+            wToast('刪除託運單成功');
+        }
+        return redirect(Route('cms.logistic.create', [
+            'event' => $event,
+            'eventId' => $eventId], true));
     }
 }
 

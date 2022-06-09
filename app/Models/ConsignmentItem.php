@@ -136,6 +136,24 @@ class ConsignmentItem extends Model
         return self::where('consignment_id', $consignment_id)->whereNull('deleted_at');
     }
 
+    public static function getProjLogisticItemData($consignment_id) {
+        $consignment_item = DB::table('csn_consignment_items as csn_item')
+            ->leftJoin('prd_product_styles as style', 'style.id', '=', 'csn_item.product_style_id')
+            ->leftJoin('prd_products as product', 'product.id', '=', 'style.product_id')
+            ->select('csn_item.id as item_id'
+                , 'product.title as title'
+                , 'style.title as spec'
+                , 'csn_item.num as qty'
+                , 'csn_item.price as price'
+                , DB::raw('(csn_item.num * csn_item.price) as subtotal')
+                , 'csn_item.memo as memo'
+            )
+            ->where('csn_item.consignment_id', $consignment_id)
+            ->whereNull('csn_item.deleted_at')
+            ->get()->toArray();
+        return $consignment_item;
+    }
+
     //取得寄倉商品和原本對應的採購入庫單
     public static function getOriginInboundDataList($consignment_id = null) {
         //取得原對應採購單

@@ -6,7 +6,6 @@ use App\Helpers\ITTMSHttp;
 use App\Helpers\LogisticHTTP;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 
 class UserProjLogistics extends Model
@@ -81,4 +80,153 @@ class UserProjLogistics extends Model
         }
     }
 
+    //2.3.4. 取得倉庫列表 GET
+    public static function getDepot($user_token) {
+        if (false == isset($user_token)) {
+            return ['success' => 0, 'error_msg' => '無權限 api_token'];
+        }
+        try {
+            $http = Http::withToken($user_token);
+            $request = $http->get(env('LOGISTIC_URL') . '/api/user/depot/get');
+            $response = json_decode($request->body());
+            if ("0" == $response->status) {
+                return ['success' => 1, 'error_msg' => "", 'data' => $response->data];
+            } else {
+                return ['success' => 0, 'error_msg' => $response->message];
+            }
+        } catch (\Exception $e) {
+            return ['success' => 0, 'error_msg' => $e->getMessage()];
+        }
+    }
+
+    //2.3.5. 取得溫層列表 GET
+    public static function getTemp($user_token) {
+        if (false == isset($user_token)) {
+            return ['success' => 0, 'error_msg' => '無權限 api_token'];
+        }
+        try {
+            $http = Http::withToken($user_token);
+            $request = $http->get(env('LOGISTIC_URL') . '/api/user/temp/get');
+            $response = json_decode($request->body());
+            if ("0" == $response->status) {
+                return ['success' => 1, 'error_msg' => "", 'data' => $response->data];
+            } else {
+                return ['success' => 0,'error_msg' => $response->message];
+            }
+        } catch (\Exception $e) {
+            return ['success' => 0, 'error_msg' => $e->getMessage()];
+        }
+    }
+
+    //2.3.6. 取得積材列表 GET
+    public static function getDim($user_token, $temp_id) {
+        if (false == isset($user_token)) {
+            return ['success' => 0, 'error_msg' => '無權限 api_token'];
+        }
+        if (false == isset($temp_id)) {
+            return ['success' => 0, 'error_msg' => '無temp_id'];
+        }
+        try {
+            $http = Http::withToken($user_token);
+            $request = $http->get(env('LOGISTIC_URL') . '/api/user/temp/'. $temp_id.'/dim/get');
+            $response = json_decode($request->body());
+            if ("0" == $response->status) {
+                return ['success' => 1, 'error_msg' => "", 'data' => $response->data];
+            } else {
+                return ['success' => 0,'error_msg' => $response->message];
+            }
+        } catch (\Exception $e) {
+            return ['success' => 0, 'error_msg' => $e->getMessage()];
+        }
+    }
+
+    public static function createOrder($user_token
+        , $depot_id, $temp_id, $dim_id
+        , $rcv_name, $rcv_tel, $rcv_addr
+        , $order_no, $pickup_date
+        , $item = null
+        , $send_name, $send_tel, $send_addr
+    ) {
+        if (false == isset($user_token)) {
+            return ['success' => 0, 'error_msg' => '無權限 api_token'];
+        }
+        try {
+            $http = Http::withToken($user_token);
+            $req_arr = [
+                'depot_id' => $depot_id
+                , 'temp_id' => $temp_id
+                , 'dim_id' => $dim_id
+                , 'name' => $rcv_name
+                , 'tel' => $rcv_tel
+                , 'addr' => $rcv_addr
+                , 'order_no' => $order_no
+                , 'pickup_date' => $pickup_date
+
+                , 'send_name' => $send_name
+                , 'send_tel' => $send_tel
+                , 'send_addr' => $send_addr
+            ];
+            if (null != $item && true == is_array($item)) {
+                $req_arr['items'] = json_encode($item);
+            }
+            $request = $http->post(env('LOGISTIC_URL') . '/api/user/order/create', $req_arr);
+            $response = json_decode($request->body());
+            if ("0" == $response->status) {
+                return ['success' => 1, 'error_msg' => "", 'sn' => $response->sn];
+            } else {
+                return ['success' => 0,'error_msg' => $response->message];
+            }
+        } catch (\Exception $e) {
+            return ['success' => 0, 'error_msg' => $e->getMessage()];
+        }
+    }
+
+    public static function isEnableDel($user_token, $sn) {
+        if (false == isset($user_token)) {
+            return ['success' => 0, 'error_msg' => '無權限 api_token'];
+        }
+        if (false == isset($sn)) {
+            return ['success' => 0, 'error_msg' => '無sn'];
+        }
+        try {
+            $http = Http::withToken($user_token);
+            $request = $http->post(env('LOGISTIC_URL') . '/api/user/order/is-enable-del', [
+                'sn' => $sn
+            ]);
+            $response = json_decode($request->body());
+            if ("0" == $response->status) {
+                if ("true" == $response->data) {
+                    return ['success' => 1, 'error_msg' => ""];
+                } else {
+                    return ['success' => 0,'error_msg' => '無法刪除託運單'];
+                }
+            } else {
+                return ['success' => 0,'error_msg' => $response->message];
+            }
+        } catch (\Exception $e) {
+            return ['success' => 0, 'error_msg' => $e->getMessage()];
+        }
+    }
+
+    public static function delSn($user_token, $sn) {
+        $isEnable = self::isEnableDel($user_token, $sn);
+        if ($isEnable['success'] == 0) {
+            return $isEnable;
+        } else {
+            try {
+                $http = Http::withToken($user_token);
+                $request = $http->post(env('LOGISTIC_URL') . '/api/user/order/del', [
+                    'sn' => $sn
+                ]);
+                $response = json_decode($request->body());
+                if ("0" == $response->status) {
+                    return ['success' => 1, 'error_msg' => ""];
+                } else {
+                    return ['success' => 0,'error_msg' => $response->message];
+                }
+            } catch (\Exception $e) {
+                return ['success' => 0, 'error_msg' => $e->getMessage()];
+            }
+        }
+    }
 }
