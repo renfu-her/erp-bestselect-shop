@@ -436,6 +436,7 @@ class Order extends Model
 
             CustomerDividend::fromOrder($customer->id, $order_sn, $order['get_dividend']);
             // CustomerDividend::activeDividend(DividendCategory::Order(), $order_sn);
+            CustomerCoupon::activeCoupon($order_id);
 
             return ['success' => '1', 'order_id' => $order_id];
         });
