@@ -4,10 +4,15 @@
     <fieldset class="col-12 mb-2">
         <div class="p-2 border rounded">
             @if (!$receivable)
-                <a href="{{ Route('cms.ar.create', ['id' => $order->id]) }}" class="btn btn-danger" role="button">新增收款單（暫放）</a>
+                <a href="{{ Route('cms.ar.create', ['id' => $order->id]) }}" class="btn btn-primary" role="button">新增收款單</a>
             @endif
 
-            @if ($received_order_data || ! in_array($order->status, ['建立']))
+            @if ($received_order_data || !in_array($order->status, ['建立']))
+                {{--
+                @if (!$receivable)
+                    <a href="javascript:void(0)" role="button" data-bs-toggle="modal" data-bs-target="#confirm-delete" data-href="{{ Route('cms.ar.delete', ['id' => $received_order_data->id], true) }}" class="btn btn-danger">刪除收款單</a>
+                @endif
+                --}}
                 @if ( ($receivable || in_array($order->status, ['已付款', '已入款'])) && $received_credit_card_log )
                     <a href="{{ Route('api.web.order.credit_card_checkout', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}" class="btn btn-primary" role="button" target="_blank">線上刷卡連結</a>
                 @else
@@ -15,6 +20,14 @@
                 @endif
             @else
                 <a href="{{ Route('api.web.order.payment_credit_card', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}" class="btn btn-primary" role="button" target="_blank">線上刷卡連結</a>
+            @endif
+
+            @if ($received_order_data)
+                @if(!in_array($order->status, ['已入款']))
+                    <a href="javascript:void(0)" role="button" data-bs-toggle="modal" data-bs-target="#confirm-delete" data-href="{{ Route('cms.ar.delete', ['id' => $received_order_data->id], true) }}" class="btn btn-danger">刪除收款單</a>
+                @else
+                    <button type="button" class="btn btn-danger" disabled>刪除收款單</button>
+                @endif
             @endif
 
             <a href="#" role="button" class="btn btn-success">訂單完成（暫放）</a>
@@ -468,6 +481,15 @@
             </div>
         </div>
     </form>
+
+    <!-- Modal -->
+    <x-b-modal id="confirm-delete">
+        <x-slot name="title">刪除確認</x-slot>
+        <x-slot name="body">確認要刪除此收款單？</x-slot>
+        <x-slot name="foot">
+            <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
+        </x-slot>
+    </x-b-modal>
 @endsection
 @once
     @push('sub-styles')
@@ -486,6 +508,12 @@
                 let url = $(this).prev().val();
                 $('#form1').attr('action', url).submit();
             });
+
+            // Modal Control
+            $('#confirm-delete').on('show.bs.modal', function(e) {
+                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+            });
+
 
             const changeAutoUrl = @json(route('api.cms.order.change-auto-dividend'));
             const activePointUrl = @json(route('api.cms.order.active-dividend'));

@@ -455,7 +455,8 @@ class Order extends Model
     }
 
 
-    public static function change_order_payment_status($order_id, PaymentStatus $p_status = null, ReceivedMethod $r_method = null)
+    // public static function change_order_payment_status($order_id, PaymentStatus $p_status = null, ReceivedMethod $r_method = null)
+    public static function change_order_payment_status($order_id, PaymentStatus $p_status = null, $r_method = null)
     {
         $target = self::where('id', $order_id);
 

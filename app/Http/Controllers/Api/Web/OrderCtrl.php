@@ -163,8 +163,7 @@ class OrderCtrl extends Controller
         $log = OrderPayCreditCard::where([
             'order_id'=>$id,
             'status'=>0,
-        ])->first();
-
+        ])->orderBy('created_at', 'DESC')->first();
         if($received_order_collection->first() && !$log){
             return abort(404);
         }

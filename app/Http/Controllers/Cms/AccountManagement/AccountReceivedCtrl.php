@@ -723,4 +723,21 @@ class AccountReceivedCtrl extends Controller
             }
         }
     }
+
+
+    public function destroy($id)
+    {
+        $target = ReceivedOrder::where('id', $id)->first();
+        if($target){
+            $target->delete();
+            OrderFlow::changeOrderStatus($target->order_id, OrderStatus::Add());
+            $r_method['value'] = '';
+            $r_method['description'] = '';
+            Order::change_order_payment_status($target->order_id, PaymentStatus::Unpaid(), (object) $r_method);
+            wToast('刪除完成');
+        } else {
+            wToast('刪除失敗');
+        }
+        return redirect()->back();
+    }
 }
