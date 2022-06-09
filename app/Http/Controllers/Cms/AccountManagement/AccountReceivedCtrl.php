@@ -727,9 +727,8 @@ class AccountReceivedCtrl extends Controller
 
     public function destroy($id)
     {
-        $target = ReceivedOrder::where('id', $id)->first();
+        $target = ReceivedOrder::delete_received_order($id);
         if($target){
-            $target->delete();
             OrderFlow::changeOrderStatus($target->order_id, OrderStatus::Add());
             $r_method['value'] = '';
             $r_method['description'] = '';
