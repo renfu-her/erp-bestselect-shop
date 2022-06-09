@@ -40,6 +40,8 @@ Route::group(['prefix' => 'customer', 'as' => 'customer.'], function () {
 
 Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => ['auth:sanctum', 'identity.api.customer']], function () {
     Route::get('/info', [CustomerCtrl::class, 'customerInfo'])->name('customer_info');
+    Route::post('/update-info', [CustomerCtrl::class, 'updateCustomerInfo'])->name('update_customer_info');
+
     Route::get('/address-list', [CustomerCtrl::class, 'customerAddress'])->name('customer_address');
     Route::post('/delete-address', [CustomerCtrl::class, 'deleteAddress'])->name('delete_address');
     Route::post('/edit-address', [CustomerCtrl::class, 'editAddress'])->name('edit_address');

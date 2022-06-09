@@ -115,6 +115,60 @@ class CustomerCtrl extends Controller
 
     /**
      * @param  Request  $request
+     * 更新客戶資訊
+     * @return
+     */
+    function updateCustomerInfo(Request $request)
+    {
+        $customerId = $request->user()->id;
+        $validator = Validator::make($request->all(), [
+            'email' => [
+                'required',
+                Rule::unique('usr_customers', 'email')->ignore($customerId),
+            ],
+            'name' => ['required', 'string'],
+            'phone' => ['nullable', 'string'],
+            'birthday' => ['nullable', 'date_format:"Y-m-d"'],
+            'sex' => ['nullable', 'integer', 'min:0', 'max:1'],
+            'newsletter' => ['required', 'integer', 'min:0', 'max:1'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                ResponseParam::status => ApiStatusMessage::Fail,
+                ResponseParam::msg => $validator->errors(),
+                ResponseParam::data => [],
+            ]);
+        }
+
+        $data = $request->only(
+            'email',
+            'name',
+            'phone',
+            'birthday',
+            'sex',
+            'newsletter',
+        );
+
+        DB::table('usr_customers')
+            ->where('id', '=', $customerId)
+            ->update([
+                'email' => $data['email'],
+                'name' => $data['name'],
+                'phone' => $data['phone'] ?? '',
+                'birthday' => $data['birthday'] ?? null,
+                'sex' => $data['sex'] ?? null,
+                'newsletter' => $data['newsletter'],
+            ]);
+
+        return response()->json([
+            ResponseParam::status => ApiStatusMessage::Succeed,
+            ResponseParam::msg    => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
+            ResponseParam::data   => [],
+        ]);
+    }
+    /**
+     * @param  Request  $request
      * 消費者收件地址API
      * @return
      */
