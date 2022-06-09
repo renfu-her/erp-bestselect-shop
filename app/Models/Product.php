@@ -474,6 +474,7 @@ class Product extends Model
             ->where('p.sale_channel_id', $sale_channel_id)
             ->whereNull('s.deleted_at')
             ->whereNotNull('s.sku')
+            ->where('s.is_active','1')
             ->select('s.product_id')
             ->selectRaw($concatString . ' as styles')
             ->groupBy('s.product_id');
@@ -509,6 +510,7 @@ class Product extends Model
             ->mergeBindings($styleQuery)
             ->mergeBindings($imgQuery)
             ->where('sku', $sku)
+          // ->where('s.is_active','1')
             ->whereNull('p.deleted_at')
             ->whereNotNull('s.styles')
             ->where(function ($query) {

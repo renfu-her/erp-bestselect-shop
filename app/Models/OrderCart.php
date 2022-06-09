@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Enums\Discount\DisCategory;
 use App\Enums\Discount\DisMethod;
-use App\Enums\Discount\DisStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -119,11 +118,9 @@ class OrderCart extends Model
                                 'error_stauts' => 'shipment',
                             ];
                             //  return ['success' => 0, 'error_msg' => '無運送方式(自取)', 'event' => 'product', 'event_id' => $value['product_style_id']];
-                        }else{
+                        } else {
                             $shipment->category_name = "自取";
                         }
-
-                        
 
                         break;
                     case 'deliver':
@@ -135,11 +132,10 @@ class OrderCart extends Model
                                 'error_stauts' => 'shipment',
                             ];
                             //  return ['success' => 0, 'error_msg' => '無運送方式(宅配)', 'event' => 'product', 'event_id' => $value['product_style_id']];
-                        }else{
+                        } else {
                             $shipment->rules = json_decode($shipment->rules);
                         }
-                        
-                       
+
                         break;
                     default:
                         $errors[$value['product_style_id']][] = [
@@ -225,13 +221,15 @@ class OrderCart extends Model
                     break;
                 case DisCategory::coupon():
                     if ($customer) {
-                        $currentCoupon = CustomerCoupon::getList($customer->id, 0, DisStatus::D01())
-                            ->where('discount.id', $coupon_obj[1])->get()->first();
+                       
+                        $currentCoupon = CustomerCoupon::getCouponByCustomerCouponId($coupon_obj[1])->get()->first();
 
-                        $currentCoupon->user_coupon_id = $coupon_obj[1];
                         if (!$currentCoupon) {
                             return ['success' => 0, 'error_msg' => "查無優惠券", 'event' => 'coupon'];
                         }
+
+                        $currentCoupon->user_coupon_id = $coupon_obj[1];
+
                     }
                     break;
             }
@@ -249,7 +247,7 @@ class OrderCart extends Model
         if ($re['success'] == '0') {
             return $re;
         }
-        
+
         self::getDividendStage($order, $_tempProducts);
         self::shipmentStage($order);
 
