@@ -972,7 +972,7 @@ class Product extends Model
                 $join->on('product_style.product_id', '=', 'prd.id')
                     ->where('product_style.is_active', '=', 1);
             })
-            ->leftJoin('prd_salechannel_style_
+            ->leftJoin('prd_salechannel_style_price
              as sale_channel', function ($join) use ($sale_channel) {
                 $join->on('sale_channel.style_id', '=', 'product_style.id')
                     ->where('sale_channel.sale_channel_id', '=', $sale_channel->sale_channel_id);
