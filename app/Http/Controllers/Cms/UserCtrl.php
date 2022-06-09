@@ -67,6 +67,7 @@ class UserCtrl extends Controller
         ]);
 
         $uData = $request->only('account', 'name', 'password');
+        $lgt_user = $request->input('lgt_user');
 
         $permission_id = [];
         $role_id = [];
@@ -88,8 +89,8 @@ class UserCtrl extends Controller
             $role_id,
         );
 
-        $lgt_user = $request->input('lgt_user');
-        $modifyLogisticUser = UserProjLogistics::modifyLogisticUser($request->user()->id, $user, ['user' => $lgt_user]);
+        $logisticApiToken = User::getLogisticApiToken($request->user()->id);
+        $modifyLogisticUser = UserProjLogistics::modifyLogisticUser($logisticApiToken->user_token, $user, ['user' => $lgt_user]);
         if ($modifyLogisticUser['success'] == 0) {
             throw ValidationException::withMessages([$modifyLogisticUser['error_key'] => $modifyLogisticUser['error_msg']]);
         }
@@ -123,7 +124,7 @@ class UserCtrl extends Controller
         if (!$data) {
             return abort(404);
         }
-        $user_lgt = User::getLogisticUserIsOpen($id)->get()->first();
+        $user_lgt = User::getLogisticUserIsOpen($id);
 
         $role_ids = Role::getUserRoles($id, 'user', function ($arr) {
             return array_map(function ($n) {
@@ -179,7 +180,8 @@ class UserCtrl extends Controller
         }
         $lgt_user = $request->input('lgt_user');
 
-        $modifyLogisticUser = UserProjLogistics::modifyLogisticUser($request->user()->id, $id, ['user' => $lgt_user]);
+        $logisticApiToken = User::getLogisticApiToken($request->user()->id);
+        $modifyLogisticUser = UserProjLogistics::modifyLogisticUser($logisticApiToken->user_token, $id, ['user' => $lgt_user]);
         if ($modifyLogisticUser['success'] == 0) {
             throw ValidationException::withMessages([$modifyLogisticUser['error_key'] => $modifyLogisticUser['error_msg']]);
         }
