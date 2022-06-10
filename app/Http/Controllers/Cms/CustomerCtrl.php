@@ -220,6 +220,18 @@ class CustomerCtrl extends Controller
     }
 
     /**
+     * @param  Request  $request
+     * 我的鴻利
+     * @return void
+     */
+    public function dividend(Request $request, $id)
+    {
+        return view('cms.admin.customer.dividend', [
+            'customer' => $id,
+        ]);
+    }
+
+    /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
