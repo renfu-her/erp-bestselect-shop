@@ -16,7 +16,7 @@
         <a href="#" class="nav-link ">推薦註冊</a>
     </li>
     <li class="nav-item">
-        <a href="{{ Route('cms.customer.edit', ['id' => $customer], true) }}"
+        <a href="{{ Route('cms.customer.address', ['id' => $customer], true) }}"
            class="nav-link {{ isActive('address', $route_name) }}">收件地址管理</a>
     </li>
     <li class="nav-item">
