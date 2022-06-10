@@ -53,7 +53,7 @@ class CustomerDividend extends Model
         return $id;
     }
 
-    public static function activeDividend(DividendCategory $category, $category_sn, $expired = 0)
+    public static function activeDividend(DividendCategory $category, $category_sn, $manual = 0)
     {
         $dividend = self::where('category', $category)
             ->where('category_sn', $category_sn)
@@ -79,10 +79,7 @@ class CustomerDividend extends Model
             $edate = date('Y-m-d 23:59:59', strtotime(now() . ' + 50 years'));
         }
 
-        if ($expired == 1) {
-            $sdate = date('Y-m-d 23:59:59', strtotime(now() . ' - 30 days'));
-            $edate = date('Y-m-d 23:59:59', strtotime(now() . ' - 10 days'));
-        }
+    
 
         //   print_r($sdate);
 

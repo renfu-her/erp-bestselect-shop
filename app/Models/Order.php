@@ -3,17 +3,15 @@
 namespace App\Models;
 
 use App\Enums\Delivery\Event;
-use App\Enums\Discount\DisCategory;
-use App\Enums\Discount\DisMethod;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Order\PaymentStatus;
 use App\Enums\Order\UserAddrType;
 use App\Enums\Received\ReceivedMethod;
+use App\Models\CustomerDividend;
+use App\Models\OrderCart;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use App\Models\OrderCart;
-use App\Models\CustomerDividend;
 
 class Order extends Model
 {
@@ -22,9 +20,9 @@ class Order extends Model
     protected $guarded = [];
 
     public static function orderList($keyword = null,
-                                     $order_status = null,
-                                     $sale_channel_id = null,
-                                     $order_date = null) {
+        $order_status = null,
+        $sale_channel_id = null,
+        $order_date = null) {
         $order = DB::table('ord_orders as order')
             ->select(['order.id as id',
                 'order.status as order_status',
@@ -158,7 +156,7 @@ class Order extends Model
             'product_style_id' => 'dlv_consum.product_style_id',
             'sku' => 'dlv_consum.sku',
             'product_title' => 'dlv_consum.product_title',
-            'qty' => 'dlv_consum.qty',]);
+            'qty' => 'dlv_consum.qty']);
 
         $itemConsumeQuery = DB::table('dlv_logistic')
             ->leftJoin('dlv_consum', 'dlv_consum.logistic_id', '=', 'dlv_logistic.id')
@@ -224,7 +222,7 @@ class Order extends Model
             $orderQuery->where('sub_order.id', $sub_order_id);
         }
 
-        if($get_paying){
+        if ($get_paying) {
             $orderQuery->leftJoin('pcs_paying_orders as po', function ($join) {
                 $join->on('po.source_id', '=', 'sub_order.order_id');
                 $join->where([
@@ -234,7 +232,7 @@ class Order extends Model
                     'po.deleted_at' => null,
                 ]);
             })
-                // ->selectRaw("('" . app(Order::class)->getTable() . "') as payable_source_type")
+            // ->selectRaw("('" . app(Order::class)->getTable() . "') as payable_source_type")
                 ->selectRaw("IF(po.sn IS NULL, NULL, po.sn) as payable_sn")
                 ->selectRaw("IF(po.balance_date IS NULL, NULL, po.balance_date) as payable_balance_date");
         }
@@ -297,14 +295,16 @@ class Order extends Model
             }
 
             $order_sn = "O" . date("Ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
-                        ->get()
-                        ->count()) + 1, 4, '0', STR_PAD_LEFT);
+                    ->get()
+                    ->count()) + 1, 4, '0', STR_PAD_LEFT);
 
             $dividend_re = CustomerDividend::orderDiscount($customer->id, $order_sn, $order['use_dividend']);
             if ($dividend_re['success'] != '1') {
                 DB::rollBack();
                 return $dividend_re;
             }
+
+            $dividendSetting = DividendSetting::getData();
 
             $updateData = [
                 "sn" => $order_sn,
@@ -319,7 +319,8 @@ class Order extends Model
                 'unique_id' => self::generate_unique_id(),
                 'payment_status' => PaymentStatus::Unpaid()->value,
                 'payment_status_title' => PaymentStatus::Unpaid()->description,
-                'dividend_lifecycle' => DividendSetting::getData()->limit_day,
+                'dividend_lifecycle' => $dividendSetting->limit_day,
+                'active_delay_day' => $dividendSetting->auto_active_day,
             ];
 
             if ($payment) {
@@ -354,8 +355,8 @@ class Order extends Model
             //   dd($order);
             foreach ($order['shipments'] as $value) {
                 $sub_order_sn = $order_sn . "-" . str_pad((DB::table('ord_sub_orders')->where('order_id', $order_id)
-                            ->get()
-                            ->count()) + 1, 2, '0', STR_PAD_LEFT);
+                        ->get()
+                        ->count()) + 1, 2, '0', STR_PAD_LEFT);
 
                 $insertData = [
                     'order_id' => $order_id,
@@ -436,25 +437,23 @@ class Order extends Model
 
             CustomerDividend::fromOrder($customer->id, $order_sn, $order['get_dividend']);
             // CustomerDividend::activeDividend(DividendCategory::Order(), $order_sn);
-            CustomerCoupon::activeCoupon($order_id);
+            //  CustomerCoupon::activeCoupon($order_id);
 
             return ['success' => '1', 'order_id' => $order_id];
         });
 
     }
 
-
     public static function generate_unique_id()
     {
-        $unique_id = substr(base_convert(sha1(uniqid(mt_rand())), 16, 36), 0, 9);// return 9 characters
+        $unique_id = substr(base_convert(sha1(uniqid(mt_rand())), 16, 36), 0, 9); // return 9 characters
 
-        if(self::where('unique_id', $unique_id)->first()){
+        if (self::where('unique_id', $unique_id)->first()) {
             return self::generate_unique_id();
         } else {
             return $unique_id;
         }
     }
-
 
     // public static function change_order_payment_status($order_id, PaymentStatus $p_status = null, ReceivedMethod $r_method = null)
     public static function change_order_payment_status($order_id, PaymentStatus $p_status = null, $r_method = null)
@@ -476,4 +475,3 @@ class Order extends Model
         }
     }
 }
-

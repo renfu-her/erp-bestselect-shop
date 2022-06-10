@@ -36,7 +36,7 @@ class CustomerCoupon extends Model
 
     }
 
-    public static function activeCoupon($order_id)
+    public static function activeCoupon($order_id, $manual = 0)
     {
         $counpons = self::where('from_order_id', $order_id)
             ->whereNull('active_sdate')
