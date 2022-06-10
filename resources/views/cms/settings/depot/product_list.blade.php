@@ -1,11 +1,6 @@
 @extends('layouts.main')
 
 @section('sub-content')
-    <div class="pt-2 mb-3">
-        {{-- <button type="button" class="btn btn-primary" onclick="history.go(-1)"><i class="bi bi-arrow-left"></i> 返回上一頁</button> --}}
-        <a href="{{ Route('cms.depot.index') }}" class="btn btn-primary" role="button"><i class="bi bi-arrow-left"></i> 返回上一頁</a>
-    </div>
-
     <h2 class="mb-4">寄倉選品</h2>
 
     <div class="card shadow p-4 mb-4">
@@ -33,14 +28,14 @@
         <div class="row justify-content-end mb-4">
             <div class="col">
                 @can('cms.depot.product-create')
-                <a href="{{ Route('cms.depot.product-create', ['id' => $depot->id], true) }}" class="btn btn-primary" role="button">
-                    <i class="bi bi-plus-lg"></i> 選品
+                <a href="{{ Route('cms.depot.product-create', ['id' => $depot->id], true) }}" class="btn btn-success" role="button">
+                    <i class="bi bi-inboxes-fill"></i> 選品
                 </a>
                 @endcan
 
                 @can('cms.depot.product-edit')
                 <a href="{{ Route('cms.depot.product-edit', ['id' => $depot->id], true) }}" class="btn btn-primary" role="button">
-                    <i class="bi bi-plus-lg"></i> 修改
+                    <i class="bi bi-pencil-square"></i> 修改
                 </a>
                 @endcan
             </div>
@@ -91,6 +86,13 @@
                 {{-- 頁碼 --}}
                 <div class="d-flex justify-content-center">{{ $dataList->links() }}</div>
             @endif
+        </div>
+    </div>
+    
+    <div>
+        <div class="col-auto">
+            <a href="{{ Route('cms.depot.index') }}"
+                class="btn btn-outline-primary px-4" role="button">返回列表</a>
         </div>
     </div>
 @endsection
