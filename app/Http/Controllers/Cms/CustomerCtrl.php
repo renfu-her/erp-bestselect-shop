@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Addr;
 use App\Models\Customer;
 use App\Models\CustomerAddress;
+use App\Models\CustomerDividend;
 use App\Models\CustomerLogin;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -226,8 +227,15 @@ class CustomerCtrl extends Controller
      */
     public function dividend(Request $request, $id)
     {
+        $dividend = CustomerDividend::getDividend($id)->get()->first()->dividend;
+        $typeGet = CustomerDividend::getList($id, 'get')->get();
+        $typeUsed = CustomerDividend::getList($id, 'used')->get();
+
         return view('cms.admin.customer.dividend', [
             'customer' => $id,
+            'dividend' => $dividend,
+            'get_record' => $typeGet,
+            'use_record' => $typeUsed,
         ]);
     }
 
