@@ -503,7 +503,7 @@ class OrderCart extends Model
 
             } else {
                 return ['success' => '0',
-                    'error_msg' => '超過紅利折抵額度',
+                    'error_msg' => '超過鴻利折抵額度',
                     'error_stauts' => 'dividend'];
             }
         }

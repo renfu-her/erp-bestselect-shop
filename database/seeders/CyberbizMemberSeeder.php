@@ -19,7 +19,7 @@ class CyberbizMemberSeeder extends Seeder
     const MOBILE = 3;
     const BIRTH = 4;
     const GENDER = 5;
-    //剩餘紅利點數
+    //剩餘鴻利點數
     const COUPON = 8;
     const PHONE = 11;
     const ADDRESS = 14;

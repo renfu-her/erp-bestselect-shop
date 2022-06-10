@@ -124,7 +124,7 @@
                 <h6>消費記錄</h6>
                 <dl class="row">
 {{--                    <div class="col">--}}
-{{--                        <dt>剩餘紅利點數</dt>--}}
+{{--                        <dt>剩餘鴻利點數</dt>--}}
 {{--                        <dd>{{ number_format($data->bonus ?? '') }}</dd>--}}
 {{--                    </div>--}}
                     <div class="col">
