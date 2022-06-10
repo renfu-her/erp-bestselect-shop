@@ -67,6 +67,7 @@ class UserCtrl extends Controller
         ]);
 
         $uData = $request->only('account', 'name', 'password');
+        $lgt_user = $request->input('lgt_user');
 
         $permission_id = [];
         $role_id = [];
@@ -88,10 +89,10 @@ class UserCtrl extends Controller
             $role_id,
         );
 
-        $lgt_user = $request->input('lgt_user');
-        $modifyLogisticUser = UserProjLogistics::modifyLogisticUser($request->user()->id, $user, ['user' => $lgt_user]);
+        $logisticUserApiToken = User::getLogisticApiToken($request->user()->id)->user_token;
+        $modifyLogisticUser = UserProjLogistics::modifyLogisticUser($logisticUserApiToken, $user, ['user' => $lgt_user]);
         if ($modifyLogisticUser['success'] == 0) {
-            throw ValidationException::withMessages([$modifyLogisticUser['error_key'] => $modifyLogisticUser['error_msg']]);
+            throw ValidationException::withMessages(['lgt_user' => $modifyLogisticUser['error_msg']]);
         }
 
         wToast('新增完成');
@@ -123,7 +124,7 @@ class UserCtrl extends Controller
         if (!$data) {
             return abort(404);
         }
-        $user_lgt = User::getLogisticUserIsOpen($id)->get()->first();
+        $user_lgt = User::getLogisticUserIsOpen($id);
 
         $role_ids = Role::getUserRoles($id, 'user', function ($arr) {
             return array_map(function ($n) {
@@ -179,9 +180,10 @@ class UserCtrl extends Controller
         }
         $lgt_user = $request->input('lgt_user');
 
-        $modifyLogisticUser = UserProjLogistics::modifyLogisticUser($request->user()->id, $id, ['user' => $lgt_user]);
+        $logisticUserApiToken = User::getLogisticApiToken($request->user()->id)->user_token;
+        $modifyLogisticUser = UserProjLogistics::modifyLogisticUser($logisticUserApiToken, $id, ['user' => $lgt_user]);
         if ($modifyLogisticUser['success'] == 0) {
-            throw ValidationException::withMessages([$modifyLogisticUser['error_key'] => $modifyLogisticUser['error_msg']]);
+            throw ValidationException::withMessages(['lgt_user' => $modifyLogisticUser['error_msg']]);
         }
 
         User::where('id', $id)->update($userData);

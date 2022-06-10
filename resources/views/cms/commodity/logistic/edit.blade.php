@@ -163,6 +163,117 @@
         @endif
     </div>
 
+    @if($event != \App\Enums\Delivery\Event::csn_order()->value)
+        @if(isset($logistic->projlgt_order_sn))
+            <div class="card shadow p-4 mb-4">
+                <h6>託運單資訊</h6>
+                <div class="col-12 mb-3">
+                    <div class="form-control" readonly>
+                        <button type="button" class="btn btn-link btn-sm px-4"
+                                data-bs-toggle="modal" data-bs-target="#confirm-del-logistic-order">{{$logistic->projlgt_order_sn ?? ''}} 刪除託運單</button>
+                    </div>
+                    @error('sn')
+                    <div class="alert alert-danger mt-3">
+                        {{ $message }}
+                    </div>
+                    @enderror
+                </div>
+            </div>
+        @elseif(isset($depots) && isset($temps) && isset($dims))
+            <div class="card shadow p-4 mb-4">
+                <h6>託運單資訊</h6>
+                <div class="col-12 mb-3">
+                    <form id="form_store" action="{{ Route('cms.logistic.createLogisticOrder', [], true) }}" method="post">
+                        @method('POST')
+                        @csrf
+                        <h7>新增託運單</h7>
+                        <div class="row">
+                            <div>
+                                <fieldset class="col-12 col-sm-6 mb-3">
+                                    <legend class="col-form-label p-0 mb-2">寄件人 <span class="text-danger">*</span></legend>
+                                    <div class="px-1 pt-1">
+                                        <div class="form-check form-check-inline @error('is_true_sender')is-invalid @enderror">
+                                            <label class="form-check-label">
+                                                <input class="form-check-input @error('is_true_sender')is-invalid @enderror" name="is_true_sender"
+                                                       value="0" type="radio" required>
+                                                喜鴻國際
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline @error('is_true_sender')is-invalid @enderror">
+                                            <label class="form-check-label">
+                                                <input class="form-check-input @error('is_true_sender')is-invalid @enderror" name="is_true_sender"
+                                                       value="1" type="radio" required>
+                                                {{$send_name ?? '真實寄件人'}}
+                                            </label>
+                                        </div>
+                                        @error('is_true_sender')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label">倉庫 <span class="text-danger">*</span></label>
+                                <select name="depot_id" class="-select2 -single form-select" required data-placeholder="請單選">
+                                    <option value="" selected disabled>請選擇</option>
+                                    @foreach ($depots as $depot)
+                                        <option value="{{ $depot->id }}">{{ $depot->title }}</option>
+                                    @endforeach
+                                </select>
+                                @error('depot_id')
+                                <div class="alert alert-danger mt-3">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label">溫層 <span class="text-danger">*</span></label>
+                                <select name="temp_id" class="-select2 -single form-select" required data-placeholder="請單選">
+                                    <option value="" selected disabled>請選擇</option>
+                                    @foreach ($temps as $temp)
+                                        <option value="{{ $temp->id }}">{{ $temp->title }}</option>
+                                    @endforeach
+                                </select>
+                                @error('temp_id')
+                                <div class="alert alert-danger mt-3">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label">溫層 <span class="text-danger">*</span></label>
+                                <select name="dim_id" class="-select2 -single form-select" required data-placeholder="請單選">
+                                    <option value="" selected disabled>請選擇</option>
+                                    @foreach ($dims as $dim)
+                                        <option value="{{ $dim->id }}">{{ $dim->volume }} x {{ $dim->weight }}</option>
+                                    @endforeach
+                                </select>
+                                @error('dim_id')
+                                <div class="alert alert-danger mt-3">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-12 col-md-6 mb-3">
+                                <label class="form-label">取件日期</label>
+                                <input type="date" id="pickup_date" name="pickup_date" value=""
+                                       class="form-control" aria-label="取件日期" required/>
+                            </div>
+                            @error('pickup_date')
+                            <div class="alert alert-danger mt-3">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col">
+                            <input type="hidden" name="delivery_id" value="{{ $delivery->id }}">
+                            <input type="hidden" name="logistic_id" value="{{ $logistic->id }}">
+                            <input type="hidden" name="event" value="{{ $delivery->event }}">
+                            <input type="hidden" name="event_id" value="{{ $delivery->event_id }}">
+                            <button type="submit" class="btn btn-primary px-4">儲存</button>
+                            @error('createOrder')
+                            <div class="alert alert-danger mt-3">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </form>
+                </div>
+            </div>
+        @endif
+    @endif
+
     <div>
         <div class="col-auto">
             <a href="{{ $returnAction }}"
@@ -290,6 +401,27 @@
         </div>
     </div>
 @endif
+
+    <x-b-modal id="confirm-del-logistic-order">
+        <x-slot name="title">刪除委託單確認</x-slot>
+        <x-slot name="body">確認刪除委託單？</x-slot>
+        <x-slot name="foot">
+            <form id="formDelLogisticOrder" method="post" action="{{ $DelLogisticOrderAction }}">
+                @method('POST')
+                @csrf
+                <input type="hidden" name="event" value="{{$delivery->event}}">
+                <input type="hidden" name="event_id" value="{{$delivery->event_id}}">
+                <input type="hidden" name="logistic_id" value="{{$logistic->id}}">
+                <input type="hidden" name="sn" value="{{$logistic->projlgt_order_sn}}">
+                <button type="submit" class="btn btn-primary">確認刪除</button>
+            </form>
+            <form action="{{ Route('cms.logistic.auditInbound', [], true) }}" method="post">
+                @method('POST')
+                @csrf
+                <input type="hidden" name="logistic_id" value="{{ $logistic->id }}">
+            </form>
+        </x-slot>
+    </x-b-modal>
 @endsection
 @once
     @push('sub-scripts')

@@ -94,7 +94,7 @@ class OrderCtrl extends Controller
      */
     public function create(Request $request)
     {
-
+        // Order::assign_dividend_active_date(35);
         //   dd(Discount::checkCode('fkfk',[1,2,4]));
         $query = $request->query();
         $cart = null;
@@ -143,7 +143,7 @@ class OrderCtrl extends Controller
         }
 
         $citys = Addr::getCitys();
-        $customers = DB::table('usr_customers')
+        $defaultAddress = DB::table('usr_customers')
             ->where('usr_customers.id', '=', $customer_id)
             ->leftJoin('usr_customers_address', 'usr_customers.id', '=', 'usr_customers_address.usr_customers_id_fk')
             ->where('is_default_addr', '=', 1)
@@ -161,7 +161,8 @@ class OrderCtrl extends Controller
         //    dd($citys);
         return view('cms.commodity.order.edit', [
             'customer_id' => $customer_id,
-            'customers' => $customers,
+            'customers' => Customer::where('id', $customer_id)->get(),
+            'defaultAddress' => $defaultAddress,
             'citys' => $citys,
             'cart' => $cart,
             'regions' => $regions,
