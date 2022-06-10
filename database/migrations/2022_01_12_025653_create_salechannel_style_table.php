@@ -28,7 +28,7 @@ class CreateSalechannelStyleTable extends Migration
             $table->integer('origin_price')->default(0)->comment('定價');
             $table->integer('price')->default(0)->comment('售價');         
             $table->integer('bonus')->default(0)->comment('獎金');
-            $table->integer('dividend')->default(0)->comment('紅利');
+            $table->integer('dividend')->default(0)->comment('鴻利');
 
             $table->unique(['style_id', 'sale_channel_id']);
         });

@@ -395,7 +395,7 @@ class AccountingSeeder extends Seeder
         $fourthGradeData = [
             '銷貨收入',
             '銷貨退回',
-            '紅利折扣',
+            '鴻利折扣',
             '優惠券折扣',
             '任選折扣',
             '銷貨折扣-蝦皮-蝦幣折抵',
@@ -628,7 +628,7 @@ class AccountingSeeder extends Seeder
         DB::table('acc_third_grade')->insertGetId([
             'code'            => '5229',
             'has_next_grade'  => 0,
-            'name'            => '紅利點數',
+            'name'            => '鴻利點數',
             'acc_income_statement_fk' => 4,
             'second_grade_fk' => $secondGradeId_6,
         ]);

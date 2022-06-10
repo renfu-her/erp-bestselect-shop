@@ -20,7 +20,7 @@
                         <th scope="col">通路名稱</th>
                         <th scope="col">庫存類型</th>
                         <th scope="col">銷售類型</th>
-                        <th scope="col">紅利點數</th>
+                        <th scope="col">鴻利點數</th>
                         <th scope="col">折扣</th>
                         <th scope="col" class="text-center">同步價格</th>
                         <th scope="col" class="text-center">編輯</th>
@@ -80,15 +80,15 @@
     </div>
     
     <div class="card shadow p-4 mb-4">
-        <h6>紅利點數設定</h6>
         <form action="{{ route('cms.sale_channel.update-dividend-setting') }}" method="post">
             @csrf
+            <h6>鴻利點數設定</h6>
             <div class="row g-1 align-items-center mb-4">
                 <div class="col-auto">
-                    <label class="col-form-label">每筆紅利有效天數：</label>
+                    <label class="col-form-label">每筆鴻利有效天數：</label>
                 </div>
                 <div class="col-auto">
-                    <input type="number" name="limit_day" value="{{ $dividend_setting->limit_day }}" class="form-control short-input text-center" aria-describedby="紅利有效天數">
+                    <input type="number" name="limit_day" value="{{ $dividend_setting->limit_day }}" class="form-control short-input text-center" aria-describedby="鴻利有效天數">
                 </div>
                 <div class="col-auto">
                     <label class="col-form-label">天</label>
@@ -97,14 +97,15 @@
                     <span class="form-text">（設 0 則為永久有效）</span>
                 </div>
             </div>
+            <h6>鴻利點數、優惠劵設定</h6>
             <div class="row g-1 align-items-center mb-4">
                 <div class="col-auto">
                     <label class="col-form-label">
-                        自動發放紅利天數：訂單的付款狀態為<span class="text-decoration-underline text-info">已入款</span>後
+                        自動發放天數：訂單的付款狀態為<span class="text-decoration-underline text-info">已入款</span>後
                     </label>
                 </div>
                 <div class="col-auto">
-                    <input type="number" name="auto_active_day" value="{{ $dividend_setting->auto_active_day }}" class="form-control short-input text-center" aria-describedby="自動發放紅利天數">
+                    <input type="number" name="auto_active_day" value="{{ $dividend_setting->auto_active_day }}" class="form-control short-input text-center" aria-describedby="自動發放鴻利天數">
                 </div>
                 <div class="col-auto">
                     <label class="col-form-label">天</label>

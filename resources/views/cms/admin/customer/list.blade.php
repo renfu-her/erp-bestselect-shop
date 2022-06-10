@@ -56,7 +56,7 @@
                                     <a href="{{ Route('cms.customer.address', ['id' => $data->id], true) }}"
                                        data-bs-toggle="tooltip" title="會員專區"
                                        class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                        <i class="bi bi-pencil-square"></i>
+                                       <i class="bi bi-person-rolodex"></i>
                                     </a>
                                 @endcan
                             </td>

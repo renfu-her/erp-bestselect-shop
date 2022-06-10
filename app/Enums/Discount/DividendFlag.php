@@ -37,7 +37,7 @@ final class DividendFlag extends Enum
                 $result = '失效';
                 break;
             case self::Discount:
-                $result = '紅利折抵';
+                $result = '鴻利折抵';
                 break;
             case self::Consume:
                 $result = '已兌換';

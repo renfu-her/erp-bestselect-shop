@@ -31,7 +31,7 @@
                             <th scope="col">庫存</th>
                             <th scope="col">安全庫存</th>
                             <!-- <th scope="col">庫存不足</th> -->
-                            <th scope="col">喜鴻紅利抵扣</th>
+                            <th scope="col">鴻利抵扣</th>
                         </tr>
                     </thead>
                     <tbody class="-appendClone">

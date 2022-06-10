@@ -394,11 +394,11 @@
                             <input class="form-check-input -auto-send" type="checkbox" name="" value=""
                                 @if ($order->auto_dividend == '1') checked @endif
                                 @if ($order->allotted_dividend) disabled @endif>
-                            紅利自動發放
+                            鴻利、優惠劵自動發放
                         </label>
                     </div>
                     @if ($order->allotted_dividend === 0)
-                        <button type="button" class="btn btn-sm btn-success -in-header -active-send" disabled>發放紅利</button>
+                        <button type="button" class="btn btn-sm btn-success -in-header -active-send" disabled>手動發放</button>
                     @endif
                 </div>
 
@@ -411,7 +411,7 @@
                                 <td class="col-2 lh-sm">折扣後 <br class="d-xxl-none">(不含運)</td>
                                 <td class="col-2">運費</td>
                                 <td class="col-2">總金額</td>
-                                <td class="col-2 lh-sm">預計獲得<a href="#" class="-text d-block d-xxl-inline">紅利積點</a></td>
+                                <td class="col-2 lh-sm">預計獲得<a href="#" class="-text d-block d-xxl-inline">鴻利積點</a></td>
                             </tr>
                             <tr>
                                 <td>${{ number_format($order->origin_price) }}</td>
@@ -453,7 +453,7 @@
                                 <td class="fw-bold text-end pe-4">${{ number_format($order->total_price) }}</td>
                             </tr>
                             <tr>
-                                <td class="col-7 table-light lh-sm">預計獲得<a href="#" class="-text">紅利積點</a></td>
+                                <td class="col-7 table-light lh-sm">預計獲得<a href="#" class="-text">鴻利點數</a></td>
                                 <td class="text-end pe-4">
                                     @if ($order->allotted_dividend)
                                         <span class="badge bg-success">已發</span>
@@ -533,9 +533,9 @@
                     if (result.data.status === '0') {
                         setAutoSend(active);
                         if (active) {
-                            toast.show('紅利改為自動發放');
+                            toast.show('鴻利改為自動發放');
                         } else {
-                            toast.show('紅利改為手動發放', {
+                            toast.show('鴻利改為手動發放', {
                                 type: 'warning'
                             });
                         }
@@ -564,7 +564,7 @@
                     }).then((result) => {
                         console.log(result.data);
                         if (result.data.status === '0') {
-                            toast.show('已發放紅利');
+                            toast.show('已發放鴻利');
                             $('.badge.bg-secondary').removeClass('bg-secondary')
                                 .addClass('bg-success').text('已發');
                         } else {

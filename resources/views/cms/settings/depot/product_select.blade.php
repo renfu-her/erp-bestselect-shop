@@ -29,29 +29,24 @@
             <div class="alert alert-danger mt-3">{!! implode('', $errors->all('<div>:message</div>')) !!}</div>
             @endif
 
-            <div class="row justify-content-end mb-4">
-                @if($method == 'edit')
-                    <div class="col">
-                        <div class="row">
-                            <div class="col-12 col-sm-4">
-                                <label class="form-label">加減價%
-                                    <mark class="fw-light small">
-                                        <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>寄倉售價 = 官網售價 + (官網售價 * 加減價%)
-                                    </mark>
-                                </label>
-
-                                <div class="input-group input-group-sm flex-nowrap">
-                                    <span class="input-group-text"><i class="bi bi-percent"></i></span>
-                                    <input class="form-control form-control-sm" type="text" id="pmp" placeholder="請輸入加減價%" value="3">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col mt-3">
-                            <button type="button" class="btn btn-primary px-4 cal_price">計算</button>
+            @if($method == 'edit')
+                <div class="row mb-3">
+                    <div class="col-auto">
+                        <label class="form-label">加減價%
+                            <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="寄倉售價 = 官網售價 + (官網售價 * 加減價%)"></i>
+                        </label>
+                        <div class="input-group flex-nowrap">
+                            <input class="form-control" type="text" id="pmp" placeholder="請輸入加減價%" value="3">
+                            <span class="input-group-text"><i class="bi bi-percent"></i></span>
                         </div>
                     </div>
-                @endif
+                    <div class="col-auto align-self-end">
+                        <button type="button" class="btn btn-primary px-4 cal_price">計算</button>
+                    </div>
+                </div>
+            @endif
 
+            <div class="row justify-content-end mb-4">
                 <div class="col-auto">
                     顯示
                     <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
@@ -62,9 +57,9 @@
                     筆
                 </div>
             </div>
-
+                
             <div class="table-responsive tableOverBox">
-                <table class="table table-hover tableList mb-0">
+                <table class="table table-hover tableList mb-1">
                     <thead>
                         <tr>
                             <th scope="col" class="text-center"><input class="form-check-input" type="checkbox" id="checkAll"></th>
@@ -133,7 +128,7 @@
 
         <div class="col-auto">
             <button type="submit" class="btn btn-primary px-4 submit" disabled="disabled">{{ $method == 'create' ? '儲存' : '更新' }}</button>
-            <a href="{{ Route('cms.depot.product-index', ['id' => $depot->id], true) }}" class="btn btn-outline-primary px-4" role="button">返回列表</a>
+            <a href="{{ Route('cms.depot.product-index', ['id' => $depot->id], true) }}" class="btn btn-outline-primary px-4" role="button">返回上一頁</a>
         </div>
     </form>
 

@@ -10,7 +10,7 @@
                     <label class="form-label">倉庫</label>
                     <select class="form-select" name="depot_id" aria-label="倉庫">
                         <option value="" @if ('' == $depot_id ?? '') selected @endif disabled>請選擇</option>
-                        <@foreach ($depotList as $key => $data)
+                        @foreach ($depotList as $key => $data)
                             <option value="{{ $data->id }}"
                                     @if ($data->id == $depot_id ?? '') selected @endif>{{ $data->name }}</option>
                         @endforeach
@@ -52,8 +52,8 @@
                     <thead>
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col" class="text-center">編輯</th>
                         <th scope="col">單號</th>
+                        <th scope="col" class="text-center">編輯</th>
                         <th scope="col">倉庫名稱</th>
                         <th scope="col">訂購人</th>
                         <th scope="col">訂購日期</th>
@@ -71,6 +71,7 @@
                         @foreach ($dataList as $key => $data)
                             <tr>
                                 <th scope="row">{{ $key + 1 }}</th>
+                                <td>{{ $data->sn }}</td>
                                 <td class="text-center">
                                     @can('admin.consignment-order.edit')
                                         <a href="{{ Route('cms.consignment-order.edit', ['id' => $data->id], true) }}"
@@ -80,7 +81,6 @@
                                         </a>
                                     @endcan
                                 </td>
-                                <td>{{ $data->sn }}</td>
                                 <td>{{ $data->depot_name }}</td>
                                 <td>{{ $data->create_user_name }}</td>
                                 <td>{{ $data->scheduled_date }}</td>

@@ -120,6 +120,7 @@
                     <tr>
                         <th scope="col" style="width:10%">#</th>
                         <th scope="col">寄倉單號</th>
+                        <th scope="col" class="text-center">編輯</th>
                         <th scope="col">寄倉出貨單號</th>
                         <th scope="col">採購入庫單號</th>
                         <th scope="col">商品名稱</th>
@@ -131,7 +132,6 @@
                         <th scope="col">出貨倉庫</th>
                         <th scope="col">入庫倉庫</th>
 
-                        <th scope="col" class="text-center">編輯</th>
                         <th scope="col" class="text-center">刪除</th>
                     </tr>
                     </thead>
@@ -141,6 +141,15 @@
                             <tr>
                                 <th scope="row">{{ $key + 1 }}</th>
                                 <td>{{ $data->consignment_sn }}</td>
+                                <td class="text-center">
+                                    @can('admin.consignment.edit')
+                                    <a href="{{ Route('cms.consignment.edit', ['id' => $data->consignment_id], true) }}"
+                                       data-bs-toggle="tooltip" title="編輯"
+                                       class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    @endcan
+                                </td>
                                 <td>{{ $data->dlv_sn }}</td>
                                 <td>{{ $data->origin_inbound_sn }}</td>
                                 <td>{{ $data->title }}</td>
@@ -152,15 +161,6 @@
                                 <td>{{ $data->send_depot_name }}</td>
                                 <td>{{ $data->receive_depot_name }}</td>
 
-                                <td class="text-center">
-                                    @can('admin.consignment.edit')
-                                    <a href="{{ Route('cms.consignment.edit', ['id' => $data->consignment_id], true) }}"
-                                       data-bs-toggle="tooltip" title="編輯"
-                                       class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </a>
-                                    @endcan
-                                </td>
                                 <td class="text-center">
                                     @can('admin.consignment.delete')
                                     <a href="javascript:void(0)" data-href="{{ Route('cms.consignment.delete', ['id' => $data->consignment_id], true) }}"

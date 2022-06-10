@@ -128,7 +128,7 @@ class CustomerDividend extends Model
         return $id;
     }
 
-    // 訂單中使用紅利
+    // 訂單中使用鴻利
     public static function orderDiscount($customer_id, $order_sn, $discount_point)
     {
         if(!$discount_point){
@@ -142,7 +142,7 @@ class CustomerDividend extends Model
             DB::rollBack();
             return ['success' => '0',
                 'event' => 'dividend',
-                'error_msg' => '無紅利餘額',
+                'error_msg' => '無鴻利餘額',
                 'error_stauts' => 'dividend'];
         }
 
@@ -152,7 +152,7 @@ class CustomerDividend extends Model
             DB::rollBack();
             return ['success' => '0',
                 'event' => 'dividend',
-                'error_msg' => '紅利餘額不足',
+                'error_msg' => '鴻利餘額不足',
                 'error_stauts' => 'dividend'];
         }
 
