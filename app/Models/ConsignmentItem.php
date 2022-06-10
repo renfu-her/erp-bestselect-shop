@@ -138,11 +138,8 @@ class ConsignmentItem extends Model
 
     public static function getProjLogisticItemData($consignment_id) {
         $consignment_item = DB::table('csn_consignment_items as csn_item')
-            ->leftJoin('prd_product_styles as style', 'style.id', '=', 'csn_item.product_style_id')
-            ->leftJoin('prd_products as product', 'product.id', '=', 'style.product_id')
             ->select('csn_item.id as item_id'
-                , 'product.title as title'
-                , 'style.title as spec'
+                , 'csn_item.title as title'
                 , 'csn_item.num as qty'
                 , 'csn_item.price as price'
                 , DB::raw('(csn_item.num * csn_item.price) as subtotal')
