@@ -94,7 +94,7 @@ class OrderCtrl extends Controller
      */
     public function create(Request $request)
     {
-
+        // Order::assign_dividend_active_date(35);
         //   dd(Discount::checkCode('fkfk',[1,2,4]));
         $query = $request->query();
         $cart = null;
