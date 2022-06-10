@@ -109,25 +109,26 @@ class LogisticCtrl extends Controller
         $dims = null;
         if (false == isset($logistic->projlgt_order_sn)) {
             $logisticUserApiToken = User::getLogisticApiToken($request->user()->id)->user_token;
-            $api_depot = UserProjLogistics::getDepot($logisticUserApiToken);
-            if ($api_depot['success'] == 0) {
-                wToast('取得倉庫列表錯誤 '. $api_depot['error_msg']);
-            } else {
-                $depots = $api_depot['data'];
-            }
-            $api_temp = UserProjLogistics::getTemp($logisticUserApiToken);
-            if ($api_temp['success'] == 0) {
-                wToast('取得溫層列表錯誤 '. $api_temp['error_msg']);
-            } else {
-                $temps = $api_temp['data'];
-
-                $api_dim = UserProjLogistics::getDim($logisticUserApiToken, $temps[0]->id);
-                if ($api_dim['success'] == 0) {
-                    wToast('取得溫層列表錯誤 '. $api_dim['error_msg']);
+            if (false == empty($logisticUserApiToken)) {
+                $api_depot = UserProjLogistics::getDepot($logisticUserApiToken);
+                if ($api_depot['success'] == 0) {
+                    wToast('取得倉庫列表錯誤 '. $api_depot['error_msg']);
                 } else {
-                    $dims = $api_dim['data'];
+                    $depots = $api_depot['data'];
                 }
+                $api_temp = UserProjLogistics::getTemp($logisticUserApiToken);
+                if ($api_temp['success'] == 0) {
+                    wToast('取得溫層列表錯誤 '. $api_temp['error_msg']);
+                } else {
+                    $temps = $api_temp['data'];
 
+                    $api_dim = UserProjLogistics::getDim($logisticUserApiToken, $temps[0]->id);
+                    if ($api_dim['success'] == 0) {
+                        wToast('取得溫層列表錯誤 '. $api_dim['error_msg']);
+                    } else {
+                        $dims = $api_dim['data'];
+                    }
+                }
             }
         }
 
@@ -369,7 +370,12 @@ class LogisticCtrl extends Controller
         $rcv_tel = '';
         $rcv_addr = '';
         $items = null;
-        if (Event::consignment()->value == $event) {
+        if (Event::order()->value == $event) {
+            $suborder = SubOrders::where('id', '=', $delivery->event_id)->get()->first();
+            if ('deliver' == $suborder->ship_category) {
+
+            }
+        } else if (Event::consignment()->value == $event) {
             $consignment = Consignment::where('id', '=', $delivery->event_id)->get()->first();
             $send_depot = Depot::where('id', $consignment->send_depot_id)->get()->first();
             $send_name = $send_depot->name;
