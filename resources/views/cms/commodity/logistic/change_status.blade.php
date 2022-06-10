@@ -18,11 +18,23 @@
             <h6>加入狀態</h6>
             <fieldset class="border rounded p-2 pt-0 mb-4">
                 <legend class="col-form-label px-1 p-0 mb-1">出貨狀態</legend>
-                <div primary-status></div>
+                <div primary-status>
+                    <div class="d-flex justify-content-center loading mb-2">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
             </fieldset>
             <fieldset class="border rounded p-2 pt-0">
                 <legend class="col-form-label px-1 p-0 mb-1">異常狀態</legend>
-                <div danger-status></div>
+                <div danger-status>
+                    <div class="d-flex justify-content-center loading mb-2">
+                        <div class="spinner-border text-danger" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
             </fieldset>
         </div>
     </div>
@@ -43,7 +55,7 @@
                 <ul>
                     @foreach ($flowList as $key => $data)
                     <li>
-                        <h6 class="mb-1">{{date('Y-m-d H:i:s', strtotime($data->created_at))}}</h6>
+                        <h6 class="mb-1">{{date('Y/m/d H:i:s', strtotime($data->created_at))}}</h6>
                         <p>
                             <span>{{$data->status}}</span>
                             <span>操作人員：{{$data->user_name ?? ''}}</span>
@@ -105,6 +117,7 @@
                     `);
                 }
             }
+            $('fieldset .loading').remove();
         }
 
         // bind btn

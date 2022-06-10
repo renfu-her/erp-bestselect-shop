@@ -71,7 +71,7 @@
                             <td>{{ $data->product_title }}</td>
                             <td>{{ $data->spec }}</td>
                             <td>{{ $data->sku }}</td>
-                            <td>{{ $data->depot_price }}</td>
+                            <td>$ {{ number_format($data->depot_price, 2) }}</td>
                         </tr>
                     @endforeach
                 </tbody>

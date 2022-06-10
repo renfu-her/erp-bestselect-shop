@@ -121,7 +121,7 @@ Breadcrumbs::for('cms.purchase.create', function (BreadcrumbTrail $trail) {
 // 編輯 - 採購單資訊
 Breadcrumbs::for('cms.purchase.edit', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.purchase.index');
-    $trail->push('[單號：' . $value['sn'] . '] 採購單資訊', route('cms.purchase.edit', ['id' => $value['id']]));
+    $trail->push('#' . $value['sn'] . ' 採購單資訊', route('cms.purchase.edit', ['id' => $value['id']]));
 });
 // 編輯 - 採購單資訊 - 新增訂金付款單
 Breadcrumbs::for('cms.purchase.pay-deposit', function (BreadcrumbTrail $trail, $value) {
@@ -161,12 +161,12 @@ Breadcrumbs::for('cms.purchase.view-pay-order', function (BreadcrumbTrail $trail
 // 編輯 - 變更紀錄
 Breadcrumbs::for('cms.purchase.log', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.purchase.index');
-    $trail->push('[單號：' . $value . '] 變更紀錄');
+    $trail->push('#' . $value . ' 變更紀錄');
 });
 // 編輯 - 入庫審核
 Breadcrumbs::for('cms.purchase.inbound', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.purchase.index');
-    $trail->push('[單號：' . $value . '] 入庫審核');
+    $trail->push('#' . $value . ' 入庫審核');
 });
 
 // 組合包組裝
@@ -195,7 +195,7 @@ Breadcrumbs::for('cms.order.create', function (BreadcrumbTrail $trail, $value) {
 // 訂單自取入庫審核
 Breadcrumbs::for('cms.order.inbound', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
-    $trail->push('[單號：' . $value['sn'] . '] 入庫審核', route('cms.order.inbound', ['subOrderId' => $value['id']]));
+    $trail->push('#' . $value['sn'] . ' 入庫審核', route('cms.order.inbound', ['subOrderId' => $value['id']]));
 });
 // 新增收款單
 Breadcrumbs::for('cms.ar.create', function (BreadcrumbTrail $trail, $value) {
@@ -247,12 +247,12 @@ Breadcrumbs::for('cms.consignment.create', function (BreadcrumbTrail $trail) {
 // 編輯 - 寄倉單資訊
 Breadcrumbs::for('cms.consignment.edit', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.consignment.index');
-    $trail->push('[單號：' . $value['sn'] . '] 寄倉單資訊', route('cms.consignment.edit', ['id' => $value['id']]));
+    $trail->push('#' . $value['sn'] . ' 寄倉單資訊', route('cms.consignment.edit', ['id' => $value['id']]));
 });
 // 寄倉入庫審核
 Breadcrumbs::for('cms.consignment.inbound', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.consignment.index');
-    $trail->push('[單號：' . $value['sn'] . '] 入庫審核', route('cms.consignment.inbound', ['id' => $value['id']]));
+    $trail->push('#' . $value['sn'] . ' 入庫審核', route('cms.consignment.inbound', ['id' => $value['id']]));
 });
 
 //寄倉訂購

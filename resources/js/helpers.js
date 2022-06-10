@@ -7,6 +7,11 @@ window.Pagination = require('./helpers/pagination');
 
 try {
     window.toast = new Toast();
+} catch (error) {
+    console.error(error);
+}
+
+$(function () {
     $("#autoToast").toast("show");
     window.tooltipList = $('[data-bs-toggle="tooltip"]').each(function(){
         return new bootstrap.Tooltip($(this));
@@ -14,6 +19,4 @@ try {
     window.popoverList = $('[data-bs-toggle="popover"]').each(function () {
         return new bootstrap.Popover($(this));
     });
-} catch (error) {
-    console.error(error);
-}
+});

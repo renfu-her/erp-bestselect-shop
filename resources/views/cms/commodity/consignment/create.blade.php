@@ -98,6 +98,7 @@
                         <th scope="col">SKU</th>
                         <th scope="col">寄倉數量</th>
                         <th scope="col">寄倉價錢</th>
+                        <th scope="col" class="text-end">小計</th>
                     </tr>
                     </thead>
                     <tbody class="-appendClone --selectedP">
@@ -121,6 +122,7 @@
                                 <input type="number" class="form-control form-control-sm" name="num[]" min="1" value="" required/>
                             </td>
                             <td data-td="price"></td>
+                            <td data-td="total" class="text-end"></td>
                         </tr>
                     @elseif(0 < count(old('item_id', $consignmentItemData?? [])))
                         @foreach (old('item_id', $consignmentItemData ?? []) as $psItemKey => $psItemVal)
@@ -143,13 +145,15 @@
                                     <input type="number" class="form-control form-control-sm @error('num.' . $psItemKey) is-invalid @enderror"
                                            name="num[]" value="{{ old('num.'. $psItemKey, $psItemVal->num?? '') }}" min="1" step="1" required/>
                                 </td>
-                                <td data-td="price">{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}</td>
+                                <td data-td="price">{{ old('price.'. $psItemKey, '$ '.$psItemVal->price ?? '') }}</td>
+                                <td data-td="total" class="text-end">$ 0</td>
                             </tr>
                         @endforeach
                     @endif
                     </tbody>
                     <tfoot>
                     <tr>
+                        <th class="lh-1"></th>
                         <th class="lh-1"></th>
                         <th class="lh-1"></th>
                         <th class="lh-1"></th>
@@ -227,12 +231,12 @@
                             <input class="form-check-input" type="checkbox"
                                    value="" data-td="p_id" aria-label="選取商品">
                         </th>
-                        <td data-td="name">【喜鴻嚴選】咖啡候機室(10入/盒)</td>
-                        <td data-td="spec">綜合口味</td>
-                        <td data-td="sku">AA2590</td>
-                        <td>58</td>
-                        <td data-td="price">99</td>
-                        <td>20</td>
+                        <td data-td="name"></td>
+                        <td data-td="spec"></td>
+                        <td data-td="sku"></td>
+                        <td></td>
+                        <td data-td="price"></td>
+                        <td></td>
                     </tr>
                     </tbody>
                 </table>
@@ -410,13 +414,17 @@
                             <th class="text-center">
                                 <input class="form-check-input" type="checkbox" ${checked}
                                     value="${p.style_id}" data-td="p_id" aria-label="選取商品">
+                                <input type="hidden" data-td="sku" value="${p.sku}">
                                 <input type="hidden" data-td="prd_type" value="${p.prd_type}">
+                                <input type="hidden" data-td="name" value="${p.product_title}">
+                                <input type="hidden" data-td="spec" value="${p.spec || ''}">
+                                <input type="hidden" data-td="price" value="${p.depot_price}">
                             </th>
                             <td data-td="name">${p.product_title}</td>
                             <td data-td="spec">${p.spec || ''}</td>
                             <td data-td="sku">${p.sku}</td>
                             <td>${p.total_in_stock_num}</td>
-                            <td data-td="price">${p.depot_price}</td>
+                            <td data-td="price">$ ${formatNumber(p.depot_price)}</td>
                         </tr>`);
                         $('#addProduct .-appendClone.--product').append($tr);
                     }
@@ -427,18 +435,18 @@
             function catchCheckedProduct() {
                 $('#addProduct tbody input[data-td="p_id"]').each(function (index, element) {
                     // element == this
-                    const sku = $(element).parent('th').siblings('[data-td="sku"]').text();
+                    const sku = $(element).siblings('[data-td="sku"]').val();
                     const idx = selectedProductSku.indexOf(sku);
                     if ($(element).prop('checked')) {
                         if (idx < 0) {
                             selectedProductSku.push(sku);
                             selectedProduct.push({
                                 id: $(element).val(),
-                                name: $(element).parent('th').siblings('[data-td="name"]').text(),
+                                name: $(element).siblings('[data-td="name"]').val(),
                                 prd_type: $(element).siblings('[data-td="prd_type"]').val(),
                                 sku: sku,
-                                spec: $(element).parent('th').siblings('[data-td="spec"]').text(),
-                                price: $(element).parent('th').siblings('[data-td="price"]').text()
+                                spec: $(element).siblings('[data-td="spec"]').val(),
+                                price: $(element).siblings('[data-td="price"]').val()
                             });
                         }
                     } else {
@@ -479,10 +487,11 @@
                             cloneElem.find('input[name="name[]"]').val(`${p.name}-${p.spec}`);
                             cloneElem.find('input[name="prd_type[]"]').val(p.prd_type);
                             cloneElem.find('input[name="sku[]"]').val(p.sku);
-                            cloneElem.find('input[name="price[]"]').val(p.price);
+                            cloneElem.find('input[name="price[]"]').val(Number(p.price));
                             cloneElem.find('td[data-td="name"]').text(`${p.name}-${p.spec}`);
                             cloneElem.find('td[data-td="sku"]').text(p.sku);
-                            cloneElem.find('td[data-td="price"]').text(p.price);
+                            cloneElem.find('input[name="num[]"]').val(1);
+                            cloneElem.find('td[data-td="price"], td[data-td="total"]').text(`$ ${formatNumber(p.price)}`);
                         }
                     }, delItemOption);
                 }
@@ -502,7 +511,7 @@
 
             // 綁定計算
             function bindPriceSum() {
-                $('.-cloneElem.--selectedP input[name="price[]"]')
+                $('.-cloneElem.--selectedP input[name="num[]"]')
                     .off('change.sum').on('change.sum', function () {
                     sumPrice();
                 });
@@ -510,10 +519,14 @@
             // 計算小計
             function sumPrice() {
                 let sum = 0;
-                $('.-cloneElem.--selectedP input[name="price[]"]').each(function (index, element) {
+                $('.-cloneElem.--selectedP').each(function (index, element) {
                     // element == this
-                    const val = Number($(this).val());
-                    sum = Number((sum + val).toFixed(2));
+                    const num = Number($(element).find('input[name="num[]"]').val());
+                    const price = Number($(element).find('input[name="price[]"]').val());
+                    const total = num * price;
+                    $(element).find('td[data-td="total"]').text(`$ ${formatNumber(total.toFixed(2))}`);
+
+                    sum = Number((sum + total).toFixed(2));
                 });
                 $('tfoot th.-sum').text(`$ ${formatNumber(sum.toFixed(2))}`);
             }

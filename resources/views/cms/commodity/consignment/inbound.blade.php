@@ -42,6 +42,7 @@
 
     @if(null != $purchaseData->audit_date)
         <div class="card shadow p-4 mb-4">
+            <h6>本次入庫資料</h6>
             <form id="form1" method="post" action="{{ $formAction }}">
                 @method('POST')
                 @csrf
@@ -50,20 +51,19 @@
                 <div class="alert alert-danger mt-3">{{ $message }}</div>
                 @enderror
 
-                <h6>本次入庫資料</h6>
                 <div class="row mb-4">
-                    <div class="col-12">
+                    <div class="col">
 
-                        <label class="form-label">入庫倉庫
-                        <div>
-                        @foreach ($depotList as $depotItem)
-                            @if($depotItem['id'] == $purchaseData->receive_depot_id)
-                                <input type="hidden"
-                                       class="form-control form-control-sm @error('depot_id') is-invalid @enderror"
-                                       name="depot_id" value="{{ $depotItem['id'] }}"
-                                       required readonly/>{{ $depotItem['name'] }} {{ $depotItem['can_tally'] ? '(理貨倉)' : '(非理貨倉)' }}
-                            @endif
-                        @endforeach
+                        <label class="form-label">入庫倉庫</label>
+                        <div class="fw-bold ps-2">
+                            @foreach ($depotList as $depotItem)
+                                @if($depotItem['id'] == $purchaseData->receive_depot_id)
+                                    <input type="hidden"
+                                        class="form-control form-control-sm @error('depot_id') is-invalid @enderror"
+                                        name="depot_id" value="{{ $depotItem['id'] }}" required readonly/>
+                                    {{ $depotItem['name'] }} {{ $depotItem['can_tally'] ? '(理貨倉)' : '(非理貨倉)' }}
+                                @endif
+                            @endforeach
                         </div>
                         <div class="invalid-feedback">
                             @error('depot_id')
@@ -73,9 +73,9 @@
                     </div>
                 </div>
 
-                <label class="form-label">入庫資訊</label>
                 <div class="table-responsive tableOverBox">
-                    <table class="table table-hover tableList mb-1">
+                    <table class="table table-hover tableList mb-1 caption-top">
+                        <caption class="px-4 text-dark">入庫資訊</caption>
                         <thead>
                         <tr>
                             <th scope="col" class="text-center">刪除</th>

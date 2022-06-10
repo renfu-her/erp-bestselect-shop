@@ -36,7 +36,7 @@
                             <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="寄倉售價 = 官網售價 + (官網售價 * 加減價%)"></i>
                         </label>
                         <div class="input-group flex-nowrap">
-                            <input class="form-control" type="text" id="pmp" placeholder="請輸入加減價%" value="3">
+                            <input class="form-control" type="number" id="pmp" placeholder="請輸入加減價%" value="3">
                             <span class="input-group-text"><i class="bi bi-percent"></i></span>
                         </div>
                     </div>

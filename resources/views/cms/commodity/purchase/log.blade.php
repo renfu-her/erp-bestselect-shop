@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-3">{{$title}} {{ $sn }}</h2>
+    <h2 class="mb-3">#{{ $sn }} {{$title}}</h2>
     @if ($event === \App\Enums\Delivery\Event::purchase()->value)
         <x-b-pch-navi :id="$id"></x-b-pch-navi>
     @endif
