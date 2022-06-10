@@ -6,7 +6,8 @@
         <a href="#" class="nav-link ">我的優惠卷</a>
     </li>
     <li class="nav-item">
-        <a href="{{ Route('cms.customer.dividend', ['id' => $customer], true) }}" class="nav-link ">我的鴻利</a>
+        <a href="{{ Route('cms.customer.dividend', ['id' => $customer], true) }}"
+           class="nav-link {{ isActive('dividend', $route_name) }}">我的鴻利</a>
     </li>
     <li class="nav-item">
         <a href="#" class="nav-link ">個人資料</a>
