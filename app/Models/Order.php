@@ -3,8 +3,6 @@
 namespace App\Models;
 
 use App\Enums\Delivery\Event;
-use App\Enums\Discount\DisCategory;
-use App\Enums\Discount\DisMethod;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Order\PaymentStatus;
 use App\Enums\Order\UserAddrType;
@@ -12,8 +10,6 @@ use App\Enums\Received\ReceivedMethod;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use App\Models\OrderCart;
-use App\Models\CustomerDividend;
 
 class Order extends Model
 {
@@ -210,6 +206,7 @@ class Order extends Model
             ->selectRaw("IF(dlv_logistic.ship_group_id IS NULL,'',dlv_logistic.ship_group_id) as ship_group_id")
             ->selectRaw("IF(dlv_logistic.cost IS NULL,'',dlv_logistic.cost) as logistic_cost")
             ->selectRaw("IF(dlv_logistic.memo IS NULL,'',dlv_logistic.memo) as logistic_memo")
+            ->selectRaw("IF(dlv_logistic.projlgt_order_sn IS NULL,'',dlv_logistic.projlgt_order_sn) as projlgt_order_sn")
             ->selectRaw("IF(shi_group.name IS NULL,'',shi_group.name) as ship_group_name")
             ->selectRaw("IF(shi_group.note IS NULL,'',shi_group.note) as ship_group_note")
             ->selectRaw("IF(prd_suppliers.id IS NULL,'',prd_suppliers.id) as supplier_id")

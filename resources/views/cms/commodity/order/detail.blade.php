@@ -167,6 +167,9 @@
                                 href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">物流設定</a>
                             <a class="btn btn-sm btn-success -in-header"
                                 href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">出貨審核</a>
+{{--                            @if('pickup' == $subOrder->ship_category)--}}
+{{--                                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.order.inbound', ['subOrderId' => $subOrder->id], true) }}">入庫審核</a>--}}
+{{--                            @endif--}}
                             <button type="button" class="btn btn-sm btn-primary -in-header">列印銷貨單</button>
                             <button type="button" class="btn btn-sm btn-primary -in-header">列印出貨單</button>
                         </div>
@@ -282,7 +285,15 @@
                         </div>
                         <div class="col">
                             <dt>包裹編號</dt>
-                            <dd>{{ $subOrder->package_sn ?? '(待處理)' }}</dd>
+                            <dd>
+                                @if(false == empty($subOrder->projlgt_order_sn))
+                                    <a href="{{env('LOGISTIC_URL'). '/guest/order-flow/'. $subOrder->projlgt_order_sn }}" class="btn btn-link">
+                                        {{$subOrder->projlgt_order_sn}}
+                                    </a>
+                                @else
+                                    {{ $subOrder->package_sn ?? '(待處理)' }}
+                                @endif
+                            </dd>
                         </div>
                     </dl>
                     <dl class="row">
@@ -555,3 +566,4 @@
         </script>
     @endpush
 @endonce
+
