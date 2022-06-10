@@ -474,4 +474,22 @@ class Order extends Model
             ]);
         }
     }
+
+    public static function assign_dividend_active_date($order_id)
+    {
+        $order = self::where('id', $order_id)
+            ->whereNull('dividend_active_at')
+            ->whereNotNull('active_delay_day')->get()->first();
+            
+        if (!$order) {
+            return;
+        }
+
+        $date = date('Y-m-d H:i:s', strtotime(now() . " + $order->active_delay_day days"));
+
+        self::where('id', $order_id)->update([
+            'dividend_active_at' => $date,
+        ]);
+
+    }
 }

@@ -36,19 +36,23 @@ class CustomerCoupon extends Model
 
     }
 
-    public static function activeCoupon($order_id, $manual = 0)
+    public static function activeCoupon($order_id, $date = null)
     {
         $counpons = self::where('from_order_id', $order_id)
             ->whereNull('active_sdate')
             ->get();
 
+        if (!$date) {
+            $date = now();
+        }
+
         foreach ($counpons as $counpon) {
             if ($counpon->limit_day == 0) {
                 $sdate = now();
-                $edate = date('Y-m-d 23:59:59', strtotime(now() . ' + 50 years'));
+                $edate = date('Y-m-d 23:59:59', strtotime($date . ' + 50 years'));
             } else {
                 $sdate = now();
-                $edate = date('Y-m-d 23:59:59', strtotime(now() . " + $counpon->limit_day days"));
+                $edate = date('Y-m-d 23:59:59', strtotime($date . " + $counpon->limit_day days"));
             }
 
             self::where('id', $counpon->id)->update([

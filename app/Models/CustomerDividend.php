@@ -53,13 +53,17 @@ class CustomerDividend extends Model
         return $id;
     }
 
-    public static function activeDividend(DividendCategory $category, $category_sn, $manual = 0)
+    public static function activeDividend(DividendCategory $category, $category_sn, $date = null)
     {
         $dividend = self::where('category', $category)
             ->where('category_sn', $category_sn)
             ->where('flag', DividendFlag::NonActive())->get()->first();
 
         $order = Order::where('sn', $category_sn)->get()->first();
+
+        if (!$date) {
+            $date = now();
+        }
 
         if (!$dividend || !$order) {
             return;
@@ -72,14 +76,12 @@ class CustomerDividend extends Model
 
         if ($deadline == 1) {
             $sdate = now();
-            $edate = date('Y-m-d 23:59:59', strtotime(now() . " + $order->dividend_lifecycle days"));
+            $edate = date('Y-m-d 23:59:59', strtotime($date . " + $order->dividend_lifecycle days"));
 
         } else {
             $sdate = now();
-            $edate = date('Y-m-d 23:59:59', strtotime(now() . ' + 50 years'));
+            $edate = date('Y-m-d 23:59:59', strtotime($date . ' + 50 years'));
         }
-
-    
 
         //   print_r($sdate);
 
@@ -131,10 +133,10 @@ class CustomerDividend extends Model
     // 訂單中使用鴻利
     public static function orderDiscount($customer_id, $order_sn, $discount_point)
     {
-        if(!$discount_point){
+        if (!$discount_point) {
             return ['success' => '1'];
         }
-        
+
         DB::beginTransaction();
         $dividend = self::getDividend($customer_id)->get()->first();
 
