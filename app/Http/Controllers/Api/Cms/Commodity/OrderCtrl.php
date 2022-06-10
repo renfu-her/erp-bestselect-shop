@@ -8,7 +8,7 @@ use App\Models\CustomerDividend;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-
+use App\Models\CustomerCoupon;
 class OrderCtrl extends Controller
 {
     //
@@ -57,8 +57,8 @@ class OrderCtrl extends Controller
             ]);
         }
         $d = $request->all();
-
-        if (!Order::where('sn', $d['order_sn'])->get()->first()) {
+        $order = Order::where('sn', $d['order_sn'])->get()->first();
+        if (!$order) {
             return response()->json([
                 'status' => 'E02',
                 'message' => "查無此單",
@@ -66,6 +66,7 @@ class OrderCtrl extends Controller
         }
 
         CustomerDividend::activeDividend(DividendCategory::Order(), $d['order_sn']);
+        CustomerCoupon::activeCoupon($order->id);
 
         return [
             'status' => '0',
