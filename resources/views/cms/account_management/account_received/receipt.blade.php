@@ -58,12 +58,7 @@
             </dl>
             <dl class="row mb-0">
                 <div class="col">
-                    <dt>
-                        訂單流水號：
-                        <a href="{{ Route('cms.order.detail', ['id' => $order->id], true) }}">
-                            {{ $order->sn }}
-                        </a>
-                    </dt>
+                    <dt>訂單流水號：<a href="{{ Route('cms.order.detail', ['id' => $order->id], true) }}">{{ $order->sn }}</a></dt>
                     <dd></dd>
                 </div>
                 @if($received_order->receipt_date)
@@ -76,9 +71,11 @@
             <dl class="row mb-0">
                 <div class="col">
                     <dt>收款對象：
-                        {{-- <a href="{{ $supplierUrl }}" target="_blank"> {{ $supplier->name }}
-                            <span class="icon"><i class="bi bi-box-arrow-up-right"></i></span>
-                        </a> --}}
+                        {{--
+                            <a href="{{ $supplierUrl }}" target="_blank"> {{ $supplier->name }}
+                                <span class="icon"><i class="bi bi-box-arrow-up-right"></i></span>
+                            </a>
+                        --}}
                     </dt>
                     <dd></dd>
                 </div>

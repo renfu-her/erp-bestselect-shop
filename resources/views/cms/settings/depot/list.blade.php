@@ -27,14 +27,14 @@
                 <tr>
                     <th scope="col" style="width:10%">#</th>
                     <th scope="col">倉庫名稱</th>
+                    <th scope="col" class="text-center">寄倉選品</th>
+                    <th scope="col" class="text-center">編輯</th>
 {{--                    <th scope="col">代碼</th>--}}
                     <th scope="col">倉商窗口</th>
                     <th scope="col">自取服務</th>
                     <th scope="col">理貨倉</th>
                     <th scope="col">地址</th>
                     <th scope="col">電話</th>
-                    <th scope="col" class="text-center">寄倉選品</th>
-                    <th scope="col" class="text-center">編輯</th>
                     <th scope="col" class="text-center">刪除</th>
                 </tr>
             </thead>
@@ -43,13 +43,6 @@
                     <tr>
                         <th scope="row">{{ $key + 1 }}</th>
                         <td>{{ $data->name }}</td>
-{{--                        <td>{{ $data->sn }}</td>--}}
-                        <td>{{ $data->sender }}</td>
-                        <td>{{ $data->can_pickup ? '開放' : '關閉' }}</td>
-                        <td>{{ $data->can_tally ? '是' : '否' }}</td>
-                        <td>{{ $data->address }}</td>
-                        <td>{{ $data->tel }}</td>
-
                         <td class="text-center">
                             @can('cms.depot.product-index')
                             <a href="{{ Route('cms.depot.product-index', ['id' => $data->id], true) }}" data-bs-toggle="tooltip" title="寄倉選品" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
@@ -57,7 +50,6 @@
                             </a>
                             @endcan
                         </td>
-
                         <td class="text-center">
                             @can('cms.depot.edit')
                             <a href="{{ Route('cms.depot.edit', ['id' => $data->id], true) }}"
@@ -67,6 +59,13 @@
                             </a>
                             @endcan
                         </td>
+{{--                        <td>{{ $data->sn }}</td>--}}
+                        <td>{{ $data->sender }}</td>
+                        <td>{{ $data->can_pickup ? '開放' : '關閉' }}</td>
+                        <td>{{ $data->can_tally ? '是' : '否' }}</td>
+                        <td>{{ $data->address }}</td>
+                        <td>{{ $data->tel }}</td>
+
                         <td class="text-center">
                             @can('cms.depot.delete')
                             <a href="javascript:void(0)" data-href="{{ Route('cms.depot.delete', ['id' => $data->id], true) }}"

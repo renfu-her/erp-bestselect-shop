@@ -316,4 +316,13 @@ class ReceivedOrder extends Model
 
         return $received_order;
     }
+
+
+    public static function delete_received_order($id)
+    {
+        $target = self::findOrFail($id);
+        $target->delete();
+
+        return $target;
+    }
 }

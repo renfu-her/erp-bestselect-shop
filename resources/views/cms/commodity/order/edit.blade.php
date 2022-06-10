@@ -96,13 +96,13 @@
                             </table>
                         </div>
                     </div>
-                    {{-- 使用紅利 --}}
+                    {{-- 使用鴻利 --}}
                     <div class="card-body px-4 py-2 border-top">
                         <div class="d-flex lh-lg flex-wrap">
-                            <div class="col-12 col-sm pe-2">紅利
+                            <div class="col-12 col-sm pe-2">鴻利
                                 <span class="small text-secondary">
-                                    （目前紅利點數：<span class="-hasPoints">0</span>
-                                    點，可抵用紅利上限：<span class="-maxPoints">0</span> 點）
+                                    （目前鴻利點數：<span class="-hasPoints">0</span>
+                                    點，可抵用鴻利上限：<span class="-maxPoints">0</span> 點）
                                 </span>
                             </div>
                             <div class="col-12 col-sm-auto">
@@ -583,11 +583,11 @@
             console.log('全館優惠', GlobalDiscounts);
             // 優惠方式
             const DISC_METHOD = ['cash', 'percent', 'coupon'];
-            // 優惠類型 折扣順序：任選 > 全館 > 優惠券/序號 > 紅利
+            // 優惠類型 折扣順序：任選 > 全館 > 優惠券/序號 > 鴻利
             const DISC_PRIORITY = ['optional', 'global', 'coupon', 'code', 'bonus'];
             // 訂購會員持有優惠券
             let UserCoupons = {};
-            // 訂購會員持有紅利
+            // 訂購會員持有鴻利
             let UserPoints = 0;
             // 目前有效優惠
             let DiscountData = {
@@ -646,7 +646,7 @@
                 // sku: 'SKU',
                 // price: '單價',
                 // stock: '庫存',
-                // point: '紅利上限',
+                // point: '鴻利上限',
                 /* 變動值 */
                 // qty: 數量(預設1),
                 //_total: 小計(不含折扣)(price*qty),
@@ -678,7 +678,7 @@
                 //     temps: '溫層: 常溫|冷凍|冷藏'(deliver only),
                 //     rules: '[宅配價格]'(deliver only),
                 /* 變動值 */
-                //     point: 使用紅利,
+                //     point: 使用鴻利,
                 //     products: [商品sid],
                 //_____total: 此物流商品金額小計(不折扣、含運),
                 //     dis_total: 此物流商品折扣總金額,
@@ -799,7 +799,7 @@
             bindAdjusterBtn();
             // 刪除商品
             Clone_bindDelElem($('.-cloneElem.--selectedP .-del'), cloneProductsOption);
-            // 紅利
+            // 鴻利
             getPointsAPI();
             bindPointUseBtn();
 
@@ -1589,7 +1589,7 @@
                             title = '使用優惠券';
                             break;
                         case 'bonus':
-                            title = '紅利點數折抵';
+                            title = '鴻利點數折抵';
                             break;
 
                         default:
@@ -1769,12 +1769,12 @@
                 );
             }
 
-            /*** 紅利 fn -bonus_point ***/
+            /*** 鴻利 fn -bonus_point ***/
             $('#customer').off('change.point').on('change.point', function() {
                 getPointsAPI();
             });
 
-            // #取得持有紅利API
+            // #取得持有鴻利API
             function getPointsAPI() {
                 const _URL = @json(route('api.cms.discount.get-dividend-point'));
                 const Data = {
@@ -1790,7 +1790,7 @@
                 if (!Data.customer_id) {
                     toast.show('請先選擇訂購客戶。', {
                         type: 'warning',
-                        title: '目前紅利點數'
+                        title: '目前鴻利點數'
                     });
                     return false;
                 }
@@ -1798,7 +1798,7 @@
                 axios.post(_URL, Data)
                     .then((result) => {
                         const res = result.data;
-                        console.log('持有紅利', res);
+                        console.log('持有鴻利', res);
                         if (res.status === '0') {
                             UserPoints = res.data || 0;
                             $('.-hasPoints').text(UserPoints);
@@ -1806,11 +1806,11 @@
                             $('input.-bonus_point').prop('max', UserPoints);
                         }
                     }).catch((err) => {
-                        console.log('取得紅利錯誤', err);
+                        console.log('取得鴻利錯誤', err);
                     });
             }
 
-            // #計算可用紅利上限總計
+            // #計算可用鴻利上限總計
             function calc_maxPoint(ship_key) {
                 let max = 0;
 
@@ -1823,7 +1823,7 @@
                 return max;
             }
 
-            // #設定紅利上限總計
+            // #設定鴻利上限總計
             function setMaxPoint(ship_key) {
                 const max = calc_maxPoint(ship_key);
 
@@ -1831,7 +1831,7 @@
                 $(`#${ship_key} input.-bonus_point`).prop('max', max > UserPoints ? UserPoints : max);
             }
 
-            // bind 使用紅利按鈕 -bonus_point
+            // bind 使用鴻利按鈕 -bonus_point
             function bindPointUseBtn() {
                 $('button.-bonus_point').off('click').on('click', function() {
                     const id = $(this).closest('.-detail').attr('id');
@@ -1842,11 +1842,11 @@
                     calc_set_AllAmount();
 
                     const sum = calc_AllUsePoint();
-                    toast.show(`總共已使用 ${sum} 點紅利點數`);
+                    toast.show(`總共已使用 ${sum} 點鴻利點數`);
                 });
             }
 
-            // 檢查紅利使用
+            // 檢查鴻利使用
             function check_BonusUse(ship_key) {
                 const $bonus = $(`#${ship_key} input.-bonus_point`);
                 let bonus = Number($bonus.val());
@@ -1859,14 +1859,14 @@
                     valid_cls = 'invalid';
                     bonus = 0;
                     $bonus.val(0);
-                    toast.show('超過目前持有紅利', {
+                    toast.show('超過目前持有鴻利', {
                         type: 'danger'
                     });
                 } else if (totalUse > UserPoints) {
                     valid_cls = 'invalid';
                     bonus = 0;
                     $bonus.val(0);
-                    toast.show('總使用點數超過目前持有紅利', {
+                    toast.show('總使用點數超過目前持有鴻利', {
                         type: 'danger'
                     });
                 } else if (bonus > max) {
@@ -1891,7 +1891,7 @@
                 return valid_cls === 'valid' ? bonus : 0;
             }
 
-            // 計算總使用紅利
+            // 計算總使用鴻利
             function calc_AllUsePoint() {
                 let total_use = 0;
 
@@ -2045,9 +2045,9 @@
 
                 for (const key in myCart) {
                     if (Object.hasOwnProperty.call(myCart, key)) {
-                        // 紅利上限
+                        // 鴻利上限
                         setMaxPoint(key);
-                        // 檢查紅利
+                        // 檢查鴻利
                         check_BonusUse(key);
                     }
                 }

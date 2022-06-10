@@ -44,7 +44,7 @@
                     @endforeach
                 </select>
             </x-b-form-group>
-            <x-b-form-group name="use_coupon" title="喜鴻紅利點數" required="true">
+            <x-b-form-group name="use_coupon" title="鴻利點數" required="true">
                 <select class="form-select @error('use_coupon') is-invalid @enderror" name="use_coupon" id="use_coupon">
                     @foreach (App\Enums\SaleChannel\UseCoupon::asArray() as $key => $val)
                         <option value="{{ $val }}" @if ($val == old('use_coupon', $data->use_coupon ?? '')) selected @endif>
@@ -71,15 +71,15 @@
                 </div>
             </x-b-form-group>
 
-            <x-b-form-group name="dividend_limit" title="紅利可抵扣上限(%)" required="true">
+            <x-b-form-group name="dividend_limit" title="鴻利可抵扣上限(%)" required="true">
                 <input class="form-control @error('dividend_limit') is-invalid @enderror" type="number" max="100" step="1"
                     name="dividend_limit" value="{{ old('dividend_limit', $data->dividend_limit ?? 100) }}" />
             </x-b-form-group>
-            <x-b-form-group name="dividend_rate" title="紅利回饋比例(%)" required="true">
+            <x-b-form-group name="dividend_rate" title="鴻利回饋比例(%)" required="true">
                 <input class="form-control @error('dividend_rate') is-invalid @enderror" type="number" max="50" step="1"
                     name="dividend_rate" value="{{ old('dividend_rate', $data->dividend_rate ?? 0) }}" />
             </x-b-form-group>
-            <x-b-form-group name="event_dividend_rate" title="活動紅利回饋比例(%)" required="true">
+            <x-b-form-group name="event_dividend_rate" title="活動鴻利回饋比例(%)" required="true">
                 <input class="form-control @error('event_dividend_rate') is-invalid @enderror" type="number" min="0"
                     max="50" step="1" name="event_dividend_rate"
                     value="{{ old('event_dividend_rate', $data->event_dividend_rate ?? 0) }}" />

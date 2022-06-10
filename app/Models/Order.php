@@ -433,6 +433,7 @@ class Order extends Model
 
             CustomerDividend::fromOrder($customer->id, $order_sn, $order['get_dividend']);
             // CustomerDividend::activeDividend(DividendCategory::Order(), $order_sn);
+            CustomerCoupon::activeCoupon($order_id);
 
             return ['success' => '1', 'order_id' => $order_id];
         });
@@ -452,7 +453,8 @@ class Order extends Model
     }
 
 
-    public static function change_order_payment_status($order_id, PaymentStatus $p_status = null, ReceivedMethod $r_method = null)
+    // public static function change_order_payment_status($order_id, PaymentStatus $p_status = null, ReceivedMethod $r_method = null)
+    public static function change_order_payment_status($order_id, PaymentStatus $p_status = null, $r_method = null)
     {
         $target = self::where('id', $order_id);
 

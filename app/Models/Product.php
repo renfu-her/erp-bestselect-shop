@@ -474,6 +474,7 @@ class Product extends Model
             ->where('p.sale_channel_id', $sale_channel_id)
             ->whereNull('s.deleted_at')
             ->whereNotNull('s.sku')
+            ->where('s.is_active','1')
             ->select('s.product_id')
             ->selectRaw($concatString . ' as styles')
             ->groupBy('s.product_id');
@@ -509,6 +510,7 @@ class Product extends Model
             ->mergeBindings($styleQuery)
             ->mergeBindings($imgQuery)
             ->where('sku', $sku)
+          // ->where('s.is_active','1')
             ->whereNull('p.deleted_at')
             ->whereNotNull('s.styles')
             ->where(function ($query) {
@@ -970,7 +972,7 @@ class Product extends Model
                 $join->on('product_style.product_id', '=', 'prd.id')
                     ->where('product_style.is_active', '=', 1);
             })
-            ->leftJoin('prd_salechannel_style_
+            ->leftJoin('prd_salechannel_style_price
              as sale_channel', function ($join) use ($sale_channel) {
                 $join->on('sale_channel.style_id', '=', 'product_style.id')
                     ->where('sale_channel.sale_channel_id', '=', $sale_channel->sale_channel_id);

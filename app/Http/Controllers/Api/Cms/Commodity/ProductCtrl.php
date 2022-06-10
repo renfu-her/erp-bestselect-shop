@@ -53,7 +53,7 @@ class ProductCtrl extends Controller
             [],
             $options,
 
-        )->paginate(10)->toArray();
+        )->where('s.is_active','1')->paginate(10)->toArray();
         $re['status'] = '0';
         //   $re['data'] = json_decode(json_encode($re['data']), true);
         return response()->json($re);

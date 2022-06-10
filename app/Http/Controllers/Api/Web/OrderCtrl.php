@@ -73,7 +73,13 @@ class OrderCtrl extends Controller
         $order = DB::table('ord_orders as order')
             ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
             ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id')
-            ->leftJoin('ord_received_orders as received', 'received.order_id', '=', 'order.id')
+            ->leftJoin('ord_received_orders as received', function ($join) {
+                $join->on('received.order_id', '=', 'order.id');
+                $join->where([
+                    'received.balance_date' => null,
+                    'received.deleted_at' => null,
+                ]);
+            })
             ->select([
                 'order.id',
                 'order.sn',
@@ -95,8 +101,6 @@ class OrderCtrl extends Controller
             ->where([
                 'order.id' => $id,
                 'order.unique_id' => $unique_id,
-                'received.balance_date' => null,
-                'received.deleted_at' => null,
             ])
             ->where(function ($q) {
                 $q->whereRaw('(order.status_code IN ("add"))');
@@ -163,8 +167,7 @@ class OrderCtrl extends Controller
         $log = OrderPayCreditCard::where([
             'order_id'=>$id,
             'status'=>0,
-        ])->first();
-
+        ])->orderBy('created_at', 'DESC')->first();
         if($received_order_collection->first() && !$log){
             return abort(404);
         }
