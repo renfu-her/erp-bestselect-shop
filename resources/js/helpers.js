@@ -5,7 +5,7 @@ window.Toast = require('./helpers/toast');
 window.Calendar = require('./helpers/calendar');
 window.Pagination = require('./helpers/pagination');
 
-$(function(){
+try {
     window.toast = new Toast();
     $("#autoToast").toast("show");
     window.tooltipList = $('[data-bs-toggle="tooltip"]').each(function(){
@@ -14,4 +14,6 @@ $(function(){
     window.popoverList = $('[data-bs-toggle="popover"]').each(function () {
         return new bootstrap.Popover($(this));
     });
-});
+} catch (error) {
+    console.error(error);
+}

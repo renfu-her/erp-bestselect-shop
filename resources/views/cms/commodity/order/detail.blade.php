@@ -411,7 +411,7 @@
                                 <td class="col-2 lh-sm">折扣後 <br class="d-xxl-none">(不含運)</td>
                                 <td class="col-2">運費</td>
                                 <td class="col-2">總金額</td>
-                                <td class="col-2 lh-sm">預計獲得<a href="#" class="-text d-block d-xxl-inline">鴻利積點</a></td>
+                                <td class="col-2 lh-sm">預計獲得<span class="text-primary d-block d-xxl-inline">鴻利點數</span></td>
                             </tr>
                             <tr>
                                 <td>${{ number_format($order->origin_price) }}</td>
@@ -453,7 +453,7 @@
                                 <td class="fw-bold text-end pe-4">${{ number_format($order->total_price) }}</td>
                             </tr>
                             <tr>
-                                <td class="col-7 table-light lh-sm">預計獲得<a href="#" class="-text">鴻利點數</a></td>
+                                <td class="col-7 table-light lh-sm">預計獲得<span class="text-primary">鴻利點數</span></td>
                                 <td class="text-end pe-4">
                                     @if ($order->allotted_dividend)
                                         <span class="badge bg-success">已發</span>
