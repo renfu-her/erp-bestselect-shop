@@ -276,6 +276,11 @@ Breadcrumbs::for('cms.consignment-stock.stocklist', function (BreadcrumbTrail $t
     $trail->parent('cms.dashboard');
     $trail->push('寄倉庫存', route('cms.consignment-stock.stocklist'));
 });
+// 寄倉庫存明細
+Breadcrumbs::for('cms.consignment-stock.stock_detail_log', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.consignment-stock.stocklist');
+    $trail->push('#' . $value . ' 明細');
+});
 
 
 // *** 共用頁 *** //

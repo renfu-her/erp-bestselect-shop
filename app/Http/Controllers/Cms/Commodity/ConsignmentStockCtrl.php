@@ -47,6 +47,7 @@ class ConsignmentStockCtrl extends Controller
         }
         $logPurchase = PurchaseLog::getCsnStockData($id);
         $logPurchase = $logPurchase->paginate($data_per_page)->appends($query);
+        $title = $product->title. '-'. $productStyle->title;
 
         return view('cms.commodity.consignment_stock.stock_detail_log', [
             'id' => $id,
@@ -54,8 +55,8 @@ class ConsignmentStockCtrl extends Controller
             'productStyle' => $productStyle,
             'purchaseLog' => $logPurchase,
             'returnAction' => Route('cms.consignment-stock.stocklist', [], true),
-            'title' => $product->title. '-'. $productStyle->title,
-            'breadcrumb_data' => $productStyle->sku,
+            'title' => $title,
+            'breadcrumb_data' => $title . ' ' . $productStyle->sku,
         ]);
 
     }

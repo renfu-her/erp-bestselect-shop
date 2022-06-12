@@ -158,7 +158,7 @@
             </div>
             <div class="col">
                 <button type="button" class="btn btn-primary px-4"
-                    data-bs-toggle="modal" data-bs-target="#confirm-audit">耗材儲存</button>
+                    data-bs-toggle="modal" data-bs-target="#confirm-audit">儲存耗材</button>
             </div>
         @endif
     </div>
