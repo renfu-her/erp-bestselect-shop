@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Enums\Delivery\Event;
 use App\Http\Controllers\Controller;
+use App\Models\Consum;
 use App\Models\CsnOrder;
 use App\Models\CsnOrderItem;
 use App\Models\Delivery;
@@ -165,10 +166,12 @@ class ConsignmentOrderCtrl extends Controller
         if (!$consignmentData) {
             return abort(404);
         }
+        $consumeItems = Consum::getConsumWithEvent(Event::csn_order()->value, $id)->get()->toArray();
 
         return view('cms.commodity.consignment_order.create', [
             'id' => $id,
             'query' => $query,
+            'consume_items' => $consumeItems,
             'method' => 'edit',
             'depotList' => Depot::all(),
             'formAction' => Route('cms.consignment-order.index'),

@@ -183,5 +183,25 @@ class Consum extends Model
         return $result;
     }
 
-
+    public static function getConsumWithEvent($event, $event_id) {
+        $consumeItems = DB::table('dlv_delivery as delivery')
+            ->leftJoin('dlv_logistic as logistic', 'logistic.delivery_id', '=', 'delivery.id')
+            ->leftJoin('dlv_consum as consum', 'consum.logistic_id', '=', 'logistic.id')
+            ->select( 'delivery.event'
+                , 'delivery.event_id as event_id'
+                , 'consum.id'
+                , 'consum.inbound_id'
+                , 'consum.inbound_sn'
+                , 'consum.depot_id'
+                , 'consum.depot_name'
+                , 'consum.product_style_id'
+                , 'consum.sku'
+                , 'consum.product_title'
+                , 'consum.qty'
+            )
+            ->where('delivery.event', '=', $event)
+            ->where('delivery.event_id', '=', $event_id)
+            ->whereNotNull('consum.id');
+        return $consumeItems;
+    }
 }

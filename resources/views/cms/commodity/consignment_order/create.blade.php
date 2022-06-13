@@ -174,6 +174,32 @@
             </div>
         </div>
 
+        @if ($method === 'edit' and true == isset($consume_items) && 0 < count($consume_items))
+            <div class="card shadow p-4 mb-4">
+                <div class="table-responsive tableOverBox">
+                    <div class="card-header text-secondary">物流耗材清單</div>
+                    <table class="table tableList table-sm mb-0">
+                        <thead class="table-light text-secondary">
+                        <tr>
+                            <th scope="col">耗材名稱</th>
+                            <th scope="col">SKU</th>
+                            <th scope="col">數量</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach ($consume_items as $consume_key => $consume_item)
+                            <tr>
+                                <td><a href="#" class="-text">{{ $consume_item->product_title }}</a></td>
+                                <td>{{ $consume_item->sku }}</td>
+                                <td>{{ $consume_item->qty }}</td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        @endif
+
         @error('del_error')
         <div class="alert alert-danger mt-3">{{ $message }}</div>
         @enderror

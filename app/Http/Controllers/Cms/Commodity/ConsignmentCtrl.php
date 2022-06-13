@@ -7,18 +7,13 @@ use App\Enums\Delivery\Event;
 use App\Enums\Purchase\InboundStatus;
 use App\Enums\Purchase\LogEventFeature;
 use App\Enums\StockEvent;
-use App\Helpers\IttmsUtils;
 use App\Http\Controllers\Controller;
 use App\Models\Consignment;
 use App\Models\ConsignmentItem;
-use App\Models\CsnOrder;
-use App\Models\CsnOrderItem;
+use App\Models\Consum;
 use App\Models\Delivery;
 use App\Models\Depot;
-use App\Models\DepotProduct;
-use App\Models\Product;
 use App\Models\ProductStock;
-use App\Models\ProductStyle;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseLog;
 use App\Models\ReceiveDepot;
@@ -179,16 +174,18 @@ class ConsignmentCtrl extends Controller
         $query = $request->query();
         $consignmentData  = Consignment::getDeliveryData($id)->get()->first();
         $consignmentItemData = ConsignmentItem::getOriginInboundDataList($id)->get();
-;
+
         if (!$consignmentData) {
             return abort(404);
         }
+        $consumeItems = Consum::getConsumWithEvent(Event::consignment()->value, $id)->get()->toArray();
 
         return view('cms.commodity.consignment.edit', [
             'id' => $id,
             'query' => $query,
             'consignmentData' => $consignmentData,
             'consignmentItemData' => $consignmentItemData,
+            'consume_items' => $consumeItems,
             'method' => 'edit',
             'formAction' => Route('cms.consignment.edit', ['id' => $id]),
             'breadcrumb_data' => ['id' => $id, 'sn' => $consignmentData->consignment_sn],

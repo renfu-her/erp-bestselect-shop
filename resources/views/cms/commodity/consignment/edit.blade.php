@@ -180,7 +180,7 @@
                                     <input type="hidden" name="prd_type[]" value="{{ old('prd_type.'. $psItemKey, $psItemVal->prd_type ?? '') }}">
                                     <input type="hidden" name="sku[]" value="{{ old('sku.'. $psItemKey, $psItemVal->sku ?? '') }}">
                                     <input type="hidden" name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal->price ?? '') }}">
-                                    
+
                                     <td data-td="sku">{{ old('sku.'. $psItemKey, $psItemVal->sku ?? '') }}</td>
                                     <td>
                                         @if ($editable)
@@ -273,8 +273,32 @@
                     <dd>{{ $consignmentData->lgt_memo ?? '(待處理)' }}</dd>
                 </div>
             </dl>
+
+            @if (true == isset($consume_items) && 0 < count($consume_items))
+                <div class="table-responsive tableOverBox">
+                    <div class="card-header text-secondary">物流耗材清單</div>
+                    <table class="table tableList table-sm mb-0">
+                        <thead class="table-light text-secondary">
+                        <tr>
+                            <th scope="col">耗材名稱</th>
+                            <th scope="col">SKU</th>
+                            <th scope="col">數量</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach ($consume_items as $consume_key => $consume_item)
+                            <tr>
+                                <td><a href="#" class="-text">{{ $consume_item->product_title }}</a></td>
+                                <td>{{ $consume_item->sku }}</td>
+                                <td>{{ $consume_item->qty }}</td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
         </div>
-        
+
 
         @error('id')
         <div class="alert alert-danger mt-3">{{ $message }}</div>
@@ -324,7 +348,7 @@
                 @else
                     <div class="fw-bold fs-5 mb-2">{{ $consignmentData->audit_status_str }}</div>
                 @endif
-                
+
                 <div class="col">
                     <mark class="fw-light small">
                         <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>審核狀態改為<b> 核可 或 否決 </b>就不能再修改呦！
