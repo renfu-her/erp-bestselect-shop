@@ -163,6 +163,10 @@ class ConsignmentOrderCtrl extends Controller
         $query = $request->query();
         $consignmentData  = CsnOrder::getData($id)->get()->first();
         $consignmentItemData = CsnOrderItem::getData($id)->get();
+
+        $delivery = Delivery::where('event', Event::csn_order()->value)
+            ->where('event_id', $id)
+            ->get()->first();
         if (!$consignmentData) {
             return abort(404);
         }
@@ -178,6 +182,7 @@ class ConsignmentOrderCtrl extends Controller
 
             'consignmentData' => $consignmentData,
             'consignmentItemData' => $consignmentItemData,
+            'delivery' => $delivery,
             'method' => 'edit',
             'formAction' => Route('cms.consignment-order.edit', ['id' => $id]),
             'breadcrumb_data' => ['id' => $id, 'sn' => $consignmentData->sn],

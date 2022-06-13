@@ -15,6 +15,9 @@
         $consignmentData = $consignmentData ?? null;
     @endphp
 
+    @php
+        $editable = false == (isset($delivery) && isset($delivery->audit_date));
+    @endphp
 
     <form id="form1" method="post" action="{{ $formAction }}">
         @method('POST')
@@ -77,19 +80,22 @@
         <div class="card shadow p-4 mb-4">
             <h6>寄倉訂購清單</h6>
             <div class="table-responsive tableOverBox">
-                <table class="table table-hover tableList mb-0">
+                <table class="table @if ($editable) table-hover @else table-striped @endif tableList mb-0">
                     <thead>
                     <tr>
-                        <th scope="col" class="text-center">刪除</th>
+                        @if ($editable)
+                            <th scope="col" class="text-center">刪除</th>
+                        @endif
                         <th scope="col">商品名稱</th>
                         <th scope="col">SKU</th>
                         <th scope="col">訂購數量</th>
                         <th scope="col">訂購價錢</th>
+                        <th scope="col" class="text-end">小計</th>
                         <th scope="col">備註</th>
                     </tr>
                     </thead>
                     <tbody class="-appendClone --selectedP">
-                    @if (0 >= count(old('item_id', $consignmentItemData?? [])))
+                    @if (0 >= count(old('item_id', $consignmentItemData?? [])) && $editable)
                         <tr class="-cloneElem --selectedP d-none">
                             <th class="text-center">
                                 <button type="button"
@@ -109,6 +115,7 @@
                                 <input type="number" class="form-control form-control-sm" name="num[]" min="1" value="" required/>
                             </td>
                             <td data-td="price"></td>
+                            <td data-td="total" class="text-end"></td>
                             <td>
                                 <input type="text" class="form-control form-control-sm" name="memo[]" />
                             </td>
@@ -116,28 +123,41 @@
                     @elseif(0 < count(old('item_id', $consignmentItemData?? [])))
                         @foreach (old('item_id', $consignmentItemData ?? []) as $psItemKey => $psItemVal)
                             <tr class="-cloneElem --selectedP">
-                                <th class="text-center">
-                                    <button type="button"
-                                            class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                    <input type="hidden" name="item_id[]" value="{{ old('item_id.'. $psItemKey, $psItemVal->id?? '') }}">
-                                    <input type="hidden" name="product_style_id[]" value="{{ old('product_style_id.'. $psItemKey, $psItemVal->product_style_id?? '') }}">
-                                    <input type="hidden" name="name[]" value="{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}">
-                                    <input type="hidden" name="prd_type[]" value="{{ old('prd_type.'. $psItemKey, $psItemVal->prd_type?? '') }}">
-                                    <input type="hidden" name="sku[]" value="{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}">
-                                    <input type="hidden" name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}">
-                                </th>
+                                @if ($editable)
+                                    <th class="text-center">
+                                        <button type="button"
+                                                class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </th>
+                                @endif
+                                <input type="hidden" name="item_id[]" value="{{ old('item_id.'. $psItemKey, $psItemVal->id?? '') }}">
+                                <input type="hidden" name="product_style_id[]" value="{{ old('product_style_id.'. $psItemKey, $psItemVal->product_style_id?? '') }}">
+                                <input type="hidden" name="name[]" value="{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}">
+                                <input type="hidden" name="prd_type[]" value="{{ old('prd_type.'. $psItemKey, $psItemVal->prd_type?? '') }}">
+                                <input type="hidden" name="sku[]" value="{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}">
+                                <input type="hidden" name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}">
                                 <td data-td="name">{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}</td>
                                 <td data-td="sku">{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}</td>
                                 <td>
-                                    <input type="number" class="form-control form-control-sm @error('num.' . $psItemKey) is-invalid @enderror"
-                                           name="num[]" value="{{ old('num.'. $psItemKey, $psItemVal->num?? '') }}" min="1" step="1" required/>
+                                    @if ($editable)
+                                        <input type="number" class="form-control form-control-sm @error('num.' . $psItemKey) is-invalid @enderror"
+                                               name="num[]" value="{{ old('num.'. $psItemKey, $psItemVal->num?? '') }}" min="1" step="1" required/>
+                                    @else
+                                        {{ number_format($psItemVal->num) }}
+                                        <input type="hidden" name="num[]" value="{{ $psItemVal->num }}">
+                                    @endif
                                 </td>
                                 <td data-td="price">{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}</td>
+                                <td data-td="total" class="text-end">$ 0</td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm @error('memo.' . $psItemKey) is-invalid @enderror"
-                                           name="memo[]" value="{{ old('memo.'. $psItemKey, $psItemVal->memo?? '') }}"/>
+                                    @if ($editable)
+                                        <input type="text" class="form-control form-control-sm @error('memo.' . $psItemKey) is-invalid @enderror"
+                                               name="memo[]" value="{{ old('memo.'. $psItemKey, $psItemVal->memo?? '') }}"/>
+                                    @else
+                                        {{ $psItemVal->memo }}
+                                        <input type="hidden" name="memo[]" value="{{ $psItemVal->memo }}">
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach
@@ -147,6 +167,7 @@
                     <tr>
                         <th class="lh-1"></th>
                         <th class="lh-1"></th>
+                        @if ($editable) <th class="lh-1"></th> @endif
                         <th class="lh-1"></th>
                         <th class="lh-1">價錢小計</th>
                         <th class="lh-1 text-end -sum">$ 0</th>
@@ -154,24 +175,26 @@
                     </tfoot>
                 </table>
             </div>
-            <div class="d-grid mt-3">
-                @error('product_style_id.*')
-                <div class="alert alert-danger mt-3">商品SKU不可重複</div>
-                @enderror
-                @error('prd_type.*')
-                <div class="alert alert-danger mt-3">不可選擇庫存零的商品</div>
-                @enderror
-                @error('sku_repeat')
-                <div class="alert alert-danger mt-3">{{ $message }}</div>
-                @enderror
-                @error('item_error')
-                <div class="alert alert-danger mt-3">{{ $message }}</div>
-                @enderror
-                <button id="addProductBtn" type="button"
-                        class="btn btn-outline-primary border-dashed" style="font-weight: 500;">
-                    <i class="bi bi-plus-circle bold"></i> 加入商品
-                </button>
-            </div>
+            @if ($editable)
+                <div class="d-grid mt-3">
+                    @error('product_style_id.*')
+                    <div class="alert alert-danger mt-3">商品SKU不可重複</div>
+                    @enderror
+                    @error('prd_type.*')
+                    <div class="alert alert-danger mt-3">不可選擇庫存零的商品</div>
+                    @enderror
+                    @error('sku_repeat')
+                    <div class="alert alert-danger mt-3">{{ $message }}</div>
+                    @enderror
+                    @error('item_error')
+                    <div class="alert alert-danger mt-3">{{ $message }}</div>
+                    @enderror
+                    <button id="addProductBtn" type="button"
+                            class="btn btn-outline-primary border-dashed" style="font-weight: 500;">
+                        <i class="bi bi-plus-circle bold"></i> 加入商品
+                    </button>
+                </div>
+            @endif
         </div>
 
         @if ($method === 'edit' and true == isset($consume_items) && 0 < count($consume_items))
@@ -208,9 +231,7 @@
             <div class="col-auto">
                 <input type="hidden" name="del_item_id">
                 <div class="col">
-                    @if(null == $consignmentData)
-                        <button type="submit" class="btn btn-primary px-4">儲存</button>
-                    @elseif($consignmentData->close_date == null)
+                    @if(null == $consignmentData || (isset($consignmentData) && true == $editable))
                         <button type="submit" class="btn btn-primary px-4">儲存</button>
                     @else
                         {{--判斷已審核 則不可再按儲存--}}
@@ -489,6 +510,7 @@
                             cloneElem.find('td[data-td="name"]').text(`${p.name}-${p.spec}`);
                             cloneElem.find('td[data-td="sku"]').text(p.sku);
                             cloneElem.find('td[data-td="price"]').text(p.price);
+                            cloneElem.find('td[data-td="price"], td[data-td="total"]').text(`$ ${formatNumber(p.price)}`);
                         }
                     }, delItemOption);
                 }
@@ -508,7 +530,7 @@
 
             // 綁定計算
             function bindPriceSum() {
-                $('.-cloneElem.--selectedP input[name="price[]"]')
+                $('.-cloneElem.--selectedP input[name="num[]"]')
                     .off('change.sum').on('change.sum', function () {
                     sumPrice();
                 });
@@ -516,12 +538,18 @@
             // 計算小計
             function sumPrice() {
                 let sum = 0;
-                $('.-cloneElem.--selectedP input[name="price[]"]').each(function (index, element) {
+                $('.-cloneElem.--selectedP').each(function (index, element) {
                     // element == this
-                    const val = Number($(this).val());
-                    sum = Number((sum + val).toFixed(2));
+                    const num = Number($(element).find('input[name="num[]"]').val());
+                    const price = Number($(element).find('input[name="price[]"]').val());
+                    const total = num * price;
+                    $(element).find('td[data-td="total"]').text(`$ ${formatNumber(total.toFixed(2))}`);
+
+                    sum = Number((sum + total).toFixed(2));
                 });
-                $('tfoot th.-sum').text(`$ ${formatNumber(sum.toFixed(2))}`);
+                $('tfoot th.-sum, td.-sum').text(`$ ${formatNumber(sum.toFixed(2))}`);
+                const Total = sum + Number(lgt_cost);
+                $('td.-Total').text(`$ ${formatNumber(Total.toFixed(2))}`);
             }
         </script>
     @endpush
