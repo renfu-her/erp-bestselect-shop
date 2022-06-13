@@ -9,9 +9,9 @@
         <a href="{{ Route('cms.customer.dividend', ['id' => $customer], true) }}"
            class="nav-link {{ isActive('dividend', $route_name) }}">我的鴻利</a>
     </li>
-    <li class="nav-item">
-        <a href="#" class="nav-link ">個人資料</a>
-    </li>
+{{--    <li class="nav-item">--}}
+{{--        <a href="#" class="nav-link ">個人資料</a>--}}
+{{--    </li>--}}
     <li class="nav-item">
         <a href="#" class="nav-link ">推薦註冊</a>
     </li>
