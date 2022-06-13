@@ -398,7 +398,7 @@ class LogisticCtrl extends Controller
             , $send_name, $send_tel, $send_addr
         );
         if ($createOrder['success'] == 0) {
-            throw ValidationException::withMessages(['createOrder' => $createOrder['error_msg']]);
+            throw ValidationException::withMessages(['createOrder' => json_encode($createOrder['error_msg'])]);
         } else {
             Logistic::where('id', $logistic_id)->update([
                 'projlgt_order_sn' => $createOrder['sn']
