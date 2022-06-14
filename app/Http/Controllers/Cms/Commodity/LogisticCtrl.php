@@ -13,6 +13,7 @@ use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\Logistic;
 use App\Models\LogisticFlow;
+use App\Models\LogisticProjLogisticLog;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\ShipmentGroup;
@@ -135,10 +136,11 @@ class LogisticCtrl extends Controller
                         $dims = $api_dim['data'];
                     }
                 }
-                list($send_name, $send_tel, $send_addr, $rcv_name, $rcv_tel, $rcv_addr, $items) =
+                list($send_name, $send_tel, $send_addr, $rcv_name, $rcv_tel, $rcv_addr, $memo, $items) =
                     $this->getDataProjLogisticCreateOrder($event, $delivery, $send_name, $send_tel, $send_addr, $rcv_name, $rcv_tel, $rcv_addr, $items);
             }
         }
+        $projLogisticLog = LogisticProjLogisticLog::getDataWithLogisticId($logistic_id);
 
         $rsp_arr['returnAction'] = $returnAction;
         $rsp_arr['delivery'] = $delivery;
@@ -151,6 +153,7 @@ class LogisticCtrl extends Controller
         $rsp_arr['temps'] = $temps;
         $rsp_arr['dims'] = $dims;
         $rsp_arr['send_name'] = $send_name;
+        $rsp_arr['projLogisticLog'] = $projLogisticLog;
         $rsp_arr['DelLogisticOrderAction'] = Route('cms.logistic.deleteLogisticOrder');
         $rsp_arr['breadcrumb_data'] = ['sn' => $event_sn, 'parent' => $event ];
         return view('cms.commodity.logistic.edit', $rsp_arr);
@@ -379,7 +382,7 @@ class LogisticCtrl extends Controller
         $send_name = ''; $send_tel = ''; $send_addr = '';
         $rcv_name = ''; $rcv_tel = ''; $rcv_addr = '';
         $items = null;
-        list($send_name, $send_tel, $send_addr, $rcv_name, $rcv_tel, $rcv_addr, $items) =
+        list($send_name, $send_tel, $send_addr, $rcv_name, $rcv_tel, $rcv_addr, $memo, $items) =
             $this->getDataProjLogisticCreateOrder($event, $delivery, $send_name, $send_tel, $send_addr, $rcv_name, $rcv_tel, $rcv_addr, $items);
 
         //真實寄件人帶值 其餘不傳此欄位
@@ -390,10 +393,10 @@ class LogisticCtrl extends Controller
         }
 
         $logisticUserApiToken = User::getLogisticApiToken($request->user()->id)->user_token;
-        $createOrder = UserProjLogistics::createOrder($logisticUserApiToken
+        $createOrder = UserProjLogistics::createOrder($request->user(), $logistic_id, $logisticUserApiToken
             , $input['depot_id'], $input['temp_id'], $input['dim_id']
             , $rcv_name, $rcv_tel, $rcv_addr
-            , $order_no, $pickup_date
+            , $memo, $order_no, $pickup_date
             , $items
             , $send_name, $send_tel, $send_addr
         );
@@ -429,7 +432,7 @@ class LogisticCtrl extends Controller
         }
 
         $logisticUserApiToken = User::getLogisticApiToken($request->user()->id)->user_token;
-        $delSn = UserProjLogistics::delSn($logisticUserApiToken, $sn);
+        $delSn = UserProjLogistics::delSn($request->user(), $logistic->id, $logisticUserApiToken, $sn);
         if ($delSn['success'] == 0) {
             throw ValidationException::withMessages(['sn' => $delSn['error_msg']]);
         } else {
@@ -447,6 +450,7 @@ class LogisticCtrl extends Controller
         , $send_name, $send_tel, $send_addr, $rcv_name, $rcv_tel, $rcv_addr
         , $items): array
     {
+        $memo = null;
         if (Event::order()->value == $event) {
             $suborder = SubOrders::where('id', '=', $delivery->event_id)->get()->first();
             $orderQuery = DB::table('ord_orders as order')
@@ -489,11 +493,12 @@ class LogisticCtrl extends Controller
             $rcv_name = $receive_depot->name;
             $rcv_tel = $receive_depot->tel;
             $rcv_addr = $receive_depot->address;
+            $memo = $consignment->memo;
 
             $consignment_item = ConsignmentItem::getProjLogisticItemData($delivery->event_id);
             $items = $consignment_item;
         }
-        return array($send_name, $send_tel, $send_addr, $rcv_name, $rcv_tel, $rcv_addr, $items);
+        return array($send_name, $send_tel, $send_addr, $rcv_name, $rcv_tel, $rcv_addr, $memo, $items);
     }
 }
 

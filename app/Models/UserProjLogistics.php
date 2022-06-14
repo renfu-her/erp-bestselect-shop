@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ProjLogisticLog\Feature;
 use App\Helpers\ITTMSHttp;
 use App\Helpers\LogisticHTTP;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -140,11 +141,12 @@ class UserProjLogistics extends Model
         }
     }
 
-    public static function createOrder($user_token
+    //2.3.7. 建立托運單 POST
+    public static function createOrder($modify_user, $logistic_id, $user_token
         , $depot_id, $temp_id, $dim_id
         , $rcv_name, $rcv_tel, $rcv_addr
-        , $order_no, $pickup_date
-        , $item = null
+        , $memo, $order_no, $pickup_date
+        , $items = null
         , $send_name, $send_tel, $send_addr
     ) {
         if (false == isset($user_token)) {
@@ -165,12 +167,14 @@ class UserProjLogistics extends Model
                 , 'send_name' => $send_name
                 , 'send_tel' => $send_tel
                 , 'send_addr' => $send_addr
+                , 'order_memo' => $memo
             ];
-            if (null != $item && true == is_array($item)) {
-                $req_arr['items'] = json_encode($item);
+            if (null != $items && true == is_array($items)) {
+                $req_arr['items'] = json_encode($items);
             }
             $request = $http->post(env('LOGISTIC_URL') . '/api/user/order/create', $req_arr);
             $response = json_decode($request->body());
+            LogisticProjLogisticLog::createData(Feature::create()->value, $logistic_id, $response->sn ?? null, $response->status, $req_arr, $items, $response, $modify_user);
             if ("0" == $response->status) {
                 return ['success' => 1, 'error_msg' => "", 'sn' => $response->sn];
             } else {
@@ -181,7 +185,8 @@ class UserProjLogistics extends Model
         }
     }
 
-    public static function isEnableDel($user_token, $sn) {
+    //2.3.8. 託運單可否刪除 POST
+    public static function isEnableDel($modify_user, $logistic_id, $user_token, $sn) {
         if (false == isset($user_token)) {
             return ['success' => 0, 'error_msg' => '無權限 api_token'];
         }
@@ -190,10 +195,12 @@ class UserProjLogistics extends Model
         }
         try {
             $http = Http::withToken($user_token);
-            $request = $http->post(env('LOGISTIC_URL') . '/api/user/order/is-enable-del', [
+            $req_arr = [
                 'sn' => $sn
-            ]);
+            ];
+            $request = $http->post(env('LOGISTIC_URL') . '/api/user/order/is-enable-del', $req_arr);
             $response = json_decode($request->body());
+            LogisticProjLogisticLog::createData(Feature::is_enable_del()->value, $logistic_id, $sn, $response->status, $req_arr, null, $response, $modify_user);
             if ("0" == $response->status) {
                 if ("true" == $response->data) {
                     return ['success' => 1, 'error_msg' => ""];
@@ -208,17 +215,20 @@ class UserProjLogistics extends Model
         }
     }
 
-    public static function delSn($user_token, $sn) {
-        $isEnable = self::isEnableDel($user_token, $sn);
+    //2.3.9. 刪除託運單 POST
+    public static function delSn($modify_user, $logistic_id, $user_token, $sn) {
+        $isEnable = self::isEnableDel($modify_user, $logistic_id, $user_token, $sn);
         if ($isEnable['success'] == 0) {
             return $isEnable;
         } else {
             try {
                 $http = Http::withToken($user_token);
-                $request = $http->post(env('LOGISTIC_URL') . '/api/user/order/del', [
+                $req_arr = [
                     'sn' => $sn
-                ]);
+                ];
+                $request = $http->post(env('LOGISTIC_URL') . '/api/user/order/del', $req_arr);
                 $response = json_decode($request->body());
+                LogisticProjLogisticLog::createData(Feature::del_order()->value, $logistic_id, $sn, $response->status, $req_arr, null, $response, $modify_user);
                 if ("0" == $response->status) {
                     return ['success' => 1, 'error_msg' => ""];
                 } else {

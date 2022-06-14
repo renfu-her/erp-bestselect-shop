@@ -274,6 +274,40 @@
         @endif
     @endif
 
+    @if(isset($projLogisticLog) && 0 < count($projLogisticLog))
+        <div class="card shadow p-4 mb-4">
+            <h6>喜鴻託運單產生紀錄</h6>
+            <div class="table-responsive tableOverBox">
+                <table class="table table-striped tableList">
+                    <thead>
+                    <tr>
+                        <th>新增日期</th>
+                        <th>行為</th>
+                        <th>狀態</th>
+                        <th>物流單號</th>
+                        <th>上行文本</th>
+                        <th>下行文本</th>
+                        <th>操作人</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach ($projLogisticLog as $lgt_log)
+                        <tr>
+                            <td>{{ $lgt_log->created_at }}</td>
+                            <td>{{ $lgt_log->feature }}</td>
+                            <td>{{ $lgt_log->status }}</td>
+                            <td>{{ $lgt_log->order_sn }}</td>
+                            <td>{{ ($lgt_log->text_request) }}</td>
+                            <td>{{ $lgt_log->text_response }}</td>
+                            <td>{{ $lgt_log->create_user_name }}</td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    @endif
+
     <div>
         <div class="col-auto">
             <a href="{{ $returnAction }}"
