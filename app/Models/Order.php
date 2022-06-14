@@ -187,6 +187,9 @@ class Order extends Model
                 $join->on('shi_group.id', '=', 'dlv_logistic.ship_group_id');
                 $join->whereNotNull('dlv_logistic.ship_group_id');
             })
+            ->leftJoin('shi_method', function ($join) {
+                $join->on('shi_group.method_fk', '=', 'shi_method.id');
+            })
             ->leftJoin('prd_suppliers', function ($join) {
                 $join->on('prd_suppliers.id', '=', 'shi_group.supplier_fk');
                 $join->whereNotNull('shi_group.supplier_fk');
@@ -212,6 +215,7 @@ class Order extends Model
             ->selectRaw("IF(dlv_logistic.projlgt_order_sn IS NULL,'',dlv_logistic.projlgt_order_sn) as projlgt_order_sn")
             ->selectRaw("IF(shi_group.name IS NULL,'',shi_group.name) as ship_group_name")
             ->selectRaw("IF(shi_group.note IS NULL,'',shi_group.note) as ship_group_note")
+            ->selectRaw("IF(shi_method.method IS NULL,'',shi_method.method) as ship_method")
             ->selectRaw("IF(prd_suppliers.id IS NULL,'',prd_suppliers.id) as supplier_id")
             ->selectRaw("IF(prd_suppliers.name IS NULL,'',prd_suppliers.name) as supplier_name")
             ->selectRaw("IF(sub_order.ship_temp IS NULL,'',sub_order.ship_temp) as ship_temp")
