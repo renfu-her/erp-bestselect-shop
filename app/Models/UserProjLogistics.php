@@ -25,7 +25,7 @@ class UserProjLogistics extends Model
             $user = User::where('id', $user_id)->get()->first();
             if ("0" == $lgt_users['user']) {
                 $http = Http::withToken($user_token);
-                $api_user_delete = $http->get(env('LOGISTIC_URL') . '/api/user/user/delete/' . $user->account);
+                $api_user_delete = $http->get(env('LOGISTIC_URL') . 'api/user/user/delete/' . $user->account);
                 $api_user_delete = json_decode($api_user_delete->body());
                 if ("0" == $api_user_delete->status) {
                     UserProjLogistics::where('user_fk', '=', $user_id)->where('type', '=', "user")->update(["is_open" => 0]);
@@ -38,7 +38,7 @@ class UserProjLogistics extends Model
                 //  有:更新 無:新增一筆
                 //打API創建該人員後 若有回傳API_TOKEN則存入 回傳後做恢復
                 $http = Http::withToken($user_token);
-                $api_user_create = $http->post(env('LOGISTIC_URL') . '/api/user/user/create/', [
+                $api_user_create = $http->post(env('LOGISTIC_URL') . 'api/user/user/create/', [
                     'account' => $user->account
                     , 'name' => $user->name
                 ]);
@@ -59,7 +59,7 @@ class UserProjLogistics extends Model
                     //已建立過
                     //打API 確認開啟
                     $http = Http::withToken($user_token);
-                    $api_user_recover = $http->get(env('LOGISTIC_URL') . '/api/user/user/recover/' . $user->account);
+                    $api_user_recover = $http->get(env('LOGISTIC_URL') . 'api/user/user/recover/' . $user->account);
                     $api_user_recover = json_decode($api_user_recover->body());
                     if ("0" == $api_user_recover->status) {
                         $user_proj_lgt_user = UserProjLogistics::where('user_fk', '=', $user_id)->where('type', '=', "user")->get()->first();
@@ -88,7 +88,7 @@ class UserProjLogistics extends Model
         }
         try {
             $http = Http::withToken($user_token);
-            $request = $http->get(env('LOGISTIC_URL') . '/api/user/depot/get');
+            $request = $http->get(env('LOGISTIC_URL') . 'api/user/depot/get');
             $response = json_decode($request->body());
             if ("0" == $response->status) {
                 return ['success' => 1, 'error_msg' => "", 'data' => $response->data];
@@ -107,7 +107,7 @@ class UserProjLogistics extends Model
         }
         try {
             $http = Http::withToken($user_token);
-            $request = $http->get(env('LOGISTIC_URL') . '/api/user/temp/get');
+            $request = $http->get(env('LOGISTIC_URL') . 'api/user/temp/get');
             $response = json_decode($request->body());
             if ("0" == $response->status) {
                 return ['success' => 1, 'error_msg' => "", 'data' => $response->data];
@@ -129,7 +129,7 @@ class UserProjLogistics extends Model
         }
         try {
             $http = Http::withToken($user_token);
-            $request = $http->get(env('LOGISTIC_URL') . '/api/user/temp/'. $temp_id.'/dim/get');
+            $request = $http->get(env('LOGISTIC_URL') . 'api/user/temp/'. $temp_id.'/dim/get');
             $response = json_decode($request->body());
             if ("0" == $response->status) {
                 return ['success' => 1, 'error_msg' => "", 'data' => $response->data];
@@ -172,7 +172,7 @@ class UserProjLogistics extends Model
             if (null != $items && true == is_array($items)) {
                 $req_arr['items'] = json_encode($items);
             }
-            $request = $http->post(env('LOGISTIC_URL') . '/api/user/order/create', $req_arr);
+            $request = $http->post(env('LOGISTIC_URL') . 'api/user/order/create', $req_arr);
             $response = json_decode($request->body());
             LogisticProjLogisticLog::createData(Feature::create()->value, $logistic_id, $response->sn ?? null, $response->status, $req_arr, $items, $response, $modify_user);
             if ("0" == $response->status) {
@@ -198,7 +198,7 @@ class UserProjLogistics extends Model
             $req_arr = [
                 'sn' => $sn
             ];
-            $request = $http->post(env('LOGISTIC_URL') . '/api/user/order/is-enable-del', $req_arr);
+            $request = $http->post(env('LOGISTIC_URL') . 'api/user/order/is-enable-del', $req_arr);
             $response = json_decode($request->body());
             LogisticProjLogisticLog::createData(Feature::is_enable_del()->value, $logistic_id, $sn, $response->status, $req_arr, null, $response, $modify_user);
             if ("0" == $response->status) {
@@ -226,7 +226,7 @@ class UserProjLogistics extends Model
                 $req_arr = [
                     'sn' => $sn
                 ];
-                $request = $http->post(env('LOGISTIC_URL') . '/api/user/order/del', $req_arr);
+                $request = $http->post(env('LOGISTIC_URL') . 'api/user/order/del', $req_arr);
                 $response = json_decode($request->body());
                 LogisticProjLogisticLog::createData(Feature::del_order()->value, $logistic_id, $sn, $response->status, $req_arr, null, $response, $modify_user);
                 if ("0" == $response->status) {

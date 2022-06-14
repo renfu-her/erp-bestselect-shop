@@ -300,7 +300,7 @@
                             <dt>包裹編號</dt>
                             <dd>
                                 @if(false == empty($subOrder->projlgt_order_sn))
-                                    <a href="{{env('LOGISTIC_URL'). '/guest/order-flow/'. $subOrder->projlgt_order_sn }}" class="btn btn-link">
+                                    <a href="{{env('LOGISTIC_URL'). 'guest/order-flow/'. $subOrder->projlgt_order_sn }}" class="btn btn-link">
                                         {{$subOrder->projlgt_order_sn}}
                                     </a>
                                 @else
@@ -400,9 +400,9 @@
                 @endif
                 <div class="d-flex align-items-center mb-4 mt-3">
                     <h6 class="flex-grow-1 mb-0">訂單總覽</h6>
-                   
+
                     <div class="form-check form-check-inline form-switch form-switch-lg">
-                       
+
                         <label class="form-check-label">
                             <input class="form-check-input -auto-send" type="checkbox" name="" value=""
                                 @if ($order->auto_dividend == '1') checked @endif
