@@ -120,6 +120,7 @@ class AccountReceivedCtrl extends Controller
                     'product_owner'=>null,
                     'discount_title'=>null,
                     'payable_type'=>null,
+                    'received_info'=>null,
                 ];
                 GeneralLedger::classification_processing($debit, $credit, $tmp);
             }
@@ -150,6 +151,7 @@ class AccountReceivedCtrl extends Controller
                     'product_owner'=>null,
                     'discount_title'=>null,
                     'payable_type'=>null,
+                    'received_info'=>null,
                 ];
                 GeneralLedger::classification_processing($debit, $credit, $tmp);
             }
@@ -179,6 +181,7 @@ class AccountReceivedCtrl extends Controller
                     'product_owner'=>null,
                     'discount_title'=>null,
                     'payable_type'=>null,
+                    'received_info'=>null,
                 ];
                 GeneralLedger::classification_processing($debit, $credit, $tmp);
             }
@@ -209,6 +212,7 @@ class AccountReceivedCtrl extends Controller
                         'product_owner'=>null,
                         'discount_title'=>$d_value->title,
                         'payable_type'=>null,
+                        'received_info'=>null,
                     ];
                     GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }
@@ -408,13 +412,6 @@ class AccountReceivedCtrl extends Controller
             'deleted_at'=>null,
         ]);
         $received_order_id = $received_order_collection->first()->id;
-        $card_type = [
-            'visa'=>'VISA',
-            'jcb'=>'JCB',
-            'master'=>'MASTER',
-            'american_express'=>'美國運通卡',
-            'union_pay'=>'銀聯卡',
-        ];
 
         DB::beginTransaction();
 
@@ -591,10 +588,12 @@ class AccountReceivedCtrl extends Controller
                 'invoice_number'=>request('invoice_number'),
             ]);
 
-            if( in_array(request('received_method'), ReceivedMethod::asArray()) ){
+            if( in_array(request('received_method'), ReceivedMethod::asArray()) && is_array(request(request('received_method')))){
                 $req = request(request('received_method'));
-                $req['received_method'] = request('received_method');
-                ReceivedOrder::update_received_method($req);
+                foreach($req as $r){
+                    $r['received_method'] = request('received_method');
+                    ReceivedOrder::update_received_method($r);
+                }
             }
 
             OrderFlow::changeOrderStatus($id, OrderStatus::Received());
@@ -645,6 +644,8 @@ class AccountReceivedCtrl extends Controller
                         'product_owner'=>null,
                         'discount_title'=>null,
                         'payable_type'=>null,
+
+                        'received_info'=>$value,
                     ];
                     GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }
@@ -676,6 +677,7 @@ class AccountReceivedCtrl extends Controller
                         'product_owner'=>null,
                         'discount_title'=>null,
                         'payable_type'=>null,
+                        'received_info'=>null,
                     ];
                     GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }
@@ -707,6 +709,7 @@ class AccountReceivedCtrl extends Controller
                         'product_owner'=>null,
                         'discount_title'=>null,
                         'payable_type'=>null,
+                        'received_info'=>null,
                     ];
                     GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }
@@ -743,7 +746,8 @@ class AccountReceivedCtrl extends Controller
                             'product_owner'=>null,
                             'discount_title'=>$value->title,
                             'payable_type'=>null,
-                        ];
+                            'received_info'=>null,
+                    ];
                         GeneralLedger::classification_processing($debit, $credit, $tmp);
                     }
                 }

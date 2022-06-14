@@ -114,6 +114,7 @@ class AccountPayableCtrl extends Controller
                         'product_owner'=>null,
                         'discount_title'=>null,
                         'payable_type'=>$pay_v->payable_type,
+                        'received_info'=>null,
                     ];
                     GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }
@@ -147,6 +148,7 @@ class AccountPayableCtrl extends Controller
                         'product_owner'=>$pro_v->product_owner,
                         'discount_title'=>null,
                         'payable_type'=>null,
+                        'received_info'=>null,
                     ];
                     GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }
@@ -177,6 +179,7 @@ class AccountPayableCtrl extends Controller
                     'product_owner'=>null,
                     'discount_title'=>null,
                     'payable_type'=>null,
+                    'received_info'=>null,
                 ];
                 GeneralLedger::classification_processing($debit, $credit, $tmp);
             }
