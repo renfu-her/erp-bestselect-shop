@@ -476,7 +476,9 @@ class OrderCtrl extends Controller
 
             $orders[] = [
                 'id' => $order->id,
+                'status' => $order->status,
                 'sn' => $order->sn,
+                'payment_status' => $order->payment_status,
                 'created_at' => $order->created_at,
                 'total_price' => $order->total_price,
                 'sub_order' => $subOrderArray,
