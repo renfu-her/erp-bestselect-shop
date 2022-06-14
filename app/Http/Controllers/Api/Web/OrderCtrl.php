@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Web;
 
 use App\Enums\Delivery\Event;
+use App\Enums\Globals\ApiStatusMessage;
 use App\Enums\Globals\ResponseParam;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Order\UserAddrType;
@@ -408,6 +409,85 @@ class OrderCtrl extends Controller
             'stauts' => 'E05',
             'message' => $re,
         ];
+    }
+
+    /**
+     * @param  Request  $request
+     * 訂單列表API
+     * @return
+     */
+    public function orderList(Request $request)
+    {
+        $validRule = [];
+        if (!Auth::guard('sanctum')->check()) {
+            $validRule['email'] = 'required|email';
+        }
+        $validator = Validator::make($request->all(), $validRule);
+        if ($validator->fails()) {
+            return response()->json([
+                ResponseParam::status => ApiStatusMessage::Fail,
+                ResponseParam::msg => $validator->errors(),
+                ResponseParam::data => [],
+            ]);
+        }
+
+        $data = $request->all();
+        $orderIds = Order::where('email', '=', $data['email'])->select('id')->get();
+
+        if (!$orderIds) {
+            return response()->json([
+                ResponseParam::status => ApiStatusMessage::Fail,
+                ResponseParam::msg => "查無訂單",
+                ResponseParam::data => [],
+            ]);
+        }
+
+        $orders = [];
+        foreach ($orderIds as $orderId) {
+            $order = Order::orderDetail($orderId->id, $data['email'])->get()->first();
+            $subOrder = Order::subOrderDetail($orderId->id)->get()->toArray();
+
+            $subOrderArray = array_map(function ($n) {
+                $delivery = Delivery::getDeliveryWithEventWithSn(Event::order, $n->id)->select('id')->get()->first();
+                $n->shipment_flow = LogisticFlow::getListByDeliveryId($delivery->id)->select('status', 'created_at')->get()->toArray();
+
+                $n->items = json_decode($n->items);
+                foreach ($n->items as $key => $value) {
+                    if ($value->img_url) {
+                        $n->items[$key]->img_url = asset($n->items[$key]->img_url);
+                    } else {
+                        $n->items[$key]->img_url = '';
+                    }
+                    //convert string value to int type
+                    if ($value->qty) {
+                        $n->items[$key]->qty = intval($n->items[$key]->qty);
+                    }
+                    if ($value->total_price) {
+                        $n->items[$key]->total_price = intval($n->items[$key]->total_price);
+                    }
+                }
+
+                //convert string value to int type
+                if ($n->dlv_fee) {
+                    $n->dlv_fee = intval($n->dlv_fee);
+                }
+                return $n;
+            }, $subOrder);
+
+            $orders[] = [
+                'id' => $order->id,
+                'sn' => $order->sn,
+                'created_at' => $order->created_at,
+                'total_price' => $order->total_price,
+                'sub_order' => $subOrderArray,
+            ];
+        }
+
+        return response()->json([
+            ResponseParam::status => ApiStatusMessage::Succeed,
+            ResponseParam::msg => '',
+            ResponseParam::data => $orders,
+        ]);
     }
 
     public function orderDetail(Request $request)
