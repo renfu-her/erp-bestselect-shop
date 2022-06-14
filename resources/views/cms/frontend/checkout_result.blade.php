@@ -29,7 +29,11 @@
                                     </tr>
                                     <tr>
                                         <th>刷卡摘要</th>
+                                        @if($received_data)
+                                        <td>{{ $received_data->credit_card_authcode ? '授權碼:' . $received_data->credit_card_authcode . ' ' : '' }}{{ $received_data->credit_card_number ? '卡號:' . $received_data->credit_card_number : '' }}</td>
+                                        @else
                                         <td>{{ $order->log_authcode ? '授權碼:' . $order->log_authcode . ' ' : '' }}{{ $order->log_cardnumber ? '卡號:' . $order->log_cardnumber : '' }}</td>
+                                        @endif
                                     </tr>
                                 </tbody>
                             </table>
