@@ -413,19 +413,31 @@
                     @if ($order->allotted_dividend === 0)
                         <button type="button" class="btn btn-sm btn-success -in-header -active-send" disabled>手動發放</button>
                     @endif
-                    <div> 預計發放日:{{ $order->dividend_active_at }}</div>
                 </div>
 
                 <div class="table-responsive">
                     <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
-                        <tbody>
+                        @if (!$order->allotted_dividend)
+                            <caption class="small text-end">鴻利預計發放時間：
+                                @if (isset($order->dividend_active_at)) {{ date('Y/m/d H:i', strtotime($order->dividend_active_at)) }}
+                                @else 未入款 @endif
+                            </caption>
+                        @endif
+                        
+                        <tbody class="border-top-0">
                             <tr class="table-light">
                                 <td class="col-2">小計</td>
                                 <td class="col-2">折扣</td>
                                 <td class="col-2 lh-sm">折扣後 <br class="d-xxl-none">(不含運)</td>
                                 <td class="col-2">運費</td>
                                 <td class="col-2">總金額</td>
-                                <td class="col-2 lh-sm">預計獲得<span class="text-primary d-block d-xxl-inline">鴻利點數</span></td>
+                                <td class="col-2 lh-sm">
+                                    @if ($order->allotted_dividend)
+                                        獲得<a href="{{ route('cms.sale_channel.index') }}" class="-text">鴻利</a>
+                                    @else
+                                        預計獲得<a href="{{ route('cms.sale_channel.index') }}" class="-text d-block d-xxl-inline">鴻利點數</a>
+                                    @endif
+                                </td>
                             </tr>
                             <tr>
                                 <td>${{ number_format($order->origin_price) }}</td>
@@ -444,8 +456,14 @@
                         </tbody>
                     </table>
                     <table class="table table-bordered table-sm text-center align-middle d-table d-sm-none">
-                        <tbody>
-                            <tr>
+                        @if (!$order->allotted_dividend)
+                            <caption class="small text-end">鴻利預計發放時間：
+                                @if (isset($order->dividend_active_at)) {{ date('Y/m/d H:i', strtotime($order->dividend_active_at)) }}
+                                @else 未入款 @endif
+                            </caption>
+                        @endif
+                        <tbody class="border-top-0">
+                            <tr style="border-color: #dfe0e1;">
                                 <td class="col-7 table-light">小計</td>
                                 <td class="text-end pe-4">${{ number_format($order->origin_price) }}</td>
                             </tr>
@@ -467,7 +485,13 @@
                                 <td class="fw-bold text-end pe-4">${{ number_format($order->total_price) }}</td>
                             </tr>
                             <tr>
-                                <td class="col-7 table-light lh-sm">預計獲得<span class="text-primary">鴻利點數</span></td>
+                                <td class="col-7 table-light lh-sm">
+                                    @if ($order->allotted_dividend)
+                                        獲得<a href="{{ route('cms.sale_channel.index') }}" class="-text">鴻利</a>
+                                    @else
+                                        預計獲得<a href="{{ route('cms.sale_channel.index') }}" class="-text">鴻利點數</a>
+                                    @endif
+                                </td>
                                 <td class="text-end pe-4">
                                     @if ($order->allotted_dividend)
                                         <span class="badge bg-success">已發</span>
