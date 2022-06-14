@@ -18,6 +18,10 @@ use Illuminate\Support\Facades\Route;
 |
  */
 
+Route::get('/getip', function (Request $request) {
+    return $_SERVER['REMOTE_ADDR'];
+});
+
 Route::get('/tokens/get', function (Request $request) {
 
     //  $token = User::where('id', 1)->get()->first()->tokens()->delete();
