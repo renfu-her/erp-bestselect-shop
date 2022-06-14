@@ -17,7 +17,7 @@ class CustomerCoupon extends Model
 
         $re = DB::table('usr_customer_coupon as cc')
             ->leftJoin('dis_discounts as discount', 'discount.id', '=', 'cc.discount_id')
-            ->select('discount.*', 'discount.id as discount_id', 'cc.id as id')
+            ->select('discount.*', 'discount.id as discount_id', 'cc.id as id','cc.used')
             ->selectRaw('IF(active_sdate IS NULL,"",active_sdate) as active_sdate')
             ->selectRaw('IF(active_edate IS NULL,"",active_edate) as active_edate')
             ->where('cc.customer_id', $customer_id);
