@@ -602,9 +602,10 @@
                     }).then((result) => {
                         console.log(result.data);
                         if (result.data.status === '0') {
-                            toast.show('已發放鴻利');
+                            toast.show('已發放鴻利、優惠劵');
                             $('.badge.bg-secondary').removeClass('bg-secondary')
                                 .addClass('bg-success').text('已發');
+                            $('input.-auto-send').prop('disabled', true);
                         } else {
                             toast.show(`失敗：${result.data.message}`, {
                                 type: 'danger'
