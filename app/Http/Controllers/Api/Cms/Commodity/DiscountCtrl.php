@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CustomerCoupon;
 use App\Models\Discount;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
@@ -133,9 +134,18 @@ class DiscountCtrl extends Controller
 
         }
 
+        $d = $request->all();
+        $used = Arr::get($d, 'used', 0);
+        $active = Arr::get($d, 'active', 1);
+
+        if (isset($d['all'])) {
+            $used = null;
+            $active = null;
+        }
+
         return response()->json([
             'status' => '0',
-            'data' => CustomerCoupon::getList($customer_id, 0, 1)->get(),
+            'data' => CustomerCoupon::getList($customer_id, $used, $active)->get(),
         ]);
 
     }
