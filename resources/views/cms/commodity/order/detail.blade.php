@@ -400,7 +400,9 @@
                 @endif
                 <div class="d-flex align-items-center mb-4 mt-3">
                     <h6 class="flex-grow-1 mb-0">訂單總覽</h6>
+                   
                     <div class="form-check form-check-inline form-switch form-switch-lg">
+                       
                         <label class="form-check-label">
                             <input class="form-check-input -auto-send" type="checkbox" name="" value=""
                                 @if ($order->auto_dividend == '1') checked @endif
@@ -411,6 +413,7 @@
                     @if ($order->allotted_dividend === 0)
                         <button type="button" class="btn btn-sm btn-success -in-header -active-send" disabled>手動發放</button>
                     @endif
+                    <div> 預計發放日:{{ $order->dividend_active_at }}</div>
                 </div>
 
                 <div class="table-responsive">
