@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Cms\Commodity\DiscountCtrl;
 use App\Http\Controllers\Api\CustomerCtrl;
 use App\Http\Controllers\Api\Web\NaviCtrl;
+use App\Http\Controllers\Api\Web\OrderCtrl;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -50,6 +51,7 @@ Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => ['aut
     Route::post('/delete-address', [CustomerCtrl::class, 'deleteAddress'])->name('delete_address');
     Route::post('/edit-address', [CustomerCtrl::class, 'editAddress'])->name('edit_address');
     Route::post('/default-address', [CustomerCtrl::class, 'setDefaultAddress'])->name('default_address');
+    Route::post('/order-list', [OrderCtrl::class, 'orderList'])->name('order_list');
 
     Route::get('/logout-all', [CustomerCtrl::class, 'tokensDeleteAll']);
     Route::get('/logout', [CustomerCtrl::class, 'tokensDeleteCurrent']);
