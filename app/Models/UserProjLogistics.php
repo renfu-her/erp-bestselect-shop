@@ -90,8 +90,6 @@ class UserProjLogistics extends Model
             $http = Http::withToken($user_token);
             $request = $http->get(env('LOGISTIC_URL') . 'api/user/depot/get');
             $response = json_decode($request->body());
-            var_dump($request->status());
-            var_dump($response);
             if ("0" == $response->status) {
                 return ['success' => 1, 'error_msg' => "", 'data' => $response->data];
             } else {
