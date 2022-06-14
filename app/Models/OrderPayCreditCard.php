@@ -80,11 +80,36 @@ class OrderPayCreditCard extends Model
         foreach ($browser_arr as $key => $value)
             if (preg_match($key, $agent)) $browser = $value;
 
+        $installment = 'none';
+        $ckeckout_date = date("Y-m-d H:i:s");
+        $card_type_code = null;
+        $card_type = null;
+        $card_owner_name = null;
+        $all_grades_id = 0;
+        $checkout_area_code = 'taipei';
+        $checkout_area = '台北';
+        $requested = 'n';
+        $card_nat = 'local';
+        $checkout_mode = 'online';
+        if(property_exists($response, 'more_info') && count($response->more_info) > 0){
+            $installment = $response->more_info['installment'];
+            $ckeckout_date = $response->more_info['ckeckout_date'];
+            $card_type_code = $response->more_info['card_type_code'];
+            $card_type = $response->more_info['card_type'];
+            $card_owner_name = $response->more_info['card_owner_name'];
+            $all_grades_id = $response->more_info['all_grades_id'];
+            $checkout_area_code = $response->more_info['checkout_area_code'];
+            $checkout_area = $response->more_info['checkout_area'];
+            $requested = $response->more_info['requested'];
+            $card_nat = $response->more_info['card_nat'];
+            $checkout_mode = $response->more_info['checkout_mode'];
+        }
+
         self::create([
             'order_id'=>$order_id,
             'status'=>property_exists($response, 'status') ? $response->status : null,
             'errcode'=>property_exists($response, 'errcode') ? $response->errcode : null,
-            'errdesc'=>property_exists($response, 'errdesc') ? mb_convert_encoding(trim($response->errdesc, "\x00..\x08"), 'UTF-8', ['BIG5', 'UTF-8']) : null,
+            'errdesc'=>property_exists($response, 'errdesc') ? ( mb_convert_encoding(trim($response->errdesc, "\x00..\x08"), 'UTF-8', ['BIG5', 'UTF-8']) !== 'null' ? mb_convert_encoding(trim($response->errdesc, "\x00..\x08"), 'UTF-8', ['BIG5', 'UTF-8']) : null ) : null,
             'outmac'=>property_exists($response, 'outmac') ? $response->outmac : null,
             'merid'=>property_exists($response, 'merid') ? $response->merid : null,
             'authcode'=>property_exists($response, 'authcode') ? $response->authcode : null,
@@ -95,6 +120,19 @@ class OrderPayCreditCard extends Model
             'last4digitpan'=>property_exists($response, 'last4digitpan') ? $response->last4digitpan : null,
             'cardnumber'=>property_exists($response, 'cardnumber') ? $response->cardnumber : null,
             'authresurl'=>property_exists($response, 'authresurl') ? $response->authresurl : null,
+
+            'installment'=>$installment,
+            'ckeckout_date'=>$ckeckout_date,
+            'card_type_code'=>$card_type_code,
+            'card_type'=>$card_type,
+            'card_owner_name'=>$card_owner_name,
+            'all_grades_id'=>$all_grades_id,
+            'checkout_area_code'=>$checkout_area_code,
+            'checkout_area'=>$checkout_area,
+            'requested'=>$requested,
+            'card_nat'=>$card_nat,
+            'checkout_mode'=>$checkout_mode,
+
             'hostname_external'=>$ipaddress,
             'hostname_internal'=>request()->ip() ? request()->ip() : 'Unknown',
             'os'=>$platform,
