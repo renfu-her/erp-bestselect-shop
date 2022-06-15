@@ -166,7 +166,7 @@ class PurchaseItem extends Model
     //採購 明細(會鋪出全部的採購商品)
     //******* 修改時請一併修改採購 總表
     public static function getPurchaseDetailList(
-        $purchase_id = null
+          $purchase_id = null
         , $purchase_item_id = null
         , $purchase_sn = null
         , $title = null
@@ -370,10 +370,10 @@ class PurchaseItem extends Model
     ) {
         //訂金單號
         $subColumn = DB::table('pcs_paying_orders as order')
-            ->select('order.id')
+            ->select('order.sn')
             ->whereColumn('order.source_id', '=', 'purchase.id')
             ->where([
-                'order.source_type'=>app(Purchase::class)->getTable(),
+                'order.source_type'=>DB::raw('"'. app(Purchase::class)->getTable().'"'),
                 'order.type'=>DB::raw('0'),
             ])
             ->whereNull('order.deleted_at')
@@ -381,10 +381,10 @@ class PurchaseItem extends Model
             ->limit(1);
         //尾款單號
         $subColumn2 = DB::table('pcs_paying_orders as order')
-            ->select('order.id')
+            ->select('order.sn')
             ->whereColumn('order.source_id', '=', 'purchase.id')
             ->where([
-                'order.source_type'=>app(Purchase::class)->getTable(),
+                'order.source_type'=>DB::raw('"'. app(Purchase::class)->getTable().'"'),
                 'order.type'=>DB::raw('1'),
             ])
             ->whereNull('order.deleted_at')
