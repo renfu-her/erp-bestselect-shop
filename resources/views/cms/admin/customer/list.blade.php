@@ -36,6 +36,7 @@
                     <tr>
                         <th scope="col" style="width:10%">#</th>
                         <th scope="col">姓名</th>
+                        <th scope="col">會員編號</th>
                         <th scope="col">帳號</th>
                         @can('cms.customer.address')
                             <th scope="col" class="text-center">會員專區</th>
@@ -50,6 +51,7 @@
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td>{{ $data->name }}</td>
+                            <td>{{ $data->sn }}</td>
                             <td>{{ $data->email }}</td>
                             <td class="text-center">
                                 @can('cms.customer.address')

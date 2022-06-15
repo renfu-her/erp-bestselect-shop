@@ -63,7 +63,7 @@ class Customer extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'birthday'  => 'datetime:Y-m-d',
+        'birthday' => 'datetime:Y-m-d',
     ];
 
     public function sendPasswordResetNotification($token)
@@ -94,12 +94,18 @@ class Customer extends Authenticatable
         , $newsletter = null
         , $loginMethods = null
     ) {
+        DB::beginTransaction();
+        $sn = "M" . str_pad((self::get()
+                ->count()) + 1, 9, '0', STR_PAD_LEFT);
+
+        // S000000187
         $arr = [
             'name' => $name,
             'phone' => $phone,
             'email' => $email,
             'birthday' => $birthday,
             'sex' => $sex,
+            'sn' => $sn,
             //'acount_status' => $acount_status,
             'password' => Hash::make($password),
             'api_token' => Str::random(80),
@@ -113,7 +119,7 @@ class Customer extends Authenticatable
         $id = $customer->id;
 
         //創建消費者時，直接給一消費者身分
-       // $identity = DB::table('usr_identity')->where('code', 'customer')->get()->first();
+        // $identity = DB::table('usr_identity')->where('code', 'customer')->get()->first();
         CustomerIdentity::add($id, 'customer');
 
         CustomerLogin::addLoginMethod($id, $loginMethods);
@@ -124,19 +130,19 @@ class Customer extends Authenticatable
             !is_null($addr)) {
             CustomerAddress::create([
                 'usr_customers_id_fk' => $id,
-                'name'                => $name,
-                'phone'               => $phone,
-                'address'             => $address,
-                'city_id'             => $city_id,
-                'region_id'           => $region_id,
-                'addr'                => $addr,
-                'is_default_addr'        => 1,
+                'name' => $name,
+                'phone' => $phone,
+                'address' => $address,
+                'city_id' => $city_id,
+                'region_id' => $region_id,
+                'addr' => $addr,
+                'is_default_addr' => 1,
             ]);
         }
 
 //        self::where('id', '=', $id)->get()->first()->givePermissionTo($permission_id);
-//        self::where('id', '=', $id)->get()->first()->assignRole($role_id);
-
+        //        self::where('id', '=', $id)->get()->first()->assignRole($role_id);
+        DB::commit();
         return $id;
     }
 
@@ -155,15 +161,15 @@ class Customer extends Authenticatable
                 , 'phone'
                 , 'sex'
                 , DB::raw('(case
-                        when sex = '. Sex::female()->value .' then "'. Sex::getDescription(Sex::female()->value) .'"
-                        when sex = '. Sex::male()->value .' then "'. Sex::getDescription(Sex::male()->value) .'"
-                        else "'. '' .'"
+                        when sex = ' . Sex::female()->value . ' then "' . Sex::getDescription(Sex::female()->value) . '"
+                        when sex = ' . Sex::male()->value . ' then "' . Sex::getDescription(Sex::male()->value) . '"
+                        else "' . '' . '"
                     end) as sex_title') //性別
                 , 'newsletter'
                 , DB::raw('(case
-                        when newsletter = '. Newsletter::un_subscribe()->value .' then "'. Newsletter::getDescription(Newsletter::un_subscribe()->value) .'"
-                        when newsletter = '. Newsletter::subscribe()->value .' then "'. Newsletter::getDescription(Newsletter::subscribe()->value) .'"
-                        else "'. '' .'"
+                        when newsletter = ' . Newsletter::un_subscribe()->value . ' then "' . Newsletter::getDescription(Newsletter::un_subscribe()->value) . '"
+                        when newsletter = ' . Newsletter::subscribe()->value . ' then "' . Newsletter::getDescription(Newsletter::subscribe()->value) . '"
+                        else "' . '' . '"
                     end) as newsletter_title') //訂閱電子報
                 , 'acount_status'
                 , 'password'
