@@ -212,6 +212,11 @@ class ReceivedOrder extends Model
             // 'created_at'=>date("Y-m-d H:i:s"),
         ]);
 
+        if($re){
+            OrderFlow::changeOrderStatus($order_id, OrderStatus::Unbalance());
+            Order::change_order_payment_status($order_id, PaymentStatus::Unbalance(), null);
+        }
+
         return $re;
     }
 
@@ -247,16 +252,16 @@ class ReceivedOrder extends Model
             ]);
 
             OrderFlow::changeOrderStatus($received_order->order_id, OrderStatus::Paided());
-            Order::change_order_payment_status($received_order->order_id, PaymentStatus::Received(), ReceivedMethod::fromValue($received_method));
+            // Order::change_order_payment_status($received_order->order_id, PaymentStatus::Received(), ReceivedMethod::fromValue($received_method));
 
-            // $r_method_arr = $received_list->pluck('received_method')->toArray();
-            // $r_method_title_arr = [];
-            // foreach($r_method_arr as $v){
-            //     array_push($r_method_title_arr, ReceivedMethod::getDescription($v));
-            // }
-            // $r_method['value'] = implode(',', $r_method_arr);
-            // $r_method['description'] = implode(',', $r_method_title_arr);
-            // Order::change_order_payment_status($received_order->order_id, PaymentStatus::Received(), (object) $r_method);
+            $r_method_arr = $received_list->pluck('received_method')->toArray();
+            $r_method_title_arr = [];
+            foreach($r_method_arr as $v){
+                array_push($r_method_title_arr, ReceivedMethod::getDescription($v));
+            }
+            $r_method['value'] = implode(',', $r_method_arr);
+            $r_method['description'] = implode(',', $r_method_title_arr);
+            Order::change_order_payment_status($received_order->order_id, PaymentStatus::Received(), (object) $r_method);
         }
     }
 

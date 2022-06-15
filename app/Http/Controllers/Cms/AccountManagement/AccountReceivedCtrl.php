@@ -259,9 +259,6 @@ class AccountReceivedCtrl extends Controller
 
         if(! $received_order_collection->first()){
             ReceivedOrder::create_received_order($order_id);
-
-            OrderFlow::changeOrderStatus($order_id, OrderStatus::Unbalance());
-            Order::change_order_payment_status($order_id, PaymentStatus::Unbalance(), null);
         }
 
         $received_order_data = $received_order_collection->get();
