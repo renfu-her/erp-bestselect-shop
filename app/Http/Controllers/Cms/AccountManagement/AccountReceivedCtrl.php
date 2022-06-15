@@ -123,7 +123,7 @@ class AccountReceivedCtrl extends Controller
                     'product_owner'=>null,
                     'discount_title'=>null,
                     'payable_type'=>null,
-                    'received_info'=>null,
+                    'received_info'=>$r_value,
                 ];
                 GeneralLedger::classification_processing($debit, $credit, $tmp);
             }
@@ -599,7 +599,7 @@ class AccountReceivedCtrl extends Controller
             OrderFlow::changeOrderStatus($id, OrderStatus::Received());
             // 配發啟用日期
             Order::assign_dividend_active_date($id);
-          
+
             wToast(__('入帳日期更新成功'));
             return redirect()->route('cms.ar.receipt', ['id'=>request('id')]);
 

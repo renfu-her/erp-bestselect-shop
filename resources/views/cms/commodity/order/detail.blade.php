@@ -13,7 +13,7 @@
                     <a href="javascript:void(0)" role="button" data-bs-toggle="modal" data-bs-target="#confirm-delete" data-href="{{ Route('cms.ar.delete', ['id' => $received_order_data->id], true) }}" class="btn btn-danger">刪除收款單</a>
                 @endif
                 --}}
-                @if ( ($receivable || in_array($order->status, ['已付款', '已入款'])) && $received_credit_card_log )
+                @if ( ($receivable || in_array($order->status, ['已付款', '已入款', '結案'])) && $received_credit_card_log )
                     <a href="{{ Route('api.web.order.credit_card_checkout', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}" class="btn btn-primary" role="button" target="_blank">線上刷卡連結</a>
                 @else
                     <button type="button" class="btn btn-primary" disabled>線上刷卡連結</button>
@@ -23,7 +23,7 @@
             @endif
 
             @if ($received_order_data)
-                @if(!in_array($order->status, ['已入款']))
+                @if(!in_array($order->status, ['已入款', '結案']))
                     <a href="javascript:void(0)" role="button" data-bs-toggle="modal" data-bs-target="#confirm-delete" data-href="{{ Route('cms.ar.delete', ['id' => $received_order_data->id], true) }}" class="btn btn-danger">刪除收款單</a>
                 @else
                     <button type="button" class="btn btn-danger" disabled>刪除收款單</button>
