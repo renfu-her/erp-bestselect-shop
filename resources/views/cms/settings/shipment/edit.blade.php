@@ -6,7 +6,7 @@
         </a>
     </div>
 
-    <form method="post" action="{{ $formAction }}">
+    <form id="form1" method="post" action="{{ $formAction }}">
         @method('POST')
         @csrf
 
@@ -115,8 +115,9 @@
                     </x-b-form-group>
 
                     <x-b-form-group name="note" title="說明" required="false">
-                        <textarea name="note" class="form-control" placeholder="請輸入物流說明"
-                            rows="6">{{ old('note', $note ?? '') }}</textarea>
+                        <textarea id="editor" name="note" hidden></textarea>
+                        {{-- <textarea name="note" class="form-control" placeholder="請輸入物流說明"
+                            rows="6">{{ old('note', $note ?? '') }}</textarea> --}}
                     </x-b-form-group>
                 </div>
             </div>
@@ -141,7 +142,7 @@
                         </thead>
                         <tbody class="-appendClone">
                         @if ($method === 'create')
-{{--                        @if (count(old('min_price', $dataList ?? [])) <= 1)--}}
+                       {{-- @if (count(old('min_price', $dataList ?? [])) <= 1)--}}
                             <tr>
                                 <td></td>
                                 <td>
@@ -294,6 +295,23 @@
 @endsection
 @once
     @push('sub-scripts')
+        <script src="{{ Asset("plug-in/tinymce/tinymce.min.js") }}"></script>
+        <script src="{{ Asset("plug-in/tinymce/myTinymce.js") }}"></script>
+        <script>
+            let content = @json(old('note', $note ?? ''));
+            content = content ? content : '';
+
+            tinymce.init({
+                selector: '#editor',
+                ...TINY_OPTION
+            }).then((editors) => {
+                editors[0].setContent(content);
+            });
+            
+            $('#form1').submit(function(e) {
+                $('textarea[name="note"]').val(tinymce.get('editor').getContent());
+            });
+        </script>
         <script>
             let addNewShipElem = $('.add_ship_rule');
             let submitElem = $('form[method=post]');
