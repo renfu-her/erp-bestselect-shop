@@ -32,7 +32,8 @@ class Order extends Model
                 'so.ship_event', 'so.ship_sn',
                 'dlv_delivery.logistic_status as logistic_status',
                 'dlv_logistic.package_sn as package_sn',
-                'shi_group.name as ship_group_name'])
+                'shi_group.name as ship_group_name',
+                'ord_received_orders.sn as or_sn'])
             ->selectRaw('DATE_FORMAT(order.created_at,"%Y-%m-%d") as order_date')
             ->selectRaw('so.sn as order_sn')
             ->leftJoin('ord_sub_orders as so', 'order.id', '=', 'so.order_id')
@@ -52,6 +53,10 @@ class Order extends Model
             ->leftJoin('shi_group', function ($join) {
                 $join->on('shi_group.id', '=', 'dlv_logistic.ship_group_id');
                 $join->whereNotNull('dlv_logistic.ship_group_id');
+            })
+            ->leftJoin('ord_received_orders', function ($join) {
+                $join->on('order.id', '=', 'ord_received_orders.order_id');
+                $join->whereNull('ord_received_orders.deleted_at');
             })
         ;
 

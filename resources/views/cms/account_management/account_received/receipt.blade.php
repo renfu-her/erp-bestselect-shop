@@ -155,7 +155,7 @@
                         @elseif($value->received_method == 'remit')
                             {{ '（' . $value->received_method_name . ' - ' . $value->note . '（' . $value->remit_memo . '）' . '）' }}
                         @else
-                            {{ '（' . $value->account->name . ' - ' . $value->note . '）' }}
+                            {{ '（' . $value->received_method_name . ' - ' . $value->account->name . ' - ' . $value->note . '）' }}
                         @endif
                     </dd>
                 </div>

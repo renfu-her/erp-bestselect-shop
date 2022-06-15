@@ -34,20 +34,26 @@ class ReceivedOrder extends Model
             ->leftJoin('usr_customers as customer', 'customer.email', '=', 'order.email')
             ->leftJoin('usr_users as user', 'user.id', '=', 'ro.usr_users_id')
             ->leftJoin(DB::raw('(
-                SELECT received_order_id,
-                MAX(created_at) AS received_date,
-                SUM(tw_price) AS received_price,
+                SELECT acc_received.received_order_id,
+                MAX(acc_received.created_at) AS received_date,
+                SUM(acc_received.tw_price) AS received_price,
                 CONCAT(\'[\', GROUP_CONCAT(\'{
-                        "received_method":"\', received_method, \'",
-                        "received_method_id":"\', COALESCE(received_method_id, ""), \'",
-                        "all_grades_id":"\', all_grades_id, \'",
-                        "tw_price":"\', tw_price, \'",
-                        "accountant_id_fk":"\', accountant_id_fk, \'",
-                        "note":"\', COALESCE(note, ""),\'",
-                        "created_at":"\', created_at,\'"
+                        "received_method":"\', acc_received.received_method, \'",
+                        "received_method_id":"\', COALESCE(acc_received.received_method_id, ""), \'",
+                        "all_grades_id":"\', acc_received.all_grades_id, \'",
+                        "tw_price":"\', acc_received.tw_price, \'",
+                        "accountant_id_fk":"\', acc_received.accountant_id_fk, \'",
+                        "note":"\', COALESCE(acc_received.note, ""),\'",
+                        "created_at":"\', acc_received.created_at,\'",
+                        "credit_card_number":"\', COALESCE(_credit.cardnumber, ""),\'",
+                        "remit_memo":"\', COALESCE(_remit.memo, ""),\'"
                     }\' ORDER BY acc_received.id), \']\') AS list
                 FROM acc_received
-                GROUP BY received_order_id
+                LEFT JOIN acc_received_credit AS _credit ON acc_received.received_method_id = _credit.id AND acc_received.received_method = "credit_card"
+                LEFT JOIN acc_received_cheque AS _cheque ON acc_received.received_method_id = _cheque.id AND acc_received.received_method = "cheque"
+                LEFT JOIN acc_received_currency AS _currency ON acc_received.received_method_id = _currency.id AND acc_received.received_method = "foreign_currency"
+                LEFT JOIN acc_received_remit AS _remit ON acc_received.received_method_id = _remit.id AND acc_received.received_method = "remit"
+                GROUP BY acc_received.received_order_id
                 ) AS v_table_1'), function ($join){
                     $join->on('v_table_1.received_order_id', '=', 'ro.id');
             })
@@ -212,6 +218,11 @@ class ReceivedOrder extends Model
             // 'created_at'=>date("Y-m-d H:i:s"),
         ]);
 
+        if($re){
+            OrderFlow::changeOrderStatus($order_id, OrderStatus::Unbalance());
+            Order::change_order_payment_status($order_id, PaymentStatus::Unbalance(), null);
+        }
+
         return $re;
     }
 
@@ -247,16 +258,16 @@ class ReceivedOrder extends Model
             ]);
 
             OrderFlow::changeOrderStatus($received_order->order_id, OrderStatus::Paided());
-            Order::change_order_payment_status($received_order->order_id, PaymentStatus::Received(), ReceivedMethod::fromValue($received_method));
+            // Order::change_order_payment_status($received_order->order_id, PaymentStatus::Received(), ReceivedMethod::fromValue($received_method));
 
-            // $r_method_arr = $received_list->pluck('received_method')->toArray();
-            // $r_method_title_arr = [];
-            // foreach($r_method_arr as $v){
-            //     array_push($r_method_title_arr, ReceivedMethod::getDescription($v));
-            // }
-            // $r_method['value'] = implode(',', $r_method_arr);
-            // $r_method['description'] = implode(',', $r_method_title_arr);
-            // Order::change_order_payment_status($received_order->order_id, PaymentStatus::Received(), (object) $r_method);
+            $r_method_arr = $received_list->pluck('received_method')->toArray();
+            $r_method_title_arr = [];
+            foreach($r_method_arr as $v){
+                array_push($r_method_title_arr, ReceivedMethod::getDescription($v));
+            }
+            $r_method['value'] = implode(',', $r_method_arr);
+            $r_method['description'] = implode(',', $r_method_title_arr);
+            Order::change_order_payment_status($received_order->order_id, PaymentStatus::Received(), (object) $r_method);
         }
     }
 

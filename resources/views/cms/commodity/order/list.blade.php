@@ -190,9 +190,7 @@
                             <td>{{ $data->name }}</td>
                             <td>{{ $data->sale_title }}</td>
                             <td class="text-success">{{ $data->logistic_status }}</td>
-                            <td>
-                                {{-- <span class="d-block lh-sm"></span> --}}
-                            </td>
+                            <td>{{ $data->or_sn }}</td>
                             <td>
                                 {{ $data->ship_category_name }}
                             </td>
