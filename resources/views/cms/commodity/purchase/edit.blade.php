@@ -201,7 +201,7 @@
                                 </td>
                                 @if ($method === 'edit')
                                     <td data-td="inbound_status">{{$psItemVal->inbound_status?? ''}}</td>
-                                    <td data-td="inbound_user_name">{{$psItemVal->inbound_user_name?? ''}}</td>
+                                    <td data-td="inbound_user_names">{{$psItemVal->inbound_user_names?? ''}}</td>
                                 @endif
                                 <td>
                                     <input type="text" class="form-control form-control-sm -xl" name="memo[]"

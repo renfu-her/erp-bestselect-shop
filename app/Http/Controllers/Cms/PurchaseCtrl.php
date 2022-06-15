@@ -250,8 +250,8 @@ class PurchaseCtrl extends Controller
         $inbound_names = '';
         if (null != $purchaseItemData && 0 < count($purchaseItemData)) {
             foreach ($purchaseItemData as $item) {
-                if (isset($item->inbound_user_name)) {
-                    $item_name_arr = explode(',', $item->inbound_user_name);
+                if (isset($item->inbound_user_names)) {
+                    $item_name_arr = explode(',', $item->inbound_user_names);
                     foreach ($item_name_arr as $item_name) {
                         array_push($inbound_name_arr, $item_name);
                     }
