@@ -636,6 +636,7 @@ class Product extends Model
                 'g.id as group_id',
                 'g.name as group_name',
                 'g.method_fk as method',
+                'g.note as note',
                 'temp.temps',
                 'temp.id as temp_id',
                 'rule.rules'])
