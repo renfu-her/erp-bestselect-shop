@@ -111,6 +111,7 @@
                 <thead>
                     <tr>
                         <th scope="col" style="width:10%">#</th>
+                        <th scope="col" class="text-center">明細</th>
                         <th scope="col">商品名稱</th>
                         <th scope="col">款式</th>
                         <th scope="col">類型</th>
@@ -129,6 +130,13 @@
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
+                            <td class="text-center">
+                                <a href="{{ Route('cms.stock.stock_detail_log', ['depot_id' => $data->depot_id ?? -1, 'id' => $data->id], true) }}"
+                                   data-bs-toggle="tooltip" title="明細"
+                                   class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                    <i class="bi bi-card-list"></i>
+                                </a>
+                            </td>
                             <td> <a
                                     href="{{ Route('cms.product.edit', ['id' => $data->product_id], true) }}">{{ $data->product_title }}</a>
                             </td>

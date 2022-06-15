@@ -203,12 +203,8 @@ class PurchaseLog extends Model
         return $log_purchase;
     }
 
-    //寄倉庫存明細
-    public static function getCsnStockData($style_id) {
-
-        $logEvent_event = [];
-        array_push($logEvent_event, Event::consignment()->value);
-        array_push($logEvent_event, Event::csn_order()->value);
+    //庫存明細
+    public static function getStockData($logEvent_event, $depot_id, $style_id) {
         $logEventFeatureKey_delivery = [];
         array_push($logEventFeatureKey_delivery, LogEventFeature::delivery()->value);
 //        array_push($logEventFeatureKey_delivery, LogEventFeature::combo()->value);
@@ -261,6 +257,9 @@ class PurchaseLog extends Model
                 , 'inbound.depot_id as depot_id'
                 , 'inbound.depot_name as depot_name'
             );
+        if (isset($depot_id)) {
+            $logPurchase->where('inbound.depot_id', '=', $depot_id);
+        }
 
         return $logPurchase;
     }
