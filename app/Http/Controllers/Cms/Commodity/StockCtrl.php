@@ -29,7 +29,7 @@ class StockCtrl extends Controller
         $searchParam['supplier'] = Arr::get($query, 'supplier');
         $searchParam['stock'] = Arr::get($query, 'stock',[]);
         $searchParam['depot_id'] = Arr::get($query, 'depot_id',[]);
-        $searchParam['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 10));
+        $searchParam['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 100));
       //  dd($searchParam['stock']);
         $typeRadios = [
             'all' => '不限',
