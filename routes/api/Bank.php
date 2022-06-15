@@ -4,5 +4,5 @@ use App\Http\Controllers\Api\Web\BankCtrl;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'bank', 'as' => 'bank.'], function () {
-    Route::post('list', [BankCtrl::class, 'bankList'])->name('list'); // Route('api.cms.depot.get-select-product')
+    Route::get('list', [BankCtrl::class, 'bankList'])->name('list'); // Route('api.cms.depot.get-select-product')
 });
