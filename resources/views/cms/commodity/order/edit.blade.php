@@ -22,7 +22,6 @@
                                     {{ $customer->name }}</option>
                             @endforeach
                         </select>
-
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">銷售通路</label>
@@ -230,9 +229,26 @@
             <div class="card shadow p-4 mb-4">
                 <h6>購買人</h6>
                 <div class="row">
+                    <fieldset class="col-12 mb-1">
+                        <div class="px-1 pt-1">
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="ord_radio" value="default" type="radio" checked>
+                                    預設地址
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="ord_radio" value="new" type="radio" >
+                                    新增地址
+                                </label>
+                            </div>
+                        </div>
+                    </fieldset>
+
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">姓名 <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" value="{{ old('ord_name') }}" name="ord_name"
+                        <input type="text" class="form-control" value="{{ old('ord_name', $defaultAddress->name ?? '') }}" name="ord_name"
                             placeholder="請輸入購買人姓名" required>
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
@@ -248,21 +264,27 @@
                                 <option value="">縣市</option>
                                 @foreach ($citys as $city)
                                     <option value="{{ $city['city_id'] }}"
-                                        @if ($city['city_id'] == old('ord_city_id')) selected @endif>{{ $city['city_title'] }}
+                                        @if ($city['city_id'] == old('ord_city_id', $defaultAddress->city_id ?? '')) selected @endif>{{ $city['city_title'] }}
                                     </option>
                                 @endforeach
                             </select>
+                            @php
+                                $default_region = $regions['ord'];
+                                if ($defaultAddress->city_id) {
+                                    $default_region = App\Models\Addr::getRegions($defaultAddress->city_id);
+                                }
+                            @endphp
                             <select name="ord_region_id" class="form-select" style="max-width:20%" required>
                                 <option value="">地區</option>
-                                @foreach ($regions['ord'] as $region)
+                                @foreach ($default_region as $region)
                                     <option value="{{ $region['region_id'] }}"
-                                        @if ($region['region_id'] == old('ord_region_id')) selected @endif>
+                                        @if ($region['region_id'] == old('ord_region_id', $defaultAddress->region_id ?? '')) selected @endif>
                                         {{ $region['region_title'] }}
                                     </option>
                                 @endforeach
                             </select>
                             <input name="ord_addr" type="text" class="form-control" placeholder="請輸入購買人地址"
-                                value="{{ old('ord_addr') }}" required>
+                                value="{{ old('ord_addr', $defaultAddress->addr ?? '') }}" required>
                             <button class="btn btn-outline-success -format_addr_btn" type="button">格式化</button>
                             <div class="invalid-feedback">
                                 @error('record')
@@ -2059,6 +2081,15 @@
             }
         </script>
         <script>
+            // 預設地址資料
+            const DefaultAddress = {
+                name: @json($defaultAddress->name),
+                city_id: @json($defaultAddress->city_id),
+                region_id: @json($defaultAddress->region_id),
+                addr: @json($defaultAddress->addr),
+                regions: @json($default_region)
+            };
+
             /*** 步驟 ***/
             // 無商品不可下一步
             if (!$('.-cloneElem.--selectedP').length) {
@@ -2082,6 +2113,56 @@
             });
 
             /*** 第二步 ***/
+            // 預設地址 radio
+            $('input[name="ord_radio"]').off('change').on('change', function () {
+                if ($(this).val() === 'default') {
+                    $('input[name="ord_name"]').val(DefaultAddress.name);
+                    $('input[name="ord_addr"]').val(DefaultAddress.addr);
+                    $('select[name="ord_city_id"]').val(DefaultAddress.city_id);
+                    getRegionsAction(
+                        $(`select[name="ord_region_id`),
+                        DefaultAddress.city_id,
+                        DefaultAddress.region_id
+                    );
+                    setSameDefault($('#rec_same'));
+                    setSameDefault($('#sed_same'));
+                } else {
+                    // 清空
+                    $(`input[name="ord_name"],
+                       input[name="ord_addr"],
+                       select[name="ord_city_id"],
+                       select[name="ord_region_id`).val('');
+                    $(`select[name="ord_region_id"]`).html('<option value="">地區</option>');
+                    setSameNew($('#rec_same'));
+                    setSameNew($('#sed_same'));
+                }
+
+                function setSameDefault($target) {
+                    const prefix_ = $target.attr('id').replace(/same/g, '');
+                    if ($target.prop('checked')) {
+                        $(`input[name="${prefix_}name"]`).val(DefaultAddress.name);
+                        $(`input[name="${prefix_}addr"]`).val(DefaultAddress.addr);
+                        $(`select[name="${prefix_}city_id"]`).val(DefaultAddress.city_id);
+                        getRegionsAction(
+                            $(`select[name="${prefix_}region_id"]`),
+                            DefaultAddress.city_id,
+                            DefaultAddress.region_id
+                        );
+                    }
+                }
+                function setSameNew($target) {
+                    const prefix_ = $target.attr('id').replace(/same/g, '');
+                    if ($target.prop('checked')) {
+                        // 清空
+                        $(`input[name="${prefix_}name"],
+                        input[name="${prefix_}addr"],
+                        select[name="${prefix_}city_id"],
+                        select[name="${prefix_}region_id`).val('');
+                        $(`select[name="${prefix_}region_id"]`).html('<option value="">地區</option>');
+                    }
+                }
+            });
+
             // 同購買人
             $('#rec_same, #sed_same').off('change').on('change', function() {
                 const $this = $(this);

@@ -155,7 +155,7 @@ class OrderCtrl extends Controller
                 'city_id',
                 'region_id',
             ])
-            ->get();
+            ->get()->first();
 
       //    dd(Discount::getDiscounts('global-normal'));
         //    dd($citys);
