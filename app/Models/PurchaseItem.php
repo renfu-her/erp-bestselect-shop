@@ -212,7 +212,7 @@ class PurchaseItem extends Model
                 , 'event_item_id'
                 , 'product_style_id')
             ->selectRaw('sum(inbound_num) as inbound_num')
-            ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_name) as inbound_user_name') //入庫人員
+            ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_name) as inbound_user_names') //入庫人員
             ->whereNull('deleted_at');
 
         $tempInboundSql->where('inbound.event', '=', Event::purchase()->value);
@@ -264,7 +264,7 @@ class PurchaseItem extends Model
                 ,'items.num as num'
                 ,'items.arrived_num as arrived_num'
                 ,'items.memo as memo'
-                ,'inbound.inbound_user_name'
+                ,'inbound.inbound_user_names'
                 ,'purchase.purchase_user_id as purchase_user_id'
                 ,'purchase.supplier_id as supplier_id'
                 ,'purchase.invoice_num as invoice_num'
