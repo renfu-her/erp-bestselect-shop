@@ -24,7 +24,7 @@ class StockCtrl extends Controller
         $searchParam = [];
         $searchParam['keyword'] = Arr::get($query, 'keyword');
         $searchParam['type'] = Arr::get($query, 'type');
-        $searchParam['consume'] = Arr::get($query, 'consume', 'all');
+        $searchParam['consume'] = Arr::get($query, 'consume', '0');
         $searchParam['user'] = Arr::get($query, 'user');
         $searchParam['supplier'] = Arr::get($query, 'supplier');
         $searchParam['stock'] = Arr::get($query, 'stock',[]);
