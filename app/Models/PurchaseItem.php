@@ -399,8 +399,7 @@ class PurchaseItem extends Model
             ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_name) as inbound_user_names') //入庫人員
             ->where('event', Event::purchase()->value)
             ->whereNull('deleted_at')
-            ->groupBy('event_id')
-            ->groupBy('product_style_id');
+            ->groupBy('event_id');
         if ($depot_id) {
             $tempInboundSql->where('inbound.depot_id', '=', $depot_id);
         }
@@ -421,7 +420,6 @@ class PurchaseItem extends Model
                 $tempInboundSql->where('inbound.expiry_date', '<=', $expire_day);
             }
         }
-
 
         $query_not_yet = 'COALESCE((itemtb_new.arrived_num), 0) = 0';
         $query_normal = '( COALESCE(itemtb_new.num, 0) - COALESCE((itemtb_new.arrived_num), 0) ) = 0 and COALESCE((itemtb_new.arrived_num), 0) <> 0';
@@ -448,7 +446,8 @@ class PurchaseItem extends Model
             )
             ->whereNull('items.deleted_at')
             ->orderBy('items.product_style_id')
-            ->limit(1);
+            ->groupBy('items.purchase_id');
+
         if($title) {
             $tempPurchaseItemSql->where(function ($query) use ($title) {
                 $query->Where('items.title', 'like', "%{$title}%");
@@ -520,7 +519,9 @@ class PurchaseItem extends Model
         }
 
         $result2 = DB::table(DB::raw("({$result->toSql()}) as tb"))
-            ->select('*');
+            ->select('*')
+            ->orderByDesc('id')
+            ->orderBy('items_id');
 
         $result->mergeBindings($subColumn);
         $result->mergeBindings($subColumn2);
