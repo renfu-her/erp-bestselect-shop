@@ -418,23 +418,10 @@ class OrderCtrl extends Controller
      */
     public function orderList(Request $request)
     {
-        $validRule = [];
-        if (!Auth::guard('sanctum')->check()) {
-            $validRule['email'] = 'required|email';
-        }
-        $validator = Validator::make($request->all(), $validRule);
-        if ($validator->fails()) {
-            return response()->json([
-                ResponseParam::status => ApiStatusMessage::Fail,
-                ResponseParam::msg => $validator->errors(),
-                ResponseParam::data => [],
-            ]);
-        }
-
-        $data = $request->all();
+        $data['email'] = $request->user()->email;
         $orderIds = Order::where('email', '=', $data['email'])->select('id')->get();
 
-        if (!$orderIds) {
+        if (count($orderIds) === 0) {
             return response()->json([
                 ResponseParam::status => ApiStatusMessage::Fail,
                 ResponseParam::msg => "查無訂單",
@@ -476,7 +463,9 @@ class OrderCtrl extends Controller
 
             $orders[] = [
                 'id' => $order->id,
+                'status' => $order->status,
                 'sn' => $order->sn,
+                'payment_status' => $order->payment_status,
                 'created_at' => $order->created_at,
                 'total_price' => $order->total_price,
                 'sub_order' => $subOrderArray,

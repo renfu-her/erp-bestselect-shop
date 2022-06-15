@@ -7,7 +7,6 @@ Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
     //   Route::post('global-discount', [OrderCtrl::class, 'getGlobalDiscount']);
     Route::post('create', [OrderCtrl::class, 'createOrder']);
     Route::post('detail', [OrderCtrl::class, 'orderDetail']);
-    Route::post('list', [OrderCtrl::class, 'orderList']);
 
 
     /*

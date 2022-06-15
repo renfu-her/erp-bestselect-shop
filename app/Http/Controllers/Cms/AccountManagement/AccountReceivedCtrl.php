@@ -23,6 +23,9 @@ use App\Models\ReceivedOrder;
 use App\Models\OrderPayCreditCard;
 use App\Models\User;
 
+
+
+
 class AccountReceivedCtrl extends Controller
 {
     public function index(Request $request)
@@ -597,6 +600,9 @@ class AccountReceivedCtrl extends Controller
             }
 
             OrderFlow::changeOrderStatus($id, OrderStatus::Received());
+            // 配發啟用日期
+            Order::assign_dividend_active_date($id);
+          
             wToast(__('入帳日期更新成功'));
             return redirect()->route('cms.ar.receipt', ['id'=>request('id')]);
 
