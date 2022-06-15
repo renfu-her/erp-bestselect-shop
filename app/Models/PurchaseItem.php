@@ -189,7 +189,7 @@ class PurchaseItem extends Model
             ->select('order.sn')
             ->whereColumn('order.source_id', '=', 'purchase.id')
             ->where([
-                'order.source_type'=>app(Purchase::class)->getTable(),
+                'order.source_type'=>DB::raw('"'. app(Purchase::class)->getTable().'"'),
                 'order.type'=>DB::raw('0'),
             ])
             ->whereNull('order.deleted_at')
@@ -200,7 +200,7 @@ class PurchaseItem extends Model
             ->select('order.sn')
             ->whereColumn('order.source_id', '=', 'purchase.id')
             ->where([
-                'order.source_type'=>app(Purchase::class)->getTable(),
+                'order.source_type'=>DB::raw('"'. app(Purchase::class)->getTable().'"'),
                 'order.type'=>DB::raw('1'),
             ])
             ->whereNull('order.deleted_at')
