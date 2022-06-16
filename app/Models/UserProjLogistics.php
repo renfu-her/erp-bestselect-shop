@@ -75,6 +75,8 @@ class UserProjLogistics extends Model
                 } else {
                     return ['success' => 0, 'error_msg' => $api_user_create->message];
                 }
+            } else {
+                return ['success' => 1, 'error_msg' => ""];
             }
         } catch (\Exception $e) {
             return ['success' => 0, 'error_msg' => $e->getMessage()];
