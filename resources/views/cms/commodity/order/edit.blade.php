@@ -270,8 +270,8 @@
                             </select>
                             @php
                                 $default_region = $regions['ord'];
-                                if ($defaultAddress->city_id) {
-                                    $default_region = App\Models\Addr::getRegions($defaultAddress->city_id);
+                                if (isset($defaultAddress->city_id)) {
+                                    $default_region = App\Models\Addr::getRegions($defaultAddress->city_id ?? '');
                                 }
                             @endphp
                             <select name="ord_region_id" class="form-select" style="max-width:20%" required>
@@ -2083,10 +2083,10 @@
         <script>
             // 預設地址資料
             const DefaultAddress = {
-                name: @json($defaultAddress->name),
-                city_id: @json($defaultAddress->city_id),
-                region_id: @json($defaultAddress->region_id),
-                addr: @json($defaultAddress->addr),
+                name: @json($defaultAddress->name ?? ''),
+                city_id: @json($defaultAddress->city_id ?? ''),
+                region_id: @json($defaultAddress->region_id ?? ''),
+                addr: @json($defaultAddress->addr ?? ''),
                 regions: @json($default_region)
             };
 
