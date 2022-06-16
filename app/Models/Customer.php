@@ -211,15 +211,20 @@ class Customer extends Authenticatable
 
     public static function attachIdentity($customer_id, $type, $no, $phone, $pass, $recommend_id = null)
     {
+        DB::beginTransaction();
         if (!self::validateIdentity($type, $no, $phone, $pass)) {
             return ['success' => '0', 'message' => '驗證錯誤'];
         }
 
         CustomerIdentity::add($customer_id, $type);
 
-        if($recommend_id){
-          //  Customer::where('id',$customer_id)
+        if ($recommend_id) {
+            Customer::where('id', $customer_id)->update('recommend_id', $recommend_id);
         }
+
+        DB::commit();
+
+        return ['success' => '1'];
 
     }
 
