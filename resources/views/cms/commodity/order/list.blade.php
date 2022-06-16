@@ -9,7 +9,7 @@
                 <div class="col-12 col-sm-6 col-xxl-3 mb-3">
                     <label class="form-label">訂單關鍵字</label>
                     <input class="form-control" type="text" value="{{ $cond['keyword'] }}" name="keyword"
-                        placeholder="請輸入訂單編號">
+                        placeholder="請輸入訂單編號、姓名、電話">
                 </div>
                 {{-- <div class="col-12 col-sm-6 col-xxl-3 mb-3">
                     <label class="form-label">商品負責人</label>
