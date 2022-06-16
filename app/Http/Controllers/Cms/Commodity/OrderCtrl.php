@@ -416,8 +416,8 @@ class OrderCtrl extends Controller
                 , 'delivery.audit_date'
                 , 'sub_order.ship_event_id as depot_id'
             )
-            ->get()->first()
-        ;
+            ->where('sub_order.id', '=', $subOrderId)
+            ->get()->first();
 
         if (!$sub_order || 'pickup' != $sub_order->ship_category) {
             return abort(404);
