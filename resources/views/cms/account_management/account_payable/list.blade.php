@@ -23,7 +23,7 @@
                 </div>
 
                 <div class="col-12 col-sm-4 mb-3">
-                    <label class="form-label">採購單號</label>
+                    <label class="form-label">單據編號</label>
                     <input class="form-control" type="text" name="purchase_sn" value="{{ $cond['purchase_sn'] }}" placeholder="請輸入採購單號">
                 </div>
 
@@ -112,10 +112,11 @@
                             <td>
                                 @php
                                     $po_sn = explode(',', $data->po_sn);
+                                    $po_type = explode(',', $data->po_type);
                                 @endphp
                                 @foreach($po_sn as $po_key => $po_value)
                                 <span class="d-block">
-                                    <a href="{{ route('cms.purchase.view-pay-order', ['id' => $data->purchase_id, 'type' => $po_key], true) }}">{{ $po_value }}</a>
+                                    <a href="{{ $data->purchase_id ? route('cms.purchase.view-pay-order', ['id' => $data->po_source_id, 'type' => $po_type[$po_key]]) : route('cms.order.pay-order', ['id' => $data->po_source_id, 'sid' => $data->po_source_sub_id]) }}">{{ $po_value }}</a>
                                 </span>
                                 @endforeach
                             </td>
@@ -134,20 +135,20 @@
                                 @foreach($data->debit as $d_value)
                                 <span class="border-bottom d-block bg-warning p-1">
                                     @if($d_value->d_type == 'logistics')
-                                        {{$d_value->account_name}} - {{$data->purchase_sn}}
+                                        {{$d_value->account_name}} - {{ $data->purchase_order_sn }}
                                     @elseif($d_value->d_type == 'discount')
-                                        {{$d_value->discount_title}} - {{$data->purchase_sn}}
+                                        {{$d_value->discount_title}} - {{$data->purchase_order_sn}}
                                     @else
-                                        {{$d_value->product_title}}({{ $d_value->product_price }} * {{$d_value->product_qty}})({{ $d_value->product_owner }}) - {{$data->purchase_sn}}
+                                        {{$d_value->product_title}}({{ $d_value->product_price }} * {{$d_value->product_qty}})({{ $d_value->product_owner }}) - {{$data->purchase_order_sn}}
                                     @endif
                                 </span>
                                 @endforeach
 
                                 @foreach($data->credit as $c_value)
                                 @if($c_value->payable_type == 0)
-                                <span class="border-bottom d-block bg-white p-1">{{$c_value->method_name}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{$data->purchase_sn}} - {{ $po_sn[0] }}</span>
+                                <span class="border-bottom d-block bg-white p-1">{{$c_value->method_name}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{ $data->purchase_order_sn }} - {{ $po_sn[0] }}</span>
                                 @elseif($c_value->payable_type == 1)
-                                <span class="border-bottom d-block bg-white p-1">{{$c_value->method_name}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{$data->purchase_sn}} - {{ count($po_sn) > 1 ? $po_sn[1] : $po_sn[0]  }}</span>
+                                <span class="border-bottom d-block bg-white p-1">{{$c_value->method_name}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{ $data->purchase_order_sn }} - {{ count($po_sn) > 1 ? $po_sn[1] : $po_sn[0]  }}</span>
                                 @endif
                                 @endforeach
                             </td>

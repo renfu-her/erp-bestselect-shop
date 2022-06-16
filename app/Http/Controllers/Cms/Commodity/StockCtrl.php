@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Cms\Commodity;
 
+use App\Enums\Delivery\Event;
 use App\Http\Controllers\Controller;
 use App\Models\Depot;
 use App\Models\Product;
+use App\Models\ProductStyle;
 use App\Models\PurchaseInbound;
+use App\Models\PurchaseLog;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -24,12 +27,12 @@ class StockCtrl extends Controller
         $searchParam = [];
         $searchParam['keyword'] = Arr::get($query, 'keyword');
         $searchParam['type'] = Arr::get($query, 'type');
-        $searchParam['consume'] = Arr::get($query, 'consume', 'all');
+        $searchParam['consume'] = Arr::get($query, 'consume', '0');
         $searchParam['user'] = Arr::get($query, 'user');
         $searchParam['supplier'] = Arr::get($query, 'supplier');
         $searchParam['stock'] = Arr::get($query, 'stock',[]);
         $searchParam['depot_id'] = Arr::get($query, 'depot_id',[]);
-        $searchParam['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 10));
+        $searchParam['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 100));
       //  dd($searchParam['stock']);
         $typeRadios = [
             'all' => '不限',
@@ -93,6 +96,39 @@ class StockCtrl extends Controller
             'consumes' => $consumes,
             'searchParam' => $searchParam,
         ]);
+    }
+
+    public function historyStockDetailLog(Request $request, $depot_id, $id) {
+        $query = $request->query();
+        $data_per_page = Arr::get($query, 'data_per_page', 10);
+        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
+
+        $productStyle = ProductStyle::where('id', $id)->get()->first();
+        $product = Product::where('id', $productStyle->product_id)->get()->first();
+        if (!$productStyle) {
+            return abort(404);
+        }
+        $logEvent = [
+            Event::purchase()->value
+            , Event::order()->value
+            , Event::ord_pickup()->value
+            , Event::consignment()->value
+            , Event::csn_order()->value
+        ];
+        $logPurchase = PurchaseLog::getStockData($logEvent, $depot_id, $id);
+        $logPurchase = $logPurchase->paginate($data_per_page)->appends($query);
+        $title = $product->title. '-'. $productStyle->title;
+
+        return view('cms.commodity.consignment_stock.stock_detail_log', [
+            'id' => $id,
+            'data_per_page' => $data_per_page,
+            'productStyle' => $productStyle,
+            'purchaseLog' => $logPurchase,
+            'returnAction' => Route('cms.stock.index', [], true),
+            'title' => $title,
+            'breadcrumb_data' => $title . ' ' . $productStyle->sku,
+        ]);
+
     }
 
     /**

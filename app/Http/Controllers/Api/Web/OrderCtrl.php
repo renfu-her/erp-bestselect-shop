@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api\Web;
 
 use App\Enums\Delivery\Event;
+use App\Enums\Globals\ApiStatusMessage;
 use App\Enums\Globals\ResponseParam;
 use App\Enums\Order\OrderStatus;
-use App\Enums\Order\PaymentStatus;
 use App\Enums\Order\UserAddrType;
 // use App\Enums\;
 use App\Enums\Received\ReceivedMethod;
@@ -74,7 +74,13 @@ class OrderCtrl extends Controller
         $order = DB::table('ord_orders as order')
             ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
             ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id')
-            ->leftJoin('ord_received_orders as received', 'received.order_id', '=', 'order.id')
+            ->leftJoin('ord_received_orders as received', function ($join) {
+                $join->on('received.order_id', '=', 'order.id');
+                $join->where([
+                    'received.balance_date' => null,
+                    'received.deleted_at' => null,
+                ]);
+            })
             ->select([
                 'order.id',
                 'order.sn',
@@ -96,10 +102,9 @@ class OrderCtrl extends Controller
             ->where([
                 'order.id' => $id,
                 'order.unique_id' => $unique_id,
-                'received.deleted_at' => null,
             ])
             ->where(function ($q) {
-                $q->whereRaw('(order.status_code NOT IN ("canceled","closed","paided"))');
+                $q->whereRaw('(order.status_code IN ("add"))');
             })
             ->first();
 
@@ -156,16 +161,23 @@ class OrderCtrl extends Controller
     {
         $EncArray = [];
 
+        $received_order_collection = ReceivedOrder::where([
+            'order_id'=>$id,
+            'deleted_at'=>null,
+        ]);
+        $log = OrderPayCreditCard::where([
+            'order_id'=>$id,
+            'status'=>0,
+        ])->orderBy('created_at', 'DESC')->first();
+        if($received_order_collection->first() && !$log){
+            return abort(404);
+        }
+
         if ($request->isMethod('post')) {
             // avoid f5 reload
-            // $log = OrderPayCreditCard::where([
-            //     'order_id'=>$id,
-            //     'status'=>0,
-            //     ])->first();
-
-            // if($log){
-            //     return abort(404);
-            // }
+            if($log){
+                return redirect()->route('api.web.order.credit_card_checkout', ['id' => $id, 'unique_id' => $unique_id]);
+            }
 
             include app_path() . '/Helpers/auth_mpi_mac.php';
 
@@ -177,20 +189,67 @@ class OrderCtrl extends Controller
 
                 if (is_array($EncArray) && count($EncArray) > 0) {
                     $status = isset($EncArray['status']) ? $EncArray['status'] : '';
+                    $authAmt = isset($EncArray['authamt']) ? $EncArray['authamt'] : '';
+                    $CardNumber = isset($EncArray['cardnumber']) ? $EncArray['cardnumber'] : '';
+                    $authCode = isset($EncArray['authcode']) ? $EncArray['authcode'] : '';
+                    $EncArray['more_info'] = [];
 
                     if (empty($status) && $status == '0') {
-                        OrderFlow::changeOrderStatus($id, OrderStatus::Paided());
+                        if(! $received_order_collection->first()){
+                            $received_order = ReceivedOrder::create_received_order($id);
+                            $received_method = ReceivedMethod::CreditCard; // 'credit_card'
+                            $grade_id = ReceivedDefault::where('name', $received_method)->first() ? ReceivedDefault::where('name', $received_method)->first()->default_grade_id : 0;
+
+                            $data = [];
+                            $data['acc_transact_type_fk'] = $received_method;
+                            $data[$received_method] = [
+                                'cardnumber'=>$CardNumber,
+                                'authamt'=>$authAmt ?? 0,
+                                'ckeckout_date'=>date("Y-m-d H:i:s"),
+                                'card_type_code'=>null,
+                                'card_type'=>null,
+                                'card_owner_name'=>null,
+                                'authcode'=>$authCode,
+                                'all_grades_id'=>$grade_id,
+                                'checkout_area_code'=>'taipei',
+                                'checkout_area'=>'台北',
+                                'installment'=>'none',
+                                'requested'=>'n',
+                                'card_nat'=>'local',
+                                'checkout_mode'=>'online',
+                            ];
+                            $result_id = ReceivedOrder::store_received_method($data);
+
+                            $EncArray['more_info'] = $data[$received_method];
+
+                            $parm = [];
+                            $parm['received_order_id'] = $received_order->id;
+                            $parm['received_method'] = $received_method;
+                            $parm['received_method_id'] = $result_id;
+                            $parm['grade_id'] = $grade_id;
+                            $parm['price'] = $authAmt;
+                            ReceivedOrder::store_received($parm);
+                        }
                     }
 
                     OrderPayCreditCard::create_log($id, (object) $EncArray);
                 }
             }
+
+            return redirect()->route('api.web.order.credit_card_checkout', ['id' => $id, 'unique_id' => $unique_id]);
         }
 
+        // if payment method of credit card has multiple record it can not know which one need to show, so can not left-join acc_received table and acc_received_credit table
         $order = DB::table('ord_orders as order')
             ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
             ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id')
-            ->leftJoin('ord_received_orders as received', 'received.order_id', '=', 'order.id')
+            ->leftJoin('ord_received_orders as received', function ($join) {
+                $join->on('received.order_id', '=', 'order.id');
+                $join->where([
+                    'received.balance_date' => null,
+                    'received.deleted_at' => null,
+                ]);
+            })
             ->join('ord_payment_credit_card_log as cc_log', 'cc_log.order_id', '=', 'order.id')
             ->select([
                 'order.id',
@@ -219,7 +278,6 @@ class OrderCtrl extends Controller
             ->where([
                 'order.id' => $id,
                 'order.unique_id' => $unique_id,
-                'received.deleted_at' => null,
             ])
             ->where(function ($q) use ($EncArray) {
                 if (count($EncArray) > 0) {
@@ -235,8 +293,12 @@ class OrderCtrl extends Controller
             return abort(404);
         }
 
+        $received_order_data = $received_order_collection->get();
+        $received_data = ReceivedOrder::get_received_detail($received_order_data->pluck('id')->toArray());
+
         return view('cms.frontend.checkout_result', [
             'order' => $order,
+            'received_data' => count($received_data) > 0 ? $received_data[0] : null,
         ]);
     }
 
@@ -324,7 +386,12 @@ class OrderCtrl extends Controller
             $couponObj = [$payLoad['coupon_type'], $payLoad['coupon_sn']];
         }
 
-        $re = Order::createOrder($customer->email, 1, $address, $payLoad['products'], null, $couponObj, ReceivedMethod::fromValue($payLoad['payment']));
+        $dividend = [];
+        if (isset($payLoad['points']) && isset($payLoad['points'])) {
+            $dividend = $payLoad['points'];
+        }
+
+        $re = Order::createOrder($customer->email, 1, $address, $payLoad['products'], null, $couponObj, ReceivedMethod::fromValue($payLoad['payment']), $dividend);
 
         if ($re['success'] == '1') {
             DB::commit();
@@ -342,6 +409,74 @@ class OrderCtrl extends Controller
             'stauts' => 'E05',
             'message' => $re,
         ];
+    }
+
+    /**
+     * @param  Request  $request
+     * 訂單列表API
+     * @return
+     */
+    public function orderList(Request $request)
+    {
+        $data['email'] = $request->user()->email;
+        $orderIds = Order::where('email', '=', $data['email'])->select('id')->get();
+
+        if (count($orderIds) === 0) {
+            return response()->json([
+                ResponseParam::status => ApiStatusMessage::Fail,
+                ResponseParam::msg => "查無訂單",
+                ResponseParam::data => [],
+            ]);
+        }
+
+        $orders = [];
+        foreach ($orderIds as $orderId) {
+            $order = Order::orderDetail($orderId->id, $data['email'])->get()->first();
+            $subOrder = Order::subOrderDetail($orderId->id)->get()->toArray();
+
+            $subOrderArray = array_map(function ($n) {
+                $delivery = Delivery::getDeliveryWithEventWithSn(Event::order, $n->id)->select('id')->get()->first();
+                $n->shipment_flow = LogisticFlow::getListByDeliveryId($delivery->id)->select('status', 'created_at')->get()->toArray();
+
+                $n->items = json_decode($n->items);
+                foreach ($n->items as $key => $value) {
+                    if ($value->img_url) {
+                        $n->items[$key]->img_url = asset($n->items[$key]->img_url);
+                    } else {
+                        $n->items[$key]->img_url = '';
+                    }
+                    //convert string value to int type
+                    if ($value->qty) {
+                        $n->items[$key]->qty = intval($n->items[$key]->qty);
+                    }
+                    if ($value->total_price) {
+                        $n->items[$key]->total_price = intval($n->items[$key]->total_price);
+                    }
+                }
+
+                //convert string value to int type
+                if ($n->dlv_fee) {
+                    $n->dlv_fee = intval($n->dlv_fee);
+                }
+                return $n;
+            }, $subOrder);
+
+            $orders[] = [
+                'id' => $order->id,
+                'status' => $order->status,
+                'sn' => $order->sn,
+                'payment_status' => $order->payment_status,
+                'created_at' => $order->created_at,
+                'total_price' => $order->total_price,
+                'sub_order' => $subOrderArray,
+            ];
+        }
+
+        return response()->json([
+            ResponseParam::status => ApiStatusMessage::Succeed,
+            ResponseParam::msg => '',
+            ResponseParam::data => $orders,
+        ]);
     }
 
     public function orderDetail(Request $request)
@@ -457,38 +592,55 @@ class OrderCtrl extends Controller
             if (is_array($EncArray) && count($EncArray) > 0) {
                 $status = isset($EncArray['status']) ? $EncArray['status'] : '';
                 $authAmt = isset($EncArray['authamt']) ? $EncArray['authamt'] : '';
+                $CardNumber = isset($EncArray['cardnumber']) ? $EncArray['cardnumber'] : '';
+                $authCode = isset($EncArray['authcode']) ? $EncArray['authcode'] : '';
                 $lidm = isset($EncArray['lidm']) ? $EncArray['lidm'] : '';
+                $EncArray['more_info'] = [];
 
                 if (empty($status) && $status == '0') {
                     // echo '交易完成';
-                    OrderFlow::changeOrderStatus($id, OrderStatus::Received());
-
-                    Order::change_order_payment_status($id, PaymentStatus::Received(), ReceivedMethod::CreditCard());
-
-                    OrderPayCreditCard::create_log($id, (object) $EncArray);
-
                     $received_order_collection = ReceivedOrder::where([
-                        'order_id'=>$id,
-                        'deleted_at'=>null,
+                        'order_id' => $id,
+                        'deleted_at' => null,
                     ]);
 
-                    if(! $received_order_collection->first()){
+                    if (!$received_order_collection->first()) {
                         $received_order = ReceivedOrder::create_received_order($id);
                         $received_method = ReceivedMethod::CreditCard; // 'credit_card'
+                        $grade_id = ReceivedDefault::where('name', $received_method)->first() ? ReceivedDefault::where('name', $received_method)->first()->default_grade_id : 0;
 
                         $data = [];
                         $data['acc_transact_type_fk'] = $received_method;
-                        $data[$received_method]['installment'] = 'none';
+                        $data[$received_method] = [
+                            'cardnumber'=>$CardNumber,
+                            'authamt'=>$authAmt ?? 0,
+                            'ckeckout_date'=>date("Y-m-d H:i:s"),
+                            'card_type_code'=>null,
+                            'card_type'=>null,
+                            'card_owner_name'=>null,
+                            'authcode'=>$authCode,
+                            'all_grades_id'=>$grade_id,
+                            'checkout_area_code'=>'taipei',
+                            'checkout_area'=>'台北',
+                            'installment'=>'none',
+                            'requested'=>'n',
+                            'card_nat'=>'local',
+                            'checkout_mode'=>'online',
+                        ];
                         $result_id = ReceivedOrder::store_received_method($data);
+
+                        $EncArray['more_info'] = $data[$received_method];
 
                         $parm = [];
                         $parm['received_order_id'] = $received_order->id;
                         $parm['received_method'] = $received_method;
                         $parm['received_method_id'] = $result_id;
-                        $parm['grade_id'] = ReceivedDefault::where('name', $received_method)->first() ? ReceivedDefault::where('name', $received_method)->first()->default_grade_id : 0;
+                        $parm['grade_id'] = $grade_id;
                         $parm['price'] = $authAmt;
                         ReceivedOrder::store_received($parm);
                     }
+
+                    OrderPayCreditCard::create_log($id, (object) $EncArray);
 
                     return redirect(env('FRONTEND_URL') . 'payfin/' . $id . '/' . $lidm . '/' . $status);
                 }

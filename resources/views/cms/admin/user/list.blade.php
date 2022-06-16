@@ -46,7 +46,7 @@
                                     <a href="{{ Route('cms.user.salechannel', ['id' => $data['id']], true) }}"
                                         data-bs-toggle="tooltip" title="通路權限"
                                         class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                        <i class="bi bi-pencil-square"></i>
+                                        <i class="bi bi-key"></i>
                                     </a>
                                 @endcan
                             </td>

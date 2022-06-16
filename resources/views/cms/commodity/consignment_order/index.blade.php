@@ -2,7 +2,7 @@
 @section('sub-content')
     <h2 class="mb-3">寄倉訂購</h2>
 
-    <form id="search" action="{{ Route('cms.consignment.orderlist') }}" method="GET">
+    <form id="search" action="{{ Route('cms.consignment-order.index') }}" method="GET">
         <div class="card shadow p-4 mb-4">
             <h6>搜尋條件</h6>
             <div class="row">
@@ -10,7 +10,7 @@
                     <label class="form-label">倉庫</label>
                     <select class="form-select" name="depot_id" aria-label="倉庫">
                         <option value="" @if ('' == $depot_id ?? '') selected @endif disabled>請選擇</option>
-                        <@foreach ($depotList as $key => $data)
+                        @foreach ($depotList as $key => $data)
                             <option value="{{ $data->id }}"
                                     @if ($data->id == $depot_id ?? '') selected @endif>{{ $data->name }}</option>
                         @endforeach
@@ -29,8 +29,8 @@
         <div class="card shadow p-4 mb-4">
 
             <div class="col">
-                @can('cms.consignment.create')
-                    <a href="{{ Route('cms.consignment.order', null, true) }}" class="btn btn-primary">
+                @can('cms.consignment-order.create')
+                    <a href="{{ Route('cms.consignment-order.create', null, true) }}" class="btn btn-primary">
                         <i class="bi bi-plus-lg pe-1"></i> 新增寄倉訂購單
                     </a>
                 @endcan
@@ -52,8 +52,8 @@
                     <thead>
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col" class="text-center">編輯</th>
                         <th scope="col">單號</th>
+                        <th scope="col" class="text-center">編輯</th>
                         <th scope="col">倉庫名稱</th>
                         <th scope="col">訂購人</th>
                         <th scope="col">訂購日期</th>
@@ -71,16 +71,16 @@
                         @foreach ($dataList as $key => $data)
                             <tr>
                                 <th scope="row">{{ $key + 1 }}</th>
+                                <td>{{ $data->sn }}</td>
                                 <td class="text-center">
-                                    @can('admin.consignment.edit')
-                                        <a href="{{ Route('cms.consignment.order_edit', ['id' => $data->id], true) }}"
+                                    @can('admin.consignment-order.edit')
+                                        <a href="{{ Route('cms.consignment-order.edit', ['id' => $data->id], true) }}"
                                            data-bs-toggle="tooltip" title="編輯"
                                            class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                             <i class="bi bi-pencil-square"></i>
                                         </a>
                                     @endcan
                                 </td>
-                                <td>{{ $data->sn }}</td>
                                 <td>{{ $data->depot_name }}</td>
                                 <td>{{ $data->create_user_name }}</td>
                                 <td>{{ $data->scheduled_date }}</td>

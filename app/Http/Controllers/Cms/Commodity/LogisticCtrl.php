@@ -6,25 +6,35 @@ use App\Enums\Delivery\Event;
 use App\Enums\Delivery\LogisticStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Consignment;
+use App\Models\ConsignmentItem;
 use App\Models\Consum;
 use App\Models\CsnOrder;
 use App\Models\Delivery;
+use App\Models\Depot;
 use App\Models\Logistic;
 use App\Models\LogisticFlow;
+use App\Models\LogisticProjLogisticLog;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Product;
 use App\Models\ShipmentGroup;
 use App\Models\SubOrders;
+use App\Models\User;
+use App\Models\UserProjLogistics;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class LogisticCtrl extends Controller
 {
-    public function create($event, $eventId)
+    public function create(Request $request, $event, $eventId)
     {
         $rsp_arr = [];
 
         $delivery = null;
         $delivery_id = null;
         $returnAction = '';
+        $event_sn = '';
 
         //顯示出貨商品列表product_title ; 單價price ; 數量send_qty ; 小計price*數量send_qty
         //組合包判斷兩者欄位不同都顯示:product_title rec_product_title，否則只顯示product_title
@@ -34,6 +44,7 @@ class LogisticCtrl extends Controller
             if (null == $sub_order) {
                 return abort(404);
             }
+            $event_sn = $sub_order->sn;
             $returnAction = Route('cms.order.detail', ['id' => $sub_order->order_id, 'subOrderId' => $eventId ]);
 
             // 出貨單號ID
@@ -53,9 +64,10 @@ class LogisticCtrl extends Controller
             $deliveryList = Delivery::getCsnListToLogistic($delivery_id, $eventId)->get();
 
             $consignment = Consignment::where('id', $delivery->event_id)->get()->first();
+            $event_sn = $consignment->sn;
             $rsp_arr['depot_id'] = $consignment->send_depot_id;
         } else if (Event::csn_order()->value == $event) {
-            $returnAction = Route('cms.consignment.order_edit', ['id' => $eventId ]);
+            $returnAction = Route('cms.consignment-order.edit', ['id' => $eventId ]);
 
             // 出貨單號ID
             $delivery = Delivery::getData($event, $eventId)->get()->first();
@@ -63,8 +75,8 @@ class LogisticCtrl extends Controller
                 $delivery_id = $delivery->id;
             }
             $deliveryList = Delivery::getCsnOrderListToLogistic($delivery_id, $eventId)->get();
-//            dd($deliveryList);
             $csnOrder = CsnOrder::where('id', $delivery->event_id)->get()->first();
+            $event_sn = $csnOrder->sn;
             $rsp_arr['depot_id'] = $csnOrder->depot_id;
         }
 
@@ -97,6 +109,40 @@ class LogisticCtrl extends Controller
             $consumWithInboundList[$key]->groupconcat = json_decode($value->groupconcat);
         }
 
+        $depots = null;
+        $temps = null;
+        $dims = null;
+        $send_name = ''; $send_tel = ''; $send_addr = '';
+        $rcv_name = ''; $rcv_tel = ''; $rcv_addr = '';
+        $items = null;
+        if (false == isset($logistic->projlgt_order_sn)) {
+            $logisticUserApiToken = User::getLogisticApiToken($request->user()->id)->user_token;
+            if (false == empty($logisticUserApiToken)) {
+                $api_depot = UserProjLogistics::getDepot($logisticUserApiToken);
+                if ($api_depot['success'] == 0) {
+                    wToast('取得倉庫列表錯誤 '. $api_depot['error_msg']);
+                } else {
+                    $depots = $api_depot['data'];
+                }
+                $api_temp = UserProjLogistics::getTemp($logisticUserApiToken);
+                if ($api_temp['success'] == 0) {
+                    wToast('取得溫層列表錯誤 '. $api_temp['error_msg']);
+                } else {
+                    $temps = $api_temp['data'];
+
+                    $api_dim = UserProjLogistics::getDim($logisticUserApiToken, $temps[0]->id);
+                    if ($api_dim['success'] == 0) {
+                        wToast('取得溫層列表錯誤 '. $api_dim['error_msg']);
+                    } else {
+                        $dims = $api_dim['data'];
+                    }
+                }
+                list($send_name, $send_tel, $send_addr, $rcv_name, $rcv_tel, $rcv_addr, $memo, $items) =
+                    $this->getDataProjLogisticCreateOrder($event, $delivery, $send_name, $send_tel, $send_addr, $rcv_name, $rcv_tel, $rcv_addr, $items);
+            }
+        }
+        $projLogisticLog = LogisticProjLogisticLog::getDataWithLogisticId($logistic_id);
+
         $rsp_arr['returnAction'] = $returnAction;
         $rsp_arr['delivery'] = $delivery;
         $rsp_arr['logistic'] = $logistic;
@@ -104,7 +150,13 @@ class LogisticCtrl extends Controller
         $rsp_arr['shipmentGroup'] = $shipmentGroupWithCost;
         $rsp_arr['consumWithInboundList'] = $consumWithInboundList;
         $rsp_arr['event'] = $event;
-        $rsp_arr['breadcrumb_data'] = $logistic->sn;
+        $rsp_arr['depots'] = $depots;
+        $rsp_arr['temps'] = $temps;
+        $rsp_arr['dims'] = $dims;
+        $rsp_arr['send_name'] = $send_name;
+        $rsp_arr['projLogisticLog'] = $projLogisticLog;
+        $rsp_arr['DelLogisticOrderAction'] = Route('cms.logistic.deleteLogisticOrder');
+        $rsp_arr['breadcrumb_data'] = ['sn' => $event_sn, 'parent' => $event ];
         return view('cms.commodity.logistic.edit', $rsp_arr);
     }
 
@@ -226,24 +278,30 @@ class LogisticCtrl extends Controller
     public function changeLogisticStatus(Request $request, $event, $eventId) {
         $lastPageAction = '';
         $delivery_id = null;
+        $event_sn = '';
         if (Event::order()->value == $event) {
             $delivery = Delivery::getDeliveryWithEventWithSn($event, $eventId)->get()->first();
             if (null != $delivery) {
                 $delivery_id = $delivery->id;
-                $subOrder = SubOrders::where('id', $eventId)->get()->first();
-                $lastPageAction = Route('cms.order.detail', ['id' => $subOrder->order_id, 'subOrderId' => $eventId ]);
+                $sub_order = SubOrders::where('id', $eventId)->get()->first();
+                $event_sn = $sub_order->sn;
+                $lastPageAction = Route('cms.order.detail', ['id' => $sub_order->order_id, 'subOrderId' => $eventId ]);
             }
         } else if (Event::consignment()->value == $event) {
             $delivery = Delivery::getDeliveryWithEventWithSn($event, $eventId)->get()->first();
             if (null != $delivery) {
                 $delivery_id = $delivery->id;
+                $consignment = Consignment::where('id', $eventId)->get()->first();
+                $event_sn = $consignment->sn;
                 $lastPageAction = Route('cms.consignment.edit', ['id' => $eventId ]);
             }
         } else if (Event::csn_order()->value == $event) {
             $delivery = Delivery::getDeliveryWithEventWithSn($event, $eventId)->get()->first();
             if (null != $delivery) {
                 $delivery_id = $delivery->id;
-                $lastPageAction = Route('cms.consignment.order_edit', ['id' => $eventId ]);
+                $csn_order = CsnOrder::where('id', $eventId)->get()->first();
+                $event_sn = $csn_order->sn;
+                $lastPageAction = Route('cms.consignment-order.edit', ['id' => $eventId ]);
             }
         }
         $flowList = null;
@@ -264,7 +322,7 @@ class LogisticCtrl extends Controller
             'eventId' => $eventId,
             'delivery_id' => $delivery_id,
             'user' => $request->user(),
-            'breadcrumb_data' => $delivery->sn
+            'breadcrumb_data' => ['sn' => $event_sn, 'parent' => $event ],
         ]);
     }
 
@@ -297,6 +355,151 @@ class LogisticCtrl extends Controller
             'event' => $event,
             'eventId' => $eventId
         ], true));
+    }
+
+    public function createLogisticOrder(Request $request) {
+        $request->validate([
+            'is_true_sender' => ['required', 'string', 'regex:/^(0|1)$/'],
+            'depot_id' => 'required|string',
+            'temp_id' => 'required|string',
+            'dim_id' => 'required|string',
+            'pickup_date' => 'required|date',
+            'delivery_id' => 'required|string',
+            'logistic_id' => 'required|string',
+            'event' => 'required|string',
+            'event_id' => 'required|string',
+        ]);
+
+        $input = $request->only('is_true_sender', 'depot_id', 'temp_id', 'dim_id', 'pickup_date');
+        $pickup_date = date('Y/m/d', strtotime($input['pickup_date']));
+
+        $logistic_id = $request->input('logistic_id');
+        $delivery_id = $request->input('delivery_id');
+        $event = $request->input('event');
+        $eventId = $request->input('event_id');
+
+        $delivery = Delivery::where('id', $delivery_id)->get()->first();
+        $order_no = $delivery->event_sn;
+        $send_name = ''; $send_tel = ''; $send_addr = '';
+        $rcv_name = ''; $rcv_tel = ''; $rcv_addr = '';
+        $items = null;
+        list($send_name, $send_tel, $send_addr, $rcv_name, $rcv_tel, $rcv_addr, $memo, $items) =
+            $this->getDataProjLogisticCreateOrder($event, $delivery, $send_name, $send_tel, $send_addr, $rcv_name, $rcv_tel, $rcv_addr, $items);
+
+        //真實寄件人帶值 其餘不傳此欄位
+        if ('0' == $input['is_true_sender']) {
+            $send_name = '';
+            $send_tel = '';
+            $send_addr = '';
+        }
+
+        $logisticUserApiToken = User::getLogisticApiToken($request->user()->id)->user_token;
+        $createOrder = UserProjLogistics::createOrder($request->user(), $logistic_id, $logisticUserApiToken
+            , $input['depot_id'], $input['temp_id'], $input['dim_id']
+            , $rcv_name, $rcv_tel, $rcv_addr
+            , $memo, $order_no, $pickup_date
+            , $items
+            , $send_name, $send_tel, $send_addr
+        );
+        if ($createOrder['success'] == 0) {
+            throw ValidationException::withMessages(['createOrder' => json_encode($createOrder['error_msg'])]);
+        } else {
+            Logistic::where('id', $logistic_id)->update([
+                'projlgt_order_sn' => $createOrder['sn']
+            ]);
+            wToast('新增託運單成功');
+        }
+
+        return redirect(Route('cms.logistic.create', [
+            'event' => $event,
+            'eventId' => $eventId], true));
+    }
+
+    public function deleteLogisticOrder(Request $request) {
+        $request->validate([
+            'event' => 'required|string',
+            'event_id' => 'required|string',
+            'logistic_id' => 'required|string',
+            'sn' => 'required|string',
+        ]);
+        $sn = $request->input('sn');
+        $event = $request->input('event');
+        $eventId = $request->input('event_id');
+        $logisticId = $request->input('logistic_id');
+
+        $logistic = Logistic::where('id', $logisticId)->get()->first();
+        if (null == $logistic) {
+            return abort(404);
+        }
+
+        $logisticUserApiToken = User::getLogisticApiToken($request->user()->id)->user_token;
+        $delSn = UserProjLogistics::delSn($request->user(), $logistic->id, $logisticUserApiToken, $sn);
+        if ($delSn['success'] == 0) {
+            throw ValidationException::withMessages(['sn' => $delSn['error_msg']]);
+        } else {
+            Logistic::where('id', $logisticId)->update([
+                'projlgt_order_sn' => null
+            ]);
+            wToast('刪除託運單成功');
+        }
+        return redirect(Route('cms.logistic.create', [
+            'event' => $event,
+            'eventId' => $eventId], true));
+    }
+
+    private function getDataProjLogisticCreateOrder($event, $delivery
+        , $send_name, $send_tel, $send_addr, $rcv_name, $rcv_tel, $rcv_addr
+        , $items): array
+    {
+        $memo = null;
+        if (Event::order()->value == $event) {
+            $suborder = SubOrders::where('id', '=', $delivery->event_id)->get()->first();
+            $orderQuery = DB::table('ord_orders as order')
+                ->where('order.id', '=', $suborder->order_id)
+                ->select('order.id as order_id');
+            Order::orderAddress($orderQuery);
+            $order = $orderQuery->get()->first();
+            $send_name = $order->sed_name;
+            $send_tel = $order->sed_phone;
+            $send_addr = $order->sed_address;
+
+            if ('pickup' == $suborder->ship_category) {
+                //自取，還是要從理貨倉出貨到門市，所以收件地是門市
+                $pickup = Product::getPickupWithPickUpId($suborder->ship_event_id)->get()->first();
+                $rcv_name = $pickup->depot_name;
+                $rcv_tel = $pickup->depot_tel;
+                $rcv_addr = $pickup->depot_address;
+            } else {
+                $rcv_name = $order->rec_name;
+                $rcv_tel = $order->rec_phone;
+                $rcv_addr = $order->rec_address;
+            }
+            $items = OrderItem::where('order_id', '=', $suborder->order_id)
+                ->select('id as item_id'
+                    , 'product_title as title'
+                    , 'qty as qty'
+                    , 'discounted_price as price'
+                    , DB::raw('(qty * discounted_price) as subtotal')
+                )
+                ->where('sub_order_id', '=', $suborder->id)
+                ->get()->toArray();
+        } else if (Event::consignment()->value == $event) {
+            $consignment = Consignment::where('id', '=', $delivery->event_id)->get()->first();
+            $send_depot = Depot::where('id', $consignment->send_depot_id)->get()->first();
+            $send_name = $send_depot->name;
+            $send_tel = $send_depot->tel;
+            $send_addr = $send_depot->address;
+
+            $receive_depot = Depot::where('id', $consignment->receive_depot_id)->get()->first();
+            $rcv_name = $receive_depot->name;
+            $rcv_tel = $receive_depot->tel;
+            $rcv_addr = $receive_depot->address;
+            $memo = $consignment->memo;
+
+            $consignment_item = ConsignmentItem::getProjLogisticItemData($delivery->event_id);
+            $items = $consignment_item;
+        }
+        return array($send_name, $send_tel, $send_addr, $rcv_name, $rcv_tel, $rcv_addr, $memo, $items);
     }
 }
 

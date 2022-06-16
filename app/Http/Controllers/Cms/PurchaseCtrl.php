@@ -14,8 +14,10 @@ use App\Models\PurchaseInbound;
 use App\Models\PurchaseItem;
 use App\Models\PurchaseLog;
 use App\Models\Supplier;
-use App\Models\SupplierPayment;
 use App\Models\User;
+use App\Models\Order;
+use App\Models\SubOrders;
+use App\Models\PayableDefault;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -248,8 +250,8 @@ class PurchaseCtrl extends Controller
         $inbound_names = '';
         if (null != $purchaseItemData && 0 < count($purchaseItemData)) {
             foreach ($purchaseItemData as $item) {
-                if (isset($item->inbound_user_name)) {
-                    $item_name_arr = explode(',', $item->inbound_user_name);
+                if (isset($item->inbound_user_names)) {
+                    $item_name_arr = explode(',', $item->inbound_user_names);
                     foreach ($item_name_arr as $item_name) {
                         array_push($inbound_name_arr, $item_name);
                     }
@@ -274,13 +276,13 @@ class PurchaseCtrl extends Controller
                 if ($payingOrderItem->type === 0) {
                     $hasCreatedDepositPayment = true;
                     $depositPayData = $payingOrderItem;
-                    if ($payingOrderItem->price == AccountPayable::where('pay_order_id', $payingOrderItem->id)->sum('tw_price')) {
+                    if ($payingOrderItem->balance_date) {
                         $hasReceivedDepositPayment = true;
                     }
                 } elseif ($payingOrderItem->type === 1) {
                     $hasCreatedFinalPayment = true;
                     $finalPayData = $payingOrderItem;
-                    if ($payingOrderItem->price == AccountPayable::where('pay_order_id', $payingOrderItem->id)->sum('tw_price')) {
+                    if ($payingOrderItem->balance_date) {
                         $hasReceivedFinalPayment = true;
                     }
                 }
@@ -496,16 +498,18 @@ class PurchaseCtrl extends Controller
             }
 
             $depot = Depot::where('id', '=', $depot_id)->get()->first();
+            $style_arr = PurchaseInbound::getCreateData(Event::purchase()->value, $id, $inboundItemReq['event_item_id'], $inboundItemReq['product_style_id']);
 
-            $result = DB::transaction(function () use ($inboundItemReq, $id, $depot_id, $depot, $request
+            $result = DB::transaction(function () use ($inboundItemReq, $id, $depot_id, $depot, $request, $style_arr
             ) {
-                foreach ($inboundItemReq['product_style_id'] as $key => $val) {
-
+                foreach ($style_arr as $key => $val) {
                     $re = PurchaseInbound::createInbound(
                         Event::purchase()->value,
                         $id,
                         $inboundItemReq['event_item_id'][$key],
                         $inboundItemReq['product_style_id'][$key],
+                        $val['item']['title'] . '-'. $val['item']['spec'],
+                        $val['unit_cost'],
                         $inboundItemReq['expiry_date'][$key],
                         $inboundItemReq['inbound_date'][$key],
                         $inboundItemReq['inbound_num'][$key],
@@ -540,20 +544,14 @@ class PurchaseCtrl extends Controller
         $purchase_id = '';
         if (null != $inboundDataGet) {
             $purchase_id = $inboundDataGet->event_id;
-            if (0 < $inboundDataGet->sale_num) {
-                wToast('已有售出紀錄 無法刪除');
-            } else if (0 < $inboundDataGet->csn_num) {
-                wToast('已有寄倉紀錄 無法刪除');
-            } else if (0 < $inboundDataGet->consume_num) {
-                wToast('已有耗材紀錄 無法刪除');
-            } else {
-                $re = PurchaseInbound::delInbound($id, $request->user()->id);
-                if ($re['success'] == 0) {
-                    wToast($re['error_msg']);
-                } else {
-                    wToast(__('Delete finished.'));
-                }
-            }
+        } else {
+            return abort(404);
+        }
+        $re = PurchaseInbound::delInbound($id, $request->user()->id);
+        if ($re['success'] == 0) {
+            wToast($re['error_msg']);
+        } else {
+            wToast(__('Delete finished.'));
         }
         return redirect(Route('cms.purchase.inbound', [
             'id' => $purchase_id,
@@ -579,11 +577,16 @@ class PurchaseCtrl extends Controller
 
         //產生付款單
         if ($request->isMethod('POST')) {
+            $source_type = app(Purchase::class)->getTable();
+            $source_sub_id = null;
+
             $paying_order = PayingOrder::where([
-                    'purchase_id'=>$id,
-                    'type'=>1,
-                    'deleted_at'=>null,
-                ])->first();
+                'source_type'=>$source_type,
+                'source_id'=>$id,
+                'source_sub_id'=>$source_sub_id,
+                'type'=>1,
+                'deleted_at'=>null,
+            ])->first();
 
             if(! $paying_order){
                 if ($validatedReq['type'] === '1') {
@@ -591,19 +594,18 @@ class PurchaseCtrl extends Controller
                 } elseif (isset($validatedReq['price'])) {
                     $totalPrice = intval($validatedReq['price']);
                 }
-                $productDefault = DB::table('acc_payable_default')->where('name', '=', 'product')->get()->first();
-                $logisticsDefault = DB::table('acc_payable_default')->where('name', '=', 'logistics')->get()->first();
-                $prdDefault = json_decode(json_encode($productDefault), true);
-                $lgsDefault = json_decode(json_encode($logisticsDefault), true);
+                $product_grade = PayableDefault::where('name', '=', 'product')->first()->default_grade_id;
+                $logistics_grade = PayableDefault::where('name', '=', 'logistics')->first()->default_grade_id;
 
                 PayingOrder::createPayingOrder(
+                    $source_type,
                     $id,
+                    $source_sub_id,
                     $request->user()->id,
                     $validatedReq['type'],
-                    $prdDefault['default_grade_id'],
-                    $lgsDefault['default_grade_id'],
+                    $product_grade,
+                    $logistics_grade,
                     $totalPrice ?? 0,
-                    null,
                     $request['deposit_summary'] ?? '',
                     $request['deposit_memo'] ?? '',
                 );
@@ -620,7 +622,7 @@ class PurchaseCtrl extends Controller
         $payingOrderData = PayingOrder::getPayingOrdersWithPurchaseID($id, $validatedReq['type'])->get()->first();
         $payingOrderQuery = PayingOrder::find($payingOrderData->id);
         $productGradeName = AllGrade::find($payingOrderQuery->product_grade_id)->eachGrade->name;
-        $logisticsGradeName = AllGrade::find($payingOrderQuery->logistics_grade_id)->eachGrade->name;
+        $logisticsGradeName = AllGrade::find($payingOrderQuery->logistics_grade_id)->eachGrade->code . ' - ' . AllGrade::find($payingOrderQuery->logistics_grade_id)->eachGrade->name;
 
         $purchaseItemData = PurchaseItem::getPurchaseItemsByPurchaseId($id);
 
@@ -647,16 +649,16 @@ class PurchaseCtrl extends Controller
                             ->first();
         $accountPayable = PayingOrder::find($payingOrderData->id)->accountPayable;
 
-        $pay_off = 0;
+        $pay_off = false;
         $pay_off_date = null;
         $pay_record = AccountPayable::where('pay_order_id', $payingOrderData->id);
         $sum_pay = $pay_record->sum('tw_price');
         if($payingOrderData->price == $sum_pay ){
-            $pay_off = 1;
+            $pay_off = true;
             if($payingOrderData->price == 0 && $pay_record->count() == 0){
                 $pay_off_date = date('Y-m-d', strtotime($payingOrderData->created_at));
             } else {
-                $pay_off_date = date('Y-m-d', strtotime($pay_record->get()->last()->payment_date));
+                $pay_off_date = date('Y-m-d', strtotime($payingOrderData->balance_date));
             }
         }
 
@@ -676,7 +678,7 @@ class PurchaseCtrl extends Controller
             'accountPayableId' => $accountPayable->id ?? null,
             'payOrdId' => $payingOrderData->id,
             'type' => ($validatedReq['type'] === '0') ? 'deposit' : 'final',
-            'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
+            'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn, 'type' => $validatedReq['type']],
             'formAction' => Route('cms.purchase.index', ['id' => $id,]),
             'supplierUrl' => Route('cms.supplier.edit', ['id' => $supplier->id,]),
             'purchaseData' => $purchaseData,
@@ -801,6 +803,7 @@ class PurchaseCtrl extends Controller
             'returnAction' => Route('cms.purchase.index', [], true),
             'title' => '採購單',
             'sn' => $purchaseData->purchase_sn,
+            'event' => Event::purchase()->value,
             'breadcrumb_data' => $purchaseData->purchase_sn,
         ]);
     }

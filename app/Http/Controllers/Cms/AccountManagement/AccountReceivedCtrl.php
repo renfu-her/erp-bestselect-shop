@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Cms\AccountManagement;
 
-
 use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
@@ -10,17 +9,22 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
+use App\Enums\Order\PaymentStatus;
+use App\Enums\Order\OrderStatus;
 use App\Enums\Received\ReceivedMethod;
 
-use App\Models\FirstGrade;
 use App\Models\AllGrade;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\GeneralLedger;
+use App\Models\OrderFlow;
 use App\Models\OrderItem;
 use App\Models\ReceivedOrder;
-use App\Models\ReceivedDefault;
+use App\Models\OrderPayCreditCard;
 use App\Models\User;
+
+
+
 
 class AccountReceivedCtrl extends Controller
 {
@@ -119,6 +123,7 @@ class AccountReceivedCtrl extends Controller
                     'product_owner'=>null,
                     'discount_title'=>null,
                     'payable_type'=>null,
+                    'received_info'=>$r_value,
                 ];
                 GeneralLedger::classification_processing($debit, $credit, $tmp);
             }
@@ -149,6 +154,7 @@ class AccountReceivedCtrl extends Controller
                     'product_owner'=>null,
                     'discount_title'=>null,
                     'payable_type'=>null,
+                    'received_info'=>null,
                 ];
                 GeneralLedger::classification_processing($debit, $credit, $tmp);
             }
@@ -178,6 +184,7 @@ class AccountReceivedCtrl extends Controller
                     'product_owner'=>null,
                     'discount_title'=>null,
                     'payable_type'=>null,
+                    'received_info'=>null,
                 ];
                 GeneralLedger::classification_processing($debit, $credit, $tmp);
             }
@@ -208,6 +215,7 @@ class AccountReceivedCtrl extends Controller
                         'product_owner'=>null,
                         'discount_title'=>$d_value->title,
                         'payable_type'=>null,
+                        'received_info'=>null,
                     ];
                     GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }
@@ -254,20 +262,8 @@ class AccountReceivedCtrl extends Controller
         }
 
         $received_order_data = $received_order_collection->get();
-        $received_data = DB::table('acc_received')->whereIn('received_order_id', $received_order_data->pluck('id')->toArray())->get();
-        foreach($received_data as $value){
-            $value->received_method_name = ReceivedMethod::getDescription($value->received_method);
-            $value->account = AllGrade::find($value->all_grades_id)->eachGrade;
+        $received_data = ReceivedOrder::get_received_detail($received_order_data->pluck('id')->toArray());
 
-            if($value->received_method == 'foreign_currency'){
-                $arr = explode('-', AllGrade::find($value->all_grades_id)->eachGrade->name);
-                $value->currency_name = $arr[0] == '外幣' ? $arr[1] . ' - ' . $arr[2] : 'NTD';
-                $value->currency_rate = DB::table('acc_received_currency')->find($value->received_method_id)->currency;
-            } else {
-                $value->currency_name = 'NTD';
-                $value->currency_rate = 1;
-            }
-        }
         $tw_price = $received_order_data->sum('price') - $received_data->sum('tw_price');
         if ($tw_price == 0) {
             // dd('此付款單金額已收齊');
@@ -362,6 +358,17 @@ class AccountReceivedCtrl extends Controller
             $value->account_name = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->name : '無設定會計科目';
         }
 
+        $card_type = [
+            'visa'=>'VISA',
+            'jcb'=>'JCB',
+            'master'=>'MASTER',
+            'american_express'=>'美國運通卡',
+            'union_pay'=>'銀聯卡',
+        ];
+        $checkout_area = [
+            'taipei'=>'台北',
+        ];
+
         return view('cms.account_management.account_received.edit', [
             'defaultArray' => $defaultArray,
             'currencyDefaultArray' => $currencyDefaultArray,
@@ -377,6 +384,8 @@ class AccountReceivedCtrl extends Controller
             'order_discount'=>$order_discount,
             'received_order_data' => $received_order_data,
             'received_data' => $received_data,
+            'card_type'=>$card_type,
+            'checkout_area'=>$checkout_area,
         ]);
     }
 
@@ -407,6 +416,41 @@ class AccountReceivedCtrl extends Controller
         DB::beginTransaction();
 
         try {
+            // 'credit_card'
+            if($data['acc_transact_type_fk'] == ReceivedMethod::CreditCard){
+                $card_type = [
+                    'visa'=>'VISA',
+                    'jcb'=>'JCB',
+                    'master'=>'MASTER',
+                    'american_express'=>'美國運通卡',
+                    'union_pay'=>'銀聯卡',
+                ];
+                $checkout_area = [
+                    'taipei'=>'台北',
+                ];
+
+                $data[$data['acc_transact_type_fk']] = [
+                    'cardnumber'=>$data[$data['acc_transact_type_fk']]['cardnumber'],
+                    'authamt'=>$data['tw_price'] ?? 0,
+                    'ckeckout_date'=>$data[$data['acc_transact_type_fk']]['ckeckout_date'] ?? null,// date("Y-m-d H:i:s")
+                    'card_type_code'=>$data[$data['acc_transact_type_fk']]['card_type_code'] ?? null,
+                    'card_type'=>$card_type[$data[$data['acc_transact_type_fk']]['card_type_code']] ?? null,
+                    'card_owner_name'=>$data[$data['acc_transact_type_fk']]['card_owner_name'] ?? null,
+                    'authcode'=>$data[$data['acc_transact_type_fk']]['authcode'] ?? null,
+                    'all_grades_id'=>$data[$data['acc_transact_type_fk']]['grade'],
+                    'checkout_area_code'=>'taipei',// $data[$data['acc_transact_type_fk']]['credit_card_area_code']
+                    'checkout_area'=>'台北',// $checkout_area[$data[$data['acc_transact_type_fk']]['credit_card_area_code']]
+                    'installment'=>$data[$data['acc_transact_type_fk']]['installment'] ?? 'none',
+                    'requested'=>'n',
+                    'card_nat'=>'local',
+                    'checkout_mode'=>'offline',
+                ];
+
+                $data[$data['acc_transact_type_fk']]['grade'] = $data[$data['acc_transact_type_fk']]['all_grades_id'];
+
+                $EncArray['more_info'] = $data[$data['acc_transact_type_fk']];
+            }
+
             $result_id = ReceivedOrder::store_received_method($data);
 
             $parm = [];
@@ -419,6 +463,10 @@ class AccountReceivedCtrl extends Controller
             $parm['note'] = $data['note'];
             ReceivedOrder::store_received($parm);
 
+            if($data['acc_transact_type_fk'] == ReceivedMethod::CreditCard){
+                OrderPayCreditCard::create_log($data['id'], (object) $EncArray);
+            }
+
             DB::commit();
             wToast(__('收款單儲存成功'));
 
@@ -427,7 +475,7 @@ class AccountReceivedCtrl extends Controller
             wToast(__('收款單儲存失敗'));
         }
 
-        if ($received_order_collection->sum('price') == DB::table('acc_received')->whereIn('received_order_id', $received_order_collection->pluck('id')->toArray())->sum('tw_price')) {
+        if (ReceivedOrder::find($received_order_id) && ReceivedOrder::find($received_order_id)->balance_date) {
             return redirect()->route('cms.order.detail', [
                 'id' => $data['id'],
             ]);
@@ -456,7 +504,7 @@ class AccountReceivedCtrl extends Controller
         ]);
 
         $received_order_data = $received_order_collection->get();
-        if (count($received_order_data) == 0 || $received_order_collection->sum('price') != DB::table('acc_received')->whereIn('received_order_id', $received_order_collection->pluck('id')->toArray())->sum('tw_price')) {
+        if (count($received_order_data) == 0 || !$received_order_collection->first()->balance_date) {
             return abort(404);
         }
 
@@ -465,7 +513,8 @@ class AccountReceivedCtrl extends Controller
         $product_qc = array_unique($product_qc);
         asort($product_qc);
 
-        $received_data = DB::table('acc_received')->whereIn('received_order_id', $received_order_data->pluck('id')->toArray())->get();
+        $received_data = ReceivedOrder::get_received_detail($received_order_data->pluck('id')->toArray());
+
         $order_purchaser = Customer::where([
             'email'=>$order->email,
             // 'deleted_at'=>null,
@@ -522,7 +571,7 @@ class AccountReceivedCtrl extends Controller
         ]);
 
         $received_order_data = $received_order_collection->get();
-        if (count($received_order_data) == 0 || $received_order_collection->sum('price') != DB::table('acc_received')->whereIn('received_order_id', $received_order_collection->pluck('id')->toArray())->sum('tw_price')) {
+        if (count($received_order_data) == 0 || !$received_order_collection->first()->balance_date) {
             return abort(404);
         }
 
@@ -539,6 +588,18 @@ class AccountReceivedCtrl extends Controller
                 'invoice_number'=>request('invoice_number'),
             ]);
 
+            if( in_array(request('received_method'), ReceivedMethod::asArray()) && is_array(request(request('received_method')))){
+                $req = request(request('received_method'));
+                foreach($req as $r){
+                    $r['received_method'] = request('received_method');
+                    ReceivedOrder::update_received_method($r);
+                }
+            }
+
+            OrderFlow::changeOrderStatus($id, OrderStatus::Received());
+            // 配發啟用日期
+            Order::assign_dividend_active_date($id);
+
             wToast(__('入帳日期更新成功'));
             return redirect()->route('cms.ar.receipt', ['id'=>request('id')]);
 
@@ -548,6 +609,7 @@ class AccountReceivedCtrl extends Controller
                     'receipt_date'=>null,
                 ]);
 
+                OrderFlow::changeOrderStatus($id, OrderStatus::Paided());
                 wToast(__('入帳日期已取消'));
                 return redirect()->route('cms.ar.receipt', ['id'=>request('id')]);
 
@@ -557,26 +619,13 @@ class AccountReceivedCtrl extends Controller
 
                 $order_list_data = OrderItem::item_order(request('id'))->get();
 
-                $received_data = DB::table('acc_received')->whereIn('received_order_id', $received_order_data->pluck('id')->toArray())->get();
+                $received_data = ReceivedOrder::get_received_detail($received_order_data->pluck('id')->toArray());
 
                 $debit = [];
                 $credit = [];
 
+                // 收款項目
                 foreach($received_data as $value){
-                    $value->received_method_name = ReceivedMethod::getDescription($value->received_method);
-                    $value->account = AllGrade::find($value->all_grades_id)->eachGrade;
-                    // $value->master_account = FirstGrade::find($value->account->code[0]);
-
-                    if($value->received_method == 'foreign_currency'){
-                        $arr = explode('-', AllGrade::find($value->all_grades_id)->eachGrade->name);
-                        $value->currency_name = $arr[0] == '外幣' ? $arr[1] . ' - ' . $arr[2] : 'NTD';
-                        $value->currency_rate = DB::table('acc_received_currency')->find($value->received_method_id)->currency;
-                    } else {
-                        $value->currency_name = 'NTD';
-                        $value->currency_rate = 1;
-                    }
-
-                    // 收款項目
                     $name = $value->received_method_name . $value->note . '（' . $value->account->code . ' - ' . $value->account->name . '）';
                     // GeneralLedger::classification_processing($debit, $credit, $value->master_account->code, $name, $value->tw_price, 'r', 'received');
 
@@ -598,6 +647,8 @@ class AccountReceivedCtrl extends Controller
                         'product_owner'=>null,
                         'discount_title'=>null,
                         'payable_type'=>null,
+
+                        'received_info'=>$value,
                     ];
                     GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }
@@ -629,6 +680,7 @@ class AccountReceivedCtrl extends Controller
                         'product_owner'=>null,
                         'discount_title'=>null,
                         'payable_type'=>null,
+                        'received_info'=>null,
                     ];
                     GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }
@@ -660,6 +712,7 @@ class AccountReceivedCtrl extends Controller
                         'product_owner'=>null,
                         'discount_title'=>null,
                         'payable_type'=>null,
+                        'received_info'=>null,
                     ];
                     GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }
@@ -696,10 +749,85 @@ class AccountReceivedCtrl extends Controller
                             'product_owner'=>null,
                             'discount_title'=>$value->title,
                             'payable_type'=>null,
-                        ];
+                            'received_info'=>null,
+                    ];
                         GeneralLedger::classification_processing($debit, $credit, $tmp);
                     }
                 }
+
+                $card_type = [
+                    'visa'=>'VISA',
+                    'jcb'=>'JCB',
+                    'master'=>'MASTER',
+                    'american_express'=>'美國運通卡',
+                    'union_pay'=>'銀聯卡',
+                ];
+                $checkout_area = [
+                    'taipei'=>'台北',
+                ];
+
+                // grade process start
+                $defaultData = [];
+                foreach (ReceivedMethod::asArray() as $receivedMethod) {
+                    $defaultData[$receivedMethod] = DB::table('acc_received_default')->where('name', '=', $receivedMethod)
+                        ->doesntExistOr(function () use ($receivedMethod) {
+                            return DB::table('acc_received_default')->where('name', '=', $receivedMethod)
+                                ->select('default_grade_id')
+                                ->get();
+                        });
+                }
+
+                $total_grades = GeneralLedger::total_grade_list();
+                $allGradeArray = [];
+
+                foreach ($total_grades as $grade) {
+                    $allGradeArray[$grade['primary_id']] = $grade;
+                }
+                $default_grade = [];
+                foreach ($defaultData as $recMethod => $ids) {
+                    if ($ids !== true &&
+                        $recMethod !== 'other') {
+                        foreach ($ids as $id) {
+                            $default_grade[$recMethod][$id->default_grade_id] = [
+                                // 'methodName' => $recMethod,
+                                'method' => ReceivedMethod::getDescription($recMethod),
+                                'grade_id' => $id->default_grade_id,
+                                'grade_num' => $allGradeArray[$id->default_grade_id]['grade_num'],
+                                'code' => $allGradeArray[$id->default_grade_id]['code'],
+                                'name' => $allGradeArray[$id->default_grade_id]['name'],
+                            ];
+                        }
+                    } else {
+                        if($recMethod == 'other'){
+                            $default_grade[$recMethod] = $allGradeArray;
+                        } else {
+                            $default_grade[$recMethod] = [];
+                        }
+                    }
+                }
+
+
+                $currencyDefault = DB::table('acc_currency')
+                    ->leftJoin('acc_received_default', 'acc_currency.received_default_fk', '=', 'acc_received_default.id')
+                    ->select(
+                        'acc_currency.name as currency_name',
+                        'acc_currency.id as currency_id',
+                        'acc_currency.rate',
+                        'default_grade_id',
+                        'acc_received_default.name as method_name'
+                    )
+                    ->orderBy('acc_currency.id')
+                    ->get();
+                $currency_default_grade = [];
+                foreach ($currencyDefault as $default) {
+                    $currency_default_grade[$default->default_grade_id][] = [
+                        'currency_id'    => $default->currency_id,
+                        'currency_name'    => $default->currency_name,
+                        'rate'             => $default->rate,
+                        'default_grade_id' => $default->default_grade_id,
+                    ];
+                }
+                // grade process end
 
                 return view('cms.account_management.account_received.review', [
                     'form_action'=>route('cms.ar.review' , ['id'=>request('id')]),
@@ -712,10 +840,31 @@ class AccountReceivedCtrl extends Controller
                     // 'logistics_grade_name'=>$logistics_grade_name,
                     'debit'=>$debit,
                     'credit'=>$credit,
+                    'card_type'=>$card_type,
+                    'checkout_area'=>$checkout_area,
+                    'credit_card_grade'=>$default_grade[ReceivedMethod::CreditCard],
+                    // 'default_grade'=>$default_grade,
+                    // 'currency_default_grade'=>$currency_default_grade,
 
                     'breadcrumb_data' => ['id'=>$order->id, 'sn'=>$order->sn],
                 ]);
             }
         }
+    }
+
+
+    public function destroy($id)
+    {
+        $target = ReceivedOrder::delete_received_order($id);
+        if($target){
+            OrderFlow::changeOrderStatus($target->order_id, OrderStatus::Add());
+            $r_method['value'] = '';
+            $r_method['description'] = '';
+            Order::change_order_payment_status($target->order_id, PaymentStatus::Unpaid(), (object) $r_method);
+            wToast('刪除完成');
+        } else {
+            wToast('刪除失敗');
+        }
+        return redirect()->back();
     }
 }

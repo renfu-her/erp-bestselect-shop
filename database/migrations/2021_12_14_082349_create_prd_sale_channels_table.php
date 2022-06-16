@@ -20,7 +20,7 @@ class CreatePrdSaleChannelsTable extends Migration
             $table->string('contact_tel', 15)->comment('通路聯絡電話');
             $table->string('chargeman', 20)->comment('負責窗口');
             $table->tinyInteger('sales_type')->comment('銷售類型');
-            $table->tinyInteger('use_coupon')->comment('喜鴻紅利點數');
+            $table->tinyInteger('use_coupon')->comment('鴻利點數');
             $table->tinyInteger('is_realtime')->default(0)->comment('即時與否');
             $table->tinyInteger('is_master')->default(0)->comment('折扣的基準');
             $table->string('code', 20)->nullable()->comment('代碼');

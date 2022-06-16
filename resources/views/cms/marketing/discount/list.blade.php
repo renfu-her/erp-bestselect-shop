@@ -112,6 +112,8 @@
                 <thead>
                     <tr>
                         <th scope="col" style="width:10%">#</th>
+                        <th scope="col" class="text-center">啟用</th>
+                        <th scope="col" class="text-center">編輯</th>
                         <th scope="col">活動名稱</th>
                         <th scope="col">優惠方式</th>
                         <th scope="col">優惠內容</th>
@@ -119,8 +121,6 @@
                         <th scope="col">全館</th>
                         <th scope="col">開始時間</th>
                         <th scope="col">結束時間</th>
-                        <th scope="col" class="text-center">編輯</th>
-                        <th scope="col" class="text-center">啟用</th>
                         <th scope="col" class="text-center">刪除</th>
                     </tr>
                 </thead>
@@ -128,6 +128,19 @@
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
+                            <td class="text-center">
+                                <div class="form-check form-switch form-switch-lg mb-0 mt-1">
+                                    <input class="form-check-input active-switch" data-id="{{ $data->id }}"
+                                        type="checkbox" @if ($data->active == '1') checked @endif name="">
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <a href="{{ Route('cms.discount.edit', ['id' => $data->id], true) }}"
+                                    data-bs-toggle="tooltip" title="編輯"
+                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                            </td>
                             <td>{{ $data->title }}</td>
                             <td>{{ $data->method_title }}</td>
                             <td>
@@ -156,19 +169,6 @@
                             <td>{{ date('Y/m/d h:i', strtotime($data->start_date)) }}</td>
                             <td>{{ date('Y/m/d h:i', strtotime($data->end_date)) }}</td>
 
-                            <td class="text-center">
-                                <a href="{{ Route('cms.discount.edit', ['id' => $data->id], true) }}"
-                                    data-bs-toggle="tooltip" title="編輯"
-                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                    <i class="bi bi-pencil-square"></i>
-                                </a>
-                            </td>
-                            <td class="text-center">
-                                <div class="form-check form-switch form-switch-lg mb-0 mt-1">
-                                    <input class="form-check-input active-switch" data-id="{{ $data->id }}"
-                                        type="checkbox" @if ($data->active == '1') checked @endif name="">
-                                </div>
-                            </td>
                             <td class="text-center">
                                 <a href="javascript:void(0)"
                                     data-href="{{ Route('cms.discount.delete', ['id' => $data->id], true) }}"
@@ -273,6 +273,7 @@
                         }
                     }).catch((err) => {
                         console.error(err);
+                        toast.show('發生錯誤', { type: 'danger' });
                     });
 
             })

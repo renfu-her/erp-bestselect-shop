@@ -58,12 +58,7 @@
             </dl>
             <dl class="row mb-0">
                 <div class="col">
-                    <dt>
-                        訂單流水號：
-                        <a href="{{ Route('cms.order.detail', ['id' => $order->id], true) }}">
-                            {{ $order->sn }}
-                        </a>
-                    </dt>
+                    <dt>訂單流水號：<a href="{{ Route('cms.order.detail', ['id' => $order->id], true) }}">{{ $order->sn }}</a></dt>
                     <dd></dd>
                 </div>
                 @if($received_order->receipt_date)
@@ -76,9 +71,11 @@
             <dl class="row mb-0">
                 <div class="col">
                     <dt>收款對象：
-                        {{-- <a href="{{ $supplierUrl }}" target="_blank"> {{ $supplier->name }}
-                            <span class="icon"><i class="bi bi-box-arrow-up-right"></i></span>
-                        </a> --}}
+                        {{--
+                            <a href="{{ $supplierUrl }}" target="_blank"> {{ $supplier->name }}
+                                <span class="icon"><i class="bi bi-box-arrow-up-right"></i></span>
+                            </a>
+                        --}}
                     </dt>
                     <dd></dd>
                 </div>
@@ -143,6 +140,27 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+
+        <div class="card-body px-4 pb-4">
+            @foreach($received_data as $value)
+            <dl class="row">
+                <div class="col">
+                    <dt></dt>
+                    <dd>
+                        {{ $value->account->code . ' - ' . $value->account->name }}
+                        {{ number_format($value->credit_card_price ?? $value->tw_price) }}
+                        @if($value->received_method == 'credit_card')
+                            {{ '（' . $value->received_method_name . ' - ' . $value->credit_card_number . '（' . $value->credit_card_owner_name . '）' . '）' }}
+                        @elseif($value->received_method == 'remit')
+                            {{ '（' . $value->received_method_name . ' - ' . $value->note . '（' . $value->remit_memo . '）' . '）' }}
+                        @else
+                            {{ '（' . $value->received_method_name . ' - ' . $value->account->name . ' - ' . $value->note . '）' }}
+                        @endif
+                    </dd>
+                </div>
+            </dl>
+            @endforeach
         </div>
 
         <div class="card-body px-4 pb-4">

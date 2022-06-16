@@ -365,6 +365,15 @@
                                                 Disabled
                                             </label>
                                         </div>
+                                        <div class="form-check form-check-inline form-switch form-switch-lg">
+                                            <label class="form-check-label">
+                                                <input class="form-check-input" type="checkbox" name="switch" value="1" checked>
+                                                Switch
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline form-switch form-switch-lg">
+                                            <input class="form-check-input" type="checkbox" name="switch" value="1" checked>
+                                        </div>
                                     </div>
                                 </fieldset>
                                 <fieldset class="col-12 mb-3">

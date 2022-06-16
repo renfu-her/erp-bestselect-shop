@@ -7,6 +7,8 @@ use App\Enums\Order\OrderStatus;
 use App\Enums\Order\PaymentStatus;
 use App\Enums\Order\UserAddrType;
 use App\Enums\Received\ReceivedMethod;
+use App\Models\CustomerDividend;
+use App\Models\OrderCart;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -30,7 +32,8 @@ class Order extends Model
                 'so.ship_event', 'so.ship_sn',
                 'dlv_delivery.logistic_status as logistic_status',
                 'dlv_logistic.package_sn as package_sn',
-                'shi_group.name as ship_group_name'])
+                'shi_group.name as ship_group_name',
+                'ord_received_orders.sn as or_sn'])
             ->selectRaw('DATE_FORMAT(order.created_at,"%Y-%m-%d") as order_date')
             ->selectRaw('so.sn as order_sn')
             ->leftJoin('ord_sub_orders as so', 'order.id', '=', 'so.order_id')
@@ -50,6 +53,10 @@ class Order extends Model
             ->leftJoin('shi_group', function ($join) {
                 $join->on('shi_group.id', '=', 'dlv_logistic.ship_group_id');
                 $join->whereNotNull('dlv_logistic.ship_group_id');
+            })
+            ->leftJoin('ord_received_orders', function ($join) {
+                $join->on('order.id', '=', 'ord_received_orders.order_id');
+                $join->whereNull('ord_received_orders.deleted_at');
             })
         ;
 
@@ -102,10 +109,13 @@ class Order extends Model
                 'order.dlv_fee',
                 'order.origin_price',
                 'order.status',
+                'order.allotted_dividend',
+                'order.auto_dividend',
                 'order.total_price',
                 'order.created_at',
                 'customer.name',
                 'customer.email',
+                'order.dividend_active_at',
                 'sale.title as sale_title'])
             ->selectRaw("IF(order.unique_id IS NULL,'',order.unique_id) as unique_id")
             ->selectRaw("IF(order.note IS NULL,'',order.note) as note")
@@ -124,7 +134,7 @@ class Order extends Model
         return $orderQuery;
     }
 
-    public static function subOrderDetail($order_id, $sub_order_id = null)
+    public static function subOrderDetail($order_id, $sub_order_id = null, $get_paying = null)
     {
         $concatString = concatStr([
             'product_title' => 'item.product_title',
@@ -142,6 +152,24 @@ class Order extends Model
             ->select('item.sub_order_id')
             ->selectRaw($concatString . ' as items')
             ->where('item.order_id', $order_id);
+
+        $concatConsumeString = concatStr([
+            'consum_id' => 'dlv_consum.id',
+            'inbound_id' => 'dlv_consum.inbound_id',
+            'inbound_sn' => 'dlv_consum.inbound_sn',
+            'depot_id' => 'dlv_consum.depot_id',
+            'depot_name' => 'dlv_consum.depot_name',
+            'product_style_id' => 'dlv_consum.product_style_id',
+            'sku' => 'dlv_consum.sku',
+            'product_title' => 'dlv_consum.product_title',
+            'qty' => 'dlv_consum.qty']);
+
+        $itemConsumeQuery = DB::table('dlv_logistic')
+            ->leftJoin('dlv_consum', 'dlv_consum.logistic_id', '=', 'dlv_logistic.id')
+            ->select('dlv_consum.logistic_id')
+            ->selectRaw($concatConsumeString . ' as consume_items')
+            ->whereNotNull('dlv_logistic.audit_date')
+            ->groupBy('dlv_consum.logistic_id');
 
         if ($sub_order_id) {
             $itemQuery->where('item.sub_order_id', $sub_order_id);
@@ -164,19 +192,37 @@ class Order extends Model
                 $join->on('shi_group.id', '=', 'dlv_logistic.ship_group_id');
                 $join->whereNotNull('dlv_logistic.ship_group_id');
             })
+            ->leftJoin('shi_method', function ($join) {
+                $join->on('shi_group.method_fk', '=', 'shi_method.id');
+            })
+            ->leftJoin('prd_suppliers', function ($join) {
+                $join->on('prd_suppliers.id', '=', 'shi_group.supplier_fk');
+                $join->whereNotNull('shi_group.supplier_fk');
+            })
+            ->leftJoinSub($itemConsumeQuery, 'consume_items', function ($join) {
+                $join->on('consume_items.logistic_id', '=', 'dlv_logistic.id');
+            })
             ->select('sub_order.*', 'i.items'
                 , 'dlv_delivery.sn as delivery_sn'
-                , 'dlv_delivery.logistic_status as logistic_status'
+                , 'dlv_delivery.logistic_status as logistic_status', 'consume_items.consume_items'
             )
             ->selectRaw("IF(sub_order.ship_sn IS NULL,'',sub_order.ship_sn) as ship_sn")
             ->selectRaw("IF(sub_order.actual_ship_group_id IS NULL,'',sub_order.actual_ship_group_id) as actual_ship_group_id")
             ->selectRaw("IF(sub_order.statu IS NULL,'',sub_order.statu) as statu")
             ->selectRaw("IF(sub_order.statu_code IS NULL,'',sub_order.statu_code) as statu_code")
+            ->selectRaw("IF(sub_order.close_date IS NULL,'',DATE_FORMAT(sub_order.close_date,'%Y-%m-%d')) as close_date")
+            ->selectRaw("IF(dlv_logistic.id IS NULL,'',dlv_logistic.id) as logistic_id")
             ->selectRaw("IF(dlv_logistic.sn IS NULL,'',dlv_logistic.sn) as logistic_sn")
             ->selectRaw("IF(dlv_logistic.package_sn IS NULL,'',dlv_logistic.package_sn) as package_sn")
             ->selectRaw("IF(dlv_logistic.ship_group_id IS NULL,'',dlv_logistic.ship_group_id) as ship_group_id")
+            ->selectRaw("IF(dlv_logistic.cost IS NULL,'',dlv_logistic.cost) as logistic_cost")
+            ->selectRaw("IF(dlv_logistic.memo IS NULL,'',dlv_logistic.memo) as logistic_memo")
+            ->selectRaw("IF(dlv_logistic.projlgt_order_sn IS NULL,'',dlv_logistic.projlgt_order_sn) as projlgt_order_sn")
             ->selectRaw("IF(shi_group.name IS NULL,'',shi_group.name) as ship_group_name")
             ->selectRaw("IF(shi_group.note IS NULL,'',shi_group.note) as ship_group_note")
+            ->selectRaw("IF(shi_method.method IS NULL,'',shi_method.method) as ship_method")
+            ->selectRaw("IF(prd_suppliers.id IS NULL,'',prd_suppliers.id) as supplier_id")
+            ->selectRaw("IF(prd_suppliers.name IS NULL,'',prd_suppliers.name) as supplier_name")
             ->selectRaw("IF(sub_order.ship_temp IS NULL,'',sub_order.ship_temp) as ship_temp")
             ->selectRaw("IF(sub_order.ship_temp_id IS NULL,'',sub_order.ship_temp_id) as ship_temp_id")
             ->selectRaw("IF(sub_order.ship_rule_id IS NULL,'',sub_order.ship_rule_id) as ship_rule_id")
@@ -186,6 +232,22 @@ class Order extends Model
         if ($sub_order_id) {
             $orderQuery->where('sub_order.id', $sub_order_id);
         }
+
+        if ($get_paying) {
+            $orderQuery->leftJoin('pcs_paying_orders as po', function ($join) {
+                $join->on('po.source_id', '=', 'sub_order.order_id');
+                $join->where([
+                    'po.source_sub_id' => DB::raw('sub_order.id'),
+                    'po.source_type' => app(Order::class)->getTable(),
+                    'po.type' => 1,
+                    'po.deleted_at' => null,
+                ]);
+            })
+            // ->selectRaw("('" . app(Order::class)->getTable() . "') as payable_source_type")
+                ->selectRaw("IF(po.sn IS NULL, NULL, po.sn) as payable_sn")
+                ->selectRaw("IF(po.balance_date IS NULL, NULL, po.balance_date) as payable_balance_date");
+        }
+
         return $orderQuery;
 
     }
@@ -230,14 +292,14 @@ class Order extends Model
      * @param array $coupon_obj [type,value]
      *
      */
-    public static function createOrder($email, $sale_channel_id, $address, $items, $note = null, $coupon_obj = null, ReceivedMethod $payment = null)
+    public static function createOrder($email, $sale_channel_id, $address, $items, $note = null, $coupon_obj = null, ReceivedMethod $payment = null, $dividend = [])
     {
 
-        return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $note, $coupon_obj, $payment) {
+        return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $note, $coupon_obj, $payment, $dividend) {
 
             $customer = Customer::where('email', $email)->get()->first();
-            $order = OrderCart::cartFormater($items, $sale_channel_id, $coupon_obj, true, $customer);
-            
+            $order = OrderCart::cartFormater($items, $sale_channel_id, $coupon_obj, true, $customer, $dividend);
+
             if ($order['success'] != 1) {
                 DB::rollBack();
                 return $order;
@@ -246,6 +308,14 @@ class Order extends Model
             $order_sn = "O" . date("Ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
                     ->get()
                     ->count()) + 1, 4, '0', STR_PAD_LEFT);
+
+            $dividend_re = CustomerDividend::orderDiscount($customer->id, $order_sn, $order['use_dividend']);
+            if ($dividend_re['success'] != '1') {
+                DB::rollBack();
+                return $dividend_re;
+            }
+
+            $dividendSetting = DividendSetting::getData();
 
             $updateData = [
                 "sn" => $order_sn,
@@ -257,9 +327,11 @@ class Order extends Model
                 "discount_value" => $order['discount_value'],
                 "discounted_price" => $order['discounted_price'],
                 'note' => $note,
-                'unique_id' => substr(base_convert(sha1(uniqid(mt_rand())), 16, 36), 0, 9), // return 9 characters
+                'unique_id' => self::generate_unique_id(),
                 'payment_status' => PaymentStatus::Unpaid()->value,
                 'payment_status_title' => PaymentStatus::Unpaid()->description,
+                'dividend_lifecycle' => $dividendSetting->limit_day,
+                'active_delay_day' => $dividendSetting->auto_active_day,
             ];
 
             if ($payment) {
@@ -328,6 +400,7 @@ class Order extends Model
 
                 $subOrderId = DB::table('ord_sub_orders')->insertGetId($insertData);
 
+                Discount::createOrderDiscount('sub', $order_id, $customer, $value->discounts, $subOrderId);
                 //TODO 目前做DEMO 在新增訂單時，就新增出貨單，若未來串好付款，則在付款完畢後才新增出貨單
                 $reDelivery = Delivery::createData(
                     Event::order()->value
@@ -373,13 +446,28 @@ class Order extends Model
 
             OrderFlow::changeOrderStatus($order_id, OrderStatus::Add());
 
+            CustomerDividend::fromOrder($customer->id, $order_sn, $order['get_dividend']);
+            // CustomerDividend::activeDividend(DividendCategory::Order(), $order_sn);
+            //  CustomerCoupon::activeCoupon($order_id);
+
             return ['success' => '1', 'order_id' => $order_id];
         });
 
     }
 
+    public static function generate_unique_id()
+    {
+        $unique_id = substr(base_convert(sha1(uniqid(mt_rand())), 16, 36), 0, 9); // return 9 characters
 
-    public static function change_order_payment_status($order_id, PaymentStatus $p_status = null, ReceivedMethod $r_method = null)
+        if (self::where('unique_id', $unique_id)->first()) {
+            return self::generate_unique_id();
+        } else {
+            return $unique_id;
+        }
+    }
+
+    // public static function change_order_payment_status($order_id, PaymentStatus $p_status = null, ReceivedMethod $r_method = null)
+    public static function change_order_payment_status($order_id, PaymentStatus $p_status = null, $r_method = null)
     {
         $target = self::where('id', $order_id);
 
@@ -396,5 +484,23 @@ class Order extends Model
                 'payment_method_title' => $r_method->description,
             ]);
         }
+    }
+
+    public static function assign_dividend_active_date($order_id)
+    {
+        $order = self::where('id', $order_id)
+            ->whereNull('dividend_active_at')
+            ->whereNotNull('active_delay_day')->get()->first();
+            
+        if (!$order) {
+            return;
+        }
+
+        $date = date('Y-m-d H:i:s', strtotime(now() . " + $order->active_delay_day days"));
+
+        self::where('id', $order_id)->update([
+            'dividend_active_at' => $date,
+        ]);
+
     }
 }

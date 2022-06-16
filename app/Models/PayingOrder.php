@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
+use App\Enums\Delivery\Event;
+
 class PayingOrder extends Model
 {
     use HasFactory,SoftDeletes;
@@ -22,62 +24,46 @@ class PayingOrder extends Model
         return $this->morphOne(AccountPayable::class, 'payingOrder', 'pay_order_type', 'pay_order_id');
     }
 
-    /**
-     * 付款單商品的會計科目資料
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
-     */
-    public function productGrade()
-    {
-        return $this->morphTo(__FUNCTION__, 'product_grade_type', 'product_grade_id');
-    }
-
-    /**
-     * 物流費用的會計科目資料
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
-     */
-    public function logisticsGrade()
-    {
-        return $this->morphTo(__FUNCTION__, 'logistics_grade_type', 'logistics_grade_id');
-    }
 
     public static function createPayingOrder(
-        $purchase_id,
+        $source_type = null,
+        $source_id,
+        $source_sub_id = null,
         $usr_users_id,
         $type,
         $product_grade_id,
         $logistics_grade_id,
         $price = null,
-        $pay_date = null,
         $summary = null,
         $memo = null
     ) {
         return DB::transaction(function () use (
-            $purchase_id,
+            $source_type,
+            $source_id,
+            $source_sub_id,
             $usr_users_id,
             $type,
             $product_grade_id,
             $logistics_grade_id,
             $price,
-            $pay_date,
             $summary,
             $memo
         ) {
             $sn = "PSG" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
                         ->withTrashed()
                         ->get()
-                        ->count()) + 1, 3, '0', STR_PAD_LEFT);
+                        ->count()) + 1, 4, '0', STR_PAD_LEFT);
 
             $id = self::create([
-                "purchase_id" => $purchase_id,
+                'source_type'=>$source_type ? $source_type : app(Purchase::class)->getTable(),
+                'source_id'=>$source_id,
+                'source_sub_id'=>$source_sub_id,
                 "usr_users_id" => $usr_users_id,
                 "type" => $type,
                 "sn" => $sn,
                 "product_grade_id" => $product_grade_id,
                 "logistics_grade_id" => $logistics_grade_id,
                 "price" => $price,
-                "pay_date" => $pay_date,
                 'summary' => $summary,
                 "memo" => $memo
             ])->id;
@@ -103,10 +89,13 @@ class PayingOrder extends Model
                 'paying_order.summary as summary',
                 'paying_order.memo as memo',
                 'paying_order.price as price',
+                'paying_order.balance_date as balance_date',
             )
-            ->selectRaw('DATE_FORMAT(paying_order.pay_date,"%Y-%m-%d") as pay_date')
             ->selectRaw('DATE_FORMAT(paying_order.created_at,"%Y-%m-%d") as created_at')
-            ->where('paying_order.purchase_id', '=', $purchase_id)
+            ->where([
+                'paying_order.source_type'=>app(Purchase::class)->getTable(),
+                'paying_order.source_id'=>$purchase_id,
+            ])
             ->whereNull('paying_order.deleted_at');
 
         if (!is_null($payType)) {
@@ -124,7 +113,31 @@ class PayingOrder extends Model
         $p_order_price = null,
         $p_order_payment_date = null
     ){
-        $paying_order = DB::table('pcs_purchase as purchase')
+        $paying_order = DB::table(DB::raw('(
+                SELECT
+                    GROUP_CONCAT(id) AS id,
+                    source_type,
+                    source_id,
+                    source_sub_id,
+                    GROUP_CONCAT(DISTINCT usr_users_id) AS usr_users_id,
+                    GROUP_CONCAT(type) AS type,
+                    GROUP_CONCAT(sn) AS sn,
+                    SUM(price) AS price,
+                    GROUP_CONCAT(DISTINCT logistics_grade_id) AS logistics_grade_id,
+                    GROUP_CONCAT(DISTINCT product_grade_id) AS product_grade_id,
+                    created_at
+                FROM pcs_paying_orders
+                WHERE deleted_at IS NULL
+                GROUP BY source_id, source_sub_id
+                ) AS po')
+            )
+            // purchase
+            ->leftJoin('pcs_purchase as purchase', function ($join) {
+                $join->on('po.source_id', '=', 'purchase.id');
+                $join->where([
+                    'po.source_type'=>app(Purchase::class)->getTable(),
+                ]);
+            })
             ->leftJoin('usr_users as user', 'user.id', '=', 'purchase.purchase_user_id')
             ->leftJoin('usr_users as audit', 'audit.id', '=', 'purchase.audit_user_id')
             ->leftJoin('prd_suppliers as supplier', 'supplier.id', '=', 'purchase.supplier_id')
@@ -152,22 +165,6 @@ class PayingOrder extends Model
                     $join->on('v_table_1.purchase_id', '=', 'purchase.id');
             })
             ->leftJoin(DB::raw('(
-                SELECT
-                    GROUP_CONCAT(id) AS id,
-                    purchase_id,
-                    GROUP_CONCAT(DISTINCT usr_users_id) AS usr_users_id,
-                    GROUP_CONCAT(type) AS type,
-                    GROUP_CONCAT(sn) AS sn,
-                    SUM(price) AS price,
-                    GROUP_CONCAT(DISTINCT logistics_grade_id) AS logistics_grade_id,
-                    GROUP_CONCAT(DISTINCT product_grade_id) AS product_grade_id
-                FROM pcs_paying_orders
-                WHERE deleted_at IS NULL
-                GROUP BY purchase_id
-                ) AS po'), function ($join){
-                    $join->on('po.purchase_id', '=', 'purchase.id');
-            })
-            ->leftJoin(DB::raw('(
                 SELECT pay_order_id,
                 SUM(tw_price) AS payable_price,
                 MAX(payment_date) AS payment_date,
@@ -183,27 +180,57 @@ class PayingOrder extends Model
                     }\' ORDER BY acc_payable.id), \']\') AS pay_list
                 FROM acc_payable
                 LEFT JOIN pcs_paying_orders AS v_po ON v_po.id = acc_payable.pay_order_id WHERE v_po.deleted_at IS NULL
-                GROUP BY v_po.purchase_id
+                GROUP BY v_po.source_id, v_po.source_sub_id
                 ) AS v_table_2'), function ($join){
                     $join->whereRaw('v_table_2.pay_order_id in (po.id)');
+            })
+
+            // order
+            // ->leftJoin('ord_orders', function ($join) {
+            //     $join->on('po.source_id', '=', 'ord_orders.id');
+            //     $join->where([
+            //         'po.source_type'=>app(Order::class)->getTable(),
+            //     ]);
+            // })
+            ->leftJoin('dlv_delivery', function ($join) {
+                $join->on('po.source_sub_id', '=', 'dlv_delivery.event_id');
+                $join->where([
+                    'dlv_delivery.event'=>Event::order()->value,
+                    'po.source_type'=>app(Order::class)->getTable(),
+                ]);
+            })
+            ->leftJoin('dlv_logistic', function ($join) {
+                $join->on('dlv_logistic.delivery_id', '=', 'dlv_delivery.id');
+            })
+            ->leftJoin('shi_group', function ($join) {
+                $join->on('shi_group.id', '=', 'dlv_logistic.ship_group_id');
+                $join->whereNotNull('dlv_logistic.ship_group_id');
+            })
+            ->leftJoin('prd_suppliers', function ($join) {
+                $join->on('prd_suppliers.id', '=', 'shi_group.supplier_fk');
+                $join->whereNotNull('shi_group.supplier_fk');
             })
 
             ->whereColumn([
                 ['po.price', '=', 'v_table_2.payable_price'],
             ])
+            ->whereRaw('( (v_table_1.price + purchase.logistics_price) = v_table_2.payable_price OR dlv_logistic.cost = v_table_2.payable_price )')
 
             ->select(
+                'po.source_id as po_source_id',
+                'po.source_sub_id as po_source_sub_id',
                 'po.usr_users_id as po_usr_users_id',
                 'po.type as po_type',
                 'po.sn as po_sn',
                 'po.price as po_price',// 付款單金額(應付)
                 'po.logistics_grade_id as po_logistics_grade_id',
                 'po.product_grade_id as po_product_grade_id',
+                'po.created_at as po_created_at',
 
                 'purchase.id as purchase_id',
-                'purchase.sn as purchase_sn',
+                // 'purchase.sn as purchase_sn',
                 'purchase.supplier_name as purchase_supplier_name',
-                'purchase.logistics_price as purchase_logistics_price',//運費
+                // 'purchase.logistics_price as purchase_logistics_price',//運費
                 'purchase.logistics_memo as purchase_logistics_memo',
                 'purchase.invoice_num as purchase_invoice_num',
                 'purchase.invoice_date as purchase_invoice_date',
@@ -213,9 +240,9 @@ class PayingOrder extends Model
                 'user.name as purchaser',
                 'audit.name as auditor',
 
-                'supplier.id as supplier_id',
-                'supplier.name as supplier_name',
-                'supplier.contact_person as supplier_contact_person',
+                // 'supplier.id as supplier_id_p',
+                // 'supplier.name as supplier_name_p',
+                // 'supplier.contact_person as supplier_contact_person_p',
 
                 'v_table_1.price as product_price_sum',//採購商品金額總計(未含運費)
                 'v_table_1.item_list as product_list',
@@ -223,14 +250,28 @@ class PayingOrder extends Model
                 'v_table_2.payment_date as payment_date',// 付款單完成付款日期
                 'v_table_2.payable_price as payable_price',// 付款單金額(實付)
                 'v_table_2.pay_list as payable_list',
-            );
+
+                // 'dlv_delivery.event_sn as order_sub_sn',
+                // 'dlv_logistic.cost as order_sub_cost',
+
+                // 'prd_suppliers.id as supplier_id_o',
+                // 'prd_suppliers.name as supplier_name_o',
+                // 'prd_suppliers.contact_person as supplier_contact_person_o',
+            )
+            ->selectRaw('IF(purchase.sn IS NULL, dlv_delivery.event_sn, purchase.sn) as purchase_order_sn') // purchase_sn or order_sub_sn
+            ->selectRaw('IF(purchase.logistics_price IS NULL, dlv_logistic.cost, purchase.logistics_price) as logistics_price')
+            ->selectRaw('IF(supplier.id IS NULL, prd_suppliers.id, supplier.id) as supplier_id')
+            ->selectRaw('IF(supplier.name IS NULL, prd_suppliers.name, supplier.name) as supplier_name')
+            ->selectRaw('IF(supplier.contact_person IS NULL, prd_suppliers.contact_person, supplier.contact_person) as supplier_contact_person');
             // ->selectRaw('DATE_FORMAT(purchase.created_at, "%Y-%m-%d") as purchase_date');
 
         if ($supplier_id) {
             if (gettype($supplier_id) == 'array') {
-                $paying_order->whereIn('supplier.id', $supplier_id);
+                $paying_order->whereIn('supplier.id', $supplier_id)
+                    ->orWhereIn('prd_suppliers.id', $supplier_id);
             } else {
-                $paying_order->where('supplier.id', $supplier_id);
+                $paying_order->where('supplier.id', $supplier_id)
+                    ->orWhere('prd_suppliers.id', $supplier_id);
             }
         }
 
@@ -242,7 +283,8 @@ class PayingOrder extends Model
 
         if ($purchase_sn) {
             $paying_order->where(function ($query) use ($purchase_sn) {
-                $query->where('purchase.sn', 'like', "%{$purchase_sn}%");
+                $query->where('purchase.sn', 'like', "%{$purchase_sn}%")
+                    ->orWhere('dlv_delivery.event_sn', 'like', "%{$purchase_sn}%");
             });
         }
 
@@ -271,6 +313,6 @@ class PayingOrder extends Model
             }
         }
 
-        return $paying_order;
+        return $paying_order->orderBy('po.created_at', 'DESC');
     }
 }

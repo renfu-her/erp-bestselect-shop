@@ -31,6 +31,7 @@ class ProductCtrl extends Controller
         $options = [];
         if (isset($d['price'])) {
             $options['price'] = $d['price'];
+            $options['salechannel'] = $d['price'];
         }
 
     
@@ -42,6 +43,8 @@ class ProductCtrl extends Controller
             $options['consume'] = $d['consume'];
         }
 
+        
+
         // Arr::get($d, 'supplier_id',''),
 
         $re = Product::productStyleList(
@@ -50,7 +53,7 @@ class ProductCtrl extends Controller
             [],
             $options,
 
-        )->paginate(10)->toArray();
+        )->where('s.is_active','1')->paginate(10)->toArray();
         $re['status'] = '0';
         //   $re['data'] = json_decode(json_encode($re['data']), true);
         return response()->json($re);

@@ -1,6 +1,12 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-3">#{{ $breadcrumb_data }} 配送狀態</h2>
+    <h2 class="mb-3">#{{ $breadcrumb_data['sn'] }} 配送狀態</h2>
+    @if ($event === 'consignment')
+        <x-b-consign-navi :id="$eventId"></x-b-consign-navi>
+    @endif
+    @if ($event === 'csn_order')
+        <x-b-csnorder-navi :id="$eventId"></x-b-csnorder-navi>
+    @endif
 
     @error('error_msg')
     <div class="alert alert-danger" role="alert">
@@ -12,11 +18,23 @@
             <h6>加入狀態</h6>
             <fieldset class="border rounded p-2 pt-0 mb-4">
                 <legend class="col-form-label px-1 p-0 mb-1">出貨狀態</legend>
-                <div primary-status></div>
+                <div primary-status>
+                    <div class="d-flex justify-content-center loading mb-2">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
             </fieldset>
             <fieldset class="border rounded p-2 pt-0">
                 <legend class="col-form-label px-1 p-0 mb-1">異常狀態</legend>
-                <div danger-status></div>
+                <div danger-status>
+                    <div class="d-flex justify-content-center loading mb-2">
+                        <div class="spinner-border text-danger" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
             </fieldset>
         </div>
     </div>
@@ -37,7 +55,7 @@
                 <ul>
                     @foreach ($flowList as $key => $data)
                     <li>
-                        <h6 class="mb-1">{{date('Y-m-d H:i:s', strtotime($data->created_at))}}</h6>
+                        <h6 class="mb-1">{{date('Y/m/d H:i:s', strtotime($data->created_at))}}</h6>
                         <p>
                             <span>{{$data->status}}</span>
                             <span>操作人員：{{$data->user_name ?? ''}}</span>
@@ -56,7 +74,7 @@
             </div>
         </div>
     </form>
-    
+
 @endsection
 @once
     @push('sub-styles')
@@ -99,8 +117,9 @@
                     `);
                 }
             }
+            $('fieldset .loading').remove();
         }
-        
+
         // bind btn
         $('button[data-code]').off('click').on('click', function () {
             const code = $(this).data('code');
@@ -114,7 +133,7 @@
                     <td>${logisticStatus[code]}</td>
                     <td>${User}</td>
                     <td>
-                        <button type="button" title="刪除" 
+                        <button type="button" title="刪除"
                             class="icon icon-btn fs-5 text-danger rounded-circle border-0 -del">
                             <i class="bi bi-trash"></i>
                         </button>

@@ -360,11 +360,9 @@ class Product extends Model
 
         }
 
-
         if ($type && $type != 'all') {
             $re->where('s.type', $type);
         }
-
 
         if ($stock_status) {
             $re->where(function ($_q) use ($stock_status) {
@@ -429,9 +427,9 @@ class Product extends Model
         if (isset($options['price'])) {
             $re->leftJoin('prd_salechannel_style_price as price', 's.id', '=', 'price.style_id')
                 ->addSelect('price.price')
-               ->where('price.sale_channel_id', $options['price']);
+                ->addSelect('price.dividend')
+                ->where('price.sale_channel_id', $options['price']);
         }
-
 
         if (isset($options['consume']) && !is_null($options['consume'])) {
             $re->where('p.consume', $options['consume']);
@@ -440,12 +438,23 @@ class Product extends Model
         if (isset($options['public']) && !is_null($options['public'])) {
             $re->where('p.public', $options['public']);
         }
+
+        if (isset($options['salechannel']) && !is_null($options['salechannel'])) {
+            $sales_type = SaleChannel::where('id', $options['salechannel'])->get()->first()->sales_type;
+            if ($sales_type == '1') {
+                $re->where('p.online', 1);
+            } else {
+                $re->where('p.offline', 1);
+            }
+        }
+
         return $re;
 
     }
 
     public static function singleProduct($sku = null, $sale_channel_id = 1)
     {
+
         $concatString = concatStr([
             'id' => 's.id',
             'title' => 's.title',
@@ -453,7 +462,8 @@ class Product extends Model
             'in_stock' => 's.in_stock',
             'overbought' => 's.overbought',
             'origin_price' => 'p.origin_price',
-            'price' => 'p.price']);
+            'price' => 'p.price',
+            'dividend' => 'p.dividend']);
 
         $concatImg = concatStr([
             'url' => 'url',
@@ -464,6 +474,7 @@ class Product extends Model
             ->where('p.sale_channel_id', $sale_channel_id)
             ->whereNull('s.deleted_at')
             ->whereNotNull('s.sku')
+            ->where('s.is_active','1')
             ->select('s.product_id')
             ->selectRaw($concatString . ' as styles')
             ->groupBy('s.product_id');
@@ -499,6 +510,7 @@ class Product extends Model
             ->mergeBindings($styleQuery)
             ->mergeBindings($imgQuery)
             ->where('sku', $sku)
+          // ->where('s.is_active','1')
             ->whereNull('p.deleted_at')
             ->whereNotNull('s.styles')
             ->where(function ($query) {
@@ -619,7 +631,15 @@ class Product extends Model
             ->leftJoin(DB::raw("({$ruleSubQuery->toSql()}) as rule"), function ($join) {
                 $join->on('ps.group_id', '=', 'rule.group_id');
             })
-            ->select('category.code as category', 'category.category as category_name', 'g.id as group_id', 'g.name as group_name', 'temp.temps', 'temp.id as temp_id', 'rule.rules')
+            ->select(['category.code as category',
+                'category.category as category_name',
+                'g.id as group_id',
+                'g.name as group_name',
+                'g.method_fk as method',
+                'g.note as note',
+                'temp.temps',
+                'temp.id as temp_id',
+                'rule.rules'])
             ->mergeBindings($ruleSubQuery)
             ->where('ps.product_id', $product_id)
             ->where('code', $code);
@@ -632,9 +652,20 @@ class Product extends Model
     {
         $pick_up = DB::table('prd_pickup as pick_up')
             ->leftJoin('depot', 'depot.id', '=', 'pick_up.depot_id_fk')
-            ->select('pick_up.id', 'depot.id as depot_id', 'depot.name as depot_name', )
+            ->select('pick_up.id', 'depot.id as depot_id', 'depot.name as depot_name', 'depot.address as depot_address', 'depot.tel as depot_tel', )
             ->whereNull('depot.deleted_at')
             ->where('pick_up.product_id_fk', $product_id);
+
+        return $pick_up;
+    }
+
+    public static function getPickupWithPickUpId($pickup_id)
+    {
+        $pick_up = DB::table('prd_pickup as pick_up')
+            ->leftJoin('depot', 'depot.id', '=', 'pick_up.depot_id_fk')
+            ->select('pick_up.id', 'depot.id as depot_id', 'depot.name as depot_name', 'depot.address as depot_address', 'depot.tel as depot_tel', )
+            ->whereNull('depot.deleted_at')
+            ->where('pick_up.id', $pickup_id);
 
         return $pick_up;
     }
@@ -953,7 +984,8 @@ class Product extends Model
                 $join->on('product_style.product_id', '=', 'prd.id')
                     ->where('product_style.is_active', '=', 1);
             })
-            ->leftJoin('prd_salechannel_style_price as sale_channel', function ($join) use ($sale_channel) {
+            ->leftJoin('prd_salechannel_style_price
+             as sale_channel', function ($join) use ($sale_channel) {
                 $join->on('sale_channel.style_id', '=', 'product_style.id')
                     ->where('sale_channel.sale_channel_id', '=', $sale_channel->sale_channel_id);
             })

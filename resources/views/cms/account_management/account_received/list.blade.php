@@ -154,7 +154,17 @@
 
                             <td class="p-0">
                                 @foreach($data->debit as $d_value)
-                                <span class="border-bottom bg-warning d-block p-1">{{$d_value->method_name}}{{$d_value->note ? ' - ' . $d_value->note : ''}} - {{$data->order_sn}}</span>
+                                    @if($d_value->received_info)
+                                    <span class="border-bottom bg-warning d-block p-1">
+                                        @if($d_value->received_info->received_method == 'credit_card')
+                                            {{ $d_value->method_name }}{{$d_value->received_info->credit_card_number ? ' - ' . $d_value->received_info->credit_card_number : ''}} - {{ $data->order_sn }}
+                                        @elseif($d_value->received_info->received_method == 'remit')
+                                            {{ $d_value->method_name }} {{ $d_value->account_code . ' - ' . $d_value->account_name . '（' . $d_value->received_info->remit_memo . '）'}} - {{ $data->order_sn }}
+                                        @else
+                                            {{ $d_value->method_name }}{{$d_value->note ? ' - ' . $d_value->note : ''}} - {{ $data->order_sn }}
+                                        @endif
+                                    </span>
+                                    @endif
                                 @endforeach
 
                                 @foreach($data->credit as $c_value)
@@ -163,8 +173,10 @@
                                         {{$c_value->account_name}} - {{$data->order_sn}}
                                     @elseif($c_value->d_type == 'discount')
                                         {{$c_value->discount_title}} - {{$data->order_sn}}
-                                    @else
+                                    @elseif($c_value->d_type == 'product')
                                         {{$c_value->product_title}}({{ $c_value->product_price }} * {{$c_value->product_qty}}) - {{$data->order_sn}}
+                                    @else
+                                        {{$c_value->method_name}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{$data->order_sn}}
                                     @endif
                                 </span>
                                 @endforeach

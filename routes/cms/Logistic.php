@@ -13,4 +13,7 @@ Route::group(['prefix' => 'logistic','as'=>'logistic.'], function () {
     //修改配送狀態
     Route::get('change-logistic-status/{event}/{eventId}', [LogisticCtrl::class, 'changeLogisticStatus'])->name('changeLogisticStatus')->middleware('permission:cms.logistic.create');
     Route::post('update-logistic-status/{event}/{eventId}/{deliveryId}', [LogisticCtrl::class, 'updateLogisticStatus'])->name('updateLogisticStatus')->middleware('permission:cms.logistic.create');
+    //物流託運單
+    Route::post('create-logistic-order', [LogisticCtrl::class, 'createLogisticOrder'])->name('createLogisticOrder')->middleware('permission:cms.logistic.create');
+    Route::post('delete-logistic-order', [LogisticCtrl::class, 'deleteLogisticOrder'])->name('deleteLogisticOrder')->middleware('permission:cms.logistic.create');
 });

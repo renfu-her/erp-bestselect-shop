@@ -1,20 +1,38 @@
 @extends('layouts.main')
 @section('sub-content')
     <h2 class="mb-3">#{{ $sn }} 訂單明細</h2>
-    @php
-        $receivedId = false;
-        $route = $receivedId ? 'show' : 'create';
-    @endphp
+    <fieldset class="col-12 mb-2">
+        <div class="p-2 border rounded">
+            @if (!$receivable)
+                <a href="{{ Route('cms.ar.create', ['id' => $order->id]) }}" class="btn btn-primary" role="button">新增收款單</a>
+            @endif
 
-    @if(!$receivable)
-        <a href="{{ Route('cms.ar.' . $route, ['id'=>$order->id]) }}" class="btn btn-danger" role="button">{{ !$receivedId ? '新增' : '' }}收款單（暫放）</a>
-    @endif
+            @if ($received_order_data || !in_array($order->status, ['建立']))
+                {{--
+                @if (!$receivable)
+                    <a href="javascript:void(0)" role="button" data-bs-toggle="modal" data-bs-target="#confirm-delete" data-href="{{ Route('cms.ar.delete', ['id' => $received_order_data->id], true) }}" class="btn btn-danger">刪除收款單</a>
+                @endif
+                --}}
+                @if ( ($receivable || in_array($order->status, ['已付款', '已入款', '結案'])) && $received_credit_card_log )
+                    <a href="{{ Route('api.web.order.credit_card_checkout', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}" class="btn btn-primary" role="button" target="_blank">線上刷卡連結</a>
+                @else
+                    <button type="button" class="btn btn-primary" disabled>線上刷卡連結</button>
+                @endif
+            @else
+                <a href="{{ Route('api.web.order.payment_credit_card', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}" class="btn btn-primary" role="button" target="_blank">線上刷卡連結</a>
+            @endif
 
-    @if($order->status == '已付款')
-    <button type="button" class="btn btn-primary" disabled>線上刷卡連結</button>
-    @else
-    <a href="{{ Route('api.web.order.payment_credit_card', ['id'=>$order->id, 'unique_id'=>$order->unique_id]) }}" class="btn btn-primary" role="button" target="_blank">線上刷卡連結</a>
-    @endif
+            @if ($received_order_data)
+                @if(!in_array($order->status, ['已入款', '結案']))
+                    <a href="javascript:void(0)" role="button" data-bs-toggle="modal" data-bs-target="#confirm-delete" data-href="{{ Route('cms.ar.delete', ['id' => $received_order_data->id], true) }}" class="btn btn-danger">刪除收款單</a>
+                @else
+                    <button type="button" class="btn btn-danger" disabled>刪除收款單</button>
+                @endif
+            @endif
+
+            <a href="#" role="button" class="btn btn-success">訂單完成（暫放）</a>
+        </div>
+    </fieldset>
 
     <form id="form1" method="post" action="">
         @method('POST')
@@ -52,10 +70,11 @@
                 <div class="col-sm-5">
                     <dt>收款單號</dt>
                     <dd>
-                        @if($receivable)
-                        <a href="{{ route('cms.ar.receipt', ['id'=>$order->id]) }}" class="-text">{{ $received_order_data ? $received_order_data->sn : '' }}</a>
+                        @if ($receivable)
+                            <a href="{{ route('cms.ar.receipt', ['id' => $order->id]) }}"
+                                class="-text">{{ $received_order_data ? $received_order_data->sn : '' }}</a>
                         @else
-                        <span>尚未完成收款</span>
+                            <span>尚未完成收款</span>
                         @endif
                     </dd>
                 </div>
@@ -125,7 +144,7 @@
                     <dt>訂單備註</dt>
                     <dd>{{ $order->note }}</dd>
                 </div>
-                <div class="col-5" >
+                <div class="col-5">
                     <dt>付款狀態</dt>
                     <dd>{{ $order->payment_status_title }}</dd>
                 </div>
@@ -134,7 +153,7 @@
         @php
             $dlv_fee = 0;
             $price = 0;
-            
+
         @endphp
         @foreach ($subOrders as $subOrder)
             @php
@@ -153,14 +172,20 @@
                 <div class="card-header px-4 d-flex align-items-center bg-white flex-wrap justify-content-end">
                     <strong class="flex-grow-1 mb-0">{{ $subOrder->ship_event }}</strong>
                     <span class="badge -badge fs-6">{{ $subOrder->ship_category_name }}</span>
-                    @if(true == isset($subOrderId))
-                    <div class="col-12 d-flex justify-content-end mt-2">
-                        <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">配送狀態</a>
-                        <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">物流設定</a>
-                        <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">出貨審核</a>
-                        <button type="button" class="btn btn-sm btn-primary -in-header">列印銷貨單</button>
-                        <button type="button" class="btn btn-sm btn-primary -in-header">列印出貨單</button>
-                    </div>
+                    @if (true == isset($subOrderId))
+                        <div class="col-12 d-flex justify-content-end mt-2">
+                            <a class="btn btn-sm btn-success -in-header"
+                                href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">配送狀態</a>
+                            <a class="btn btn-sm btn-success -in-header"
+                                href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">物流設定</a>
+                            <a class="btn btn-sm btn-success -in-header"
+                                href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">出貨審核</a>
+{{--                            @if('pickup' == $subOrder->ship_category)--}}
+{{--                                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.order.inbound', ['subOrderId' => $subOrder->id], true) }}">入庫審核</a>--}}
+{{--                            @endif--}}
+                            <button type="button" class="btn btn-sm btn-primary -in-header">列印銷貨單</button>
+                            <button type="button" class="btn btn-sm btn-primary -in-header">列印出貨單</button>
+                        </div>
                     @endif
                 </div>
                 <div class="card-body px-4">
@@ -249,8 +274,19 @@
                 <div class="card-body px-4 pb-4">
                     <dl class="row">
                         <div class="col">
-                            <dt>運費付款單</dt>
-                            <dd>(待處理)</dd>
+                            <dt>物流付款單@if($subOrder->payable_balance_date)<span class="text-danger">（已付款完成）</span>@endif</dt>
+                            <dd>
+                                @if($subOrder->ship_group_name == '')
+                                    尚未設定物流
+                                @else
+                                    @if($subOrder->payable_sn)
+                                        <a href="{{ Route('cms.order.pay-order', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}" class="text-decoration-none">付款單號-{{ $subOrder->payable_sn }}</a>
+                                    @else
+                                        <input type="hidden" class="form_url" value="{{ Route('cms.order.pay-order', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}">
+                                        <button type="button" class="btn btn-link text-decoration-none p-0 m-0 submit_btn">新增付款單</button>
+                                    @endif
+                                @endif
+                            </dd>
                         </div>
                         <div class="col">
                             <dt>客戶物流方式</dt>
@@ -262,7 +298,15 @@
                         </div>
                         <div class="col">
                             <dt>包裹編號</dt>
-                            <dd>{{ $subOrder->package_sn ?? '(待處理)' }}</dd>
+                            <dd>
+                                @if(false == empty($subOrder->projlgt_order_sn))
+                                    <a href="{{env('LOGISTIC_URL'). 'guest/order-flow/'. $subOrder->projlgt_order_sn }}" class="btn btn-link">
+                                        {{$subOrder->projlgt_order_sn}}
+                                    </a>
+                                @else
+                                    {{ $subOrder->package_sn ?? '(待處理)' }}
+                                @endif
+                            </dd>
                         </div>
                     </dl>
                     <dl class="row">
@@ -275,7 +319,48 @@
                             <dd>{{ $subOrder->ship_group_note ?? '(待處理)' }}</dd>
                         </div>
                     </dl>
+                    <dl class="row">
+                        <div class="col">
+                            <dt>物流廠商</dt>
+                            <dd>{{ $subOrder->supplier_name ?? '' }}</dd>
+                        </div>
+                        <div class="col">
+                            <dt>物流成本</dt>
+                            <dd>{{ $subOrder->logistic_cost ?? '(待處理)' }}</dd>
+                        </div>
+                        <div class="col-6">
+                            <dt>物流備註</dt>
+                            <dd>{{ $subOrder->logistic_memo ?? '(待處理)' }}</dd>
+                        </div>
+                    </dl>
                 </div>
+
+                @if (true == isset($subOrder->consume_items) && 0 < count($subOrder->consume_items))
+                    <div class="card-header px-4 text-secondary border-top">物流耗材清單</div>
+                    <div class="card-body px-4 py-0">
+                        <div class="table-responsive tableOverBox">
+                            <table class="table tableList table-sm mb-0">
+                                <thead class="table-light text-secondary">
+                                <tr>
+                                    <th scope="col">耗材名稱</th>
+                                    <th scope="col">SKU</th>
+                                    <th scope="col">數量</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach ($subOrder->consume_items as $consume_key => $consume_item)
+                                    <tr>
+                                        <td><a href="#" class="-text">{{ $consume_item->product_title }}</a></td>
+                                        <td>{{ $consume_item->sku }}</td>
+                                        <td>{{ $consume_item->qty }}</td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                @endif
             </div>
         @endforeach
 
@@ -283,45 +368,76 @@
         @if (false == isset($subOrderId))
             <div class="card shadow p-4 mb-4">
                 @if (count($discounts) > 0)
-                <h6>折扣明細</h6>
-                <div class="table-responsive">
-                    <table class="table table-sm text-right align-middle">
-                        <tbody>
-                            @foreach ($discounts as $key => $dis)
-                                <tr>
-                                    @switch($dis->category_code)
-                                        @case('code')
-                                        @case('coupon')
-                                            <td class="col-8">{{ $dis->category_title }}【{{ $dis->title }}】</td>
+                    <h6>折扣明細</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm text-right align-middle">
+                            <tbody>
+                                @foreach ($discounts as $key => $dis)
+                                    <tr>
+                                        @switch($dis->category_code)
+                                            @case('code')
+                                            @case('coupon')
+                                                <td class="col-8">{{ $dis->category_title }}【{{ $dis->title }}】</td>
                                             @break
-                                        @default
-                                            <td class="col-8">{{ $dis->title }}</td>
-                                    @endswitch
-                                    
-                                    @if ($dis->method_code == 'coupon')
-                                        <td class="text-end pe-4">【{{ $dis->extra_title }}】</td>
-                                    @elseif (is_numeric($dis->discount_value))
-                                        <td class="text-end pe-4 text-danger">- ${{ number_format($dis->discount_value) }}</td>
-                                    @else
-                                        <td class="text-end pe-4">{{ $dis->discount_value || '' }}</td>
-                                    @endif
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+
+                                            @default
+                                                <td class="col-8">{{ $dis->title }}</td>
+                                        @endswitch
+
+                                        @if ($dis->method_code == 'coupon')
+                                            <td class="text-end pe-4">【{{ $dis->extra_title }}】</td>
+                                        @elseif (is_numeric($dis->discount_value))
+                                            <td class="text-end pe-4 text-danger">-
+                                                ${{ number_format($dis->discount_value) }}</td>
+                                        @else
+                                            <td class="text-end pe-4">{{ $dis->discount_value || '' }}</td>
+                                        @endif
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 @endif
-                <h6>訂單總覽</h6>
+                <div class="d-flex align-items-center mb-4 mt-3">
+                    <h6 class="flex-grow-1 mb-0">訂單總覽</h6>
+
+                    <div class="form-check form-check-inline form-switch form-switch-lg">
+
+                        <label class="form-check-label">
+                            <input class="form-check-input -auto-send" type="checkbox" name="" value=""
+                                @if ($order->auto_dividend == '1') checked @endif
+                                @if ($order->allotted_dividend) disabled @endif>
+                            鴻利、優惠劵自動發放
+                        </label>
+                    </div>
+                    @if ($order->allotted_dividend === 0)
+                        <button type="button" class="btn btn-sm btn-success -in-header -active-send" disabled>手動發放</button>
+                    @endif
+                </div>
+
                 <div class="table-responsive">
                     <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
-                        <tbody>
+                        @if (!$order->allotted_dividend)
+                            <caption class="small text-end">鴻利預計發放時間：
+                                @if (isset($order->dividend_active_at)) {{ date('Y/m/d H:i', strtotime($order->dividend_active_at)) }}
+                                @else 未入款 @endif
+                            </caption>
+                        @endif
+                        
+                        <tbody class="border-top-0">
                             <tr class="table-light">
                                 <td class="col-2">小計</td>
                                 <td class="col-2">折扣</td>
                                 <td class="col-2 lh-sm">折扣後 <br class="d-xxl-none">(不含運)</td>
                                 <td class="col-2">運費</td>
                                 <td class="col-2">總金額</td>
-                                <td class="col-2 lh-sm">預計獲得<a href="#" class="-text d-block d-xxl-inline">紅利積點</a></td>
+                                <td class="col-2 lh-sm">
+                                    @if ($order->allotted_dividend)
+                                        獲得<a href="{{ route('cms.sale_channel.index') }}" class="-text">鴻利</a>
+                                    @else
+                                        預計獲得<a href="{{ route('cms.sale_channel.index') }}" class="-text d-block d-xxl-inline">鴻利點數</a>
+                                    @endif
+                                </td>
                             </tr>
                             <tr>
                                 <td>${{ number_format($order->origin_price) }}</td>
@@ -329,19 +445,32 @@
                                 <td>${{ number_format($order->discounted_price) }}</td>
                                 <td>${{ number_format($order->dlv_fee) }}</td>
                                 <td class="fw-bold">${{ number_format($order->total_price) }}</td>
-                                <td>-</td>
+                                <td>{{ number_format($dividend) }}
+                                    @if ($order->allotted_dividend)
+                                        <span class="badge bg-success">已發</span>
+                                    @else
+                                        <span class="badge bg-secondary">未發</span>
+                                    @endif
+                                </td>
                             </tr>
                         </tbody>
                     </table>
                     <table class="table table-bordered table-sm text-center align-middle d-table d-sm-none">
-                        <tbody>
-                            <tr>
+                        @if (!$order->allotted_dividend)
+                            <caption class="small text-end">鴻利預計發放時間：
+                                @if (isset($order->dividend_active_at)) {{ date('Y/m/d H:i', strtotime($order->dividend_active_at)) }}
+                                @else 未入款 @endif
+                            </caption>
+                        @endif
+                        <tbody class="border-top-0">
+                            <tr style="border-color: #dfe0e1;">
                                 <td class="col-7 table-light">小計</td>
                                 <td class="text-end pe-4">${{ number_format($order->origin_price) }}</td>
                             </tr>
                             <tr>
                                 <td class="col-7 table-light">折扣 </td>
-                                <td class="text-danger text-end pe-4">- ${{ number_format($order->discount_value) }}</td>
+                                <td class="text-danger text-end pe-4">- ${{ number_format($order->discount_value) }}
+                                </td>
                             </tr>
                             <tr>
                                 <td class="col-7 table-light lh-sm">折扣後 (不含運)</td>
@@ -356,8 +485,21 @@
                                 <td class="fw-bold text-end pe-4">${{ number_format($order->total_price) }}</td>
                             </tr>
                             <tr>
-                                <td class="col-7 table-light lh-sm">預計獲得<a href="#" class="-text">紅利積點</a></td>
-                                <td class="text-end pe-4">-</td>
+                                <td class="col-7 table-light lh-sm">
+                                    @if ($order->allotted_dividend)
+                                        獲得<a href="{{ route('cms.sale_channel.index') }}" class="-text">鴻利</a>
+                                    @else
+                                        預計獲得<a href="{{ route('cms.sale_channel.index') }}" class="-text">鴻利點數</a>
+                                    @endif
+                                </td>
+                                <td class="text-end pe-4">
+                                    @if ($order->allotted_dividend)
+                                        <span class="badge bg-success">已發</span>
+                                    @else
+                                        <span class="badge bg-secondary">未發</span>
+                                    @endif
+                                    {{ number_format($dividend) }}
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -377,6 +519,15 @@
             </div>
         </div>
     </form>
+
+    <!-- Modal -->
+    <x-b-modal id="confirm-delete">
+        <x-slot name="title">刪除確認</x-slot>
+        <x-slot name="body">確認要刪除此收款單？</x-slot>
+        <x-slot name="foot">
+            <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
+        </x-slot>
+    </x-b-modal>
 @endsection
 @once
     @push('sub-styles')
@@ -385,8 +536,90 @@
             .table.table-bordered:not(.table-sm) tr:not(.table-light) {
                 height: 70px;
             }
+
         </style>
     @endpush
     @push('sub-scripts')
+        <script>
+            $('.submit_btn').on('click', function(e){
+                e.preventDefault();
+                let url = $(this).prev().val();
+                $('#form1').attr('action', url).submit();
+            });
+
+            // Modal Control
+            $('#confirm-delete').on('show.bs.modal', function(e) {
+                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+            });
+
+
+            const changeAutoUrl = @json(route('api.cms.order.change-auto-dividend'));
+            const activePointUrl = @json(route('api.cms.order.active-dividend'));
+            const order_sn = @json($order->sn);
+
+            setAutoSend($('input.-auto-send').prop('checked'));
+            $('input.-auto-send').off('change.auto').on('change.auto', function() {
+                const $switch = $(this);
+                const active = $switch.prop('checked');
+
+                // API
+                axios.post(changeAutoUrl, {
+                    order_sn: order_sn,
+                    auto_dividend: active ? 1 : 0
+                }).then((result) => {
+                    console.log(result.data);
+                    if (result.data.status === '0') {
+                        setAutoSend(active);
+                        if (active) {
+                            toast.show('鴻利改為自動發放');
+                        } else {
+                            toast.show('鴻利改為手動發放', {
+                                type: 'warning'
+                            });
+                        }
+                    } else {
+                        toast.show(`失敗：${result.data.message}`, {
+                            type: 'danger'
+                        });
+                    }
+                }).catch((err) => {
+                    console.error(err);
+                    toast.show('發生錯誤', {
+                        type: 'danger'
+                    });
+                });
+            });
+
+            function setAutoSend(auto) {
+                $('.btn.-active-send').prop('disabled', auto);
+            }
+
+            $('.btn.-active-send').off('click.send').on('click.send', function() {
+                if (!$(this).prop('disabled')) {
+                    // API
+                    axios.post(activePointUrl, {
+                        order_sn: order_sn
+                    }).then((result) => {
+                        console.log(result.data);
+                        if (result.data.status === '0') {
+                            toast.show('已發放鴻利、優惠劵');
+                            $('.badge.bg-secondary').removeClass('bg-secondary')
+                                .addClass('bg-success').text('已發');
+                            $('input.-auto-send').prop('disabled', true);
+                        } else {
+                            toast.show(`失敗：${result.data.message}`, {
+                                type: 'danger'
+                            });
+                        }
+                    }).catch((err) => {
+                        console.error(err);
+                        toast.show('發生錯誤', {
+                            type: 'danger'
+                        });
+                    });
+                }
+            });
+        </script>
     @endpush
 @endonce
+

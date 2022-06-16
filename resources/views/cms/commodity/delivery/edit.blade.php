@@ -1,6 +1,13 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-3">#{{ $sn }} 出貨審核</h2>
+    <h2 class="mb-3">#{{ $breadcrumb_data['sn'] }} 出貨審核</h2>
+    @if ($event === 'consignment')
+        <x-b-consign-navi :id="$delivery->event_id"></x-b-consign-navi>
+    @endif
+    @if ($event === 'csn_order')
+        <x-b-csnorder-navi :id="$delivery->event_id"></x-b-csnorder-navi>
+    @endif
+
     <form method="post" action="{{ $formAction }}">
         @method('POST')
         @csrf
@@ -108,7 +115,7 @@
                 @elseif($delivery->event == App\Enums\Delivery\Event::consignment()->value)
                     <a href="{{ Route('cms.consignment.edit', ['id' => $eventId ]) }}" class="btn btn-outline-primary px-4" role="button">返回明細</a>
                 @elseif($delivery->event == App\Enums\Delivery\Event::csn_order()->value)
-                    <a href="{{ Route('cms.consignment.order_edit', ['id' => $eventId ]) }}" class="btn btn-outline-primary px-4" role="button">返回明細</a>
+                    <a href="{{ Route('cms.consignment-order.edit', ['id' => $eventId ]) }}" class="btn btn-outline-primary px-4" role="button">返回明細</a>
                 @endif
             </div>
         </div>

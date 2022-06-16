@@ -95,6 +95,7 @@ class Discount extends Model
             'sub.coupon_id',
             'sub.coupon_title',
             'sub.discount_grade_id',
+            'sub.active'
         ];
 
         $re = DB::table(DB::raw("({$sub->toSql()}) as sub"))
@@ -102,7 +103,7 @@ class Discount extends Model
             ->mergeBindings($sub)
             ->where('sub.status_code', DisStatus::D01()->value)
             ->where('sub.active', 1);
-
+       
         if ($product_id) {
             $re->leftJoin('dis_discount_collection as dc', 'sub.id', '=', 'dc.discount_id')
                 ->leftJoin('collection_prd as cp', 'dc.collection_id', '=', 'cp.collection_id_fk')
@@ -506,13 +507,18 @@ class Discount extends Model
             ];
 
             switch ($method) {
-                case DisCategory::coupon()->value:
+                case DisCategory::coupon()->value: //取得優惠券
                     $d['extra_title'] = $n->coupon_title;
                     $d['extra_id'] = $n->coupon_id;
-                    CustomerCoupon::create([
-                        'customer_id' => $customer->id,
-                        'discount_id' => $n->coupon_id,
-                    ]);
+                    $_coupon = Discount::where('id', $n->coupon_id)->get()->first();
+                    if ($_coupon) {
+                        CustomerCoupon::create([
+                            'from_order_id' => $order_id,
+                            'limit_day' => $_coupon->life_cycle,
+                            'customer_id' => $customer->id,
+                            'discount_id' => $n->coupon_id,
+                        ]);
+                    }
                     break;
 
                 default:
@@ -520,9 +526,9 @@ class Discount extends Model
                     $d['extra_id'] = null;
 
             }
-            // 處理coupon
+            // 處理coupon 使用優惠券
             if ($n->category_code == DisCategory::coupon() && !$sub_order_id && !$order_item_id) {
-                //  dd($n);
+               
                 CustomerCoupon::where('id', $n->user_coupon_id)->update([
                     'used' => 1,
                     'used_at' => now(),
@@ -540,5 +546,6 @@ class Discount extends Model
     {
         return DB::table('ord_discounts')->where('order_type', $type)
             ->where('order_id', $order_id);
+           
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Cms;
 
 use App\Http\Controllers\Controller;
+use App\Models\DividendSetting;
 use App\Models\SaleChannel;
 use Illuminate\Http\Request;
 
@@ -13,9 +14,11 @@ class SaleChannelCtrl extends Controller
     {
         $query = $request->query();
         $dataList = SaleChannel::saleList()->orderBy('is_master', 'DESC')->paginate(10)->appends($query);
+
         // dd(SaleChannel::saleList()->get()->toArray());
         return view('cms.settings.sale_channel.list', [
             'dataList' => $dataList,
+            'dividend_setting' => DividendSetting::getData(),
         ]);
     }
 
@@ -41,9 +44,14 @@ class SaleChannelCtrl extends Controller
             'use_coupon' => $v['use_coupon'],
             'is_realtime' => $v['is_realtime'],
             'discount' => $v['discount'],
+            'dividend_limit' => $v['dividend_limit'],
+            'dividend_rate' => $v['dividend_rate'],
+            'event_dividend_rate' => $v['event_dividend_rate'],
+            'event_sdate' => $v['event_sdate'],
+            'event_edate' => $v['event_edate'],
         ]);
         wToast(__('Add finished.'));
-        return redirect(Route('cms.sale_channel.edit', [
+        return redirect(Route('cms.sale_channel.index', [
             'id' => $id,
             'query' => $query,
         ]));
@@ -60,13 +68,30 @@ class SaleChannelCtrl extends Controller
             'sales_type' => 'required|numeric',
             'use_coupon' => 'required|numeric',
             'discount' => 'required|numeric',
+            'dividend_limit' => 'required|numeric',
+            'dividend_rate' => 'required|numeric',
+            'event_dividend_rate' => 'required|numeric',
+            'event_sdate' => 'date|nullable',
+            'event_edate' => 'date|nullable',
         ]);
     }
 
     //取得欄位資料
     private function getInputValue(Request $request)
     {
-        return $request->only('title', 'contact_person', 'contact_tel', 'chargeman', 'sales_type', 'use_coupon', 'is_realtime', 'discount');
+        return $request->only('title',
+            'contact_person',
+            'contact_tel',
+            'chargeman',
+            'sales_type',
+            'use_coupon',
+            'is_realtime',
+            'discount',
+            'dividend_limit',
+            'dividend_rate',
+            'event_dividend_rate',
+            'event_sdate',
+            'event_edate');
     }
 
     public function edit(Request $request, $id)
@@ -92,7 +117,7 @@ class SaleChannelCtrl extends Controller
 
         SaleChannel::where('id', '=', $id)->update($v);
         wToast(__('Edit finished.'));
-        return redirect(Route('cms.sale_channel.edit', [
+        return redirect(Route('cms.sale_channel.index', [
             'id' => $id,
             'query' => $query,
         ]));
@@ -111,5 +136,20 @@ class SaleChannelCtrl extends Controller
         wToast(__('Edit finished.'));
         return redirect(Route('cms.sale_channel.index'));
 
+    }
+
+    public function updateDividendSetting(Request $request)
+    {
+        $request->validate([
+            'limit_day' => 'required|numeric',
+            'auto_active_day' => 'required|numeric',
+        ]);
+
+        $d = $request->all();
+        
+        DividendSetting::updateSetting($d['limit_day'], $d['auto_active_day']);
+
+        wToast('修改完成');
+        return redirect(Route('cms.sale_channel.index'));
     }
 }

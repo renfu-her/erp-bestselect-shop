@@ -65,41 +65,38 @@ class DeliveryCtrl extends Controller
             'eventId' => $eventId,
         ];
         $delivery = null;
+        $delivery_id = null;
+        $event_sn = '';
         if(Event::order()->value == $event) {
             $sub_order = SubOrders::getListWithShiGroupById($eventId)->get()->first();
+            $event_sn = $sub_order->sn;
             if (null == $sub_order) {
                 return abort(404);
             }
             $rsp_arr['order_id'] = $sub_order->order_id;
 
             // 出貨單號ID
-            $delivery = Delivery::getData($event, $sub_order->id)->get();
+            $delivery = Delivery::getData($event, $sub_order->id)->get()->first();
+            $delivery_id = $delivery->id;
+            $ord_items_arr = ReceiveDepot::getOrderShipItemWithDeliveryWithReceiveDepotList($event, $eventId, $delivery_id);
         } else if(Event::consignment()->value == $event) {
             // 出貨單號ID
-            $delivery = Delivery::getData($event, $eventId)->get();
+            $delivery = Delivery::getData($event, $eventId)->get()->first();
+            $delivery_id = $delivery->id;
+            $ord_items_arr = ReceiveDepot::getCSNShipItemWithDeliveryWithReceiveDepotList($event, $eventId, $delivery_id);
+            $consignment = Consignment::where('id', $delivery->event_id)->get()->first();
+            $event_sn = $consignment->sn;
+            $rsp_arr['depot_id'] = $consignment->send_depot_id;
         } else if(Event::csn_order()->value == $event) {
             // 出貨單號ID
-            $delivery = Delivery::getData($event, $eventId)->get();
+            $delivery = Delivery::getData($event, $eventId)->get()->first();
+            $delivery_id = $delivery->id;
+            $ord_items_arr = ReceiveDepot::getCSNOrderShipItemWithDeliveryWithReceiveDepotList($event, $eventId, $delivery_id);
+            $csn_order = CsnOrder::where('id', $delivery->event_id)->get()->first();
+            $event_sn = $csn_order->sn;
+            $rsp_arr['depot_id'] = $csn_order->depot_id;
         }
-        $delivery_id = null;
-        if (null != $delivery) {
-            $deliveryGet = $delivery->first();
-            $delivery_id = $deliveryGet->id;
-        }
-        if (null != $delivery_id) {
-            $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
-            if (Event::order()->value == $event) {
-                $ord_items_arr = ReceiveDepot::getOrderShipItemWithDeliveryWithReceiveDepotList($event, $eventId, $delivery_id);
-            } else if (Event::consignment()->value == $event) {
-                $ord_items_arr = ReceiveDepot::getCSNShipItemWithDeliveryWithReceiveDepotList($event, $eventId, $delivery_id);
-                $consignment = Consignment::where('id', $delivery->event_id)->get()->first();
-                $rsp_arr['depot_id'] = $consignment->send_depot_id;
-            } else if (Event::csn_order()->value == $event) {
-                $ord_items_arr = ReceiveDepot::getCSNOrderShipItemWithDeliveryWithReceiveDepotList($event, $eventId, $delivery_id);
-                $csn_order = CsnOrder::where('id', $delivery->event_id)->get()->first();
-                $rsp_arr['depot_id'] = $csn_order->depot_id;
-            }
-        }
+
         $rsp_arr['event'] = $event;
         $rsp_arr['delivery'] = $delivery;
         $rsp_arr['delivery_id'] = $delivery_id;
@@ -108,7 +105,7 @@ class DeliveryCtrl extends Controller
         $rsp_arr['formAction'] = Route('cms.delivery.store', [
             'deliveryId' => $delivery_id,
         ], true);
-        $rsp_arr['breadcrumb_data'] = $delivery->sn;
+        $rsp_arr['breadcrumb_data'] = ['sn' => $event_sn, 'parent' => $event ];
 
         return view('cms.commodity.delivery.edit', $rsp_arr);
     }

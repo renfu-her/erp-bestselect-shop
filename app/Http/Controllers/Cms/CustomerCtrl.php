@@ -7,6 +7,9 @@ use App\Enums\Customer\Newsletter;
 use App\Http\Controllers\Controller;
 use App\Models\Addr;
 use App\Models\Customer;
+use App\Models\CustomerAddress;
+use App\Models\CustomerDividend;
+use App\Models\CustomerLogin;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -84,13 +87,7 @@ class CustomerCtrl extends Controller
 
         $uData = $request->only('email', 'name', 'password'
             , 'phone', 'birthday', 'sex', 'acount_status'
-            , 'address', 'city_id', 'region_id', 'addr'
         );
-
-        $address = null;
-        if (is_numeric($uData['region_id'])) {
-            $address = Addr::fullAddr($uData['region_id'], $uData['addr']);
-        }
 
         Customer::createCustomer($uData['name']
             , $uData['email']
@@ -99,10 +96,6 @@ class CustomerCtrl extends Controller
             , $uData['birthday'] ?? null
             , $uData['sex'] ?? null
             , $uData['acount_status'] ?? AccountStatus::close()->value
-            , $address
-            , is_numeric($uData['city_id']) ? $uData['city_id'] : null
-            , is_numeric($uData['region_id']) ? $uData['region_id'] : null
-            , $uData['addr'] ?? null
         );
 
         if ($request->input('bind') == '1') {
@@ -137,6 +130,9 @@ class CustomerCtrl extends Controller
     public function edit(Request $request, $id)
     {
         $data = Customer::getCustomer($id)->get()->first();
+        $loginMethods = CustomerLogin::where('usr_customers_id_fk', '=', $id)
+                                        ->select('login_method')
+                                        ->get();
         if (!$data) {
             return abort(404);
         }
@@ -155,6 +151,7 @@ class CustomerCtrl extends Controller
             'customer_list' => Customer::all(),
             'citys' => Addr::getCitys(),
             'regions' => $regions,
+            'loginMethods' => $loginMethods,
         ]);
     }
 
@@ -170,23 +167,13 @@ class CustomerCtrl extends Controller
     {
         $uData = $request->only('email', 'name', 'sex'
             , 'phone', 'birthday', 'acount_status', 'newsletter'
-            , 'address', 'city_id', 'region_id', 'addr'
         );
-
-        $address = null;
-        if (is_numeric($uData['region_id'])) {
-            $address = Addr::fullAddr($uData['region_id'], $uData['addr']);
-        }
 
         $updateArr = [
             'name' => $uData['name'],
             'sex' => $uData['sex'] ?? null,
             'phone' => $uData['phone'],
             'birthday' => $uData['birthday'] ?? null,
-            'address' => $address,
-            'city_id' => is_numeric($uData['city_id']) ? $uData['city_id'] : null,
-            'region_id' => is_numeric($uData['region_id']) ? $uData['region_id'] : null,
-            'addr' => $uData['addr'] ?? null,
             'newsletter' => $uData['newsletter'] ?? Newsletter::subscribe()->value,
         ];
         $password = $request->input('password');
@@ -205,6 +192,51 @@ class CustomerCtrl extends Controller
 
         wToast('檔案更新完成');
         return redirect(Route('cms.customer.edit', ['id' => $id]));
+    }
+
+    /**
+     * @param  Request  $request
+     * @param $id int 會員id
+     * 列出收件地址管理
+     */
+    public function address(Request $request, $id)
+    {
+        $defaultAddress = CustomerAddress::where('usr_customers_id_fk', '=', $id)
+            ->where('is_default_addr', '=', 1)
+            ->select('address')
+            ->get()
+            ->first();
+
+        $otherAddress = CustomerAddress::where('usr_customers_id_fk', '=', $id)
+            ->where('is_default_addr', '=', 0)
+            ->select('address')
+            ->get();
+
+        return view('cms.admin.customer.address', [
+            'customer' => $id,
+            'defaultAddress' => $defaultAddress,
+            'otherAddress' => $otherAddress,
+        ]);
+
+    }
+
+    /**
+     * @param  Request  $request
+     * 我的鴻利
+     * @return void
+     */
+    public function dividend(Request $request, $id)
+    {
+        $dividend = CustomerDividend::getDividend($id)->get()->first()->dividend;
+        $typeGet = CustomerDividend::getList($id, 'get')->get();
+        $typeUsed = CustomerDividend::getList($id, 'used')->get();
+
+        return view('cms.admin.customer.dividend', [
+            'customer' => $id,
+            'dividend' => $dividend,
+            'get_record' => $typeGet,
+            'use_record' => $typeUsed,
+        ]);
     }
 
     /**

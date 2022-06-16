@@ -1,10 +1,10 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-3">寄倉單 {{ $purchaseData->consignment_sn }}</h2>
-    <x-b-pch-navi :id="$id"></x-b-pch-navi>
+    <h2 class="mb-3">#{{ $purchaseData->consignment_sn }} 寄倉單</h2>
+    <x-b-consign-navi :id="$id"></x-b-consign-navi>
 
     <div class="card shadow p-4 mb-4">
-        <h6>採購單入庫總覽</h6>
+        <h6>入庫總覽</h6>
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList mb-1">
                 <thead>
@@ -42,6 +42,7 @@
 
     @if(null != $purchaseData->audit_date)
         <div class="card shadow p-4 mb-4">
+            <h6>本次入庫資料</h6>
             <form id="form1" method="post" action="{{ $formAction }}">
                 @method('POST')
                 @csrf
@@ -50,20 +51,19 @@
                 <div class="alert alert-danger mt-3">{{ $message }}</div>
                 @enderror
 
-                <h6>本次入庫資料</h6>
                 <div class="row mb-4">
-                    <div class="col-12">
+                    <div class="col">
 
-                        <label class="form-label">入庫倉庫
-                        <div>
-                        @foreach ($depotList as $depotItem)
-                            @if($depotItem['id'] == $purchaseData->receive_depot_id)
-                                <input type="hidden"
-                                       class="form-control form-control-sm @error('depot_id') is-invalid @enderror"
-                                       name="depot_id" value="{{ $depotItem['id'] }}"
-                                       required readonly/>{{ $depotItem['name'] }} {{ $depotItem['can_tally'] ? '(理貨倉)' : '(非理貨倉)' }}
-                            @endif
-                        @endforeach
+                        <label class="form-label">入庫倉庫</label>
+                        <div class="fw-bold ps-2">
+                            @foreach ($depotList as $depotItem)
+                                @if($depotItem['id'] == $purchaseData->receive_depot_id)
+                                    <input type="hidden"
+                                        class="form-control form-control-sm @error('depot_id') is-invalid @enderror"
+                                        name="depot_id" value="{{ $depotItem['id'] }}" required readonly/>
+                                    {{ $depotItem['name'] }} {{ $depotItem['can_tally'] ? '(理貨倉)' : '(非理貨倉)' }}
+                                @endif
+                            @endforeach
                         </div>
                         <div class="invalid-feedback">
                             @error('depot_id')
@@ -73,9 +73,9 @@
                     </div>
                 </div>
 
-                <label class="form-label">入庫資訊</label>
                 <div class="table-responsive tableOverBox">
-                    <table class="table table-hover tableList mb-1">
+                    <table class="table table-hover tableList mb-1 caption-top">
+                        <caption class="px-4 text-dark">入庫資訊</caption>
                         <thead>
                         <tr>
                             <th scope="col" class="text-center">刪除</th>

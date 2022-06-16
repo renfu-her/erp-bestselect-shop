@@ -148,7 +148,7 @@
                                 @elseif($data->event == App\Enums\Delivery\Event::consignment()->value)
                                 {{ Route('cms.consignment.edit', ['id' => $data->event_id], true) }}
                                 @elseif($data->event == App\Enums\Delivery\Event::csn_order()->value)
-                                {{ Route('cms.consignment.order_edit', ['id' => $data->event_id], true) }}
+                                {{ Route('cms.consignment-order.edit', ['id' => $data->event_id], true) }}
                                 @endif"
                                    data-bs-toggle="tooltip" title="編輯"
                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0">

@@ -41,7 +41,7 @@ class PurchaseItem extends Model
                     "memo" => $newData['memo']?? null
                 ])->id;
 
-                $rePcsLSC = PurchaseLog::stockChange($newData['purchase_id'], $newData['product_style_id'], Event::purchase()->value, $id, LogEventFeature::style_add()->value, null, $newData['num'], null, $operator_user_id, $operator_user_name);
+                $rePcsLSC = PurchaseLog::stockChange($newData['purchase_id'], $newData['product_style_id'], Event::purchase()->value, $id, LogEventFeature::style_add()->value, null, $newData['num'], null, $newData['title'], 'p', $operator_user_id, $operator_user_name);
 
                 if ($rePcsLSC['success'] == 0) {
                     DB::rollBack();
@@ -85,6 +85,7 @@ class PurchaseItem extends Model
                         $rePcsLSC = PurchaseLog::stockChange($purchaseItem->purchase_id, $purchaseItem->product_style_id
                             , Event::purchase()->value, $itemId
                             , $logEventFeature, null, $dirtyval, $event
+                            , $purchaseItem->title, 'p'
                             , $operator_user_id, $operator_user_name);
                         if ($rePcsLSC['success'] == 0) {
                             DB::rollBack();
@@ -118,7 +119,7 @@ class PurchaseItem extends Model
                 ) {
                     PurchaseItem::whereIn('id', $del_item_id_arr)->delete();
                     foreach ($items as $item) {
-                        PurchaseLog::stockChange($purchase_id, $item->product_style_id, Event::purchase()->value, $item->id, LogEventFeature::style_del()->value, null, null, null, $operator_user_id, $operator_user_name);
+                        PurchaseLog::stockChange($purchase_id, $item->product_style_id, Event::purchase()->value, $item->id, LogEventFeature::style_del()->value, null, null, null, $item->title, 'p', $operator_user_id, $operator_user_name);
                     }
                     return ['success' => 1, 'error_msg' => ""];
                 });
@@ -165,7 +166,7 @@ class PurchaseItem extends Model
     //採購 明細(會鋪出全部的採購商品)
     //******* 修改時請一併修改採購 總表
     public static function getPurchaseDetailList(
-        $purchase_id = null
+          $purchase_id = null
         , $purchase_item_id = null
         , $purchase_sn = null
         , $title = null
@@ -185,17 +186,23 @@ class PurchaseItem extends Model
 
         //訂金單號
         $subColumn = DB::table('pcs_paying_orders as order')
-            ->select('order.id')
-            ->whereColumn('order.purchase_id', '=', 'purchase.id')
-            ->where('order.type', '=', DB::raw('0'))
+            ->select('order.sn')
+            ->whereColumn('order.source_id', '=', 'purchase.id')
+            ->where([
+                'order.source_type'=>DB::raw('"'. app(Purchase::class)->getTable().'"'),
+                'order.type'=>DB::raw('0'),
+            ])
             ->whereNull('order.deleted_at')
             ->orderByDesc('order.id')
             ->limit(1);
         //尾款單號
         $subColumn2 = DB::table('pcs_paying_orders as order')
-            ->select('order.id')
-            ->whereColumn('order.purchase_id', '=', 'purchase.id')
-            ->where('order.type', '=', DB::raw('1'))
+            ->select('order.sn')
+            ->whereColumn('order.source_id', '=', 'purchase.id')
+            ->where([
+                'order.source_type'=>DB::raw('"'. app(Purchase::class)->getTable().'"'),
+                'order.type'=>DB::raw('1'),
+            ])
             ->whereNull('order.deleted_at')
             ->orderByDesc('order.id')
             ->limit(1);
@@ -205,7 +212,7 @@ class PurchaseItem extends Model
                 , 'event_item_id'
                 , 'product_style_id')
             ->selectRaw('sum(inbound_num) as inbound_num')
-            ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_name) as inbound_user_name') //入庫人員
+            ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_name) as inbound_user_names') //入庫人員
             ->whereNull('deleted_at');
 
         $tempInboundSql->where('inbound.event', '=', Event::purchase()->value);
@@ -257,7 +264,7 @@ class PurchaseItem extends Model
                 ,'items.num as num'
                 ,'items.arrived_num as arrived_num'
                 ,'items.memo as memo'
-                ,'inbound.inbound_user_name'
+                ,'inbound.inbound_user_names'
                 ,'purchase.purchase_user_id as purchase_user_id'
                 ,'purchase.supplier_id as supplier_id'
                 ,'purchase.invoice_num as invoice_num'
@@ -363,17 +370,23 @@ class PurchaseItem extends Model
     ) {
         //訂金單號
         $subColumn = DB::table('pcs_paying_orders as order')
-            ->select('order.id')
-            ->whereColumn('order.purchase_id', '=', 'purchase.id')
-            ->where('order.type', '=', DB::raw('0'))
+            ->select('order.sn')
+            ->whereColumn('order.source_id', '=', 'purchase.id')
+            ->where([
+                'order.source_type'=>DB::raw('"'. app(Purchase::class)->getTable().'"'),
+                'order.type'=>DB::raw('0'),
+            ])
             ->whereNull('order.deleted_at')
             ->orderByDesc('order.id')
             ->limit(1);
         //尾款單號
         $subColumn2 = DB::table('pcs_paying_orders as order')
-            ->select('order.id')
-            ->whereColumn('order.purchase_id', '=', 'purchase.id')
-            ->where('order.type', '=', DB::raw('1'))
+            ->select('order.sn')
+            ->whereColumn('order.source_id', '=', 'purchase.id')
+            ->where([
+                'order.source_type'=>DB::raw('"'. app(Purchase::class)->getTable().'"'),
+                'order.type'=>DB::raw('1'),
+            ])
             ->whereNull('order.deleted_at')
             ->orderByDesc('order.id')
             ->limit(1);
@@ -386,8 +399,7 @@ class PurchaseItem extends Model
             ->selectRaw('GROUP_CONCAT(DISTINCT inbound.inbound_user_name) as inbound_user_names') //入庫人員
             ->where('event', Event::purchase()->value)
             ->whereNull('deleted_at')
-            ->groupBy('event_id')
-            ->groupBy('product_style_id');
+            ->groupBy('event_id');
         if ($depot_id) {
             $tempInboundSql->where('inbound.depot_id', '=', $depot_id);
         }
@@ -408,7 +420,6 @@ class PurchaseItem extends Model
                 $tempInboundSql->where('inbound.expiry_date', '<=', $expire_day);
             }
         }
-
 
         $query_not_yet = 'COALESCE((itemtb_new.arrived_num), 0) = 0';
         $query_normal = '( COALESCE(itemtb_new.num, 0) - COALESCE((itemtb_new.arrived_num), 0) ) = 0 and COALESCE((itemtb_new.arrived_num), 0) <> 0';
@@ -435,7 +446,8 @@ class PurchaseItem extends Model
             )
             ->whereNull('items.deleted_at')
             ->orderBy('items.product_style_id')
-            ->limit(1);
+            ->groupBy('items.purchase_id');
+
         if($title) {
             $tempPurchaseItemSql->where(function ($query) use ($title) {
                 $query->Where('items.title', 'like', "%{$title}%");
@@ -507,7 +519,9 @@ class PurchaseItem extends Model
         }
 
         $result2 = DB::table(DB::raw("({$result->toSql()}) as tb"))
-            ->select('*');
+            ->select('*')
+            ->orderByDesc('id')
+            ->orderBy('items_id');
 
         $result->mergeBindings($subColumn);
         $result->mergeBindings($subColumn2);
@@ -553,7 +567,6 @@ class PurchaseItem extends Model
     {
         $result = DB::table('pcs_purchase_items as pcs_items')
             ->where('pcs_items.purchase_id', '=', $purchaseId)
-            ->leftJoin('pcs_paying_orders as pay_orders', 'pcs_items.purchase_id', '=', 'pay_orders.purchase_id')
             ->leftJoin('prd_product_styles as prd_styles', 'pcs_items.product_style_id', '=', 'prd_styles.id')
             ->leftJoin('prd_products', 'prd_styles.product_id', '=', 'prd_products.id')
             ->leftJoin('usr_users', 'prd_products.user_id', '=', 'usr_users.id')
@@ -563,7 +576,6 @@ class PurchaseItem extends Model
                 'pcs_items.num',
                 'pcs_items.memo',
                 'pcs_items.product_style_id as style_ids',
-                'pay_orders.price as pay_order_price',
                 'usr_users.name',
             )
             ->get()

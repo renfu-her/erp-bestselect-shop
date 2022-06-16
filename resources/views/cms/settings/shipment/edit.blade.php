@@ -6,7 +6,7 @@
         </a>
     </div>
 
-    <form method="post" action="{{ $formAction }}">
+    <form id="form1" method="post" action="{{ $formAction }}">
         @method('POST')
         @csrf
 
@@ -95,9 +95,29 @@
                             @endforeach
                         </div>
                     </x-b-form-group>
+                    <x-b-form-group name="supplier" title="廠商" required="false">
+                        <select id="supplier" aria-label="廠商"
+                                class="form-select -select2 -single @error('supplier') is-invalid @enderror">
+                            <option value="" @if (true == empty(old('supplier', $supplierData->id ?? null))) selected @endif >請選擇</option>
+                            @foreach ($supplierList as $supplierItem)
+                                <option value="{{ $supplierItem->id }}"
+                                        @if ($supplierItem->id == old('supplier', $supplierData->id ?? '')) selected @endif>
+                                    {{ $supplierItem->name }}@if ($supplierItem->nickname)（{{ $supplierItem->nickname }}） @endif
+                                </option>
+                            @endforeach
+                        </select>
+                        <div class="invalid-feedback">
+                            @error('supplier')
+                            {{ $message }}
+                            @enderror
+                        </div>
+                        <input type="hidden" name="supplier_id" value="{{ $supplierData->id ?? '' }}">
+                    </x-b-form-group>
+
                     <x-b-form-group name="note" title="說明" required="false">
-                        <textarea name="note" class="form-control" placeholder="請輸入物流說明"
-                            rows="6">{{ old('note', $note ?? '') }}</textarea>
+                        <textarea id="editor" name="note" hidden></textarea>
+                        {{-- <textarea name="note" class="form-control" placeholder="請輸入物流說明"
+                            rows="6">{{ old('note', $note ?? '') }}</textarea> --}}
                     </x-b-form-group>
                 </div>
             </div>
@@ -122,7 +142,7 @@
                         </thead>
                         <tbody class="-appendClone">
                         @if ($method === 'create')
-{{--                        @if (count(old('min_price', $dataList ?? [])) <= 1)--}}
+                       {{-- @if (count(old('min_price', $dataList ?? [])) <= 1)--}}
                             <tr>
                                 <td></td>
                                 <td>
@@ -275,12 +295,33 @@
 @endsection
 @once
     @push('sub-scripts')
+        <script src="{{ Asset("plug-in/tinymce/tinymce.min.js") }}"></script>
+        <script src="{{ Asset("plug-in/tinymce/myTinymce.js") }}"></script>
+        <script>
+            let content = @json(old('note', $note ?? ''));
+            content = content ? content : '';
+
+            tinymce.init({
+                selector: '#editor',
+                ...TINY_OPTION
+            }).then((editors) => {
+                editors[0].setContent(content);
+            });
+            
+            $('#form1').submit(function(e) {
+                $('textarea[name="note"]').val(tinymce.get('editor').getContent());
+            });
+        </script>
         <script>
             let addNewShipElem = $('.add_ship_rule');
             let submitElem = $('form[method=post]');
             const trashButtonHtml = '<button type="button" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0"> ' +
                                         '<i class="bi bi-trash"></i> ' +
                                     '</button>';
+
+            $('#supplier').on('change', function (e) {
+                $('input:hidden[name="supplier_id"]').val($('#supplier').val());
+            });
 
             addNewShipElem.on('click', function () {
                 if ($('tbody > tr').length === 1) {

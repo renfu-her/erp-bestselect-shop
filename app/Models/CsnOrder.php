@@ -45,7 +45,7 @@ class CsnOrder extends Model
                 'scheduled_date' => $scheduled_date ?? null,
             ])->id;
 
-            $rePcsLSC = PurchaseLog::stockChange($id, null, Event::csn_order()->value, $id, LogEventFeature::add()->value, null,null, null, $create_user_id, $create_user_name);
+            $rePcsLSC = PurchaseLog::stockChange($id, null, Event::csn_order()->value, $id, LogEventFeature::add()->value, null,null, null,null, null, $create_user_id, $create_user_name);
             if ($rePcsLSC['success'] == 0) {
                 DB::rollBack();
                 return $rePcsLSC;
@@ -91,7 +91,7 @@ class CsnOrder extends Model
                     } else if($key == 'audit_status') {
                         $event = '修改審核狀態';
                     }
-                    $rePcsLSC = PurchaseLog::stockChange($id, null, Event::csn_order()->value, $id, LogEventFeature::change_data()->value, null,null, $event, $operator_user_id, $operator_user_name);
+                    $rePcsLSC = PurchaseLog::stockChange($id, null, Event::csn_order()->value, $id, LogEventFeature::change_data()->value, null,null, $event,null, null, $operator_user_id, $operator_user_name);
                     if ($rePcsLSC['success'] == 0) {
                         DB::rollBack();
                         return $rePcsLSC;
@@ -120,7 +120,7 @@ class CsnOrder extends Model
         } else {
             return DB::transaction(function () use ($id, $operator_user_id, $operator_user_name
             ) {
-                $rePcsLSC = PurchaseLog::stockChange($id, null, Event::csn_order()->value, $id, LogEventFeature::del()->value, null,null, null, $operator_user_id, $operator_user_name);
+                $rePcsLSC = PurchaseLog::stockChange($id, null, Event::csn_order()->value, $id, LogEventFeature::del()->value, null,null, null,null, null, $operator_user_id, $operator_user_name);
                 if ($rePcsLSC['success'] == 0) {
                     DB::rollBack();
                     return $rePcsLSC;
@@ -136,7 +136,7 @@ class CsnOrder extends Model
         $currDate = date('Y-m-d H:i:s');
         self::where('id', $id)->update(['close_date' => $currDate]);
 
-        PurchaseLog::stockChange($id, null, Event::csn_order()->value, $id, LogEventFeature::close()->value, null,null, null, $operator_user_id, $operator_user_name);
+        PurchaseLog::stockChange($id, null, Event::csn_order()->value, $id, LogEventFeature::close()->value, null,null, null,null, null, $operator_user_id, $operator_user_name);
     }
 
     public static function getData($id) {

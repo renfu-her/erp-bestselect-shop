@@ -111,6 +111,8 @@
                 <thead>
                     <tr>
                         <th scope="col">#</th>
+                        <th scope="col" class="text-center">啟用</th>
+                        <th scope="col" class="text-center">編輯</th>
                         <th scope="col">優惠劵活動名稱</th>
                         <th scope="col">類別</th>
                         <th scope="col">優惠券序號</th>
@@ -123,8 +125,6 @@
                         <th scope="col">開始日期</th>
                         <th scope="col">結束日期</th>
                         <th scope="col">數量</th>
-                        <th scope="col" class="text-center">編輯</th>
-                        <th scope="col" class="text-center">啟用</th>
                         <th scope="col" class="text-center">刪除</th>
                     </tr>
                 </thead>
@@ -132,6 +132,19 @@
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
+                            <td class="text-center">
+                                <div class="form-check form-switch form-switch-lg mb-0 mt-1">
+                                    <input class="form-check-input active-switch" data-id="{{ $data->id }}"
+                                        type="checkbox" @if ($data->active == '1') checked @endif name="">
+                                </div>
+                            </td>
+                            <td>
+                                <a href="{{ Route('cms.promo.edit', ['id' => $data->id], true) }}"
+                                    data-bs-toggle="tooltip" title="編輯"
+                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                            </td>
                             <td>{{ $data->title }}</td>
                             <td>{{ $data->category_title }}</td>
                             <td>{{ $data->sn }}</td>
@@ -146,7 +159,7 @@
                             <td>${{ number_format($data->min_consume) }}</td>
                             <td data-td="status" @class([
                                 'text-success' => $data->status === '進行中', 
-                                'text-danger' => $data->status === '已結束' || $data->status === '暫停'
+                                'text-danger' => $data->status === '結束' || $data->status === '暫停'
                             ])>
                                 {{ $data->status }}
                             </td>
@@ -159,19 +172,6 @@
                             <td>{{ date('Y/m/d', strtotime($data->start_date)) }}</td>
                             <td>{{ date('Y/m/d', strtotime($data->end_date)) }}</td>
                             <td>{{ number_format($data->max_usage) }}</td>
-                            <td>
-                                <a href="{{ Route('cms.promo.edit', ['id' => $data->id], true) }}"
-                                    data-bs-toggle="tooltip" title="編輯"
-                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                    <i class="bi bi-pencil-square"></i>
-                                </a>
-                            </td>
-                            <td class="text-center">
-                                <div class="form-check form-switch form-switch-lg mb-0 mt-1">
-                                    <input class="form-check-input active-switch" data-id="{{ $data->id }}"
-                                        type="checkbox" @if ($data->active == '1') checked @endif name="">
-                                </div>
-                            </td>
                             <td>
                                 <a href="javascript:void(0)"
                                     data-href="{{ Route('cms.promo.delete', ['id' => $data->id], true) }}"
@@ -276,6 +276,7 @@
                         }
                     }).catch((err) => {
                         console.error(err);
+                        toast.show('發生錯誤', { type: 'danger' });
                     });
 
             })

@@ -16,11 +16,15 @@ final class DisCategory extends Helper
     const coupon = 'coupon';
     const code = 'code';
     const combine = 'combine';
+    const dividend = 'dividend';
 
     public static function getDescription($value): string
     {
         $result = '';
         switch ($value) {
+            case self::dividend:
+                $result = '鴻利';
+                break;
             case self::coupon:
                 $result = '優惠券';
                 break;
@@ -44,6 +48,9 @@ final class DisCategory extends Helper
     {
         $result = '';
         switch ($value) {
+            case self::dividend:
+                $result = 12;
+                break;
             case self::coupon:
                 $result = 9;
                 break;

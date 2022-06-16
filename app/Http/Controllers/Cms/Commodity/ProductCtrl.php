@@ -49,7 +49,6 @@ class ProductCtrl extends Controller
         $cond['consume'] = Arr::get($query, 'consume', 'all');
         $cond['public'] = Arr::get($query, 'public', 'all');
         $cond['online'] = Arr::get($query, 'online', 'all');
-      
 
         $products = Product::productList($cond['keyword'], null, ['user' => $cond['user'],
             'product_type' => $cond['product_type'],
@@ -135,8 +134,8 @@ class ProductCtrl extends Controller
                 if (App::environment(AppEnvClass::Release)) {
                     $imgData[] = $file->store('product_imgs/' . $re['id'], 'ftp');
                 } else {
-                $imgData[] = $file->store('product_imgs/' . $re['id']);
-            }
+                    $imgData[] = $file->store('product_imgs/' . $re['id']);
+                }
             }
             ProductImg::createImgs($re['id'], $imgData);
         }
@@ -241,8 +240,8 @@ class ProductCtrl extends Controller
                 if (App::environment(AppEnvClass::Release)) {
                     $imgData[] = $file->store('product_imgs/' . $id, 'ftp');
                 } else {
-                $imgData[] = $file->store('product_imgs/' . $id);
-            }
+                    $imgData[] = $file->store('product_imgs/' . $id);
+                }
             }
             ProductImg::createImgs($id, $imgData);
         }
@@ -265,6 +264,7 @@ class ProductCtrl extends Controller
      */
     public function editStyle($id)
     {
+
         $product = self::product_data($id);
         $specList = ProductSpec::specList($id);
         $styles = ProductStyle::styleList($id)->get()->toArray();
@@ -274,6 +274,8 @@ class ProductCtrl extends Controller
             $init_styles = ProductStyle::createInitStyles($id);
         }
 
+        $salechannel = SaleChannel::where('is_master', 1)->get()->first();
+
         return view('cms.commodity.product.styles', [
             'data' => Product::where('id', $id)->get()->first(),
             'specList' => $specList,
@@ -281,6 +283,7 @@ class ProductCtrl extends Controller
             'initStyles' => $init_styles,
             'product' => $product,
             'breadcrumb_data' => $product,
+            'salechannel' => $salechannel,
         ]);
     }
 
@@ -418,6 +421,13 @@ class ProductCtrl extends Controller
     public function storeSpec(Request $request, $id)
     {
 
+        $vali_rule = [];
+        for ($i = 0; $i < 3; $i++) {
+            $vali_rule["item_new$i.*"] = ['required','regex:/^[^\'\"]*$/' ];
+            $vali_rule["item_value$i.*"] = ['required','regex:/^[^\'\"]*$/'];
+        }
+        $request->validate($vali_rule);
+       
         $d = $request->all();
         for ($i = 0; $i < 3; $i++) {
             if (isset($d["spec" . $i])) {
@@ -548,6 +558,7 @@ class ProductCtrl extends Controller
 
         $sales = SaleChannel::stylePriceList($sid)->get()->toArray();
 
+        // dd($sales);
         return view('cms.commodity.product.sales-price', [
             'product' => $product,
             'style' => $style,

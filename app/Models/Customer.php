@@ -71,23 +71,37 @@ class Customer extends Authenticatable
         $this->notify(new CustomerPasswordReset($token));
     }
 
+    /**
+     * @param $name
+     * @param $email
+     * @param $password
+     * @param $phone
+     * @param $birthday
+     * @param $sex
+     * @param $acount_status
+     * @param $address
+     * @param $city_id
+     * @param $region_id
+     * @param $addr
+     * @param $newsletter
+     * @param  array|string|null  $loginMethods 消費者註冊登入方式, 然後用array傳送登入方式，例如[1, 2], 請參考Enums:Customer:Login
+     *
+     * @return mixed
+     */
     public static function createCustomer($name, $email, $password
         , $phone = null, $birthday = null, $sex = null, $acount_status = 0
         , $address = null, $city_id = null, $region_id = null, $addr = null
         , $newsletter = null
+        , $loginMethods = null
     ) {
         $arr = [
             'name' => $name,
-            'email' => $email,
             'phone' => $phone,
+            'email' => $email,
             'birthday' => $birthday,
             'sex' => $sex,
             //'acount_status' => $acount_status,
             'password' => Hash::make($password),
-            'address' => $address,
-            'city_id' => $city_id,
-            'region_id' => $region_id,
-            'addr' => $addr,
             'api_token' => Str::random(80),
             'newsletter' => $newsletter ?? Newsletter::subscribe()->value,
         ];
@@ -101,6 +115,24 @@ class Customer extends Authenticatable
         //創建消費者時，直接給一消費者身分
        // $identity = DB::table('usr_identity')->where('code', 'customer')->get()->first();
         CustomerIdentity::add($id, 'customer');
+
+        CustomerLogin::addLoginMethod($id, $loginMethods);
+
+        if (!is_null($address) &&
+            !is_null($city_id) &&
+            !is_null($region_id) &&
+            !is_null($addr)) {
+            CustomerAddress::create([
+                'usr_customers_id_fk' => $id,
+                'name'                => $name,
+                'phone'               => $phone,
+                'address'             => $address,
+                'city_id'             => $city_id,
+                'region_id'           => $region_id,
+                'addr'                => $addr,
+                'is_default_addr'        => 1,
+            ]);
+        }
 
 //        self::where('id', '=', $id)->get()->first()->givePermissionTo($permission_id);
 //        self::where('id', '=', $id)->get()->first()->assignRole($role_id);
@@ -121,10 +153,6 @@ class Customer extends Authenticatable
                 , 'email_verified_at'
                 , 'name'
                 , 'phone'
-                , 'address'
-                , 'city_id'
-                , 'region_id'
-                , 'addr'
                 , 'sex'
                 , DB::raw('(case
                         when sex = '. Sex::female()->value .' then "'. Sex::getDescription(Sex::female()->value) .'"
@@ -140,6 +168,8 @@ class Customer extends Authenticatable
                 , 'acount_status'
                 , 'password'
                 , 'api_token'
+                , 'order_counts'
+                , 'total_spending'
                 , 'remember_token')
             ->selectRaw('DATE_FORMAT(birthday,"%Y-%m-%d") as birthday')
             ->selectRaw('DATE_FORMAT(created_at,"%Y-%m-%d") as created_at')

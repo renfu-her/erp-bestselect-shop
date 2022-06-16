@@ -10,6 +10,8 @@ Route::group(['prefix' => 'ar', 'as' => 'ar.'], function () {
     Route::post('store', [AccountReceivedCtrl::class, 'store'])->name('store');
     Route::get('receipt/{id}', [AccountReceivedCtrl::class, 'receipt'])->name('receipt')->middleware('permission:cms.ar.receipt');
     Route::match(['get', 'post'], 'review/{id}', [AccountReceivedCtrl::class, 'review'])->name('review')->middleware('permission:cms.ar.review');
+
+    Route::get('delete/{id}', [AccountReceivedCtrl::class, 'destroy'])->name('delete')->middleware('permission:cms.ar.delete');
 //    Route::get('edit', [AccountReceivedCtrl::class, 'edit'])->name('edit')->middleware('permission:cms.ar.edit');
 //    Route::post('edit', [AccountReceivedCtrl::class, 'update'])->name('update')->middleware('permission:cms.ar.update');;
 //    Route::get('delete/{id}', [AccountReceivedCtrl::class, 'destroy'])->name('delete')->middleware('permission:cms.ar.delete');

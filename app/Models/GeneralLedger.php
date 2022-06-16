@@ -360,6 +360,7 @@ class GeneralLedger extends Model
         $product_owner = $parameter['product_owner'] ? $parameter['product_owner'] : '';
         $discount_title = $parameter['discount_title'] ? $parameter['discount_title'] : '';
         $payable_type = $parameter['payable_type'] ? $parameter['payable_type'] : '0';
+        $received_info = $parameter['received_info'] ? $parameter['received_info'] : null;
 
         if($type == 'r'){
             if(in_array($code, [1, 5]) && $price >= 0){
@@ -381,6 +382,7 @@ class GeneralLedger extends Model
                     'product_owner'=>$product_owner,
                     'discount_title'=>$discount_title,
                     'payable_type'=>$payable_type,
+                    'received_info'=>$received_info,
                 ];
 
                 if( in_array($d_type, ['logistics']) && $code == 5){
@@ -412,6 +414,7 @@ class GeneralLedger extends Model
                     'product_owner'=>$product_owner,
                     'discount_title'=>$discount_title,
                     'payable_type'=>$payable_type,
+                    'received_info'=>$received_info,
                 ];
                 array_push($credit, $tmp);
 
@@ -441,6 +444,7 @@ class GeneralLedger extends Model
                     'product_owner'=>$product_owner,
                     'discount_title'=>$discount_title,
                     'payable_type'=>$payable_type,
+                    'received_info'=>$received_info,
                 ];
 
                 array_push($credit, $tmp);
@@ -465,6 +469,7 @@ class GeneralLedger extends Model
                     'product_owner'=>$product_owner,
                     'discount_title'=>$discount_title,
                     'payable_type'=>$payable_type,
+                    'received_info'=>$received_info,
                 ];
 
                 array_push($debit, $tmp);
@@ -490,6 +495,7 @@ class GeneralLedger extends Model
                     'product_owner'=>$product_owner,
                     'discount_title'=>$discount_title,
                     'payable_type'=>$payable_type,
+                    'received_info'=>$received_info,
                 ];
 
                 if(in_array($d_type, ['payable'])){
@@ -520,6 +526,7 @@ class GeneralLedger extends Model
                     'product_owner'=>$product_owner,
                     'discount_title'=>$discount_title,
                     'payable_type'=>$payable_type,
+                    'received_info'=>$received_info,
                 ];
 
                 if(in_array($d_type, ['logistics'])){
@@ -552,6 +559,7 @@ class GeneralLedger extends Model
                     'product_owner'=>$product_owner,
                     'discount_title'=>$discount_title,
                     'payable_type'=>$payable_type,
+                    'received_info'=>$received_info,
                 ];
 
                 array_push($credit, $tmp);
@@ -576,6 +584,7 @@ class GeneralLedger extends Model
                     'product_owner'=>$product_owner,
                     'discount_title'=>$discount_title,
                     'payable_type'=>$payable_type,
+                    'received_info'=>$received_info,
                 ];
 
                 array_push($debit, $tmp);

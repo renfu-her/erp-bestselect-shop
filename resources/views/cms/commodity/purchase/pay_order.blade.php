@@ -47,7 +47,7 @@
                 <h2>{{ $type === 'deposit' ? '訂金' : '尾款'}}付款單</h2>
                 <dl class="row">
                     <div class="col">
-                        <dt>喜鴻國際企業股份有限公司</dt>
+                        <dt>{{ $appliedCompanyData->company }}</dt>
                         <dd></dd>
                     </div>
                 </dl>
@@ -77,12 +77,7 @@
                 </dl>
                 <dl class="row mb-0">
                     <div class="col">
-                        <dt>
-                            採購單號：
-                            <a href="{{ Route('cms.purchase.edit', ['id' => $id], true) }}">
-                                {{ $purchaseData->purchase_sn }}
-                            </a>
-                        </dt>
+                        <dt>單據編號：<a href="{{ Route('cms.purchase.edit', ['id' => $id], true) }}">{{ $purchaseData->purchase_sn }}</a></dt>
                         <dd></dd>
                     </div>
                     @if($pay_off)
@@ -125,15 +120,6 @@
                         </thead>
                         <tbody>
                         @if($type === 'deposit')
-{{--                            @foreach($purchaseItemData as $purchaseItem)--}}
-{{--                                <tr>--}}
-{{--                                    <td>{{ $purchaseItem->title }}（負責人：{{ $purchaseItem->name }}）</td>--}}
-{{--                                    <td>{{ $purchaseItem->num }}</td>--}}
-{{--                                    <td></td>--}}
-{{--                                    <td></td>--}}
-{{--                                    <td>{{ $purchaseItem->memo }}</td>--}}
-{{--                                </tr>--}}
-{{--                            @endforeach--}}
                             <tr>
                                 <td>{{ $productGradeName . '-' . $depositPaymentData->summary }}</td>
                                 <td>1</td>
@@ -160,10 +146,10 @@
                             @endforeach
                             @if($logisticsPrice > 0)
                                 <tr>
-                                    <td>{{ $logisticsGradeName . '-物流費用' }}</td>
+                                    <td>{{ $logisticsGradeName . '- 物流費用' }}</td>
                                     <td></td>
                                     <td></td>
-                                    <td>{{ $logisticsPrice }}</td>
+                                    <td>{{ number_format($logisticsPrice) }}</td>
                                     <td>{{ $purchaseData->logistics_memo }}</td>
                                 </tr>
                             @endif

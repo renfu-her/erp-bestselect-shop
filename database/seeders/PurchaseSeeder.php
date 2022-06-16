@@ -183,24 +183,26 @@ class PurchaseSeeder extends Seeder
         $undertakerUserId = 7;
 
         PayingOrder::createPayingOrder(
+            app(Purchase::class)->getTable(),
             $purchaseID1,
+            null,
             $undertakerUserId,
             0,
             15,
             19,
             5000,
-            '2021-12-13 00:00:00',
             '訂金測試1',
             '第一筆備註 訂金'
         );
         PayingOrder::createPayingOrder(
+            app(Purchase::class)->getTable(),
             $purchaseID1,
+            null,
             $undertakerUserId,
             1,
             15,
             19,
             110,
-            '2021-12-14 00:00:00',
             '訂金測試2',
             '第二筆備註 尾款'
         );

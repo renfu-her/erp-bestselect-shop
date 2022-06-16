@@ -2,7 +2,9 @@
 @section('sub-content')
 
     <h2 class="mb-3">#{{ $consignmentData->consignment_sn }} 寄倉單</h2>
-    <x-b-pch-navi :id="$id"></x-b-pch-navi>
+    @if ($consignmentData->audit_status == App\Enums\Consignment\AuditStatus::approved()->value)
+        <x-b-consign-navi :id="$id"></x-b-consign-navi>
+    @endif
 
     @php
         $hasCreatedFinalPayment = $hasCreatedFinalPayment ?? false;
@@ -18,7 +20,7 @@
             </div>
             <div class="col">
                 <dt>建單時間</dt>
-                <dd>{{ $consignmentData->created_at }}</dd>
+                <dd>{{ date('Y/m/d', strtotime($consignmentData->created_at)) }}</dd>
             </div>
             <div class="col-sm-5">
                 <dt>建單人員</dt>
@@ -32,7 +34,7 @@
             </div>
             <div class="col">
                 <dt>審核日期</dt>
-                <dd>{{ $consignmentData->audit_date ?? '-' }}</dd>
+                <dd>{{ date('Y/m/d', strtotime($consignmentData->audit_date)) ?? '-' }}</dd>
             </div>
             <div class="col-sm-5">
                 <dt></dt>
@@ -78,127 +80,149 @@
     <form id="form1" method="post" action="{{ $formAction }}">
         @method('POST')
         @csrf
-    <div>
-        <div class="card-header px-4 d-flex align-items-center bg-white flex-wrap justify-content-end">
-            {{--寄倉審核OK後才可做出貨--}}
+
+        @php
+            $editable = !$hasCreatedFinalPayment && $consignmentData->close_date == null
+                && $consignmentData->audit_status == App\Enums\Consignment\AuditStatus::unreviewed()->value;
+        @endphp
+
+        {{-- <div class="card-header px-4 d-flex align-items-center bg-white flex-wrap justify-content-end">
+            // 寄倉審核OK後才可做出貨
             @if ($consignmentData->audit_status == App\Enums\Consignment\AuditStatus::approved()->value)
                 <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">配送狀態</a>
                 <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">物流設定</a>
                 <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::consignment()->value, 'eventId' => $id], true) }}">出貨審核</a>
 
                 <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.consignment.inbound', ['id' => $id], true) }}">入庫審核</a>
-{{--                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.consignment.log', ['id' => $id], true) }}">變更紀錄</a>--}}
+                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.consignment.log', ['id' => $id], true) }}">變更紀錄</a>
             @endif
-        </div>
-        <div class="card-body px-4">
-            <dl class="row mb-0">
-                <div class="col">
-                    <dt>預計入庫日期</dt>
-                    <dd>{{ $consignmentData->scheduled_date ?? '-' }}</dd>
-                    <input type="hidden" id="scheduled_date" name="scheduled_date"
-                           value="{{ old('scheduled_date', $consignmentData->scheduled_date  ?? '') }}"
-                           class="form-control @error('scheduled_date') is-invalid @enderror" aria-label="預計入庫日期"
-                           required readonly/>
-                </div>
-                <div class="col">
-                    <dt>物流編號</dt>
-                    <dd>{{ $consignmentData->lgt_sn ?? '-' }}</dd>
-                </div>
-                <div class="col">
-                    <dt>溫層</dt>
-                    <dd>{{ $consignmentData->temps ?? '-' }}</dd>
-                </div>
-                <div class="col">
-                    <dt>寄倉單編號</dt>
-                    <dd>{{ $consignmentData->consignment_sn }}</dd>
-                </div>
-                <div class="col">
-                    <dt>寄倉出貨單號</dt>
-                    <dd>{{ $consignmentData->dlv_sn ?? '(待處理)' }}</dd>
-                </div>
-            </dl>
-        </div>
-        <div class="card-body px-4 py-0">
-            <div class="table-responsive tableOverBox">
-                <div class="card shadow p-4 mb-4">
-                    <h6>寄倉清單</h6>
-                    <div class="table-responsive tableOverBox">
-                        <table class="table table-hover tableList mb-0">
-                            <thead>
+        </div> --}}
+
+        <div class="card shadow p-4 mb-4">
+            <h6>寄倉清單</h6>
+            <div>
+                <dl class="row">
+                    <div class="col">
+                        <dt>預計入庫日期</dt>
+                        <dd>{{ date('Y/m/d', strtotime($consignmentData->scheduled_date)) ?? '-' }}</dd>
+                        <input type="hidden" id="scheduled_date" name="scheduled_date"
+                            value="{{ old('scheduled_date', $consignmentData->scheduled_date  ?? '') }}"
+                            class="form-control @error('scheduled_date') is-invalid @enderror" aria-label="預計入庫日期"
+                            required readonly/>
+                    </div>
+                    <div class="col">
+                        <dt>寄倉出貨單號</dt>
+                        <dd>{{ $consignmentData->dlv_sn ?? '(待處理)' }}</dd>
+                    </div>
+                </dl>
+            </div>
+
+            <div>
+                <div class="table-responsive tableOverBox">
+                    <table class="table @if ($editable) table-hover @else table-striped @endif tableList mb-0">
+                        <thead>
                             <tr>
-                                <th scope="col" class="text-center">刪除</th>
+                                @if ($editable)
+                                    <th scope="col" class="text-center">刪除</th>
+                                @endif
                                 <th scope="col">商品名稱</th>
                                 <th scope="col">SKU</th>
                                 <th scope="col">寄倉數量</th>
                                 <th scope="col">寄倉價錢</th>
+                                <th scope="col" class="text-end">小計</th>
                                 <th scope="col">採購入庫單號</th>
                                 <th scope="col">狀態</th>
                                 <th scope="col">入庫人員</th>
                             </tr>
-                            </thead>
-                            <tbody class="-appendClone --selectedP">
-                            @if (0 >= count(old('item_id', $consignmentItemData?? [])))
-                                <tr class="-cloneElem --selectedP d-none">
-                                    <th class="text-center">
-                                        <button type="button"
-                                                class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                        <input type="hidden" name="item_id[]" value="">
-                                        <input type="hidden" name="product_style_id[]" value="">
-                                        <input type="hidden" name="name[]" value="">
-                                        <input type="hidden" name="prd_type[]" value="">
-                                        <input type="hidden" name="sku[]" value="">
-                                        <input type="hidden" name="price[]" value="">
-                                    </th>
-                                    <td data-td="name"></td>
-                                    <td data-td="sku"></td>
-                                    <td>
-                                        <input type="number" class="form-control form-control-sm" name="num[]" min="1" value="" required/>
-                                    </td>
-                                    <td data-td="price"></td>
-                                </tr>
-                            @elseif(0 < count(old('item_id', $consignmentItemData?? [])))
-                                @foreach (old('item_id', $consignmentItemData ?? []) as $psItemKey => $psItemVal)
-                                    <tr class="-cloneElem --selectedP">
+                        </thead>
+                        <tbody class="-appendClone --selectedP">
+                        @if (0 >= count(old('item_id', $consignmentItemData?? [])) && $editable)
+                            <tr class="-cloneElem --selectedP d-none">
+                                <th class="text-center">
+                                    <button type="button"
+                                            class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                    <input type="hidden" name="item_id[]" value="">
+                                    <input type="hidden" name="product_style_id[]" value="">
+                                    <input type="hidden" name="name[]" value="">
+                                    <input type="hidden" name="prd_type[]" value="">
+                                    <input type="hidden" name="sku[]" value="">
+                                    <input type="hidden" name="price[]" value="">
+                                </th>
+                                <td data-td="name"></td>
+                                <td data-td="sku"></td>
+                                <td>
+                                    <input type="number" class="form-control form-control-sm" name="num[]" min="1" value="" required/>
+                                </td>
+                                <td data-td="price"></td>
+                                <td data-td="total" class="text-end"></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        @elseif(0 < count(old('item_id', $consignmentItemData?? [])))
+                            @foreach (old('item_id', $consignmentItemData ?? []) as $psItemKey => $psItemVal)
+                                <tr class="-cloneElem --selectedP">
+                                    @if ($editable)
                                         <th class="text-center">
                                             <button type="button"
                                                     class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                                 <i class="bi bi-trash"></i>
                                             </button>
-                                            <input type="hidden" name="item_id[]" value="{{ old('item_id.'. $psItemKey, $psItemVal->id?? '') }}">
-                                            <input type="hidden" name="product_style_id[]" value="{{ old('product_style_id.'. $psItemKey, $psItemVal->product_style_id?? '') }}">
-                                            <input type="hidden" name="name[]" value="{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}">
-                                            <input type="hidden" name="prd_type[]" value="{{ old('prd_type.'. $psItemKey, $psItemVal->prd_type?? '') }}">
-                                            <input type="hidden" name="sku[]" value="{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}">
-                                            <input type="hidden" name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}">
                                         </th>
-                                        <td data-td="name">{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}</td>
-                                        <td data-td="sku">{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}</td>
-                                        <td>
+                                    @endif
+                                    <td data-td="name">{{ old('name.'. $psItemKey, $psItemVal->title ?? '') }}</td>
+
+                                    <input type="hidden" name="item_id[]" value="{{ old('item_id.'. $psItemKey, $psItemVal->id ?? '') }}">
+                                    <input type="hidden" name="product_style_id[]" value="{{ old('product_style_id.'. $psItemKey, $psItemVal->product_style_id ?? '') }}">
+                                    <input type="hidden" name="name[]" value="{{ old('name.'. $psItemKey, $psItemVal->title ?? '') }}">
+                                    <input type="hidden" name="prd_type[]" value="{{ old('prd_type.'. $psItemKey, $psItemVal->prd_type ?? '') }}">
+                                    <input type="hidden" name="sku[]" value="{{ old('sku.'. $psItemKey, $psItemVal->sku ?? '') }}">
+                                    <input type="hidden" name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal->price ?? '') }}">
+
+                                    <td data-td="sku">{{ old('sku.'. $psItemKey, $psItemVal->sku ?? '') }}</td>
+                                    <td>
+                                        @if ($editable)
                                             <input type="number" class="form-control form-control-sm @error('num.' . $psItemKey) is-invalid @enderror"
-                                                   name="num[]" value="{{ old('num.'. $psItemKey, $psItemVal->num?? '') }}" min="1" step="1" required/>
-                                        </td>
-                                        <td data-td="price">{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}</td>
-                                        <td data-td="inbound_type">{{$psItemVal->origin_inbound_sn?? ''}}</td>
-                                        <td data-td="inbound_type">{{$psItemVal->inbound_type?? ''}}</td>
-                                        <td data-td="inbound_user_name">{{$psItemVal->inbound_user_name?? ''}}</td>
-                                    </tr>
-                                @endforeach
-                            @endif
-                            </tbody>
-                            <tfoot>
-                            <tr>
-                                <th class="lh-1"></th>
-                                <th class="lh-1"></th>
-                                <th class="lh-1"></th>
-                                <th class="lh-1">價錢小計</th>
-                                <th class="lh-1 text-end -sum">$ 0</th>
-                            </tr>
-                            </tfoot>
-                        </table>
-                    </div>
+                                                name="num[]" value="{{ old('num.'. $psItemKey, $psItemVal->num ?? '') }}" min="1" step="1" required/>
+                                        @else
+                                            {{ number_format($psItemVal->num) }}
+                                            <input type="hidden" name="num[]" value="{{ $psItemVal->num }}">
+                                        @endif
+                                    </td>
+                                    <td data-td="price">{{ old('price.'. $psItemKey, '$ '.$psItemVal->price ?? '') }}</td>
+                                    <td data-td="total" class="text-end">$ 0</td>
+                                    <td data-td="inbound_type">{{$psItemVal->origin_inbound_sn ?? ''}}</td>
+                                    <td data-td="inbound_type">{{$psItemVal->inbound_type ?? ''}}</td>
+                                    <td data-td="inbound_user_name">{{$psItemVal->inbound_user_name ?? ''}}</td>
+                                </tr>
+                            @endforeach
+                        @endif
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <th class="lh-1"></th>
+                            <th class="lh-1"></th>
+                            @if ($editable) <th class="lh-1"></th> @endif
+                            <th class="lh-1"></th>
+                            <th class="lh-1">價錢小計</th>
+                            <th class="lh-1 text-end -sum">$ 0</th>
+                            <th class="lh-1"></th>
+                            <th class="lh-1"></th>
+                            <th class="lh-1"></th>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                @if ($editable)
                     <div class="d-grid mt-3">
+                        @if(false == ($hasCreatedFinalPayment?? false))
+                            <button id="addProductBtn" type="button"
+                                    class="btn btn-outline-primary border-dashed" style="font-weight: 500;">
+                                <i class="bi bi-plus-circle bold"></i> 加入商品
+                            </button>
+                        @endif
                         @error('product_style_id.*')
                         <div class="alert alert-danger mt-3">商品SKU不可重複</div>
                         @enderror
@@ -208,24 +232,28 @@
                         @error('item_error')
                         <div class="alert alert-danger mt-3">{{ $message }}</div>
                         @enderror
-                        @if(false == ($hasCreatedFinalPayment?? false))
-                            <button id="addProductBtn" type="button"
-                                    class="btn btn-outline-primary border-dashed" style="font-weight: 500;">
-                                <i class="bi bi-plus-circle bold"></i> 加入商品
-                            </button>
-                        @endif
                     </div>
-                </div>
+                @endif
             </div>
         </div>
 
-        <div class="card-header px-4 text-secondary border-top">物流資訊</div>
-        <div class="card-body px-4 pb-4">
+        <div class="card shadow p-4 mb-4">
+            <h6>物流資訊</h6>
             <dl class="row">
+                <div class="col">
+                    <dt>物流編號</dt>
+                    <dd>{{ $consignmentData->lgt_sn ?? '-' }}</dd>
+                </div>
+                <div class="col">
+                    <dt>溫層</dt>
+                    <dd>{{ $consignmentData->temps ?? '-' }}</dd>
+                </div>
                 <div class="col">
                     <dt>運費付款單</dt>
                     <dd>(待處理)</dd>
                 </div>
+            </dl>
+            <dl class="row">
                 <div class="col">
                     <dt>實際物流</dt>
                     <dd>{{ $consignmentData->group_name ?? '(待處理)' }}</dd>
@@ -238,14 +266,38 @@
                     <dt>物態</dt>
                     <dd>{{ $consignmentData->logistic_status ?? '(待處理)' }}</dd>
                 </div>
+            </dl>
+            <dl class="row">
                 <div class="col">
                     <dt>物流說明</dt>
                     <dd>{{ $consignmentData->lgt_memo ?? '(待處理)' }}</dd>
                 </div>
             </dl>
-        </div>
-    </div>
 
+            @if (true == isset($consume_items) && 0 < count($consume_items))
+                <div class="table-responsive tableOverBox">
+                    <div class="card-header text-secondary">物流耗材清單</div>
+                    <table class="table tableList table-sm mb-0">
+                        <thead class="table-light text-secondary">
+                        <tr>
+                            <th scope="col">耗材名稱</th>
+                            <th scope="col">SKU</th>
+                            <th scope="col">數量</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach ($consume_items as $consume_key => $consume_item)
+                            <tr>
+                                <td><a href="#" class="-text">{{ $consume_item->product_title }}</a></td>
+                                <td>{{ $consume_item->sku }}</td>
+                                <td>{{ $consume_item->qty }}</td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+        </div>
 
 
         @error('id')
@@ -256,40 +308,52 @@
         <input type="hidden" name="receive_depot_id" value="{{ $consignmentData->receive_depot_id ?? '' }}">
 
 
-        <h6>訂單總覽</h6>
-        <div class="table-responsive">
-            <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
-                <tbody>
-                <tr class="table-light">
-                    <td class="col-2">小計</td>
-                    <td class="col-2">運費</td>
-                    <td class="col-2">總金額</td>
-                </tr>
-                <tr>
-                    <td>$-</td>
-                    <td>${{ number_format($consignmentData->lgt_cost) }}</td>
-                    <td>$-</td>
-                </tr>
-                </tbody>
-            </table>
+        <div class="card shadow p-4 mb-4">
+            <h6>訂單總覽</h6>
+            <div class="table-responsive">
+                <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap">
+                    <tbody>
+                    <tr class="table-light">
+                        <td class="col-2">小計</td>
+                        <td class="col-2">運費</td>
+                        <td class="col-2">總金額</td>
+                    </tr>
+                    <tr>
+                        <td class="-sum">-</td>
+                        <td>$ {{ number_format($consignmentData->lgt_cost) }}</td>
+                        <td class="-Total">-</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <fieldset class="col-12 col-sm-6 mb-3">
+        <fieldset class="card shadow p-4 col-12 mb-3">
             <legend class="col-form-label p-0 mb-2">審核狀態 <span class="text-danger">*</span></legend>
             <div class="px-1 pt-1">
-                @foreach (App\Enums\Consignment\AuditStatus::asArray() as $key => $val)
-                    <div class="form-check form-check-inline @error('audit_status')is-invalid @enderror">
-                        <label class="form-check-label">
-                            <input class="form-check-input @error('audit_status')is-invalid @enderror" name="audit_status"
-                                   value="{{ $val }}" type="radio" required
-                                   @if (old('audit_status', $consignmentData->audit_status ?? '') == $val) checked @endif>
-                            {{ App\Enums\Consignment\AuditStatus::getDescription($val) }}
-                        </label>
-                    </div>
-                @endforeach
-                @error('audit_status')
-                <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
+                @if ($editable)
+                    @foreach (App\Enums\Consignment\AuditStatus::asArray() as $key => $val)
+                        <div class="form-check form-check-inline @error('audit_status')is-invalid @enderror">
+                            <label class="form-check-label">
+                                <input class="form-check-input @error('audit_status')is-invalid @enderror" name="audit_status"
+                                    value="{{ $val }}" type="radio" required
+                                    @if (old('audit_status', $consignmentData->audit_status ?? '') == $val) checked @endif>
+                                {{ App\Enums\Consignment\AuditStatus::getDescription($val) }}
+                            </label>
+                        </div>
+                    @endforeach
+                    @error('audit_status')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                @else
+                    <div class="fw-bold fs-5 mb-2">{{ $consignmentData->audit_status_str }}</div>
+                @endif
+
+                <div class="col">
+                    <mark class="fw-light small">
+                        <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>審核狀態改為<b> 核可 或 否決 </b>就不能再修改呦！
+                    </mark>
+                </div>
             </div>
         </fieldset>
 
@@ -301,16 +365,9 @@
             <div class="col-auto">
                 <input type="hidden" name="del_item_id">
                 <div class="col">
-                    <mark class="fw-light small">
-                        <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>審核狀態改為<b> 核可 或 否決 </b>就不能再修改呦！
-                    </mark>
-                </div>
-                <div class="col">
-                    @if(!$hasCreatedFinalPayment && $consignmentData->close_date == null
-                        && $consignmentData->audit_status == App\Enums\Consignment\AuditStatus::unreviewed()->value)
-                        <button type="submit" class="btn btn-primary px-4">儲存</button>
-                    @else
+                    @if($editable)
                         {{--判斷已審核 則不可再按儲存--}}
+                        <button type="submit" class="btn btn-primary px-4">儲存</button>
                     @endif
                     <a href="{{ Route('cms.consignment.index', [], true) }}" class="btn btn-outline-primary px-4"
                        role="button">返回列表</a>
@@ -345,12 +402,12 @@
                             <input class="form-check-input" type="checkbox"
                                    value="" data-td="p_id" aria-label="選取商品">
                         </th>
-                        <td data-td="name">【喜鴻嚴選】咖啡候機室(10入/盒)</td>
-                        <td data-td="spec">綜合口味</td>
-                        <td data-td="sku">AA2590</td>
-                        <td>58</td>
-                        <td data-td="price">99</td>
-                        <td>20</td>
+                        <td data-td="name"></td>
+                        <td data-td="spec"></td>
+                        <td data-td="sku"></td>
+                        <td></td>
+                        <td data-td="price"></td>
+                        <td></td>
                     </tr>
                     </tbody>
                 </table>
@@ -370,6 +427,7 @@
     @push('sub-scripts')
         <script>
             let hasCreatedFinalPayment = @json($hasCreatedFinalPayment?? false);
+            const lgt_cost = @json($consignmentData->lgt_cost);
 
             if (true == hasCreatedFinalPayment) {
                 $('.-cloneElem.--selectedP :input').prop("disabled", true);
@@ -423,7 +481,7 @@
                 appendClone: '.-appendClone.--selectedP',
                 cloneElem: '.-cloneElem.--selectedP',
                 beforeDelFn: function ({$this}) {
-                    const item_id = $this.siblings('input[name="item_id[]"]').val();
+                    const item_id = $this.closest('.-cloneElem.--selectedP').find('input[name="item_id[]"]').val();
                     if (item_id) {
                         del_item_id.push(item_id);
                         $('input[name="del_item_id"]').val(del_item_id.toString());
@@ -528,13 +586,17 @@
                             <th class="text-center">
                                 <input class="form-check-input" type="checkbox" ${checked}
                                     value="${p.style_id}" data-td="p_id" aria-label="選取商品">
+                                <input type="hidden" data-td="sku" value="${p.sku}">
                                 <input type="hidden" data-td="prd_type" value="${p.prd_type}">
+                                <input type="hidden" data-td="name" value="${p.product_title}">
+                                <input type="hidden" data-td="spec" value="${p.spec || ''}">
+                                <input type="hidden" data-td="price" value="${p.depot_price}">
                             </th>
                             <td data-td="name">${p.product_title}</td>
                             <td data-td="spec">${p.spec || ''}</td>
                             <td data-td="sku">${p.sku}</td>
                             <td>${p.total_in_stock_num}</td>
-                            <td data-td="price">${p.depot_price}</td>
+                            <td data-td="price">$ ${formatNumber(p.depot_price)}</td>
                         </tr>`);
                         $('#addProduct .-appendClone.--product').append($tr);
                     }
@@ -545,18 +607,18 @@
             function catchCheckedProduct() {
                 $('#addProduct tbody input[data-td="p_id"]').each(function (index, element) {
                     // element == this
-                    const sku = $(element).parent('th').siblings('[data-td="sku"]').text();
+                    const sku = $(element).siblings('[data-td="sku"]').val();
                     const idx = selectedProductSku.indexOf(sku);
                     if ($(element).prop('checked')) {
                         if (idx < 0) {
                             selectedProductSku.push(sku);
                             selectedProduct.push({
                                 id: $(element).val(),
-                                name: $(element).parent('th').siblings('[data-td="name"]').text(),
+                                name: $(element).siblings('[data-td="name"]').val(),
                                 prd_type: $(element).siblings('[data-td="prd_type"]').val(),
                                 sku: sku,
-                                spec: $(element).parent('th').siblings('[data-td="spec"]').text(),
-                                price: $(element).parent('th').siblings('[data-td="price"]').text()
+                                spec: $(element).siblings('[data-td="spec"]').val(),
+                                price: $(element).siblings('[data-td="price"]').val()
                             });
                         }
                     } else {
@@ -597,10 +659,11 @@
                             cloneElem.find('input[name="name[]"]').val(`${p.name}-${p.spec}`);
                             cloneElem.find('input[name="prd_type[]"]').val(p.prd_type);
                             cloneElem.find('input[name="sku[]"]').val(p.sku);
-                            cloneElem.find('input[name="price[]"]').val(p.price);
+                            cloneElem.find('input[name="price[]"]').val(Number(p.price));
                             cloneElem.find('td[data-td="name"]').text(`${p.name}-${p.spec}`);
                             cloneElem.find('td[data-td="sku"]').text(p.sku);
-                            cloneElem.find('td[data-td="price"]').text(p.price);
+                            cloneElem.find('input[name="num[]"]').val(1);
+                            cloneElem.find('td[data-td="price"], td[data-td="total"]').text(`$ ${formatNumber(p.price)}`);
                         }
                     }, delItemOption);
                 }
@@ -620,7 +683,7 @@
 
             // 綁定計算
             function bindPriceSum() {
-                $('.-cloneElem.--selectedP input[name="price[]"]')
+                $('.-cloneElem.--selectedP input[name="num[]"]')
                     .off('change.sum').on('change.sum', function () {
                     sumPrice();
                 });
@@ -628,12 +691,18 @@
             // 計算小計
             function sumPrice() {
                 let sum = 0;
-                $('.-cloneElem.--selectedP input[name="price[]"]').each(function (index, element) {
+                $('.-cloneElem.--selectedP').each(function (index, element) {
                     // element == this
-                    const val = Number($(this).val());
-                    sum = Number((sum + val).toFixed(2));
+                    const num = Number($(element).find('input[name="num[]"]').val());
+                    const price = Number($(element).find('input[name="price[]"]').val());
+                    const total = num * price;
+                    $(element).find('td[data-td="total"]').text(`$ ${formatNumber(total.toFixed(2))}`);
+
+                    sum = Number((sum + total).toFixed(2));
                 });
-                $('tfoot th.-sum').text(`$ ${formatNumber(sum.toFixed(2))}`);
+                $('tfoot th.-sum, td.-sum').text(`$ ${formatNumber(sum.toFixed(2))}`);
+                const Total = sum + Number(lgt_cost);
+                $('td.-Total').text(`$ ${formatNumber(Total.toFixed(2))}`);
             }
         </script>
     @endpush

@@ -5,8 +5,13 @@ window.Toast = require('./helpers/toast');
 window.Calendar = require('./helpers/calendar');
 window.Pagination = require('./helpers/pagination');
 
-$(function(){
+try {
     window.toast = new Toast();
+} catch (error) {
+    console.error(error);
+}
+
+$(function () {
     $("#autoToast").toast("show");
     window.tooltipList = $('[data-bs-toggle="tooltip"]').each(function(){
         return new bootstrap.Tooltip($(this));

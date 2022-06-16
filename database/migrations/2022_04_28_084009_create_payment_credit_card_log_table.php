@@ -22,7 +22,7 @@ class CreatePaymentCreditCardLogTable extends Migration
             $table->text('outmac')->nullable()->comment('交易結果壓碼');
             $table->string('merid')->nullable()->comment('銀行授權使用端編號');
             $table->string('authcode')->nullable()->comment('交易授權碼');
-            $table->decimal('authamt', 12 , 2)->nullable()->default(0)->comment('銀行授權交易金額');
+            $table->decimal('authamt', 12, 2)->nullable()->default(0)->comment('銀行授權交易金額');
             $table->string('lidm')->nullable()->comment('訂單編號');
             $table->string('xid')->nullable()->comment('銀行授權之交易 Unquie 序號');
             $table->string('termseq')->nullable()->comment('銀行調閱序號');

@@ -37,7 +37,9 @@
                         <th scope="col" style="width:10%">#</th>
                         <th scope="col">姓名</th>
                         <th scope="col">帳號</th>
-
+                        @can('cms.customer.address')
+                            <th scope="col" class="text-center">會員專區</th>
+                        @endcan
                         @can('cms.customer.edit')
                             <th scope="col" class="text-center">編輯</th>
                         @endcan
@@ -49,7 +51,15 @@
                             <th scope="row">{{ $key + 1 }}</th>
                             <td>{{ $data->name }}</td>
                             <td>{{ $data->email }}</td>
-
+                            <td class="text-center">
+                                @can('cms.customer.address')
+                                    <a href="{{ Route('cms.customer.address', ['id' => $data->id], true) }}"
+                                       data-bs-toggle="tooltip" title="會員專區"
+                                       class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                       <i class="bi bi-person-rolodex"></i>
+                                    </a>
+                                @endcan
+                            </td>
                             <td class="text-center">
                                 @can('cms.customer.edit')
                                     <a href="{{ Route('cms.customer.edit', ['id' => $data->id], true) }}"

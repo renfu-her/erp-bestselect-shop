@@ -7,7 +7,11 @@
     </div>
     <div class="card">
         <div class="card-header">
-            @if ($method === 'create') 新增 @else 編輯 @endif 通路
+            @if ($method === 'create')
+                新增
+            @else
+                編輯
+            @endif 通路
         </div>
         <form class="card-body" method="post" action="{{ $formAction }}">
             @method('POST')
@@ -29,8 +33,8 @@
                     value="{{ old('chargeman', $data->chargeman ?? '') }}" />
             </x-b-form-group>
             <x-b-form-group name="chargeman" title="折扣" required="true">
-                <input class="form-control @error('discount') is-invalid @enderror" type="number" max="1" step="0.01" name="discount"
-                    value="{{ old('discount', $data->discount ?? 1) }}" />
+                <input class="form-control @error('discount') is-invalid @enderror" type="number" max="1" step="0.01"
+                    name="discount" value="{{ old('discount', $data->discount ?? 1) }}" />
             </x-b-form-group>
             <x-b-form-group name="sales_type" title="銷售類型" required="true">
                 <select class="form-select @error('sales_type') is-invalid @enderror" name="sales_type" id="sales_type">
@@ -40,7 +44,7 @@
                     @endforeach
                 </select>
             </x-b-form-group>
-            <x-b-form-group name="use_coupon" title="喜鴻紅利點數" required="true">
+            <x-b-form-group name="use_coupon" title="鴻利點數" required="true">
                 <select class="form-select @error('use_coupon') is-invalid @enderror" name="use_coupon" id="use_coupon">
                     @foreach (App\Enums\SaleChannel\UseCoupon::asArray() as $key => $val)
                         <option value="{{ $val }}" @if ($val == old('use_coupon', $data->use_coupon ?? '')) selected @endif>
@@ -67,6 +71,40 @@
                 </div>
             </x-b-form-group>
 
+            <x-b-form-group name="dividend_limit" title="鴻利可抵扣上限(%)" required="true">
+                <input class="form-control @error('dividend_limit') is-invalid @enderror" type="number" max="100" step="1"
+                    name="dividend_limit" value="{{ old('dividend_limit', $data->dividend_limit ?? 100) }}" />
+            </x-b-form-group>
+            <x-b-form-group name="dividend_rate" title="鴻利回饋比例(%)" required="true">
+                <input class="form-control @error('dividend_rate') is-invalid @enderror" type="number" max="50" step="1"
+                    name="dividend_rate" value="{{ old('dividend_rate', $data->dividend_rate ?? 0) }}" />
+            </x-b-form-group>
+            <x-b-form-group name="event_dividend_rate" title="活動鴻利回饋比例(%)" required="true">
+                <input class="form-control @error('event_dividend_rate') is-invalid @enderror" type="number" min="0"
+                    max="50" step="1" name="event_dividend_rate"
+                    value="{{ old('event_dividend_rate', $data->event_dividend_rate ?? 0) }}" />
+            </x-b-form-group>
+            <x-b-form-group name="event_sdate" title="活動起始時間" required="true">
+                @php
+                    $sdate = old('event_sdate', $data->event_sdate ?? '');
+                    if ($sdate) {
+                        $sdate = date('Y-m-d\TH:i', strtotime($sdate));
+                    }
+                @endphp
+                <input class="form-control @error('event_sdate') is-invalid @enderror" type="datetime-local"
+                    name="event_sdate" value="{{ $sdate }}" />
+            </x-b-form-group>
+            <x-b-form-group name="event_edate" title="活動結束時間" required="true">
+                @php
+                    $edate = old('event_edate', $data->event_edate ?? '');
+                    if ($edate) {
+                        $edate = date('Y-m-d\TH:i', strtotime($edate));
+                    }
+                @endphp
+                <input class="form-control @error('event_edate') is-invalid @enderror" type="datetime-local"
+                    name="event_edate" value="{{ $edate }}" />
+            </x-b-form-group>
+
             @if ($method === 'edit')
                 <input type='hidden' name='id' value="{{ old('id', $id) }}" />
             @endif
@@ -78,11 +116,9 @@
             </div>
         </form>
     </div>
-
 @endsection
 @once
     @push('sub-scripts')
-        <script>
-        </script>
+        <script></script>
     @endpush
 @endonce

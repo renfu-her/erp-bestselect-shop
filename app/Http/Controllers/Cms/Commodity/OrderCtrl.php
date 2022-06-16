@@ -2,21 +2,35 @@
 
 namespace App\Http\Controllers\Cms\Commodity;
 
+use App\Enums\Delivery\Event;
+use App\Enums\Discount\DividendCategory;
 use App\Enums\Order\UserAddrType;
 use App\Http\Controllers\Controller;
+use App\Models\AccountPayable;
 use App\Models\Addr;
+use App\Models\AllGrade;
 use App\Models\Customer;
+use App\Models\CustomerDividend;
+use App\Models\Depot;
 use App\Models\Discount;
 use App\Models\Order;
 use App\Models\OrderCart;
+use App\Models\OrderPayCreditCard;
 use App\Models\OrderStatus;
+use App\Models\PayableDefault;
+use App\Models\PayingOrder;
+use App\Models\PurchaseInbound;
+use App\Models\ReceiveDepot;
 use App\Models\ReceivedOrder;
 use App\Models\SaleChannel;
 use App\Models\ShipmentStatus;
+use App\Models\Supplier;
+use App\Models\User;
 use App\Models\UserSalechannel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class OrderCtrl extends Controller
 {
@@ -80,8 +94,9 @@ class OrderCtrl extends Controller
      */
     public function create(Request $request)
     {
-
+        // Order::assign_dividend_active_date(35);
         //   dd(Discount::checkCode('fkfk',[1,2,4]));
+        $query = $request->query();
         $cart = null;
         if (old('product_style_id')) {
             $oldData = [];
@@ -128,18 +143,33 @@ class OrderCtrl extends Controller
         }
 
         $citys = Addr::getCitys();
+        $defaultAddress = DB::table('usr_customers')
+            ->where('usr_customers.id', '=', $customer_id)
+            ->leftJoin('usr_customers_address', 'usr_customers.id', '=', 'usr_customers_address.usr_customers_id_fk')
+            ->where('is_default_addr', '=', 1)
+            ->select([
+                'usr_customers.id',
+                'usr_customers.name',
+                'address',
+                'addr',
+                'city_id',
+                'region_id',
+            ])
+            ->get()->first();
 
-        //  dd(Discount::getDiscounts('global-normal'));
+      //    dd(Discount::getDiscounts('global-normal'));
         //    dd($citys);
         return view('cms.commodity.order.edit', [
             'customer_id' => $customer_id,
             'customers' => Customer::where('id', $customer_id)->get(),
+            'defaultAddress' => $defaultAddress,
             'citys' => $citys,
             'cart' => $cart,
             'regions' => $regions,
             'overbought_id' => $overbought_id,
             'salechannels' => $salechannels,
             'discounts' => Discount::getDiscounts('global-normal'),
+            'query' => $query,
         ]);
     }
 
@@ -151,7 +181,7 @@ class OrderCtrl extends Controller
      */
     public function store(Request $request)
     {
-
+        $query = $request->query();
         $arrVali = [];
         foreach (UserAddrType::asArray() as $value) {
             switch ($value) {
@@ -181,10 +211,15 @@ class OrderCtrl extends Controller
             'product_style_id' => 'required|array',
             'shipment_type' => 'required|array',
             'shipment_event_id' => 'required|array',
+            'salechannel_id' => 'required',
         ], $arrVali));
 
         $d = $request->all();
 
+        $dividend = [];
+        foreach ($d['dividend_id'] as $key => $div) {
+            $dividend[$div] = $d['dividend'][$key];
+        }
         $customer = Customer::where('id', $d['customer_id'])->get()->first();
 
         $items = [];
@@ -219,12 +254,16 @@ class OrderCtrl extends Controller
             $coupon = [$d['coupon_type'], $d['coupon_sn']];
         }
 
-        $re = Order::createOrder($customer->email, 1, $address, $items, $d['note'], $coupon);
+        $re = Order::createOrder($customer->email, $d['salechannel_id'], $address, $items, $d['note'], $coupon, null, $dividend);
+
         if ($re['success'] == '1') {
             wToast('訂單新增成功');
             return redirect(route('cms.order.detail', [
                 'id' => $re['order_id'],
             ]));
+        }
+        if (isset($query['debug'])) {
+            dd($re);
         }
         $errors = [];
         $addInput = [];
@@ -250,6 +289,9 @@ class OrderCtrl extends Controller
                     break;
                 case "coupon":
                     $errors['coupon'] = $re['error_msg'];
+                    break;
+                case "dividend":
+                    $errors['dividend'] = $re['error_msg'];
                     break;
             }
         }
@@ -277,14 +319,14 @@ class OrderCtrl extends Controller
      */
     public function detail($id, $subOrderId = null)
     {
-
         $order = Order::orderDetail($id)->get()->first();
-        $subOrder = Order::subOrderDetail($id)->get()->toArray();
+        $subOrder = Order::subOrderDetail($id, $subOrderId, true)->get()->toArray();
 
         //  dd(Discount::orderDiscountList('main',$id)->get()->toArray());
 
         foreach ($subOrder as $key => $value) {
             $subOrder[$key]->items = json_decode($value->items);
+            $subOrder[$key]->consume_items = json_decode($value->consume_items);
         }
 
         //    dd($order);
@@ -301,9 +343,25 @@ class OrderCtrl extends Controller
             'order_id' => $id,
             'deleted_at' => null,
         ]);
-        $received_order_data = $received_order_collection->get();
-        if (count($received_order_data) > 0 && $received_order_collection->sum('price') == DB::table('acc_received')->whereIn('received_order_id', $received_order_collection->pluck('id')->toArray())->sum('tw_price')) {
+        $received_order_data = $received_order_collection->first();
+        if ($received_order_data && $received_order_data->balance_date) {
             $receivable = true;
+        }
+        $received_credit_card_log = OrderPayCreditCard::where([
+            'order_id'=>$id,
+            'status'=>0,
+            'authamt'=>$order->total_price,
+            'lidm'=>$sn,
+        ])->orderBy('created_at', 'DESC')->first();
+
+        $dividend = CustomerDividend::where('category', DividendCategory::Order())
+            ->where('category_sn', $order->sn)
+            ->where('type', 'get')->get()->first();
+
+        if ($dividend) {
+            $dividend = $dividend->dividend;
+        } else {
+            $dividend = 0;
         }
 
         return view('cms.commodity.order.detail', [
@@ -314,7 +372,9 @@ class OrderCtrl extends Controller
             'subOrderId' => $subOrderId,
             'discounts' => Discount::orderDiscountList('main', $id)->get()->toArray(),
             'receivable' => $receivable,
-            'received_order_data' => $received_order_collection->first(),
+            'received_order_data' => $received_order_data,
+            'received_credit_card_log' => $received_credit_card_log,
+            'dividend' => $dividend,
         ]);
     }
 
@@ -339,5 +399,226 @@ class OrderCtrl extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function inbound(Request $request, $subOrderId)
+    {
+        $sub_order = DB::table('ord_sub_orders as sub_order')
+            ->leftJoin('dlv_delivery as delivery', function ($join) {
+                $join->on('delivery.event_id', '=', 'sub_order.id')
+                    ->where('delivery.event', '=', Event::order()->value);
+            })
+            ->select(
+                'sub_order.id as id'
+                , 'sub_order.order_id as order_id'
+                , 'sub_order.sn as sn'
+                , 'sub_order.ship_category as ship_category'
+                , 'delivery.audit_date'
+                , 'sub_order.ship_event_id as depot_id'
+            )
+            ->get()->first()
+        ;
+
+        if (!$sub_order || 'pickup' != $sub_order->ship_category) {
+            return abort(404);
+        }
+        $purchaseItemList = ReceiveDepot::getShouldEnterNumDataList(Event::order()->value, $subOrderId);
+
+        $inboundList = PurchaseInbound::getInboundList(['event' => Event::ord_pickup()->value, 'purchase_id' => $subOrderId])
+            ->orderByDesc('inbound.created_at')
+            ->get()->toArray();
+        $inboundOverviewList = PurchaseInbound::getOverviewInboundList(Event::ord_pickup()->value, $subOrderId)->get()->toArray();
+
+//        dd(123, $subOrderId, $purchaseItemList);
+
+        $depotList = Depot::all()->toArray();
+        return view('cms.commodity.order.inbound', [
+            'purchaseData' => $sub_order,
+            'send_depot_id' => $sub_order->depot_id,
+            'purchaseItemList' => $purchaseItemList->get(),
+            'inboundList' => $inboundList,
+            'inboundOverviewList' => $inboundOverviewList,
+            'depotList' => $depotList,
+            'formAction' => Route('cms.order.store_inbound', ['id' => $subOrderId]),
+            //'formActionClose' => Route('cms.order.close', ['id' => $subOrderId,]),
+            'breadcrumb_data' => ['id' => $sub_order->id, 'sn' => $sub_order->sn],
+        ]);
+    }
+
+    public function storeInbound(Request $request, $id)
+    {
+        $request->validate([
+            'depot_id' => 'required|numeric',
+            'event_item_id.*' => 'required|numeric',
+            'product_style_id.*' => 'required|numeric',
+            'inbound_date.*' => 'required|string',
+            'inbound_num.*' => 'required|numeric',
+            'error_num.*' => 'required|numeric|min:0',
+            'status.*' => 'required|numeric|min:0',
+            'expiry_date.*' => 'required|string',
+            'prd_type.*' => 'required|string',
+        ]);
+        $depot_id = $request->input('depot_id');
+        $inboundItemReq = $request->only('event_item_id', 'product_style_id', 'inbound_date', 'inbound_num', 'error_num', 'inbound_memo', 'status', 'expiry_date', 'inbound_memo', 'prd_type');
+
+        if (isset($inboundItemReq['product_style_id'])) {
+            //檢查若輸入實進數量小於0，打負數時備註欄位要必填說明原因
+            foreach ($inboundItemReq['product_style_id'] as $key => $val) {
+                if (1 > $inboundItemReq['inbound_num'][$key] && true == empty($inboundItemReq['inbound_memo'][$key])) {
+                    throw ValidationException::withMessages(['inbound_memo.' . $key => '打負數時備註欄位要必填說明原因']);
+                }
+            }
+
+            $depot = Depot::where('id', '=', $depot_id)->get()->first();
+            $style_arr = PurchaseInbound::getCreateData(Event::ord_pickup()->value, $id, $inboundItemReq['event_item_id'], $inboundItemReq['product_style_id']);
+
+            $result = DB::transaction(function () use ($inboundItemReq, $id, $depot_id, $depot, $request, $style_arr
+            ) {
+                foreach ($style_arr as $key => $val) {
+                    $re = PurchaseInbound::createInbound(
+                        Event::ord_pickup()->value,
+                        $id,
+                        $inboundItemReq['event_item_id'][$key], //存入 dlv_receive_depot.id
+                        $inboundItemReq['product_style_id'][$key],
+                        $val['item']['title'] . '-' . $val['item']['spec'],
+                        $val['unit_cost'],
+                        $inboundItemReq['expiry_date'][$key],
+                        $inboundItemReq['inbound_date'][$key],
+                        $inboundItemReq['inbound_num'][$key],
+                        $depot_id,
+                        $depot->name,
+                        $request->user()->id,
+                        $request->user()->name,
+                        $inboundItemReq['inbound_memo'][$key],
+                        $inboundItemReq['prd_type'][$key],
+                    );
+                    if ($re['success'] == 0) {
+                        DB::rollBack();
+                        return $re;
+                    }
+                }
+                return ['success' => 1, 'error_msg' => ""];
+            });
+            if ($result['success'] == 0) {
+                wToast($result['error_msg']);
+            } else {
+                wToast(__('Add finished.'));
+            }
+        }
+        return redirect(Route('cms.order.inbound', [
+            'subOrderId' => $id,
+        ]));
+    }
+
+    public function deleteInbound(Request $request, $id)
+    {
+        $inboundData = PurchaseInbound::where('id', '=', $id);
+        $inboundDataGet = $inboundData->get()->first();
+        $purchase_id = '';
+        if (null != $inboundDataGet) {
+            $purchase_id = $inboundDataGet->event_id;
+        } else {
+            return abort(404);
+        }
+        $re = PurchaseInbound::delInbound($id, $request->user()->id);
+        if ($re['success'] == 0) {
+            wToast($re['error_msg']);
+        } else {
+            wToast(__('Delete finished.'));
+        }
+        return redirect(Route('cms.order.inbound', [
+            'subOrderId' => $purchase_id,
+        ]));
+    }
+
+    public function pay_order(Request $request, $id, $sid)
+    {
+        $request->merge([
+            'id' => $id,
+            'sid' => $sid,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:ord_orders,id',
+            'sid' => 'required|exists:ord_sub_orders,id',
+        ]);
+
+        $source_type = app(Order::class)->getTable();
+        $type = 1;
+
+        $paying_order = PayingOrder::where([
+            'source_type' => $source_type,
+            'source_id' => $id,
+            'source_sub_id' => $sid,
+            'type' => $type,
+            'deleted_at' => null,
+        ])->first();
+
+        if ($request->isMethod('post')) {
+            if (!$paying_order) {
+                $price = Order::subOrderDetail($id, $sid, true)->get()->toArray()[0]->logistic_cost;
+                $product_grade = PayableDefault::where('name', '=', 'product')->first()->default_grade_id;
+                $logistics_grade = PayableDefault::where('name', '=', 'logistics')->first()->default_grade_id;
+
+                PayingOrder::createPayingOrder(
+                    $source_type,
+                    $id,
+                    $sid,
+                    $request->user()->id,
+                    $type,
+                    $product_grade,
+                    $logistics_grade,
+                    $price ?? 0,
+                    '',
+                    '',
+                );
+            }
+
+            return redirect(Route('cms.order.pay-order', [
+                'id' => $id,
+                'sid' => $sid,
+            ]));
+
+        } else {
+
+            if (!$paying_order) {
+                return abort(404);
+            }
+
+            $order = Order::orderDetail($id)->get()->first();
+            $sub_order = Order::subOrderDetail($id, $sid, true)->get()->toArray()[0];
+
+            $supplier = Supplier::find($sub_order->supplier_id);
+            $undertaker = User::find($paying_order->usr_users_id);
+            $applied_company = DB::table('acc_company')->where('id', 1)->first();
+
+            $logistics_grade = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' - ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
+
+            $pay_off = false;
+            $pay_off_date = date('Y-m-d', strtotime($paying_order->created_at));
+            $accountant = null;
+
+            if ($paying_order->balance_date) {
+                $pay_off = true;
+                $pay_off_date = date('Y-m-d', strtotime($paying_order->balance_date));
+                $pay_record = AccountPayable::where('pay_order_id', $paying_order->id);
+                $accountant = User::find($pay_record->latest()->first()->accountant_id_fk);
+            }
+
+            return view('cms.commodity.order.pay_order', [
+                'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
+
+                'paying_order' => $paying_order,
+                'order' => $order,
+                'sub_order' => $sub_order,
+                'supplier' => $supplier,
+                'undertaker' => $undertaker,
+                'applied_company' => $applied_company,
+                'logistics_grade' => $logistics_grade,
+                'pay_off' => $pay_off,
+                'pay_off_date' => $pay_off_date,
+                'accountant' => $accountant,
+            ]);
+        }
     }
 }

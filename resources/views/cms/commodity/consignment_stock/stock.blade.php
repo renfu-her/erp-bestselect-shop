@@ -2,7 +2,7 @@
 @section('sub-content')
     <h2 class="mb-3">寄倉庫存</h2>
 
-    <form id="search" action="{{ Route('cms.consignment.stocklist') }}" method="GET">
+    <form id="search" action="{{ Route('cms.consignment-stock.stocklist') }}" method="GET">
         <div class="card shadow p-4 mb-4">
             <h6>搜尋條件</h6>
             <div class="row">
@@ -10,7 +10,7 @@
                     <label class="form-label">倉庫</label>
                     <select class="form-select" name="depot_id" aria-label="倉庫">
                         <option value="" @if ('' == $depot_id ?? '') selected @endif disabled>請選擇</option>
-                        <@foreach ($depotList as $key => $data)
+                        @foreach ($depotList as $key => $data)
                             <option value="{{ $data->id }}"
                                     @if ($data->id == $depot_id ?? '') selected @endif>{{ $data->name }}</option>
                         @endforeach
@@ -44,6 +44,7 @@
                     <thead>
                     <tr>
                         <th scope="col" style="width:10%">#</th>
+                        <th scope="col" class="text-center">明細</th>
                         <th scope="col">SKU碼</th>
                         <th scope="col">商品名稱</th>
                         <th scope="col">款式</th>
@@ -51,7 +52,6 @@
                         <th scope="col">已銷售數量</th>
                         <th scope="col">耗材消耗數量</th>
                         <th scope="col">剩餘數量</th>
-                        <th scope="col" class="text-center">明細</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -59,6 +59,13 @@
                         @foreach ($dataList as $key => $data)
                             <tr>
                                 <th scope="row">{{ $key + 1 }}</th>
+                                <td class="text-center">
+                                    <a href="{{ Route('cms.consignment-stock.stock_detail_log', ['depot_id' => $depot_id ?? -1, 'id' => $data->product_style_id], true) }}"
+                                       data-bs-toggle="tooltip" title="明細"
+                                       class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                        <i class="bi bi-card-list"></i>
+                                    </a>
+                                </td>
                                 <td>{{ $data->sku }}</td>
                                 <td>{{ $data->product_title }}</td>
                                 <td>{{ $data->spec }}</td>
@@ -67,20 +74,6 @@
                                 <td>{{ $data->consume_num }}</td>
                                 <td>{{ $data->available_num }}</td>
 
-{{--                                <td class="text-center">--}}
-{{--                                    @can('admin.consignment.edit')--}}
-{{--                                        <a href="--}}
-{{--                                        @if($data->event == App\Enums\Delivery\Event::order()->value)--}}
-{{--                                            {{ Route('cms.order.detail', ['id' => $data->order_id, 'subOrderId' => $data->sub_order_id], true) }}--}}
-{{--                                        @elseif($data->event == App\Enums\Delivery\Event::consignment()->value)--}}
-{{--                                            {{ Route('cms.consignment.edit', ['id' => $data->event_id], true) }}--}}
-{{--                                        @endif"--}}
-{{--                                           data-bs-toggle="tooltip" title="明細"--}}
-{{--                                           class="icon icon-btn fs-5 text-primary rounded-circle border-0">--}}
-{{--                                            <i class="bi bi-pencil-square"></i>--}}
-{{--                                        </a>--}}
-{{--                                    @endcan--}}
-{{--                                </td>--}}
                             </tr>
                         @endforeach
                     @endif
@@ -93,7 +86,7 @@
             <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">
                 @if($dataList)
                     <div class="mx-3">共 {{ $dataList->lastPage() }} 頁(共找到 {{ $dataList->total() }} 筆資料)</div>
-                    頁碼
+                    {{-- 頁碼 --}}
                     <div class="d-flex justify-content-center">{{ $dataList->links() }}</div>
                 @endif
             </div>

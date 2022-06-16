@@ -7,6 +7,7 @@ use App\Models\Shipment;
 use App\Models\ShipmentCategory;
 use App\Models\ShipmentGroup;
 use App\Models\ShipmentMethod;
+use App\Models\Supplier;
 use App\Models\Temps;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
@@ -41,12 +42,14 @@ class ShipmentCtrl extends Controller
      */
     public function create()
     {
+        $supplierList = Supplier::getSupplierList()->get();
         return view('cms.settings.shipment.edit', [
             'method'      => 'create',
             'formAction'  => Route('cms.shipment.create'),
             'shipCategories' => ShipmentCategory::all(),
             'shipTemps'   => Temps::all(),
             'shipMethods' => ShipmentMethod::all()->unique('method'),
+            'supplierList' => $supplierList,
         ]);
         //
     }
@@ -66,6 +69,7 @@ class ShipmentCtrl extends Controller
             'temps' => 'required|string',
             'method' => 'required|string',
             'is_above.*' => 'required|string',
+            'supplier_id' => 'nullable|integer',
             'note' => 'string|nullable',
             'min_price.*' => 'required|integer|min:0',
             'max_price.*' => 'required|integer|min:0',
@@ -82,6 +86,7 @@ class ShipmentCtrl extends Controller
             $dataField['name'],
             $dataField['temps'],
             $dataField['method'],
+            $dataField['supplier_id'],
             $dataField['note']
         );
 
@@ -110,6 +115,11 @@ class ShipmentCtrl extends Controller
     public function edit(Shipment $shipment, Temps $temps, int $groupId)
     {
         $dataList = $shipment->getEditShipmentData($groupId);
+        $supplierList = Supplier::getSupplierList()->get();
+        $supplierData = null;
+        if (false == empty($dataList[0]->supplier_fk)) {
+            $supplierData = Supplier::where('id', $dataList[0]->supplier_fk)->get()->first();
+        }
 
         return view('cms.settings.shipment.edit', [
             'dataList'    => $dataList,
@@ -120,6 +130,8 @@ class ShipmentCtrl extends Controller
             'note'        => $dataList[0]->note,
             'shipTemps'   => Temps::all(),
             'shipMethods' => ShipmentMethod::all()->unique('method'),
+            'supplierData' => $supplierData,
+            'supplierList' => $supplierList,
         ]);
         //
     }
@@ -146,6 +158,7 @@ class ShipmentCtrl extends Controller
             'temps' => 'required|string',
             'method' => 'required|string',
             'is_above.*' => 'required|string',
+            'supplier_id' => 'nullable|integer',
             'note' => 'string|nullable',
             'min_price.*' => 'required|integer|min:0',
             'max_price.*' => 'required|integer|min:0',
@@ -163,6 +176,7 @@ class ShipmentCtrl extends Controller
             $dataField['name'],
             $dataField['temps'],
             $dataField['method'],
+            $dataField['supplier_id'],
             $dataField['note']
         );
 

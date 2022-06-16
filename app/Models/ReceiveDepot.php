@@ -16,7 +16,7 @@ class ReceiveDepot extends Model
     public $timestamps = false;
     protected $guarded = [];
 
-    public static function setData($id = null, $delivery_id, $event_item_id = null, $combo_id = null, $prd_type = null, $freebies, $inbound_id, $inbound_sn, $depot_id, $depot_name, $product_style_id, $sku, $product_title, $qty, $expiry_date)
+    public static function setData($id = null, $delivery_id, $event_item_id = null, $combo_id = null, $prd_type = null, $freebies, $inbound_id, $inbound_sn, $depot_id, $depot_name, $product_style_id, $sku, $product_title, $unit_cost, $qty, $expiry_date)
     {
         $data = null;
         $dataGet = null;
@@ -39,25 +39,27 @@ class ReceiveDepot extends Model
                 'product_style_id' => $product_style_id,
                 'sku' => $sku,
                 'product_title' => $product_title,
+                'unit_cost' => $unit_cost,
                 'qty' => $qty,
                 'expiry_date' => $expiry_date,
             ])->id;
         } else {
-            $result = DB::transaction(function () use ($data, $dataGet, $combo_id, $prd_type, $freebies, $inbound_id, $inbound_sn, $depot_id, $depot_name, $product_style_id, $sku, $product_title, $qty, $expiry_date
+            $result = DB::transaction(function () use ($data, $dataGet, $combo_id, $prd_type, $freebies, $inbound_id, $inbound_sn, $depot_id, $depot_name, $product_style_id, $sku, $product_title, $unit_cost, $qty, $expiry_date
             ) {
                 $data->update([
-                    'freebies' => $freebies,
+                    //'freebies' => $freebies,
                     'combo_id' => $combo_id, //剛創建不會有 須等到出貨送出 確認是組合包的元素商品 才會回寫
-                    'prd_type' => $prd_type,
-                    'inbound_id' => $inbound_id,
-                    'inbound_sn' => $inbound_sn,
-                    'depot_id' => $depot_id,
-                    'depot_name' => $depot_name,
-                    'product_style_id' => $product_style_id,
-                    'sku' => $sku,
-                    'product_title' => $product_title,
+                    //'prd_type' => $prd_type,
+                    //'inbound_id' => $inbound_id,
+                    //'inbound_sn' => $inbound_sn,
+                    //'depot_id' => $depot_id,
+                    //'depot_name' => $depot_name,
+                    //'product_style_id' => $product_style_id,
+                    //'sku' => $sku,
+                    //'product_title' => $product_title,
+                    //'unit_cost' => $unit_cost, //修改時不會動到
                     'qty' => $qty,
-                    'expiry_date' => $expiry_date,
+                    //'expiry_date' => $expiry_date,
                 ]);
                 return $dataGet->id;
             });
@@ -133,6 +135,7 @@ class ReceiveDepot extends Model
                                 $inbound->product_style_id,
                                 $inbound->style_sku,
                                 $inbound->product_title. '-'. $inbound->style_title,
+                                $inbound->unit_cost,
                                 $val, //數量
                                 $inbound->expiry_date);
                             if ($reSD['success'] == 0) {
@@ -249,6 +252,38 @@ class ReceiveDepot extends Model
                     if (null != $queryComboElement && 0 < count($queryComboElement)) {
                         //新增並回寫ID
                         foreach($queryComboElement as $key => $element) {
+
+                            //計算個別成本
+                            $queryRcvDepotCost_byone = DB::table('dlv_receive_depot as rcv_depot')
+                                ->select('rcv_depot.event_item_id'
+                                    , 'rcv_depot.product_title'
+                                    , 'rcv_depot.product_style_id'
+                                    , DB::raw('(rcv_depot.unit_cost) as unit_cost')
+                                    , DB::raw('(rcv_depot.qty) as qty')
+                                    , DB::raw('(rcv_depot.unit_cost * rcv_depot.qty) as cost')
+                                )
+                                ->where('rcv_depot.delivery_id', '=', $delivery_id)
+                                ->where('rcv_depot.event_item_id', '=', $element->event_item_id)
+                                ->where('rcv_depot.prd_type', '=', 'ce');
+
+                            //計算總成本
+                            $queryRcvDepotCost = DB::query()->fromSub($queryRcvDepotCost_byone, 'tb')
+                                ->select('tb.event_item_id'
+                                    , 'tb.product_title'
+                                    , 'tb.product_style_id'
+                                    , DB::raw('sum(tb.cost) / sum(tb.qty) as unit_cost')
+                                    , DB::raw('sum(tb.qty) / '. $element->num.' as unit_qty')
+                                )
+                                ->groupBy('tb.event_item_id')
+                                ->groupBy('tb.product_style_id')
+                                ->get()->toArray();
+                            //計算該組合包成本價 (把每個元素的成本價加起來)
+                            $total_cost = 0;
+                            foreach($queryRcvDepotCost as $elementCost) {
+                                $total_cost = $total_cost + ($elementCost->unit_cost * $elementCost->unit_qty);
+                            }
+//                            dd($queryComboElement, $queryRcvDepotCost_byone->get(), $queryRcvDepotCost, $total_cost);
+
                             $reSD = ReceiveDepot::setData(
                                 null,
                                 $delivery_id, //出貨單ID
@@ -263,6 +298,7 @@ class ReceiveDepot extends Model
                                 $element->product_style_id,
                                 $element->sku,
                                 $element->title,
+                                $total_cost,
                                 $element->num, //數量
                                 $element->expiry_date);
                             if ($reSD['success'] == 0) {
@@ -274,7 +310,7 @@ class ReceiveDepot extends Model
                                     ->where('prd_type', 'ce');
 
                                 $reStockChange =PurchaseLog::stockChange($event_id, $element->product_style_id, $event, $reSD['id'],
-                                    LogEventFeature::combo()->value, null, $element->num, null, $user_id, $user_name);
+                                    LogEventFeature::combo()->value, null, $element->num, null, $element->title, 'c', $user_id, $user_name);
                                 if ($reStockChange['success'] == 0) {
                                     DB::rollBack();
                                     return $reStockChange;

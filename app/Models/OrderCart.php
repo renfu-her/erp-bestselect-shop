@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Enums\Discount\DisCategory;
 use App\Enums\Discount\DisMethod;
-use App\Enums\Discount\DisStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -64,7 +63,7 @@ class OrderCart extends Model
      * @param array $coupon_obj ["type"=>"code/sn","value"=>"string"]
      */
 
-    public static function cartFormater($data, $salechannel_id, $coupon_obj = null, $checkInStock = true, $customer = null)
+    public static function cartFormater($data, $salechannel_id, $coupon_obj = null, $checkInStock = true, $customer = null, $dividend = null)
     {
         $shipmentGroup = [];
         $shipmentKeys = [];
@@ -76,6 +75,10 @@ class OrderCart extends Model
             'discounted_price' => 0,
             'shipments' => [],
             'discounts' => [],
+            'salechannel_id' => $salechannel_id,
+            'get_dividend' => 0,
+            'max_dividend' => 0,
+            'use_dividend' => 0,
         ];
 
         $_tempProducts = [];
@@ -115,9 +118,9 @@ class OrderCart extends Model
                                 'error_stauts' => 'shipment',
                             ];
                             //  return ['success' => 0, 'error_msg' => '無運送方式(自取)', 'event' => 'product', 'event_id' => $value['product_style_id']];
+                        } else {
+                            $shipment->category_name = "自取";
                         }
-
-                        $shipment->category_name = "自取";
 
                         break;
                     case 'deliver':
@@ -129,8 +132,9 @@ class OrderCart extends Model
                                 'error_stauts' => 'shipment',
                             ];
                             //  return ['success' => 0, 'error_msg' => '無運送方式(宅配)', 'event' => 'product', 'event_id' => $value['product_style_id']];
+                        } else {
+                            $shipment->rules = json_decode($shipment->rules);
                         }
-                        $shipment->rules = json_decode($shipment->rules);
 
                         break;
                     default:
@@ -143,7 +147,7 @@ class OrderCart extends Model
 
                 if (!isset($errors[$value['product_style_id']])) {
 
-                    $groupKey = $value['shipment_type'] . '-' . $value['shipment_event_id'];
+                    $groupKey = $value['shipment_type'] . '_' . $value['shipment_event_id'];
 
                     if (!in_array($groupKey, $shipmentKeys)) {
                         $shipmentKeys[] = $groupKey;
@@ -151,8 +155,15 @@ class OrderCart extends Model
                         $shipment->origin_price = 0;
                         $shipment->discounted_price = 0;
                         $shipment->discount_value = 0;
+                        $shipment->discounts = [];
                         $shipment->category = $value['shipment_type'];
                         $shipmentGroup[] = $shipment;
+
+                        if ($dividend && $dividend[$groupKey]) {
+                            $shipment->dividend = $dividend[$groupKey];
+                        } else {
+                            $shipment->dividend = 0;
+                        }
                     }
 
                     $idx = array_search($groupKey, $shipmentKeys);
@@ -173,6 +184,8 @@ class OrderCart extends Model
                         'total_price' => $style->origin_price,
                         'product_id' => $style->product_id,
                     ];
+
+                    $order['max_dividend'] += ($style->dividend * $value['qty']);
                 }
             }
         }
@@ -188,6 +201,7 @@ class OrderCart extends Model
         $order['shipments'] = $shipmentGroup;
         foreach ($shipmentGroup as $shipments) {
             $order['origin_price'] += $shipments->origin_price;
+            $order['use_dividend'] += $shipments->dividend;
         }
 
         $currentCoupon = null;
@@ -207,13 +221,15 @@ class OrderCart extends Model
                     break;
                 case DisCategory::coupon():
                     if ($customer) {
-                        $currentCoupon = CustomerCoupon::getList($customer->id, 0, DisStatus::D01())
-                            ->where('discount.id', $coupon_obj[1])->get()->first();
+                       
+                        $currentCoupon = CustomerCoupon::getCouponByCustomerCouponId($coupon_obj[1])->get()->first();
 
-                        $currentCoupon->user_coupon_id = $coupon_obj[1];
                         if (!$currentCoupon) {
                             return ['success' => 0, 'error_msg' => "查無優惠券", 'event' => 'coupon'];
                         }
+
+                        $currentCoupon->user_coupon_id = $coupon_obj[1];
+
                     }
                     break;
             }
@@ -221,12 +237,18 @@ class OrderCart extends Model
 
         // discounted init
         $order['discounted_price'] = $order['origin_price'];
-        //   dd($order);
 
         // 全館
 
         self::globalStage($order, $_tempProducts);
+
         self::couponStage($order, $currentCoupon, $_tempProducts);
+        $re = self::useDividendStage($order, $customer);
+        if ($re['success'] == '0') {
+            return $re;
+        }
+
+        self::getDividendStage($order, $_tempProducts);
         self::shipmentStage($order);
 
         $order['total_price'] = $order['discounted_price'] + $order['dlv_fee'];
@@ -417,6 +439,97 @@ class OrderCart extends Model
 
         $order['discounted_price'] -= $discount_value;
         $order['discount_value'] += $discount_value;
+
+    }
+
+    private static function useDividendStage(&$order, $customer)
+    {
+        if (!$customer) {
+            return ['success' => '1'];
+        }
+
+        $dividend = 0;
+        $di = CustomerDividend::getDividend($customer->id)->get()->first();
+
+        if ($di && $di->dividend) {
+            $dividend = $di->dividend;
+        }
+
+        if ($order['use_dividend'] > $dividend) {
+            return [
+                'success' => '0',
+                'error_msg' => '超過可以使用點數',
+                'event' => 'dividend',
+            ];
+        }
+
+        if ($dividend) {
+            if ($order['use_dividend'] <= $order['max_dividend']) {
+                $discountObj = (object) [
+                    'title' => DisCategory::dividend()->description . "折抵",
+                    'category_title' => DisCategory::dividend()->description,
+                    'category_code' => DisCategory::dividend()->value,
+                    'method_code' => DisMethod::cash()->value,
+                    'method_title' => DisMethod::cash()->description,
+                    'discount_value' => $order['use_dividend'],
+                    'currentDiscount' => $order['use_dividend'],
+                    'is_grand_total' => 0,
+                    'min_consume' => 0,
+                    'coupon_id' => null,
+                    'coupon_title' => null,
+                    'discount_grade_id' => null,
+                ];
+
+                $order['discounts'][] = $discountObj;
+
+                $order['total_price'] -= $order['use_dividend'];
+                $order['discount_value'] += $order['use_dividend'];
+                $order['discounted_price'] -= $order['use_dividend'];
+
+                foreach ($order['shipments'] as $idx => $shipment) {
+
+                    if ($shipment->dividend) {
+                        $order['shipments'][$idx]->discount_value += $shipment->dividend;
+                        $order['shipments'][$idx]->discounted_price -= $shipment->dividend;
+                        if (!isset($order['shipments'][$idx]->discounts)) {
+                            $order['shipments'][$idx]->discounts = [];
+                        }
+                        $sub_discountObj = clone $discountObj;
+                        $sub_discountObj->discount_value = $shipment->dividend;
+                        $sub_discountObj->currentDiscount = $shipment->dividend;
+                        $order['shipments'][$idx]->discounts[] = $sub_discountObj;
+                    }
+                }
+
+            } else {
+                return ['success' => '0',
+                    'error_msg' => '超過鴻利折抵額度',
+                    'error_stauts' => 'dividend'];
+            }
+        }
+
+        return ['success' => '1'];
+
+    }
+
+    private static function getDividendStage(&$order, $_tempProducts)
+    {
+        $salechannel = SaleChannel::where('id', $order['salechannel_id'])->get()->first();
+
+        $today = date('Y-m-d H:i:s');
+
+        if ($salechannel->event_sdate && $salechannel->event_edate &&
+            ($today >= date('Y-m-d H:i:s', strtotime($salechannel->event_sdate)) &&
+                $today <= strtotime($salechannel->event_edate))
+        ) {
+            $rate = $salechannel->event_dividend_rate;
+        } else {
+            $rate = $salechannel->dividend_rate;
+        }
+
+        foreach ($_tempProducts as $value) {
+            $order['get_dividend'] += round($value['total_price'] * $rate / 100);
+        }
 
     }
 

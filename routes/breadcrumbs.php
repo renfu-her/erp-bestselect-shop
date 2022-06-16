@@ -91,11 +91,11 @@ Breadcrumbs::for('cms.product.edit-web-spec', function (BreadcrumbTrail $trail, 
     $trail->parent('cms.product.index');
     $trail->push('[' . $value->title . '] 網頁-規格說明');
 });
-// 編輯 - 網頁-運送方式
-Breadcrumbs::for('cms.product.edit-web-logis', function (BreadcrumbTrail $trail, $value) {
-    $trail->parent('cms.product.index');
-    $trail->push('[' . $value->title . '] 網頁-運送方式');
-});
+// // 編輯 - 網頁-運送方式
+// Breadcrumbs::for('cms.product.edit-web-logis', function (BreadcrumbTrail $trail, $value) {
+//     $trail->parent('cms.product.index');
+//     $trail->push('[' . $value->title . '] 網頁-運送方式');
+// });
 // 編輯 - 設定
 Breadcrumbs::for('cms.product.edit-setting', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.index');
@@ -121,7 +121,7 @@ Breadcrumbs::for('cms.purchase.create', function (BreadcrumbTrail $trail) {
 // 編輯 - 採購單資訊
 Breadcrumbs::for('cms.purchase.edit', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.purchase.index');
-    $trail->push('[單號：' . $value['sn'] . '] 採購單資訊', route('cms.purchase.edit', ['id' => $value['id']]));
+    $trail->push('#' . $value['sn'] . ' 採購單資訊', route('cms.purchase.edit', ['id' => $value['id']]));
 });
 // 編輯 - 採購單資訊 - 新增訂金付款單
 Breadcrumbs::for('cms.purchase.pay-deposit', function (BreadcrumbTrail $trail, $value) {
@@ -151,22 +151,22 @@ Breadcrumbs::for('cms.ap.edit', function (BreadcrumbTrail $trail, $value) {
 Breadcrumbs::for('cms.purchase.pay-order', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.purchase.edit', $value);
     // $trail->push('付款單');
-    $trail->push('尾款付款單');
+    $trail->push( $value['type'] == 0 ? '訂金付款單' : '尾款付款單');
 });
 Breadcrumbs::for('cms.purchase.view-pay-order', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.purchase.edit', $value);
     // $trail->push('付款單');
-    $trail->push('訂金付款單');
+    $trail->push( $value['type'] == 0 ? '訂金付款單' : '尾款付款單');
 });
 // 編輯 - 變更紀錄
 Breadcrumbs::for('cms.purchase.log', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.purchase.index');
-    $trail->push('[單號：' . $value . '] 變更紀錄');
+    $trail->push('#' . $value . ' 變更紀錄');
 });
 // 編輯 - 入庫審核
 Breadcrumbs::for('cms.purchase.inbound', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.purchase.index');
-    $trail->push('[單號：' . $value . '] 入庫審核');
+    $trail->push('#' . $value . ' 入庫審核');
 });
 
 // 組合包組裝
@@ -192,6 +192,11 @@ Breadcrumbs::for('cms.order.create', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
     $trail->push('新增訂單');
 });
+// 訂單自取入庫審核
+Breadcrumbs::for('cms.order.inbound', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('#' . $value['sn'] . ' 入庫審核', route('cms.order.inbound', ['subOrderId' => $value['id']]));
+});
 // 新增收款單
 Breadcrumbs::for('cms.ar.create', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
@@ -211,44 +216,22 @@ Breadcrumbs::for('cms.ar.review', function (BreadcrumbTrail $trail, $value) {
     $trail->push('收款單', route('cms.ar.receipt', ['id'=>$value['id']]));
     $trail->push('入款審核');
 });
-// Breadcrumbs::for('cms.ap.create', function (BreadcrumbTrail $trail, $value) {
-//     $trail->parent('cms.purchase.edit', $value);
-//     $trail->push( $value['type'] == 0 ? '訂金付款單' : '尾款付款單', route('cms.purchase.view-pay-order', ['id' => $value['id'], 'type' => $value['type']]));
-//     $trail->push('新增付款');
-// });
-// Route::match(['get', 'post'], 'review/{id}', [AccountReceivedCtrl::class, 'review'])->name('review')->middleware('permission:cms.ar.review');
-// 編輯 - 採購單資訊 - 編輯付款單
-// Breadcrumbs::for('cms.purchase.pay-order', function (BreadcrumbTrail $trail, $value) {
-//     $trail->parent('cms.purchase.edit', $value);
-//     // $trail->push('付款單');
-//     $trail->push('尾款付款單');
-// });
-// Breadcrumbs::for('cms.purchase.view-pay-order', function (BreadcrumbTrail $trail, $value) {
-//     $trail->parent('cms.purchase.edit', $value);
-//     // $trail->push('付款單');
-//     $trail->push('訂金付款單');
-// });
-
-
-
+Breadcrumbs::for('cms.order.pay-order', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
+    $trail->push('物流付款單');
+});
+Breadcrumbs::for('cms.ap.logistics-create', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
+    $trail->push('物流付款單', route('cms.order.pay-order', ['id' => $value['id'], 'sid' => $value['sid']]));
+    $trail->push('新增付款');
+});
 
 // 出貨管理
 Breadcrumbs::for('cms.delivery.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
     $trail->push('出貨管理', route('cms.delivery.index'));
-});
-
-Breadcrumbs::for('cms.delivery.create', function (BreadcrumbTrail $trail, $value) {
-    $trail->parent('cms.delivery.index');
-    $trail->push('#' . $value . ' 出貨審核');
-});
-Breadcrumbs::for('cms.logistic.create', function (BreadcrumbTrail $trail, $value) {
-    $trail->parent('cms.delivery.index');
-    $trail->push('#' . $value . ' 實際物流設定');
-});
-Breadcrumbs::for('cms.logistic.changeLogisticStatus', function (BreadcrumbTrail $trail, $value) {
-    $trail->parent('cms.delivery.index');
-    $trail->push('#' . $value . ' 配送狀態');
 });
 
 // 寄倉搜尋
@@ -264,18 +247,57 @@ Breadcrumbs::for('cms.consignment.create', function (BreadcrumbTrail $trail) {
 // 編輯 - 寄倉單資訊
 Breadcrumbs::for('cms.consignment.edit', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.consignment.index');
-    $trail->push('[單號：' . $value['sn'] . '] 寄倉單資訊', route('cms.consignment.edit', ['id' => $value['id']]));
+    $trail->push('#' . $value['sn'] . ' 寄倉單資訊', route('cms.consignment.edit', ['id' => $value['id']]));
 });
+// 寄倉入庫審核
+Breadcrumbs::for('cms.consignment.inbound', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.consignment.index');
+    $trail->push('#' . $value['sn'] . ' 入庫審核', route('cms.consignment.inbound', ['id' => $value['id']]));
+});
+
 //寄倉訂購
-Breadcrumbs::for('cms.consignment.orderlist', function (BreadcrumbTrail $trail) {
+Breadcrumbs::for('cms.consignment-order.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('寄倉訂購', route('cms.consignment.orderlist'));
+    $trail->push('寄倉訂購', route('cms.consignment-order.index'));
 });
+// 新增寄倉訂購單
+Breadcrumbs::for('cms.consignment-order.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.consignment-order.index');
+    $trail->push('新增寄倉訂購單');
+});
+// 編輯 - 寄倉訂購單資訊
+Breadcrumbs::for('cms.consignment-order.edit', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.consignment-order.index');
+    $trail->push('#' . $value['sn'] . ' 寄倉訂購單資訊', route('cms.consignment-order.edit', ['id' => $value['id']]));
+});
+
 //寄倉庫存
-Breadcrumbs::for('cms.consignment.stocklist', function (BreadcrumbTrail $trail) {
+Breadcrumbs::for('cms.consignment-stock.stocklist', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('寄倉庫存', route('cms.consignment.stocklist'));
+    $trail->push('寄倉庫存', route('cms.consignment-stock.stocklist'));
 });
+// 寄倉庫存明細
+Breadcrumbs::for('cms.consignment-stock.stock_detail_log', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.consignment-stock.stocklist');
+    $trail->push('#' . $value . ' 明細');
+});
+
+
+// *** 共用頁 *** //
+Breadcrumbs::for('cms.delivery.create', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.' . $value['parent'] . '.index');
+    $trail->push('#' . $value['sn'] . ' 出貨審核');
+});
+Breadcrumbs::for('cms.logistic.create', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.' . $value['parent'] . '.index');
+    $trail->push('#' . $value['sn'] . ' 實際物流設定');
+});
+
+Breadcrumbs::for('cms.logistic.changeLogisticStatus', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.' . $value['parent'] . '.index');
+    $trail->push('#' . $value['sn'] . ' 配送狀態');
+});
+
 
 /**
  * 行銷設定

@@ -41,7 +41,7 @@
                         <thead>
                             <tr>
                                 <th scope="col">付款單號</th>
-                                <th scope="col">採購單號</th>
+                                <th scope="col">單據編號</th>
                                 <th scope="col">會計科目</th>
                                 <th scope="col">摘要</th>
                                 <th scope="col">金額</th>
@@ -109,7 +109,7 @@
                                         <td class="text-end">1</td>
                                         <td class="text-end">{{ $currency->rate }}</td>
                                         <td>{{ $currency->name }}</td>
-                                        <td class="text-end">{{ $logistics_price }}</td>
+                                        <td class="text-end">{{ number_format($logistics_price) }}</td>
                                         <td class="text-end"></td>
                                     </tr>
                                 @endif

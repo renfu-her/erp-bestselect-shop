@@ -19,6 +19,7 @@
     </style>
     @php
         $CHEQUE = \App\Enums\Received\ReceivedMethod::Cheque;
+        $CREDIT_CARD = \App\Enums\Received\ReceivedMethod::CreditCard;
         $ACCOUNT_RECEIVED = \App\Enums\Received\ReceivedMethod::AccountsReceivable;
         $FOREIGN_CURRENCY = \App\Enums\Received\ReceivedMethod::ForeignCurrency;
         $REMIT = \App\Enums\Received\ReceivedMethod::Remittance;
@@ -179,9 +180,6 @@
                                         class="grade_4"
                                     @endif
                                 >
-                                    {{--                                {{ count($all_payable_type_data['payableCheque']) > 0 &&--}}
-                                    {{--$all_payable_type_data['payableCheque']['grade_id_fk'] == $chequeData['grade_id_fk']--}}
-                                    {{--? 'selected' : '' }}>--}}
                                     {{ $data['code'] . ' ' . $data['name'] }}
                                 </option>
                             @endforeach
@@ -198,7 +196,7 @@
                            name="{{ $CHEQUE }}[ticket_number]"
                            required
                            type="text"
-                           value="{{ old( $CHEQUE . '[ticket_number]', $all_payable_type_data['payableCheque']['ticket_number'] ?? '') }}"/>
+                           value="{{ old( $CHEQUE . '[ticket_number]', '') }}"/>
                 </x-b-form-group>
                 <x-b-form-group name="{{ $CHEQUE }}[due_date]"
                                 title="到期日"
@@ -209,8 +207,49 @@
                            name="{{ $CHEQUE }}[due_date]"
                            required
                            type="date"
-                           value="{{ old($CHEQUE . '[due_date]', $all_payable_type_data['payableCheque']['due_date'] ?? date('Y-m-d', strtotime( date('Y-m-d')))) }}"/>
+                           value="{{ old($CHEQUE . '[due_date]', date('Y-m-d', strtotime( date('Y-m-d')))) }}"/>
                 </x-b-form-group>
+
+                {{-- credit card --}}
+                <x-b-form-group name="{{ $CREDIT_CARD }}[card_owner_name]" title="持卡人" class="col-12 col-sm-4 mb-3 {{ $CREDIT_CARD }}" id="{{ $CREDIT_CARD }}[card_owner_name]">
+                    <input type="text" class="form-control @error($CREDIT_CARD . '[card_owner_name]') is-invalid @enderror" name="{{ $CREDIT_CARD }}[card_owner_name]" value="{{ old($CREDIT_CARD . '[card_owner_name]') }}">
+                </x-b-form-group>
+                <div class="col-12 col-sm-4 mb-3 {{ $CREDIT_CARD }}">
+                    <label for="" class="form-label {{ $CREDIT_CARD }}">信用卡別</label>
+                    <select class="form-select -select2 -single" name="{{ $CREDIT_CARD }}[card_type_code]" data-placeholder="請選擇信用卡別">
+                        <option value="">請選擇</option>
+                        @foreach($card_type as $key => $value)
+                            <option value="{{ $key }}"{{ $key == old($CREDIT_CARD . '[card_type_code]') ? 'selected' : ''}}>{{ $value }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <x-b-form-group name="{{ $CREDIT_CARD }}[cardnumber]" title="卡號" class="col-12 col-sm-4 mb-3 {{ $CREDIT_CARD }}" id="{{ $CREDIT_CARD }}[cardnumber]">
+                    <input type="text" class="form-control @error($CREDIT_CARD . '[cardnumber]') is-invalid @enderror" name="{{ $CREDIT_CARD }}[cardnumber]" value="{{ old($CREDIT_CARD . '[cardnumber]') }}">
+                </x-b-form-group>
+                <x-b-form-group name="{{ $CREDIT_CARD }}[ckeckout_date]" title="刷卡日期" class="col-12 col-sm-4 mb-3 {{ $CREDIT_CARD }}" id="{{ $CREDIT_CARD }}[ckeckout_date]">
+                    <input type="date" class="form-control @error($CREDIT_CARD . '[ckeckout_date]') is-invalid @enderror" name="{{ $CREDIT_CARD }}[ckeckout_date]" value="{{ old($CREDIT_CARD . '[ckeckout_date]', date('Y-m-d', strtotime( date('Y-m-d'))) ) }}">
+                </x-b-form-group>
+                <x-b-form-group name="{{ $CREDIT_CARD }}[authcode]" title="授權碼" class="col-12 col-sm-4 mb-3 {{ $CREDIT_CARD }}" id="{{ $CREDIT_CARD }}[authcode]">
+                    <input type="text" class="form-control @error($CREDIT_CARD . '[authcode]') is-invalid @enderror" name="{{ $CREDIT_CARD }}[authcode]" value="{{ old($CREDIT_CARD . '[authcode]') }}">
+                </x-b-form-group>
+                {{--
+                <div class="col-12 col-sm-4 mb-3 {{ $CREDIT_CARD }}">
+                    <label for="" class="form-label {{ $CREDIT_CARD }}">結帳地區</label>
+                    <select class="form-select -select2 -single" name="{{ $CREDIT_CARD }}[credit_card_area_code]" data-placeholder="請選擇結帳地區">
+                        <option value="">請選擇</option>
+                        @foreach($checkout_area as $key => $value)
+                            <option value="{{ $key }}"{{ $key == old($CREDIT_CARD . '[credit_card_area_code]') ? 'selected' : ''}}>{{ $value }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-12 col-sm-4 mb-3 {{ $CREDIT_CARD }}">
+                    <label for="" class="form-label {{ $CREDIT_CARD }}">信用卡分期數</label>
+                    <select class="form-select -select2 -single" name="{{ $CREDIT_CARD }}[installment]" data-placeholder="請選擇信用卡分期數">
+                        <option value="none">不分期</option>
+                    </select>
+                </div>
+                --}}
+
 
                 <x-b-form-group name="{{ $REMIT }}[remittance]" title="匯款日期" required="true"
                                 class="col-12 col-sm-4 mb-3 remit">
@@ -230,7 +269,7 @@
                            name="{{ $REMIT }}[bank_slip_name]"
                            required
                            type="text"
-                           value="{{ old( $REMIT . '[bank_slip_name]', $all_payable_type_data['payableCheque']['bank_slip_name'] ?? '') }}"/>
+                           value="{{ old( $REMIT . '[bank_slip_name]', '') }}"/>
                 </x-b-form-group>
 
                 <x-b-form-group name="{{ $FOREIGN_CURRENCY }}[rate]" title="匯率" required="true" class="col-12 col-sm-4 mb-3 {{ $FOREIGN_CURRENCY }}">

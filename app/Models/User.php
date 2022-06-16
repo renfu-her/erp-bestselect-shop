@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
@@ -183,6 +184,33 @@ class User extends Authenticatable
         return [
             'success' => '1',
         ];
+    }
 
+    //取得人員在物流專案是否開啟
+    public static function getLogisticUserIsOpen(int $user_id) {
+        $user_lgt = DB::table('usr_users as users')
+            ->select(
+                'users.id'
+                , DB::raw('ifnull((select is_open from usr_user_proj_logistics where user_fk = users.id and type = "admin"), "") as admin')
+                , DB::raw('ifnull((select is_open from usr_user_proj_logistics where user_fk = users.id and type = "user"), "") as user')
+                , DB::raw('ifnull((select is_open from usr_user_proj_logistics where user_fk = users.id and type = "deliveryman"), "") as deliveryman')
+            )
+            ->where('users.id', '=', $user_id)
+            ->get()->first();;
+        return $user_lgt;
+    }
+
+    //取得人員在物流專案的api_token
+    public static function getLogisticApiToken($user_id) {
+        $user_lgt_token = DB::table('usr_users as users')
+            ->select(
+                'users.id'
+                , DB::raw('ifnull((select api_token from usr_user_proj_logistics where user_fk = users.id and type = "admin" and is_open = 1), "") as admin_token')
+                , DB::raw('ifnull((select api_token from usr_user_proj_logistics where user_fk = users.id and type = "user" and is_open = 1), "") as user_token')
+                , DB::raw('ifnull((select api_token from usr_user_proj_logistics where user_fk = users.id and type = "deliveryman" and is_open = 1), "") as deliveryman_token')
+            )
+            ->where('users.id', '=', $user_id)
+            ->get()->first();
+        return $user_lgt_token;
     }
 }

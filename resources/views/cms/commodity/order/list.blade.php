@@ -159,6 +159,7 @@
                 <thead>
                     <tr>
                         <th scope="col">訂單編號</th>
+                        <th scope="col" class="text-center">明細</th>
                         <th scope="col">訂單狀態</th>
                         <th scope="col">出貨單號</th>
                         <th scope="col">訂購日期</th>
@@ -171,22 +172,25 @@
                         <th scope="col">實際物流</th>
                         <th scope="col">包裹編號</th>
                         <th scope="col">退貨狀態</th>
-                        <th scope="col" class="text-center">明細</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <td>{{ $data->order_sn }}</td>
+                            <td class="text-center">
+                                <a href="{{ Route('cms.order.detail', ['id' => $data->id]) }}" data-bs-toggle="tooltip"
+                                    title="明細" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                    <i class="bi bi-card-list"></i>
+                                </a>
+                            </td>
                             <td>{{ $data->order_status }}</td>
                             <td></td>
                             <td>{{ $data->order_date }}</td>
                             <td>{{ $data->name }}</td>
                             <td>{{ $data->sale_title }}</td>
                             <td class="text-success">{{ $data->logistic_status }}</td>
-                            <td>
-                                {{-- <span class="d-block lh-sm"></span> --}}
-                            </td>
+                            <td>{{ $data->or_sn }}</td>
                             <td>
                                 {{ $data->ship_category_name }}
                             </td>
@@ -194,12 +198,6 @@
                             <td>{{ $data->ship_group_name }}</td>
                             <td>{{ $data->package_sn }}</td>
                             <td>-</td>
-                            <td class="text-center">
-                                <a href="{{ Route('cms.order.detail', ['id' => $data->id]) }}" data-bs-toggle="tooltip"
-                                    title="明細" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                    <i class="bi bi-card-list"></i>
-                                </a>
-                            </td>
                         </tr>
                     @endforeach
                 </tbody>
