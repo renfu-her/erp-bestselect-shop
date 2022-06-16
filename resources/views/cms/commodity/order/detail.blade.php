@@ -278,6 +278,8 @@
                             <dd>
                                 @if($subOrder->ship_group_name == '')
                                     尚未設定物流
+                                @elseif(false == isset($subOrder->delivery_audit_date))
+                                    尚未做出貨審核
                                 @else
                                     @if($subOrder->payable_sn)
                                         <a href="{{ Route('cms.order.pay-order', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}" class="text-decoration-none">付款單號-{{ $subOrder->payable_sn }}</a>
@@ -423,7 +425,7 @@
                                 @else 未入款 @endif
                             </caption>
                         @endif
-                        
+
                         <tbody class="border-top-0">
                             <tr class="table-light">
                                 <td class="col-2">小計</td>

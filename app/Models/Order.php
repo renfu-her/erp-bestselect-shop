@@ -204,7 +204,9 @@ class Order extends Model
             })
             ->select('sub_order.*', 'i.items'
                 , 'dlv_delivery.sn as delivery_sn'
-                , 'dlv_delivery.logistic_status as logistic_status', 'consume_items.consume_items'
+                , 'dlv_delivery.logistic_status as logistic_status'
+                , 'dlv_delivery.audit_date as delivery_audit_date'
+                , 'consume_items.consume_items'
             )
             ->selectRaw("IF(sub_order.ship_sn IS NULL,'',sub_order.ship_sn) as ship_sn")
             ->selectRaw("IF(sub_order.actual_ship_group_id IS NULL,'',sub_order.actual_ship_group_id) as actual_ship_group_id")
@@ -491,7 +493,7 @@ class Order extends Model
         $order = self::where('id', $order_id)
             ->whereNull('dividend_active_at')
             ->whereNotNull('active_delay_day')->get()->first();
-            
+
         if (!$order) {
             return;
         }
