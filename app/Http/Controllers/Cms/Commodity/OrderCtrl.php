@@ -429,8 +429,6 @@ class OrderCtrl extends Controller
             ->get()->toArray();
         $inboundOverviewList = PurchaseInbound::getOverviewInboundList(Event::ord_pickup()->value, $subOrderId)->get()->toArray();
 
-//        dd(123, $subOrderId, $purchaseItemList);
-
         $depotList = Depot::all()->toArray();
         return view('cms.commodity.order.inbound', [
             'purchaseData' => $sub_order,
