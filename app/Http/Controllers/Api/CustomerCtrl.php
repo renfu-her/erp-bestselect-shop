@@ -8,6 +8,7 @@ use App\Enums\Globals\ResponseParam;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\CustomerAddress;
+use App\Models\CustomerIdentity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -105,7 +106,16 @@ class CustomerCtrl extends Controller
     public function customerInfo(Request $request)
     {
         $user = $request->user()->toArray();
+        $identity = CustomerIdentity::where('customer_id', $user['id'])->where('identity_code', '<>', 'customer')->get()->first();
+        $user['identity_title'] = '';
+        $user['identity_code'] = '';
+        if ($identity) {
+            $user['identity_title'] = $identity->identity_title;
+            $user['identity_code'] = $identity->identity_code;
+        }
+
         $user = $this->arrayConverNullValToEmpty($user);
+
         return response()->json([
             ResponseParam::status()->key => ApiStatusMessage::Succeed,
             ResponseParam::msg()->key => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
