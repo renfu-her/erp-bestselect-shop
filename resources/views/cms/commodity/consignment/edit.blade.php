@@ -192,6 +192,7 @@
                                         @endif
                                     </td>
                                     <td data-td="price">{{ old('price.'. $psItemKey, '$ '.$psItemVal->price ?? '') }}</td>
+                                    <td data-td="price">$ {{ old('price.'. $psItemKey, $psItemVal->price ?? '') }}</td>
                                     <td data-td="total" class="text-end">$ 0</td>
                                     <td data-td="inbound_type">{{$psItemVal->origin_inbound_sn ?? ''}}</td>
                                     <td data-td="inbound_type">{{$psItemVal->inbound_type ?? ''}}</td>
