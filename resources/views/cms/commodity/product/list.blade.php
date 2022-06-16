@@ -8,7 +8,7 @@
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">商品名稱</label>
-                    <input class="form-control" type="text" name="keyword" placeholder="輸入商品名稱或SKU">
+                    <input class="form-control" type="text" name="keyword" placeholder="輸入商品名稱">
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">負責人</label>

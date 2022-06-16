@@ -91,11 +91,11 @@ Breadcrumbs::for('cms.product.edit-web-spec', function (BreadcrumbTrail $trail, 
     $trail->parent('cms.product.index');
     $trail->push('[' . $value->title . '] 網頁-規格說明');
 });
-// 編輯 - 網頁-運送方式
-Breadcrumbs::for('cms.product.edit-web-logis', function (BreadcrumbTrail $trail, $value) {
-    $trail->parent('cms.product.index');
-    $trail->push('[' . $value->title . '] 網頁-運送方式');
-});
+// // 編輯 - 網頁-運送方式
+// Breadcrumbs::for('cms.product.edit-web-logis', function (BreadcrumbTrail $trail, $value) {
+//     $trail->parent('cms.product.index');
+//     $trail->push('[' . $value->title . '] 網頁-運送方式');
+// });
 // 編輯 - 設定
 Breadcrumbs::for('cms.product.edit-setting', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.index');
