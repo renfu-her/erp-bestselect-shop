@@ -18,6 +18,7 @@ class CreateCustomerProfitTable extends Migration
             //
             $table->after('id', function ($tb) {
                 $tb->string('sn', 20)->nullable()->comment('會員編號');
+                $tb->integer('recommend_id')->nullable()->comment('推薦者');     
             });
         });
 

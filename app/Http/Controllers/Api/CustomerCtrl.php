@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Http;
 
 
 class CustomerCtrl extends Controller
@@ -444,5 +445,19 @@ class CustomerCtrl extends Controller
             }
         }
         return $data;
+    }
+
+    function validateIdentity(Request $request)
+    {
+        $url1 = "https://www.besttour.com.tw/api/Check_emp.asp";
+        $url2 = "https://www.besttour.com.tw/api/Check_agt.asp";
+
+        $response = Http::get($url1, [
+            'no' => '08073',
+            'phone' => '0955587777',
+            'pass' => '123456',
+        ]);
+
+        dd($response->json());
     }
 }

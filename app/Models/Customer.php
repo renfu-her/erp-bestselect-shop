@@ -12,6 +12,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -206,5 +207,53 @@ class Customer extends Authenticatable
         $admin_table->whereNull('deleted_at');
         return $admin_table;
 
+    }
+
+    public static function attachIdentity($customer_id, $type, $no, $phone, $pass, $recommend_id = null)
+    {
+        if (!self::validateIdentity($type, $no, $phone, $pass)) {
+            return ['success' => '0', 'message' => '驗證錯誤'];
+        }
+
+        CustomerIdentity::add($customer_id, $type);
+
+        if($recommend_id){
+          //  Customer::where('id',$customer_id)
+        }
+
+    }
+
+    public static function validateIdentity($type, $no, $phone, $pass)
+    {
+        $url_emp = "https://www.besttour.com.tw/api/Check_emp.asp";
+        $url_agt = "https://www.besttour.com.tw/api/Check_agt.asp";
+
+        switch ($type) {
+            case "employee":
+            case "leader":
+                $url = $url_emp;
+                break;
+
+            case "agent":
+                $url = $url_agt;
+                break;
+            default:
+                return false;
+        }
+
+        $response = Http::get($url, [
+            'no' => $no,
+            'phone' => $phone,
+            'pass' => $pass,
+        ]);
+
+        if ($response->successful()) {
+            $response = $response->json();
+            if ($response['check'] == 'Pass') {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
