@@ -246,7 +246,7 @@ class Customer extends Authenticatable
                 return false;
         }
 
-        $response = Http::get($url, [
+        $response = Http::withoutVerifying()->get($url, [
             'no' => $no,
             'phone' => $phone,
             'pass' => $pass,
