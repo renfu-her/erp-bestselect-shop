@@ -2,6 +2,7 @@
 
 namespace App\Enums\Customer;
 
+use App\Enums\Helper;
 use BenSampo\Enum\Enum;
 
 /**
@@ -9,9 +10,9 @@ use BenSampo\Enum\Enum;
  * @method static static OptionTwo()
  * @method static static OptionThree()
  */
-final class ProfitStatus extends Enum
+final class ProfitStatus extends Helper
 {
-    const NotApplied = "not_applied";
+   // const NotApplied = "not_applied";
     const Checking = "checking";
     const Success = "success";
     const Failed = "failed";
@@ -20,9 +21,9 @@ final class ProfitStatus extends Enum
     {
         $result = '';
         switch ($value) {
-            case self::NotApplied:
+           /* case self::NotApplied:
                 $result = '未申請';
-                break;
+                break;*/
             case self::Checking:
                 $result = '審核中';
                 break;

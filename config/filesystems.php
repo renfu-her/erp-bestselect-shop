@@ -83,6 +83,8 @@ return [
         public_path('product_imgs') => storage_path('app/product_imgs'),
         public_path('product_intro') => storage_path('app/product_intro'),
         public_path('idx_banner') => storage_path('app/idx_banner'),
+        public_path('profit_data') => storage_path('app/profit_data'),
+
     ],
 
 ];

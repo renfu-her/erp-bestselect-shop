@@ -498,6 +498,7 @@ class CustomerCtrl extends Controller
         $validator = Validator::make($request->all(), [
             'bank_id' => ['required'],
             'bank_account' => ['required'],
+            'bank_account_name' => ['required'],
             'identity_sn' => ['required'],
         ]);
 
@@ -514,7 +515,7 @@ class CustomerCtrl extends Controller
         $img2 = Arr::get($d, 'img2', '');
         $img3 = Arr::get($d, 'img3', '');
 
-        $re = CustomerProfit::createProfit($user->id, $d['bank_id'], $d['bank_account'], $d['identity_sn'], $img1, $img2, $img3);
+        $re = CustomerProfit::createProfit($user->id, $d['bank_id'], $d['bank_account'], $d['bank_account_name'], $d['identity_sn'], $img1, $img2, $img3);
         if ($re['success'] == '1') {
             return [
                 'status' => '0',
