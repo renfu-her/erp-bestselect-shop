@@ -9,6 +9,7 @@ Route::group(['prefix' => 'customer-data', 'as' => 'customer-data.'], function (
     Route::post('get-coupon', [DiscountCtrl::class, "getCoupons"]);
     Route::post('get-dividend', [DividendCtrl::class, "getDividend"]);
     Route::post('dividend/point', [DividendCtrl::class, "getDividendPoint"]);
-    route::post('attach-identity', [CustomerCtrl::class, 'attachIdentity']);
+    Route::post('attach-identity', [CustomerCtrl::class, 'attachIdentity']);
+    Route::post('create-profit', [CustomerCtrl::class, 'createProfit']);
 
 });

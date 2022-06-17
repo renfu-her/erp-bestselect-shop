@@ -39,6 +39,8 @@ class CreateCustomerProfitTable extends Migration
             $table->string('img1')->default('')->comment('身分證正面');
             $table->string('img2')->default('')->comment('身分證反面');
             $table->string('img3')->default('')->comment('存摺封面');
+            $table->integer('check_user_id')->nullable()->comment('確認者');
+            $table->dateTime('checked_at')->nullable()->commet('確認時間');
             $table->timestamps();
         });
 

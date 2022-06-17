@@ -9,7 +9,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\CustomerAddress;
 use App\Models\CustomerIdentity;
+use App\Models\CustomerProfit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
@@ -491,4 +493,40 @@ class CustomerCtrl extends Controller
         ];
 
     }
+    public function createProfit(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'bank_id' => ['required'],
+            'bank_account' => ['required'],
+            'identity_sn' => ['required'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                ResponseParam::status => ApiStatusMessage::Fail,
+                ResponseParam::msg => $validator->errors(),
+                ResponseParam::data => [],
+            ]);
+        }
+        $user = $request->user();
+        $d = $request->all();
+        $img1 = Arr::get($d, 'img1', '');
+        $img2 = Arr::get($d, 'img2', '');
+        $img3 = Arr::get($d, 'img3', '');
+
+        $re = CustomerProfit::createProfit($user->id, $d['bank_id'], $d['bank_account'], $d['identity_sn'], $img1, $img2, $img3);
+        if ($re['success'] == '1') {
+            return [
+                'status' => '0',
+                'id' => $re['id'],
+            ];
+        }
+
+        return [
+            'status' => 'E04',
+            'message' => $re['message'],
+        ];
+
+    }
+
 }
