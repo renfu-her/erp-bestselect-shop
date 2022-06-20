@@ -977,6 +977,7 @@ class Product extends Model
         // end to check 產品的上下架時間
 
         $productQueries = DB::table('prd_products as prd')
+            ->where('prd.online', '=', 1)
             ->where('prd.title', 'LIKE', "%$data%")
             ->orWhere('prd.sku', 'LIKE', "%$data%")
             ->where('prd.public', '=', 1)
