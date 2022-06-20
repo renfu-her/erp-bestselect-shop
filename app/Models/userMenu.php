@@ -213,6 +213,11 @@ return
                 "route_name" => "cms.customer.index",
             ],
             [
+                "title" => "分潤審核管理",
+                "controller_name" => "CustomerProfitCtrl",
+                "route_name" => "cms.customer-profit.index",
+            ],
+            [
                 "title" => "角色管理",
                 "controller_name" => "RoleCtrl",
                 "route_name" => "cms.role.index",

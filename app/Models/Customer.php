@@ -217,10 +217,12 @@ class Customer extends Authenticatable
         }
 
         CustomerIdentity::add($customer_id, $type);
-
+        $updateData = ['phone' => $phone];
         if ($recommend_id) {
-            Customer::where('id', $customer_id)->update('recommend_id', $recommend_id);
+            $updateData['recommend_id'] = $recommend_id;
         }
+
+        Customer::where('id', $customer_id)->update($updateData);
 
         DB::commit();
 

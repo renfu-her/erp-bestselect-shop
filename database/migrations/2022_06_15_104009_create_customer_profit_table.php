@@ -35,10 +35,13 @@ class CreateCustomerProfitTable extends Migration
             $table->string('profit_type')->comment('分潤回饋方式');
             $table->integer('bank_id');
             $table->string('bank_account')->commnet('銀行帳號');
+            $table->string('bank_account_name')->commnet('銀行戶名');
             $table->string('identity_sn')->comment('身分證字號');
             $table->string('img1')->default('')->comment('身分證正面');
             $table->string('img2')->default('')->comment('身分證反面');
             $table->string('img3')->default('')->comment('存摺封面');
+            $table->integer('check_user_id')->nullable()->comment('確認者');
+            $table->dateTime('checked_at')->nullable()->commet('確認時間');
             $table->timestamps();
         });
 
