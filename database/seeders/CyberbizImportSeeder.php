@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\Globals\AppEnvClass;
 use App\Models\SaleChannel;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 use App\Models\Category;
@@ -38,17 +39,27 @@ class CyberbizImportSeeder extends Seeder
             $devStyleSku = '-test-' . strval(time());
         }
 
+//        $SkuWorkerJsonFileContents = file_get_contents(database_path('seeders/') . 'worker.json');
+//        $SkuWorkerData = json_decode($SkuWorkerJsonFileContents, true);
+//        $columns = $SkuWorkerData['columns'];
+//        $skuColumnKey = array_search('喜多方款式SKU', $columns);
+//        $workerIdColumnKey = array_search('員工編號', $columns);
+//        $dealerPriceColumnKey = array_search('經銷價', $columns);
+//        $bonusColumnKey = array_search('獎金', $columns);
+
         $allJsonFile = preg_grep("~\.(json)$~",
             scandir(database_path('seeders/Json/')));
         $allJsonFile = array_unique($allJsonFile);
 
         $totalFileCount = count($allJsonFile);
+//        dd(scandir(database_path('seeders/Json/')));
+//        dd($totalFileCount);
         foreach ($allJsonFile as $key => $jsonFile) {
             $strJsonFileContents
                 = file_get_contents(database_path('seeders/Json/').$jsonFile);
             $productArray = json_decode($strJsonFileContents, true);
 
-            print_r('(' . ($key-1) . '/'. $totalFileCount . ')執行：' . $productArray['title']);
+            print_r('(' . ($key-1) . '/'. $totalFileCount . ')執行：' . $productArray['title'] . '-' . $jsonFile);
 
             //款式是否含有「一般商品」的sku，
             $containProductSku = false;
@@ -155,6 +166,24 @@ class CyberbizImportSeeder extends Seeder
                             $itemArray[] = $data->id;
                         }
                         ProductStyle::createStyle($productId, $itemArray);
+
+                        //get 員工編號 from  SKU-員工編號 JSON file
+//                        foreach ($SkuWorkerData['data'] as $skuWorkerDatum) {
+//                            if ($skuWorkerDatum[$skuColumnKey] ===
+//                                ($variant['sku'] . $devStyleSku)) {
+//                                // get user_id by 員工編號
+//                                if (User::where('account', $skuWorkerDatum[$workerIdColumnKey])->get()->first()) {
+//                                    $accountId = User::where('account', $skuWorkerDatum[$workerIdColumnKey])
+//                                                        ->get()
+//                                                        ->first()
+//                                                        ->id;
+//                                } else {
+//                                    $accountId = 1;
+//                                }
+//                            }
+//                        }
+//                        Product::where('id', $productId)
+//                            ->update(['user_id' => $accountId]);
 
                         // 更新「款式SKU」成「喜多方SKU」
                         ProductStyle::where([
