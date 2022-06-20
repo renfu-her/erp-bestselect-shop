@@ -977,9 +977,10 @@ class Product extends Model
         // end to check 產品的上下架時間
 
         $productQueries = DB::table('prd_products as prd')
+            ->where('prd.online', '=', 1)
+            ->where('prd.public', '=', 1)
             ->where('prd.title', 'LIKE', "%$data%")
             ->orWhere('prd.sku', 'LIKE', "%$data%")
-            ->where('prd.public', '=', 1)
             ->leftJoin('prd_product_styles as product_style', function ($join) {
                 $join->on('product_style.product_id', '=', 'prd.id')
                     ->where('product_style.is_active', '=', 1);

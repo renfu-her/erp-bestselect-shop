@@ -416,8 +416,8 @@ class OrderCtrl extends Controller
                 , 'delivery.audit_date'
                 , 'sub_order.ship_event_id as depot_id'
             )
-            ->get()->first()
-        ;
+            ->where('sub_order.id', '=', $subOrderId)
+            ->get()->first();
 
         if (!$sub_order || 'pickup' != $sub_order->ship_category) {
             return abort(404);
@@ -428,8 +428,6 @@ class OrderCtrl extends Controller
             ->orderByDesc('inbound.created_at')
             ->get()->toArray();
         $inboundOverviewList = PurchaseInbound::getOverviewInboundList(Event::ord_pickup()->value, $subOrderId)->get()->toArray();
-
-//        dd(123, $subOrderId, $purchaseItemList);
 
         $depotList = Depot::all()->toArray();
         return view('cms.commodity.order.inbound', [

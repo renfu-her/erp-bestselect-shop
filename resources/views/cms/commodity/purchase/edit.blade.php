@@ -603,7 +603,8 @@
                 let _URL = `${Laravel.apiUrl.productStyles}?page=${page}`;
                 let Data = {
                     keyword: $('#addProduct .-searchBar input').val(),
-                    supplier_id: $('input:hidden[name="supplier"]').val()
+                    supplier_id: $('input:hidden[name="supplier"]').val(),
+                    type: 'p'
                 };
 
                 if (!Data.supplier_id) {
