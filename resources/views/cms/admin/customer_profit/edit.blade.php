@@ -16,7 +16,7 @@
             <div class="card-body">
                 <div>{{ $customer->name }}</div>
                 <x-b-form-group name="status" title="狀態" required="true">
-                    <select class="form-select">
+                    <select class="form-select" name="status">
                         @foreach ($status as $key => $value)
                             <option value="{{ $key }}" @if ($data->status == $key) selected @endif>
                                 {{ $value }}</option>
@@ -29,11 +29,11 @@
                 </x-b-form-group>
                 <x-b-form-group name="parent_profit_rate" title="上一代分潤(%)" required="true">
                     <input class="form-control @error('parent_profit_rate') is-invalid @enderror" name="parent_profit_rate"
-                        value="{{ old('parent_profit_rate', $data->parent_profit_rate ?? '') }}" />
+                        value="{{ old('parent_profit_rate', $data->parent_profit_rate ?? '') }}" type="number" />
                 </x-b-form-group>
                 <x-b-form-group name="profit_rate" title="分潤(%)" required="true">
                     <input class="form-control @error('profit_rate') is-invalid @enderror" name="profit_rate"
-                        value="{{ old('profit_rate', $data->profit_rate ?? '') }}" />
+                        value="{{ old('profit_rate', $data->profit_rate ?? '') }}" type="number" />
                 </x-b-form-group>
                 <x-b-form-group name="profit_type" title="分潤回饋方式">
                     <div class="form-check">
@@ -41,7 +41,7 @@
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" value="{{ $key }}" name="profit_type"
                                     id="profit_type_{{ $key }}" @if ($key == old('profit_type', $data->profit_type ?? 'dividend')) checked @endif>
-                                    <label class="form-check-label" for="profit_type_{{ $key }}">
+                                <label class="form-check-label" for="profit_type_{{ $key }}">
                                     {{ $pType }}
                                 </label>
                             </div>
@@ -50,14 +50,15 @@
                 </x-b-form-group>
                 <x-b-form-group name="has_child" title="是否有下一代">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="1" name="has_child" id="has_child">
+                        <input class="form-check-input" type="checkbox" value="1" name="has_child" id="has_child"
+                            @if (old('has_child', $data->has_child ?? '') == '1') checked @endif>
                         <label class="form-check-label" for="has_child">
                             是
                         </label>
                     </div>
                 </x-b-form-group>
                 <x-b-form-group name="bank_id" title="銀行" required="true">
-                    <select class="form-select">
+                    <select class="form-select" name="bank_id">
                         @foreach ($banks as $key => $bank)
                             <option value="{{ $bank->id }}" @if ($data->bank_id == $bank->id) selected @endif>
                                 {{ $bank->code }} {{ $bank->title }}</option>

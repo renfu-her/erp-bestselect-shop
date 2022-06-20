@@ -16,6 +16,18 @@
                         aria-label="員編">
                 </div>
             </div>
+            <div class="row">
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">審核狀態</label>
+                    <select class="form-select" name="status">
+                        <option value="">全部</option>
+                        @foreach ($status as $key => $value)
+                            <option value="{{ $key }}">
+                                {{ $value }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
             <div class="col">
                 <button type="submit" class="btn btn-primary px-4">搜尋</button>
             </div>
@@ -33,7 +45,7 @@
                         <th scope="col" style="width:10%">#</th>
                         <th scope="col">姓名</th>
                         <th scope="col">會員編號</th>
-                        <th scope="col">帳號</th>
+                        <th scope="col">審核狀態</th>
                         <th scope="col" class="text-center">編輯</th>
                     </tr>
                 </thead>

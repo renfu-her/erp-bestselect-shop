@@ -9,6 +9,7 @@ use App\Models\Bank;
 use App\Models\Customer;
 use App\Models\CustomerProfit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 class CustomerProfitCtrl extends Controller
 {
@@ -22,13 +23,19 @@ class CustomerProfitCtrl extends Controller
         // dd(CustomerProfit::dataList()->get()->toArray());
         //   dd('aa');
         $query = $request->query();
-        $dataList = CustomerProfit::dataList()->paginate(10);
+        $search['status'] = Arr::get($query, 'status', null);
+        $search['name'] = Arr::get($query, 'name', null);
+        $search['sn'] = Arr::get($query, 'sn', null);
+
+        $dataList = CustomerProfit::dataList($search['name'], $search['sn'], $search['status'])->paginate(10);
+
         //  $customer = Customer::getCustomerBySearch($name)->paginate(10)->appends($query);
 
         return view('cms.admin.customer_profit.list', [
             'name' => '',
             'sn' => '',
             "dataList" => $dataList,
+            'status' => ProfitStatus::getValueWithDesc(),
             'formAction' => Route('cms.customer-profit.index'),
         ]);
     }
@@ -102,8 +109,43 @@ class CustomerProfitCtrl extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
-        dd($_POST);
+
+        $request->validate([
+            'identity_id' => ['required'],
+            'status' => ['required'],
+            'parent_profit_rate' => ['numeric'],
+            'profit_rate' => ['numeric'],
+            'profit_type' => ['required'],
+            'bank_id' => ['required'],
+            'bank_account' => ['required'],
+            'bank_account_name' => ['required'],
+        ]);
+
+        $d = $request->all();
+
+        $has_child = Arr::get($d, 'has_child', 0);
+        // dd($has_child);
+        $update = [
+            'status' => $d['status'],
+            'status_title' => ProfitStatus::fromValue($d['status'])->description,
+            'identity_id' => $d['identity_id'],
+            'profit_rate' => $d['profit_rate'],
+            'parent_profit_rate' => $d['parent_profit_rate'],
+            'bank_id' => $d['bank_id'],
+            'bank_account' => $d['bank_account'],
+            'bank_account_name' => $d['bank_account_name'],
+            'profit_type' => $d['profit_type'],
+            'has_child' => $has_child,
+        ];
+
+        // dd($update);
+
+        CustomerProfit::where('id', $id)->update($update);
+
+        wToast('修改完成');
+
+        return redirect(route('cms.customer-profit.index'));
+
     }
 
     /**
