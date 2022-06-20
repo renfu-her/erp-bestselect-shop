@@ -427,7 +427,7 @@ class ProductCtrl extends Controller
             $vali_rule["item_value$i.*"] = ['required','regex:/^[^\'\"]*$/'];
         }
         $request->validate($vali_rule);
-
+       
         $d = $request->all();
         for ($i = 0; $i < 3; $i++) {
             if (isset($d["spec" . $i])) {
@@ -588,22 +588,6 @@ class ProductCtrl extends Controller
         wToast('修改完成');
         return redirect()->back();
     }
-
-    /**
-     * @return array{
-     *      yoyo: int,
-     *      career: string,
-     *      }
-     */
-    public function getData(): array
-    {
-        return [];
-    }
-
-//    public function test()
-//    {
-//        self::getData()['yoyo'  ;]
-//    }
 
     private static function _getStyleTitle($style)
     {
