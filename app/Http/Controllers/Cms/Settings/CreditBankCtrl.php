@@ -28,7 +28,13 @@ class CreditBankCtrl extends Controller
         $crdCreditBank = DB::table('crd_banks')
             ->leftJoinSub(GeneralLedger::getAllGrade(), 'grade', function($join) {
                 $join->on('grade.primary_id', 'crd_banks.grade_fk');
-            });
+            })
+            ->select(
+                'crd_banks.id'
+                , 'crd_banks.title'
+                , 'grade.code'
+                , 'grade.name'
+            );
         if (isset($keyword)) {
             $crdCreditBank->where(function ($q) use ($keyword) {
                 if ($keyword) {
