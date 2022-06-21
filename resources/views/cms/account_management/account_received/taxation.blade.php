@@ -117,7 +117,7 @@
                                 </td>
 
                                 <td>{{ $value->product_title }}</td>
-                                <td>1</td>
+                                <td>{{ $value->product_qty }}</td>
                                 <td>{{ number_format($value->product_origin_price, 2) }}</td>
                                 <td>
                                     <div class="form-check form-check-inline">
