@@ -955,7 +955,7 @@ class AccountReceivedCtrl extends Controller
             ])->whereNotNull('discount_value')->get()->toArray();
 
             $received_data = ReceivedOrder::get_received_detail($received_order_data->pluck('id')->toArray());
-dd($order_discount);
+
             // grade process start
             $defaultData = [];
             foreach (ReceivedMethod::asArray() as $receivedMethod) {
