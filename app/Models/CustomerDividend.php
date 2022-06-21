@@ -26,6 +26,10 @@ class CustomerDividend extends Model
             $re->where('type', $type);
         }
 
+        if ($customer_id) {
+            $re->where('dividend.customer_id', $customer_id);
+        }
+
         return $re;
     }
     // 從訂單取得點數
