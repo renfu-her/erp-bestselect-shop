@@ -43,6 +43,7 @@ class ReceivedOrder extends Model
                         "all_grades_id":"\', acc_received.all_grades_id, \'",
                         "tw_price":"\', acc_received.tw_price, \'",
                         "accountant_id_fk":"\', acc_received.accountant_id_fk, \'",
+                        "summary":"\', COALESCE(acc_received.summary, ""),\'",
                         "note":"\', COALESCE(acc_received.note, ""),\'",
                         "created_at":"\', acc_received.created_at,\'",
                         "credit_card_number":"\', COALESCE(_credit.cardnumber, ""),\'",
@@ -235,6 +236,7 @@ class ReceivedOrder extends Model
         $grade_id = $parm['grade_id'];
         $price = $parm['price'];
         $accountant_id_fk = isset($parm['accountant_id_fk']) ? $parm['accountant_id_fk'] : 0;
+        $summary = isset($parm['summary']) ? $parm['summary'] : null;
         $note = isset($parm['note']) ? $parm['note'] : null;
 
         DB::table('acc_received')->insert([
@@ -246,6 +248,8 @@ class ReceivedOrder extends Model
             'tw_price'=>$price,
             'review_date'=>null,
             'accountant_id_fk'=>$accountant_id_fk,
+            'taxation'=>1,
+            'summary'=>$summary,
             'note'=>$note,
             'created_at'=>date("Y-m-d H:i:s"),
         ]);
@@ -269,6 +273,18 @@ class ReceivedOrder extends Model
             $r_method['description'] = implode(',', $r_method_title_arr);
             Order::change_order_payment_status($received_order->order_id, PaymentStatus::Received(), (object) $r_method);
         }
+    }
+
+
+    public static function update_received($parm)
+    {
+        DB::table('acc_received')->where('id', $parm['received_id'])->update([
+            'all_grades_id'=>$parm['grade_id'],
+            'taxation'=>$parm['taxation'],
+            'summary'=>$parm['summary'],
+            'note'=>$parm['note'],
+            'updated_at'=>date("Y-m-d H:i:s"),
+        ]);
     }
 
 
@@ -472,6 +488,8 @@ class ReceivedOrder extends Model
                 received.all_grades_id,
                 received.tw_price,
                 received.accountant_id_fk,
+                received.taxation,
+                received.summary,
                 received.note
             ')
             ->selectRaw('

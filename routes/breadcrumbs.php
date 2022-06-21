@@ -216,6 +216,13 @@ Breadcrumbs::for('cms.ar.review', function (BreadcrumbTrail $trail, $value) {
     $trail->push('收款單', route('cms.ar.receipt', ['id'=>$value['id']]));
     $trail->push('入款審核');
 });
+//編輯收款單稅別/摘要/備註
+Breadcrumbs::for('cms.ar.taxation', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id'=>$value['id']]));
+    $trail->push('收款單', route('cms.ar.receipt', ['id'=>$value['id']]));
+    $trail->push('修改摘要/稅別');
+});
 Breadcrumbs::for('cms.order.pay-order', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));

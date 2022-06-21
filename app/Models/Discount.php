@@ -504,6 +504,7 @@ class Discount extends Model
                 'discount_grade_id' => $discount_grade_id,
                 'sub_order_id' => $sub_order_id,
                 'order_item_id' => $order_item_id,
+                'discount_taxation' => 1,
             ];
 
             switch ($method) {
@@ -547,5 +548,14 @@ class Discount extends Model
         return DB::table('ord_discounts')->where('order_type', $type)
             ->where('order_id', $order_id);
            
+    }
+
+
+    public static function update_order_discount_taxation($parm)
+    {
+        DB::table('ord_discounts')->where('id', $parm['discount_id'])->update([
+            'discount_grade_id'=>$parm['grade_id'],
+            'discount_taxation'=>$parm['taxation'],
+        ]);
     }
 }

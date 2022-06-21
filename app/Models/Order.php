@@ -123,6 +123,7 @@ class Order extends Model
             ->selectRaw("IF(order.payment_status_title IS NULL,'',order.payment_status_title) as payment_status_title")
             ->selectRaw("IF(order.payment_method IS NULL,'',order.payment_method) as payment_method")
             ->selectRaw("IF(order.payment_method_title IS NULL,'',order.payment_method_title) as payment_method_title")
+            ->selectRaw("IF(order.dlv_taxation IS NULL,'',order.dlv_taxation) as dlv_taxation")
 
             ->where('order.id', $order_id);
 
@@ -504,5 +505,13 @@ class Order extends Model
             'dividend_active_at' => $date,
         ]);
 
+    }
+
+
+    public static function update_dlv_taxation($parm)
+    {
+        self::where('id', $parm['order_id'])->update([
+            'dlv_taxation' => $parm['taxation'],
+        ]);
     }
 }
