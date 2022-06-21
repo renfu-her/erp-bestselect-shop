@@ -251,6 +251,15 @@ return [
         ],
     ],
     [
+        "unit" => "信用卡作業管理",
+        "permissions" => [
+            [
+                "cms.credit_manager.index",
+                "瀏覽",
+            ],
+        ],
+    ],
+    [
         "unit" => "信用卡",
         "permissions" => [
             [

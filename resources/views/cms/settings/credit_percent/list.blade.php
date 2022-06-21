@@ -1,5 +1,10 @@
 @extends('layouts.main')
 @section('sub-content')
+    <div class="pt-2 mb-3">
+        <a href="{{ Route('cms.credit_manager.index', [], true) }}" class="btn btn-primary" role="button">
+            <i class="bi bi-arrow-left"></i> 返回上一頁
+        </a>
+    </div>
     <h2 class="mb-4">請款比例列表</h2>
 
     <form id="search" action="{{ Route('cms.credit_percent.index') }}" method="GET">
