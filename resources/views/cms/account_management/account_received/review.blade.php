@@ -113,7 +113,7 @@
                                             </div>
                                             <div class="col-12 mb-3 form-group">
                                                 <label class="form-label">信用卡號：</label>
-                                                <input type="text" class="form-control" name="credit_card[{{ $received_id }}][cardnumber]" value="{{ old('cardnumber', $d_value->received_info->credit_card_number) }}" data-placeholder="信用卡號"/>
+                                                <input type="text" class="form-control" name="credit_card[{{ $received_id }}][cardnumber]" value="{{ $d_value->received_info->credit_card_number }}" data-placeholder="信用卡號"/>
                                             </div>
                                             <div class="col-12 mb-3 form-group">
                                                 <label class="form-label">刷卡金額：</label>
@@ -121,7 +121,7 @@
                                             </div>
                                             <div class="col-12 mb-3 form-group">
                                                 <label class="form-label">刷卡日期：</label>
-                                                <input type="date" class="form-control" name="credit_card[{{ $received_id }}][ckeckout_date]" value="{{ old('ckeckout_date', date('Y-m-d', strtotime($d_value->received_info->credit_card_ckeckout_date)) ?? date('Y-m-d', strtotime( date('Y-m-d'))) ) }}" data-placeholder="刷卡日期">
+                                                <input type="date" class="form-control" name="credit_card[{{ $received_id }}][ckeckout_date]" value="{{ date('Y-m-d', strtotime($d_value->received_info->credit_card_ckeckout_date)) ?? date('Y-m-d', strtotime( date('Y-m-d'))) }}" data-placeholder="刷卡日期">
                                             </div>
                                             <div class="col-12 mb-3 form-group">
                                                 <label class="form-label">信用卡別：</label>
@@ -134,11 +134,11 @@
                                             </div>
                                             <div class="col-12 mb-3 form-group">
                                                 <label class="form-label">持卡人：</label>
-                                                <input type="text" class="form-control" name="credit_card[{{ $received_id }}][card_owner_name]" value="{{ old('card_owner_name', $d_value->received_info->credit_card_owner_name) }}" data-placeholder="持卡人"/>
+                                                <input type="text" class="form-control" name="credit_card[{{ $received_id }}][card_owner_name]" value="{{ $d_value->received_info->credit_card_owner_name }}" data-placeholder="持卡人"/>
                                             </div>
                                             <div class="col-12 mb-3 form-group">
                                                 <label class="form-label">授權碼：</label>
-                                                <input type="text" class="form-control" name="credit_card[{{ $received_id }}][authcode]" value="{{ old('authcode', $d_value->received_info->credit_card_authcode) }}" data-placeholder="授權碼">
+                                                <input type="text" class="form-control" name="credit_card[{{ $received_id }}][authcode]" value="{{ $d_value->received_info->credit_card_authcode }}" data-placeholder="授權碼">
                                             </div>
                                             <div class="col-12 mb-3 form-group">
                                                 <label class="form-label">會計科目：<span class="text-danger">*</span></label>
@@ -169,7 +169,7 @@
                                                 </select>
                                             </div>
                                         @elseif($d_value->received_info->received_method == 'remit')
-                                            <div class="col-12 mb-3">{{ $d_key + 1 . '.' . $d_value->method_name . ' ' . $d_value->account_code . ' - ' . $d_value->account_name . ' - ' . $d_value->note . '（' . $d_value->received_info->remit_memo . '）' }}</div>
+                                            <div class="col-12 mb-3">{{ $d_key + 1 . '.' . $d_value->method_name . ' ' . $d_value->account_code . ' - ' . $d_value->account_name . ' - ' . $d_value->summary . '（' . $d_value->received_info->remit_memo . '）' }}</div>
                                         @else
                                             <div class="col-12 mb-3">{{ $d_key + 1 . '.' . $d_value->name }}</div>
                                         @endif

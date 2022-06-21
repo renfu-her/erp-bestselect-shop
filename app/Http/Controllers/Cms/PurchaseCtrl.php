@@ -668,6 +668,21 @@ class PurchaseCtrl extends Controller
                             ->name;
         }
 
+        $payable_data = $pay_record->get();
+        foreach($payable_data as $value){
+            $value->payable_method_name = AccountPayable::getPayableNameByModelName($value->payable_type);
+            $value->account = AllGrade::find($value->all_grades_id)->eachGrade;
+
+            // if($value->payable_method == 'foreign_currency'){
+            //     $arr = explode('-', AllGrade::find($value->all_grades_id)->eachGrade->name);
+            //     $value->currency_name = $arr[0] == '外幣' ? $arr[1] . ' - ' . $arr[2] : 'NTD';
+            //     $value->currency_rate = DB::table('acc_payable_currency')->find($value->payable_method_id)->currency;
+            // } else {
+            //     $value->currency_name = 'NTD';
+            //     $value->currency_rate = 1;
+            // }
+        }
+
         // session([
         //     '_url'=>request()->fullUrl()
         // ]);
@@ -691,6 +706,7 @@ class PurchaseCtrl extends Controller
             'finalPaymentPrice' => $paymentPrice['finalPaymentPrice'],
             'logisticsPrice' => $paymentPrice['logisticsPrice'],
             'purchaseItemData' => $purchaseItemData,
+            'payable_data' => $payable_data,
             'chargemen' => $chargemen,
             'undertaker' => $undertaker,
             'appliedCompanyData' => $appliedCompanyData,

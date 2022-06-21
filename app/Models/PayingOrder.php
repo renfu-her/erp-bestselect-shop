@@ -176,6 +176,7 @@ class PayingOrder extends Model
                         "tw_price":"\', tw_price, \'",
                         "payment_date":"\', payment_date, \'",
                         "accountant_id_fk":"\', accountant_id_fk, \'",
+                        "summary":"\', COALESCE(acc_payable.summary, ""), \'",
                         "note":"\', COALESCE(note, ""), \'"
                     }\' ORDER BY acc_payable.id), \']\') AS pay_list
                 FROM acc_payable

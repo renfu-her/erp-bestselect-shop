@@ -1070,4 +1070,12 @@ class Product extends Model
             ],
         ]);
     }
+
+
+    public static function update_product_taxation($parm)
+    {
+        self::where('id', $parm['product_id'])->update([
+            'has_tax' => $parm['taxation'],
+        ]);
+    }
 }

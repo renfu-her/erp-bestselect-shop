@@ -351,6 +351,7 @@ class GeneralLedger extends Model
         $account_code = $parameter['account_code'] ? $parameter['account_code'] : null;
         $account_name = $parameter['account_name'] ? $parameter['account_name'] : '';
         $method_name = $parameter['method_name'] ? $parameter['method_name'] : '';
+        $summary = $parameter['summary'] ? $parameter['summary'] : '';
         $note = $parameter['note'] ? $parameter['note'] : '';
         $product_title = $parameter['product_title'] ? $parameter['product_title'] : '';
         $del_even = $parameter['del_even'] ? $parameter['del_even'] : '';
@@ -373,6 +374,7 @@ class GeneralLedger extends Model
                     'account_code'=>$account_code,
                     'account_name'=>$account_name,
                     'method_name'=>$method_name,
+                    'summary'=>$summary,
                     'note'=>$note,
                     'product_title'=>$product_title,
                     'del_even'=>$del_even,
@@ -405,6 +407,7 @@ class GeneralLedger extends Model
                     'account_code'=>$account_code,
                     'account_name'=>$account_name,
                     'method_name'=>$method_name,
+                    'summary'=>$summary,
                     'note'=>$note,
                     'product_title'=>$product_title,
                     'del_even'=>$del_even,
@@ -435,6 +438,7 @@ class GeneralLedger extends Model
                     'account_code'=>$account_code,
                     'account_name'=>$account_name,
                     'method_name'=>$method_name,
+                    'summary'=>$summary,
                     'note'=>$note,
                     'product_title'=>$product_title,
                     'del_even'=>$del_even,
@@ -460,6 +464,7 @@ class GeneralLedger extends Model
                     'account_code'=>$account_code,
                     'account_name'=>$account_name,
                     'method_name'=>$method_name,
+                    'summary'=>$summary,
                     'note'=>$note,
                     'product_title'=>$product_title,
                     'del_even'=>$del_even,
@@ -486,6 +491,7 @@ class GeneralLedger extends Model
                     'account_code'=>$account_code,
                     'account_name'=>$account_name,
                     'method_name'=>$method_name,
+                    'summary'=>$summary,
                     'note'=>$note,
                     'product_title'=>$product_title,
                     'del_even'=>$del_even,
@@ -517,6 +523,7 @@ class GeneralLedger extends Model
                     'account_code'=>$account_code,
                     'account_name'=>$account_name,
                     'method_name'=>$method_name,
+                    'summary'=>$summary,
                     'note'=>$note,
                     'product_title'=>$product_title,
                     'del_even'=>$del_even,
@@ -550,6 +557,7 @@ class GeneralLedger extends Model
                     'account_code'=>$account_code,
                     'account_name'=>$account_name,
                     'method_name'=>$method_name,
+                    'summary'=>$summary,
                     'note'=>$note,
                     'product_title'=>$product_title,
                     'del_even'=>$del_even,
@@ -575,6 +583,7 @@ class GeneralLedger extends Model
                     'account_code'=>$account_code,
                     'account_name'=>$account_name,
                     'method_name'=>$method_name,
+                    'summary'=>$summary,
                     'note'=>$note,
                     'product_title'=>$product_title,
                     'del_even'=>$del_even,

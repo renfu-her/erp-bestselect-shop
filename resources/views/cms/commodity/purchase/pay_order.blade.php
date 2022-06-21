@@ -176,6 +176,30 @@
             </div>
 
             <div class="card-body px-4 pb-4">
+                @foreach($payable_data as $value)
+                <dl class="row">
+                    <div class="col">
+                        <dt></dt>
+                        <dd>
+                            {{ $value->account->code . ' - ' . $value->account->name }}
+                            {{ number_format($value->tw_price) }}
+                            {{ '（' . $value->payable_method_name . ' - ' . $value->account->name . ' - ' . $value->summary . '）' }}
+                            {{--
+                            @if($value->payable_method == 'credit_card')
+                                {{ '（' . $value->payable_method_name . ' - ' . $value->credit_card_number . '（' . $value->credit_card_owner_name . '）' . '）' }}
+                            @elseif($value->payable_method == 'remit')
+                                {{ '（' . $value->payable_method_name . ' - ' . $value->summary . '（' . $value->remit_memo . '）' . '）' }}
+                            @else
+                                {{ '（' . $value->payable_method_name . ' - ' . $value->account->name . ' - ' . $value->summary . '）' }}
+                            @endif
+                            --}}
+                        </dd>
+                    </div>
+                </dl>
+                @endforeach
+            </div>
+
+            <div class="card-body px-4 pb-4">
                 <dl class="row">
                     <div class="col">
                         <dt>財務主管：</dt>
