@@ -227,13 +227,13 @@ class CustomerCtrl extends Controller
      */
     public function dividend(Request $request, $id)
     {
-        $dividend = CustomerDividend::getDividend($id)->get()->first()->dividend;
+//        $dividend = CustomerDividend::getDividend($id)->get()->first()->dividend;
         $typeGet = CustomerDividend::getList($id, 'get')->get();
         $typeUsed = CustomerDividend::getList($id, 'used')->get();
 
         return view('cms.admin.customer.dividend', [
             'customer' => $id,
-            'dividend' => $dividend,
+//            'dividend' => $dividend,
             'get_record' => $typeGet,
             'use_record' => $typeUsed,
         ]);
