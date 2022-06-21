@@ -11,5 +11,8 @@ Route::group(['prefix' => 'customer-data', 'as' => 'customer-data.'], function (
     Route::post('dividend/point', [DividendCtrl::class, "getDividendPoint"]);
     Route::post('attach-identity', [CustomerCtrl::class, 'attachIdentity']);
     Route::post('create-profit', [CustomerCtrl::class, 'createProfit']);
+    Route::post('profit-status', [CustomerCtrl::class, 'profitStatus']);
+
+    
 
 });

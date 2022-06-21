@@ -530,4 +530,21 @@ class CustomerCtrl extends Controller
 
     }
 
+    public function profitStatus(Request $request)
+    {
+
+        $profit = CustomerProfit::where('customer_id', $request->user()->id)->get()->first();
+        if ($profit) {
+            return [
+                'status' => '0',
+                'data' => $profit,
+            ];
+        }
+
+        return [
+            'status' => 'E02',
+            'message' => "尚未申請",
+        ];
+    }
+
 }
