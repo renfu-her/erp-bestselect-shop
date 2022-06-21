@@ -94,7 +94,7 @@ class AccountPayableCtrl extends Controller
                     //     $pay_v->currency_rate = 1;
                     // }
 
-                    $name = $payment_method_name . ' ' . $pay_v->note . '（' . $account_code . ' - ' . $account_name . '）';
+                    $name = $payment_method_name . ' ' . $pay_v->summary . '（' . $account_code . ' - ' . $account_name . '）';
 
                     $tmp = [
                         'account_code'=>$account_code,
@@ -105,6 +105,7 @@ class AccountPayableCtrl extends Controller
 
                         'account_name'=>$account_name,
                         'method_name'=>$payment_method_name,
+                        'summary'=>$pay_v->summary,
                         'note'=>$pay_v->note,
                         'product_title'=>null,
                         'del_even'=>null,
@@ -139,6 +140,7 @@ class AccountPayableCtrl extends Controller
 
                         'account_name'=>$account_name,
                         'method_name'=>null,
+                        'summary'=>null,
                         'note'=>null,
                         'product_title'=>$pro_v->title,
                         'del_even'=>null,
@@ -170,6 +172,7 @@ class AccountPayableCtrl extends Controller
 
                     'account_name'=>$account_name,
                     'method_name'=>null,
+                    'summary'=>null,
                     'note'=>null,
                     'product_title'=>null,
                     'del_even'=>null,

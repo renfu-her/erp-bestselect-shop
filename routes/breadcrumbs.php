@@ -136,7 +136,7 @@ Breadcrumbs::for('cms.purchase.pay-deposit', function (BreadcrumbTrail $trail, $
 // 編輯 - 採購單資訊 - 新增付款單--訂金&&尾款
 Breadcrumbs::for('cms.ap.create', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.purchase.edit', $value);
-    $trail->push( $value['type'] == 0 ? '訂金付款單' : '尾款付款單', route('cms.purchase.view-pay-order', ['id' => $value['id'], 'type' => $value['type']]));
+    $trail->push($value['type'] == 0 ? '訂金付款單' : '尾款付款單', route('cms.purchase.view-pay-order', ['id' => $value['id'], 'type' => $value['type']]));
     $trail->push('新增付款');
 });
 // 編輯 - 採購單資訊 - 編輯付款單
@@ -151,12 +151,12 @@ Breadcrumbs::for('cms.ap.edit', function (BreadcrumbTrail $trail, $value) {
 Breadcrumbs::for('cms.purchase.pay-order', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.purchase.edit', $value);
     // $trail->push('付款單');
-    $trail->push( $value['type'] == 0 ? '訂金付款單' : '尾款付款單');
+    $trail->push($value['type'] == 0 ? '訂金付款單' : '尾款付款單');
 });
 Breadcrumbs::for('cms.purchase.view-pay-order', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.purchase.edit', $value);
     // $trail->push('付款單');
-    $trail->push( $value['type'] == 0 ? '訂金付款單' : '尾款付款單');
+    $trail->push($value['type'] == 0 ? '訂金付款單' : '尾款付款單');
 });
 // 編輯 - 變更紀錄
 Breadcrumbs::for('cms.purchase.log', function (BreadcrumbTrail $trail, $value) {
@@ -200,21 +200,28 @@ Breadcrumbs::for('cms.order.inbound', function (BreadcrumbTrail $trail, $value) 
 // 新增收款單
 Breadcrumbs::for('cms.ar.create', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
-    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id'=>$value['id']]));
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
     $trail->push('新增收款單');
 });
 //顯示訂單收款單
 Breadcrumbs::for('cms.ar.receipt', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
-    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id'=>$value['id']]));
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
     $trail->push('收款單');
 });
 //編輯收款單入帳日期
 Breadcrumbs::for('cms.ar.review', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
+    $trail->push('收款單', route('cms.ar.receipt', ['id' => $value['id']]));
+    $trail->push('入款審核');
+});
+//編輯收款單稅別/摘要/備註
+Breadcrumbs::for('cms.ar.taxation', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id'=>$value['id']]));
     $trail->push('收款單', route('cms.ar.receipt', ['id'=>$value['id']]));
-    $trail->push('入款審核');
+    $trail->push('修改摘要/稅別');
 });
 Breadcrumbs::for('cms.order.pay-order', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
@@ -282,7 +289,6 @@ Breadcrumbs::for('cms.consignment-stock.stock_detail_log', function (BreadcrumbT
     $trail->push('#' . $value . ' 明細');
 });
 
-
 // *** 共用頁 *** //
 Breadcrumbs::for('cms.delivery.create', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.' . $value['parent'] . '.index');
@@ -297,7 +303,6 @@ Breadcrumbs::for('cms.logistic.changeLogisticStatus', function (BreadcrumbTrail 
     $trail->parent('cms.' . $value['parent'] . '.index');
     $trail->push('#' . $value['sn'] . ' 配送狀態');
 });
-
 
 /**
  * 行銷設定
@@ -398,12 +403,12 @@ Breadcrumbs::for('cms.depot.product-index', function (BreadcrumbTrail $trail) {
 });
 Breadcrumbs::for('cms.depot.product-create', function (BreadcrumbTrail $trail, $id) {
     $trail->parent('cms.depot.index');
-    $trail->push('寄倉選品', route('cms.depot.product-index', ['id'=>$id]));
+    $trail->push('寄倉選品', route('cms.depot.product-index', ['id' => $id]));
     $trail->push('選品');
 });
 Breadcrumbs::for('cms.depot.product-edit', function (BreadcrumbTrail $trail, $id) {
     $trail->parent('cms.depot.index');
-    $trail->push('寄倉選品', route('cms.depot.product-index', ['id'=>$id]));
+    $trail->push('寄倉選品', route('cms.depot.product-index', ['id' => $id]));
     $trail->push('修改');
 });
 
@@ -448,7 +453,6 @@ Breadcrumbs::for('cms.shipment.edit', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.shipment.index');
     $trail->push('編輯');
 });
-
 
 /**
  * 官網設定
@@ -507,18 +511,18 @@ Breadcrumbs::for('cms.navinode.index', function ($trail) {
     $trail->parent('cms.dashboard');
     $trail->push('選單列表設定', route('cms.navinode.index'));
     /*
-    foreach ($value as $v) {
-        $trail->push($v['title'], route('cms.navinode.index', ['level' => $v['path']]));
-    }*/
+foreach ($value as $v) {
+$trail->push($v['title'], route('cms.navinode.index', ['level' => $v['path']]));
+}*/
 });
 Breadcrumbs::for('cms.navinode.create', function ($trail, $value) {
-    $trail->parent('cms.navinode.index',$value);
+    $trail->parent('cms.navinode.index', $value);
     $trail->push('新增');
 });
 Breadcrumbs::for('cms.navinode.edit', function ($trail, $value) {
-    $trail->parent('cms.navinode.index',[]);
+    $trail->parent('cms.navinode.index', []);
     $trail->push('編輯');
-   // $trail->push($value['title']);
+    // $trail->push($value['title']);
 });
 
 /**
@@ -734,4 +738,13 @@ Breadcrumbs::for('cms.customer.edit', function (BreadcrumbTrail $trail) {
     $trail->push('編輯');
 });
 
+// 分潤審核管理
+Breadcrumbs::for('cms.customer-profit.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('分潤審核管理', route('cms.customer-profit.index'));
+});
 
+Breadcrumbs::for('cms.customer-profit.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.customer-profit.index');
+    $trail->push('編輯');
+});

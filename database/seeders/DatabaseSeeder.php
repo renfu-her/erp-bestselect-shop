@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
             IncomeExpenditureSeeder::class,
             DiscountSeeder::class,
             OrderSeeder::class,
+            BankSeeder::class
 //            DeliverySeeder::class,
         ]);
     }

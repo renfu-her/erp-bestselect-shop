@@ -9,22 +9,23 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
+use App\Enums\Discount\DisCategory;
 use App\Enums\Order\PaymentStatus;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Received\ReceivedMethod;
 
 use App\Models\AllGrade;
 use App\Models\Customer;
-use App\Models\Order;
+use App\Models\Discount;
 use App\Models\GeneralLedger;
+use App\Models\Order;
 use App\Models\OrderFlow;
 use App\Models\OrderItem;
-use App\Models\ReceivedOrder;
 use App\Models\OrderPayCreditCard;
+use App\Models\Product;
+use App\Models\ReceivedDefault;
+use App\Models\ReceivedOrder;
 use App\Models\User;
-
-
-
 
 class AccountReceivedCtrl extends Controller
 {
@@ -103,7 +104,7 @@ class AccountReceivedCtrl extends Controller
                     $r_value->currency_rate = 1;
                 }
 
-                $name = $received_method_name . ' ' . $r_value->note . '（' . $received_account->code . ' - ' . $received_account->name . '）';
+                $name = $received_method_name . ' ' . $r_value->summary . '（' . $received_account->code . ' - ' . $received_account->name . '）';
 
                 $tmp = [
                     'account_code'=>$received_account->code,
@@ -114,6 +115,7 @@ class AccountReceivedCtrl extends Controller
 
                     'account_name'=>$received_account->name,
                     'method_name'=>$received_method_name,
+                    'summary'=>$r_value->summary,
                     'note'=>$r_value->note,
                     'product_title'=>null,
                     'del_even'=>null,
@@ -145,6 +147,7 @@ class AccountReceivedCtrl extends Controller
 
                     'account_name'=>$account_name,
                     'method_name'=>null,
+                    'summary'=>null,
                     'note'=>null,
                     'product_title'=>$o_value->product_title,
                     'del_even'=>null,
@@ -175,6 +178,7 @@ class AccountReceivedCtrl extends Controller
 
                     'account_name'=>$account_name,
                     'method_name'=>null,
+                    'summary'=>null,
                     'note'=>null,
                     'product_title'=>null,
                     'del_even'=>null,
@@ -206,6 +210,7 @@ class AccountReceivedCtrl extends Controller
 
                         'account_name'=>$account_name,
                         'method_name'=>null,
+                        'summary'=>null,
                         'note'=>null,
                         'product_title'=>null,
                         'del_even'=>null,
@@ -403,6 +408,7 @@ class AccountReceivedCtrl extends Controller
             'tw_price' => 'required|numeric',
             request('acc_transact_type_fk') => 'required|array',
             request('acc_transact_type_fk') . '.grade' => 'required|exists:acc_all_grades,id',
+            'summary'=>'nullable|string',
             'note'=>'nullable|string',
         ]);
 
@@ -460,6 +466,7 @@ class AccountReceivedCtrl extends Controller
             $parm['grade_id'] = $data[$data['acc_transact_type_fk']]['grade'];
             $parm['price'] = $data['tw_price'];
             $parm['accountant_id_fk'] = auth('user')->user()->id;
+            $parm['summary'] = $data['summary'];
             $parm['note'] = $data['note'];
             ReceivedOrder::store_received($parm);
 
@@ -626,7 +633,7 @@ class AccountReceivedCtrl extends Controller
 
                 // 收款項目
                 foreach($received_data as $value){
-                    $name = $value->received_method_name . $value->note . '（' . $value->account->code . ' - ' . $value->account->name . '）';
+                    $name = $value->received_method_name . ' ' . $value->summary . '（' . $value->account->code . ' - ' . $value->account->name . '）';
                     // GeneralLedger::classification_processing($debit, $credit, $value->master_account->code, $name, $value->tw_price, 'r', 'received');
 
                     $tmp = [
@@ -638,6 +645,7 @@ class AccountReceivedCtrl extends Controller
 
                         'account_name'=>$value->account->name,
                         'method_name'=>$value->received_method_name,
+                        'summary'=>$value->summary,
                         'note'=>$value->note,
                         'product_title'=>null,
                         'del_even'=>null,
@@ -671,6 +679,7 @@ class AccountReceivedCtrl extends Controller
 
                         'account_name'=>$account_name,
                         'method_name'=>null,
+                        'summary'=>$value->summary,
                         'note'=>$value->note,
                         'product_title'=>$value->product_title,
                         'del_even'=>$value->del_even,
@@ -703,6 +712,7 @@ class AccountReceivedCtrl extends Controller
 
                         'account_name'=>$account_name,
                         'method_name'=>null,
+                        'summary'=>null,
                         'note'=>null,
                         'product_title'=>null,
                         'del_even'=>null,
@@ -740,6 +750,7 @@ class AccountReceivedCtrl extends Controller
 
                             'account_name'=>$account_name,
                             'method_name'=>null,
+                            'summary'=>null,
                             'note'=>null,
                             'product_title'=>null,
                             'del_even'=>null,
@@ -849,6 +860,174 @@ class AccountReceivedCtrl extends Controller
                     'breadcrumb_data' => ['id'=>$order->id, 'sn'=>$order->sn],
                 ]);
             }
+        }
+    }
+
+
+    public function taxation(Request $request, $id)
+    {
+        $request->merge([
+            'id'=>$id,
+        ]);
+        $request->validate([
+            'id' => 'required|exists:ord_orders,id',
+        ]);
+
+        $received_order_collection = ReceivedOrder::where([
+            'order_id'=>request('id'),
+            'deleted_at'=>null,
+        ]);
+
+        $received_order_data = $received_order_collection->get();
+        if (count($received_order_data) == 0 || !$received_order_collection->first()->balance_date) {
+            return abort(404);
+        }
+
+        $received_order = $received_order_collection->first();
+
+        if($request->isMethod('post')){
+            $request->validate([
+                'received' => 'required|array',
+                'product_grade_id' => 'required|exists:acc_all_grades,id',
+                'product' => 'required|array',
+                'logistics_grade_id' => 'required|exists:acc_all_grades,id',
+                'order_dlv' => 'required|array',
+                'discount' => 'required|array',
+            ]);
+
+            DB::beginTransaction();
+
+            try {
+                $received_order->update([
+                    'logistics_grade_id'=>request('logistics_grade_id'),
+                    'product_grade_id'=>request('product_grade_id'),
+                ]);
+
+                if(is_array(request('received'))){
+                    $received = request('received');
+                    foreach($received as $key => $value){
+                        $value['received_id'] = $key;
+                        ReceivedOrder::update_received($value);
+                    }
+                }
+
+                if(is_array(request('product'))){
+                    $product = request('product');
+                    foreach($product as $key => $value){
+                        $value['product_id'] = $key;
+                        Product::update_product_taxation($value);
+                    }
+                }
+
+                if(is_array(request('order_dlv'))){
+                    $order = request('order_dlv');
+                    foreach($order as $key => $value){
+                        $value['order_id'] = $key;
+                        Order::update_dlv_taxation($value);
+                    }
+                }
+
+                if(is_array(request('discount'))){
+                    $discount = request('discount');
+                    foreach($discount as $key => $value){
+                        $value['discount_id'] = $key;
+                        Discount::update_order_discount_taxation($value);
+                    }
+                }
+
+                DB::commit();
+                wToast(__('摘要/稅別更新成功'));
+
+            } catch (\Exception $e) {
+                DB::rollback();
+                wToast(__('摘要/稅別更新失敗'));
+            }
+
+            return redirect()->route('cms.ar.receipt', ['id'=>request('id')]);
+
+        } else if($request->isMethod('get')){
+
+            $order = Order::findOrFail(request('id'));
+            $order_list_data = OrderItem::item_order(request('id'))->get();
+            $order_discount = DB::table('ord_discounts')->where([
+                'order_type'=>'main',
+                'order_id'=>request('id'),
+            ])->whereNotNull('discount_value')->get()->toArray();
+
+            $received_data = ReceivedOrder::get_received_detail($received_order_data->pluck('id')->toArray());
+
+            // grade process start
+            $defaultData = [];
+            foreach (ReceivedMethod::asArray() as $receivedMethod) {
+                $defaultData[$receivedMethod] = DB::table('acc_received_default')->where('name', '=', $receivedMethod)
+                    ->doesntExistOr(function () use ($receivedMethod) {
+                        return DB::table('acc_received_default')->where('name', '=', $receivedMethod)
+                            ->select('default_grade_id')
+                            ->get();
+                    });
+            }
+
+            $total_grades = GeneralLedger::total_grade_list();
+            $allGradeArray = [];
+
+            foreach ($total_grades as $grade) {
+                $allGradeArray[$grade['primary_id']] = $grade;
+            }
+            $default_grade = [];
+            foreach ($defaultData as $recMethod => $ids) {
+                if ($ids !== true &&
+                    $recMethod !== 'other') {
+                    foreach ($ids as $id) {
+                        $default_grade[$recMethod][$id->default_grade_id] = [
+                            // 'methodName' => $recMethod,
+                            'method' => ReceivedMethod::getDescription($recMethod),
+                            'grade_id' => $id->default_grade_id,
+                            'grade_num' => $allGradeArray[$id->default_grade_id]['grade_num'],
+                            'code' => $allGradeArray[$id->default_grade_id]['code'],
+                            'name' => $allGradeArray[$id->default_grade_id]['name'],
+                        ];
+                    }
+                } else {
+                    if($recMethod == 'other'){
+                        $default_grade[$recMethod] = $allGradeArray;
+                    } else {
+                        $default_grade[$recMethod] = [];
+                    }
+                }
+            }
+
+            $default_product_grade = ReceivedDefault::where('name', 'product')->first() ? ReceivedDefault::where('name', 'product')->first()->default_grade_id : null;
+            $default_logistics_grade = ReceivedDefault::where('name', 'logistics')->first() ? ReceivedDefault::where('name', 'logistics')->first()->default_grade_id : null;
+
+            $discount_category = DisCategory::asArray();
+            $discount_type = [];
+            foreach($discount_category as $dis_value){
+                $discount_type[$dis_value] = DisCategory::getDescription($dis_value);
+            }
+            ksort($discount_type);
+
+            $default_discount_grade = [];
+            foreach($discount_type as $key => $value){
+                $default_discount_grade[$key] =  ReceivedDefault::where('name', $key)->first() ? ReceivedDefault::where('name', $key)->first()->default_grade_id : null;
+            }
+            // grade process end
+
+            return view('cms.account_management.account_received.taxation', [
+                'form_action'=>route('cms.ar.taxation' , ['id'=>request('id')]),
+                'received_order'=>$received_order,
+                'order'=>$order,
+                'order_discount'=>$order_discount,
+                'order_list_data'=>$order_list_data,
+                'received_data' => $received_data,
+                'total_grades'=>$total_grades,
+
+                // 'default_grade'=>$default_grade,//arr, key is received method name
+                // 'default_product_grade' => $default_product_grade,//str, value is grade id
+                // 'default_logistics_grade' => $default_logistics_grade,//str, value is grade id
+                // 'default_discount_grade' => $default_discount_grade,//arr, key is discount method name
+
+                'breadcrumb_data' => ['id'=>$order->id, 'sn'=>$order->sn],
+            ]);
         }
     }
 

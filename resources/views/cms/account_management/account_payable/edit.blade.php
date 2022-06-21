@@ -380,9 +380,15 @@
                 <x-b-form-group name="payment_date" title="付款日期" required="true" class="col-12 col-sm-6">
                     <input class="form-control @error('payment_date') is-invalid @enderror" name="payment_date" required type="date" value="{{ old('payment_date', $payment_date ?? date('Y-m-d', strtotime( date('Y-m-d'))) ) }}"/>
                 </x-b-form-group>
-                <x-b-form-group name="note" title="備註" required="false">
-                    <input class="form-control @error('note') is-invalid @enderror" name="note" type="text" value="{{ old('note', ($method == 'edit' && count($payable_data) > 0 ? $payable_data->last()->note : '')) }}"/>
-                </x-b-form-group>
+
+                <div class="row">
+                    <x-b-form-group name="summary" title="摘要" required="false" class="col-12 col-sm-6 mb-3">
+                        <input class="form-control @error('summary') is-invalid @enderror" name="summary" type="text" value="{{ old('summary', '') }}">
+                    </x-b-form-group>
+                    <x-b-form-group name="note" title="備註" required="false" class="col-12 col-sm-6 mb-3">
+                        <input class="form-control @error('note') is-invalid @enderror" name="note" type="text" value="{{ old('note', ($method == 'edit' && count($payable_data) > 0 ? $payable_data->last()->note : '')) }}"/>
+                    </x-b-form-group>
+                </div>
             </div>
             <div class="px-0">
                 <input type="hidden" name="pay_order_type" value="{{ request()->get('payOrdType') }}">

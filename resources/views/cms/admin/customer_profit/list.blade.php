@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">消費者帳號管理</h2>
+    <h2 class="mb-4">分潤審核管理</h2>
     <form id="search" action="{{ $formAction }}" method="GET">
         <div class="card shadow p-4 mb-4">
             <h6>搜尋條件</h6>
@@ -11,9 +11,21 @@
                         aria-label="姓名">
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">Email</label>
-                    <input class="form-control" type="text" name="email" placeholder="請輸入Email" value="{{ $email }}"
-                        aria-label="Email">
+                    <label class="form-label">員編</label>
+                    <input class="form-control" type="text" name="sn" placeholder="請輸入員編" value="{{ $sn }}"
+                        aria-label="員編">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">審核狀態</label>
+                    <select class="form-select" name="status">
+                        <option value="">全部</option>
+                        @foreach ($status as $key => $value)
+                            <option value="{{ $key }}">
+                                {{ $value }}</option>
+                        @endforeach
+                    </select>
                 </div>
             </div>
             <div class="col">
@@ -23,11 +35,7 @@
     </form>
     <div class="card shadow p-4 mb-4">
         <div class="col mb-4">
-            @can('cms.customer.create')
-                <a href="{{ Route('cms.customer.create', null, true) }}" class="btn btn-primary">
-                    <i class="bi bi-plus-lg"></i> 新增帳號
-                </a>
-            @endcan
+         
         </div>
 
         <div class="table-responsive tableOverBox">
@@ -37,13 +45,8 @@
                         <th scope="col" style="width:10%">#</th>
                         <th scope="col">姓名</th>
                         <th scope="col">會員編號</th>
-                        <th scope="col">帳號</th>
-                        @can('cms.customer.address')
-                            <th scope="col" class="text-center">會員專區</th>
-                        @endcan
-                        @can('cms.customer.edit')
-                            <th scope="col" class="text-center">編輯</th>
-                        @endcan
+                        <th scope="col">審核狀態</th>
+                        <th scope="col" class="text-center">編輯</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -52,24 +55,13 @@
                             <th scope="row">{{ $key + 1 }}</th>
                             <td>{{ $data->name }}</td>
                             <td>{{ $data->sn }}</td>
-                            <td>{{ $data->email }}</td>
+                            <td>{{ $data->status_title }}</td>
                             <td class="text-center">
-                                @can('cms.customer.address')
-                                    <a href="{{ Route('cms.customer.address', ['id' => $data->id], true) }}"
-                                       data-bs-toggle="tooltip" title="會員專區"
-                                       class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                       <i class="bi bi-person-rolodex"></i>
-                                    </a>
-                                @endcan
-                            </td>
-                            <td class="text-center">
-                                @can('cms.customer.edit')
-                                    <a href="{{ Route('cms.customer.edit', ['id' => $data->id], true) }}"
-                                        data-bs-toggle="tooltip" title="編輯"
-                                        class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </a>
-                                @endcan
+                                <a href="{{ Route('cms.customer-profit.edit', ['id' => $data->id], true) }}"
+                                    data-bs-toggle="tooltip" title="編輯"
+                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
                             </td>
                         </tr>
                     @endforeach

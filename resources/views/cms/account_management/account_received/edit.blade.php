@@ -279,7 +279,7 @@
                            id="rate"
                            type="number"
                            step="0.01"
-                           value="{{ old($FOREIGN_CURRENCY . '[rate]', $data['rate'] ?? '') }}"/>
+                           value="{{ old($FOREIGN_CURRENCY . '[rate]', '') }}"/>
                 </x-b-form-group>
                 <x-b-form-group name="{{ $FOREIGN_CURRENCY }}[foreign_price]" title="金額（外幣）" required="true"
                                 class="col-12 col-sm-4 mb-3 {{ $FOREIGN_CURRENCY }}"
@@ -295,11 +295,15 @@
 
             <div class="card shadow p-4 mb-4">
                 <h6>收款設定</h6>
-                <x-b-form-group name="note" title="備註" required="false">
+            <div class="row">
+                <x-b-form-group name="summary" title="摘要" required="false" class="col-12 col-sm-6 mb-3">
+                    <input class="form-control @error('summary') is-invalid @enderror" name="summary" type="text" value="{{ old('summary', '') }}">
+                </x-b-form-group>
+                <x-b-form-group name="note" title="備註" required="false" class="col-12 col-sm-6 mb-3">
                     <input class="form-control @error('note') is-invalid @enderror"
                            name="note"
                            type="text"
-                           value="{{ old('note', $data->note ?? '') }}"/>
+                           value="{{ old('note', '') }}"/>
                 </x-b-form-group>
             </div>
 

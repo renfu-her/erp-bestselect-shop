@@ -101,6 +101,9 @@ class OrderItem extends Model
                 'ord_items.discount_value AS product_discount',
                 'ord_items.discounted_price AS product_after_discounting_price',
 
+                'products.id as product_id',
+                'products.has_tax as product_taxation',
+
                 'users.id as product_user_id',
                 'users.name as product_user_name'
             );
