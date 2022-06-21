@@ -176,8 +176,6 @@ class CyberbizMemberSeeder extends Seeder
                         $loginMethods,
                     );
 
-                    // TODO create customer address
-
                     CustomerDividend::create([
                         'category' => DividendCategory::Cyberbiz,
                         'category_sn' => null,
