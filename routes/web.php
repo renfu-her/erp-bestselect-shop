@@ -65,6 +65,9 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/Consignment.php');
     require base_path('routes/cms/ConsignmentOrder.php');
     require base_path('routes/cms/ConsignmentStock.php');
+    require base_path('routes/cms/CreditCard.php');
+    require base_path('routes/cms/CreditBank.php');
+    require base_path('routes/cms/CreditPercent.php');
 });
 
 Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => 'guest:customer'], function () {

@@ -251,6 +251,69 @@ return [
         ],
     ],
     [
+        "unit" => "信用卡",
+        "permissions" => [
+            [
+                "cms.credit_card.index",
+                "瀏覽",
+            ],
+            [
+                "cms.credit_card.create",
+                "新增",
+            ],
+            [
+                "cms.credit_card.edit",
+                "編輯",
+            ],
+            [
+                "cms.credit_card.delete",
+                "刪除",
+            ],
+        ],
+    ],
+    [
+        "unit" => "信用卡對接銀行",
+        "permissions" => [
+            [
+                "cms.credit_bank.index",
+                "瀏覽",
+            ],
+            [
+                "cms.credit_bank.create",
+                "新增",
+            ],
+            [
+                "cms.credit_bank.edit",
+                "編輯",
+            ],
+            [
+                "cms.credit_bank.delete",
+                "刪除",
+            ],
+        ],
+    ],
+    [
+        "unit" => "信用卡請款比例",
+        "permissions" => [
+            [
+                "cms.credit_percent.index",
+                "瀏覽",
+            ],
+            [
+                "cms.credit_percent.create",
+                "新增",
+            ],
+            [
+                "cms.credit_percent.edit",
+                "編輯",
+            ],
+            [
+                "cms.credit_percent.delete",
+                "刪除",
+            ],
+        ],
+    ],
+    [
         "unit" => "會計科目",
         "permissions" => [
             [

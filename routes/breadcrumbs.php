@@ -591,6 +591,48 @@ Breadcrumbs::for('cms.ar.index', function (BreadcrumbTrail $trail) {
     $trail->push('收款作業', route('cms.ar.index'));
 });
 
+// 信用卡
+Breadcrumbs::for('cms.credit_card.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('信用卡列表', route('cms.credit_card.index'));
+});
+Breadcrumbs::for('cms.credit_card.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.credit_card.index');
+    $trail->push('新增');
+});
+Breadcrumbs::for('cms.credit_card.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.credit_card.index');
+    $trail->push('編輯');
+});
+
+// 請款銀行
+Breadcrumbs::for('cms.credit_bank.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('銀行列表', route('cms.credit_bank.index'));
+});
+Breadcrumbs::for('cms.credit_bank.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.credit_bank.index');
+    $trail->push('新增');
+});
+Breadcrumbs::for('cms.credit_bank.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.credit_bank.index');
+    $trail->push('編輯');
+});
+
+// 信用卡銀行請款比例
+Breadcrumbs::for('cms.credit_percent.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('請款比例', route('cms.credit_percent.index'));
+});
+Breadcrumbs::for('cms.credit_percent.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.credit_percent.index');
+    $trail->push('新增');
+});
+Breadcrumbs::for('cms.credit_percent.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.credit_percent.index');
+    $trail->push('編輯');
+});
+
 // 會計科目
 Breadcrumbs::for('cms.general_ledger.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
