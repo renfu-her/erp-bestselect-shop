@@ -176,21 +176,7 @@ class CyberbizMemberSeeder extends Seeder
                         $loginMethods,
                     );
 
-                    if (!is_null($address) &&
-                        !is_null($city_id) &&
-                        !is_null($region_id) &&
-                        !is_null($addressName)) {
-                        CustomerAddress::create([
-                            'usr_customers_id_fk' => $customerExistQuery->id,
-                            'name'                => $memberData[self::NAME] ?? null,
-                            'phone'               => $memberData[self::PHONE] ?? null,
-                            'address'             => $address,
-                            'city_id'             => $city_id,
-                            'region_id'           => $region_id,
-                            'addr'                => $addressName,
-                            'is_default_addr'        => 1,
-                        ]);
-                    }
+                    // TODO create customer address
 
                     CustomerDividend::create([
                         'category' => DividendCategory::Cyberbiz,
