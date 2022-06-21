@@ -29,7 +29,6 @@ class CreditPercentCtrl extends Controller
             "keyword_credit_id" => $keyword_credit_id,
             "cards" => CrdCreditCard::all(),
             "dataList" => $arr,
-            'formAction' => Route('cms.credit_percent.index'),
         ]);
     }
 

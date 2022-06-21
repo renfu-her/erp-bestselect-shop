@@ -26,7 +26,6 @@ class CreditCardCtrl extends Controller
         return view('cms.settings.credit_card.list', [
             'data_per_page' => $data_per_page,
             "dataList" => $crdCreditCard,
-            'formAction' => Route('cms.customer.index'),
         ]);
     }
 
