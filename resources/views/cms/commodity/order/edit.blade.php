@@ -440,24 +440,24 @@
                 <table class="table table-hover tableList">
                     <thead>
                         <tr>
+                            <th scope="col" width="10%" class="text-center">加入</th>
                             <th scope="col">商品名稱</th>
                             <th scope="col">款式</th>
                             <th scope="col">SKU</th>
                             <th scope="col">價格</th>
-                            <th scope="col">加入購物車</th>
                         </tr>
                     </thead>
                     <tbody class="-appendClone --product">
                         <tr class="-cloneElem d-none">
+                            <td class="text-center">
+                                <button type="button" class="btn btn-outline-primary -add" data-idx="">
+                                    <i class="bi bi-plus-circle"></i>
+                                </button>
+                            </td>
                             <td></td>
                             <td></td>
                             <td></td>
                             <td>$0</td>
-                            <td>
-                                <button type="button" class="btn btn-outline-primary -add" data-idx="">
-                                    <i class="bi bi-plus-circle"></i> 加入
-                                </button>
-                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -905,7 +905,7 @@
                             addBtn = `<span class="text-muted">缺貨</span>`;
                         } else if (!myProductList[p.id]) {
                             addBtn = `<button type="button" class="btn btn-outline-primary -add" data-idx="${i}">
-                                <i class="bi bi-plus-circle"></i> 加入
+                                <i class="bi bi-plus-circle"></i>
                             </button>`;
                         } else {
                             addBtn = `<span class="text-muted">已加入</span>`;
@@ -917,11 +917,11 @@
                         }
 
                         let $tr = $(`<tr>
+                            <td class="text-center">${addBtn}</td>
                             <td>${typeTag} ${p.product_title}</td>
                             <td>${p.spec || ''}</td>
                             <td>${p.sku}</td>
                             <td>${formatNumber(p.price)}</td>
-                            <td>${addBtn}</td>
                         </tr>`);
                         $('#addProduct .-appendClone.--product').append($tr);
                     }
