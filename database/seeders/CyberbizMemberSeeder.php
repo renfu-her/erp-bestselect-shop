@@ -207,5 +207,24 @@ class CyberbizMemberSeeder extends Seeder
                 }
             }
         }
+
+        //更新沒有會員編號
+        if (DB::table('usr_customers')
+            ->whereNull('sn')
+            ->get()
+        ) {
+            $noSns = DB::table('usr_customers')
+                ->whereNull('sn')
+                ->select('id')
+                ->get();
+            foreach ($noSns as $noSn) {
+                DB::table('usr_customers')
+                    ->where('id', $noSn->id)
+                    ->update([
+                        'sn' => "M".str_pad(strval($noSn->id), 9, '0',
+                                STR_PAD_LEFT),
+                    ]);
+            }
+        }
     }
 }
