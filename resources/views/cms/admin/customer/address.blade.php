@@ -15,12 +15,14 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr class="table-danger">
-                    <td class="">✓</td>
-                    <td>{{$defaultAddress->name ?? ''}}</td>
-                    <td>{{$defaultAddress->phone ?? ''}}</td>
-                    <td>{{$defaultAddress->address ?? ''}}</td>
-                </tr>
+                @if(!is_null($defaultAddress))
+                    <tr class="table-danger">
+                        <td class="">✓</td>
+                        <td>{{$defaultAddress->name ?? ''}}</td>
+                        <td>{{$defaultAddress->phone ?? ''}}</td>
+                        <td>{{$defaultAddress->address ?? ''}}</td>
+                    </tr>
+                @endif
                 @foreach ($otherAddress as $data)
                     <tr>
                         <td></td>
