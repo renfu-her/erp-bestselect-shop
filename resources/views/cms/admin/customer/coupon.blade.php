@@ -53,7 +53,7 @@
                         }
                         //低消
                         if(0 < $data->min_consume) {
-                            $note = $note. '消費滿 $$'. $data->min_consume;
+                            $note = $note. '消費滿 $'. $data->min_consume;
                         } else {
                             $note = $note. '消費不限金額';
                         }
