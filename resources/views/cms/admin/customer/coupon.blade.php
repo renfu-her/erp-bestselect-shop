@@ -4,6 +4,9 @@
         <x-b-customer-navi :customer="$customer"></x-b-customer-navi>
     </div>
 
+    <form id="search" action="{{ Route('cms.customer.coupon', ['id' => $customer]) }}" method="GET">
+        <input type="hidden" name="order" value="{{ ($order)? '': 'true' }}" />
+    </form>
     <div class="card shadow p-4 mb-4">
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
@@ -14,7 +17,7 @@
                     <th scope="col">優惠金額或%數</th>
                     <th scope="col">序號</th>
                     <th scope="col">使用方式</th>
-                    <th scope="col">使用期限</th>
+                    <th scope="col">使用期限&nbsp;<input class="form-check-input" type="checkbox" id="order" @if(isset($order)) checked @endif></th>
                     <th scope="col">使用狀況</th>
                     <th scope="col">使用範圍</th>
                 </tr>

@@ -202,11 +202,16 @@ class CustomerCtrl extends Controller
      */
     public function coupon(Request $request, $id)
     {
-        $dataList = CustomerCoupon::getList($id)
-            ->orderByDesc('discount.end_date');
+        $query = $request->query();
+        $order = Arr::get($query, 'order', '');
+        $dataList = CustomerCoupon::getList($id);
+        if (isset($order)) {
+            $dataList->orderByDesc('discount.end_date');
+        }
         $dataList = $dataList->get();
         return view('cms.admin.customer.coupon', [
             'customer' => $id,
+            'order' => $order,
             "dataList" => $dataList,
         ]);
     }
@@ -220,21 +225,13 @@ class CustomerCtrl extends Controller
     {
         $defaultAddress = CustomerAddress::where('usr_customers_id_fk', '=', $id)
             ->where('is_default_addr', '=', 1)
-            ->select(
-                'name',
-                'phone',
-                'address',
-            )
+            ->select('address')
             ->get()
             ->first();
 
         $otherAddress = CustomerAddress::where('usr_customers_id_fk', '=', $id)
             ->where('is_default_addr', '=', 0)
-            ->select(
-                'name',
-                'phone',
-                'address',
-            )
+            ->select('address')
             ->get();
 
         return view('cms.admin.customer.address', [
