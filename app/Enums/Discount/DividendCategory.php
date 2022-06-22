@@ -21,7 +21,7 @@ final class DividendCategory extends Enum
                 $result = '購物訂單';
                 break;
             case self::Cyberbiz:
-                $result = 'Cyberbiz匯入';
+                $result = '喜鴻購物2.0';
                 break;
             default:
                 return parent::getDescription($value);
