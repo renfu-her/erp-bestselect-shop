@@ -203,13 +203,21 @@ class CustomerCtrl extends Controller
     {
         $defaultAddress = CustomerAddress::where('usr_customers_id_fk', '=', $id)
             ->where('is_default_addr', '=', 1)
-            ->select('address')
+            ->select(
+                'name',
+                'phone',
+                'address',
+            )
             ->get()
             ->first();
 
         $otherAddress = CustomerAddress::where('usr_customers_id_fk', '=', $id)
             ->where('is_default_addr', '=', 0)
-            ->select('address')
+            ->select(
+                'name',
+                'phone',
+                'address',
+            )
             ->get();
 
         return view('cms.admin.customer.address', [
