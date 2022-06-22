@@ -190,7 +190,7 @@ class CyberbizMemberSeeder extends Seeder
                     CustomerDividend::create([
                         'category' => DividendCategory::Cyberbiz,
                         'category_sn' => self::CYBERBIZ_NAME,
-                        'customer_id' => $customerExistQuery->id,
+                        'customer_id' => $customerId,
                         'type' => 'get',
                         'flag' => DividendFlag::NonActive(),
                         'flag_title' => DividendFlag::NonActive()->description,
