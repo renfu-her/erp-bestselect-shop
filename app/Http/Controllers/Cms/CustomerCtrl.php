@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Addr;
 use App\Models\Customer;
 use App\Models\CustomerAddress;
+use App\Models\CustomerCoupon;
 use App\Models\CustomerDividend;
 use App\Models\CustomerLogin;
 use App\Models\User;
@@ -192,6 +193,22 @@ class CustomerCtrl extends Controller
 
         wToast('檔案更新完成');
         return redirect(Route('cms.customer.edit', ['id' => $id]));
+    }
+
+    /**
+     * @param  Request  $request
+     * @param $id int 會員id
+     * 我的優惠卷
+     */
+    public function coupon(Request $request, $id)
+    {
+        $dataList = CustomerCoupon::getList($id)
+            ->orderByDesc('discount.end_date');
+        $dataList = $dataList->get();
+        return view('cms.admin.customer.coupon', [
+            'customer' => $id,
+            "dataList" => $dataList,
+        ]);
     }
 
     /**
