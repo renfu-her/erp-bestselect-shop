@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Customer\AccountStatus;
 use App\Enums\Customer\Newsletter;
+use App\Enums\Customer\ProfitStatus;
 use App\Enums\Customer\Sex;
 use App\Notifications\CustomerPasswordReset;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -219,7 +220,7 @@ class Customer extends Authenticatable
         CustomerIdentity::add($customer_id, $type);
         $updateData = ['phone' => $phone];
         if ($recommend_sn) {
-            $customer = Customer::where('sn', $recommend_sn)->get()->first();
+            $customer = self::checkRecommender($recommend_sn, $customer_id);
             if ($customer) {
                 $updateData['recommend_id'] = $customer->id;
             }
@@ -279,5 +280,17 @@ class Customer extends Authenticatable
             ->selectRaw(DB::raw("({$sub->toSql()}) as recommend_name"))
             ->where('id', $id);
 
+    }
+
+    public static function checkRecommender($sn, $current_customer_id)
+    {
+        return DB::table('usr_customer_profit as profit')
+            ->leftJoin('usr_customers as customer', 'profit.customer_id', '=', 'customer.id')
+            ->select('customer.*')
+            ->where('customer.sn', $sn)
+            ->where('profit.has_child', '1')
+            ->where('profit.status', ProfitStatus::Success())
+            ->where('customer.id', "<>", $current_customer_id)
+            ->get()->first();
     }
 }

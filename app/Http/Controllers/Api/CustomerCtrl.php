@@ -568,13 +568,7 @@ class CustomerCtrl extends Controller
 
         $d = $request->all();
 
-        $re = DB::table('usr_customer_profit as profit')
-            ->leftJoin('usr_customers as customer', 'profit.customer_id', '=', 'customer.id')
-            ->where('customer.sn', $d['sn'])
-            ->where('profit.has_child', '1')
-            ->where('profit.status', ProfitStatus::Success())
-            ->where('customer.id', "<>", $request->user()->id)
-            ->get()->first();
+        $re = Customer::checkRecommender($d['sn'], $request->user()->id);
 
         if ($re) {
             return [
