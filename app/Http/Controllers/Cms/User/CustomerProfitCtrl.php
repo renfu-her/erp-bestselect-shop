@@ -90,7 +90,7 @@ class CustomerProfitCtrl extends Controller
         //  dd(ProfitStatus::getValueWithDesc());
         return view('cms.admin.customer_profit.edit', [
             'method' => 'edit',
-            'customer' => Customer::where('id', $id)->get()->first(),
+            'customer' => Customer::where('id', $data->customer_id)->get()->first(),
             'status' => ProfitStatus::getValueWithDesc(),
             'banks' => Bank::get(),
             'profitType' => ProfitType::getValueWithDesc(),
