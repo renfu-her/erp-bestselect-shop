@@ -510,13 +510,16 @@ class CustomerCtrl extends Controller
                 ResponseParam::data => [],
             ]);
         }
+
         $user = $request->user();
         $d = $request->all();
         $img1 = Arr::get($d, 'img1', '');
         $img2 = Arr::get($d, 'img2', '');
         $img3 = Arr::get($d, 'img3', '');
 
-        $re = CustomerProfit::createProfit($user->id, $d['bank_id'], $d['bank_account'], $d['bank_account_name'], $d['identity_sn'], $img1, $img2, $img3);
+        $recommend_id = Arr::get($d, 'recommend_sn', null);
+
+        $re = CustomerProfit::createProfit($user->id, $d['bank_id'], $d['bank_account'], $d['bank_account_name'], $d['identity_sn'], $img1, $img2, $img3, $recommend_id);
         if ($re['success'] == '1') {
             return [
                 'status' => '0',
