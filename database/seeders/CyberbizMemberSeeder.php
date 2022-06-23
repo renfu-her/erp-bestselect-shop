@@ -143,11 +143,11 @@ class CyberbizMemberSeeder extends Seeder
                             'category_sn' => self::CYBERBIZ_NAME,
 //                            'customer_id' => $customer_id,
                             'type' => 'get',
-                            'flag' => DividendFlag::NonActive(),
-                            'flag_title' => DividendFlag::NonActive()->description,
+                            'flag' => DividendFlag::Active(),
+                            'flag_title' => DividendFlag::Active()->description,
 //                            'weight' => 0,
                             'dividend' => $memberData[self::COUPON] ?? 0,
-                            'deadline' => 1,
+                            'deadline' => 0,
                             'created_at' => self::CYBERBIZ_IMPORT_TIME,
                         ]);
                     } else {
@@ -156,11 +156,11 @@ class CyberbizMemberSeeder extends Seeder
                             'category_sn' => self::CYBERBIZ_NAME,
                             'customer_id' => $customerExistQuery->id,
                             'type' => 'get',
-                            'flag' => DividendFlag::NonActive(),
-                            'flag_title' => DividendFlag::NonActive()->description,
+                            'flag' => DividendFlag::Active(),
+                            'flag_title' => DividendFlag::Active()->description,
 //                            'weight' => 0,
                             'dividend' => $memberData[self::COUPON] ?? 0,
-                            'deadline' => 1,
+                            'deadline' => 0,
                         ]);
                         CustomerDividend::where([
                             ['customer_id' , '=', $customerExistQuery->id],
@@ -192,11 +192,11 @@ class CyberbizMemberSeeder extends Seeder
                         'category_sn' => self::CYBERBIZ_NAME,
                         'customer_id' => $customerId,
                         'type' => 'get',
-                        'flag' => DividendFlag::NonActive(),
-                        'flag_title' => DividendFlag::NonActive()->description,
+                        'flag' => DividendFlag::Active(),
+                        'flag_title' => DividendFlag::Active()->description,
                         //                            'weight' => 0,
                         'dividend' => $memberData[self::COUPON] ?? 0,
-                        'deadline' => 1,
+                        'deadline' => 0,
                     ]);
                     CustomerDividend::where([
                         ['customer_id' , '=', $customerId],
