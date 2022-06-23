@@ -17,7 +17,7 @@
                     <th scope="col">優惠金額或%數</th>
                     <th scope="col">序號</th>
                     <th scope="col">使用方式</th>
-                    <th scope="col">使用期限&nbsp;<input class="form-check-input" type="checkbox" id="order" @if(isset($order)) checked @endif></th>
+                    <th scope="col">使用期限&nbsp;<input class="form-check-input" type="checkbox" id="order" @if(isset($order) && !empty($order)) checked @endif></th>
                     <th scope="col">使用狀況</th>
                     <th scope="col">使用範圍</th>
                 </tr>

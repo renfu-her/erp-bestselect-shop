@@ -205,7 +205,7 @@ class CustomerCtrl extends Controller
         $query = $request->query();
         $order = Arr::get($query, 'order', '');
         $dataList = CustomerCoupon::getList($id);
-        if (isset($order)) {
+        if (isset($order) && !empty($order)) {
             $dataList->orderByDesc('discount.end_date');
         }
         $dataList = $dataList->get();
