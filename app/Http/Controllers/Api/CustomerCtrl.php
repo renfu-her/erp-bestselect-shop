@@ -573,6 +573,7 @@ class CustomerCtrl extends Controller
         if ($re) {
             return [
                 'status' => '0',
+                'data' => $re->name,
             ];
         }
 
