@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\Customer\AccountStatus;
+use App\Enums\Customer\ProfitStatus;
 use App\Enums\Globals\ApiStatusMessage;
 use App\Enums\Globals\ResponseParam;
 use App\Http\Controllers\Controller;
@@ -547,4 +548,40 @@ class CustomerCtrl extends Controller
         ];
     }
 
+    public function checkRecommender(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'sn' => ['required'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                ResponseParam::status => ApiStatusMessage::Fail,
+                ResponseParam::msg => $validator->errors(),
+                ResponseParam::data => [],
+            ]);
+        }
+
+        $d = $request->all();
+
+        $re = DB::table('usr_customer_profit as profit')
+            ->leftJoin('usr_customers as customer', 'profit.customer_id', '=', 'customer.id')
+            ->where('customer.sn', $d['sn'])
+            ->where('profit.has_child', '1')
+            ->where('profit.status', ProfitStatus::Success())
+            ->where('customer.id', "<>", $request->user()->id)
+            ->get()->first();
+
+        if ($re) {
+            return [
+                'status' => '0',
+            ];
+        }
+
+        return [
+            'status' => 'E03',
+            'message' => '無推薦權限',
+        ];
+    }
 }
