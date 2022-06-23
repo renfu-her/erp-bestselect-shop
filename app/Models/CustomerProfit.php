@@ -76,10 +76,10 @@ class CustomerProfit extends Model
             return '';
         }
 
-        $image = str_replace('data:image/jpeg;base64,', '', $image);
+        $image = str_replace('data:image/png;base64,', '', $image);
         $image = str_replace(' ', '+', $image);
 
-        $imageName = 'profit_data' . "/" . $customer_id . "/" . uniqid() . '.' . 'jpeg';
+        $imageName = 'profit_data' . "/" . $customer_id . "/" . uniqid() . '.' . 'png';
         $re = Storage::put($imageName, base64_decode($image));
 
         return $imageName;
