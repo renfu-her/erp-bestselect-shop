@@ -480,7 +480,9 @@ class CustomerCtrl extends Controller
 
         $d = $request->all();
 
-        $re = Customer::attachIdentity($user->id, $d['type'], $d['no'], $d['phone'], $d['pass']);
+        $recommend_sn = Arr::get($d, 'recommend_sn', null);
+
+        $re = Customer::attachIdentity($user->id, $d['type'], $d['no'], $d['phone'], $d['pass'], $recommend_sn);
 
         if ($re['success'] == '1') {
             return [
@@ -517,9 +519,7 @@ class CustomerCtrl extends Controller
         $img2 = Arr::get($d, 'img2', '');
         $img3 = Arr::get($d, 'img3', '');
 
-        $recommend_id = Arr::get($d, 'recommend_sn', null);
-
-        $re = CustomerProfit::createProfit($user->id, $d['bank_id'], $d['bank_account'], $d['bank_account_name'], $d['identity_sn'], $img1, $img2, $img3, $recommend_id);
+        $re = CustomerProfit::createProfit($user->id, $d['bank_id'], $d['bank_account'], $d['bank_account_name'], $d['identity_sn'], $img1, $img2, $img3);
         if ($re['success'] == '1') {
             return [
                 'status' => '0',

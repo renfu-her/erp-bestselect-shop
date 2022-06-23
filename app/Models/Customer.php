@@ -209,7 +209,7 @@ class Customer extends Authenticatable
 
     }
 
-    public static function attachIdentity($customer_id, $type, $no, $phone, $pass, $recommend_id = null)
+    public static function attachIdentity($customer_id, $type, $no, $phone, $pass, $recommend_sn = null)
     {
         DB::beginTransaction();
         if (!self::validateIdentity($type, $no, $phone, $pass)) {
@@ -218,8 +218,12 @@ class Customer extends Authenticatable
 
         CustomerIdentity::add($customer_id, $type);
         $updateData = ['phone' => $phone];
-        if ($recommend_id) {
-            $updateData['recommend_id'] = $recommend_id;
+        if ($recommend_sn) {
+            $customer = Customer::where('sn', $recommend_sn)->get()->first();
+            if ($customer) {
+                $updateData['recommend_id'] = $customer->id;
+            }
+
         }
 
         Customer::where('id', $customer_id)->update($updateData);
