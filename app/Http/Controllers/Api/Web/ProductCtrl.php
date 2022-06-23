@@ -67,7 +67,7 @@ class ProductCtrl extends Controller
             return response()->json($re);
         }
 
-        $sale_channel_id = 2;
+        $sale_channel_id = 1;
         $dataList = Product::productList(null, null, [
             'price' => 1,
             'img' => 1,
