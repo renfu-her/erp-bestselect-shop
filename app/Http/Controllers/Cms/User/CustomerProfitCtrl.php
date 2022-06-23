@@ -83,16 +83,15 @@ class CustomerProfitCtrl extends Controller
 
         //  dd(CustomerProfit::where('id',$id)->get());
         $data = CustomerProfit::where('id', $id)->get()->first();
-        
+     //   dd( Customer::detail($data->customer_id)->get()->first());
         if (!$data) {
             return abort(404);
         }
+        //   dd(Customer::detail($data->customer_id)->get()->toArray());
 
-
-     
         return view('cms.admin.customer_profit.edit', [
             'method' => 'edit',
-            'customer' => Customer::where('id', $data->customer_id)->get()->first(),
+            'customer' => Customer::detail($data->customer_id)->get()->first(),
             'status' => ProfitStatus::getValueWithDesc(),
             'banks' => Bank::get(),
             'profitType' => ProfitType::getValueWithDesc(),

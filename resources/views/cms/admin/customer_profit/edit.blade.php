@@ -27,6 +27,12 @@
                     <input class="form-control @error('identity_id') is-invalid @enderror" name="identity_id"
                         value="{{ old('identity_id', $data->identity_id ?? '') }}" />
                 </x-b-form-group>
+
+                <x-b-form-group name="parent_profit_rate" title="推薦者" required="true">
+                    <div>
+                    {{ $customer->recommend_name }}
+                    </div>
+                </x-b-form-group>
                 <x-b-form-group name="parent_profit_rate" title="上一代分潤(%)" required="true">
                     <input class="form-control @error('parent_profit_rate') is-invalid @enderror" name="parent_profit_rate"
                         value="{{ old('parent_profit_rate', $data->parent_profit_rate ?? '') }}" type="number" />
@@ -40,8 +46,8 @@
                         @foreach ($profitType as $key => $pType)
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" name="profit_type" value="{{ $key }}" type="radio"
-                                        @if ($key == old('profit_type', $data->profit_type ?? 'dividend')) checked @endif >
+                                    <input class="form-check-input" name="profit_type" value="{{ $key }}"
+                                        type="radio" @if ($key == old('profit_type', $data->profit_type ?? 'dividend')) checked @endif>
                                     {{ $pType }}
                                 </label>
                             </div>
@@ -51,7 +57,7 @@
                 <x-b-form-group name="has_child" title="是否有下一代">
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline form-switch form-switch-lg">
-                            <input class="form-check-input" type="checkbox" name="has_child" value="1" 
+                            <input class="form-check-input" type="checkbox" name="has_child" value="1"
                                 @if (old('has_child', $data->has_child ?? '') == '1') checked @endif>
                         </div>
                     </div>
@@ -111,6 +117,7 @@
                 justify-content: center;
                 overflow: hidden;
             }
+
             .uploadPreview img {
                 width: auto;
                 max-width: 100%;

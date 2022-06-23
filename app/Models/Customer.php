@@ -263,4 +263,17 @@ class Customer extends Authenticatable
 
         return false;
     }
+
+    public static function detail($id)
+    {
+
+        $sub = DB::table("usr_customers as cus2")->select("name")
+            ->whereColumn("customer.recommend_id", "cus2.id");
+
+        return DB::table("usr_customers as customer")
+            ->select('*')
+            ->selectRaw(DB::raw("({$sub->toSql()}) as recommend_name"))
+            ->where('id', $id);
+
+    }
 }
