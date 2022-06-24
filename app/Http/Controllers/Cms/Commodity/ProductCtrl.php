@@ -44,7 +44,8 @@ class ProductCtrl extends Controller
         $page = getPageCount(Arr::get($query, 'data_per_page'));
         $cond = [];
         $cond['keyword'] = Arr::get($query, 'keyword');
-        $cond['user'] = Arr::get($query, 'user', true);
+        $cond['user'] = Arr::get($query, 'user', []);
+        
         $cond['product_type'] = Arr::get($query, 'product_type', 'all');
         $cond['consume'] = Arr::get($query, 'consume', 'all');
         $cond['public'] = Arr::get($query, 'public', 'all');
