@@ -66,6 +66,8 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/ConsignmentOrder.php');
     require base_path('routes/cms/ConsignmentStock.php');
     require base_path('routes/cms/CustomerProfit.php');
+    require base_path('routes/cms/GroupbyCompany.php');
+
 
 });
 
