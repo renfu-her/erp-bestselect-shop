@@ -35,7 +35,7 @@ class ConsignmentStockCtrl extends Controller
         ]);
     }
 
-    public function historyStockDetailLog(Request $request, $id) {
+    public function historyStockDetailLog(Request $request, $depot_id, $id) {
         $query = $request->query();
         $data_per_page = Arr::get($query, 'data_per_page', 10);
         $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
@@ -45,7 +45,11 @@ class ConsignmentStockCtrl extends Controller
         if (!$productStyle) {
             return abort(404);
         }
-        $logPurchase = PurchaseLog::getCsnStockData($id);
+        $logEvent = [
+            Event::consignment()->value
+            , Event::csn_order()->value
+        ];
+        $logPurchase = PurchaseLog::getStockData($logEvent, $depot_id, $id);
         $logPurchase = $logPurchase->paginate($data_per_page)->appends($query);
         $title = $product->title. '-'. $productStyle->title;
 

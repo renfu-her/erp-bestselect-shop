@@ -114,12 +114,6 @@ class OrderCtrl extends Controller
 
         include app_path() . '/Helpers/auth_mpi_mac.php';
 
-        $str_mer_id = '77725';
-        $str_merchant_id = '8220300000043';
-        $str_terminal_id = '90300043';
-
-        $str_url = 'https://testepos.ctbcbank.com/mauth/SSLAuthUI.jsp';
-
         $arr_data = [
             'MerchantID' => $str_merchant_id,
             'TerminalID' => $str_terminal_id,
@@ -391,7 +385,7 @@ class OrderCtrl extends Controller
             $dividend = $payLoad['points'];
         }
 
-        $re = Order::createOrder($customer->email, 1, $address, $payLoad['products'], null, $couponObj, ReceivedMethod::fromValue($payLoad['payment']), $dividend);
+        $re = Order::createOrder($customer->email, 1, $address, $payLoad['products'], $payLoad['mcode'], $payLoad['note'], $couponObj, ReceivedMethod::fromValue($payLoad['payment']), $dividend);
 
         if ($re['success'] == '1') {
             DB::commit();
@@ -532,12 +526,6 @@ class OrderCtrl extends Controller
 
         // credit card start
         include app_path() . '/Helpers/auth_mpi_mac.php';
-
-        $str_mer_id = '77725';
-        $str_merchant_id = '8220300000043';
-        $str_terminal_id = '90300043';
-
-        $str_url = 'https://testepos.ctbcbank.com/mauth/SSLAuthUI.jsp';
 
         $arr_data = [
             'MerchantID' => $str_merchant_id,

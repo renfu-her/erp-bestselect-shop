@@ -91,11 +91,11 @@ Breadcrumbs::for('cms.product.edit-web-spec', function (BreadcrumbTrail $trail, 
     $trail->parent('cms.product.index');
     $trail->push('[' . $value->title . '] 網頁-規格說明');
 });
-// 編輯 - 網頁-運送方式
-Breadcrumbs::for('cms.product.edit-web-logis', function (BreadcrumbTrail $trail, $value) {
-    $trail->parent('cms.product.index');
-    $trail->push('[' . $value->title . '] 網頁-運送方式');
-});
+// // 編輯 - 網頁-運送方式
+// Breadcrumbs::for('cms.product.edit-web-logis', function (BreadcrumbTrail $trail, $value) {
+//     $trail->parent('cms.product.index');
+//     $trail->push('[' . $value->title . '] 網頁-運送方式');
+// });
 // 編輯 - 設定
 Breadcrumbs::for('cms.product.edit-setting', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.index');
@@ -215,6 +215,13 @@ Breadcrumbs::for('cms.ar.review', function (BreadcrumbTrail $trail, $value) {
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
     $trail->push('收款單', route('cms.ar.receipt', ['id' => $value['id']]));
     $trail->push('入款審核');
+});
+//編輯收款單稅別/摘要/備註
+Breadcrumbs::for('cms.ar.taxation', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id'=>$value['id']]));
+    $trail->push('收款單', route('cms.ar.receipt', ['id'=>$value['id']]));
+    $trail->push('修改摘要/稅別');
 });
 Breadcrumbs::for('cms.order.pay-order', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
@@ -586,6 +593,53 @@ Breadcrumbs::for('cms.ap.index', function (BreadcrumbTrail $trail) {
 Breadcrumbs::for('cms.ar.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
     $trail->push('收款作業', route('cms.ar.index'));
+});
+
+// 信用卡作業管理
+Breadcrumbs::for('cms.credit_manager.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('信用卡作業管理', route('cms.credit_manager.index'));
+});
+// 信用卡
+Breadcrumbs::for('cms.credit_card.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.credit_manager.index');
+    $trail->push('信用卡列表', route('cms.credit_card.index'));
+});
+Breadcrumbs::for('cms.credit_card.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.credit_card.index');
+    $trail->push('新增');
+});
+Breadcrumbs::for('cms.credit_card.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.credit_card.index');
+    $trail->push('編輯');
+});
+
+// 請款銀行
+Breadcrumbs::for('cms.credit_bank.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.credit_manager.index');
+    $trail->push('銀行列表', route('cms.credit_bank.index'));
+});
+Breadcrumbs::for('cms.credit_bank.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.credit_bank.index');
+    $trail->push('新增');
+});
+Breadcrumbs::for('cms.credit_bank.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.credit_bank.index');
+    $trail->push('編輯');
+});
+
+// 信用卡銀行請款比例
+Breadcrumbs::for('cms.credit_percent.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.credit_manager.index');
+    $trail->push('請款比例', route('cms.credit_percent.index'));
+});
+Breadcrumbs::for('cms.credit_percent.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.credit_percent.index');
+    $trail->push('新增');
+});
+Breadcrumbs::for('cms.credit_percent.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.credit_percent.index');
+    $trail->push('編輯');
 });
 
 // 會計科目

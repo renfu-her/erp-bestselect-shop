@@ -60,7 +60,7 @@
                             <tr>
                                 <th scope="row">{{ $key + 1 }}</th>
                                 <td class="text-center">
-                                    <a href="{{ Route('cms.consignment-stock.stock_detail_log', ['id' => $data->product_style_id], true) }}"
+                                    <a href="{{ Route('cms.consignment-stock.stock_detail_log', ['depot_id' => $depot_id ?? -1, 'id' => $data->product_style_id], true) }}"
                                        data-bs-toggle="tooltip" title="明細"
                                        class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                         <i class="bi bi-card-list"></i>

@@ -52,10 +52,10 @@
         <a href="{{ Route('cms.product.edit-web-spec', ['id' => $id], true) }}"
             class="nav-link {{ isActive('edit-web-spec', $route_name) }}">[網頁]規格說明</a>
     </li>
-    <li class="nav-item">
+    {{-- <li class="nav-item">
         <a href="{{ Route('cms.product.edit-web-logis', ['id' => $id], true) }}"
             class="nav-link {{ isActive('edit-web-logis', $route_name) }}">[網頁]運送方式</a>
-    </li>
+    </li> --}}
     <li class="nav-item">
         <a href="{{ Route('cms.product.edit-setting', ['id' => $id], true) }}"
             class="nav-link {{ isActive('edit-setting', $route_name) }}">設定</a>

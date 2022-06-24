@@ -351,6 +351,7 @@ class GeneralLedger extends Model
         $account_code = $parameter['account_code'] ? $parameter['account_code'] : null;
         $account_name = $parameter['account_name'] ? $parameter['account_name'] : '';
         $method_name = $parameter['method_name'] ? $parameter['method_name'] : '';
+        $summary = $parameter['summary'] ? $parameter['summary'] : '';
         $note = $parameter['note'] ? $parameter['note'] : '';
         $product_title = $parameter['product_title'] ? $parameter['product_title'] : '';
         $del_even = $parameter['del_even'] ? $parameter['del_even'] : '';
@@ -373,6 +374,7 @@ class GeneralLedger extends Model
                     'account_code'=>$account_code,
                     'account_name'=>$account_name,
                     'method_name'=>$method_name,
+                    'summary'=>$summary,
                     'note'=>$note,
                     'product_title'=>$product_title,
                     'del_even'=>$del_even,
@@ -405,6 +407,7 @@ class GeneralLedger extends Model
                     'account_code'=>$account_code,
                     'account_name'=>$account_name,
                     'method_name'=>$method_name,
+                    'summary'=>$summary,
                     'note'=>$note,
                     'product_title'=>$product_title,
                     'del_even'=>$del_even,
@@ -435,6 +438,7 @@ class GeneralLedger extends Model
                     'account_code'=>$account_code,
                     'account_name'=>$account_name,
                     'method_name'=>$method_name,
+                    'summary'=>$summary,
                     'note'=>$note,
                     'product_title'=>$product_title,
                     'del_even'=>$del_even,
@@ -460,6 +464,7 @@ class GeneralLedger extends Model
                     'account_code'=>$account_code,
                     'account_name'=>$account_name,
                     'method_name'=>$method_name,
+                    'summary'=>$summary,
                     'note'=>$note,
                     'product_title'=>$product_title,
                     'del_even'=>$del_even,
@@ -486,6 +491,7 @@ class GeneralLedger extends Model
                     'account_code'=>$account_code,
                     'account_name'=>$account_name,
                     'method_name'=>$method_name,
+                    'summary'=>$summary,
                     'note'=>$note,
                     'product_title'=>$product_title,
                     'del_even'=>$del_even,
@@ -517,6 +523,7 @@ class GeneralLedger extends Model
                     'account_code'=>$account_code,
                     'account_name'=>$account_name,
                     'method_name'=>$method_name,
+                    'summary'=>$summary,
                     'note'=>$note,
                     'product_title'=>$product_title,
                     'del_even'=>$del_even,
@@ -550,6 +557,7 @@ class GeneralLedger extends Model
                     'account_code'=>$account_code,
                     'account_name'=>$account_name,
                     'method_name'=>$method_name,
+                    'summary'=>$summary,
                     'note'=>$note,
                     'product_title'=>$product_title,
                     'del_even'=>$del_even,
@@ -575,6 +583,7 @@ class GeneralLedger extends Model
                     'account_code'=>$account_code,
                     'account_name'=>$account_name,
                     'method_name'=>$method_name,
+                    'summary'=>$summary,
                     'note'=>$note,
                     'product_title'=>$product_title,
                     'del_even'=>$del_even,
@@ -590,5 +599,48 @@ class GeneralLedger extends Model
                 array_push($debit, $tmp);
             }
         }
+    }
+
+    public static function getAllGrade() {
+        $arr_type = [
+            [app(FirstGrade::class)->getTable(), (GradeModelClass::getDescription(GradeModelClass::FirstGrade))]
+            , [app(SecondGrade::class)->getTable(), (GradeModelClass::getDescription(GradeModelClass::SecondGrade))]
+            , [app(ThirdGrade::class)->getTable(), (GradeModelClass::getDescription(GradeModelClass::ThirdGrade))]
+            , [app(FourthGrade::class)->getTable(), (GradeModelClass::getDescription(GradeModelClass::FourthGrade))]
+        ];
+
+        $query_first = null;
+        for ($i = 0; $i < count($arr_type); $i++) {
+            $table = $arr_type[$i][0];
+            $type = $arr_type[$i][1];
+            $query = DB::table('acc_all_grades')
+                ->leftJoin($table. ' as child', function ($join) use($type) {
+                    $join->on('child.id', '=', 'acc_all_grades.grade_id')
+                        ->where('acc_all_grades.grade_type', '=', $type);
+                })
+                ->select(
+                    'acc_all_grades.id as primary_id'
+                    , 'acc_all_grades.grade_type'
+                    , 'acc_all_grades.grade_id'
+//                    , 'child.id'
+                    , 'child.code'
+                    , 'child.name'
+                    , 'child.note_1'
+                    , 'child.note_2'
+                    , 'child.acc_company_fk'
+                    , 'child.acc_income_statement_fk'
+                )
+                ->where('acc_all_grades.grade_type', '=', $type)
+                ->whereNotNull('child.id')
+                ->whereNull('acc_all_grades.deleted_at')
+                ->whereNull('child.deleted_at');
+            if (null == $query_first) {
+                $query_first = $query;
+            } else {
+                $query_first->union($query);
+            }
+        }
+
+        return $query_first;
     }
 }

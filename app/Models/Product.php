@@ -636,6 +636,7 @@ class Product extends Model
                 'g.id as group_id',
                 'g.name as group_name',
                 'g.method_fk as method',
+                'g.note as note',
                 'temp.temps',
                 'temp.id as temp_id',
                 'rule.rules'])
@@ -651,9 +652,20 @@ class Product extends Model
     {
         $pick_up = DB::table('prd_pickup as pick_up')
             ->leftJoin('depot', 'depot.id', '=', 'pick_up.depot_id_fk')
-            ->select('pick_up.id', 'depot.id as depot_id', 'depot.name as depot_name', )
+            ->select('pick_up.id', 'depot.id as depot_id', 'depot.name as depot_name', 'depot.address as depot_address', 'depot.tel as depot_tel', )
             ->whereNull('depot.deleted_at')
             ->where('pick_up.product_id_fk', $product_id);
+
+        return $pick_up;
+    }
+
+    public static function getPickupWithPickUpId($pickup_id)
+    {
+        $pick_up = DB::table('prd_pickup as pick_up')
+            ->leftJoin('depot', 'depot.id', '=', 'pick_up.depot_id_fk')
+            ->select('pick_up.id', 'depot.id as depot_id', 'depot.name as depot_name', 'depot.address as depot_address', 'depot.tel as depot_tel', )
+            ->whereNull('depot.deleted_at')
+            ->where('pick_up.id', $pickup_id);
 
         return $pick_up;
     }
@@ -965,9 +977,10 @@ class Product extends Model
         // end to check 產品的上下架時間
 
         $productQueries = DB::table('prd_products as prd')
+            ->where('prd.online', '=', 1)
+            ->where('prd.public', '=', 1)
             ->where('prd.title', 'LIKE', "%$data%")
             ->orWhere('prd.sku', 'LIKE', "%$data%")
-            ->where('prd.public', '=', 1)
             ->leftJoin('prd_product_styles as product_style', function ($join) {
                 $join->on('product_style.product_id', '=', 'prd.id')
                     ->where('product_style.is_active', '=', 1);
@@ -1055,6 +1068,14 @@ class Product extends Model
                 'page' => $totalPages,
                 'list' => $listData,
             ],
+        ]);
+    }
+
+
+    public static function update_product_taxation($parm)
+    {
+        self::where('id', $parm['product_id'])->update([
+            'has_tax' => $parm['taxation'],
         ]);
     }
 }

@@ -65,6 +65,7 @@ class PayableForeignCurrency extends Model
             //            'payable_status' => $req['payable_status'],
             'payment_date' => $req['payment_date'],
             'accountant_id_fk' => Auth::user()->id,
+            'summary' => $req['summary'],
             'note' => $req['note'],
         ]);
     }

@@ -161,6 +161,11 @@ return
                 "controller_name" => "AccountReceivedCtrl",
                 "route_name" => "cms.ar.index",
             ],
+            [
+                "title" => "信用卡作業管理",
+                "controller_name" => "CreditManagerCtrl",
+                "route_name" => "cms.credit_manager.index",
+            ],
         ],
     ],
     [

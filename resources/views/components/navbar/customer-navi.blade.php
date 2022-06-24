@@ -3,7 +3,8 @@
         <a href="#" class="nav-link ">我的訂單</a>
     </li>
     <li class="nav-item">
-        <a href="#" class="nav-link ">我的優惠卷</a>
+        <a href="{{ Route('cms.customer.coupon', ['id' => $customer], true) }}"
+           class="nav-link {{ isActive('coupon', $route_name) }}">我的優惠卷</a>
     </li>
     <li class="nav-item">
         <a href="{{ Route('cms.customer.dividend', ['id' => $customer], true) }}"

@@ -1,4 +1,20 @@
 <?php
+if(env('APP_ENV') == 'local' || env('APP_ENV') == 'dev'){
+    $str_mer_id = '77725';
+    $str_merchant_id = '8220300000043';
+    $str_terminal_id = '90300043';
+
+    $str_url = 'https://testepos.ctbcbank.com/mauth/SSLAuthUI.jsp';
+
+} else {
+    // formal env
+    $str_mer_id = '77725';
+    $str_merchant_id = '8220300000043';
+    $str_terminal_id = '90300043';
+
+    $str_url = 'https://testepos.ctbcbank.com/mauth/SSLAuthUI.jsp';
+}
+
 if (!function_exists("agF1gTdKEBPd6CaJ")) {
     function agF1gTdKEBPd6CaJ($ekV4gb3DGH29YotI)
     {

@@ -10,6 +10,7 @@
     @else
     <a href="{{ route('cms.ar.review', ['id' => $received_order->order_id]) }}" class="btn btn-outline-success px-4" role="button">取消入帳</a>
     @endif
+    <a href="{{ route('cms.ar.taxation', ['id' => $received_order->order_id]) }}" class="btn btn-outline-success px-4" role="button">修改摘要/稅別</a>
     {{--
     <button type="submit" class="btn btn-danger">中一刀列印畫面</button>
     <button type="submit" class="btn btn-danger">A4列印畫面</button>
@@ -104,7 +105,7 @@
                                 <td>{{ $value->product_qty }}</td>
                                 <td>{{ number_format($value->product_price, 2) }}</td>
                                 <td>{{ number_format($value->product_origin_price) }}</td>
-                                <td>{{ $received_order->memo }}</td>
+                                <td>{{ $received_order->memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id], true) }}">{{ $order->sn }}</a> {{ $value->product_taxation == 1 ? '應稅' : '免稅' }} {{ $order->note }}</td>
                             </tr>
                         @endforeach
 
@@ -114,7 +115,7 @@
                                 <td>1</td>
                                 <td>{{ number_format($order->dlv_fee, 2) }}</td>
                                 <td>{{ number_format($order->dlv_fee) }}</td>
-                                <td>{{ $received_order->memo }}</td>
+                                <td>{{ $received_order->memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id], true) }}">{{ $order->sn }}</a> {{ $order->dlv_taxation == 1 ? '應稅' : '免稅' }}</td>
                             </tr>
                         @endif
 
@@ -125,7 +126,7 @@
                                 <td>1</td>
                                 <td>-{{ number_format($d_value->discount_value, 2) }}</td>
                                 <td>-{{ number_format($d_value->discount_value) }}</td>
-                                <td>{{ $received_order->memo }}</td>
+                                <td>{{ $received_order->memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id], true) }}">{{ $order->sn }}</a> {{ $d_value->discount_taxation == 1 ? '應稅' : '免稅' }}</td>
                             </tr>
                         @endforeach
                         @endif
@@ -153,9 +154,9 @@
                         @if($value->received_method == 'credit_card')
                             {{ '（' . $value->received_method_name . ' - ' . $value->credit_card_number . '（' . $value->credit_card_owner_name . '）' . '）' }}
                         @elseif($value->received_method == 'remit')
-                            {{ '（' . $value->received_method_name . ' - ' . $value->note . '（' . $value->remit_memo . '）' . '）' }}
+                            {{ '（' . $value->received_method_name . ' - ' . $value->summary . '（' . $value->remit_memo . '）' . '）' }}
                         @else
-                            {{ '（' . $value->account->name . ' - ' . $value->note . '）' }}
+                            {{ '（' . $value->received_method_name . ' - ' . $value->account->name . ' - ' . $value->summary . '）' }}
                         @endif
                     </dd>
                 </div>

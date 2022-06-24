@@ -216,6 +216,10 @@ class Purchase extends Model
     public static function del($id, $operator_user_id, $operator_user_name) {
         //判斷若有入庫、付款單 則不可刪除
         $returnMsg = [];
+        $purchase = Purchase::where('id', '=', $id)->get()->first();
+        if (AuditStatus::approved()->value == $purchase->audit_status) {
+            return ['success' => 0, 'error_msg' => '已審核無法刪除'];
+        }
         $inbounds = PurchaseInbound::purchaseInboundList($id)->get()->toArray();
         $payingOrderList = PayingOrder::getPayingOrdersWithPurchaseID($id)->get();
         if (null != $inbounds && 0 < count($inbounds)) {

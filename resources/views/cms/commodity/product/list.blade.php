@@ -8,14 +8,16 @@
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">商品名稱</label>
-                    <input class="form-control" type="text" name="keyword" placeholder="輸入商品名稱或SKU">
+                    <input class="form-control" type="text" name="keyword" value="{{ $cond['keyword'] }}"
+                        placeholder="輸入商品名稱">
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">負責人</label>
                     <select class="form-select -select2 -multiple" multiple name="user[]" aria-label="負責人"
                         data-placeholder="多選">
                         @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            <option value="{{ $user->id }}" @if (in_array($user->id, $cond['user'])) selected @endif>
+                                {{ $user->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -39,8 +41,8 @@
                         @foreach ($consumes as $key => $consume)
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" name="consume" type="radio" value="{{ $consume[0] }}"
-                                        @if ($consume[0] == $cond['consume']) checked @endif>
+                                    <input class="form-check-input" name="consume" type="radio"
+                                        value="{{ $consume[0] }}" @if ($consume[0] == $cond['consume']) checked @endif>
                                     {{ $consume[1] }}
                                 </label>
                             </div>
@@ -53,8 +55,8 @@
                         @foreach ($publics as $key => $public)
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" name="public" type="radio" value="{{ $public[0] }}"
-                                        @if ($public[0] == $cond['public']) checked @endif>
+                                    <input class="form-check-input" name="public" type="radio"
+                                        value="{{ $public[0] }}" @if ($public[0] == $cond['public']) checked @endif>
                                     {{ $public[1] }}
                                 </label>
                             </div>
@@ -67,14 +69,14 @@
                         @foreach ($onlineTypes as $key => $types)
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" name="online" type="radio" value="{{ $types[0] }}"
-                                        @if ($types[0] == $cond['online']) checked @endif>
+                                    <input class="form-check-input" name="online" type="radio"
+                                        value="{{ $types[0] }}" @if ($types[0] == $cond['online']) checked @endif>
                                     {{ $types[1] }}
                                 </label>
                             </div>
                         @endforeach
                     </div>
-                 
+
                 </fieldset>
 
             </div>
@@ -177,7 +179,6 @@
             .icon.-close_eye+span.label::before {
                 content: '不';
             }
-
         </style>
     @endpush
     @push('sub-scripts')

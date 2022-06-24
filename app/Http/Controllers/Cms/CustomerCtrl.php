@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Addr;
 use App\Models\Customer;
 use App\Models\CustomerAddress;
+use App\Models\CustomerCoupon;
 use App\Models\CustomerDividend;
 use App\Models\CustomerLogin;
 use App\Models\User;
@@ -197,6 +198,27 @@ class CustomerCtrl extends Controller
     /**
      * @param  Request  $request
      * @param $id int 會員id
+     * 我的優惠卷
+     */
+    public function coupon(Request $request, $id)
+    {
+        $query = $request->query();
+        $order = Arr::get($query, 'order', '');
+        $dataList = CustomerCoupon::getList($id);
+        if (isset($order) && !empty($order)) {
+            $dataList->orderByDesc('discount.end_date');
+        }
+        $dataList = $dataList->get();
+        return view('cms.admin.customer.coupon', [
+            'customer' => $id,
+            'order' => $order,
+            "dataList" => $dataList,
+        ]);
+    }
+
+    /**
+     * @param  Request  $request
+     * @param $id int 會員id
      * 列出收件地址管理
      */
     public function address(Request $request, $id)
@@ -227,13 +249,13 @@ class CustomerCtrl extends Controller
      */
     public function dividend(Request $request, $id)
     {
-        $dividend = CustomerDividend::getDividend($id)->get()->first()->dividend;
+//        $dividend = CustomerDividend::getDividend($id)->get()->first()->dividend;
         $typeGet = CustomerDividend::getList($id, 'get')->get();
         $typeUsed = CustomerDividend::getList($id, 'used')->get();
 
         return view('cms.admin.customer.dividend', [
             'customer' => $id,
-            'dividend' => $dividend,
+//            'dividend' => $dividend,
             'get_record' => $typeGet,
             'use_record' => $typeUsed,
         ]);

@@ -16,7 +16,6 @@ use App\Models\Discount;
 use App\Models\Order;
 use App\Models\OrderCart;
 use App\Models\OrderPayCreditCard;
-use App\Models\OrderStatus;
 use App\Models\PayableDefault;
 use App\Models\PayingOrder;
 use App\Models\PurchaseInbound;
@@ -62,12 +61,6 @@ class OrderCtrl extends Controller
             $order_date = [$cond['order_sdate'], $cond['order_edate']];
         }
 
-        if (gettype($cond['order_status']) == 'string') {
-            $cond['order_status'] = explode(',', $cond['order_status']);
-        } else {
-            $cond['order_status'] = [];
-        }
-
         if (gettype($cond['shipment_status']) == 'string') {
             $cond['shipment_status'] = explode(',', $cond['shipment_status']);
         } else {
@@ -77,11 +70,16 @@ class OrderCtrl extends Controller
         $dataList = Order::orderList($cond['keyword'], $cond['order_status'], $cond['sale_channel_id'], $order_date)
             ->paginate($page)->appends($query);
 
+        $orderStatus = [];
+        foreach (\App\Enums\Order\OrderStatus::asArray() as $key => $val) {
+            $orderStatus[$val] = \App\Enums\Order\OrderStatus::getDescription($val);
+        }
+
         // dd(OrderStatus::select('code as id','title')->toBase()->get()->toArray());
         return view('cms.commodity.order.list', [
             'dataList' => $dataList,
             'cond' => $cond,
-            'orderStatus' => OrderStatus::select('code as id', 'title')->toBase()->get(),
+            'orderStatus' => $orderStatus,
             'shipmentStatus' => ShipmentStatus::select('code as id', 'title')->toBase()->get(),
             'saleChannels' => SaleChannel::select('id', 'title')->get()->toArray(),
             'data_per_page' => $page]);
@@ -155,7 +153,7 @@ class OrderCtrl extends Controller
                 'city_id',
                 'region_id',
             ])
-            ->get();
+            ->get()->first();
 
       //    dd(Discount::getDiscounts('global-normal'));
         //    dd($citys);
@@ -254,7 +252,7 @@ class OrderCtrl extends Controller
             $coupon = [$d['coupon_type'], $d['coupon_sn']];
         }
 
-        $re = Order::createOrder($customer->email, $d['salechannel_id'], $address, $items, $d['note'], $coupon, null, $dividend);
+        $re = Order::createOrder($customer->email, $d['salechannel_id'], $address, $items, $d['mcode'], $d['note'], $coupon, null, $dividend);
 
         if ($re['success'] == '1') {
             wToast('訂單新增成功');
@@ -416,8 +414,8 @@ class OrderCtrl extends Controller
                 , 'delivery.audit_date'
                 , 'sub_order.ship_event_id as depot_id'
             )
-            ->get()->first()
-        ;
+            ->where('sub_order.id', '=', $subOrderId)
+            ->get()->first();
 
         if (!$sub_order || 'pickup' != $sub_order->ship_category) {
             return abort(404);
@@ -428,8 +426,6 @@ class OrderCtrl extends Controller
             ->orderByDesc('inbound.created_at')
             ->get()->toArray();
         $inboundOverviewList = PurchaseInbound::getOverviewInboundList(Event::ord_pickup()->value, $subOrderId)->get()->toArray();
-
-//        dd(123, $subOrderId, $purchaseItemList);
 
         $depotList = Depot::all()->toArray();
         return view('cms.commodity.order.inbound', [

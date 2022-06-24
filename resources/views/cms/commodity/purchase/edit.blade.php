@@ -201,7 +201,7 @@
                                 </td>
                                 @if ($method === 'edit')
                                     <td data-td="inbound_status">{{$psItemVal->inbound_status?? ''}}</td>
-                                    <td data-td="inbound_user_name">{{$psItemVal->inbound_user_name?? ''}}</td>
+                                    <td data-td="inbound_user_names">{{$psItemVal->inbound_user_names?? ''}}</td>
                                 @endif
                                 <td>
                                     <input type="text" class="form-control form-control-sm -xl" name="memo[]"
@@ -603,7 +603,8 @@
                 let _URL = `${Laravel.apiUrl.productStyles}?page=${page}`;
                 let Data = {
                     keyword: $('#addProduct .-searchBar input').val(),
-                    supplier_id: $('input:hidden[name="supplier"]').val()
+                    supplier_id: $('input:hidden[name="supplier"]').val(),
+                    type: 'p'
                 };
 
                 if (!Data.supplier_id) {

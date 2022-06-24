@@ -13,7 +13,7 @@
                     <a href="javascript:void(0)" role="button" data-bs-toggle="modal" data-bs-target="#confirm-delete" data-href="{{ Route('cms.ar.delete', ['id' => $received_order_data->id], true) }}" class="btn btn-danger">刪除收款單</a>
                 @endif
                 --}}
-                @if ( ($receivable || in_array($order->status, ['已付款', '已入款'])) && $received_credit_card_log )
+                @if ( ($receivable || in_array($order->status, ['已付款', '已入款', '結案'])) && $received_credit_card_log )
                     <a href="{{ Route('api.web.order.credit_card_checkout', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}" class="btn btn-primary" role="button" target="_blank">線上刷卡連結</a>
                 @else
                     <button type="button" class="btn btn-primary" disabled>線上刷卡連結</button>
@@ -23,7 +23,7 @@
             @endif
 
             @if ($received_order_data)
-                @if(!in_array($order->status, ['已入款']))
+                @if(!in_array($order->status, ['已入款', '結案']))
                     <a href="javascript:void(0)" role="button" data-bs-toggle="modal" data-bs-target="#confirm-delete" data-href="{{ Route('cms.ar.delete', ['id' => $received_order_data->id], true) }}" class="btn btn-danger">刪除收款單</a>
                 @else
                     <button type="button" class="btn btn-danger" disabled>刪除收款單</button>
@@ -278,6 +278,8 @@
                             <dd>
                                 @if($subOrder->ship_group_name == '')
                                     尚未設定物流
+                                @elseif(false == isset($subOrder->delivery_audit_date))
+                                    尚未做出貨審核
                                 @else
                                     @if($subOrder->payable_sn)
                                         <a href="{{ Route('cms.order.pay-order', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}" class="text-decoration-none">付款單號-{{ $subOrder->payable_sn }}</a>
@@ -313,10 +315,6 @@
                         <div class="col">
                             <dt>物態</dt>
                             <dd>{{ $subOrder->logistic_status ?? '(待處理)' }}</dd>
-                        </div>
-                        <div class="col-9">
-                            <dt>物流說明</dt>
-                            <dd>{{ $subOrder->ship_group_note ?? '(待處理)' }}</dd>
                         </div>
                     </dl>
                     <dl class="row">
@@ -423,7 +421,7 @@
                                 @else 未入款 @endif
                             </caption>
                         @endif
-                        
+
                         <tbody class="border-top-0">
                             <tr class="table-light">
                                 <td class="col-2">小計</td>

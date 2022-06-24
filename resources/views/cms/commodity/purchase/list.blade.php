@@ -216,6 +216,7 @@
                         <th scope="col">入庫數量</th>
                         <th scope="col">異常數量</th>
                         <th scope="col">採購人員</th>
+                        <th scope="col">入庫人員</th>
                         <th scope="col">廠商</th>
                         <th scope="col">發票號碼</th>
 
@@ -250,6 +251,7 @@
                                 <td>{{ $data->arrived_num }}</td>
                                 <td>{{ $data->error_num }}</td>
                                 <td>{{ $data->purchase_user_name }}</td>
+                                <td>{{ $data->inbound_user_names ?? '' }}</td>
                                 <td>{{ $data->supplier_name }}</td>
                                 <td>{{ $data->invoice_num }}</td>
 

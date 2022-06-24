@@ -16,6 +16,7 @@ use App\Models\LogisticFlow;
 use App\Models\LogisticProjLogisticLog;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Product;
 use App\Models\ShipmentGroup;
 use App\Models\SubOrders;
 use App\Models\User;
@@ -464,10 +465,10 @@ class LogisticCtrl extends Controller
 
             if ('pickup' == $suborder->ship_category) {
                 //自取，還是要從理貨倉出貨到門市，所以收件地是門市
-                $depot = Depot::where('id', '=', $suborder->ship_event_id)->get()->first();
-                $rcv_name = $depot->name;
-                $rcv_tel = $depot->tel;
-                $rcv_addr = $depot->address;
+                $pickup = Product::getPickupWithPickUpId($suborder->ship_event_id)->get()->first();
+                $rcv_name = $pickup->depot_name;
+                $rcv_tel = $pickup->depot_tel;
+                $rcv_addr = $pickup->depot_address;
             } else {
                 $rcv_name = $order->rec_name;
                 $rcv_tel = $order->rec_phone;
