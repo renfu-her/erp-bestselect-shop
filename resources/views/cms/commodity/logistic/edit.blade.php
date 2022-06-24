@@ -166,11 +166,11 @@
     @if($event != \App\Enums\Delivery\Event::csn_order()->value)
         @if(isset($logistic->projlgt_order_sn))
             <div class="card shadow p-4 mb-4">
-                <h6>託運單資訊</h6>
+                <h6>託運單資訊(喜鴻託運單)</h6>
                 <div class="col-12 mb-3">
                     <div class="form-control" readonly>
                         <button type="button" class="btn btn-link btn-sm px-4"
-                                data-bs-toggle="modal" data-bs-target="#confirm-del-logistic-order">{{$logistic->projlgt_order_sn ?? ''}} 刪除託運單</button>
+                                data-bs-toggle="modal" data-bs-target="#confirm-del-logistic-order">{{$logistic->projlgt_order_sn ?? ''}} 刪除喜鴻託運單</button>
                     </div>
                     @error('sn')
                     <div class="alert alert-danger mt-3">
@@ -181,12 +181,12 @@
             </div>
         @elseif(isset($depots) && isset($temps) && isset($dims))
             <div class="card shadow p-4 mb-4">
-                <h6>託運單資訊</h6>
+                <h6>託運單資訊(喜鴻託運單)</h6>
                 <div class="col-12 mb-3">
                     <form id="form_store" action="{{ Route('cms.logistic.createLogisticOrder', [], true) }}" method="post">
                         @method('POST')
                         @csrf
-                        <h7>新增託運單</h7>
+                        <h7>新增喜鴻托運單</h7>
                         <div class="row">
                             <div>
                                 <fieldset class="col-12 col-sm-6 mb-3">
