@@ -101,21 +101,14 @@
                     {{-- <x-b-modal-status id="status_info"></x-b-modal-status> --}}
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label" for="order_status">訂單狀態</label>
-                    <div class="input-group mb-1">
-                        <select class="form-select" id="order_status" aria-label="訂單狀態">
-                            <option value="" selected>請選擇</option>
-                            @foreach ($orderStatus as $key => $oStatus)
-                                <option value="{{ $oStatus->id }}">{{ $oStatus->title }}</option>
-                            @endforeach
-                        </select>
-                        <button class="btn btn-outline-secondary" type="button" id="clear_order_status"
-                            data-bs-toggle="tooltip" title="清空">
-                            <i class="bi bi-x-lg"></i>
-                        </button>
-                    </div>
-                    <input type="hidden" name="order_status" value="{{ implode(',', $cond['order_status']) }}"/>
-                    <div id="chip-group-order" class="d-flex flex-wrap bd-highlight chipGroup"></div>
+                    <label class="form-label">訂單狀態</label>
+                    <select name="order_status[]" multiple class="-select2 -multiple form-select"
+                            data-placeholder="請選擇訂單狀態">
+                        @foreach ($orderStatus as $key => $oStatus)
+                            <option value="{{ $key }}" @if (in_array($key, $cond['order_status'])) selected @endif>
+                                {{ $oStatus }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">銷售通路</label>
@@ -233,25 +226,13 @@
                 all_shipmentStatus[code.id] = code.title;
             });
             let Chips_shipment = new ChipElem($('#chip-group-shipment'));
-            // - 訂單狀態
-            let selectedOrder = $('input[name="order_status"]').val();
-            const orderStatus = @json($orderStatus) || [];
-            let all_orderStatus = {};
-            orderStatus.forEach(status => {
-                all_orderStatus[status.id] = status.title;
-            });
-            let Chips_order = new ChipElem($('#chip-group-order'));
 
             // 初始化
             selectedShipment = Chips_shipment.init(selectedShipment, all_shipmentStatus);
-            selectedOrder = Chips_order.init(selectedOrder, all_orderStatus);
 
             // 綁定事件
             Chips_shipment.onDelete = function(code) {
                 selectedShipment.splice(selectedShipment.indexOf(code), 1);
-            };
-            Chips_order.onDelete = function(id) {
-                selectedOrder.splice(selectedOrder.indexOf(id), 1);
             };
             $('#shipment_status, #order_status').off('change.chips').on('change.chips', function(e) {
                 const id = $(this).attr('id');
@@ -261,9 +242,6 @@
                 switch (id) {
                     case 'shipment_status':
                         chipChangeEvent(selectedShipment, Chips_shipment, val, title);
-                        break;
-                    case 'order_status':
-                        chipChangeEvent(selectedOrder, Chips_order, val, title);
                         break;
                 }
 
@@ -279,17 +257,11 @@
             // 送出前存值
             $('#search').on('submit', function(e) {
                 $('input[name="shipment_status"]').val(selectedShipment);
-                $('input[name="order_status"]').val(selectedOrder);
             });
             // 清空
             $('#clear_shipment_status').on('click', function(e) {
                 selectedShipment = [];
                 Chips_shipment.clear();
-                e.preventDefault();
-            });
-            $('#clear_order_status').on('click', function(e) {
-                selectedOrder = [];
-                Chips_order.clear();
                 e.preventDefault();
             });
         </script>

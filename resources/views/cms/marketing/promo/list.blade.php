@@ -124,7 +124,7 @@
                         <th scope="col">併用限制</th>
                         <th scope="col">開始日期</th>
                         <th scope="col">結束日期</th>
-                        <th scope="col">數量</th>
+                        <th scope="col">剩餘數量</th>
                         <th scope="col" class="text-center">刪除</th>
                     </tr>
                 </thead>
@@ -171,7 +171,7 @@
                             <td>無</td>
                             <td>{{ date('Y/m/d', strtotime($data->start_date)) }}</td>
                             <td>{{ date('Y/m/d', strtotime($data->end_date)) }}</td>
-                            <td>{{ number_format($data->max_usage) }}</td>
+                            <td>{{ $data->max_usage ? number_format($data->max_usage - $data->usage_count) : '不限' }}</td>
                             <td>
                                 <a href="javascript:void(0)"
                                     data-href="{{ Route('cms.promo.delete', ['id' => $data->id], true) }}"

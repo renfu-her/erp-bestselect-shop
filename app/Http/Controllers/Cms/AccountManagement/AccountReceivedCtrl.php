@@ -890,9 +890,9 @@ class AccountReceivedCtrl extends Controller
                 'received' => 'required|array',
                 'product_grade_id' => 'required|exists:acc_all_grades,id',
                 'product' => 'required|array',
-                'logistics_grade_id' => 'required|exists:acc_all_grades,id',
-                'order_dlv' => 'required|array',
-                'discount' => 'required|array',
+                'logistics_grade_id' => 'nullable|exists:acc_all_grades,id',
+                'order_dlv' => 'nullable|array',
+                'discount' => 'nullable|array',
             ]);
 
             DB::beginTransaction();
@@ -903,7 +903,7 @@ class AccountReceivedCtrl extends Controller
                     'product_grade_id'=>request('product_grade_id'),
                 ]);
 
-                if(is_array(request('received'))){
+                if(request('received') && is_array(request('received'))){
                     $received = request('received');
                     foreach($received as $key => $value){
                         $value['received_id'] = $key;
@@ -911,7 +911,7 @@ class AccountReceivedCtrl extends Controller
                     }
                 }
 
-                if(is_array(request('product'))){
+                if(request('product') && is_array(request('product'))){
                     $product = request('product');
                     foreach($product as $key => $value){
                         $value['product_id'] = $key;
@@ -919,7 +919,7 @@ class AccountReceivedCtrl extends Controller
                     }
                 }
 
-                if(is_array(request('order_dlv'))){
+                if(request('order_dlv') && is_array(request('order_dlv'))){
                     $order = request('order_dlv');
                     foreach($order as $key => $value){
                         $value['order_id'] = $key;
@@ -927,7 +927,7 @@ class AccountReceivedCtrl extends Controller
                     }
                 }
 
-                if(is_array(request('discount'))){
+                if(request('discount') && is_array(request('discount'))){
                     $discount = request('discount');
                     foreach($discount as $key => $value){
                         $value['discount_id'] = $key;

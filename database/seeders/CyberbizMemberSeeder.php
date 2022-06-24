@@ -4,8 +4,11 @@ namespace Database\Seeders;
 
 use App\Enums\Customer\AccountStatus;
 use App\Enums\Customer\Newsletter;
+use App\Enums\Discount\DividendCategory;
+use App\Enums\Discount\DividendFlag;
 use App\Models\Customer;
 use App\Models\CustomerAddress;
+use App\Models\CustomerDividend;
 use App\Models\CustomerLogin;
 use Faker\Factory;
 use Illuminate\Database\Seeder;
@@ -31,6 +34,9 @@ class CyberbizMemberSeeder extends Seeder
     const LATEST_ORDER = 22;
     const NEWS_LETTER = 24;
 
+    const CYBERBIZ_NAME = '喜鴻購物1.0';
+    const CYBERBIZ_IMPORT_TIME = '2022-01-01 00:00:00';
+
     /**
      * 匯入Cyberbiz會員
      *
@@ -43,7 +49,8 @@ class CyberbizMemberSeeder extends Seeder
         $jsonFileContents = file_get_contents(database_path('seeders/') . 'memberData.json');
         $memberJsonData = json_decode($jsonFileContents, true);
 
-        foreach ($memberJsonData['data'] as $memberData) {
+        foreach ($memberJsonData['data'] as $key => $memberData) {
+            print_r('(' . ($key-1) . '/'. count($memberJsonData['data']) . ')執行：' . $memberData[self::NAME]);
             //handle member address
             $address = null;
             $city_id = null;
@@ -122,9 +129,49 @@ class CyberbizMemberSeeder extends Seeder
                             'is_default_addr'        => 1,
                         ]);
                     }
+
+                    $customerBonusExistQuery = CustomerDividend::where([
+                        ['customer_id' , '=', $customerExistQuery->id],
+                        ['category', '=', DividendCategory::Cyberbiz],
+                    ])->get()->first();
+                    if ($customerBonusExistQuery) {
+                        CustomerDividend::where([
+                            ['customer_id' , '=', $customerExistQuery->id],
+                            ['category', '=', DividendCategory::Cyberbiz],
+                        ])->update([
+//                            'category' => DividendCategory::Cyberbiz,
+                            'category_sn' => self::CYBERBIZ_NAME,
+//                            'customer_id' => $customer_id,
+                            'type' => 'get',
+                            'flag' => DividendFlag::Active(),
+                            'flag_title' => DividendFlag::Active()->description,
+//                            'weight' => 0,
+                            'dividend' => $memberData[self::COUPON] ?? 0,
+                            'deadline' => 0,
+                            'created_at' => self::CYBERBIZ_IMPORT_TIME,
+                        ]);
+                    } else {
+                        CustomerDividend::create([
+                            'category' => DividendCategory::Cyberbiz,
+                            'category_sn' => self::CYBERBIZ_NAME,
+                            'customer_id' => $customerExistQuery->id,
+                            'type' => 'get',
+                            'flag' => DividendFlag::Active(),
+                            'flag_title' => DividendFlag::Active()->description,
+//                            'weight' => 0,
+                            'dividend' => $memberData[self::COUPON] ?? 0,
+                            'deadline' => 0,
+                        ]);
+                        CustomerDividend::where([
+                            ['customer_id' , '=', $customerExistQuery->id],
+                            ['category', '=', DividendCategory::Cyberbiz],
+                        ])->update([
+                            'created_at' => self::CYBERBIZ_IMPORT_TIME,
+                        ]);
+                    }
                 } else {
                     $loginMethods = is_null($memberData[self::LOGIN_METHOD]) ? null : explode(',', $memberData[self::LOGIN_METHOD]);
-                    Customer::createCustomer(
+                    $customerId = Customer::createCustomer(
                         $memberData[self::NAME] ?? null,
                         $memberData[self::EMAIL] ?? null,
                         $this->faker->password(),
@@ -139,7 +186,44 @@ class CyberbizMemberSeeder extends Seeder
                         $memberData[self::NEWS_LETTER] === true ? Newsletter::subscribe : Newsletter::un_subscribe,
                         $loginMethods,
                     );
+
+                    CustomerDividend::create([
+                        'category' => DividendCategory::Cyberbiz,
+                        'category_sn' => self::CYBERBIZ_NAME,
+                        'customer_id' => $customerId,
+                        'type' => 'get',
+                        'flag' => DividendFlag::Active(),
+                        'flag_title' => DividendFlag::Active()->description,
+                        //                            'weight' => 0,
+                        'dividend' => $memberData[self::COUPON] ?? 0,
+                        'deadline' => 0,
+                    ]);
+                    CustomerDividend::where([
+                        ['customer_id' , '=', $customerId],
+                        ['category', '=', DividendCategory::Cyberbiz],
+                    ])->update([
+                        'created_at' => self::CYBERBIZ_IMPORT_TIME,
+                    ]);
                 }
+            }
+        }
+
+        //更新沒有會員編號
+        if (DB::table('usr_customers')
+            ->whereNull('sn')
+            ->get()
+        ) {
+            $noSns = DB::table('usr_customers')
+                ->whereNull('sn')
+                ->select('id')
+                ->get();
+            foreach ($noSns as $noSn) {
+                DB::table('usr_customers')
+                    ->where('id', $noSn->id)
+                    ->update([
+                        'sn' => "M".str_pad(strval($noSn->id), 9, '0',
+                                STR_PAD_LEFT),
+                    ]);
             }
         }
     }

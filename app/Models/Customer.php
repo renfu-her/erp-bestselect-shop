@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Customer\AccountStatus;
 use App\Enums\Customer\Newsletter;
+use App\Enums\Customer\ProfitStatus;
 use App\Enums\Customer\Sex;
 use App\Notifications\CustomerPasswordReset;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,6 +13,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -63,7 +65,7 @@ class Customer extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'birthday'  => 'datetime:Y-m-d',
+        'birthday' => 'datetime:Y-m-d',
     ];
 
     public function sendPasswordResetNotification($token)
@@ -94,12 +96,18 @@ class Customer extends Authenticatable
         , $newsletter = null
         , $loginMethods = null
     ) {
+        DB::beginTransaction();
+        $sn = "M" . str_pad((self::get()
+                ->count()) + 1, 9, '0', STR_PAD_LEFT);
+
+        // S000000187
         $arr = [
             'name' => $name,
             'phone' => $phone,
             'email' => $email,
             'birthday' => $birthday,
             'sex' => $sex,
+            'sn' => $sn,
             //'acount_status' => $acount_status,
             'password' => Hash::make($password),
             'api_token' => Str::random(80),
@@ -113,7 +121,7 @@ class Customer extends Authenticatable
         $id = $customer->id;
 
         //創建消費者時，直接給一消費者身分
-       // $identity = DB::table('usr_identity')->where('code', 'customer')->get()->first();
+        // $identity = DB::table('usr_identity')->where('code', 'customer')->get()->first();
         CustomerIdentity::add($id, 'customer');
 
         CustomerLogin::addLoginMethod($id, $loginMethods);
@@ -124,19 +132,19 @@ class Customer extends Authenticatable
             !is_null($addr)) {
             CustomerAddress::create([
                 'usr_customers_id_fk' => $id,
-                'name'                => $name,
-                'phone'               => $phone,
-                'address'             => $address,
-                'city_id'             => $city_id,
-                'region_id'           => $region_id,
-                'addr'                => $addr,
-                'is_default_addr'        => 1,
+                'name' => $name,
+                'phone' => $phone,
+                'address' => $address,
+                'city_id' => $city_id,
+                'region_id' => $region_id,
+                'addr' => $addr,
+                'is_default_addr' => 1,
             ]);
         }
 
 //        self::where('id', '=', $id)->get()->first()->givePermissionTo($permission_id);
-//        self::where('id', '=', $id)->get()->first()->assignRole($role_id);
-
+        //        self::where('id', '=', $id)->get()->first()->assignRole($role_id);
+        DB::commit();
         return $id;
     }
 
@@ -155,15 +163,15 @@ class Customer extends Authenticatable
                 , 'phone'
                 , 'sex'
                 , DB::raw('(case
-                        when sex = '. Sex::female()->value .' then "'. Sex::getDescription(Sex::female()->value) .'"
-                        when sex = '. Sex::male()->value .' then "'. Sex::getDescription(Sex::male()->value) .'"
-                        else "'. '' .'"
+                        when sex = ' . Sex::female()->value . ' then "' . Sex::getDescription(Sex::female()->value) . '"
+                        when sex = ' . Sex::male()->value . ' then "' . Sex::getDescription(Sex::male()->value) . '"
+                        else "' . '' . '"
                     end) as sex_title') //性別
                 , 'newsletter'
                 , DB::raw('(case
-                        when newsletter = '. Newsletter::un_subscribe()->value .' then "'. Newsletter::getDescription(Newsletter::un_subscribe()->value) .'"
-                        when newsletter = '. Newsletter::subscribe()->value .' then "'. Newsletter::getDescription(Newsletter::subscribe()->value) .'"
-                        else "'. '' .'"
+                        when newsletter = ' . Newsletter::un_subscribe()->value . ' then "' . Newsletter::getDescription(Newsletter::un_subscribe()->value) . '"
+                        when newsletter = ' . Newsletter::subscribe()->value . ' then "' . Newsletter::getDescription(Newsletter::subscribe()->value) . '"
+                        else "' . '' . '"
                     end) as newsletter_title') //訂閱電子報
                 , 'acount_status'
                 , 'password'
@@ -200,5 +208,89 @@ class Customer extends Authenticatable
         $admin_table->whereNull('deleted_at');
         return $admin_table;
 
+    }
+
+    public static function attachIdentity($customer_id, $type, $no, $phone, $pass, $recommend_sn = null)
+    {
+        DB::beginTransaction();
+        if (!self::validateIdentity($type, $no, $phone, $pass)) {
+            return ['success' => '0', 'message' => '驗證錯誤'];
+        }
+
+        CustomerIdentity::add($customer_id, $type);
+        $updateData = ['phone' => $phone];
+        if ($recommend_sn) {
+            $customer = self::checkRecommender($recommend_sn, $customer_id);
+            if ($customer) {
+                $updateData['recommend_id'] = $customer->id;
+            }
+
+        }
+
+        Customer::where('id', $customer_id)->update($updateData);
+
+        DB::commit();
+
+        return ['success' => '1'];
+
+    }
+
+    public static function validateIdentity($type, $no, $phone, $pass)
+    {
+        $url_emp = "https://www.besttour.com.tw/api/Check_emp.asp";
+        $url_agt = "https://www.besttour.com.tw/api/Check_agt.asp";
+
+        switch ($type) {
+            case "employee":
+            case "leader":
+                $url = $url_emp;
+                break;
+
+            case "agent":
+                $url = $url_agt;
+                break;
+            default:
+                return false;
+        }
+
+        $response = Http::withoutVerifying()->get($url, [
+            'no' => $no,
+            'phone' => $phone,
+            'pass' => $pass,
+        ]);
+
+        if ($response->successful()) {
+            $response = $response->json();
+            if ($response['check'] == 'Pass') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static function detail($id)
+    {
+
+        $sub = DB::table("usr_customers as cus2")->select("name")
+            ->whereColumn("customer.recommend_id", "cus2.id");
+
+        return DB::table("usr_customers as customer")
+            ->select('*')
+            ->selectRaw(DB::raw("({$sub->toSql()}) as recommend_name"))
+            ->where('id', $id);
+
+    }
+
+    public static function checkRecommender($sn, $current_customer_id)
+    {
+        return DB::table('usr_customer_profit as profit')
+            ->leftJoin('usr_customers as customer', 'profit.customer_id', '=', 'customer.id')
+            ->select('customer.*')
+            ->where('customer.sn', $sn)
+            ->where('profit.has_child', '1')
+            ->where('profit.status', ProfitStatus::Success())
+            ->where('customer.id', "<>", $current_customer_id)
+            ->get()->first();
     }
 }

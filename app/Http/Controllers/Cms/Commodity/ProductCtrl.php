@@ -44,19 +44,26 @@ class ProductCtrl extends Controller
         $page = getPageCount(Arr::get($query, 'data_per_page'));
         $cond = [];
         $cond['keyword'] = Arr::get($query, 'keyword');
-        $cond['user'] = Arr::get($query, 'user', true);
+        $cond['user'] = Arr::get($query, 'user', []);
+
+        if (count($cond['user']) == 0) {
+            $condUser = true;
+        } else {
+            $condUser = $cond['user'];
+        }
+
         $cond['product_type'] = Arr::get($query, 'product_type', 'all');
         $cond['consume'] = Arr::get($query, 'consume', 'all');
         $cond['public'] = Arr::get($query, 'public', 'all');
         $cond['online'] = Arr::get($query, 'online', 'all');
 
-        $products = Product::productList($cond['keyword'], null, ['user' => $cond['user'],
+        $products = Product::productList($cond['keyword'], null, ['user' => $condUser,
             'product_type' => $cond['product_type'],
             'consume' => $cond['consume'] == 'all' ? null : $cond['consume'],
             'public' => $cond['public'] == 'all' ? null : $cond['public'],
             'online' => $cond['online'],
         ])
-            ->paginate($page);
+            ->paginate($page)->appends($query);
 
         return view('cms.commodity.product.list', [
             'dataList' => $products,
@@ -423,11 +430,11 @@ class ProductCtrl extends Controller
 
         $vali_rule = [];
         for ($i = 0; $i < 3; $i++) {
-            $vali_rule["item_new$i.*"] = ['required','regex:/^[^\'\"]*$/' ];
-            $vali_rule["item_value$i.*"] = ['required','regex:/^[^\'\"]*$/'];
+            $vali_rule["item_new$i.*"] = ['required', 'regex:/^[^\'\"]*$/'];
+            $vali_rule["item_value$i.*"] = ['required', 'regex:/^[^\'\"]*$/'];
         }
         $request->validate($vali_rule);
-       
+
         $d = $request->all();
         for ($i = 0; $i < 3; $i++) {
             if (isset($d["spec" . $i])) {

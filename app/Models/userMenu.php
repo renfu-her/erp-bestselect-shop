@@ -156,6 +156,11 @@ return
                 "controller_name" => "AccountReceivedCtrl",
                 "route_name" => "cms.ar.index",
             ],
+            [
+                "title" => "信用卡作業管理",
+                "controller_name" => "CreditManagerCtrl",
+                "route_name" => "cms.credit_manager.index",
+            ],
         ],
     ],
     [
@@ -211,6 +216,11 @@ return
                 "title" => "消費者帳號管理",
                 "controller_name" => "CustomerCtrl",
                 "route_name" => "cms.customer.index",
+            ],
+            [
+                "title" => "分潤審核管理",
+                "controller_name" => "CustomerProfitCtrl",
+                "route_name" => "cms.customer-profit.index",
             ],
             [
                 "title" => "角色管理",

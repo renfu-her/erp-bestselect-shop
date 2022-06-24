@@ -4,7 +4,8 @@
         <span class="icon"><i class="bi bi-printer"></i></span>
         <span class="label">列印</span>
     </a>
-    <a href="#" class="nav-link">
+    <a href="javascript:void(0)" data-href="{{ Route('cms.purchase.delete', ['id' => $id], true) }}"
+       data-bs-toggle="modal" data-bs-target="#confirm-delete-purchase" class="nav-link">
         <span class="icon"><i class="bi bi-trash"></i></span>
         <span class="label">刪除採購單</span>
     </a>
@@ -38,3 +39,22 @@
     </li>
 </ul>
 <hr class="narbarBottomLine mb-3">
+
+<!-- Modal -->
+<x-b-modal id="confirm-delete-purchase">
+    <x-slot name="title">刪除確認</x-slot>
+    <x-slot name="body">刪除後將無法復原！確認要刪除？</x-slot>
+    <x-slot name="foot">
+        <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
+    </x-slot>
+</x-b-modal>
+
+@once
+    @push('sub-scripts')
+        <script>
+            $('#confirm-delete-purchase').on('show.bs.modal', function(e) {
+                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+            });
+        </script>
+    @endpush
+@endonce

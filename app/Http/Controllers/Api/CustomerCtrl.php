@@ -3,22 +3,26 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\Customer\AccountStatus;
+use App\Enums\Customer\ProfitStatus;
 use App\Enums\Globals\ApiStatusMessage;
 use App\Enums\Globals\ResponseParam;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\CustomerAddress;
+use App\Models\CustomerIdentity;
+use App\Models\CustomerProfit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-
 
 class CustomerCtrl extends Controller
 {
     //註冊
-    function register(Request $request)
+    public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'email' => ['required', 'email:rfc,dns', 'unique:App\Models\Customer']
@@ -26,7 +30,7 @@ class CustomerCtrl extends Controller
             , 'phone' => ['nullable', 'regex:/^09[0-9]{8}/', 'unique:App\Models\Customer']
             , 'password' => 'required|confirmed|min:4'
             , 'birthday' => 'nullable|date_format:"Y-m-d"'
-            , 'newsletter' => 'nullable|boolean'
+            , 'newsletter' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -57,12 +61,12 @@ class CustomerCtrl extends Controller
         return response()->json([
             ResponseParam::status()->key => ApiStatusMessage::Succeed,
             ResponseParam::msg()->key => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
-            ResponseParam::data()->key =>  $id,
+            ResponseParam::data()->key => $id,
         ]);
     }
 
     //登入
-    function login(Request $request)
+    public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required',
@@ -72,7 +76,7 @@ class CustomerCtrl extends Controller
         if ($validator->fails()) {
             return response()->json([
                 ResponseParam::status()->key => 'E01',
-                ResponseParam::msg()->key => $validator->errors()
+                ResponseParam::msg()->key => $validator->errors(),
             ]);
         }
 
@@ -86,7 +90,7 @@ class CustomerCtrl extends Controller
         ) {
             return response()->json([
                 ResponseParam::status()->key => 'E02',
-                ResponseParam::msg()->key => '帳號密碼錯誤'
+                ResponseParam::msg()->key => '帳號密碼錯誤',
             ]);
         }
 
@@ -97,19 +101,28 @@ class CustomerCtrl extends Controller
         return response()->json([
             ResponseParam::status()->key => ApiStatusMessage::Succeed,
             ResponseParam::msg()->key => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
-            ResponseParam::data()->key =>  $this->arrayConverNullValToEmpty($customer->toArray()),
+            ResponseParam::data()->key => $this->arrayConverNullValToEmpty($customer->toArray()),
         ]);
     }
 
     //客戶資訊
-    function customerInfo(Request $request)
+    public function customerInfo(Request $request)
     {
         $user = $request->user()->toArray();
+        $identity = CustomerIdentity::where('customer_id', $user['id'])->where('identity_code', '<>', 'customer')->get()->first();
+        $user['identity_title'] = '';
+        $user['identity_code'] = '';
+        if ($identity) {
+            $user['identity_title'] = $identity->identity_title;
+            $user['identity_code'] = $identity->identity_code;
+        }
+
         $user = $this->arrayConverNullValToEmpty($user);
+
         return response()->json([
             ResponseParam::status()->key => ApiStatusMessage::Succeed,
-            ResponseParam::msg()->key =>  ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
-            ResponseParam::data()->key =>  $user,
+            ResponseParam::msg()->key => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
+            ResponseParam::data()->key => $user,
         ]);
     }
 
@@ -118,7 +131,7 @@ class CustomerCtrl extends Controller
      * 更新客戶資訊
      * @return
      */
-    function updateCustomerInfo(Request $request)
+    public function updateCustomerInfo(Request $request)
     {
         $customerId = $request->user()->id;
         $validator = Validator::make($request->all(), [
@@ -163,8 +176,8 @@ class CustomerCtrl extends Controller
 
         return response()->json([
             ResponseParam::status => ApiStatusMessage::Succeed,
-            ResponseParam::msg    => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
-            ResponseParam::data   => [],
+            ResponseParam::msg => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
+            ResponseParam::data => [],
         ]);
     }
     /**
@@ -172,9 +185,9 @@ class CustomerCtrl extends Controller
      * 消費者收件地址API
      * @return
      */
-    function customerAddress(Request $request)
+    public function customerAddress(Request $request)
     {
-        $customerId  = $request->user()->id;
+        $customerId = $request->user()->id;
         $data = DB::table('usr_customers as customer')
             ->where('customer.id', $customerId)
             ->leftJoin('usr_customers_address', 'customer.id', '=', 'usr_customers_address.usr_customers_id_fk')
@@ -190,14 +203,14 @@ class CustomerCtrl extends Controller
                 DB::raw('(CASE WHEN usr_customers_address.is_default_addr = 1
                         THEN TRUE
                         ELSE FALSE END)
-                        AS is_default')
+                        AS is_default'),
             ])
             ->get();
 
         return response()->json([
             ResponseParam::status => ApiStatusMessage::Succeed,
-            ResponseParam::msg    => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
-            ResponseParam::data   => $data,
+            ResponseParam::msg => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
+            ResponseParam::data => $data,
         ]);
     }
 
@@ -206,7 +219,7 @@ class CustomerCtrl extends Controller
      * 刪除收件地址
      * @return
      */
-    function deleteAddress(Request $request)
+    public function deleteAddress(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'id' => ['required', 'exists:usr_customers_address,id'],
@@ -221,17 +234,17 @@ class CustomerCtrl extends Controller
         }
 
         $data = $request->only('id');
-        $customerId  = $request->user()->id;
+        $customerId = $request->user()->id;
         $queryExist = CustomerAddress::where('usr_customers_id_fk', '=', $customerId)
-                                       ->where('id', '=', $data['id'])
-                                        ->get()
-                                        ->first();
-        if ($queryExist){
+            ->where('id', '=', $data['id'])
+            ->get()
+            ->first();
+        if ($queryExist) {
             CustomerAddress::where('id', '=', $data['id'])->delete();
             return response()->json([
                 ResponseParam::status => ApiStatusMessage::Succeed,
-                ResponseParam::msg    => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
-                ResponseParam::data   => [],
+                ResponseParam::msg => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
+                ResponseParam::data => [],
             ]);
         } else {
             return response()->json([
@@ -247,7 +260,7 @@ class CustomerCtrl extends Controller
      * 設定預設地址
      * @return
      */
-    function setDefaultAddress(Request $request)
+    public function setDefaultAddress(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'id' => ['required', 'exists:usr_customers_address,id'],
@@ -262,7 +275,7 @@ class CustomerCtrl extends Controller
         }
 
         $data = $request->only('id');
-        $customerId  = $request->user()->id;
+        $customerId = $request->user()->id;
 
         $queryExist = CustomerAddress::where('usr_customers_id_fk', '=', $customerId)
             ->where('id', '=', $data['id'])
@@ -281,8 +294,8 @@ class CustomerCtrl extends Controller
                 ]);
             return response()->json([
                 ResponseParam::status => ApiStatusMessage::Succeed,
-                ResponseParam::msg    => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
-                ResponseParam::data   => [],
+                ResponseParam::msg => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
+                ResponseParam::data => [],
             ]);
         } else {
             return response()->json([
@@ -298,17 +311,17 @@ class CustomerCtrl extends Controller
      * 編輯/建立 收件地址
      * @return
      */
-    function editAddress (Request $request)
+    public function editAddress(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'id' => ['nullable', 'exists:usr_customers_address,id'],
             'name' => ['required', 'string'],
             'phone' => ['required', 'string'],
-            'city_id' => ['required', Rule::exists('loc_addr', 'id')->where(function ($query){
+            'city_id' => ['required', Rule::exists('loc_addr', 'id')->where(function ($query) {
                 $query->whereNull('zipcode')
-                        ->whereNull('parent_id');
+                    ->whereNull('parent_id');
             })],
-            'region_id' => ['required', Rule::exists('loc_addr', 'id')->where(function ($query){
+            'region_id' => ['required', Rule::exists('loc_addr', 'id')->where(function ($query) {
                 $query->whereNotNull('zipcode')
                     ->whereNotNull('parent_id');
             })],
@@ -334,7 +347,7 @@ class CustomerCtrl extends Controller
             'is_default',
         );
 
-        $customerId  = $request->user()->id;
+        $customerId = $request->user()->id;
         $cityQuery = DB::table('loc_addr')
             ->where('id', '=', $data['city_id'])
             ->select('title')
@@ -346,34 +359,34 @@ class CustomerCtrl extends Controller
             ->get()
             ->first();
         $address = $regionQuery->zipcode .
-                                ' ' .
-                                $cityQuery->title .
-                                $regionQuery->title .
-                                $data['addr'];
+        ' ' .
+        $cityQuery->title .
+        $regionQuery->title .
+            $data['addr'];
 
         // update address
         if ($request->exists('id')) {
             $queryExist = CustomerAddress::where('usr_customers_id_fk', '=', $customerId)
-                                        ->where('id', '=', $data['id'])
-                                        ->get()
-                                        ->first();
+                ->where('id', '=', $data['id'])
+                ->get()
+                ->first();
             if ($queryExist) {
                 DB::table('usr_customers_address')
                     ->where('id', '=', $data['id'])
                     ->update([
                         'usr_customers_id_fk' => $customerId,
-                        'name'                => $data['name'],
-                        'phone'               => $data['phone'],
-                        'address'             => $address,
-                        'city_id'             => $data['city_id'],
-                        'region_id'           => $data['region_id'],
-                        'addr'                => $data['addr'],
+                        'name' => $data['name'],
+                        'phone' => $data['phone'],
+                        'address' => $address,
+                        'city_id' => $data['city_id'],
+                        'region_id' => $data['region_id'],
+                        'addr' => $data['addr'],
                     ]);
 
                 return response()->json([
                     ResponseParam::status => ApiStatusMessage::Succeed,
-                    ResponseParam::msg    => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
-                    ResponseParam::data   => [],
+                    ResponseParam::msg => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
+                    ResponseParam::data => [],
                 ]);
             } else {
                 return response()->json([
@@ -395,40 +408,40 @@ class CustomerCtrl extends Controller
             //create address
             CustomerAddress::create([
                 'usr_customers_id_fk' => $customerId,
-                'name'                => $data['name'],
-                'phone'               => $data['phone'],
-                'address'             => $address,
-                'city_id'             => $data['city_id'],
-                'region_id'           => $data['region_id'],
-                'addr'                => $data['addr'],
-                'is_default_addr'     => intval($data['is_default']),
+                'name' => $data['name'],
+                'phone' => $data['phone'],
+                'address' => $address,
+                'city_id' => $data['city_id'],
+                'region_id' => $data['region_id'],
+                'addr' => $data['addr'],
+                'is_default_addr' => intval($data['is_default']),
             ]);
 
             return response()->json([
                 ResponseParam::status => ApiStatusMessage::Succeed,
-                ResponseParam::msg    => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
-                ResponseParam::data   => [],
+                ResponseParam::msg => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
+                ResponseParam::data => [],
             ]);
         }
     }
 
     //撤销所有令牌
-    function tokensDeleteAll(Request $request)
+    public function tokensDeleteAll(Request $request)
     {
         $request->user()->tokens()->delete();
         return response()->json([
             ResponseParam::status()->key => ApiStatusMessage::Succeed,
-            ResponseParam::msg()->key =>  ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
+            ResponseParam::msg()->key => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
         ]);
     }
 
     //撤销當前令牌
-    function tokensDeleteCurrent(Request $request)
+    public function tokensDeleteCurrent(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
         return response()->json([
             ResponseParam::status()->key => ApiStatusMessage::Succeed,
-            ResponseParam::msg()->key =>  ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
+            ResponseParam::msg()->key => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
         ]);
     }
 
@@ -444,5 +457,129 @@ class CustomerCtrl extends Controller
             }
         }
         return $data;
+    }
+
+    public function attachIdentity(Request $request)
+    {
+        $user = $request->user();
+
+        $validator = Validator::make($request->all(), [
+            'no' => ['required'],
+            'type' => ['required'],
+            'phone' => ['required'],
+            'pass' => ['required'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                ResponseParam::status => ApiStatusMessage::Fail,
+                ResponseParam::msg => $validator->errors(),
+                ResponseParam::data => [],
+            ]);
+        }
+
+        $d = $request->all();
+
+        $recommend_sn = Arr::get($d, 'recommend_sn', null);
+
+        $re = Customer::attachIdentity($user->id, $d['type'], $d['no'], $d['phone'], $d['pass'], $recommend_sn);
+
+        if ($re['success'] == '1') {
+            return [
+                'status' => '0',
+            ];
+        }
+
+        return [
+            'status' => 'E03',
+            'message' => $re['message'],
+        ];
+
+    }
+    public function createProfit(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'bank_id' => ['required'],
+            'bank_account' => ['required'],
+            'bank_account_name' => ['required'],
+            'identity_sn' => ['required'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                ResponseParam::status => ApiStatusMessage::Fail,
+                ResponseParam::msg => $validator->errors(),
+                ResponseParam::data => [],
+            ]);
+        }
+
+        $user = $request->user();
+        $d = $request->all();
+        $img1 = Arr::get($d, 'img1', '');
+        $img2 = Arr::get($d, 'img2', '');
+        $img3 = Arr::get($d, 'img3', '');
+
+        $re = CustomerProfit::createProfit($user->id, $d['bank_id'], $d['bank_account'], $d['bank_account_name'], $d['identity_sn'], $img1, $img2, $img3);
+        if ($re['success'] == '1') {
+            return [
+                'status' => '0',
+                'id' => $re['id'],
+            ];
+        }
+
+        return [
+            'status' => 'E04',
+            'message' => $re['message'],
+        ];
+
+    }
+
+    public function profitStatus(Request $request)
+    {
+
+        $profit = CustomerProfit::where('customer_id', $request->user()->id)->get()->first();
+        if ($profit) {
+            return [
+                'status' => '0',
+                'data' => $profit,
+            ];
+        }
+
+        return [
+            'status' => 'E02',
+            'message' => "尚未申請",
+        ];
+    }
+
+    public function checkRecommender(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'sn' => ['required'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                ResponseParam::status => ApiStatusMessage::Fail,
+                ResponseParam::msg => $validator->errors(),
+                ResponseParam::data => [],
+            ]);
+        }
+
+        $d = $request->all();
+
+        $re = Customer::checkRecommender($d['sn'], $request->user()->id);
+
+        if ($re) {
+            return [
+                'status' => '0',
+                'data' => $re->name,
+            ];
+        }
+
+        return [
+            'status' => 'E03',
+            'message' => '無推薦權限',
+        ];
     }
 }

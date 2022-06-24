@@ -13,15 +13,24 @@
                     <th scope="col">訂單日期</th>
                     <th scope="col">獲得點數</th>
                     <th scope="col">使用期限</th>
+                    <th scope="col">來源類型</th>
                 </tr>
                 </thead>
                 <tbody>
+                @php
+                    use App\Enums\Discount\DividendCategory;
+                @endphp
                 @foreach ($get_record as $key => $data)
                     <tr>
                         <td>{{ $data->category_sn }}</td>
-                        <td>{{ $data->created_at }}</td>
+                        @if($data->category !== DividendCategory::Cyberbiz)
+                            <td>{{ $data->created_at }}</td>
+                        @else
+                            <td></td>
+                        @endif
                         <td>{{ $data->dividend }}</td>
                         <td>{{ $data->active_edate }}</td>
+                        <td>{{ DividendCategory::getDescription($data->category) }}</td>
                     </tr>
                 @endforeach
                 </tbody>

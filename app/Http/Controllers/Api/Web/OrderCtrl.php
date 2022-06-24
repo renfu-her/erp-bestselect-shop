@@ -385,7 +385,7 @@ class OrderCtrl extends Controller
             $dividend = $payLoad['points'];
         }
 
-        $re = Order::createOrder($customer->email, 1, $address, $payLoad['products'], null, $couponObj, ReceivedMethod::fromValue($payLoad['payment']), $dividend);
+        $re = Order::createOrder($customer->email, 1, $address, $payLoad['products'], $payLoad['note'], $couponObj, ReceivedMethod::fromValue($payLoad['payment']), $dividend);
 
         if ($re['success'] == '1') {
             DB::commit();

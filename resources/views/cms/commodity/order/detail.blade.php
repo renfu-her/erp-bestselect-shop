@@ -316,10 +316,6 @@
                             <dt>物態</dt>
                             <dd>{{ $subOrder->logistic_status ?? '(待處理)' }}</dd>
                         </div>
-                        <div class="col-9">
-                            <dt>物流說明</dt>
-                            <dd>{{ $subOrder->ship_group_note ?? '(待處理)' }}</dd>
-                        </div>
                     </dl>
                     <dl class="row">
                         <div class="col">
