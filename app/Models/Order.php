@@ -295,12 +295,18 @@ class Order extends Model
      * @param array $coupon_obj [type,value]
      *
      */
-    public static function createOrder($email, $sale_channel_id, $address, $items, $note = null, $coupon_obj = null, ReceivedMethod $payment = null, $dividend = [])
+    public static function createOrder($email, $sale_channel_id, $address, $items, $mcode = null, $note = null, $coupon_obj = null, ReceivedMethod $payment = null, $dividend = [])
     {
-
-        return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $note, $coupon_obj, $payment, $dividend) {
+        return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $mcode, $note, $coupon_obj, $payment, $dividend) {
 
             $customer = Customer::where('email', $email)->get()->first();
+            if (isset($mcode)) {
+                $customerM = Customer::where('sn', $mcode)->get()->first();
+                if (null == $customerM) {
+                    DB::rollBack();
+                    return ['success' => '0', 'error_msg' => '無此推薦人'];
+                }
+            }
             $order = OrderCart::cartFormater($items, $sale_channel_id, $coupon_obj, true, $customer, $dividend);
 
             if ($order['success'] != 1) {
@@ -326,6 +332,7 @@ class Order extends Model
                 "email" => $email,
                 "total_price" => $order['total_price'],
                 "origin_price" => $order['origin_price'],
+                "mcode" => $mcode ?? null,
                 "dlv_fee" => $order['dlv_fee'],
                 "discount_value" => $order['discount_value'],
                 "discounted_price" => $order['discounted_price'],

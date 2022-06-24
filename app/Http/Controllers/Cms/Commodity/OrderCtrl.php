@@ -252,7 +252,7 @@ class OrderCtrl extends Controller
             $coupon = [$d['coupon_type'], $d['coupon_sn']];
         }
 
-        $re = Order::createOrder($customer->email, $d['salechannel_id'], $address, $items, $d['note'], $coupon, null, $dividend);
+        $re = Order::createOrder($customer->email, $d['salechannel_id'], $address, $items, $d['mcode'], $d['note'], $coupon, null, $dividend);
 
         if ($re['success'] == '1') {
             wToast('訂單新增成功');
