@@ -13,6 +13,7 @@ use App\Models\CustomerIdentity;
 use App\Models\CustomerProfit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
@@ -568,7 +569,11 @@ class CustomerCtrl extends Controller
 
         $d = $request->all();
 
-        $re = Customer::checkRecommender($d['sn'], $request->user()->id);
+        if (Auth::guard('sanctum')->check()) {
+            $re = Customer::checkRecommender($d['sn'], '1', $request->user()->id);
+        } else {
+            $re = Customer::checkRecommender($d['sn']);
+        }
 
         if ($re) {
             return [

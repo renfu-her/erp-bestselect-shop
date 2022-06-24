@@ -220,7 +220,7 @@ class Customer extends Authenticatable
         CustomerIdentity::add($customer_id, $type);
         $updateData = ['phone' => $phone];
         if ($recommend_sn) {
-            $customer = self::checkRecommender($recommend_sn, $customer_id);
+            $customer = self::checkRecommender($recommend_sn, '1', $customer_id);
             if ($customer) {
                 $updateData['recommend_id'] = $customer->id;
             }
@@ -282,15 +282,22 @@ class Customer extends Authenticatable
 
     }
 
-    public static function checkRecommender($sn, $current_customer_id)
+    public static function checkRecommender($sn, $check_child = '1', $current_customer_id = null)
     {
-        return DB::table('usr_customer_profit as profit')
+        $re = DB::table('usr_customer_profit as profit')
             ->leftJoin('usr_customers as customer', 'profit.customer_id', '=', 'customer.id')
             ->select('customer.*')
             ->where('customer.sn', $sn)
-            ->where('profit.has_child', '1')
-            ->where('profit.status', ProfitStatus::Success())
-            ->where('customer.id', "<>", $current_customer_id)
-            ->get()->first();
+            ->where('profit.status', ProfitStatus::Success());
+
+        if (!$check_child) {
+            $re->where('profit.has_child', '1');
+        }
+
+        if ($current_customer_id) {
+            $re->where('customer.id', "<>", $current_customer_id);
+        }
+
+        return $re->get()->first();
     }
 }
