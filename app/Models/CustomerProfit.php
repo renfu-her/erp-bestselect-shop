@@ -45,6 +45,8 @@ class CustomerProfit extends Model
             return ['success' => '0', 'message' => '重複申請'];
         }
 
+       
+
         $id = self::create([
             'customer_id' => $customer_id,
             'status' => ProfitStatus::Checking()->value,

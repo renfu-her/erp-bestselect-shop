@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Customer\AccountStatus;
 use App\Enums\Customer\Newsletter;
+use App\Enums\Customer\ProfitStatus;
 use App\Enums\Customer\Sex;
 use App\Notifications\CustomerPasswordReset;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -209,7 +210,7 @@ class Customer extends Authenticatable
 
     }
 
-    public static function attachIdentity($customer_id, $type, $no, $phone, $pass, $recommend_id = null)
+    public static function attachIdentity($customer_id, $type, $no, $phone, $pass, $recommend_sn = null)
     {
         DB::beginTransaction();
         if (!self::validateIdentity($type, $no, $phone, $pass)) {
@@ -218,8 +219,12 @@ class Customer extends Authenticatable
 
         CustomerIdentity::add($customer_id, $type);
         $updateData = ['phone' => $phone];
-        if ($recommend_id) {
-            $updateData['recommend_id'] = $recommend_id;
+        if ($recommend_sn) {
+            $customer = self::checkRecommender($recommend_sn, $customer_id);
+            if ($customer) {
+                $updateData['recommend_id'] = $customer->id;
+            }
+
         }
 
         Customer::where('id', $customer_id)->update($updateData);
@@ -262,5 +267,30 @@ class Customer extends Authenticatable
         }
 
         return false;
+    }
+
+    public static function detail($id)
+    {
+
+        $sub = DB::table("usr_customers as cus2")->select("name")
+            ->whereColumn("customer.recommend_id", "cus2.id");
+
+        return DB::table("usr_customers as customer")
+            ->select('*')
+            ->selectRaw(DB::raw("({$sub->toSql()}) as recommend_name"))
+            ->where('id', $id);
+
+    }
+
+    public static function checkRecommender($sn, $current_customer_id)
+    {
+        return DB::table('usr_customer_profit as profit')
+            ->leftJoin('usr_customers as customer', 'profit.customer_id', '=', 'customer.id')
+            ->select('customer.*')
+            ->where('customer.sn', $sn)
+            ->where('profit.has_child', '1')
+            ->where('profit.status', ProfitStatus::Success())
+            ->where('customer.id', "<>", $current_customer_id)
+            ->get()->first();
     }
 }
