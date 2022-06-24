@@ -46,12 +46,18 @@ class ProductCtrl extends Controller
         $cond['keyword'] = Arr::get($query, 'keyword');
         $cond['user'] = Arr::get($query, 'user', []);
 
+        if (count($cond['user']) == 0) {
+            $condUser = true;
+        } else {
+            $condUser = $cond['user'];
+        }
+
         $cond['product_type'] = Arr::get($query, 'product_type', 'all');
         $cond['consume'] = Arr::get($query, 'consume', 'all');
         $cond['public'] = Arr::get($query, 'public', 'all');
         $cond['online'] = Arr::get($query, 'online', 'all');
 
-        $products = Product::productList($cond['keyword'], null, ['user' => $cond['user'],
+        $products = Product::productList($cond['keyword'], null, ['user' => $condUser,
             'product_type' => $cond['product_type'],
             'consume' => $cond['consume'] == 'all' ? null : $cond['consume'],
             'public' => $cond['public'] == 'all' ? null : $cond['public'],
