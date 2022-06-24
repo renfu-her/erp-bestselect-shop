@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\Customer\AccountStatus;
+use App\Enums\Customer\ProfitStatus;
 use App\Enums\Globals\ApiStatusMessage;
 use App\Enums\Globals\ResponseParam;
 use App\Http\Controllers\Controller;
@@ -479,7 +480,9 @@ class CustomerCtrl extends Controller
 
         $d = $request->all();
 
-        $re = Customer::attachIdentity($user->id, $d['type'], $d['no'], $d['phone'], $d['pass']);
+        $recommend_sn = Arr::get($d, 'recommend_sn', null);
+
+        $re = Customer::attachIdentity($user->id, $d['type'], $d['no'], $d['phone'], $d['pass'], $recommend_sn);
 
         if ($re['success'] == '1') {
             return [
@@ -509,6 +512,7 @@ class CustomerCtrl extends Controller
                 ResponseParam::data => [],
             ]);
         }
+
         $user = $request->user();
         $d = $request->all();
         $img1 = Arr::get($d, 'img1', '');
@@ -547,4 +551,35 @@ class CustomerCtrl extends Controller
         ];
     }
 
+    public function checkRecommender(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'sn' => ['required'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                ResponseParam::status => ApiStatusMessage::Fail,
+                ResponseParam::msg => $validator->errors(),
+                ResponseParam::data => [],
+            ]);
+        }
+
+        $d = $request->all();
+
+        $re = Customer::checkRecommender($d['sn'], $request->user()->id);
+
+        if ($re) {
+            return [
+                'status' => '0',
+                'data' => $re->name,
+            ];
+        }
+
+        return [
+            'status' => 'E03',
+            'message' => '無推薦權限',
+        ];
+    }
 }

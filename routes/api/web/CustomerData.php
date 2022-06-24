@@ -12,7 +12,6 @@ Route::group(['prefix' => 'customer-data', 'as' => 'customer-data.'], function (
     Route::post('attach-identity', [CustomerCtrl::class, 'attachIdentity']);
     Route::post('create-profit', [CustomerCtrl::class, 'createProfit']);
     Route::post('profit-status', [CustomerCtrl::class, 'profitStatus']);
-
-    
+    Route::post('check-recommender', [CustomerCtrl::class, 'checkRecommender']);
 
 });
