@@ -19,7 +19,7 @@
             <tr>
                 <th scope="col" style="width:10%">#</th>
                 <th scope="col">名稱</th>
-                <th scope="col">編輯</th>
+                <th scope="col" class="text-center">編輯</th>
             </tr>
             </thead>
             <tbody>
@@ -27,7 +27,7 @@
                 <tr>
                     <th scope="row">{{ $key + 1 }}</th>
                     <td>{{ $data->title }}</td>
-                    <td>
+                    <td class="text-center">
                         <a href="{{ Route('cms.groupby-company.edit', ['id' => $data->id], true) }}"
                            data-bs-toggle="tooltip" title="編輯"
                            class="icon icon-btn fs-5 text-primary rounded-circle border-0">
