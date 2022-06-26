@@ -7,7 +7,7 @@
         <div class="col-auto">
             @can('cms.groupby-company.create')
                 <a href="{{ Route('cms.groupby-company.create', null, true) }}" class="btn btn-primary">
-                    <i class="bi bi-plus-lg"></i> 新增公司
+                    <i class="bi bi-plus-lg"></i> 新增團購主公司
                 </a>
             @endcan
         </div>

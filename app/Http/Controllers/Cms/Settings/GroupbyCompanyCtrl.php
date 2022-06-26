@@ -39,7 +39,9 @@ class GroupbyCompanyCtrl extends Controller
      */
     public function create()
     {
-        //
+        return view('cms.settings.groupby_company.edit', [
+            'method' => 'create'
+        ]);
     }
 
     /**
