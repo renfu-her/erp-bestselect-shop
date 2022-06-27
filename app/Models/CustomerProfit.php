@@ -45,7 +45,7 @@ class CustomerProfit extends Model
             return ['success' => '0', 'message' => '重複申請'];
         }
 
-       
+
 
         $id = self::create([
             'customer_id' => $customer_id,
@@ -77,5 +77,20 @@ class CustomerProfit extends Model
 
         return $imageName;
 
+    }
+
+    //回傳分潤資格審核
+    public static function getProfitData($customer_id) {
+        $re = CustomerProfit::where('customer_id', $customer_id)
+            ->select('status'
+                , 'status_title'
+                , 'parent_cusotmer_id'
+                , 'parent_profit_rate'
+                , 'profit_rate'
+                , 'has_child'
+                , 'profit_type'
+            )
+            ->get()->first();
+        return $re;
     }
 }
