@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Cms\Settings;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\GroupbyCompany;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-
 
 class GroupbyCompanyCtrl extends Controller
 {
@@ -19,17 +18,17 @@ class GroupbyCompanyCtrl extends Controller
     {
         //
         // GroupbyCompany::
-        
+
         $query = $request->query();
         $data_per_page = Arr::get($query, 'data_per_page', 10);
         $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
-        $dataList =  GroupbyCompany::where('parent_id','0')->paginate($data_per_page)->appends($query);
+        $dataList = GroupbyCompany::where('parent_id', '0')->paginate($data_per_page)->appends($query);
 
         return view('cms.settings.groupby_company.list', [
             'dataList' => $dataList,
             'data_per_page' => $data_per_page,
         ]);
-        
+
     }
 
     /**
@@ -40,7 +39,8 @@ class GroupbyCompanyCtrl extends Controller
     public function create()
     {
         return view('cms.settings.groupby_company.edit', [
-            'method' => 'create'
+            'method' => 'create',
+            'action' => Route('cms.groupby-company.create'),
         ]);
     }
 
@@ -52,7 +52,30 @@ class GroupbyCompanyCtrl extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+        $request->validate(self::vali());
+
+        $d = $request->all();
+
+        $child = [];
+        if (isset($d['n_title'])) {
+            foreach ($d['n_title'] as $key => $value) {
+                $child[] = [
+                    'title' => $value,
+                    'code' => $d['n_code'][$key],
+                    // 'active' => $d['n_active'][$key] ? $d['n_active'][$key] : '0',
+                ];
+            }
+        }
+
+        $is_active = Arr::get($d, 'active', '0');
+        $re = GroupbyCompany::createMain($d['title'], $is_active, $child);
+
+        if ($re['success'] == '1') {
+            wToast('新增完成');
+            return redirect(route('cms.groupby-company.index'));
+        }
+        //  dd($_POST);
     }
 
     /**
@@ -61,10 +84,16 @@ class GroupbyCompanyCtrl extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
+
+        $mainData = GroupbyCompany::where('id', $id)->get()->first();
+        $childData = GroupbyCompany::where('parent_id', $id)->get();
         return view('cms.settings.groupby_company.edit', [
-            'method' => 'edit'
+            'method' => 'edit',
+            'mainData' => $mainData,
+            'childData' => $childData,
+            'action' => Route('cms.groupby-company.edit', ['id' => $id]),
         ]);
     }
 
@@ -77,7 +106,50 @@ class GroupbyCompanyCtrl extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+
+        $vali = array_merge(self::vali(), ['o_active' => ['array'],
+            'o_title' => ['array'],
+            'o_title.*' => ['required'],
+            'o_code' => ['array'],
+            'o_id' => ['array'],
+            'o_id.*' => ['required']]);
+        //    dd($vali);
+        $request->validate($vali);
+
+        $d = $request->all();
+        $is_active = Arr::get($d, 'active', '0');
+
+        $child = [];
+        if (isset($d['n_title'])) {
+            foreach ($d['n_title'] as $key => $value) {
+                $child[] = [
+                    'title' => $value,
+                    'code' => $d['n_code'][$key],
+                    // 'active' => $d['n_active'][$key] ? $d['n_active'][$key] : '0',
+                ];
+            }
+        }
+
+        $oChild = [];
+        if (isset($d['o_title'])) {
+            foreach ($d['o_title'] as $key => $value) {
+                $oChild[] = [
+                    'title' => $value,
+                    'code' => $d['o_code'][$key],
+                    'id' => $d['o_id'][$key],
+                    // 'active' => $d['n_active'][$key] ? $d['n_active'][$key] : '0',
+                ];
+            }
+        }
+
+        $re = GroupbyCompany::updateMain($id, $d['title'], $is_active, $child, $oChild);
+
+        if ($re['success'] == '1') {
+            wToast('新增完成');
+            return redirect(route('cms.groupby-company.index'));
+        }
+
+        dd($re);
     }
 
     /**
@@ -89,5 +161,17 @@ class GroupbyCompanyCtrl extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    private function vali()
+    {
+        return [
+            'title' => ['required', 'string'],
+            'n_active' => ['array'],
+            'n_title' => ['array'],
+            'n_title.*' => ['required'],
+            'n_code' => ['array'],
+            'n_code.*' => ['required', 'unique:App\Models\GroupbyCompany,code'],
+        ];
     }
 }
