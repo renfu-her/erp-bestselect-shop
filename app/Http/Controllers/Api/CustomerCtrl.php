@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
+
 class CustomerCtrl extends Controller
 {
     //註冊
@@ -478,7 +479,7 @@ class CustomerCtrl extends Controller
         $vali2 = ['no' => ['required']];
 
         $validator = Validator::make($request->all(), [
-            'type' => ['required'],
+            'type' => ['required','in:customer,employee,company,leader,agent,buyer'],
         ]);
 
         if ($validator->fails()) {
