@@ -57,17 +57,19 @@ class GroupbyCompanyCtrl extends Controller
 
         $d = $request->all();
 
-        
+       
         $child = [];
         if (isset($d['n_title'])) {
             foreach ($d['n_title'] as $key => $value) {
+             
                 $child[] = [
                     'title' => $value,
                     'code' => $d['n_code'][$key],
-                    'active' => Arr::get($d, 'n_active_' . $key, '0'),
+                    'active' => Arr::get($d, 'n_active_' . $key, '1'),
                 ];
             }
         }
+    
       
         $is_active = Arr::get($d, 'active', '0');
         $re = GroupbyCompany::createMain($d['title'], $is_active, $child);

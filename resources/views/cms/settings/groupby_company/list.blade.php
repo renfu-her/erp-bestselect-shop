@@ -40,6 +40,12 @@
         </table>
     </div>
 </div>
+<div class="row flex-column-reverse flex-sm-row">
+    <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">
+        {{-- 頁碼 --}}
+        <div class="d-flex justify-content-center">{{ $dataList->links() }}</div>
+    </div>
+</div>
 
 
 <!-- Modal -->
