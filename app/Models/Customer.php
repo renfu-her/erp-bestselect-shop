@@ -268,6 +268,7 @@ class Customer extends Authenticatable
 
         return false;
     }
+   
 
     public static function detail($id)
     {
