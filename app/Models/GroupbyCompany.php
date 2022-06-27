@@ -19,7 +19,7 @@ class GroupbyCompany extends Model
         $id = self::create(['title' => $title, 'is_active' => $is_active])->id;
         $errors = [];
         foreach ($childs as $key => $value) {
-            self::createChild($id, $value['title'], $value['code'], $key, $errors);
+            self::createChild($id, $value['title'], $value['code'], $value['active'], $key, $errors);
         }
 
         if (count($errors) > 0) {
@@ -40,11 +40,11 @@ class GroupbyCompany extends Model
         self::where('id', $id)->update(['title' => $title, 'is_active' => $is_active]);
         $errors = [];
         foreach ($childs as $key => $value) {
-            self::createChild($id, $value['title'], $value['code'], $key, $errors);
+            self::createChild($id, $value['title'], $value['code'], $value['active'], $key, $errors);
         }
 
         foreach ($oChilds as $key => $value) {
-            self::updateChild($value['id'], $value['title'], $value['code'], $key, $errors);
+            self::updateChild($value['id'], $value['title'], $value['code'], $value['active'], $key, $errors);
         }
 
         if (count($errors) > 0) {
@@ -56,7 +56,7 @@ class GroupbyCompany extends Model
 
     }
 
-    public static function createChild($parent_id, $title, $code, $idx, &$error)
+    public static function createChild($parent_id, $title, $code, $active, $idx, &$error)
     {
         if (self::where('code', $code)->get()->first()) {
             $error[] = ['index' => $idx, 'type' => 'n', 'message' => '代碼重複'];
@@ -66,12 +66,12 @@ class GroupbyCompany extends Model
             'parent_id' => $parent_id,
             'title' => $title,
             'code' => $code,
-            'is_active' => '1',
+            'is_active' => $active,
         ]);
 
     }
 
-    public static function updateChild($id, $title, $code, $idx, &$error)
+    public static function updateChild($id, $title, $code, $active, $idx, &$error)
     {
         if (self::where('code', $code)->where('id', '<>', $id)->get()->first()) {
             $error[] = ['index' => $idx, 'type' => 'o', 'message' => '代碼重複'];
@@ -80,7 +80,7 @@ class GroupbyCompany extends Model
         self::where('id', $id)->update([
             'title' => $title,
             'code' => $code,
-            'is_active' => '1',
+            'is_active' => $active,
         ]);
 
     }
