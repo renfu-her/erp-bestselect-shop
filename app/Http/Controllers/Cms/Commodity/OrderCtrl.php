@@ -378,6 +378,7 @@ class OrderCtrl extends Controller
         return array($order, $subOrder);
     }
 
+    //銷貨單明細
     public function print_order_sales(Request $request, $id, $subOrderId)
     {
         list($order, $subOrder) = $this->getOrderAndSubOrders($id, $subOrderId);
@@ -386,12 +387,14 @@ class OrderCtrl extends Controller
             return abort(404);
         }
         return view('cms.commodity.order.detail', [
+            'type' => 'sales',
             'user' => $request->user(),
             'order' => $order,
             'subOrders' => $subOrder,
         ]);
     }
 
+    //出貨單明細
     public function print_order_ship(Request $request, $id, $subOrderId)
     {
         list($order, $subOrder) = $this->getOrderAndSubOrders($id, $subOrderId);
@@ -400,6 +403,7 @@ class OrderCtrl extends Controller
             return abort(404);
         }
         return view('cms.commodity.order.detail', [
+            'type' => 'ship',
             'user' => $request->user(),
             'order' => $order,
             'subOrders' => $subOrder,
