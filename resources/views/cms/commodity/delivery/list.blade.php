@@ -43,11 +43,10 @@
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">物流型態</label>
-                    <select class="form-select -select2 -single" name="ship_category" aria-label="物流型態" data-placeholder="單選">
-                        <option value="" @if ('' == old('ship_category', $searchParam['ship_category'] ?? '')) selected @endif>不限</option>
+                    <select class="form-select -select2 -multiple" multiple name="ship_category[]" aria-label="物流型態" data-placeholder="多選">
                         @foreach ($shipmentCategory as $key => $value)
                             <option value="{{ $value->code }}"
-                                    @if ($value->code == old('ship_category', $searchParam['ship_category'] ?? '')) selected @endif>{{ $value->category }}</option>
+                            @if (in_array($value->code, $searchParam['ship_category'] ?? [])) selected @endif>{{ $value->category }}</option>
                         @endforeach
                     </select>
                 </div>
