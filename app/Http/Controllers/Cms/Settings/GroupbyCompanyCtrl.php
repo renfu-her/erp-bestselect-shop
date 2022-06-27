@@ -57,6 +57,7 @@ class GroupbyCompanyCtrl extends Controller
 
         $d = $request->all();
 
+        
         $child = [];
         if (isset($d['n_title'])) {
             foreach ($d['n_title'] as $key => $value) {
@@ -67,10 +68,10 @@ class GroupbyCompanyCtrl extends Controller
                 ];
             }
         }
-
+      
         $is_active = Arr::get($d, 'active', '0');
         $re = GroupbyCompany::createMain($d['title'], $is_active, $child);
-
+       
         if ($re['success'] == '1') {
             wToast('新增完成');
             return redirect(route('cms.groupby-company.index'));

@@ -180,7 +180,7 @@
             $('#form1').submit(function(e) {
                 $('input[name="n_active[]"]').each(function(index, element) {
                     // element == this
-                    $(element).attr('name', `n_active_${index}[]`);
+                    $(element).attr('name', `n_active_${index}`);
                 });
             });
         </script>

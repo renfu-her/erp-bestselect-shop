@@ -19,9 +19,10 @@ class GroupbyCompany extends Model
         $id = self::create(['title' => $title, 'is_active' => $is_active])->id;
         $errors = [];
         foreach ($childs as $key => $value) {
+          
             self::createChild($id, $value['title'], $value['code'], $value['active'], $key, $errors);
         }
-
+      
         if (count($errors) > 0) {
             DB::rollBack();
             return ['success' => '0', 'errors' => $errors];
@@ -40,6 +41,7 @@ class GroupbyCompany extends Model
         self::where('id', $id)->update(['title' => $title, 'is_active' => $is_active]);
         $errors = [];
         foreach ($childs as $key => $value) {
+
             self::createChild($id, $value['title'], $value['code'], $value['active'], $key, $errors);
         }
 
@@ -58,9 +60,11 @@ class GroupbyCompany extends Model
 
     public static function createChild($parent_id, $title, $code, $active, $idx, &$error)
     {
+      
         if (self::where('code', $code)->get()->first()) {
             $error[] = ['index' => $idx, 'type' => 'n', 'message' => '代碼重複'];
         }
+        
 
         self::create([
             'parent_id' => $parent_id,
@@ -68,6 +72,8 @@ class GroupbyCompany extends Model
             'code' => $code,
             'is_active' => $active,
         ]);
+
+      
 
     }
 
