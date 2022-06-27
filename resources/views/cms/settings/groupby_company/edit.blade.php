@@ -6,7 +6,7 @@
         </a>
     </div>
 
-    <form method="post" action="{{ $action }}">
+    <form id="form1" method="post" action="{{ $action }}">
         @method('POST')
         @csrf
 
@@ -43,10 +43,10 @@
                     <table class="table tableList table-hover mb-1">
                         <thead>
                             <tr>
-                                <th scope="col" class="text-center">啟用</th>
+                                <th scope="col" class="text-center" width="76">啟用</th>
                                 <th scope="col">團名</th>
                                 <th scope="col">代碼</th>
-                                <th scope="col" class="text-center">刪除</th>
+                                <th scope="col" class="text-center" width="75">刪除</th>
                             </tr>
                         </thead>
                         <tbody class="-appendClone">
@@ -165,6 +165,14 @@
             // 新增子團
             $('.-newClone').off('click').on('click', function() {
                 Clone_bindCloneBtn($clone);
+            });
+
+            // switch #
+            $('#form1').submit(function (e) { 
+                $('input[name="n_active[]"]').each(function (index, element) {
+                    // element == this
+                    $(element).attr('name', `n_active_${index}[]`);
+                });
             });
         </script>
     @endpush
