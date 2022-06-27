@@ -84,14 +84,18 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <input class="form-control -ll" name="o_title[]"
-                                                value="{{ old('o_title.' . $key, $value['title']) }}" type="text"
-                                                aria-label="子團團名" />
+                                            <input class="form-control -ll @error('o_title.' . $key) is-invalid @enderror"
+                                                name="o_title[]" value="{{ old('o_title.' . $key, $value['title']) }}"
+                                                type="text" aria-label="子團團名" />
                                         </td>
                                         <td>
-                                            <input class="form-control -l" name="o_code[]"
-                                                value="{{ old('o_code.' . $key, $value['code']) }}" type="text"
-                                                aria-label="子團代碼" />
+                                            <input class="form-control -l @error('o_code.' . $key) is-invalid @enderror"
+                                                name="o_code[]" value="{{ old('o_code.' . $key, $value['code']) }}"
+                                                type="text" aria-label="子團代碼" />
+
+                                            @error('o_code.' . $key)
+                                                {{ $message }}
+                                            @enderror
                                         </td>
                                         <td>
                                             <input type="hidden" name="o_id[]" value="{{ $value['id'] }}">
@@ -117,6 +121,10 @@
                                         <input class="form-control -l @error('n_code.' . $key) is-invalid @enderror"
                                             name="n_code[]" value="{{ old('n_code.' . $key) }}" type="text"
                                             aria-label="子團代碼" />
+
+                                        @error('n_code.' . $key)
+                                            {{ $message }}
+                                        @enderror
                                     </td>
                                     <td>
                                         <button type="button"
@@ -138,10 +146,10 @@
                 </div>
             </div>
         </div>
-        @if ($errors->any())
+       <!-- @if ($errors->any())
             {!! implode('', $errors->all('<div>:message</div>')) !!}
         @endif
-
+       -->
         <div class="d-flex justify-content-end mt-3">
             <button type="submit" class="btn btn-primary px-4">儲存</button>
         </div>
@@ -168,8 +176,8 @@
             });
 
             // switch #
-            $('#form1').submit(function (e) { 
-                $('input[name="n_active[]"]').each(function (index, element) {
+            $('#form1').submit(function(e) {
+                $('input[name="n_active[]"]').each(function(index, element) {
                     // element == this
                     $(element).attr('name', `n_active_${index}[]`);
                 });

@@ -63,7 +63,7 @@ class GroupbyCompanyCtrl extends Controller
                 $child[] = [
                     'title' => $value,
                     'code' => $d['n_code'][$key],
-                    // 'active' => $d['n_active'][$key] ? $d['n_active'][$key] : '0',
+                    'active' => Arr::get($d, 'n_active_' . $key, '0'),
                 ];
             }
         }
@@ -75,6 +75,10 @@ class GroupbyCompanyCtrl extends Controller
             wToast('新增完成');
             return redirect(route('cms.groupby-company.index'));
         }
+
+        $err = self::codeErrorHandler($re['errors']);
+       
+        return redirect()->back()->withErrors($err);
         //  dd($_POST);
     }
 
@@ -125,6 +129,7 @@ class GroupbyCompanyCtrl extends Controller
                 $child[] = [
                     'title' => $value,
                     'code' => $d['n_code'][$key],
+                    'active' => Arr::get($d, 'n_active_' . $key, '0'),
                     // 'active' => $d['n_active'][$key] ? $d['n_active'][$key] : '0',
                 ];
             }
@@ -137,6 +142,7 @@ class GroupbyCompanyCtrl extends Controller
                     'title' => $value,
                     'code' => $d['o_code'][$key],
                     'id' => $d['o_id'][$key],
+                    'active' => Arr::get($d, 'o_active_' . $key, '0'),
                     // 'active' => $d['n_active'][$key] ? $d['n_active'][$key] : '0',
                 ];
             }
@@ -148,8 +154,14 @@ class GroupbyCompanyCtrl extends Controller
             wToast('新增完成');
             return redirect(route('cms.groupby-company.index'));
         }
-
-        dd($re);
+        $err = self::codeErrorHandler($re['errors']);
+        /*
+        foreach ($re['errors'] as $value) {
+        $err[$value['type'] . "_code." . $value['index']] = $value['type'] . "_code." . $value['index'] . ' 已經存在';
+        }
+         */
+        return redirect()->back()->withErrors($err);
+        //  dd($re);
     }
 
     /**
@@ -173,5 +185,15 @@ class GroupbyCompanyCtrl extends Controller
             'n_code' => ['array'],
             'n_code.*' => ['required', 'unique:App\Models\GroupbyCompany,code'],
         ];
+    }
+
+    private function codeErrorHandler($errors)
+    {
+        $err = [];
+        foreach ($errors as $value) {
+            $err[$value['type'] . "_code." . $value['index']] = $value['type'] . "_code." . $value['index'] . ' 已經存在';
+        }
+
+        return $err;
     }
 }
