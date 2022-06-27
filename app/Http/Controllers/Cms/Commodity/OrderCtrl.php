@@ -386,6 +386,9 @@ class OrderCtrl extends Controller
         if (!$order) {
             return abort(404);
         }
+        if ($subOrder && 0 < count($subOrder)) {
+            $subOrder = $subOrder[0];
+        }
         return view('doc.print_order', [
             'type' => 'sales',
             'user' => $request->user(),
@@ -401,6 +404,9 @@ class OrderCtrl extends Controller
 
         if (!$order) {
             return abort(404);
+        }
+        if ($subOrder && 0 < count($subOrder)) {
+            $subOrder = $subOrder[0];
         }
         return view('doc.print_order', [
             'type' => 'ship',
