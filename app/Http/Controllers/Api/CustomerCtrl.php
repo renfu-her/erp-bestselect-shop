@@ -84,7 +84,7 @@ class CustomerCtrl extends Controller
         $data = $request->only('email', 'password');
 
         $customer = Customer::where('email', $data['email'])->get()->first();
-        if(isset($customer)) {
+        if (isset($customer)) {
             $customerProfit = CustomerProfit::getProfitData($customer->id);
             $customer->profit = $customerProfit;
         }
@@ -114,7 +114,7 @@ class CustomerCtrl extends Controller
     public function customerInfo(Request $request)
     {
         $user = $request->user()->toArray();
-        if(isset($user)) {
+        if (isset($user)) {
             $customerProfit = CustomerProfit::getProfitData($user['id'])->toArray();
             $user['profit'] = $customerProfit;
         }
@@ -471,13 +471,32 @@ class CustomerCtrl extends Controller
     public function attachIdentity(Request $request)
     {
         $user = $request->user();
+        $vali1 = ['no' => ['required'],
+            'phone' => ['required'],
+            'pass' => ['required']];
+
+        $vali2 = ['no' => ['required']];
 
         $validator = Validator::make($request->all(), [
-            'no' => ['required'],
             'type' => ['required'],
-            'phone' => ['required'],
-            'pass' => ['required'],
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                ResponseParam::status => ApiStatusMessage::Fail,
+                ResponseParam::msg => $validator->errors(),
+                ResponseParam::data => [],
+            ]);
+        }
+
+        $d = $request->all();
+        if ($d['type'] == 'buyer') {
+            $vali = $vali2;
+        } else {
+            $vali = $vali1;
+        }
+
+        $validator = Validator::make($request->all(), $vali);
 
         if ($validator->fails()) {
             return response()->json([
@@ -490,8 +509,10 @@ class CustomerCtrl extends Controller
         $d = $request->all();
 
         $recommend_sn = Arr::get($d, 'recommend_sn', null);
+        $phone = Arr::get($d, 'phone', null);
+        $pass = Arr::get($d, 'pass', null);
 
-        $re = Customer::attachIdentity($user->id, $d['type'], $d['no'], $d['phone'], $d['pass'], $recommend_sn);
+        $re = Customer::attachIdentity($user->id, $d['type'], $d['no'], $phone, $pass, $recommend_sn);
 
         if ($re['success'] == '1') {
             return [
