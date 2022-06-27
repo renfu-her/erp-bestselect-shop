@@ -132,6 +132,7 @@ class Order extends Model
         }
         self::orderAddress($orderQuery);
 
+        $orderQuery->orderByDesc('order.id'); //倒序
         return $orderQuery;
     }
 
