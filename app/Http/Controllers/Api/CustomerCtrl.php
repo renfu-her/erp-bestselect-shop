@@ -84,6 +84,10 @@ class CustomerCtrl extends Controller
         $data = $request->only('email', 'password');
 
         $customer = Customer::where('email', $data['email'])->get()->first();
+        if(isset($customer)) {
+            $customerProfit = CustomerProfit::getProfitData($customer->id);
+            $customer->profit = $customerProfit;
+        }
 
         if (null == $customer
             || false == Hash::check($data['password'], $customer->password)
@@ -110,6 +114,10 @@ class CustomerCtrl extends Controller
     public function customerInfo(Request $request)
     {
         $user = $request->user()->toArray();
+        if(isset($user)) {
+            $customerProfit = CustomerProfit::getProfitData($user['id'])->toArray();
+            $user['profit'] = $customerProfit;
+        }
         $identity = CustomerIdentity::where('customer_id', $user['id'])->where('identity_code', '<>', 'customer')->get()->first();
         $user['identity_title'] = '';
         $user['identity_code'] = '';

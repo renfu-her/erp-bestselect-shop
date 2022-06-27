@@ -7,7 +7,14 @@
     <form id="form1" action="{{ route('cms.product.edit-web-desc', ['id' => $product->id]) }}" method="post">
         @csrf
         <div class="card shadow p-4 mb-4">
-            <h6>商品介紹（網頁）</h6>
+            <div class="d-flex align-items-center mb-4">
+                <h6 class="mb-0">商品介紹（網頁）</h6>
+                <a href="https://img.bestselection.com.tw/fadd1.asp?name={{ $name }}" 
+                    class="btn btn-outline-primary -in-header ms-4" target="_blank">
+                    <i class="bi bi-upload"></i> 上傳圖片
+                </a>
+            </div>
+            
             <textarea id="editor" name="desc" hidden></textarea>
         </div>
         <div>

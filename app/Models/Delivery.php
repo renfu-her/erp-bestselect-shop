@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\IttmsUtils;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -211,8 +212,8 @@ class Delivery extends Model
         if (isset($param['logistic_status_code']) && 0 < count($param['logistic_status_code'])) {
             $query->whereIn('delivery.logistic_status_code', $param['logistic_status_code']);
         }
-        if (false == empty($param['ship_category'])) {
-            $query->where('query_order.ship_category', '=', $param['ship_category']);
+        if (isset($param['ship_category']) && 0 < count($param['ship_category'])) {
+            $query->whereIn('query_order.ship_category', $param['ship_category']);
         }
         if (isset($param['order_sdate']) && isset($param['order_edate'])) {
             $order_sdate = date('Y-m-d 00:00:00', strtotime($param['order_sdate']));

@@ -617,14 +617,15 @@ class ProductCtrl extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function editWebDesc($id)
+    public function editWebDesc(Request $request, $id)
     {
-
+        $name = $request->user()->name;
         $product = self::product_data($id);
         return view('cms.commodity.product.web_desciption', [
             'product' => $product,
             'breadcrumb_data' => $product,
             'desc' => $product->desc,
+            'name' => $name,
         ]);
     }
 
