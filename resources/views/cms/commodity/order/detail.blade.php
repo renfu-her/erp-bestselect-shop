@@ -124,7 +124,7 @@
             <dl class="row">
                 <div class="col">
                     <dt>推薦業務員</dt>
-                    <dd>(待處理)</dd>
+                    <dd>{{ $order->name_m ?? ''}}</dd>
                 </div>
                 <div class="col">
                     <dt>寄件人</dt>

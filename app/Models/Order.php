@@ -101,6 +101,10 @@ class Order extends Model
         $orderQuery = DB::table('ord_orders as order')
             ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
             ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id')
+            ->leftJoin('usr_customers as customer_m', function ($join) {
+                $join->on('customer_m.sn', '=', 'order.mcode')
+                    ->whereNotNull('order.mcode');
+            })
             ->select([
                 'order.id',
                 'order.sn',
@@ -115,6 +119,7 @@ class Order extends Model
                 'order.created_at',
                 'customer.name',
                 'customer.email',
+                'customer_m.name as name_m',
                 'order.dividend_active_at',
                 'sale.title as sale_title'])
             ->selectRaw("IF(order.unique_id IS NULL,'',order.unique_id) as unique_id")
