@@ -85,4 +85,12 @@ class GroupbyCompany extends Model
 
     }
 
+    public static function getData($code)
+    {
+        return DB::table('usr_groupbuy_company as gc1')
+            ->leftJoin('usr_groupbuy_company as gc2', 'gc1.panret_id', '=', 'gc2.id')
+            ->select('gc1.title as title', 'gc2.title as parent_title')
+            ->where('gc1.code', $code);
+    }
+
 }

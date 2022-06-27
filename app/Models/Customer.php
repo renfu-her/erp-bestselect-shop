@@ -210,14 +210,23 @@ class Customer extends Authenticatable
 
     }
 
-    public static function attachIdentity($customer_id, $type, $no, $phone, $pass, $recommend_sn = null)
+    public static function attachIdentity($customer_id, $type, $no, $phone = null, $pass = null, $recommend_sn = null)
     {
         DB::beginTransaction();
-        if (!self::validateIdentity($type, $no, $phone, $pass)) {
-            return ['success' => '0', 'message' => '驗證錯誤'];
+        $groupbyCompany_id = null;
+        if ($type == 'buyer') {
+            $groupbyCompany = GroupbyCompany::where('code', $no)->where('is_active', '1')->get()->first();
+            if (!$groupbyCompany) {
+                return ['success' => '0', 'message' => '無效碼'];
+            }
+            $groupbyCompany_id = $groupbyCompany->id;
+        } else {
+            if (!self::validateIdentity($type, $no, $phone, $pass)) {
+                return ['success' => '0', 'message' => '驗證錯誤'];
+            }
         }
 
-        CustomerIdentity::add($customer_id, $type);
+        CustomerIdentity::add($customer_id, $type, null, null, null, $groupbyCompany_id);
         $updateData = ['phone' => $phone];
         if ($recommend_sn) {
             $customer = self::checkRecommender($recommend_sn, '1', $customer_id);
