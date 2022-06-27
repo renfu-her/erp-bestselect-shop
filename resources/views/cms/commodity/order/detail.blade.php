@@ -175,16 +175,23 @@
                     @if (true == isset($subOrderId))
                         <div class="col-12 d-flex justify-content-end mt-2">
                             <a class="btn btn-sm btn-success -in-header"
-                                href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">配送狀態</a>
+                                href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">配送狀態</a>
                             <a class="btn btn-sm btn-success -in-header"
-                                href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">物流設定</a>
+                                href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">物流設定</a>
                             <a class="btn btn-sm btn-success -in-header"
-                                href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">出貨審核</a>
-{{--                            @if('pickup' == $subOrder->ship_category)--}}
-{{--                                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.order.inbound', ['subOrderId' => $subOrder->id], true) }}">入庫審核</a>--}}
-{{--                            @endif--}}
-                            <button type="button" class="btn btn-sm btn-primary -in-header">列印銷貨單</button>
-                            <button type="button" class="btn btn-sm btn-primary -in-header">列印出貨單</button>
+                                href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">出貨審核</a>
+                            {{-- @if('pickup' == $subOrder->ship_category)--}}
+                            {{--     <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.order.inbound', ['subOrderId' => $subOrderId], true) }}">入庫審核</a>--}}
+                            {{-- @endif--}}
+
+                            <a target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary -in-header"
+                                href="{{ Route('cms.order.print_order_sales', ['id' => $order->id, 'subOrderId' => $subOrderId]) }}" >
+                                列印銷貨單
+                            </a>
+                            <a target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary -in-header"
+                                href="{{ Route('cms.order.print_order_ship', ['id' => $order->id, 'subOrderId' => $subOrderId]) }}" >
+                                列印出貨單
+                            </a>
                         </div>
                     @endif
                 </div>
@@ -298,6 +305,8 @@
                             <dt>實際物流</dt>
                             <dd>{{ $subOrder->ship_group_name ?? '(待處理)' }}</dd>
                         </div>
+                    </dl>
+                    <dl class="row">
                         <div class="col">
                             <dt>包裹編號</dt>
                             <dd>
@@ -310,23 +319,21 @@
                                 @endif
                             </dd>
                         </div>
-                    </dl>
-                    <dl class="row">
                         <div class="col">
                             <dt>物態</dt>
                             <dd>{{ $subOrder->logistic_status ?? '(待處理)' }}</dd>
                         </div>
-                    </dl>
-                    <dl class="row">
                         <div class="col">
                             <dt>物流廠商</dt>
                             <dd>{{ $subOrder->supplier_name ?? '' }}</dd>
                         </div>
+                    </dl>
+                    <dl class="row">
                         <div class="col">
                             <dt>物流成本</dt>
                             <dd>{{ $subOrder->logistic_cost ?? '(待處理)' }}</dd>
                         </div>
-                        <div class="col-6">
+                        <div class="col-8">
                             <dt>物流備註</dt>
                             <dd>{{ $subOrder->logistic_memo ?? '(待處理)' }}</dd>
                         </div>
