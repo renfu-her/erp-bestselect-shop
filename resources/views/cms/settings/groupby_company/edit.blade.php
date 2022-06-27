@@ -174,6 +174,7 @@
             $('.-newClone').off('click').on('click', function() {
                 Clone_bindCloneBtn($clone);
             });
+            Clone_bindDelElem($('.-cloneElem .-del'));
 
             // switch #
             $('#form1').submit(function(e) {
