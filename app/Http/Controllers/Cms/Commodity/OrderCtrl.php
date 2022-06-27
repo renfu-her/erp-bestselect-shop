@@ -386,7 +386,7 @@ class OrderCtrl extends Controller
         if (!$order) {
             return abort(404);
         }
-        return view('cms.commodity.order.detail', [
+        return view('doc.print_order', [
             'type' => 'sales',
             'user' => $request->user(),
             'order' => $order,
@@ -402,7 +402,7 @@ class OrderCtrl extends Controller
         if (!$order) {
             return abort(404);
         }
-        return view('cms.commodity.order.detail', [
+        return view('doc.print_order', [
             'type' => 'ship',
             'user' => $request->user(),
             'order' => $order,
