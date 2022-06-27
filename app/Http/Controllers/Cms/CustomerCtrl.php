@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cms;
 
 use App\Enums\Customer\AccountStatus;
 use App\Enums\Customer\Newsletter;
+use App\Enums\Delivery\Event;
 use App\Http\Controllers\Controller;
 use App\Models\Addr;
 use App\Models\Customer;
@@ -11,6 +12,9 @@ use App\Models\CustomerAddress;
 use App\Models\CustomerCoupon;
 use App\Models\CustomerDividend;
 use App\Models\CustomerLogin;
+use App\Models\Delivery;
+use App\Models\LogisticFlow;
+use App\Models\Order;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -238,6 +242,48 @@ class CustomerCtrl extends Controller
             'customer' => $id,
             'defaultAddress' => $defaultAddress,
             'otherAddress' => $otherAddress,
+        ]);
+
+    }
+
+    /**
+     * @param  Request  $request
+     * @param int $id 會員id
+     * 會員專區：我的訂單
+     * @return void
+     */
+    public function order(Request $request, $id)
+    {
+        $email = Customer::where('id', '=', $id)->select('email')->get()->first()->email;
+        $orderIds = Order::where('email', '=', $email)->select('id')->get();
+
+        $orders = [];
+        foreach ($orderIds as $orderId) {
+            $order = Order::orderDetail($orderId->id, $email)->get()->first();
+            $subOrder = Order::subOrderDetail($orderId->id)->get()->toArray();
+
+            $subOrderArray = array_map(function ($n) {
+                $delivery = Delivery::getDeliveryWithEventWithSn(Event::order, $n->id)->select('id')->get()->first();
+                $n->shipment_flow = LogisticFlow::getListByDeliveryId($delivery->id)->select('status', 'created_at')->get()->toArray();
+
+                $n->items = json_decode($n->items);
+                return $n;
+            }, $subOrder);
+
+            $orders[] = [
+                'id' => $order->id,
+                'status' => $order->status,
+                'sn' => $order->sn,
+                'payment_status' => $order->payment_status,
+                'created_at' => $order->created_at,
+                'total_price' => $order->total_price,
+                'sub_order' => $subOrderArray,
+            ];
+        }
+
+        return view('cms.admin.customer.order', [
+            'customer' => $id,
+            'orders' => $orders,
         ]);
 
     }

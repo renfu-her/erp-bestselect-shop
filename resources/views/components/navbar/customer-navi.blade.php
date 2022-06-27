@@ -1,6 +1,7 @@
 <ul class="nav pm_navbar" role="tablist">
     <li class="nav-item">
-        <a href="#" class="nav-link ">我的訂單</a>
+        <a href="{{ Route('cms.customer.order', ['id' => $customer], true) }}"
+           class="nav-link {{ isActive('order', $route_name) }}">我的訂單</a>
     </li>
     <li class="nav-item">
         <a href="{{ Route('cms.customer.coupon', ['id' => $customer], true) }}"
