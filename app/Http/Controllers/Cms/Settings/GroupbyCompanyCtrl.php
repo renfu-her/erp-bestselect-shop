@@ -63,7 +63,7 @@ class GroupbyCompanyCtrl extends Controller
                 $child[] = [
                     'title' => $value,
                     'code' => $d['n_code'][$key],
-                    // 'active' => $d['n_active'][$key] ? $d['n_active'][$key] : '0',
+                     'active' => $d['n_active_'.$key],
                 ];
             }
         }
@@ -149,7 +149,8 @@ class GroupbyCompanyCtrl extends Controller
             return redirect(route('cms.groupby-company.index'));
         }
 
-        dd($re);
+       // return redirect()->back()->withErrors(['title' => 'aaaa']);
+      //  dd($re);
     }
 
     /**
