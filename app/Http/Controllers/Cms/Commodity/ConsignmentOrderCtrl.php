@@ -71,7 +71,7 @@ class ConsignmentOrderCtrl extends Controller
     public function create(Request $request) {
         return view('cms.commodity.consignment_order.create', [
             'method' => 'create',
-            'depotList' => Depot::all(),
+            'depotList' => Depot::getAllSelfPickup(),
             'formAction' => Route('cms.consignment-order.create'),
         ]);
     }
