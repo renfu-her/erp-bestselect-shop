@@ -682,7 +682,7 @@ class OrderCtrl extends Controller
             'category' => 'required|in:B2B,B2C',
             'buyer_ubn' => 'required_if:category,==,B2B',
             'buyer_name' => 'required|string|max:60',
-            'buyer_email' => 'required_if:carrier_type,==,2|email:rfc,dns',
+            'buyer_email' => 'nullable|required_if:carrier_type,==,2|email:rfc,dns',
             'buyer_address' => 'required_if:invoice_method,==,print',
             'invoice_method' => 'required|in:print,give,e_inv',
             'love_code' => 'required_if:invoice_method,==,give',
@@ -715,7 +715,7 @@ class OrderCtrl extends Controller
     }
 
 
-    public function s_order_detail(Request $request)
+    public function _order_detail(Request $request)
     {
         $request->merge([
             'order_id' => request('order_id'),

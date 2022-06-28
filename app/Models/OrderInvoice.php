@@ -19,6 +19,12 @@ class OrderInvoice extends Model
     public static function api_send(string $action, $data)
     {
         if(env('APP_ENV') == 'local' || env('APP_ENV') == 'dev'){
+            $valid = [
+                'key'=>'ib4VvhGsGqlmH2uE4OWARw1YjKK4l4il',
+                'iv'=>'CUCdlIDbOq2EpTJP',
+                'MerchantID'=>'32854745',
+            ];
+
             $data['url'] = [
                 'invoice_issue' => 'https://cinv.ezpay.com.tw/Api/invoice_issue',
                 'invoice_touch_issue' => 'https://cinv.ezpay.com.tw/Api/invoice_touch_issue',
@@ -31,6 +37,12 @@ class OrderInvoice extends Model
 
         } else {
             // formal env
+            $valid = [
+                'key'=>'ib4VvhGsGqlmH2uE4OWARw1YjKK4l4il',
+                'iv'=>'CUCdlIDbOq2EpTJP',
+                'MerchantID'=>'32854745',
+            ];
+
             $data['url'] = [
                 'invoice_issue' => 'https://inv.ezpay.com.tw/Api/invoice_issue',
                 'invoice_touch_issue' => 'https://inv.ezpay.com.tw/Api/invoice_touch_issue',
@@ -47,7 +59,7 @@ class OrderInvoice extends Model
 
         $url = $data['url'][$action];
 
-        $result = invoice_encode($data, $url);
+        $result = invoice_encode($data, $url, $valid);
 
         return $result;
     }
