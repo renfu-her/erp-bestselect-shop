@@ -267,16 +267,30 @@ class CustomerCtrl extends Controller
                 $n->shipment_flow = LogisticFlow::getListByDeliveryId($delivery->id)->select('status', 'created_at')->get()->toArray();
 
                 $n->items = json_decode($n->items);
+//                foreach ($n->items as $key => $value) {
+//                    if ($value->img_url) {
+//                        $n->items[$key]->img_url = asset($n->items[$key]->img_url);
+//                    } else {
+//                        $n->items[$key]->img_url = '';
+//                    }
+//                    //convert string value to int type
+//                    if ($value->qty) {
+//                        $n->items[$key]->qty = intval($n->items[$key]->qty);
+//                    }
+//                    if ($value->total_price) {
+//                        $n->items[$key]->total_price = intval($n->items[$key]->total_price);
+//                    }
+//                }
+
+                //convert string value to int type
+//                if ($n->dlv_fee) {
+//                    $n->dlv_fee = intval($n->dlv_fee);
+//                }
                 return $n;
             }, $subOrder);
 
             $orders[] = [
-                'id' => $order->id,
-                'status' => $order->status,
-                'sn' => $order->sn,
-                'payment_status' => $order->payment_status,
-                'created_at' => $order->created_at,
-                'total_price' => $order->total_price,
+                'order' => $order,
                 'sub_order' => $subOrderArray,
             ];
         }
