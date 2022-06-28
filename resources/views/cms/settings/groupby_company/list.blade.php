@@ -19,6 +19,7 @@
             <tr>
                 <th scope="col" style="width:10%">#</th>
                 <th scope="col">名稱</th>
+                <th scope="col">啟用</th>
                 <th scope="col" class="text-center">編輯</th>
             </tr>
             </thead>
@@ -27,6 +28,13 @@
                 <tr>
                     <th scope="row">{{ $key + 1 }}</th>
                     <td>{{ $data->title }}</td>
+                    <td>
+                        @if ($data->is_active)
+                            <i class="bi bi-check-lg fs-4 text-success fw-bold"></i>
+                        @else
+                            <i class="bi bi-x-lg fs-5 text-danger fw-bold"></i>
+                        @endif
+                    </td>
                     <td class="text-center">
                         <a href="{{ Route('cms.groupby-company.edit', ['id' => $data->id], true) }}"
                            data-bs-toggle="tooltip" title="編輯"
