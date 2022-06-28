@@ -367,11 +367,15 @@ class Product extends Model
         if ($stock_status) {
             $re->where(function ($_q) use ($stock_status) {
                 if (in_array('warning', $stock_status)) {
-                    $_q->orWhere('in_stock', '<=', DB::raw("safety_stock"));
+                    $_q->orWhere('s.in_stock', '<=', DB::raw("safety_stock"));
                 }
 
                 if (in_array('out_of_stock', $stock_status)) {
-                    $_q->orWhere('in_stock', '=', 0);
+                    $_q->orWhere('s.in_stock', '=', 0);
+                }
+
+                if (in_array('still_actual_stock', $stock_status)) {
+                    $_q->orWhere('s.in_stock', '>', 0);
                 }
             });
         }
