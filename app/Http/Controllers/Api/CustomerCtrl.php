@@ -114,7 +114,10 @@ class CustomerCtrl extends Controller
     {
         $user = $request->user()->toArray();
         if(isset($user)) {
-            $customerProfit = CustomerProfit::getProfitData($user['id'])->toArray();
+            $customerProfit = CustomerProfit::getProfitData($user['id']);
+            if (isset($customerProfit)) {
+                $customerProfit = $customerProfit->toArray();
+            }
             $user['profit'] = $customerProfit;
         }
         $identity = CustomerIdentity::where('customer_id', $user['id'])->where('identity_code', '<>', 'customer')->get()->first();
