@@ -413,7 +413,9 @@ class OrderCtrl extends Controller
     public function orderList(Request $request)
     {
         $data['email'] = $request->user()->email;
-        $orderIds = Order::where('email', '=', $data['email'])->select('id')->get();
+        $orderIds = Order::where('email', '=', $data['email'])->select('id')
+            ->orderByDesc('id') //倒序
+            ->get();
 
         if (count($orderIds) === 0) {
             return response()->json([
