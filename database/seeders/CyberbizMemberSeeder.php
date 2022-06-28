@@ -112,7 +112,7 @@ class CyberbizMemberSeeder extends Seeder
 
                     $customerAddressExistQuery = CustomerAddress::where('usr_customers_id_fk' , '=', $customerExistQuery->id)->get()->first();
                     if ($customerAddressExistQuery) {
-                        $customerAddressExistQuery->delete();
+                        CustomerAddress::where('usr_customers_id_fk' , '=', $customerExistQuery->id)->delete();
                     }
                     if (!is_null($address) &&
                         !is_null($city_id) &&
