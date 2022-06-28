@@ -373,10 +373,6 @@ class Product extends Model
                 if (in_array('out_of_stock', $stock_status)) {
                     $_q->orWhere('s.in_stock', '=', 0);
                 }
-
-                if (in_array('still_actual_stock', $stock_status)) {
-                    $_q->orWhere('s.in_stock', '>', 0);
-                }
             });
         }
 
