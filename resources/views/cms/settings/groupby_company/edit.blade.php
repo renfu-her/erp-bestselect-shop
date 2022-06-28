@@ -6,7 +6,7 @@
         </a>
     </div>
 
-    <form id="form1" method="post" action="{{ $action }}">
+    <form id="form1" method="post" action="{{ $action }}" autocomplete="off">
         @method('POST')
         @csrf
 
