@@ -209,6 +209,18 @@ Breadcrumbs::for('cms.ar.receipt', function (BreadcrumbTrail $trail, $value) {
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
     $trail->push('收款單');
 });
+// 新增電子發票
+Breadcrumbs::for('cms.order.create-invoice', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
+    $trail->push('開立電子發票');
+});
+// 顯示電子發票
+Breadcrumbs::for('cms.order.show-invoice', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
+    $trail->push('電子發票');
+});
 //編輯收款單入帳日期
 Breadcrumbs::for('cms.ar.review', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');

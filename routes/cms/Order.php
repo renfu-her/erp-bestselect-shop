@@ -16,4 +16,9 @@ Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
     Route::get('delete_inbound/{id}', [OrderCtrl::class, 'deleteInbound'])->name('delete_inbound')->middleware('permission:cms.order.create');
 
     Route::match(['get', 'post'], 'pay/{id}/{sid}', [OrderCtrl::class, 'pay_order'])->name('pay-order')->middleware('permission:cms.order.pay-order');
+
+    Route::get('invoice/{id}', [OrderCtrl::class, 'create_invoice'])->name('create-invoice')->middleware('permission:cms.order.create-invoice');
+    Route::post('invoice/{id}', [OrderCtrl::class, 'store_invoice'])->name('store-invoice');
+    Route::post('ajax-detail', [OrderCtrl::class, 's_order_detail'])->name('ajax-detail');
+    Route::get('invoice/{id}/show', [OrderCtrl::class, 'show_invoice'])->name('show-invoice');
 });
