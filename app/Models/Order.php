@@ -203,11 +203,16 @@ class Order extends Model
             ->leftJoinSub($itemConsumeQuery, 'consume_items', function ($join) {
                 $join->on('consume_items.logistic_id', '=', 'dlv_logistic.id');
             })
+            ->leftJoin('ord_received_orders', function ($join) {
+                $join->on('sub_order.order_id', '=', 'ord_received_orders.order_id');
+                $join->whereNull('ord_received_orders.deleted_at');
+            })
             ->select('sub_order.*', 'i.items'
                 , 'dlv_delivery.sn as delivery_sn'
                 , 'dlv_delivery.logistic_status as logistic_status'
                 , 'dlv_delivery.audit_date as delivery_audit_date'
                 , 'consume_items.consume_items'
+                , 'ord_received_orders.sn as received_sn'
             )
             ->selectRaw("IF(sub_order.ship_sn IS NULL,'',sub_order.ship_sn) as ship_sn")
             ->selectRaw("IF(sub_order.actual_ship_group_id IS NULL,'',sub_order.actual_ship_group_id) as actual_ship_group_id")
