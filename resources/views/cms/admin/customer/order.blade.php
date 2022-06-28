@@ -44,6 +44,7 @@
                                 <td></td>
                                 <td>{{ explode(' ', $data['order']->created_at)[0] }}</td>
                                 <td>{{ $data['order']->ord_name }}</td>
+                                <td>{{ $data['order']->ord_phone }}</td>
                                 <td>{{ $data['order']->rec_name }}</td>
                                 <td>{{ $data['order']->rec_phone }}</td>
                                 <td>{{ $data['order']->sale_title }}</td>
