@@ -234,8 +234,7 @@ class Order extends Model
             ->selectRaw("IF(sub_order.ship_temp IS NULL,'',sub_order.ship_temp) as ship_temp")
             ->selectRaw("IF(sub_order.ship_temp_id IS NULL,'',sub_order.ship_temp_id) as ship_temp_id")
             ->selectRaw("IF(sub_order.ship_rule_id IS NULL,'',sub_order.ship_rule_id) as ship_rule_id")
-
-            ->where('order_id', $order_id);
+            ->where('sub_order.order_id', $order_id);
 
         if ($sub_order_id) {
             $orderQuery->where('sub_order.id', $sub_order_id);
