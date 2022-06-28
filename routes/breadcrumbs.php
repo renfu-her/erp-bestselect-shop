@@ -739,7 +739,7 @@ Breadcrumbs::for('cms.permission.child-edit', function (BreadcrumbTrail $trail, 
 // 消費者帳號管理
 Breadcrumbs::for('cms.customer.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('消費者帳號管理', route('cms.user.index'));
+    $trail->push('消費者帳號管理', route('cms.customer.index'));
 });
 Breadcrumbs::for('cms.customer.create', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.customer.index');
@@ -748,6 +748,26 @@ Breadcrumbs::for('cms.customer.create', function (BreadcrumbTrail $trail) {
 Breadcrumbs::for('cms.customer.edit', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.customer.index');
     $trail->push('編輯');
+});
+Breadcrumbs::for('cms.customer.order', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.customer.index');
+    $trail->push('會員專區');
+    $trail->push('我的訂單');
+});
+Breadcrumbs::for('cms.customer.coupon', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.customer.index');
+    $trail->push('會員專區');
+    $trail->push('我的優惠卷');
+});
+Breadcrumbs::for('cms.customer.dividend', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.customer.index');
+    $trail->push('會員專區');
+    $trail->push('我的鴻利');
+});
+Breadcrumbs::for('cms.customer.address', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.customer.index');
+    $trail->push('會員專區');
+    $trail->push('收件地址管理');
 });
 
 // 分潤審核管理
