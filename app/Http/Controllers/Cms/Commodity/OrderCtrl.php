@@ -406,13 +406,17 @@ class OrderCtrl extends Controller
                 $join->on('delivery.event_id', '=', 'sub_order.id')
                     ->where('delivery.event', '=', Event::order()->value);
             })
+            ->leftJoin('prd_pickup as pick_up', function ($join) {
+                $join->on('pick_up.id', '=', 'sub_order.ship_event_id')
+                    ->where('sub_order.ship_category', '=', 'pickup');
+            })
             ->select(
                 'sub_order.id as id'
                 , 'sub_order.order_id as order_id'
                 , 'sub_order.sn as sn'
                 , 'sub_order.ship_category as ship_category'
                 , 'delivery.audit_date'
-                , 'sub_order.ship_event_id as depot_id'
+                , 'pick_up.depot_id_fk as depot_id'
             )
             ->where('sub_order.id', '=', $subOrderId)
             ->get()->first();
