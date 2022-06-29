@@ -554,12 +554,12 @@ class CustomerCtrl extends Controller
             $img1 = $request->file('img1_file')->store('profit_data/' . date("Ymd"));
         }
         $img2 = '';
-        if ($request->hasfile('img1_file')) {
+        if ($request->hasfile('img2_file')) {
             $img2 = $request->file('img2_file')->store('profit_data/' . date("Ymd"));
         }
         $img3 = '';
         if ($request->hasfile('img3_file')) {
-            $img1 = $request->file('img3_file')->store('profit_data/' . date("Ymd"));
+            $img3 = $request->file('img3_file')->store('profit_data/' . date("Ymd"));
         }
 
         /*
