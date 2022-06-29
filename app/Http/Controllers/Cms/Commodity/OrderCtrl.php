@@ -339,8 +339,8 @@ class OrderCtrl extends Controller
 
         $receivable = false;
         $received_order_collection = ReceivedOrder::where([
-            'order_id' => $id,
-            'deleted_at' => null,
+            'source_type'=>app(Order::class)->getTable(),
+            'source_id'=>$id,
         ]);
         $received_order_data = $received_order_collection->first();
         if ($received_order_data && $received_order_data->balance_date) {
@@ -635,7 +635,10 @@ class OrderCtrl extends Controller
         ]);
 
         $inv = OrderInvoice::where('order_id', $id)->first();
-        $received_order = ReceivedOrder::where('order_id', $id)->first();
+        $received_order = ReceivedOrder::where([
+            'source_type'=>app(Order::class)->getTable(),
+            'source_id'=>$id,
+        ])->first();
         if (!$received_order || $inv) {
             return abort(404);
         }
@@ -735,7 +738,10 @@ class OrderCtrl extends Controller
         $order_id_arr = explode(',', request('order_id'));
 
         foreach($order_id_arr as $o_id){
-            $n_r_order = ReceivedOrder::where('order_id', $o_id)->first();
+            $n_r_order = ReceivedOrder::where([
+                'source_type'=>app(Order::class)->getTable(),
+                'source_id'=>$o_id,
+            ])->first();
             $n_order = Order::orderDetail($o_id)->first();
             $n_sub_order = Order::subOrderDetail($o_id)->get();
             foreach ($n_sub_order as $key => $value) {

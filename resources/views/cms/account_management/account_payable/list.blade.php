@@ -24,7 +24,7 @@
 
                 <div class="col-12 col-sm-4 mb-3">
                     <label class="form-label">單據編號</label>
-                    <input class="form-control" type="text" name="purchase_sn" value="{{ $cond['purchase_sn'] }}" placeholder="請輸入採購單號">
+                    <input class="form-control" type="text" name="purchase_sn" value="{{ $cond['purchase_sn'] }}" placeholder="請輸入單據編號">
                 </div>
 
                 <div class="col-12 mb-3">

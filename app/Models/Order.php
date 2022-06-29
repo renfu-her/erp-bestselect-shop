@@ -55,8 +55,11 @@ class Order extends Model
                 $join->whereNotNull('dlv_logistic.ship_group_id');
             })
             ->leftJoin('ord_received_orders', function ($join) {
-                $join->on('order.id', '=', 'ord_received_orders.order_id');
-                $join->whereNull('ord_received_orders.deleted_at');
+                $join->on('order.id', '=', 'ord_received_orders.source_id');
+                $join->where([
+                    'ord_received_orders.source_type'=>app(Order::class)->getTable(),
+                    'ord_received_orders.deleted_at' => null,
+                ]);
             })
         ;
 
@@ -208,8 +211,11 @@ class Order extends Model
                 $join->on('consume_items.logistic_id', '=', 'dlv_logistic.id');
             })
             ->leftJoin('ord_received_orders', function ($join) {
-                $join->on('sub_order.order_id', '=', 'ord_received_orders.order_id');
-                $join->whereNull('ord_received_orders.deleted_at');
+                $join->on('sub_order.order_id', '=', 'ord_received_orders.source_id');
+                $join->where([
+                    'ord_received_orders.source_type'=>app(Order::class)->getTable(),
+                    'ord_received_orders.deleted_at' => null,
+                ]);
             })
             ->select('sub_order.*', 'i.items'
                 , 'dlv_delivery.sn as delivery_sn'
