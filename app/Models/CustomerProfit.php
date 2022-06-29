@@ -45,8 +45,6 @@ class CustomerProfit extends Model
             return ['success' => '0', 'message' => '重複申請'];
         }
 
-
-
         $id = self::create([
             'customer_id' => $customer_id,
             'status' => ProfitStatus::Checking()->value,
@@ -55,9 +53,14 @@ class CustomerProfit extends Model
             'bank_account' => $bank_account,
             'bank_account_name' => $bank_account_name,
             'identity_sn' => $identity_sn,
-            'img1' => self::convertBase64($customer_id, $img1),
-            'img2' => self::convertBase64($customer_id, $img2),
-            'img3' => self::convertBase64($customer_id, $img3),
+            'img1' => $img1,
+            'img2' => $img2,
+            'img3' => $img3,
+            /*
+        'img1' => self::convertBase64($customer_id, $img1),
+        'img2' => self::convertBase64($customer_id, $img2),
+        'img3' => self::convertBase64($customer_id, $img3),
+         */
         ])->id;
 
         return ['success' => '1', 'id' => $id];
@@ -80,7 +83,8 @@ class CustomerProfit extends Model
     }
 
     //回傳分潤資格審核
-    public static function getProfitData($customer_id) {
+    public static function getProfitData($customer_id)
+    {
         $re = CustomerProfit::where('customer_id', $customer_id)
             ->select('status'
                 , 'status_title'
