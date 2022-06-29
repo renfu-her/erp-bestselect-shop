@@ -44,6 +44,7 @@ class StockCtrl extends Controller
         $stockRadios = [
             'warning' => '低於安全庫存',
             'out_of_stock' => '無庫存',
+            'still_actual_stock' => '尚有實際庫存',
         ];
 
         if (!in_array($searchParam['type'], array_keys($typeRadios))) {

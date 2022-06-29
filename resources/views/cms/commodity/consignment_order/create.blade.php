@@ -548,8 +548,6 @@
                     sum = Number((sum + total).toFixed(2));
                 });
                 $('tfoot th.-sum, td.-sum').text(`$ ${formatNumber(sum.toFixed(2))}`);
-                const Total = sum + Number(lgt_cost);
-                $('td.-Total').text(`$ ${formatNumber(Total.toFixed(2))}`);
             }
         </script>
     @endpush

@@ -42,11 +42,11 @@ class DeliveryCtrl extends Controller
             if ('pickup' == $ship_category) {
                 $cond['ship_method'] = [];
             }
-            $delivery = Delivery::getList($cond)->paginate($cond['data_per_page']);
+            $delivery = Delivery::getList($cond)->paginate($cond['data_per_page'])->appends($query);
             $cond['ship_method'] = $ship_method;
             $cond['ship_category'] = $ship_category;
         } else {
-            $delivery = Delivery::getList($cond)->paginate($cond['data_per_page']);
+            $delivery = Delivery::getList($cond)->paginate($cond['data_per_page'])->appends($query);
         }
 
         return view('cms.commodity.delivery.list', [

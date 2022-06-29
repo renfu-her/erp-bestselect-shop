@@ -41,6 +41,7 @@ class Customer extends Authenticatable
         'acount_status',
         'newsletter',
         'password',
+        'sn'
     ];
 
     /**

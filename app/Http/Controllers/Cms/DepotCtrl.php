@@ -195,7 +195,7 @@ class DepotCtrl extends Controller
         $products = DepotProduct::product_list($id, $keyword, $type)
             ->orderBy('product_id', 'ASC')
             ->orderBy('id', 'ASC')
-            ->paginate($page);
+            ->paginate($page)->appends($query);
 
         return view('cms.settings.depot.product_list', [
             'dataList' => $products,
@@ -269,7 +269,7 @@ class DepotCtrl extends Controller
             ->whereNotIn('s.id', $selected_product)
             ->orderBy('product_id', 'ASC')
             ->orderBy('s.id', 'ASC')
-            ->paginate($page);
+            ->paginate($page)->appends($query);
             // ->get();
 
             return view('cms.settings.depot.product_select', [
@@ -348,7 +348,7 @@ class DepotCtrl extends Controller
             $selected_product = DepotProduct::product_list($id, $keyword, $type)
             ->orderBy('product_id', 'ASC')
             ->orderBy('id', 'ASC')
-            ->paginate($page);
+            ->paginate($page)->appends($query);
             // ->get();
 
             return view('cms.settings.depot.product_select', [

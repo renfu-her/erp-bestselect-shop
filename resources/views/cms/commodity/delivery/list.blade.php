@@ -28,7 +28,7 @@
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">物流分類</label>
                     <select class="form-select -select2 -multiple" multiple name="ship_method[]" aria-label="物流分類" data-placeholder="多選">
-                        <option value="喜鴻出貨" @if (in_array('喜鴻出貨', $searchParam['ship_method'] ?? []) || ($searchParam['ship_method'] == [])) selected @endif>喜鴻出貨</option>
+                        <option value="喜鴻出貨" @if (in_array('喜鴻出貨', $searchParam['ship_method'] ?? []))) selected @endif>喜鴻出貨</option>
                         <option value="廠商出貨" @if (in_array('廠商出貨', $searchParam['ship_method'] ?? [])) selected @endif>廠商出貨</option>
                     </select>
                 </div>
