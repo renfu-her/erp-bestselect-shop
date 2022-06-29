@@ -24,10 +24,10 @@
                         <input class="form-control @error('title') is-invalid @enderror" name="title"
                             value="{{ old('title', $mainData->title ?? '') }}" placeholder="請輸入公司名稱" />
                     </x-b-form-group>
-                    <x-b-form-group name="name" title="啟用" required="true" class="col-12 col-sm-6">
+                    <x-b-form-group name="active" title="啟用" required="true" class="col-12 col-sm-6">
                         <div class="form-check form-switch form-switch-lg">
                             <input class="form-check-input @error('active') is-invalid @enderror" type="checkbox"
-                                name="active" value="1" checked>
+                                name="active" value="1" @if (old('active', $mainData->is_active ?? '') == '1') checked @endif>
                         </div>
                     </x-b-form-group>
                 </div>
@@ -146,10 +146,10 @@
                 </div>
             </div>
         </div>
-       <!-- @if ($errors->any())
-            {!! implode('', $errors->all('<div>:message</div>')) !!}
-        @endif
-       -->
+        <!-- @if ($errors->any())
+    {!! implode('', $errors->all('<div>:message</div>')) !!}
+    @endif
+           -->
         <div class="d-flex justify-content-end mt-3">
             <button type="submit" class="btn btn-primary px-4">儲存</button>
         </div>
