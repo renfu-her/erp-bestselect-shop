@@ -83,6 +83,7 @@ class CustomerProfitCtrl extends Controller
 
         //  dd(CustomerProfit::where('id',$id)->get());
         $data = CustomerProfit::where('id', $id)->get()->first();
+//    dd($data);
      //   dd( Customer::detail($data->customer_id)->get()->first());
         if (!$data) {
             return abort(404);
@@ -139,6 +140,8 @@ class CustomerProfitCtrl extends Controller
             'has_child' => $has_child,
         ];
 
+
+     //   dd($update);
         // dd($update);
 
         CustomerProfit::where('id', $id)->update($update);
