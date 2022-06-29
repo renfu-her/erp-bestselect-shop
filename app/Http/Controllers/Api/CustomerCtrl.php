@@ -20,7 +20,6 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
-
 class CustomerCtrl extends Controller
 {
     //註冊
@@ -115,7 +114,7 @@ class CustomerCtrl extends Controller
     public function customerInfo(Request $request)
     {
         $user = $request->user()->toArray();
-        if(isset($user)) {
+        if (isset($user)) {
             $customerProfit = CustomerProfit::getProfitData($user['id']);
             if (isset($customerProfit)) {
                 $customerProfit = $customerProfit->toArray();
@@ -482,7 +481,7 @@ class CustomerCtrl extends Controller
         $vali2 = ['no' => ['required']];
 
         $validator = Validator::make($request->all(), [
-            'type' => ['required','in:customer,employee,company,leader,agent,buyer'],
+            'type' => ['required', 'in:customer,employee,company,leader,agent,buyer'],
         ]);
 
         if ($validator->fails()) {
@@ -549,10 +548,25 @@ class CustomerCtrl extends Controller
 
         $user = $request->user();
         $d = $request->all();
+
+        $img1 = '';
+        if ($request->hasfile('img1_file')) {
+            $img1 = $request->file('img1_file')->store('profit_data/' . date("Ymd"));
+        }
+        $img2 = '';
+        if ($request->hasfile('img1_file')) {
+            $img2 = $request->file('img2_file')->store('profit_data/' . date("Ymd"));
+        }
+        $img3 = '';
+        if ($request->hasfile('img3_file')) {
+            $img1 = $request->file('img3_file')->store('profit_data/' . date("Ymd"));
+        }
+
+        /*
         $img1 = Arr::get($d, 'img1', '');
         $img2 = Arr::get($d, 'img2', '');
         $img3 = Arr::get($d, 'img3', '');
-
+         */
         $re = CustomerProfit::createProfit($user->id, $d['bank_id'], $d['bank_account'], $d['bank_account_name'], $d['identity_sn'], $img1, $img2, $img3);
         if ($re['success'] == '1') {
             return [
