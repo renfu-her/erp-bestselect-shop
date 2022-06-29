@@ -18,6 +18,7 @@
                         <th scope="col" style="width:10%">#</th>
                         <th scope="col">姓名</th>
                         <th scope="col">帳號</th>
+                        <th scope="col">api_token</th>
                         <th scope="col">角色設定狀況</th>
                         <th scope="col">通路權限</th>
                         @can('cms.user.edit')
@@ -34,6 +35,7 @@
                             <th scope="row">{{ $key + 1 }}</th>
                             <td>{{ $data['name'] }}</td>
                             <td>{{ $data['account'] }}</td>
+                            <td class="text-truncate" style="max-width: 3em">{{ $data['api_token'] }}</td>
                             <td @class(['text-danger' => count($data['role']) < 1])>
                                 @if (count($data['role']) >= 1)
                                     已設定角色
