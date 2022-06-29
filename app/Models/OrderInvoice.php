@@ -102,7 +102,7 @@ class OrderInvoice extends Model
 
             foreach($n_sub_order as $s_value){
                 foreach($s_value->items as $i_value){
-                    $item_name_arr[] = trim(mb_substr($i_value->product_title, 0, 30));
+                    $item_name_arr[] = trim(mb_substr(str_replace('|', '｜', $i_value->product_title), 0, 30));
                     $item_count_arr[] = $i_value->qty;
                     $item_unit_arr[] = '-';
                     $item_price_arr[] = $i_value->price;
@@ -119,7 +119,7 @@ class OrderInvoice extends Model
                 }
             }
             if($n_order->dlv_fee > 0){
-                $item_name_arr[] = trim(mb_substr('物流費用', 0, 30));
+                $item_name_arr[] = trim(mb_substr(str_replace('|', '｜', '物流費用'), 0, 30));
                 $item_count_arr[] = 1;
                 $item_unit_arr[] = '-';
                 $item_price_arr[] = $n_order->dlv_fee;
@@ -135,7 +135,7 @@ class OrderInvoice extends Model
                 }
             }
             foreach($n_order_discount as $d_value){
-                $item_name_arr[] = trim(mb_substr($d_value->title, 0, 30));
+                $item_name_arr[] = trim(mb_substr(str_replace('|', '｜', $d_value->title), 0, 30));
                 $item_count_arr[] = 1;
                 $item_unit_arr[] = '-';
                 $item_price_arr[] = -$d_value->discount_value;
