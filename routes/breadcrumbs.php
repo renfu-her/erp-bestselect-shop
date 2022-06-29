@@ -466,6 +466,20 @@ Breadcrumbs::for('cms.shipment.edit', function (BreadcrumbTrail $trail) {
     $trail->push('編輯');
 });
 
+// 團購主公司管理
+Breadcrumbs::for('cms.groupby-company.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('團購主公司管理', route('cms.groupby-company.index'));
+});
+Breadcrumbs::for('cms.groupby-company.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.groupby-company.index');
+    $trail->push('新增');
+});
+Breadcrumbs::for('cms.groupby-company.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.groupby-company.index');
+    $trail->push('編輯');
+});
+
 /**
  * 官網設定
  **/

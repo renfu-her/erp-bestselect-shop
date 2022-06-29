@@ -14,7 +14,9 @@
                 編輯
             </div>
             <div class="card-body">
-                <div>{{ $customer->name }}</div>
+                <x-b-form-group title="姓名">
+                    <input class="form-control" type="text" disabled value="{{ $customer->name }}">
+                </x-b-form-group>
                 <x-b-form-group name="status" title="狀態" required="true">
                     <select class="form-select" name="status">
                         @foreach ($status as $key => $value)
@@ -27,19 +29,17 @@
                     <input class="form-control @error('identity_id') is-invalid @enderror" name="identity_id"
                         value="{{ old('identity_id', $data->identity_id ?? '') }}" />
                 </x-b-form-group>
-
-                <x-b-form-group name="parent_profit_rate" title="推薦者" required="true">
-                    <div>
-                    {{ $customer->recommend_name }}
-                    </div>
+                <x-b-form-group title="推薦者">
+                    <input class="form-control" type="text" disabled value="{{ $customer->recommend_name ?? '無' }}">
                 </x-b-form-group>
-                <x-b-form-group name="parent_profit_rate" title="上一代分潤(%)" required="true">
+                <x-b-form-group name="parent_profit_rate" title="上一代分潤(%)" required="{{ $customer->recommend_name ? 'true' : 'false' }}">
                     <input class="form-control @error('parent_profit_rate') is-invalid @enderror" name="parent_profit_rate"
-                        value="{{ old('parent_profit_rate', $data->parent_profit_rate ?? '') }}" type="number" />
+                        @if (is_null($customer->recommend_name)) readonly @endif type="number" min="0" max="100"
+                        value="{{ $customer->recommend_name ? old('parent_profit_rate', $data->parent_profit_rate ?? '20') : '0' }}" />
                 </x-b-form-group>
-                <x-b-form-group name="profit_rate" title="分潤(%)" required="true">
-                    <input class="form-control @error('profit_rate') is-invalid @enderror" name="profit_rate"
-                        value="{{ old('profit_rate', $data->profit_rate ?? '') }}" type="number" />
+                <x-b-form-group name="profit_rate" title="分潤(%)">
+                    <input class="form-control" name="profit_rate" readonly
+                        value="{{ old('parent_profit_rate', 100 - $data->parent_profit_rate) }}" type="number" />
                 </x-b-form-group>
                 <x-b-form-group name="profit_type" title="分潤回饋方式">
                     <div class="px-1 pt-1">
@@ -47,7 +47,8 @@
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
                                     <input class="form-check-input" name="profit_type" value="{{ $key }}"
-                                        type="radio" @if ($key == old('profit_type', $data->profit_type ?? 'dividend')) checked @endif>
+                                        @if ($key === 'dividend') disabled @endif
+                                        type="radio" @if ($key == old('profit_type', $data->profit_type ?? 'cash')) checked @endif>
                                     {{ $pType }}
                                 </label>
                             </div>
@@ -84,7 +85,14 @@
                 @endphp
                 @foreach ($imgTitle as $i => $item)
                     <div class="form-group">
-                        <label class="col-form-label">{{ $item }}</label>
+                        <label class="col-form-label">{{ $item }}
+                            @if ($data->{"img$i"})
+                                <a href="{{ asset($data->{"img$i"}) }}" data-bs-toggle="tooltip" title="下載" 
+                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0" download>
+                                    <i class="bi bi-cloud-arrow-down"></i>
+                                </a>
+                            @endif
+                        </label>
                         <div class="uploadPreview">
                             @if ($data->{"img$i"})
                                 <img src="{{ asset($data->{"img$i"}) }}" />
@@ -125,5 +133,15 @@
                 max-height: 300px;
             }
         </style>
+    @endpush
+    @push('sub-scripts')
+        <script>
+            $('input[name="parent_profit_rate"]').on('change', function () {
+                const parent_rate = Number($(this).val());
+                if (isFinite(parent_rate)) {
+                    $('input[name="profit_rate"]').val(100 - parent_rate);
+                }
+            });
+        </script>
     @endpush
 @endonce
