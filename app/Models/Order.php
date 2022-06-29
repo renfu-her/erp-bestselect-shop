@@ -118,6 +118,9 @@ class Order extends Model
                 'order.dividend_active_at',
                 'sale.title as sale_title'])
             ->selectRaw("IF(order.unique_id IS NULL,'',order.unique_id) as unique_id")
+            ->selectRaw("IF(order.gui_number IS NULL,'',order.gui_number) as gui_number")
+            ->selectRaw("IF(order.invoice_category IS NULL,'',order.invoice_category) as invoice_category")
+            ->selectRaw("IF(order.invoice_number IS NULL,'',order.invoice_number) as invoice_number")
             ->selectRaw("IF(order.note IS NULL,'',order.note) as note")
             ->selectRaw("IF(order.payment_status IS NULL,'',order.payment_status) as payment_status")
             ->selectRaw("IF(order.payment_status_title IS NULL,'',order.payment_status_title) as payment_status_title")
@@ -140,6 +143,7 @@ class Order extends Model
         $concatString = concatStr([
             'product_title' => 'item.product_title',
             'product_sku' => 'product.sku',
+            'product_taxation' => 'product.has_tax',
             'sku' => 'item.sku',
             'price' => 'item.price',
             'qty' => 'item.qty',
@@ -203,11 +207,16 @@ class Order extends Model
             ->leftJoinSub($itemConsumeQuery, 'consume_items', function ($join) {
                 $join->on('consume_items.logistic_id', '=', 'dlv_logistic.id');
             })
+            ->leftJoin('ord_received_orders', function ($join) {
+                $join->on('sub_order.order_id', '=', 'ord_received_orders.order_id');
+                $join->whereNull('ord_received_orders.deleted_at');
+            })
             ->select('sub_order.*', 'i.items'
                 , 'dlv_delivery.sn as delivery_sn'
                 , 'dlv_delivery.logistic_status as logistic_status'
                 , 'dlv_delivery.audit_date as delivery_audit_date'
                 , 'consume_items.consume_items'
+                , 'ord_received_orders.sn as received_sn'
             )
             ->selectRaw("IF(sub_order.ship_sn IS NULL,'',sub_order.ship_sn) as ship_sn")
             ->selectRaw("IF(sub_order.actual_ship_group_id IS NULL,'',sub_order.actual_ship_group_id) as actual_ship_group_id")
@@ -229,8 +238,7 @@ class Order extends Model
             ->selectRaw("IF(sub_order.ship_temp IS NULL,'',sub_order.ship_temp) as ship_temp")
             ->selectRaw("IF(sub_order.ship_temp_id IS NULL,'',sub_order.ship_temp_id) as ship_temp_id")
             ->selectRaw("IF(sub_order.ship_rule_id IS NULL,'',sub_order.ship_rule_id) as ship_rule_id")
-
-            ->where('order_id', $order_id);
+            ->where('sub_order.order_id', $order_id);
 
         if ($sub_order_id) {
             $orderQuery->where('sub_order.id', $sub_order_id);
@@ -519,6 +527,16 @@ class Order extends Model
     {
         self::where('id', $parm['order_id'])->update([
             'dlv_taxation' => $parm['taxation'],
+        ]);
+    }
+
+
+    public static function update_invoice_info($parm)
+    {
+        self::where('id', $parm['order_id'])->update([
+            'gui_number'=>$parm['gui_number'],
+            'invoice_category'=>$parm['invoice_category'],
+            'invoice_number'=>$parm['invoice_number'],
         ]);
     }
 }

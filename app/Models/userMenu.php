@@ -117,6 +117,11 @@ return
                 "controller_name" => "ShipmentCtrl",
                 "route_name" => "cms.shipment.index",
             ],
+            [
+                "title" => "團購主公司管理",
+                "controller_name" => "GroupbyCompanyCtrl",
+                "route_name" => "cms.groupby-company.index",
+            ]
         ],
     ],
     [

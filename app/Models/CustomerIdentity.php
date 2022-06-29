@@ -13,10 +13,14 @@ class CustomerIdentity extends Model
     protected $table = 'usr_customer_identity';
     protected $guarded = [];
 
-    public static function add($customer_id, $identity_code, $sn = null, $level = null, $can_bind = null)
+    public static function add($customer_id, $identity_code, $sn = null, $level = null, $can_bind = null, $groupby_company_id = null)
     {
         $identity = DB::table('usr_identity')->where('code', $identity_code)->get()->first();
 
+        // 判斷是否超過兩種身份
+        if (CustomerIdentity::where('customer_id', $customer_id)->count() > 2) {
+            return null;
+        }
         $CIdata = CustomerIdentity::where('customer_id', $customer_id)
             ->where('identity_id', $identity->id)->get()->first();
 
@@ -33,6 +37,7 @@ class CustomerIdentity extends Model
                 'sn' => $sn,
                 'level' => $level,
                 'can_bind' => $can_bind,
+                'groupby_company_id' => $groupby_company_id,
             ])->id;
         }
     }

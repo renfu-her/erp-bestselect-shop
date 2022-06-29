@@ -26,6 +26,7 @@ use App\Models\ShipmentStatus;
 use App\Models\Supplier;
 use App\Models\User;
 use App\Models\UserSalechannel;
+use App\Models\OrderInvoice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -620,5 +621,202 @@ class OrderCtrl extends Controller
                 'accountant' => $accountant,
             ]);
         }
+    }
+
+
+    public function create_invoice(Request $request, $id)
+    {
+        $request->merge([
+            'id' => $id,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:ord_orders,id',
+        ]);
+
+        $inv = OrderInvoice::where('order_id', $id)->first();
+        $received_order = ReceivedOrder::where('order_id', $id)->first();
+        if (!$received_order || $inv) {
+            return abort(404);
+        }
+
+        $order = Order::orderDetail($id)->first();
+        $sub_order = Order::subOrderDetail($id)->get();
+        foreach ($sub_order as $key => $value) {
+            $sub_order[$key]->items = json_decode($value->items);
+            $sub_order[$key]->consume_items = json_decode($value->consume_items);
+        }
+
+        $valid_arr = OrderInvoice::where([
+                'merge_order_id' => null,
+                'invoice_id' => null,
+                'status' => 9,
+            ])->pluck('order_id')->toArray();
+        $merge_order = Order::where('id', '!=', $id)->whereIn('id', $valid_arr)->get();
+
+        $order_discount = DB::table('ord_discounts')->where([
+            'order_type'=>'main',
+            'order_id'=>$id,
+        ])->whereNotNull('discount_value')->get()->toArray();
+
+        return view('cms.commodity.order.invoice', [
+            'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
+            'form_action' => Route('cms.order.store-invoice', ['id' => $id]),
+
+            'order' => $order,
+            'sub_order' => $sub_order,
+            'merge_order' => $merge_order,
+            'order_discount' => $order_discount,
+            'received_order' => $received_order,
+        ]);
+    }
+
+
+    public function store_invoice(Request $request, $id)
+    {
+        $request->merge([
+            'id' => $id,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:ord_orders,id',
+            'status' => 'required|in:1,9',
+            'merge_order' => 'nullable|array',
+            'merge_order.*' => 'exists:ord_orders,id',
+            'category' => 'required|in:B2B,B2C',
+            'buyer_ubn' => 'required_if:category,==,B2B',
+            'buyer_name' => 'required|string|max:60',
+            'buyer_email' => 'nullable|required_if:carrier_type,==,2|email:rfc,dns',
+            'buyer_address' => 'required_if:invoice_method,==,print',
+            'invoice_method' => 'required|in:print,give,e_inv',
+            'love_code' => 'required_if:invoice_method,==,give',
+            'carrier_type' => 'required_if:invoice_method,==,e_inv|in:0,1,2',
+            'carrier_num' => 'required_if:carrier_type,==,0|required_if:carrier_type,==,1',
+            'create_status_time' => 'nullable|date|date_format:Y-m-d',
+        ]);
+
+        $data = $request->except('_token');
+        $result = OrderInvoice::create_invoice($id, $data);
+
+        if($result){
+            $parm = [
+                'order_id'=>$id,
+                'gui_number'=>$result->buyer_ubn,
+                'invoice_category'=>'電子發票',
+                'invoice_number'=>$result->invoice_number,
+            ];
+            Order::update_invoice_info($parm);
+
+            wToast(__('發票開立成功'));
+            return redirect()->route('cms.order.show-invoice', [
+                'id' => $id,
+            ]);
+
+        } else {
+            // wToast(__('發票開立失敗'));
+            return redirect()->back();
+        }
+    }
+
+
+    public function _order_detail(Request $request)
+    {
+        $request->merge([
+            'order_id' => request('order_id'),
+            'order_id.*' => explode(',', request('order_id')),
+        ]);
+
+        $request->validate([
+            'order_id' => 'required|string',
+            'order_id.*' => 'required|exists:ord_orders,id',
+        ]);
+
+        $data = [];
+        $order_id_arr = explode(',', request('order_id'));
+
+        foreach($order_id_arr as $o_id){
+            $n_r_order = ReceivedOrder::where('order_id', $o_id)->first();
+            $n_order = Order::orderDetail($o_id)->first();
+            $n_sub_order = Order::subOrderDetail($o_id)->get();
+            foreach ($n_sub_order as $key => $value) {
+                $n_sub_order[$key]->items = json_decode($value->items);
+                $n_sub_order[$key]->consume_items = json_decode($value->consume_items);
+            }
+            $n_order_discount = DB::table('ord_discounts')->where([
+                'order_type'=>'main',
+                'order_id'=>$o_id,
+            ])->whereNotNull('discount_value')->get()->toArray();
+
+            foreach($n_sub_order as $s_value){
+                foreach($s_value->items as $i_value){
+                    $data[] = [
+                        'received_sn'=>$n_r_order->sn,
+                        'name'=>$i_value->product_title,
+                        'count'=>$i_value->qty,
+                        'price'=>number_format($i_value->price),
+                        'amt'=>number_format($i_value->total_price),
+                        'tax'=>$i_value->product_taxation == 1 ? '應稅' : '未稅',
+                    ];
+                }
+            }
+            if($n_order->dlv_fee > 0){
+                $data[] = [
+                    'received_sn'=>$n_r_order->sn,
+                    'name'=>'物流費用',
+                    'count'=>1,
+                    'price'=>number_format($n_order->dlv_fee),
+                    'amt'=>number_format($n_order->dlv_fee),
+                    'tax'=>$n_order->dlv_taxation == 1 ? '應稅' : '未稅',
+                ];
+            }
+            foreach($n_order_discount as $d_value){
+                $data[] = [
+                    'received_sn'=>$n_r_order->sn,
+                    'name'=>$d_value->title,
+                    'count'=>1,
+                    'price'=>-number_format($d_value->discount_value),
+                    'amt'=>-number_format($d_value->discount_value),
+                    'tax'=>$d_value->discount_taxation == 1 ? '應稅' : '未稅',
+                ];
+            }
+        }
+
+        return response()->json($data);
+    }
+
+
+    public function show_invoice(Request $request, $id)
+    {
+        $request->merge([
+            'id' => $id,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:ord_orders,id',
+        ]);
+
+        $invoice = OrderInvoice::where('order_id', $id)->first();
+        if (! $invoice) {
+            return abort(404);
+        }
+
+        $handler = User::find($invoice->user_id);
+
+        // $order = Order::orderDetail($id)->first();
+        // $sub_order = Order::subOrderDetail($id)->get();
+        // foreach ($sub_order as $key => $value) {
+        //     $sub_order[$key]->items = json_decode($value->items);
+        //     $sub_order[$key]->consume_items = json_decode($value->consume_items);
+        // }
+
+
+        return view('cms.commodity.order.invoice_detail', [
+            'breadcrumb_data' => ['id' => $id, 'sn' => $invoice->merchant_order_no],
+
+            'invoice' => $invoice,
+            'handler' => $handler,
+            // 'order' => $order,
+            // 'sub_order' => $sub_order,
+        ]);
     }
 }

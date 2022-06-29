@@ -30,6 +30,10 @@
                 @endif
             @endif
 
+            @if($received_order_data && ! $order->invoice_number)
+            <a href="{{ Route('cms.order.create-invoice', ['id' => $order->id]) }}" role="button" class="btn btn-primary">開立發票</a>
+            @endif
+
             <a href="#" role="button" class="btn btn-success">訂單完成（暫放）</a>
         </div>
     </fieldset>
@@ -110,15 +114,21 @@
             <dl class="row">
                 <div class="col">
                     <dt>統編</dt>
-                    <dd>(待處理)</dd>
+                    <dd><span>{{ $order->invoice_number ? $order->gui_number : '尚未開立發票' }}</span></dd>
                 </div>
                 <div class="col">
                     <dt>發票類型</dt>
-                    <dd>(待處理)</dd>
+                    <dd><span>{{ $order->invoice_number ? $order->invoice_category : '尚未開立發票' }}</span></dd>
                 </div>
                 <div class="col-5">
                     <dt>發票號碼</dt>
-                    <dd>(待處理)</dd>
+                    <dd>
+                        @if($order->invoice_number)
+                            <a href="{{ route('cms.order.show-invoice', ['id' => $order->id]) }}" class="-text">{{ $order->invoice_number ? $order->invoice_number : '' }}</a>
+                        @else
+                            <span>尚未開立發票</span>
+                        @endif
+                    </dd>
                 </div>
             </dl>
             <dl class="row">

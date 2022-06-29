@@ -209,6 +209,18 @@ Breadcrumbs::for('cms.ar.receipt', function (BreadcrumbTrail $trail, $value) {
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
     $trail->push('收款單');
 });
+// 新增電子發票
+Breadcrumbs::for('cms.order.create-invoice', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
+    $trail->push('開立電子發票');
+});
+// 顯示電子發票
+Breadcrumbs::for('cms.order.show-invoice', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
+    $trail->push('電子發票');
+});
 //編輯收款單入帳日期
 Breadcrumbs::for('cms.ar.review', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
@@ -451,6 +463,20 @@ Breadcrumbs::for('cms.shipment.create', function (BreadcrumbTrail $trail) {
 });
 Breadcrumbs::for('cms.shipment.edit', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.shipment.index');
+    $trail->push('編輯');
+});
+
+// 團購主公司管理
+Breadcrumbs::for('cms.groupby-company.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('團購主公司管理', route('cms.groupby-company.index'));
+});
+Breadcrumbs::for('cms.groupby-company.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.groupby-company.index');
+    $trail->push('新增');
+});
+Breadcrumbs::for('cms.groupby-company.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.groupby-company.index');
     $trail->push('編輯');
 });
 
@@ -727,7 +753,7 @@ Breadcrumbs::for('cms.permission.child-edit', function (BreadcrumbTrail $trail, 
 // 消費者帳號管理
 Breadcrumbs::for('cms.customer.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('消費者帳號管理', route('cms.user.index'));
+    $trail->push('消費者帳號管理', route('cms.customer.index'));
 });
 Breadcrumbs::for('cms.customer.create', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.customer.index');
@@ -736,6 +762,26 @@ Breadcrumbs::for('cms.customer.create', function (BreadcrumbTrail $trail) {
 Breadcrumbs::for('cms.customer.edit', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.customer.index');
     $trail->push('編輯');
+});
+Breadcrumbs::for('cms.customer.order', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.customer.index');
+    $trail->push('會員專區');
+    $trail->push('我的訂單');
+});
+Breadcrumbs::for('cms.customer.coupon', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.customer.index');
+    $trail->push('會員專區');
+    $trail->push('我的優惠卷');
+});
+Breadcrumbs::for('cms.customer.dividend', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.customer.index');
+    $trail->push('會員專區');
+    $trail->push('我的鴻利');
+});
+Breadcrumbs::for('cms.customer.address', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.customer.index');
+    $trail->push('會員專區');
+    $trail->push('收件地址管理');
 });
 
 // 分潤審核管理
