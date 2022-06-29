@@ -79,7 +79,7 @@ class DepotCtrl extends Controller
             ]);
         }
         $type = $request->input('product_type', 'all'); //c,p,all
-        $data_per_page = Arr::get($query, 'data_per_page', 10);
+        $data_per_page = Arr::get($query, 'data_per_page', 99999);
 
         $result = DepotProduct::ProductCsnExistInboundList(request('depot_id'), $type)
             ->select(
