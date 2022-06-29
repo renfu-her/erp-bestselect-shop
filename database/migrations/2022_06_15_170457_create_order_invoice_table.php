@@ -53,6 +53,7 @@ class CreateOrderInvoiceTable extends Migration
             $table->string('r_status', 50)->nullable()->comment('回傳狀態');
             $table->string('r_msg')->nullable()->comment('回傳訊息');
             $table->mediumText('r_json')->nullable()->comment('回傳資料');
+            $table->string('merchant_id', 20)->nullable()->comment('商店代號');
             $table->string('invoice_trans_no', 50)->nullable()->comment('發票開立序號');
             $table->string('invoice_number', 50)->nullable()->comment('發票號碼');
             $table->string('random_number', 10)->nullable()->comment('發票防偽隨機碼');

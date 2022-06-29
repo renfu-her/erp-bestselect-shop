@@ -202,6 +202,7 @@ class OrderInvoice extends Model
         $item_tax_type = implode('|', $item_tax_type_arr);
         $comment = isset($parm['comment']) ? $parm['comment'] : null;
 
+        $merchant_id = null;
         $invoice_trans_no = null;
         $invoice_number = 'E' . str_pad((OrderInvoice::get()->count()) + 1, 9, '0', STR_PAD_LEFT);
         $random_number = null;
@@ -311,6 +312,7 @@ class OrderInvoice extends Model
             'r_status'=>null,
             'r_msg'=>null,
             'r_json'=>null,
+            'merchant_id'=>$merchant_id,
             'invoice_trans_no'=>$invoice_trans_no,
             'invoice_number'=>$invoice_number,
             'random_number'=>$random_number,
@@ -372,6 +374,7 @@ class OrderInvoice extends Model
                                 'r_status'=>json_decode($api_value)->Status,
                                 'r_msg'=>mb_convert_encoding(trim(json_decode($api_value)->Message), 'UTF-8', ['BIG5', 'UTF-8']),
                                 'r_json'=>json_decode($api_value)->Result,
+                                'merchant_id'=>json_decode(json_decode($api_value)->Result)->MerchantID,
                                 'invoice_trans_no'=>json_decode(json_decode($api_value)->Result)->InvoiceTransNo,
                                 'invoice_number'=>json_decode(json_decode($api_value)->Result)->InvoiceNumber,
                                 'random_number'=>json_decode(json_decode($api_value)->Result)->RandomNum,
