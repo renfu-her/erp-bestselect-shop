@@ -134,7 +134,7 @@ class OrderPayCreditCard extends Model
             'checkout_mode'=>$checkout_mode,
 
             'hostname_external'=>$ipaddress,
-            'hostname_internal'=>request()->ip() ? request()->ip() : 'Unknown',
+            'hostname_internal'=>request()->ip() ? request()->ip() : 'Unknown',// $_SERVER['REMOTE_ADDR']
             'os'=>$platform,
             'browser'=>$browser,
             'full_agent_msg'=>$agent,

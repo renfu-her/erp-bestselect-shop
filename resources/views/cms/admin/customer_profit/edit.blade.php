@@ -84,9 +84,12 @@
                     $imgTitle = ['身分證正面', '身分證反面', '存摺封面'];
                 @endphp
                 @foreach ($imgTitle as $i => $item)
+                    @php
+                        $idx = $i+1;
+                    @endphp
                     <div class="form-group">
                         <label class="col-form-label">{{ $item }}
-                            @if ($data->{"img$i"})
+                            @if ($data->{"img$idx"})
                                 <a href="{{ asset($data->{"img$i"}) }}" data-bs-toggle="tooltip" title="下載" 
                                     class="icon icon-btn fs-5 text-primary rounded-circle border-0" download>
                                     <i class="bi bi-cloud-arrow-down"></i>
@@ -94,8 +97,8 @@
                             @endif
                         </label>
                         <div class="uploadPreview">
-                            @if ($data->{"img$i"})
-                                <img src="{{ asset($data->{"img$i"}) }}" />
+                            @if ($data->{"img$idx"})
+                                <img src="{{ asset($data->{"img$idx"}) }}" />
                             @endif
                         </div>
                     </div>

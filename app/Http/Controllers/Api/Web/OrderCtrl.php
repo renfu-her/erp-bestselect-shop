@@ -75,8 +75,9 @@ class OrderCtrl extends Controller
             ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
             ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id')
             ->leftJoin('ord_received_orders as received', function ($join) {
-                $join->on('received.order_id', '=', 'order.id');
+                $join->on('received.source_id', '=', 'order.id');
                 $join->where([
+                    'received.source_type'=>app(Order::class)->getTable(),
                     'received.balance_date' => null,
                     'received.deleted_at' => null,
                 ]);
@@ -155,9 +156,10 @@ class OrderCtrl extends Controller
     {
         $EncArray = [];
 
+        $source_type = app(Order::class)->getTable();
         $received_order_collection = ReceivedOrder::where([
-            'order_id'=>$id,
-            'deleted_at'=>null,
+            'source_type'=>$source_type,
+            'source_id'=>$id,
         ]);
         $log = OrderPayCreditCard::where([
             'order_id'=>$id,
@@ -190,7 +192,7 @@ class OrderCtrl extends Controller
 
                     if (empty($status) && $status == '0') {
                         if(! $received_order_collection->first()){
-                            $received_order = ReceivedOrder::create_received_order($id);
+                            $received_order = ReceivedOrder::create_received_order($source_type, $id);
                             $received_method = ReceivedMethod::CreditCard; // 'credit_card'
                             $grade_id = ReceivedDefault::where('name', $received_method)->first() ? ReceivedDefault::where('name', $received_method)->first()->default_grade_id : 0;
 
@@ -238,8 +240,9 @@ class OrderCtrl extends Controller
             ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
             ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id')
             ->leftJoin('ord_received_orders as received', function ($join) {
-                $join->on('received.order_id', '=', 'order.id');
+                $join->on('received.source_id', '=', 'order.id');
                 $join->where([
+                    'received.source_type'=>app(Order::class)->getTable(),
                     'received.balance_date' => null,
                     'received.deleted_at' => null,
                 ]);
@@ -589,13 +592,14 @@ class OrderCtrl extends Controller
 
                 if (empty($status) && $status == '0') {
                     // echo '交易完成';
+                    $source_type = app(Order::class)->getTable();
                     $received_order_collection = ReceivedOrder::where([
-                        'order_id' => $id,
-                        'deleted_at' => null,
+                        'source_type'=>$source_type,
+                        'source_id'=>$id,
                     ]);
 
                     if (!$received_order_collection->first()) {
-                        $received_order = ReceivedOrder::create_received_order($id);
+                        $received_order = ReceivedOrder::create_received_order($source_type, $id);
                         $received_method = ReceivedMethod::CreditCard; // 'credit_card'
                         $grade_id = ReceivedDefault::where('name', $received_method)->first() ? ReceivedDefault::where('name', $received_method)->first()->default_grade_id : 0;
 
