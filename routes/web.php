@@ -86,3 +86,8 @@ Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => 'gues
     Route::get('/login-reset-status', [CustomerResetCtrl::class, 'loginResetStatus'])->name('login-reset-status');
 });
 
+
+Route::get('_info', function () {
+    // dd(app('url')->route('test',[],false));
+    return phpinfo();
+});
