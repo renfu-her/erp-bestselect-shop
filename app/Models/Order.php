@@ -150,6 +150,7 @@ class Order extends Model
     public static function subOrderDetail($order_id, $sub_order_id = null, $get_paying = null)
     {
         $concatString = concatStr([
+            'product_id' => 'product.id',
             'product_title' => 'item.product_title',
             'product_sku' => 'product.sku',
             'product_taxation' => 'product.has_tax',
