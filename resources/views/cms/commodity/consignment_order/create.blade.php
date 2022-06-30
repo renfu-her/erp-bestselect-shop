@@ -75,7 +75,71 @@
                     </div>
                 </div>
             </div>
+            @if ($method === 'create')
+            <div class="row">
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label mt-3">備註</label>
+                    <textarea id="order_memo" name="order_memo" class="form-control" rows="3"
+                              @if(null == $consignmentData || (isset($consignmentData) && true == $editable)) @else disabled @endif
+                    >{{ old('order_memo', $consignmentData->memo  ?? '') }}</textarea>
+                </div>
+            </div>
+            @endif
         </div>
+
+        @if ($method === 'edit')
+            <div class="card shadow p-4 mb-4">
+                <h6>訂單資訊</h6>
+                <dl class="row">
+                    <div class="col">
+                        <dt>訂單狀態</dt>
+                        <dd>{{ $consignmentData->status ?? '' }}</dd>
+                    </div>
+                    <div class="col">
+                        <dt>付款狀態</dt>
+                        <dd>{{ $consignmentData->payment_status_title ?? '' }}</dd>
+                    </div>
+                    <div class="col">
+                        <dt>物態</dt>
+                        <dd>{{ $delivery->flow_status ?? '' }}</dd>
+                    </div>
+                    <div class="col-sm-5">
+                        <dt>物態日期</dt>
+                        <dd>{{ $delivery->flow_created_at ?? '' }}</dd>
+                    </div>
+                </dl>
+                <dl class="row">
+                    <div class="col">
+                        <dt>訂購人</dt>
+                        <dd>{{$consignmentData->create_user_name ?? ''}}</dd>
+                    </div>
+                    <div class="col-sm-5">
+                        <dt>收貨人名稱</dt>
+                        <dd>{{$consignmentData->depot_name ?? ''}}</dd>
+                    </div>
+                </dl>
+                <dl class="row">
+                    <div class="col">
+                        <dt>收款單號</dt>
+                        <dd>(待處理)</dd>
+                    </div>
+                    <div class="col-sm-5">
+                        <dt>發票類型</dt>
+                        <dd>(待處理)</dd>
+                    </div>
+                </dl>
+                <dl class="row">
+                    <div class="col">
+                        <dt>訂單備註</dt>
+                        @if(null == $consignmentData || (isset($consignmentData) && true == $editable))
+                            <textarea id="order_memo" name="order_memo" class="form-control" rows="3">{{ old('order_memo', $consignmentData->memo  ?? '') }}</textarea>
+                        @else
+                            <dd>{{ $consignmentData->memo ?? '' }}</dd>
+                        @endif
+                    </div>
+                </dl>
+            </div>
+        @endif
 
         <div class="card shadow p-4 mb-4">
             <h6>寄倉訂購清單</h6>

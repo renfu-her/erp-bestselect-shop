@@ -82,6 +82,7 @@ class ConsignmentOrderCtrl extends Controller
         $request->validate([
             'depot_id' => 'required|numeric',
             'scheduled_date' => 'required|string',
+            'order_memo' => 'present',
             'product_style_id.*' => 'required|numeric|distinct',
             'name.*' => 'required|string',
             'prd_type.*' => 'required|string',
@@ -91,8 +92,8 @@ class ConsignmentOrderCtrl extends Controller
         ]);
         $query = $request->query();
 
-//        dd(111, $request->all());
-        $csnReq = $request->only('depot_id', 'scheduled_date');
+        $csnReq = $request->only('depot_id', 'scheduled_date', 'order_memo');
+        $csnReq['memo'] = $csnReq['order_memo']; // 前端memo被列表用走 所以改使用order_memo 再改回
         $csnItemReq = $request->only('product_style_id', 'name', 'prd_type', 'sku', 'num', 'price', 'memo');
 
         $depot = Depot::where('id', $csnReq['depot_id'])->get()->first();
@@ -103,7 +104,8 @@ class ConsignmentOrderCtrl extends Controller
         ) {
             $reCsn = CsnOrder::createData($depot->id, $depot->name
                 , $request->user()->id, $request->user()->name
-                , $csnReq['scheduled_date']);
+                , $csnReq['scheduled_date']
+                , $csnReq['memo']);
 
             $consignmentID = null;
             if (isset($reCsn['id'])) {
@@ -162,11 +164,35 @@ class ConsignmentOrderCtrl extends Controller
     {
         $query = $request->query();
         $consignmentData  = CsnOrder::getData($id)->get()->first();
+
+        $logistic_flow = DB::table('dlv_logistic_flow')
+            ->select(
+                DB::raw('max(dlv_logistic_flow.id) as flow_id')
+                , DB::raw('max(dlv_logistic_flow.delivery_id) as delivery_id')
+                , 'status'
+                , 'status_code'
+                , 'user_id'
+                , 'user_name'
+                , 'created_at'
+            )
+            ->groupBy('dlv_logistic_flow.delivery_id');
+
+
         $consignmentItemData = CsnOrderItem::getData($id)->get();
 
-        $delivery = Delivery::where('event', Event::csn_order()->value)
-            ->where('event_id', $id)
-            ->get()->first();
+        $delivery = DB::table('dlv_delivery')
+            ->leftJoinSub($logistic_flow, 'logistic_flow', function($join) {
+                $join->on('logistic_flow.delivery_id', '=', 'dlv_delivery.id');
+            })
+            ->select(
+                'dlv_delivery.*'
+                , 'logistic_flow.status as flow_status'
+                , 'logistic_flow.status_code as flow_status_code'
+                , DB::raw('DATE_FORMAT(logistic_flow.created_at,"%Y-%m-%d") as flow_created_at')
+            )
+            ->where('dlv_delivery.event_id', '=', $consignmentData->id)
+            ->where('dlv_delivery.event', '=', Event::csn_order()->value)
+            ->first();
         if (!$consignmentData) {
             return abort(404);
         }
@@ -194,6 +220,7 @@ class ConsignmentOrderCtrl extends Controller
         $request->validate([
             'depot_id' => 'required|numeric',
             'scheduled_date' => 'required|string',
+            'order_memo' => 'present',
             'product_style_id.*' => 'required|numeric|distinct',
             'name.*' => 'required|string',
             'prd_type.*' => 'required|string',
@@ -203,8 +230,8 @@ class ConsignmentOrderCtrl extends Controller
         ]);
         $query = $request->query();
 
-//        dd(111, $request->all());
-        $csnReq = $request->only('scheduled_date');
+        $csnReq = $request->only('scheduled_date', 'order_memo');
+        $csnReq['memo'] = $csnReq['order_memo']; // 前端memo被列表用走 所以改使用order_memo 再改回
         $csnItemReq = $request->only('item_id', 'product_style_id', 'name', 'prd_type', 'sku', 'num', 'price', 'memo');
 
         //判斷是否有出貨審核，有則不可新增刪除商品款式

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
+use App\Enums\Order\PaymentStatus;
 use App\Enums\Purchase\LogEventFeature;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -23,12 +24,14 @@ class CsnOrder extends Model
     public static function createData($depot_id, $depot_name
         , $create_user_id = null, $create_user_name = null
         , $scheduled_date = null
+        , $memo = null
     )
     {
         return DB::transaction(function () use (
             $depot_id, $depot_name
             , $create_user_id, $create_user_name
             , $scheduled_date
+            , $memo
             ) {
 
             $sn = "CO" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
@@ -43,8 +46,12 @@ class CsnOrder extends Model
                 'create_user_id' => $create_user_id ?? null,
                 'create_user_name' => $create_user_name ?? null,
                 'scheduled_date' => $scheduled_date ?? null,
+                'memo' => $memo ?? null,
+                'payment_status' => PaymentStatus::Unpaid()->value,
+                'payment_status_title' => PaymentStatus::Unpaid()->description,
             ])->id;
 
+            CsnOrderFlow::changeOrderStatus($id, \App\Enums\Order\OrderStatus::Add());
             $rePcsLSC = PurchaseLog::stockChange($id, null, Event::csn_order()->value, $id, LogEventFeature::add()->value, null,null, null,null, null, $create_user_id, $create_user_name);
             if ($rePcsLSC['success'] == 0) {
                 DB::rollBack();
@@ -157,9 +164,15 @@ class CsnOrder extends Model
                 , 'csn_orders.audit_user_name'
                 , 'csn_orders.audit_status'
                 , 'csn_orders.memo'
-                , 'csn_orders.created_at'
-                , 'csn_orders.updated_at'
-                , 'csn_orders.deleted_at'
+                , DB::raw('DATE_FORMAT(csn_orders.created_at,"%Y-%m-%d") as created_at')
+                , DB::raw('DATE_FORMAT(csn_orders.updated_at,"%Y-%m-%d") as updated_at')
+                , DB::raw('DATE_FORMAT(csn_orders.deleted_at,"%Y-%m-%d") as deleted_at')
+                , 'csn_orders.status_code'
+                , 'csn_orders.status'
+                , 'csn_orders.payment_status'
+                , 'csn_orders.payment_status_title'
+                , 'csn_orders.payment_method'
+                , 'csn_orders.payment_method_title'
             )
             ;
         return $re;
