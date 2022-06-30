@@ -750,7 +750,7 @@ class OrderCtrl extends Controller
             ];
             Order::update_invoice_info($parm);
 
-            wToast(__('發票開立成功'));
+            // wToast(__('發票開立成功'));
             return redirect()->route('cms.order.show-invoice', [
                 'id' => $id,
             ]);
