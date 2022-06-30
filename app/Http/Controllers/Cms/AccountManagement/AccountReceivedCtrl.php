@@ -357,7 +357,7 @@ class AccountReceivedCtrl extends Controller
         $order_discount = DB::table('ord_discounts')->where([
             'order_type'=>'main',
             'order_id'=>$order_id,
-        ])->whereNotNull('discount_value')->get()->toArray();
+        ])->where('discount_value', '>', 0)->get()->toArray();
 
         foreach($order_discount as $value){
             $value->account_code = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->code : '4000';
@@ -539,7 +539,7 @@ class AccountReceivedCtrl extends Controller
         $order_discount = DB::table('ord_discounts')->where([
                 'order_type'=>'main',
                 'order_id'=>request('id'),
-            ])->whereNotNull('discount_value')->get()->toArray();
+            ])->where('discount_value', '>', 0)->get()->toArray();
 
         foreach($order_discount as $value){
             $value->account_code = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->code : '4000';
@@ -733,7 +733,7 @@ class AccountReceivedCtrl extends Controller
                     $order_discount = DB::table('ord_discounts')->where([
                         'order_type'=>'main',
                         'order_id'=>request('id'),
-                    ])->whereNotNull('discount_value')->get()->toArray();
+                    ])->where('discount_value', '>', 0)->get()->toArray();
 
                     foreach($order_discount as $value){
                         $dis_account = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade : null;
@@ -953,7 +953,7 @@ class AccountReceivedCtrl extends Controller
             $order_discount = DB::table('ord_discounts')->where([
                 'order_type'=>'main',
                 'order_id'=>request('id'),
-            ])->whereNotNull('discount_value')->get()->toArray();
+            ])->where('discount_value', '>', 0)->get()->toArray();
 
             $received_data = ReceivedOrder::get_received_detail($received_order_data->pluck('id')->toArray());
 

@@ -98,7 +98,7 @@ class OrderInvoice extends Model
                 $n_order_discount = DB::table('ord_discounts')->where([
                     'order_type'=>'main',
                     'order_id'=>$o_id,
-                ])->whereNotNull('discount_value')->get()->toArray();
+                ])->where('discount_value', '>', 0)->get()->toArray();
 
                 foreach($n_sub_order as $s_value){
                     foreach($s_value->items as $i_value){
