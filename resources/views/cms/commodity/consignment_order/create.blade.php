@@ -323,7 +323,7 @@
                         <th scope="col">商品名稱</th>
                         <th scope="col">款式</th>
                         <th scope="col">SKU</th>
-                        <th scope="col">出貨倉庫存數量</th>
+                        <th scope="col">寄倉庫存數量</th>
                         <th scope="col">寄倉價(單價)</th>
                     </tr>
                     </thead>
