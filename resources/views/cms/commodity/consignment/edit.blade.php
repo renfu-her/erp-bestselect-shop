@@ -533,7 +533,8 @@
                 let Data = {
                     // product_type: 'p',
                     send_depot_id: $('input:hidden[name="send_depot_id"]').val(),
-                    receive_depot_id: $('input:hidden[name="receive_depot_id"]').val()
+                    receive_depot_id: $('input:hidden[name="receive_depot_id"]').val(),
+                    keyword: $('#addProduct .-searchBar input').val(),
                 };
 
                 if (!Data.send_depot_id) {
