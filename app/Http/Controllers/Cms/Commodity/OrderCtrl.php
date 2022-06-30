@@ -674,9 +674,13 @@ class OrderCtrl extends Controller
             'id' => 'required|exists:ord_orders,id',
         ]);
 
-        $inv = OrderInvoice::where('order_id', $id)->first();
+        $source_type = app(Order::class)->getTable();
+        $inv = OrderInvoice::where([
+            'source_type'=>$source_type,
+            'source_id'=>$id,
+        ])->first();
         $received_order = ReceivedOrder::where([
-            'source_type'=>app(Order::class)->getTable(),
+            'source_type'=>$source_type,
             'source_id'=>$id,
         ])->first();
         if (!$received_order || $inv) {
@@ -691,11 +695,12 @@ class OrderCtrl extends Controller
         }
 
         $valid_arr = OrderInvoice::where([
-                'merge_order_id' => null,
+                'source_type'=>$source_type,
+                'merge_source_id' => null,
                 'invoice_id' => null,
                 'status' => 9,
-            ])->pluck('order_id')->toArray();
-        $merge_order = Order::where('id', '!=', $id)->whereIn('id', $valid_arr)->get();
+            ])->pluck('source_id')->toArray();
+        $merge_source = Order::where('id', '!=', $id)->whereIn('id', $valid_arr)->get();
 
         $order_discount = DB::table('ord_discounts')->where([
             'order_type'=>'main',
@@ -708,7 +713,7 @@ class OrderCtrl extends Controller
 
             'order' => $order,
             'sub_order' => $sub_order,
-            'merge_order' => $merge_order,
+            'merge_source' => $merge_source,
             'order_discount' => $order_discount,
             'received_order' => $received_order,
         ]);
@@ -724,8 +729,8 @@ class OrderCtrl extends Controller
         $request->validate([
             'id' => 'required|exists:ord_orders,id',
             'status' => 'required|in:1,9',
-            'merge_order' => 'nullable|array',
-            'merge_order.*' => 'exists:ord_orders,id',
+            'merge_source' => 'nullable|array',
+            'merge_source.*' => 'exists:ord_orders,id',
             'category' => 'required|in:B2B,B2C',
             'buyer_ubn' => 'required_if:category,==,B2B',
             'buyer_name' => 'required|string|max:60',
@@ -739,7 +744,7 @@ class OrderCtrl extends Controller
         ]);
 
         $data = $request->except('_token');
-        $result = OrderInvoice::create_invoice($id, $data);
+        $result = OrderInvoice::create_invoice(app(Order::class)->getTable(), $id, $data);
 
         if($result){
             $parm = [
@@ -751,6 +756,9 @@ class OrderCtrl extends Controller
             Order::update_invoice_info($parm);
 
             // wToast(__('發票開立成功'));
+            // if($result->r_msg){
+            //     wToast(__($result->r_msg));
+            // }
             return redirect()->route('cms.order.show-invoice', [
                 'id' => $id,
             ]);
@@ -841,7 +849,11 @@ class OrderCtrl extends Controller
             'id' => 'required|exists:ord_orders,id',
         ]);
 
-        $invoice = OrderInvoice::where('order_id', $id)->first();
+        $source_type = app(Order::class)->getTable();
+        $invoice = OrderInvoice::where([
+            'source_type'=>$source_type,
+            'source_id'=>$id,
+        ])->first();
         if (! $invoice) {
             return abort(404);
         }

@@ -65,19 +65,9 @@ class OrderInvoice extends Model
     }
 
 
-    public static function create_invoice($order_id, $parm = [])
+    public static function create_invoice($source_type, $source_id, $parm = [])
     {
-        $order = Order::orderDetail($order_id)->selectRaw('customer.id AS customer_id')->first();
-
-        $order_id_arr[] = $order->id;
-
-        if(isset($parm['merge_order']) && is_array($parm['merge_order'])){
-            $merge_order = implode(',', $parm['merge_order']);
-            $order_id_arr = array_unique(array_merge($order_id_arr, $parm['merge_order']));
-
-        } else {
-            $merge_order = null;
-        }
+        $merge_source = null;
 
         $item_name_arr = [];
         $item_count_arr = [];
@@ -88,66 +78,77 @@ class OrderInvoice extends Model
         $amt_sales = 0;
         $amt_free = 0;
         $amt = 0;
-        foreach($order_id_arr as $o_id){
-            $n_order = Order::orderDetail($o_id)->first();
-            $n_sub_order = Order::subOrderDetail($o_id)->get();
-            foreach ($n_sub_order as $key => $value) {
-                $n_sub_order[$key]->items = json_decode($value->items);
-                $n_sub_order[$key]->consume_items = json_decode($value->consume_items);
+        if($source_type == app(Order::class)->getTable()){
+            $source = Order::orderDetail($source_id)->selectRaw('customer.id AS customer_id')->first();
+
+            $source_id_arr[] = $source_id;
+
+            if(isset($parm['merge_source']) && is_array($parm['merge_source'])){
+                $merge_source = implode(',', $parm['merge_source']);
+                $source_id_arr = array_unique(array_merge($source_id_arr, $parm['merge_source']));
             }
-            $n_order_discount = DB::table('ord_discounts')->where([
-                'order_type'=>'main',
-                'order_id'=>$o_id,
-            ])->whereNotNull('discount_value')->get()->toArray();
 
-            foreach($n_sub_order as $s_value){
-                foreach($s_value->items as $i_value){
-                    $item_name_arr[] = trim(mb_substr(str_replace('|', '｜', $i_value->product_title), 0, 30));
-                    $item_count_arr[] = $i_value->qty;
-                    $item_unit_arr[] = '-';
-                    $item_price_arr[] = $i_value->price;
-                    $item_amt_arr[] = $i_value->total_price;
-                    $item_tax_type_arr[] = $i_value->product_taxation == 1 ? 1 : 3;
+            foreach($source_id_arr as $o_id){
+                $n_order = Order::orderDetail($o_id)->first();
+                $n_sub_order = Order::subOrderDetail($o_id)->get();
+                foreach ($n_sub_order as $key => $value) {
+                    $n_sub_order[$key]->items = json_decode($value->items);
+                    $n_sub_order[$key]->consume_items = json_decode($value->consume_items);
+                }
+                $n_order_discount = DB::table('ord_discounts')->where([
+                    'order_type'=>'main',
+                    'order_id'=>$o_id,
+                ])->whereNotNull('discount_value')->get()->toArray();
 
-                    if($i_value->product_taxation == 1){
-                        $amt_sales += round($i_value->total_price/1.05);
-                        $amt += round($i_value->total_price/1.05);
-                    } else if($i_value->product_taxation == 0){
-                        $amt_free += round($i_value->total_price/1);
-                        $amt += round($i_value->total_price/1);
+                foreach($n_sub_order as $s_value){
+                    foreach($s_value->items as $i_value){
+                        $item_name_arr[] = trim(mb_substr(str_replace('|', '｜', $i_value->product_title), 0, 30));
+                        $item_count_arr[] = $i_value->qty;
+                        $item_unit_arr[] = '-';
+                        $item_price_arr[] = $i_value->price;
+                        $item_amt_arr[] = $i_value->total_price;
+                        $item_tax_type_arr[] = $i_value->product_taxation == 1 ? 1 : 3;
+
+                        if($i_value->product_taxation == 1){
+                            $amt_sales += round($i_value->total_price/1.05);
+                            $amt += round($i_value->total_price/1.05);
+                        } else if($i_value->product_taxation == 0){
+                            $amt_free += round($i_value->total_price/1);
+                            $amt += round($i_value->total_price/1);
+                        }
                     }
                 }
-            }
-            if($n_order->dlv_fee > 0){
-                $item_name_arr[] = trim(mb_substr(str_replace('|', '｜', '物流費用'), 0, 30));
-                $item_count_arr[] = 1;
-                $item_unit_arr[] = '-';
-                $item_price_arr[] = $n_order->dlv_fee;
-                $item_amt_arr[] = $n_order->dlv_fee;
-                $item_tax_type_arr[] = $n_order->dlv_taxation == 1 ? 1 : 3;
+                if($n_order->dlv_fee > 0){
+                    $item_name_arr[] = trim(mb_substr(str_replace('|', '｜', '物流費用'), 0, 30));
+                    $item_count_arr[] = 1;
+                    $item_unit_arr[] = '-';
+                    $item_price_arr[] = $n_order->dlv_fee;
+                    $item_amt_arr[] = $n_order->dlv_fee;
+                    $item_tax_type_arr[] = $n_order->dlv_taxation == 1 ? 1 : 3;
 
-                if($n_order->dlv_taxation == 1){
-                    $amt_sales += round($n_order->dlv_fee/1.05);
-                    $amt += round($n_order->dlv_fee/1.05);
-                } else if($n_order->dlv_taxation == 0){
-                    $amt_free += round($n_order->dlv_fee/1);
-                    $amt += round($n_order->dlv_fee/1);
+                    if($n_order->dlv_taxation == 1){
+                        $amt_sales += round($n_order->dlv_fee/1.05);
+                        $amt += round($n_order->dlv_fee/1.05);
+                    } else if($n_order->dlv_taxation == 0){
+                        $amt_free += round($n_order->dlv_fee/1);
+                        $amt += round($n_order->dlv_fee/1);
+                    }
                 }
-            }
-            foreach($n_order_discount as $d_value){
-                $item_name_arr[] = trim(mb_substr(str_replace('|', '｜', $d_value->title), 0, 30));
-                $item_count_arr[] = 1;
-                $item_unit_arr[] = '-';
-                $item_price_arr[] = -$d_value->discount_value;
-                $item_amt_arr[] = -$d_value->discount_value;
-                $item_tax_type_arr[] = $d_value->discount_taxation == 1 ? 1 : 3;
+                foreach($n_order_discount as $d_value){
+                    $item_name_arr[] = trim(mb_substr(str_replace('|', '｜', $d_value->title), 0, 30));
+                    $item_count_arr[] = 1;
+                    $item_unit_arr[] = '-';
+                    $item_price_arr[] = -$d_value->discount_value;
+                    $item_amt_arr[] = -$d_value->discount_value;
+                    $item_tax_type_arr[] = $d_value->discount_taxation == 1 ? 1 : 3;
 
-                if($d_value->discount_taxation == 1){
-                    $amt_sales -= round($d_value->discount_value/1.05);
-                    $amt -= round($d_value->discount_value/1.05);
-                } else if($d_value->discount_taxation == 0){
-                    $amt_free -= round($d_value->discount_value/1);
-                    $amt -= round($d_value->discount_value/1);
+                    if($d_value->discount_taxation == 1){
+                        $amt_sales -= round($d_value->discount_value/1.05);
+                        $amt -= round($d_value->discount_value/1.05);
+                    } else if($d_value->discount_taxation == 0){
+                        $amt_free -= round($d_value->discount_value/1);
+                        $amt -= round($d_value->discount_value/1);
+                    }
                 }
             }
         }
@@ -155,8 +156,8 @@ class OrderInvoice extends Model
 
         $invoice_id = null;
         $user_id = auth('user')->user() ? auth('user')->user()->id : null;
-        $customer_id = $order ? $order->customer_id : null;
-        $merchant_order_no = $order ? $order->sn : null;
+        $customer_id = $source ? $source->customer_id : null;
+        $merchant_order_no = $source ? $source->sn : null;
 
         $status = isset($parm['status']) ? $parm['status'] : 9;
         $create_status_time = isset($parm['create_status_time']) ? $parm['create_status_time'] : null;
@@ -276,8 +277,9 @@ class OrderInvoice extends Model
 
         try {
             $inv_result = self::create([
-                'order_id'=>$order_id,
-                'merge_order_id'=>$merge_order,
+                'source_type'=>$source_type,
+                'source_id'=>$source_id,
+                'merge_source_id'=>$merge_source,
                 'invoice_id'=>$invoice_id,
                 'user_id'=>$user_id,
                 'customer_id'=>$customer_id,
@@ -310,7 +312,7 @@ class OrderInvoice extends Model
                 'item_amt'=>$item_amt,
                 'item_tax_type'=>$item_tax_type,
                 'comment'=>$comment,
-    
+
                 'r_status'=>null,
                 'r_msg'=>null,
                 'r_json'=>null,
@@ -324,8 +326,8 @@ class OrderInvoice extends Model
                 'qr_code_r'=>$qr_code_r,
             ]);
 
-            if($merge_order && $inv_result){
-                self::whereIn('order_id', $parm['merge_order'])->update([
+            if($merge_source && $inv_result){
+                self::where('source_type', $source_type)->whereIn('source_id', $parm['merge_source'])->update([
                     'invoice_id'=>$inv_result->id,
                 ]);
             }
@@ -340,6 +342,7 @@ class OrderInvoice extends Model
 
         } catch (\Exception $e) {
             $inv_result = null;
+            // $e->getMessage();
             wToast(__('發票開立失敗'));
             DB::rollback();
         }
