@@ -94,6 +94,7 @@ class Order extends Model
                 $order->whereBetween('order.created_at', [$sDate, $eDate]);
             }
         }
+        $order->orderByDesc('order.id');
 
         return $order;
         //   dd($order->get()->toArray());
