@@ -78,7 +78,7 @@ class DepotProduct extends Model
      * @param null $receive_depot_id 入庫倉
      * @param null $type 'all' => '不限', 'p' => '一般', 'c' => '組合包',
      */
-    public static function productExistInboundList($send_depot_id = null, $receive_depot_id = null, $type = null)
+    public static function productExistInboundList($send_depot_id = null, $receive_depot_id = null, $type = null, $keyword = null)
     {
         $extPrdStyleList_send = PurchaseInbound::getExistInboundProductStyleList([$send_depot_id]);
 
@@ -110,6 +110,15 @@ class DepotProduct extends Model
         if ($type && $type != 'all') {
             $querySelectList->where('product.type', $type);
         }
+
+        if ($keyword) {
+            $querySelectList->where(function ($query) use ($keyword) {
+                $query->Where('product.title', 'like', "%{$keyword}%")
+                    ->orWhere('style.title', 'like', "%{$keyword}%")
+                    ->orWhere('style.sku', 'like', "%{$keyword}%");
+            });
+        }
+
 
         $re = DB::query()->fromSub($querySelectList, 'select_list')
             ->leftJoinSub($extPrdStyleList_send, 'inbound', function($join) use($send_depot_id) {
@@ -175,7 +184,8 @@ class DepotProduct extends Model
         if ($keyword) {
             $queryDepotProduct->where(function ($query) use ($keyword) {
                 $query->Where('prd_list.product_title', 'like', "%{$keyword}%")
-                    ->orWhere('prd_list.spec', 'like', "%{$keyword}%");
+                    ->orWhere('prd_list.spec', 'like', "%{$keyword}%")
+                    ->orWhere('prd_list.sku', 'like', "%{$keyword}%");
             });
         }
 

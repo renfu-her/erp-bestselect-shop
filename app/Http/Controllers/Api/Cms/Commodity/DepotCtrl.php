@@ -29,7 +29,7 @@ class DepotCtrl extends Controller
         }
         $type = $request->input('product_type', 'all'); //c,p,all
 
-        $result = DepotProduct::productExistInboundList(request('send_depot_id'), request('receive_depot_id'), $type)
+        $result = DepotProduct::productExistInboundList(request('send_depot_id'), request('receive_depot_id'), $type, request('keyword'))
             ->paginate(10)->toArray();
 
         $result['status'] = '0';
