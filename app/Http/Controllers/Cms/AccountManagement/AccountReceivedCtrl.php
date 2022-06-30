@@ -257,13 +257,14 @@ class AccountReceivedCtrl extends Controller
             ])->first();
         $order_list_data = OrderItem::item_order($order_id)->get();
 
+        $source_type = app(Order::class)->getTable();
         $received_order_collection = ReceivedOrder::where([
-            'order_id'=>$order_id,
-            'deleted_at'=>null,
+            'source_type'=>$source_type,
+            'source_id'=>$order_id,
         ]);
 
         if(! $received_order_collection->first()){
-            ReceivedOrder::create_received_order($order_id);
+            ReceivedOrder::create_received_order($source_type, $order_id);
         }
 
         $received_order_data = $received_order_collection->get();
@@ -414,8 +415,8 @@ class AccountReceivedCtrl extends Controller
 
         $data = $request->except('_token');
         $received_order_collection = ReceivedOrder::where([
-            'order_id'=>$data['id'],
-            'deleted_at'=>null,
+            'source_type'=>app(Order::class)->getTable(),
+            'source_id'=>$data['id'],
         ]);
         $received_order_id = $received_order_collection->first()->id;
 
@@ -506,8 +507,8 @@ class AccountReceivedCtrl extends Controller
 
         $order = Order::findOrFail(request('id'));
         $received_order_collection = ReceivedOrder::where([
-            'order_id'=>request('id'),
-            'deleted_at'=>null,
+            'source_type'=>app(Order::class)->getTable(),
+            'source_id'=>$id,
         ]);
 
         $received_order_data = $received_order_collection->get();
@@ -573,8 +574,8 @@ class AccountReceivedCtrl extends Controller
         ]);
 
         $received_order_collection = ReceivedOrder::where([
-            'order_id'=>request('id'),
-            'deleted_at'=>null,
+            'source_type'=>app(Order::class)->getTable(),
+            'source_id'=>$id,
         ]);
 
         $received_order_data = $received_order_collection->get();
@@ -874,8 +875,8 @@ class AccountReceivedCtrl extends Controller
         ]);
 
         $received_order_collection = ReceivedOrder::where([
-            'order_id'=>request('id'),
-            'deleted_at'=>null,
+            'source_type'=>app(Order::class)->getTable(),
+            'source_id'=>$id,
         ]);
 
         $received_order_data = $received_order_collection->get();
@@ -1036,11 +1037,15 @@ class AccountReceivedCtrl extends Controller
     {
         $target = ReceivedOrder::delete_received_order($id);
         if($target){
-            OrderFlow::changeOrderStatus($target->order_id, OrderStatus::Add());
-            $r_method['value'] = '';
-            $r_method['description'] = '';
-            Order::change_order_payment_status($target->order_id, PaymentStatus::Unpaid(), (object) $r_method);
+            if($target->source_type == app(Order::class)->getTable()){
+                OrderFlow::changeOrderStatus($target->source_id, OrderStatus::Add());
+                $r_method['value'] = '';
+                $r_method['description'] = '';
+                Order::change_order_payment_status($target->source_id, PaymentStatus::Unpaid(), (object) $r_method);
+            }
+
             wToast('刪除完成');
+
         } else {
             wToast('刪除失敗');
         }

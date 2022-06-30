@@ -55,8 +55,11 @@ class Order extends Model
                 $join->whereNotNull('dlv_logistic.ship_group_id');
             })
             ->leftJoin('ord_received_orders', function ($join) {
-                $join->on('order.id', '=', 'ord_received_orders.order_id');
-                $join->whereNull('ord_received_orders.deleted_at');
+                $join->on('order.id', '=', 'ord_received_orders.source_id');
+                $join->where([
+                    'ord_received_orders.source_type'=>app(Order::class)->getTable(),
+                    'ord_received_orders.deleted_at' => null,
+                ]);
             })
         ;
 
@@ -91,6 +94,7 @@ class Order extends Model
                 $order->whereBetween('order.created_at', [$sDate, $eDate]);
             }
         }
+        $order->orderByDesc('order.id');
 
         return $order;
         //   dd($order->get()->toArray());
@@ -101,6 +105,10 @@ class Order extends Model
         $orderQuery = DB::table('ord_orders as order')
             ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
             ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id')
+            ->leftJoin('usr_customers as customer_m', function ($join) {
+                $join->on('customer_m.sn', '=', 'order.mcode')
+                    ->whereNotNull('order.mcode');
+            })
             ->select([
                 'order.id',
                 'order.sn',
@@ -115,6 +123,7 @@ class Order extends Model
                 'order.created_at',
                 'customer.name',
                 'customer.email',
+                'customer_m.name as name_m',
                 'order.dividend_active_at',
                 'sale.title as sale_title'])
             ->selectRaw("IF(order.unique_id IS NULL,'',order.unique_id) as unique_id")
@@ -208,8 +217,11 @@ class Order extends Model
                 $join->on('consume_items.logistic_id', '=', 'dlv_logistic.id');
             })
             ->leftJoin('ord_received_orders', function ($join) {
-                $join->on('sub_order.order_id', '=', 'ord_received_orders.order_id');
-                $join->whereNull('ord_received_orders.deleted_at');
+                $join->on('sub_order.order_id', '=', 'ord_received_orders.source_id');
+                $join->where([
+                    'ord_received_orders.source_type'=>app(Order::class)->getTable(),
+                    'ord_received_orders.deleted_at' => null,
+                ]);
             })
             ->select('sub_order.*', 'i.items'
                 , 'dlv_delivery.sn as delivery_sn'

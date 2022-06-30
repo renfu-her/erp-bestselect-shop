@@ -83,7 +83,12 @@
                             <th scope="col">SKU</th>
                             <th scope="col">應進數量</th>
                             <th scope="col">實進數量</th>
-                            <th scope="col">有效期限</th>
+                            <th scope="col">有效期限
+                                <button type="button" data-bs-toggle="tooltip" title="一鍵複製(同第一行資料)" 
+                                    class="icon icon-btn fs-5 rounded-circle border-0 text-success -copy">
+                                    <i class="bi bi-arrow-down-square-fill"></i>
+                                </button>
+                            </th>
                             <th scope="col">備註</th>
                         </tr>
                         </thead>
@@ -96,9 +101,9 @@
                                         <i class="bi bi-trash"></i>
                                     </button>
                                     <input type="hidden" name="event_item_id[]"
-                                           value="{{ old('event_item_id.'. $styleKey, $styleVal->id?? '') }}">
+                                           value="{{ old('event_item_id.'. $styleKey, $styleVal->id ?? '') }}">
                                     <input type="hidden" name="product_style_id[]"
-                                           value="{{ old('product_style_id.'. $styleKey, $styleVal->product_style_id?? '') }}">
+                                           value="{{ old('product_style_id.'. $styleKey, $styleVal->product_style_id ?? '') }}">
                                 </th>
                                 <td>
                                     <input type="date"
@@ -106,13 +111,13 @@
                                            name="inbound_date[]"
                                            value="{{ old('inbound_date.'. $styleKey, date('Y-m-d')) }}" required/>
                                 </td>
-                                <td data-td="title">{{ $styleVal->title?? '' }}</td>
-                                <td data-td="sku">{{ $styleVal->sku?? '' }}</td>
-                                <td data-td="should_enter_num">{{ $styleVal->should_enter_num?? '' }}</td>
+                                <td data-td="title">{{ $styleVal->title ?? '' }}</td>
+                                <td data-td="sku">{{ $styleVal->sku ?? '' }}</td>
+                                <td data-td="should_enter_num">{{ $styleVal->should_enter_num ?? '' }}</td>
                                 <td>
                                     <input type="number"
                                            class="form-control form-control-sm @error('inbound_num.' . $styleKey) is-invalid @enderror"
-                                           name="inbound_num[]" value="{{ old('inbound_num.'. $styleKey, '') }}" min="1"
+                                           name="inbound_num[]" value="{{ old('inbound_num.'. $styleKey, $styleVal->should_enter_num) }}" min="1"
                                            required/>
                                 </td>
                                 <td>
@@ -147,7 +152,7 @@
                 <thead>
                 <tr>
                     @if(null == $purchaseData->close_date)
-{{--                        <th scope="col" class="text-center">取消入庫</th>--}}
+                        {{-- <th scope="col" class="text-center">取消入庫</th>--}}
                     @endif
                     <th scope="col">入庫單號</th>
                     <th scope="col">入庫日期</th>
@@ -163,18 +168,18 @@
                 <tbody>
                 @foreach ($inboundList as $inbound)
                     <tr>
-{{--                        @if(null == $purchaseData->close_date)--}}
-{{--                            <th class="text-center">--}}
-{{--                                @if(null == $inbound->deleted_at)--}}
-{{--                                <button type="button"--}}
-{{--                                        data-href="{{ Route('cms.purchase.delete_inbound', ['id' => $inbound->inbound_id], true) }}"--}}
-{{--                                        data-bs-toggle="modal" data-bs-target="#confirm-delete"--}}
-{{--                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">--}}
-{{--                                    <i class="bi bi-trash"></i>--}}
-{{--                                </button>--}}
-{{--                                @endif--}}
-{{--                            </th>--}}
-{{--                        @endif--}}
+                        {{-- @if(null == $purchaseData->close_date)--}}
+                        {{--     <th class="text-center">--}}
+                        {{--         @if(null == $inbound->deleted_at)--}}
+                        {{--         <button type="button"--}}
+                        {{--                 data-href="{{ Route('cms.purchase.delete_inbound', ['id' => $inbound->inbound_id], true) }}"--}}
+                        {{--                 data-bs-toggle="modal" data-bs-target="#confirm-delete"--}}
+                        {{--                 class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">--}}
+                        {{--             <i class="bi bi-trash"></i>--}}
+                        {{--         </button>--}}
+                        {{--         @endif--}}
+                        {{--     </th>--}}
+                        {{-- @endif--}}
                         <td>{{ $inbound->inbound_sn }}</td>
                         <td>{{ $inbound->inbound_date }}</td>
                         <td>{{ $inbound->product_title }}</td>
@@ -238,6 +243,11 @@
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
             });
             Clone_bindDelElem($('.-cloneElem .-del'));
+
+            $('.-copy').off('click').on('click', function () {
+                const first = $('.-cloneElem:first-child input[name="expiry_date[]"]').val();
+                $('.-cloneElem:not(:first-child) input[name="expiry_date[]"]').val(first);
+            });
         </script>
     @endpush
 @endonce

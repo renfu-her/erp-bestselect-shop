@@ -30,8 +30,6 @@ class ReceivedOrder extends Model
         $check_review = 'all'
     ){
         $received_order = DB::table('ord_received_orders as ro')
-            ->leftJoin('ord_orders as order', 'order.id', '=', 'ro.order_id')
-            ->leftJoin('usr_customers as customer', 'customer.email', '=', 'order.email')
             ->leftJoin('usr_users as user', 'user.id', '=', 'ro.usr_users_id')
             ->leftJoin(DB::raw('(
                 SELECT acc_received.received_order_id,
@@ -58,6 +56,15 @@ class ReceivedOrder extends Model
                 ) AS v_table_1'), function ($join){
                     $join->on('v_table_1.received_order_id', '=', 'ro.id');
             })
+
+            // order
+            ->leftJoin('ord_orders as order', function ($join) {
+                $join->on('ro.source_id', '=', 'order.id');
+                $join->where([
+                    'ro.source_type'=>app(Order::class)->getTable(),
+                ]);
+            })
+            ->leftJoin('usr_customers as customer', 'customer.email', '=', 'order.email')
             ->leftJoin(DB::raw('(
                 SELECT order_id,
                 CONCAT(\'[\', GROUP_CONCAT(\'{
@@ -201,30 +208,36 @@ class ReceivedOrder extends Model
     }
 
 
-    public static function create_received_order($order_id)
+    public static function create_received_order($source_type, $source_id)
     {
-        $order_data = Order::findOrFail($order_id);
-        $logistics_grade_id = ReceivedDefault::where('name', 'logistics')->first() ? ReceivedDefault::where('name', 'logistics')->first()->default_grade_id : 0;
-        $product_grade_id = ReceivedDefault::where('name', 'product')->first() ? ReceivedDefault::where('name', 'product')->first()->default_grade_id : 0;
+        if($source_type == app(Order::class)->getTable()){
+            $order_data = Order::findOrFail($source_id);
+            $logistics_grade_id = ReceivedDefault::where('name', 'logistics')->first() ? ReceivedDefault::where('name', 'logistics')->first()->default_grade_id : 0;
+            $product_grade_id = ReceivedDefault::where('name', 'product')->first() ? ReceivedDefault::where('name', 'product')->first()->default_grade_id : 0;
 
-        $re = self::create([
-            'order_id'=>$order_id,
-            'usr_users_id'=>auth('user')->user() ? auth('user')->user()->id : null,
-            'sn'=>'MSG' . date('ymd') . str_pad( count(self::whereDate('created_at', '=', date('Y-m-d'))->withTrashed()->get()) + 1, 4, '0', STR_PAD_LEFT),
-            'price'=>$order_data->total_price,
-            // 'tw_dollar'=>0,
-            // 'rate'=>1,
-            'logistics_grade_id'=>$logistics_grade_id,
-            'product_grade_id'=>$product_grade_id,
-            // 'created_at'=>date("Y-m-d H:i:s"),
-        ]);
+            $re = self::create([
+                'source_type'=>$source_type,
+                'source_id'=>$source_id,
+                'usr_users_id'=>auth('user')->user() ? auth('user')->user()->id : null,
+                'sn'=>'MSG' . date('ymd') . str_pad( count(self::whereDate('created_at', '=', date('Y-m-d'))->withTrashed()->get()) + 1, 4, '0', STR_PAD_LEFT),
+                'price'=>$order_data->total_price,
+                // 'tw_dollar'=>0,
+                // 'rate'=>1,
+                'logistics_grade_id'=>$logistics_grade_id,
+                'product_grade_id'=>$product_grade_id,
+                // 'created_at'=>date("Y-m-d H:i:s"),
+            ]);
 
-        if($re){
-            OrderFlow::changeOrderStatus($order_id, OrderStatus::Unbalance());
-            Order::change_order_payment_status($order_id, PaymentStatus::Unbalance(), null);
+            if($re){
+                OrderFlow::changeOrderStatus($source_id, OrderStatus::Unbalance());
+                Order::change_order_payment_status($source_id, PaymentStatus::Unbalance(), null);
+            }
+
+            return $re;
+
+        } else {
+
         }
-
-        return $re;
     }
 
 
@@ -261,17 +274,19 @@ class ReceivedOrder extends Model
                 'balance_date'=>date("Y-m-d H:i:s"),
             ]);
 
-            OrderFlow::changeOrderStatus($received_order->order_id, OrderStatus::Paided());
-            // Order::change_order_payment_status($received_order->order_id, PaymentStatus::Received(), ReceivedMethod::fromValue($received_method));
+            if($received_order->source_type == app(Order::class)->getTable()){
+                OrderFlow::changeOrderStatus($received_order->source_id, OrderStatus::Paided());
+                // Order::change_order_payment_status($received_order->source_id, PaymentStatus::Received(), ReceivedMethod::fromValue($received_method));
 
-            $r_method_arr = $received_list->pluck('received_method')->toArray();
-            $r_method_title_arr = [];
-            foreach($r_method_arr as $v){
-                array_push($r_method_title_arr, ReceivedMethod::getDescription($v));
+                $r_method_arr = $received_list->pluck('received_method')->toArray();
+                $r_method_title_arr = [];
+                foreach($r_method_arr as $v){
+                    array_push($r_method_title_arr, ReceivedMethod::getDescription($v));
+                }
+                $r_method['value'] = implode(',', $r_method_arr);
+                $r_method['description'] = implode(',', $r_method_title_arr);
+                Order::change_order_payment_status($received_order->source_id, PaymentStatus::Received(), (object) $r_method);
             }
-            $r_method['value'] = implode(',', $r_method_arr);
-            $r_method['description'] = implode(',', $r_method_title_arr);
-            Order::change_order_payment_status($received_order->order_id, PaymentStatus::Received(), (object) $r_method);
         }
     }
 
