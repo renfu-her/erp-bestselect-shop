@@ -321,12 +321,14 @@ class Order extends Model
         return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $mcode, $note, $coupon_obj, $payment, $dividend) {
 
             $customer = Customer::where('email', $email)->get()->first();
-            if (isset($mcode)) {
+            if (isset($mcode) && !empty($mcode)) {
                 $customerM = Customer::where('sn', $mcode)->get()->first();
                 if (null == $customerM) {
                     DB::rollBack();
                     return ['success' => '0', 'error_msg' => '無此推薦人'];
                 }
+            } else {
+                $mcode = null;
             }
             $order = OrderCart::cartFormater($items, $sale_channel_id, $coupon_obj, true, $customer, $dividend);
 
