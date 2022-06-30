@@ -25,9 +25,9 @@
                         @endforeach
                     </select>
                 </x-b-form-group>
-                <x-b-form-group name="identity_id" title="身分證" required="true">
-                    <input class="form-control @error('identity_id') is-invalid @enderror" name="identity_id"
-                        value="{{ old('identity_id', $data->identity_id ?? '') }}" />
+                <x-b-form-group name="identity_sn" title="身分證" required="true">
+                    <input class="form-control @error('identity_sn') is-invalid @enderror" name="identity_sn"
+                        value="{{ old('identity_sn', $data->identity_sn ?? '') }}" />
                 </x-b-form-group>
                 <x-b-form-group title="推薦者">
                     <input class="form-control" type="text" disabled value="{{ $customer->recommend_name ?? '無' }}">
@@ -90,7 +90,7 @@
                     <div class="form-group">
                         <label class="col-form-label">{{ $item }}
                             @if ($data->{"img$idx"})
-                                <a href="{{ asset($data->{"img$i"}) }}" data-bs-toggle="tooltip" title="下載" 
+                                <a href="{{ asset($data->{"img$idx"}) }}" data-bs-toggle="tooltip" title="下載" 
                                     class="icon icon-btn fs-5 text-primary rounded-circle border-0" download>
                                     <i class="bi bi-cloud-arrow-down"></i>
                                 </a>
