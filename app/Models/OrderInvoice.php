@@ -218,7 +218,7 @@ class OrderInvoice extends Model
         if($category === 'B2B'){
             if($tax_type == 9){
                 wToast(__('三聯式發票稅別不可為混合課稅'));
-                return $result = null;
+                return $inv_result = null;
             }
 
             $buyer_name = mb_substr($buyer_name, 0, 60);
@@ -235,13 +235,13 @@ class OrderInvoice extends Model
                 if($carrier_type != null && $carrier_type == 0){
                     if(preg_match('/^\/[A-Z0-9+-.]{7}$/', $carrier_num) == 0 || strlen($carrier_num) != 8){
                         wToast(__('手機條碼載具格式錯誤'));
-                        return $result = null;
+                        return $inv_result = null;
                     }
 
                 } else if($carrier_type == 1){
                     if(preg_match('/^[A-Z]{2}[0-9]{14}$/', $carrier_num) == 0 || strlen($carrier_num) != 16){
                         wToast(__('自然人憑證條碼載具格式錯誤'));
-                        return $result = null;
+                        return $inv_result = null;
                     }
 
                 } else if($carrier_type == 2){
@@ -263,7 +263,7 @@ class OrderInvoice extends Model
             //         echo 'love code not match';
 
             //         wToast(__('捐贈碼格式錯誤'));
-            //         return $result = null;
+            //         return $inv_result = null;
             //     }
             // }
 
@@ -272,130 +272,152 @@ class OrderInvoice extends Model
             // }
         }
 
+        DB::beginTransaction();
 
-        $result = self::create([
-            'order_id'=>$order_id,
-            'merge_order_id'=>$merge_order,
-            'invoice_id'=>$invoice_id,
-            'user_id'=>$user_id,
-            'customer_id'=>$customer_id,
-            'merchant_order_no'=>$merchant_order_no,
-            'status'=>$status,
-            'create_status_time'=>$create_status_time,
-            'category'=>$category,
-            'buyer_name'=>$buyer_name,
-            'buyer_ubn'=>$buyer_ubn,
-            'buyer_address'=>$buyer_address,
-            'buyer_email'=>$buyer_email,
-            'carrier_type'=>$carrier_type,
-            'carrier_num'=>$carrier_num,
-            'love_code'=>$love_code,
-            'print_flag'=>$print_flag,
-            'kiosk_print_flag'=>$kiosk_print_flag,
-            'tax_type'=>$tax_type,
-            'tax_rate'=>$tax_rate,
-            'customs_clearance'=>$customs_clearance,
-            'amt'=>$amt,
-            'amt_sales'=>$amt_sales,
-            'amt_zero'=>$amt_zero,
-            'amt_free'=>$amt_free,
-            'tax_amt'=>$tax_amt,
-            'total_amt'=>$total_amt,
-            'item_name'=>$item_name,
-            'item_count'=>$item_count,
-            'item_unit'=>$item_unit,
-            'item_price'=>$item_price,
-            'item_amt'=>$item_amt,
-            'item_tax_type'=>$item_tax_type,
-            'comment'=>$comment,
-
-            'r_status'=>null,
-            'r_msg'=>null,
-            'r_json'=>null,
-            'merchant_id'=>$merchant_id,
-            'invoice_trans_no'=>$invoice_trans_no,
-            'invoice_number'=>$invoice_number,
-            'random_number'=>$random_number,
-            'check_code'=>$check_code,
-            'bar_code'=>$bar_code,
-            'qr_code_l'=>$qr_code_l,
-            'qr_code_r'=>$qr_code_r,
-        ]);
-
-        if($merge_order){
-            self::whereIn('order_id', $parm['merge_order'])->update([
-                'invoice_id'=>$result->id,
+        try {
+            $inv_result = self::create([
+                'order_id'=>$order_id,
+                'merge_order_id'=>$merge_order,
+                'invoice_id'=>$invoice_id,
+                'user_id'=>$user_id,
+                'customer_id'=>$customer_id,
+                'merchant_order_no'=>$merchant_order_no,
+                'status'=>$status,
+                'create_status_time'=>$create_status_time,
+                'category'=>$category,
+                'buyer_name'=>$buyer_name,
+                'buyer_ubn'=>$buyer_ubn,
+                'buyer_address'=>$buyer_address,
+                'buyer_email'=>$buyer_email,
+                'carrier_type'=>$carrier_type,
+                'carrier_num'=>$carrier_num,
+                'love_code'=>$love_code,
+                'print_flag'=>$print_flag,
+                'kiosk_print_flag'=>$kiosk_print_flag,
+                'tax_type'=>$tax_type,
+                'tax_rate'=>$tax_rate,
+                'customs_clearance'=>$customs_clearance,
+                'amt'=>$amt,
+                'amt_sales'=>$amt_sales,
+                'amt_zero'=>$amt_zero,
+                'amt_free'=>$amt_free,
+                'tax_amt'=>$tax_amt,
+                'total_amt'=>$total_amt,
+                'item_name'=>$item_name,
+                'item_count'=>$item_count,
+                'item_unit'=>$item_unit,
+                'item_price'=>$item_price,
+                'item_amt'=>$item_amt,
+                'item_tax_type'=>$item_tax_type,
+                'comment'=>$comment,
+    
+                'r_status'=>null,
+                'r_msg'=>null,
+                'r_json'=>null,
+                'merchant_id'=>$merchant_id,
+                'invoice_trans_no'=>$invoice_trans_no,
+                'invoice_number'=>$invoice_number,
+                'random_number'=>$random_number,
+                'check_code'=>$check_code,
+                'bar_code'=>$bar_code,
+                'qr_code_l'=>$qr_code_l,
+                'qr_code_r'=>$qr_code_r,
             ]);
+
+            if($merge_order && $inv_result){
+                self::whereIn('order_id', $parm['merge_order'])->update([
+                    'invoice_id'=>$inv_result->id,
+                ]);
+            }
+
+            wToast(__('發票開立成功'));
+            if($status == 1 && $inv_result){
+                $inv_result = self::invoice_issue_api($inv_result->id);
+                wToast(__($inv_result->r_msg));
+            }
+
+            DB::commit();
+
+        } catch (\Exception $e) {
+            $inv_result = null;
+            wToast(__('發票開立失敗'));
+            DB::rollback();
         }
 
-        if($status == 1){
-            $data = [
-                'RespondType' => 'JSON',
-                'Version' => '1.5',
-                'TimeStamp' => time(),
-                'TransNum' => '',
-                'MerchantOrderNo' => $merchant_order_no,
-                'Status' => $status,
-                'CreateStatusTime' => $create_status_time,
-                'Category' => $category,
-                'BuyerName' => $buyer_name,
-                'BuyerUBN' => $buyer_ubn,
-                'BuyerAddress' => $buyer_address,
-                'BuyerEmail' => $buyer_email,
-                'CarrierType' => $carrier_type,
-                'CarrierNum' => rawurlencode($carrier_num),
-                'LoveCode' => $love_code,
-                'PrintFlag' => $print_flag,
-                'KioskPrintFlag' => $kiosk_print_flag,
-                'TaxType' => $tax_type,
-                'TaxRate' => $tax_rate,
-                'CustomsClearance' => $customs_clearance,
-                'Amt' => $amt,
-                'AmtSales' => $amt_sales,
-                'AmtZero' => $amt_zero,
-                'AmtFree' => $amt_free,
-                'TaxAmt' => $tax_amt,
-                'TotalAmt' => $total_amt,
-                'ItemName' => $item_name,
-                'ItemCount' => $item_count,
-                'ItemUnit' => $item_unit,
-                'ItemPrice' => $item_price,
-                'ItemAmt' => $item_amt,
-                'ItemTaxType' => $item_tax_type,
-                'Comment' => $comment,
-            ];
-            $api_result = self::api_send('invoice_issue', $data);
+        return $inv_result;
+    }
 
-            if($api_result){
-                foreach($api_result as $api_key => $api_value){
-                    if($api_key == 'web_info'){
-                        if(is_string(json_decode($api_value)->Result)){
-                            $result->update([
-                                'r_status'=>json_decode($api_value)->Status,
-                                'r_msg'=>mb_convert_encoding(trim(json_decode($api_value)->Message), 'UTF-8', ['BIG5', 'UTF-8']),
-                                'r_json'=>json_decode($api_value)->Result,
-                                'merchant_id'=>json_decode(json_decode($api_value)->Result)->MerchantID,
-                                'invoice_trans_no'=>json_decode(json_decode($api_value)->Result)->InvoiceTransNo,
-                                'invoice_number'=>json_decode(json_decode($api_value)->Result)->InvoiceNumber,
-                                'random_number'=>json_decode(json_decode($api_value)->Result)->RandomNum,
-                                'check_code'=>json_decode(json_decode($api_value)->Result)->CheckCode,
-                                'bar_code'=>$print_flag == 'Y' ? json_decode(json_decode($api_value)->Result)->BarCode : null,
-                                'qr_code_l'=>$print_flag == 'Y' ? json_decode(json_decode($api_value)->Result)->QRcodeL : null,
-                                'qr_code_r'=>$print_flag == 'Y' ? json_decode(json_decode($api_value)->Result)->QRcodeR : null,
-                            ]);
 
-                        } else {
-                            $result->update([
-                                'r_status'=>json_decode($api_value)->Status,
-                                'r_msg'=>mb_convert_encoding(trim(json_decode($api_value)->Message), 'UTF-8', ['BIG5', 'UTF-8']),
-                                'r_json'=>json_decode($api_value)->Result,
-                            ]);
-                        }
+    public static function invoice_issue_api($id)
+    {
+        $target = self::find($id);
+
+        $data = [
+            'RespondType' => 'JSON',
+            'Version' => '1.5',
+            'TimeStamp' => time(),
+            'TransNum' => '',
+            'MerchantOrderNo' => $target->merchant_order_no,
+            'Status' => $target->status,
+            'CreateStatusTime' => $target->create_status_time,
+            'Category' => $target->category,
+            'BuyerName' => $target->buyer_name,
+            'BuyerUBN' => $target->buyer_ubn,
+            'BuyerAddress' => $target->buyer_address,
+            'BuyerEmail' => $target->buyer_email,
+            'CarrierType' => $target->carrier_type,
+            'CarrierNum' => rawurlencode($target->carrier_num),
+            'LoveCode' => $target->love_code,
+            'PrintFlag' => $target->print_flag,
+            'KioskPrintFlag' => $target->kiosk_print_flag,
+            'TaxType' => $target->tax_type,
+            'TaxRate' => $target->tax_rate + 0,
+            'CustomsClearance' => $target->customs_clearance,
+            'Amt' => $target->amt + 0,
+            'AmtSales' => $target->amt_sales + 0,
+            'AmtZero' => $target->amt_zero + 0,
+            'AmtFree' => $target->amt_free + 0,
+            'TaxAmt' => $target->tax_amt + 0,
+            'TotalAmt' => $target->total_amt + 0,
+            'ItemName' => $target->item_name,
+            'ItemCount' => $target->item_count,
+            'ItemUnit' => $target->item_unit,
+            'ItemPrice' => $target->item_price,
+            'ItemAmt' => $target->item_amt,
+            'ItemTaxType' => $target->item_tax_type,
+            'Comment' => $target->comment,
+        ];
+        $api_result = self::api_send('invoice_issue', $data);
+
+        if($api_result){
+            foreach($api_result as $api_key => $api_value){
+                if($api_key == 'web_info'){
+                    if(is_string(json_decode($api_value)->Result)){
+                        $target->update([
+                            'r_status'=>json_decode($api_value)->Status,
+                            'r_msg'=>mb_convert_encoding(trim(json_decode($api_value)->Message), 'UTF-8', ['BIG5', 'UTF-8']),
+                            'r_json'=>json_decode($api_value)->Result,
+                            'merchant_id'=>json_decode(json_decode($api_value)->Result)->MerchantID,
+                            'invoice_trans_no'=>json_decode(json_decode($api_value)->Result)->InvoiceTransNo,
+                            'invoice_number'=>json_decode(json_decode($api_value)->Result)->InvoiceNumber,
+                            'random_number'=>json_decode(json_decode($api_value)->Result)->RandomNum,
+                            'check_code'=>json_decode(json_decode($api_value)->Result)->CheckCode,
+                            'bar_code'=>$target->print_flag == 'Y' ? json_decode(json_decode($api_value)->Result)->BarCode : null,
+                            'qr_code_l'=>$target->print_flag == 'Y' ? json_decode(json_decode($api_value)->Result)->QRcodeL : null,
+                            'qr_code_r'=>$target->print_flag == 'Y' ? json_decode(json_decode($api_value)->Result)->QRcodeR : null,
+                        ]);
+
+                    } else {
+                        $target->update([
+                            'r_status'=>json_decode($api_value)->Status,
+                            'r_msg'=>mb_convert_encoding(trim(json_decode($api_value)->Message), 'UTF-8', ['BIG5', 'UTF-8']),
+                            'r_json'=>json_decode($api_value)->Result,
+                        ]);
                     }
                 }
             }
         }
 
-        return $result;
+        return $target;
     }
 }
