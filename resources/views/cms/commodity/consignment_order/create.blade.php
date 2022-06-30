@@ -450,6 +450,7 @@
                 let Data = {
                     // product_type: 'p',
                     depot_id: $('input:hidden[name="depot_id"]').val(),
+                    keyword: $('#addProduct .-searchBar input').val(),
                 };
 
                 if (!Data.depot_id) {

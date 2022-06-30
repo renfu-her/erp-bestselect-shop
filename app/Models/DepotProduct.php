@@ -142,7 +142,7 @@ class DepotProduct extends Model
         return $re;
     }
 
-    public static function ProductCsnExistInboundList($depot_id, $type = null) {
+    public static function ProductCsnExistInboundList($depot_id, $type = null, $keyword = null) {
         $queryInbound = PurchaseInbound::getCsnExistInboundProductStyleList(Event::consignment()->value);
 
         $queryDepotProduct = DB::query()->fromSub(DepotProduct::product_list(), 'prd_list')
@@ -171,6 +171,12 @@ class DepotProduct extends Model
 
         if ($depot_id) {
             $queryDepotProduct->where('prd_list.depot_id', $depot_id);
+        }
+        if ($keyword) {
+            $queryDepotProduct->where(function ($query) use ($keyword) {
+                $query->Where('prd_list.product_title', 'like', "%{$keyword}%")
+                    ->orWhere('prd_list.spec', 'like', "%{$keyword}%");
+            });
         }
 
         if ($type && $type != 'all') {

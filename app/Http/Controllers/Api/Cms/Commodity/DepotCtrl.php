@@ -50,9 +50,11 @@ class DepotCtrl extends Controller
                 'message' => $validator->messages(),
             ]);
         }
+        $depot_id = $request->input('depot_id', null);
         $type = $request->input('product_type', 'all'); //c,p,all
+        $keyword = $request->input('keyword', null);
 
-        $result = DepotProduct::ProductCsnExistInboundList(request('depot_id'), $type)
+        $result = DepotProduct::ProductCsnExistInboundList($depot_id, $type, $keyword)
             ->paginate(10)->toArray();
 
         $result['status'] = '0';
@@ -78,10 +80,12 @@ class DepotCtrl extends Controller
                 'message' => $validator->messages(),
             ]);
         }
+        $depot_id = $request->input('depot_id', null);
         $type = $request->input('product_type', 'all'); //c,p,all
-        $data_per_page = Arr::get($query, 'data_per_page', 99999);
+        $keyword = $request->input('keyword', '');
+        $data_per_page = Arr::get($query, 'data_per_page', 9999);
 
-        $result = DepotProduct::ProductCsnExistInboundList(request('depot_id'), $type)
+        $result = DepotProduct::ProductCsnExistInboundList($depot_id, $type, $keyword)
             ->select(
                 'prd_list.sku as sku'
                 ,'prd_list.product_title as name'
