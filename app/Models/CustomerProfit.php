@@ -83,7 +83,7 @@ class CustomerProfit extends Model
     }
 
     //回傳分潤資格審核
-    public static function getProfitData($customer_id)
+    public static function getProfitData($customer_id, ProfitStatus $status = null)
     {
         $re = CustomerProfit::where('customer_id', $customer_id)
             ->select('status'
@@ -93,8 +93,12 @@ class CustomerProfit extends Model
                 , 'profit_rate'
                 , 'has_child'
                 , 'profit_type'
-            )
-            ->get()->first();
-        return $re;
+            );
+
+        if ($status) {
+            $re->where('status', $status);
+        }
+
+        return $re->get()->first();
     }
 }

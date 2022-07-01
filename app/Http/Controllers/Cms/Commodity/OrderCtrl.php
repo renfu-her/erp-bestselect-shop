@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Cms\Commodity;
 
+use App\Enums\Customer\ProfitStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Discount\DividendCategory;
 use App\Enums\Order\UserAddrType;
@@ -11,10 +12,12 @@ use App\Models\Addr;
 use App\Models\AllGrade;
 use App\Models\Customer;
 use App\Models\CustomerDividend;
+use App\Models\CustomerProfit;
 use App\Models\Depot;
 use App\Models\Discount;
 use App\Models\Order;
 use App\Models\OrderCart;
+use App\Models\OrderInvoice;
 use App\Models\OrderPayCreditCard;
 use App\Models\PayableDefault;
 use App\Models\PayingOrder;
@@ -26,7 +29,6 @@ use App\Models\ShipmentStatus;
 use App\Models\Supplier;
 use App\Models\User;
 use App\Models\UserSalechannel;
-use App\Models\OrderInvoice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -95,6 +97,7 @@ class OrderCtrl extends Controller
     {
         // Order::assign_dividend_active_date(35);
         //   dd(Discount::checkCode('fkfk',[1,2,4]));
+
         $query = $request->query();
         $cart = null;
         if (old('product_style_id')) {
@@ -134,9 +137,15 @@ class OrderCtrl extends Controller
             $regions['rec'] = Addr::getRegions(old('rec_city_id'));
         }
 
-        $customer_id = $request->user()->customer_id;
+        $customer = $request->user();
+        $customer_id = $customer->customer_id;
+        $mcode = '';
         if ($customer_id) {
             $salechannels = UserSalechannel::getSalechannels($request->user()->id)->get()->toArray();
+            if (CustomerProfit::getProfitData($customer_id, ProfitStatus::Success())) {
+                $mcode = Customer::where('id',$customer_id)->get()->first()->sn;
+            }
+
         } else {
             $salechannels = [];
         }
@@ -156,8 +165,8 @@ class OrderCtrl extends Controller
             ])
             ->get()->first();
 
-      //    dd(Discount::getDiscounts('global-normal'));
-        //    dd($citys);
+        //    dd(Discount::getDiscounts('global-normal'));
+         
         return view('cms.commodity.order.edit', [
             'customer_id' => $customer_id,
             'customers' => Customer::where('id', $customer_id)->get(),
@@ -169,6 +178,7 @@ class OrderCtrl extends Controller
             'salechannels' => $salechannels,
             'discounts' => Discount::getDiscounts('global-normal'),
             'query' => $query,
+            'mcode' => $mcode,
         ]);
     }
 
@@ -329,19 +339,19 @@ class OrderCtrl extends Controller
         $receivable = false;
         $source_type = app(Order::class)->getTable();
         $received_order_collection = ReceivedOrder::where([
-            'source_type'=>$source_type,
-            'source_id'=>$id,
+            'source_type' => $source_type,
+            'source_id' => $id,
         ]);
         $received_order_data = $received_order_collection->first();
         if ($received_order_data && $received_order_data->balance_date) {
             $receivable = true;
         }
         $received_credit_card_log = OrderPayCreditCard::where([
-            'source_type'=>$source_type,
-            'source_id'=>$id,
-            'status'=>0,
-            'authamt'=>$order->total_price,
-            'lidm'=>$sn,
+            'source_type' => $source_type,
+            'source_id' => $id,
+            'status' => 0,
+            'authamt' => $order->total_price,
+            'lidm' => $sn,
         ])->orderBy('created_at', 'DESC')->first();
 
         $dividend = CustomerDividend::where('category', DividendCategory::Order())
@@ -665,7 +675,6 @@ class OrderCtrl extends Controller
         }
     }
 
-
     public function create_invoice(Request $request, $id)
     {
         $request->merge([
@@ -678,12 +687,12 @@ class OrderCtrl extends Controller
 
         $source_type = app(Order::class)->getTable();
         $inv = OrderInvoice::where([
-            'source_type'=>$source_type,
-            'source_id'=>$id,
+            'source_type' => $source_type,
+            'source_id' => $id,
         ])->first();
         $received_order = ReceivedOrder::where([
-            'source_type'=>$source_type,
-            'source_id'=>$id,
+            'source_type' => $source_type,
+            'source_id' => $id,
         ])->first();
         if (!$received_order || $inv) {
             return abort(404);
@@ -697,16 +706,16 @@ class OrderCtrl extends Controller
         }
 
         $valid_arr = OrderInvoice::where([
-                'source_type'=>$source_type,
-                'merge_source_id' => null,
-                'invoice_id' => null,
-                'status' => 9,
-            ])->pluck('source_id')->toArray();
+            'source_type' => $source_type,
+            'merge_source_id' => null,
+            'invoice_id' => null,
+            'status' => 9,
+        ])->pluck('source_id')->toArray();
         $merge_source = Order::where('id', '!=', $id)->whereIn('id', $valid_arr)->get();
 
         $order_discount = DB::table('ord_discounts')->where([
-            'order_type'=>'main',
-            'order_id'=>$id,
+            'order_type' => 'main',
+            'order_id' => $id,
         ])->where('discount_value', '>', 0)->get()->toArray();
 
         return view('cms.commodity.order.invoice', [
@@ -720,7 +729,6 @@ class OrderCtrl extends Controller
             'received_order' => $received_order,
         ]);
     }
-
 
     public function store_invoice(Request $request, $id)
     {
@@ -748,12 +756,12 @@ class OrderCtrl extends Controller
         $data = $request->except('_token');
         $result = OrderInvoice::create_invoice(app(Order::class)->getTable(), $id, $data);
 
-        if($result){
+        if ($result) {
             $parm = [
-                'order_id'=>$id,
-                'gui_number'=>$result->buyer_ubn,
-                'invoice_category'=>'電子發票',
-                'invoice_number'=>$result->invoice_number,
+                'order_id' => $id,
+                'gui_number' => $result->buyer_ubn,
+                'invoice_category' => '電子發票',
+                'invoice_number' => $result->invoice_number,
             ];
             Order::update_invoice_info($parm);
 
@@ -771,7 +779,6 @@ class OrderCtrl extends Controller
         }
     }
 
-
     public function _order_detail(Request $request)
     {
         $request->merge([
@@ -787,10 +794,10 @@ class OrderCtrl extends Controller
         $data = [];
         $order_id_arr = explode(',', request('order_id'));
 
-        foreach($order_id_arr as $o_id){
+        foreach ($order_id_arr as $o_id) {
             $n_r_order = ReceivedOrder::where([
-                'source_type'=>app(Order::class)->getTable(),
-                'source_id'=>$o_id,
+                'source_type' => app(Order::class)->getTable(),
+                'source_id' => $o_id,
             ])->first();
             $n_order = Order::orderDetail($o_id)->first();
             $n_sub_order = Order::subOrderDetail($o_id)->get();
@@ -799,47 +806,46 @@ class OrderCtrl extends Controller
                 $n_sub_order[$key]->consume_items = json_decode($value->consume_items);
             }
             $n_order_discount = DB::table('ord_discounts')->where([
-                'order_type'=>'main',
-                'order_id'=>$o_id,
+                'order_type' => 'main',
+                'order_id' => $o_id,
             ])->where('discount_value', '>', 0)->get()->toArray();
 
-            foreach($n_sub_order as $s_value){
-                foreach($s_value->items as $i_value){
+            foreach ($n_sub_order as $s_value) {
+                foreach ($s_value->items as $i_value) {
                     $data[] = [
-                        'received_sn'=>$n_r_order->sn,
-                        'name'=>$i_value->product_title,
-                        'count'=>$i_value->qty,
-                        'price'=>number_format($i_value->price),
-                        'amt'=>number_format($i_value->total_price),
-                        'tax'=>$i_value->product_taxation == 1 ? '應稅' : '未稅',
+                        'received_sn' => $n_r_order->sn,
+                        'name' => $i_value->product_title,
+                        'count' => $i_value->qty,
+                        'price' => number_format($i_value->price),
+                        'amt' => number_format($i_value->total_price),
+                        'tax' => $i_value->product_taxation == 1 ? '應稅' : '未稅',
                     ];
                 }
             }
-            if($n_order->dlv_fee > 0){
+            if ($n_order->dlv_fee > 0) {
                 $data[] = [
-                    'received_sn'=>$n_r_order->sn,
-                    'name'=>'物流費用',
-                    'count'=>1,
-                    'price'=>number_format($n_order->dlv_fee),
-                    'amt'=>number_format($n_order->dlv_fee),
-                    'tax'=>$n_order->dlv_taxation == 1 ? '應稅' : '未稅',
+                    'received_sn' => $n_r_order->sn,
+                    'name' => '物流費用',
+                    'count' => 1,
+                    'price' => number_format($n_order->dlv_fee),
+                    'amt' => number_format($n_order->dlv_fee),
+                    'tax' => $n_order->dlv_taxation == 1 ? '應稅' : '未稅',
                 ];
             }
-            foreach($n_order_discount as $d_value){
+            foreach ($n_order_discount as $d_value) {
                 $data[] = [
-                    'received_sn'=>$n_r_order->sn,
-                    'name'=>$d_value->title,
-                    'count'=>1,
-                    'price'=>-number_format($d_value->discount_value),
-                    'amt'=>-number_format($d_value->discount_value),
-                    'tax'=>$d_value->discount_taxation == 1 ? '應稅' : '未稅',
+                    'received_sn' => $n_r_order->sn,
+                    'name' => $d_value->title,
+                    'count' => 1,
+                    'price' => -number_format($d_value->discount_value),
+                    'amt' => -number_format($d_value->discount_value),
+                    'tax' => $d_value->discount_taxation == 1 ? '應稅' : '未稅',
                 ];
             }
         }
 
         return response()->json($data);
     }
-
 
     public function show_invoice(Request $request, $id)
     {
@@ -853,10 +859,10 @@ class OrderCtrl extends Controller
 
         $source_type = app(Order::class)->getTable();
         $invoice = OrderInvoice::where([
-            'source_type'=>$source_type,
-            'source_id'=>$id,
+            'source_type' => $source_type,
+            'source_id' => $id,
         ])->first();
-        if (! $invoice) {
+        if (!$invoice) {
             return abort(404);
         }
 
@@ -868,7 +874,6 @@ class OrderCtrl extends Controller
         //     $sub_order[$key]->items = json_decode($value->items);
         //     $sub_order[$key]->consume_items = json_decode($value->consume_items);
         // }
-
 
         return view('cms.commodity.order.invoice_detail', [
             'breadcrumb_data' => ['id' => $id, 'sn' => $invoice->merchant_order_no],
