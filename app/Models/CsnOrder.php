@@ -177,4 +177,23 @@ class CsnOrder extends Model
             ;
         return $re;
     }
+
+    public static function change_order_payment_status($order_id, PaymentStatus $p_status = null, $r_method = null)
+    {
+        $target = self::where('id', $order_id);
+
+        if ($p_status) {
+            $target->update([
+                'payment_status' => $p_status->value,
+                'payment_status_title' => $p_status->description,
+            ]);
+        }
+
+        if ($r_method) {
+            $target->update([
+                'payment_method' => $r_method->value,
+                'payment_method_title' => $r_method->description,
+            ]);
+        }
+    }
 }

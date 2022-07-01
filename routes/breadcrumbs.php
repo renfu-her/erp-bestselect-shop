@@ -246,6 +246,12 @@ Breadcrumbs::for('cms.ap.logistics-create', function (BreadcrumbTrail $trail, $v
     $trail->push('物流付款單', route('cms.order.pay-order', ['id' => $value['id'], 'sid' => $value['sid']]));
     $trail->push('新增付款');
 });
+// 新增收款單
+Breadcrumbs::for('cms.ar_csnorder.create', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.consignment-order.index');
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.consignment-order.edit', ['id' => $value['id']]));
+    $trail->push('新增收款單');
+});
 
 // 出貨管理
 Breadcrumbs::for('cms.delivery.index', function (BreadcrumbTrail $trail) {

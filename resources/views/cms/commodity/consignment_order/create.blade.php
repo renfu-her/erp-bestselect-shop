@@ -19,6 +19,20 @@
         $editable = false == (isset($delivery) && isset($delivery->audit_date));
     @endphp
 
+    @if ($method === 'edit')
+        @if (!$receivable)
+            <div>
+                <a href="{{ Route('cms.ar_csnorder.create', ['id' => $id]) }}" class="btn btn-primary" role="button">新增收款單</a>
+            </div>
+        @endif
+        @if ($received_order_data)
+            @if(!in_array($consignmentData->status, ['已入款', '結案']))
+                <a href="javascript:void(0)" role="button" data-bs-toggle="modal" data-bs-target="#confirm-delete" data-href="{{ Route('cms.ar_csnorder.delete', ['id' => $received_order_data->id], true) }}" class="btn btn-danger">刪除收款單</a>
+            @else
+                <button type="button" class="btn btn-danger" disabled>刪除收款單</button>
+            @endif
+        @endif
+    @endif
     <form id="form1" method="post" action="{{ $formAction }}">
         @method('POST')
         @csrf
@@ -121,7 +135,12 @@
                 <dl class="row">
                     <div class="col">
                         <dt>收款單號</dt>
-                        <dd>(待處理)</dd>
+                        @if (isset($receivable) && $receivable)
+                            <a href="{{ route('cms.ar_csnorder.receipt', ['id' => $consignmentData->id]) }}"
+                               class="-text">{{ $received_order_data ? $received_order_data->sn : '' }}</a>
+                        @else
+                            <span>尚未完成收款</span>
+                        @endif
                     </div>
                     <div class="col-sm-5">
                         <dt>發票類型</dt>
@@ -353,10 +372,24 @@
             <button type="button" class="btn btn-primary btn-ok">加入寄倉清單</button>
         </x-slot>
     </x-b-modal>
+
+    <!-- Modal -->
+    <x-b-modal id="confirm-delete">
+        <x-slot name="title">刪除確認</x-slot>
+        <x-slot name="body">確認要刪除此收款單？</x-slot>
+        <x-slot name="foot">
+            <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
+        </x-slot>
+    </x-b-modal>
 @endsection
 @once
     @push('sub-scripts')
         <script>
+
+            // Modal Control
+            $('#confirm-delete').on('show.bs.modal', function(e) {
+                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+            });
 
             // 物流
             // -新增
