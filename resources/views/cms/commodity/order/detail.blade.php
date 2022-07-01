@@ -24,9 +24,9 @@
                     class="btn btn-primary btn-sm" role="button" target="_blank">線上刷卡連結</a>
             @endif
 
-            <a href="#" class="btn btn-warning btn-sm" role="button">獎金毛利</a>
+            <a href="{{ Route('cms.order.bonus-gross',['id' => $order->id]) }}" class="btn btn-warning btn-sm" role="button">獎金毛利</a>
 
-            <a href="#" class="btn btn-warning btn-sm" role="button">個人獎金</a>
+            <a href="{{ Route('cms.order.personal-bonus',['id' => $order->id]) }}" class="btn btn-warning btn-sm" role="button">個人獎金</a>
 
             @if ($received_order_data)
                 @if(!in_array($order->status, ['已入款', '結案']))

@@ -192,6 +192,14 @@ Breadcrumbs::for('cms.order.create', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
     $trail->push('新增訂單');
 });
+Breadcrumbs::for('cms.order.bonus-gross', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('獎金毛利');
+});
+Breadcrumbs::for('cms.order.personal-bonus', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('個人獎金');
+});
 // 訂單自取入庫審核
 Breadcrumbs::for('cms.order.inbound', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');

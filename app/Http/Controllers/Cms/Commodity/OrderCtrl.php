@@ -884,4 +884,13 @@ class OrderCtrl extends Controller
             // 'sub_order' => $sub_order,
         ]);
     }
+
+    public function bonus_gross(Request $request, $id){
+
+    }
+
+    public function personal_bonus(Request $request, $id){
+
+    }
+
 }
