@@ -133,8 +133,8 @@
                     <div class="col-12 mb-3">
                         <label class="form-label">推薦人</label>
                         <div class="d-flex -recommender">
-                            <input class="form-control -recommender" type="text" placeholder="請輸入推薦人編號" aria-label="推薦人編號">
-                            <input type="hidden" name="mcode">
+                            <input class="form-control -recommender" type="text" placeholder="請輸入推薦人編號"  value="{{ old('mcode',$mcode ?? '') }}" aria-label="推薦人編號">
+                            <input type="hidden" name="mcode" >
                             <button type="button" class="btn btn-outline-primary mx-1 px-4 col-auto -recommender">確認</button>
                         </div>
                         <div class="-recommender -feedback"></div>
