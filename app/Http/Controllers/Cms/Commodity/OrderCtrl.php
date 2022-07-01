@@ -327,8 +327,9 @@ class OrderCtrl extends Controller
         $sn = $order->sn;
 
         $receivable = false;
+        $source_type = app(Order::class)->getTable();
         $received_order_collection = ReceivedOrder::where([
-            'source_type'=>app(Order::class)->getTable(),
+            'source_type'=>$source_type,
             'source_id'=>$id,
         ]);
         $received_order_data = $received_order_collection->first();
@@ -336,7 +337,8 @@ class OrderCtrl extends Controller
             $receivable = true;
         }
         $received_credit_card_log = OrderPayCreditCard::where([
-            'order_id'=>$id,
+            'source_type'=>$source_type,
+            'source_id'=>$id,
             'status'=>0,
             'authamt'=>$order->total_price,
             'lidm'=>$sn,
