@@ -21,8 +21,8 @@ class ConsignmentOrderCtrl extends Controller
     //寄倉訂購列表
     public function index(Request $request) {
         $query = $request->query();
-        $data_per_page = Arr::get($query, 'data_per_page', 10);
-        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
+        $data_per_page = Arr::get($query, 'data_per_page', 100);
+        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 100;
 
         $depot_id = Arr::get($query, 'depot_id', 1);
 
