@@ -84,7 +84,7 @@ Route::group(['prefix' => 'web', 'as' => 'web.'], function () {
 
     Route::post('check-discount-code', [DiscountCtrl::class, 'checkDiscountCode'])->name('check-discount-code');
 
-    Route::post('check-recommender', [CustomerCtrl::class, 'checkRecommender']);
+    Route::post('check-recommender', [CustomerCtrl::class, 'checkRecommender'])->name('check-recommender');
 
     Route::post('checksum-test', ['uses' => function () {
         return 'ok';
