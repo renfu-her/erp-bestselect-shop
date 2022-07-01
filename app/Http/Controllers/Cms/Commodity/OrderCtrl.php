@@ -886,11 +886,19 @@ class OrderCtrl extends Controller
     }
 
     public function bonus_gross(Request $request, $id){
+        $order = Order::orderDetail($id)->first();
 
+        return view('cms.commodity.order.bonus_gross', [
+            'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
+        ]);
     }
 
     public function personal_bonus(Request $request, $id){
+        $order = Order::orderDetail($id)->first();
 
+        return view('cms.commodity.order.personal_bonus', [
+            'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
+        ]);
     }
 
 }
