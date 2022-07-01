@@ -885,18 +885,35 @@ class OrderCtrl extends Controller
         ]);
     }
 
+    // 獎金毛利
     public function bonus_gross(Request $request, $id){
         $order = Order::orderDetail($id)->first();
+        
+        $dividend = CustomerDividend::where('category', DividendCategory::Order())
+            ->where('category_sn', $order->sn)
+            ->where('type', 'get')->get()->first();
+
+        if ($dividend) {
+            $dividend = $dividend->dividend;
+        } else {
+            $dividend = 0;
+        }
 
         return view('cms.commodity.order.bonus_gross', [
+            'id' => $id,
+            'order' => $order,
+            'discounts' => Discount::orderDiscountList('main', $id)->get()->toArray(),
+            'dividend' => $dividend,
             'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
         ]);
     }
 
+    // 個人獎金
     public function personal_bonus(Request $request, $id){
         $order = Order::orderDetail($id)->first();
 
         return view('cms.commodity.order.personal_bonus', [
+            'id' => $id,
             'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
         ]);
     }
