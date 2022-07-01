@@ -43,9 +43,10 @@
                 <tr>
                     <th scope="col" style="width:10%">#</th>
                     <th scope="col">請款銀行</th>
+                    <th scope="col">信用卡分期期數</th>
                     <th scope="col">信用卡別</th>
-                    <th scope="col">會計科目</th>
                     <th scope="col">會計科目代碼</th>
+                    <th scope="col">會計科目</th>
                     <th scope="col">請款比例</th>
                     @can('cms.credit_percent.edit')
                         <th scope="col" class="text-center">編輯</th>
@@ -57,9 +58,10 @@
                     <tr>
                         <th scope="row">{{ $key + 1 }}</th>
                         <td>{{ $data['bank']['title'] }}</td>
+                        <td>{{ $installment[$data['bank']['installment']] }}</td>
                         <td>{{ $data['credit_card']['title'] }}</td>
-                        <td>{{ $data['bank']['name'] }}</td>
                         <td>{{ $data['bank']['code'] }}</td>
+                        <td>{{ $data['bank']['name'] }}</td>
                         <td>{{ $data['percent'] }}</td>
                         <td class="text-center">
                             @can('cms.credit_percent.edit')
