@@ -124,6 +124,7 @@ class Order extends Model
                 'customer.name',
                 'customer.email',
                 'customer_m.name as name_m',
+                'customer_m.sn as sn_m',
                 'order.dividend_active_at',
                 'sale.title as sale_title'])
             ->selectRaw("IF(order.unique_id IS NULL,'',order.unique_id) as unique_id")
