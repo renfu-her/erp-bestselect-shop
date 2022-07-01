@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Customer\ProfitStatus;
+use App\Enums\Customer\ProfitType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -45,6 +46,16 @@ class CustomerProfit extends Model
             return ['success' => '0', 'message' => '重複申請'];
         }
 
+        $customer = Customer::where('id', $customer_id)->get()->first();
+
+        if ($customer->recommend_id) {
+            $parent_profit_rate = 20;
+            $profit_rate = 80;
+        } else {
+            $parent_profit_rate = 0;
+            $profit_rate = 100;
+        }
+
         $id = self::create([
             'customer_id' => $customer_id,
             'status' => ProfitStatus::Checking()->value,
@@ -56,6 +67,10 @@ class CustomerProfit extends Model
             'img1' => $img1,
             'img2' => $img2,
             'img3' => $img3,
+            'parent_profit_rate' => $parent_profit_rate,
+            'profit_rate' => $profit_rate,
+            'profit_type' => ProfitType::Cash(),
+
             /*
         'img1' => self::convertBase64($customer_id, $img1),
         'img2' => self::convertBase64($customer_id, $img2),
@@ -83,7 +98,7 @@ class CustomerProfit extends Model
     }
 
     //回傳分潤資格審核
-    public static function getProfitData($customer_id)
+    public static function getProfitData($customer_id, ProfitStatus $status = null)
     {
         $re = CustomerProfit::where('customer_id', $customer_id)
             ->select('status'
@@ -93,8 +108,12 @@ class CustomerProfit extends Model
                 , 'profit_rate'
                 , 'has_child'
                 , 'profit_type'
-            )
-            ->get()->first();
-        return $re;
+            );
+
+        if ($status) {
+            $re->where('status', $status);
+        }
+
+        return $re->get()->first();
     }
 }

@@ -31,13 +31,13 @@
                     </fieldset>
 
                     <div class="col-12 col-sm-6 mb-3 c_status">
-                        <label class="form-label" for="merge_order">合併發票</label>
-                        <select name="merge_order[]" id="merge_order" multiple hidden class="-select2 -multiple form-select @error('merge_order') is-invalid @enderror" data-placeholder="請選擇合併發票">
-                            @foreach ($merge_order as $value)
-                            <option value="{{ $value->id }}" @if (in_array($value->id, old('merge_order', []))) selected @endif>{{ $value->sn }}</option>
+                        <label class="form-label" for="merge_source">合併發票</label>
+                        <select name="merge_source[]" id="merge_source" multiple hidden class="-select2 -multiple form-select @error('merge_source') is-invalid @enderror" data-placeholder="請選擇合併發票">
+                            @foreach ($merge_source as $value)
+                            <option value="{{ $value->id }}" @if (in_array($value->id, old('merge_source', []))) selected @endif>{{ $value->sn }}</option>
                             @endforeach
                         </select>
-                        @error('merge_order')
+                        @error('merge_source')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -277,15 +277,15 @@
                 $('input[type=radio][name=status]').on('click change', function() {
                     if (this.value == 9) {
                         $('.c_status').addClass('d-none');
-                        $('#merge_order').prop('disabled', true);
+                        $('#merge_source').prop('disabled', true);
                     } else {
                         $('.c_status').removeClass('d-none');
-                        $('#merge_order').prop('disabled', false);
+                        $('#merge_source').prop('disabled', false);
                     }
                 });
 
                 //合併狀態
-                $('#merge_order').on('change', function() {
+                $('#merge_source').on('change', function() {
                     // item.value is order_id
                     // item.text is order_sn
                     // .map(function(){
@@ -294,7 +294,7 @@
 
                     const _URL = @json(route('cms.order.ajax-detail'));
                     let Data = {
-                        order_id: $('#merge_order option:selected').toArray().map(item => item.value).join()
+                        order_id: $('#merge_source option:selected').toArray().map(item => item.value).join()
                     };
 
                     if (Data.order_id && Data.order_id != '') {

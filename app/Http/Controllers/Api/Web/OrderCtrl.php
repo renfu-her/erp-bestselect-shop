@@ -162,7 +162,8 @@ class OrderCtrl extends Controller
             'source_id'=>$id,
         ]);
         $log = OrderPayCreditCard::where([
-            'order_id'=>$id,
+            'source_type'=>$source_type,
+            'source_id'=>$id,
             'status'=>0,
         ])->orderBy('created_at', 'DESC')->first();
         if($received_order_collection->first() && !$log){
@@ -228,7 +229,8 @@ class OrderCtrl extends Controller
                         }
                     }
 
-                    OrderPayCreditCard::create_log($id, (object) $EncArray);
+                    $source_type = app(Order::class)->getTable();
+                    OrderPayCreditCard::create_log($source_type, $id, (object) $EncArray);
                 }
             }
 
@@ -247,7 +249,12 @@ class OrderCtrl extends Controller
                     'received.deleted_at' => null,
                 ]);
             })
-            ->join('ord_payment_credit_card_log as cc_log', 'cc_log.order_id', '=', 'order.id')
+            ->join('ord_payment_credit_card_log as cc_log', function ($join) {
+                $join->on('cc_log.source_id', '=', 'order.id');
+                $join->where([
+                    'cc_log.source_type'=>app(Order::class)->getTable(),
+                ]);
+            })
             ->select([
                 'order.id',
                 'order.sn',
@@ -590,6 +597,8 @@ class OrderCtrl extends Controller
                 $lidm = isset($EncArray['lidm']) ? $EncArray['lidm'] : '';
                 $EncArray['more_info'] = [];
 
+                $source_type = app(Order::class)->getTable();
+
                 if (empty($status) && $status == '0') {
                     // echo '交易完成';
                     $source_type = app(Order::class)->getTable();
@@ -634,12 +643,12 @@ class OrderCtrl extends Controller
                         ReceivedOrder::store_received($parm);
                     }
 
-                    OrderPayCreditCard::create_log($id, (object) $EncArray);
+                    OrderPayCreditCard::create_log($source_type, $id, (object) $EncArray);
 
                     return redirect(env('FRONTEND_URL') . 'payfin/' . $id . '/' . $lidm . '/' . $status);
                 }
 
-                OrderPayCreditCard::create_log($id, (object) $EncArray);
+                OrderPayCreditCard::create_log($source_type, $id, (object) $EncArray);
             }
         }
 
