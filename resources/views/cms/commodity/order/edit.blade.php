@@ -127,8 +127,19 @@
                     </div>
                 </div>
             </div>
+
             <div class="card shadow p-4 mb-4">
                 <div class="row">
+                    <div class="col-12 mb-3">
+                        <label class="form-label">推薦人</label>
+                        <div class="d-flex -recommender">
+                            <input class="form-control -recommender" type="text" placeholder="請輸入推薦人編號" aria-label="推薦人編號">
+                            <input type="hidden" name="mcode">
+                            <button type="button" class="btn btn-outline-primary mx-1 px-4 col-auto -recommender">確認</button>
+                        </div>
+                        <div class="-recommender -feedback"></div>
+                    </div>
+
                     <fieldset class="col-12 mb-3">
                         <legend class="col-form-label p-0 mb-2">優惠使用（二擇一）</legend>
                         <div class="px-1 pt-1">
@@ -168,6 +179,7 @@
                     </div>
                 </div>
             </div>
+
             <div id="Total_price" class="card shadow p-4 mb-4">
                 <div id="Discount_overview" hidden>
                     <h6>優惠折扣總覽</h6>
@@ -567,6 +579,49 @@
                             console.error(err);
                         });
                 }
+            }
+
+            // 推薦人
+            $('button.-recommender').off('click').on('click', function () {
+                $('input[name="mcode"]').val('');
+                // call API
+                checkRecommender($('input.-recommender').val());
+            });
+            function checkRecommender(sn) {
+                const _URL = @json(route('api.web.check-recommender'));
+                const Data = {
+                    sn
+                };
+                // init Html
+                $('.d-flex.-recommender, input.-recommender').removeClass('is-valid is-invalid');
+                $('.-feedback.-recommender').removeClass('valid-feedback invalid-feedback')
+                    .empty().prop('hidden', true);
+
+                // Data - sn
+                if (!Data.sn) {
+                    toast.show('請輸入推薦人編碼', {
+                        type: 'danger'
+                    });
+                    return false;
+                }
+                axios.post(_URL, Data)
+                    .then((result) => {
+                        const res = result.data;
+                        console.log(res);
+                        if (res.status === '0') {
+                            $('.d-flex.-recommender, input.-recommender').addClass('is-valid');
+                            $('.-feedback.-recommender').addClass('valid-feedback')
+                                .prop('hidden', false).text('推薦碼可使用。');
+                            // 紀錄sn
+                            $('input[name="mcode"]').val(sn);
+                        } else {
+                            $('.d-flex.-recommender, input.-recommender').addClass('is-invalid');
+                            $('.-feedback.-recommender').addClass('invalid-feedback')
+                                .prop('hidden', false).text('無此推薦人或該推薦人無推薦權限！');
+                        }
+                    }).catch((err) => {
+                        console.error(err);
+                    });
             }
 
             // 禁用鍵盤 Enter submit
