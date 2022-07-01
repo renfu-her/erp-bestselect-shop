@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Api\Cms\User;
 
+use App\Enums\Customer\ProfitStatus;
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use App\Models\CustomerIdentity;
+use App\Models\CustomerProfit;
 use App\Models\User;
 use App\Models\UserSalechannel;
 use Illuminate\Http\Request;
@@ -87,11 +90,18 @@ class UserCtrl extends Controller
                 'message' => '此帳號無綁定消費者',
             ]);
         }
+
+        $mcode = '';
+        if (CustomerProfit::getProfitData($d['customer_id'], ProfitStatus::Success())) {
+            $mcode = Customer::where('id', $d['customer_id'])->get()->first()->sn;
+        }
+
         $re = UserSalechannel::getSalechannels($user->id)->get()->toArray();
 
         return response()->json([
             'status' => '0',
             'data' => $re,
+            'mcode' => $mcode,
         ]);
 
     }
