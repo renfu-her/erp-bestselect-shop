@@ -563,6 +563,7 @@
                     axios.post(_URL, Data)
                         .then((result) => {
                             const res = result.data;
+                            console.log('訂購客戶', res);
                             if (res.status === '0' && res.data && res.data.length) {
                                 $('#addProductBtn').prop('disabled', false);
                                 (res.data)
@@ -571,6 +572,12 @@
                                         `<option value="${sale.id}">${sale.title}</option>`
                                     );
                                 });
+
+                                // mcode
+                                if (res.mcode) {
+                                    $('input.-recommender').val(res.mcode);
+                                    checkRecommender(res.mcode);
+                                }
                             } else {
                                 $('#addProductBtn').prop('disabled', true);
                                 $('#salechannel').append('<option value="">未綁定身份（無法購物）</option>');
