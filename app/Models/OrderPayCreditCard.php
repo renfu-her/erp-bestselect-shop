@@ -12,7 +12,13 @@ class OrderPayCreditCard extends Model
     protected $table = 'ord_payment_credit_card_log';
     protected $guarded = [];
 
-    public static function create_log(int $order_id, object $response)
+    public static function api_send($data)
+    {
+
+    }
+
+
+    public static function create_log(string $source_type ,int $source_id, object $response)
     {
         $ipaddress = '';
 
@@ -106,7 +112,8 @@ class OrderPayCreditCard extends Model
         }
 
         self::create([
-            'order_id'=>$order_id,
+            'source_type'=>$source_type,
+            'source_id'=>$source_id,
             'status'=>property_exists($response, 'status') ? $response->status : null,
             'errcode'=>property_exists($response, 'errcode') ? $response->errcode : null,
             'errdesc'=>property_exists($response, 'errdesc') ? ( mb_convert_encoding(trim($response->errdesc, "\x00..\x08"), 'UTF-8', ['BIG5', 'UTF-8']) !== 'null' ? mb_convert_encoding(trim($response->errdesc, "\x00..\x08"), 'UTF-8', ['BIG5', 'UTF-8']) : null ) : null,

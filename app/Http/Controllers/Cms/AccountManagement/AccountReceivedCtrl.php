@@ -241,11 +241,7 @@ class AccountReceivedCtrl extends Controller
     }
 
 
-    /**
-     * 收款方式
-     *
-     * @return \Illuminate\Http\Response
-     */
+    // only for order used
     public function create(Request $request, $id)
     {
         $order_id = request('id');
@@ -395,12 +391,8 @@ class AccountReceivedCtrl extends Controller
         ]);
     }
 
-    /**
-     * 產生收款單,產生後不能修改收款單，只能刪除再重新產生
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
+    // only for order used
     public function store(Request $request)
     {
         $request->validate([
@@ -414,8 +406,9 @@ class AccountReceivedCtrl extends Controller
         ]);
 
         $data = $request->except('_token');
+        $source_type = app(Order::class)->getTable();
         $received_order_collection = ReceivedOrder::where([
-            'source_type'=>app(Order::class)->getTable(),
+            'source_type'=>$source_type,
             'source_id'=>$data['id'],
         ]);
         $received_order_id = $received_order_collection->first()->id;
@@ -472,7 +465,7 @@ class AccountReceivedCtrl extends Controller
             ReceivedOrder::store_received($parm);
 
             if($data['acc_transact_type_fk'] == ReceivedMethod::CreditCard){
-                OrderPayCreditCard::create_log($data['id'], (object) $EncArray);
+                OrderPayCreditCard::create_log($source_type, $data['id'], (object) $EncArray);
             }
 
             DB::commit();
@@ -496,6 +489,7 @@ class AccountReceivedCtrl extends Controller
     }
 
 
+    // only for order used
     public function receipt(Request $request, $id)
     {
         $request->merge([
@@ -564,6 +558,7 @@ class AccountReceivedCtrl extends Controller
     }
 
 
+    // only for order used
     public function review(Request $request, $id)
     {
         $request->merge([
@@ -865,6 +860,7 @@ class AccountReceivedCtrl extends Controller
     }
 
 
+    // only for order used
     public function taxation(Request $request, $id)
     {
         $request->merge([
