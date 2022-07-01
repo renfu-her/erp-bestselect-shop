@@ -11,4 +11,9 @@ class CrdBank extends Model
     use HasFactory, SoftDeletes;
     protected $table = 'crd_banks';
     protected $guarded = [];
+
+
+    public const INSTALLMENT = [
+        'none'=>'不分期',
+    ];
 }

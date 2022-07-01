@@ -25,6 +25,7 @@ class CrdPercentBankCredit extends Model
             'crd_pbc.id'
                 , 'crd_pbc.bank_fk'
                 , 'crd_banks.title as bank_title'
+                , 'crd_banks.installment as bank_installment'
                 , 'crd_pbc.credit_fk'
                 , 'crd_credit_cards.title as credit_title'
                 , 'crd_pbc.percent'
@@ -45,6 +46,7 @@ class CrdPercentBankCredit extends Model
             ->select(
                 'crd_banks.id'
                 , 'crd_banks.title'
+                , 'crd_banks.installment'
                 , 'grade.code'
                 , 'grade.name'
             );
