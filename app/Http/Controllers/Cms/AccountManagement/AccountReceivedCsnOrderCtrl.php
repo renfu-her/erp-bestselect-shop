@@ -7,22 +7,8 @@ use App\Models\CsnOrder;
 use App\Models\CsnOrderFlow;
 use App\Models\CsnOrderItem;
 use App\Models\Depot;
-use Illuminate\Http\Request;
-
-use Illuminate\Support\Facades\DB;
-
-use App\Enums\Discount\DisCategory;
 use App\Enums\Order\OrderStatus;
-use App\Enums\Received\ReceivedMethod;
-
-use App\Models\AllGrade;
-use App\Models\Discount;
-use App\Models\GeneralLedger;
-use App\Models\Order;
-use App\Models\Product;
-use App\Models\ReceivedDefault;
 use App\Models\ReceivedOrder;
-use App\Models\User;
 
 class AccountReceivedCsnOrderCtrl extends AccountReceivedPapaCtrl
 {
@@ -53,6 +39,11 @@ class AccountReceivedCsnOrderCtrl extends AccountReceivedPapaCtrl
     public function getOrderListData($order_id)
     {
         return CsnOrderItem::item_order($order_id)->get();
+    }
+
+    public function getOrderListItemMsg($item)
+    {
+        return $item->product_title . '（' . $item->product_price . ' * ' . $item->product_qty . '）';
     }
 
     public function getOrderPurchaser($order_data)
@@ -95,11 +86,43 @@ class AccountReceivedCsnOrderCtrl extends AccountReceivedPapaCtrl
         return 'cms.account_management.account_received_csn_order.receipt';
     }
 
+    public function getRouteReview()
+    {
+        return 'cms.ar_csnorder.review';
+    }
+
+    public function getViewReview()
+    {
+        return 'cms.account_management.account_received_csn_order.review';
+    }
+
+    public function getRouteTaxation()
+    {
+        return 'cms.ar_csnorder.taxation';
+    }
+
+    public function getViewTaxation()
+    {
+        return 'cms.account_management.account_received_csn_order.taxation';
+    }
+
     public function setDestroyStatus($source_id)
     {
         CsnOrderFlow::changeOrderStatus($source_id, OrderStatus::Add());
         $r_method['value'] = '';
         $r_method['description'] = '';
         CsnOrder::change_order_payment_status($source_id, PaymentStatus::Unpaid(), (object) $r_method);
+    }
+
+    public function doReviewWhenReceived($id)
+    {
+        CsnOrderFlow::changeOrderStatus($id, OrderStatus::Received());
+        // 配發啟用日期
+//            CsnOrder::assign_dividend_active_date($id);
+    }
+
+    public function doReviewWhenReceiptCancle($id)
+    {
+        CsnOrderFlow::changeOrderStatus($id, OrderStatus::Paided());
     }
 }

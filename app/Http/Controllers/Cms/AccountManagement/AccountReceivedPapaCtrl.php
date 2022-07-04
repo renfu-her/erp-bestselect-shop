@@ -2,28 +2,19 @@
 
 namespace App\Http\Controllers\Cms\AccountManagement;
 
-
 use App\Http\Controllers\Controller;
 
-use App\Models\CsnOrder;
-use App\Models\CsnOrderFlow;
-use App\Models\CsnOrderItem;
-use App\Models\Depot;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\DB;
 
 use App\Enums\Discount\DisCategory;
-use App\Enums\Order\OrderStatus;
 use App\Enums\Received\ReceivedMethod;
 
 use App\Models\AllGrade;
-use App\Models\Customer;
 use App\Models\Discount;
 use App\Models\GeneralLedger;
 use App\Models\Order;
-use App\Models\OrderFlow;
-use App\Models\OrderItem;
 use App\Models\OrderPayCreditCard;
 use App\Models\Product;
 use App\Models\ReceivedDefault;
@@ -34,6 +25,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
 {
     abstract public function getOrderData($order_id);
     abstract public function getOrderListData($order_id);
+    abstract public function getOrderListItemMsg($Item);
     abstract public function getOrderPurchaser($order_data);
     abstract public function getSource_type();
     abstract public function getViewEdit();
@@ -42,7 +34,13 @@ abstract class AccountReceivedPapaCtrl extends Controller
     abstract public function getRouteDetail();
     abstract public function getRouteReceipt();
     abstract public function getViewReceipt();
+    abstract public function getRouteReview();
+    abstract public function getViewReview();
+    abstract public function getRouteTaxation();
+    abstract public function getViewTaxation();
     abstract public function setDestroyStatus($source_id);
+    abstract public function doReviewWhenReceived($id);
+    abstract public function doReviewWhenReceiptCancle($id);
     /**
      * 收款方式
      *
@@ -272,7 +270,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
             ReceivedOrder::store_received($parm);
 
             if($data['acc_transact_type_fk'] == ReceivedMethod::CreditCard){
-                OrderPayCreditCard::create_log($data['id'], (object) $EncArray);
+                OrderPayCreditCard::create_log($this->getSource_type(), $data['id'], (object) $EncArray);
             }
 
             DB::commit();
@@ -295,7 +293,6 @@ abstract class AccountReceivedPapaCtrl extends Controller
             ]);
         }
     }
-
 
     public function receipt(Request $request, $id)
     {
@@ -405,9 +402,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
                 }
             }
 
-            CsnOrderFlow::changeOrderStatus($id, OrderStatus::Received());
-            // 配發啟用日期
-//            CsnOrder::assign_dividend_active_date($id);
+            $this->doReviewWhenReceived($id);
 
             wToast(__('入帳日期更新成功'));
             return redirect()->route($this->getRouteReceipt(), ['id'=>request('id')]);
@@ -418,7 +413,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
                     'receipt_date'=>null,
                 ]);
 
-                CsnOrderFlow::changeOrderStatus($id, OrderStatus::Paided());
+                $this->doReviewWhenReceiptCancle($id);
                 wToast(__('入帳日期已取消'));
                 return redirect()->route($this->getRouteReceipt(), ['id'=>request('id')]);
 
@@ -426,7 +421,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
                 $undertaker = User::find($received_order->usr_users_id);
                 $order = Order::findOrFail(request('id'));
 
-                $order_list_data = CsnOrderItem::item_order(request('id'))->get();
+                $order_list_data = $this->getOrderListData(request('id'));
 
                 $received_data = ReceivedOrder::get_received_detail($received_order_data->pluck('id')->toArray());
 
@@ -469,7 +464,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
                 $account_name = $product_account ? $product_account->name : '無設定會計科目';
                 $product_grade_name = $account_code . ' - ' . $account_name;
                 foreach($order_list_data as $value){
-                    $name = $product_grade_name . ' --- ' . $value->product_title . '（' . $value->product_price . ' * ' . $value->product_qty . '）';
+                    $name = $product_grade_name . ' --- ' . $this->getOrderListItemMsg($value);
                     // GeneralLedger::classification_processing($debit, $credit, $product_master_account->code, $name, $value->product_origin_price, 'r', 'product');
 
                     $tmp = [
@@ -642,8 +637,8 @@ abstract class AccountReceivedPapaCtrl extends Controller
                 }
                 // grade process end
 
-                return view('cms.account_management.account_received_csn_order.review', [
-                    'form_action'=>route('cms.ar_csnorder.review' , ['id'=>request('id')]),
+                return view($this->getViewReview(), [
+                    'form_action'=>route($this->getRouteReview() , ['id'=>request('id')]),
                     'received_order'=>$received_order,
                     'order'=>$order,
                     'order_list_data'=>$order_list_data,
@@ -675,7 +670,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
         ]);
 
         $received_order_collection = ReceivedOrder::where([
-            'source_type'=>app(CsnOrder::class)->getTable(),
+            'source_type'=>$this->getSource_type(),
             'source_id'=>$id,
         ]);
 
@@ -748,8 +743,8 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
         } else if($request->isMethod('get')){
 
-            $order = CsnOrder::findOrFail(request('id'));
-            $order_list_data = CsnOrderItem::item_order(request('id'))->get();
+            $order = $this->getOrderData(request('id'));
+            $order_list_data = $this->getOrderListData(request('id'));
             $order_discount = DB::table('ord_discounts')->where([
                 'order_type'=>'main',
                 'order_id'=>request('id'),
@@ -813,8 +808,8 @@ abstract class AccountReceivedPapaCtrl extends Controller
             }
             // grade process end
 
-            return view('cms.account_management.account_received_csn_order.taxation', [
-                'form_action'=>route('cms.ar_csnorder.taxation' , ['id'=>request('id')]),
+            return view($this->getViewTaxation(), [
+                'form_action'=>route($this->getRouteTaxation() , ['id'=>request('id')]),
                 'received_order'=>$received_order,
                 'order'=>$order,
                 'order_discount'=>$order_discount,

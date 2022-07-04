@@ -59,7 +59,7 @@
             </dl>
             <dl class="row mb-0">
                 <div class="col">
-                    <dt>訂單流水號：<a href="{{ Route('cms.order.detail', ['id' => $order->id], true) }}">{{ $order->sn }}</a></dt>
+                    <dt>訂單流水號：<a href="{{ Route('cms.consignment-order.edit', ['id' => $order->id], true) }}">{{ $order->sn }}</a></dt>
                     <dd></dd>
                 </div>
                 @if($received_order->receipt_date)
@@ -105,7 +105,7 @@
                                 <td>{{ $value->product_qty }}</td>
                                 <td>{{ number_format($value->product_price, 2) }}</td>
                                 <td>{{ number_format($value->product_origin_price) }}</td>
-                                <td>{{ $received_order->memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id], true) }}">{{ $order->sn }}</a> {{ $value->product_taxation == 1 ? '應稅' : '免稅' }} {{ $order->note }}</td>
+                                <td>{{ $received_order->memo }} <a href="{{ Route('cms.consignment-order.edit', ['id' => $order->id], true) }}">{{ $order->sn }}</a> {{ $value->product_taxation == 1 ? '應稅' : '免稅' }} {{ $order->note }}</td>
                             </tr>
                         @endforeach
 
@@ -115,7 +115,7 @@
                                 <td>1</td>
                                 <td>{{ number_format($order->dlv_fee, 2) }}</td>
                                 <td>{{ number_format($order->dlv_fee) }}</td>
-                                <td>{{ $received_order->memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id], true) }}">{{ $order->sn }}</a> {{ $order->dlv_taxation == 1 ? '應稅' : '免稅' }}</td>
+                                <td>{{ $received_order->memo }} <a href="{{ Route('cms.consignment-order.edit', ['id' => $order->id], true) }}">{{ $order->sn }}</a> {{ $order->dlv_taxation == 1 ? '應稅' : '免稅' }}</td>
                             </tr>
                         @endif
 
