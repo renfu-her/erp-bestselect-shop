@@ -12,25 +12,6 @@ use App\Models\ReceivedOrder;
 
 class AccountReceivedCsnOrderCtrl extends AccountReceivedPapaCtrl
 {
-    public function destroy($id)
-    {
-        $target = ReceivedOrder::delete_received_order($id);
-        if($target){
-            if($target->source_type == app(CsnOrder::class)->getTable()){
-                CsnOrderFlow::changeOrderStatus($target->source_id, OrderStatus::Add());
-                $r_method['value'] = '';
-                $r_method['description'] = '';
-                CsnOrder::change_order_payment_status($target->source_id, PaymentStatus::Unpaid(), (object) $r_method);
-            }
-
-            wToast('刪除完成');
-
-        } else {
-            wToast('刪除失敗');
-        }
-        return redirect()->back();
-    }
-
     public function getOrderData($order_id)
     {
         return CsnOrder::findOrFail($order_id);

@@ -419,7 +419,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
             } else {
                 $undertaker = User::find($received_order->usr_users_id);
-                $order = Order::findOrFail(request('id'));
+                $order = $this->getOrderData(request('id'));
 
                 $order_list_data = $this->getOrderListData(request('id'));
 
