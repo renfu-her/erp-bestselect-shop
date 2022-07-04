@@ -41,6 +41,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
     abstract public function setDestroyStatus($source_id);
     abstract public function doReviewWhenReceived($id);
     abstract public function doReviewWhenReceiptCancle($id);
+    abstract public function doTaxationWhenUpdate();
     /**
      * 收款方式
      *
@@ -715,21 +716,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
                     }
                 }
 
-                if(request('order_dlv') && is_array(request('order_dlv'))){
-                    $order = request('order_dlv');
-                    foreach($order as $key => $value){
-                        $value['order_id'] = $key;
-                        Order::update_dlv_taxation($value);
-                    }
-                }
-
-                if(request('discount') && is_array(request('discount'))){
-                    $discount = request('discount');
-                    foreach($discount as $key => $value){
-                        $value['discount_id'] = $key;
-                        Discount::update_order_discount_taxation($value);
-                    }
-                }
+                $this->doTaxationWhenUpdate();
 
                 DB::commit();
                 wToast(__('摘要/稅別更新成功'));

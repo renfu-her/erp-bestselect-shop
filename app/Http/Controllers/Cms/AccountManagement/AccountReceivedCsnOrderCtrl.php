@@ -106,4 +106,23 @@ class AccountReceivedCsnOrderCtrl extends AccountReceivedPapaCtrl
     {
         CsnOrderFlow::changeOrderStatus($id, OrderStatus::Paided());
     }
+
+    public function doTaxationWhenUpdate()
+    {
+//        if(request('order_dlv') && is_array(request('order_dlv'))){
+//            $order = request('order_dlv');
+//            foreach($order as $key => $value){
+//                $value['order_id'] = $key;
+//                Order::update_dlv_taxation($value);
+//            }
+//        }
+//
+//        if(request('discount') && is_array(request('discount'))){
+//            $discount = request('discount');
+//            foreach($discount as $key => $value){
+//                $value['discount_id'] = $key;
+//                Discount::update_order_discount_taxation($value);
+//            }
+//        }
+    }
 }
