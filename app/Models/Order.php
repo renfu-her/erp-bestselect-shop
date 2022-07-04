@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Customer\ProfitStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Order\PaymentStatus;
@@ -57,7 +58,7 @@ class Order extends Model
             ->leftJoin('ord_received_orders', function ($join) {
                 $join->on('order.id', '=', 'ord_received_orders.source_id');
                 $join->where([
-                    'ord_received_orders.source_type'=>app(Order::class)->getTable(),
+                    'ord_received_orders.source_type' => app(Order::class)->getTable(),
                     'ord_received_orders.deleted_at' => null,
                 ]);
             })
@@ -220,7 +221,7 @@ class Order extends Model
             ->leftJoin('ord_received_orders', function ($join) {
                 $join->on('sub_order.order_id', '=', 'ord_received_orders.source_id');
                 $join->where([
-                    'ord_received_orders.source_type'=>app(Order::class)->getTable(),
+                    'ord_received_orders.source_type' => app(Order::class)->getTable(),
                     'ord_received_orders.deleted_at' => null,
                 ]);
             })
@@ -341,6 +342,8 @@ class Order extends Model
                     ->get()
                     ->count()) + 1, 4, '0', STR_PAD_LEFT);
 
+            $order['order_sn'] = $order_sn;
+
             $dividend_re = CustomerDividend::orderDiscount($customer->id, $order_sn, $order['use_dividend']);
             if ($dividend_re['success'] != '1') {
                 DB::rollBack();
@@ -373,6 +376,7 @@ class Order extends Model
             }
 
             $order_id = self::create($updateData)->id;
+            $order['order_id'] = $order_id;
             Discount::createOrderDiscount('main', $order_id, $customer, $order['discounts']);
 
             foreach ($address as $key => $user) {
@@ -397,10 +401,12 @@ class Order extends Model
                 return ['success' => '0', 'error_msg' => 'address format error', 'event' => 'address', 'event_id' => ''];
             }
             //   dd($order);
-            foreach ($order['shipments'] as $value) {
+            foreach ($order['shipments'] as $key => $value) {
                 $sub_order_sn = $order_sn . "-" . str_pad((DB::table('ord_sub_orders')->where('order_id', $order_id)
                         ->get()
                         ->count()) + 1, 2, '0', STR_PAD_LEFT);
+
+                $order['shipments'][$key]->sub_order_sn = $sub_order_sn;
 
                 $insertData = [
                     'order_id' => $order_id,
@@ -432,7 +438,7 @@ class Order extends Model
                 }
 
                 $subOrderId = DB::table('ord_sub_orders')->insertGetId($insertData);
-
+                $order['shipments'][$key]->sub_order_id = $subOrderId;
                 Discount::createOrderDiscount('sub', $order_id, $customer, $value->discounts, $subOrderId);
                 //TODO 目前做DEMO 在新增訂單時，就新增出貨單，若未來串好付款，則在付款完畢後才新增出貨單
                 $reDelivery = Delivery::createData(
@@ -476,6 +482,8 @@ class Order extends Model
                 }
 
             }
+            // 分潤
+            self::orderProfit($order, $mcode);
 
             OrderFlow::changeOrderStatus($order_id, OrderStatus::Add());
 
@@ -537,7 +545,6 @@ class Order extends Model
 
     }
 
-
     public static function update_dlv_taxation($parm)
     {
         self::where('id', $parm['order_id'])->update([
@@ -545,13 +552,73 @@ class Order extends Model
         ]);
     }
 
-
     public static function update_invoice_info($parm)
     {
         self::where('id', $parm['order_id'])->update([
-            'gui_number'=>$parm['gui_number'],
-            'invoice_category'=>$parm['invoice_category'],
-            'invoice_number'=>$parm['invoice_number'],
+            'gui_number' => $parm['gui_number'],
+            'invoice_category' => $parm['invoice_category'],
+            'invoice_number' => $parm['invoice_number'],
         ]);
+    }
+
+    private static function orderProfit($order, $mcode)
+    {
+        // dd($order);
+        if (!$mcode) {
+            return;
+        }
+        $reCustomer = Customer::where('sn', $mcode)->get()->first();
+        if (!$reCustomer) {
+            return;
+        }
+        //確認資格
+        $customerProfit = CustomerProfit::getProfitData($reCustomer->id, ProfitStatus::Success());
+        if (!$customerProfit) {
+            return;
+        }
+        //上一代分潤資格
+        $parentCustomerProfit = null;
+
+        if ($customerProfit->parent_cusotmer_id) {
+            $parentCustomerProfit = CustomerProfit::getProfitData($customerProfit->parent_cusotmer_id, ProfitStatus::Success());
+
+        }
+
+        $profit_rate = 100;
+
+        if ($parentCustomerProfit) {
+            $profit_rate = $customerProfit->profit_rate;
+        }
+
+        foreach ($order['shipments'] as $shipment) {
+            foreach ($shipment->products as $product) {
+                $bonus = $product->bonus * $product->qty;
+                // dd($bonus);
+                $cBonus = floor($bonus / 100 * $profit_rate);
+                $pBonus = $bonus - $cBonus;
+
+                $updateData = ['order_id' => $order['order_id'],
+                    'order_sn' => $order['order_sn'],
+                    'sub_order_sn' => $shipment->sub_order_sn,
+                    'sub_order_id' => $shipment->sub_order_id,
+                    'style_id' => $product->product_style_id,
+                    'total_bonus' => $bonus];
+
+                $pid = OrderProfit::create(array_merge($updateData, [
+                    'bonus' => $cBonus,
+                    'customer_id' => $reCustomer->id,
+                ]))->id;
+
+                if ($parentCustomerProfit && $pBonus) {
+                    OrderProfit::create(array_merge($updateData, [
+                        'bonus' => $pBonus,
+                        'customer_id' => $customerProfit->parent_cusotmer_id,
+                        'parent_id' => $pid,
+                    ]));
+                }
+
+            }
+        }
+
     }
 }

@@ -8,4 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class OrderProfit extends Model
 {
     use HasFactory;
+    protected $table = 'ord_order_profit';
+    protected $guarded = [];
+
+   
 }

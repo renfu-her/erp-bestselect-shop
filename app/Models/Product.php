@@ -427,6 +427,7 @@ class Product extends Model
         if (isset($options['price'])) {
             $re->leftJoin('prd_salechannel_style_price as price', 's.id', '=', 'price.style_id')
                 ->addSelect('price.price')
+                ->addSelect('price.bonus')
                 ->addSelect('price.dividend')
                 ->where('price.sale_channel_id', $options['price']);
         }
