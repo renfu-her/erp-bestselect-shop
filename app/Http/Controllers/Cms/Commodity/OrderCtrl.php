@@ -886,23 +886,37 @@ class OrderCtrl extends Controller
         ]);
     }
 
-    public function bonus_gross(Request $request, $id)
-    {
+    // 獎金毛利
+    public function bonus_gross(Request $request, $id){
         $order = Order::orderDetail($id)->first();
-        $dataList = OrderProfit::dataList($id, null, 1)->get();
+        
+        $dividend = CustomerDividend::where('category', DividendCategory::Order())
+            ->where('category_sn', $order->sn)
+            ->where('type', 'get')->get()->first();
+
+        if ($dividend) {
+            $dividend = $dividend->dividend;
+        } else {
+            $dividend = 0;
+        }
+
         return view('cms.commodity.order.bonus_gross', [
-            'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
-            'dataList' => $dataList,
+            'id' => $id,
+            'order' => $order,
+            'discounts' => Discount::orderDiscountList('main', $id)->get()->toArray(),
+            'dividend' => $dividend,
+            'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn]
         ]);
     }
 
-    public function personal_bonus(Request $request, $id)
-    {
+    // 個人獎金
+    public function personal_bonus(Request $request, $id){
         $order = Order::orderDetail($id)->first();
         // dd(OrderProfit::dataList($id, $request->user()->customer_id, 1)->get()->toArray());
         // exit;
         $dataList = OrderProfit::dataList($id, $request->user()->customer_id)->get();
         return view('cms.commodity.order.personal_bonus', [
+            'id' => $id,
             'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
             'dataList' => $dataList,
         ]);
