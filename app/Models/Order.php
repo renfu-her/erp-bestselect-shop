@@ -55,8 +55,11 @@ class Order extends Model
                 $join->whereNotNull('dlv_logistic.ship_group_id');
             })
             ->leftJoin('ord_received_orders', function ($join) {
-                $join->on('order.id', '=', 'ord_received_orders.order_id');
-                $join->whereNull('ord_received_orders.deleted_at');
+                $join->on('order.id', '=', 'ord_received_orders.source_id');
+                $join->where([
+                    'ord_received_orders.source_type'=>app(Order::class)->getTable(),
+                    'ord_received_orders.deleted_at' => null,
+                ]);
             })
         ;
 
@@ -91,6 +94,7 @@ class Order extends Model
                 $order->whereBetween('order.created_at', [$sDate, $eDate]);
             }
         }
+        $order->orderByDesc('order.id');
 
         return $order;
         //   dd($order->get()->toArray());
@@ -101,6 +105,10 @@ class Order extends Model
         $orderQuery = DB::table('ord_orders as order')
             ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
             ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id')
+            ->leftJoin('usr_customers as customer_m', function ($join) {
+                $join->on('customer_m.sn', '=', 'order.mcode')
+                    ->whereNotNull('order.mcode');
+            })
             ->select([
                 'order.id',
                 'order.sn',
@@ -115,9 +123,14 @@ class Order extends Model
                 'order.created_at',
                 'customer.name',
                 'customer.email',
+                'customer_m.name as name_m',
+                'customer_m.sn as sn_m',
                 'order.dividend_active_at',
                 'sale.title as sale_title'])
             ->selectRaw("IF(order.unique_id IS NULL,'',order.unique_id) as unique_id")
+            ->selectRaw("IF(order.gui_number IS NULL,'',order.gui_number) as gui_number")
+            ->selectRaw("IF(order.invoice_category IS NULL,'',order.invoice_category) as invoice_category")
+            ->selectRaw("IF(order.invoice_number IS NULL,'',order.invoice_number) as invoice_number")
             ->selectRaw("IF(order.note IS NULL,'',order.note) as note")
             ->selectRaw("IF(order.payment_status IS NULL,'',order.payment_status) as payment_status")
             ->selectRaw("IF(order.payment_status_title IS NULL,'',order.payment_status_title) as payment_status_title")
@@ -138,8 +151,10 @@ class Order extends Model
     public static function subOrderDetail($order_id, $sub_order_id = null, $get_paying = null)
     {
         $concatString = concatStr([
+            'product_id' => 'product.id',
             'product_title' => 'item.product_title',
             'product_sku' => 'product.sku',
+            'product_taxation' => 'product.has_tax',
             'sku' => 'item.sku',
             'price' => 'item.price',
             'qty' => 'item.qty',
@@ -203,11 +218,19 @@ class Order extends Model
             ->leftJoinSub($itemConsumeQuery, 'consume_items', function ($join) {
                 $join->on('consume_items.logistic_id', '=', 'dlv_logistic.id');
             })
+            ->leftJoin('ord_received_orders', function ($join) {
+                $join->on('sub_order.order_id', '=', 'ord_received_orders.source_id');
+                $join->where([
+                    'ord_received_orders.source_type'=>app(Order::class)->getTable(),
+                    'ord_received_orders.deleted_at' => null,
+                ]);
+            })
             ->select('sub_order.*', 'i.items'
                 , 'dlv_delivery.sn as delivery_sn'
                 , 'dlv_delivery.logistic_status as logistic_status'
                 , 'dlv_delivery.audit_date as delivery_audit_date'
                 , 'consume_items.consume_items'
+                , 'ord_received_orders.sn as received_sn'
             )
             ->selectRaw("IF(sub_order.ship_sn IS NULL,'',sub_order.ship_sn) as ship_sn")
             ->selectRaw("IF(sub_order.actual_ship_group_id IS NULL,'',sub_order.actual_ship_group_id) as actual_ship_group_id")
@@ -229,8 +252,7 @@ class Order extends Model
             ->selectRaw("IF(sub_order.ship_temp IS NULL,'',sub_order.ship_temp) as ship_temp")
             ->selectRaw("IF(sub_order.ship_temp_id IS NULL,'',sub_order.ship_temp_id) as ship_temp_id")
             ->selectRaw("IF(sub_order.ship_rule_id IS NULL,'',sub_order.ship_rule_id) as ship_rule_id")
-
-            ->where('order_id', $order_id);
+            ->where('sub_order.order_id', $order_id);
 
         if ($sub_order_id) {
             $orderQuery->where('sub_order.id', $sub_order_id);
@@ -295,12 +317,20 @@ class Order extends Model
      * @param array $coupon_obj [type,value]
      *
      */
-    public static function createOrder($email, $sale_channel_id, $address, $items, $note = null, $coupon_obj = null, ReceivedMethod $payment = null, $dividend = [])
+    public static function createOrder($email, $sale_channel_id, $address, $items, $mcode = null, $note = null, $coupon_obj = null, ReceivedMethod $payment = null, $dividend = [])
     {
-
-        return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $note, $coupon_obj, $payment, $dividend) {
+        return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $mcode, $note, $coupon_obj, $payment, $dividend) {
 
             $customer = Customer::where('email', $email)->get()->first();
+            if (isset($mcode) && !empty($mcode)) {
+                $customerM = Customer::where('sn', $mcode)->get()->first();
+                if (null == $customerM) {
+                    DB::rollBack();
+                    return ['success' => '0', 'error_msg' => '無此推薦人'];
+                }
+            } else {
+                $mcode = null;
+            }
             $order = OrderCart::cartFormater($items, $sale_channel_id, $coupon_obj, true, $customer, $dividend);
 
             if ($order['success'] != 1) {
@@ -326,6 +356,7 @@ class Order extends Model
                 "email" => $email,
                 "total_price" => $order['total_price'],
                 "origin_price" => $order['origin_price'],
+                "mcode" => $mcode ?? null,
                 "dlv_fee" => $order['dlv_fee'],
                 "discount_value" => $order['discount_value'],
                 "discounted_price" => $order['discounted_price'],
@@ -512,6 +543,16 @@ class Order extends Model
     {
         self::where('id', $parm['order_id'])->update([
             'dlv_taxation' => $parm['taxation'],
+        ]);
+    }
+
+
+    public static function update_invoice_info($parm)
+    {
+        self::where('id', $parm['order_id'])->update([
+            'gui_number'=>$parm['gui_number'],
+            'invoice_category'=>$parm['invoice_category'],
+            'invoice_number'=>$parm['invoice_number'],
         ]);
     }
 }

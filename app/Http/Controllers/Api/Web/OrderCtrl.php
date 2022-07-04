@@ -75,8 +75,9 @@ class OrderCtrl extends Controller
             ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
             ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id')
             ->leftJoin('ord_received_orders as received', function ($join) {
-                $join->on('received.order_id', '=', 'order.id');
+                $join->on('received.source_id', '=', 'order.id');
                 $join->where([
+                    'received.source_type'=>app(Order::class)->getTable(),
                     'received.balance_date' => null,
                     'received.deleted_at' => null,
                 ]);
@@ -155,12 +156,14 @@ class OrderCtrl extends Controller
     {
         $EncArray = [];
 
+        $source_type = app(Order::class)->getTable();
         $received_order_collection = ReceivedOrder::where([
-            'order_id'=>$id,
-            'deleted_at'=>null,
+            'source_type'=>$source_type,
+            'source_id'=>$id,
         ]);
         $log = OrderPayCreditCard::where([
-            'order_id'=>$id,
+            'source_type'=>$source_type,
+            'source_id'=>$id,
             'status'=>0,
         ])->orderBy('created_at', 'DESC')->first();
         if($received_order_collection->first() && !$log){
@@ -190,7 +193,7 @@ class OrderCtrl extends Controller
 
                     if (empty($status) && $status == '0') {
                         if(! $received_order_collection->first()){
-                            $received_order = ReceivedOrder::create_received_order($id);
+                            $received_order = ReceivedOrder::create_received_order($source_type, $id);
                             $received_method = ReceivedMethod::CreditCard; // 'credit_card'
                             $grade_id = ReceivedDefault::where('name', $received_method)->first() ? ReceivedDefault::where('name', $received_method)->first()->default_grade_id : 0;
 
@@ -226,7 +229,8 @@ class OrderCtrl extends Controller
                         }
                     }
 
-                    OrderPayCreditCard::create_log($id, (object) $EncArray);
+                    $source_type = app(Order::class)->getTable();
+                    OrderPayCreditCard::create_log($source_type, $id, (object) $EncArray);
                 }
             }
 
@@ -238,13 +242,19 @@ class OrderCtrl extends Controller
             ->leftJoin('usr_customers as customer', 'order.email', '=', 'customer.email')
             ->leftJoin('prd_sale_channels as sale', 'sale.id', '=', 'order.sale_channel_id')
             ->leftJoin('ord_received_orders as received', function ($join) {
-                $join->on('received.order_id', '=', 'order.id');
+                $join->on('received.source_id', '=', 'order.id');
                 $join->where([
+                    'received.source_type'=>app(Order::class)->getTable(),
                     'received.balance_date' => null,
                     'received.deleted_at' => null,
                 ]);
             })
-            ->join('ord_payment_credit_card_log as cc_log', 'cc_log.order_id', '=', 'order.id')
+            ->join('ord_payment_credit_card_log as cc_log', function ($join) {
+                $join->on('cc_log.source_id', '=', 'order.id');
+                $join->where([
+                    'cc_log.source_type'=>app(Order::class)->getTable(),
+                ]);
+            })
             ->select([
                 'order.id',
                 'order.sn',
@@ -385,7 +395,7 @@ class OrderCtrl extends Controller
             $dividend = $payLoad['points'];
         }
 
-        $re = Order::createOrder($customer->email, 1, $address, $payLoad['products'], $payLoad['note'], $couponObj, ReceivedMethod::fromValue($payLoad['payment']), $dividend);
+        $re = Order::createOrder($customer->email, 1, $address, $payLoad['products'], $payLoad['mcode'] ?? null, $payLoad['note'], $couponObj, ReceivedMethod::fromValue($payLoad['payment']), $dividend);
 
         if ($re['success'] == '1') {
             DB::commit();
@@ -413,7 +423,9 @@ class OrderCtrl extends Controller
     public function orderList(Request $request)
     {
         $data['email'] = $request->user()->email;
-        $orderIds = Order::where('email', '=', $data['email'])->select('id')->get();
+        $orderIds = Order::where('email', '=', $data['email'])->select('id')
+            ->orderByDesc('id') //倒序
+            ->get();
 
         if (count($orderIds) === 0) {
             return response()->json([
@@ -585,15 +597,18 @@ class OrderCtrl extends Controller
                 $lidm = isset($EncArray['lidm']) ? $EncArray['lidm'] : '';
                 $EncArray['more_info'] = [];
 
+                $source_type = app(Order::class)->getTable();
+
                 if (empty($status) && $status == '0') {
                     // echo '交易完成';
+                    $source_type = app(Order::class)->getTable();
                     $received_order_collection = ReceivedOrder::where([
-                        'order_id' => $id,
-                        'deleted_at' => null,
+                        'source_type'=>$source_type,
+                        'source_id'=>$id,
                     ]);
 
                     if (!$received_order_collection->first()) {
-                        $received_order = ReceivedOrder::create_received_order($id);
+                        $received_order = ReceivedOrder::create_received_order($source_type, $id);
                         $received_method = ReceivedMethod::CreditCard; // 'credit_card'
                         $grade_id = ReceivedDefault::where('name', $received_method)->first() ? ReceivedDefault::where('name', $received_method)->first()->default_grade_id : 0;
 
@@ -628,12 +643,12 @@ class OrderCtrl extends Controller
                         ReceivedOrder::store_received($parm);
                     }
 
-                    OrderPayCreditCard::create_log($id, (object) $EncArray);
+                    OrderPayCreditCard::create_log($source_type, $id, (object) $EncArray);
 
                     return redirect(env('FRONTEND_URL') . 'payfin/' . $id . '/' . $lidm . '/' . $status);
                 }
 
-                OrderPayCreditCard::create_log($id, (object) $EncArray);
+                OrderPayCreditCard::create_log($source_type, $id, (object) $EncArray);
             }
         }
 

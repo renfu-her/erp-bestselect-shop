@@ -13,6 +13,7 @@ use App\Models\CustomerIdentity;
 use App\Models\CustomerProfit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
@@ -83,6 +84,10 @@ class CustomerCtrl extends Controller
         $data = $request->only('email', 'password');
 
         $customer = Customer::where('email', $data['email'])->get()->first();
+        if (isset($customer)) {
+            $customerProfit = CustomerProfit::getProfitData($customer->id);
+            $customer->profit = $customerProfit;
+        }
 
         if (null == $customer
             || false == Hash::check($data['password'], $customer->password)
@@ -109,6 +114,13 @@ class CustomerCtrl extends Controller
     public function customerInfo(Request $request)
     {
         $user = $request->user()->toArray();
+        if (isset($user)) {
+            $customerProfit = CustomerProfit::getProfitData($user['id']);
+            if (isset($customerProfit)) {
+                $customerProfit = $customerProfit->toArray();
+            }
+            $user['profit'] = $customerProfit;
+        }
         $identity = CustomerIdentity::where('customer_id', $user['id'])->where('identity_code', '<>', 'customer')->get()->first();
         $user['identity_title'] = '';
         $user['identity_code'] = '';
@@ -462,13 +474,32 @@ class CustomerCtrl extends Controller
     public function attachIdentity(Request $request)
     {
         $user = $request->user();
+        $vali1 = ['no' => ['required'],
+            'phone' => ['required'],
+            'pass' => ['required']];
+
+        $vali2 = ['no' => ['required']];
 
         $validator = Validator::make($request->all(), [
-            'no' => ['required'],
-            'type' => ['required'],
-            'phone' => ['required'],
-            'pass' => ['required'],
+            'type' => ['required', 'in:customer,employee,company,leader,agent,buyer'],
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                ResponseParam::status => ApiStatusMessage::Fail,
+                ResponseParam::msg => $validator->errors(),
+                ResponseParam::data => [],
+            ]);
+        }
+
+        $d = $request->all();
+        if ($d['type'] == 'buyer') {
+            $vali = $vali2;
+        } else {
+            $vali = $vali1;
+        }
+
+        $validator = Validator::make($request->all(), $vali);
 
         if ($validator->fails()) {
             return response()->json([
@@ -481,8 +512,10 @@ class CustomerCtrl extends Controller
         $d = $request->all();
 
         $recommend_sn = Arr::get($d, 'recommend_sn', null);
+        $phone = Arr::get($d, 'phone', null);
+        $pass = Arr::get($d, 'pass', null);
 
-        $re = Customer::attachIdentity($user->id, $d['type'], $d['no'], $d['phone'], $d['pass'], $recommend_sn);
+        $re = Customer::attachIdentity($user->id, $d['type'], $d['no'], $phone, $pass, $recommend_sn);
 
         if ($re['success'] == '1') {
             return [
@@ -515,10 +548,25 @@ class CustomerCtrl extends Controller
 
         $user = $request->user();
         $d = $request->all();
+
+        $img1 = '';
+        if ($request->hasfile('img1_file')) {
+            $img1 = $request->file('img1_file')->store('profit_data/' . date("Ymd"));
+        }
+        $img2 = '';
+        if ($request->hasfile('img2_file')) {
+            $img2 = $request->file('img2_file')->store('profit_data/' . date("Ymd"));
+        }
+        $img3 = '';
+        if ($request->hasfile('img3_file')) {
+            $img3 = $request->file('img3_file')->store('profit_data/' . date("Ymd"));
+        }
+
+        /*
         $img1 = Arr::get($d, 'img1', '');
         $img2 = Arr::get($d, 'img2', '');
         $img3 = Arr::get($d, 'img3', '');
-
+         */
         $re = CustomerProfit::createProfit($user->id, $d['bank_id'], $d['bank_account'], $d['bank_account_name'], $d['identity_sn'], $img1, $img2, $img3);
         if ($re['success'] == '1') {
             return [
@@ -568,7 +616,11 @@ class CustomerCtrl extends Controller
 
         $d = $request->all();
 
-        $re = Customer::checkRecommender($d['sn'], $request->user()->id);
+        if (Auth::guard('sanctum')->check()) {
+            $re = Customer::checkRecommender($d['sn'], '1', $request->user()->id);
+        } else {
+            $re = Customer::checkRecommender($d['sn']);
+        }
 
         if ($re) {
             return [

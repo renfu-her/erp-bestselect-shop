@@ -241,11 +241,7 @@ class AccountReceivedCtrl extends Controller
     }
 
 
-    /**
-     * 收款方式
-     *
-     * @return \Illuminate\Http\Response
-     */
+    // only for order used
     public function create(Request $request, $id)
     {
         $order_id = request('id');
@@ -257,13 +253,14 @@ class AccountReceivedCtrl extends Controller
             ])->first();
         $order_list_data = OrderItem::item_order($order_id)->get();
 
+        $source_type = app(Order::class)->getTable();
         $received_order_collection = ReceivedOrder::where([
-            'order_id'=>$order_id,
-            'deleted_at'=>null,
+            'source_type'=>$source_type,
+            'source_id'=>$order_id,
         ]);
 
         if(! $received_order_collection->first()){
-            ReceivedOrder::create_received_order($order_id);
+            ReceivedOrder::create_received_order($source_type, $order_id);
         }
 
         $received_order_data = $received_order_collection->get();
@@ -356,7 +353,7 @@ class AccountReceivedCtrl extends Controller
         $order_discount = DB::table('ord_discounts')->where([
             'order_type'=>'main',
             'order_id'=>$order_id,
-        ])->whereNotNull('discount_value')->get()->toArray();
+        ])->where('discount_value', '>', 0)->get()->toArray();
 
         foreach($order_discount as $value){
             $value->account_code = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->code : '4000';
@@ -394,12 +391,8 @@ class AccountReceivedCtrl extends Controller
         ]);
     }
 
-    /**
-     * 產生收款單,產生後不能修改收款單，只能刪除再重新產生
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
+    // only for order used
     public function store(Request $request)
     {
         $request->validate([
@@ -413,9 +406,10 @@ class AccountReceivedCtrl extends Controller
         ]);
 
         $data = $request->except('_token');
+        $source_type = app(Order::class)->getTable();
         $received_order_collection = ReceivedOrder::where([
-            'order_id'=>$data['id'],
-            'deleted_at'=>null,
+            'source_type'=>$source_type,
+            'source_id'=>$data['id'],
         ]);
         $received_order_id = $received_order_collection->first()->id;
 
@@ -471,7 +465,7 @@ class AccountReceivedCtrl extends Controller
             ReceivedOrder::store_received($parm);
 
             if($data['acc_transact_type_fk'] == ReceivedMethod::CreditCard){
-                OrderPayCreditCard::create_log($data['id'], (object) $EncArray);
+                OrderPayCreditCard::create_log($source_type, $data['id'], (object) $EncArray);
             }
 
             DB::commit();
@@ -495,6 +489,7 @@ class AccountReceivedCtrl extends Controller
     }
 
 
+    // only for order used
     public function receipt(Request $request, $id)
     {
         $request->merge([
@@ -506,8 +501,8 @@ class AccountReceivedCtrl extends Controller
 
         $order = Order::findOrFail(request('id'));
         $received_order_collection = ReceivedOrder::where([
-            'order_id'=>request('id'),
-            'deleted_at'=>null,
+            'source_type'=>app(Order::class)->getTable(),
+            'source_id'=>$id,
         ]);
 
         $received_order_data = $received_order_collection->get();
@@ -538,7 +533,7 @@ class AccountReceivedCtrl extends Controller
         $order_discount = DB::table('ord_discounts')->where([
                 'order_type'=>'main',
                 'order_id'=>request('id'),
-            ])->whereNotNull('discount_value')->get()->toArray();
+            ])->where('discount_value', '>', 0)->get()->toArray();
 
         foreach($order_discount as $value){
             $value->account_code = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->code : '4000';
@@ -563,6 +558,7 @@ class AccountReceivedCtrl extends Controller
     }
 
 
+    // only for order used
     public function review(Request $request, $id)
     {
         $request->merge([
@@ -573,8 +569,8 @@ class AccountReceivedCtrl extends Controller
         ]);
 
         $received_order_collection = ReceivedOrder::where([
-            'order_id'=>request('id'),
-            'deleted_at'=>null,
+            'source_type'=>app(Order::class)->getTable(),
+            'source_id'=>$id,
         ]);
 
         $received_order_data = $received_order_collection->get();
@@ -732,7 +728,7 @@ class AccountReceivedCtrl extends Controller
                     $order_discount = DB::table('ord_discounts')->where([
                         'order_type'=>'main',
                         'order_id'=>request('id'),
-                    ])->whereNotNull('discount_value')->get()->toArray();
+                    ])->where('discount_value', '>', 0)->get()->toArray();
 
                     foreach($order_discount as $value){
                         $dis_account = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade : null;
@@ -864,6 +860,7 @@ class AccountReceivedCtrl extends Controller
     }
 
 
+    // only for order used
     public function taxation(Request $request, $id)
     {
         $request->merge([
@@ -874,8 +871,8 @@ class AccountReceivedCtrl extends Controller
         ]);
 
         $received_order_collection = ReceivedOrder::where([
-            'order_id'=>request('id'),
-            'deleted_at'=>null,
+            'source_type'=>app(Order::class)->getTable(),
+            'source_id'=>$id,
         ]);
 
         $received_order_data = $received_order_collection->get();
@@ -952,7 +949,7 @@ class AccountReceivedCtrl extends Controller
             $order_discount = DB::table('ord_discounts')->where([
                 'order_type'=>'main',
                 'order_id'=>request('id'),
-            ])->whereNotNull('discount_value')->get()->toArray();
+            ])->where('discount_value', '>', 0)->get()->toArray();
 
             $received_data = ReceivedOrder::get_received_detail($received_order_data->pluck('id')->toArray());
 
@@ -1036,11 +1033,15 @@ class AccountReceivedCtrl extends Controller
     {
         $target = ReceivedOrder::delete_received_order($id);
         if($target){
-            OrderFlow::changeOrderStatus($target->order_id, OrderStatus::Add());
-            $r_method['value'] = '';
-            $r_method['description'] = '';
-            Order::change_order_payment_status($target->order_id, PaymentStatus::Unpaid(), (object) $r_method);
+            if($target->source_type == app(Order::class)->getTable()){
+                OrderFlow::changeOrderStatus($target->source_id, OrderStatus::Add());
+                $r_method['value'] = '';
+                $r_method['description'] = '';
+                Order::change_order_payment_status($target->source_id, PaymentStatus::Unpaid(), (object) $r_method);
+            }
+
             wToast('刪除完成');
+
         } else {
             wToast('刪除失敗');
         }

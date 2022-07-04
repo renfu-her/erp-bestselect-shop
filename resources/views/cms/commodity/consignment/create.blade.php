@@ -145,7 +145,7 @@
                                     <input type="number" class="form-control form-control-sm @error('num.' . $psItemKey) is-invalid @enderror"
                                            name="num[]" value="{{ old('num.'. $psItemKey, $psItemVal->num?? '') }}" min="1" step="1" required/>
                                 </td>
-                                <td data-td="price">{{ old('price.'. $psItemKey, '$ '.$psItemVal->price ?? '') }}</td>
+                                <td data-td="price">$ {{ old('price.'. $psItemKey, $psItemVal->price ?? '') }}</td>
                                 <td data-td="total" class="text-end">$ 0</td>
                             </tr>
                         @endforeach
@@ -361,7 +361,8 @@
                 let Data = {
                     // product_type: 'p',
                     send_depot_id: $('input:hidden[name="send_depot_id"]').val(),
-                    receive_depot_id: $('input:hidden[name="receive_depot_id"]').val()
+                    receive_depot_id: $('input:hidden[name="receive_depot_id"]').val(),
+                    keyword: $('#addProduct .-searchBar input').val(),
                 };
 
                 if (!Data.send_depot_id) {

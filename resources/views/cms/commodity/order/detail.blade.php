@@ -4,7 +4,7 @@
     <fieldset class="col-12 mb-2">
         <div class="p-2 border rounded">
             @if (!$receivable)
-                <a href="{{ Route('cms.ar.create', ['id' => $order->id]) }}" class="btn btn-primary" role="button">新增收款單</a>
+                <a href="{{ Route('cms.ar.create', ['id' => $order->id]) }}" class="btn btn-primary btn-sm" role="button">新增收款單</a>
             @endif
 
             @if ($received_order_data || !in_array($order->status, ['建立']))
@@ -14,23 +14,34 @@
                 @endif
                 --}}
                 @if ( ($receivable || in_array($order->status, ['已付款', '已入款', '結案'])) && $received_credit_card_log )
-                    <a href="{{ Route('api.web.order.credit_card_checkout', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}" class="btn btn-primary" role="button" target="_blank">線上刷卡連結</a>
+                    <a href="{{ Route('api.web.order.credit_card_checkout', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}" 
+                        class="btn btn-primary btn-sm" role="button" target="_blank">線上刷卡連結</a>
                 @else
-                    <button type="button" class="btn btn-primary" disabled>線上刷卡連結</button>
+                    <button type="button" class="btn btn-primary btn-sm" disabled>線上刷卡連結</button>
                 @endif
             @else
-                <a href="{{ Route('api.web.order.payment_credit_card', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}" class="btn btn-primary" role="button" target="_blank">線上刷卡連結</a>
+                <a href="{{ Route('api.web.order.payment_credit_card', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}" 
+                    class="btn btn-primary btn-sm" role="button" target="_blank">線上刷卡連結</a>
             @endif
+
+            <a href="#" class="btn btn-warning btn-sm" role="button">獎金毛利</a>
+
+            <a href="#" class="btn btn-warning btn-sm" role="button">個人獎金</a>
 
             @if ($received_order_data)
                 @if(!in_array($order->status, ['已入款', '結案']))
-                    <a href="javascript:void(0)" role="button" data-bs-toggle="modal" data-bs-target="#confirm-delete" data-href="{{ Route('cms.ar.delete', ['id' => $received_order_data->id], true) }}" class="btn btn-danger">刪除收款單</a>
+                    <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirm-delete" 
+                        data-href="{{ Route('cms.ar.delete', ['id' => $received_order_data->id], true) }}">刪除收款單</a>
                 @else
-                    <button type="button" class="btn btn-danger" disabled>刪除收款單</button>
+                    <button type="button" class="btn btn-outline-danger btn-sm" disabled>刪除收款單</button>
                 @endif
             @endif
 
-            <a href="#" role="button" class="btn btn-success">訂單完成（暫放）</a>
+            @if($received_order_data && ! $order->invoice_number)
+            <a href="{{ Route('cms.order.create-invoice', ['id' => $order->id]) }}" role="button" class="btn btn-success btn-sm">開立發票</a>
+            @endif
+
+            <a href="#" role="button" class="btn btn-outline-success btn-sm">訂單完成（暫放）</a>
         </div>
     </fieldset>
 
@@ -110,21 +121,27 @@
             <dl class="row">
                 <div class="col">
                     <dt>統編</dt>
-                    <dd>(待處理)</dd>
+                    <dd><span>{{ $order->invoice_number ? $order->gui_number : '尚未開立發票' }}</span></dd>
                 </div>
                 <div class="col">
                     <dt>發票類型</dt>
-                    <dd>(待處理)</dd>
+                    <dd><span>{{ $order->invoice_number ? $order->invoice_category : '尚未開立發票' }}</span></dd>
                 </div>
                 <div class="col-5">
                     <dt>發票號碼</dt>
-                    <dd>(待處理)</dd>
+                    <dd>
+                        @if($order->invoice_number)
+                            <a href="{{ route('cms.order.show-invoice', ['id' => $order->id]) }}" class="-text">{{ $order->invoice_number ? $order->invoice_number : '' }}</a>
+                        @else
+                            <span>尚未開立發票</span>
+                        @endif
+                    </dd>
                 </div>
             </dl>
             <dl class="row">
                 <div class="col">
                     <dt>推薦業務員</dt>
-                    <dd>(待處理)</dd>
+                    <dd>{{ $order->name_m ?? ''}} {{ $order->sn_m ?? ''}}</dd>
                 </div>
                 <div class="col">
                     <dt>寄件人</dt>
@@ -175,16 +192,23 @@
                     @if (true == isset($subOrderId))
                         <div class="col-12 d-flex justify-content-end mt-2">
                             <a class="btn btn-sm btn-success -in-header"
-                                href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">配送狀態</a>
+                                href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">配送狀態</a>
                             <a class="btn btn-sm btn-success -in-header"
-                                href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">物流設定</a>
+                                href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">物流設定</a>
                             <a class="btn btn-sm btn-success -in-header"
-                                href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrder->id], true) }}">出貨審核</a>
-{{--                            @if('pickup' == $subOrder->ship_category)--}}
-{{--                                <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.order.inbound', ['subOrderId' => $subOrder->id], true) }}">入庫審核</a>--}}
-{{--                            @endif--}}
-                            <button type="button" class="btn btn-sm btn-primary -in-header">列印銷貨單</button>
-                            <button type="button" class="btn btn-sm btn-primary -in-header">列印出貨單</button>
+                                href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">出貨審核</a>
+                            {{-- @if('pickup' == $subOrder->ship_category)--}}
+                            {{--     <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.order.inbound', ['subOrderId' => $subOrderId], true) }}">入庫審核</a>--}}
+                            {{-- @endif--}}
+
+                            <a target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary -in-header"
+                                href="{{ Route('cms.order.print_order_sales', ['id' => $order->id, 'subOrderId' => $subOrderId]) }}" >
+                                列印銷貨單
+                            </a>
+                            <a target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary -in-header"
+                                href="{{ Route('cms.order.print_order_ship', ['id' => $order->id, 'subOrderId' => $subOrderId]) }}" >
+                                列印出貨單
+                            </a>
                         </div>
                     @endif
                 </div>
@@ -223,7 +247,7 @@
                             <tbody>
                                 @foreach ($subOrder->items as $item)
                                     <tr>
-                                        <td><a href="#" class="-text">{{ $item->product_title }}</a></td>
+                                        <td><a href="{{ Route('cms.product.edit', ['id' => $item->product_id], true) }}" class="-text">{{ $item->product_title }}</a></td>
                                         <td>{{ $item->sku }}</td>
                                         <td>${{ number_format($item->price) }}</td>
                                         <td>{{ $item->qty }}</td>
@@ -298,6 +322,8 @@
                             <dt>實際物流</dt>
                             <dd>{{ $subOrder->ship_group_name ?? '(待處理)' }}</dd>
                         </div>
+                    </dl>
+                    <dl class="row">
                         <div class="col">
                             <dt>包裹編號</dt>
                             <dd>
@@ -310,23 +336,21 @@
                                 @endif
                             </dd>
                         </div>
-                    </dl>
-                    <dl class="row">
                         <div class="col">
                             <dt>物態</dt>
                             <dd>{{ $subOrder->logistic_status ?? '(待處理)' }}</dd>
                         </div>
-                    </dl>
-                    <dl class="row">
                         <div class="col">
                             <dt>物流廠商</dt>
                             <dd>{{ $subOrder->supplier_name ?? '' }}</dd>
                         </div>
+                    </dl>
+                    <dl class="row">
                         <div class="col">
                             <dt>物流成本</dt>
                             <dd>{{ $subOrder->logistic_cost ?? '(待處理)' }}</dd>
                         </div>
-                        <div class="col-6">
+                        <div class="col-8">
                             <dt>物流備註</dt>
                             <dd>{{ $subOrder->logistic_memo ?? '(待處理)' }}</dd>
                         </div>

@@ -44,6 +44,7 @@ class StockCtrl extends Controller
         $stockRadios = [
             'warning' => '低於安全庫存',
             'out_of_stock' => '無庫存',
+            'still_actual_stock' => '尚有實際庫存',
         ];
 
         if (!in_array($searchParam['type'], array_keys($typeRadios))) {
@@ -82,6 +83,9 @@ class StockCtrl extends Controller
         ;
         if (null != $depot_id && 0 < count($depot_id)) {
             $products->whereIn('inbound.depot_id', $depot_id);
+        }
+        if ($searchParam['stock'] && in_array('still_actual_stock', $searchParam['stock'])) {
+            $products->where('inbound.total_in_stock_num', '>', 0);
         }
         $products = $products->paginate($searchParam['data_per_page'])
             ->appends($query);

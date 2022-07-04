@@ -191,7 +191,6 @@
                                             <input type="hidden" name="num[]" value="{{ $psItemVal->num }}">
                                         @endif
                                     </td>
-                                    <td data-td="price">{{ old('price.'. $psItemKey, '$ '.$psItemVal->price ?? '') }}</td>
                                     <td data-td="price">$ {{ old('price.'. $psItemKey, $psItemVal->price ?? '') }}</td>
                                     <td data-td="total" class="text-end">$ 0</td>
                                     <td data-td="inbound_type">{{$psItemVal->origin_inbound_sn ?? ''}}</td>
@@ -534,7 +533,8 @@
                 let Data = {
                     // product_type: 'p',
                     send_depot_id: $('input:hidden[name="send_depot_id"]').val(),
-                    receive_depot_id: $('input:hidden[name="receive_depot_id"]').val()
+                    receive_depot_id: $('input:hidden[name="receive_depot_id"]').val(),
+                    keyword: $('#addProduct .-searchBar input').val(),
                 };
 
                 if (!Data.send_depot_id) {

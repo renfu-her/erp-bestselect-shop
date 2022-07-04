@@ -28,7 +28,7 @@
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">物流分類</label>
                     <select class="form-select -select2 -multiple" multiple name="ship_method[]" aria-label="物流分類" data-placeholder="多選">
-                        <option value="喜鴻出貨" @if (in_array('喜鴻出貨', $searchParam['ship_method'] ?? []) || ($searchParam['ship_method'] == [])) selected @endif>喜鴻出貨</option>
+                        <option value="喜鴻出貨" @if (in_array('喜鴻出貨', $searchParam['ship_method'] ?? []))) selected @endif>喜鴻出貨</option>
                         <option value="廠商出貨" @if (in_array('廠商出貨', $searchParam['ship_method'] ?? [])) selected @endif>廠商出貨</option>
                     </select>
                 </div>
@@ -43,11 +43,10 @@
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">物流型態</label>
-                    <select class="form-select -select2 -single" name="ship_category" aria-label="物流型態" data-placeholder="單選">
-                        <option value="" @if ('' == old('ship_category', $searchParam['ship_category'] ?? '')) selected @endif>不限</option>
+                    <select class="form-select -select2 -multiple" multiple name="ship_category[]" aria-label="物流型態" data-placeholder="多選">
                         @foreach ($shipmentCategory as $key => $value)
                             <option value="{{ $value->code }}"
-                                    @if ($value->code == old('ship_category', $searchParam['ship_category'] ?? '')) selected @endif>{{ $value->category }}</option>
+                            @if (in_array($value->code, $searchParam['ship_category'] ?? [])) selected @endif>{{ $value->category }}</option>
                         @endforeach
                     </select>
                 </div>

@@ -23,8 +23,8 @@
                 </div>
 
                 <div class="col-12 col-sm-4 mb-3">
-                    <label class="form-label">訂購單號</label>
-                    <input class="form-control" type="text" name="order_sn" value="{{ $cond['order_sn'] }}" placeholder="請輸入訂購單號">
+                    <label class="form-label">單據編號</label>
+                    <input class="form-control" type="text" name="order_sn" value="{{ $cond['order_sn'] }}" placeholder="請輸入單據編號">
                 </div>
 
                 <div class="col-12 mb-3">

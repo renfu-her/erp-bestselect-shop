@@ -65,6 +65,9 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/Consignment.php');
     require base_path('routes/cms/ConsignmentOrder.php');
     require base_path('routes/cms/ConsignmentStock.php');
+    require base_path('routes/cms/GroupbyCompany.php');
+
+
 	require base_path('routes/cms/CustomerProfit.php');
     require base_path('routes/cms/CreditManager.php');
     require base_path('routes/cms/CreditCard.php');
@@ -83,3 +86,8 @@ Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => 'gues
     Route::get('/login-reset-status', [CustomerResetCtrl::class, 'loginResetStatus'])->name('login-reset-status');
 });
 
+
+Route::get('_info', function () {
+    // dd(app('url')->route('test',[],false));
+    return phpinfo();
+});

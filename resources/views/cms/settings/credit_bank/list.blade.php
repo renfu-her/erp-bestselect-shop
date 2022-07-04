@@ -22,8 +22,9 @@
                 <tr>
                     <th scope="col" style="width:10%">#</th>
                     <th scope="col">銀行名稱</th>
-                    <th scope="col">會計科目</th>
                     <th scope="col">會計科目代碼</th>
+                    <th scope="col">會計科目</th>
+                    <th scope="col">信用卡分期數</th>
                     @can('cms.credit_bank.edit')
                         <th scope="col" class="text-center">編輯</th>
                     @endcan
@@ -36,6 +37,7 @@
                         <td>{{ $data->title }}</td>
                         <td>{{ $data->code }}</td>
                         <td>{{ $data->name }}</td>
+                        <td>{{ $installment[$data->installment] }}</td>
                         <td class="text-center">
                             @can('cms.credit_bank.edit')
                                 <a href="{{ Route('cms.credit_bank.edit', ['id' => $data->id], true) }}"

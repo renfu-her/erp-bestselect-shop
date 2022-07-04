@@ -83,6 +83,7 @@ class CustomerProfitCtrl extends Controller
 
         //  dd(CustomerProfit::where('id',$id)->get());
         $data = CustomerProfit::where('id', $id)->get()->first();
+//    dd($data);
      //   dd( Customer::detail($data->customer_id)->get()->first());
         if (!$data) {
             return abort(404);
@@ -112,7 +113,7 @@ class CustomerProfitCtrl extends Controller
     {
 
         $request->validate([
-            'identity_id' => ['required'],
+            'identity_sn' => ['required'],
             'status' => ['required'],
             'parent_profit_rate' => ['numeric'],
             'profit_rate' => ['numeric'],
@@ -129,7 +130,7 @@ class CustomerProfitCtrl extends Controller
         $update = [
             'status' => $d['status'],
             'status_title' => ProfitStatus::fromValue($d['status'])->description,
-            'identity_id' => $d['identity_id'],
+            'identity_sn' => $d['identity_sn'],
             'profit_rate' => $d['profit_rate'],
             'parent_profit_rate' => $d['parent_profit_rate'],
             'bank_id' => $d['bank_id'],
@@ -139,6 +140,8 @@ class CustomerProfitCtrl extends Controller
             'has_child' => $has_child,
         ];
 
+
+     //   dd($update);
         // dd($update);
 
         CustomerProfit::where('id', $id)->update($update);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Cms\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Models\CrdBank;
 use App\Models\CrdCreditCard;
 use App\Models\CrdPercentBankCredit;
 use Illuminate\Http\Request;
@@ -24,7 +25,10 @@ class CreditPercentCtrl extends Controller
         $keyword_credit_id = Arr::get($query, 'keyword_credit_id', null);
         $arr = CrdPercentBankCredit::getList($keyword_bank, $keyword_credit_id);
 
+        $installment = CrdBank::INSTALLMENT;
+
         return view('cms.settings.credit_percent.list', [
+            'installment' => $installment,
             "keyword_bank" => $keyword_bank,
             "keyword_credit_id" => $keyword_credit_id,
             "cards" => CrdCreditCard::all(),
@@ -44,8 +48,10 @@ class CreditPercentCtrl extends Controller
         }
 
         $detailData = CrdPercentBankCredit::getDetailData($precentBC->id)->get()->first();
+        $installment = CrdBank::INSTALLMENT;
 
         return view('cms.settings.credit_percent.edit', [
+            'installment' => $installment,
             'data' => $detailData,
             'method' => 'edit',
             'formAction' => Route('cms.credit_percent.edit', ['bank_id' => $bank_id, 'credit_id' => $card_id]),

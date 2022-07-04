@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Customer\ProfitStatus;
+use App\Enums\Customer\ProfitType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -45,7 +46,15 @@ class CustomerProfit extends Model
             return ['success' => '0', 'message' => '重複申請'];
         }
 
-       
+        $customer = Customer::where('id', $customer_id)->get()->first();
+
+        if ($customer->recommend_id) {
+            $parent_profit_rate = 20;
+            $profit_rate = 80;
+        } else {
+            $parent_profit_rate = 0;
+            $profit_rate = 100;
+        }
 
         $id = self::create([
             'customer_id' => $customer_id,
@@ -55,9 +64,18 @@ class CustomerProfit extends Model
             'bank_account' => $bank_account,
             'bank_account_name' => $bank_account_name,
             'identity_sn' => $identity_sn,
-            'img1' => self::convertBase64($customer_id, $img1),
-            'img2' => self::convertBase64($customer_id, $img2),
-            'img3' => self::convertBase64($customer_id, $img3),
+            'img1' => $img1,
+            'img2' => $img2,
+            'img3' => $img3,
+            'parent_profit_rate' => $parent_profit_rate,
+            'profit_rate' => $profit_rate,
+            'profit_type' => ProfitType::Cash(),
+
+            /*
+        'img1' => self::convertBase64($customer_id, $img1),
+        'img2' => self::convertBase64($customer_id, $img2),
+        'img3' => self::convertBase64($customer_id, $img3),
+         */
         ])->id;
 
         return ['success' => '1', 'id' => $id];
@@ -77,5 +95,25 @@ class CustomerProfit extends Model
 
         return $imageName;
 
+    }
+
+    //回傳分潤資格審核
+    public static function getProfitData($customer_id, ProfitStatus $status = null)
+    {
+        $re = CustomerProfit::where('customer_id', $customer_id)
+            ->select('status'
+                , 'status_title'
+                , 'parent_cusotmer_id'
+                , 'parent_profit_rate'
+                , 'profit_rate'
+                , 'has_child'
+                , 'profit_type'
+            );
+
+        if ($status) {
+            $re->where('status', $status);
+        }
+
+        return $re->get()->first();
     }
 }

@@ -21,14 +21,17 @@
                 <x-b-form-group name="title" title="銀行名稱" required="true">
                     <div class="col-form-label">{{ $data->bank_title ?? '' }}</div>
                 </x-b-form-group>
+                <x-b-form-group name="title" title="信用卡分期期數" required="true">
+                    <div class="col-form-label">{{ $installment[$data->bank_installment] ?? '' }}</div>
+                </x-b-form-group>
                 <x-b-form-group name="title" title="卡別" required="true">
                     <div class="col-form-label">{{ $data->credit_title ?? '' }}</div>
                 </x-b-form-group>
-                <x-b-form-group name="title" title="會計科目" required="true">
-                    <div class="col-form-label">{{ $data->grade_name ?? '' }}</div>
-                </x-b-form-group>
                 <x-b-form-group name="title" title="會計科目代碼" required="true">
                     <div class="col-form-label">{{ $data->grade_code ?? '' }}</div>
+                </x-b-form-group>
+                <x-b-form-group name="title" title="會計科目" required="true">
+                    <div class="col-form-label">{{ $data->grade_name ?? '' }}</div>
                 </x-b-form-group>
                 <x-b-form-group name="title" title="利率" required="true">
                     <input class="form-control @error('percent') is-invalid @enderror" name="percent"

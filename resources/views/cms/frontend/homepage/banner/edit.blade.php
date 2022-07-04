@@ -37,8 +37,11 @@
             </fieldset>
             <div class="col-12 col-sm-6 mb-3">
                 <label class="form-label">橫幅廣告主標題 <span class="text-danger">*</span></label>
-                <input class="form-control" value="{{ old('title', $data->title ?? '') }}" name="title"
+                <input class="form-control" value="{{ old('title', $data->title ?? '') }}" name="title" required
                     type="text" placeholder="請輸入橫幅廣告主標題" aria-label="橫幅廣告主標題" maxlength="12">
+                @error('title')
+                <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
             <fieldset class="col-12 col-sm-6 mb-3">
                 <legend class="col-form-label p-0 mb-2">橫幅廣告類型 <span class="text-danger">*</span></legend>
@@ -125,7 +128,7 @@
                 </div>
             </fieldset>
             <div class="col-12 mb-3">
-                <label class="form-label">橫幅廣告圖片（可將檔案拖拉至框中上傳）</label>
+                <label class="form-label">橫幅廣告圖片（可將檔案拖拉至框中上傳） <span class="text-danger">*</span></label>
                 <div class="upload_image_block">
                     <label>
                         <!-- 按鈕 -->
@@ -142,7 +145,7 @@
                             <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
                                 aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width: 1%"></div>
                         </div>
-                        <input type="file" name="img_pc" accept=".jpg,.jpeg,.png,.gif" hidden>
+                        <input type="file" name="img_pc" accept=".jpg,.jpeg,.png,.gif" hidden required>
                         <input type="hidden" name="del_img_pc">
                     </label>
                 </div>
