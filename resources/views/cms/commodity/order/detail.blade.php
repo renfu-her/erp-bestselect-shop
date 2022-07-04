@@ -1,49 +1,45 @@
 @extends('layouts.main')
 @section('sub-content')
     <h2 class="mb-3">#{{ $sn }} 訂單明細</h2>
-    <fieldset class="col-12 mb-2">
-        <div class="p-2 border rounded">
+
+    <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
+        <div class="p-1 pe-2">
             @if (!$receivable)
-                <a href="{{ Route('cms.ar.create', ['id' => $order->id]) }}" class="btn btn-primary btn-sm" role="button">新增收款單</a>
+                <a href="{{ Route('cms.ar.create', ['id' => $order->id]) }}" class="btn btn-primary btn-sm my-1 ms-1" role="button">新增收款單</a>
             @endif
 
             @if ($received_order_data || !in_array($order->status, ['建立']))
-                {{--
-                @if (!$receivable)
-                    <a href="javascript:void(0)" role="button" data-bs-toggle="modal" data-bs-target="#confirm-delete" data-href="{{ Route('cms.ar.delete', ['id' => $received_order_data->id], true) }}" class="btn btn-danger">刪除收款單</a>
-                @endif
-                --}}
                 @if ( ($receivable || in_array($order->status, ['已付款', '已入款', '結案'])) && $received_credit_card_log )
                     <a href="{{ Route('api.web.order.credit_card_checkout', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}" 
-                        class="btn btn-primary btn-sm" role="button" target="_blank">線上刷卡連結</a>
+                        class="btn btn-primary btn-sm my-1 ms-1" role="button" target="_blank">線上刷卡連結</a>
                 @else
-                    <button type="button" class="btn btn-primary btn-sm" disabled>線上刷卡連結</button>
+                    <button type="button" class="btn btn-primary btn-sm my-1 ms-1" disabled>線上刷卡連結</button>
                 @endif
             @else
                 <a href="{{ Route('api.web.order.payment_credit_card', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}" 
                     class="btn btn-primary btn-sm" role="button" target="_blank">線上刷卡連結</a>
             @endif
 
-            <a href="{{ Route('cms.order.bonus-gross',['id' => $order->id]) }}" class="btn btn-warning btn-sm" role="button">獎金毛利</a>
+            <a href="{{ Route('cms.order.bonus-gross',['id' => $order->id]) }}" class="btn btn-warning btn-sm my-1 ms-1" role="button">獎金毛利</a>
 
-            <a href="{{ Route('cms.order.personal-bonus',['id' => $order->id]) }}" class="btn btn-warning btn-sm" role="button">個人獎金</a>
+            <a href="{{ Route('cms.order.personal-bonus',['id' => $order->id]) }}" class="btn btn-warning btn-sm my-1 ms-1" role="button">個人獎金</a>
 
             @if ($received_order_data)
                 @if(!in_array($order->status, ['已入款', '結案']))
-                    <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirm-delete" 
+                    <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm my-1 ms-1" data-bs-toggle="modal" data-bs-target="#confirm-delete" 
                         data-href="{{ Route('cms.ar.delete', ['id' => $received_order_data->id], true) }}">刪除收款單</a>
                 @else
-                    <button type="button" class="btn btn-outline-danger btn-sm" disabled>刪除收款單</button>
+                    <button type="button" class="btn btn-outline-danger btn-sm my-1 ms-1" disabled>刪除收款單</button>
                 @endif
             @endif
 
             @if($received_order_data && ! $order->invoice_number)
-            <a href="{{ Route('cms.order.create-invoice', ['id' => $order->id]) }}" role="button" class="btn btn-success btn-sm">開立發票</a>
+                <a href="{{ Route('cms.order.create-invoice', ['id' => $order->id]) }}" role="button" class="btn btn-success btn-sm my-1 ms-1">開立發票</a>
             @endif
 
-            <a href="#" role="button" class="btn btn-outline-success btn-sm">訂單完成（暫放）</a>
+            <a href="#" role="button" class="btn btn-outline-success btn-sm my-1 ms-1">訂單完成（暫放）</a>
         </div>
-    </fieldset>
+    </nav>
 
     <form id="form1" method="post" action="">
         @method('POST')
