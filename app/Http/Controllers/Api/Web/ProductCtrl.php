@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Api\Web;
 
+use App\Enums\Globals\AppEnvClass;
 use App\Enums\Globals\ResponseParam;
 use App\Http\Controllers\Controller;
 use App\Models\Collection;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
 
 class ProductCtrl extends Controller
@@ -80,7 +82,11 @@ class ProductCtrl extends Controller
         if ($dataList) {
             $collection->list = array_map(function ($n) {
                 if ($n->img_url) {
-                    $n->img_url = asset($n->img_url);
+                    if (App::environment(AppEnvClass::Release)) {
+                        $n->img_url = 'https://img.bestselection.com.tw/' . $n->img_url;
+                    } else {
+                        $n->img_url = asset($n->img_url);
+                    }
                 }
 
                 return $n;
@@ -111,8 +117,8 @@ class ProductCtrl extends Controller
             'm_class' => ['nullable', 'string', 'regex:/^(customer|employee|company)$/'],
         ]);
 
-        
-        
+
+
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'E01',
