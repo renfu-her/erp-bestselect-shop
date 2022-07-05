@@ -887,12 +887,15 @@ class OrderCtrl extends Controller
     }
 
     // 獎金毛利
-    public function bonus_gross(Request $request, $id){
+    public function bonus_gross(Request $request, $id)
+    {
         $order = Order::orderDetail($id)->first();
-        
+
         $dividend = CustomerDividend::where('category', DividendCategory::Order())
             ->where('category_sn', $order->sn)
             ->where('type', 'get')->get()->first();
+
+        $dataList = OrderProfit::dataList($id, null, 1)->get();
 
         if ($dividend) {
             $dividend = $dividend->dividend;
@@ -905,12 +908,14 @@ class OrderCtrl extends Controller
             'order' => $order,
             'discounts' => Discount::orderDiscountList('main', $id)->get()->toArray(),
             'dividend' => $dividend,
-            'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn]
+            'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
+            'dataList' => $dataList,
         ]);
     }
 
     // 個人獎金
-    public function personal_bonus(Request $request, $id){
+    public function personal_bonus(Request $request, $id)
+    {
         $order = Order::orderDetail($id)->first();
         // dd(OrderProfit::dataList($id, $request->user()->customer_id, 1)->get()->toArray());
         // exit;
