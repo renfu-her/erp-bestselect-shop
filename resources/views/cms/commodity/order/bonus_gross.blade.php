@@ -143,50 +143,46 @@
 
 <div id="page2">
     <div class="card shadow p-4 mb-4">
-        @foreach ($subOrders as $subOrder)
-            <div class="define-table table-warning text-nowrap mt-2">
-                <dl class="d-flex mb-0">
-                    <dt class="border">子訂單編號</dt>
-                    <dd class="border border-start-0">{{ $subOrder->sn }}</dd>
-                </dl>
-            </div>
-            <div class="table-responsive tableOverBox mb-3">
-                <table class="table tableList table-striped mb-1">
-                    <thead>
+        <div class="table-responsive tableOverBox mb-3">
+            <table class="table tableList table-striped mb-1">
+                <thead>
+                    <tr>
+                        <th scope="col" style="width:40px">#</th>
+                        <th scope="col">訂單編號</th>
+                        <th scope="col">品名規格</th>
+                        <th scope="col" class="text-center px-3">金額</th>
+                        <th scope="col" class="text-center px-3">經銷價</th>
+                        <th scope="col" class="text-center px-3">商品成本</th>
+                        <th scope="col" class="text-center px-3">數量</th>
+                        <th scope="col" class="text-center px-3">小計</th>
+                        <th scope="col" class="text-center px-3">毛利</th>
+                        <th scope="col" class="text-center px-3">出庫數量</th>
+                        <th scope="col">倉庫</th>
+                        <th scope="col">入庫單號</th>
+                        <th scope="col">產品人員</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($dataList as $item)
                         <tr>
-                            <th scope="col" style="width:40px">#</th>
-                            <th scope="col">品名規格</th>
-                            <th scope="col" class="text-center px-3">金額</th>
-                            <th scope="col" class="text-center px-3">經銷價</th>
-                            <th scope="col" class="text-center px-3">商品成本</th>
-                            <th scope="col" class="text-center px-3">數量</th>
-                            <th scope="col" class="text-center px-3">小計</th>
-                            <th scope="col" class="text-center px-3">毛利</th>
-                            <th scope="col" class="text-center px-3">出庫數量</th>
-                            <th scope="col">倉庫</th>
-                            <th scope="col">入庫單號</th>
-                            <th scope="col">產品人員</th>
+                            <th scope="row">1</th>
+                            <td>{{ $item->sub_order_sn }}</td>
+                            <td>{{ $item->product_title }}</td>
+                            <td class="text-center">$ {{ number_format($item->price) }}</td>
+                            <td class="text-center">$ {{ number_format(0) }}</td>
+                            <td class="text-center">$ {{ number_format(0) }}</td>
+                            <td class="text-center">{{ number_format($item->qty) }}</td>
+                            <td class="text-center">$ {{ number_format(0) }}</td>
+                            <td class="text-center">$ {{ number_format(0) }}</td>
+                            <td class="text-center">{{ number_format(0) }}</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>{{ $item->product_user }}</td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($subOrder->items as $item)
-                            <tr>
-                                <th scope="row">1</th>
-                                <td>{{ $item->product_title }}</td>
-                                <td class="text-center">$ {{ number_format($item->price) }}</td>
-                                <td class="text-center">$ {{ number_format(0) }}</td>
-                                <td class="text-center">$ {{ number_format(0) }}</td>
-                                <td class="text-center">{{ number_format($item->qty) }}</td>
-                                <td class="text-center">$ {{ number_format($item->total_price) }}</td>
-                                <td class="text-center">$ {{ number_format(0) }}</td>
-                                <td class="text-center">{{ number_format(0) }}</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                            </tr>
-                            <tr>
-                                <td></td>
-                                <td class="py-0" colspan="10">
+                        <tr>
+                            <td></td>
+                            <td class="py-0" colspan="11">
+                                <form action="">
                                     <table class="table table-bordered table-sm mb-0">
                                         <tbody>
                                             <tr class="border-top-0 table-light">
@@ -197,42 +193,50 @@
                                                 <td style="width: 10%" class="text-center">操作</td>
                                             </tr>
                                             <tr>
-                                                <td class="text-center">$ {{ number_format(0) }}</td>
+                                                <td class="text-center">$ {{ number_format($item->total_bonus) }}</td>
                                                 <td>
                                                     <div class="input-group input-group-sm">
                                                         <span class="input-group-text">$</span>
-                                                        <input type="text" class="form-control text-center" aria-label="當代獎金"
-                                                            name="bonus" value="0" disabled>
+                                                        <input type="number" class="form-control text-center" aria-label="當代獎金"
+                                                            name="bonus1" value="{{ $item->bonus }}" min="0" max="{{ $item->total_bonus }}" disabled>
                                                     </div>
-                                                </td>
-                                                <td>
-                                                    <div class="input-group input-group-sm">
-                                                        <span class="input-group-text">$</span>
-                                                        <input type="text" class="form-control text-center" aria-label="上代獎金"
-                                                            name="parent_bonus" value="0" disabled>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <span class="form-control form-control-sm text-center -show" readonly>-</span>
-                                                    <input class="form-control form-control-sm text-center" type="text" aria-label="上代推薦人員"
-                                                        name="mcode" value="" placeholder="請輸入mcode" hidden disabled>
                                                 </td>
                                                 <td class="text-center">
-                                                    <input type="hidden" name="">
+                                                    @if ($item->bonus2)
+                                                        <div class="input-group input-group-sm">
+                                                            <span class="input-group-text">$</span>
+                                                            <input type="text" class="form-control text-center" aria-label="上代獎金"
+                                                                name="bonus2" value="0" disabled readonly>
+                                                        </div>
+                                                    @else
+                                                        無
+                                                    @endif
+                                                </td>
+                                                <td class="text-center">
+                                                    @if ($item->re_customer)
+                                                        <span class="form-control form-control-sm text-center -show" readonly>-</span>
+                                                        <input class="form-control form-control-sm text-center" type="text" aria-label="上代推薦人員"
+                                                            name="mcode" value="" placeholder="請輸入mcode" hidden disabled>
+                                                    @else
+                                                        無
+                                                    @endif
+                                                </td>
+                                                <td class="text-center">
+                                                    <input type="hidden" name="profit_id" value="{{ $item->id }}">
                                                     <button type="button" class="btn btn-sm btn-outline-primary -edit px-4 me-0">修改</button>
                                                     <button type="button" class="btn btn-sm btn-success -save px-4" hidden disabled>儲存</button>
                                                 </td>
                                             </tr>
                                         </tbody>
                                     </table>
-                                </td>
-                                <td></td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        @endforeach
+                                </form>
+                            </td>
+                            <td></td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -278,6 +282,7 @@
     @endpush
     @push('sub-scripts')
     <script>
+        // 分頁
         $('.nav-link').off('click').on('click', function () {
             const $this = $(this);
             let page = $this.hasClass('-page1') ? 'page1' : '';
@@ -294,36 +299,58 @@
 
         // 編輯
         $('button.-edit').off('click.edit').on('click.edit', function () {
-            $(this).prop({
-                hidden: true,
-                disabled: true
-            });
-            $(`button.-save, input[name="mcode"],
-                input[name="bonus"], input[name="parent_bonus"]`)
-            .prop({
-                hidden: false,
-                disabled: false
-            });
-            $('span.-show').prop('hidden', true);
-        });
+            $('form').trigger('reset');
+            const $this = $(this);
 
-        // test - 儲存
-        $('button.-save').off('click.save').on('click.save', function () {
-            $(this).prop({
-                hidden: true,
-                disabled: true
-            });
-            $('button.-edit').prop({
-                hidden: false,
-                disabled: false
-            });
-            $('input[name="bonus"], input[name="parent_bonus"], input[name="mcode"]').prop({
-                disabled: true
-            });
-            $('input[name="mcode"]').prop('hidden', true);
+            // btn
+            $('button.-edit').prop({ hidden: false, disabled: false });
+            $('button.-save').prop({ hidden: true, disabled: true });
+            $this.prop({ hidden: true, disabled: true });
+            $this.closest('table').find('button.-save').prop({ hidden: false, disabled: false });
+
+            // input
+            $('input[name="bonus1"]').prop({ disabled: true, required: false });
+            $('input[name="mcode"]').prop({  hidden: true, disabled: true, required: false });
             $('span.-show').prop('hidden', false);
+            $this.closest('table').find('input[name="bonus1"]').prop({ disabled: false, required: true });
+            $this.closest('table').find('input[name="mcode"]').prop({ hidden: false, disabled: false, required: true });
+            $this.closest('table').find('span.-show').prop('hidden', true);
         });
 
+        // 當代獎金 bonus1
+        $('input[name="bonus1"]').off('change.edit').on('change.edit', function () {
+            const $this = $(this);
+            const $bonus2 = $this.closest('table').find('input[name="bonus2"]');
+
+            if ($bonus2.length) {
+                const total_bonus = Number($this.attr('max'));
+                const bonus1 = Number($this.val());
+                $bonus2.val(total_bonus - bonus1);
+            }
+        });
+
+        // 儲存
+        $('button.-save').off('click.save').on('click.save', function () {
+            const $this = $(this);
+            const _URL = @json(route('api.cms.order.update-profit'));
+            const DATA = {
+                profit_id: $this.siblings('input[name="profit_id"]').val(),
+                bonus1: $this.closest('table').find('input[name="bonus1"]').val(),
+                bonus2: $this.closest('table').find('input[name="bonus2"]').val() || null
+            };
+
+            axios.post(_URL, DATA)
+            .then((result) => {
+                console.log(result.data);
+                if (result.data.status === '0') {
+                    toast.show('修改成功');
+                } else {
+                    toast.show('修改失敗', {type: 'danger'});
+                }
+            }).catch((err) => {
+                toast.show(`發生錯誤：${result.data.message}`, {type: 'danger'});
+            });
+        });
     </script>
     @endpush
 @endonce
