@@ -8,7 +8,6 @@ use App\Models\CsnOrderFlow;
 use App\Models\CsnOrderItem;
 use App\Models\Depot;
 use App\Enums\Order\OrderStatus;
-use App\Models\ReceivedOrder;
 
 class AccountReceivedCsnOrderCtrl extends AccountReceivedPapaCtrl
 {
