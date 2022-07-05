@@ -59,4 +59,17 @@ class OrderProfit extends Model
         return $re;
     }
 
+    public static function updateProfit($profit_id, $bonus1, $bonus2, $mcode = null)
+    {
+        DB::beginTransaction();
+
+        $profit = self::where('id', $profit_id)->get()->first();
+        //  dd($profit);
+
+        self::where('id', $profit_id)->update(['bonus' => $bonus1]);
+
+        DB::commit();
+
+    }
+
 }
