@@ -93,9 +93,17 @@ class OrderCtrl extends Controller
         $d = $request->all();
 
         $re = OrderProfit::updateProfit($d['profit_id'], $d['bonus1'], $d['bonus2']);
+        if ($re['success']) {
+            return [
+                'status' => '0',
+            ];
+        }
+
         return [
-            'status' => '0',
+            'status' => '1',
+            'message' => $re['message'],
         ];
+
     }
 
 }
