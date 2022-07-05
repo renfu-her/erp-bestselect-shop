@@ -910,11 +910,13 @@ class OrderCtrl extends Controller
     }
 
     // 個人獎金
-    public function personal_bonus(Request $request, $id){
-        $order = Order::orderDetail($id)->first();
+    public function personal_bonus(Request $request, $id, $subOrderId = null){
+        list($order, $subOrder) = $this->getOrderAndSubOrders($id, $subOrderId);
 
         return view('cms.commodity.order.personal_bonus', [
             'id' => $id,
+            'order' => $order,
+            'subOrders' => $subOrder,
             'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
         ]);
     }

@@ -13,48 +13,46 @@
     
     <div id="page1">
         <div class="card shadow p-4 mb-4">
-            <div class="define-table table-light text-nowrap">
-                <dl class="d-flex flex-column flex-sm-row">
-                    <div class="d-flex flex-row flex-sm-column">
-                        <dt>訂單編號</dt>
-                        <dd>-</dd>
-                    </div>
-                    <div class="d-flex flex-row flex-sm-column">
-                        <dt>品名規格</dt>
-                        <dd>-</dd>
-                    </div>
-                    <div class="d-flex flex-row flex-sm-column">
-                        <dt>金額</dt>
-                        <dd>$ {{ number_format(0) }}</dd>
-                    </div>
-                    <div class="d-flex flex-row flex-sm-column">
-                        <dt>數量</dt>
-                        <dd>{{ number_format(0) }}</dd>
-                    </div>
-                    <div class="d-flex flex-row flex-sm-column">
-                        <dt>小計</dt>
-                        <dd>$ {{ number_format(0) }}</dd>
-                    </div>
-                </dl>
-                <dl class="d-flex flex-column flex-sm-row">
-                    <div class="d-flex flex-row flex-sm-column">
-                        <dt>當代獎金</dt>
-                        <dd>$ {{ number_format(0) }}</dd>
-                    </div>
-                    <div class="d-flex flex-row flex-sm-column">
-                        <dt>出庫數量</dt>
-                        <dd>{{ number_format(0) }}</dd>
-                    </div>
-                    <div class="d-flex flex-row flex-sm-column">
-                        <dt>倉庫</dt>
-                        <dd>-</dd>
-                    </div>
-                    <div class="d-flex flex-row flex-sm-column">
-                        <dt>產品人員</dt>
-                        <dd>-</dd>
-                    </div>
+            @foreach ($subOrders as $subOrder)
+            <div class="define-table table-warning text-nowrap mt-2">
+                <dl class="d-flex mb-0">
+                    <dt class="border">子訂單編號</dt>
+                    <dd class="border border-start-0">{{ $subOrder->sn }}</dd>
                 </dl>
             </div>
+            <div class="table-responsive tableOverBox mb-3">
+                <table class="table tableList table-striped mb-1">
+                    <thead>
+                        <tr>
+                            <th scope="col" style="width:40px">#</th>
+                            <th scope="col">品名規格</th>
+                            <th scope="col" class="text-center px-3">金額</th>
+                            <th scope="col" class="text-center px-3">數量</th>
+                            <th scope="col" class="text-center px-3">小計</th>
+                            <th scope="col" class="text-center px-3">當代獎金</th>
+                            <th scope="col" class="text-center px-3">出庫數量</th>
+                            <th scope="col">倉庫</th>
+                            <th scope="col">產品人員</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($subOrder->items as $item)
+                            <tr>
+                                <th scope="row">1</th>
+                                <td>{{ $item->product_title }}</td>
+                                <td class="text-center">$ {{ number_format($item->price) }}</td>
+                                <td class="text-center">{{ number_format($item->qty) }}</td>
+                                <td class="text-center">$ {{ number_format($item->total_price) }}</td>
+                                <td class="text-center">$ {{ number_format(0) }}</td>
+                                <td class="text-center">{{ number_format(0) }}</td>
+                                <td>-</td>
+                                <td>-</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            @endforeach
         </div>
     </div>
     
@@ -66,18 +64,16 @@
                         <tr>
                             <th scope="col">更改人員</th>
                             <th scope="col">修改時間</th>
+                            <th scope="col">品名規格</th>
                             <th scope="col" class="text-end">當代獎金</th>
-                            <th scope="col" class="text-end">上代獎金</th>
-                            <th scope="col">上代推薦人員</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Hans</td>
+                            <td>-</td>
                             <td>{{ date('Y/m/d H:i:s', strtotime('2022/7/4 15:45:55')) }}</td>
+                            <td>-</td>
                             <td class="text-end">$ {{ number_format(0) }}</td>
-                            <td class="text-end">$ {{ number_format(0) }}</td>
-                            <td>Hans2.0</td>
                         </tr>
                     </tbody>
                 </table>

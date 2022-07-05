@@ -144,26 +144,25 @@
 <div id="page2">
     <div class="card shadow p-4 mb-4">
         @foreach ($subOrders as $subOrder)
-        <form action="#" method="post"></form>
-            <div class="define-table table-warning text-nowrap">
+            <div class="define-table table-warning text-nowrap mt-2">
                 <dl class="d-flex mb-0">
                     <dt class="border">子訂單編號</dt>
                     <dd class="border border-start-0">{{ $subOrder->sn }}</dd>
                 </dl>
             </div>
-            <div class="table-responsive tableOverBox">
-                <table class="table tableList table-striped">
+            <div class="table-responsive tableOverBox mb-3">
+                <table class="table tableList table-striped mb-1">
                     <thead>
                         <tr>
                             <th scope="col" style="width:40px">#</th>
                             <th scope="col">品名規格</th>
-                            <th scope="col" class="text-center">金額</th>
-                            <th scope="col" class="text-center">經銷價</th>
-                            <th scope="col" class="text-center">商品成本</th>
-                            <th scope="col" class="text-center">數量</th>
-                            <th scope="col" class="text-center">小計</th>
-                            <th scope="col" class="text-center">毛利</th>
-                            <th scope="col" class="text-center">出庫數量</th>
+                            <th scope="col" class="text-center px-3">金額</th>
+                            <th scope="col" class="text-center px-3">經銷價</th>
+                            <th scope="col" class="text-center px-3">商品成本</th>
+                            <th scope="col" class="text-center px-3">數量</th>
+                            <th scope="col" class="text-center px-3">小計</th>
+                            <th scope="col" class="text-center px-3">毛利</th>
+                            <th scope="col" class="text-center px-3">出庫數量</th>
                             <th scope="col">倉庫</th>
                             <th scope="col">入庫單號</th>
                             <th scope="col">產品人員</th>
@@ -187,7 +186,7 @@
                             </tr>
                             <tr>
                                 <td></td>
-                                <td class="py-0" colspan="11">
+                                <td class="py-0" colspan="10">
                                     <table class="table table-bordered table-sm mb-0">
                                         <tbody>
                                             <tr class="border-top-0 table-light">
@@ -219,6 +218,7 @@
                                                         name="mcode" value="" placeholder="請輸入mcode" hidden disabled>
                                                 </td>
                                                 <td class="text-center">
+                                                    <input type="hidden" name="">
                                                     <button type="button" class="btn btn-sm btn-outline-primary -edit px-4 me-0">修改</button>
                                                     <button type="button" class="btn btn-sm btn-success -save px-4" hidden disabled>儲存</button>
                                                 </td>
@@ -226,114 +226,14 @@
                                         </tbody>
                                     </table>
                                 </td>
+                                <td></td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
-        </form>
         @endforeach
     </div>
-
-    <form action="" method="post">
-        <div class="card shadow p-4 mb-4">
-            <div class="d-flex align-items-center mb-4">
-                <button type="button" class="btn btn-sm btn-outline-primary -in-header -edit px-4 me-0">修改</button>
-                <button type="submit" class="btn btn-sm btn-success -in-header -save px-4" hidden disabled>儲存</button>
-            </div>
-            
-            <div class="define-table table-light text-nowrap">
-                <dl class="d-flex flex-column flex-sm-row">
-                    <div class="d-flex flex-row flex-sm-column">
-                        <dt>訂單編號</dt>
-                        <dd>-</dd>
-                    </div>
-                    <div class="d-flex flex-row flex-sm-column">
-                        <dt>品名規格</dt>
-                        <dd>-</dd>
-                    </div>
-                    <div class="d-flex flex-row flex-sm-column">
-                        <dt>金額</dt>
-                        <dd>$ {{ number_format(0) }}</dd>
-                    </div>
-                    <div class="d-flex flex-row flex-sm-column">
-                        <dt>經銷價</dt>
-                        <dd>$ {{ number_format(0) }}</dd>
-                    </div>
-                    <div class="d-flex flex-row flex-sm-column">
-                        <dt>商品成本</dt>
-                        <dd>$ {{ number_format(0) }}</dd>
-                    </div>
-                </dl>
-                <dl class="d-flex flex-column flex-sm-row">
-                    <div class="d-flex flex-row flex-sm-column">
-                        <dt>數量</dt>
-                        <dd>{{ number_format(0) }}</dd>
-                    </div>
-                    <div class="d-flex flex-row flex-sm-column">
-                        <dt>小計</dt>
-                        <dd>$ {{ number_format(0) }}</dd>
-                    </div>
-                    <div class="d-flex flex-row flex-sm-column">
-                        <dt>毛利</dt>
-                        <dd>$ {{ number_format(0) }}</dd>
-                    </div>
-                    <div class="d-flex flex-row flex-sm-column">
-                        <dt>總獎金</dt>
-                        <dd>$ {{ number_format(0) }}</dd>
-                    </div>
-                </dl>
-                <dl class="d-flex flex-column flex-sm-row">
-                    <div class="d-flex flex-row flex-sm-column">
-                        <dt>當代獎金</dt>
-                        <dd>
-                            <div class="input-group input-group-sm">
-                                <span class="input-group-text">$</span>
-                                <input type="text" class="form-control text-end text-sm-center" aria-label="當代獎金"
-                                    name="bonus" value="0" disabled>
-                            </div>
-                        </dd>
-                    </div>
-                    <div class="d-flex flex-row flex-sm-column">
-                        <dt>上代獎金</dt>
-                        <dd>
-                            <div class="input-group input-group-sm">
-                                <span class="input-group-text">$</span>
-                                <input type="text" class="form-control text-end text-sm-center" aria-label="上代獎金"
-                                    name="parent_bonus" value="0" disabled>
-                            </div>
-                        </dd>
-                    </div>
-                    <div class="d-flex flex-row flex-sm-column">
-                        <dt>上代推薦人員</dt>
-                        <dd>
-                            <span class="form-control form-control-sm -show" readonly>-</span>
-                            <input class="form-control form-control-sm text-end text-sm-center" type="text" aria-label="上代推薦人員"
-                                name="mcode" value="" placeholder="請輸入mcode" hidden disabled>
-                        </dd>
-                    </div>
-                </dl>
-                <dl class="d-flex flex-column flex-sm-row">
-                    <div class="d-flex flex-row flex-sm-column">
-                        <dt>出庫數量</dt>
-                        <dd>{{ number_format(0) }}</dd>
-                    </div>
-                    <div class="d-flex flex-row flex-sm-column">
-                        <dt>倉庫</dt>
-                        <dd>-</dd>
-                    </div>
-                    <div class="d-flex flex-row flex-sm-column">
-                        <dt>入庫單號</dt>
-                        <dd>-</dd>
-                    </div>
-                    <div class="d-flex flex-row flex-sm-column">
-                        <dt>產品人員</dt>
-                        <dd>-</dd>
-                    </div>
-                </dl>
-            </div>
-        </div>
-    </form>
 </div>
 
 <div id="page3" hidden>
@@ -344,6 +244,7 @@
                     <tr>
                         <th scope="col">更改人員</th>
                         <th scope="col">修改時間</th>
+                        <th scope="col">品名規格</th>
                         <th scope="col" class="text-end">當代獎金</th>
                         <th scope="col" class="text-end">上代獎金</th>
                         <th scope="col">上代推薦人員</th>
@@ -351,11 +252,12 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Hans</td>
+                        <td>-</td>
                         <td>{{ date('Y/m/d H:i:s', strtotime('2022/7/4 15:45:55')) }}</td>
+                        <td>-</td>
                         <td class="text-end">$ {{ number_format(0) }}</td>
                         <td class="text-end">$ {{ number_format(0) }}</td>
-                        <td>Hans2.0</td>
+                        <td>-</td>
                     </tr>
                 </tbody>
             </table>
