@@ -1,7 +1,6 @@
 <?php
 
-use App\Enums\Globals\FrontendApiUrl;
-
+use App\Enums\Globals\AppEnvClass;
 if (!function_exists('isActive')) {
     function isActive(String $routeName, String $currentRouteName)
     {
@@ -40,6 +39,27 @@ if (!function_exists('concatStr')) {
         }
 
         return 'CONCAT("[",' . 'GROUP_CONCAT("{' . implode(',', $arr) . '}")' . ',"]")';
+
+    }
+}
+
+if (!function_exists('frontendUrl')) {
+    function frontendUrl()
+    {
+
+        $url = '';
+        switch (AppEnvClass::fromValue(env('APP_ENV'))) {
+            case AppEnvClass::Local():
+                $url = env('FRONTEND_LOCAL_URL');
+                break;
+            case AppEnvClass::Development():
+                $url = env('FRONTEND_DEV_URL');
+                break;
+            case AppEnvClass::Release():
+                $url = env('FRONTEND_URL');
+                break;
+        }
+        return $url;
 
     }
 }

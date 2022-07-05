@@ -6,7 +6,7 @@
         <!-- <span class="icon -close_eye"><span class="bi bi-eye-slash-fill"></span></span> -->
         <span class="label">公開</span>
     </a>
-    <a href="#" class="nav-link">
+    <a href="{{ frontendUrl() }}product/{{ $sku }}" target="_blank" class="nav-link">
         <span class="icon"><i class="bi bi-box-arrow-up-right"></i></span>
         <span class="label">前往該商品</span>
     </a>
