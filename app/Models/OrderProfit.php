@@ -59,17 +59,26 @@ class OrderProfit extends Model
         return $re;
     }
 
-    public static function updateProfit($profit_id, $bonus1, $bonus2, $mcode = null)
+    public static function updateProfit($profit_id, $bonus1, $bonus2)
     {
         DB::beginTransaction();
 
         $profit = self::where('id', $profit_id)->get()->first();
-        //  dd($profit);
+
+        if ($bonus1 + $bonus2 > $profit->total_bonus) {
+            return ['success' => '0',
+                'message' => '金額超出上限'];
+        }
+
 
         self::where('id', $profit_id)->update(['bonus' => $bonus1]);
 
+        self::where('parent_id', $profit_id)->update(['bonus' => $bonus2]);
+
         DB::commit();
 
+        return ['success'=>'1'];
+        
     }
 
 }
