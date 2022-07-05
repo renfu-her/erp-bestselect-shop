@@ -321,7 +321,16 @@ class ReceiveDepot extends Model
                         }
                     }
 
-                    //寫入成本單價
+                    //扣除入庫單庫存
+                    foreach ($rcvDepotGet as $item) {
+                        $reShipIb = PurchaseInbound::shippingInbound($event, $event_id, $item->id, LogEventFeature::delivery()->value, $item->inbound_id, $item->qty);
+                        if ($reShipIb['success'] == 0) {
+                            DB::rollBack();
+                            return $reShipIb;
+                        }
+                    }
+
+                    //計算 寫入成本單價
                     if (Event::order()->value == $delivery->event
                         || Event::consignment()->value == $delivery->event
                         || Event::csn_order()->value == $delivery->event) {
@@ -333,7 +342,6 @@ class ReceiveDepot extends Model
                                 'rcv_depot.delivery_id'
                                 , 'rcv_depot.event_item_id'
                                 , 'rcv_depot.product_style_id'
-//                                , 'rcv_depot.unit_cost'
                                 , 'rcv_depot.qty'
                                 , DB::raw('(rcv_depot.unit_cost * rcv_depot.qty) as total_cost')
                             );
@@ -366,15 +374,6 @@ class ReceiveDepot extends Model
                                         'unit_cost' => $item->unit_cost,]);
                                 }
                             }
-                        }
-                    }
-
-                    //扣除入庫單庫存
-                    foreach ($rcvDepotGet as $item) {
-                        $reShipIb = PurchaseInbound::shippingInbound($event, $event_id, $item->id, LogEventFeature::delivery()->value, $item->inbound_id, $item->qty);
-                        if ($reShipIb['success'] == 0) {
-                            DB::rollBack();
-                            return $reShipIb;
                         }
                     }
 
