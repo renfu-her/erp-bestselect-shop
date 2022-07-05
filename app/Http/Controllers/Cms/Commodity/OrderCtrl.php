@@ -19,6 +19,7 @@ use App\Models\Order;
 use App\Models\OrderCart;
 use App\Models\OrderInvoice;
 use App\Models\OrderPayCreditCard;
+use App\Models\OrderProfit;
 use App\Models\PayableDefault;
 use App\Models\PayingOrder;
 use App\Models\PurchaseInbound;
@@ -143,7 +144,7 @@ class OrderCtrl extends Controller
         if ($customer_id) {
             $salechannels = UserSalechannel::getSalechannels($request->user()->id)->get()->toArray();
             if (CustomerProfit::getProfitData($customer_id, ProfitStatus::Success())) {
-                $mcode = Customer::where('id',$customer_id)->get()->first()->sn;
+                $mcode = Customer::where('id', $customer_id)->get()->first()->sn;
             }
 
         } else {
@@ -166,7 +167,7 @@ class OrderCtrl extends Controller
             ->get()->first();
 
         //    dd(Discount::getDiscounts('global-normal'));
-         
+
         return view('cms.commodity.order.edit', [
             'customer_id' => $customer_id,
             'customers' => Customer::where('id', $customer_id)->get(),
@@ -904,17 +905,20 @@ class OrderCtrl extends Controller
             'order' => $order,
             'discounts' => Discount::orderDiscountList('main', $id)->get()->toArray(),
             'dividend' => $dividend,
-            'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
+            'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn]
         ]);
     }
 
     // 個人獎金
     public function personal_bonus(Request $request, $id){
         $order = Order::orderDetail($id)->first();
-
+        // dd(OrderProfit::dataList($id, $request->user()->customer_id, 1)->get()->toArray());
+        // exit;
+        $dataList = OrderProfit::dataList($id, $request->user()->customer_id)->get();
         return view('cms.commodity.order.personal_bonus', [
             'id' => $id,
             'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
+            'dataList' => $dataList,
         ]);
     }
 
