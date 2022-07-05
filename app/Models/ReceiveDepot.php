@@ -282,7 +282,6 @@ class ReceiveDepot extends Model
                             foreach($queryRcvDepotCost as $elementCost) {
                                 $total_cost = $total_cost + ($elementCost->unit_cost * $elementCost->unit_qty);
                             }
-//                            dd($queryComboElement, $queryRcvDepotCost_byone->get(), $queryRcvDepotCost, $total_cost);
 
                             $reSD = ReceiveDepot::setData(
                                 null,
@@ -318,6 +317,54 @@ class ReceiveDepot extends Model
                                 $rcvDepot_elements->update([
                                     'combo_id' => $reSD['id'],
                                 ]);
+                            }
+                        }
+                    }
+
+                    //寫入成本單價
+                    if (Event::order()->value == $delivery->event
+                        || Event::consignment()->value == $delivery->event
+                        || Event::csn_order()->value == $delivery->event) {
+                        $query_total_cost = DB::table('dlv_receive_depot as rcv_depot')
+                            ->where('rcv_depot.delivery_id', '=', $delivery_id)
+                            ->whereNull('rcv_depot.deleted_at')
+                            ->whereIn('prd_type', ['p', 'c'])
+                            ->select(
+                                'rcv_depot.delivery_id'
+                                , 'rcv_depot.event_item_id'
+                                , 'rcv_depot.product_style_id'
+//                                , 'rcv_depot.unit_cost'
+                                , 'rcv_depot.qty'
+                                , DB::raw('(rcv_depot.unit_cost * rcv_depot.qty) as total_cost')
+                            );
+                        $query_unit_cost = DB::query()->fromSub($query_total_cost, 'tb')
+                            ->select(
+                                'tb.delivery_id'
+                                , 'tb.event_item_id'
+                                , 'tb.product_style_id'
+                                , DB::raw('sum(tb.total_cost) / sum(tb.qty) as unit_cost')
+                            )
+                            ->groupBy('tb.delivery_id')
+                            ->groupBy('tb.event_item_id')
+                            ->groupBy('tb.product_style_id')
+                            ->get();
+                        if (isset($query_unit_cost) && 0 < count($query_unit_cost)) {
+                            foreach ($query_unit_cost as $item) {
+                                if (Event::order()->value == $delivery->event) {
+                                    //判斷若為訂單 則將成本回寫到 ord_items.unit_cost
+                                    OrderItem::where('id', '=', $item->event_item_id)->update([
+                                        'unit_cost' => $item->unit_cost,]);
+                                }
+                                else if (Event::consignment()->value == $delivery->event) {
+                                    //判斷若為寄倉單 則將成本回寫到 csn_consignment_items.unit_cost
+                                    ConsignmentItem::where('id', '=', $item->event_item_id)->update([
+                                        'unit_cost' => $item->unit_cost,]);
+                                }
+                                else if (Event::csn_order()->value == $delivery->event) {
+                                    //判斷若為寄倉訂購單 則將成本回寫到 csn_order_items.unit_cost
+                                    CsnOrderItem::where('id', '=', $item->event_item_id)->update([
+                                        'unit_cost' => $item->unit_cost,]);
+                                }
                             }
                         }
                     }
