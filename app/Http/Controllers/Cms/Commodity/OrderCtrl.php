@@ -886,8 +886,8 @@ class OrderCtrl extends Controller
     }
 
     // 獎金毛利
-    public function bonus_gross(Request $request, $id){
-        $order = Order::orderDetail($id)->first();
+    public function bonus_gross(Request $request, $id, $subOrderId = null){
+        list($order, $subOrder) = $this->getOrderAndSubOrders($id, $subOrderId);
         
         $dividend = CustomerDividend::where('category', DividendCategory::Order())
             ->where('category_sn', $order->sn)
@@ -902,6 +902,7 @@ class OrderCtrl extends Controller
         return view('cms.commodity.order.bonus_gross', [
             'id' => $id,
             'order' => $order,
+            'subOrders' => $subOrder,
             'discounts' => Discount::orderDiscountList('main', $id)->get()->toArray(),
             'dividend' => $dividend,
             'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],

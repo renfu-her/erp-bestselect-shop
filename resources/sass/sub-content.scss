@@ -162,6 +162,15 @@ thead, tbody, tfoot, tr, td, th {
 .define-table {
   dl {
     margin-bottom: .5rem;
+    dt, dd {
+      margin: 0;
+      padding: 8px;
+      text-align: center;
+    }
+    dt {
+      font-weight: 500;
+      background-color: var(--bs-table-bg);
+    }
     & > div {
       border-width: 0 1px 0 0;
       padding: 0;
@@ -173,18 +182,13 @@ thead, tbody, tfoot, tr, td, th {
       }
       & > dt,
       & > dd {
-        border-width: 0 0 1px 0;
-        margin: 0;
-        padding: 8px;
         flex: 1 0 0%;
-        text-align: center;
+        border-width: 0 0 1px 0;
         border-style: solid;
         border-color: $table-border-color;
       }
       & > dt {
         border-top-width: 1px;
-        font-weight: 500;
-        background-color: var(--bs-table-bg);
       }
     }
   }
