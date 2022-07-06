@@ -9,6 +9,7 @@ use App\Models\CustomerDividend;
 use App\Models\Order;
 use App\Models\OrderProfit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
 class OrderCtrl extends Controller
@@ -81,7 +82,7 @@ class OrderCtrl extends Controller
         $validator = Validator::make($request->all(), [
             'profit_id' => ['required'],
             'bonus1' => ['required', 'numeric'],
-            'bonus2' => ['required', 'numeric'],
+            'bonus2' => ['numeric', 'nullable'],
         ]);
 
         if ($validator->fails()) {
@@ -91,8 +92,9 @@ class OrderCtrl extends Controller
             ]);
         }
         $d = $request->all();
+        $bonus2 = Arr::get($d, 'bonus2', 0);
 
-        $re = OrderProfit::updateProfit($d['profit_id'], $d['bonus1'], $d['bonus2']);
+        $re = OrderProfit::updateProfit($d['profit_id'], $d['bonus1'], $bonus2, $request->user()->id);
         if ($re['success']) {
             return [
                 'status' => '0',

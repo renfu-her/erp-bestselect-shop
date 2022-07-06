@@ -20,6 +20,7 @@ use App\Models\OrderCart;
 use App\Models\OrderInvoice;
 use App\Models\OrderPayCreditCard;
 use App\Models\OrderProfit;
+use App\Models\OrderProfitLog;
 use App\Models\PayableDefault;
 use App\Models\PayingOrder;
 use App\Models\PurchaseInbound;
@@ -895,19 +896,22 @@ class OrderCtrl extends Controller
             ->where('type', 'get')->get()->first();
 
         $dataList = OrderProfit::dataList($id, null, 1)->get();
-
+       // dd($dataList);
+       // dd($dataList);
         if ($dividend) {
             $dividend = $dividend->dividend;
         } else {
             $dividend = 0;
         }
 
+        // dd(OrderProfitLog::dataList($id)->get());
         return view('cms.commodity.order.bonus_gross', [
             'id' => $id,
             'order' => $order,
             'dataList' => $dataList,
             'discounts' => Discount::orderDiscountList('main', $id)->get()->toArray(),
             'dividend' => $dividend,
+            'log'=>OrderProfitLog::dataList($id)->orderBy('created_at','DESC')->get(),
             'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
         ]);
     }
