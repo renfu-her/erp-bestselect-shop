@@ -86,7 +86,7 @@ class AccountReceivedCsnOrderCtrl extends AccountReceivedPapaCtrl
         return 'cms.account_management.account_received_csn_order.taxation';
     }
 
-    public function setDestroyStatus($source_id)
+    public function doDestroy($source_id)
     {
         CsnOrderFlow::changeOrderStatus($source_id, OrderStatus::Add());
         $r_method['value'] = '';
@@ -104,6 +104,10 @@ class AccountReceivedCsnOrderCtrl extends AccountReceivedPapaCtrl
     public function doReviewWhenReceiptCancle($id)
     {
         CsnOrderFlow::changeOrderStatus($id, OrderStatus::Paided());
+    }
+
+    public function doTaxationWhenGet()
+    {
     }
 
     public function doTaxationWhenUpdate()

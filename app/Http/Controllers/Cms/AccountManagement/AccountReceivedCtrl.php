@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Cms\AccountManagement;
 
+use App\Enums\Discount\DisCategory;
 use App\Enums\Order\PaymentStatus;
 use App\Models\Customer;
 use App\Models\Discount;
@@ -9,6 +10,7 @@ use App\Models\Order;
 use App\Models\OrderFlow;
 use App\Models\OrderItem;
 use App\Enums\Order\OrderStatus;
+use App\Models\ReceivedDefault;
 
 class AccountReceivedCtrl extends AccountReceivedPapaCtrl
 {
@@ -90,7 +92,7 @@ class AccountReceivedCtrl extends AccountReceivedPapaCtrl
         return 'cms.account_management.account_received.taxation';
     }
 
-    public function setDestroyStatus($source_id)
+    public function doDestroy($source_id)
     {
         OrderFlow::changeOrderStatus($source_id, OrderStatus::Add());
         $r_method['value'] = '';
@@ -108,6 +110,22 @@ class AccountReceivedCtrl extends AccountReceivedPapaCtrl
     public function doReviewWhenReceiptCancle($id)
     {
         OrderFlow::changeOrderStatus($id, OrderStatus::Paided());
+    }
+
+    public function doTaxationWhenGet()
+    {
+        $discount_category = DisCategory::asArray();
+        $discount_type = [];
+        foreach ($discount_category as $dis_value) {
+            $discount_type[$dis_value] = DisCategory::getDescription($dis_value);
+        }
+        ksort($discount_type);
+
+        $default_discount_grade = [];
+        foreach ($discount_type as $key => $value) {
+            $default_discount_grade[$key] = ReceivedDefault::where('name', $key)->first() ? ReceivedDefault::where('name', $key)->first()->default_grade_id : null;
+        }
+        return array($discount_type, $default_discount_grade);
     }
 
     public function doTaxationWhenUpdate()

@@ -36,9 +36,13 @@ abstract class AccountReceivedPapaCtrl extends Controller
     abstract public function getViewReview();
     abstract public function getRouteTaxation();
     abstract public function getViewTaxation();
-    abstract public function setDestroyStatus($source_id);
+
+    abstract public function doDestroy($source_id);
+
     abstract public function doReviewWhenReceived($id);
     abstract public function doReviewWhenReceiptCancle($id);
+
+    abstract public function doTaxationWhenGet();
     abstract public function doTaxationWhenUpdate();
     /**
      * 收款方式
@@ -780,17 +784,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
             $default_product_grade = ReceivedDefault::where('name', 'product')->first() ? ReceivedDefault::where('name', 'product')->first()->default_grade_id : null;
             $default_logistics_grade = ReceivedDefault::where('name', 'logistics')->first() ? ReceivedDefault::where('name', 'logistics')->first()->default_grade_id : null;
 
-            $discount_category = DisCategory::asArray();
-            $discount_type = [];
-            foreach($discount_category as $dis_value){
-                $discount_type[$dis_value] = DisCategory::getDescription($dis_value);
-            }
-            ksort($discount_type);
-
-            $default_discount_grade = [];
-            foreach($discount_type as $key => $value){
-                $default_discount_grade[$key] =  ReceivedDefault::where('name', $key)->first() ? ReceivedDefault::where('name', $key)->first()->default_grade_id : null;
-            }
+            list($discount_type, $default_discount_grade) = $this->doTaxationWhenGet();
             // grade process end
 
             return view($this->getViewTaxation(), [
@@ -817,7 +811,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
         $target = ReceivedOrder::delete_received_order($id);
         if($target){
             if($target->source_type == $this->getSource_type()){
-                $this->setDestroyStatus($target->source_id);
+                $this->doDestroy($target->source_id);
             }
 
             wToast('刪除完成');
