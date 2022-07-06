@@ -19,6 +19,8 @@ use App\Models\Order;
 use App\Models\OrderCart;
 use App\Models\OrderInvoice;
 use App\Models\OrderPayCreditCard;
+use App\Models\OrderProfit;
+use App\Models\OrderProfitLog;
 use App\Models\PayableDefault;
 use App\Models\PayingOrder;
 use App\Models\PurchaseInbound;
@@ -143,7 +145,7 @@ class OrderCtrl extends Controller
         if ($customer_id) {
             $salechannels = UserSalechannel::getSalechannels($request->user()->id)->get()->toArray();
             if (CustomerProfit::getProfitData($customer_id, ProfitStatus::Success())) {
-                $mcode = Customer::where('id',$customer_id)->get()->first()->sn;
+                $mcode = Customer::where('id', $customer_id)->get()->first()->sn;
             }
 
         } else {
@@ -166,7 +168,7 @@ class OrderCtrl extends Controller
             ->get()->first();
 
         //    dd(Discount::getDiscounts('global-normal'));
-         
+
         return view('cms.commodity.order.edit', [
             'customer_id' => $customer_id,
             'customers' => Customer::where('id', $customer_id)->get(),
@@ -884,4 +886,47 @@ class OrderCtrl extends Controller
             // 'sub_order' => $sub_order,
         ]);
     }
+
+    // 獎金毛利
+    public function bonus_gross(Request $request, $id, $subOrderId = null){
+        $order = Order::orderDetail($id)->first();
+        
+        $dividend = CustomerDividend::where('category', DividendCategory::Order())
+            ->where('category_sn', $order->sn)
+            ->where('type', 'get')->get()->first();
+
+        $dataList = OrderProfit::dataList($id, null, 1)->get();
+       // dd($dataList);
+       // dd($dataList);
+        if ($dividend) {
+            $dividend = $dividend->dividend;
+        } else {
+            $dividend = 0;
+        }
+
+        // dd(OrderProfitLog::dataList($id)->get());
+        return view('cms.commodity.order.bonus_gross', [
+            'id' => $id,
+            'order' => $order,
+            'dataList' => $dataList,
+            'discounts' => Discount::orderDiscountList('main', $id)->get()->toArray(),
+            'dividend' => $dividend,
+            'log'=>OrderProfitLog::dataList($id)->orderBy('created_at','DESC')->get(),
+            'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
+        ]);
+    }
+
+    // 個人獎金
+    public function personal_bonus(Request $request, $id, $subOrderId = null){
+        $order = Order::orderDetail($id)->first();
+        $dataList = OrderProfit::dataList($id, $request->user()->customer_id)->get();
+
+        return view('cms.commodity.order.personal_bonus', [
+            'id' => $id,
+            'order' => $order,
+            'dataList' => $dataList,
+            'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
+        ]);
+    }
+
 }
