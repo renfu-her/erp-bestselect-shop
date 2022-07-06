@@ -895,7 +895,7 @@ class OrderCtrl extends Controller
             ->where('type', 'get')->get()->first();
 
         $dataList = OrderProfit::dataList($id, null, 1)->get();
-
+       // dd($dataList);
         if ($dividend) {
             $dividend = $dividend->dividend;
         } else {
