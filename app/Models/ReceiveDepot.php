@@ -206,7 +206,8 @@ class ReceiveDepot extends Model
                             ->groupBy('rcv_depot.depot_id')
                             ->groupBy('rcv_depot.depot_name')
                             ->get();
-                    } else if (Event::consignment()->value == $delivery->event) {
+                    }
+                    else if (Event::consignment()->value == $delivery->event) {
                         $queryComboElement = DB::table('dlv_delivery as delivery')
                             ->leftJoin('dlv_receive_depot as rcv_depot', 'rcv_depot.delivery_id', '=', 'delivery.id')
                             ->leftJoin('csn_consignment_items as items', 'items.id', '=', 'rcv_depot.event_item_id')
@@ -238,7 +239,8 @@ class ReceiveDepot extends Model
                             ->groupBy('consignment.send_depot_id')
                             ->groupBy('consignment.send_depot_name')
                             ->get();
-                    } else if (Event::csn_order()->value == $delivery->event) {
+                    }
+                    else if (Event::csn_order()->value == $delivery->event) {
                         $user = new \stdClass();
                         $user->id = $user_id;
                         $user->name = $user_name;
