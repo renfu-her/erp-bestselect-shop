@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\DB;
 
-use App\Enums\Discount\DisCategory;
 use App\Enums\Received\ReceivedMethod;
 
 use App\Models\AllGrade;
