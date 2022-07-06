@@ -82,7 +82,7 @@ class OrderCtrl extends Controller
         $validator = Validator::make($request->all(), [
             'profit_id' => ['required'],
             'bonus1' => ['required', 'numeric'],
-            'bonus2' => ['numeric','nullable'],
+            'bonus2' => ['numeric', 'nullable'],
         ]);
 
         if ($validator->fails()) {
@@ -94,7 +94,7 @@ class OrderCtrl extends Controller
         $d = $request->all();
         $bonus2 = Arr::get($d, 'bonus2', 0);
 
-        $re = OrderProfit::updateProfit($d['profit_id'], $d['bonus1'], $bonus2);
+        $re = OrderProfit::updateProfit($d['profit_id'], $d['bonus1'], $bonus2, $request->user()->id);
         if ($re['success']) {
             return [
                 'status' => '0',

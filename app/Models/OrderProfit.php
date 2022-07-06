@@ -59,7 +59,7 @@ class OrderProfit extends Model
         return $re;
     }
 
-    public static function updateProfit($profit_id, $bonus1, $bonus2)
+    public static function updateProfit($profit_id, $bonus1, $bonus2, $user_id)
     {
         DB::beginTransaction();
 
@@ -70,15 +70,14 @@ class OrderProfit extends Model
                 'message' => '金額超出上限'];
         }
 
-
         self::where('id', $profit_id)->update(['bonus' => $bonus1]);
 
         self::where('parent_id', $profit_id)->update(['bonus' => $bonus2]);
-
+        OrderProfitLog::createLog($profit_id, $bonus1, $bonus2, $user_id);
         DB::commit();
 
-        return ['success'=>'1'];
-        
+        return ['success' => '1'];
+
     }
 
 }

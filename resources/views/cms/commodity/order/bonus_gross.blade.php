@@ -179,7 +179,7 @@
                                 <td class="text-center">$ {{ number_format(0) }}</td>
                                 <td class="text-center">$ {{ number_format(0) }}</td>
                                 <td class="text-center">{{ number_format($item->qty) }}</td>
-                                <td class="text-center">$ {{ number_format(0) }}</td>
+                                <td class="text-center">$ {{ number_format($item->origin_price) }}</td>
                                 <td class="text-center">$ {{ number_format(0) }}</td>
                                 <td class="text-center">{{ number_format(0) }}</td>
                                 <td>-</td>
@@ -217,22 +217,22 @@
                                                             <div class="input-group input-group-sm">
                                                                 <span class="input-group-text">$</span>
                                                                 <input type="text" class="form-control text-center"
-                                                                    aria-label="上代獎金" name="bonus2" value="0"
-                                                                    disabled readonly>
+                                                                    aria-label="上代獎金" name="bonus2"
+                                                                    value="{{ $item->bonus2 }}" disabled readonly>
                                                             </div>
                                                         @else
                                                             無
                                                         @endif
-                                                      
+
                                                     </td>
                                                     <td class="text-center">
                                                         @if ($item->re_customer)
                                                             {{ $item->re_customer }}
                                                             <!--
-                                                            <span class="form-control form-control-sm text-center -show" readonly>-</span>
-                                                            <input class="form-control form-control-sm text-center" type="text" aria-label="上代推薦人員"
-                                                                name="mcode" value="" placeholder="請輸入mcode" hidden disabled>
-                                                         -->
+                                                                    <span class="form-control form-control-sm text-center -show" readonly>-</span>
+                                                                    <input class="form-control form-control-sm text-center" type="text" aria-label="上代推薦人員"
+                                                                        name="mcode" value="" placeholder="請輸入mcode" hidden disabled>
+                                                                 -->
                                                         @else
                                                             無
                                                         @endif
@@ -267,21 +267,23 @@
                         <tr>
                             <th scope="col">更改人員</th>
                             <th scope="col">修改時間</th>
+                            <th scope="col">子訂單</th>
                             <th scope="col">品名規格</th>
                             <th scope="col" class="text-end">當代獎金</th>
                             <th scope="col" class="text-end">上代獎金</th>
-                            <th scope="col">上代推薦人員</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>-</td>
-                            <td>{{ date('Y/m/d H:i:s', strtotime('2022/7/4 15:45:55')) }}</td>
-                            <td>-</td>
-                            <td class="text-end">$ {{ number_format(0) }}</td>
-                            <td class="text-end">$ {{ number_format(0) }}</td>
-                            <td>-</td>
-                        </tr>
+                        @foreach ($log as $key => $l)
+                            <tr>
+                                <td>{{ $l->name }}</td>
+                                <td>{{ date('Y/m/d H:i:s', strtotime($l->created_at)) }}</td>
+                                <td>{{ $l->sub_order_sn }}</td>
+                                <td>{{ $l->product_title }}</td>
+                                <td class="text-end">$ {{ number_format($l->bonus1) }}</td>
+                                <td class="text-end">$ {{ number_format($l->bonus2) }}</td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -344,7 +346,7 @@
                     disabled: true,
                     required: false
                 });
-               
+
                 $('input[name="mcode"]').prop({
                     hidden: true,
                     disabled: true,
