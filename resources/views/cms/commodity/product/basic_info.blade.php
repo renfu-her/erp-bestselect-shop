@@ -62,7 +62,7 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-                
+
                 {{-- <div class="col-12 mb-3">
                     <label class="form-label">商品網址</label>
                     <div class="input-group has-validation">
@@ -245,7 +245,7 @@
                                 <span class="icon -move" hidden><i class="bi bi-arrows-move"></i></span>
                                 <span class="icon -x"><i class="bi bi-x"></i></span>
                                 @if(\Illuminate\Support\Facades\App::environment(\App\Enums\Globals\AppEnvClass::Release))
-                                    <img src="{{ 'https://img.bestselection.com.tw/' . $image->url }}" />
+                                    <img src="{{ \App\Enums\Globals\ImageDomain::CDN . $image->url }}" />
                                 @else
                                     <img src="{{ asset($image->url) }}" />
                                 @endif

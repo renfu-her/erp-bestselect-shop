@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Web;
 
 use App\Enums\Globals\AppEnvClass;
+use App\Enums\Globals\ImageDomain;
 use App\Enums\Globals\ResponseParam;
 use App\Http\Controllers\Controller;
 use App\Models\Collection;
@@ -83,7 +84,7 @@ class ProductCtrl extends Controller
             $collection->list = array_map(function ($n) {
                 if ($n->img_url) {
                     if (App::environment(AppEnvClass::Release)) {
-                        $n->img_url = 'https://img.bestselection.com.tw/' . $n->img_url;
+                        $n->img_url = ImageDomain::CDN . $n->img_url;
                     } else {
                         $n->img_url = asset($n->img_url);
                     }
