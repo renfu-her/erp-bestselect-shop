@@ -130,7 +130,7 @@
                                                 <th scope="col" style="width:10%">#</th>
                                                 <th scope="col">Left</th>
                                                 <th scope="col" class="text-center">Center</th>
-                                                <th scope="col" class="text-right">Right</th>
+                                                <th scope="col" class="text-end">Right</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -138,19 +138,19 @@
                                                 <th scope="row">1</th>
                                                 <td>Default</td>
                                                 <td class="text-center">常溫</td>
-                                                <td class="text-right">$99,999</td>
+                                                <td class="text-end">$99,999</td>
                                             </tr>
                                             <tr>
                                                 <th scope="row">2</th>
                                                 <td>Default</td>
                                                 <td class="text-center table-warning">常溫</td>
-                                                <td class="text-right">$99,999</td>
+                                                <td class="text-end">$99,999</td>
                                             </tr>
                                             <tr>
                                                 <th scope="row">3</th>
                                                 <td>Default</td>
                                                 <td class="text-center">常溫</td>
-                                                <td class="text-right">$99,999</td>
+                                                <td class="text-end">$99,999</td>
                                             </tr>
                                         </tbody>
                                         <tfoot>
@@ -158,7 +158,7 @@
                                                 <th scope="row"></th>
                                                 <td>Default</td>
                                                 <td class="text-center">常溫</td>
-                                                <td class="text-right">$99,999</td>
+                                                <td class="text-end">$99,999</td>
                                             </tr>
                                         </tfoot>
                                     </table>

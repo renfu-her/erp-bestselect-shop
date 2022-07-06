@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Api\Cms\Commodity;
 
 use App\Enums\Discount\DividendCategory;
 use App\Http\Controllers\Controller;
+use App\Models\CustomerCoupon;
 use App\Models\CustomerDividend;
 use App\Models\Order;
+use App\Models\OrderProfit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
-use App\Models\CustomerCoupon;
+
 class OrderCtrl extends Controller
 {
     //
@@ -70,6 +73,37 @@ class OrderCtrl extends Controller
 
         return [
             'status' => '0',
+        ];
+
+    }
+
+    public function updateProfit(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'profit_id' => ['required'],
+            'bonus1' => ['required', 'numeric'],
+            'bonus2' => ['numeric', 'nullable'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'E01',
+                'message' => $validator->errors(),
+            ]);
+        }
+        $d = $request->all();
+        $bonus2 = Arr::get($d, 'bonus2', 0);
+
+        $re = OrderProfit::updateProfit($d['profit_id'], $d['bonus1'], $bonus2, $request->user()->id);
+        if ($re['success']) {
+            return [
+                'status' => '0',
+            ];
+        }
+
+        return [
+            'status' => '1',
+            'message' => $re['message'],
         ];
 
     }

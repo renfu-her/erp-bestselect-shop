@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\Customer\Identity;
 use App\Enums\Globals\ApiStatusMessage;
 use App\Enums\Globals\AppEnvClass;
+use App\Enums\Globals\ImageDomain;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -427,6 +428,7 @@ class Product extends Model
         if (isset($options['price'])) {
             $re->leftJoin('prd_salechannel_style_price as price', 's.id', '=', 'price.style_id')
                 ->addSelect('price.price')
+                ->addSelect('price.bonus')
                 ->addSelect('price.dividend')
                 ->where('price.sale_channel_id', $options['price']);
         }
@@ -548,7 +550,7 @@ class Product extends Model
         if ($re->imgs) {
             $output['info']['image'] = array_map(function ($n) {
                 if (App::environment(AppEnvClass::Release)) {
-                    $n->url = 'https://img.bestselection.com.tw/' . $n->url;
+                    $n->url = ImageDomain::CDN . $n->url;
                 } else {
                     $n->url = asset($n->url);
                 }
@@ -1038,7 +1040,7 @@ class Product extends Model
         foreach ($productQueries as $productQuery) {
             if (!is_null($productQuery['img_url'])) {
                 if (App::environment(AppEnvClass::Release)) {
-                    $imageUrl = 'https://img.bestselection.com.tw/' . $productQuery['img_url'];
+                    $imageUrl = ImageDomain::CDN . $productQuery['img_url'];
                 } else {
                     $imageUrl = asset($productQuery['img_url']);
                 }
