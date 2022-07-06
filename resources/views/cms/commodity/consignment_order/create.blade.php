@@ -21,9 +21,7 @@
 
     @if ($method === 'edit')
         @if (!$receivable)
-            <div>
-                <a href="{{ Route('cms.ar_csnorder.create', ['id' => $id]) }}" class="btn btn-primary" role="button">新增收款單</a>
-            </div>
+            <a href="{{ Route('cms.ar_csnorder.create', ['id' => $id]) }}" class="btn btn-primary" role="button">新增收款單</a>
         @endif
         @if ($received_order_data)
             @if(!in_array($consignmentData->status, ['已入款', '結案']))
