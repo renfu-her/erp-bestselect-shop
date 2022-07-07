@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Web;
 use App\Enums\Delivery\Event;
 use App\Enums\Globals\ApiStatusMessage;
 use App\Enums\Globals\ResponseParam;
-use App\Enums\Order\OrderStatus;
 use App\Enums\Order\UserAddrType;
 // use App\Enums\;
 use App\Enums\Received\ReceivedMethod;
@@ -16,7 +15,6 @@ use App\Models\Delivery;
 use App\Models\Discount;
 use App\Models\LogisticFlow;
 use App\Models\Order;
-use App\Models\OrderFlow;
 use App\Models\OrderPayCreditCard;
 use App\Models\ReceivedDefault;
 use App\Models\ReceivedOrder;
@@ -54,7 +52,10 @@ class OrderCtrl extends Controller
                 'name' => ReceivedMethod::Cash()->description],
             ['id' => ReceivedMethod::CreditCard()->value,
                 'name' => ReceivedMethod::CreditCard()->description],
+            ['id' => ReceivedMethod::Remittance()->value,
+                'name' => ReceivedMethod::Remittance()->description],
         ];
+
         return response()->json($re);
 
     }
@@ -77,7 +78,7 @@ class OrderCtrl extends Controller
             ->leftJoin('ord_received_orders as received', function ($join) {
                 $join->on('received.source_id', '=', 'order.id');
                 $join->where([
-                    'received.source_type'=>app(Order::class)->getTable(),
+                    'received.source_type' => app(Order::class)->getTable(),
                     'received.balance_date' => null,
                     'received.deleted_at' => null,
                 ]);
@@ -158,21 +159,21 @@ class OrderCtrl extends Controller
 
         $source_type = app(Order::class)->getTable();
         $received_order_collection = ReceivedOrder::where([
-            'source_type'=>$source_type,
-            'source_id'=>$id,
+            'source_type' => $source_type,
+            'source_id' => $id,
         ]);
         $log = OrderPayCreditCard::where([
-            'source_type'=>$source_type,
-            'source_id'=>$id,
-            'status'=>0,
+            'source_type' => $source_type,
+            'source_id' => $id,
+            'status' => 0,
         ])->orderBy('created_at', 'DESC')->first();
-        if($received_order_collection->first() && !$log){
+        if ($received_order_collection->first() && !$log) {
             return abort(404);
         }
 
         if ($request->isMethod('post')) {
             // avoid f5 reload
-            if($log){
+            if ($log) {
                 return redirect()->route('api.web.order.credit_card_checkout', ['id' => $id, 'unique_id' => $unique_id]);
             }
 
@@ -192,7 +193,7 @@ class OrderCtrl extends Controller
                     $EncArray['more_info'] = [];
 
                     if (empty($status) && $status == '0') {
-                        if(! $received_order_collection->first()){
+                        if (!$received_order_collection->first()) {
                             $received_order = ReceivedOrder::create_received_order($source_type, $id);
                             $received_method = ReceivedMethod::CreditCard; // 'credit_card'
                             $grade_id = ReceivedDefault::where('name', $received_method)->first() ? ReceivedDefault::where('name', $received_method)->first()->default_grade_id : 0;
@@ -200,20 +201,20 @@ class OrderCtrl extends Controller
                             $data = [];
                             $data['acc_transact_type_fk'] = $received_method;
                             $data[$received_method] = [
-                                'cardnumber'=>$CardNumber,
-                                'authamt'=>$authAmt ?? 0,
-                                'ckeckout_date'=>date("Y-m-d H:i:s"),
-                                'card_type_code'=>null,
-                                'card_type'=>null,
-                                'card_owner_name'=>null,
-                                'authcode'=>$authCode,
-                                'all_grades_id'=>$grade_id,
-                                'checkout_area_code'=>'taipei',
-                                'checkout_area'=>'台北',
-                                'installment'=>'none',
-                                'requested'=>'n',
-                                'card_nat'=>'local',
-                                'checkout_mode'=>'online',
+                                'cardnumber' => $CardNumber,
+                                'authamt' => $authAmt ?? 0,
+                                'ckeckout_date' => date("Y-m-d H:i:s"),
+                                'card_type_code' => null,
+                                'card_type' => null,
+                                'card_owner_name' => null,
+                                'authcode' => $authCode,
+                                'all_grades_id' => $grade_id,
+                                'checkout_area_code' => 'taipei',
+                                'checkout_area' => '台北',
+                                'installment' => 'none',
+                                'requested' => 'n',
+                                'card_nat' => 'local',
+                                'checkout_mode' => 'online',
                             ];
                             $result_id = ReceivedOrder::store_received_method($data);
 
@@ -244,7 +245,7 @@ class OrderCtrl extends Controller
             ->leftJoin('ord_received_orders as received', function ($join) {
                 $join->on('received.source_id', '=', 'order.id');
                 $join->where([
-                    'received.source_type'=>app(Order::class)->getTable(),
+                    'received.source_type' => app(Order::class)->getTable(),
                     'received.balance_date' => null,
                     'received.deleted_at' => null,
                 ]);
@@ -252,7 +253,7 @@ class OrderCtrl extends Controller
             ->join('ord_payment_credit_card_log as cc_log', function ($join) {
                 $join->on('cc_log.source_id', '=', 'order.id');
                 $join->where([
-                    'cc_log.source_type'=>app(Order::class)->getTable(),
+                    'cc_log.source_type' => app(Order::class)->getTable(),
                 ]);
             })
             ->select([
@@ -603,8 +604,8 @@ class OrderCtrl extends Controller
                     // echo '交易完成';
                     $source_type = app(Order::class)->getTable();
                     $received_order_collection = ReceivedOrder::where([
-                        'source_type'=>$source_type,
-                        'source_id'=>$id,
+                        'source_type' => $source_type,
+                        'source_id' => $id,
                     ]);
 
                     if (!$received_order_collection->first()) {
@@ -615,20 +616,20 @@ class OrderCtrl extends Controller
                         $data = [];
                         $data['acc_transact_type_fk'] = $received_method;
                         $data[$received_method] = [
-                            'cardnumber'=>$CardNumber,
-                            'authamt'=>$authAmt ?? 0,
-                            'ckeckout_date'=>date("Y-m-d H:i:s"),
-                            'card_type_code'=>null,
-                            'card_type'=>null,
-                            'card_owner_name'=>null,
-                            'authcode'=>$authCode,
-                            'all_grades_id'=>$grade_id,
-                            'checkout_area_code'=>'taipei',
-                            'checkout_area'=>'台北',
-                            'installment'=>'none',
-                            'requested'=>'n',
-                            'card_nat'=>'local',
-                            'checkout_mode'=>'online',
+                            'cardnumber' => $CardNumber,
+                            'authamt' => $authAmt ?? 0,
+                            'ckeckout_date' => date("Y-m-d H:i:s"),
+                            'card_type_code' => null,
+                            'card_type' => null,
+                            'card_owner_name' => null,
+                            'authcode' => $authCode,
+                            'all_grades_id' => $grade_id,
+                            'checkout_area_code' => 'taipei',
+                            'checkout_area' => '台北',
+                            'installment' => 'none',
+                            'requested' => 'n',
+                            'card_nat' => 'local',
+                            'checkout_mode' => 'online',
                         ];
                         $result_id = ReceivedOrder::store_received_method($data);
 
