@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddOrderIdColumnToOrdOrderProfitLogTable extends Migration
+class AddCustomerIdColumnToOrdOrderProfitLogTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,12 +14,10 @@ class AddOrderIdColumnToOrdOrderProfitLogTable extends Migration
     public function up()
     {
         Schema::table('ord_order_profit_log', function (Blueprint $table) {
-            //
-
-            $table->after('profit_id', function ($tb) {
-                $tb->integer('order_id')->comment('訂單id');
+            $table->after('bonus2', function ($tb) {
+                $tb->integer('customer_id1')->comment('推薦人');
+                $tb->integer('customer_id2')->nullable()->comment('推薦人上一代');
             });
-
         });
     }
 
