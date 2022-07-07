@@ -14,7 +14,8 @@ class OrderItem extends Model
     public $timestamps = false;
     protected $guarded = [];
 
-    public static function getShipItem($sub_order_id) {
+    public static function getShipItem($sub_order_id)
+    {
         $query_combo = DB::table('prd_style_combos')
             ->leftJoin('prd_product_styles', 'prd_product_styles.id', '=', 'prd_style_combos.product_style_child_id')
             ->select('prd_style_combos.product_style_id'
@@ -71,7 +72,6 @@ class OrderItem extends Model
         return $query_ship_overview;
     }
 
-
     public static function item_order($order_id)
     {
         $query = self::leftJoin('ord_orders', 'ord_orders.id', '=', 'ord_items.order_id')
@@ -81,7 +81,7 @@ class OrderItem extends Model
             ->leftJoin('usr_users as users', 'users.id', '=', 'products.user_id')
 
             ->where([
-                'ord_orders.id'=>$order_id,
+                'ord_orders.id' => $order_id,
             ])
             ->select(
                 'ord_orders.id AS order_id',
@@ -110,4 +110,46 @@ class OrderItem extends Model
 
         return $query;
     }
+
+    public static function itemList($order_id, $options = [])
+    {
+
+        $re = DB::table('ord_items as item')
+
+            ->leftJoin('ord_sub_orders as sub_order', 'item.sub_order_id', '=', 'sub_order.id')
+            ->leftJoin('prd_product_styles as style', 'item.product_style_id', '=', 'style.id')
+            ->leftJoin('prd_products as product', 'style.product_id', '=', 'product.id')
+            ->leftJoin('usr_users as user', 'product.user_id', '=', 'user.id')
+            ->select([
+                'item.product_title',
+                'item.discounted_price',
+                'item.price',
+                'item.qty',
+                'item.origin_price',
+                'user.name as product_user',
+                'sub_order.sn as sub_order_sn',
+            ])
+            ->where('item.order_id', $order_id);
+
+        if (isset($options['profit'])) {
+            $re->leftJoin('ord_order_profit as profit', function ($join) {
+                $join->on('profit.sub_order_id', '=', 'item.sub_order_id')
+                    ->on('profit.style_id', '=', 'item.product_style_id');
+            })
+                ->leftJoin('usr_customers as re_customer', 're_customer.id', '=', 'profit.customer_id')
+                ->leftJoin('ord_order_profit as profit2', 'profit.id', '=', 'profit2.parent_id')
+                ->leftJoin('usr_customers as re_customer2', 're_customer2.id', '=', 'profit2.customer_id')
+                ->addSelect(['profit.id as profit_id',
+                    'profit.total_bonus',
+                    'profit.bonus',
+                    're_customer.name as re_customer',
+                    're_customer2.name as re_customer2',
+                    'profit2.bonus as bonus2'])
+                ->whereNull('profit.parent_id');
+
+        }
+
+        return $re;
+    }
+
 }
