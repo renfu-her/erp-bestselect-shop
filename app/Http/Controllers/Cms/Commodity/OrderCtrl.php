@@ -898,9 +898,8 @@ class OrderCtrl extends Controller
 
       // dd(OrderItem::itemList($id,['profit'=>1])->get()->toArray());
 
-        $dataList = OrderProfit::dataList($id, null, 1)->get();
-       // dd($dataList);
-       // dd($dataList);
+        $dataList = OrderItem::itemList($id,['profit'=>1])->get();
+      
         if ($dividend) {
             $dividend = $dividend->dividend;
         } else {
