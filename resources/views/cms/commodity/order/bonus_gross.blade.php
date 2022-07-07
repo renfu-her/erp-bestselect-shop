@@ -155,7 +155,7 @@
                     <thead>
                         <tr>
                             <th scope="col" style="width:40px">#</th>
-                            <th scope="col">訂單編號</th>
+                            <th scope="col">子訂單</th>
                             <th scope="col">品名規格</th>
                             <th scope="col" class="text-center px-3">金額</th>
                             <th scope="col" class="text-center px-3">經銷價</th>
@@ -193,16 +193,16 @@
                                         <table class="table table-bordered table-sm mb-0">
                                             <tbody>
                                                 <tr class="border-top-0 table-light">
-                                                    <td style="width: 15%;font-weight:500;" class="text-center">總獎金</td>
-                                                    <td style="width: 25%;font-weight:500;" class="text-center">當代獎金</td>
-                                                    <td style="width: 25%;font-weight:500;" class="text-center">上代獎金</td>
-                                                    <td style="width: 25%;font-weight:500;" class="text-center">上代推薦人員
-                                                    </td>
+                                                    <td style="width: 10%;font-weight:500;" class="text-center">總獎金</td>
+                                                    <td style="width: 20%;font-weight:500;" class="text-center">當代推薦人</td>
+                                                    <td style="width: 20%;font-weight:500;" class="text-center">當代獎金</td>
+                                                    <td style="width: 20%;font-weight:500;" class="text-center">上代推薦人</td>
+                                                    <td style="width: 20%;font-weight:500;" class="text-center">上代獎金</td>
                                                     <td style="width: 10%" class="text-center">操作</td>
                                                 </tr>
                                                 <tr>
-                                                    <td class="text-center">$ {{ number_format($item->total_bonus) }}
-                                                    </td>
+                                                    <td class="text-center">$ {{ number_format($item->total_bonus) }}</td>
+                                                    <td class="text-center">當代推薦人</td>
                                                     <td>
                                                         <div class="input-group input-group-sm">
                                                             <span class="input-group-text">$</span>
@@ -211,6 +211,13 @@
                                                                 value="{{ $item->bonus }}" min="0"
                                                                 max="{{ $item->total_bonus }}" disabled>
                                                         </div>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @if ($item->re_customer)
+                                                            {{ $item->re_customer }}
+                                                        @else
+                                                            無
+                                                        @endif
                                                     </td>
                                                     <td class="text-center">
                                                         @if ($item->re_customer)
@@ -223,23 +230,9 @@
                                                         @else
                                                             無
                                                         @endif
-
                                                     </td>
                                                     <td class="text-center">
-                                                        @if ($item->re_customer)
-                                                            {{ $item->re_customer }}
-                                                            <!--
-                                                                    <span class="form-control form-control-sm text-center -show" readonly>-</span>
-                                                                    <input class="form-control form-control-sm text-center" type="text" aria-label="上代推薦人員"
-                                                                        name="mcode" value="" placeholder="請輸入mcode" hidden disabled>
-                                                                 -->
-                                                        @else
-                                                            無
-                                                        @endif
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <input type="hidden" name="profit_id"
-                                                            value="{{ $item->id }}">
+                                                        <input type="hidden" name="profit_id" value="{{ $item->id }}">
                                                         <button type="button"
                                                             class="btn btn-sm btn-outline-primary -edit px-4 me-0">修改</button>
                                                         <button type="button" class="btn btn-sm btn-success -save px-4"
@@ -269,7 +262,9 @@
                             <th scope="col">修改時間</th>
                             <th scope="col">子訂單</th>
                             <th scope="col">品名規格</th>
+                            <th scope="col">當代推薦人</th>
                             <th scope="col" class="text-end">當代獎金</th>
+                            <th scope="col">上代推薦人</th>
                             <th scope="col" class="text-end">上代獎金</th>
                         </tr>
                     </thead>
@@ -280,7 +275,9 @@
                                 <td>{{ date('Y/m/d H:i:s', strtotime($l->created_at)) }}</td>
                                 <td>{{ $l->sub_order_sn }}</td>
                                 <td>{{ $l->product_title }}</td>
+                                <td>當代推薦人</td>
                                 <td class="text-end">$ {{ number_format($l->bonus1) }}</td>
+                                <td>上代推薦人</td>
                                 <td class="text-end">$ {{ number_format($l->bonus2) }}</td>
                             </tr>
                         @endforeach
@@ -346,23 +343,10 @@
                     disabled: true,
                     required: false
                 });
-
-                $('input[name="mcode"]').prop({
-                    hidden: true,
-                    disabled: true,
-                    required: false
-                });
-                $('span.-show').prop('hidden', false);
                 $this.closest('table').find('input[name="bonus1"]').prop({
                     disabled: false,
                     required: true
                 });
-                $this.closest('table').find('input[name="mcode"]').prop({
-                    hidden: false,
-                    disabled: false,
-                    required: true
-                });
-                $this.closest('table').find('span.-show').prop('hidden', true);
             });
 
             // 當代獎金 bonus1
@@ -381,10 +365,14 @@
             $('button.-save').off('click.save').on('click.save', function() {
                 const $this = $(this);
                 const _URL = @json(route('api.cms.order.update-profit'));
+
+                const $bonus1 = $this.closest('table').find('input[name="bonus1"]');
+                const total_bonus = Number($bonus1.attr('max'));
                 const DATA = {
                     profit_id: $this.siblings('input[name="profit_id"]').val(),
-                    bonus1: $this.closest('table').find('input[name="bonus1"]').val(),
-                    bonus2: $this.closest('table').find('input[name="bonus2"]').val() || null
+                    bonus1: $bonus1.val(),
+                    bonus2: $this.closest('table').find('input[name="bonus2"]').val() 
+                        ? total_bonus - Number($bonus1.val()) : 0
                 };
 
                 axios.post(_URL, DATA)
@@ -392,6 +380,7 @@
                         console.log(result.data);
                         if (result.data.status === '0') {
                             toast.show('修改成功');
+                            location.reload();
                         } else {
                             toast.show('修改失敗', {
                                 type: 'danger'
