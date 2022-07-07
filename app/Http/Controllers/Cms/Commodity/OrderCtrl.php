@@ -18,6 +18,7 @@ use App\Models\Discount;
 use App\Models\Order;
 use App\Models\OrderCart;
 use App\Models\OrderInvoice;
+use App\Models\OrderItem;
 use App\Models\OrderPayCreditCard;
 use App\Models\OrderProfit;
 use App\Models\OrderProfitLog;
@@ -888,16 +889,18 @@ class OrderCtrl extends Controller
     }
 
     // 獎金毛利
-    public function bonus_gross(Request $request, $id, $subOrderId = null){
+    public function bonus_gross(Request $request, $id)
+    {
         $order = Order::orderDetail($id)->first();
-        
+
         $dividend = CustomerDividend::where('category', DividendCategory::Order())
             ->where('category_sn', $order->sn)
             ->where('type', 'get')->get()->first();
 
-        $dataList = OrderProfit::dataList($id, null, 1)->get();
-       // dd($dataList);
-       // dd($dataList);
+        // dd(OrderItem::itemList($id,['profit'=>1])->get()->toArray());
+
+        $dataList = OrderItem::itemList($id, ['profit' => 1])->get();
+
         if ($dividend) {
             $dividend = $dividend->dividend;
         } else {
@@ -911,20 +914,24 @@ class OrderCtrl extends Controller
             'dataList' => $dataList,
             'discounts' => Discount::orderDiscountList('main', $id)->get()->toArray(),
             'dividend' => $dividend,
-            'log'=>OrderProfitLog::dataList($id)->orderBy('created_at','DESC')->get(),
+            'log' => OrderProfitLog::dataList($id)->orderBy('created_at', 'DESC')->get(),
             'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
         ]);
     }
 
     // 個人獎金
-    public function personal_bonus(Request $request, $id, $subOrderId = null){
+    public function personal_bonus(Request $request, $id)
+    {
         $order = Order::orderDetail($id)->first();
-        $dataList = OrderProfit::dataList($id, $request->user()->customer_id)->get();
-
+        $user_id = $request->user()->id;
+        $dataList = OrderProfit::dataList($id, $user_id)->get();
+      //  dd($dataList);
+        // dd(OrderProfitLog::dataListPerson($id, $user_id)->get());
         return view('cms.commodity.order.personal_bonus', [
             'id' => $id,
             'order' => $order,
             'dataList' => $dataList,
+            'log' => OrderProfitLog::dataListPerson($id, $user_id)->get(),
             'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
         ]);
     }
