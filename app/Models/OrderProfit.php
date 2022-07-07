@@ -46,16 +46,12 @@ class OrderProfit extends Model
         if ($order_id) {
             $re->where('profit.order_id', $order_id);
         }
-
-        if ($withParent) {
-
-            $re->whereNull('profit.parent_id')
-                ->leftJoin('ord_order_profit as profit2', 'profit.id', '=', 'profit2.parent_id')
-                ->leftJoin('usr_customers as re_customer', 're_customer.id', '=', 'profit2.customer_id')
-                ->addSelect(['re_customer.name as re_customer', 'profit2.bonus as bonus2']);
-
-        }
-
+        /*
+        $re->whereNull('profit.parent_id')
+            ->leftJoin('ord_order_profit as profit2', 'profit.id', '=', 'profit2.parent_id')
+            ->leftJoin('usr_customers as re_customer', 're_customer.id', '=', 'profit2.customer_id')
+            ->addSelect(['re_customer.name as re_customer', 'profit2.bonus as bonus2']);
+        */
         return $re;
     }
 
@@ -73,7 +69,7 @@ class OrderProfit extends Model
         self::where('id', $profit_id)->update(['bonus' => $bonus1]);
 
         self::where('parent_id', $profit_id)->update(['bonus' => $bonus2]);
-        OrderProfitLog::createLog($profit_id, $bonus1, $bonus2, $user_id);
+        OrderProfitLog::createLog($profit_id, $profit->order_id, $bonus1, $bonus2, $user_id);
         DB::commit();
 
         return ['success' => '1'];
