@@ -155,7 +155,7 @@
                     <thead>
                         <tr>
                             <th scope="col" style="width:40px">#</th>
-                            <th scope="col">訂單編號</th>
+                            <th scope="col">子訂單</th>
                             <th scope="col">品名規格</th>
                             <th scope="col" class="text-center px-3">金額</th>
                             <th scope="col" class="text-center px-3">經銷價</th>
@@ -262,7 +262,9 @@
                             <th scope="col">修改時間</th>
                             <th scope="col">子訂單</th>
                             <th scope="col">品名規格</th>
+                            <th scope="col">當代推薦人</th>
                             <th scope="col" class="text-end">當代獎金</th>
+                            <th scope="col">上代推薦人</th>
                             <th scope="col" class="text-end">上代獎金</th>
                         </tr>
                     </thead>
@@ -273,7 +275,9 @@
                                 <td>{{ date('Y/m/d H:i:s', strtotime($l->created_at)) }}</td>
                                 <td>{{ $l->sub_order_sn }}</td>
                                 <td>{{ $l->product_title }}</td>
+                                <td>當代推薦人</td>
                                 <td class="text-end">$ {{ number_format($l->bonus1) }}</td>
+                                <td>上代推薦人</td>
                                 <td class="text-end">$ {{ number_format($l->bonus2) }}</td>
                             </tr>
                         @endforeach
