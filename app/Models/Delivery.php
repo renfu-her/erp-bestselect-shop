@@ -86,10 +86,6 @@ class Delivery extends Model
                 if ($reLFCDS['success'] == 0) {
                     DB::rollBack();
                 }
-                $data->update([
-                    'logistic_status' => $logistic_status->value,
-                    'logistic_status_code' => $logistic_status->key,
-                ]);
 
                 return ['success' => 1, 'error_msg' => "", 'id' => $dataGet->id];
             });
