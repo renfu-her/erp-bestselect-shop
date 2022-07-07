@@ -233,7 +233,7 @@
                                                             @endif
                                                         </td>
                                                         <td class="text-center">
-                                                            @if ($item->re_customer)
+                                                            @if ($item->re_customer2)
                                                                 <div class="input-group input-group-sm">
                                                                     <span class="input-group-text">$</span>
                                                                     <input type="text" class="form-control text-center"
@@ -286,6 +286,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                       
                         @foreach ($log as $key => $l)
                             <tr>
                                 <td>{{ $l->name }}</td>

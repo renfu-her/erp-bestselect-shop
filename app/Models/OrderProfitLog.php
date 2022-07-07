@@ -32,7 +32,12 @@ class OrderProfitLog extends Model
                 $join->on('profit.sub_order_id', '=', 'item.sub_order_id')
                     ->on('profit.style_id', '=', 'item.product_style_id');
             })
-            ->select(['log.bonus1', 'log.bonus2', 'log.created_at', 'profit.sub_order_sn', 'user.name', 'item.product_title'])
+            ->select(['log.bonus1',
+                'log.bonus2',
+                'log.created_at',
+                'profit.sub_order_sn',
+                'user.name',
+                'item.product_title'])
             ->where('profit.order_id', $order_id);
     }
 
