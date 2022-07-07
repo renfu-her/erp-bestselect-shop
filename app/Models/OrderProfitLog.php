@@ -12,7 +12,7 @@ class OrderProfitLog extends Model
     protected $table = 'ord_order_profit_log';
     protected $guarded = [];
 
-    public static function createLog($profit_id, $order_id, $bonus1, $bonus2, $user_id)
+    public static function createLog($profit_id, $order_id, $bonus1, $bonus2, $user_id, $customer1, $customer2)
     {
         self::create([
             'profit_id' => $profit_id,
@@ -20,6 +20,8 @@ class OrderProfitLog extends Model
             'bonus2' => $bonus2,
             'exec_user_id' => $user_id,
             'order_id' => $order_id,
+            'customer1' => $customer1,
+            'customer2' => $customer2,
         ]);
     }
 
