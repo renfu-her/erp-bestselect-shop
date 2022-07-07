@@ -906,7 +906,7 @@ class OrderCtrl extends Controller
         } else {
             $dividend = 0;
         }
-
+     //   dd(OrderProfitLog::dataList($id)->orderBy('created_at', 'DESC')->get());
         // dd(OrderProfitLog::dataList($id)->get());
         return view('cms.commodity.order.bonus_gross', [
             'id' => $id,
