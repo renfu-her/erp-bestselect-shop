@@ -159,7 +159,7 @@ class OrderCart extends Model
                         $shipment->category = $value['shipment_type'];
                         $shipmentGroup[] = $shipment;
 
-                        if ($dividend && $dividend[$groupKey]) {
+                        if ($dividend && isset($dividend[$groupKey])) {
                             $shipment->dividend = $dividend[$groupKey];
                         } else {
                             $shipment->dividend = 0;
