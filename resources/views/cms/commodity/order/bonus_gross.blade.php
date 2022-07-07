@@ -293,9 +293,9 @@
                                 <td>{{ date('Y/m/d H:i:s', strtotime($l->created_at)) }}</td>
                                 <td>{{ $l->sub_order_sn }}</td>
                                 <td>{{ $l->product_title }}</td>
-                                <td>當代推薦人</td>
+                                <td>{{ $l->customer1 }}</td>
                                 <td class="text-end">$ {{ number_format($l->bonus1) }}</td>
-                                <td>上代推薦人</td>
+                                <td>{{ $l->customer2 }}</td>
                                 <td class="text-end">$ {{ number_format($l->bonus2) }}</td>
                             </tr>
                         @endforeach

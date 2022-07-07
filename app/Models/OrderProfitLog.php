@@ -20,8 +20,8 @@ class OrderProfitLog extends Model
             'bonus2' => $bonus2,
             'exec_user_id' => $user_id,
             'order_id' => $order_id,
-            'customer1' => $customer1,
-            'customer2' => $customer2,
+            'customer_id1' => $customer1,
+            'customer_id2' => $customer2,
         ]);
     }
 
@@ -34,12 +34,16 @@ class OrderProfitLog extends Model
                 $join->on('profit.sub_order_id', '=', 'item.sub_order_id')
                     ->on('profit.style_id', '=', 'item.product_style_id');
             })
+            ->join('usr_customers as customer1', 'customer1.id', '=', 'log.customer_id1')
+            ->leftJoin('usr_customers as customer2', 'customer2.id', '=', 'log.customer_id2')
             ->select(['log.bonus1',
                 'log.bonus2',
                 'log.created_at',
                 'profit.sub_order_sn',
                 'user.name',
-                'item.product_title'])
+                'item.product_title',
+                'customer1.name as customer1',
+                'customer2.name as customer2'])
             ->where('profit.order_id', $order_id);
     }
 
