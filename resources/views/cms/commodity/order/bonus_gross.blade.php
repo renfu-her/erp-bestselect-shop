@@ -186,65 +186,82 @@
                                 <td>-</td>
                                 <td>{{ $item->product_user }}</td>
                             </tr>
-                            <tr>
-                                <td></td>
-                                <td class="py-0" colspan="11">
-                                    <form action="">
-                                        <table class="table table-bordered table-sm mb-0">
-                                            <tbody>
-                                                <tr class="border-top-0 table-light">
-                                                    <td style="width: 10%;font-weight:500;" class="text-center">總獎金</td>
-                                                    <td style="width: 20%;font-weight:500;" class="text-center">當代推薦人</td>
-                                                    <td style="width: 20%;font-weight:500;" class="text-center">當代獎金</td>
-                                                    <td style="width: 20%;font-weight:500;" class="text-center">上代推薦人</td>
-                                                    <td style="width: 20%;font-weight:500;" class="text-center">上代獎金</td>
-                                                    <td style="width: 10%" class="text-center">操作</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-center">$ {{ number_format($item->total_bonus) }}</td>
-                                                    <td class="text-center">當代推薦人</td>
-                                                    <td>
-                                                        <div class="input-group input-group-sm">
-                                                            <span class="input-group-text">$</span>
-                                                            <input type="number" class="form-control text-center"
-                                                                aria-label="當代獎金" name="bonus1"
-                                                                value="{{ $item->bonus }}" min="0"
-                                                                max="{{ $item->total_bonus }}" disabled>
-                                                        </div>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        @if ($item->re_customer)
+                            @if ($item->profit_id)
+                                <tr>
+                                    <td></td>
+                                    <td class="py-0" colspan="11">
+
+                                        <form action="">
+                                            <table class="table table-bordered table-sm mb-0">
+                                                <tbody>
+                                                    <tr class="border-top-0 table-light">
+                                                        <td style="width: 10%;font-weight:500;" class="text-center">總獎金
+                                                        </td>
+                                                        <td style="width: 20%;font-weight:500;" class="text-center">當代推薦人
+                                                        </td>
+                                                        <td style="width: 20%;font-weight:500;" class="text-center">當代獎金
+                                                        </td>
+                                                        <td style="width: 20%;font-weight:500;" class="text-center">上代推薦人
+                                                        </td>
+                                                        <td style="width: 20%;font-weight:500;" class="text-center">上代獎金
+                                                        </td>
+                                                        <td style="width: 10%" class="text-center">操作</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-center">$
+                                                            {{ number_format($item->total_bonus) }}
+                                                        </td>
+                                                        <td class="text-center">
+
                                                             {{ $item->re_customer }}
-                                                        @else
-                                                            無
-                                                        @endif
-                                                    </td>
-                                                    <td class="text-center">
-                                                        @if ($item->re_customer)
+
+                                                        </td>
+                                                        <td>
                                                             <div class="input-group input-group-sm">
                                                                 <span class="input-group-text">$</span>
-                                                                <input type="text" class="form-control text-center"
-                                                                    aria-label="上代獎金" name="bonus2"
-                                                                    value="{{ $item->bonus2 }}" disabled readonly>
+                                                                <input type="number" class="form-control text-center"
+                                                                    aria-label="當代獎金" name="bonus1"
+                                                                    value="{{ $item->bonus }}" min="0"
+                                                                    max="{{ $item->total_bonus }}" disabled>
                                                             </div>
-                                                        @else
-                                                            無
-                                                        @endif
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <input type="hidden" name="profit_id" value="{{ $item->id }}">
-                                                        <button type="button"
-                                                            class="btn btn-sm btn-outline-primary -edit px-4 me-0">修改</button>
-                                                        <button type="button" class="btn btn-sm btn-success -save px-4"
-                                                            hidden disabled>儲存</button>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </form>
-                                </td>
-                                <td></td>
-                            </tr>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            @if ($item->re_customer2)
+                                                                {{ $item->re_customer2 }}
+                                                            @else
+                                                                無
+                                                            @endif
+                                                        </td>
+                                                        <td class="text-center">
+                                                            @if ($item->re_customer)
+                                                                <div class="input-group input-group-sm">
+                                                                    <span class="input-group-text">$</span>
+                                                                    <input type="text" class="form-control text-center"
+                                                                        aria-label="上代獎金" name="bonus2"
+                                                                        value="{{ $item->bonus2 }}" disabled readonly>
+                                                                </div>
+                                                            @else
+                                                                無
+                                                            @endif
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <input type="hidden" name="profit_id"
+                                                                value="{{ $item->profit_id }}">
+                                                            <button type="button"
+                                                                class="btn btn-sm btn-outline-primary -edit px-4 me-0">修改</button>
+                                                            <button type="button"
+                                                                class="btn btn-sm btn-success -save px-4" hidden
+                                                                disabled>儲存</button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </form>
+
+                                    </td>
+                                    <td></td>
+                                </tr>
+                            @endif
                         @endforeach
                     </tbody>
                 </table>
@@ -371,8 +388,8 @@
                 const DATA = {
                     profit_id: $this.siblings('input[name="profit_id"]').val(),
                     bonus1: $bonus1.val(),
-                    bonus2: $this.closest('table').find('input[name="bonus2"]').val() 
-                        ? total_bonus - Number($bonus1.val()) : 0
+                    bonus2: $this.closest('table').find('input[name="bonus2"]').val() ?
+                        total_bonus - Number($bonus1.val()) : 0
                 };
 
                 axios.post(_URL, DATA)

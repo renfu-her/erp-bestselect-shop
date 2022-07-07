@@ -18,6 +18,7 @@ use App\Models\Discount;
 use App\Models\Order;
 use App\Models\OrderCart;
 use App\Models\OrderInvoice;
+use App\Models\OrderItem;
 use App\Models\OrderPayCreditCard;
 use App\Models\OrderProfit;
 use App\Models\OrderProfitLog;
@@ -895,9 +896,10 @@ class OrderCtrl extends Controller
             ->where('category_sn', $order->sn)
             ->where('type', 'get')->get()->first();
 
-        $dataList = OrderProfit::dataList($id, null, 1)->get();
-       // dd($dataList);
-       // dd($dataList);
+      // dd(OrderItem::itemList($id,['profit'=>1])->get()->toArray());
+
+        $dataList = OrderItem::itemList($id,['profit'=>1])->get();
+      
         if ($dividend) {
             $dividend = $dividend->dividend;
         } else {
