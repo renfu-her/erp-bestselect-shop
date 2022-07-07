@@ -170,9 +170,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($dataList as $item)
+                        @foreach ($dataList as $key => $item)
                             <tr>
-                                <th scope="row">1</th>
+                                <th scope="row">{{ $key + 1 }}</th>
                                 <td>{{ $item->sub_order_sn }}</td>
                                 <td>{{ $item->product_title }}</td>
                                 <td class="text-center">$ {{ number_format($item->price) }}</td>

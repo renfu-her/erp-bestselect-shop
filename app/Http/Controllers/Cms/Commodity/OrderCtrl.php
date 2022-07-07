@@ -889,7 +889,7 @@ class OrderCtrl extends Controller
     }
 
     // 獎金毛利
-    public function bonus_gross(Request $request, $id, $subOrderId = null){
+    public function bonus_gross(Request $request, $id){
         $order = Order::orderDetail($id)->first();
         
         $dividend = CustomerDividend::where('category', DividendCategory::Order())
@@ -898,7 +898,7 @@ class OrderCtrl extends Controller
 
       // dd(OrderItem::itemList($id,['profit'=>1])->get()->toArray());
 
-        $dataList = OrderItem::itemList($id,['profit'=>1])->get();
+        $dataList = OrderItem::itemList($id, ['profit'=>1])->get();
       
         if ($dividend) {
             $dividend = $dividend->dividend;
@@ -919,9 +919,9 @@ class OrderCtrl extends Controller
     }
 
     // 個人獎金
-    public function personal_bonus(Request $request, $id, $subOrderId = null){
+    public function personal_bonus(Request $request, $id){
         $order = Order::orderDetail($id)->first();
-        $dataList = OrderProfit::dataList($id, $request->user()->customer_id)->get();
+        $dataList = OrderItem::itemList($id, ['profit'=>1])->get();
 
         return view('cms.commodity.order.personal_bonus', [
             'id' => $id,
