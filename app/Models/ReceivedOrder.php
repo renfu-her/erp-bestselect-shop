@@ -234,6 +234,37 @@ class ReceivedOrder extends Model
             }
 
             return $re;
+        } else if($source_type == app(CsnOrder::class)->getTable()){
+            $order_data = CsnOrder::findOrFail($source_id);
+            $list_data = CsnOrderItem::where('csnord_id', '=', $order_data->id)
+                ->whereNull('deleted_at')
+                ->select(
+                    DB::raw('sum(price * num) as total_price')
+                )
+                ->first();
+
+            $logistics_grade_id = ReceivedDefault::where('name', 'logistics')->first() ? ReceivedDefault::where('name', 'logistics')->first()->default_grade_id : 0;
+            $product_grade_id = ReceivedDefault::where('name', 'product')->first() ? ReceivedDefault::where('name', 'product')->first()->default_grade_id : 0;
+
+            $re = self::create([
+                'source_type'=>$source_type,
+                'source_id'=>$source_id,
+                'usr_users_id'=>auth('user')->user() ? auth('user')->user()->id : null,
+                'sn'=>'MSG' . date('ymd') . str_pad( count(self::whereDate('created_at', '=', date('Y-m-d'))->withTrashed()->get()) + 1, 4, '0', STR_PAD_LEFT),
+                'price'=>$list_data->total_price,
+                // 'tw_dollar'=>0,
+                // 'rate'=>1,
+                'logistics_grade_id'=>$logistics_grade_id,
+                'product_grade_id'=>$product_grade_id,
+                // 'created_at'=>date("Y-m-d H:i:s"),
+            ]);
+
+            if($re){
+                CsnOrderFlow::changeOrderStatus($source_id, OrderStatus::Unbalance());
+                CsnOrder::change_order_payment_status($source_id, PaymentStatus::Unbalance(), null);
+            }
+
+            return $re;
 
         } else {
 
@@ -286,6 +317,18 @@ class ReceivedOrder extends Model
                 $r_method['value'] = implode(',', $r_method_arr);
                 $r_method['description'] = implode(',', $r_method_title_arr);
                 Order::change_order_payment_status($received_order->source_id, PaymentStatus::Received(), (object) $r_method);
+            } else if($received_order->source_type == app(CsnOrder::class)->getTable()){
+                CsnOrderFlow::changeOrderStatus($received_order->source_id, OrderStatus::Paided());
+                // Order::change_order_payment_status($received_order->source_id, PaymentStatus::Received(), ReceivedMethod::fromValue($received_method));
+
+                $r_method_arr = $received_list->pluck('received_method')->toArray();
+                $r_method_title_arr = [];
+                foreach($r_method_arr as $v){
+                    array_push($r_method_title_arr, ReceivedMethod::getDescription($v));
+                }
+                $r_method['value'] = implode(',', $r_method_arr);
+                $r_method['description'] = implode(',', $r_method_title_arr);
+                CsnOrder::change_order_payment_status($received_order->source_id, PaymentStatus::Received(), (object) $r_method);
             }
         }
     }

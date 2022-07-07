@@ -11,6 +11,7 @@ use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\PurchaseLog;
 use App\Models\ReceiveDepot;
+use App\Models\ReceivedOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -21,8 +22,8 @@ class ConsignmentOrderCtrl extends Controller
     //寄倉訂購列表
     public function index(Request $request) {
         $query = $request->query();
-        $data_per_page = Arr::get($query, 'data_per_page', 10);
-        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
+        $data_per_page = Arr::get($query, 'data_per_page', 100);
+        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 100;
 
         $depot_id = Arr::get($query, 'depot_id', 1);
 
@@ -198,6 +199,16 @@ class ConsignmentOrderCtrl extends Controller
         }
         $consumeItems = Consum::getConsumWithEvent(Event::csn_order()->value, $id)->get()->toArray();
 
+        $receivable = false;
+        $received_order_collection = ReceivedOrder::where([
+            'source_type'=>app(CsnOrder::class)->getTable(),
+            'source_id'=>$id,
+        ]);
+        $received_order_data = $received_order_collection->first();
+        if ($received_order_data && $received_order_data->balance_date) {
+            $receivable = true;
+        }
+
         return view('cms.commodity.consignment_order.create', [
             'id' => $id,
             'query' => $query,
@@ -211,6 +222,8 @@ class ConsignmentOrderCtrl extends Controller
             'delivery' => $delivery,
             'method' => 'edit',
             'formAction' => Route('cms.consignment-order.edit', ['id' => $id]),
+            'receivable' => $receivable,
+            'received_order_data' => $received_order_data,
             'breadcrumb_data' => ['id' => $id, 'sn' => $consignmentData->sn],
         ]);
     }

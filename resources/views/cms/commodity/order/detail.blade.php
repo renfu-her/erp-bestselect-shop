@@ -137,7 +137,7 @@
             <dl class="row">
                 <div class="col">
                     <dt>推薦業務員</dt>
-                    <dd>{{ $order->name_m ?? ''}}</dd>
+                    <dd>{{ $order->name_m ?? ''}} {{ $order->sn_m ?? ''}}</dd>
                 </div>
                 <div class="col">
                     <dt>寄件人</dt>

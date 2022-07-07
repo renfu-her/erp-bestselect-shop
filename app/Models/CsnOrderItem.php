@@ -112,4 +112,42 @@ class CsnOrderItem extends Model
         return self::where('csnord_id', $consignment_id)->whereNull('deleted_at');
     }
 
+    public static function item_order($order_id)
+    {
+        $query = DB::table('csn_order_items as ord_items')
+            ->leftJoin('csn_orders as ord_orders', 'ord_orders.id', '=', 'ord_items.csnord_id')
+            ->leftJoin('prd_product_styles as styles', 'styles.id', '=', 'ord_items.product_style_id')
+            ->leftJoin('prd_products as products', 'products.id', '=', 'styles.product_id')
+            ->leftJoin('usr_users as users', 'users.id', '=', 'products.user_id')
+
+            ->where([
+                'ord_orders.id'=>$order_id,
+            ])
+            ->select(
+                'ord_orders.id AS order_id',
+                'ord_orders.status AS order_status',
+                'ord_orders.memo AS order_note',
+
+                'ord_orders.sn AS del_sn',
+//                'ord_sub_orders.ship_category_name AS del_category_name',
+//                'ord_sub_orders.ship_event AS del_even',
+//                'ord_sub_orders.ship_temp AS del_temp',
+
+                'ord_items.sku AS product_sku',
+                'ord_items.title AS product_title',
+                'ord_items.price AS product_price',
+                'ord_items.num AS product_qty',
+                'ord_items.price AS product_origin_price',
+//                'ord_items.discount_value AS product_discount',
+//                'ord_items.discounted_price AS product_after_discounting_price',
+
+                'products.id as product_id',
+                'products.has_tax as product_taxation',
+
+                'users.id as product_user_id',
+                'users.name as product_user_name'
+            );
+
+        return $query;
+    }
 }

@@ -54,7 +54,7 @@
             </fieldset>
             <div class="row">
                 <div class="col-12 mb-3">
-                    <label class="form-label">商品名稱 <span class="text-danger">*</span></label>
+                    <label class="form-label">商品名稱（發佈後若有更改網址可能會影響SEO搜尋）<span class="text-danger">*</span></label>
                     <input class="form-control @error('title') is-invalid @enderror" name="title" type="text"
                         placeholder="例：女休閒短T" maxlength="60" value="{{ old('title', $product->title ?? '') }}"
                         aria-label="商品名稱" required />
@@ -62,8 +62,9 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-                <div class="col-12 mb-3">
-                    <label class="form-label">商品網址（發佈後若有更改網址可能會影響SEO搜尋）</label>
+
+                {{-- <div class="col-12 mb-3">
+                    <label class="form-label">商品網址</label>
                     <div class="input-group has-validation">
                         <span class="input-group-text">https://demo.bestselection.com.tw/products/</span>
                         <input type="text" name="url" class="form-control @error('url') is-invalid @enderror"
@@ -74,7 +75,7 @@
                             @enderror
                         </div>
                     </div>
-                </div>
+                </div> --}}
 
                 <div class="col-12 mb-3">
                     <label class="form-label">商品簡述</label>
@@ -244,7 +245,7 @@
                                 <span class="icon -move" hidden><i class="bi bi-arrows-move"></i></span>
                                 <span class="icon -x"><i class="bi bi-x"></i></span>
                                 @if(\Illuminate\Support\Facades\App::environment(\App\Enums\Globals\AppEnvClass::Release))
-                                    <img src="{{ 'https://img.bestselection.com.tw/' . $image->url }}" />
+                                    <img src="{{ \App\Enums\Globals\ImageDomain::CDN . $image->url }}" />
                                 @else
                                     <img src="{{ asset($image->url) }}" />
                                 @endif

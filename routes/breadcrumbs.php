@@ -256,7 +256,32 @@ Breadcrumbs::for('cms.ap.logistics-create', function (BreadcrumbTrail $trail, $v
     $trail->push('物流付款單', route('cms.order.pay-order', ['id' => $value['id'], 'sid' => $value['sid']]));
     $trail->push('新增付款');
 });
-
+// 新增收款單
+Breadcrumbs::for('cms.ar_csnorder.create', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.consignment-order.index');
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.consignment-order.edit', ['id' => $value['id']]));
+    $trail->push('新增收款單');
+});
+//顯示訂單收款單
+Breadcrumbs::for('cms.ar_csnorder.receipt', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.consignment-order.index');
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.consignment-order.edit', ['id' => $value['id']]));
+    $trail->push('收款單');
+});
+//編輯收款單入帳日期
+Breadcrumbs::for('cms.ar_csnorder.review', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.consignment-order.index');
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.consignment-order.edit', ['id' => $value['id']]));
+    $trail->push('收款單', route('cms.ar_csnorder.receipt', ['id' => $value['id']]));
+    $trail->push('入款審核');
+});
+//編輯收款單稅別/摘要/備註
+Breadcrumbs::for('cms.ar_csnorder.taxation', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.consignment-order.index');
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.consignment-order.edit', ['id'=>$value['id']]));
+    $trail->push('收款單', route('cms.ar_csnorder.receipt', ['id'=>$value['id']]));
+    $trail->push('修改摘要/稅別');
+});
 // 出貨管理
 Breadcrumbs::for('cms.delivery.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
