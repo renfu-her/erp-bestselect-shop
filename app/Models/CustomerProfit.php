@@ -100,15 +100,17 @@ class CustomerProfit extends Model
     //回傳分潤資格審核
     public static function getProfitData($customer_id, ProfitStatus $status = null)
     {
-        $re = CustomerProfit::where('customer_id', $customer_id)
-            ->select('status'
-                , 'status_title'
-                , 'parent_cusotmer_id'
-                , 'parent_profit_rate'
-                , 'profit_rate'
-                , 'has_child'
-                , 'profit_type'
-            );
+
+        $re = DB::table('usr_customer_profit as cprofit')
+            ->leftJoin('usr_customers as customer', 'cprofit.customer_id', '=', 'customer.id')
+            ->select(['cprofit.status'
+                , 'cprofit.status_title'
+                , 'cprofit.parent_profit_rate'
+                , 'cprofit.profit_rate'
+                , 'cprofit.has_child'
+                , 'cprofit.profit_type'
+                , 'customer.recommend_id as parent_cusotmer_id'])
+            ->where('customer_id', $customer_id);
 
         if ($status) {
             $re->where('status', $status);

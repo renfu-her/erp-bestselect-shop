@@ -115,7 +115,6 @@ class OrderItem extends Model
     {
 
         $re = DB::table('ord_items as item')
-
             ->leftJoin('ord_sub_orders as sub_order', 'item.sub_order_id', '=', 'sub_order.id')
             ->leftJoin('prd_product_styles as style', 'item.product_style_id', '=', 'style.id')
             ->leftJoin('prd_products as product', 'style.product_id', '=', 'product.id')
@@ -125,6 +124,7 @@ class OrderItem extends Model
                 'item.discounted_price',
                 'item.price',
                 'item.qty',
+                'item.unit_cost',
                 'item.origin_price',
                 'user.name as product_user',
                 'sub_order.sn as sub_order_sn',
