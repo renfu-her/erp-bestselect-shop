@@ -574,6 +574,7 @@ class Order extends Model
         }
         //確認資格
         $customerProfit = CustomerProfit::getProfitData($reCustomer->id, ProfitStatus::Success());
+       
         if (!$customerProfit) {
             return;
         }
@@ -582,28 +583,34 @@ class Order extends Model
 
         if ($customerProfit->parent_cusotmer_id) {
             $parentCustomerProfit = CustomerProfit::getProfitData($customerProfit->parent_cusotmer_id, ProfitStatus::Success());
-
         }
+       
 
         $profit_rate = 100;
 
         if ($parentCustomerProfit) {
             $profit_rate = $customerProfit->profit_rate;
         }
-
+        // dd($order);
         foreach ($order['shipments'] as $shipment) {
             foreach ($shipment->products as $product) {
                 $bonus = $product->bonus * $product->qty;
                 // dd($bonus);
-                $cBonus = floor($bonus / 100 * $profit_rate);
+                if ($profit_rate != 100) {
+                    $cBonus = floor($bonus / 100 * $profit_rate);
+                }else{
+                    $cBonus = $bonus;
+                }
                 $pBonus = $bonus - $cBonus;
-
+               // dd($bonus, $cBonus,$pBonus);
+               
                 $updateData = ['order_id' => $order['order_id'],
                     'order_sn' => $order['order_sn'],
                     'sub_order_sn' => $shipment->sub_order_sn,
                     'sub_order_id' => $shipment->sub_order_id,
                     'style_id' => $product->product_style_id,
                     'total_bonus' => $bonus];
+                //    dd($updateData);
 
                 $pid = OrderProfit::create(array_merge($updateData, [
                     'bonus' => $cBonus,
@@ -620,6 +627,8 @@ class Order extends Model
 
             }
         }
+
+//        exit;
 
     }
 }
