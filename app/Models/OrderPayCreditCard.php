@@ -87,26 +87,26 @@ class OrderPayCreditCard extends Model
             if (preg_match($key, $agent)) $browser = $value;
 
         $installment = 'none';
-        $ckeckout_date = date("Y-m-d H:i:s");
+        $checkout_date = date("Y-m-d H:i:s");
         $card_type_code = null;
         $card_type = null;
         $card_owner_name = null;
         $all_grades_id = 0;
         $checkout_area_code = 'taipei';
         $checkout_area = '台北';
-        $requested = 'n';
+        $status_code = 0;
         $card_nat = 'local';
         $checkout_mode = 'online';
         if(property_exists($response, 'more_info') && count($response->more_info) > 0){
             $installment = $response->more_info['installment'];
-            $ckeckout_date = $response->more_info['ckeckout_date'];
+            $checkout_date = $response->more_info['checkout_date'];
             $card_type_code = $response->more_info['card_type_code'];
             $card_type = $response->more_info['card_type'];
             $card_owner_name = $response->more_info['card_owner_name'];
             $all_grades_id = $response->more_info['all_grades_id'];
             $checkout_area_code = $response->more_info['checkout_area_code'];
             $checkout_area = $response->more_info['checkout_area'];
-            $requested = $response->more_info['requested'];
+            $status_code = $response->more_info['status_code'];
             $card_nat = $response->more_info['card_nat'];
             $checkout_mode = $response->more_info['checkout_mode'];
         }
@@ -129,14 +129,14 @@ class OrderPayCreditCard extends Model
             'authresurl'=>property_exists($response, 'authresurl') ? $response->authresurl : null,
 
             'installment'=>$installment,
-            'ckeckout_date'=>$ckeckout_date,
+            'checkout_date'=>$checkout_date,
             'card_type_code'=>$card_type_code,
             'card_type'=>$card_type,
             'card_owner_name'=>$card_owner_name,
             'all_grades_id'=>$all_grades_id,
             'checkout_area_code'=>$checkout_area_code,
             'checkout_area'=>$checkout_area,
-            'requested'=>$requested,
+            'status_code'=>$status_code,
             'card_nat'=>$card_nat,
             'checkout_mode'=>$checkout_mode,
 
