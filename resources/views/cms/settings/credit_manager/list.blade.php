@@ -210,7 +210,7 @@
                             </td>
                             <td>{!! $data->credit_card_checkout_mode == 'online' ? '<i class="bi bi-check-lg"></i>' : '<i class="bi bi-x-lg"></i>' !!}</td>
                             <td>{{ $data->credit_card_posting_date ? date('Y-m-d', strtotime($data->credit_card_posting_date)) : '' }}</td>
-                            <td>{{ $data->io_sn }}</td>
+                            <td><a href="{{ $data->io_id ? route('cms.credit_manager.income-detail', ['id' => $data->io_id]) : 'javascript:void(0);'}}" class="-text">{{ $data->io_sn }}</a></td>
                             <td>{{ $data->credit_card_area }}</td>
                             <td>{{ $data->bank_name }}</td>
                         </tr>

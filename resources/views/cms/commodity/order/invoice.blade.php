@@ -88,8 +88,8 @@
 
                 <div class="row">
                     <div class="col-12 col-sm-6 mb-3">
-                        <label class="form-label l_buyer_email">買受人E-mail</label>
-                        <input type="email" name="buyer_email" class="form-control @error('buyer_email') is-invalid @enderror" placeholder="請輸入買受人E-mail" aria-label="買受人E-mail" value="{{ old('buyer_email', $order->email) }}">
+                        <label class="form-label l_buyer_email">買受人E-mail <span class="text-danger">*</span></label>
+                        <input type="email" name="buyer_email" class="form-control @error('buyer_email') is-invalid @enderror" placeholder="請輸入買受人E-mail" aria-label="買受人E-mail" value="{{ old('buyer_email', $order->email) }}" required>
                         <div class="invalid-feedback">
                             @error('buyer_email')
                             {{ $message }}
@@ -113,7 +113,7 @@
                         <legend class="col-form-label p-0 mb-2">發票方式 <span class="text-danger">*</span></legend>
                         <div class="px-1 pt-1">
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" name="invoice_method" value="print" type="radio" id="print" required {{ ! old('invoice_method') || old('invoice_method') == 'print' ? 'checked' : '' }}>
+                                <input class="form-check-input" name="invoice_method" value="print" type="radio" id="print" required {{ old('invoice_method') && old('invoice_method') == 'print' ? 'checked' : '' }}>
                                 <label class="form-check-label" for="print">無載具(列印電子發票證明聯)</label>
                             </div>
                             {{--
@@ -123,7 +123,7 @@
                             </div>
                             --}}
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" name="invoice_method" value="e_inv" type="radio" id="e_inv" required {{ old('invoice_method') && old('invoice_method') == 'e_inv' ? 'checked' : '' }}>
+                                <input class="form-check-input" name="invoice_method" value="e_inv" type="radio" id="e_inv" required {{ ! old('invoice_method') || old('invoice_method') == 'e_inv' ? 'checked' : '' }}>
                                 <label class="form-check-label" for="e_inv">電子發票</label>
                             </div>
                         </div>
@@ -149,20 +149,20 @@
                     </div>
                 </div>
 
-                <div class="row carrier d-none">
+                <div class="row carrier">
                     <fieldset class="col-12 col-sm-6 mb-3">
                         <legend class="col-form-label p-0 mb-2">載具類型 <span class="text-danger">*</span></legend>
                         <div class="px-1 pt-1">
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" name="carrier_type" value="0" type="radio" id="carrier_mobile" disabled {{ old('carrier_type') && old('carrier_type') == 0 ? 'checked' : '' }}>
+                                <input class="form-check-input" name="carrier_type" value="0" type="radio" id="carrier_mobile" {{ old('carrier_type') && old('carrier_type') == 0 ? 'checked' : '' }}>
                                 <label class="form-check-label" for="carrier_mobile">手機條碼載具</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" name="carrier_type" value="1" type="radio" id="carrier_certificate" disabled {{ old('carrier_type') && old('carrier_type') == 1 ? 'checked' : '' }}>
+                                <input class="form-check-input" name="carrier_type" value="1" type="radio" id="carrier_certificate" {{ old('carrier_type') && old('carrier_type') == 1 ? 'checked' : '' }}>
                                 <label class="form-check-label" for="carrier_certificate">自然人憑證條碼載具</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" name="carrier_type" value="2" type="radio" id="carrier_member" disabled {{ ! old('carrier_type') || old('carrier_type') == 2 ? 'checked' : '' }}>
+                                <input class="form-check-input" name="carrier_type" value="2" type="radio" id="carrier_member" {{ ! old('carrier_type') || old('carrier_type') == 2 ? 'checked' : '' }}>
                                 <label class="form-check-label" for="carrier_member">會員載具</label>
                             </div>
                         </div>
