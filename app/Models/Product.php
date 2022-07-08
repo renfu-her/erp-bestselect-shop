@@ -430,6 +430,7 @@ class Product extends Model
                 ->addSelect('price.price')
                 ->addSelect('price.bonus')
                 ->addSelect('price.dividend')
+                ->addSelect('price.bonus')
                 ->where('price.sale_channel_id', $options['price']);
         }
 

@@ -892,6 +892,7 @@ class OrderCtrl extends Controller
     public function bonus_gross(Request $request, $id)
     {
         $order = Order::orderDetail($id)->first();
+       // OrderProfit::changeOwner(25,1,1);
 
         $dividend = CustomerDividend::where('category', DividendCategory::Order())
             ->where('category_sn', $order->sn)
