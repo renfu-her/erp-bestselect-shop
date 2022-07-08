@@ -77,6 +77,8 @@ class ReceivedDefaultCtrl extends Controller
             $default_discount_grade[$key] =  ReceivedDefault::where('name', $key)->first() ? ReceivedDefault::where('name', $key)->first()->default_grade_id : null;
         }
 
+        $income_credit_card = ReceivedDefault::where('name', 'credit_card_service_fee')->orWhere('name', 'credit_card_net')->get();
+
         return view('cms.accounting.received_default.edit', [
             'total_grades' => $total_grades,
 
@@ -90,6 +92,8 @@ class ReceivedDefaultCtrl extends Controller
 
             'discount_type' => $discount_type,
             'default_discount_grade' => $default_discount_grade,
+
+            'income_credit_card' => $income_credit_card,
 
             'isViewMode' => true,
             'formAction' => Route('cms.received_default.edit', [], true),
@@ -181,6 +185,8 @@ class ReceivedDefaultCtrl extends Controller
 
             'product'=>'required|exists:acc_all_grades,id',
             'logistics'=>'required|exists:acc_all_grades,id',
+            'credit_card_service_fee'=>'required|exists:acc_all_grades,id',
+            'credit_card_net'=>'required|exists:acc_all_grades,id',
         ]);
 
 
@@ -232,6 +238,30 @@ class ReceivedDefaultCtrl extends Controller
             ReceivedDefault::create([
                 'name' => 'logistics',
                 'default_grade_id' => $req['logistics'],
+            ]);
+        }
+
+        $default_fee = ReceivedDefault::where('name', 'credit_card_service_fee')->first();
+        if($default_fee){
+            ReceivedDefault::where('name', 'credit_card_service_fee')->update([
+                'default_grade_id' => $req['credit_card_service_fee'],
+            ]);
+        } else {
+            ReceivedDefault::create([
+                'name' => 'credit_card_service_fee',
+                'default_grade_id' => $req['credit_card_service_fee'],
+            ]);
+        }
+
+        $default_net = ReceivedDefault::where('name', 'credit_card_net')->first();
+        if($default_net){
+            ReceivedDefault::where('name', 'credit_card_net')->update([
+                'default_grade_id' => $req['credit_card_net'],
+            ]);
+        } else {
+            ReceivedDefault::create([
+                'name' => 'credit_card_net',
+                'default_grade_id' => $req['credit_card_net'],
             ]);
         }
 

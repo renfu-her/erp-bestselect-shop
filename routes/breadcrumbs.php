@@ -192,16 +192,6 @@ Breadcrumbs::for('cms.order.create', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
     $trail->push('新增訂單');
 });
-Breadcrumbs::for('cms.order.bonus-gross', function (BreadcrumbTrail $trail, $value) {
-    $trail->parent('cms.order.index');
-    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
-    $trail->push('獎金毛利');
-});
-Breadcrumbs::for('cms.order.personal-bonus', function (BreadcrumbTrail $trail, $value) {
-    $trail->parent('cms.order.index');
-    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
-    $trail->push('個人獎金');
-});
 // 訂單自取入庫審核
 Breadcrumbs::for('cms.order.inbound', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
@@ -256,32 +246,7 @@ Breadcrumbs::for('cms.ap.logistics-create', function (BreadcrumbTrail $trail, $v
     $trail->push('物流付款單', route('cms.order.pay-order', ['id' => $value['id'], 'sid' => $value['sid']]));
     $trail->push('新增付款');
 });
-// 新增收款單
-Breadcrumbs::for('cms.ar_csnorder.create', function (BreadcrumbTrail $trail, $value) {
-    $trail->parent('cms.consignment-order.index');
-    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.consignment-order.edit', ['id' => $value['id']]));
-    $trail->push('新增收款單');
-});
-//顯示訂單收款單
-Breadcrumbs::for('cms.ar_csnorder.receipt', function (BreadcrumbTrail $trail, $value) {
-    $trail->parent('cms.consignment-order.index');
-    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.consignment-order.edit', ['id' => $value['id']]));
-    $trail->push('收款單');
-});
-//編輯收款單入帳日期
-Breadcrumbs::for('cms.ar_csnorder.review', function (BreadcrumbTrail $trail, $value) {
-    $trail->parent('cms.consignment-order.index');
-    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.consignment-order.edit', ['id' => $value['id']]));
-    $trail->push('收款單', route('cms.ar_csnorder.receipt', ['id' => $value['id']]));
-    $trail->push('入款審核');
-});
-//編輯收款單稅別/摘要/備註
-Breadcrumbs::for('cms.ar_csnorder.taxation', function (BreadcrumbTrail $trail, $value) {
-    $trail->parent('cms.consignment-order.index');
-    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.consignment-order.edit', ['id'=>$value['id']]));
-    $trail->push('收款單', route('cms.ar_csnorder.receipt', ['id'=>$value['id']]));
-    $trail->push('修改摘要/稅別');
-});
+
 // 出貨管理
 Breadcrumbs::for('cms.delivery.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
@@ -660,6 +625,26 @@ Breadcrumbs::for('cms.ar.index', function (BreadcrumbTrail $trail) {
 Breadcrumbs::for('cms.credit_manager.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
     $trail->push('信用卡作業管理', route('cms.credit_manager.index'));
+});
+Breadcrumbs::for('cms.credit_manager.record', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.credit_manager.index');
+    $trail->push('信用卡刷卡記錄');
+});
+Breadcrumbs::for('cms.credit_manager.record-edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.credit_manager.index');
+    $trail->push('編輯信用卡刷卡記錄');
+});
+Breadcrumbs::for('cms.credit_manager.ask', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.credit_manager.index');
+    $trail->push('信用卡整批請款');
+});
+Breadcrumbs::for('cms.credit_manager.claim', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.credit_manager.index');
+    $trail->push('信用卡整批入款');
+});
+Breadcrumbs::for('cms.credit_manager.income-detail', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.credit_manager.index');
+    $trail->push('信用卡入款明細');
 });
 // 信用卡
 Breadcrumbs::for('cms.credit_card.index', function (BreadcrumbTrail $trail) {

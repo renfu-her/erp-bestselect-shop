@@ -4,10 +4,15 @@ namespace App\Http\Controllers\Cms\AccountManagement;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+
 use App\Enums\Received\ReceivedMethod;
 
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
+
 use App\Models\AllGrade;
+use App\Models\CrdCreditCard;
+use App\Models\Customer;
 use App\Models\GeneralLedger;
 use App\Models\OrderPayCreditCard;
 use App\Models\Product;
@@ -40,6 +45,220 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
     abstract public function doTaxationWhenGet();
     abstract public function doTaxationWhenUpdate();
+
+
+    public function index(Request $request)
+    {
+        $query = $request->query();
+        $page = getPageCount(Arr::get($query, 'data_per_page', 100)) > 0 ? getPageCount(Arr::get($query, 'data_per_page', 100)) : 100;
+
+        $check_review_status = [
+            'all'=>'不限',
+            '0'=>'入款未審核',
+            '1'=>'入款已審核',
+        ];
+
+        $cond = [];
+
+        $cond['customer_id'] = Arr::get($query, 'customer_id', []);
+        if (gettype($cond['customer_id']) == 'string') {
+            $cond['customer_id'] = explode(',', $cond['customer_id']);
+        } else {
+            $cond['customer_id'] = [];
+        }
+
+        $cond['r_order_sn'] = Arr::get($query, 'r_order_sn', null);
+        $cond['order_sn'] = Arr::get($query, 'order_sn', null);
+
+        $cond['r_order_min_price'] = Arr::get($query, 'r_order_min_price', null);
+        $cond['r_order_max_price'] = Arr::get($query, 'r_order_max_price', null);
+        $r_order_price = [
+            $cond['r_order_min_price'],
+            $cond['r_order_max_price']
+        ];
+
+        $cond['r_order_sdate'] = Arr::get($query, 'r_order_sdate', null);
+        $cond['r_order_edate'] = Arr::get($query, 'r_order_edate', null);
+        $r_order_receipt_date = [
+            $cond['r_order_sdate'],
+            $cond['r_order_edate']
+        ];
+
+        $cond['order_sdate'] = Arr::get($query, 'order_sdate', null);
+        $cond['order_edate'] = Arr::get($query, 'order_edate', null);
+        $received_date = [
+            $cond['order_sdate'],
+            $cond['order_edate']
+        ];
+
+        $cond['check_review'] = Arr::get($query, 'check_review', 'all');
+
+        $dataList = ReceivedOrder::received_order_list(
+            $cond['customer_id'],
+            $cond['r_order_sn'],
+            $cond['order_sn'],
+            $r_order_price,
+            $r_order_receipt_date,
+            $received_date,
+            $cond['check_review'],
+        )->paginate($page)->appends($query);
+
+        // accounting classification start
+        foreach($dataList as $value){
+            $debit = [];
+            $credit = [];
+
+            // 收款項目
+            foreach(json_decode($value->received_list) as $r_value){
+                $received_method_name = ReceivedMethod::getDescription($r_value->received_method);
+                $received_account = AllGrade::find($r_value->all_grades_id)->eachGrade;
+
+                if($r_value->received_method == 'foreign_currency'){
+                    $arr = explode('-', AllGrade::find($r_value->all_grades_id)->eachGrade->name);
+                    $r_value->currency_name = $arr[0] == '外幣' ? $arr[1] . ' - ' . $arr[2] : 'NTD';
+                    $r_value->currency_rate = DB::table('acc_received_currency')->find($r_value->received_method_id)->currency;
+                } else {
+                    $r_value->currency_name = 'NTD';
+                    $r_value->currency_rate = 1;
+                }
+
+                $name = $received_method_name . ' ' . $r_value->summary . '（' . $received_account->code . ' - ' . $received_account->name . '）';
+
+                $tmp = [
+                    'account_code'=>$received_account->code,
+                    'name'=>$name,
+                    'price'=>$r_value->tw_price,
+                    'type'=>'r',
+                    'd_type'=>'received',
+
+                    'account_name'=>$received_account->name,
+                    'method_name'=>$received_method_name,
+                    'summary'=>$r_value->summary,
+                    'note'=>$r_value->note,
+                    'product_title'=>null,
+                    'del_even'=>null,
+                    'del_category_name'=>null,
+                    'product_price'=>null,
+                    'product_qty'=>null,
+                    'product_owner'=>null,
+                    'discount_title'=>null,
+                    'payable_type'=>null,
+                    'received_info'=>$r_value,
+                ];
+                GeneralLedger::classification_processing($debit, $credit, $tmp);
+            }
+
+            // 商品
+            $product_account = AllGrade::find($value->ro_product_grade_id) ? AllGrade::find($value->ro_product_grade_id)->eachGrade : null;
+            $account_code = $product_account ? $product_account->code : '4000';
+            $account_name = $product_account ? $product_account->name : '無設定會計科目';
+            $product_name = $account_code . ' - ' . $account_name;
+            foreach(json_decode($value->order_item) as $o_value){
+                $name = $product_name . ' --- ' . $o_value->product_title . '（' . $o_value->price . ' * ' . $o_value->qty . '）';
+
+                $tmp = [
+                    'account_code'=>$account_code,
+                    'name'=>$name,
+                    'price'=>$o_value->origin_price,
+                    'type'=>'r',
+                    'd_type'=>'product',
+
+                    'account_name'=>$account_name,
+                    'method_name'=>null,
+                    'summary'=>null,
+                    'note'=>null,
+                    'product_title'=>$o_value->product_title,
+                    'del_even'=>null,
+                    'del_category_name'=>null,
+                    'product_price'=>$o_value->price,
+                    'product_qty'=>$o_value->qty,
+                    'product_owner'=>null,
+                    'discount_title'=>null,
+                    'payable_type'=>null,
+                    'received_info'=>null,
+                ];
+                GeneralLedger::classification_processing($debit, $credit, $tmp);
+            }
+
+            // 物流
+            if($value->order_dlv_fee <> 0){
+                $log_account = AllGrade::find($value->ro_logistics_grade_id) ? AllGrade::find($value->ro_logistics_grade_id)->eachGrade : null;
+                $account_code = $log_account ? $log_account->code : '4000';
+                $account_name = $log_account ? $log_account->name : '無設定會計科目';
+                $name = $account_code . ' - ' . $account_name;
+
+                $tmp = [
+                    'account_code'=>$account_code,
+                    'name'=>$name,
+                    'price'=>$value->order_dlv_fee,
+                    'type'=>'r',
+                    'd_type'=>'logistics',
+
+                    'account_name'=>$account_name,
+                    'method_name'=>null,
+                    'summary'=>null,
+                    'note'=>null,
+                    'product_title'=>null,
+                    'del_even'=>null,
+                    'del_category_name'=>null,
+                    'product_price'=>null,
+                    'product_qty'=>null,
+                    'product_owner'=>null,
+                    'discount_title'=>null,
+                    'payable_type'=>null,
+                    'received_info'=>null,
+                ];
+                GeneralLedger::classification_processing($debit, $credit, $tmp);
+            }
+
+            // 折扣
+            if($value->order_discount_value > 0){
+                foreach(json_decode($value->order_discount) ?? [] as $d_value){
+                    $dis_account = AllGrade::find($d_value->discount_grade_id) ? AllGrade::find($d_value->discount_grade_id)->eachGrade : null;
+                    $account_code = $dis_account ? $dis_account->code : '4000';
+                    $account_name = $dis_account ? $dis_account->name : '無設定會計科目';
+                    $name = $account_code . ' - ' . $account_name;
+
+                    $tmp = [
+                        'account_code'=>$account_code,
+                        'name'=>$name,
+                        'price'=>$d_value->discount_value,
+                        'type'=>'r',
+                        'd_type'=>'discount',
+
+                        'account_name'=>$account_name,
+                        'method_name'=>null,
+                        'summary'=>null,
+                        'note'=>null,
+                        'product_title'=>null,
+                        'del_even'=>null,
+                        'del_category_name'=>null,
+                        'product_price'=>null,
+                        'product_qty'=>null,
+                        'product_owner'=>null,
+                        'discount_title'=>$d_value->title,
+                        'payable_type'=>null,
+                        'received_info'=>null,
+                    ];
+                    GeneralLedger::classification_processing($debit, $credit, $tmp);
+                }
+            }
+
+            $value->debit = $debit;
+            $value->credit = $credit;
+        }
+        // accounting classification end
+
+        return view('cms.account_management.account_received.list', [
+            'data_per_page' => $page,
+            'dataList' => $dataList,
+            'cond' => $cond,
+            'customer' => Customer::whereNull('deleted_at')->toBase()->get(),
+            'check_review_status' => $check_review_status,
+        ]);
+    }
+
+
     /**
      * 收款方式
      *
@@ -160,13 +379,8 @@ abstract class AccountReceivedPapaCtrl extends Controller
             $value->account_name = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->name : '無設定會計科目';
         }
 
-        $card_type = [
-            'visa'=>'VISA',
-            'jcb'=>'JCB',
-            'master'=>'MASTER',
-            'american_express'=>'美國運通卡',
-            'union_pay'=>'銀聯卡',
-        ];
+        $card_type = CrdCreditCard::distinct('title')->groupBy('title')->orderBy('id', 'asc')->pluck('title', 'id')->toArray();
+
         $checkout_area = [
             'taipei'=>'台北',
         ];
@@ -222,13 +436,8 @@ abstract class AccountReceivedPapaCtrl extends Controller
         try {
             // 'credit_card'
             if($data['acc_transact_type_fk'] == ReceivedMethod::CreditCard){
-                $card_type = [
-                    'visa'=>'VISA',
-                    'jcb'=>'JCB',
-                    'master'=>'MASTER',
-                    'american_express'=>'美國運通卡',
-                    'union_pay'=>'銀聯卡',
-                ];
+                $card_type = CrdCreditCard::distinct('title')->groupBy('title')->orderBy('id', 'asc')->pluck('title', 'id')->toArray();
+
                 $checkout_area = [
                     'taipei'=>'台北',
                 ];
@@ -236,7 +445,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
                 $data[$data['acc_transact_type_fk']] = [
                     'cardnumber'=>$data[$data['acc_transact_type_fk']]['cardnumber'],
                     'authamt'=>$data['tw_price'] ?? 0,
-                    'ckeckout_date'=>$data[$data['acc_transact_type_fk']]['ckeckout_date'] ?? null,// date("Y-m-d H:i:s")
+                    'checkout_date'=>$data[$data['acc_transact_type_fk']]['checkout_date'] ?? null,// date("Y-m-d H:i:s")
                     'card_type_code'=>$data[$data['acc_transact_type_fk']]['card_type_code'] ?? null,
                     'card_type'=>$card_type[$data[$data['acc_transact_type_fk']]['card_type_code']] ?? null,
                     'card_owner_name'=>$data[$data['acc_transact_type_fk']]['card_owner_name'] ?? null,
@@ -245,7 +454,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
                     'checkout_area_code'=>'taipei',// $data[$data['acc_transact_type_fk']]['credit_card_area_code']
                     'checkout_area'=>'台北',// $checkout_area[$data[$data['acc_transact_type_fk']]['credit_card_area_code']]
                     'installment'=>$data[$data['acc_transact_type_fk']]['installment'] ?? 'none',
-                    'requested'=>'n',
+                    'status_code'=>0,
                     'card_nat'=>'local',
                     'checkout_mode'=>'offline',
                 ];
@@ -562,13 +771,8 @@ abstract class AccountReceivedPapaCtrl extends Controller
                     }
                 }
 
-                $card_type = [
-                    'visa'=>'VISA',
-                    'jcb'=>'JCB',
-                    'master'=>'MASTER',
-                    'american_express'=>'美國運通卡',
-                    'union_pay'=>'銀聯卡',
-                ];
+                $card_type = CrdCreditCard::distinct('title')->groupBy('title')->orderBy('id', 'asc')->pluck('title', 'id')->toArray();
+
                 $checkout_area = [
                     'taipei'=>'台北',
                 ];

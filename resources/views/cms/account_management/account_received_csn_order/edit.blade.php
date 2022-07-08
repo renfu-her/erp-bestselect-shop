@@ -226,8 +226,8 @@
                 <x-b-form-group name="{{ $CREDIT_CARD }}[cardnumber]" title="卡號" class="col-12 col-sm-4 mb-3 {{ $CREDIT_CARD }}" id="{{ $CREDIT_CARD }}[cardnumber]">
                     <input type="text" class="form-control @error($CREDIT_CARD . '[cardnumber]') is-invalid @enderror" name="{{ $CREDIT_CARD }}[cardnumber]" value="{{ old($CREDIT_CARD . '[cardnumber]') }}">
                 </x-b-form-group>
-                <x-b-form-group name="{{ $CREDIT_CARD }}[ckeckout_date]" title="刷卡日期" class="col-12 col-sm-4 mb-3 {{ $CREDIT_CARD }}" id="{{ $CREDIT_CARD }}[ckeckout_date]">
-                    <input type="date" class="form-control @error($CREDIT_CARD . '[ckeckout_date]') is-invalid @enderror" name="{{ $CREDIT_CARD }}[ckeckout_date]" value="{{ old($CREDIT_CARD . '[ckeckout_date]', date('Y-m-d', strtotime( date('Y-m-d'))) ) }}">
+                <x-b-form-group name="{{ $CREDIT_CARD }}[checkout_date]" title="刷卡日期" class="col-12 col-sm-4 mb-3 {{ $CREDIT_CARD }}" id="{{ $CREDIT_CARD }}[checkout_date]">
+                    <input type="date" class="form-control @error($CREDIT_CARD . '[checkout_date]') is-invalid @enderror" name="{{ $CREDIT_CARD }}[checkout_date]" value="{{ old($CREDIT_CARD . '[checkout_date]', date('Y-m-d', strtotime( date('Y-m-d'))) ) }}">
                 </x-b-form-group>
                 <x-b-form-group name="{{ $CREDIT_CARD }}[authcode]" title="授權碼" class="col-12 col-sm-4 mb-3 {{ $CREDIT_CARD }}" id="{{ $CREDIT_CARD }}[authcode]">
                     <input type="text" class="form-control @error($CREDIT_CARD . '[authcode]') is-invalid @enderror" name="{{ $CREDIT_CARD }}[authcode]" value="{{ old($CREDIT_CARD . '[authcode]') }}">
