@@ -32,7 +32,7 @@
                             <th class="table-light" style="width:15%">刷卡人</th>
                             <td style="width:35%">{{ $record->credit_card_owner_name }}</td>
                             <th class="table-light" style="width:15%">入款單號</th>
-                            <td style="width:35%">{{ $record->ro_sn }}</td>
+                            <td style="width:35%"><a href="{{ $record->io_id ? route('cms.credit_manager.income-detail', ['id' => $record->io_id]) : 'javascript:void(0);'}}" class="-text">{{ $record->io_sn }}</a></td>
                         </tr>
 
                         <tr>
