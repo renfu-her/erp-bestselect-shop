@@ -69,14 +69,25 @@ class OrderProfit extends Model
         self::where('id', $profit_id)->update(['bonus' => $bonus1]);
         $parentProfit = self::where('parent_id', $profit_id);
         $customer_id2 = null;
-       
+
         if ($parentProfit->get()->first()) {
             $parentProfit->update(['bonus' => $bonus2]);
             $customer_id2 = $parentProfit->get()->first()->customer_id;
         }
-        
 
-        OrderProfitLog::createLog($profit_id, $profit->order_id, $bonus1, $bonus2, $user_id, $profit->customer_id, $customer_id2);
+        $item = OrderItem::where('sub_order_id', $profit->sub_order_id)
+            ->where('product_style_id', $profit->style_id)->get()->first();
+
+        OrderProfitLog::createLog($profit->order_id,
+            $profit->sub_order_sn,
+            $item->product_title,
+            $item->id,
+            $bonus1,
+            $bonus2,
+            $user_id,
+            $profit->customer_id,
+            $customer_id2);
+            
         DB::commit();
 
         return ['success' => '1'];

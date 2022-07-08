@@ -121,7 +121,7 @@
                                             </div>
                                             <div class="col-12 mb-3 form-group">
                                                 <label class="form-label">刷卡日期：</label>
-                                                <input type="date" class="form-control" name="credit_card[{{ $received_id }}][ckeckout_date]" value="{{ date('Y-m-d', strtotime($d_value->received_info->credit_card_ckeckout_date)) ?? date('Y-m-d', strtotime( date('Y-m-d'))) }}" data-placeholder="刷卡日期">
+                                                <input type="date" class="form-control" name="credit_card[{{ $received_id }}][checkout_date]" value="{{ date('Y-m-d', strtotime($d_value->received_info->credit_card_checkout_date)) ?? date('Y-m-d', strtotime( date('Y-m-d'))) }}" data-placeholder="刷卡日期">
                                             </div>
                                             <div class="col-12 mb-3 form-group">
                                                 <label class="form-label">信用卡別：</label>

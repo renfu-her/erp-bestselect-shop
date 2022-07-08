@@ -177,7 +177,7 @@
                                 <td>{{ $item->product_title }}</td>
                                 <td class="text-center">$ {{ number_format($item->price) }}</td>
                                 <td class="text-center">$ {{ number_format(0) }}</td>
-                                <td class="text-center">$ {{ number_format(0) }}</td>
+                                <td class="text-center">$ {{ number_format($item->unit_cost) * $item->qty }}</td>
                                 <td class="text-center">{{ number_format($item->qty) }}</td>
                                 <td class="text-center">$ {{ number_format($item->origin_price) }}</td>
                                 <td class="text-center">$ {{ number_format(0) }}</td>

@@ -204,6 +204,37 @@
             @endforeach
         </div>
 
+        <div class="card shadow p-4 mb-4">
+            <h4 class="mb-3">信用卡入款預設</h4>
+            @foreach($income_credit_card as $icc_value)
+            <div class="col-12 mb-3">
+                <label class="form-label" for="">{{ $icc_value->name == 'credit_card_service_fee' ? '信用卡手續費' : '信用卡入款' }}</label>
+                <select name="{{$icc_value->name}}" required {{ $isViewMode === true ? 'disabled' : '' }} class="select3 -select2 -single form-select col-12 @error('{{$icc_value->name}}') is-invalid @enderror" data-placeholder="請選擇">
+                    <option disabled selected value>-- select an option --</option>
+                    @foreach($total_grades as $value)
+                        <option
+                            @if($icc_value->default_grade_id == $value['primary_id'])
+                            selected
+                            @endif
+
+                            @if($value['grade_num'] === 1)
+                            class="grade_1"
+                            @elseif($value['grade_num'] === 2)
+                            class="grade_2"
+                            @elseif($value['grade_num'] === 3)
+                            class="grade_3"
+                            @elseif($value['grade_num'] === 4)
+                            class="grade_4"
+                            @endif
+
+                            value="{{ $value['primary_id'] }}">{{ $value['code'] . ' ' . $value['name'] }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            @endforeach
+        </div>
+
         <div>
             <button type="button" class="btn btn-primary px-4" id="editBtn">編輯</button>
             <button type="submit" class="btn btn-primary px-4" id="submitBtn">儲存</button>

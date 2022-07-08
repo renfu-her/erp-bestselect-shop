@@ -36,7 +36,7 @@ class AccountPayableCtrl extends Controller
     public function index(Request $request)
     {
         $query = $request->query();
-        $page = getPageCount(Arr::get($query, 'data_per_page', 10)) > 0 ? getPageCount(Arr::get($query, 'data_per_page', 10)) : 10;
+        $page = getPageCount(Arr::get($query, 'data_per_page', 100)) > 0 ? getPageCount(Arr::get($query, 'data_per_page', 100)) : 100;
 
         $cond = [];
 
