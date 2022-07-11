@@ -841,6 +841,12 @@ Breadcrumbs::for('cms.customer.address', function (BreadcrumbTrail $trail) {
     $trail->push('收件地址管理');
 });
 
+Breadcrumbs::for('cms.customer.bonus', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.customer.index');
+    $trail->push('會員專區');
+    $trail->push('分潤');
+});
+
 // 分潤審核管理
 Breadcrumbs::for('cms.customer-profit.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');

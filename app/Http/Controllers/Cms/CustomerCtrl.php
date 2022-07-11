@@ -15,6 +15,7 @@ use App\Models\CustomerLogin;
 use App\Models\Delivery;
 use App\Models\LogisticFlow;
 use App\Models\Order;
+use App\Models\OrderProfit;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -136,8 +137,8 @@ class CustomerCtrl extends Controller
     {
         $data = Customer::getCustomer($id)->get()->first();
         $loginMethods = CustomerLogin::where('usr_customers_id_fk', '=', $id)
-                                        ->select('login_method')
-                                        ->get();
+            ->select('login_method')
+            ->get();
         if (!$data) {
             return abort(404);
         }
@@ -276,24 +277,24 @@ class CustomerCtrl extends Controller
 
                 $n->items = json_decode($n->items);
 //                foreach ($n->items as $key => $value) {
-//                    if ($value->img_url) {
-//                        $n->items[$key]->img_url = asset($n->items[$key]->img_url);
-//                    } else {
-//                        $n->items[$key]->img_url = '';
-//                    }
-//                    //convert string value to int type
-//                    if ($value->qty) {
-//                        $n->items[$key]->qty = intval($n->items[$key]->qty);
-//                    }
-//                    if ($value->total_price) {
-//                        $n->items[$key]->total_price = intval($n->items[$key]->total_price);
-//                    }
-//                }
+                //                    if ($value->img_url) {
+                //                        $n->items[$key]->img_url = asset($n->items[$key]->img_url);
+                //                    } else {
+                //                        $n->items[$key]->img_url = '';
+                //                    }
+                //                    //convert string value to int type
+                //                    if ($value->qty) {
+                //                        $n->items[$key]->qty = intval($n->items[$key]->qty);
+                //                    }
+                //                    if ($value->total_price) {
+                //                        $n->items[$key]->total_price = intval($n->items[$key]->total_price);
+                //                    }
+                //                }
 
                 //convert string value to int type
-//                if ($n->dlv_fee) {
-//                    $n->dlv_fee = intval($n->dlv_fee);
-//                }
+                //                if ($n->dlv_fee) {
+                //                    $n->dlv_fee = intval($n->dlv_fee);
+                //                }
                 return $n;
             }, $subOrder);
 
@@ -342,5 +343,16 @@ class CustomerCtrl extends Controller
 
         wToast('資料刪除完成');
         return redirect(Route('cms.customer.index'));
+    }
+
+    public function bonus(Request $request, $id)
+    {
+
+        //  dd(OrderProfit::dataList(null, $id)->get());
+
+        return view('cms.admin.customer.bonus', [
+            'customer' => $id,
+            'dataList' => OrderProfit::dataList(null, $id)->get(),
+        ]);
     }
 }
