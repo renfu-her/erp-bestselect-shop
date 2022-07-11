@@ -763,9 +763,15 @@ class OrderCtrl extends Controller
     public function get_remit(Request $request, $order_id) {
         $remit = OrderRemit::getData($order_id)->get()->first();
         $re = [];
-        $re[ResponseParam::status()->key] = '0';
-        $re[ResponseParam::msg()->key] = '';
-        $re[ResponseParam::data()->key] = $remit;
+        if (null == $remit) {
+            $re[ResponseParam::status()->key] = 'E01';
+            $re[ResponseParam::msg()->key] = '找不到資料';
+            $re[ResponseParam::data()->key] = null;
+        } else {
+            $re[ResponseParam::status()->key] = '0';
+            $re[ResponseParam::msg()->key] = '';
+            $re[ResponseParam::data()->key] = $remit;
+        }
         return response()->json($re);
     }
 }
