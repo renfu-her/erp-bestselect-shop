@@ -1,28 +1,32 @@
 <ul class="nav pm_navbar" role="tablist">
     <li class="nav-item">
         <a href="{{ Route('cms.customer.order', ['id' => $customer], true) }}"
-           class="nav-link {{ isActive('order', $route_name) }}">我的訂單</a>
+            class="nav-link {{ isActive('order', $route_name) }}">我的訂單</a>
     </li>
     <li class="nav-item">
         <a href="{{ Route('cms.customer.coupon', ['id' => $customer], true) }}"
-           class="nav-link {{ isActive('coupon', $route_name) }}">我的優惠卷</a>
+            class="nav-link {{ isActive('coupon', $route_name) }}">我的優惠卷</a>
     </li>
     <li class="nav-item">
         <a href="{{ Route('cms.customer.dividend', ['id' => $customer], true) }}"
-           class="nav-link {{ isActive('dividend', $route_name) }}">我的鴻利</a>
+            class="nav-link {{ isActive('dividend', $route_name) }}">我的鴻利</a>
     </li>
-{{--    <li class="nav-item">--}}
-{{--        <a href="#" class="nav-link ">個人資料</a>--}}
-{{--    </li>--}}
+    {{-- <li class="nav-item"> --}}
+    {{-- <a href="#" class="nav-link ">個人資料</a> --}}
+    {{-- </li> --}}
     <li class="nav-item">
         <a href="#" class="nav-link ">推薦註冊</a>
     </li>
     <li class="nav-item">
         <a href="{{ Route('cms.customer.address', ['id' => $customer], true) }}"
-           class="nav-link {{ isActive('address', $route_name) }}">收件地址管理</a>
+            class="nav-link {{ isActive('address', $route_name) }}">收件地址管理</a>
     </li>
     <li class="nav-item">
         <a href="#" class="nav-link ">身份驗證</a>
+    </li>
+    <li class="nav-item">
+        <a href="{{ Route('cms.customer.bonus', ['id' => $customer], true) }}"
+            class="nav-link {{ isActive('bonus', $route_name) }}">分潤</a>
     </li>
 </ul>
 <hr class="narbarBottomLine mb-3">
