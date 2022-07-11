@@ -892,7 +892,7 @@ class OrderCtrl extends Controller
     public function bonus_gross(Request $request, $id)
     {
         $order = Order::orderDetail($id)->first();
-       // OrderProfit::changeOwner(25,1,1);
+        // OrderProfit::changeOwner(25,1,1);
 
         $dividend = CustomerDividend::where('category', DividendCategory::Order())
             ->where('category_sn', $order->sn)
@@ -901,13 +901,18 @@ class OrderCtrl extends Controller
         // dd(OrderItem::itemList($id,['profit'=>1])->get()->toArray());
 
         $dataList = OrderItem::itemList($id, ['profit' => 1])->get();
-
+        $bonus = [0, 0];
+        foreach ($dataList as $value) {
+            $bonus[0] = $bonus[0] += $value->bonus;
+            $bonus[1] = $bonus[1] += $value->bonus2;
+        }
+       
         if ($dividend) {
             $dividend = $dividend->dividend;
         } else {
             $dividend = 0;
         }
-     //   dd(OrderProfitLog::dataList($id)->orderBy('created_at', 'DESC')->get());
+        //   dd(OrderProfitLog::dataList($id)->orderBy('created_at', 'DESC')->get());
         // dd(OrderProfitLog::dataList($id)->get());
         return view('cms.commodity.order.bonus_gross', [
             'id' => $id,
@@ -917,6 +922,7 @@ class OrderCtrl extends Controller
             'dividend' => $dividend,
             'log' => OrderProfitLog::dataList($id)->orderBy('created_at', 'DESC')->get(),
             'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
+            'bonus'=>$bonus
         ]);
     }
 
@@ -926,7 +932,7 @@ class OrderCtrl extends Controller
         $order = Order::orderDetail($id)->first();
         $user_id = $request->user()->id;
         $dataList = OrderProfit::dataList($id, $user_id)->get();
-      //  dd($dataList);
+        //  dd($dataList);
         // dd(OrderProfitLog::dataListPerson($id, $user_id)->get());
         return view('cms.commodity.order.personal_bonus', [
             'id' => $id,

@@ -95,8 +95,8 @@
                             <td colspan="3">上代總獎金</td>
                         </tr>
                         <tr>
-                            <td colspan="3">${{ number_format(0) }}</td>
-                            <td colspan="3">${{ number_format(0) }}</td>
+                            <td colspan="3">${{ number_format($bonus[0]) }}</td>
+                            <td colspan="3">${{ number_format($bonus[1]) }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -153,11 +153,11 @@
                         {{-- 總獎金 --}}
                         <tr>
                             <td class="col-7 table-warning lh-sm">當代總獎金</td>
-                            <td class="text-end pe-4">${{ number_format(0) }}</td>
+                            <td class="text-end pe-4">${{ number_format($bonus[0]) }}</td>
                         </tr>
                         <tr>
                             <td class="col-7 table-warning lh-sm">上代總獎金</td>
-                            <td class="text-end pe-4">${{ number_format(0) }}</td>
+                            <td class="text-end pe-4">${{ number_format($bonus[1]) }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -173,6 +173,7 @@
                             <th scope="col" style="width:40px">#</th>
                             <th scope="col">子訂單</th>
                             <th scope="col">品名規格</th>
+                            <th scope="col">銷售通路</th>
                             <th scope="col" class="text-center px-3">金額</th>
                             <th scope="col" class="text-center px-3">經銷價</th>
                             <th scope="col" class="text-center px-3">商品成本</th>
@@ -191,6 +192,7 @@
                                 <th scope="row">{{ $key + 1 }}</th>
                                 <td>{{ $item->sub_order_sn }}</td>
                                 <td>{{ $item->product_title }}</td>
+                                <td>{{ $item->channel_title }}</td>
                                 <td class="text-center">$ {{ number_format($item->price) }}</td>
                                 <td class="text-center">$ {{ number_format(0) }}</td>
                                 <td class="text-center">$ {{ number_format($item->unit_cost) * $item->qty }}</td>
@@ -302,7 +304,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                       
+
                         @foreach ($log as $key => $l)
                             <tr>
                                 <td>{{ $l->name }}</td>
