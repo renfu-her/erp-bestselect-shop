@@ -4,17 +4,14 @@
 
     <ul class="nav nav-tabs border-bottom-0">
         <li class="nav-item">
-            <button class="nav-link -page1" aria-current="page" type="button">總覽</button>
+            <button class="nav-link -page1 active" aria-current="page" type="button">毛利資訊</button>
         </li>
         <li class="nav-item">
-            <button class="nav-link -page2 active" aria-current="page" type="button">毛利資訊</button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link -page3" type="button">修改紀錄</button>
+            <button class="nav-link -page2" type="button">修改紀錄</button>
         </li>
     </ul>
 
-    <div id="page1" hidden>
+    <div id="page1">
         <div class="card shadow p-4 mb-4">
             @if (count($discounts) > 0)
                 <h6>折扣明細</h6>
@@ -48,11 +45,11 @@
                 </div>
             @endif
 
-            <h6>訂單總覽</h6>
+            <h6 class="mb-1">訂單總覽</h6>
             <div class="table-responsive">
-                <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap mb-0">
+                <table class="table table-bordered text-center align-middle d-sm-table d-none text-nowrap mb-1 caption-top">
                     @if (!$order->allotted_dividend)
-                        <caption class="small text-end pb-0">鴻利預計發放時間：
+                        <caption class="small text-end py-0">鴻利預計發放時間：
                             @if (isset($order->dividend_active_at))
                                 {{ date('Y/m/d H:i', strtotime($order->dividend_active_at)) }}
                             @else
@@ -90,6 +87,16 @@
                                     <span class="badge bg-secondary">未發</span>
                                 @endif
                             </td>
+                        </tr>
+
+                        {{-- 總獎金 --}}
+                        <tr class="table-warning">
+                            <td colspan="3">當代總獎金</td>
+                            <td colspan="3">上代總獎金</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3">${{ number_format(0) }}</td>
+                            <td colspan="3">${{ number_format(0) }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -142,14 +149,23 @@
                                 {{ number_format($dividend) }}
                             </td>
                         </tr>
+
+                        {{-- 總獎金 --}}
+                        <tr>
+                            <td class="col-7 table-warning lh-sm">當代總獎金</td>
+                            <td class="text-end pe-4">${{ number_format(0) }}</td>
+                        </tr>
+                        <tr>
+                            <td class="col-7 table-warning lh-sm">上代總獎金</td>
+                            <td class="text-end pe-4">${{ number_format(0) }}</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-    </div>
 
-    <div id="page2">
         <div class="card shadow p-4 mb-4">
+            <h6>毛利資訊</h6>
             <div class="table-responsive tableOverBox mb-3">
                 <table class="table tableList table-striped mb-1">
                     <thead>
@@ -269,7 +285,7 @@
         </div>
     </div>
 
-    <div id="page3" hidden>
+    <div id="page2" hidden>
         <div class="card shadow p-4 mb-4">
             <div class="table-responsive tableOverBox">
                 <table class="table tableList table-hover table-striped">
@@ -323,13 +339,12 @@
                 const $this = $(this);
                 let page = $this.hasClass('-page1') ? 'page1' : '';
                 page = $this.hasClass('-page2') ? 'page2' : page;
-                page = $this.hasClass('-page3') ? 'page3' : page;
 
                 // tab
                 $('.nav-link').removeClass('active').removeAttr('aria-current');
                 $this.addClass('active').attr('aria-current', 'page');
                 // page
-                $('#page1, #page2, #page3').prop('hidden', true);
+                $('#page1, #page2').prop('hidden', true);
                 $(`#${page}`).prop('hidden', false);
             });
 

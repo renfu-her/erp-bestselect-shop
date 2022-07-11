@@ -95,7 +95,7 @@
                     <dt>購買人電話</dt>
                     <dd>{{ $order->ord_phone }}</dd>
                 </div>
-                <div class="col-sm-5">
+                <div class="col-md-5">
                     <dt>購買人地址</dt>
                     <dd>{{ $order->ord_address }}</dd>
                 </div>
@@ -109,21 +109,17 @@
                     <dt>收件人電話</dt>
                     <dd>{{ $order->rec_phone }}</dd>
                 </div>
-                <div class="col-sm-5">
+                <div class="col-md-5">
                     <dt>收件人地址</dt>
                     <dd>{{ $order->ord_address }}</dd>
                 </div>
             </dl>
             <dl class="row">
                 <div class="col">
-                    <dt>統編</dt>
-                    <dd><span>{{ $order->invoice_number ? $order->gui_number : '尚未開立發票' }}</span></dd>
+                    <dt>發票類型</dt>
+                    <dd>{{ $order->invoice_number ? $order->invoice_category : '尚未開立發票' }}</dd>
                 </div>
                 <div class="col">
-                    <dt>發票類型</dt>
-                    <dd><span>{{ $order->invoice_number ? $order->invoice_category : '尚未開立發票' }}</span></dd>
-                </div>
-                <div class="col-5">
                     <dt>發票號碼</dt>
                     <dd>
                         @if($order->invoice_number)
@@ -133,17 +129,33 @@
                         @endif
                     </dd>
                 </div>
+                <div class="col-md-5">
+                    <dt>電子發票資訊</dt>
+                    <dd></dd>
+                </div>
             </dl>
             <dl class="row">
                 <div class="col">
                     <dt>推薦業務員</dt>
-                    <dd>{{ $order->name_m ?? ''}} {{ $order->sn_m ?? ''}}</dd>
+                    <dd>{{ $order->name_m ?? ''}} {{ $order->sn_m ?? ''}}
+                        @if ($order->name_m)
+                            <a href="#" data-bs-toggle="tooltip" title="編輯" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                        @endif
+                    </dd>
                 </div>
+                <div class="col col-md-5">
+                    <dt>統編</dt>
+                    <dd>{{ $order->invoice_number ? $order->gui_number : '尚未開立發票' }}</dd>
+                </div>
+            </dl>
+            <dl class="row">
                 <div class="col">
                     <dt>寄件人</dt>
                     <dd>{{ $order->sed_name }}</dd>
                 </div>
-                <div class="col-sm-5">
+                <div class="col-md-5">
                     <dt>寄件人地址</dt>
                     <dd>{{ $order->sed_address }}</dd>
                 </div>
