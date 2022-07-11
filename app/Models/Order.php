@@ -471,6 +471,7 @@ class Order extends Model
                         'sku' => $product->sku,
                         'product_title' => $product->product_title . '-' . $product->spec,
                         'price' => $product->price,
+                        'bonus' => $product->bonus,
                         'qty' => $product->qty,
                         'discounted_price' => $product->discounted_price,
                         'discount_value' => $product->discount_value,

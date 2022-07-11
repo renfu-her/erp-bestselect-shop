@@ -10,6 +10,7 @@ use App\Models\CustomerProfit;
 use App\Models\User;
 use App\Models\UserSalechannel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
 class UserCtrl extends Controller
@@ -102,6 +103,20 @@ class UserCtrl extends Controller
             'status' => '0',
             'data' => $re,
             'mcode' => $mcode,
+        ]);
+
+    }
+
+    public function getCustomers(Request $request)
+    {
+
+        $d = $request->all();
+        $keyword = Arr::get($d, 'keyword', null);
+        $profit = Arr::get($d, 'profit', null);
+
+        return response()->json([
+            'status' => '0',
+            'data' => Customer::getCustomerBySearch($keyword, $profit)->paginate(10),
         ]);
 
     }

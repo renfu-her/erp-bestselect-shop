@@ -7,4 +7,6 @@ Route::group(['prefix' => 'user', 'as' => 'user.'], function () {
     Route::get('check-customer-bind/{email?}', [UserCtrl::class, 'checkCustomerBind'])->name('check-customer-bind');
     Route::post('get-customer-salechannels', [UserCtrl::class, 'getCustomerSalechannels'])->name('get-customer-salechannels');
     Route::post('get-user-salechannels', [UserCtrl::class, 'getUserSalechannels'])->name('get-user-salechannels');
+    Route::post('get-customers', [UserCtrl::class, 'getCustomers'])->name('get-customers');
+
 });
