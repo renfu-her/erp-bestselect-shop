@@ -10,13 +10,13 @@
 
             @if ($received_order_data || !in_array($order->status, ['建立']))
                 @if ( ($receivable || in_array($order->status, ['已付款', '已入款', '結案'])) && $received_credit_card_log )
-                    <a href="{{ Route('api.web.order.credit_card_checkout', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}" 
+                    <a href="{{ Route('api.web.order.credit_card_checkout', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
                         class="btn btn-primary btn-sm my-1 ms-1" role="button" target="_blank">線上刷卡連結</a>
                 @else
                     <button type="button" class="btn btn-primary btn-sm my-1 ms-1" disabled>線上刷卡連結</button>
                 @endif
             @else
-                <a href="{{ Route('api.web.order.payment_credit_card', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}" 
+                <a href="{{ Route('api.web.order.payment_credit_card', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
                     class="btn btn-primary btn-sm" role="button" target="_blank">線上刷卡連結</a>
             @endif
 
@@ -26,7 +26,7 @@
 
             @if ($received_order_data)
                 @if(!in_array($order->status, ['已入款', '結案']))
-                    <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm my-1 ms-1" data-bs-toggle="modal" data-bs-target="#confirm-delete" 
+                    <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm my-1 ms-1" data-bs-toggle="modal" data-bs-target="#confirm-delete"
                         data-href="{{ Route('cms.ar.delete', ['id' => $received_order_data->id], true) }}">刪除收款單</a>
                 @else
                     <button type="button" class="btn btn-outline-danger btn-sm my-1 ms-1" disabled>刪除收款單</button>
@@ -174,6 +174,30 @@
                     <dd>{{ $order->payment_status_title }}</dd>
                 </div>
             </dl>
+            @if(isset($remit))
+                <dl class="row">
+                    <div class="col">
+                        <dt>匯款人姓名</dt>
+                        <dd>{{ $remit->name }}</dd>
+                    </div>
+                    <div class="col">
+                        <dt>匯款金額</dt>
+                        <dd>{{ number_format($remit->price) }}</dd>
+                    </div>
+                    <div class="col">
+                        <dt>匯款日期</dt>
+                        <dd>{{ $remit->remit_date }}</dd>
+                    </div>
+                    <div class="col">
+                        <dt>帳號後五碼</dt>
+                        <dd>{{ $remit->bank_code }}</dd>
+                    </div>
+                    <div class="col-sm-2">
+                        <dt>上傳時間</dt>
+                        <dd>{{ $remit->created_at }}</dd>
+                    </div>
+                </dl>
+            @endif
         </div>
         @php
             $dlv_fee = 0;

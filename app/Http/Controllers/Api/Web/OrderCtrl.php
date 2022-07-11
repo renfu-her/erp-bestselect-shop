@@ -16,6 +16,7 @@ use App\Models\Discount;
 use App\Models\LogisticFlow;
 use App\Models\Order;
 use App\Models\OrderPayCreditCard;
+use App\Models\OrderRemit;
 use App\Models\ReceivedDefault;
 use App\Models\ReceivedOrder;
 use Illuminate\Http\Request;
@@ -685,5 +686,92 @@ class OrderCtrl extends Controller
 
         // echo '交易失敗';
         return redirect(env('FRONTEND_URL') . 'payfin/' . $id . '/' . $lidm . '/1');
+    }
+
+    //消費者 建立訂單匯款資料
+    public function create_remit(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|numeric',
+            'name' => 'required|string',
+            'price' => 'required|numeric|min:1',
+            'remit_date' => 'required|date|date_format:Y-m-d',
+            'bank_code' => 'required|numeric|regex:/^\d{5}$/',
+        ]);
+
+        if ($validator->fails()) {
+            $re = [];
+            $re[ResponseParam::status()->key] = 'E01';
+            $re[ResponseParam::msg()->key] = $validator->errors();
+
+            return response()->json($re);
+        }
+
+        $cr = OrderRemit::createRemit(request('id'), request('name'), request('price'), request('remit_date'), request('bank_code'));
+
+
+        $re = [];
+        if ($cr['success'] == '1') {
+            $re[ResponseParam::status()->key] = '0';
+            $re[ResponseParam::msg()->key] = '';
+            $re[ResponseParam::data()->key] = [
+                'id' => $cr['id'],
+            ];
+        } else {
+            $re[ResponseParam::status()->key] = '1';
+            $re[ResponseParam::msg()->key] = $cr['error_msg'];
+            $re[ResponseParam::data()->key] = '';
+        }
+
+        return response()->json($re);
+    }
+
+    //消費者 修改訂單匯款資料
+    public function store_remit(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|numeric',
+            'name' => 'required|string',
+            'price' => 'required|numeric|min:1',
+            'remit_date' => 'required|date|date_format:Y-m-d',
+            'bank_code' => 'required|numeric|regex:/^\d{5}$/',
+        ]);
+
+        if ($validator->fails()) {
+            $re = [];
+            $re[ResponseParam::status()->key] = 'E01';
+            $re[ResponseParam::msg()->key] = $validator->errors();
+
+            return response()->json($re);
+        }
+
+        $cr = OrderRemit::updateRemit(request('id'), request('name'), request('price'), request('remit_date'), request('bank_code'));
+
+        $re = [];
+        if ($cr['success'] == '1') {
+            $re[ResponseParam::status()->key] = '0';
+            $re[ResponseParam::msg()->key] = '';
+            $re[ResponseParam::data()->key] = $cr['data'];
+        } else {
+            $re[ResponseParam::status()->key] = '1';
+            $re[ResponseParam::msg()->key] = $cr['error_msg'];
+            $re[ResponseParam::data()->key] = '';
+        }
+
+        return response()->json($re);
+    }
+
+    //消費者 取得訂單匯款資料
+    public function get_remit(Request $request, $order_id) {
+        $remit = OrderRemit::getData($order_id)->get()->first();
+        $re = [];
+        if (null == $remit) {
+            $re[ResponseParam::status()->key] = 'E01';
+            $re[ResponseParam::msg()->key] = '找不到資料';
+            $re[ResponseParam::data()->key] = null;
+        } else {
+            $re[ResponseParam::status()->key] = '0';
+            $re[ResponseParam::msg()->key] = '';
+            $re[ResponseParam::data()->key] = $remit;
+        }
+        return response()->json($re);
     }
 }

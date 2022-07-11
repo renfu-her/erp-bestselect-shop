@@ -19,6 +19,7 @@ use App\Models\Product;
 use App\Models\ReceivedDefault;
 use App\Models\ReceivedOrder;
 use App\Models\User;
+use App\Models\IncomeOrder;
 
 abstract class AccountReceivedPapaCtrl extends Controller
 {
@@ -1013,6 +1014,22 @@ abstract class AccountReceivedPapaCtrl extends Controller
             if($target->source_type == $this->getSource_type()){
                 $this->doDestroy($target->source_id);
             }
+
+            // income order record update
+            // $r_method_list = ReceivedOrder::get_received_detail($id, ReceivedMethod::CreditCard)->where('credit_card_status_code', 2)->groupBy('credit_card_io_id');
+
+            // foreach($r_method_list as $group){
+            //     foreach($group as $data){
+            //         $parm = [
+            //             'credit_card_received_id'=>[$data->received_method_id],
+            //             'status_code'=>1,
+            //             'transaction_date'=>$data->credit_card_transaction_date,
+            //         ];
+            //         ReceivedOrder::update_credit_received_method($parm);
+            //     }
+
+            //     IncomeOrder::store_income_order($group->first()->credit_card_posting_date);
+            // }
 
             wToast('刪除完成');
 

@@ -22,6 +22,7 @@ use App\Models\OrderItem;
 use App\Models\OrderPayCreditCard;
 use App\Models\OrderProfit;
 use App\Models\OrderProfitLog;
+use App\Models\OrderRemit;
 use App\Models\PayableDefault;
 use App\Models\PayingOrder;
 use App\Models\PurchaseInbound;
@@ -336,6 +337,7 @@ class OrderCtrl extends Controller
         if (!$order) {
             return abort(404);
         }
+        $remit = OrderRemit::getData($order->id)->get()->first();
 
         $sn = $order->sn;
 
@@ -371,6 +373,7 @@ class OrderCtrl extends Controller
             'sn' => $sn,
             'order' => $order,
             'subOrders' => $subOrder,
+            'remit' => $remit,
             'breadcrumb_data' => $sn,
             'subOrderId' => $subOrderId,
             'discounts' => Discount::orderDiscountList('main', $id)->get()->toArray(),

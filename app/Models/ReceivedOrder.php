@@ -505,7 +505,7 @@ class ReceivedOrder extends Model
     }
 
 
-    public static function get_received_detail($received_order_id = [])
+    public static function get_received_detail($received_order_id = null, string $method = null)
     {
         $query = DB::table('acc_received AS received')
             ->leftJoin('acc_received_credit AS _credit', function($join){
@@ -532,7 +532,19 @@ class ReceivedOrder extends Model
                     'received.received_method'=>'remit',
                 ]);
             })
-            ->whereIn('received.received_order_id', $received_order_id)
+
+            ->where(function ($q) use ($received_order_id, $method) {
+                if(gettype($received_order_id) == 'array') {
+                    $q->whereIn('received.received_order_id', $received_order_id);
+                } else {
+                    $q->where('received.received_order_id', $received_order_id);
+                }
+
+                if($method){
+                    $q->where('received.received_method', $method);
+                }
+            })
+
             ->selectRaw('
                 received.id AS received_id,
                 received.received_order_id,
@@ -557,6 +569,12 @@ class ReceivedOrder extends Model
                 _credit.checkout_area AS credit_card_area,
                 _credit.installment AS credit_card_installment,
                 _credit.status_code AS credit_card_status_code,
+
+                _credit.income_order_id AS credit_card_io_id,
+                _credit.sn AS credit_card_io_sn,
+                _credit.transaction_date AS credit_card_transaction_date,
+                _credit.posting_date AS credit_card_posting_date,
+
                 _credit.card_nat AS credit_card_nat,
                 _credit.checkout_mode AS credit_card_checkout_mode
             ')
