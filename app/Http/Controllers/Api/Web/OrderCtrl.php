@@ -352,6 +352,11 @@ class OrderCtrl extends Controller
         $payLoad = json_decode($payLoad, true);
 
         $valiRule = [
+            'invoice_method' => 'required|in:print,give,e_inv',
+            'love_code' => 'required_if:invoice_method,==,give',
+            'carrier_type' => 'required_if:invoice_method,==,e_inv|in:0,1,2',
+            'carrier_num' => 'required_if:carrier_type,==,0|required_if:carrier_type,==,1',
+
             "orderer.name" => "required",
             "orderer.phone" => "required",
             "orderer.region_id" => "required|numeric",
@@ -421,12 +426,19 @@ class OrderCtrl extends Controller
             $couponObj = [$payLoad['coupon_type'], $payLoad['coupon_sn']];
         }
 
+        $payinfo = null;
+        $payinfo['category'] = $payLoad['category'] ?? null;
+        $payinfo['buyer_ubn'] = $payLoad['buyer_ubn'] ?? null;
+        $payinfo['love_code'] = $payLoad['love_code'] ?? null;
+        $payinfo['carrier_type'] = $payLoad['carrier_type'] ?? null;
+        $payinfo['carrier_num'] = $payLoad['carrier_num'] ?? null;
+
         $dividend = [];
         if (isset($payLoad['points']) && isset($payLoad['points'])) {
             $dividend = $payLoad['points'];
         }
 
-        $re = Order::createOrder($customer->email, 1, $address, $payLoad['products'], $payLoad['mcode'] ?? null, $payLoad['note'], $couponObj, ReceivedMethod::fromValue($payLoad['payment']), $dividend);
+        $re = Order::createOrder($customer->email, 1, $address, $payLoad['products'], $payLoad['mcode'] ?? null, $payLoad['note'], $couponObj, $payinfo, ReceivedMethod::fromValue($payLoad['payment']), $dividend);
 
         if ($re['success'] == '1') {
             DB::commit();
