@@ -360,7 +360,7 @@ class OrderCtrl extends Controller
             "recipient.phone" => "required",
             "recipient.region_id" => "required|numeric",
             "recipient.addr" => "required",
-            "payment" => Rule::in([ReceivedMethod::Cash()->value, ReceivedMethod::CreditCard()->value]),
+            "payment" => Rule::in([ReceivedMethod::Cash()->value, ReceivedMethod::CreditCard()->value, ReceivedMethod::Remittance()->value]),
             "products" => 'array|required',
             "products.*.qty" => "required|numeric",
             "products.*.product_id" => "required",
