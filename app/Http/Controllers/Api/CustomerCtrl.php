@@ -117,7 +117,7 @@ class CustomerCtrl extends Controller
         if (isset($user)) {
             $customerProfit = CustomerProfit::getProfitData($user['id']);
             if (isset($customerProfit)) {
-                $customerProfit = $customerProfit->toArray();
+                $customerProfit = $customerProfit;
             }
             $user['profit'] = $customerProfit;
         }
