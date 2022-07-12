@@ -78,6 +78,18 @@ class ReceivedDefaultCtrl extends Controller
         }
 
         $income_credit_card = ReceivedDefault::where('name', 'credit_card_service_fee')->orWhere('name', 'credit_card_net')->get();
+        if($income_credit_card->count() == 0){
+            $income_credit_card = [
+                (object)[
+                    'default_grade_id'=>null,
+                    'name'=>'credit_card_service_fee',
+                ],
+                (object)[
+                    'default_grade_id'=>null,
+                    'name'=>'credit_card_net',
+                ],
+            ];
+        }
 
         return view('cms.accounting.received_default.edit', [
             'total_grades' => $total_grades,
