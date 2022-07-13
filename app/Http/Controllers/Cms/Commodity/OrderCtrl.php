@@ -937,7 +937,7 @@ class OrderCtrl extends Controller
             'dividend' => $dividend,
             'log' => OrderProfitLog::dataList($id)->orderBy('created_at', 'DESC')->get(),
             'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
-            'bonus'=>$bonus
+            'bonus' => $bonus,
         ]);
     }
 
@@ -956,6 +956,21 @@ class OrderCtrl extends Controller
             'log' => OrderProfitLog::dataListPerson($id, $user_id)->get(),
             'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
         ]);
+    }
+
+    // 變更分潤持有者
+    public function change_bonus_owner(Request $request, $id)
+    {
+
+        $request->validate([
+            'customer_id' => 'required',
+        ]);
+
+        $customer_id = $request->input('customer_id');
+
+        OrderProfit::changeOwner($id,$customer_id,$request->user()->id);
+
+        return redirect()->back();
     }
 
 }

@@ -109,7 +109,8 @@ class CustomerProfit extends Model
                 , 'cprofit.profit_rate'
                 , 'cprofit.has_child'
                 , 'cprofit.profit_type'
-                , 'customer.recommend_id as parent_cusotmer_id'])
+                , 'customer.recommend_id as parent_cusotmer_id'
+                , 'customer.sn as mcode'])
             ->where('customer_id', $customer_id);
 
         if ($status) {

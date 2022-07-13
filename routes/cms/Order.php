@@ -28,4 +28,8 @@ Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
     Route::get('bonus-gross/{id}', [OrderCtrl::class, 'bonus_gross'])->name('bonus-gross');
     Route::get('personal-bonus/{id}', [OrderCtrl::class, 'personal_bonus'])->name('personal-bonus');
 
+    Route::post('change-bonus-owner/{id}', [OrderCtrl::class, 'change_bonus_owner'])->name('change-bonus-owner');
+
+    
+
 });
