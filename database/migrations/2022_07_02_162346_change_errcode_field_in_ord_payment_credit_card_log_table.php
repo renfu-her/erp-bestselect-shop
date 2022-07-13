@@ -18,18 +18,16 @@ class ChangeErrcodeFieldInOrdPaymentCreditCardLogTable extends Migration
         Schema::create('acc_income_orders', function (Blueprint $table) {
             $table->id();
             $table->string('sn')->nullable()->comment('入款單號');
-            // $table->mediumText('received_credit_id')->nullable()->comment('信用卡收款記錄id');
             $table->decimal('amt_total_service_fee', 12, 2)->default(0)->comment('手續費總計');
-            $table->decimal('amt_total_net', 12, 2)->default(0)->comment('入帳金額總計');
+            $table->decimal('amt_total_net', 12, 2)->default(0)->comment('入款金額總計');
 
             $table->unsignedBigInteger('service_fee_grade_id')->comment('信用卡手續費會計科目');
-            $table->unsignedBigInteger('net_grade_id')->comment('信用卡入帳會計科目');
+            $table->unsignedBigInteger('net_grade_id')->comment('信用卡入款會計科目');
 
-            // $table->dateTime('transaction_date')->nullable()->comment('請款日期');
-            $table->dateTime('posting_date')->nullable()->comment('入帳日期');
+            $table->dateTime('posting_date')->nullable()->comment('入款日期');
 
             $table->integer('creator_id')->comment('建立人員id');
-            $table->integer('affirmant_id')->nullable()->comment('入帳人員id');
+            $table->integer('affirmant_id')->nullable()->comment('入款人員id');
 
             $table->timestamps();
             $table->softDeletes();
@@ -42,9 +40,9 @@ class ChangeErrcodeFieldInOrdPaymentCreditCardLogTable extends Migration
                 $tb->string('sn')->nullable()->comment('入款單號');
                 $tb->decimal('amt_percent', 12, 5)->default(1)->comment('請款比例');
                 $tb->decimal('amt_service_fee', 12, 2)->default(0)->comment('手續費');
-                $tb->decimal('amt_net', 12, 2)->default(0)->comment('入帳金額');
+                $tb->decimal('amt_net', 12, 2)->default(0)->comment('入款金額');
                 $tb->dateTime('transaction_date')->nullable()->comment('請款日期');
-                $tb->dateTime('posting_date')->nullable()->comment('入帳日期');
+                $tb->dateTime('posting_date')->nullable()->comment('入款日期');
 
                 $tb->dropColumn('requested');
             });

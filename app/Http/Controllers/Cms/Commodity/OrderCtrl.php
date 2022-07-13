@@ -225,6 +225,11 @@ class OrderCtrl extends Controller
             'shipment_type' => 'required|array',
             'shipment_event_id' => 'required|array',
             'salechannel_id' => 'required',
+
+            'invoice_method' => 'required|in:print,give,e_inv',
+            'love_code' => 'required_if:invoice_method,==,give',
+            'carrier_type' => 'required_if:invoice_method,==,e_inv|in:0,1,2',
+            'carrier_num' => 'required_if:carrier_type,==,0|required_if:carrier_type,==,1',
         ], $arrVali));
 
         $d = $request->all();
@@ -267,7 +272,14 @@ class OrderCtrl extends Controller
             $coupon = [$d['coupon_type'], $d['coupon_sn']];
         }
 
-        $re = Order::createOrder($customer->email, $d['salechannel_id'], $address, $items, $d['mcode'] ?? null, $d['note'], $coupon, null, $dividend);
+        $payinfo = null;
+        $payinfo['category'] = $d['category'] ?? null;
+        $payinfo['buyer_ubn'] = $d['buyer_ubn'] ?? null;
+        $payinfo['love_code'] = $d['love_code'] ?? null;
+        $payinfo['carrier_type'] = $d['carrier_type'] ?? null;
+        $payinfo['carrier_num'] = $d['carrier_num'] ?? null;
+
+        $re = Order::createOrder($customer->email, $d['salechannel_id'], $address, $items, $d['mcode'] ?? null, $d['note'], $coupon, $payinfo, null, $dividend);
 
         if ($re['success'] == '1') {
             wToast('訂單新增成功');
@@ -909,7 +921,7 @@ class OrderCtrl extends Controller
             $bonus[0] = $bonus[0] += $value->bonus;
             $bonus[1] = $bonus[1] += $value->bonus2;
         }
-       
+
         if ($dividend) {
             $dividend = $dividend->dividend;
         } else {
