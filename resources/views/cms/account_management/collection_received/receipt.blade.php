@@ -6,11 +6,11 @@
         <i class="bi bi-arrow-left"></i> 返回上一頁
     </a>
     @if(! $received_order->receipt_date)
-    <a href="{{ route('cms.ar.review', ['id' => $received_order->source_id]) }}" class="btn btn-primary px-4" role="button">收款單入款審核</a>
+    <a href="{{ route('cms.collection_received.review', ['id' => $received_order->source_id]) }}" class="btn btn-primary px-4" role="button">收款單入款審核</a>
     @else
-    <a href="{{ route('cms.ar.review', ['id' => $received_order->source_id]) }}" class="btn btn-outline-success px-4" role="button">取消入帳</a>
+    <a href="{{ route('cms.collection_received.review', ['id' => $received_order->source_id]) }}" class="btn btn-outline-success px-4" role="button">取消入帳</a>
     @endif
-    <a href="{{ route('cms.ar.taxation', ['id' => $received_order->source_id]) }}" class="btn btn-outline-success px-4" role="button">修改摘要/稅別</a>
+    <a href="{{ route('cms.collection_received.taxation', ['id' => $received_order->source_id]) }}" class="btn btn-outline-success px-4" role="button">修改摘要/稅別</a>
     {{--
     <button type="submit" class="btn btn-danger">中一刀列印畫面</button>
     <button type="submit" class="btn btn-danger">A4列印畫面</button>

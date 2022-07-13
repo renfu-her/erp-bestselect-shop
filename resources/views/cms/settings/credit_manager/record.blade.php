@@ -41,7 +41,7 @@
                             <th class="table-light" style="width:15%">收款單號</th>
                             <td style="width:35%">
                                 @if($record->ro_source_type == 'ord_orders')
-                                <a href="{{ route('cms.ar.receipt', ['id' => $record->ro_source_id]) }}" class="-text">{{ $record->ro_sn }}</a>
+                                <a href="{{ route('cms.collection_received.receipt', ['id' => $record->ro_source_id]) }}" class="-text">{{ $record->ro_sn }}</a>
                                 @elseif($record->ro_source_type == 'csn_orders')
                                 <a href="{{ route('cms.ar_csnorder.receipt', ['id' => $record->ro_source_id]) }}" class="-text">{{ $record->ro_sn }}</a>
                                 @endif

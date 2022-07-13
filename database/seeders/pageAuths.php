@@ -233,19 +233,19 @@ return [
         "unit" => "收款作業",
         "permissions" => [
             [
-                "cms.ar.index",
+                "cms.collection_received.index",
                 "瀏覽",
             ],
             [
-                "cms.ar.create",
+                "cms.collection_received.create",
                 "新增",
             ],
             [
-                "cms.ar.edit",
+                "cms.collection_received.edit",
                 "編輯",
             ],
             [
-                "cms.ar.delete",
+                "cms.collection_received.delete",
                 "刪除",
             ],
         ],

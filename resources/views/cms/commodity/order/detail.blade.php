@@ -5,7 +5,7 @@
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
             @if (!$receivable)
-                <a href="{{ Route('cms.ar.create', ['id' => $order->id]) }}" class="btn btn-primary btn-sm my-1 ms-1" role="button">新增收款單</a>
+                <a href="{{ Route('cms.collection_received.create', ['id' => $order->id]) }}" class="btn btn-primary btn-sm my-1 ms-1" role="button">新增收款單</a>
             @endif
 
             @if ($received_order_data || !in_array($order->status, ['建立']))
@@ -27,7 +27,7 @@
             @if ($received_order_data)
                 @if(!in_array($order->status, ['已入款', '結案']))
                     <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm my-1 ms-1" data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                        data-href="{{ Route('cms.ar.delete', ['id' => $received_order_data->id], true) }}">刪除收款單</a>
+                        data-href="{{ Route('cms.collection_received.delete', ['id' => $received_order_data->id], true) }}">刪除收款單</a>
                 @else
                     <button type="button" class="btn btn-outline-danger btn-sm my-1 ms-1" disabled>刪除收款單</button>
                 @endif
@@ -78,7 +78,7 @@
                     <dt>收款單號</dt>
                     <dd>
                         @if ($receivable)
-                            <a href="{{ route('cms.ar.receipt', ['id' => $order->id]) }}"
+                            <a href="{{ route('cms.collection_received.receipt', ['id' => $order->id]) }}"
                                 class="-text">{{ $received_order_data ? $received_order_data->sn : '' }}</a>
                         @else
                             <span>尚未完成收款</span>
@@ -131,7 +131,7 @@
                 </div>
                 <div class="col-md-5">
                     <dt>電子發票資訊</dt>
-                    <dd></dd>
+                    <dd>{{ $order->carrier_type ?? ''}} {{ $order->carrier_num ?? ''}}</dd>
                 </div>
             </dl>
             <dl class="row">

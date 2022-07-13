@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Customer\ProfitStatus;
 use App\Enums\Delivery\Event;
+use App\Enums\Order\CarrierType;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Order\PaymentStatus;
 use App\Enums\Order\UserAddrType;
@@ -122,6 +123,11 @@ class Order extends Model
                 'order.auto_dividend',
                 'order.total_price',
                 'order.created_at',
+                DB::raw('(case when "'. CarrierType::mobile()->value. '" = order.carrier_type then "'. CarrierType::getDescription(CarrierType::mobile). '"
+                    when "'. CarrierType::certificate()->value. '" = order.carrier_type then "'. CarrierType::getDescription(CarrierType::certificate). '"
+                    when "'. CarrierType::member()->value. '" = order.carrier_type then "'. CarrierType::getDescription(CarrierType::member). '"
+                    else order.carrier_type end) as carrier_type'),
+                DB::raw('ifnull(order.carrier_num, "") as carrier_num'),
                 'customer.name',
                 'customer.email',
                 'customer_m.name as name_m',
@@ -551,6 +557,9 @@ class Order extends Model
         $carrier_type = $payinfo['carrier_type'] ?? null;
         $carrier_num = isset($payinfo['carrier_num']) ? trim($payinfo['carrier_num']) : null;
         $love_code = $payinfo['love_code'] ?? null;
+        if (isset($carrier_type) && true == empty(CarrierType::getDescription($carrier_type))) {
+            return ['success' => '0', 'error_msg' => '無此載具'];
+        }
 
         $print_flag = $carrier_type != null || $love_code ? 'N' : 'Y';
 
