@@ -210,7 +210,7 @@
                         </div>
                     </div>
                 </div>
-                <fieldset class="col-12 col-sm-6 mb-3">
+                <fieldset class="col-12 col-sm-6 mb-3 d-none">
                     <legend class="col-form-label p-0 mb-2">發票方式 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
                         <div class="form-check form-check-inline">
@@ -248,9 +248,13 @@
                     <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-                <fieldset class="col-12 col-sm-6 mb-3 carrier">
+                <fieldset class="col-12 mb-3 carrier">
                     <legend class="col-form-label p-0 mb-2">載具類型 <span class="text-danger">*</span></legend>
                     <div class="px-1 pt-1">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" name="carrier_type" value="2" type="radio" id="carrier_member" {{ ! old('carrier_type') || old('carrier_type') == 2 ? 'checked' : '' }}>
+                            <label class="form-check-label" for="carrier_member">會員電子發票</label>
+                        </div>
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" name="carrier_type" value="0" type="radio" id="carrier_mobile" {{ old('carrier_type') && old('carrier_type') == 0 ? 'checked' : '' }}>
                             <label class="form-check-label" for="carrier_mobile">手機條碼載具</label>
@@ -258,10 +262,6 @@
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" name="carrier_type" value="1" type="radio" id="carrier_certificate" {{ old('carrier_type') && old('carrier_type') == 1 ? 'checked' : '' }}>
                             <label class="form-check-label" for="carrier_certificate">自然人憑證條碼載具</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="carrier_type" value="2" type="radio" id="carrier_member" {{ ! old('carrier_type') || old('carrier_type') == 2 ? 'checked' : '' }}>
-                            <label class="form-check-label" for="carrier_member">會員載具</label>
                         </div>
                     </div>
                     <div class="invalid-feedback">
@@ -271,9 +271,10 @@
                     </div>
                 </fieldset>
 
-                <div class="col-12 col-sm-6 mb-3 carrier c_carrier_type d-none">
-                    <label class="form-label l_carrier_num">載具號碼</label>
-                    <input type="text" name="carrier_num" class="form-control @error('carrier_num') is-invalid @enderror" placeholder="請輸入載具號碼" aria-label="載具號碼" value="{{ old('carrier_num') }}" disabled>
+                <div class="col-12 mb-3 carrier c_carrier_type d-none">
+                    <label class="form-label l_carrier_num">載具條碼</label>
+                    <input type="text" name="carrier_num" class="form-control @error('carrier_num') is-invalid @enderror" 
+                        placeholder="請輸入載具條碼" aria-label="載具條碼" value="{{ old('carrier_num') }}" disabled>
                     <div class="invalid-feedback">
                         @error('carrier_num')
                         {{ $message }}
@@ -2423,64 +2424,69 @@
 
             //發票方式
             $('input[type=radio][name=invoice_method]').on('click change', function() {
-                if (this.value == 'print') {
-                    //捐贈
-                    $('.c_invoice_method').addClass('d-none');
-                    $('#love_code').prop({
-                        disabled:true,
-                        required:false
-                    }).val('');
+                switch (this.value) {
+                    case 'print':   // 印出
+                        //捐贈
+                        $('.c_invoice_method').addClass('d-none');
+                        $('#love_code').prop({
+                            disabled:true,
+                            required:false
+                        }).val('');
 
-                    //載具
-                    $('.carrier').addClass('d-none');
-                    $('input[type=radio][name=carrier_type]').prop({
-                        disabled:true,
-                        required:false,
-                        checked:false
-                    });
-                    $('.c_carrier_type').addClass('d-none');
-                    $('input[type=text][name=carrier_num]').prop({
-                        disabled:true,
-                        required:false
-                    }).val('');
-                    $('.l_carrier_num').html('載具號碼');
+                        //載具
+                        $('.carrier').addClass('d-none');
+                        $('input[type=radio][name=carrier_type]').prop({
+                            disabled:true,
+                            required:false,
+                            checked:false
+                        });
+                        $('.c_carrier_type').addClass('d-none');
+                        $('input[type=text][name=carrier_num]').prop({
+                            disabled:true,
+                            required:false
+                        }).val('');
+                        $('.l_carrier_num').html('載具號碼');
+                        break;
+                
+                    case 'give':    // 捐贈
+                        //捐贈
+                        $('.c_invoice_method').removeClass('d-none');
+                        $('select[name=love_code]').prop({
+                            disabled:false,
+                            required:true
+                        });
 
-                } else if(this.value == 'give'){
-                    //捐贈
-                    $('.c_invoice_method').removeClass('d-none');
-                    $('select[name=love_code]').prop({
-                        disabled:false,
-                        required:true
-                    });
+                        //載具
+                        $('.carrier').addClass('d-none');
+                        $('input[type=radio][name=carrier_type]').prop({
+                            disabled:true,
+                            required:false,
+                            checked:false
+                        });
+                        $('.c_carrier_type').addClass('d-none');
+                        $('input[type=text][name=carrier_num]').prop({
+                            disabled:true,
+                            required:false
+                        }).val('');
+                        $('.l_carrier_num').html('載具號碼');
+                        break;
+                    case 'e_inv':   // 載具
+                        //捐贈
+                        $('.c_invoice_method').addClass('d-none');
+                        $('#love_code').prop({
+                            disabled:true,
+                            required:false
+                        }).val('');
 
-                    //載具
-                    $('.carrier').addClass('d-none');
-                    $('input[type=radio][name=carrier_type]').prop({
-                        disabled:true,
-                        required:false,
-                        checked:false
-                    });
-                    $('.c_carrier_type').addClass('d-none');
-                    $('input[type=text][name=carrier_num]').prop({
-                        disabled:true,
-                        required:false
-                    }).val('');
-                    $('.l_carrier_num').html('載具號碼');
-
-                } else if(this.value == 'e_inv'){
-                    //捐贈
-                    $('.c_invoice_method').addClass('d-none');
-                    $('#love_code').prop({
-                        disabled:true,
-                        required:false
-                    }).val('');
-
-                    //載具
-                    $('.carrier').removeClass('d-none');
-                    $('input[type=radio][name=carrier_type]').prop({
-                        disabled:false,
-                        required:true
-                    });
+                        //載具
+                        $('.carrier').removeClass('d-none');
+                        $('input[type=radio][name=carrier_type]').prop({
+                            disabled:false,
+                            required:true
+                        });
+                        break;
+                    default:
+                        break;
                 }
             });
 
