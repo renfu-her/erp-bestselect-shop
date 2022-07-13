@@ -109,6 +109,8 @@ class OrderProfit extends Model
             DB::rollBack();
             return ['success' => '0', 'message' => '無分潤資格'];
         }
+
+        Order::where('id', $order_id)->update(['mcode' => $customerProfit->mcode]);
         //上一代分潤資格
         $parentCustomerProfit = null;
 
@@ -156,7 +158,7 @@ class OrderProfit extends Model
                     'customer_id' => $customerProfit->parent_cusotmer_id,
                     'parent_id' => $pid,
                 ]));
-              
+
             }
 
             OrderProfitLog::createLog($order_id,

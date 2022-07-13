@@ -171,6 +171,11 @@ return
                 "controller_name" => "CreditManagerCtrl",
                 "route_name" => "cms.credit_manager.index",
             ],
+            [
+                "title" => "分潤",
+                "controller_name" => "OrderBonusCtrl",
+                "route_name" => "cms.order-bonus.index",
+            ],
         ],
     ],
     [
