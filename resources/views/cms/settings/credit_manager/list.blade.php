@@ -203,7 +203,7 @@
                             <td>{{ $data->credit_card_type }}</td>
                             <td>
                                 @if($data->ro_source_type == 'ord_orders')
-                                <a href="{{ route('cms.ar.receipt', ['id' => $data->ro_source_id]) }}" class="-text">{{ $data->ro_sn }}</a>
+                                <a href="{{ route('cms.collection_received.receipt', ['id' => $data->ro_source_id]) }}" class="-text">{{ $data->ro_sn }}</a>
                                 @elseif($data->ro_source_type == 'csn_orders')
                                 <a href="{{ route('cms.ar_csnorder.receipt', ['id' => $data->ro_source_id]) }}" class="-text">{{ $data->ro_sn }}</a>
                                 @endif

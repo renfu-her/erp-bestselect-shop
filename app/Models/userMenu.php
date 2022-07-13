@@ -158,8 +158,13 @@ return
             ],
             [
                 "title" => "收款作業",
+                "controller_name" => "CollectionReceivedCtrl",
+                "route_name" => "cms.collection_received.index",
+            ],
+            [
+                "title" => "應收帳款",
                 "controller_name" => "AccountReceivedCtrl",
-                "route_name" => "cms.ar.index",
+                "route_name" => "cms.account_received.index",
             ],
             [
                 "title" => "信用卡作業管理",

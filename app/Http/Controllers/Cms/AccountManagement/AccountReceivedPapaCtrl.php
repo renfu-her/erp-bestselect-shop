@@ -50,6 +50,8 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
     public function index(Request $request)
     {
+        echo "因收款單來源新增寄倉收款，此畫面尚未調整";
+        die();
         $query = $request->query();
         $page = getPageCount(Arr::get($query, 'data_per_page', 100)) > 0 ? getPageCount(Arr::get($query, 'data_per_page', 100)) : 100;
 
@@ -416,7 +418,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'id' => 'required|exists:ord_orders,id',
+            'id' => 'required|exists:' . $this->getSource_type() . ',id',
             'acc_transact_type_fk' => 'required|string|in:' . implode(',', ReceivedMethod::asArray()),
             'tw_price' => 'required|numeric',
             request('acc_transact_type_fk') => 'required|array',
@@ -463,6 +465,9 @@ abstract class AccountReceivedPapaCtrl extends Controller
                 $data[$data['acc_transact_type_fk']]['grade'] = $data[$data['acc_transact_type_fk']]['all_grades_id'];
 
                 $EncArray['more_info'] = $data[$data['acc_transact_type_fk']];
+
+            } else if($data['acc_transact_type_fk'] == ReceivedMethod::AccountsReceivable){
+                //
             }
 
             $result_id = ReceivedOrder::store_received_method($data);
