@@ -28,9 +28,17 @@ class Shipment extends Model
                                         ->where('group.category_fk', '=', $categoryId)
                                         ->join('shi_temps', 'temps_fk', '=', 'shi_temps.id')
                                         ->join('shi_method', 'group.method_fk', '=', 'shi_method.id')
+                                        ->leftJoin('prd_suppliers', 'group.supplier_fk', '=', 'prd_suppliers.id')
                                         ->orderBy('temps_fk')
                                         ->orderBy('group.name')
-                                        ->orderBy('group.method_fk');
+                                        ->orderBy('group.method_fk')
+                                        ->select([
+                                            'group.name',
+                                            'shi_rule.group_id_fk',
+                                            'shi_temps.temps',
+                                            'shi_method.method',
+                                            'prd_suppliers.name as supplier',
+                                        ]);
     }
 
     public function getDataFieldFromFormRequest(Request $request)

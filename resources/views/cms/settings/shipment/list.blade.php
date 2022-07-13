@@ -44,7 +44,7 @@
             <thead>
                 <tr>
                     <th scope="col" style="width:3rem;">#</th>
-                    <th scope="col">物流名稱</th>
+                    <th scope="col">物流名稱（廠商名稱）</th>
                     <th scope="col">溫層</th>
                     <th scope="col">出貨方式</th>
                     <th scope="col" class="text-center">編輯</th>
@@ -55,7 +55,12 @@
                 @foreach ($uniqueDataList as $key => $uData)
                     <tr>
                         <th scope="row">{{ $key + 1 }}</th>
-                        <td>{{ $uData->name }}</td>
+                        <td>
+                            {{ $uData->name }}
+                            @if($uData->supplier)
+                                {{ '（' .  $uData->supplier . '）' }}
+                            @endif
+                        </td>
                         <td @class([
                             'table-warning' => $uData->temps === '常溫',
                             'table-success' => $uData->temps === '冷藏',
