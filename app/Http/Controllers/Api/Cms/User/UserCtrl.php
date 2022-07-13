@@ -116,7 +116,10 @@ class UserCtrl extends Controller
 
         return response()->json([
             'status' => '0',
-            'data' => Customer::getCustomerBySearch($keyword, $profit)->paginate(10),
+            'data' => Customer::getCustomerBySearch($keyword, $profit)->select(['customer.id',
+            'customer.name',
+            'customer.sn as mcode',
+            'customer.email'])->get(),
         ]);
 
     }

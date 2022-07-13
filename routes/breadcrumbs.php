@@ -209,13 +209,13 @@ Breadcrumbs::for('cms.order.inbound', function (BreadcrumbTrail $trail, $value) 
     $trail->push('#' . $value['sn'] . ' 入庫審核', route('cms.order.inbound', ['subOrderId' => $value['id']]));
 });
 // 新增收款單
-Breadcrumbs::for('cms.ar.create', function (BreadcrumbTrail $trail, $value) {
+Breadcrumbs::for('cms.collection_received.create', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
     $trail->push('新增收款單');
 });
 //顯示訂單收款單
-Breadcrumbs::for('cms.ar.receipt', function (BreadcrumbTrail $trail, $value) {
+Breadcrumbs::for('cms.collection_received.receipt', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
     $trail->push('收款單');
@@ -233,17 +233,17 @@ Breadcrumbs::for('cms.order.show-invoice', function (BreadcrumbTrail $trail, $va
     $trail->push('電子發票');
 });
 //編輯收款單入帳日期
-Breadcrumbs::for('cms.ar.review', function (BreadcrumbTrail $trail, $value) {
+Breadcrumbs::for('cms.collection_received.review', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
-    $trail->push('收款單', route('cms.ar.receipt', ['id' => $value['id']]));
+    $trail->push('收款單', route('cms.collection_received.receipt', ['id' => $value['id']]));
     $trail->push('入款審核');
 });
 //編輯收款單稅別/摘要/備註
-Breadcrumbs::for('cms.ar.taxation', function (BreadcrumbTrail $trail, $value) {
+Breadcrumbs::for('cms.collection_received.taxation', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id'=>$value['id']]));
-    $trail->push('收款單', route('cms.ar.receipt', ['id'=>$value['id']]));
+    $trail->push('收款單', route('cms.collection_received.receipt', ['id'=>$value['id']]));
     $trail->push('修改摘要/稅別');
 });
 Breadcrumbs::for('cms.order.pay-order', function (BreadcrumbTrail $trail, $value) {
@@ -653,9 +653,9 @@ Breadcrumbs::for('cms.ap.index', function (BreadcrumbTrail $trail) {
 });
 
 // 收款作業
-Breadcrumbs::for('cms.ar.index', function (BreadcrumbTrail $trail) {
+Breadcrumbs::for('cms.collection_received.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('收款作業', route('cms.ar.index'));
+    $trail->push('收款作業', route('cms.collection_received.index'));
 });
 
 // 信用卡作業管理
