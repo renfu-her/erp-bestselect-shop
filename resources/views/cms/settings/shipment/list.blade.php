@@ -1,6 +1,90 @@
 @extends('layouts.main')
 @section('sub-content')
 <h2 class="mb-4">物流運費管理</h2>
+<form id="search" action="{{ Route('cms.shipment.index') }}" method="GET">
+    <div class="card shadow p-4 mb-4">
+        <h6>搜尋條件</h6>
+        <div class="row">
+            <div class="col-12 col-sm-6 mb-3">
+                <label class="form-label">物流名稱</label>
+                <input class="form-control" type="text" name="shi_name" value="" placeholder="輸入物流名稱">
+            </div>
+            <fieldset class="col-12 col-sm-6 mb-3">
+                <legend class="col-form-label p-0 mb-2">出貨方式</legend>
+                <div class="px-1 pt-1">
+                    @foreach ($shi_method as $method)
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input"
+                                       name="shi_method"
+                                       type="radio"
+                                       value="{{ $method->id }}" >
+                                {{ $method->method }}
+                            </label>
+                        </div>
+                    @endforeach
+                </div>
+            </fieldset>
+            <fieldset class="col-12 col-sm-6 mb-3">
+                <legend class="col-form-label p-0 mb-2">溫層</legend>
+                <div class="px-1 pt-1">
+                    @foreach ($shi_temps as $temps)
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input"
+                                       name="shi_temps"
+                                       type="radio"
+                                       value="{{ $temps->id }}" >
+                                {{ $temps->temps }}
+                            </label>
+                        </div>
+                    @endforeach
+                </div>
+            </fieldset>
+            <fieldset class="col-12 col-sm-6 mb-3">
+                <legend class="col-form-label p-0 mb-2">是否有設定廠商？</legend>
+                <div class="px-1 pt-1">
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label">
+                            <input class="form-check-input"
+                                   name="has_supplier"
+                                   type="radio"
+                                   value="1" >
+                            是
+                        </label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label">
+                            <input class="form-check-input"
+                                   name="has_supplier"
+                                   type="radio"
+                                   value="0" >
+                            否
+                        </label>
+                    </div>
+                </div>
+            </fieldset>
+            <div class="col-12 col-sm-6 mb-3">
+                <label class="form-label">廠商名稱</label>
+                <input class="form-control" type="text" name="supplier" value="" placeholder="輸入廠商名稱">
+            </div>
+        </div>
+        <div class="col">
+            <input type="hidden" name="data_per_page" value="{{ $data_per_page }}" />
+            <button type="submit" class="btn btn-primary px-4">搜尋</button>
+        </div>
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+    </div>
+</form>
 <div class="card shadow p-4 mb-4">
     <div class="row mb-4">
         <div class="col">

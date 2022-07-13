@@ -22,23 +22,45 @@ class Shipment extends Model
         'is_above',
     ];
 
-    public function getShipmentList(int $categoryId = 1)
+    public function getShipmentList(Request $request, $categoryId = 1)
     {
-        return DB::table('shi_rule')->join('shi_group as group', 'group_id_fk', '=', 'group.id')
+        $req = $request->all();
+        $query = DB::table('shi_rule')->join('shi_group as group', 'group_id_fk', '=', 'group.id')
                                         ->where('group.category_fk', '=', $categoryId)
                                         ->join('shi_temps', 'temps_fk', '=', 'shi_temps.id')
                                         ->join('shi_method', 'group.method_fk', '=', 'shi_method.id')
-                                        ->leftJoin('prd_suppliers', 'group.supplier_fk', '=', 'prd_suppliers.id')
-                                        ->orderBy('temps_fk')
-                                        ->orderBy('group.name')
-                                        ->orderBy('group.method_fk')
-                                        ->select([
-                                            'group.name',
-                                            'shi_rule.group_id_fk',
-                                            'shi_temps.temps',
-                                            'shi_method.method',
-                                            'prd_suppliers.name as supplier',
-                                        ]);
+                                        ->leftJoin('prd_suppliers', 'group.supplier_fk', '=', 'prd_suppliers.id');
+
+        if (isset($req['shi_name'])){
+            $query->where('group.name', 'like', '%' . $req['shi_name'] . '%');
+        }
+        if (isset($req['shi_method'])){
+            $query->where('shi_method.id', '=', $req['shi_method']);
+        }
+        if (isset($req['shi_temps'])){
+            $query->where('shi_temps.id', '=', $req['shi_temps']);
+        }
+        if (isset($req['has_supplier'])){
+            if ($req['has_supplier'] == 1) {
+                $query->whereNotNull('group.supplier_fk');
+            } else {
+                $query->whereNull('group.supplier_fk');
+            }
+        }
+        if (isset($req['supplier'])){
+            $query->where('prd_suppliers.name', 'like', '%' . $req['supplier'] . '%');
+        }
+
+        return $query->orderBy('temps_fk')
+                                            ->orderBy('group.name')
+                                            ->orderBy('group.method_fk')
+                                            ->select([
+                                                'group.name',
+                                                'shi_rule.group_id_fk',
+                                                'shi_temps.temps',
+                                                'shi_method.method',
+                                                'prd_suppliers.name as supplier',
+                                            ]);
     }
 
     public function getDataFieldFromFormRequest(Request $request)
