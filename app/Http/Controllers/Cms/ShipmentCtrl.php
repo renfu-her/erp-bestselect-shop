@@ -216,16 +216,16 @@ class ShipmentCtrl extends Controller
         $query = $request->query();
         $data_per_page = Arr::get($query, 'data_per_page', 10);
         $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
-        $shipList = $shipment->getShipmentList($request, $categoryId);
-        $dataList = $shipList->paginate($data_per_page)->appends($query);
+        $dataList = $shipment->getShipmentList($request, $categoryId)
+                            ->paginate($data_per_page)
+                            ->appends($query);
 
         $uniqueGroupId = array();
         $uniqueDataList = array();
         foreach ($dataList as $datum) {
             if (!in_array($datum->group_id_fk, $uniqueGroupId)) {
                 $uniqueGroupId[] = $datum->group_id_fk;
-                $group = $shipment->getEditShipmentData($datum->group_id_fk);
-                $datum->group = $group;
+                $datum->group = $shipment->getEditShipmentData($datum->group_id_fk);
                 $uniqueDataList[] = $datum;
             }
         }
