@@ -130,6 +130,7 @@ class CollectionCtrl extends Controller
             'url'              => 'nullable|string',
             'meta_title'       => 'nullable|string',
             'meta_description' => 'nullable|string',
+            'is_liquor'        => 'required|int|min:0',
             'id.*'             => 'required|int|min:0'
         ]);
 
@@ -150,6 +151,7 @@ class CollectionCtrl extends Controller
             $req['url'],
             $req['meta_title'],
             $req['meta_description'],
+            $req['is_liquor'],
             $req['id'],
         );
 
