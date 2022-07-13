@@ -587,7 +587,8 @@
     <div class="modal fade" id="change-mcode" tabindex="-1" aria-labelledby="change-mcodeLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form action="" method="post">
+                <form action="{{ route('cms.order.change-bonus-owner',['id'=>$order->id]) }}" method="post">
+                    @csrf
                     <div class="modal-header">
                         <h5 class="modal-title" id="change-mcodeLabel">更改推薦業務員</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -602,7 +603,7 @@
                         </div>
                         <div class="col-12 mb-3">
                             <label class="form-label">2. 選擇業務</label>
-                            <select class="form-select" name="">
+                            <select class="form-select" name="customer_id">
                                 <option>請選擇</option>
                             </select>
                         </div>
