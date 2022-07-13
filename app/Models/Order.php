@@ -124,8 +124,8 @@ class Order extends Model
                 'order.total_price',
                 'order.created_at',
                 DB::raw('(case when "'. CarrierType::mobile()->value. '" = order.carrier_type then "'. CarrierType::getDescription(CarrierType::mobile). '"
-                    when "'. CarrierType::citizen_digital()->value. '" = order.carrier_type then "'. CarrierType::getDescription(CarrierType::citizen_digital). '"
-                    when "'. CarrierType::membership()->value. '" = order.carrier_type then "'. CarrierType::getDescription(CarrierType::membership). '"
+                    when "'. CarrierType::certificate()->value. '" = order.carrier_type then "'. CarrierType::getDescription(CarrierType::certificate). '"
+                    when "'. CarrierType::member()->value. '" = order.carrier_type then "'. CarrierType::getDescription(CarrierType::member). '"
                     else order.carrier_type end) as carrier_type'),
                 DB::raw('ifnull(order.carrier_num, "") as carrier_num'),
                 'customer.name',
