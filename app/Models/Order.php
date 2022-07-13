@@ -557,6 +557,9 @@ class Order extends Model
         $carrier_type = $payinfo['carrier_type'] ?? null;
         $carrier_num = isset($payinfo['carrier_num']) ? trim($payinfo['carrier_num']) : null;
         $love_code = $payinfo['love_code'] ?? null;
+        if (isset($carrier_type) && true == empty(CarrierType::getDescription($carrier_type))) {
+            return ['success' => '0', 'error_msg' => '無此載具'];
+        }
 
         $print_flag = $carrier_type != null || $love_code ? 'N' : 'Y';
 
