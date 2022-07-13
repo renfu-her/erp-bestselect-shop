@@ -94,6 +94,16 @@
             </a>
             @endcan
         </div>
+        <div class="col-auto">
+            顯示
+            <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
+                @foreach ([50, 200, 300] as $value)
+                    <option value="{{ $value }}" @if ($data_per_page == $value) selected @endif>
+                        {{ $value }}</option>
+                @endforeach
+            </select>
+            筆
+        </div>
         {{-- <div class="col-auto">
             顯示
             <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
@@ -229,10 +239,10 @@
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
             });
 
-            // $('#dataPerPageElem').on('change', function(e) {
-            //     $('input[name=data_per_page]').val($(this).val());
-            //     $('#search').submit();
-            // });
+            $('#dataPerPageElem').on('change', function(e) {
+                $('input[name=data_per_page]').val($(this).val());
+                $('#search').submit();
+            });
         </script>
     @endpush
 @endonce

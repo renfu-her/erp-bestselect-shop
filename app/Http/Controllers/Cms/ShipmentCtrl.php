@@ -214,8 +214,7 @@ class ShipmentCtrl extends Controller
         int $categoryId = 1
     ) {
         $query = $request->query();
-        $data_per_page = Arr::get($query, 'data_per_page', 10);
-        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
+        $data_per_page = Arr::get($query, 'data_per_page', 50);
         $dataList = $shipment->getShipmentList($request, $categoryId)
                             ->paginate($data_per_page)
                             ->appends($query);
