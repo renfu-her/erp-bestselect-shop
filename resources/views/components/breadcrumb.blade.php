@@ -1,4 +1,4 @@
-<div id="navBreadcrumb" class="d-flex align-items-center ms-sm-auto border-bottom">
+<div id="navBreadcrumb" class="d-flex align-items-center border-bottom">
     <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
         @php
             //csn_order的ctrl是consignment-order
