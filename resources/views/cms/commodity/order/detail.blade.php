@@ -131,7 +131,7 @@
                 </div>
                 <div class="col-md-5">
                     <dt>電子發票資訊</dt>
-                    <dd></dd>
+                    <dd>{{ $order->carrier_type ?? ''}} {{ $order->carrier_num ?? ''}}</dd>
                 </div>
             </dl>
             <dl class="row">

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Customer\ProfitStatus;
 use App\Enums\Delivery\Event;
+use App\Enums\Order\CarrierType;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Order\PaymentStatus;
 use App\Enums\Order\UserAddrType;
@@ -122,6 +123,11 @@ class Order extends Model
                 'order.auto_dividend',
                 'order.total_price',
                 'order.created_at',
+                DB::raw('(case when "'. CarrierType::mobile()->value. '" = order.carrier_type then "'. CarrierType::getDescription(CarrierType::mobile). '"
+                    when "'. CarrierType::citizen_digital()->value. '" = order.carrier_type then "'. CarrierType::getDescription(CarrierType::citizen_digital). '"
+                    when "'. CarrierType::membership()->value. '" = order.carrier_type then "'. CarrierType::getDescription(CarrierType::membership). '"
+                    else order.carrier_type end) as carrier_type'),
+                DB::raw('ifnull(order.carrier_num, "") as carrier_num'),
                 'customer.name',
                 'customer.email',
                 'customer_m.name as name_m',
