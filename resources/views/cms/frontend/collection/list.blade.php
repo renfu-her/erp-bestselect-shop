@@ -39,6 +39,7 @@
                     @if(auth()->user()->can('cms/collection/publish'))
                         <th scope="col">公開上架</th>
                     @endif
+                    <th scope="col">酒類</th>
                     <th scope="col">編輯</th>
                     <th scope="col">刪除</th>
                 </tr>
@@ -57,6 +58,7 @@
                                 </div>
                             </td>
                         @endif
+                        <td>{{ ($data->is_liquor == 1) ? '是': '否' }}</td>
                         <td>
                             <a href="{{ Route('cms.collection.edit', ['id' => $data->id], true) }}"
                                data-bs-toggle="tooltip" title="編輯"
