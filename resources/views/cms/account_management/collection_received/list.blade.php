@@ -30,8 +30,8 @@
                 <div class="col-12 mb-3">
                     <label class="form-label">收款金額</label>
                     <div class="input-group has-validation">
-                        <input type="number" step="1" min="0" class="form-control @error('r_order_min_price') is-invalid @enderror" name="r_order_min_price" value="{{ $cond['r_order_min_price'] }}" aria-label="收款金額" />
-                        <input type="number" step="1" min="0" class="form-control @error('r_order_max_price') is-invalid @enderror" name="r_order_max_price" value="{{ $cond['r_order_max_price'] }}" aria-label="入款結束日期" />
+                        <input type="number" step="1" min="0" class="form-control @error('r_order_min_price') is-invalid @enderror" name="r_order_min_price" value="{{ $cond['r_order_min_price'] }}" aria-label="收款起始金額">
+                        <input type="number" step="1" min="0" class="form-control @error('r_order_max_price') is-invalid @enderror" name="r_order_max_price" value="{{ $cond['r_order_max_price'] }}" aria-label="收款結束金額">
                         <div class="invalid-feedback">
                             @error('r_order_min_price')
                                 {{ $message }}
@@ -140,7 +140,7 @@
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <td>{{ $key + 1 }}</td>
-                            <td><a href="{{ route('cms.ar.receipt', ['id'=>$data->order_id]) }}">{{ $data->ro_sn }}</a></td>
+                            <td><a href="{{ route('cms.collection_received.receipt', ['id'=>$data->order_id]) }}">{{ $data->ro_sn }}</a></td>
                             <td>{{ $data->customer_name }}</td>
                             <td class="p-0">
                                 @foreach($data->debit as $d_value)

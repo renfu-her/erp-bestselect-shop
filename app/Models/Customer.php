@@ -41,7 +41,7 @@ class Customer extends Authenticatable
         'acount_status',
         'newsletter',
         'password',
-        'sn'
+        'sn',
     ];
 
     /**
@@ -191,22 +191,28 @@ class Customer extends Authenticatable
     /**
      * @param array $query
      * @param int $per_page pagination
+     * @param int $profit 1: 篩出有分潤資格的消費者
 
      */
 
-    public static function getCustomerBySearch($keyword)
+    public static function getCustomerBySearch($keyword = null, $profit = null)
     {
         $admin = new Customer();
-        $admin_table = DB::table($admin->getTable());
+        $admin_table = DB::table($admin->getTable() . " as customer");
 
         if ($keyword) {
             $admin_table->where(function ($q) use ($keyword) {
-                $q->where('name', 'like', "%$keyword%")
-                    ->orWhere('email', 'like', "%$keyword%");
+                $q->where('customer.name', 'like', "%$keyword%")
+                    ->orWhere('customer.email', 'like', "%$keyword%");
             });
         }
 
-        $admin_table->whereNull('deleted_at');
+        if ($profit) {
+            $admin_table->join('usr_customer_profit as profit', 'customer.id', '=', 'profit.customer_id')
+                ->where('profit.status', ProfitStatus::Success());
+        }
+
+        $admin_table->whereNull('customer.deleted_at');
         return $admin_table;
 
     }

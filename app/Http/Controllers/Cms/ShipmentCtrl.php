@@ -11,6 +11,7 @@ use App\Models\Supplier;
 use App\Models\Temps;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 
@@ -23,10 +24,21 @@ class ShipmentCtrl extends Controller
      */
     public function index(Request $request, Shipment $shipment)
     {
+        $rules = [
+            'shi_name' => 'nullable|string',
+            'shi_method' => 'nullable||integer|min:1|exists:shi_method,id',
+            'shi_temps' => 'nullable|integer|min:1|exists:shi_temps,id',
+            'has_supplier' => 'nullable|integer|min:0|max:1',
+            'supplier' => 'nullable|string',
+        ];
+        $this->validate($request, $rules);
+
         $shipData = $this->getShipData($request, $shipment);
 
         return view('cms.settings.shipment.list', [
             'categories' => ShipmentCategory::all(),
+            'shi_method' => ShipmentMethod::all(),
+            'shi_temps' => DB::table('shi_temps')->get(),
             'currentCategoryId' => $shipData['currentCategoryId'],
             'dataList'          => $shipData['dataList'],
             'uniqueDataList'    => $shipData['uniqueDataList'],
@@ -196,21 +208,23 @@ class ShipmentCtrl extends Controller
         ]);
     }
 
-    public function getShipData(Request $request, Shipment $shipment, int $categoryId = 1)
-    {
+    public function getShipData(
+        Request $request,
+        Shipment $shipment,
+        int $categoryId = 1
+    ) {
         $query = $request->query();
-        $data_per_page = Arr::get($query, 'data_per_page', 10);
-        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
-        $shipList = $shipment->getShipmentList($categoryId);
-        $dataList = $shipList->paginate($data_per_page)->appends($query);
+        $data_per_page = Arr::get($query, 'data_per_page', 50);
+        $dataList = $shipment->getShipmentList($request, $categoryId)
+                            ->paginate($data_per_page)
+                            ->appends($query);
 
         $uniqueGroupId = array();
         $uniqueDataList = array();
         foreach ($dataList as $datum) {
             if (!in_array($datum->group_id_fk, $uniqueGroupId)) {
                 $uniqueGroupId[] = $datum->group_id_fk;
-                $group = $shipment->getEditShipmentData($datum->group_id_fk);
-                $datum->group = $group;
+                $datum->group = $shipment->getEditShipmentData($datum->group_id_fk);
                 $uniqueDataList[] = $datum;
             }
         }

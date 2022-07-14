@@ -22,6 +22,7 @@ use App\Models\OrderItem;
 use App\Models\OrderPayCreditCard;
 use App\Models\OrderProfit;
 use App\Models\OrderProfitLog;
+use App\Models\OrderRemit;
 use App\Models\PayableDefault;
 use App\Models\PayingOrder;
 use App\Models\PurchaseInbound;
@@ -224,6 +225,11 @@ class OrderCtrl extends Controller
             'shipment_type' => 'required|array',
             'shipment_event_id' => 'required|array',
             'salechannel_id' => 'required',
+
+            'invoice_method' => 'required|in:print,give,e_inv',
+            'love_code' => 'required_if:invoice_method,==,give',
+            'carrier_type' => 'required_if:invoice_method,==,e_inv|in:0,1,2',
+            'carrier_num' => 'required_if:carrier_type,==,0|required_if:carrier_type,==,1',
         ], $arrVali));
 
         $d = $request->all();
@@ -266,7 +272,14 @@ class OrderCtrl extends Controller
             $coupon = [$d['coupon_type'], $d['coupon_sn']];
         }
 
-        $re = Order::createOrder($customer->email, $d['salechannel_id'], $address, $items, $d['mcode'] ?? null, $d['note'], $coupon, null, $dividend);
+        $payinfo = null;
+        $payinfo['category'] = $d['category'] ?? null;
+        $payinfo['buyer_ubn'] = $d['buyer_ubn'] ?? null;
+        $payinfo['love_code'] = $d['love_code'] ?? null;
+        $payinfo['carrier_type'] = $d['carrier_type'] ?? null;
+        $payinfo['carrier_num'] = $d['carrier_num'] ?? null;
+
+        $re = Order::createOrder($customer->email, $d['salechannel_id'], $address, $items, $d['mcode'] ?? null, $d['note'], $coupon, $payinfo, null, $dividend);
 
         if ($re['success'] == '1') {
             wToast('訂單新增成功');
@@ -336,6 +349,7 @@ class OrderCtrl extends Controller
         if (!$order) {
             return abort(404);
         }
+        $remit = OrderRemit::getData($order->id)->get()->first();
 
         $sn = $order->sn;
 
@@ -371,6 +385,7 @@ class OrderCtrl extends Controller
             'sn' => $sn,
             'order' => $order,
             'subOrders' => $subOrder,
+            'remit' => $remit,
             'breadcrumb_data' => $sn,
             'subOrderId' => $subOrderId,
             'discounts' => Discount::orderDiscountList('main', $id)->get()->toArray(),
@@ -892,6 +907,7 @@ class OrderCtrl extends Controller
     public function bonus_gross(Request $request, $id)
     {
         $order = Order::orderDetail($id)->first();
+        // OrderProfit::changeOwner(25,1,1);
 
         $dividend = CustomerDividend::where('category', DividendCategory::Order())
             ->where('category_sn', $order->sn)
@@ -900,13 +916,18 @@ class OrderCtrl extends Controller
         // dd(OrderItem::itemList($id,['profit'=>1])->get()->toArray());
 
         $dataList = OrderItem::itemList($id, ['profit' => 1])->get();
+        $bonus = [0, 0];
+        foreach ($dataList as $value) {
+            $bonus[0] = $bonus[0] += $value->bonus;
+            $bonus[1] = $bonus[1] += $value->bonus2;
+        }
 
         if ($dividend) {
             $dividend = $dividend->dividend;
         } else {
             $dividend = 0;
         }
-     //   dd(OrderProfitLog::dataList($id)->orderBy('created_at', 'DESC')->get());
+        //   dd(OrderProfitLog::dataList($id)->orderBy('created_at', 'DESC')->get());
         // dd(OrderProfitLog::dataList($id)->get());
         return view('cms.commodity.order.bonus_gross', [
             'id' => $id,
@@ -916,6 +937,7 @@ class OrderCtrl extends Controller
             'dividend' => $dividend,
             'log' => OrderProfitLog::dataList($id)->orderBy('created_at', 'DESC')->get(),
             'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
+            'bonus' => $bonus,
         ]);
     }
 
@@ -925,7 +947,7 @@ class OrderCtrl extends Controller
         $order = Order::orderDetail($id)->first();
         $user_id = $request->user()->id;
         $dataList = OrderProfit::dataList($id, $user_id)->get();
-      //  dd($dataList);
+        //  dd($dataList);
         // dd(OrderProfitLog::dataListPerson($id, $user_id)->get());
         return view('cms.commodity.order.personal_bonus', [
             'id' => $id,
@@ -934,6 +956,21 @@ class OrderCtrl extends Controller
             'log' => OrderProfitLog::dataListPerson($id, $user_id)->get(),
             'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
         ]);
+    }
+
+    // 變更分潤持有者
+    public function change_bonus_owner(Request $request, $id)
+    {
+
+        $request->validate([
+            'customer_id' => 'required',
+        ]);
+
+        $customer_id = $request->input('customer_id');
+
+        OrderProfit::changeOwner($id,$customer_id,$request->user()->id);
+
+        return redirect()->back();
     }
 
 }

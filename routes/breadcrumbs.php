@@ -202,19 +202,20 @@ Breadcrumbs::for('cms.order.personal-bonus', function (BreadcrumbTrail $trail, $
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
     $trail->push('個人獎金');
 });
+
 // 訂單自取入庫審核
 Breadcrumbs::for('cms.order.inbound', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
     $trail->push('#' . $value['sn'] . ' 入庫審核', route('cms.order.inbound', ['subOrderId' => $value['id']]));
 });
 // 新增收款單
-Breadcrumbs::for('cms.ar.create', function (BreadcrumbTrail $trail, $value) {
+Breadcrumbs::for('cms.collection_received.create', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
     $trail->push('新增收款單');
 });
 //顯示訂單收款單
-Breadcrumbs::for('cms.ar.receipt', function (BreadcrumbTrail $trail, $value) {
+Breadcrumbs::for('cms.collection_received.receipt', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
     $trail->push('收款單');
@@ -232,17 +233,17 @@ Breadcrumbs::for('cms.order.show-invoice', function (BreadcrumbTrail $trail, $va
     $trail->push('電子發票');
 });
 //編輯收款單入帳日期
-Breadcrumbs::for('cms.ar.review', function (BreadcrumbTrail $trail, $value) {
+Breadcrumbs::for('cms.collection_received.review', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
-    $trail->push('收款單', route('cms.ar.receipt', ['id' => $value['id']]));
+    $trail->push('收款單', route('cms.collection_received.receipt', ['id' => $value['id']]));
     $trail->push('入款審核');
 });
 //編輯收款單稅別/摘要/備註
-Breadcrumbs::for('cms.ar.taxation', function (BreadcrumbTrail $trail, $value) {
+Breadcrumbs::for('cms.collection_received.taxation', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id'=>$value['id']]));
-    $trail->push('收款單', route('cms.ar.receipt', ['id'=>$value['id']]));
+    $trail->push('收款單', route('cms.collection_received.receipt', ['id'=>$value['id']]));
     $trail->push('修改摘要/稅別');
 });
 Breadcrumbs::for('cms.order.pay-order', function (BreadcrumbTrail $trail, $value) {
@@ -282,6 +283,7 @@ Breadcrumbs::for('cms.ar_csnorder.taxation', function (BreadcrumbTrail $trail, $
     $trail->push('收款單', route('cms.ar_csnorder.receipt', ['id'=>$value['id']]));
     $trail->push('修改摘要/稅別');
 });
+
 // 出貨管理
 Breadcrumbs::for('cms.delivery.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
@@ -651,15 +653,35 @@ Breadcrumbs::for('cms.ap.index', function (BreadcrumbTrail $trail) {
 });
 
 // 收款作業
-Breadcrumbs::for('cms.ar.index', function (BreadcrumbTrail $trail) {
+Breadcrumbs::for('cms.collection_received.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('收款作業', route('cms.ar.index'));
+    $trail->push('收款作業', route('cms.collection_received.index'));
 });
 
 // 信用卡作業管理
 Breadcrumbs::for('cms.credit_manager.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
     $trail->push('信用卡作業管理', route('cms.credit_manager.index'));
+});
+Breadcrumbs::for('cms.credit_manager.record', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.credit_manager.index');
+    $trail->push('信用卡刷卡記錄');
+});
+Breadcrumbs::for('cms.credit_manager.record-edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.credit_manager.index');
+    $trail->push('編輯信用卡刷卡記錄');
+});
+Breadcrumbs::for('cms.credit_manager.ask', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.credit_manager.index');
+    $trail->push('信用卡整批請款');
+});
+Breadcrumbs::for('cms.credit_manager.claim', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.credit_manager.index');
+    $trail->push('信用卡整批入款');
+});
+Breadcrumbs::for('cms.credit_manager.income-detail', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.credit_manager.index');
+    $trail->push('信用卡入款明細');
 });
 // 信用卡
 Breadcrumbs::for('cms.credit_card.index', function (BreadcrumbTrail $trail) {
@@ -817,6 +839,12 @@ Breadcrumbs::for('cms.customer.address', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.customer.index');
     $trail->push('會員專區');
     $trail->push('收件地址管理');
+});
+
+Breadcrumbs::for('cms.customer.bonus', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.customer.index');
+    $trail->push('會員專區');
+    $trail->push('分潤');
 });
 
 // 分潤審核管理

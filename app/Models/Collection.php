@@ -120,6 +120,7 @@ class Collection extends Model
                 'collection.url',
                 'collection.meta_title',
                 'collection.meta_description',
+                'collection.is_liquor',
                 'prd_products.id',
                 'prd_products.title',
                 'prd_products.sku')
@@ -146,6 +147,7 @@ class Collection extends Model
         string $url,
         string $meta_title,
         string $meta_description,
+        int $is_liquor,
         array $prdIdArray
     ) {
         if (self::where([
@@ -162,6 +164,7 @@ class Collection extends Model
                 'url' => $url,
                 'meta_title' => $meta_title,
                 'meta_description' => $meta_description,
+                'is_liquor' => $is_liquor,
             ]);
 
         DB::table('collection_prd')

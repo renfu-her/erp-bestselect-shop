@@ -5,18 +5,18 @@
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
             @if (!$receivable)
-                <a href="{{ Route('cms.ar.create', ['id' => $order->id]) }}" class="btn btn-primary btn-sm my-1 ms-1" role="button">新增收款單</a>
+                <a href="{{ Route('cms.collection_received.create', ['id' => $order->id]) }}" class="btn btn-primary btn-sm my-1 ms-1" role="button">新增收款單</a>
             @endif
 
             @if ($received_order_data || !in_array($order->status, ['建立']))
                 @if ( ($receivable || in_array($order->status, ['已付款', '已入款', '結案'])) && $received_credit_card_log )
-                    <a href="{{ Route('api.web.order.credit_card_checkout', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}" 
+                    <a href="{{ Route('api.web.order.credit_card_checkout', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
                         class="btn btn-primary btn-sm my-1 ms-1" role="button" target="_blank">線上刷卡連結</a>
                 @else
                     <button type="button" class="btn btn-primary btn-sm my-1 ms-1" disabled>線上刷卡連結</button>
                 @endif
             @else
-                <a href="{{ Route('api.web.order.payment_credit_card', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}" 
+                <a href="{{ Route('api.web.order.payment_credit_card', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
                     class="btn btn-primary btn-sm" role="button" target="_blank">線上刷卡連結</a>
             @endif
 
@@ -26,8 +26,8 @@
 
             @if ($received_order_data)
                 @if(!in_array($order->status, ['已入款', '結案']))
-                    <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm my-1 ms-1" data-bs-toggle="modal" data-bs-target="#confirm-delete" 
-                        data-href="{{ Route('cms.ar.delete', ['id' => $received_order_data->id], true) }}">刪除收款單</a>
+                    <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm my-1 ms-1" data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                        data-href="{{ Route('cms.collection_received.delete', ['id' => $received_order_data->id], true) }}">刪除收款單</a>
                 @else
                     <button type="button" class="btn btn-outline-danger btn-sm my-1 ms-1" disabled>刪除收款單</button>
                 @endif
@@ -78,7 +78,7 @@
                     <dt>收款單號</dt>
                     <dd>
                         @if ($receivable)
-                            <a href="{{ route('cms.ar.receipt', ['id' => $order->id]) }}"
+                            <a href="{{ route('cms.collection_received.receipt', ['id' => $order->id]) }}"
                                 class="-text">{{ $received_order_data ? $received_order_data->sn : '' }}</a>
                         @else
                             <span>尚未完成收款</span>
@@ -95,7 +95,7 @@
                     <dt>購買人電話</dt>
                     <dd>{{ $order->ord_phone }}</dd>
                 </div>
-                <div class="col-sm-5">
+                <div class="col-md-5">
                     <dt>購買人地址</dt>
                     <dd>{{ $order->ord_address }}</dd>
                 </div>
@@ -109,21 +109,17 @@
                     <dt>收件人電話</dt>
                     <dd>{{ $order->rec_phone }}</dd>
                 </div>
-                <div class="col-sm-5">
+                <div class="col-md-5">
                     <dt>收件人地址</dt>
                     <dd>{{ $order->ord_address }}</dd>
                 </div>
             </dl>
             <dl class="row">
                 <div class="col">
-                    <dt>統編</dt>
-                    <dd><span>{{ $order->invoice_number ? $order->gui_number : '尚未開立發票' }}</span></dd>
+                    <dt>發票類型</dt>
+                    <dd>{{ $order->invoice_number ? $order->invoice_category : '尚未開立發票' }}</dd>
                 </div>
                 <div class="col">
-                    <dt>發票類型</dt>
-                    <dd><span>{{ $order->invoice_number ? $order->invoice_category : '尚未開立發票' }}</span></dd>
-                </div>
-                <div class="col-5">
                     <dt>發票號碼</dt>
                     <dd>
                         @if($order->invoice_number)
@@ -133,17 +129,33 @@
                         @endif
                     </dd>
                 </div>
+                <div class="col-md-5">
+                    <dt>電子發票資訊</dt>
+                    <dd>{{ $order->carrier_type ?? ''}} {{ $order->carrier_num ?? ''}}</dd>
+                </div>
             </dl>
             <dl class="row">
                 <div class="col">
                     <dt>推薦業務員</dt>
-                    <dd>{{ $order->name_m ?? ''}} {{ $order->sn_m ?? ''}}</dd>
+                    <dd>{{ $order->name_m ?? ''}} {{ $order->sn_m ?? ''}}
+                        @if ($order->name_m)
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#change-mcode" title="編輯" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                        @endif
+                    </dd>
                 </div>
+                <div class="col col-md-5">
+                    <dt>統編</dt>
+                    <dd>{{ $order->invoice_number ? $order->gui_number : '尚未開立發票' }}</dd>
+                </div>
+            </dl>
+            <dl class="row">
                 <div class="col">
                     <dt>寄件人</dt>
                     <dd>{{ $order->sed_name }}</dd>
                 </div>
-                <div class="col-sm-5">
+                <div class="col-md-5">
                     <dt>寄件人地址</dt>
                     <dd>{{ $order->sed_address }}</dd>
                 </div>
@@ -162,6 +174,30 @@
                     <dd>{{ $order->payment_status_title }}</dd>
                 </div>
             </dl>
+            @if(isset($remit))
+                <dl class="row">
+                    <div class="col">
+                        <dt>匯款人姓名</dt>
+                        <dd>{{ $remit->name }}</dd>
+                    </div>
+                    <div class="col">
+                        <dt>匯款金額</dt>
+                        <dd>{{ number_format($remit->price) }}</dd>
+                    </div>
+                    <div class="col">
+                        <dt>匯款日期</dt>
+                        <dd>{{ $remit->remit_date }}</dd>
+                    </div>
+                    <div class="col">
+                        <dt>帳號後五碼</dt>
+                        <dd>{{ $remit->bank_code }}</dd>
+                    </div>
+                    <div class="col-sm-2">
+                        <dt>上傳時間</dt>
+                        <dd>{{ $remit->created_at }}</dd>
+                    </div>
+                </dl>
+            @endif
         </div>
         @php
             $dlv_fee = 0;
@@ -546,6 +582,41 @@
             <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
         </x-slot>
     </x-b-modal>
+    
+    @if ($order->name_m)
+    <div class="modal fade" id="change-mcode" tabindex="-1" aria-labelledby="change-mcodeLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="{{ route('cms.order.change-bonus-owner',['id'=>$order->id]) }}" method="post">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="change-mcodeLabel">更改推薦業務員</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="col-12 mb-3">
+                            <label class="form-label">1. 請先搜尋</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control -search" placeholder="請輸入業務員姓名" aria-label="業務員姓名" aria-describedby="業務員姓名">
+                                <button class="btn btn-outline-primary px-4 -search" type="button">搜尋</button>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label">2. 選擇業務</label>
+                            <select class="form-select" name="customer_id">
+                                <option>請選擇</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-primary px-4">確認</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    @endif
 @endsection
 @once
     @push('sub-styles')
@@ -570,7 +641,38 @@
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
             });
 
+            // 更換推薦業務
+            const getCustomersUrl = @json(route('api.cms.user.get-customers'));
+            $('#change-mcode button.-search').off('click').on('click', function () {
+                const keyword = $('#change-mcode input.-search').val();
+                if (!keyword) {
+                    return false;
+                }
+                const $select = $('#change-mcode select');
+                $select.empty();
 
+                axios.post(getCustomersUrl, {
+                    profit: 1,
+                    keyword: keyword
+                }).then((result) => {
+                    console.log(result.data);
+                    if (result.data.status === '0' && result.data.data.length > 0) {
+                        $select.append('<option>請選擇</option>');
+                        (result.data.data).forEach(c => {
+                            $select.append(`<option value="${c.id}">${c.name} ${c.mcode}</option>`);
+                        });
+                    } else {
+                        $select.append('<option>查無資料</option>');
+                    }
+                }).catch((err) => {
+                    console.error(err);
+                    toast.show('發生錯誤', {
+                        type: 'danger'
+                    });
+                });
+            });
+
+            // 發放紅利
             const changeAutoUrl = @json(route('api.cms.order.change-auto-dividend'));
             const activePointUrl = @json(route('api.cms.order.active-dividend'));
             const order_sn = @json($order->sn);
@@ -612,6 +714,7 @@
                 $('.btn.-active-send').prop('disabled', auto);
             }
 
+            // 手動發放紅利
             $('.btn.-active-send').off('click.send').on('click.send', function() {
                 if (!$(this).prop('disabled')) {
                     // API

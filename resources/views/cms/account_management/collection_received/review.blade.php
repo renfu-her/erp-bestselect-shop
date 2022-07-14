@@ -19,7 +19,7 @@
         }
     </style>
     <div class="pt-2 mb-3">
-        <a href="{{ Route('cms.ar.receipt', ['id' => $received_order->source_id]) }}" class="btn btn-primary" role="button">
+        <a href="{{ Route('cms.collection_received.receipt', ['id' => $received_order->source_id]) }}" class="btn btn-primary" role="button">
             <i class="bi bi-arrow-left"></i> 返回上一頁
         </a>
     </div>
@@ -121,7 +121,7 @@
                                             </div>
                                             <div class="col-12 mb-3 form-group">
                                                 <label class="form-label">刷卡日期：</label>
-                                                <input type="date" class="form-control" name="credit_card[{{ $received_id }}][ckeckout_date]" value="{{ date('Y-m-d', strtotime($d_value->received_info->credit_card_ckeckout_date)) ?? date('Y-m-d', strtotime( date('Y-m-d'))) }}" data-placeholder="刷卡日期">
+                                                <input type="date" class="form-control" name="credit_card[{{ $received_id }}][checkout_date]" value="{{ date('Y-m-d', strtotime($d_value->received_info->credit_card_checkout_date)) ?? date('Y-m-d', strtotime( date('Y-m-d'))) }}" data-placeholder="刷卡日期">
                                             </div>
                                             <div class="col-12 mb-3 form-group">
                                                 <label class="form-label">信用卡別：</label>

@@ -8,7 +8,9 @@ Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
     Route::post('create', [OrderCtrl::class, 'createOrder']);
     Route::post('detail', [OrderCtrl::class, 'orderDetail']);
 
-
+    Route::post('create_remit', [OrderCtrl::class, 'create_remit'])->name('create_remit');
+    Route::post('store_remit', [OrderCtrl::class, 'store_remit'])->name('store_remit');
+    Route::get('get_remit/{id}', [OrderCtrl::class, 'get_remit'])->name('get_remit');
     /*
 Route::get('payinfo', [OrderCtrl::class, 'payinfo']);
 

@@ -46,6 +46,24 @@
                        value="{{ old('meta_description', $collectionData->meta_description ?? '')}}"
                        aria-label="網頁描述"/>
             </x-b-form-group>
+            <x-b-form-group name="is_liquor" title="酒類" required="true">
+                <div class="px-1">
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label">
+                            一般
+                            <input class="form-check-input @error('is_liquor') is-invalid @enderror" value="0"
+                                   name="is_liquor" type="radio" @if ('0' == old('is_liquor', $collectionData->is_liquor ?? '')) checked @endif>
+                        </label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label">
+                            酒類
+                            <input class="form-check-input @error('is_liquor') is-invalid @enderror" value="1"
+                                   name="is_liquor" type="radio" @if ('1' == old('is_liquor', $collectionData->is_liquor ?? '')) checked @endif>
+                        </label>
+                    </div>
+                </div>
+            </x-b-form-group>
             </div>
         </div>
         <div class="card shadow p-4 mb-4">

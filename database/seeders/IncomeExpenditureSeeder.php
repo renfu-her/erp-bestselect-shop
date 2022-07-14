@@ -120,6 +120,14 @@ class IncomeExpenditureSeeder extends Seeder
                 ]);
                 $j++;
             }
+            ReceivedDefault::create([
+                'name' => 'credit_card_service_fee',
+                'default_grade_id' => 96,
+            ]);
+            ReceivedDefault::create([
+                'name' => 'credit_card_net',
+                'default_grade_id' => 113,
+            ]);
 
 
             // 付款單科目

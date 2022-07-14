@@ -30,8 +30,8 @@
                 <div class="col-12 mb-3">
                     <label class="form-label">付款金額</label>
                     <div class="input-group has-validation">
-                        <input type="number" step="1" min="0" class="form-control @error('p_order_min_price') is-invalid @enderror" name="p_order_min_price" value="{{ $cond['p_order_min_price'] }}" aria-label="收款金額" />
-                        <input type="number" step="1" min="0" class="form-control @error('p_order_max_price') is-invalid @enderror" name="p_order_max_price" value="{{ $cond['p_order_max_price'] }}" aria-label="入款結束日期" />
+                        <input type="number" step="1" min="0" class="form-control @error('p_order_min_price') is-invalid @enderror" name="p_order_min_price" value="{{ $cond['p_order_min_price'] }}" aria-label="付款起始金額" />
+                        <input type="number" step="1" min="0" class="form-control @error('p_order_max_price') is-invalid @enderror" name="p_order_max_price" value="{{ $cond['p_order_max_price'] }}" aria-label="付款結束金額" />
                         <div class="invalid-feedback">
                             @error('p_order_min_price')
                                 {{ $message }}

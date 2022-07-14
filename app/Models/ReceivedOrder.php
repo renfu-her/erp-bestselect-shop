@@ -365,7 +365,7 @@ class ReceivedOrder extends Model
                 $id = DB::table('acc_received_credit')->insertGetId([
                     'cardnumber'=>$request[$request['acc_transact_type_fk']]['cardnumber'],
                     'authamt'=>$request[$request['acc_transact_type_fk']]['authamt'],
-                    'ckeckout_date'=>$request[$request['acc_transact_type_fk']]['ckeckout_date'],
+                    'checkout_date'=>$request[$request['acc_transact_type_fk']]['checkout_date'],
                     'card_type_code'=>$request[$request['acc_transact_type_fk']]['card_type_code'],
                     'card_type'=>$request[$request['acc_transact_type_fk']]['card_type'],
                     'card_owner_name'=>$request[$request['acc_transact_type_fk']]['card_owner_name'],
@@ -374,7 +374,7 @@ class ReceivedOrder extends Model
                     'checkout_area_code'=>$request[$request['acc_transact_type_fk']]['checkout_area_code'],
                     'checkout_area'=>$request[$request['acc_transact_type_fk']]['checkout_area'],
                     'installment'=>$request[$request['acc_transact_type_fk']]['installment'],
-                    'requested'=>$request[$request['acc_transact_type_fk']]['requested'],
+                    'status_code'=>$request[$request['acc_transact_type_fk']]['status_code'],
                     'card_nat'=>$request[$request['acc_transact_type_fk']]['card_nat'],
                     'checkout_mode'=>$request[$request['acc_transact_type_fk']]['checkout_mode'],
                     'created_at'=>date("Y-m-d H:i:s"),
@@ -429,13 +429,8 @@ class ReceivedOrder extends Model
                 break;
 
             case ReceivedMethod::CreditCard:
-                $card_type = [
-                    'visa'=>'VISA',
-                    'jcb'=>'JCB',
-                    'master'=>'MASTER',
-                    'american_express'=>'美國運通卡',
-                    'union_pay'=>'銀聯卡',
-                ];
+                $card_type = CrdCreditCard::distinct('title')->groupBy('title')->orderBy('id', 'asc')->pluck('title', 'id')->toArray();
+
                 $checkout_area = [
                     'taipei'=>'台北',
                 ];
@@ -443,7 +438,7 @@ class ReceivedOrder extends Model
                 DB::table('acc_received_credit')->where('id', $request['received_method_id'])->update([
                     'cardnumber'=>$request['cardnumber'],
                     // 'authamt'=>$request['authamt'],
-                    'ckeckout_date'=>$request['ckeckout_date'],
+                    'checkout_date'=>$request['checkout_date'],
                     'card_type_code'=>array_key_exists($request['card_type_code'], $card_type) ? $request['card_type_code'] : null,
                     'card_type'=>array_key_exists($request['card_type_code'], $card_type) ? $card_type[$request['card_type_code']] : null,
                     'card_owner_name'=>$request['card_owner_name'],
@@ -452,7 +447,7 @@ class ReceivedOrder extends Model
                     'checkout_area_code'=>array_key_exists($request['checkout_area_code'], $checkout_area) ? $request['checkout_area_code'] : null,
                     'checkout_area'=>array_key_exists($request['checkout_area_code'], $checkout_area) ? $checkout_area[$request['checkout_area_code']] : null,
                     // 'installment'=>$request['installment'],
-                    // 'requested'=>$request['requested'],
+                    // 'status_code'=>$request['status_code'],
                     // 'card_nat'=>$request['card_nat'],
                     // 'checkout_mode'=>$request['checkout_mode'],
                     'updated_at'=>date("Y-m-d H:i:s"),
@@ -510,7 +505,7 @@ class ReceivedOrder extends Model
     }
 
 
-    public static function get_received_detail($received_order_id = [])
+    public static function get_received_detail($received_order_id = null, string $method = null)
     {
         $query = DB::table('acc_received AS received')
             ->leftJoin('acc_received_credit AS _credit', function($join){
@@ -537,7 +532,19 @@ class ReceivedOrder extends Model
                     'received.received_method'=>'remit',
                 ]);
             })
-            ->whereIn('received.received_order_id', $received_order_id)
+
+            ->where(function ($q) use ($received_order_id, $method) {
+                if(gettype($received_order_id) == 'array') {
+                    $q->whereIn('received.received_order_id', $received_order_id);
+                } else {
+                    $q->where('received.received_order_id', $received_order_id);
+                }
+
+                if($method){
+                    $q->where('received.received_method', $method);
+                }
+            })
+
             ->selectRaw('
                 received.id AS received_id,
                 received.received_order_id,
@@ -553,7 +560,7 @@ class ReceivedOrder extends Model
             ->selectRaw('
                 _credit.cardnumber AS credit_card_number,
                 _credit.authamt AS credit_card_price,
-                _credit.ckeckout_date AS credit_card_ckeckout_date,
+                _credit.checkout_date AS credit_card_checkout_date,
                 _credit.card_type_code AS credit_card_type_code,
                 _credit.card_type AS credit_card_type,
                 _credit.card_owner_name AS credit_card_owner_name,
@@ -561,7 +568,13 @@ class ReceivedOrder extends Model
                 _credit.checkout_area_code AS credit_card_area_code,
                 _credit.checkout_area AS credit_card_area,
                 _credit.installment AS credit_card_installment,
-                _credit.requested AS credit_card_requested,
+                _credit.status_code AS credit_card_status_code,
+
+                _credit.income_order_id AS credit_card_io_id,
+                _credit.sn AS credit_card_io_sn,
+                _credit.transaction_date AS credit_card_transaction_date,
+                _credit.posting_date AS credit_card_posting_date,
+
                 _credit.card_nat AS credit_card_nat,
                 _credit.checkout_mode AS credit_card_checkout_mode
             ')
@@ -597,5 +610,60 @@ class ReceivedOrder extends Model
         }
 
         return $query;
+    }
+
+
+    public static function update_credit_received_method($request)
+    {
+        $income_order = null;
+
+        if($request['status_code'] == 0){
+            DB::table('acc_received_credit')->whereIn('id', $request['credit_card_received_id'])->update([
+                'status_code'=>0,
+                'income_order_id'=>null,
+                'sn'=>null,
+                'amt_service_fee'=>0,
+                'amt_net'=>0,
+                'transaction_date'=>null,
+                'posting_date'=>null,
+                'updated_at'=>date("Y-m-d H:i:s"),
+            ]);
+
+        } else if($request['status_code'] == 1){
+            DB::table('acc_received_credit')->whereIn('id', $request['credit_card_received_id'])->update([
+                'status_code'=>1,
+                'income_order_id'=>null,
+                'sn'=>null,
+                'amt_service_fee'=>0,
+                'amt_net'=>0,
+                'transaction_date'=>$request['transaction_date'],
+                'posting_date'=>null,
+                'updated_at'=>date("Y-m-d H:i:s"),
+            ]);
+
+        } else if($request['status_code'] == 2){
+            foreach($request['credit_card_received_id'] as $key => $value){
+                DB::table('acc_received_credit')->where('id', $value)->update([
+                    'status_code'=>2,
+                    'amt_percent'=>$request['amt_percent'][$key],
+                    'amt_service_fee'=>$request['authamt'][$key] - $request['amt_net'][$key],
+                    'amt_net'=>$request['amt_net'][$key],
+                    'posting_date'=>$request['posting_date'],
+                    'updated_at'=>date("Y-m-d H:i:s"),
+                ]);
+            }
+
+            $income_order = IncomeOrder::store_income_order($request['posting_date']);
+
+            foreach($request['credit_card_received_id'] as $key => $value){
+                DB::table('acc_received_credit')->where('id', $value)->update([
+                    'income_order_id'=>$income_order->id,
+                    'sn'=>$income_order->sn,
+                    'updated_at'=>date("Y-m-d H:i:s"),
+                ]);
+            }
+        }
+
+        return $income_order;
     }
 }

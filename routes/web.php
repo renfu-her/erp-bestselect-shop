@@ -53,7 +53,7 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/PayableDefault.php');
     require base_path('routes/cms/ReceivedDefault.php');
     require base_path('routes/cms/Ap.php');
-    require base_path('routes/cms/Ar.php');
+    require base_path('routes/cms/CollectionReceived.php');
     require base_path('routes/cms/ArCsnOrder.php');
     require base_path('routes/cms/FirstGrade.php');
     require base_path('routes/cms/Delivery.php');
@@ -74,6 +74,10 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/CreditCard.php');
     require base_path('routes/cms/CreditBank.php');
     require base_path('routes/cms/CreditPercent.php');
+
+    // require base_path('routes/cms/AccountReceived.php');
+    require base_path('routes/cms/OrderBonus.php');
+
 });
 
 Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => 'guest:customer'], function () {
