@@ -70,9 +70,9 @@ header.navbar .bi-list {
 }
 
 header .mainLogo {
-    padding-left: 200px;
-    padding-right: 10px;
-    height: 38px;
+  padding-left: 125px;
+  padding-right: 10px;
+  height: 38px;
 }
 header .mainLogo img {
   height: 100%;
@@ -149,30 +149,21 @@ header .navbar-member .dropdown-item {
  * Sidebar 左側 Menu #sidebarMenu
  */
 #sidebarMenu.sidebar {
-  position: fixed;
-  top: 0;
-  /* rtl:raw:
-  right: 0;
-  */
-  bottom: 0;
-  /* rtl:remove */
-  left: 0;
   z-index: 100; /* Behind the navbar */
   padding: 0;
-  margin-top: $Header-height; /* Height of navbar */
+  // width: 100%;
+  max-width: $Sidebar-width;
+  min-width: $Sidebar-width-min;
+  max-height: calc(100vh - #{$Header-height});
+  overflow-y: auto;
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
   background-color: $bgColor-grey;
-  width: $Sidebar-width;
-  overflow-y: auto;
-}
-@include media-breakpoint-down(md) {
-  #sidebarMenu.sidebar {
-    width: 100%;
-  }
 }
 @include media-breakpoint-down(sm) {
   #sidebarMenu.sidebar {
-    margin-top: $Header-height-sm;
+    max-height: calc(100vh - #{$Header-height-sm});
+    position: absolute;
+    max-width: 100%;
   }
 }
 
@@ -183,6 +174,7 @@ header .navbar-member .dropdown-item {
   text-align: left;
   font-weight: 500;
   font-size: 16px;
+  position: relative;
 }
 
 #sidebarMenu.sidebar .btn-toggle::after {
@@ -233,18 +225,35 @@ header .navbar-member .dropdown-item {
   text-transform: uppercase;
 }
 
+/*
+ * -main 右邊主內容
+ */
+.container-fluid {
+  height: calc(100vh - #{$Header-height});
+}
+
+#Main {
+  width: 100%;
+  max-height: calc(100vh - #{$Header-height});
+  overflow-y: auto;
+}
+@include media-breakpoint-down(sm) {
+  .container-fluid {
+    height: calc(100vh - #{$Header-height-sm});
+  }
+  #Main {
+    max-height: calc(100vh - #{$Header-height-sm});
+  }
+}
+
 /* 
  * Breadcrumb 麵包屑 #navBreadcrumb
  */
 #navBreadcrumb {
   height: 37px;
   font-size: .9rem;
-  width: calc(100% - #{$Sidebar-width});
-}
-@include media-breakpoint-down(md) {
-  #navBreadcrumb {
-    width: 100%;
-  }
+  width: 100%;
+  padding-left: 10px;
 }
 #navBreadcrumb .breadcrumb {
   margin: 0;
@@ -262,12 +271,7 @@ header .navbar-member .dropdown-item {
 .container-fluid main {
   background-color: $bgColor-light;
   min-height: calc(100vh - #{$Header-breadcrumb-height});
-  width: calc(100% - #{$Sidebar-width});
-}
-@include media-breakpoint-down(md) {
-  .container-fluid main {
-    width: 100%;
-  }
+  width: 100%;
 }
 .container-fluid main>div>div {
   width: 100%;

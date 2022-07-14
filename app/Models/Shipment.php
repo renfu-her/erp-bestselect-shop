@@ -54,6 +54,7 @@ class Shipment extends Model
         return $query->orderBy('temps_fk')
                                             ->orderBy('group.name')
                                             ->orderBy('group.method_fk')
+                                            ->groupBy('group.id')
                                             ->select([
                                                 'group.name',
                                                 'shi_rule.group_id_fk',
