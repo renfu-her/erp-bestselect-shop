@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\OrderProfitReport;
 
 class OrderBonusCtrl extends Controller
 {
@@ -15,6 +16,11 @@ class OrderBonusCtrl extends Controller
     public function index()
     {
         //
+
+        dd(OrderProfitReport::dataList()->get());
+
+        
+        OrderProfitReport::createMonthReport('2022/6/10');
     }
 
     /**
