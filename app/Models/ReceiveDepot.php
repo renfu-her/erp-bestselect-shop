@@ -203,8 +203,6 @@ class ReceiveDepot extends Model
                             ->groupBy('items.product_title')
                             ->groupBy('rcv_depot.prd_type')
                             ->groupBy('items.sku')
-                            ->groupBy('rcv_depot.depot_id')
-                            ->groupBy('rcv_depot.depot_name')
                             ->get();
                     }
                     else if (Event::consignment()->value == $delivery->event) {
@@ -294,8 +292,8 @@ class ReceiveDepot extends Model
                                 0, //是否為贈品 0:否
                                 0,
                                 '',
-                                $element->depot_id,
-                                $element->depot_name,
+                                0,
+                                '',
                                 $element->product_style_id,
                                 $element->sku,
                                 $element->title,
