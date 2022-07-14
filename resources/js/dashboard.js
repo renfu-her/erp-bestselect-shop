@@ -1,12 +1,7 @@
 (function () {
     'use strict'
 
-    // // 左側 Menu 事件
-    $('#sidebarMenu a.nav-link').off('click.nav').on('click.nav', function (e) {
-      // class 'active'
-      $('#sidebarMenu ul.btn-toggle-nav li').removeClass('active');
-      $(this).parent('li').addClass('active');
-    });
+    // 左側 Menu
 
     // 會員大頭貼
     $('#memberAvatar').text(($('#memberName').text() || '')[0].toLocaleUpperCase());

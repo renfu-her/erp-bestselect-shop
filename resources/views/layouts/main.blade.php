@@ -3,22 +3,24 @@
     <!-- Header -->
     <x-b-topbar />
     <div class="container-fluid">
-        <div class="row">
+        <div class="row flex-nowrap position-relative">
             <!-- 左側 Menu -->
             <x-b-sidebar />
 
-            <!-- 麵包屑 -->
-            <x-b-breadcrumb :value="isset($breadcrumb_data) ? $breadcrumb_data : ''" />
+            <div id="Main" class="col p-0">
+                <!-- 麵包屑 -->
+                <x-b-breadcrumb :value="isset($breadcrumb_data) ? $breadcrumb_data : ''" />
 
 
-            <!-- 主內容 -->
-            <main class="ms-sm-auto px-0">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="px-4 py-3">
-                        @yield('sub-content')
+                <!-- 主內容 -->
+                <main class="px-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="px-4 py-3">
+                            @yield('sub-content')
+                        </div>
                     </div>
-                </div>
-            </main>
+                </main>
+            </div>
         </div>
     </div>
     <x-b-toast />
@@ -27,14 +29,14 @@
 
 @once
     @push('styles')
-        <link rel="stylesheet" href="{{ Asset('dist/css/sub-content.css') }}">
-        <link rel="stylesheet" href="{{ Asset('dist/css/component.css') }}">
+        <link rel="stylesheet" href="{{ Asset('dist/css/sub-content.css') }}?1.0">
+        <link rel="stylesheet" href="{{ Asset('dist/css/component.css') }}?1.0">
         @stack('sub-styles')
     @endpush
     @push('scripts')
-        <script src="{{ Asset('dist/js/dashboard.js') }}"></script>
-        <script src="{{ Asset('dist/js/helpers.js') }}"></script>
-        <script src="{{ Asset('dist/js/components.js') }}"></script>
+        <script src="{{ Asset('dist/js/dashboard.js') }}?1.0"></script>
+        <script src="{{ Asset('dist/js/helpers.js') }}?1.0"></script>
+        <script src="{{ Asset('dist/js/components.js') }}?1.0"></script>
         <script>
             window.Laravel = {!! json_encode([
                 'apiToken' => auth()->user()->api_token ?? null,
