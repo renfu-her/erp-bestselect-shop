@@ -77,6 +77,8 @@ class StockCtrl extends Controller
                 , 'inbound.total_sale_num'
                 , 'inbound.total_csn_num'
                 , 'inbound.total_consume_num'
+                , 'inbound.total_back_num'
+                , 'inbound.total_scrap_num'
                 , 'inbound.total_in_stock_num'
                 , 'inbound.total_in_stock_num_csn'
             )

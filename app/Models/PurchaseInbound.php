@@ -196,6 +196,10 @@ class PurchaseInbound extends Model
                 return ['success' => 0, 'error_msg' => '已有寄倉紀錄 無法刪除'];
             } else if (0 < $inboundDataGet->consume_num) {
                 return ['success' => 0, 'error_msg' => '已有耗材紀錄 無法刪除'];
+            } else if (0 < $inboundDataGet->back_num) {
+                return ['success' => 0, 'error_msg' => '已有退貨紀錄 無法刪除'];
+            } else if (0 < $inboundDataGet->scrap_num) {
+                return ['success' => 0, 'error_msg' => '已有報廢紀錄 無法刪除'];
             }
         }
         return DB::transaction(function () use (
@@ -291,7 +295,8 @@ class PurchaseInbound extends Model
                 ->whereNull('inbound.deleted_at');
             $inboundDataGet = $inboundData->get()->first();
             if (null != $inboundDataGet) {
-                if (($inboundDataGet->inbound_num - $inboundDataGet->sale_num - $inboundDataGet->csn_num - $inboundDataGet->consume_num - $sale_num) < 0) {
+                if (($inboundDataGet->inbound_num - $inboundDataGet->sale_num - $inboundDataGet->csn_num - $inboundDataGet->consume_num - $sale_num
+                         - $inboundDataGet->back_num - $inboundDataGet->scrap_num) < 0) {
                     return ['success' => 0, 'error_msg' => '入庫單出貨數量超出範圍'];
                 } else {
                     $update_arr = [];
@@ -715,8 +720,8 @@ class PurchaseInbound extends Model
             ->groupBy('tb_rd.product_style_id')
             ->groupBy('tb_rd.product_title');
 
-        $calc_qty = '(case when tb_rd.qty is null then inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num
-       else inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num - tb_rd.qty end)';
+        $calc_qty = '(case when tb_rd.qty is null then inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num - inbound.back_num - inbound.scrap_num
+       else inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num - inbound.back_num - inbound.scrap_num - tb_rd.qty end)';
 
         $result = DB::table('pcs_purchase_inbound as inbound')
             ->leftJoin('prd_product_styles as style', 'style.id', '=', 'inbound.product_style_id')
@@ -811,13 +816,15 @@ class PurchaseInbound extends Model
                 , DB::raw('sum(inbound.sale_num) as total_sale_num')
                 , DB::raw('sum(inbound.csn_num) as total_csn_num')
                 , DB::raw('sum(inbound.consume_num) as total_consume_num')
+                , DB::raw('sum(inbound.back_num) as total_back_num')
+                , DB::raw('sum(inbound.scrap_num) as total_scrap_num')
             )
-            ->selectRaw('(sum(inbound.inbound_num) - sum(inbound.sale_num) - sum(inbound.csn_num) - sum(inbound.consume_num)) as total_in_stock_num')
+            ->selectRaw('(sum(inbound.inbound_num) - sum(inbound.sale_num) - sum(inbound.csn_num) - sum(inbound.consume_num) - sum(inbound.back_num) - sum(inbound.scrap_num)) as total_in_stock_num')
             ->whereNull('inbound.deleted_at')
             ->whereNotNull('style.sku')
             ->whereNull('style.deleted_at')
 //            ->whereNotNull('inbound.close_date') //只篩選入庫有結案的
-//            ->where(DB::raw('(inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num)'), '>', 0)
+//            ->where(DB::raw('(inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num - inbound.back_num - inbound.scrap_num)'), '>', 0)
             ->groupBy('inbound.product_style_id')
             ->groupBy('inbound.event')
             ->groupBy('inbound.depot_id')
@@ -846,6 +853,8 @@ class PurchaseInbound extends Model
                 , 'ib_purchase.total_sale_num'
                 , 'ib_purchase.total_csn_num'
                 , 'ib_purchase.total_consume_num'
+                , 'ib_purchase.total_back_num'
+                , 'ib_purchase.total_scrap_num'
                 , DB::raw('(ifnull(ib_purchase.total_in_stock_num, 0) - ifnull(tb_rd.qty, 0)) as total_in_stock_num')
                 , DB::raw('@0:="0" as total_in_stock_num_csn')
             );
@@ -865,8 +874,11 @@ class PurchaseInbound extends Model
                 , DB::raw('@0:="0" as total_sale_num')
                 , DB::raw('@0:="0" as total_csn_num')
                 , DB::raw('@0:="0" as total_consume_num')
+                , DB::raw('@0:="0" as total_back_num')
+                , DB::raw('@0:="0" as total_scrap_num')
                 , DB::raw('@0:="0" as total_in_stock_num')
-                , DB::raw('(ifnull(ib_consignment.total_inbound_num, 0) - ifnull(ib_consignment.total_sale_num, 0) - ifnull(ib_consignment.total_csn_num, 0) - ifnull(ib_consignment.total_consume_num, 0)) as total_in_stock_num_csn')
+                , DB::raw('(ifnull(ib_consignment.total_inbound_num, 0) - ifnull(ib_consignment.total_sale_num, 0) - ifnull(ib_consignment.total_csn_num, 0)
+                - ifnull(ib_consignment.total_consume_num, 0)- ifnull(ib_consignment.total_back_num, 0)- ifnull(ib_consignment.total_scrap_num, 0)) as total_in_stock_num_csn')
             );
 
         $queryInbound_union_pcs_csn = $queryInbound_purchase->union($queryInbound_consignment);
@@ -884,6 +896,8 @@ class PurchaseInbound extends Model
                 , DB::raw('sum(ib.total_sale_num) as total_sale_num')
                 , DB::raw('sum(ib.total_csn_num) as total_csn_num')
                 , DB::raw('sum(ib.total_consume_num) as total_consume_num')
+                , DB::raw('sum(ib.total_back_num) as total_back_num')
+                , DB::raw('sum(ib.total_scrap_num) as total_scrap_num')
                 , DB::raw('sum(ib.total_in_stock_num) as total_in_stock_num')
                 , DB::raw('sum(ib.total_in_stock_num_csn) as total_in_stock_num_csn')
             )
@@ -915,8 +929,11 @@ class PurchaseInbound extends Model
                 , 'inbound.prd_type as prd_type'
                 , DB::raw('sum(inbound.inbound_num) as inbound_num')
                 , DB::raw('sum(inbound.sale_num) as sale_num')
+                , DB::raw('sum(inbound.csn_num) as csn_num')
                 , DB::raw('sum(inbound.consume_num) as consume_num')
-                , DB::raw('(sum(inbound.inbound_num) - sum(inbound.sale_num) - sum(inbound.consume_num)) as available_num')
+                , DB::raw('sum(inbound.back_num) as back_num')
+                , DB::raw('sum(inbound.scrap_num) as scrap_num')
+                , DB::raw('(sum(inbound.inbound_num) - sum(inbound.sale_num) - sum(inbound.csn_num) - sum(inbound.consume_num) - sum(inbound.back_num) - sum(inbound.scrap_num)) as available_num')
             )
             ->groupBy('inbound.product_style_id')
             ->groupBy('inbound.depot_id')
