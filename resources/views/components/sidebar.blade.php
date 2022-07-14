@@ -1,4 +1,4 @@
-<nav id="sidebarMenu" class="d-md-block sidebar collapse">
+<nav id="sidebarMenu" class="col-12 col-sm-3 p-0 sidebar collapse show">
     <ul class="list-unstyled ps-0">
         @foreach ($tree as $unit)
             <!-- 第一層 -->
