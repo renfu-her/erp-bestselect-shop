@@ -44,6 +44,20 @@
 <body>
     @yield('content')
     <script src="{{ Asset('dist/js/app.js') }}"></script>
+    <script>
+        $('#sidebarMenu').on('show.bs.collapse', function () {
+            console.log('show');
+            sessionStorage.setItem('sidebar', 'show');
+        }).on('hide.bs.collapse', function () {
+            console.log('hide');
+            sessionStorage.setItem('sidebar', 'hide');
+        });
+        if (window.innerWidth >= 576 && sessionStorage.sidebar === 'show') {
+            $('#sidebarMenu').addClass('show');
+        } else {
+            sessionStorage.setItem('sidebar', 'hide');
+        }
+    </script>
     @stack('scripts')
 </body>
 
