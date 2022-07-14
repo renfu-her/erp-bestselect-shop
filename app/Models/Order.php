@@ -185,7 +185,8 @@ class Order extends Model
             'product_style_id' => 'dlv_consum.product_style_id',
             'sku' => 'dlv_consum.sku',
             'product_title' => 'dlv_consum.product_title',
-            'qty' => 'dlv_consum.qty']);
+            'qty' => 'dlv_consum.qty',
+            'back_qty' => 'dlv_consum.back_qty']);
 
         $itemConsumeQuery = DB::table('dlv_logistic')
             ->leftJoin('dlv_consum', 'dlv_consum.logistic_id', '=', 'dlv_logistic.id')

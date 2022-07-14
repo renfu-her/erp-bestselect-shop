@@ -163,6 +163,7 @@ class Consum extends Model
                 , 'consum.sku as sku'
                 , 'consum.product_title as product_title'
                 , DB::raw('sum(consum.qty) as total_qty')
+                , DB::raw('sum(consum.back_qty) as total_back_qty')
 
             )
             ->selectRaw(('('.$concatString. '   ) as groupconcat'))
@@ -198,6 +199,7 @@ class Consum extends Model
                 , 'consum.sku'
                 , 'consum.product_title'
                 , 'consum.qty'
+                , 'consum.back_qty'
             )
             ->where('delivery.event', '=', $event)
             ->where('delivery.event_id', '=', $event_id)

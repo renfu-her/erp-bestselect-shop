@@ -424,6 +424,7 @@ class ReceiveDepot extends Model
                 , 'rcv_depot.depot_name as depot_name'
                 , 'rcv_depot.product_style_id as product_style_id'
                 , 'rcv_depot.qty as qty'
+                , 'rcv_depot.back_qty as back_qty'
                 , 'rcv_depot.expiry_date as expiry_date'
             );
 
@@ -471,6 +472,7 @@ class ReceiveDepot extends Model
                 , 'rcv_depot.sku as sku'
                 , 'rcv_depot.product_title as product_title'
                 , 'rcv_depot.qty as qty'
+                , 'rcv_depot.back_qty as back_qty'
                 , 'rcv_depot.expiry_date as expiry_date'
                 , 'rcv_depot.audit_date as audit_date'
             )

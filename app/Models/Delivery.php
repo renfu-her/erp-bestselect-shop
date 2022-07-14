@@ -237,6 +237,7 @@ class Delivery extends Model
                 , 'dlv_receive_depot.product_title as rec_product_title'
             )
             ->selectRaw('sum(dlv_receive_depot.qty) as send_qty')
+            ->selectRaw('sum(dlv_receive_depot.back_qty) as back_qty')
             ->groupBy('dlv_receive_depot.delivery_id')
             ->groupBy('dlv_receive_depot.event_item_id')
             ->groupBy('dlv_receive_depot.prd_type')

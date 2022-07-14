@@ -639,6 +639,7 @@ class PurchaseInbound extends Model
                 , 'dlv_receive_depot.product_title as product_title'
             )
             ->selectRaw('sum(dlv_receive_depot.qty) as qty')
+            ->selectRaw('sum(dlv_receive_depot.back_qty) as back_qty')
             ->whereNotNull('qty')
             ->whereNull('dlv_delivery.audit_date')
             ->whereNull('dlv_receive_depot.audit_date')
@@ -666,6 +667,7 @@ class PurchaseInbound extends Model
                 , 'dlv_receive_depot.product_title as product_title'
             )
             ->selectRaw('sum(dlv_receive_depot.qty) as qty')
+            ->selectRaw('sum(dlv_receive_depot.back_qty) as back_qty')
             ->whereNotNull('qty')
             ->whereNull('dlv_delivery.audit_date')
             ->whereNull('dlv_receive_depot.audit_date')
