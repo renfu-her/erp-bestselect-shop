@@ -43,7 +43,7 @@
 
 <body>
     @yield('content')
-    <script src="{{ Asset('dist/js/app.js') }}"  ></script>
+    <script src="{{ Asset('dist/js/app.js') }}"></script>
     @stack('scripts')
 </body>
 

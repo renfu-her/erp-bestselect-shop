@@ -228,12 +228,19 @@ header .navbar-member .dropdown-item {
 /*
  * -main 右邊主內容
  */
+.container-fluid {
+  height: calc(100vh - #{$Header-height});
+}
+
 #Main {
   width: 100%;
   max-height: calc(100vh - #{$Header-height});
   overflow-y: auto;
 }
 @include media-breakpoint-down(sm) {
+  .container-fluid {
+    height: calc(100vh - #{$Header-height-sm});
+  }
   #Main {
     max-height: calc(100vh - #{$Header-height-sm});
   }
