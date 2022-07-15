@@ -8,7 +8,7 @@
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">關鍵字</label>
-                    <input type="text" name="keyword" class="form-control" placeholder="姓名或mcode" >
+                    <input type="text" name="keyword" class="form-control" placeholder="姓名或mcode">
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">報表月份</label>
@@ -74,7 +74,10 @@
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td>{{ $data->report_at }}</td>
-                            <td>{{ $data->name }}_{{ $data->mcode }}</td>
+                            <td> <a href="{{ route('cms.order-bonus.detail', ['id' => $data->id]) }}">
+                                    {{ $data->name }}_{{ $data->mcode }}
+                                </a>
+                            </td>
                             <td>{{ $data->qty }}</td>
                             <td>{{ $data->bonus }}</td>
                             <td></td>

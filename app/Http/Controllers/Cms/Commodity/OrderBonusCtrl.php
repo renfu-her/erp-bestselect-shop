@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Http\Controllers\Controller;
+use App\Models\OrderProfit;
 use App\Models\OrderProfitReport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -27,7 +28,7 @@ class OrderBonusCtrl extends Controller
         $cond['keyword'] = Arr::get($query, 'keyword');
 
         $dataList = OrderProfitReport::dataList($cond['keyword'], $cond['report_month'], $cond['check_status'])->paginate($page)
-        ->appends($query);
+            ->appends($query);
         // dd( OrderProfitReport::dataList()->get());
         return view('cms.commodity.order_bonus.list', [
             'dataList' => $dataList,
@@ -110,5 +111,19 @@ class OrderBonusCtrl extends Controller
         OrderProfitReport::where('id', $id)->whereNull('checked_at')->delete();
         wToast('新增完成');
         return redirect(route('cms.order-bonus.index'));
+    }
+
+    public function detail($id)
+    {
+        $report = OrderProfitReport::dataList()->where('report.id', $id)->get()->first();
+
+        $profit = OrderProfit::dataList(null, $report->customer_id, $report->report_at . "/1")->get();
+        
+    
+        return view('cms.commodity.order_bonus.detail', [
+            'dataList' => $profit,
+            'report'=>$report
+        ]);
+
     }
 }

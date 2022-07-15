@@ -863,3 +863,8 @@ Breadcrumbs::for('cms.order-bonus.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
     $trail->push('分潤報表', route('cms.order-bonus.index'));
 });
+
+Breadcrumbs::for('cms.order-bonus.detail', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.order-bonus.index');
+    $trail->push('內容');
+});
