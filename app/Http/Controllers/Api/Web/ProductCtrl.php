@@ -77,6 +77,7 @@ class ProductCtrl extends Controller
             'collection' => $d['collection_id'],
             'public' => '1',
             'active_date' => '1',
+            'online' => 'online',
             'sale_channel_id' => $sale_channel_id,
         ])->get()->toArray();
 
