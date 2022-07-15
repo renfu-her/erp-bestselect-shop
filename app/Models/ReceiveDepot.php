@@ -383,9 +383,16 @@ class ReceiveDepot extends Model
                         'audit_user_id' => $user_id,
                         'audit_user_name' => $user_name,]);
 
-                    $rcvDepot->update([
-                        'audit_date' => $curr_date,
-                    ]);
+                    $rcvDepot->update([ 'audit_date' => $curr_date ]);
+
+                    //20220714 Hans:將出貨日填到子訂單
+                    if (Event::order()->value == $delivery->event) {
+                        Order::where('id', '=', $delivery->event_id)->update([ 'dlv_audit_date' => $curr_date ]);
+                    } else if (Event::consignment()->value == $delivery->event) {
+                        Consignment::where('id', '=', $delivery->event_id)->update([ 'dlv_audit_date' => $curr_date ]);
+                    } else if (Event::csn_order()->value == $delivery->event) {
+                        CsnOrder::where('id', '=', $delivery->event_id)->update([ 'dlv_audit_date' => $curr_date ]);
+                    }
 
                     return ['success' => 1, 'error_msg' => ""];
                 });
