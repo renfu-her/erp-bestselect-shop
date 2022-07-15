@@ -172,7 +172,7 @@ return
                 "route_name" => "cms.credit_manager.index",
             ],
             [
-                "title" => "分潤",
+                "title" => "分潤報表",
                 "controller_name" => "OrderBonusCtrl",
                 "route_name" => "cms.order-bonus.index",
             ],
