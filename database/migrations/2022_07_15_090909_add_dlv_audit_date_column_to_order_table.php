@@ -13,8 +13,8 @@ class AddDlvAuditDateColumnToOrderTable extends Migration
      */
     public function up()
     {
-        Schema::table('ord_orders', function (Blueprint $table) {
-            $table->after('invoice_number', function ($tb) {
+        Schema::table('ord_sub_orders', function (Blueprint $table) {
+            $table->after('close_date', function ($tb) {
                 $tb->dateTime('dlv_audit_date')->nullable()->comment('出貨審核日期');
             });
         });
@@ -39,8 +39,8 @@ class AddDlvAuditDateColumnToOrderTable extends Migration
      */
     public function down()
     {
-        if (Schema::hasColumns('ord_orders', ['dlv_audit_date',])) {
-            Schema::table('ord_orders', function (Blueprint $table) {
+        if (Schema::hasColumns('ord_sub_orders', ['dlv_audit_date',])) {
+            Schema::table('ord_sub_orders', function (Blueprint $table) {
                 $table->dropColumn('dlv_audit_date');
             });
         }
