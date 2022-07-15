@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\OrderProfitReport;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 class OrderBonusCtrl extends Controller
 {
@@ -13,14 +14,26 @@ class OrderBonusCtrl extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         //
 
-        dd(OrderProfitReport::dataList()->get());
+        $query = $request->query();
+        //   dd($query);
+        $cond = [];
+        $page = getPageCount(Arr::get($query, 'data_per_page', 10));
+        $cond['report_month'] = Arr::get($query, 'report_month');
+        $cond['check_status'] = Arr::get($query, 'check_status', 'all');
+        $cond['keyword'] = Arr::get($query, 'keyword');
 
-        
-        OrderProfitReport::createMonthReport('2022/6/10');
+        $dataList = OrderProfitReport::dataList($cond['keyword'], $cond['report_month'], $cond['check_status'])->paginate($page)
+        ->appends($query);
+        // dd( OrderProfitReport::dataList()->get());
+        return view('cms.commodity.order_bonus.list', [
+            'dataList' => $dataList,
+            'cond' => $cond,
+            'data_per_page' => $page,
+            'check_status' => ['all' => '不限', '0' => '未確認', '1' => '已確認']]);
     }
 
     /**
@@ -41,7 +54,14 @@ class OrderBonusCtrl extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'date' => 'date',
+        ]);
+
+        $date = $request->input('date');
+        OrderProfitReport::createMonthReport($date);
+        wToast('新增完成');
+        return redirect(route('cms.order-bonus.index'));
     }
 
     /**
@@ -87,5 +107,8 @@ class OrderBonusCtrl extends Controller
     public function destroy($id)
     {
         //
+        OrderProfitReport::where('id', $id)->whereNull('checked_at')->delete();
+        wToast('新增完成');
+        return redirect(route('cms.order-bonus.index'));
     }
 }
