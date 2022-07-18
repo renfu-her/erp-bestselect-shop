@@ -100,9 +100,9 @@ class AccountReceivedCtrl extends Controller
         if($request->isMethod('post')){
             $request->validate([
                 'selected' => 'required|array',
-                'selected.*' => 'exists:acc_received_credit,id',
+                'selected.*' => 'exists:acc_received_account,id',
                 'account_received_id' => 'required|array',
-                'account_received_id.*' => 'exists:acc_received_credit,id',
+                'account_received_id.*' => 'exists:acc_received_account,id',
                 'amt_net' => 'required|array',
                 'amt_net.*' => 'required|numeric|between:0,9999999999.99',
             ]);
@@ -111,7 +111,7 @@ class AccountReceivedCtrl extends Controller
             if(count($compare) == 0){
                 $source_type = app(ReceivedOrder::class)->getTable();
                 $n_id = DB::select("SHOW TABLE STATUS LIKE '" . $source_type . "'")[0]->Auto_increment;
-                $received_order = ReceivedOrder::create_received_order($source_type, $n_id, array_sum(request('amt_net')));
+                $received_order = ReceivedOrder::create_received_order($source_type, $n_id, array_sum(request('amt_net')), request('account_received_id')[0]);
 
                 $parm = [
                     'account_received_id'=>request('account_received_id'),
@@ -301,11 +301,7 @@ class AccountReceivedCtrl extends Controller
                 $EncArray['more_info'] = $data[$data['acc_transact_type_fk']];
 
             } else if($data['acc_transact_type_fk'] == ReceivedMethod::AccountsReceivable){
-                $purchaser = DB::table('acc_received_account')->where('append_received_order_id', $id)->orderBy('id', 'asc')->first();
-                $data[$data['acc_transact_type_fk']]['drawee_id'] = $purchaser->drawee_id;
-                $data[$data['acc_transact_type_fk']]['drawee_name'] = $purchaser->drawee_name;
-                $data[$data['acc_transact_type_fk']]['drawee_phone'] = $purchaser->drawee_phone;
-                $data[$data['acc_transact_type_fk']]['drawee_address'] = $purchaser->drawee_address;
+                //
             }
 
             $result_id = ReceivedOrder::store_received_method($data);
