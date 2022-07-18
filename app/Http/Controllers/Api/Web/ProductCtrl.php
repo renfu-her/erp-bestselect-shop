@@ -45,6 +45,7 @@ class ProductCtrl extends Controller
 
         $validator = Validator::make($request->all(), [
             'collection_id' => 'required',
+            'type' => ['nullable', 'string', 'regex:/^1$/'],
         ]);
 
         if ($validator->fails()) {
@@ -59,8 +60,12 @@ class ProductCtrl extends Controller
 
         $collection = Collection::where('id', $d['collection_id'])
             ->select(['id', 'name', 'meta_title', 'meta_description', 'url'])
-            ->where('is_public', '1')
-            ->get()->first();
+            ->where('is_public', '1');
+
+        if (isset($d['type']) && $d['type'] === '1') {
+            $collection->where('is_liquor', '=', 1);
+        }
+        $collection = $collection->get()->first();
 
         if (!$collection) {
             $re = [];
