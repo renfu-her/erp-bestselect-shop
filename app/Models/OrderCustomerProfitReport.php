@@ -6,45 +6,31 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
-class OrderProfitReport extends Model
+class OrderCustomerProfitReport extends Model
 {
     use HasFactory;
     protected $table = 'ord_customer_profit_report';
     protected $guarded = [];
 
-    public static function dataList($keyword = null, $month = null, $check_status = null)
+    public static function dataList($month_profit_report_id)
     {
 
         $re = DB::table('ord_customer_profit_report as report')
-            ->select('report.*', 'customer.name', 'customer.sn as mcode')
-            ->selectRaw('DATE_FORMAT(report.report_at, "%Y/%m") as report_at')
-            ->leftJoin('usr_customers as customer', 'report.customer_id', '=', 'customer.id');
-
-        if ($keyword) {
-            $re->where(function ($query) use ($keyword) {
-                $query->where('customer.name', 'like', "%$keyword%")
-                    ->orWhere('customer.sn', 'like', "%$keyword%");
-            });
-        }
-
-        if ($month) {
-            $sdate = date("Y-m-1", strtotime($month));
-            $edate = date("Y-m-t", strtotime($month));
-            $re->whereBetween('report.report_at', [$sdate, $edate]);
-        }
-
-        if (isset($check_status) && $check_status != 'all') {
-            if ($check_status == '1') {
-                $re->whereNotNull('report.checked_at');
-            } else {
-                $re->whereNull('report.checked_at');
-            }
-        }
+            ->select(['report.*',
+                'customer.name',
+                'customer.sn as mcode',
+                'bank.title as bank_title',
+                'p_report.report_at as report_at'])
+            ->leftJoin('usr_customers as customer', 'report.customer_id', '=', 'customer.id')
+            ->leftJoin('usr_customer_profit as c_profit', 'c_profit.customer_id', '=', 'customer.id')
+            ->leftJoin('acc_banks as bank', 'c_profit.bank_id', '=', 'bank.id')
+            ->leftJoin('ord_month_profit_report as p_report', 'p_report.id', '=', 'report.month_profit_report_id')
+            ->where('month_profit_report_id', $month_profit_report_id);
 
         return $re;
     }
 
-    public static function createMonthReport($date)
+    public static function createCustomerReport($month_id, $date)
     {
 
         DB::beginTransaction();
@@ -66,7 +52,7 @@ class OrderProfitReport extends Model
                 'customer_id' => $profit->customer_id,
                 'bonus' => $profit->bonus,
                 'qty' => $profit->qty,
-                'report_at' => $sdate,
+                'month_profit_report_id' => $month_id,
             ]);
         }
 
