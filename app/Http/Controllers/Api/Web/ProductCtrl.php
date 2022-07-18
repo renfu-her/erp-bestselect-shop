@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Web;
 
+use App\Enums\Globals\ApiStatusMessage;
 use App\Enums\Globals\AppEnvClass;
 use App\Enums\Globals\ImageDomain;
 use App\Enums\Globals\ResponseParam;
@@ -21,6 +22,7 @@ class ProductCtrl extends Controller
 
         $validator = Validator::make($request->all(), [
             'sku' => 'required',
+            'type' => ['nullable', 'string', 'regex:/^1$/'],
         ]);
 
         if ($validator->fails()) {
@@ -30,6 +32,23 @@ class ProductCtrl extends Controller
             ]);
         }
         $d = $request->all();
+        if (isset($d['type'])) {
+            if ($d['type'] === '1' &&
+                !Product::isLiquor($d['sku'])
+            ) {
+                return response()->json([
+                    'status' => ApiStatusMessage::NotFound,
+                    'msg'    => ApiStatusMessage::getDescription(ApiStatusMessage::NotFound),
+                ]);
+            }
+        } else {
+            if (Product::isLiquor($d['sku'])) {
+                return response()->json([
+                    'status' => ApiStatusMessage::NotFound,
+                    'msg'    => ApiStatusMessage::getDescription(ApiStatusMessage::NotFound),
+                ]);
+            }
+        }
         $re = Product::singleProduct($d['sku']);
 
         if ($re) {
@@ -64,8 +83,8 @@ class ProductCtrl extends Controller
 
         if (isset($d['type'])) {
             if($d['type'] === '1') {
-            $collection->where('is_liquor', '=', 1);
-        }
+                $collection->where('is_liquor', '=', 1);
+            }
         } else {
             $collection->where('is_liquor', '=', 0);
         }

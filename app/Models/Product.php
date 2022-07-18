@@ -455,6 +455,55 @@ class Product extends Model
 
     }
 
+    /**
+     * @param $sku
+     * 檢查是否是酒類商品?
+     * @return bool
+     */
+    public static function isLiquor($sku)
+    {
+        $collectionExist = DB::table('collection')
+                        ->where([
+                            ['is_public', '=', '1'],
+                            ['is_liquor', '=', '1'],
+                        ])
+                        ->select('id')
+                        ->get()
+                        ->first();
+
+        if (!$collectionExist) {
+            return false;
+        }
+
+        $collections = DB::table('collection')
+                                ->where([
+                                    ['is_public', '=', '1'],
+                                    ['is_liquor', '=', '1'],
+                                ])
+                                ->select('id')
+                                ->get();
+
+        $sale_channel_id = 1;
+        $skuData = [];
+        foreach ($collections as $collection) {
+            $temp = Product::productList(null, null, [
+                    'collection'      => $collection->id,
+                    'public'          => '1',
+                    'active_date'     => '1',
+                    'online'          => 'online',
+                    'sale_channel_id' => $sale_channel_id,
+                ])
+                    ->get();
+            if ($temp) {
+                foreach ($temp as $data) {
+                    $skuData[] = $data->sku;
+                }
+            }
+        }
+
+        return in_array($sku, array_unique($skuData));
+    }
+
     public static function singleProduct($sku = null, $sale_channel_id = 1)
     {
 
