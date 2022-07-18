@@ -658,6 +658,34 @@ Breadcrumbs::for('cms.collection_received.index', function (BreadcrumbTrail $tra
     $trail->push('收款作業', route('cms.collection_received.index'));
 });
 
+// 應收帳款
+Breadcrumbs::for('cms.account_received.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('應收帳款', route('cms.account_received.index'));
+});
+Breadcrumbs::for('cms.account_received.claim', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.account_received.index');
+    $trail->push('應收帳款入款');
+});
+Breadcrumbs::for('cms.account_received.ro-edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.account_received.index');
+    $trail->push('新增收款單');
+});
+Breadcrumbs::for('cms.account_received.ro-receipt', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.account_received.index');
+    $trail->push('收款單');
+});
+Breadcrumbs::for('cms.account_received.ro-review', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.account_received.index');
+    $trail->push('收款單', route('cms.account_received.ro-receipt', ['id' => $value['id']]));
+    $trail->push('入款審核');
+});
+Breadcrumbs::for('cms.account_received.ro-taxation', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.account_received.index');
+    $trail->push('收款單', route('cms.account_received.ro-receipt', ['id' => $value['id']]));
+    $trail->push('修改摘要/稅別');
+});
+
 // 信用卡作業管理
 Breadcrumbs::for('cms.credit_manager.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');

@@ -208,7 +208,7 @@ class ReceivedOrder extends Model
     }
 
 
-    public static function create_received_order($source_type, $source_id)
+    public static function create_received_order($source_type, $source_id, $price = 0)
     {
         if($source_type == app(Order::class)->getTable()){
             $order_data = Order::findOrFail($source_id);
@@ -234,6 +234,7 @@ class ReceivedOrder extends Model
             }
 
             return $re;
+
         } else if($source_type == app(CsnOrder::class)->getTable()){
             $order_data = CsnOrder::findOrFail($source_id);
             $list_data = CsnOrderItem::where('csnord_id', '=', $order_data->id)
@@ -266,8 +267,21 @@ class ReceivedOrder extends Model
 
             return $re;
 
-        } else {
+        } else if($source_type == app(self::class)->getTable()){
+            $logistics_grade_id = ReceivedDefault::where('name', 'logistics')->first() ? ReceivedDefault::where('name', 'logistics')->first()->default_grade_id : 0;
+            $product_grade_id = ReceivedDefault::where('name', 'product')->first() ? ReceivedDefault::where('name', 'product')->first()->default_grade_id : 0;
 
+            $re = self::create([
+                'source_type'=>$source_type,
+                'source_id'=>$source_id,
+                'usr_users_id'=>auth('user')->user() ? auth('user')->user()->id : null,
+                'sn'=>'MSG' . date('ymd') . str_pad( count(self::whereDate('created_at', '=', date('Y-m-d'))->withTrashed()->get()) + 1, 4, '0', STR_PAD_LEFT),
+                'price'=>$price,
+                'logistics_grade_id'=>$logistics_grade_id,
+                'product_grade_id'=>$product_grade_id,
+            ]);
+
+            return $re;
         }
     }
 
@@ -317,6 +331,7 @@ class ReceivedOrder extends Model
                 $r_method['value'] = implode(',', $r_method_arr);
                 $r_method['description'] = implode(',', $r_method_title_arr);
                 Order::change_order_payment_status($received_order->source_id, PaymentStatus::Received(), (object) $r_method);
+
             } else if($received_order->source_type == app(CsnOrder::class)->getTable()){
                 CsnOrderFlow::changeOrderStatus($received_order->source_id, OrderStatus::Paided());
                 // Order::change_order_payment_status($received_order->source_id, PaymentStatus::Received(), ReceivedMethod::fromValue($received_method));
@@ -404,7 +419,16 @@ class ReceivedOrder extends Model
                 ]);
                 break;
 
-            // case ReceivedMethod::AccountsReceivable:
+            case ReceivedMethod::AccountsReceivable:
+                $id = DB::table('acc_received_account')->insertGetId([
+                    'status_code'=>0,
+                    'drawee_id'=>$request[$request['acc_transact_type_fk']]['drawee_id'],
+                    'drawee_name'=>$request[$request['acc_transact_type_fk']]['drawee_name'],
+                    'drawee_phone'=>$request[$request['acc_transact_type_fk']]['drawee_phone'],
+                    'drawee_address'=>$request[$request['acc_transact_type_fk']]['drawee_address'],
+                    'created_at'=>date("Y-m-d H:i:s"),
+                ]);
+                break;
 
             // case ReceivedMethod::Other:
 
@@ -532,6 +556,12 @@ class ReceivedOrder extends Model
                     'received.received_method'=>'remit',
                 ]);
             })
+            ->leftJoin('acc_received_account AS _account', function($join){
+                $join->on('received.received_method_id', '=', '_account.id');
+                $join->where([
+                    'received.received_method'=>'account_received',
+                ]);
+            })
 
             ->where(function ($q) use ($received_order_id, $method) {
                 if(gettype($received_order_id) == 'array') {
@@ -592,6 +622,12 @@ class ReceivedOrder extends Model
             ->selectRaw('
                 _remit.remittance AS remit_remittance,
                 _remit.memo AS remit_memo
+            ')
+
+            ->selectRaw('
+                _account.status_code AS account_status_code,
+                _account.amt_net AS account_amt_net,
+                _account.posting_date AS account_posting_date
             ')
             ->get();
 
@@ -665,5 +701,213 @@ class ReceivedOrder extends Model
         }
 
         return $income_order;
+    }
+
+
+    public static function get_account_received_list(
+        $received_account_id = null,
+        $account_status_code = null,
+        $sn = null,
+
+        $account_received_grade_id = null,
+        $authamt_price = null,
+        $ro_created_date = null,
+        $ro_target = null
+    ){
+        $query = DB::table('acc_received AS received')
+            ->join('ord_received_orders as ro', function($join){
+                $join->on('received.received_order_id', '=', 'ro.id');
+                $join->where([
+                    'ro.deleted_at'=>null,
+                ]);
+            })
+            ->leftJoin('usr_users AS sales', function($join){
+                $join->on('ro.usr_users_id', '=', 'sales.id');
+                $join->where([
+                    'sales.deleted_at'=>null,
+                ]);
+            })
+
+
+            // order
+            ->leftJoin('ord_orders AS order', function ($join) {
+                $join->on('ro.source_id', '=', 'order.id');
+                $join->where([
+                    'ro.source_type'=>app(Order::class)->getTable(),
+                    'ro.deleted_at'=>null,
+                ]);
+            })
+            ->leftJoin('usr_customers AS customer', 'customer.email', '=', 'order.email')
+            ->leftJoin('usr_customers_address AS customer_add', function ($join) {
+                $join->on('customer.id', '=', 'customer_add.usr_customers_id_fk');
+                $join->where([
+                    'customer_add.is_default_addr'=>1,
+                ]);
+            })
+
+            // csn_order
+            ->leftJoin('csn_orders AS csn_order', function ($join) {
+                $join->on('ro.source_id', '=', 'csn_order.id');
+                $join->where([
+                    'ro.source_type'=>app(CsnOrder::class)->getTable(),
+                    'ro.deleted_at'=>null,
+                    'csn_order.deleted_at'=>null,
+                ]);
+            })
+            ->leftJoin('depot', 'depot.id', '=', 'csn_order.depot_id')
+
+            ->join('acc_received_account AS _account', function($join){
+                $join->on('received.received_method_id', '=', '_account.id');
+                $join->where([
+                    'received.received_method'=>'account_received',
+                ]);
+            })
+            ->leftJoinSub(GeneralLedger::getAllGrade(), 'all_grade', function($join) {
+                $join->on('all_grade.primary_id', 'received.all_grades_id');
+            })
+            ->leftJoin('ord_received_orders AS append_ro', function($join){
+                $join->on('_account.append_received_order_id', '=', 'append_ro.id');
+            })
+
+            ->where([
+                //
+            ])
+            ->selectRaw('
+                ro.id AS ro_id,
+                ro.source_type AS ro_source_type,
+                ro.source_id AS ro_source_id,
+                ro.sn AS ro_sn,
+                sales.name AS ro_sales,
+                ro.created_at AS ro_created,
+
+                received.id AS received_id,
+                received.received_method,
+                received.received_method_id,
+                received.all_grades_id AS ro_received_grade_id,
+                received.tw_price,
+                received.accountant_id_fk,
+                received.taxation,
+                received.summary,
+                received.note,
+
+                all_grade.code AS ro_received_grade_code,
+                all_grade.name AS ro_received_grade_name,
+
+                _account.id AS account_received_id,
+                _account.status_code AS account_status_code,
+                _account.amt_net AS account_amt_net,
+                _account.posting_date AS account_posting_date,
+
+                _account.drawee_id AS ro_target_id,
+                _account.drawee_name AS ro_target_name,
+                _account.drawee_phone AS ro_target_phone,
+                _account.drawee_address AS ro_target_address,
+
+                append_ro.id AS append_ro_id,
+                append_ro.source_type AS append_ro_source_type,
+                append_ro.source_id AS append_ro_source_id,
+                append_ro.sn AS append_ro_sn
+            ')
+            ->orderBy('_account.id', 'asc');
+
+        if($received_account_id) {
+            if(gettype($received_account_id) == 'array') {
+                $query->whereIn('_account.id', $received_account_id);
+            } else {
+                $query->where('_account.id', $received_account_id);
+            }
+        }
+
+        if($account_status_code !== null){
+            $query->where('_account.status_code', $account_status_code);
+        }
+
+        if($sn){
+            $query->where('ro.sn', 'like', "%{$sn}%")
+                ->orWhere('append_ro.sn', 'like', "%{$sn}%");
+        }
+
+        if($account_received_grade_id) {
+            if(gettype($account_received_grade_id) == 'array') {
+                $query->whereIn('received.all_grades_id', $account_received_grade_id);
+            } else {
+                $query->where('received.all_grades_id', $account_received_grade_id);
+            }
+        }
+
+        if($authamt_price) {
+            if (gettype($authamt_price) == 'array' && count($authamt_price) == 2) {
+                $min_price = $authamt_price[0] ?? null;
+                $max_price = $authamt_price[1] ?? null;
+                if($min_price){
+                    $query->where('_account.amt_net', '>=', $min_price);
+                }
+                if($max_price){
+                    $query->where('_account.amt_net', '<=', $max_price);
+                }
+            }
+        }
+
+        if($ro_created_date){
+            $s_ro_created_date = $ro_created_date[0] ? date('Y-m-d', strtotime($ro_created_date[0])) : null;
+            $e_ro_created_date = $ro_created_date[1] ? date('Y-m-d', strtotime($ro_created_date[1] . ' +1 day')) : null;
+
+            if($s_ro_created_date){
+                $query->where('ro.created_at', '>=', $s_ro_created_date);
+            }
+            if($e_ro_created_date){
+                $query->where('ro.created_at', '<', $e_ro_created_date);
+            }
+        }
+
+        if($ro_target && gettype($ro_target) == 'array') {
+            $target_id = $ro_target[0];
+            $target_name = $ro_target[1];
+
+            // $query->where(function ($q1) use ($target_id, $target_name) {
+            //     $q1->where([
+            //         'customer.id'=>$target_id,
+            //         'customer.name'=>$target_name,
+            //     ])->orWhere(function ($q2) use ($target_id, $target_name) {
+            //         $q2->where([
+            //             'depot.id'=>$target_id,
+            //             'depot.name'=>$target_name,
+            //         ]);
+            //     });
+            // });
+
+            $query->where([
+                '_account.drawee_id'=>$target_id,
+                '_account.drawee_name'=>$target_name,
+            ]);
+        }
+
+        return $query;
+    }
+
+
+    public static function update_account_received_method($request)
+    {
+        if($request['status_code'] == 0){
+            foreach($request['account_received_id'] as $key => $value){
+                DB::table('acc_received_account')->where('id', $value)->update([
+                    'status_code'=>0,
+                    'append_received_order_id'=>$request['append_received_order_id'],
+                    'sn'=>$request['sn'],
+                    'amt_net'=>$request['amt_net'][$key],
+                    'posting_date'=>null,
+                    'updated_at'=>date("Y-m-d H:i:s"),
+                ]);
+            }
+
+        } else if($request['status_code'] == 1){
+            DB::table('acc_received_account')->whereIn('id', $request['account_received_id'])->update([
+                'status_code'=>1,
+                'append_received_order_id'=>$request['append_received_order_id'],
+                'sn'=>$request['sn'],
+                'posting_date'=>date("Y-m-d H:i:s"),
+                'updated_at'=>date("Y-m-d H:i:s"),
+            ]);
+        }
     }
 }

@@ -50,8 +50,9 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
     public function index(Request $request)
     {
-        echo "因收款單來源新增寄倉收款，此畫面尚未調整";
-        die();
+        // 因收款單來源新增寄倉收款，此畫面尚未調整
+        return abort(404);
+
         $query = $request->query();
         $page = getPageCount(Arr::get($query, 'data_per_page', 100)) > 0 ? getPageCount(Arr::get($query, 'data_per_page', 100)) : 100;
 
@@ -467,7 +468,12 @@ abstract class AccountReceivedPapaCtrl extends Controller
                 $EncArray['more_info'] = $data[$data['acc_transact_type_fk']];
 
             } else if($data['acc_transact_type_fk'] == ReceivedMethod::AccountsReceivable){
-                //
+                $order_data = $this->getOrderData($data['id']);
+                $order_purchaser = $this->getOrderPurchaser($order_data);
+                $data[$data['acc_transact_type_fk']]['drawee_id'] = $order_purchaser->id;
+                $data[$data['acc_transact_type_fk']]['drawee_name'] = $order_purchaser->name;
+                $data[$data['acc_transact_type_fk']]['drawee_phone'] = $order_purchaser->phone;
+                $data[$data['acc_transact_type_fk']]['drawee_address'] = $order_purchaser->address;
             }
 
             $result_id = ReceivedOrder::store_received_method($data);
@@ -691,7 +697,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
                         'account_name'=>$account_name,
                         'method_name'=>null,
                         'summary'=>$value->summary ?? null,
-                        'note'=>$value->note?? null,
+                        'note'=>$value->note ?? null,
                         'product_title'=>$value->product_title,
                         'del_even'=>$value->del_even ?? null,
                         'del_category_name'=>$value->del_category_name ?? null,

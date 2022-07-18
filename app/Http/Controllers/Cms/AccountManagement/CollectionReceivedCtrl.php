@@ -31,10 +31,21 @@ class CollectionReceivedCtrl extends AccountReceivedPapaCtrl
 
     public function getOrderPurchaser($order_data)
     {
-        return Customer::where([
-            'email'=>$order_data->email,
-            // 'deleted_at'=>null,
-        ])->first();
+        return Customer::leftJoin('usr_customers_address AS customer_add', function ($join) {
+                $join->on('usr_customers.id', '=', 'customer_add.usr_customers_id_fk');
+                $join->where([
+                    'customer_add.is_default_addr'=>1,
+                ]);
+            })->where([
+                'email'=>$order_data->email,
+                // 'deleted_at'=>null,
+            ])->select(
+                'usr_customers.id',
+                'usr_customers.name',
+                'usr_customers.phone AS phone',
+                'usr_customers.email',
+                'customer_add.address AS address'
+            )->first();
     }
 
     public function getSource_type()
