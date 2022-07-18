@@ -8,26 +8,14 @@
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">關鍵字</label>
-                    <input type="text" name="keyword" class="form-control" placeholder="姓名或mcode">
+                    <input type="text" name="keyword" class="form-control">
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">報表月份</label>
                     <input type="date" name="report_month" class="form-control">
                 </div>
             </div>
-            <div class="row">
-                <div class="col-12 col-sm-6  mb-3">
-                    <label class="form-label">確認狀態</label>
-                    @foreach ($check_status as $key => $value)
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="check_status"
-                                id="check_{{ $key }}" value="{{ $key }}"
-                                @if ($cond['check_status'] == strval($key)) checked @endif>
-                            <label class="form-check-label" for="check_{{ $key }}">{{ $value }}</label>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
+
             <div class="col">
                 <input type="hidden" name="data_per_page" value="{{ $data_per_page }}" />
 
@@ -37,21 +25,11 @@
     </form>
 
     <div class="card shadow p-4 mb-4">
-        <form method="POST" action="{{ route('cms.order-bonus.create') }}">
-            @csrf
-            <div class="row justify-content-end mb-4">
-                <div class="col">
-                    @can('cms.order-bonus.create')
-                        <div class="input-group mb-3">
-                            <input type="date" name="date" class="form-control">
-                            <button class="btn btn-outline-secondary" type="submit"> <i class="bi bi-plus-lg pe-1"></i>
-                                新增報表</button>
-                        </div>
-                    @endcan
-                </div>
-
-            </div>
-        </form>
+        <div class="col">
+            <a href="{{ Route('cms.order-bonus.create') }}" class="btn btn-primary">
+                <i class="bi bi-plus-lg"></i> 新增報表
+            </a>
+        </div>
 
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
@@ -59,12 +37,9 @@
                     <tr>
                         <th scope="col" style="width:10%">#</th>
                         <th scope="col">報表月份</th>
-                        <th scope="col">推薦碼</th>
+                        <th scope="col">名稱</th>
                         <th scope="col">筆數</th>
-                        <th scope="col">銷售獎金</th>
-                        <th scope="col">匯款日期</th>
-                        <th scope="col">銀行</th>
-                        <th scope="col">確認日期</th>
+                        <th scope="col">銷售獎金</th>    
                         <th scope="col">建立日期</th>
                         <th scope="col" class="text-center">刪除</th>
                     </tr>
@@ -75,24 +50,22 @@
                             <th scope="row">{{ $key + 1 }}</th>
                             <td>{{ $data->report_at }}</td>
                             <td> <a href="{{ route('cms.order-bonus.detail', ['id' => $data->id]) }}">
-                                    {{ $data->name }}_{{ $data->mcode }}
+                                    {{ $data->title }}
                                 </a>
                             </td>
                             <td>{{ $data->qty }}</td>
                             <td>{{ $data->bonus }}</td>
-                            <td></td>
-                            <td></td>
-                            <td>{{ $data->checked_at }}</td>
+                         
+                            
                             <td>{{ $data->created_at }}</td>
                             <td class="text-center">
-                                @if (!$data->checked_at)
-                                    <a href="javascript:void(0)"
-                                        data-href="{{ Route('cms.order-bonus.delete', ['id' => $data->id], true) }}"
-                                        data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                @endif
+                                <a href="javascript:void(0)"
+                                    data-href="{{ Route('cms.order-bonus.delete', ['id' => $data->id], true) }}"
+                                    data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                                    class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+
                             </td>
                         </tr>
                     @endforeach
@@ -113,7 +86,7 @@
     <!-- Modal -->
     <x-b-modal id="confirm-delete">
         <x-slot name="title">刪除確認</x-slot>
-        <x-slot name="body">確認要刪除此優惠劵？</x-slot>
+        <x-slot name="body">確認要刪除此報表？</x-slot>
         <x-slot name="foot">
             <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
         </x-slot>

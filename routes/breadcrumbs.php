@@ -868,3 +868,8 @@ Breadcrumbs::for('cms.order-bonus.detail', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.order-bonus.index');
     $trail->push('內容');
 });
+
+Breadcrumbs::for('cms.order-bonus.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.order-bonus.index');
+    $trail->push('新增');
+});
