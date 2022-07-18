@@ -62,8 +62,12 @@ class ProductCtrl extends Controller
             ->select(['id', 'name', 'meta_title', 'meta_description', 'url'])
             ->where('is_public', '1');
 
-        if (isset($d['type']) && $d['type'] === '1') {
+        if (isset($d['type'])) {
+            if($d['type'] === '1') {
             $collection->where('is_liquor', '=', 1);
+        }
+        } else {
+            $collection->where('is_liquor', '=', 0);
         }
         $collection = $collection->get()->first();
 
