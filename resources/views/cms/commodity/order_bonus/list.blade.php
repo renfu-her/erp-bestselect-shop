@@ -12,7 +12,7 @@
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">報表月份</label>
-                    <input type="date" name="report_month" class="form-control">
+                    <input type="month" name="report_month" class="form-control">
                 </div>
             </div>
 
