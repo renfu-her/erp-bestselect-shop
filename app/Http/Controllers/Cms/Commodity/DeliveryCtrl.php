@@ -21,6 +21,7 @@ use App\Models\SubOrders;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class DeliveryCtrl extends Controller
 {
@@ -299,9 +300,10 @@ class DeliveryCtrl extends Controller
                                 || Event::ord_pickup()->value == $delivery->event
                                 || Event::consignment()->value == $delivery->event)
                         ) {
+                            $memo = $rcv_depot_item->memo ?? '';
                             $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $rcv_depot_item->qty
                                 , StockEvent::send_back()->value, $delivery->event_id
-                                , $inboundDataGet->inbound_user_name . $rcv_depot_item->memo ?? null
+                                , $request->user()->name. ' '. $delivery->sn. ' ' . $memo
                                 , false, $inboundDataGet->can_tally);
                             if ($rePSSC['success'] == 0) {
                                 DB::rollBack();

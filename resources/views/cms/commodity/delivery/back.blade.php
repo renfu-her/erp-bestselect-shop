@@ -7,6 +7,16 @@
     @if ($event === 'csn_order')
         <x-b-csnorder-navi :id="$delivery->event_id"></x-b-csnorder-navi>
     @endif
+    @error('error_msg')
+    <div class="alert alert-danger" role="alert">
+        {{ $message }}
+    </div>
+    @enderror
+    @error('item_error')
+    <div class="alert alert-danger" role="alert">
+        {{ $message }}
+    </div>
+    @enderror
 
     <form method="post" action="{{ $formAction }}">
         @method('POST')
