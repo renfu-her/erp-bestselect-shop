@@ -111,7 +111,8 @@ class AccountReceivedCtrl extends Controller
             if(count($compare) == 0){
                 $source_type = app(ReceivedOrder::class)->getTable();
                 $n_id = DB::select("SHOW TABLE STATUS LIKE '" . $source_type . "'")[0]->Auto_increment;
-                $received_order = ReceivedOrder::create_received_order($source_type, $n_id, array_sum(request('amt_net')), request('account_received_id')[0]);
+
+                $received_order = ReceivedOrder::create_received_order($source_type, $n_id, array_sum(request('amt_net')), current(request('account_received_id')));
 
                 $parm = [
                     'account_received_id'=>request('account_received_id'),

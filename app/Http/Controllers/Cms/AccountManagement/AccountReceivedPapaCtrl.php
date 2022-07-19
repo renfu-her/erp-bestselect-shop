@@ -114,7 +114,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
                 foreach(json_decode($value->received_list) as $r_value){
                     $received_method_name = ReceivedMethod::getDescription($r_value->received_method);
                     $received_account = AllGrade::find($r_value->all_grades_id)->eachGrade;
-    
+
                     if($r_value->received_method == 'foreign_currency'){
                         $arr = explode('-', AllGrade::find($r_value->all_grades_id)->eachGrade->name);
                         $r_value->currency_name = $arr[0] == '外幣' ? $arr[1] . ' - ' . $arr[2] : 'NTD';
@@ -123,16 +123,16 @@ abstract class AccountReceivedPapaCtrl extends Controller
                         $r_value->currency_name = 'NTD';
                         $r_value->currency_rate = 1;
                     }
-    
+
                     $name = $received_method_name . ' ' . $r_value->summary . '（' . $received_account->code . ' - ' . $received_account->name . '）';
-    
+
                     $tmp = [
                         'account_code'=>$received_account->code,
                         'name'=>$name,
                         'price'=>$r_value->tw_price,
                         'type'=>'r',
                         'd_type'=>'received',
-    
+
                         'account_name'=>$received_account->name,
                         'method_name'=>$received_method_name,
                         'summary'=>$r_value->summary,
