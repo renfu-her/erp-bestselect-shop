@@ -1,0 +1,61 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+
+class OrderCustomerProfitReport extends Model
+{
+    use HasFactory;
+    protected $table = 'ord_customer_profit_report';
+    protected $guarded = [];
+
+    public static function dataList($month_profit_report_id)
+    {
+
+        $re = DB::table('ord_customer_profit_report as report')
+            ->select(['report.*',
+                'customer.name',
+                'customer.sn as mcode',
+                'bank.title as bank_title',
+                'p_report.report_at as report_at'])
+            ->leftJoin('usr_customers as customer', 'report.customer_id', '=', 'customer.id')
+            ->leftJoin('usr_customer_profit as c_profit', 'c_profit.customer_id', '=', 'customer.id')
+            ->leftJoin('acc_banks as bank', 'c_profit.bank_id', '=', 'bank.id')
+            ->leftJoin('ord_month_profit_report as p_report', 'p_report.id', '=', 'report.month_profit_report_id')
+            ->where('month_profit_report_id', $month_profit_report_id);
+
+        return $re;
+    }
+
+    public static function createCustomerReport($month_id, $date)
+    {
+
+        DB::beginTransaction();
+        $sdate = date("Y-m-1", strtotime($date));
+        $edate = date("Y-m-t", strtotime($date));
+        //  dd($date);
+        $profits = DB::table('ord_order_profit as profit')
+            ->join('ord_sub_orders as sub_order', 'profit.sub_order_id', '=', 'sub_order.id')
+            ->join('ord_orders as order', 'profit.order_id', '=', 'order.id')
+            ->select('profit.customer_id')
+            ->selectRaw('SUM(profit.bonus) as bonus')
+            ->selectRaw('count(*) as qty')
+            ->whereBetween('sub_order.dlv_audit_date', [$sdate, $edate])
+            ->groupBy('profit.customer_id')->get();
+
+        foreach ($profits as $profit) {
+
+            self::create([
+                'customer_id' => $profit->customer_id,
+                'bonus' => $profit->bonus,
+                'qty' => $profit->qty,
+                'month_profit_report_id' => $month_id,
+            ]);
+        }
+
+        DB::commit();
+    }
+}

@@ -13,7 +13,7 @@ class OrderProfit extends Model
     protected $table = 'ord_order_profit';
     protected $guarded = [];
 
-    public static function dataList($order_id = null, $customer_id = null, $withParent = null)
+    public static function dataList($order_id = null, $customer_id = null, $dlv_audit_date = null)
     {
 
         $re = DB::table('ord_order_profit as profit')
@@ -40,6 +40,7 @@ class OrderProfit extends Model
                 'user.name as product_user',
             ]);
 
+          
         if ($customer_id) {
             $re->where('profit.customer_id', $customer_id);
         }
@@ -47,6 +48,19 @@ class OrderProfit extends Model
         if ($order_id) {
             $re->where('profit.order_id', $order_id);
         }
+       
+       
+        if ($dlv_audit_date) {
+            $sdate = date("Y-m-1", strtotime($dlv_audit_date));
+            $edate = date("Y-m-t", strtotime($dlv_audit_date));
+
+            $re->leftJoin('ord_sub_orders as sub_order', 'profit.sub_order_id', '=', 'sub_order.id')
+                ->whereBetween('sub_order.dlv_audit_date', [$sdate, $edate])
+                ->addSelect('sub_order.dlv_audit_date');
+
+        }
+
+        
         /*
         $re->whereNull('profit.parent_id')
         ->leftJoin('ord_order_profit as profit2', 'profit.id', '=', 'profit2.parent_id')

@@ -28,7 +28,14 @@ class AccountReceivedCsnOrderCtrl extends AccountReceivedPapaCtrl
 
     public function getOrderPurchaser($order_data)
     {
-        return Depot::where('id', '=', $order_data->depot_id)->first();
+        return Depot::where('id', '=', $order_data->depot_id)
+            ->select(
+                'depot.id',
+                'depot.name',
+                'depot.tel AS phone',
+                'depot.address AS address'
+            )
+            ->first();
     }
 
     public function getSource_type()
