@@ -71,6 +71,7 @@
                                                                 class="icon icon-btn -del fs-5 text-danger rounded-circle border-0">
                                                             <i class="bi bi-trash"></i>
                                                         </button>
+                                                        <input type="hidden" name="id[]" value="{{ $rec->id }}">
                                                     </td>
                                                     <td data-td="sn">{{ $rec->inbound_sn }}</td>
                                                     <td data-td="depot">{{ $rec->depot_name }}</td>
@@ -79,10 +80,10 @@
                                                         <input type="text" name="qty[]" value="{{ $rec->qty }}" class="form-control form-control-sm text-center" readonly>
                                                     </td>
                                                     <td class="text-center">
-                                                        <input type="text" name="[]" value="" class="form-control form-control-sm">
+                                                        <input type="text" name="back_qty[]" value="" class="form-control form-control-sm">
                                                     </td>
                                                     <td>
-                                                        <input type="text" name="[]" value="" class="form-control form-control-sm">
+                                                        <input type="text" name="memo[]" value="" class="form-control form-control-sm">
                                                     </td>
                                                 </tr>
                                             @endforeach
