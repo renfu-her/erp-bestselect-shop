@@ -17,16 +17,13 @@
                 </x-b-form-group>
 
             </div>
-            <div class="col-12">
-                <div class="justify-content-start mt-3">
-                    <button type="submit" class="btn btn-primary px-4">儲存</button>
-                    <a href="{{ Route('cms.order-bonus.index', [], true) }}">
-                        <button type="button" class="btn btn-outline-primary px-4" id="cancelBtn">取消</button>
-                    </a>
-                </div>
-            </div>
-            <div>
-            </div>
+        </div>
+
+        <div class="justify-content-start mt-3">
+            <button type="submit" class="btn btn-primary px-4">儲存</button>
+            <a href="{{ Route('cms.order-bonus.index', [], true) }}">
+                <button type="button" class="btn btn-outline-primary px-4" id="cancelBtn">取消</button>
+            </a>
         </div>
     </form>
 @endsection
