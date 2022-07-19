@@ -79,7 +79,7 @@
                                                 <tr class="-cloneElem --selectedIB">
                                                     <td class="text-center">
                                                         <button type="button"
-                                                                @if (isset($delivery->audit_date)) disabled @endif
+                                                                @if (isset($delivery->audit_date)) @else disabled @endif
                                                                 class="icon icon-btn -del fs-5 text-danger rounded-circle border-0">
                                                             <i class="bi bi-trash"></i>
                                                         </button>

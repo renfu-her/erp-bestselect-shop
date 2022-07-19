@@ -639,13 +639,13 @@ class ReceiveDepot extends Model
 
         if (0 < count($id_and_qty_list)) {
             //整理出貨商品對應的combo_id prd_type product_style_id
-            for($i = 0 ; $i < count($id_and_qty_list); $i++) {
-                $rcv_repot = ReceiveDepot::where('id', $id_and_qty_list[$i]->id)->first();
-                $id_and_qty_list[$i]->product_style_id = $rcv_repot->product_style_id;
-                $id_and_qty_list[$i]->inbound_id = $rcv_repot->inbound_id;
-                $id_and_qty_list[$i]->product_title = $rcv_repot->product_title;
-                $id_and_qty_list[$i]->prd_type = $rcv_repot->prd_type;
-                $id_and_qty_list[$i]->combo_id = $rcv_repot->combo_id;
+            for($i = 0 ; $i < count($id_and_qty_list['id']); $i++) {
+                $rcv_repot = ReceiveDepot::where('id', $id_and_qty_list['id'][$i])->first();
+                $id_and_qty_list['product_style_id'][$i] = $rcv_repot->product_style_id;
+                $id_and_qty_list['inbound_id'][$i] = $rcv_repot->inbound_id;
+                $id_and_qty_list['product_title'][$i] = $rcv_repot->product_title;
+                $id_and_qty_list['prd_type'][$i] = $rcv_repot->prd_type;
+                $id_and_qty_list['combo_id'][$i] = $rcv_repot->combo_id;
                 if (0 < $rcv_repot->back_qty) {
                     return ['success' => 0, 'error_msg' => "不可重複退貨"];
                 }
@@ -655,16 +655,16 @@ class ReceiveDepot extends Model
         //判斷有出貨組合包
         if(isset($rcv_repot_combo) && 0 < count($rcv_repot_combo)) {
             //將POST上來的資料依照combo_id、product_style_id加總
-            if (0 < count($id_and_qty_list)) {
-                $elements = array();
-                foreach ($id_and_qty_list as $item) {
-                    $key_combo = $item->combo_id.'';
-                    $key_styleId = $item->product_style_id.'';
+            $elements = array();
+            if (0 < count($id_and_qty_list['id'])) {
+                for($i = 0 ; $i < count($id_and_qty_list['id']); $i++) {
+                    $key_combo = $id_and_qty_list['combo_id'][$i].'';
+                    $key_styleId = $id_and_qty_list['product_style_id'][$i].'';
                     if (0 == count($elements)) {
                         array_push($elements, array(
-                            'combo_id' => $item->combo_id,
-                            'product_style_id' => $item->product_style_id,
-                            'qty' => $item->back_qty,
+                            'combo_id' => $id_and_qty_list['combo_id'][$i],
+                            'product_style_id' => $id_and_qty_list['product_style_id'][$i],
+                            'back_qty' => $id_and_qty_list['back_qty'][$i],
                         ));
                     }
                     else {
@@ -680,12 +680,12 @@ class ReceiveDepot extends Model
                             $count_curr++;
                         }
                         if (true == $isExist) {
-                            $elements[$count_curr]['qty'] = $ele_curr['qty'] + $item->back_qty;
+                            $elements[$count_curr]['back_qty'] = $ele_curr['back_qty'] + $id_and_qty_list['back_qty'][$i];
                         } else {
                             array_push($elements, array(
-                                'combo_id' => $item->combo_id,
-                                'product_style_id' => $item->product_style_id,
-                                'qty' => $item->back_qty,
+                                'combo_id' => $id_and_qty_list['combo_id'][$i],
+                                'product_style_id' => $id_and_qty_list['product_style_id'][$i],
+                                'back_qty' => intval($id_and_qty_list['back_qty'][$i]),
                             ));
                         }
                     }
@@ -711,7 +711,7 @@ class ReceiveDepot extends Model
                     ->whereNull('rcv_depot.deleted_at')
                     ->get();
                 if (0 < count($elements)) {
-                    $shangsoo = -1; //商數
+                    $shangsoo = -1; //TODO 商數 之後必須從退貨數量寫到此 例如組合包退2件，商數就是2、組合包退一件，商數就是1
                     for($num_rre = 0 ; $num_rre < count($rcv_repot_element); $num_rre++) {
                         //取出POST資料 相同combo_id的
                         $elements_same_combo = [];
@@ -729,13 +729,13 @@ class ReceiveDepot extends Model
                             // 同款式加總除上個別元素所需數量 判斷餘數為零 且各商數也相同
                             for($num_ele = 0 ; $num_ele < count($elements_same_combo); $num_ele++) {
                                 if ($elements_same_combo[$num_ele]['product_style_id'] == $rcv_repot_element[$num_rre]->product_style_id) {
-                                    if ($elements_same_combo[$num_ele]['qty'] > $rcv_repot_element[$num_rre]->qty) {
+                                    if ($elements_same_combo[$num_ele]['back_qty'] > $rcv_repot_element[$num_rre]->qty) {
                                         return ['success' => 0, 'error_msg' => "退貨數量超出範圍"];
                                     }
                                     if (-1 == $shangsoo) {
-                                        $shangsoo = $elements_same_combo[0]['qty'] / $rcv_repot_element[$num_rre]->unit_qty; //商數
+                                        $shangsoo = $elements_same_combo[$num_ele]['back_qty'] / $rcv_repot_element[$num_rre]->unit_qty; //商數
                                     } else {
-                                        $shangsoo_curr = $elements_same_combo[$num_ele]['qty'] / $rcv_repot_element[$num_rre]->unit_qty;
+                                        $shangsoo_curr = $elements_same_combo[$num_ele]['back_qty'] / $rcv_repot_element[$num_rre]->unit_qty;
                                         if ($shangsoo != $shangsoo_curr) {
                                             return ['success' => 0, 'error_msg' => "數量不符"];
                                         }

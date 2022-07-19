@@ -227,16 +227,23 @@ class DeliveryCtrl extends Controller
     public function back_store(Request $request, int $delivery_id)
     {
 //        dd($request->all());
-        //檢查id、qty缺一不可
-        //寫入各出貨商品的product_style_id prd_type combo_id
-        $text = '[{"id":41,"qty":1},{"id":42,"qty":3},{"id":43,"qty":2},{"id":44,"qty":3},{"id":47,"qty":1},{"id":48,"qty":1},{"id":49,"qty":2}]';
-        $text_json = json_decode($text);
+        $request->validate([
+            'id' => 'required|numeric',
+            'back_qty' => 'required|numeric',
+        ]);
+
+        $items_to_back = $request->only('id', 'back_qty', 'memo');
+        if (count($items_to_back['id']) != count($items_to_back['back_qty']) && count($items_to_back['id']) != count($items_to_back['memo'])) {
+            $errors['error_msg'] = '各資料個數不同';
+        }
 
         $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
         if (null == $delivery) {
             return abort(404);
         }
-        $bdcisc = ReceiveDepot::checkBackDlvComboItemSameCount($delivery_id, $text_json);
+        //判斷OK後 回寫入各出貨商品的product_style_id prd_type combo_id
+        $bdcisc = ReceiveDepot::checkBackDlvComboItemSameCount($delivery_id, $items_to_back);
+        dd($request->all(), $bdcisc);
         if ($bdcisc['success'] == '1') {
             $msg = DB::transaction(function () use ($delivery, $bdcisc, $request) {
                 if(isset($bdcisc['data']) && 0 < count($bdcisc['data'])) {
