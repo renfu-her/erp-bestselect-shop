@@ -5,6 +5,7 @@
     "/dist/js/components.js": "/dist/js/components.js",
     "/dist/js/navinode.js": "/dist/js/navinode.js",
     "/dist/js/deliveryAudit.js": "/dist/js/deliveryAudit.js",
+    "/dist/js/deliveryBack.js": "/dist/js/deliveryBack.js",
     "/dist/css/component.css": "/dist/css/component.css",
     "/dist/css/app.css": "/dist/css/app.css",
     "/dist/css/order.css": "/dist/css/order.css",

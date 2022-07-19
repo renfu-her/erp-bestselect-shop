@@ -1,6 +1,6 @@
 $(function () {
     /***
-     * 出貨審核
+     * 退貨入庫審核
      **/
 
     /*** 定義 ***/
@@ -27,13 +27,20 @@ $(function () {
                 class="icon icon-btn -del fs-5 text-danger rounded-circle border-0">
                 <i class="bi bi-trash"></i>
             </button>
+            <input type="hidden" name="id[]" value="">
         </td>
         <td data-td="sn"></td>
         <td data-td="depot"></td>
+        <td data-td="expiry"></td>
         <td class="text-center">
             <input type="text" name="qty[]" value="" class="form-control form-control-sm text-center" readonly>
         </td>
-        <td data-td="expiry"></td>
+        <td class="text-center">
+            <input type="text" name="back_qty[]" value="" class="form-control form-control-sm">
+        </td>
+        <td class="text-center">
+            <input type="text" name="memo[]" value="" class="form-control form-control-sm">
+        </td>
     </tr>`);
 
     // 刪除商品
@@ -232,10 +239,11 @@ $(function () {
                         'bid': recDep.inbound_id,
                         'rid': recDep.id
                     });
+                    cloneElem.find('input[name="id[]"]').val(recDep.id);
                     cloneElem.find('td[data-td="sn"]').text(recDep.inbound_sn);
                     cloneElem.find('td[data-td="depot"]').text(recDep.depot_name);
-                    cloneElem.find('input[name="qty[]"]').val(recDep.qty);
                     cloneElem.find('td[data-td="expiry"]').text(moment(recDep.expiry_date).format('YYYY/MM/DD'));
+                    cloneElem.find('input[name="qty[]"]').val(recDep.qty);
                 }
             }, newItemOpt);
         }
