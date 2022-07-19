@@ -21,7 +21,7 @@ class ReceivedOrder extends Model
 
 
     public static function received_order_list(
-        $customer_id = null,
+        $drawee = null,
         $r_order_sn = null,
         $order_sn = null,
         $r_order_price = null,
@@ -59,8 +59,8 @@ class ReceivedOrder extends Model
                 LEFT JOIN acc_received_currency AS _currency ON acc_received.received_method_id = _currency.id AND acc_received.received_method = "foreign_currency"
                 LEFT JOIN acc_received_remit AS _remit ON acc_received.received_method_id = _remit.id AND acc_received.received_method = "remit"
                 GROUP BY acc_received.received_order_id
-                ) AS v_table_1'), function ($join){
-                    $join->on('v_table_1.received_order_id', '=', 'ro.id');
+                ) AS acc_received_table'), function ($join){
+                    $join->on('acc_received_table.received_order_id', '=', 'ro.id');
             })
 
             // order
@@ -87,8 +87,8 @@ class ReceivedOrder extends Model
                     }\' ORDER BY ord_items.id), \']\') AS item
                 FROM ord_items
                 GROUP BY order_id
-                ) AS v_table_2'), function ($join){
-                    $join->on('v_table_2.order_id', '=', 'order.id');
+                ) AS order_item_table'), function ($join){
+                    $join->on('order_item_table.order_id', '=', 'order.id');
             })
             ->leftJoin(DB::raw('(
                 SELECT order_id,
@@ -107,8 +107,8 @@ class ReceivedOrder extends Model
                 FROM ord_discounts
                 WHERE discount_value IS NOT NULL AND order_type = "main"
                 GROUP BY order_id
-                ) AS v_table_3'), function ($join){
-                    $join->on('v_table_3.order_id', '=', 'order.id');
+                ) AS discounts_table'), function ($join){
+                    $join->on('discounts_table.order_id', '=', 'order.id');
             })
 
 
@@ -122,11 +122,43 @@ class ReceivedOrder extends Model
                 ]);
             })
             ->leftJoin('depot', 'depot.id', '=', 'csn_order.depot_id')
+            ->leftJoin(DB::raw('(
+                SELECT csnord_id,
+                CONCAT(\'[\', GROUP_CONCAT(\'{
+                        "product_style_id":"\', product_style_id, \'",
+                        "sku":"\', sku, \'",
+                        "product_title":"\', title, \'",
+                        "price":"\', price, \'",
+                        "qty":"\', num, \'",
+                        "origin_price":"\', price * num, \'"
+                    }\' ORDER BY csn_order_items.id), \']\') AS item
+                FROM csn_order_items
+                GROUP BY csnord_id
+                ) AS csn_order_item_table'), function ($join){
+                    $join->on('csn_order_item_table.csnord_id', '=', 'csn_order.id');
+            })
+
+            // ord_received_orders
+            ->leftJoin(DB::raw('(
+                SELECT _account.append_received_order_id,
+                CONCAT(\'[\', GROUP_CONCAT(\'{
+                        "product_title":"\', "", \'",
+                        "all_grades_id":"\', acc_received.all_grades_id, \'",
+                        "price":"\', _account.amt_net, \'",
+                        "qty":"\', 1, \'",
+                        "origin_price":"\', _account.amt_net * 1, \'"
+                    }\' ORDER BY acc_received.id), \']\') AS item
+                FROM acc_received
+                LEFT JOIN acc_received_account AS _account ON acc_received.received_method_id = _account.id AND acc_received.received_method = "account_received"
+                GROUP BY _account.append_received_order_id
+                ) AS received_account_table'), function ($join){
+                    $join->on('received_account_table.append_received_order_id', '=', 'ro.id');
+            })
 
 
             ->whereNull('ro.deleted_at')
             ->whereColumn([
-                ['ro.price', '=', 'v_table_1.received_price'],
+                ['ro.price', '=', 'acc_received_table.received_price'],
             ])
 
             ->select(
@@ -138,9 +170,11 @@ class ReceivedOrder extends Model
                 'ro.product_grade_id AS ro_product_grade_id',
                 'ro.receipt_date AS ro_receipt_date',// 收款單入帳審核日期
                 'ro.invoice_number AS ro_invoice_number',
+                'ro.drawee_id AS ro_target_id',
+                'ro.drawee_name AS ro_target_name',
+                'ro.drawee_phone AS ro_target_phone',
+                'ro.drawee_address AS ro_target_address',
 
-                'order.id AS order_id',
-                'order.sn AS order_sn',
                 'order.dlv_fee AS order_dlv_fee',
                 'order.origin_price AS order_origin_price',
                 'order.total_price AS order_total_price',
@@ -149,23 +183,33 @@ class ReceivedOrder extends Model
 
                 'sales.name AS creator',
 
-                'v_table_1.list AS received_list',
-                'v_table_1.received_date AS received_date',// 收款單完成收款日期
-                'v_table_1.received_price AS received_price',// 收款單金額(實收)
-                'v_table_2.item AS order_item',
-                'v_table_3.discount_list AS order_discount',
+                'acc_received_table.list AS received_list',
+                'acc_received_table.received_date AS received_date',// 收款單完成收款日期
+                'acc_received_table.received_price AS received_price',// 收款單金額(實收)
 
-                'customer.id AS customer_id',
-                'customer.name AS customer_name',
-                'customer.email AS customer_email',
+                'discounts_table.discount_list AS order_discount',
             )
-            ->selectRaw('DATE_FORMAT(order.created_at, "%Y-%m-%d") AS order_date');
 
-        if ($customer_id) {
-            if (gettype($customer_id) == 'array') {
-                $received_order->whereIn('customer.id', $customer_id);
-            } else {
-                $received_order->where('customer.id', $customer_id);
+            ->selectRaw('
+                CASE
+                    WHEN ro.source_type = "ord_orders" THEN order.sn
+                    WHEN ro.source_type = "csn_orders" THEN csn_order.sn
+                END AS order_sn
+            ')
+            ->selectRaw('
+                CASE
+                    WHEN ro.source_type = "ord_orders" THEN order_item_table.item
+                    WHEN ro.source_type = "csn_orders" THEN csn_order_item_table.item
+                    WHEN ro.source_type = "ord_received_orders" THEN received_account_table.item
+                END AS order_item
+            ');
+
+        if ($drawee) {
+            if (gettype($drawee) == 'array') {
+                $received_order->where([
+                    'ro.drawee_id'=>$drawee['id'],
+                    'ro.drawee_name'=>$drawee['name'],
+                ]);
             }
         }
 
@@ -177,7 +221,8 @@ class ReceivedOrder extends Model
 
         if ($order_sn) {
             $received_order->where(function ($query) use ($order_sn) {
-                $query->where('order.sn', 'like', "%{$order_sn}%");
+                $query->where('order.sn', 'like', "%{$order_sn}%")
+                    ->orWhere('csn_order.sn', 'like', "%{$order_sn}%");
             });
         }
 

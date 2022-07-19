@@ -9,10 +9,10 @@
             <div class="row">
                 <div class="col-12 col-sm-4 mb-3">
                     <label class="form-label">客戶</label>
-                    <select class="form-select -select2 -single" name="customer_id" aria-label="客戶" data-placeholder="請輸入客戶">
+                    <select class="form-select -select2 -single" name="drawee_key" aria-label="客戶" data-placeholder="請輸入客戶">
                         <option value="" selected>不限</option>
-                        @foreach ($customer as $value)
-                            <option value="{{ $value->id }}" {{ in_array($value->id, $cond['customer_id']) ? 'selected' : '' }}>{{ $value->name }}</option>
+                        @foreach ($drawee as $value)
+                            <option value="{{ $value['id'] . '|' . $value['name'] }}" {{ $value['id'] . '|' . $value['name'] == $cond['drawee_key'] ? 'selected' : '' }}>{{ $value['name'] }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -149,14 +149,14 @@
                                 <a href="{{ route('cms.account_received.ro-receipt', ['id' => $data->ro_source_id]) }}" class="-text">{{ $data->ro_sn }}</a>
                                 @endif
                             </td>
-                            <td>{{ $data->customer_name }}</td>
+                            <td>{{ $data->ro_target_name }}</td>
                             <td class="p-0">
                                 @foreach($data->debit as $d_value)
-                                <span class="border-bottom bg-warning d-block p-1">{{$d_value->account_code}} - {{$d_value->account_name}}</span>
+                                <span class="border-bottom bg-warning d-block p-1">{{ $d_value->account_code }} {{ $d_value->account_name }}</span>
                                 @endforeach
 
                                 @foreach($data->credit as $c_value)
-                                <span class="border-bottom d-block bg-white p-1">{{$c_value->account_code}} - {{$c_value->account_name}}</span>
+                                <span class="border-bottom d-block bg-white p-1">{{ $c_value->account_code }} {{ $c_value->account_name }}</span>
                                 @endforeach
                             </td>
 
@@ -178,13 +178,13 @@
                                 @foreach($data->credit as $c_value)
                                 <span class="border-bottom d-block bg-white p-1">
                                     @if($c_value->d_type == 'logistics')
-                                        {{$c_value->account_name}} - {{$data->order_sn}}
+                                        {{ $c_value->account_name }} - {{ $data->order_sn }}
                                     @elseif($c_value->d_type == 'discount')
-                                        {{$c_value->discount_title}} - {{$data->order_sn}}
+                                        {{ $c_value->discount_title }} - {{ $data->order_sn }}
                                     @elseif($c_value->d_type == 'product')
-                                        {{$c_value->product_title}}({{ $c_value->product_price }} * {{$c_value->product_qty}}) - {{$data->order_sn}}
+                                        {{ $c_value->product_title }}({{ $c_value->product_price }} * {{ $c_value->product_qty }}) - {{ $data->order_sn }}
                                     @else
-                                        {{$c_value->method_name}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{$data->order_sn}}
+                                        {{ $c_value->method_name }}{{ $c_value->note ? ' - ' . $c_value->note : '' }} - {{ $data->order_sn }}
                                     @endif
                                 </span>
                                 @endforeach
