@@ -47,15 +47,17 @@
                                 </tr>
                                 <tr class="--rece">
                                     <td></td>
-                                    <td colspan="5" class="pt-0 ps-0">
+                                    <td colspan="7" class="pt-0 ps-0">
                                         <table class="table mb-0 table-sm table-hover border-start border-end">
                                             <thead>
                                             <tr class="border-top-0" style="border-bottom-color:var(--bs-secondary);">
                                                 <td class="text-center">刪除</td>
                                                 <td>入庫單</td>
                                                 <td>倉庫</td>
-                                                <td class="text-center" style="width: 10%">數量</td>
                                                 <td>效期</td>
+                                                <td class="text-center" style="width: 10%">出貨數量</td>
+                                                <td class="text-center" style="width: 10%">退回數量</td>
+                                                <td>入庫說明</td>
                                             </tr>
                                             </thead>
                                             <tbody class="border-top-0 -appendClone --selectedIB">
@@ -72,17 +74,23 @@
                                                     </td>
                                                     <td data-td="sn">{{ $rec->inbound_sn }}</td>
                                                     <td data-td="depot">{{ $rec->depot_name }}</td>
+                                                    <td data-td="expiry">{{ date('Y/m/d', strtotime($rec->expiry_date)) }}</td>
                                                     <td class="text-center">
                                                         <input type="text" name="qty[]" value="{{ $rec->qty }}" class="form-control form-control-sm text-center" readonly>
                                                     </td>
-                                                    <td data-td="expiry">{{ date('Y/m/d', strtotime($rec->expiry_date)) }}</td>
+                                                    <td class="text-center">
+                                                        <input type="text" name="[]" value="" class="form-control form-control-sm">
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" name="[]" value="" class="form-control form-control-sm">
+                                                    </td>
                                                 </tr>
                                             @endforeach
                                             </tbody>
                                             @if (is_null($delivery->audit_date))
                                                 <tfoot class="border-top-0">
                                                 <tr>
-                                                    <td colspan="5">
+                                                    <td colspan="7">
                                                         <input type="hidden" class="-ord" value="{{ $ord->product_style_id }}" data-sku="{{ $ord->sku }}"
                                                                data-title="{{ $ord->product_title }}" @if($ord->combo_product_title) data-subtitle="{{$ord->combo_product_title}}" @endif
                                                                data-qty="{{ $ord->qty }}" data-item="{{ $ord->item_id }}">
@@ -186,7 +194,7 @@
 @endsection
 @once
     @push('sub-scripts')
-        <script src="{{ Asset('dist/js/deliveryAudit.js') }}"></script>
+        <script src="{{ Asset('dist/js/deliveryBack.js') }}"></script>
         <script>
         $(function () {
             const CreateUrl = @json(Route('api.cms.delivery.create-receive-depot'));

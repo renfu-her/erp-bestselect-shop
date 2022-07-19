@@ -21,4 +21,5 @@ mix.js('resources/js/app.js', 'public/dist/js')
    .js('resources/js/components.js', 'public/dist/js/components.js')
    .js('resources/js/navinode.js', 'public/dist/js/navinode.js')
    .js('resources/js/deliveryAudit.js', 'public/dist/js/deliveryAudit.js')
+   .js('resources/js/deliveryBack.js', 'public/dist/js/deliveryBack.js')
     .sourceMaps();
