@@ -140,7 +140,15 @@
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <td>{{ $key + 1 }}</td>
-                            <td><a href="{{ route('cms.collection_received.receipt', ['id'=>$data->order_id]) }}">{{ $data->ro_sn }}</a></td>
+                            <td>
+                                @if($data->ro_source_type == 'ord_orders')
+                                <a href="{{ route('cms.collection_received.receipt', ['id' => $data->ro_source_id]) }}" class="-text">{{ $data->ro_sn }}</a>
+                                @elseif($data->ro_source_type == 'csn_orders')
+                                <a href="{{ route('cms.ar_csnorder.receipt', ['id' => $data->ro_source_id]) }}" class="-text">{{ $data->ro_sn }}</a>
+                                @elseif($data->ro_source_type == 'ord_received_orders')
+                                <a href="{{ route('cms.account_received.ro-receipt', ['id' => $data->ro_source_id]) }}" class="-text">{{ $data->ro_sn }}</a>
+                                @endif
+                            </td>
                             <td>{{ $data->customer_name }}</td>
                             <td class="p-0">
                                 @foreach($data->debit as $d_value)

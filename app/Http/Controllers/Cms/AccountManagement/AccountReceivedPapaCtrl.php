@@ -50,9 +50,6 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
     public function index(Request $request)
     {
-        // 因收款單來源新增寄倉收款，此畫面尚未調整
-        return abort(404);
-
         $query = $request->query();
         $page = getPageCount(Arr::get($query, 'data_per_page', 100)) > 0 ? getPageCount(Arr::get($query, 'data_per_page', 100)) : 100;
 
@@ -113,75 +110,79 @@ abstract class AccountReceivedPapaCtrl extends Controller
             $credit = [];
 
             // 收款項目
-            foreach(json_decode($value->received_list) as $r_value){
-                $received_method_name = ReceivedMethod::getDescription($r_value->received_method);
-                $received_account = AllGrade::find($r_value->all_grades_id)->eachGrade;
+            if($value->received_list){
+                foreach(json_decode($value->received_list) as $r_value){
+                    $received_method_name = ReceivedMethod::getDescription($r_value->received_method);
+                    $received_account = AllGrade::find($r_value->all_grades_id)->eachGrade;
 
-                if($r_value->received_method == 'foreign_currency'){
-                    $arr = explode('-', AllGrade::find($r_value->all_grades_id)->eachGrade->name);
-                    $r_value->currency_name = $arr[0] == '外幣' ? $arr[1] . ' - ' . $arr[2] : 'NTD';
-                    $r_value->currency_rate = DB::table('acc_received_currency')->find($r_value->received_method_id)->currency;
-                } else {
-                    $r_value->currency_name = 'NTD';
-                    $r_value->currency_rate = 1;
+                    if($r_value->received_method == 'foreign_currency'){
+                        $arr = explode('-', AllGrade::find($r_value->all_grades_id)->eachGrade->name);
+                        $r_value->currency_name = $arr[0] == '外幣' ? $arr[1] . ' - ' . $arr[2] : 'NTD';
+                        $r_value->currency_rate = DB::table('acc_received_currency')->find($r_value->received_method_id)->currency;
+                    } else {
+                        $r_value->currency_name = 'NTD';
+                        $r_value->currency_rate = 1;
+                    }
+
+                    $name = $received_method_name . ' ' . $r_value->summary . '（' . $received_account->code . ' - ' . $received_account->name . '）';
+
+                    $tmp = [
+                        'account_code'=>$received_account->code,
+                        'name'=>$name,
+                        'price'=>$r_value->tw_price,
+                        'type'=>'r',
+                        'd_type'=>'received',
+
+                        'account_name'=>$received_account->name,
+                        'method_name'=>$received_method_name,
+                        'summary'=>$r_value->summary,
+                        'note'=>$r_value->note,
+                        'product_title'=>null,
+                        'del_even'=>null,
+                        'del_category_name'=>null,
+                        'product_price'=>null,
+                        'product_qty'=>null,
+                        'product_owner'=>null,
+                        'discount_title'=>null,
+                        'payable_type'=>null,
+                        'received_info'=>$r_value,
+                    ];
+                    GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }
-
-                $name = $received_method_name . ' ' . $r_value->summary . '（' . $received_account->code . ' - ' . $received_account->name . '）';
-
-                $tmp = [
-                    'account_code'=>$received_account->code,
-                    'name'=>$name,
-                    'price'=>$r_value->tw_price,
-                    'type'=>'r',
-                    'd_type'=>'received',
-
-                    'account_name'=>$received_account->name,
-                    'method_name'=>$received_method_name,
-                    'summary'=>$r_value->summary,
-                    'note'=>$r_value->note,
-                    'product_title'=>null,
-                    'del_even'=>null,
-                    'del_category_name'=>null,
-                    'product_price'=>null,
-                    'product_qty'=>null,
-                    'product_owner'=>null,
-                    'discount_title'=>null,
-                    'payable_type'=>null,
-                    'received_info'=>$r_value,
-                ];
-                GeneralLedger::classification_processing($debit, $credit, $tmp);
             }
 
             // 商品
-            $product_account = AllGrade::find($value->ro_product_grade_id) ? AllGrade::find($value->ro_product_grade_id)->eachGrade : null;
-            $account_code = $product_account ? $product_account->code : '4000';
-            $account_name = $product_account ? $product_account->name : '無設定會計科目';
-            $product_name = $account_code . ' - ' . $account_name;
-            foreach(json_decode($value->order_item) as $o_value){
-                $name = $product_name . ' --- ' . $o_value->product_title . '（' . $o_value->price . ' * ' . $o_value->qty . '）';
-
-                $tmp = [
-                    'account_code'=>$account_code,
-                    'name'=>$name,
-                    'price'=>$o_value->origin_price,
-                    'type'=>'r',
-                    'd_type'=>'product',
-
-                    'account_name'=>$account_name,
-                    'method_name'=>null,
-                    'summary'=>null,
-                    'note'=>null,
-                    'product_title'=>$o_value->product_title,
-                    'del_even'=>null,
-                    'del_category_name'=>null,
-                    'product_price'=>$o_value->price,
-                    'product_qty'=>$o_value->qty,
-                    'product_owner'=>null,
-                    'discount_title'=>null,
-                    'payable_type'=>null,
-                    'received_info'=>null,
-                ];
-                GeneralLedger::classification_processing($debit, $credit, $tmp);
+            if($value->order_item){
+                $product_account = AllGrade::find($value->ro_product_grade_id) ? AllGrade::find($value->ro_product_grade_id)->eachGrade : null;
+                $account_code = $product_account ? $product_account->code : '4000';
+                $account_name = $product_account ? $product_account->name : '無設定會計科目';
+                $product_name = $account_code . ' - ' . $account_name;
+                foreach(json_decode($value->order_item) as $o_value){
+                    $name = $product_name . ' --- ' . $o_value->product_title . '（' . $o_value->price . ' * ' . $o_value->qty . '）';
+    
+                    $tmp = [
+                        'account_code'=>$account_code,
+                        'name'=>$name,
+                        'price'=>$o_value->origin_price,
+                        'type'=>'r',
+                        'd_type'=>'product',
+    
+                        'account_name'=>$account_name,
+                        'method_name'=>null,
+                        'summary'=>null,
+                        'note'=>null,
+                        'product_title'=>$o_value->product_title,
+                        'del_even'=>null,
+                        'del_category_name'=>null,
+                        'product_price'=>$o_value->price,
+                        'product_qty'=>$o_value->qty,
+                        'product_owner'=>null,
+                        'discount_title'=>null,
+                        'payable_type'=>null,
+                        'received_info'=>null,
+                    ];
+                    GeneralLedger::classification_processing($debit, $credit, $tmp);
+                }
             }
 
             // 物流
@@ -253,7 +254,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
         }
         // accounting classification end
 
-        return view('cms.account_management.account_received.list', [
+        return view('cms.account_management.collection_received.list', [
             'data_per_page' => $page,
             'dataList' => $dataList,
             'cond' => $cond,
@@ -468,12 +469,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
                 $EncArray['more_info'] = $data[$data['acc_transact_type_fk']];
 
             } else if($data['acc_transact_type_fk'] == ReceivedMethod::AccountsReceivable){
-                $order_data = $this->getOrderData($data['id']);
-                $order_purchaser = $this->getOrderPurchaser($order_data);
-                $data[$data['acc_transact_type_fk']]['drawee_id'] = $order_purchaser->id;
-                $data[$data['acc_transact_type_fk']]['drawee_name'] = $order_purchaser->name;
-                $data[$data['acc_transact_type_fk']]['drawee_phone'] = $order_purchaser->phone;
-                $data[$data['acc_transact_type_fk']]['drawee_address'] = $order_purchaser->address;
+                //
             }
 
             $result_id = ReceivedOrder::store_received_method($data);

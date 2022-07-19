@@ -79,6 +79,7 @@ Route::group(['prefix' => 'web', 'as' => 'web.'], function () {
     Route::post('navi', NaviCtrl::class);
     require base_path('routes/api/web/Home.php');
     require base_path('routes/api/Collection.php');
+    require base_path('routes/api/web/Collection.php');
     require base_path('routes/api/web/Product.php');
     require base_path('routes/api/web/Order.php');
 
