@@ -687,6 +687,7 @@ class PurchaseInbound extends Model
                 , 'dlv_consum.product_title as product_title'
             )
             ->selectRaw('sum(dlv_consum.qty) as qty')
+            ->selectRaw('sum(dlv_consum.back_qty) as back_qty')
             ->whereNotNull('qty')
             ->whereNull('dlv_logistic.audit_date')
             ->whereNull('dlv_logistic.deleted_at')
@@ -716,6 +717,7 @@ class PurchaseInbound extends Model
                 , 'tb_rd.product_title as product_title'
             )
             ->selectRaw('sum(tb_rd.qty) as qty')
+            ->selectRaw('sum(tb_rd.back_qty) as back_qty')
             ->mergeBindings($receive_depotQuerySub)
             ->whereNotNull('qty')
             ->groupBy('tb_rd.inbound_id')

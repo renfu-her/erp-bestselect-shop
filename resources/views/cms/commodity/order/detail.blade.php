@@ -210,7 +210,7 @@
         @php
             $dlv_fee = 0;
             $price = 0;
-            
+
         @endphp
         @foreach ($subOrders as $subOrder)
             @php
@@ -240,6 +240,8 @@
                             {{-- @if ('pickup' == $subOrder->ship_category) --}}
                             {{-- <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.order.inbound', ['subOrderId' => $subOrderId], true) }}">入庫審核</a> --}}
                             {{-- @endif --}}
+                            <a class="btn btn-sm btn-success -in-header"
+                               href="{{ Route('cms.delivery.back', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">退貨入庫審核</a>
 
                             <a target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary -in-header"
                                 href="{{ Route('cms.order.print_order_sales', ['id' => $order->id, 'subOrderId' => $subOrderId]) }}">
