@@ -7,6 +7,7 @@ use App\Models\OrderCustomerProfitReport;
 use App\Models\OrderMonthProfitReport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use PhpParser\Node\Expr\Cast\Object_;
 
 class OrderBonusCtrl extends Controller
 {
@@ -69,7 +70,7 @@ class OrderBonusCtrl extends Controller
         if ($re['success'] == '1') {
             wToast('新增完成');
         } else {
-            wToast('無該月份資料',['type'=>'danger']);
+            wToast('無該月份資料', ['type' => 'danger']);
         }
         return redirect(route('cms.order-bonus.index'));
     }
@@ -129,12 +130,25 @@ class OrderBonusCtrl extends Controller
             return abort(404);
         }
         $customer_reports = OrderCustomerProfitReport::dataList($id)->get();
-        //   dd($customer_report);
+
+        $baseData = (object)  [
+            "pay_code" => '13',
+            "pay_bank_account" => '844871001158',
+            "pay_bank_code" => '60844',
+            "pay_bank_account_name" => '喜鴻國際企業股份有限公司',
+            "pay_identity_sn" => '83183027',
+            'pay_notify' => 'AF',
+            'pay_note' => '獎金',
+            'pay_category' => 'SAL',
+            'pay_edi'=>'831830270002'
+        ];
+        //   dd($customer_reports);
         // $profit = OrderProfit::dataList(null, $report->customer_id, $report->report_at . "/1")->get();
 
         return view('cms.commodity.order_bonus.detail_list', [
             'customer_reports' => $customer_reports,
             'month_report' => $month_report,
+            'baseData' =>  $baseData,
         ]);
 
     }

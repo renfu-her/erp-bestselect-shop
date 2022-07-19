@@ -20,7 +20,13 @@ class OrderCustomerProfitReport extends Model
                 'customer.name',
                 'customer.sn as mcode',
                 'bank.title as bank_title',
-                'p_report.report_at as report_at'])
+                'bank.code as bank_code',
+                'p_report.report_at as report_at',
+                'c_profit.bank_account',
+                'c_profit.bank_account_name',
+                'c_profit.identity_sn',
+            ])
+            ->selectRaw('DATE_FORMAT(report.created_at,"%Y-%m-%d") as created_at')
             ->leftJoin('usr_customers as customer', 'report.customer_id', '=', 'customer.id')
             ->leftJoin('usr_customer_profit as c_profit', 'c_profit.customer_id', '=', 'customer.id')
             ->leftJoin('acc_banks as bank', 'c_profit.bank_id', '=', 'bank.id')
