@@ -613,6 +613,7 @@ class PurchaseInbound extends Model
                 , 'items.title as product_title'
             )
             ->selectRaw('sum(items.num) as qty')
+            ->selectRaw('0 as back_qty') //配合其他地方union的欄位而加，否則未出貨根本不會有退貨數量
             ->whereNull('dlv_delivery.audit_date')
             ->whereNull('consignment.deleted_at')
             ->whereNull('items.deleted_at')

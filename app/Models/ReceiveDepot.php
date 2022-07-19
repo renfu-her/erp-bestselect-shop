@@ -664,7 +664,7 @@ class ReceiveDepot extends Model
                         array_push($elements, array(
                             'combo_id' => $item->combo_id,
                             'product_style_id' => $item->product_style_id,
-                            'qty' => $item->qty,
+                            'qty' => $item->back_qty,
                         ));
                     }
                     else {
@@ -680,12 +680,12 @@ class ReceiveDepot extends Model
                             $count_curr++;
                         }
                         if (true == $isExist) {
-                            $elements[$count_curr]['qty'] = $ele_curr['qty'] + $item->qty;
+                            $elements[$count_curr]['qty'] = $ele_curr['qty'] + $item->back_qty;
                         } else {
                             array_push($elements, array(
                                 'combo_id' => $item->combo_id,
                                 'product_style_id' => $item->product_style_id,
-                                'qty' => $item->qty,
+                                'qty' => $item->back_qty,
                             ));
                         }
                     }
