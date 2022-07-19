@@ -4,7 +4,18 @@
 
 
     <div class="card shadow p-4 mb-4">
-
+        <form action="{{ route('cms.order-bonus.export-csv', ['id' => $month_report->id]) }}" method="POST">
+            @csrf
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="bank_type" id="bank_type1" value="a" checked>
+                <label class="form-check-label" for="bank_type1">合作金庫</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="bank_type" id="bank_type2" value="b">
+                <label class="form-check-label" for="bank_type2">非合作金庫</label>
+            </div>
+            <button class="btn btn-primary" type="submit">輸出csv</button>
+        </form>
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
                 <thead>
@@ -26,11 +37,11 @@
                         <th scope="col">付款銀行代號</th>
                         <th scope="col">付款人身分證(統一編號)</th>
                         <th scope="col">付款人戶名</th>
-                        <th scope="col">EDI用戶代碼</th>  
-                        <th scope="col">入帳通知處理方式</th>  
-                        <th scope="col">付款說明</th>    
+                        <th scope="col">EDI用戶代碼</th>
+                        <th scope="col">入帳通知處理方式</th>
+                        <th scope="col">付款說明</th>
                         <th scope="col">業務類別</th>
-                        
+
                     </tr>
                 </thead>
                 <tbody>
@@ -60,7 +71,7 @@
                             <td>{{ $baseData->pay_notify }}</td>
                             <td>{{ $baseData->pay_note }}</td>
                             <td>{{ $baseData->pay_category }}</td>
-                           
+
                         </tr>
                     @endforeach
                     <tr>
@@ -68,7 +79,7 @@
                         <td>{{ $month_report->qty }}</td>
                         <td>{{ $month_report->bonus }}</td>
                         <td colspan="16"></td>
-                       
+
                     </tr>
                 </tbody>
             </table>
