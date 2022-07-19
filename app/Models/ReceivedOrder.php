@@ -207,9 +207,8 @@ class ReceivedOrder extends Model
         if ($drawee) {
             if (gettype($drawee) == 'array') {
                 $received_order->where([
-                    'ro.drawee_id'=>$drawee['id'],
-                    'ro.drawee_name'=>$drawee['name'],
-                ]);
+                        'ro.drawee_id'=>$drawee['id'],
+                    ])->where('ro.drawee_name', 'like', "%{$drawee['name']}%");
             }
         }
 

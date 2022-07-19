@@ -105,7 +105,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
             $received_date,
             $cond['check_review'],
         )->paginate($page)->appends($query);
-// dd($dataList);
+
         // accounting classification start
         foreach($dataList as $value){
             $debit = [];
