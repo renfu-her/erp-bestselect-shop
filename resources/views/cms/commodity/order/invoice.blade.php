@@ -131,7 +131,7 @@
                 </fieldset>
 
                 <div class="col-12 col-sm-6 mb-3 c_invoice_method d-none">
-                    <label class="form-label" for="love_code">捐贈單位</label>
+                    <label class="form-label l_love_code" for="love_code">捐贈單位</label>
                     {{--
                     <select name="love_code" id="love_code" hidden class="-select2 -single form-select @error('love_code') is-invalid @enderror" data-placeholder="請選擇捐贈單位">
                         @foreach ($unit as $value)
@@ -330,7 +330,7 @@
                             required:false
                         }).val('');
 
-                        $('input:radio[name=invoice_method][value="e_inv"]').prop({
+                        $('input:radio[name=invoice_method][value!="print"]').prop({
                             disabled:false,
                         });
 
@@ -343,7 +343,7 @@
                         });
 
                         $('input:radio[name=invoice_method][value="print"]').click();
-                        $('input:radio[name=invoice_method][value="e_inv"]').prop({
+                        $('input:radio[name=invoice_method][value!="print"]').prop({
                             disabled:true,
                         });
                     }
@@ -366,6 +366,7 @@
 
                         //捐贈
                         $('.c_invoice_method').addClass('d-none');
+                        $('.l_love_code').html('捐贈單位');
                         $('#love_code').prop({
                             disabled:true,
                             required:false
@@ -400,7 +401,8 @@
 
                         //捐贈
                         $('.c_invoice_method').removeClass('d-none');
-                        $('select[name=love_code]').prop({
+                        $('.l_love_code').html('捐贈單位 <span class="text-danger">*</span>');
+                        $('#love_code').prop({
                             disabled:false,
                             required:true
                         });
@@ -434,6 +436,7 @@
 
                         //捐贈
                         $('.c_invoice_method').addClass('d-none');
+                        $('.l_love_code').html('捐贈單位');
                         $('#love_code').prop({
                             disabled:true,
                             required:false

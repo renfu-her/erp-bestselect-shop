@@ -743,6 +743,7 @@ class OrderCtrl extends Controller
             'order' => $order,
             'sub_order' => $sub_order,
             'merge_source' => $merge_source,
+            'unit' => [],
             'order_discount' => $order_discount,
             'received_order' => $received_order,
         ]);
@@ -901,6 +902,22 @@ class OrderCtrl extends Controller
             // 'order' => $order,
             // 'sub_order' => $sub_order,
         ]);
+    }
+
+    public function re_send_invoice(Request $request, $id)
+    {
+        $request->merge([
+            'id' => $id,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:ord_order_invoice,id',
+        ]);
+
+        $inv_result = OrderInvoice::invoice_issue_api($id);
+        wToast(__($inv_result->r_msg));
+
+        return redirect()->back();
     }
 
     // 獎金毛利

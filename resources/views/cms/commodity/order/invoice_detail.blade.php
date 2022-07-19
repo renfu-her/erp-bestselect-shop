@@ -5,6 +5,9 @@
     <a href="{{ Route('cms.order.detail', ['id' => $invoice->source_id]) }}" class="btn btn-primary" role="button">
         <i class="bi bi-arrow-left"></i> 返回上一頁
     </a>
+    @if($invoice->status == 1 && $invoice->r_status != 'SUCCESS')
+    <a href="javascript:void(0)" role="button" class="btn btn-primary my-1 ms-1" data-bs-toggle="modal" data-bs-target="#confirm-invoice" data-href="{{ Route('cms.order.re-send-invoice', ['id' => $invoice->id]) }}">重新開立發票</a>
+    @endif
 
     <div class="card mb-4">
         <div class="card-body px-4 py-0">
@@ -80,6 +83,15 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal -->
+    <x-b-modal id="confirm-invoice">
+        <x-slot name="title">重新開立發票</x-slot>
+        <x-slot name="body">確認要重新開立此發票？</x-slot>
+        <x-slot name="foot">
+            <a class="btn btn-danger btn-ok" href="#">確認</a>
+        </x-slot>
+    </x-b-modal>
 @endsection
 
 @once
@@ -88,7 +100,10 @@
     @endpush
     @push('sub-scripts')
         <script>
-            
+            // Modal Control
+            $('#confirm-invoice').on('show.bs.modal', function(e) {
+                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+            });
         </script>
     @endpush
 @endonce
