@@ -351,6 +351,10 @@ Breadcrumbs::for('cms.logistic.create', function (BreadcrumbTrail $trail, $value
     $trail->parent('cms.' . $value['parent'] . '.index');
     $trail->push('#' . $value['sn'] . ' 實際物流設定');
 });
+Breadcrumbs::for('cms.delivery.back', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.' . $value['parent'] . '.index');
+    $trail->push('#' . $value['sn'] . ' 退貨');
+});
 Breadcrumbs::for('cms.delivery.back_inbound', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.' . $value['parent'] . '.index');
     $trail->push('#' . $value['sn'] . ' 退貨入庫審核');

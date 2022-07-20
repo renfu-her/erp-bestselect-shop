@@ -13,6 +13,7 @@ use App\Models\AllGrade;
 use App\Models\Customer;
 use App\Models\CustomerDividend;
 use App\Models\CustomerProfit;
+use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\Discount;
 use App\Models\Order;
@@ -351,6 +352,11 @@ class OrderCtrl extends Controller
         }
         $remit = OrderRemit::getData($order->id)->get()->first();
 
+        $delivery = null;
+        if (isset($subOrderId)) {
+            $delivery = Delivery::where('event', Event::order()->value)->where('event_id', $subOrderId)->first();
+        }
+
         $sn = $order->sn;
 
         $receivable = false;
@@ -393,6 +399,7 @@ class OrderCtrl extends Controller
             'received_order_data' => $received_order_data,
             'received_credit_card_log' => $received_credit_card_log,
             'dividend' => $dividend,
+            'delivery' => $delivery,
         ]);
     }
 
