@@ -266,13 +266,13 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
         $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
-        $merged = array_merge($customer, $depot);
+        $drawee_merged = array_merge($customer, $depot);
 
         return view('cms.account_management.collection_received.list', [
             'data_per_page' => $page,
             'dataList' => $dataList,
             'cond' => $cond,
-            'drawee' => $merged,
+            'drawee' => $drawee_merged,
             'check_review_status' => $check_review_status,
         ]);
     }
@@ -508,7 +508,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
         } catch (\Exception $e) {
             DB::rollback();
-            wToast(__('收款單儲存失敗'));
+            wToast(__('收款單儲存失敗', ['type'=>'danger']));
         }
 
 
@@ -947,7 +947,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
             } catch (\Exception $e) {
                 DB::rollback();
-                wToast(__('摘要/稅別更新失敗'));
+                wToast(__('摘要/稅別更新失敗', ['type'=>'danger']));
             }
 
             return redirect()->route($this->getRouteReceipt(), ['id'=>request('id')]);
@@ -1055,7 +1055,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
             wToast('刪除完成');
 
         } else {
-            wToast('刪除失敗');
+            wToast('刪除失敗', ['type'=>'danger']);
         }
         return redirect()->back();
     }

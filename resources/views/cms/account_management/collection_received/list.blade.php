@@ -46,8 +46,8 @@
                 <div class="col-12 mb-3">
                     <label class="form-label">入款日期起訖</label>
                     <div class="input-group has-validation">
-                        <input type="date" class="form-control -startDate @error('r_order_sdate') is-invalid @enderror" name="r_order_sdate" value="{{ $cond['r_order_sdate'] }}" aria-label="入款起始日期" />
-                        <input type="date" class="form-control -endDate @error('r_order_edate') is-invalid @enderror" name="r_order_edate" value="{{ $cond['r_order_edate'] }}" aria-label="入款結束日期" />
+                        <input type="date" class="form-control -startDate @error('r_order_sdate') is-invalid @enderror" name="r_order_sdate" value="{{ $cond['r_order_sdate'] }}" aria-label="入款起始日期">
+                        <input type="date" class="form-control -endDate @error('r_order_edate') is-invalid @enderror" name="r_order_edate" value="{{ $cond['r_order_edate'] }}" aria-label="入款結束日期">
                         <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
                         <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
                         <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
@@ -67,8 +67,8 @@
                 <div class="col-12 mb-3">
                     <label class="form-label">收款日期起訖</label>
                     <div class="input-group has-validation">
-                        <input type="date" class="form-control -startDate @error('order_sdate') is-invalid @enderror" name="order_sdate" value="{{ $cond['order_sdate'] }}" aria-label="收款起始日期" />
-                        <input type="date" class="form-control -endDate @error('order_edate') is-invalid @enderror" name="order_edate" value="{{ $cond['order_edate'] }}" aria-label="收款結束日期" />
+                        <input type="date" class="form-control -startDate @error('order_sdate') is-invalid @enderror" name="order_sdate" value="{{ $cond['order_sdate'] }}" aria-label="收款起始日期">
+                        <input type="date" class="form-control -endDate @error('order_edate') is-invalid @enderror" name="order_edate" value="{{ $cond['order_edate'] }}" aria-label="收款結束日期">
                         <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
                         <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
                         <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
@@ -101,7 +101,7 @@
             </div>
 
             <div class="col">
-                <input type="hidden" name="data_per_page" value="{{ $data_per_page }}" />
+                <input type="hidden" name="data_per_page" value="{{ $data_per_page }}">
                 <button type="submit" class="btn btn-primary px-4">搜尋</button>
             </div>
         </div>
