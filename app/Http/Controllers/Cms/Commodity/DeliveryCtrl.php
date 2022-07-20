@@ -171,7 +171,7 @@ class DeliveryCtrl extends Controller
     }
 
 
-    public function back($event, $eventId)
+    public function back_inbound($event, $eventId)
     {
         $rsp_arr = [
             'event' => $event,
@@ -216,17 +216,17 @@ class DeliveryCtrl extends Controller
         $rsp_arr['delivery_id'] = $delivery_id;
         $rsp_arr['sn'] = $delivery->sn;
         $rsp_arr['ord_items_arr'] = $ord_items_arr;
-        $rsp_arr['formAction'] = Route('cms.delivery.back_store', [
+        $rsp_arr['formAction'] = Route('cms.delivery.back_inbound_store', [
             'deliveryId' => $delivery_id,
         ], true);
         $rsp_arr['breadcrumb_data'] = ['sn' => $event_sn, 'parent' => $event ];
 
-        return view('cms.commodity.delivery.back', $rsp_arr);
+        return view('cms.commodity.delivery.back_inbound', $rsp_arr);
     }
 
-    public function back_store(Request $request, int $delivery_id)
+    public function back_inbound_store(Request $request, int $delivery_id)
     {
-//        dd($request->all());
+        dd($request->all());
         $request->validate([
             'id' => 'required|numeric',
             'back_qty' => 'required|numeric',
@@ -325,7 +325,7 @@ class DeliveryCtrl extends Controller
                 throw ValidationException::withMessages(['item_error' => $msg['error_msg']]);
             } else {
                 wToast('儲存成功');
-                return redirect(Route('cms.delivery.back', [
+                return redirect(Route('cms.delivery.back_inbound', [
                     'event' => $delivery->event,
                     'eventId' => $delivery->event_id,
                 ], true));

@@ -9,6 +9,6 @@ Route::group(['prefix' => 'delivery','as'=>'delivery.'], function () {
     Route::post('store/{deliveryId}', [DeliveryCtrl::class, 'store'])->name('store')->middleware('permission:cms.delivery.create');
     Route::get('delete/{event}/{eventId}/{receiveDepotId}', [DeliveryCtrl::class, 'destroyItem'])->name('delete')->middleware('permission:cms.delivery.delete');
 
-    Route::get('back/{event}/{eventId}', [DeliveryCtrl::class, 'back'])->name('back')->middleware('permission:cms.delivery.create');
-    Route::post('back_store/{deliveryId}', [DeliveryCtrl::class, 'back_store'])->name('back_store')->middleware('permission:cms.delivery.create');
+    Route::get('back_inbound/{event}/{eventId}', [DeliveryCtrl::class, 'back_inbound'])->name('back_inbound')->middleware('permission:cms.delivery.create');
+    Route::post('back_inbound_store/{deliveryId}', [DeliveryCtrl::class, 'back_inbound_store'])->name('back_inbound_store')->middleware('permission:cms.delivery.create');
 });
