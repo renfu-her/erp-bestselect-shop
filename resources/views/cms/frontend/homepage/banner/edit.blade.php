@@ -145,7 +145,7 @@
                             <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
                                 aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width: 1%"></div>
                         </div>
-                        <input type="file" name="img_pc" accept=".jpg,.jpeg,.png,.gif" hidden required>
+                        <input type="file" name="img_pc" accept=".jpg,.jpeg,.png,.gif" hidden @if ($method === 'create') required @endif>
                         <input type="hidden" name="del_img_pc">
                     </label>
                 </div>
