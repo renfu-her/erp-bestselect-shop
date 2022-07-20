@@ -59,6 +59,7 @@ class CollectionCtrl extends Controller
             'meta_title'       => 'nullable|string',
             'meta_description' => 'nullable|string',
             'is_public'        => 'bool',
+            'is_liquor'        => ['required', 'int', 'min:0', 'max:1'],
             'id.*'             => 'required|int|min:0'
         ]);
 
@@ -73,6 +74,7 @@ class CollectionCtrl extends Controller
             $req['meta_title'],
             $req['meta_description'],
             false,
+            $req['is_liquor'],
             $req['id']);
 
         return redirect(Route('cms.collection.index'));
