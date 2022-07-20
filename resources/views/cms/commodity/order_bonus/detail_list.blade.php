@@ -58,7 +58,7 @@
                             <td>{{ $data->created_at }}</td>
                             <td>{{ $data->bank_title }}</td>
                             <td>{{ $data->bank_account }}</td>
-                            <td>{{ $data->bank_code }}</td>
+                            <td>{{ $data->new_bank_code }}</td>
                             <td>{{ $data->identity_sn }}</td>
                             <td>{{ $data->bank_account_name }}</td>
                             <td>{{ $data->bank_account_name }}</td>

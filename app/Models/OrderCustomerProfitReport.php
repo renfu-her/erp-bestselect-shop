@@ -27,6 +27,9 @@ class OrderCustomerProfitReport extends Model
                 'c_profit.identity_sn',
             ])
             ->selectRaw('DATE_FORMAT(report.created_at,"%Y%m%d") as created_at')
+          //  ->selectRaw('CONCAT(bank.code,c_profit.bank_account) as full_bank_account')
+            ->selectRaw('LEFT(CONCAT(bank.code,c_profit.bank_account),7) as new_bank_code')
+         //   ->selectRaw('SUBSTRING(CONCAT(bank.code,c_profit.bank_account),6) as new_bank_account')
             ->leftJoin('usr_customers as customer', 'report.customer_id', '=', 'customer.id')
             ->leftJoin('usr_customer_profit as c_profit', 'c_profit.customer_id', '=', 'customer.id')
             ->leftJoin('acc_banks as bank', 'c_profit.bank_id', '=', 'bank.id')
