@@ -32,6 +32,15 @@
                         @endforeach
                     </select>
                 </div>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">倉庫</label>
+                    <select class="form-select -select2  -multiple" multiple name="depot_id[]" aria-label="倉庫" data-placeholder="請選擇倉庫">
+                        @foreach ($depotList as $key => $data)
+                            <option value="{{ $data->id }}"
+                                    @if (in_array($data->id, $searchParam['depot_id'])) selected @endif >{{ $data->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
                 <fieldset class="col-12 col-sm-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">型態</legend>
                     <div class="px-1 pt-1">
@@ -74,15 +83,6 @@
                         @endforeach
                     </div>
                 </fieldset>
-                <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">倉庫</label>
-                    <select class="form-select -select2  -multiple" multiple name="depot_id[]" aria-label="倉庫" data-placeholder="請選擇倉庫">
-                        @foreach ($depotList as $key => $data)
-                            <option value="{{ $data->id }}"
-                                    @if (in_array($data->id, $searchParam['depot_id'])) selected @endif >{{ $data->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
             </div>
 
             <div class="col">
