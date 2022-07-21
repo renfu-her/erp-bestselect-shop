@@ -243,8 +243,12 @@
 
                             @if(isset($delivery) && isset($delivery->back_date))
                                 @if( false == isset($delivery->back_inbound_date))
-                                    <a class="btn btn-sm btn-danger -in-header"
-                                       href="{{ Route('cms.delivery.back_delete', ['deliveryId' => $delivery->id], true) }}">刪除退貨</a>
+                                    <button type="button"
+                                            data-href="{{ Route('cms.delivery.back_delete', ['deliveryId' => $delivery->id], true) }}"
+                                            data-bs-toggle="modal" data-bs-target="#confirm-delete-back"
+                                            class="btn btn-sm btn-danger -in-header">
+                                        刪除退貨
+                                    </button>
                                 @endif
                                 <a class="btn btn-sm btn-success -in-header"
                                    href="{{ Route('cms.delivery.back_inbound', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">退貨入庫審核</a>
@@ -619,6 +623,13 @@
             <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
         </x-slot>
     </x-b-modal>
+    <x-b-modal id="confirm-delete-back">
+        <x-slot name="title">刪除確認</x-slot>
+        <x-slot name="body">確認要刪除？</x-slot>
+        <x-slot name="foot">
+            <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
+        </x-slot>
+    </x-b-modal>
 
     <div class="modal fade" id="change-mcode" tabindex="-1" aria-labelledby="change-mcodeLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -674,6 +685,9 @@
 
             // Modal Control
             $('#confirm-delete').on('show.bs.modal', function(e) {
+                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+            });
+            $('#confirm-delete-back').on('show.bs.modal', function (e) {
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
             });
 
