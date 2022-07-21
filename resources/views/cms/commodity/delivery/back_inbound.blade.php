@@ -56,7 +56,7 @@
                                         <input type="text" value="" name="qty_actual[]" class="form-control form-control-sm text-center" readonly>
                                     </td>
                                     <td>
-                                        <input type="text" value="待處理" name="" class="form-control form-control-sm text-center" readonly>
+                                        <input type="text" value="{{$ord->total_to_back_qty}}" name="" class="form-control form-control-sm text-center" readonly>
                                     </td>
                                 </tr>
                                 <tr class="--rece">

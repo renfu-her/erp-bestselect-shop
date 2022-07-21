@@ -464,6 +464,10 @@ class ReceiveDepot extends Model
     {
         $result = DB::table('dlv_delivery as delivery')
             ->leftJoin('dlv_receive_depot as rcv_depot', 'rcv_depot.delivery_id', '=', 'delivery.id')
+            ->leftJoin(app(ReceiveDepot::class)->getTable(). ' as rcv_depot_papa', function ($join) {
+                $join->on('rcv_depot_papa.id', '=', 'rcv_depot.combo_id')
+                    ->whereNotNull('rcv_depot.combo_id');
+            })
             ->select('delivery.sn as delivery_sn'
                 , 'rcv_depot.delivery_id as delivery_id'
                 , 'rcv_depot.id as id'
@@ -473,6 +477,7 @@ class ReceiveDepot extends Model
                 , 'rcv_depot.inbound_sn as inbound_sn'
                 , 'rcv_depot.depot_id as depot_id'
                 , 'rcv_depot.depot_name as depot_name'
+                , 'rcv_depot_papa.product_style_id as papa_product_style_id'
                 , 'rcv_depot.product_style_id as product_style_id'
                 , 'rcv_depot.sku as sku'
                 , 'rcv_depot.product_title as product_title'
@@ -513,6 +518,7 @@ class ReceiveDepot extends Model
         $query_combo = DB::table('prd_style_combos')
             ->leftJoin('prd_product_styles', 'prd_product_styles.id', '=', 'prd_style_combos.product_style_child_id')
             ->select('prd_style_combos.product_style_id'
+                , 'prd_style_combos.product_style_child_id'
                 , 'prd_style_combos.qty'
                 , 'prd_product_styles.id'
                 , 'prd_product_styles.product_id'
@@ -537,6 +543,7 @@ class ReceiveDepot extends Model
                 , 'item.deleted_at'
 
                 , 'item.title AS combo_product_title'
+                , 'tb_combo.product_style_id AS papa_product_style_id'
                 , 'tb_combo.id AS product_style_id'
                 , 'tb_combo.sku'
             )
@@ -559,6 +566,7 @@ class ReceiveDepot extends Model
                 , 'item.updated_at'
                 , 'item.deleted_at'
                 , DB::raw('@item.title:=null as combo_product_title')
+                , DB::raw('null as papa_product_style_id')
                 , 'item.product_style_id'
                 , 'item.sku'
                 , 'item.num as qty'

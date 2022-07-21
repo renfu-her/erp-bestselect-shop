@@ -14,6 +14,7 @@ use App\Models\Depot;
 use App\Models\DlvBack;
 use App\Models\OrderItem;
 use App\Models\ProductStock;
+use App\Models\ProductStyleCombo;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseLog;
 use App\Models\ReceiveDepot;
@@ -298,38 +299,86 @@ class DeliveryCtrl extends Controller
             'event' => $event,
             'eventId' => $eventId,
         ];
-        $delivery = null;
-        $delivery_id = null;
+        // 出貨單號ID
+        $delivery = Delivery::getData($event, $eventId)->get()->first();
+        $delivery_id = $delivery->id;
+        $event_sn = $delivery->event_sn;
+        $dlvBack = DlvBack::where('delivery_id', '=', $delivery_id)->get()->toArray();
+
+        $rcv_repot_p = DB::table(app(ReceiveDepot::class)->getTable(). ' as rcv_depot')
+            ->where('rcv_depot.delivery_id', $delivery_id)
+            ->where('rcv_depot.prd_type', '=', 'p')
+            ->whereNull('rcv_depot.combo_id')
+            ->leftJoin(app(DlvBack::class)->getTable(). ' as back', function ($join) use($delivery_id) {
+                $join->on('back.product_style_id', '=', 'rcv_depot.product_style_id')
+                    ->where('back.delivery_id', '=', $delivery_id);
+            })
+            ->select(
+                'rcv_depot.event_item_id'
+                , 'rcv_depot.id'
+                , 'rcv_depot.delivery_id'
+                , 'rcv_depot.product_style_id'
+                , 'rcv_depot.product_style_id as product_style_child_id'
+                , DB::raw('rcv_depot.qty as qty') //出貨數量
+                , DB::raw('1 as unit_qty') //單位數量
+                , 'back.qty as to_back_qty' //欲退數量
+            );
+        $rcv_repot_combo = DB::table(app(ReceiveDepot::class)->getTable(). ' as rcv_depot')
+            ->where('rcv_depot.delivery_id', $delivery_id)
+            ->where('rcv_depot.prd_type', '=', 'c')
+            ->whereNull('rcv_depot.combo_id')
+            ->leftJoin(app(ProductStyleCombo::class)->getTable(). ' as style_combo', function ($join) {
+                $join->on('style_combo.product_style_id', '=', 'rcv_depot.product_style_id');
+            })
+            ->leftJoin(app(DlvBack::class)->getTable(). ' as back', function ($join) use($delivery_id) {
+                $join->on('back.product_style_id', '=', 'rcv_depot.product_style_id')
+                    ->where('back.delivery_id', '=', $delivery_id);
+            })
+            ->select(
+                'rcv_depot.event_item_id'
+                , 'rcv_depot.id'
+                , 'rcv_depot.delivery_id'
+                , 'style_combo.product_style_id'
+                , 'style_combo.product_style_child_id'
+                , DB::raw('rcv_depot.qty as qty') //出貨數量
+                , DB::raw('style_combo.qty as unit_qty') //單位數量
+                , 'back.qty as to_back_qty' //欲退數量
+            );
+        $rcv_repot_combo = $rcv_repot_combo->union($rcv_repot_p)->get();
+
         $event_sn = '';
         if(Event::order()->value == $event) {
             $sub_order = SubOrders::getListWithShiGroupById($eventId)->get()->first();
-            $event_sn = $sub_order->sn;
             if (null == $sub_order) {
                 return abort(404);
             }
             $rsp_arr['order_id'] = $sub_order->order_id;
-
-            // 出貨單號ID
-            $delivery = Delivery::getData($event, $sub_order->id)->get()->first();
-            $delivery_id = $delivery->id;
             $ord_items_arr = ReceiveDepot::getOrderShipItemWithDeliveryWithReceiveDepotList($event, $eventId, $delivery_id);
-//            dd($sub_order, $ord_items_arr->toArray());
         } else if(Event::consignment()->value == $event) {
-            // 出貨單號ID
-            $delivery = Delivery::getData($event, $eventId)->get()->first();
-            $delivery_id = $delivery->id;
             $ord_items_arr = ReceiveDepot::getCSNShipItemWithDeliveryWithReceiveDepotList($event, $eventId, $delivery_id);
             $consignment = Consignment::where('id', $delivery->event_id)->get()->first();
-            $event_sn = $consignment->sn;
             $rsp_arr['depot_id'] = $consignment->send_depot_id;
         } else if(Event::csn_order()->value == $event) {
-            // 出貨單號ID
-            $delivery = Delivery::getData($event, $eventId)->get()->first();
-            $delivery_id = $delivery->id;
             $ord_items_arr = ReceiveDepot::getCSNOrderShipItemWithDeliveryWithReceiveDepotList($event, $eventId, $delivery_id);
             $csn_order = CsnOrder::where('id', $delivery->event_id)->get()->first();
-            $event_sn = $csn_order->sn;
             $rsp_arr['depot_id'] = $csn_order->depot_id;
+        }
+        if (isset($ord_items_arr) && 0 < count($ord_items_arr) && isset($rcv_repot_combo) && 0 < count($rcv_repot_combo)) {
+            //出貨商品
+            for ($num_item = 0; $num_item < count($ord_items_arr); $num_item++) {
+                //組合包元素
+                for ($num_combo = 0; $num_combo < count($rcv_repot_combo); $num_combo++) {
+//                    dd($sub_order, $ord_items_arr[0], $rcv_repot_combo);
+                    if ($ord_items_arr[$num_item]->prd_type == 'c'
+                        && $ord_items_arr[$num_item]->papa_product_style_id == $rcv_repot_combo[$num_combo]->product_style_id
+                        && $ord_items_arr[$num_item]->product_style_id == $rcv_repot_combo[$num_combo]->product_style_child_id
+                    ) {
+                        $ord_items_arr[$num_item]->total_to_back_qty = $rcv_repot_combo[$num_combo]->to_back_qty * $rcv_repot_combo[$num_combo]->unit_qty;
+                    } else if ($ord_items_arr[$num_item]->prd_type == 'p' && null == $ord_items_arr[$num_item]->papa_product_style_id) {
+                        $ord_items_arr[$num_item]->total_to_back_qty = $rcv_repot_combo[$num_combo]->to_back_qty;
+                    }
+                }
+            }
         }
 
         $rsp_arr['event'] = $event;
