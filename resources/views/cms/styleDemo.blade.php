@@ -242,6 +242,9 @@
                                 <div class="mt-2">
                                     <span class="badge -step">第一步</span>
                                 </div>
+                                <div class="col-auto mt-2">
+                                    <x-b-qty-adjuster name="qty" min="0" max="10" size="" minus="-" plus="+" value="5"></x-b-qty-adjuster>
+                                </div>
                                 <div class="row mt-2">
                                     <div class="col-4">
                                         <label class="form-label" for="region">Region 多選</label>
@@ -661,6 +664,20 @@
 
             // 數字千分位
             $('#thousandths').text(formatNumber('12345678'));
+
+            // +/- btn
+            $('button.-minus, button.-plus').on('click', function() {
+                const $input = $(this).siblings('input[type="number"]');
+                const max = $input.attr('max') !== '' ? Number($input.attr('max')) : null;
+                const min = $input.attr('min') !== '' ? Number($input.attr('min')) : null;
+                const m_qty = Number($input.val());
+                if ($(this).hasClass('-minus') && (min !== null && m_qty > min)) {
+                    $input.val(m_qty - 1);
+                }
+                if ($(this).hasClass('-plus') && (max != null && m_qty < max)) {
+                    $input.val(m_qty + 1);
+                }
+            });
         </script>
         @stack('sub-scripts')
     @endpush

@@ -144,6 +144,17 @@ thead, tbody, tfoot, tr, td, th {
 .tableList select.form-select {
   width: auto;
 }
+.tableList input.form-control.-sx,
+.tableList .input-group > input.form-control.-sx,
+.tableList select.form-select.-sx {
+  min-width: 60px;
+}
+.tableList input.form-control.-sm,
+.tableList .input-group > input.form-control.-sm,
+.tableList select.form-select.-sm,
+.tableList .input-group > button.-minus + input.form-control {
+  min-width: 75px;
+}
 .tableList input.form-control.-l,
 .tableList .input-group > input.form-control.-l,
 .tableList select.form-select.-l {

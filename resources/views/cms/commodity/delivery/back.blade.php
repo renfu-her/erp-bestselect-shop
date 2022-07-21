@@ -27,7 +27,7 @@
         @csrf
         <div class="card shadow p-4 mb-4">
             <h6>訂單退貨單內容</h6>
-            <div class="col-12 col-md-6 mb-3">
+            <div class="col-12 mb-3">
                 <label class="form-label">退貨單備註</label>
                 <input class="form-control" type="text" value="{{$delivery->back_memo ?? ''}}" name="dlv_memo" placeholder="退貨單備註">
             </div>
@@ -41,7 +41,7 @@
                             <th>價格</th>
                             <th>原數量</th>
                             <th class="text-center" style="width: 10%">欲退數量</th>
-                            <th class="text-center" style="width: 10%">說明</th>
+                            <th>說明</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -59,13 +59,15 @@
                                     </th>
                                     <td>{{ $item->product_title }}</td>
                                     <td>{{ $item->sku }}</td>
-                                    <td>{{ $item->price }}</td>
-                                    <td>{{ $item->origin_qty ?? '' }}</td>
+                                    <td>${{ number_format($item->price) }}</td>
+                                    <td>{{ $item->origin_qty ? number_format($item->origin_qty) : '' }}</td>
                                     <td>
-                                        <input type="text" value="{{ $item->back_qty ?? '' }}" name="back_qty[]" class="form-control form-control-sm text-center">
+                                        <x-b-qty-adjuster name="back_qty[]" value="{{ $item->back_qty ?? 0 }}"
+                                            min="0" max="{{ $item->origin_qty ?? '' }}" 
+                                            size="sm" minus="-" plus="+"></x-b-qty-adjuster>
                                     </td>
                                     <td>
-                                        <input type="text" value="{{ $item->memo ?? '' }}" name="memo[]" class="form-control form-control-sm">
+                                        <input type="text" value="{{ $item->memo ?? '' }}" name="memo[]" class="form-control form-control-sm -l">
                                     </td>
                                 </tr>
                             @endforeach
@@ -97,8 +99,19 @@
 @once
     @push('sub-scripts')
         <script>
-        $(function () {
-        });
+            // +/- btn
+            $('button.-minus, button.-plus').on('click', function() {
+                const $input = $(this).siblings('input[type="number"]');
+                const max = $input.attr('max') !== '' ? Number($input.attr('max')) : null;
+                const min = $input.attr('min') !== '' ? Number($input.attr('min')) : null;
+                const m_qty = Number($input.val());
+                if ($(this).hasClass('-minus') && (min !== null && m_qty > min)) {
+                    $input.val(m_qty - 1);
+                }
+                if ($(this).hasClass('-plus') && (max != null && m_qty < max)) {
+                    $input.val(m_qty + 1);
+                }
+            });
         </script>
     @endpush
 @endonce
