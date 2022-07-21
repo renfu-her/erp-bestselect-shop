@@ -17,6 +17,9 @@
         {{ $message }}
     </div>
     @enderror
+    @if($errors->any())
+        {!! implode('', $errors->all('<div>:message</div>')) !!}
+    @endif
 
     <form method="post" action="{{ $formAction }}">
         @method('POST')
@@ -84,6 +87,7 @@
                                                             <i class="bi bi-trash"></i>
                                                         </button>
                                                         <input type="hidden" name="id[]" value="{{ $rec->id }}">
+                                                        <input type="hidden" value="{{$ord->total_to_back_qty}}" name="total_to_back_qty[]" class="form-control form-control-sm text-center" readonly>
                                                     </td>
                                                     <td data-td="sn">{{ $rec->inbound_sn }}</td>
                                                     <td data-td="depot">{{ $rec->depot_name }}</td>

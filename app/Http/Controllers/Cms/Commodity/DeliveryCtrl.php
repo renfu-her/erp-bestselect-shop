@@ -305,46 +305,7 @@ class DeliveryCtrl extends Controller
         $event_sn = $delivery->event_sn;
         $dlvBack = DlvBack::where('delivery_id', '=', $delivery_id)->get()->toArray();
 
-        $rcv_repot_p = DB::table(app(ReceiveDepot::class)->getTable(). ' as rcv_depot')
-            ->where('rcv_depot.delivery_id', $delivery_id)
-            ->where('rcv_depot.prd_type', '=', 'p')
-            ->whereNull('rcv_depot.combo_id')
-            ->leftJoin(app(DlvBack::class)->getTable(). ' as back', function ($join) use($delivery_id) {
-                $join->on('back.product_style_id', '=', 'rcv_depot.product_style_id')
-                    ->where('back.delivery_id', '=', $delivery_id);
-            })
-            ->select(
-                'rcv_depot.event_item_id'
-                , 'rcv_depot.id'
-                , 'rcv_depot.delivery_id'
-                , 'rcv_depot.product_style_id'
-                , 'rcv_depot.product_style_id as product_style_child_id'
-                , DB::raw('rcv_depot.qty as qty') //出貨數量
-                , DB::raw('1 as unit_qty') //單位數量
-                , 'back.qty as to_back_qty' //欲退數量
-            );
-        $rcv_repot_combo = DB::table(app(ReceiveDepot::class)->getTable(). ' as rcv_depot')
-            ->where('rcv_depot.delivery_id', $delivery_id)
-            ->where('rcv_depot.prd_type', '=', 'c')
-            ->whereNull('rcv_depot.combo_id')
-            ->leftJoin(app(ProductStyleCombo::class)->getTable(). ' as style_combo', function ($join) {
-                $join->on('style_combo.product_style_id', '=', 'rcv_depot.product_style_id');
-            })
-            ->leftJoin(app(DlvBack::class)->getTable(). ' as back', function ($join) use($delivery_id) {
-                $join->on('back.product_style_id', '=', 'rcv_depot.product_style_id')
-                    ->where('back.delivery_id', '=', $delivery_id);
-            })
-            ->select(
-                'rcv_depot.event_item_id'
-                , 'rcv_depot.id'
-                , 'rcv_depot.delivery_id'
-                , 'style_combo.product_style_id'
-                , 'style_combo.product_style_child_id'
-                , DB::raw('rcv_depot.qty as qty') //出貨數量
-                , DB::raw('style_combo.qty as unit_qty') //單位數量
-                , 'back.qty as to_back_qty' //欲退數量
-            );
-        $rcv_repot_combo = $rcv_repot_combo->union($rcv_repot_p)->get();
+        $rcv_repot_combo = ReceiveDepot::getRcvDepotToBackQty($delivery_id);
 
         $event_sn = '';
         if(Event::order()->value == $event) {
@@ -396,10 +357,9 @@ class DeliveryCtrl extends Controller
 
     public function back_inbound_store(Request $request, int $delivery_id)
     {
-        dd('back_inbound_store', $request->all());
         $request->validate([
-            'id' => 'required|numeric',
-            'back_qty' => 'required|numeric',
+            'id' => 'required',
+            'back_qty' => 'required',
         ]);
 
         $items_to_back = $request->only('id', 'back_qty', 'memo');
