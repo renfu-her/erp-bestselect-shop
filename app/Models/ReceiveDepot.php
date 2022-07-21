@@ -592,6 +592,7 @@ class ReceiveDepot extends Model
                 , 'items.csnord_id AS csnord_id'
                 , 'items.title as product_title'
                 , 'prd_product_styles.type as prd_type'
+                , DB::raw('null as papa_product_style_id')
                 , 'prd_product_styles.id  AS product_style_id'
                 , 'prd_product_styles.product_id'
                 , 'prd_product_styles.sku'
@@ -757,5 +758,49 @@ class ReceiveDepot extends Model
 
             return ['success' => 1, 'error_msg' => "", 'data' => $id_and_qty_list];
         }
+    }
+
+    public static function getRcvDepotToBackQty($delivery_id) {
+        $rcv_repot_p = DB::table(app(ReceiveDepot::class)->getTable(). ' as rcv_depot')
+            ->where('rcv_depot.delivery_id', $delivery_id)
+            ->where('rcv_depot.prd_type', '=', 'p')
+            ->whereNull('rcv_depot.combo_id')
+            ->leftJoin(app(DlvBack::class)->getTable(). ' as back', function ($join) use($delivery_id) {
+                $join->on('back.product_style_id', '=', 'rcv_depot.product_style_id')
+                    ->where('back.delivery_id', '=', $delivery_id);
+            })
+            ->select(
+                'rcv_depot.event_item_id'
+                , 'rcv_depot.id'
+                , 'rcv_depot.delivery_id'
+                , 'rcv_depot.product_style_id'
+                , 'rcv_depot.product_style_id as product_style_child_id'
+                , DB::raw('rcv_depot.qty as qty') //出貨數量
+                , DB::raw('1 as unit_qty') //單位數量
+                , 'back.qty as to_back_qty' //欲退數量
+            );
+        $rcv_repot_combo = DB::table(app(ReceiveDepot::class)->getTable(). ' as rcv_depot')
+            ->where('rcv_depot.delivery_id', $delivery_id)
+            ->where('rcv_depot.prd_type', '=', 'c')
+            ->whereNull('rcv_depot.combo_id')
+            ->leftJoin(app(ProductStyleCombo::class)->getTable(). ' as style_combo', function ($join) {
+                $join->on('style_combo.product_style_id', '=', 'rcv_depot.product_style_id');
+            })
+            ->leftJoin(app(DlvBack::class)->getTable(). ' as back', function ($join) use($delivery_id) {
+                $join->on('back.product_style_id', '=', 'rcv_depot.product_style_id')
+                    ->where('back.delivery_id', '=', $delivery_id);
+            })
+            ->select(
+                'rcv_depot.event_item_id'
+                , 'rcv_depot.id'
+                , 'rcv_depot.delivery_id'
+                , 'style_combo.product_style_id'
+                , 'style_combo.product_style_child_id'
+                , DB::raw('rcv_depot.qty as qty') //出貨數量
+                , DB::raw('style_combo.qty as unit_qty') //單位數量
+                , 'back.qty as to_back_qty' //欲退數量
+            );
+        $rcv_repot_combo = $rcv_repot_combo->union($rcv_repot_p)->get();
+        return $rcv_repot_combo;
     }
 }
