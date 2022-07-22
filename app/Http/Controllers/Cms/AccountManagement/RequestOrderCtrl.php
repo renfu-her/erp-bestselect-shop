@@ -7,141 +7,167 @@ use Illuminate\Http\Request;
 
 use App\Enums\Received\ReceivedMethod;
 
+use App\Models\AllGrade;
+use App\Models\Customer;
 use App\Models\CrdCreditCard;
+use App\Models\Depot;
 use App\Models\GeneralLedger;
 use App\Models\OrderPayCreditCard;
-use App\Models\ReceivedDefault;
 use App\Models\ReceivedOrder;
+use App\Models\RequestOrder;
+use App\Models\Supplier;
 use App\Models\User;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
-class AccountReceivedCtrl extends Controller
+class RequestOrderCtrl extends Controller
 {
     public function index(Request $request)
     {
         $query = $request->query();
         $page = getPageCount(Arr::get($query, 'data_per_page', 100)) > 0 ? getPageCount(Arr::get($query, 'data_per_page', 100)) : 100;
 
-        $cond = [];
-
-        $cond['account_received_grade_id'] = Arr::get($query, 'account_received_grade_id', []);
-        if (gettype($cond['account_received_grade_id']) == 'string') {
-            $cond['account_received_grade_id'] = explode(',', $cond['account_received_grade_id']);
-        } else {
-            $cond['account_received_grade_id'] = [];
-        }
-
-        // $cond['authamt_min_price'] = Arr::get($query, 'authamt_min_price', null);
-        // $cond['authamt_max_price'] = Arr::get($query, 'authamt_max_price', null);
-        // $authamt_price = [
-        //     $cond['authamt_min_price'],
-        //     $cond['authamt_max_price']
-        // ];
-        $authamt_price = null;
-
-        $cond['ro_created_sdate'] = Arr::get($query, 'ro_created_sdate', null);
-        $cond['ro_created_edate'] = Arr::get($query, 'ro_created_edate', null);
-        $ro_created_date = [
-            $cond['ro_created_sdate'],
-            $cond['ro_created_edate']
-        ];
-
-        $cond['status_code'] = Arr::get($query, 'status_code', null);
-
-        $data_list = ReceivedOrder::get_account_received_list(
-                [],
-                $cond['status_code'],
-                null,
-                $cond['account_received_grade_id'],
-                $authamt_price,
-                $ro_created_date
-            )->paginate($page)->appends($query);
-
-        $account_received_grade = ReceivedDefault::leftJoinSub(GeneralLedger::getAllGrade(), 'grade', function($join) {
-                $join->on('grade.primary_id', 'acc_received_default.default_grade_id');
-            })
-            ->select(
-                'acc_received_default.name',
-                'grade.primary_id as grade_id',
-                'grade.code as grade_code',
-                'grade.name as grade_name'
-            )
-            ->where('acc_received_default.name', 'account_received')
-            ->get();
-
-        return view('cms.account_management.account_received.list', [
+        return view('cms.account_management.request.list', [
             'data_per_page' => $page,
-            'data_list' => $data_list,
-            'cond' => $cond,
-            'account_received_grade' => $account_received_grade,
         ]);
     }
 
 
-    public function claim(Request $request, $type, $id, $key = null)
+    public function create(Request $request)
     {
-        $request->merge([
-            'type'=>$type,
-            'id'=>$id,
-            'key'=>$key,
-        ]);
-
-        $request->validate([
-            'type' => 'required|in:g,t',
-            'id' => 'required',
-            'key' => 'required',
-        ]);
-
-        $grade_id = $type == 'g' ? $id : null;
-        $ro_target = $type == 't' ? [$id, $key] : null;
-
         if($request->isMethod('post')){
             $request->validate([
-                'selected' => 'required|array',
-                'selected.*' => 'exists:acc_received_account,id',
-                'account_received_id' => 'required|array',
-                'account_received_id.*' => 'exists:acc_received_account,id',
-                'amt_net' => 'required|array',
-                'amt_net.*' => 'required|numeric|between:0,9999999999.99',
+                'client_key' => 'required|string',
+                'request_grade_id' => 'required|exists:acc_all_grades,id',
+                'price' => 'required|numeric|between:0,9999999999.9999',
+                'qty' => 'required|numeric|between:0,9999999999.9999',
+                'summary' => 'string',
+                'memo' => 'string',
             ]);
 
-            $compare = array_diff(request('selected'), request('account_received_id'));
-            if(count($compare) == 0){
-                $source_type = app(ReceivedOrder::class)->getTable();
-                $n_id = DB::select("SHOW TABLE STATUS LIKE '" . $source_type . "'")[0]->Auto_increment;
-                $account_received_id = current(request('account_received_id'));
-                $received = DB::table('acc_received')->where([
-                    'received_method'=>'account_received',
-                    'id'=>$account_received_id
-                ])->first();
+            $client_key = explode('|', request('client_key'));
 
-                $received_order = ReceivedOrder::create_received_order($source_type, $n_id, array_sum(request('amt_net')), $received->received_order_id);
+            if(count($client_key) > 1){
+                $client = Customer::leftJoin('usr_customers_address AS customer_add', function ($join) {
+                        $join->on('usr_customers.id', '=', 'customer_add.usr_customers_id_fk');
+                        $join->where([
+                            'customer_add.is_default_addr'=>1,
+                        ]);
+                    })->where([
+                        'usr_customers.id'=>$client_key[0],
+                    ])
+                    ->where('usr_customers.name', 'LIKE', "%{$client_key[1]}%")
+                    ->select(
+                        'usr_customers.id',
+                        'usr_customers.name',
+                        'usr_customers.phone AS phone',
+                        'usr_customers.email',
+                        'customer_add.address AS address'
+                    )->first();
+
+                if(! $client){
+                    $client = Depot::where('id', '=', $client_key[0])
+                        ->where('name', 'LIKE', "%{$client_key[1]}%")
+                        ->select(
+                            'depot.id',
+                            'depot.name',
+                            'depot.tel AS phone',
+                            'depot.address AS address'
+                        )->first();
+
+                    if(! $client){
+                        $client = Supplier::where([
+                            'id'=>$client_key[0],
+                        ])
+                        ->where('name', 'LIKE', "%{$client_key[1]}%")
+                        ->select(
+                            'id',
+                            'name',
+                            'contact_tel AS phone',
+                            'email',
+                            'contact_address AS address'
+                        )->first();
+                    }
+                }
 
                 $parm = [
-                    'account_received_id'=>request('account_received_id'),
-                    'status_code'=>0,
-                    'append_received_order_id'=>$received_order->id,
-                    'sn'=>$received_order->sn,
-                    'amt_net'=>request('amt_net'),
+                    'price' =>request('price'),
+                    'qty' =>request('qty'),
+                    'total_price' =>request('price') * request('qty'),
+                    'rate' =>request('rate'),
+                    'currency_id' =>request('currency_id'),
+                    'request_grade_id' =>request('request_grade_id'),
+                    'summary' =>request('summary'),
+                    'memo' =>request('memo'),
+                    'client_id' =>$client->id,
+                    'client_name' =>$client->name,
+                    'client_phone' =>$client->phone,
+                    'client_address' =>$client->address,
+                    'creator_id' =>auth('user')->user() ? auth('user')->user()->id : null,
                 ];
-                ReceivedOrder::update_account_received_method($parm);
+                $request_order = RequestOrder::create_request_order($parm);
 
-                return redirect()->route('cms.account_received.ro-edit', [
-                    'id'=>$received_order->id,
-                ]);
+                if($request_order){
+                    wToast(__('請款單建立成功'));
+
+                    return redirect()->route('cms.request.show', [
+                        'id'=>$request_order->id,
+                    ]);
+                }
             }
 
-            wToast(__('應收帳款收款單建立失敗', ['type'=>'danger']));
+            wToast(__('請款單建立失敗', ['type'=>'danger']));
             return redirect()->back();
         }
 
-        $data_list = ReceivedOrder::get_account_received_list([], 0, null, $grade_id, null, null, $ro_target)->get();
+        $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
 
-        return view('cms.account_management.account_received.claim', [
-            'form_action'=>route('cms.account_received.claim', ['type'=>$type, 'id'=>$id, 'key'=>$key]),
-            'data_list'=>$data_list,
+        $client_merged = array_merge($customer, $depot, $supplier);
+
+        $total_grades = GeneralLedger::total_grade_list();
+
+        $currency = DB::table('acc_currency')->get();
+
+        return view('cms.account_management.request.edit', [
+            'form_action'=>route('cms.request.create'),
+            'client' => $client_merged,
+            'total_grades' => $total_grades,
+            'currency' => $currency,
+        ]);
+    }
+
+
+    public function show(Request $request, $id)
+    {
+        $request->merge([
+            'id'=>$id,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:acc_request_orders,id',
+        ]);
+
+        $request_order = RequestOrder::findOrFail($id);
+
+        $applied_company = DB::table('acc_company')->where('id', 1)->first();
+
+        $sales = User::find($request_order->creator_id);
+        $accountant = User::find($request_order->accountant_id);
+
+        $request_grade = AllGrade::find($request_order->request_grade_id)->eachGrade;
+
+        $zh_price = num_to_str($request_order->total_price);
+
+        return view('cms.account_management.request.show', [
+            'request_order' => $request_order,
+            'applied_company' => $applied_company,
+            'sales' => $sales,
+            'accountant' => $accountant,
+            'request_grade' => $request_grade,
+            'zh_price' => $zh_price,
         ]);
     }
 
@@ -153,17 +179,17 @@ class AccountReceivedCtrl extends Controller
         ]);
 
         $request->validate([
-            'id'=>'required|exists:ord_received_orders,id',
+            'id' => 'required|exists:acc_request_orders,id',
         ]);
 
+        $request_order = RequestOrder::findOrFail($id);
 
-        $account_received_id = DB::table('acc_received_account')->where('append_received_order_id', $id)->pluck('id')->toArray();
-        $order_list_data = ReceivedOrder::get_account_received_list($account_received_id, 0)->get();
+        $request_grade = AllGrade::find($request_order->request_grade_id)->eachGrade;
 
-        $received_order = ReceivedOrder::findOrFail($id);
-        $received_data = ReceivedOrder::get_received_detail($id);
+        $received_order = ReceivedOrder::find($request_order->received_order_id);
+        $received_data = ReceivedOrder::get_received_detail($request_order->received_order_id);
 
-        $tw_price = $received_order->price - $received_data->sum('tw_price');
+        $tw_price = $request_order->total_price - $received_data->sum('tw_price');
 
         // grade process start
             $defaultData = [];
@@ -234,10 +260,12 @@ class AccountReceivedCtrl extends Controller
             'taipei'=>'台北',
         ];
 
-        return view('cms.account_management.account_received.ro_edit', [
-            'form_action'=>route('cms.account_received.ro-store', ['id'=>$received_order->id]),
-            'purchaser' => count($order_list_data) > 0 ? $order_list_data[0]->ro_target_name : null,
-            'order_list_data' => $order_list_data,
+        return view('cms.account_management.request.ro_edit', [
+            'breadcrumb_data' => ['id' => $request_order->id],
+            'form_action' => route('cms.request.ro-store', ['id' => $request_order->id]),
+            'previou_url' => route('cms.request.show', ['id' => $request_order->id]),
+            'purchaser' => $request_order->client_name,
+            'order_list_data' => $request_order->get(),
 
             'received_order' => $received_order,
             'received_data' => $received_data,
@@ -258,7 +286,7 @@ class AccountReceivedCtrl extends Controller
         ]);
 
         $request->validate([
-            'id' => 'required|exists:ord_received_orders,id',
+            'id' => 'required|exists:acc_request_orders,id',
             'acc_transact_type_fk' => 'required|string|in:' . implode(',', ReceivedMethod::asArray()),
             'tw_price' => 'required|numeric',
             request('acc_transact_type_fk') => 'required|array',
@@ -269,10 +297,25 @@ class AccountReceivedCtrl extends Controller
 
         $data = $request->except('_token');
 
-        $source_type = app(ReceivedOrder::class)->getTable();
-        $account_received_id = DB::table('acc_received_account')->where('append_received_order_id', $id)->pluck('id')->toArray();
-        $received_order = ReceivedOrder::findOrFail($id);
-        $received_order_id = $id;
+        $request_order = RequestOrder::findOrFail($id);
+
+        $source_type = app(RequestOrder::class)->getTable();
+        $received_order = ReceivedOrder::where([
+            'source_type'=>$source_type,
+            'source_id'=>$id,
+        ])->first();
+
+        if(!$received_order){
+            $received_order = ReceivedOrder::create_received_order($source_type, $id, $request_order->total_price);
+
+            $parm = [
+                'id' => $id,
+                'received_order_id' => $received_order->id,
+            ];
+            RequestOrder::update_request_order_approval($parm);
+        }
+
+        $received_order_id = $received_order->id;
 
         DB::beginTransaction();
 
@@ -335,23 +378,14 @@ class AccountReceivedCtrl extends Controller
             wToast(__('收款單儲存失敗', ['type'=>'danger']));
         }
 
-
         if (ReceivedOrder::find($received_order_id) && ReceivedOrder::find($received_order_id)->balance_date) {
-            $parm = [
-                'account_received_id'=>$account_received_id,
-                'status_code'=>1,
-                'append_received_order_id'=>$received_order->id,
-                'sn'=>$received_order->sn,
-            ];
-            ReceivedOrder::update_account_received_method($parm);
-
-            return redirect()->route('cms.account_received.ro-receipt', [
-                'id' => $data['id'],
+            return redirect()->route('cms.request.ro-receipt', [
+                'id' => $id,
             ]);
 
         } else {
-            return redirect()->route('cms.account_received.ro-edit', [
-                'id' => $data['id'],
+            return redirect()->route('cms.request.ro-edit', [
+                'id' => $id,
             ]);
         }
     }
@@ -364,28 +398,28 @@ class AccountReceivedCtrl extends Controller
         ]);
 
         $request->validate([
-            'id'=>'required|exists:ord_received_orders,id',
+            'id'=>'required|exists:acc_request_orders,id',
         ]);
 
-        $account_received_id = DB::table('acc_received_account')->where('append_received_order_id', $id)->pluck('id')->toArray();
-        $order_list_data = ReceivedOrder::get_account_received_list($account_received_id, 1)->get();
+        $request_order = RequestOrder::findOrFail($id);
 
-        $received_order = ReceivedOrder::findOrFail($id);
-        $received_data = ReceivedOrder::get_received_detail($id);
+        $received_order = ReceivedOrder::findOrFail($request_order->received_order_id);
+        $received_data = ReceivedOrder::get_received_detail($request_order->received_order_id);
 
         if (!$received_order || !$received_order->balance_date) {
             return abort(404);
         }
 
-        $purchaser = $order_list_data->first();
+        $purchaser = $request_order;
         $undertaker = User::find($received_order->usr_users_id);
 
         $accountant = User::whereIn('id', $received_data->pluck('accountant_id_fk')->toArray())->get();
         $accountant = array_unique($accountant->pluck('name')->toArray());
         asort($accountant);
 
-        return view('cms.account_management.account_received.ro_receipt', [
-            'order_list_data' => $order_list_data,
+        return view('cms.account_management.request.ro_receipt', [
+            'breadcrumb_data' => ['id' => $request_order->id],
+            'order_list_data' => $request_order->get(),
             'received_order' => $received_order,
             'received_data' => $received_data,
             'purchaser' => $purchaser,
@@ -401,10 +435,12 @@ class AccountReceivedCtrl extends Controller
             'id'=>$id,
         ]);
         $request->validate([
-            'id' => 'required|exists:ord_received_orders,id',
+            'id' => 'required|exists:acc_request_orders,id',
         ]);
 
-        $received_order = ReceivedOrder::findOrFail($id);
+        $request_order = RequestOrder::findOrFail($id);
+
+        $received_order = ReceivedOrder::findOrFail($request_order->received_order_id);
 
         if (!$received_order || !$received_order->balance_date) {
             return abort(404);
@@ -430,7 +466,7 @@ class AccountReceivedCtrl extends Controller
             }
 
             wToast(__('入帳日期更新成功'));
-            return redirect()->route('cms.account_received.ro-receipt', ['id'=>request('id')]);
+            return redirect()->route('cms.request.ro-receipt', ['id'=>request('id')]);
 
         } else if($request->isMethod('get')){
             if($received_order->receipt_date){
@@ -439,15 +475,13 @@ class AccountReceivedCtrl extends Controller
                 ]);
 
                 wToast(__('入帳日期已取消'));
-                return redirect()->route('cms.account_received.ro-receipt', ['id'=>request('id')]);
+                return redirect()->route('cms.request.ro-receipt', ['id'=>request('id')]);
 
             } else {
                 $undertaker = User::find($received_order->usr_users_id);
 
-                $account_received_id = DB::table('acc_received_account')->where('append_received_order_id', $id)->pluck('id')->toArray();
-                $order_list_data = ReceivedOrder::get_account_received_list($account_received_id, 1)->get();
-
-                $received_data = ReceivedOrder::get_received_detail($id);
+                $order_list_data = $request_order->get();
+                $received_data = ReceivedOrder::get_received_detail($request_order->received_order_id);
 
                 $debit = [];
                 $credit = [];
@@ -486,12 +520,12 @@ class AccountReceivedCtrl extends Controller
                 foreach($order_list_data as $value){
                     $account_code = '4000';
                     $account_name = '無設定會計科目';
-                    $name = $value->ro_received_grade_code . ' ' . $value->ro_received_grade_name;
+                    $name = $value->summary;
 
                     $tmp = [
                         'account_code'=>$account_code,
                         'name'=>$name,
-                        'price'=>$value->account_amt_net,
+                        'price'=>$value->total_price,
                         'type'=>'r',
                         'd_type'=>'product',
 
@@ -499,11 +533,11 @@ class AccountReceivedCtrl extends Controller
                         'method_name'=>null,
                         'summary'=>$value->summary ?? null,
                         'note'=>$value->note ?? null,
-                        'product_title'=>$value->ro_received_grade_code . ' ' . $value->ro_received_grade_name,
+                        'product_title'=>$value->summary,
                         'del_even'=>$value->del_even ?? null,
                         'del_category_name'=>$value->del_category_name ?? null,
-                        'product_price'=>$value->tw_price,
-                        'product_qty'=>1,
+                        'product_price'=>$value->price,
+                        'product_qty'=>$value->qty,
                         'product_owner'=>null,
                         'discount_title'=>null,
                         'payable_type'=>null,
@@ -580,8 +614,10 @@ class AccountReceivedCtrl extends Controller
                     }
                 // grade process end
 
-                return view('cms.account_management.account_received.ro_review', [
-                    'form_action'=>route('cms.account_received.ro-review' , ['id'=>request('id')]),
+                return view('cms.account_management.request.ro_review', [
+                    'breadcrumb_data' => ['id' => $request_order->id],
+                    'form_action' => route('cms.request.ro-review', ['id'=>request('id')]),
+                    'previou_url' => route('cms.request.ro-receipt', ['id'=>request('id')]),
                     'received_order'=>$received_order,
                     'order_list_data'=>$order_list_data,
                     'received_data'=>$received_data,
@@ -593,8 +629,6 @@ class AccountReceivedCtrl extends Controller
                     'credit_card_grade'=>$default_grade[ReceivedMethod::CreditCard],
                     // 'default_grade'=>$default_grade,
                     // 'currency_default_grade'=>$currency_default_grade,
-
-                    'breadcrumb_data' => ['id'=>$received_order->id],
                 ]);
             }
         }
@@ -604,13 +638,15 @@ class AccountReceivedCtrl extends Controller
     public function ro_taxation(Request $request, $id)
     {
         $request->merge([
-            'id'=>$id,
+            'id' => $id,
         ]);
         $request->validate([
-            'id' => 'required|exists:ord_received_orders,id',
+            'id' => 'required|exists:acc_request_orders,id',
         ]);
 
-        $received_order = ReceivedOrder::findOrFail($id);
+        $request_order = RequestOrder::findOrFail($id);
+
+        $received_order = ReceivedOrder::findOrFail($request_order->received_order_id);
 
         if (!$received_order || !$received_order->balance_date) {
             return abort(404);
@@ -625,10 +661,6 @@ class AccountReceivedCtrl extends Controller
             DB::beginTransaction();
 
             try {
-                $received_order->update([
-                    'product_grade_id'=>request('product_grade_id'),
-                ]);
-
                 if(request('received') && is_array(request('received'))){
                     $received = request('received');
                     foreach($received as $key => $value){
@@ -640,8 +672,8 @@ class AccountReceivedCtrl extends Controller
                 if(request('product') && is_array(request('product'))){
                     $product = request('product');
                     foreach($product as $key => $value){
-                        $value['received_id'] = $key;
-                        ReceivedOrder::update_received($value);
+                        $value['id'] = $key;
+                        RequestOrder::update_request_order($value);
                     }
                 }
 
@@ -653,24 +685,23 @@ class AccountReceivedCtrl extends Controller
                 wToast(__('摘要/稅別更新失敗', ['type'=>'danger']));
             }
 
-            return redirect()->route('cms.account_received.ro-receipt', ['id'=>request('id')]);
+            return redirect()->route('cms.request.ro-receipt', ['id'=>request('id')]);
 
         } else if($request->isMethod('get')){
-            $account_received_id = DB::table('acc_received_account')->where('append_received_order_id', $id)->pluck('id')->toArray();
-            $order_list_data = ReceivedOrder::get_account_received_list($account_received_id, 1)->get();
+            $order_list_data = $request_order->get();
 
-            $received_data = ReceivedOrder::get_received_detail($id);
+            $received_data = ReceivedOrder::get_received_detail($request_order->received_order_id);
 
             $total_grades = GeneralLedger::total_grade_list();
 
-            return view('cms.account_management.account_received.ro_taxation', [
-                'form_action'=>route('cms.account_received.ro-taxation' , ['id'=>request('id')]),
+            return view('cms.account_management.request.ro_taxation', [
+                'breadcrumb_data' => ['id' => $request_order->id],
+                'form_action' => route('cms.request.ro-taxation', ['id'=>request('id')]),
+                'previou_url' => route('cms.request.ro-receipt', ['id'=>request('id')]),
                 'received_order'=>$received_order,
                 'order_list_data'=>$order_list_data,
                 'received_data'=>$received_data,
                 'total_grades'=>$total_grades,
-
-                'breadcrumb_data'=>['id'=>$received_order->id],
             ]);
         }
     }

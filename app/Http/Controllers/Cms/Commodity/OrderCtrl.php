@@ -627,7 +627,10 @@ class OrderCtrl extends Controller
 
         if ($request->isMethod('post')) {
             if (!$paying_order) {
-                $price = Order::subOrderDetail($id, $sid, true)->get()->toArray()[0]->logistic_cost;
+                $sub_order = Order::subOrderDetail($id, $sid, true)->get()->toArray()[0];
+                $supplier = Supplier::find($sub_order->supplier_id);
+
+                $price = $sub_order->logistic_cost;
                 $product_grade = PayableDefault::where('name', '=', 'product')->first()->default_grade_id;
                 $logistics_grade = PayableDefault::where('name', '=', 'logistics')->first()->default_grade_id;
 
@@ -642,6 +645,10 @@ class OrderCtrl extends Controller
                     $price ?? 0,
                     '',
                     '',
+                    $supplier->id,
+                    $supplier->name,
+                    $supplier->contact_tel,
+                    $supplier->contact_address
                 );
             }
 

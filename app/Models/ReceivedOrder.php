@@ -274,8 +274,11 @@ class ReceivedOrder extends Model
     }
 
 
-    public static function create_received_order($source_type, $source_id, $price = 0, $account_received_id = null)
+    public static function create_received_order($source_type, $source_id, $price = 0, $received_order_id = null)
     {
+        $logistics_grade_id = ReceivedDefault::where('name', 'logistics')->first() ? ReceivedDefault::where('name', 'logistics')->first()->default_grade_id : 0;
+        $product_grade_id = ReceivedDefault::where('name', 'product')->first() ? ReceivedDefault::where('name', 'product')->first()->default_grade_id : 0;
+
         if($source_type == app(Order::class)->getTable()){
             $order_data = Order::findOrFail($source_id);
             $purchaser = Customer::leftJoin('usr_customers_address AS customer_add', function ($join) {
@@ -293,9 +296,6 @@ class ReceivedOrder extends Model
                     'usr_customers.email',
                     'customer_add.address AS address'
                 )->first();
-
-            $logistics_grade_id = ReceivedDefault::where('name', 'logistics')->first() ? ReceivedDefault::where('name', 'logistics')->first()->default_grade_id : 0;
-            $product_grade_id = ReceivedDefault::where('name', 'product')->first() ? ReceivedDefault::where('name', 'product')->first()->default_grade_id : 0;
 
             $re = self::create([
                 'source_type'=>$source_type,
@@ -339,9 +339,6 @@ class ReceivedOrder extends Model
                 )
                 ->first();
 
-            $logistics_grade_id = ReceivedDefault::where('name', 'logistics')->first() ? ReceivedDefault::where('name', 'logistics')->first()->default_grade_id : 0;
-            $product_grade_id = ReceivedDefault::where('name', 'product')->first() ? ReceivedDefault::where('name', 'product')->first()->default_grade_id : 0;
-
             $re = self::create([
                 'source_type'=>$source_type,
                 'source_id'=>$source_id,
@@ -366,15 +363,28 @@ class ReceivedOrder extends Model
 
             return $re;
 
-        } else if($source_type == app(self::class)->getTable()){
-            $received_order = DB::table('acc_received')->where([
-                    'received_method'=>'account_received',
-                    'id'=>$account_received_id
-                ])->first();
-            $purchaser = self::find($received_order->received_order_id);
+        } else if($source_type == app(RequestOrder::class)->getTable()){
+            $request_order = RequestOrder::find($source_id);
 
-            $logistics_grade_id = ReceivedDefault::where('name', 'logistics')->first() ? ReceivedDefault::where('name', 'logistics')->first()->default_grade_id : 0;
-            $product_grade_id = ReceivedDefault::where('name', 'product')->first() ? ReceivedDefault::where('name', 'product')->first()->default_grade_id : 0;
+            $re = self::create([
+                'source_type'=>$source_type,
+                'source_id'=>$source_id,
+                'usr_users_id'=>auth('user')->user() ? auth('user')->user()->id : null,
+                'sn'=>'MSG' . date('ymd') . str_pad( count(self::whereDate('created_at', '=', date('Y-m-d'))->withTrashed()->get()) + 1, 4, '0', STR_PAD_LEFT),
+                'price'=>$price,
+                'logistics_grade_id'=>$logistics_grade_id,
+                'product_grade_id'=>$product_grade_id,
+                'drawee_id'=>$request_order->client_id,
+                'drawee_name'=>$request_order->client_name,
+                'drawee_phone'=>$request_order->client_phone,
+                'drawee_address'=>$request_order->client_address,
+            ]);
+
+            return $re;
+
+        } else if($source_type == app(self::class)->getTable()){
+
+            $purchaser = self::find($received_order_id);
 
             $re = self::create([
                 'source_type'=>$source_type,
@@ -637,6 +647,12 @@ class ReceivedOrder extends Model
     public static function get_received_detail($received_order_id = null, string $method = null)
     {
         $query = DB::table('acc_received AS received')
+            ->leftJoin('ord_received_orders AS ro', function($join){
+                $join->on('ro.id', '=', 'received.received_order_id');
+                $join->where([
+                    'ro.deleted_at'=>null,
+                ]);
+            })
             ->leftJoin('acc_received_credit AS _credit', function($join){
                 $join->on('received.received_method_id', '=', '_credit.id');
                 $join->where([
@@ -681,6 +697,8 @@ class ReceivedOrder extends Model
             })
 
             ->selectRaw('
+                ro.sn AS ro_sn,
+
                 received.id AS received_id,
                 received.received_order_id,
                 received.received_method,

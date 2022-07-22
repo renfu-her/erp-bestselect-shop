@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
 use App\Enums\Delivery\Event;
+use App\Enums\Supplier\Payment;
 
 class PayingOrder extends Model
 {
@@ -35,7 +36,11 @@ class PayingOrder extends Model
         $logistics_grade_id,
         $price = null,
         $summary = null,
-        $memo = null
+        $memo = null,
+        $payee_id = null,
+        $payee_name = null,
+        $payee_phone = null,
+        $payee_address = null
     ) {
         return DB::transaction(function () use (
             $source_type,
@@ -47,9 +52,13 @@ class PayingOrder extends Model
             $logistics_grade_id,
             $price,
             $summary,
-            $memo
+            $memo,
+            $payee_id,
+            $payee_name,
+            $payee_phone,
+            $payee_address
         ) {
-            $sn = "PSG" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
+            $sn = 'ISG' . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
                         ->withTrashed()
                         ->get()
                         ->count()) + 1, 4, '0', STR_PAD_LEFT);
@@ -65,7 +74,11 @@ class PayingOrder extends Model
                 "logistics_grade_id" => $logistics_grade_id,
                 "price" => $price,
                 'summary' => $summary,
-                "memo" => $memo
+                "memo" => $memo,
+                'payee_id' => $payee_id,
+                'payee_name' => $payee_name,
+                'payee_phone' => $payee_phone,
+                'payee_address' => $payee_address
             ])->id;
 
             return ['success' => 1, 'error_msg' => "", 'id' => $id];
@@ -315,5 +328,122 @@ class PayingOrder extends Model
         }
 
         return $paying_order->orderBy('po.created_at', 'DESC');
+    }
+
+
+    public static function get_payable_detail($pay_order_id = null, int $method_id = null)
+    {
+        $query = DB::table('acc_payable AS payable')
+            ->leftJoin('pcs_paying_orders AS po', function($join){
+                $join->on('po.id', '=', 'payable.pay_order_id');
+                $join->where([
+                    'po.deleted_at'=>null,
+                ]);
+            })
+            ->leftJoin('acc_payable_cash AS _cash', function($join){
+                $join->on('payable.payable_id', '=', '_cash.id');
+                $join->where([
+                    'payable.acc_income_type_fk'=>1,
+                ]);
+            })
+            ->leftJoin('acc_payable_cheque AS _cheque', function($join){
+                $join->on('payable.payable_id', '=', '_cheque.id');
+                $join->where([
+                    'payable.acc_income_type_fk'=>2,
+                ]);
+            })
+            ->leftJoin('acc_payable_remit AS _remit', function($join){
+                $join->on('payable.payable_id', '=', '_remit.id');
+                $join->where([
+                    'payable.acc_income_type_fk'=>3,
+                ]);
+            })
+            ->leftJoin('acc_payable_currency AS _currency', function($join){
+                $join->on('payable.payable_id', '=', '_currency.id');
+                $join->where([
+                    'payable.acc_income_type_fk'=>4,
+                ]);
+            })
+            ->leftJoin('acc_payable_account AS _account', function($join){
+                $join->on('payable.payable_id', '=', '_account.id');
+                $join->where([
+                    'payable.acc_income_type_fk'=>5,
+                ]);
+            })
+            ->leftJoin('acc_payable_other AS _other', function($join){
+                $join->on('payable.payable_id', '=', '_other.id');
+                $join->where([
+                    'payable.acc_income_type_fk'=>6,
+                ]);
+            })
+
+            ->where(function ($q) use ($pay_order_id, $method_id) {
+                if(gettype($pay_order_id) == 'array') {
+                    $q->whereIn('payable.pay_order_id', $pay_order_id);
+                } else {
+                    $q->where('payable.pay_order_id', $pay_order_id);
+                }
+
+                if($method_id){
+                    $q->where('payable.acc_income_type_fk', $method_id);
+                }
+            })
+
+            ->selectRaw('
+                po.sn AS po_sn,
+
+                payable.id AS payable_id,
+                payable.pay_order_id,
+                payable.acc_income_type_fk,
+                payable.all_grades_id,
+                payable.tw_price,
+                payable.accountant_id_fk,
+                payable.taxation,
+                payable.summary,
+                payable.note
+            ')
+            // ->selectRaw('
+            //     _cash.cardnumber AS credit_card_number,
+            // ')
+
+            ->selectRaw('
+                _cheque.maturity_date AS cheque_maturity_date,
+                _cheque.cash_cheque_date AS cheque_cash_cheque_date,
+                _cheque.cheque_status AS cheque_cheque_status
+            ')
+
+            ->selectRaw('
+                _currency.rate AS rate,
+                _currency.foreign_currency AS currency_foreign,
+                _currency.acc_currency_fk AS currency_fk
+            ')
+
+            ->selectRaw('
+                _remit.remit_date  AS remit_date
+            ')
+
+            // ->selectRaw('
+            //     _account.status_code AS account_status_code,
+            // ')
+            // ->selectRaw('
+            //     _other.status_code AS account_status_code,
+            // ')
+            ->get();
+
+        foreach($query as $value){
+            $value->payable_method_name = Payment::getDescription($value->acc_income_type_fk);
+            $value->account = AllGrade::find($value->all_grades_id)->eachGrade;
+
+            if($value->acc_income_type_fk == 4){
+                $arr = explode('-', AllGrade::find($value->all_grades_id)->eachGrade->name);
+                $value->currency_name = $arr[0] == '外幣' ? $arr[1] . ' - ' . $arr[2] : 'NTD';
+                $value->currency_rate = DB::table('acc_payable_currency')->find($value->payable_id)->currency;
+            } else {
+                $value->currency_name = 'NTD';
+                $value->currency_rate = 1;
+            }
+        }
+
+        return $query;
     }
 }
