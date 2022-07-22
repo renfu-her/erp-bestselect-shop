@@ -27,6 +27,7 @@ use App\Models\PurchaseInbound;
 use App\Models\PurchaseLog;
 use App\Models\ReceiveDepot;
 use App\Models\ShipmentCategory;
+use App\Models\ShipmentGroup;
 use App\Models\SubOrders;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -377,8 +378,17 @@ class DeliveryCtrl extends Controller
                     , DB::raw('ifnull(item_tb.bonus, "") as bonus')
                 );
             }
+            $dlvBack = $dlvBack->get();
         }
-        $logistic = Logistic::where('id', '=', $delivery->event_id)->first();
+//        $logistic = Logistic::where('id', '=', $delivery->event_id)->first();
+
+        $logistic = DB::table(app(Logistic::class)->getTable(). ' as lgt_tb')
+            ->leftJoin(app(ShipmentGroup::class)->getTable(). ' as shi_group', 'shi_group.id', '=', 'lgt_tb.ship_group_id')
+            ->select(
+                'lgt_tb.*', 'shi_group.name as group_name'
+            )
+            ->where('lgt_tb.delivery_id', '=', $delivery->id)
+            ->first();
         $rsp_arr['logistic'] = $logistic;
 
         $rsp_arr['event'] = $event;
@@ -387,8 +397,6 @@ class DeliveryCtrl extends Controller
         $rsp_arr['sn'] = $delivery->sn;
         $rsp_arr['dlvBack'] = $dlvBack;
         $rsp_arr['breadcrumb_data'] = ['sn' => $delivery->event_sn, 'parent' => $event ];
-
-        dd($rsp_arr);
         return view('cms.commodity.delivery.back_detail', $rsp_arr);
     }
 
@@ -471,7 +479,7 @@ class DeliveryCtrl extends Controller
         }
         //判斷OK後 回寫入各出貨商品的product_style_id prd_type combo_id
         $bdcisc = ReceiveDepot::checkBackDlvComboItemSameCount($delivery_id, $items_to_back);
-        dd($request->all(), $bdcisc);
+//        dd($request->all(), $bdcisc);
         if ($bdcisc['success'] == '1') {
             $msg = DB::transaction(function () use ($delivery, $bdcisc, $request) {
                 Delivery::where('id', '=', $delivery->id)->update([
@@ -483,6 +491,7 @@ class DeliveryCtrl extends Controller
 
                 if(isset($bdcisc['data']) && 0 < count($bdcisc['data'])) {
                     foreach ($bdcisc['data'] as $rcv_depot_item) {
+                        dd($bdcisc, $rcv_depot_item);
 //                        dd($rcv_depot_item->memo ?? null);
                         //增加back_num
                         ReceiveDepot::where('id', $rcv_depot_item->id)->update(['back_qty' => DB::raw("back_qty + $rcv_depot_item->qty")]);

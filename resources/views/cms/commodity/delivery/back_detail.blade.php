@@ -23,15 +23,15 @@
         <dl class="row">
             <div class="col">
                 <dt>銷貨單號</dt>
-                <dd></dd>
+                <dd>{{$delivery->back_sn ?? ''}}</dd>
             </div>
             <div class="col">
                 <dt>狀態</dt>
-                <dd></dd>
+                <dd>{{ \App\Enums\Delivery\BackStatus::getDescription($delivery->back_status ?? '')}}</dd>
             </div>
             <div class="col">
                 <dt>入庫日期</dt>
-                <dd>{{ date('Y/m/d', strtotime('2022/7/22')) }}</dd>
+                <dd>{{ $delivery->back_inbound_date ? date('Y/m/d', strtotime($delivery->back_inbound_date)) : '' }}</dd>
             </div>
         </dl>
         <dl class="row">
@@ -41,35 +41,35 @@
             </div>
             <div class="col">
                 <dt>物流類型</dt>
-                <dd></dd>
+                <dd>{{$logistic->group_name ?? ''}}</dd>
             </div>
             <div class="col">
                 <dt>運費</dt>
-                <dd>${{ number_format(0) }}</dd>
+                <dd>${{ (isset($logistic->cost)) ? number_format($logistic->cost) : '' }}</dd>
             </div>
         </dl>
         <dl class="row">
             <div class="col">
                 <dt>客戶</dt>
-                <dd></dd>
+                <dd>{{$order->ord_name ?? ''}}</dd>
             </div>
             <div class="col">
                 <dt>客戶電話</dt>
-                <dd></dd>
+                <dd>{{$order->ord_phone ?? ''}}</dd>
             </div>
             <div class="col">
                 <dt>新增者</dt>
-                <dd></dd>
+                <dd>{{$delivery->back_user_name ?? ''}}</dd>
             </div>
         </dl>
         <dl class="row">
             <div class="col">
                 <dt>發票號碼</dt>
-                <dd></dd>
+                <dd>{{$order->invoice_number ?? ''}}</dd>
             </div>
             <div class="col">
                 <dt>發票日期</dt>
-                <dd>{{ date('Y/m/d', strtotime('2022/7/22')) }}</dd>
+                <dd>{{ $orderInvoice->created_at ? date('Y/m/d', strtotime($orderInvoice->created_at)) : '' }}</dd>
             </div>
             <div class="col">
                 <dt>課稅別</dt>
@@ -79,31 +79,31 @@
         <dl class="row">
             <div class="col">
                 <dt>進貨地址</dt>
-                <dd></dd>
+                <dd>{{$order->ord_address ?? ''}}</dd>
             </div>
         </dl>
         <dl class="row">
             <div class="col">
                 <dt>物流說明</dt>
-                <dd></dd>
+                <dd>{{ (isset($logistic->memo)) ? $logistic->memo : '' }}</dd>
             </div>
             <div class="col">
                 <dt>入庫者</dt>
-                <dd></dd>
+                <dd>{{$delivery->back_inbound_user_name ?? ''}}</dd>
             </div>
         </dl>
         <dl class="row">
             <div class="col">
                 <dt>預計進貨日期</dt>
-                <dd>{{ date('Y/m/d', strtotime('2022/7/22')) }}</dd>
+                <dd></dd>
             </div>
             <div class="col">
                 <dt>採購備註</dt>
-                <dd></dd>
+                <dd>{{$delivery->back_memo ?? ''}}</dd>
             </div>
             <div class="col">
                 <dt>訂貨單號</dt>
-                <dd></dd>
+                <dd>{{$order->sn ?? ''}}</dd>
             </div>
         </dl>
     </div>
@@ -116,7 +116,7 @@
                         <th scope="col" class="text-center" style="width:10%">#</th>
                         <th scope="col">品名規格</th>
                         <th scope="col" class="text-end">退款金額</th>
-                        <th scope="col" class="text-end">經銷價</th>
+{{--                        <th scope="col" class="text-end">經銷價</th>--}}
                         <th scope="col" class="text-end">扣除獎金</th>
                         <th scope="col">退回數量</th>
                         <th scope="col">入庫數量</th>
@@ -129,24 +129,24 @@
                     $total = 0;
                 @endphp
                 <tbody>
-                    {{-- @foreach ($collection as $item) --}}
+                     @foreach ($dlvBack as $key => $item)
                         @php
-                            $subtotal = 450 * 1;    // 退款金額 * 退回數量
+                            $subtotal = $item->price * 1;    // 退款金額 * 退回數量
                             $total += $subtotal;
                         @endphp
                         <tr>
-                            <th>1</th>
-                            <td>【 嘉義小農】特選台灣檸檬10斤/箱(單一規格)</td>
-                            <td class="text-end">${{ number_format(450) }}</td>
-                            <td class="text-end">${{ number_format(450) }}</td>
-                            <td class="text-end">${{ number_format(4) }}</td>
-                            <td>{{ number_format(1) }}</td>
-                            <td>{{ number_format(1) }}</td>
+                            <th scope="row">{{ $key + 1 }}</th>
+                            <td>{{ $item->product_title ?? '' }}</td>
+                            <td class="text-end">${{ number_format($item->price) }}</td>
+{{--                            <td class="text-end">${{ number_format(450) }}</td>--}}
+                            <td class="text-end">${{ number_format($item->bonus) }}</td>
+                            <td>{{ number_format($item->qty) }}</td>
+                            <td>{{ number_format(0) }}</td>
                             <td>廠商出貨</td>
                             <td class="text-end">${{ number_format($subtotal) }}</td>
-                            <td>test</td>
+                            <td>{{ $item->memo ?? '' }}</td>
                         </tr>
-                    {{-- @endforeach --}}
+                     @endforeach
                 </tbody>
             </table>
         </div>
