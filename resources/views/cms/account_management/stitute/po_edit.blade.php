@@ -63,11 +63,10 @@
                             </tr>
 
                             @foreach($payable_data as $value)
-                            @if($value->payingOrder->type == 1)
                             <tr>
                                 <td></td>
                                 <td>{{ $value->po_sn }}</td>
-                                <td>{{ $value->payable->all_grade->eachGrade->code . ' ' . $value->payable->all_grade->eachGrade->name }}</td>
+                                <td>{{ $value->account->code . ' ' . $value->account->name }}</td>
                                 <td>{{ $value->note }}</td>
                                 <td class="text-end">{{ number_format($value->tw_price, 2) }}</td>
                                 <td class="text-end">1</td>
@@ -76,7 +75,6 @@
                                 <td class="text-end"></td>
                                 <td class="text-end">{{ number_format($value->tw_price) }}</td>
                             </tr>
-                            @endif
                             @endforeach
                         </tbody>
 

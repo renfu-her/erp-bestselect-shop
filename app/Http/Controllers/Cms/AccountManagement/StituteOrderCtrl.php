@@ -199,19 +199,7 @@ class StituteOrderCtrl extends Controller
         }
 
         $paying_order = PayingOrder::find($stitute_order->pay_order_id);
-        $payable_data = AccountPayable::leftJoin('pcs_paying_orders', function ($join) {
-                $join->on('acc_payable.pay_order_id', '=', 'pcs_paying_orders.id');
-                $join->whereNull('pcs_paying_orders.deleted_at');
-            })->whereIn('pay_order_id', [$stitute_order->pay_order_id])->select('acc_payable.*', 'pcs_paying_orders.sn AS po_sn')->get();
-        foreach($payable_data as $value){
-            if($value->acc_income_type_fk == 4){
-                $value->currency_name = DB::table('acc_currency')->find($value->payable->acc_currency_fk)->name;
-                $value->currency_rate = $value->payable->rate;
-            } else {
-                $value->currency_name = 'NTD';
-                $value->currency_rate = 1;
-            }
-        }
+        $payable_data = PayingOrder::get_payable_detail($stitute_order->pay_order_id);
 
         $tw_price = $stitute_order->total_price - $payable_data->sum('tw_price');
 
@@ -323,7 +311,7 @@ class StituteOrderCtrl extends Controller
                 break;
         }
 
-        $payable_data = AccountPayable::whereIn('pay_order_id', [$paying_order->id])->get();
+        $payable_data = PayingOrder::get_payable_detail($stitute_order->pay_order_id);
         if (count($payable_data) > 0 && $paying_order->price == $payable_data->sum('tw_price')) {
             $paying_order->update([
                 'balance_date'=>date("Y-m-d H:i:s"),
