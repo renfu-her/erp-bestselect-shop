@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Cms\Commodity;
 
+use App\Enums\Delivery\BackStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Delivery\LogisticStatus;
 use App\Enums\Order\OrderStatus;
@@ -9,15 +10,19 @@ use App\Enums\Purchase\LogEventFeature;
 use App\Enums\StockEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Consignment;
+use App\Models\ConsignmentItem;
 use App\Models\CsnOrder;
 use App\Models\CsnOrderFlow;
+use App\Models\CsnOrderItem;
 use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\DlvBack;
+use App\Models\Logistic;
+use App\Models\Order;
 use App\Models\OrderFlow;
+use App\Models\OrderInvoice;
 use App\Models\OrderItem;
 use App\Models\ProductStock;
-use App\Models\ProductStyleCombo;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseLog;
 use App\Models\ReceiveDepot;
@@ -230,11 +235,18 @@ class DeliveryCtrl extends Controller
 
     //刪除退貨
     public function back_delete(Request $request, int $delivery_id) {
+        $delivery = Delivery::where('id', '=', $delivery_id)->first();
         Delivery::where('id', $delivery_id)->update([
             'back_date' => null
             , 'back_sn' => null
             , 'back_memo' => null
+            , 'back_user_id' => null
+            , 'back_user_name' => null
         ]);
+        Delivery::changeBackStatus($delivery_id, BackStatus::del_back());
+        if (Event::order()->value == $delivery->event) {
+            OrderFlow::changeOrderStatus($delivery->event_id, OrderStatus::CancleBack());
+        }
         DlvBack::where('delivery_id', $delivery_id)->delete();
 
         wToast('刪除成功');
@@ -264,16 +276,19 @@ class DeliveryCtrl extends Controller
                 'back_date' => date("Y-m-d H:i:s")
                 , 'back_sn' => $back_sn //寫入銷貨退回單號
                 , 'back_memo' => $dlv_memo
+                , 'back_user_id' => $request->user()->id
+                , 'back_user_name' => $request->user()->name
             ]);
+            Delivery::changeBackStatus($delivery_id, BackStatus::add_back());
             if (Event::order()->value == $delivery->event) {
-                OrderFlow::changeOrderStatus($delivery->event_id, OrderStatus::ReturnProcessing());
+                OrderFlow::changeOrderStatus($delivery->event_id, OrderStatus::BackProcessing());
             } else if (Event::consignment()->value == $delivery->event) {
                 DB::rollBack();
                 return ['success' => 0, 'error_msg' => '寄倉暫無退貨功能'];
             } else if (Event::csn_order()->value == $delivery->event) {
                 DB::rollBack();
                 return ['success' => 0, 'error_msg' => '寄倉訂購暫無退貨功能'];
-                CsnOrderFlow::changeOrderStatus($delivery->event_id, OrderStatus::ReturnProcessing());
+                CsnOrderFlow::changeOrderStatus($delivery->event_id, OrderStatus::BackProcessing());
             }
             $input_items = $request->only('id', 'event_item_id', 'product_style_id', 'product_title', 'sku', 'price', 'origin_qty', 'back_qty', 'memo');
             if (isset($input_items['id']) && 0 < count($input_items['id'])) {
@@ -316,25 +331,55 @@ class DeliveryCtrl extends Controller
     //銷貨退回明細
     public function back_detail($event, $eventId)
     {
+        $rsp_arr = [];
         $delivery = Delivery::getData($event, $eventId)->get()->first();
         if (null == $delivery) {
             return abort(404);
         }
         $item_table = null;
         $dlvBack = null;
+        $order = null;
+        $orderInvoice = null;
+        $logistic = null;
+        if (Event::order()->value == $delivery->event) {
+            $subOrder = SubOrders::where('id', '=', $delivery->event_id)->first();
+            $order = Order::orderDetail($subOrder->order_id)->get()->first();
+            $orderInvoice = OrderInvoice::where('source_type', '=', app(Order::class)->getTable())
+                ->where('source_id', '=', $subOrder->order_id)->first();
+            $item_table = app(OrderItem::class)->getTable();
+            $rsp_arr['order'] = $order;
+            $rsp_arr['orderInvoice'] = $orderInvoice;
+        } else if (Event::consignment()->value == $delivery->event) {
+            $item_table = app(ConsignmentItem::class)->getTable();
+            return abort(404);
+        } else if (Event::csn_order()->value == $delivery->event) {
+            $item_table = app(CsnOrderItem::class)->getTable();
+            return abort(404);
+        }
 
-        $dlvBack = DB::table(app(DlvBack::class)->getTable(). ' as dlv_back')
-            ->select(
-                'dlv_back.id'
-                , 'dlv_back.event_item_id'
-                , 'dlv_back.product_style_id'
-                , 'dlv_back.sku'
-                , 'dlv_back.product_title'
-                , 'dlv_back.price'
-                , 'dlv_back.qty'
-                , 'dlv_back.memo'
-            )
-        ;
+        if (isset($item_table)) {
+            $dlvBack = DB::table(app(DlvBack::class)->getTable(). ' as dlv_back')
+                ->leftJoin($item_table. ' as item_tb', 'item_tb.id', '=', 'dlv_back.event_item_id')
+                ->select(
+                    'dlv_back.id'
+                    , 'dlv_back.event_item_id'
+                    , 'dlv_back.product_style_id'
+                    , 'dlv_back.sku'
+                    , 'dlv_back.product_title'
+                    , 'dlv_back.price'
+                    , 'dlv_back.qty'
+                    , 'dlv_back.memo'
+                )
+            ;
+            if (Event::order()->value == $delivery->event) {
+                $dlvBack->addSelect(
+                    DB::raw('ifnull(item_tb.unit_cost, "") as uni_cost')
+                    , DB::raw('ifnull(item_tb.bonus, "") as bonus')
+                );
+            }
+        }
+        $logistic = Logistic::where('id', '=', $delivery->event_id)->first();
+        $rsp_arr['logistic'] = $logistic;
 
         $rsp_arr['event'] = $event;
         $rsp_arr['delivery'] = $delivery;
@@ -342,6 +387,8 @@ class DeliveryCtrl extends Controller
         $rsp_arr['sn'] = $delivery->sn;
         $rsp_arr['dlvBack'] = $dlvBack;
         $rsp_arr['breadcrumb_data'] = ['sn' => $delivery->event_sn, 'parent' => $event ];
+
+        dd($rsp_arr);
         return view('cms.commodity.delivery.back_detail', $rsp_arr);
     }
 
@@ -427,6 +474,13 @@ class DeliveryCtrl extends Controller
         dd($request->all(), $bdcisc);
         if ($bdcisc['success'] == '1') {
             $msg = DB::transaction(function () use ($delivery, $bdcisc, $request) {
+                Delivery::where('id', '=', $delivery->id)->update([
+                    'back_inbound_user_id' => $request->user()->id
+                    , 'back_inbound_user_name' => $request->user()->name
+                    , 'back_inbound_date' => date("Y-m-d H:i:s")
+                ]);
+                Delivery::changeBackStatus($delivery->id, BackStatus::add_back_inbound());
+
                 if(isset($bdcisc['data']) && 0 < count($bdcisc['data'])) {
                     foreach ($bdcisc['data'] as $rcv_depot_item) {
 //                        dd($rcv_depot_item->memo ?? null);
@@ -435,6 +489,7 @@ class DeliveryCtrl extends Controller
                         //加回對應入庫單num
                         $update_arr = [];
                         if (Event::order()->value == $delivery->event || Event::ord_pickup()->value == $delivery->event) {
+                            OrderFlow::changeOrderStatus($delivery->event_id, OrderStatus::Backed());
                             $update_arr['sale_num'] = DB::raw("sale_num - $rcv_depot_item->qty");
                             //TODO 自取可能有入庫 若有入庫過 則需判斷退貨的數量 不得大於後面入庫扣除售出之類的數量
                             // 並須把後面入庫單的退貨數量更新

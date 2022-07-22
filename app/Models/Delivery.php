@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\Delivery\BackStatus;
 use App\Helpers\IttmsUtils;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class Delivery extends Model
 {
@@ -385,5 +387,16 @@ class Delivery extends Model
             $query->where('delivery.event_id', $event_id);
         }
         return $query;
+    }
+
+    public static function changeBackStatus($delivery_id, BackStatus $status) {
+        if (false == BackStatus::hasKey($status->key)) {
+            throw ValidationException::withMessages(['error_msg' => '無此退貨狀態']);
+        }
+
+        Delivery::where('id', '=', $delivery_id)->update([
+            'back_status' => $status->value
+            , 'back_status_date' => date('Y-m-d H:i:s')
+        ]);
     }
 }
