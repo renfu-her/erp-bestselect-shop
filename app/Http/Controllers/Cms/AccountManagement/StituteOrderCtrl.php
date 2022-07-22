@@ -8,14 +8,10 @@ use Illuminate\Http\Request;
 use App\Enums\Supplier\Payment;
 
 use App\Models\AllGrade;
-use App\Models\CrdCreditCard;
-use App\Models\GeneralLedger;
-use App\Models\OrderPayCreditCard;
-use App\Models\User;
-
 use App\Models\AccountPayable;
 use App\Models\Customer;
 use App\Models\Depot;
+use App\Models\GeneralLedger;
 use App\Models\PayableDefault;
 use App\Models\PayingOrder;
 use App\Models\PayableAccount;
@@ -26,6 +22,7 @@ use App\Models\PayableOther;
 use App\Models\PayableRemit;
 use App\Models\StituteOrder;
 use App\Models\Supplier;
+use App\Models\User;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -370,7 +367,7 @@ class StituteOrderCtrl extends Controller
             return abort(404);
         }
 
-        $undertaker = User::find($paying_order->usr_users_id);
+        $undertaker = User::find($stitute_order->creator_id);
 
         $accountant = User::whereIn('id', $payable_data->pluck('accountant_id_fk')->toArray())->get();
         $accountant = array_unique($accountant->pluck('name')->toArray());
