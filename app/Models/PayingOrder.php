@@ -120,7 +120,7 @@ class PayingOrder extends Model
 
 
     public static function paying_order_list(
-        $supplier_id = null,
+        $payee = null,
         $p_order_sn = null,
         $purchase_sn = null,
         $p_order_price = null,
@@ -138,6 +138,10 @@ class PayingOrder extends Model
                     SUM(price) AS price,
                     GROUP_CONCAT(DISTINCT logistics_grade_id) AS logistics_grade_id,
                     GROUP_CONCAT(DISTINCT product_grade_id) AS product_grade_id,
+                    payee_id,
+                    payee_name,
+                    payee_phone,
+                    payee_address,
                     created_at
                 FROM pcs_paying_orders
                 WHERE deleted_at IS NULL
@@ -239,6 +243,10 @@ class PayingOrder extends Model
                 'po.price as po_price',// 付款單金額(應付)
                 'po.logistics_grade_id as po_logistics_grade_id',
                 'po.product_grade_id as po_product_grade_id',
+                'po.payee_id AS po_target_id',
+                'po.payee_name AS po_target_name',
+                'po.payee_phone AS po_target_phone',
+                'po.payee_address AS po_target_address',
                 'po.created_at as po_created_at',
 
                 'purchase.id as purchase_id',
@@ -279,13 +287,11 @@ class PayingOrder extends Model
             ->selectRaw('IF(supplier.contact_person IS NULL, prd_suppliers.contact_person, supplier.contact_person) as supplier_contact_person');
             // ->selectRaw('DATE_FORMAT(purchase.created_at, "%Y-%m-%d") as purchase_date');
 
-        if ($supplier_id) {
-            if (gettype($supplier_id) == 'array') {
-                $paying_order->whereIn('supplier.id', $supplier_id)
-                    ->orWhereIn('prd_suppliers.id', $supplier_id);
-            } else {
-                $paying_order->where('supplier.id', $supplier_id)
-                    ->orWhere('prd_suppliers.id', $supplier_id);
+        if ($payee) {
+            if (gettype($payee) == 'array') {
+                $paying_order->where([
+                        'po.payee_id'=>$payee['id'],
+                    ])->where('po.payee_name', 'like', "%{$payee['name']}%");
             }
         }
 

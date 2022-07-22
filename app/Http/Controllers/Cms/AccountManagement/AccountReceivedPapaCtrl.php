@@ -18,6 +18,7 @@ use App\Models\OrderPayCreditCard;
 use App\Models\Product;
 use App\Models\ReceivedDefault;
 use App\Models\ReceivedOrder;
+use App\Models\Supplier;
 use App\Models\User;
 use App\Models\Depot;
 
@@ -266,8 +267,9 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
         $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
-        $drawee_merged = array_merge($customer, $depot);
+        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
 
+        $drawee_merged = array_merge($customer, $depot, $supplier);
         return view('cms.account_management.collection_received.list', [
             'data_per_page' => $page,
             'dataList' => $dataList,

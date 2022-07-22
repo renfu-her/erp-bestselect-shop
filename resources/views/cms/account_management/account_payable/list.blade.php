@@ -9,10 +9,10 @@
             <div class="row">
                 <div class="col-12 col-sm-4 mb-3">
                     <label class="form-label">客戶</label>
-                    <select class="form-select -select2 -single" name="supplier_id" aria-label="客戶" data-placeholder="請輸入客戶">
+                    <select class="form-select -select2 -single" name="payee_key" aria-label="客戶" data-placeholder="請輸入客戶">
                         <option value="" selected>不限</option>
-                        @foreach ($supplier as $value)
-                            <option value="{{ $value->id }}" {{ in_array($value->id, $cond['supplier_id']) ? 'selected' : '' }}>{{ $value->name }}</option>
+                        @foreach ($payee as $value)
+                            <option value="{{ $value['id'] . '|' . $value['name'] }}" {{ $value['id'] . '|' . $value['name'] == $cond['payee_key'] ? 'selected' : '' }}>{{ $value['name'] }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -120,14 +120,14 @@
                                 </span>
                                 @endforeach
                             </td>
-                            <td>{{ $data->supplier_name }} - {{ $data->supplier_contact_person }}</td>
+                            <td>{{ $data->po_target_name }} {{ $data->supplier_contact_person }}</td>
                             <td class="p-0">
                                 @foreach($data->debit as $d_value)
-                                <span class="border-bottom d-block bg-warning p-1">{{$d_value->account_code}} - {{$d_value->account_name}}</span>
+                                <span class="border-bottom d-block bg-warning p-1">{{$d_value->account_code}} {{$d_value->account_name}}</span>
                                 @endforeach
 
                                 @foreach($data->credit as $c_value)
-                                <span class="border-bottom d-block bg-white p-1">{{$c_value->account_code}} - {{$c_value->account_name}}</span>
+                                <span class="border-bottom d-block bg-white p-1">{{$c_value->account_code}} {{$c_value->account_name}}</span>
                                 @endforeach
                             </td>
 
@@ -135,7 +135,7 @@
                                 @foreach($data->debit as $d_value)
                                 <span class="border-bottom d-block bg-warning p-1">
                                     @if($d_value->d_type == 'logistics')
-                                        {{$d_value->account_name}} - {{ $data->purchase_order_sn }}
+                                        {{$d_value->account_name}} {{ $data->purchase_order_sn }}
                                     @elseif($d_value->d_type == 'discount')
                                         {{$d_value->discount_title}} - {{$data->purchase_order_sn}}
                                     @else
