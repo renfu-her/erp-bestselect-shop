@@ -349,6 +349,7 @@ class OrderCtrl extends Controller
         if (!$order) {
             return abort(404);
         }
+
         $remit = OrderRemit::getData($order->id)->get()->first();
 
         $sn = $order->sn;
@@ -393,6 +394,7 @@ class OrderCtrl extends Controller
             'received_order_data' => $received_order_data,
             'received_credit_card_log' => $received_credit_card_log,
             'dividend' => $dividend,
+            'canCancel' => Order::checkCanCancel($id),
         ]);
     }
 
@@ -985,9 +987,21 @@ class OrderCtrl extends Controller
 
         $customer_id = $request->input('customer_id');
 
-        OrderProfit::changeOwner($id,$customer_id,$request->user()->id);
+        OrderProfit::changeOwner($id, $customer_id, $request->user()->id);
 
         return redirect()->back();
     }
+
+    // 取消訂單
+    public function cancel_order(Request $request, $id){
+
+
+        Order::cancelOrder($id);
+
+        wToast('訂單已經取消');
+
+        return redirect()->back();
+    }
+
 
 }
