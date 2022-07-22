@@ -232,6 +232,7 @@ class DeliveryCtrl extends Controller
     public function back_delete(Request $request, int $delivery_id) {
         Delivery::where('id', $delivery_id)->update([
             'back_date' => null
+            , 'back_sn' => null
             , 'back_memo' => null
         ]);
         DlvBack::where('delivery_id', $delivery_id)->delete();
@@ -257,11 +258,13 @@ class DeliveryCtrl extends Controller
         $errors = [];
         $msg = DB::transaction(function () use ($request, $delivery_id) {
             $dlv_memo = $request->input('dlv_memo', null);
+            $delivery = Delivery::where('id', $delivery_id)->first();
+            $back_sn = str_replace("DL","BK",$delivery->sn); //將出貨單號改為銷貨退回單號
             Delivery::where('id', $delivery_id)->update([
                 'back_date' => date("Y-m-d H:i:s")
+                , 'back_sn' => $back_sn //寫入銷貨退回單號
                 , 'back_memo' => $dlv_memo
             ]);
-            $delivery = Delivery::where('id', $delivery_id)->first();
             if (Event::order()->value == $delivery->event) {
                 OrderFlow::changeOrderStatus($delivery->event_id, OrderStatus::ReturnProcessing());
             } else if (Event::consignment()->value == $delivery->event) {
