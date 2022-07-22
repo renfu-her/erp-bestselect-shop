@@ -14,6 +14,7 @@ final class OrderStatus extends Enum
 
     const Unbalance = 'unbalance';
     const Received = 'received';
+    const ReturnProcessing = 'return_processing';
 
     public static function getDescription($value): string
     {
@@ -40,6 +41,9 @@ final class OrderStatus extends Enum
                 break;
             case self::Received:
                 $result = '已入款';
+                break;
+            case self::ReturnProcessing:
+                $result = '退貨處理中';
                 break;
         }
         return $result;

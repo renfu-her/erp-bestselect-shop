@@ -4,14 +4,17 @@ namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Enums\Delivery\Event;
 use App\Enums\Delivery\LogisticStatus;
+use App\Enums\Order\OrderStatus;
 use App\Enums\Purchase\LogEventFeature;
 use App\Enums\StockEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Consignment;
 use App\Models\CsnOrder;
+use App\Models\CsnOrderFlow;
 use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\DlvBack;
+use App\Models\OrderFlow;
 use App\Models\OrderItem;
 use App\Models\ProductStock;
 use App\Models\ProductStyleCombo;
@@ -258,6 +261,17 @@ class DeliveryCtrl extends Controller
                 'back_date' => date("Y-m-d H:i:s")
                 , 'back_memo' => $dlv_memo
             ]);
+            $delivery = Delivery::where('id', $delivery_id)->first();
+            if (Event::order()->value == $delivery->event) {
+                OrderFlow::changeOrderStatus($delivery->event_id, OrderStatus::ReturnProcessing());
+            } else if (Event::consignment()->value == $delivery->event) {
+                DB::rollBack();
+                return ['success' => 0, 'error_msg' => '寄倉暫無退貨功能'];
+            } else if (Event::csn_order()->value == $delivery->event) {
+                DB::rollBack();
+                return ['success' => 0, 'error_msg' => '寄倉訂購暫無退貨功能'];
+                CsnOrderFlow::changeOrderStatus($delivery->event_id, OrderStatus::ReturnProcessing());
+            }
             $input_items = $request->only('id', 'event_item_id', 'product_style_id', 'product_title', 'sku', 'price', 'origin_qty', 'back_qty', 'memo');
             if (isset($input_items['id']) && 0 < count($input_items['id'])) {
                 if(true == isset($input_items['id'][0])) {
@@ -286,11 +300,14 @@ class DeliveryCtrl extends Controller
                     DlvBack::insert($data);
                 }
             }
-            wToast('儲存成功');
             return ['success' => 1];
         });
-
-        return redirect()->back()->withInput()->withErrors($errors);
+        if ($msg['success'] == 0) {
+            throw ValidationException::withMessages(['item_error' => $msg['error_msg']]);
+        } else {
+            wToast('儲存成功');
+            return redirect()->back()->withInput()->withErrors($errors);
+        }
     }
 
     public function back_inbound($event, $eventId)
