@@ -310,6 +310,38 @@ class DeliveryCtrl extends Controller
         }
     }
 
+    //銷貨退回明細
+    public function back_detail($event, $eventId)
+    {
+        $delivery = Delivery::getData($event, $eventId)->get()->first();
+        if (null == $delivery) {
+            return abort(404);
+        }
+        $item_table = null;
+        $dlvBack = null;
+
+        $dlvBack = DB::table(app(DlvBack::class)->getTable(). ' as dlv_back')
+            ->select(
+                'dlv_back.id'
+                , 'dlv_back.event_item_id'
+                , 'dlv_back.product_style_id'
+                , 'dlv_back.sku'
+                , 'dlv_back.product_title'
+                , 'dlv_back.price'
+                , 'dlv_back.qty'
+                , 'dlv_back.memo'
+            )
+        ;
+
+        $rsp_arr['event'] = $event;
+        $rsp_arr['delivery'] = $delivery;
+        $rsp_arr['delivery_id'] = $delivery->id;
+        $rsp_arr['sn'] = $delivery->sn;
+        $rsp_arr['dlvBack'] = $dlvBack;
+        $rsp_arr['breadcrumb_data'] = ['sn' => $delivery->event_sn, 'parent' => $event ];
+        return view('cms.commodity.delivery.back_detail', $rsp_arr);
+    }
+
     public function back_inbound($event, $eventId)
     {
         $rsp_arr = [
@@ -320,7 +352,6 @@ class DeliveryCtrl extends Controller
         $delivery = Delivery::getData($event, $eventId)->get()->first();
         $delivery_id = $delivery->id;
         $event_sn = $delivery->event_sn;
-        $dlvBack = DlvBack::where('delivery_id', '=', $delivery_id)->get()->toArray();
 
         $rcv_repot_combo = ReceiveDepot::getRcvDepotToBackQty($delivery_id);
 
