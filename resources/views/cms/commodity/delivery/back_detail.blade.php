@@ -17,16 +17,153 @@
         {{ $message }}
     </div>
     @enderror
-    @if($errors->any())
-        {!! implode('', $errors->all('<div>:message</div>')) !!}
-    @endif
+
+    <div class="card shadow p-4 mb-4">
+        <h6>銷貨退回明細</h6>
+        <dl class="row">
+            <div class="col">
+                <dt>銷貨單號</dt>
+                <dd></dd>
+            </div>
+            <div class="col">
+                <dt>狀態</dt>
+                <dd></dd>
+            </div>
+            <div class="col">
+                <dt>入庫日期</dt>
+                <dd>{{ date('Y/m/d', strtotime('2022/7/22')) }}</dd>
+            </div>
+        </dl>
+        <dl class="row">
+            <div class="col">
+                <dt>代墊單</dt>
+                <dd></dd>
+            </div>
+            <div class="col">
+                <dt>物流類型</dt>
+                <dd></dd>
+            </div>
+            <div class="col">
+                <dt>運費</dt>
+                <dd>${{ number_format(0) }}</dd>
+            </div>
+        </dl>
+        <dl class="row">
+            <div class="col">
+                <dt>客戶</dt>
+                <dd></dd>
+            </div>
+            <div class="col">
+                <dt>客戶電話</dt>
+                <dd></dd>
+            </div>
+            <div class="col">
+                <dt>新增者</dt>
+                <dd></dd>
+            </div>
+        </dl>
+        <dl class="row">
+            <div class="col">
+                <dt>發票號碼</dt>
+                <dd></dd>
+            </div>
+            <div class="col">
+                <dt>發票日期</dt>
+                <dd>{{ date('Y/m/d', strtotime('2022/7/22')) }}</dd>
+            </div>
+            <div class="col">
+                <dt>課稅別</dt>
+                <dd></dd>
+            </div>
+        </dl>
+        <dl class="row">
+            <div class="col">
+                <dt>進貨地址</dt>
+                <dd></dd>
+            </div>
+        </dl>
+        <dl class="row">
+            <div class="col">
+                <dt>物流說明</dt>
+                <dd></dd>
+            </div>
+            <div class="col">
+                <dt>入庫者</dt>
+                <dd></dd>
+            </div>
+        </dl>
+        <dl class="row">
+            <div class="col">
+                <dt>預計進貨日期</dt>
+                <dd>{{ date('Y/m/d', strtotime('2022/7/22')) }}</dd>
+            </div>
+            <div class="col">
+                <dt>採購備註</dt>
+                <dd></dd>
+            </div>
+            <div class="col">
+                <dt>訂貨單號</dt>
+                <dd></dd>
+            </div>
+        </dl>
+    </div>
+
+    <div class="card shadow p-4 mb-4">
+        <div class="table-responsive tableOverBox mb-3">
+            <table class="table tableList table-striped mb-1">
+                <thead>
+                    <tr>
+                        <th scope="col" class="text-center" style="width:10%">#</th>
+                        <th scope="col">品名規格</th>
+                        <th scope="col" class="text-end">退款金額</th>
+                        <th scope="col" class="text-end">經銷價</th>
+                        <th scope="col" class="text-end">扣除獎金</th>
+                        <th scope="col">退回數量</th>
+                        <th scope="col">入庫數量</th>
+                        <th scope="col">倉庫</th>
+                        <th scope="col" class="text-end">小計</th>
+                        <th scope="col">說明</th>
+                    </tr>
+                </thead>
+                @php
+                    $total = 0;
+                @endphp
+                <tbody>
+                    {{-- @foreach ($collection as $item) --}}
+                        @php
+                            $subtotal = 450 * 1;    // 退款金額 * 退回數量
+                            $total += $subtotal;
+                        @endphp
+                        <tr>
+                            <th>1</th>
+                            <td>【 嘉義小農】特選台灣檸檬10斤/箱(單一規格)</td>
+                            <td class="text-end">${{ number_format(450) }}</td>
+                            <td class="text-end">${{ number_format(450) }}</td>
+                            <td class="text-end">${{ number_format(4) }}</td>
+                            <td>{{ number_format(1) }}</td>
+                            <td>{{ number_format(1) }}</td>
+                            <td>廠商出貨</td>
+                            <td class="text-end">${{ number_format($subtotal) }}</td>
+                            <td>test</td>
+                        </tr>
+                    {{-- @endforeach --}}
+                </tbody>
+            </table>
+        </div>
+        <div class="d-flex fw-bold border">
+            <div class="col p-2 border-end bg-light">小計合計</div>
+            <div class="col p-2 text-end">${{ number_format($total) }}</div>
+        </div>
+    </div>
+
+    <div class="col-auto">
+        <a href="#" class="btn btn-outline-primary px-4" role="button">返回明細</a>
+    </div>
 
 @endsection
 @once
     @push('sub-scripts')
         <script>
-        $(function () {
-        });
         </script>
     @endpush
 @endonce

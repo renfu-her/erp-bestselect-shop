@@ -1,7 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-3">
-        #{{ $sn }} 訂單明細</h2>
+    <h2 class="mb-3">#{{ $sn }} 訂單明細</h2>
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
@@ -230,12 +229,12 @@
                     <strong class="flex-grow-1 mb-0">{{ $subOrder->ship_event }}</strong>
                     <span class="badge -badge fs-6">{{ $subOrder->ship_category_name }}</span>
                     @if (true == isset($subOrderId))
-                        <div class="col-12 d-flex justify-content-end mt-2">
-                            <a class="btn btn-sm btn-success -in-header"
+                        <div class="col-12 d-flex justify-content-end mt-2 flex-wrap">
+                            <a class="btn btn-sm btn-success -in-header mb-1"
                                 href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">配送狀態</a>
-                            <a class="btn btn-sm btn-success -in-header"
+                            <a class="btn btn-sm btn-success -in-header mb-1"
                                 href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">物流設定</a>
-                            <a class="btn btn-sm btn-success -in-header"
+                            <a class="btn btn-sm btn-success -in-header mb-1"
                                 href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">出貨審核</a>
                             {{-- @if ('pickup' == $subOrder->ship_category) --}}
                             {{-- <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.order.inbound', ['subOrderId' => $subOrderId], true) }}">入庫審核</a> --}}
@@ -246,24 +245,24 @@
                                     <button type="button"
                                             data-href="{{ Route('cms.delivery.back_delete', ['deliveryId' => $delivery->id], true) }}"
                                             data-bs-toggle="modal" data-bs-target="#confirm-delete-back"
-                                            class="btn btn-sm btn-danger -in-header">
+                                            class="btn btn-sm btn-danger -in-header mb-1">
                                         刪除退貨
                                     </button>
                                 @endif
-                                <a class="btn btn-sm btn-success -in-header"
+                                <a class="btn btn-sm btn-success -in-header mb-1"
                                    href="{{ Route('cms.delivery.back_detail', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">銷貨退回明細</a>
-                                <a class="btn btn-sm btn-success -in-header"
+                                <a class="btn btn-sm btn-success -in-header mb-1"
                                    href="{{ Route('cms.delivery.back_inbound', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">退貨入庫審核</a>
                             @else
-                                <a class="btn btn-sm btn-success -in-header"
+                                <a class="btn btn-sm btn-success -in-header mb-1"
                                    href="{{ Route('cms.delivery.back', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">退貨</a>
                             @endif
 
-                            <a target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary -in-header"
+                            <a target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary -in-header mb-1"
                                 href="{{ Route('cms.order.print_order_sales', ['id' => $order->id, 'subOrderId' => $subOrderId]) }}">
                                 列印銷貨單
                             </a>
-                            <a target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary -in-header"
+                            <a target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary -in-header mb-1"
                                 href="{{ Route('cms.order.print_order_ship', ['id' => $order->id, 'subOrderId' => $subOrderId]) }}">
                                 列印出貨單
                             </a>
@@ -272,19 +271,19 @@
                 </div>
                 <div class="card-body px-4">
                     <dl class="row mb-0">
-                        <div class="col">
+                        <div class="col-6 col-md-3">
                             <dt>溫層</dt>
                             <dd>{{ $subOrder->ship_temp ?? '-' }}</dd>
                         </div>
-                        <div class="col">
+                        <div class="col-6 col-md-3">
                             <dt>訂單編號</dt>
                             <dd>{{ $subOrder->sn }}</dd>
                         </div>
-                        <div class="col">
+                        <div class="col-6 col-md-3">
                             <dt>出貨單號</dt>
                             <dd>{{ $subOrder->delivery_sn ?? '(待處理)' }}</dd>
                         </div>
-                        <div class="col">
+                        <div class="col-6 col-md-3">
                             <dt>消費者物流費用</dt>
                             <dd>${{ number_format($subOrder->dlv_fee) }}</dd>
                         </div>

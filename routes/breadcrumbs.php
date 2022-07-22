@@ -359,6 +359,10 @@ Breadcrumbs::for('cms.delivery.back_inbound', function (BreadcrumbTrail $trail, 
     $trail->parent('cms.' . $value['parent'] . '.index');
     $trail->push('#' . $value['sn'] . ' 退貨入庫審核');
 });
+Breadcrumbs::for('cms.delivery.back_detail', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.' . $value['parent'] . '.index');
+    $trail->push('#' . $value['sn'] . ' 銷貨退回明細');
+});
 
 /**
  * 行銷設定
