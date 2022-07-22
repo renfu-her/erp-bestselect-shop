@@ -63,7 +63,7 @@
                             @foreach($order_list_data as $value)
                             <tr>
                                 <td>{{ $value->sn }}</td>
-                                <td>{{-- $request_grade->code . ' ' . $request_grade->name . ' ' . $value->summary --}}{{ $value->summary }}</td>
+                                <td>{{ $request_grade->code . ' ' . $request_grade->name . ' ' . $value->summary }}</td>
                                 <td class="text-end">{{ number_format($value->price, 2) }}</td>
                                 <td class="text-end">{{ number_format($value->qty) }}</td>
                                 <td class="text-end">1</td>

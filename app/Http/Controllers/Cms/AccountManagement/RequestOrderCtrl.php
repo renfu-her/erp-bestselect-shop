@@ -265,6 +265,7 @@ class RequestOrderCtrl extends Controller
             'form_action' => route('cms.request.ro-store', ['id' => $request_order->id]),
             'previou_url' => route('cms.request.show', ['id' => $request_order->id]),
             'purchaser' => $request_order->client_name,
+            'request_grade' => $request_grade,
             'order_list_data' => $request_order->get(),
 
             'received_order' => $received_order,
@@ -403,6 +404,8 @@ class RequestOrderCtrl extends Controller
 
         $request_order = RequestOrder::findOrFail($id);
 
+        $request_grade = AllGrade::find($request_order->request_grade_id)->eachGrade;
+
         $received_order = ReceivedOrder::findOrFail($request_order->received_order_id);
         $received_data = ReceivedOrder::get_received_detail($request_order->received_order_id);
 
@@ -419,6 +422,7 @@ class RequestOrderCtrl extends Controller
 
         return view('cms.account_management.request.ro_receipt', [
             'breadcrumb_data' => ['id' => $request_order->id],
+            'request_grade' => $request_grade,
             'order_list_data' => $request_order->get(),
             'received_order' => $received_order,
             'received_data' => $received_data,
