@@ -18,6 +18,12 @@
     </div>
     @enderror
 
+    <div class="col-12 d-flex justify-content mt-2 flex-wrap">
+        @if($delivery->event == App\Enums\Delivery\Event::order()->value)
+            <a class="btn btn-sm btn-success -in-header mb-1"
+               href="{{ Route('cms.delivery.back_detail', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $delivery->event_id], true) }}">新增退貨付款單</a>
+        @endif
+    </div>
     <div class="card shadow p-4 mb-4">
         <h6>銷貨退回明細</h6>
         <dl class="row">
