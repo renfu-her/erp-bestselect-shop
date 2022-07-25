@@ -119,8 +119,6 @@
 {{--                        <th scope="col" class="text-end">經銷價</th>--}}
                         <th scope="col" class="text-end">扣除獎金</th>
                         <th scope="col">退回數量</th>
-                        <th scope="col">入庫數量</th>
-                        <th scope="col">倉庫</th>
                         <th scope="col" class="text-end">小計</th>
                         <th scope="col">說明</th>
                     </tr>
@@ -141,8 +139,6 @@
 {{--                            <td class="text-end">${{ number_format(450) }}</td>--}}
                             <td class="text-end">${{ number_format($item->bonus) }}</td>
                             <td>{{ number_format($item->qty) }}</td>
-                            <td>{{ number_format(0) }}</td>
-                            <td>廠商出貨</td>
                             <td class="text-end">${{ number_format($subtotal) }}</td>
                             <td>{{ $item->memo ?? '' }}</td>
                         </tr>
