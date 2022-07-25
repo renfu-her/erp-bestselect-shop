@@ -387,7 +387,7 @@ class GeneralLedger extends Model
                     'received_info'=>$received_info,
                 ];
 
-                if( in_array($d_type, ['logistics']) && $code == 5){
+                if( in_array($d_type, ['logistics', 'product'])){
                     // 貸方
                     array_push($credit, $tmp);
 

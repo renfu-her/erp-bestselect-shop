@@ -145,6 +145,7 @@ class ProductCtrl extends Controller
             'page_size' => ['nullable', 'int', 'min:1'],
             'page' => ['nullable', 'int', 'min:1'],
             'm_class' => ['nullable', 'string', 'regex:/^(customer|employee|company)$/'],
+            'type' => ['nullable', 'string', 'regex:/^1$/'],
         ]);
 
 
@@ -160,7 +161,9 @@ class ProductCtrl extends Controller
             $request['data'],
             $request['page_size'] ?? '',
             $request['page'] ?? 1,
-            $request['sort']['is_price_desc'] ?? true
+            $request['sort']['is_price_desc'] ?? true,
+            'customer',
+            $request['type'] ?? '0',
         );
     }
 }

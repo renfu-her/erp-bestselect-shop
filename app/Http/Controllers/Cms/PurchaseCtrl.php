@@ -594,6 +594,10 @@ class PurchaseCtrl extends Controller
                 } elseif (isset($validatedReq['price'])) {
                     $totalPrice = intval($validatedReq['price']);
                 }
+
+                $purchaseData = Purchase::getPurchase($id)->first();
+                $supplier = Supplier::where('id', '=', $purchaseData->supplier_id)->get()->first();
+
                 $product_grade = PayableDefault::where('name', '=', 'product')->first()->default_grade_id;
                 $logistics_grade = PayableDefault::where('name', '=', 'logistics')->first()->default_grade_id;
 
@@ -608,6 +612,10 @@ class PurchaseCtrl extends Controller
                     $totalPrice ?? 0,
                     $request['deposit_summary'] ?? '',
                     $request['deposit_memo'] ?? '',
+                    $supplier->id,
+                    $supplier->name,
+                    $supplier->contact_tel,
+                    $supplier->contact_address
                 );
             }
         }

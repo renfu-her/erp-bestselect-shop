@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Enums\Customer\ProfitStatus;
 use App\Enums\Delivery\Event;
+use App\Enums\Discount\DividendCategory;
+use App\Enums\Discount\DividendFlag;
 use App\Enums\Order\CarrierType;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Order\PaymentStatus;
@@ -123,9 +125,9 @@ class Order extends Model
                 'order.auto_dividend',
                 'order.total_price',
                 'order.created_at',
-                DB::raw('(case when "'. CarrierType::mobile()->value. '" = order.carrier_type then "'. CarrierType::getDescription(CarrierType::mobile). '"
-                    when "'. CarrierType::certificate()->value. '" = order.carrier_type then "'. CarrierType::getDescription(CarrierType::certificate). '"
-                    when "'. CarrierType::member()->value. '" = order.carrier_type then "'. CarrierType::getDescription(CarrierType::member). '"
+                DB::raw('(case when "' . CarrierType::mobile()->value . '" = order.carrier_type then "' . CarrierType::getDescription(CarrierType::mobile) . '"
+                    when "' . CarrierType::certificate()->value . '" = order.carrier_type then "' . CarrierType::getDescription(CarrierType::certificate) . '"
+                    when "' . CarrierType::member()->value . '" = order.carrier_type then "' . CarrierType::getDescription(CarrierType::member) . '"
                     else order.carrier_type end) as carrier_type'),
                 DB::raw('ifnull(order.carrier_num, "") as carrier_num'),
                 'customer.name',
@@ -506,7 +508,9 @@ class Order extends Model
 
             OrderFlow::changeOrderStatus($order_id, OrderStatus::Add());
 
-            CustomerDividend::fromOrder($customer->id, $order_sn, $order['get_dividend']);
+            if ($order['get_dividend']) {
+                CustomerDividend::fromOrder($customer->id, $order_sn, $order['get_dividend']);
+            }
             // CustomerDividend::activeDividend(DividendCategory::Order(), $order_sn);
             //  CustomerCoupon::activeCoupon($order_id);
 
@@ -516,7 +520,8 @@ class Order extends Model
 
     //付款資訊
     //參考OrderInvoice::create_invoice的付款資訊來改
-    private static function updateOrderUsrPayMethod($order_id, $email, $payinfo ) {
+    private static function updateOrderUsrPayMethod($order_id, $email, $payinfo)
+    {
         $item_tax_type_arr = [];
         $n_order = Order::orderDetail($order_id)->first();
         $n_sub_order = Order::subOrderDetail($order_id)->get();
@@ -525,26 +530,26 @@ class Order extends Model
             $n_sub_order[$key]->consume_items = json_decode($value->consume_items);
         }
         $n_order_discount = DB::table('ord_discounts')->where([
-            'order_type'=>'main',
-            'order_id'=>$order_id,
+            'order_type' => 'main',
+            'order_id' => $order_id,
         ])->where('discount_value', '>', 0)->get()->toArray();
 
-        foreach($n_sub_order as $s_value){
-            foreach($s_value->items as $i_value){
+        foreach ($n_sub_order as $s_value) {
+            foreach ($s_value->items as $i_value) {
                 $item_tax_type_arr[] = $i_value->product_taxation == 1 ? 1 : 3;
             }
         }
-        if($n_order->dlv_fee > 0){
+        if ($n_order->dlv_fee > 0) {
             $item_tax_type_arr[] = $n_order->dlv_taxation == 1 ? 1 : 3;
         }
-        foreach($n_order_discount as $d_value){
+        foreach ($n_order_discount as $d_value) {
             $item_tax_type_arr[] = $d_value->discount_taxation == 1 ? 1 : 3;
         }
 
-        if(count(array_unique($item_tax_type_arr)) == 1) {
-            if(array_unique($item_tax_type_arr)[0] == 1) {
+        if (count(array_unique($item_tax_type_arr)) == 1) {
+            if (array_unique($item_tax_type_arr)[0] == 1) {
                 $tax_type = 1;
-            } else if(array_unique($item_tax_type_arr)[0] == 3) {
+            } else if (array_unique($item_tax_type_arr)[0] == 3) {
                 $tax_type = 3;
             } else {
                 $tax_type = 9;
@@ -564,8 +569,8 @@ class Order extends Model
 
         $print_flag = $carrier_type != null || $love_code ? 'N' : 'Y';
 
-        if($category === 'B2B'){
-            if($tax_type == 9){
+        if ($category === 'B2B') {
+            if ($tax_type == 9) {
                 DB::rollBack();
                 return ['success' => '0', 'error_msg' => '三聯式發票稅別不可為混合課稅'];
             }
@@ -573,23 +578,22 @@ class Order extends Model
             $carrier_type = null;
             $carrier_num = null;
             $love_code = null;
-        }
-        else if($category === 'B2C'){
+        } else if ($category === 'B2C') {
             $buyer_ubn = null;
-            if($print_flag == 'N'){
-                if($carrier_type != null && $carrier_type == 0){
-                    if(preg_match('/^\/[A-Z0-9+-.]{7}$/', $carrier_num) == 0 || strlen($carrier_num) != 8){
+            if ($print_flag == 'N') {
+                if ($carrier_type != null && $carrier_type == 0) {
+                    if (preg_match('/^\/[A-Z0-9+-.]{7}$/', $carrier_num) == 0 || strlen($carrier_num) != 8) {
                         DB::rollBack();
                         return ['success' => '0', 'error_msg' => '手機條碼載具格式錯誤'];
                     }
 
-                } else if($carrier_type == 1){
-                    if(preg_match('/^[A-Z]{2}[0-9]{14}$/', $carrier_num) == 0 || strlen($carrier_num) != 16){
+                } else if ($carrier_type == 1) {
+                    if (preg_match('/^[A-Z]{2}[0-9]{14}$/', $carrier_num) == 0 || strlen($carrier_num) != 16) {
                         DB::rollBack();
                         return ['success' => '0', 'error_msg' => '自然人憑證條碼載具格式錯誤'];
                     }
 
-                } else if($carrier_type == 2){
+                } else if ($carrier_type == 2) {
                     $carrier_num = $buyer_email;
                 }
 
@@ -599,23 +603,23 @@ class Order extends Model
                 $love_code = null;
             }
 
-             if(false == empty($carrier_type)){
-                 $love_code = null;
-                 $print_flag = 'Y';
+            if (false == empty($carrier_type)) {
+                $love_code = null;
+                $print_flag = 'Y';
 
-             } else {
-                 if($love_code != '' && preg_match('/^[0-9]{3,7}$/', $love_code) !== 1){
-                     DB::rollBack();
-                     return ['success' => '0', 'error_msg' => '捐贈碼格式錯誤'];
-                 }
-             }
+            } else {
+                if ($love_code != '' && preg_match('/^[0-9]{3,7}$/', $love_code) !== 1) {
+                    DB::rollBack();
+                    return ['success' => '0', 'error_msg' => '捐贈碼格式錯誤'];
+                }
+            }
         }
         self::where('id', $order_id)->update([
             'category' => $category
             , 'buyer_ubn' => $buyer_ubn
             , 'carrier_type' => $carrier_type
             , 'carrier_num' => $carrier_num
-            , 'love_code' => $love_code
+            , 'love_code' => $love_code,
         ]);
         return ['success' => '1', 'error_msg' => ''];
     }
@@ -708,7 +712,6 @@ class Order extends Model
             $parentCustomerProfit = CustomerProfit::getProfitData($customerProfit->parent_cusotmer_id, ProfitStatus::Success());
         }
 
-
         $profit_rate = 100;
 
         if ($parentCustomerProfit) {
@@ -721,11 +724,11 @@ class Order extends Model
                 // dd($bonus);
                 if ($profit_rate != 100) {
                     $cBonus = floor($bonus / 100 * $profit_rate);
-                }else{
+                } else {
                     $cBonus = $bonus;
                 }
                 $pBonus = $bonus - $cBonus;
-               // dd($bonus, $cBonus,$pBonus);
+                // dd($bonus, $cBonus,$pBonus);
 
                 $updateData = ['order_id' => $order['order_id'],
                     'order_sn' => $order['order_sn'],
@@ -752,6 +755,86 @@ class Order extends Model
         }
 
 //        exit;
+
+    }
+    // 是否可取消訂單
+    public static function checkCanCancel($order_id)
+    {
+        $order = self::where('id', $order_id)->select('status_code', 'payment_status')->get()->first();
+
+        $order_status = [OrderStatus::Add()];
+        $payment_status = [PaymentStatus::Unpaid()];
+
+        //   dd(in_array($order->status_code, $order_status) ,in_array($order->payment_status, $payment_status));
+        if (in_array($order->status_code, $order_status) && in_array($order->payment_status, $payment_status)) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+    // 取消訂單
+    public static function cancelOrder($order_id)
+    {
+        if (!self::checkCanCancel($order_id)) {
+            return;
+        }
+
+        $order = self::where('id', $order_id)->get()->first();
+        if (!$order) {
+            return;
+        }
+        $customer = Customer::where('email', $order->email)->get()->first();
+        if (!$customer) {
+            return;
+        }
+
+        DB::beginTransaction();
+        // 狀態變更
+        OrderFlow::changeOrderStatus($order_id, OrderStatus::Canceled());
+
+        // 返還訂購商品數量
+        $items = OrderItem::where('order_id', $order_id)->get();
+
+        foreach ($items as $item) {
+            ProductStock::stockChange($item->product_style_id,
+                $item->qty, 'order', $order_id, $item->sku . "取消訂單");
+        }
+
+        // 返還使用的優惠券
+        CustomerCoupon::where('order_id', $order_id)->update(['used' => 0, 'order_id' => null]);
+
+        // 刪除贈送的優惠券
+        CustomerCoupon::where('from_order_id', $order_id)->delete();
+
+        // 刪除贈送紅利
+        CustomerDividend::where('category', DividendCategory::Order())
+            ->where('category', DividendCategory::Order())
+            ->where('category_sn', $order->sn)
+            ->where('flag', DividendFlag::NonActive())->delete();
+
+        // 紅利返還
+        $dividend = CustomerDividend::where('category_sn', $order->sn)
+            ->where('flag', DividendFlag::Discount())
+            ->where('type', 'used')->get()->first();
+
+        if ($dividend) {
+
+            CustomerDividend::create([
+                'category' => DividendCategory::Order(),
+                'category_sn' => $order->sn,
+                'customer_id' => $customer->id,
+                'type' => 'get',
+                'flag' => DividendFlag::Back(),
+                'flag_title' => DividendFlag::Back()->description,
+                'dividend' => abs($dividend->dividend),
+            ]);
+        }
+
+        // 刪除分潤
+        OrderProfit::where('order_id', $order_id)->delete();
+
+        DB::commit();
 
     }
 }

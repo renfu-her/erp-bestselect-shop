@@ -399,6 +399,7 @@ class OrderCtrl extends Controller
             'received_order_data' => $received_order_data,
             'received_credit_card_log' => $received_credit_card_log,
             'dividend' => $dividend,
+            'canCancel' => Order::checkCanCancel($id),
             'delivery' => $delivery,
         ]);
     }
@@ -634,7 +635,9 @@ class OrderCtrl extends Controller
 
         if ($request->isMethod('post')) {
             if (!$paying_order) {
-                $price = Order::subOrderDetail($id, $sid, true)->get()->toArray()[0]->logistic_cost;
+                $sub_order = Order::subOrderDetail($id, $sid, true)->get()->toArray()[0];
+                $supplier = Supplier::find($sub_order->supplier_id);
+                $price = $sub_order->logistic_cost;
                 $product_grade = PayableDefault::where('name', '=', 'product')->first()->default_grade_id;
                 $logistics_grade = PayableDefault::where('name', '=', 'logistics')->first()->default_grade_id;
 
@@ -649,6 +652,10 @@ class OrderCtrl extends Controller
                     $price ?? 0,
                     '',
                     '',
+                    $supplier->id,
+                    $supplier->name,
+                    $supplier->contact_tel,
+                    $supplier->contact_address
                 );
             }
 
@@ -750,6 +757,7 @@ class OrderCtrl extends Controller
             'order' => $order,
             'sub_order' => $sub_order,
             'merge_source' => $merge_source,
+            'unit' => [],
             'order_discount' => $order_discount,
             'received_order' => $received_order,
         ]);
@@ -799,7 +807,7 @@ class OrderCtrl extends Controller
             ]);
 
         } else {
-            // wToast(__('發票開立失敗'));
+            // wToast(__('發票開立失敗', ['type'=>'danger']));
             return redirect()->back();
         }
     }
@@ -910,6 +918,18 @@ class OrderCtrl extends Controller
         ]);
     }
 
+    public function re_send_invoice(Request $request, $id)
+    {
+        $request->merge([
+            'id' => $id,
+        ]);
+        $request->validate([
+            'id' => 'required|exists:ord_order_invoice,id',
+        ]);
+        $inv_result = OrderInvoice::invoice_issue_api($id);
+        wToast(__($inv_result->r_msg));
+        return redirect()->back();
+    }
     // 獎金毛利
     public function bonus_gross(Request $request, $id)
     {
@@ -980,4 +1000,16 @@ class OrderCtrl extends Controller
         return redirect()->back();
     }
 
+    // 取消訂單
+    public function cancel_order(Request $request, $id){
+
+
+        Order::cancelOrder($id);
+
+        wToast('訂單已經取消');
+
+        return redirect()->back();
+    }
+
 }
+

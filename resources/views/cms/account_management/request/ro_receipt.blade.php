@@ -2,15 +2,15 @@
 
 @section('sub-content')
     <h2 class="mb-3">收款單</h2>
-    <a href="{{ Route('cms.consignment-order.edit', ['id' => $received_order->source_id]) }}" class="btn btn-primary" role="button">
+    <a href="{{ route('cms.request.show', ['id' => $received_order->source_id]) }}" class="btn btn-primary" role="button">
         <i class="bi bi-arrow-left"></i> 返回上一頁
     </a>
     @if(! $received_order->receipt_date)
-    <a href="{{ route('cms.ar_csnorder.review', ['id' => $received_order->source_id]) }}" class="btn btn-primary px-4" role="button">收款單入款審核</a>
+    <a href="{{ route('cms.request.ro-review', ['id' => $received_order->source_id]) }}" class="btn btn-primary px-4" role="button">收款單入款審核</a>
     @else
-    <a href="{{ route('cms.ar_csnorder.review', ['id' => $received_order->source_id]) }}" class="btn btn-outline-success px-4" role="button">取消入帳</a>
+    <a href="{{ route('cms.request.ro-review', ['id' => $received_order->source_id]) }}" class="btn btn-outline-success px-4" role="button">取消入帳</a>
     @endif
-    <a href="{{ route('cms.ar_csnorder.taxation', ['id' => $received_order->source_id]) }}" class="btn btn-outline-success px-4" role="button">修改摘要/稅別</a>
+    <a href="{{ route('cms.request.ro-taxation', ['id' => $received_order->source_id]) }}" class="btn btn-outline-success px-4" role="button">修改摘要/稅別</a>
     {{--
     <button type="submit" class="btn btn-danger">中一刀列印畫面</button>
     <button type="submit" class="btn btn-danger">A4列印畫面</button>
@@ -31,19 +31,19 @@
             </dl>
             <dl class="row">
                 <div class="col">
-                    <dt>客戶：{{ $order_purchaser->name }}</dt>
+                    <dt>客戶：{{ $purchaser->client_name ?? '' }}</dt>
                     <dd></dd>
                 </div>
                 <div class="col">
-                    <dt>地址：{{ $order_purchaser->address }}</dt>
+                    <dt>地址：{{ $purchaser->client_address ?? '' }}</dt>
                     <dd></dd>
                 </div>
                 <div class="col">
-                    <dt>電話：{{ $order_purchaser->tel }}</dt>
+                    <dt>電話：{{ $purchaser->client_phone ?? '' }}</dt>
                     <dd></dd>
                 </div>
                 <div class="col">
-                    <dt>傳真：{{ $order_purchaser->fax ?? '' }}</dt>
+                    <dt>傳真：{{ $purchaser->client_fax ?? '' }}</dt>
                     <dd></dd>
                 </div>
             </dl>
@@ -59,7 +59,7 @@
             </dl>
             <dl class="row mb-0">
                 <div class="col">
-                    <dt>訂單流水號：<a href="{{ Route('cms.consignment-order.edit', ['id' => $order->id], true) }}">{{ $order->sn }}</a></dt>
+                    <dt>訂單流水號：</dt>
                     <dd></dd>
                 </div>
                 @if($received_order->receipt_date)
@@ -101,35 +101,13 @@
                     <tbody>
                         @foreach($order_list_data as $value)
                             <tr>
-                                <td>{{ $product_grade_name }} --- {{ $value->product_title }}{{'（' . $value->product_price . ' * ' . $value->product_qty . '）'}}</td>
-                                <td>{{ $value->product_qty }}</td>
-                                <td>{{ number_format($value->product_price, 2) }}</td>
-                                <td>{{ number_format($value->product_origin_price) }}</td>
-                                <td>{{ $received_order->memo }} <a href="{{ Route('cms.consignment-order.edit', ['id' => $order->id], true) }}">{{ $order->sn }}</a> {{ $value->product_taxation == 1 ? '應稅' : '免稅' }} {{ $order->note }}</td>
+                                <td>{{ $request_grade->code . ' ' . $request_grade->name . ' ' . $value->summary }}</td>
+                                <td>{{ $value->qty }}</td>
+                                <td>{{ number_format($value->price, 2) }}</td>
+                                <td>{{ number_format($value->total_price) }}</td>
+                                <td>{{ $value->taxation == 1 ? '應稅' : '免稅' }} {{ $value->memo }}</td>
                             </tr>
                         @endforeach
-
-                        @if($order->dlv_fee > 0)
-                            <tr>
-                                <td>{{ $logistics_grade_name }}</td>
-                                <td>1</td>
-                                <td>{{ number_format($order->dlv_fee, 2) }}</td>
-                                <td>{{ number_format($order->dlv_fee) }}</td>
-                                <td>{{ $received_order->memo }} <a href="{{ Route('cms.consignment-order.edit', ['id' => $order->id], true) }}">{{ $order->sn }}</a> {{ $order->dlv_taxation == 1 ? '應稅' : '免稅' }}</td>
-                            </tr>
-                        @endif
-
-                        @if($order->discount_value > 0)
-                        @foreach($order_discount ?? [] as $d_value)
-                            <tr>
-                                <td>{{ $d_value->account_code }} - {{ $d_value->account_name }} - {{ $d_value->title }}</td>
-                                <td>1</td>
-                                <td>-{{ number_format($d_value->discount_value, 2) }}</td>
-                                <td>-{{ number_format($d_value->discount_value) }}</td>
-                                <td>{{ $received_order->memo }} <a href="{{ Route('cms.consignment-order.edit', ['id' => $order->id], true) }}">{{ $order->sn }}</a> {{ $d_value->discount_taxation == 1 ? '應稅' : '免稅' }}</td>
-                            </tr>
-                        @endforeach
-                        @endif
 
                         <tr class="table-light">
                             <td>合計：</td>
@@ -179,7 +157,7 @@
                     <dd></dd>
                 </div>
                 <div class="col">
-                    <dt>商品負責人：{{ $product_qc }}</dt>
+                    <dt>商品負責人：</dt>
                     <dd></dd>
                 </div>
             </dl>

@@ -18,8 +18,9 @@ use App\Models\OrderPayCreditCard;
 use App\Models\Product;
 use App\Models\ReceivedDefault;
 use App\Models\ReceivedOrder;
+use App\Models\Supplier;
 use App\Models\User;
-use App\Models\IncomeOrder;
+use App\Models\Depot;
 
 abstract class AccountReceivedPapaCtrl extends Controller
 {
@@ -61,11 +62,13 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
         $cond = [];
 
-        $cond['customer_id'] = Arr::get($query, 'customer_id', []);
-        if (gettype($cond['customer_id']) == 'string') {
-            $cond['customer_id'] = explode(',', $cond['customer_id']);
+        $cond['drawee_key'] = Arr::get($query, 'drawee_key', null);
+        if (gettype($cond['drawee_key']) == 'string') {
+            $key = explode('|', $cond['drawee_key']);
+            $cond['drawee']['id'] = $key[0];
+            $cond['drawee']['name'] = $key[1];
         } else {
-            $cond['customer_id'] = [];
+            $cond['drawee'] = [];
         }
 
         $cond['r_order_sn'] = Arr::get($query, 'r_order_sn', null);
@@ -95,7 +98,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
         $cond['check_review'] = Arr::get($query, 'check_review', 'all');
 
         $dataList = ReceivedOrder::received_order_list(
-            $cond['customer_id'],
+            $cond['drawee'],
             $cond['r_order_sn'],
             $cond['order_sn'],
             $r_order_price,
@@ -156,22 +159,30 @@ abstract class AccountReceivedPapaCtrl extends Controller
                 $product_account = AllGrade::find($value->ro_product_grade_id) ? AllGrade::find($value->ro_product_grade_id)->eachGrade : null;
                 $account_code = $product_account ? $product_account->code : '4000';
                 $account_name = $product_account ? $product_account->name : '無設定會計科目';
-                $product_name = $account_code . ' - ' . $account_name;
+                $product_name = $account_code . ' ' . $account_name;
                 foreach(json_decode($value->order_item) as $o_value){
                     $name = $product_name . ' --- ' . $o_value->product_title . '（' . $o_value->price . ' * ' . $o_value->qty . '）';
-    
+                    $product_title = $o_value->product_title;
+
+                    if($value->ro_source_type == 'ord_received_orders'){
+                        $product_account = AllGrade::find($o_value->all_grades_id) ? AllGrade::find($o_value->all_grades_id)->eachGrade : null;
+                        $account_code = $product_account ? $product_account->code : '4000';
+                        $account_name = $product_account ? $product_account->name : '無設定會計科目';
+                        $product_title = $account_name;
+                    }
+
                     $tmp = [
                         'account_code'=>$account_code,
                         'name'=>$name,
                         'price'=>$o_value->origin_price,
                         'type'=>'r',
                         'd_type'=>'product',
-    
+
                         'account_name'=>$account_name,
                         'method_name'=>null,
                         'summary'=>null,
                         'note'=>null,
-                        'product_title'=>$o_value->product_title,
+                        'product_title'=>$product_title,
                         'del_even'=>null,
                         'del_category_name'=>null,
                         'product_price'=>$o_value->price,
@@ -254,11 +265,16 @@ abstract class AccountReceivedPapaCtrl extends Controller
         }
         // accounting classification end
 
+        $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+
+        $drawee_merged = array_merge($customer, $depot, $supplier);
         return view('cms.account_management.collection_received.list', [
             'data_per_page' => $page,
             'dataList' => $dataList,
             'cond' => $cond,
-            'customer' => Customer::whereNull('deleted_at')->toBase()->get(),
+            'drawee' => $drawee_merged,
             'check_review_status' => $check_review_status,
         ]);
     }
@@ -494,7 +510,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
         } catch (\Exception $e) {
             DB::rollback();
-            wToast(__('收款單儲存失敗'));
+            wToast(__('收款單儲存失敗', ['type'=>'danger']));
         }
 
 
@@ -933,7 +949,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
             } catch (\Exception $e) {
                 DB::rollback();
-                wToast(__('摘要/稅別更新失敗'));
+                wToast(__('摘要/稅別更新失敗', ['type'=>'danger']));
             }
 
             return redirect()->route($this->getRouteReceipt(), ['id'=>request('id')]);
@@ -1041,7 +1057,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
             wToast('刪除完成');
 
         } else {
-            wToast('刪除失敗');
+            wToast('刪除失敗', ['type'=>'danger']);
         }
         return redirect()->back();
     }

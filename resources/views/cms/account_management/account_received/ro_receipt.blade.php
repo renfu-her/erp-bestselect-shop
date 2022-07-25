@@ -127,7 +127,7 @@
                 <div class="col">
                     <dt></dt>
                     <dd>
-                        {{ $value->account->code . ' - ' . $value->account->name }}
+                        {{ $value->account->code . ' ' . $value->account->name }}
                         {{ number_format($value->credit_card_price ?? $value->tw_price) }}
                         @if($value->received_method == 'credit_card')
                             {{ '（' . $value->received_method_name . ' - ' . $value->credit_card_number . '（' . $value->credit_card_owner_name . '）' . '）' }}

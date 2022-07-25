@@ -17,6 +17,8 @@ use App\Enums\Supplier\Payment;
 
 use App\Models\AllGrade;
 use App\Models\AccountPayable;
+use App\Models\Customer;
+use App\Models\Depot;
 use App\Models\Order;
 use App\Models\PayableAccount;
 use App\Models\PayableCash;
@@ -40,11 +42,13 @@ class AccountPayableCtrl extends Controller
 
         $cond = [];
 
-        $cond['supplier_id'] = Arr::get($query, 'supplier_id', []);
-        if (gettype($cond['supplier_id']) == 'string') {
-            $cond['supplier_id'] = explode(',', $cond['supplier_id']);
+        $cond['payee_key'] = Arr::get($query, 'payee_key', null);
+        if (gettype($cond['payee_key']) == 'string') {
+            $key = explode('|', $cond['payee_key']);
+            $cond['payee']['id'] = $key[0];
+            $cond['payee']['name'] = $key[1];
         } else {
-            $cond['supplier_id'] = [];
+            $cond['payee'] = [];
         }
 
         $cond['p_order_sn'] = Arr::get($query, 'p_order_sn', null);
@@ -65,7 +69,7 @@ class AccountPayableCtrl extends Controller
         ];
 
         $dataList = PayingOrder::paying_order_list(
-            $cond['supplier_id'],
+            $cond['payee'],
             $cond['p_order_sn'],
             $cond['purchase_sn'],
             $p_order_price,
@@ -192,11 +196,17 @@ class AccountPayableCtrl extends Controller
         }
         // accounting classification end
 
+        $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+
+        $payee_merged = array_merge($customer, $depot, $supplier);
+
         return view('cms.account_management.account_payable.list', [
             'data_per_page' => $page,
             'dataList' => $dataList,
             'cond' => $cond,
-            'supplier' => Supplier::whereNull('deleted_at')->toBase()->get(),
+            'payee' => $payee_merged,
         ]);
     }
 

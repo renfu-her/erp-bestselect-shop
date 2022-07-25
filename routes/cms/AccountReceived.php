@@ -12,5 +12,5 @@ Route::group(['prefix' => 'account_received', 'as' => 'account_received.'], func
 
     Route::get('ro_receipt/{id}', [AccountReceivedCtrl::class, 'ro_receipt'])->name('ro-receipt')->middleware('permission:cms.account_received.ro-receipt');
     Route::match(['get', 'post'], 'ro_review/{id}', [AccountReceivedCtrl::class, 'ro_review'])->name('ro-review')->middleware('permission:cms.account_received.ro-review');
-    Route::match(['get', 'post'], 'ro_taxation/{id}', [AccountReceivedCtrl::class, 'ro_taxation'])->name('ro-taxation')->middleware('permission:cms.collection_received.ro-taxation');
+    Route::match(['get', 'post'], 'ro_taxation/{id}', [AccountReceivedCtrl::class, 'ro_taxation'])->name('ro-taxation')->middleware('permission:cms.account_received.ro-taxation');
 });

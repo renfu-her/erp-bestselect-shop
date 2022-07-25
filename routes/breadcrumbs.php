@@ -663,10 +663,76 @@ Breadcrumbs::for('cms.ap.index', function (BreadcrumbTrail $trail) {
     $trail->push('付款作業', route('cms.ap.index'));
 });
 
+// 代墊單作業
+Breadcrumbs::for('cms.stitute.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('代墊單作業', route('cms.stitute.index'));
+});
+// 新增代墊單
+Breadcrumbs::for('cms.stitute.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.stitute.index');
+    $trail->push('新增代墊單');
+});
+// 代墊單
+Breadcrumbs::for('cms.stitute.show', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.stitute.index');
+    $trail->push('代墊單');
+});
+// 代墊單付款(新增付款單)
+Breadcrumbs::for('cms.stitute.po-edit', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.stitute.index');
+    $trail->push('代墊單', route('cms.stitute.show', ['id' => $value['id']]));
+    $trail->push('新增付款單');
+});
+Breadcrumbs::for('cms.stitute.po-show', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.stitute.index');
+    $trail->push('代墊單', route('cms.stitute.show', ['id' => $value['id']]));
+    $trail->push('付款單');
+});
+
 // 收款作業
 Breadcrumbs::for('cms.collection_received.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
     $trail->push('收款作業', route('cms.collection_received.index'));
+});
+
+// 請款單作業
+Breadcrumbs::for('cms.request.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('請款單作業', route('cms.request.index'));
+});
+// 新增請款單
+Breadcrumbs::for('cms.request.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.request.index');
+    $trail->push('新增請款單');
+});
+// 請款單
+Breadcrumbs::for('cms.request.show', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.request.index');
+    $trail->push('請款單');
+});
+// 請款單入款(新增收款單)
+Breadcrumbs::for('cms.request.ro-edit', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.request.index');
+    $trail->push('請款單', route('cms.request.show', ['id' => $value['id']]));
+    $trail->push('新增收款單');
+});
+Breadcrumbs::for('cms.request.ro-receipt', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.request.index');
+    $trail->push('請款單', route('cms.request.show', ['id' => $value['id']]));
+    $trail->push('收款單');
+});
+Breadcrumbs::for('cms.request.ro-review', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.request.index');
+    $trail->push('請款單', route('cms.request.show', ['id' => $value['id']]));
+    $trail->push('收款單', route('cms.request.ro-receipt', ['id' => $value['id']]));
+    $trail->push('入款審核');
+});
+Breadcrumbs::for('cms.request.ro-taxation', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.request.index');
+    $trail->push('請款單', route('cms.request.show', ['id' => $value['id']]));
+    $trail->push('收款單', route('cms.request.ro-receipt', ['id' => $value['id']]));
+    $trail->push('修改摘要/稅別');
 });
 
 // 應收帳款

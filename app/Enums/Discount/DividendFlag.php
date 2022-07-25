@@ -13,7 +13,7 @@ final class DividendFlag extends Enum
     const Cancel = 'cancel';
     const Discount = 'discount';
     const Consume = 'consume';
-    const return  = 'return';
+    const Back  = 'back';
     public static function getDescription($value): string
     {
         $result = '';
@@ -30,7 +30,7 @@ final class DividendFlag extends Enum
             case self::Cancel:
                 $result = '取消訂單';
                 break;
-            case self::return :
+            case self::Back :
                 $result = '歸還';
                 break;
             case self::Invalid:

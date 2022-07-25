@@ -24,12 +24,14 @@ Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
     Route::post('invoice/{id}', [OrderCtrl::class, 'store_invoice'])->name('store-invoice');
     Route::post('ajax-detail', [OrderCtrl::class, '_order_detail'])->name('ajax-detail');
     Route::get('invoice/{id}/show', [OrderCtrl::class, 'show_invoice'])->name('show-invoice');
+    Route::get('invoice/{id}/re_send', [OrderCtrl::class, 're_send_invoice'])->name('re-send-invoice');
 
     Route::get('bonus-gross/{id}', [OrderCtrl::class, 'bonus_gross'])->name('bonus-gross');
     Route::get('personal-bonus/{id}', [OrderCtrl::class, 'personal_bonus'])->name('personal-bonus');
 
     Route::post('change-bonus-owner/{id}', [OrderCtrl::class, 'change_bonus_owner'])->name('change-bonus-owner');
 
-    
+    Route::get('cancel-order/{id}', [OrderCtrl::class, 'cancel_order'])->name('cancel-order');
+
 
 });
