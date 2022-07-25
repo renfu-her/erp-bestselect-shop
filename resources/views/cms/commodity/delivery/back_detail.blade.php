@@ -196,12 +196,8 @@
                                     <td data-td="sn">{{ $rec->inbound_sn }}</td>
                                     <td data-td="depot">{{ $rec->depot_name }}</td>
                                     <td data-td="expiry">{{ date('Y/m/d', strtotime($rec->expiry_date)) }}</td>
-                                    <td class="text-center">
-                                        <input type="number" name="back_qty[]" value="{{ $rec->back_qty }}" max="{{ $rec->qty }}" min="1" class="form-control form-control-sm text-center">
-                                    </td>
-                                    <td>
-                                        <input type="text" name="memo[]" value="" class="form-control form-control-sm">
-                                    </td>
+                                    <td class="text-center">{{ $rec->back_qty }}</td>
+                                    <td>{{ $rec->memo ?? '' }}</td>
                                 </tr>
                             @endif
                         @endforeach
