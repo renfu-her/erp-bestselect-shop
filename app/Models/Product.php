@@ -455,6 +455,55 @@ class Product extends Model
 
     }
 
+    /**
+     * @param $sku
+     * 檢查是否是酒類商品?
+     * @return bool
+     */
+    public static function isLiquor($sku)
+    {
+        $collectionExist = DB::table('collection')
+                        ->where([
+                            ['is_public', '=', '1'],
+                            ['is_liquor', '=', '1'],
+                        ])
+                        ->select('id')
+                        ->get()
+                        ->first();
+
+        if (!$collectionExist) {
+            return false;
+        }
+
+        $collections = DB::table('collection')
+                                ->where([
+                                    ['is_public', '=', '1'],
+                                    ['is_liquor', '=', '1'],
+                                ])
+                                ->select('id')
+                                ->get();
+
+        $sale_channel_id = 1;
+        $skuData = [];
+        foreach ($collections as $collection) {
+            $temp = Product::productList(null, null, [
+                    'collection'      => $collection->id,
+                    'public'          => '1',
+                    'active_date'     => '1',
+                    'online'          => 'online',
+                    'sale_channel_id' => $sale_channel_id,
+                ])
+                    ->get();
+            if ($temp) {
+                foreach ($temp as $data) {
+                    $skuData[] = $data->sku;
+                }
+            }
+        }
+
+        return in_array($sku, array_unique($skuData));
+    }
+
     public static function singleProduct($sku = null, $sale_channel_id = 1)
     {
 
@@ -901,7 +950,40 @@ class Product extends Model
     }
 
     /**
+     * @param  string  $type type預設0會回傳，所有「非一般商品」的SKU
+     * 取得「商品群組」的類型中，所有的SKU代碼
+     * @return array
+     */
+    public static function getSkuByType(string $type = '0')
+    {
+        $productQueries = DB::table('prd_products as prd')
+                                ->join('collection_prd', function ($join) {
+                                    $join->on('collection_prd.product_id_fk', '=', 'prd.id');
+                                });
+        if ($type === '0') {
+            $productQueries->join('collection', function ($join_x) use ($type) {
+                $join_x->on('collection.id', '=', 'collection_prd.collection_id_fk')
+                    ->where('collection.is_liquor', '<>', '0');
+            });
+        } else {
+            $productQueries->join('collection', function ($join_x) use ($type) {
+                $join_x->on('collection.id', '=', 'collection_prd.collection_id_fk')
+                    ->where('collection.is_liquor', '=', $type);
+            });
+        }
+
+        $dataList = $productQueries->select(['prd.sku'])->get();
+        $dataArray = [];
+        foreach ($dataList as $data) {
+            $dataArray[] = $data->sku;
+        }
+
+        return $dataArray;
+    }
+
+    /**
      * @param $data
+     * @param $type string 商品群組的類別,  一般商品0、酒類1
      * model for search 商品編號、商品名稱
      * @return \Illuminate\Http\JsonResponse
      */
@@ -910,7 +992,8 @@ class Product extends Model
         $pageSize,
         int $currentPageNumber = 1,
         bool $isPriceDescend = true,
-        string $m_class = 'customer'
+        string $m_class = 'customer',
+        string $type = '0'
     ) {
         $sale_channel = DB::table('usr_identity')
             ->where('usr_identity.code', '=', $m_class)
@@ -981,7 +1064,17 @@ class Product extends Model
 
         $productQueries = DB::table('prd_products as prd')
             ->where('prd.online', '=', 1)
-            ->where('prd.public', '=', 1)
+            ->where('prd.public', '=', 1);
+
+        if ($type === '0') {
+            //只有「一般商品」，排除掉其它類型商品（例如：酒類）
+            $productQueries->whereNotIn('prd.sku', self::getSkuByType($type));
+        } else {
+            //只有「特殊商品」，例如酒類
+            $productQueries->whereIn('prd.sku', self::getSkuByType($type));
+        }
+
+        $productQueries = $productQueries
             ->where('prd.title', 'LIKE', "%$data%")
             ->orWhere('prd.sku', 'LIKE', "%$data%")
             ->leftJoin('prd_product_styles as product_style', function ($join) {

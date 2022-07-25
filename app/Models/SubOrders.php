@@ -11,6 +11,7 @@ class SubOrders extends Model
     use HasFactory;
     protected $table = 'ord_sub_orders';
     protected $guarded = [];
+    public $timestamps = false;
 
     public static function getListWithShiGroupById($sub_order_id) {
         $sub_order = DB::table('ord_sub_orders')->where('ord_sub_orders.id', $sub_order_id)

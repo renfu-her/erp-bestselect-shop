@@ -161,18 +161,28 @@ return
                 "controller_name" => "CollectionReceivedCtrl",
                 "route_name" => "cms.collection_received.index",
             ],
-            // [
-            //     "title" => "應收帳款",
-            //     "controller_name" => "AccountReceivedCtrl",
-            //     "route_name" => "cms.account_received.index",
-            // ],
+            [
+                "title" => "代墊單作業",
+                "controller_name" => "StituteOrderCtrl",
+                "route_name" => "cms.stitute.index",
+            ],
+            [
+                "title" => "請款單作業",
+                "controller_name" => "RequestOrderCtrl",
+                "route_name" => "cms.request.index",
+            ],
+            [
+                "title" => "應收帳款",
+                "controller_name" => "AccountReceivedCtrl",
+                "route_name" => "cms.account_received.index",
+            ],
             [
                 "title" => "信用卡作業管理",
                 "controller_name" => "CreditManagerCtrl",
                 "route_name" => "cms.credit_manager.index",
             ],
             [
-                "title" => "分潤",
+                "title" => "分潤報表",
                 "controller_name" => "OrderBonusCtrl",
                 "route_name" => "cms.order-bonus.index",
             ],

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Web;
 
+use App\Enums\Globals\ApiStatusMessage;
 use App\Enums\Globals\AppEnvClass;
 use App\Enums\Globals\ImageDomain;
 use App\Enums\Globals\ResponseParam;
@@ -21,6 +22,7 @@ class ProductCtrl extends Controller
 
         $validator = Validator::make($request->all(), [
             'sku' => 'required',
+            'type' => ['nullable', 'string', 'regex:/^1$/'],
         ]);
 
         if ($validator->fails()) {
@@ -30,6 +32,23 @@ class ProductCtrl extends Controller
             ]);
         }
         $d = $request->all();
+        if (isset($d['type'])) {
+            if ($d['type'] === '1' &&
+                !Product::isLiquor($d['sku'])
+            ) {
+                return response()->json([
+                    'status' => ApiStatusMessage::NotFound,
+                    'msg'    => ApiStatusMessage::getDescription(ApiStatusMessage::NotFound),
+                ]);
+            }
+        } else {
+            if (Product::isLiquor($d['sku'])) {
+                return response()->json([
+                    'status' => ApiStatusMessage::NotFound,
+                    'msg'    => ApiStatusMessage::getDescription(ApiStatusMessage::NotFound),
+                ]);
+            }
+        }
         $re = Product::singleProduct($d['sku']);
 
         if ($re) {
@@ -45,6 +64,7 @@ class ProductCtrl extends Controller
 
         $validator = Validator::make($request->all(), [
             'collection_id' => 'required',
+            'type' => ['nullable', 'string', 'regex:/^1$/'],
         ]);
 
         if ($validator->fails()) {
@@ -59,8 +79,16 @@ class ProductCtrl extends Controller
 
         $collection = Collection::where('id', $d['collection_id'])
             ->select(['id', 'name', 'meta_title', 'meta_description', 'url'])
-            ->where('is_public', '1')
-            ->get()->first();
+            ->where('is_public', '1');
+
+        if (isset($d['type'])) {
+            if($d['type'] === '1') {
+                $collection->where('is_liquor', '=', 1);
+            }
+        } else {
+            $collection->where('is_liquor', '=', 0);
+        }
+        $collection = $collection->get()->first();
 
         if (!$collection) {
             $re = [];
@@ -77,6 +105,7 @@ class ProductCtrl extends Controller
             'collection' => $d['collection_id'],
             'public' => '1',
             'active_date' => '1',
+            'online' => 'online',
             'sale_channel_id' => $sale_channel_id,
         ])->get()->toArray();
 
@@ -116,6 +145,7 @@ class ProductCtrl extends Controller
             'page_size' => ['nullable', 'int', 'min:1'],
             'page' => ['nullable', 'int', 'min:1'],
             'm_class' => ['nullable', 'string', 'regex:/^(customer|employee|company)$/'],
+            'type' => ['nullable', 'string', 'regex:/^1$/'],
         ]);
 
 
@@ -131,7 +161,9 @@ class ProductCtrl extends Controller
             $request['data'],
             $request['page_size'] ?? '',
             $request['page'] ?? 1,
-            $request['sort']['is_price_desc'] ?? true
+            $request['sort']['is_price_desc'] ?? true,
+            'customer',
+            $request['type'] ?? '0',
         );
     }
 }

@@ -249,7 +249,7 @@ class CreditManagerCtrl extends Controller
                 return redirect()->route('cms.credit_manager.index');
             }
 
-            wToast(__('信用卡請款失敗'));
+            wToast(__('信用卡請款失敗', ['type'=>'danger']));
             return redirect()->back();
         }
 
@@ -293,7 +293,7 @@ class CreditManagerCtrl extends Controller
                 ]);
             }
 
-            wToast(__('信用卡入款失敗'));
+            wToast(__('信用卡入款失敗', ['type'=>'danger']));
             return redirect()->back();
         }
 

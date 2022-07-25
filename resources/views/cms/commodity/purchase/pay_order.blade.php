@@ -181,7 +181,7 @@
                     <div class="col">
                         <dt></dt>
                         <dd>
-                            {{ $value->account->code . ' - ' . $value->account->name }}
+                            {{ $value->account->code . ' ' . $value->account->name }}
                             {{ number_format($value->tw_price) }}
                             {{ '（' . $value->payable_method_name . ' - ' . $value->account->name . ' - ' . $value->summary . '）' }}
                             {{--

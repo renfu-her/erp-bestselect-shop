@@ -18,6 +18,7 @@ class Collection extends Model
         'meta_title',
         'meta_description',
         'is_public',
+        'is_liquor',
     ];
 
     /**
@@ -85,6 +86,7 @@ class Collection extends Model
         $meta_title,
         $meta_description,
         string $is_public,
+        int $is_liquor,
         array $productIdArray
     ) {
         if (self::where('url', $url)->get()->first()) {
@@ -97,6 +99,7 @@ class Collection extends Model
             'meta_title' => $meta_title,
             'meta_description' => $meta_description,
             'is_public' => (bool) $is_public,
+            'is_liquor' => $is_liquor,
         ])->id;
 
         for ($i = 0; $i < count($productIdArray); $i++) {

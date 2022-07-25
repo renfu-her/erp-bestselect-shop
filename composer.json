@@ -37,7 +37,8 @@
         "files": [
             "app/Helpers/url.php",
             "app/Helpers/toast.php",
-            "app/Helpers/address.php"
+            "app/Helpers/address.php",
+            "app/Helpers/num_to_str.php"
         ]
     },
     "autoload-dev": {

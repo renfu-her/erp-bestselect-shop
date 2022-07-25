@@ -9,10 +9,10 @@
             <div class="row">
                 <div class="col-12 col-sm-4 mb-3">
                     <label class="form-label">客戶</label>
-                    <select class="form-select -select2 -single" name="customer_id" aria-label="客戶" data-placeholder="請輸入客戶">
+                    <select class="form-select -select2 -single" name="drawee_key" aria-label="客戶" data-placeholder="請輸入客戶">
                         <option value="" selected>不限</option>
-                        @foreach ($customer as $value)
-                            <option value="{{ $value->id }}" {{ in_array($value->id, $cond['customer_id']) ? 'selected' : '' }}>{{ $value->name }}</option>
+                        @foreach ($drawee as $value)
+                            <option value="{{ $value['id'] . '|' . $value['name'] }}" {{ $value['id'] . '|' . $value['name'] == $cond['drawee_key'] ? 'selected' : '' }}>{{ $value['name'] }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -46,8 +46,8 @@
                 <div class="col-12 mb-3">
                     <label class="form-label">入款日期起訖</label>
                     <div class="input-group has-validation">
-                        <input type="date" class="form-control -startDate @error('r_order_sdate') is-invalid @enderror" name="r_order_sdate" value="{{ $cond['r_order_sdate'] }}" aria-label="入款起始日期" />
-                        <input type="date" class="form-control -endDate @error('r_order_edate') is-invalid @enderror" name="r_order_edate" value="{{ $cond['r_order_edate'] }}" aria-label="入款結束日期" />
+                        <input type="date" class="form-control -startDate @error('r_order_sdate') is-invalid @enderror" name="r_order_sdate" value="{{ $cond['r_order_sdate'] }}" aria-label="入款起始日期">
+                        <input type="date" class="form-control -endDate @error('r_order_edate') is-invalid @enderror" name="r_order_edate" value="{{ $cond['r_order_edate'] }}" aria-label="入款結束日期">
                         <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
                         <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
                         <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
@@ -67,8 +67,8 @@
                 <div class="col-12 mb-3">
                     <label class="form-label">收款日期起訖</label>
                     <div class="input-group has-validation">
-                        <input type="date" class="form-control -startDate @error('order_sdate') is-invalid @enderror" name="order_sdate" value="{{ $cond['order_sdate'] }}" aria-label="收款起始日期" />
-                        <input type="date" class="form-control -endDate @error('order_edate') is-invalid @enderror" name="order_edate" value="{{ $cond['order_edate'] }}" aria-label="收款結束日期" />
+                        <input type="date" class="form-control -startDate @error('order_sdate') is-invalid @enderror" name="order_sdate" value="{{ $cond['order_sdate'] }}" aria-label="收款起始日期">
+                        <input type="date" class="form-control -endDate @error('order_edate') is-invalid @enderror" name="order_edate" value="{{ $cond['order_edate'] }}" aria-label="收款結束日期">
                         <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
                         <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
                         <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
@@ -101,7 +101,7 @@
             </div>
 
             <div class="col">
-                <input type="hidden" name="data_per_page" value="{{ $data_per_page }}" />
+                <input type="hidden" name="data_per_page" value="{{ $data_per_page }}">
                 <button type="submit" class="btn btn-primary px-4">搜尋</button>
             </div>
         </div>
@@ -140,15 +140,23 @@
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <td>{{ $key + 1 }}</td>
-                            <td><a href="{{ route('cms.collection_received.receipt', ['id'=>$data->order_id]) }}">{{ $data->ro_sn }}</a></td>
-                            <td>{{ $data->customer_name }}</td>
+                            <td>
+                                @if($data->ro_source_type == 'ord_orders')
+                                <a href="{{ route('cms.collection_received.receipt', ['id' => $data->ro_source_id]) }}" class="-text">{{ $data->ro_sn }}</a>
+                                @elseif($data->ro_source_type == 'csn_orders')
+                                <a href="{{ route('cms.ar_csnorder.receipt', ['id' => $data->ro_source_id]) }}" class="-text">{{ $data->ro_sn }}</a>
+                                @elseif($data->ro_source_type == 'ord_received_orders')
+                                <a href="{{ route('cms.account_received.ro-receipt', ['id' => $data->ro_source_id]) }}" class="-text">{{ $data->ro_sn }}</a>
+                                @endif
+                            </td>
+                            <td>{{ $data->ro_target_name }}</td>
                             <td class="p-0">
                                 @foreach($data->debit as $d_value)
-                                <span class="border-bottom bg-warning d-block p-1">{{$d_value->account_code}} - {{$d_value->account_name}}</span>
+                                <span class="border-bottom bg-warning d-block p-1">{{ $d_value->account_code }} {{ $d_value->account_name }}</span>
                                 @endforeach
 
                                 @foreach($data->credit as $c_value)
-                                <span class="border-bottom d-block bg-white p-1">{{$c_value->account_code}} - {{$c_value->account_name}}</span>
+                                <span class="border-bottom d-block bg-white p-1">{{ $c_value->account_code }} {{ $c_value->account_name }}</span>
                                 @endforeach
                             </td>
 
@@ -170,13 +178,13 @@
                                 @foreach($data->credit as $c_value)
                                 <span class="border-bottom d-block bg-white p-1">
                                     @if($c_value->d_type == 'logistics')
-                                        {{$c_value->account_name}} - {{$data->order_sn}}
+                                        {{ $c_value->account_name }} - {{ $data->order_sn }}
                                     @elseif($c_value->d_type == 'discount')
-                                        {{$c_value->discount_title}} - {{$data->order_sn}}
+                                        {{ $c_value->discount_title }} - {{ $data->order_sn }}
                                     @elseif($c_value->d_type == 'product')
-                                        {{$c_value->product_title}}({{ $c_value->product_price }} * {{$c_value->product_qty}}) - {{$data->order_sn}}
+                                        {{ $c_value->product_title }}({{ $c_value->product_price }} * {{ $c_value->product_qty }}) - {{ $data->order_sn }}
                                     @else
-                                        {{$c_value->method_name}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{$data->order_sn}}
+                                        {{ $c_value->method_name }}{{ $c_value->note ? ' - ' . $c_value->note : '' }} - {{ $data->order_sn }}
                                     @endif
                                 </span>
                                 @endforeach

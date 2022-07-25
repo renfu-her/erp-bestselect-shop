@@ -18,8 +18,9 @@ use App\Models\OrderPayCreditCard;
 use App\Models\Product;
 use App\Models\ReceivedDefault;
 use App\Models\ReceivedOrder;
+use App\Models\Supplier;
 use App\Models\User;
-use App\Models\IncomeOrder;
+use App\Models\Depot;
 
 abstract class AccountReceivedPapaCtrl extends Controller
 {
@@ -50,8 +51,6 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
     public function index(Request $request)
     {
-        echo "因收款單來源新增寄倉收款，此畫面尚未調整";
-        die();
         $query = $request->query();
         $page = getPageCount(Arr::get($query, 'data_per_page', 100)) > 0 ? getPageCount(Arr::get($query, 'data_per_page', 100)) : 100;
 
@@ -63,11 +62,13 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
         $cond = [];
 
-        $cond['customer_id'] = Arr::get($query, 'customer_id', []);
-        if (gettype($cond['customer_id']) == 'string') {
-            $cond['customer_id'] = explode(',', $cond['customer_id']);
+        $cond['drawee_key'] = Arr::get($query, 'drawee_key', null);
+        if (gettype($cond['drawee_key']) == 'string') {
+            $key = explode('|', $cond['drawee_key']);
+            $cond['drawee']['id'] = $key[0];
+            $cond['drawee']['name'] = $key[1];
         } else {
-            $cond['customer_id'] = [];
+            $cond['drawee'] = [];
         }
 
         $cond['r_order_sn'] = Arr::get($query, 'r_order_sn', null);
@@ -97,7 +98,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
         $cond['check_review'] = Arr::get($query, 'check_review', 'all');
 
         $dataList = ReceivedOrder::received_order_list(
-            $cond['customer_id'],
+            $cond['drawee'],
             $cond['r_order_sn'],
             $cond['order_sn'],
             $r_order_price,
@@ -112,75 +113,87 @@ abstract class AccountReceivedPapaCtrl extends Controller
             $credit = [];
 
             // 收款項目
-            foreach(json_decode($value->received_list) as $r_value){
-                $received_method_name = ReceivedMethod::getDescription($r_value->received_method);
-                $received_account = AllGrade::find($r_value->all_grades_id)->eachGrade;
+            if($value->received_list){
+                foreach(json_decode($value->received_list) as $r_value){
+                    $received_method_name = ReceivedMethod::getDescription($r_value->received_method);
+                    $received_account = AllGrade::find($r_value->all_grades_id)->eachGrade;
 
-                if($r_value->received_method == 'foreign_currency'){
-                    $arr = explode('-', AllGrade::find($r_value->all_grades_id)->eachGrade->name);
-                    $r_value->currency_name = $arr[0] == '外幣' ? $arr[1] . ' - ' . $arr[2] : 'NTD';
-                    $r_value->currency_rate = DB::table('acc_received_currency')->find($r_value->received_method_id)->currency;
-                } else {
-                    $r_value->currency_name = 'NTD';
-                    $r_value->currency_rate = 1;
+                    if($r_value->received_method == 'foreign_currency'){
+                        $arr = explode('-', AllGrade::find($r_value->all_grades_id)->eachGrade->name);
+                        $r_value->currency_name = $arr[0] == '外幣' ? $arr[1] . ' - ' . $arr[2] : 'NTD';
+                        $r_value->currency_rate = DB::table('acc_received_currency')->find($r_value->received_method_id)->currency;
+                    } else {
+                        $r_value->currency_name = 'NTD';
+                        $r_value->currency_rate = 1;
+                    }
+
+                    $name = $received_method_name . ' ' . $r_value->summary . '（' . $received_account->code . ' - ' . $received_account->name . '）';
+
+                    $tmp = [
+                        'account_code'=>$received_account->code,
+                        'name'=>$name,
+                        'price'=>$r_value->tw_price,
+                        'type'=>'r',
+                        'd_type'=>'received',
+
+                        'account_name'=>$received_account->name,
+                        'method_name'=>$received_method_name,
+                        'summary'=>$r_value->summary,
+                        'note'=>$r_value->note,
+                        'product_title'=>null,
+                        'del_even'=>null,
+                        'del_category_name'=>null,
+                        'product_price'=>null,
+                        'product_qty'=>null,
+                        'product_owner'=>null,
+                        'discount_title'=>null,
+                        'payable_type'=>null,
+                        'received_info'=>$r_value,
+                    ];
+                    GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }
-
-                $name = $received_method_name . ' ' . $r_value->summary . '（' . $received_account->code . ' - ' . $received_account->name . '）';
-
-                $tmp = [
-                    'account_code'=>$received_account->code,
-                    'name'=>$name,
-                    'price'=>$r_value->tw_price,
-                    'type'=>'r',
-                    'd_type'=>'received',
-
-                    'account_name'=>$received_account->name,
-                    'method_name'=>$received_method_name,
-                    'summary'=>$r_value->summary,
-                    'note'=>$r_value->note,
-                    'product_title'=>null,
-                    'del_even'=>null,
-                    'del_category_name'=>null,
-                    'product_price'=>null,
-                    'product_qty'=>null,
-                    'product_owner'=>null,
-                    'discount_title'=>null,
-                    'payable_type'=>null,
-                    'received_info'=>$r_value,
-                ];
-                GeneralLedger::classification_processing($debit, $credit, $tmp);
             }
 
             // 商品
-            $product_account = AllGrade::find($value->ro_product_grade_id) ? AllGrade::find($value->ro_product_grade_id)->eachGrade : null;
-            $account_code = $product_account ? $product_account->code : '4000';
-            $account_name = $product_account ? $product_account->name : '無設定會計科目';
-            $product_name = $account_code . ' - ' . $account_name;
-            foreach(json_decode($value->order_item) as $o_value){
-                $name = $product_name . ' --- ' . $o_value->product_title . '（' . $o_value->price . ' * ' . $o_value->qty . '）';
+            if($value->order_item){
+                $product_account = AllGrade::find($value->ro_product_grade_id) ? AllGrade::find($value->ro_product_grade_id)->eachGrade : null;
+                $account_code = $product_account ? $product_account->code : '4000';
+                $account_name = $product_account ? $product_account->name : '無設定會計科目';
+                $product_name = $account_code . ' ' . $account_name;
+                foreach(json_decode($value->order_item) as $o_value){
+                    $name = $product_name . ' --- ' . $o_value->product_title . '（' . $o_value->price . ' * ' . $o_value->qty . '）';
+                    $product_title = $o_value->product_title;
 
-                $tmp = [
-                    'account_code'=>$account_code,
-                    'name'=>$name,
-                    'price'=>$o_value->origin_price,
-                    'type'=>'r',
-                    'd_type'=>'product',
+                    if($value->ro_source_type == 'ord_received_orders'){
+                        $product_account = AllGrade::find($o_value->all_grades_id) ? AllGrade::find($o_value->all_grades_id)->eachGrade : null;
+                        $account_code = $product_account ? $product_account->code : '4000';
+                        $account_name = $product_account ? $product_account->name : '無設定會計科目';
+                        $product_title = $account_name;
+                    }
 
-                    'account_name'=>$account_name,
-                    'method_name'=>null,
-                    'summary'=>null,
-                    'note'=>null,
-                    'product_title'=>$o_value->product_title,
-                    'del_even'=>null,
-                    'del_category_name'=>null,
-                    'product_price'=>$o_value->price,
-                    'product_qty'=>$o_value->qty,
-                    'product_owner'=>null,
-                    'discount_title'=>null,
-                    'payable_type'=>null,
-                    'received_info'=>null,
-                ];
-                GeneralLedger::classification_processing($debit, $credit, $tmp);
+                    $tmp = [
+                        'account_code'=>$account_code,
+                        'name'=>$name,
+                        'price'=>$o_value->origin_price,
+                        'type'=>'r',
+                        'd_type'=>'product',
+
+                        'account_name'=>$account_name,
+                        'method_name'=>null,
+                        'summary'=>null,
+                        'note'=>null,
+                        'product_title'=>$product_title,
+                        'del_even'=>null,
+                        'del_category_name'=>null,
+                        'product_price'=>$o_value->price,
+                        'product_qty'=>$o_value->qty,
+                        'product_owner'=>null,
+                        'discount_title'=>null,
+                        'payable_type'=>null,
+                        'received_info'=>null,
+                    ];
+                    GeneralLedger::classification_processing($debit, $credit, $tmp);
+                }
             }
 
             // 物流
@@ -252,11 +265,16 @@ abstract class AccountReceivedPapaCtrl extends Controller
         }
         // accounting classification end
 
-        return view('cms.account_management.account_received.list', [
+        $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+
+        $drawee_merged = array_merge($customer, $depot, $supplier);
+        return view('cms.account_management.collection_received.list', [
             'data_per_page' => $page,
             'dataList' => $dataList,
             'cond' => $cond,
-            'customer' => Customer::whereNull('deleted_at')->toBase()->get(),
+            'drawee' => $drawee_merged,
             'check_review_status' => $check_review_status,
         ]);
     }
@@ -492,7 +510,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
         } catch (\Exception $e) {
             DB::rollback();
-            wToast(__('收款單儲存失敗'));
+            wToast(__('收款單儲存失敗', ['type'=>'danger']));
         }
 
 
@@ -691,7 +709,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
                         'account_name'=>$account_name,
                         'method_name'=>null,
                         'summary'=>$value->summary ?? null,
-                        'note'=>$value->note?? null,
+                        'note'=>$value->note ?? null,
                         'product_title'=>$value->product_title,
                         'del_even'=>$value->del_even ?? null,
                         'del_category_name'=>$value->del_category_name ?? null,
@@ -931,7 +949,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
             } catch (\Exception $e) {
                 DB::rollback();
-                wToast(__('摘要/稅別更新失敗'));
+                wToast(__('摘要/稅別更新失敗', ['type'=>'danger']));
             }
 
             return redirect()->route($this->getRouteReceipt(), ['id'=>request('id')]);
@@ -1039,7 +1057,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
             wToast('刪除完成');
 
         } else {
-            wToast('刪除失敗');
+            wToast('刪除失敗', ['type'=>'danger']);
         }
         return redirect()->back();
     }

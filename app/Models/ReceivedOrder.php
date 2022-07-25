@@ -21,7 +21,7 @@ class ReceivedOrder extends Model
 
 
     public static function received_order_list(
-        $customer_id = null,
+        $drawee = null,
         $r_order_sn = null,
         $order_sn = null,
         $r_order_price = null,
@@ -29,8 +29,13 @@ class ReceivedOrder extends Model
         $received_date = null,
         $check_review = 'all'
     ){
-        $received_order = DB::table('ord_received_orders as ro')
-            ->leftJoin('usr_users as user', 'user.id', '=', 'ro.usr_users_id')
+        $received_order = DB::table('ord_received_orders AS ro')
+            ->leftJoin('usr_users AS sales', function($join){
+                $join->on('ro.usr_users_id', '=', 'sales.id');
+                $join->where([
+                    'sales.deleted_at'=>null,
+                ]);
+            })
             ->leftJoin(DB::raw('(
                 SELECT acc_received.received_order_id,
                 MAX(acc_received.created_at) AS received_date,
@@ -48,23 +53,25 @@ class ReceivedOrder extends Model
                         "remit_memo":"\', COALESCE(_remit.memo, ""),\'"
                     }\' ORDER BY acc_received.id), \']\') AS list
                 FROM acc_received
+                LEFT JOIN acc_received_account AS _account ON acc_received.received_method_id = _account.id AND acc_received.received_method = "account_received"
                 LEFT JOIN acc_received_credit AS _credit ON acc_received.received_method_id = _credit.id AND acc_received.received_method = "credit_card"
                 LEFT JOIN acc_received_cheque AS _cheque ON acc_received.received_method_id = _cheque.id AND acc_received.received_method = "cheque"
                 LEFT JOIN acc_received_currency AS _currency ON acc_received.received_method_id = _currency.id AND acc_received.received_method = "foreign_currency"
                 LEFT JOIN acc_received_remit AS _remit ON acc_received.received_method_id = _remit.id AND acc_received.received_method = "remit"
                 GROUP BY acc_received.received_order_id
-                ) AS v_table_1'), function ($join){
-                    $join->on('v_table_1.received_order_id', '=', 'ro.id');
+                ) AS acc_received_table'), function ($join){
+                    $join->on('acc_received_table.received_order_id', '=', 'ro.id');
             })
 
             // order
-            ->leftJoin('ord_orders as order', function ($join) {
+            ->leftJoin('ord_orders AS order', function ($join) {
                 $join->on('ro.source_id', '=', 'order.id');
                 $join->where([
                     'ro.source_type'=>app(Order::class)->getTable(),
+                    'ro.deleted_at'=>null,
                 ]);
             })
-            ->leftJoin('usr_customers as customer', 'customer.email', '=', 'order.email')
+            ->leftJoin('usr_customers AS customer', 'customer.email', '=', 'order.email')
             ->leftJoin(DB::raw('(
                 SELECT order_id,
                 CONCAT(\'[\', GROUP_CONCAT(\'{
@@ -80,8 +87,8 @@ class ReceivedOrder extends Model
                     }\' ORDER BY ord_items.id), \']\') AS item
                 FROM ord_items
                 GROUP BY order_id
-                ) AS v_table_2'), function ($join){
-                    $join->on('v_table_2.order_id', '=', 'order.id');
+                ) AS order_item_table'), function ($join){
+                    $join->on('order_item_table.order_id', '=', 'order.id');
             })
             ->leftJoin(DB::raw('(
                 SELECT order_id,
@@ -100,50 +107,108 @@ class ReceivedOrder extends Model
                 FROM ord_discounts
                 WHERE discount_value IS NOT NULL AND order_type = "main"
                 GROUP BY order_id
-                ) AS v_table_3'), function ($join){
-                    $join->on('v_table_3.order_id', '=', 'order.id');
+                ) AS discounts_table'), function ($join){
+                    $join->on('discounts_table.order_id', '=', 'order.id');
             })
+
+
+            // csn_order
+            ->leftJoin('csn_orders AS csn_order', function ($join) {
+                $join->on('ro.source_id', '=', 'csn_order.id');
+                $join->where([
+                    'ro.source_type'=>app(CsnOrder::class)->getTable(),
+                    'ro.deleted_at'=>null,
+                    'csn_order.deleted_at'=>null,
+                ]);
+            })
+            ->leftJoin('depot', 'depot.id', '=', 'csn_order.depot_id')
+            ->leftJoin(DB::raw('(
+                SELECT csnord_id,
+                CONCAT(\'[\', GROUP_CONCAT(\'{
+                        "product_style_id":"\', product_style_id, \'",
+                        "sku":"\', sku, \'",
+                        "product_title":"\', title, \'",
+                        "price":"\', price, \'",
+                        "qty":"\', num, \'",
+                        "origin_price":"\', price * num, \'"
+                    }\' ORDER BY csn_order_items.id), \']\') AS item
+                FROM csn_order_items
+                GROUP BY csnord_id
+                ) AS csn_order_item_table'), function ($join){
+                    $join->on('csn_order_item_table.csnord_id', '=', 'csn_order.id');
+            })
+
+            // ord_received_orders
+            ->leftJoin(DB::raw('(
+                SELECT _account.append_received_order_id,
+                CONCAT(\'[\', GROUP_CONCAT(\'{
+                        "product_title":"\', "", \'",
+                        "all_grades_id":"\', acc_received.all_grades_id, \'",
+                        "price":"\', _account.amt_net, \'",
+                        "qty":"\', 1, \'",
+                        "origin_price":"\', _account.amt_net * 1, \'"
+                    }\' ORDER BY acc_received.id), \']\') AS item
+                FROM acc_received
+                LEFT JOIN acc_received_account AS _account ON acc_received.received_method_id = _account.id AND acc_received.received_method = "account_received"
+                GROUP BY _account.append_received_order_id
+                ) AS received_account_table'), function ($join){
+                    $join->on('received_account_table.append_received_order_id', '=', 'ro.id');
+            })
+
 
             ->whereNull('ro.deleted_at')
             ->whereColumn([
-                ['ro.price', '=', 'v_table_1.received_price'],
+                ['ro.price', '=', 'acc_received_table.received_price'],
             ])
 
             ->select(
-                'ro.sn as ro_sn',
-                'ro.price as ro_price',// 收款單金額(應收)
-                'ro.logistics_grade_id as ro_logistics_grade_id',
-                'ro.product_grade_id as ro_product_grade_id',
-                'ro.receipt_date as ro_receipt_date',// 收款單入帳審核日期
-                'ro.invoice_number as ro_invoice_number',
+                'ro.source_type AS ro_source_type',
+                'ro.source_id AS ro_source_id',
+                'ro.sn AS ro_sn',
+                'ro.price AS ro_price',// 收款單金額(應收)
+                'ro.logistics_grade_id AS ro_logistics_grade_id',
+                'ro.product_grade_id AS ro_product_grade_id',
+                'ro.receipt_date AS ro_receipt_date',// 收款單入帳審核日期
+                'ro.invoice_number AS ro_invoice_number',
+                'ro.drawee_id AS ro_target_id',
+                'ro.drawee_name AS ro_target_name',
+                'ro.drawee_phone AS ro_target_phone',
+                'ro.drawee_address AS ro_target_address',
 
-                'order.id as order_id',
-                'order.sn as order_sn',
-                'order.dlv_fee as order_dlv_fee',
-                'order.origin_price as order_origin_price',
-                'order.total_price as order_total_price',
-                'order.discount_value as order_discount_value',
-                'order.discounted_price as order_discounted_price',
+                'order.dlv_fee AS order_dlv_fee',
+                'order.origin_price AS order_origin_price',
+                'order.total_price AS order_total_price',
+                'order.discount_value AS order_discount_value',
+                'order.discounted_price AS order_discounted_price',
 
-                'user.name as creator',
+                'sales.name AS creator',
 
-                'v_table_1.list as received_list',
-                'v_table_1.received_date as received_date',// 收款單完成收款日期
-                'v_table_1.received_price as received_price',// 收款單金額(實收)
-                'v_table_2.item as order_item',
-                'v_table_3.discount_list as order_discount',
+                'acc_received_table.list AS received_list',
+                'acc_received_table.received_date AS received_date',// 收款單完成收款日期
+                'acc_received_table.received_price AS received_price',// 收款單金額(實收)
 
-                'customer.id as customer_id',
-                'customer.name as customer_name',
-                'customer.email as customer_email',
+                'discounts_table.discount_list AS order_discount',
             )
-            ->selectRaw('DATE_FORMAT(order.created_at, "%Y-%m-%d") as order_date');
 
-        if ($customer_id) {
-            if (gettype($customer_id) == 'array') {
-                $received_order->whereIn('customer.id', $customer_id);
-            } else {
-                $received_order->where('customer.id', $customer_id);
+            ->selectRaw('
+                CASE
+                    WHEN ro.source_type = "ord_orders" THEN order.sn
+                    WHEN ro.source_type = "csn_orders" THEN csn_order.sn
+                END AS order_sn
+            ')
+            ->selectRaw('
+                CASE
+                    WHEN ro.source_type = "ord_orders" THEN order_item_table.item
+                    WHEN ro.source_type = "csn_orders" THEN csn_order_item_table.item
+                    WHEN ro.source_type = "ord_received_orders" THEN received_account_table.item
+                END AS order_item
+            ');
+
+        if ($drawee) {
+            if (gettype($drawee) == 'array') {
+                $received_order->where([
+                        'ro.drawee_id'=>$drawee['id'],
+                    ])->where('ro.drawee_name', 'like', "%{$drawee['name']}%");
             }
         }
 
@@ -155,7 +220,8 @@ class ReceivedOrder extends Model
 
         if ($order_sn) {
             $received_order->where(function ($query) use ($order_sn) {
-                $query->where('order.sn', 'like', "%{$order_sn}%");
+                $query->where('order.sn', 'like', "%{$order_sn}%")
+                    ->orWhere('csn_order.sn', 'like', "%{$order_sn}%");
             });
         }
 
@@ -208,12 +274,28 @@ class ReceivedOrder extends Model
     }
 
 
-    public static function create_received_order($source_type, $source_id)
+    public static function create_received_order($source_type, $source_id, $price = 0, $received_order_id = null)
     {
+        $logistics_grade_id = ReceivedDefault::where('name', 'logistics')->first() ? ReceivedDefault::where('name', 'logistics')->first()->default_grade_id : 0;
+        $product_grade_id = ReceivedDefault::where('name', 'product')->first() ? ReceivedDefault::where('name', 'product')->first()->default_grade_id : 0;
+
         if($source_type == app(Order::class)->getTable()){
             $order_data = Order::findOrFail($source_id);
-            $logistics_grade_id = ReceivedDefault::where('name', 'logistics')->first() ? ReceivedDefault::where('name', 'logistics')->first()->default_grade_id : 0;
-            $product_grade_id = ReceivedDefault::where('name', 'product')->first() ? ReceivedDefault::where('name', 'product')->first()->default_grade_id : 0;
+            $purchaser = Customer::leftJoin('usr_customers_address AS customer_add', function ($join) {
+                    $join->on('usr_customers.id', '=', 'customer_add.usr_customers_id_fk');
+                    $join->where([
+                        'customer_add.is_default_addr'=>1,
+                    ]);
+                })->where([
+                    'email'=>$order_data->email,
+                    // 'deleted_at'=>null,
+                ])->select(
+                    'usr_customers.id',
+                    'usr_customers.name',
+                    'usr_customers.phone AS phone',
+                    'usr_customers.email',
+                    'customer_add.address AS address'
+                )->first();
 
             $re = self::create([
                 'source_type'=>$source_type,
@@ -225,6 +307,10 @@ class ReceivedOrder extends Model
                 // 'rate'=>1,
                 'logistics_grade_id'=>$logistics_grade_id,
                 'product_grade_id'=>$product_grade_id,
+                'drawee_id'=>$purchaser->id,
+                'drawee_name'=>$purchaser->name,
+                'drawee_phone'=>$purchaser->phone,
+                'drawee_address'=>$purchaser->address,
                 // 'created_at'=>date("Y-m-d H:i:s"),
             ]);
 
@@ -234,17 +320,24 @@ class ReceivedOrder extends Model
             }
 
             return $re;
+
         } else if($source_type == app(CsnOrder::class)->getTable()){
             $order_data = CsnOrder::findOrFail($source_id);
             $list_data = CsnOrderItem::where('csnord_id', '=', $order_data->id)
                 ->whereNull('deleted_at')
                 ->select(
-                    DB::raw('sum(price * num) as total_price')
+                    DB::raw('sum(price * num) AS total_price')
                 )
                 ->first();
 
-            $logistics_grade_id = ReceivedDefault::where('name', 'logistics')->first() ? ReceivedDefault::where('name', 'logistics')->first()->default_grade_id : 0;
-            $product_grade_id = ReceivedDefault::where('name', 'product')->first() ? ReceivedDefault::where('name', 'product')->first()->default_grade_id : 0;
+            $purchaser = Depot::where('id', '=', $order_data->depot_id)
+                ->select(
+                    'depot.id',
+                    'depot.name',
+                    'depot.tel AS phone',
+                    'depot.address AS address'
+                )
+                ->first();
 
             $re = self::create([
                 'source_type'=>$source_type,
@@ -256,6 +349,10 @@ class ReceivedOrder extends Model
                 // 'rate'=>1,
                 'logistics_grade_id'=>$logistics_grade_id,
                 'product_grade_id'=>$product_grade_id,
+                'drawee_id'=>$purchaser->id,
+                'drawee_name'=>$purchaser->name,
+                'drawee_phone'=>$purchaser->phone,
+                'drawee_address'=>$purchaser->address,
                 // 'created_at'=>date("Y-m-d H:i:s"),
             ]);
 
@@ -266,8 +363,44 @@ class ReceivedOrder extends Model
 
             return $re;
 
-        } else {
+        } else if($source_type == app(RequestOrder::class)->getTable()){
+            $request_order = RequestOrder::find($source_id);
 
+            $re = self::create([
+                'source_type'=>$source_type,
+                'source_id'=>$source_id,
+                'usr_users_id'=>auth('user')->user() ? auth('user')->user()->id : null,
+                'sn'=>'MSG' . date('ymd') . str_pad( count(self::whereDate('created_at', '=', date('Y-m-d'))->withTrashed()->get()) + 1, 4, '0', STR_PAD_LEFT),
+                'price'=>$price,
+                'logistics_grade_id'=>$logistics_grade_id,
+                'product_grade_id'=>$product_grade_id,
+                'drawee_id'=>$request_order->client_id,
+                'drawee_name'=>$request_order->client_name,
+                'drawee_phone'=>$request_order->client_phone,
+                'drawee_address'=>$request_order->client_address,
+            ]);
+
+            return $re;
+
+        } else if($source_type == app(self::class)->getTable()){
+
+            $purchaser = self::find($received_order_id);
+
+            $re = self::create([
+                'source_type'=>$source_type,
+                'source_id'=>$source_id,
+                'usr_users_id'=>auth('user')->user() ? auth('user')->user()->id : null,
+                'sn'=>'MSG' . date('ymd') . str_pad( count(self::whereDate('created_at', '=', date('Y-m-d'))->withTrashed()->get()) + 1, 4, '0', STR_PAD_LEFT),
+                'price'=>$price,
+                'logistics_grade_id'=>$logistics_grade_id,
+                'product_grade_id'=>$product_grade_id,
+                'drawee_id'=>$purchaser->drawee_id,
+                'drawee_name'=>$purchaser->drawee_name,
+                'drawee_phone'=>$purchaser->drawee_phone,
+                'drawee_address'=>$purchaser->drawee_address,
+            ]);
+
+            return $re;
         }
     }
 
@@ -317,6 +450,7 @@ class ReceivedOrder extends Model
                 $r_method['value'] = implode(',', $r_method_arr);
                 $r_method['description'] = implode(',', $r_method_title_arr);
                 Order::change_order_payment_status($received_order->source_id, PaymentStatus::Received(), (object) $r_method);
+
             } else if($received_order->source_type == app(CsnOrder::class)->getTable()){
                 CsnOrderFlow::changeOrderStatus($received_order->source_id, OrderStatus::Paided());
                 // Order::change_order_payment_status($received_order->source_id, PaymentStatus::Received(), ReceivedMethod::fromValue($received_method));
@@ -404,7 +538,12 @@ class ReceivedOrder extends Model
                 ]);
                 break;
 
-            // case ReceivedMethod::AccountsReceivable:
+            case ReceivedMethod::AccountsReceivable:
+                $id = DB::table('acc_received_account')->insertGetId([
+                    'status_code'=>0,
+                    'created_at'=>date("Y-m-d H:i:s"),
+                ]);
+                break;
 
             // case ReceivedMethod::Other:
 
@@ -508,6 +647,12 @@ class ReceivedOrder extends Model
     public static function get_received_detail($received_order_id = null, string $method = null)
     {
         $query = DB::table('acc_received AS received')
+            ->leftJoin('ord_received_orders AS ro', function($join){
+                $join->on('ro.id', '=', 'received.received_order_id');
+                $join->where([
+                    'ro.deleted_at'=>null,
+                ]);
+            })
             ->leftJoin('acc_received_credit AS _credit', function($join){
                 $join->on('received.received_method_id', '=', '_credit.id');
                 $join->where([
@@ -532,6 +677,12 @@ class ReceivedOrder extends Model
                     'received.received_method'=>'remit',
                 ]);
             })
+            ->leftJoin('acc_received_account AS _account', function($join){
+                $join->on('received.received_method_id', '=', '_account.id');
+                $join->where([
+                    'received.received_method'=>'account_received',
+                ]);
+            })
 
             ->where(function ($q) use ($received_order_id, $method) {
                 if(gettype($received_order_id) == 'array') {
@@ -546,6 +697,8 @@ class ReceivedOrder extends Model
             })
 
             ->selectRaw('
+                ro.sn AS ro_sn,
+
                 received.id AS received_id,
                 received.received_order_id,
                 received.received_method,
@@ -592,6 +745,12 @@ class ReceivedOrder extends Model
             ->selectRaw('
                 _remit.remittance AS remit_remittance,
                 _remit.memo AS remit_memo
+            ')
+
+            ->selectRaw('
+                _account.status_code AS account_status_code,
+                _account.amt_net AS account_amt_net,
+                _account.posting_date AS account_posting_date
             ')
             ->get();
 
@@ -665,5 +824,211 @@ class ReceivedOrder extends Model
         }
 
         return $income_order;
+    }
+
+
+    public static function get_account_received_list(
+        $received_account_id = null,
+        $account_status_code = null,
+        $sn = null,
+
+        $account_received_grade_id = null,
+        $authamt_price = null,
+        $ro_created_date = null,
+        $ro_target = null
+    ){
+        $query = DB::table('acc_received AS received')
+            ->join('ord_received_orders AS ro', function($join){
+                $join->on('received.received_order_id', '=', 'ro.id');
+                $join->where([
+                    'ro.deleted_at'=>null,
+                ]);
+            })
+            ->leftJoin('usr_users AS sales', function($join){
+                $join->on('ro.usr_users_id', '=', 'sales.id');
+                $join->where([
+                    'sales.deleted_at'=>null,
+                ]);
+            })
+
+            // order
+            ->leftJoin('ord_orders AS order', function ($join) {
+                $join->on('ro.source_id', '=', 'order.id');
+                $join->where([
+                    'ro.source_type'=>app(Order::class)->getTable(),
+                    'ro.deleted_at'=>null,
+                ]);
+            })
+            ->leftJoin('usr_customers AS customer', 'customer.email', '=', 'order.email')
+            ->leftJoin('usr_customers_address AS customer_add', function ($join) {
+                $join->on('customer.id', '=', 'customer_add.usr_customers_id_fk');
+                $join->where([
+                    'customer_add.is_default_addr'=>1,
+                ]);
+            })
+
+            // csn_order
+            ->leftJoin('csn_orders AS csn_order', function ($join) {
+                $join->on('ro.source_id', '=', 'csn_order.id');
+                $join->where([
+                    'ro.source_type'=>app(CsnOrder::class)->getTable(),
+                    'ro.deleted_at'=>null,
+                    'csn_order.deleted_at'=>null,
+                ]);
+            })
+            ->leftJoin('depot', 'depot.id', '=', 'csn_order.depot_id')
+
+            ->join('acc_received_account AS _account', function($join){
+                $join->on('received.received_method_id', '=', '_account.id');
+                $join->where([
+                    'received.received_method'=>'account_received',
+                ]);
+            })
+            ->leftJoinSub(GeneralLedger::getAllGrade(), 'all_grade', function($join) {
+                $join->on('all_grade.primary_id', 'received.all_grades_id');
+            })
+            ->leftJoin('ord_received_orders AS append_ro', function($join){
+                $join->on('_account.append_received_order_id', '=', 'append_ro.id');
+            })
+
+            ->where([
+                //
+            ])
+            ->selectRaw('
+                ro.id AS ro_id,
+                ro.source_type AS ro_source_type,
+                ro.source_id AS ro_source_id,
+                ro.sn AS ro_sn,
+                sales.name AS ro_sales,
+                ro.drawee_id AS ro_target_id,
+                ro.drawee_name AS ro_target_name,
+                ro.drawee_phone AS ro_target_phone,
+                ro.drawee_address AS ro_target_address,
+                ro.created_at AS ro_created,
+
+                received.id AS received_id,
+                received.received_method,
+                received.received_method_id,
+                received.all_grades_id AS ro_received_grade_id,
+                received.tw_price,
+                received.accountant_id_fk,
+                received.taxation,
+                received.summary,
+                received.note,
+
+                all_grade.code AS ro_received_grade_code,
+                all_grade.name AS ro_received_grade_name,
+
+                _account.id AS account_received_id,
+                _account.status_code AS account_status_code,
+                _account.amt_net AS account_amt_net,
+                _account.posting_date AS account_posting_date,
+
+                append_ro.id AS append_ro_id,
+                append_ro.source_type AS append_ro_source_type,
+                append_ro.source_id AS append_ro_source_id,
+                append_ro.sn AS append_ro_sn
+            ')
+            ->orderBy('_account.id', 'asc');
+
+        if($received_account_id) {
+            if(gettype($received_account_id) == 'array') {
+                $query->whereIn('_account.id', $received_account_id);
+            } else {
+                $query->where('_account.id', $received_account_id);
+            }
+        }
+
+        if($account_status_code !== null){
+            $query->where('_account.status_code', $account_status_code);
+        }
+
+        if($sn){
+            $query->where('ro.sn', 'like', "%{$sn}%")
+                ->orWhere('append_ro.sn', 'like', "%{$sn}%");
+        }
+
+        if($account_received_grade_id) {
+            if(gettype($account_received_grade_id) == 'array') {
+                $query->whereIn('received.all_grades_id', $account_received_grade_id);
+            } else {
+                $query->where('received.all_grades_id', $account_received_grade_id);
+            }
+        }
+
+        if($authamt_price) {
+            if (gettype($authamt_price) == 'array' && count($authamt_price) == 2) {
+                $min_price = $authamt_price[0] ?? null;
+                $max_price = $authamt_price[1] ?? null;
+                if($min_price){
+                    $query->where('_account.amt_net', '>=', $min_price);
+                }
+                if($max_price){
+                    $query->where('_account.amt_net', '<=', $max_price);
+                }
+            }
+        }
+
+        if($ro_created_date){
+            $s_ro_created_date = $ro_created_date[0] ? date('Y-m-d', strtotime($ro_created_date[0])) : null;
+            $e_ro_created_date = $ro_created_date[1] ? date('Y-m-d', strtotime($ro_created_date[1] . ' +1 day')) : null;
+
+            if($s_ro_created_date){
+                $query->where('ro.created_at', '>=', $s_ro_created_date);
+            }
+            if($e_ro_created_date){
+                $query->where('ro.created_at', '<', $e_ro_created_date);
+            }
+        }
+
+        if($ro_target && gettype($ro_target) == 'array') {
+            $target_id = $ro_target[0];
+            $target_name = $ro_target[1];
+
+            // $query->where(function ($q1) use ($target_id, $target_name) {
+            //     $q1->where([
+            //         'customer.id'=>$target_id,
+            //         'customer.name'=>$target_name,
+            //     ])->orWhere(function ($q2) use ($target_id, $target_name) {
+            //         $q2->where([
+            //             'depot.id'=>$target_id,
+            //             'depot.name'=>$target_name,
+            //         ]);
+            //     });
+            // });
+
+            $query->where([
+                'ro.drawee_id'=>$target_id,
+                'ro.drawee_name'=>$target_name,
+            ]);
+        }
+
+        return $query;
+    }
+
+
+    public static function update_account_received_method($request)
+    {
+        if($request['status_code'] == 0){
+            foreach($request['account_received_id'] as $key => $value){
+                DB::table('acc_received_account')->where('id', $value)->update([
+                    'status_code'=>0,
+                    'append_received_order_id'=>$request['append_received_order_id'],
+                    'sn'=>$request['sn'],
+                    'amt_net'=>$request['amt_net'][$key],
+                    'posting_date'=>null,
+                    'updated_at'=>date("Y-m-d H:i:s"),
+                ]);
+            }
+
+        } else if($request['status_code'] == 1){
+            DB::table('acc_received_account')->whereIn('id', $request['account_received_id'])->update([
+                'status_code'=>1,
+                'append_received_order_id'=>$request['append_received_order_id'],
+                'sn'=>$request['sn'],
+                'posting_date'=>date("Y-m-d H:i:s"),
+                'updated_at'=>date("Y-m-d H:i:s"),
+            ]);
+        }
     }
 }
