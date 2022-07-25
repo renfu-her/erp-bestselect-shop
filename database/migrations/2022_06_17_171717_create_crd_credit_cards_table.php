@@ -46,6 +46,11 @@ class CreateCrdCreditCardsTable extends Migration
      */
     public function down()
     {
+        Schema::table('crd_percent_bank_credit', function (Blueprint $table)
+        {
+            $table->dropForeign('crd_percent_bank_credit_bank_fk_foreign');
+            $table->dropForeign('crd_percent_bank_credit_credit_fk_foreign');
+        });
         Schema::dropIfExists('crd_credit_cards');
         Schema::dropIfExists('crd_banks');
         Schema::dropIfExists('crd_percent_bank_credit');

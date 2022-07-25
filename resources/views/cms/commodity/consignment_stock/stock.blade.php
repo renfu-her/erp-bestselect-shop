@@ -51,6 +51,8 @@
                         <th scope="col">寄倉數量</th>
                         <th scope="col">已銷售數量</th>
                         <th scope="col">耗材消耗數量</th>
+                        <th scope="col">退貨數量</th>
+                        <th scope="col">報廢數量</th>
                         <th scope="col">剩餘數量</th>
                     </tr>
                     </thead>
@@ -72,6 +74,8 @@
                                 <td>{{ $data->inbound_num }}</td>
                                 <td>{{ $data->sale_num }}</td>
                                 <td>{{ $data->consume_num }}</td>
+                                <td>{{ $data->back_num }}</td>
+                                <td>{{ $data->scrap_num }}</td>
                                 <td>{{ $data->available_num }}</td>
 
                             </tr>

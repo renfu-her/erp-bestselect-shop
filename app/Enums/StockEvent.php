@@ -18,6 +18,7 @@ final class StockEvent extends Enum
     const inbound_del = 'inbound_del';
     const consignment = 'consignment';
     const consume = 'consume';
+    const send_back = 'send_back';
 
     public static function getDescription($value): string
     {
@@ -43,6 +44,9 @@ final class StockEvent extends Enum
                 break;
             case self::consume:
                 $result = '耗材';
+                break;
+            case self::send_back:
+                $result = '退回';
                 break;
             default:
                 $result = parent::getDescription($value);

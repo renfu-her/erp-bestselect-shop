@@ -339,6 +339,10 @@ Breadcrumbs::for('cms.consignment-stock.stock_detail_log', function (BreadcrumbT
 });
 
 // *** 共用頁 *** //
+Breadcrumbs::for('cms.logistic.changeLogisticStatus', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.' . $value['parent'] . '.index');
+    $trail->push('#' . $value['sn'] . ' 配送狀態');
+});
 Breadcrumbs::for('cms.delivery.create', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.' . $value['parent'] . '.index');
     $trail->push('#' . $value['sn'] . ' 出貨審核');
@@ -347,10 +351,17 @@ Breadcrumbs::for('cms.logistic.create', function (BreadcrumbTrail $trail, $value
     $trail->parent('cms.' . $value['parent'] . '.index');
     $trail->push('#' . $value['sn'] . ' 實際物流設定');
 });
-
-Breadcrumbs::for('cms.logistic.changeLogisticStatus', function (BreadcrumbTrail $trail, $value) {
+Breadcrumbs::for('cms.delivery.back', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.' . $value['parent'] . '.index');
-    $trail->push('#' . $value['sn'] . ' 配送狀態');
+    $trail->push('#' . $value['sn'] . ' 退貨');
+});
+Breadcrumbs::for('cms.delivery.back_inbound', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.' . $value['parent'] . '.index');
+    $trail->push('#' . $value['sn'] . ' 退貨入庫審核');
+});
+Breadcrumbs::for('cms.delivery.back_detail', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.' . $value['parent'] . '.index');
+    $trail->push('#' . $value['sn'] . ' 銷貨退回明細');
 });
 
 /**
@@ -586,6 +597,20 @@ Breadcrumbs::for('cms.navinode.edit', function ($trail, $value) {
     $trail->parent('cms.navinode.index', []);
     $trail->push('編輯');
     // $trail->push($value['title']);
+});
+
+// 自訂頁面管理
+Breadcrumbs::for('cms.custom-pages.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('自訂頁面管理', route('cms.custom-pages.index'));
+});
+Breadcrumbs::for('cms.custom-pages.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.custom-pages.index');
+    $trail->push('新增');
+});
+Breadcrumbs::for('cms.custom-pages.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.custom-pages.index');
+    $trail->push('編輯');
 });
 
 /**

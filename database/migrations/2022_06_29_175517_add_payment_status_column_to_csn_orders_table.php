@@ -47,6 +47,6 @@ class AddPaymentStatusColumnToCsnOrdersTable extends Migration
             $table->dropColumn('payment_method');
             $table->dropColumn('payment_method_title');
         });
-        Schema::dropIfExists('ord_order_flow');
+        Schema::dropIfExists('csn_order_flow');
     }
 }

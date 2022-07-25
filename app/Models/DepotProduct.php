@@ -171,7 +171,10 @@ class DepotProduct extends Model
                 , DB::raw('ifnull(inbound.depot_name, "") as depot_name')  //入庫倉庫名稱
                 , DB::raw('ifnull(inbound.inbound_num, 0) as inbound_num')
                 , DB::raw('ifnull(inbound.sale_num, 0) as sale_num')
+                , DB::raw('ifnull(inbound.csn_num, 0) as csn_num')
                 , DB::raw('ifnull(inbound.consume_num, 0) as consume_num')
+                , DB::raw('ifnull(inbound.back_num, 0) as back_num')
+                , DB::raw('ifnull(inbound.scrap_num, 0) as scrap_num')
                 , DB::raw('ifnull(inbound.available_num, 0) as available_num')
                 , DB::raw('ifnull(inbound.prd_type, "") as prd_type')
             )

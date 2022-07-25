@@ -19,6 +19,7 @@ class OrderItem extends Model
         $query_combo = DB::table('prd_style_combos')
             ->leftJoin('prd_product_styles', 'prd_product_styles.id', '=', 'prd_style_combos.product_style_child_id')
             ->select('prd_style_combos.product_style_id'
+                , 'prd_style_combos.product_style_child_id'
                 , 'prd_style_combos.qty'
                 , 'prd_product_styles.id'
                 , 'prd_product_styles.product_id'
@@ -38,6 +39,7 @@ class OrderItem extends Model
                 , 'ord_items.sub_order_id AS sub_order_id'
                 , 'ord_items.product_title AS combo_product_title'
                 , DB::raw('@tb_combo.type:="c" as prd_type')
+                , 'tb_combo.product_style_id AS papa_product_style_id'
                 , 'tb_combo.id AS product_style_id'
                 , 'tb_combo.product_id'
                 , 'tb_combo.sku'
@@ -58,6 +60,7 @@ class OrderItem extends Model
                 , 'ord_items.sub_order_id AS sub_order_id'
                 , 'ord_items.product_title'
                 , 'prd_product_styles.type as prd_type'
+                , DB::raw('null as papa_product_style_id')
                 , 'prd_product_styles.id  AS product_style_id'
                 , 'prd_product_styles.product_id'
                 , 'prd_product_styles.sku'

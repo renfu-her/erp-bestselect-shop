@@ -13,6 +13,7 @@ use App\Models\AllGrade;
 use App\Models\Customer;
 use App\Models\CustomerDividend;
 use App\Models\CustomerProfit;
+use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\Discount;
 use App\Models\Order;
@@ -351,6 +352,11 @@ class OrderCtrl extends Controller
         }
         $remit = OrderRemit::getData($order->id)->get()->first();
 
+        $delivery = null;
+        if (isset($subOrderId)) {
+            $delivery = Delivery::where('event', Event::order()->value)->where('event_id', $subOrderId)->first();
+        }
+
         $sn = $order->sn;
 
         $receivable = false;
@@ -393,6 +399,8 @@ class OrderCtrl extends Controller
             'received_order_data' => $received_order_data,
             'received_credit_card_log' => $received_credit_card_log,
             'dividend' => $dividend,
+            'canCancel' => Order::checkCanCancel($id),
+            'delivery' => $delivery,
         ]);
     }
 
@@ -629,7 +637,6 @@ class OrderCtrl extends Controller
             if (!$paying_order) {
                 $sub_order = Order::subOrderDetail($id, $sid, true)->get()->toArray()[0];
                 $supplier = Supplier::find($sub_order->supplier_id);
-
                 $price = $sub_order->logistic_cost;
                 $product_grade = PayableDefault::where('name', '=', 'product')->first()->default_grade_id;
                 $logistics_grade = PayableDefault::where('name', '=', 'logistics')->first()->default_grade_id;
@@ -916,17 +923,13 @@ class OrderCtrl extends Controller
         $request->merge([
             'id' => $id,
         ]);
-
         $request->validate([
             'id' => 'required|exists:ord_order_invoice,id',
         ]);
-
         $inv_result = OrderInvoice::invoice_issue_api($id);
         wToast(__($inv_result->r_msg));
-
         return redirect()->back();
     }
-
     // 獎金毛利
     public function bonus_gross(Request $request, $id)
     {
@@ -997,4 +1000,16 @@ class OrderCtrl extends Controller
         return redirect()->back();
     }
 
+    // 取消訂單
+    public function cancel_order(Request $request, $id){
+
+
+        Order::cancelOrder($id);
+
+        wToast('訂單已經取消');
+
+        return redirect()->back();
+    }
+
 }
+

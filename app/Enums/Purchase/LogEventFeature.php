@@ -32,6 +32,7 @@ final class LogEventFeature extends Enum
 
     const delivery = 'delivery';
     const send_back = 'send_back';
+    const send_back_cancle = 'send_back_cancle';
     const consume_delivery = 'consume_delivery';
     const consume_send_back = 'consume_send_back';
 
@@ -97,6 +98,9 @@ final class LogEventFeature extends Enum
                 break;
             case self::send_back:
                 $result = '退回';
+                break;
+            case self::send_back_cancle:
+                $result = '取消退回';
                 break;
             case self::consume_send_back:
                 $result = '耗材退回';
