@@ -114,7 +114,7 @@ class AccountReceivedCtrl extends Controller
                 $account_received_id = current(request('account_received_id'));
                 $received = DB::table('acc_received')->where([
                     'received_method'=>'account_received',
-                    'id'=>$account_received_id
+                    'received_method_id'=>$account_received_id
                 ])->first();
 
                 $received_order = ReceivedOrder::create_received_order($source_type, $n_id, array_sum(request('amt_net')), $received->received_order_id);
