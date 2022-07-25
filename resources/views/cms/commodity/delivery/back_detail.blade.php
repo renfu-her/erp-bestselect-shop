@@ -75,7 +75,7 @@
             </div>
             <div class="col">
                 <dt>發票日期</dt>
-                <dd>{{ $orderInvoice->created_at ? date('Y/m/d', strtotime($orderInvoice->created_at)) : '' }}</dd>
+                <dd>{{ (isset($orderInvoice) && $orderInvoice->created_at) ? date('Y/m/d', strtotime($orderInvoice->created_at)) : '' }}</dd>
             </div>
             <div class="col">
                 <dt>課稅別</dt>
@@ -158,7 +158,7 @@
         </div>
     </div>
 
-    @if (null != $ord_items_arr)
+    @if (null != $ord_items_arr && 0 < count($ord_items_arr))
     <div class="card shadow p-4 mb-4">
         <h6>退回入庫清單</h6>
         @foreach ($ord_items_arr as $key => $ord)
