@@ -31,6 +31,7 @@ Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
 
     Route::post('change-bonus-owner/{id}', [OrderCtrl::class, 'change_bonus_owner'])->name('change-bonus-owner');
 
-    
+    Route::get('cancel-order/{id}', [OrderCtrl::class, 'cancel_order'])->name('cancel-order');
+
 
 });

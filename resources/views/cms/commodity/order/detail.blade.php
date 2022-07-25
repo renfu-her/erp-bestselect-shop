@@ -44,6 +44,10 @@
             @endif
 
             <a href="#" role="button" class="btn btn-outline-success btn-sm my-1 ms-1">訂單完成（暫放）</a>
+            @if ($canCancel)
+                <a href="{{ Route('cms.order.cancel-order', ['id' => $order->id]) }}" role="button" class="btn btn-outline-danger btn-sm my-1 ms-1">取消訂單</a>
+            @endif
+
         </div>
     </nav>
 
