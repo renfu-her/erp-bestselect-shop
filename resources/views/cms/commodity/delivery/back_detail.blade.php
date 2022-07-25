@@ -159,7 +159,13 @@
     </div>
 
     <div class="col-auto">
-        <a href="#" class="btn btn-outline-primary px-4" role="button">返回明細</a>
+        @if($delivery->event == App\Enums\Delivery\Event::order()->value)
+            <a href="{{ Route('cms.order.detail', ['id' => $order->id, 'subOrderId' => $delivery->event_id ]) }}" class="btn btn-outline-primary px-4" role="button">返回明細</a>
+        @elseif($delivery->event == App\Enums\Delivery\Event::consignment()->value)
+            <a href="{{ Route('cms.consignment.edit', ['id' => $delivery->event_id ]) }}" class="btn btn-outline-primary px-4" role="button">返回明細</a>
+        @elseif($delivery->event == App\Enums\Delivery\Event::csn_order()->value)
+            <a href="{{ Route('cms.consignment-order.edit', ['id' => $delivery->event_id ]) }}" class="btn btn-outline-primary px-4" role="button">返回明細</a>
+        @endif
     </div>
 
 @endsection
