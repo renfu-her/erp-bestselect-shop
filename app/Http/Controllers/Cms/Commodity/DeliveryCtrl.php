@@ -389,6 +389,22 @@ class DeliveryCtrl extends Controller
             )
             ->where('lgt_tb.delivery_id', '=', $delivery->id)
             ->first();
+        $ord_items_arr = ReceiveDepot::getRcvDepotBackQty($delivery->id, $delivery->event, $delivery->event_id);
+        if (isset($ord_items_arr) && 0 < count($ord_items_arr)) {
+            foreach ($ord_items_arr as $key => $ord_item) {
+                if (isset($ord_item->receive_depot) && 0 < count($ord_item->receive_depot)) {
+                    foreach ($ord_item->receive_depot as $key_rcv_depot => $rcv_depot) {
+                        if (0 == ($rcv_depot->back_qty)) {
+                            unset($ord_item->receive_depot[$key_rcv_depot]);
+                        }
+                    }
+                }
+                if (isset($ord_item->receive_depot) && 0 == count($ord_item->receive_depot)) {
+                    unset($ord_items_arr[$key]);
+                }
+            }
+        }
+
         $rsp_arr['logistic'] = $logistic;
 
         $rsp_arr['event'] = $event;
@@ -396,6 +412,7 @@ class DeliveryCtrl extends Controller
         $rsp_arr['delivery_id'] = $delivery->id;
         $rsp_arr['sn'] = $delivery->sn;
         $rsp_arr['dlvBack'] = $dlvBack;
+        $rsp_arr['ord_items_arr'] = $ord_items_arr;
         $rsp_arr['breadcrumb_data'] = ['sn' => $delivery->event_sn, 'parent' => $event ];
         return view('cms.commodity.delivery.back_detail', $rsp_arr);
     }
