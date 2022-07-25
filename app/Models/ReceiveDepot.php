@@ -846,4 +846,34 @@ class ReceiveDepot extends Model
         return $rcv_repot_combo;
     }
 
+    //找已退貨數量
+    public static function getRcvDepotBackQty($delivery_id, $event, $event_id) {
+        $ord_items_arr = null;
+        $rcv_repot_combo = ReceiveDepot::getRcvDepotToBackQty($delivery_id);
+        if(Event::order()->value == $event) {
+            $ord_items_arr = ReceiveDepot::getOrderShipItemWithDeliveryWithReceiveDepotList($event, $event_id, $delivery_id);
+        } else if(Event::consignment()->value == $event) {
+            $ord_items_arr = ReceiveDepot::getCSNShipItemWithDeliveryWithReceiveDepotList($event, $event_id, $delivery_id);
+        } else if(Event::csn_order()->value == $event) {
+            $ord_items_arr = ReceiveDepot::getCSNOrderShipItemWithDeliveryWithReceiveDepotList($event, $event_id, $delivery_id);
+        }
+        if (isset($ord_items_arr) && 0 < count($ord_items_arr) && isset($rcv_repot_combo) && 0 < count($rcv_repot_combo)) {
+            //出貨商品
+            for ($num_item = 0; $num_item < count($ord_items_arr); $num_item++) {
+                //組合包元素
+                for ($num_combo = 0; $num_combo < count($rcv_repot_combo); $num_combo++) {
+//                    dd($sub_order, $ord_items_arr[0], $rcv_repot_combo);
+                    if ($ord_items_arr[$num_item]->prd_type == 'c'
+                        && $ord_items_arr[$num_item]->papa_product_style_id == $rcv_repot_combo[$num_combo]->product_style_id
+                        && $ord_items_arr[$num_item]->product_style_id == $rcv_repot_combo[$num_combo]->product_style_child_id
+                    ) {
+                        $ord_items_arr[$num_item]->total_to_back_qty = $rcv_repot_combo[$num_combo]->to_back_qty * $rcv_repot_combo[$num_combo]->unit_qty;
+                    } else if ($ord_items_arr[$num_item]->prd_type == 'p' && null == $ord_items_arr[$num_item]->papa_product_style_id) {
+                        $ord_items_arr[$num_item]->total_to_back_qty = $rcv_repot_combo[$num_combo]->to_back_qty;
+                    }
+                }
+            }
+        }
+        return $ord_items_arr;
+    }
 }

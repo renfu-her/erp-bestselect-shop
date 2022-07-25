@@ -411,42 +411,20 @@ class DeliveryCtrl extends Controller
         $delivery_id = $delivery->id;
         $event_sn = $delivery->event_sn;
 
-        $rcv_repot_combo = ReceiveDepot::getRcvDepotToBackQty($delivery_id);
-
-        $event_sn = '';
         if(Event::order()->value == $event) {
             $sub_order = SubOrders::getListWithShiGroupById($eventId)->get()->first();
             if (null == $sub_order) {
                 return abort(404);
             }
             $rsp_arr['order_id'] = $sub_order->order_id;
-            $ord_items_arr = ReceiveDepot::getOrderShipItemWithDeliveryWithReceiveDepotList($event, $eventId, $delivery_id);
         } else if(Event::consignment()->value == $event) {
-            $ord_items_arr = ReceiveDepot::getCSNShipItemWithDeliveryWithReceiveDepotList($event, $eventId, $delivery_id);
             $consignment = Consignment::where('id', $delivery->event_id)->get()->first();
             $rsp_arr['depot_id'] = $consignment->send_depot_id;
         } else if(Event::csn_order()->value == $event) {
-            $ord_items_arr = ReceiveDepot::getCSNOrderShipItemWithDeliveryWithReceiveDepotList($event, $eventId, $delivery_id);
             $csn_order = CsnOrder::where('id', $delivery->event_id)->get()->first();
             $rsp_arr['depot_id'] = $csn_order->depot_id;
         }
-        if (isset($ord_items_arr) && 0 < count($ord_items_arr) && isset($rcv_repot_combo) && 0 < count($rcv_repot_combo)) {
-            //出貨商品
-            for ($num_item = 0; $num_item < count($ord_items_arr); $num_item++) {
-                //組合包元素
-                for ($num_combo = 0; $num_combo < count($rcv_repot_combo); $num_combo++) {
-//                    dd($sub_order, $ord_items_arr[0], $rcv_repot_combo);
-                    if ($ord_items_arr[$num_item]->prd_type == 'c'
-                        && $ord_items_arr[$num_item]->papa_product_style_id == $rcv_repot_combo[$num_combo]->product_style_id
-                        && $ord_items_arr[$num_item]->product_style_id == $rcv_repot_combo[$num_combo]->product_style_child_id
-                    ) {
-                        $ord_items_arr[$num_item]->total_to_back_qty = $rcv_repot_combo[$num_combo]->to_back_qty * $rcv_repot_combo[$num_combo]->unit_qty;
-                    } else if ($ord_items_arr[$num_item]->prd_type == 'p' && null == $ord_items_arr[$num_item]->papa_product_style_id) {
-                        $ord_items_arr[$num_item]->total_to_back_qty = $rcv_repot_combo[$num_combo]->to_back_qty;
-                    }
-                }
-            }
-        }
+        $ord_items_arr = ReceiveDepot::getRcvDepotBackQty($delivery->id, $delivery->event, $delivery->event_id);
 
         $rsp_arr['event'] = $event;
         $rsp_arr['delivery'] = $delivery;
@@ -489,17 +467,25 @@ class DeliveryCtrl extends Controller
                 ]);
                 Delivery::changeBackStatus($delivery->id, BackStatus::add_back_inbound());
 
-                if(isset($bdcisc['data']) && 0 < count($bdcisc['data'])) {
-                    foreach ($bdcisc['data'] as $rcv_depot_item) {
-                        dd($bdcisc, $rcv_depot_item);
-//                        dd($rcv_depot_item->memo ?? null);
+                if(isset($bdcisc['data']) && 0 < count($bdcisc['data']) && isset($bdcisc['data']['id']) && 0 < count($bdcisc['data']['id'])) {
+                    for ($num_bdcisc = 0; $num_bdcisc < count($bdcisc['data']['id']); $num_bdcisc++) {
+                        $rcv_depot_item = new \stdClass();
+                        $rcv_depot_item->id = $bdcisc['data']['id'][$num_bdcisc];
+                        $rcv_depot_item->back_qty = $bdcisc['data']['back_qty'][$num_bdcisc];
+                        $rcv_depot_item->memo = $bdcisc['data']['memo'][$num_bdcisc];
+                        $rcv_depot_item->product_style_id = $bdcisc['data']['product_style_id'][$num_bdcisc];
+                        $rcv_depot_item->product_title = $bdcisc['data']['product_title'][$num_bdcisc];
+                        $rcv_depot_item->inbound_id = $bdcisc['data']['inbound_id'][$num_bdcisc];
+                        $rcv_depot_item->prd_type = $bdcisc['data']['prd_type'][$num_bdcisc];
+                        $rcv_depot_item->combo_id = $bdcisc['data']['combo_id'][$num_bdcisc];
+
                         //增加back_num
-                        ReceiveDepot::where('id', $rcv_depot_item->id)->update(['back_qty' => DB::raw("back_qty + $rcv_depot_item->qty")]);
+                        ReceiveDepot::where('id', $rcv_depot_item->id)->update(['back_qty' => DB::raw("back_qty + $rcv_depot_item->back_qty")]);
                         //加回對應入庫單num
                         $update_arr = [];
                         if (Event::order()->value == $delivery->event || Event::ord_pickup()->value == $delivery->event) {
                             OrderFlow::changeOrderStatus($delivery->event_id, OrderStatus::Backed());
-                            $update_arr['sale_num'] = DB::raw("sale_num - $rcv_depot_item->qty");
+                            $update_arr['sale_num'] = DB::raw("sale_num - $rcv_depot_item->back_qty");
                             //TODO 自取可能有入庫 若有入庫過 則需判斷退貨的數量 不得大於後面入庫扣除售出之類的數量
                             // 並須把後面入庫單的退貨數量更新
                             if (Event::ord_pickup()->value == $delivery->event) {
@@ -523,17 +509,17 @@ class DeliveryCtrl extends Controller
                             DB::rollBack();
                             return ['success' => 0, 'error_msg' => '寄倉暫無退貨功能'];
                             //TODO 寄倉可能有入庫 若有入庫過 須先把那邊的入庫退貨
-                            $update_arr['csn_num'] = DB::raw("csn_num - $rcv_depot_item->qty");
+                            $update_arr['csn_num'] = DB::raw("csn_num - $rcv_depot_item->back_qty");
                         } else if (Event::csn_order()->value == $delivery->event) {
                             DB::rollBack();
                             return ['success' => 0, 'error_msg' => '寄倉訂購暫無退貨功能'];
-                            $update_arr['sale_num'] = DB::raw("sale_num - $rcv_depot_item->qty");
+                            $update_arr['sale_num'] = DB::raw("sale_num - $rcv_depot_item->back_qty");
                         }
                         PurchaseInbound::where('id', $rcv_depot_item->inbound_id)->update($update_arr);
 
                         //寫入LOG
                         $rePcsLSC = PurchaseLog::stockChange($delivery->event_id, $rcv_depot_item->product_style_id, $delivery->event, $rcv_depot_item->id
-                            , LogEventFeature::send_back()->value, $rcv_depot_item->inbound_id, $rcv_depot_item->qty, $rcv_depot_item->memo ?? null
+                            , LogEventFeature::send_back()->value, $rcv_depot_item->inbound_id, $rcv_depot_item->back_qty, $rcv_depot_item->memo ?? null
                             , $rcv_depot_item->product_title, $rcv_depot_item->prd_type
                             , $request->user()->id, $request->user()->name);
                         if ($rePcsLSC['success'] == 0) {
@@ -553,7 +539,7 @@ class DeliveryCtrl extends Controller
                                 || Event::consignment()->value == $delivery->event)
                         ) {
                             $memo = $rcv_depot_item->memo ?? '';
-                            $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $rcv_depot_item->qty
+                            $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $rcv_depot_item->back_qty
                                 , StockEvent::send_back()->value, $delivery->event_id
                                 , $request->user()->name. ' '. $delivery->sn. ' ' . $memo
                                 , false, $inboundDataGet->can_tally);
