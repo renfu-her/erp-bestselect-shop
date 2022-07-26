@@ -662,10 +662,10 @@ class OrderCtrl extends Controller
                     $price ?? 0,
                     '',
                     '',
-                    $supplier->id,
-                    $supplier->name,
-                    $supplier->contact_tel,
-                    $supplier->contact_address
+                    $supplier ? $supplier->id : null,
+                    $supplier ? $supplier->name : null,
+                    $supplier ? $supplier->contact_tel : null,
+                    $supplier ? $supplier->contact_address : null
                 );
             }
 

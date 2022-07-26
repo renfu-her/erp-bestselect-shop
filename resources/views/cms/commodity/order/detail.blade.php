@@ -211,16 +211,14 @@
                     </div>
                 </dl>
             @endif
+            @if ($order->return_pay_order_id)
             <dl class="row">
                 <div class="col">
                     <dt>退貨付款單號</dt>
-                    <dd>
-                        @if ($order->return_pay_order_id)
-                            <a href="{{ route('cms.order.return-pay-order', ['id' => $order->id]) }}" class="-text">{{ $order->return_pay_order_sn }}</a>
-                        @endif
-                    </dd>
+                    <dd><a href="{{ route('cms.order.return-pay-order', ['id' => $order->id]) }}" class="-text">{{ $order->return_pay_order_sn }}</a></dd>
                 </div>
             </dl>
+            @endif
         </div>
         @php
             $dlv_fee = 0;
