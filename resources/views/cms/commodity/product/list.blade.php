@@ -92,6 +92,20 @@
                         @endforeach
                     </div>
                 </fieldset>
+                <fieldset class="col-12 col-sm-6 mb-3">
+                    <legend class="col-form-label p-0 mb-2">有否設定規格說明？</legend>
+                    <div class="px-1 pt-1">
+                        @foreach ($hasSpecList as $key => $value)
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="hasSpecList" type="radio"
+                                           value="{{ $value[0] }}" @if ($value[0] == $cond['hasSpecList']) checked @endif>
+                                    {{ $value[1] }}
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                </fieldset>
 
             </div>
             <div class="col">
@@ -132,6 +146,7 @@
                         <th scope="col">類型</th>
                         <th scope="col">耗材</th>
                         <th scope="col">宅配</th>
+                        <th scope="col">規格說明</th>
                         <th scope="col">公開</th>
                         <th scope="col">線上</th>
                         <th scope="col">線下</th>
@@ -159,6 +174,11 @@
                             </td>
                             <td>
                                 @if (!is_null($data->hasDelivery))
+                                    是
+                                @endif
+                            </td>
+                            <td>
+                                @if (!is_null($data->hasSpecList))
                                     是
                                 @endif
                             </td>

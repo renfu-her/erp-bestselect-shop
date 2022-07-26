@@ -174,6 +174,31 @@ class Product extends Model
             }
         }
 
+        if (isset($options['hasSpecList'])) {
+            if ($options['hasSpecList'] == 'all') {
+                $re->leftJoin('prd_speclists', 'product.id', '=', 'prd_speclists.product_id')
+                    ->distinct('product.id')
+                    ->addSelect(
+                        'prd_speclists.product_id as hasSpecList',
+                    );
+            } elseif ($options['hasSpecList'] == '1') {
+                $re->join('prd_speclists', 'product.id', '=', 'prd_speclists.product_id')
+                    ->distinct('prd_speclists.product_id')
+                    ->addSelect(
+                        'prd_speclists.product_id as hasSpecList',
+                    );
+            } else {
+                $re->leftJoin('prd_speclists', 'product.id', '=', 'prd_speclists.product_id')
+                    ->whereNotIn('product.id', function ($q) {
+                        $q->select('prd_speclists.product_id')
+                            ->from('prd_speclists');
+                    })
+                    ->addSelect(
+                        'prd_speclists.product_id as hasSpecList',
+                    );
+            }
+        }
+
         return $re;
     }
 
