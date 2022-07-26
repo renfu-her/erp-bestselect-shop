@@ -144,6 +144,11 @@ return
                 "controller_name" => "NaviNodeCtrl",
                 "route_name" => "cms.navinode.index",
             ],
+            [
+                "title" => "自訂頁面管理",
+                "controller_name" => "CustomPagesCtrl",
+                "route_name" => "cms.custom-pages.index",
+            ],
         ],
     ],
     [
