@@ -263,4 +263,34 @@ class PurchaseLog extends Model
 
         return $logPurchase;
     }
+
+    //找到LOG最後退貨入庫寫入的資料
+    public static function getSendBackData($delivery_id, $event_id) {
+        $log = DB::table(app(PurchaseLog::class)->getTable(). ' as pcs_log')
+            ->leftJoin(app(ReceiveDepot::class)->getTable(). ' as rcv_depot', function ($join) use($delivery_id) {
+                $join->on('rcv_depot.delivery_id', '=', DB::raw($delivery_id));
+            })
+            ->select(
+                DB::raw('max(pcs_log.id) as log_id')
+            )
+            ->groupBy('pcs_log.event_parent_id')
+            ->groupBy('pcs_log.product_style_id')
+            ->groupBy('pcs_log.event')
+            ->groupBy('pcs_log.event_id')
+            ->where('pcs_log.event_parent_id', '=', $event_id)
+            ->where('pcs_log.feature', '=', DB::raw('"'. LogEventFeature::send_back()->value.'"'))
+            ->get()->toArray();
+
+        $log_ids = [];
+        if (isset($log) && 0 < count($log)) {
+            foreach ($log as $log_item) {
+                $log_ids[] = $log_item->log_id;
+            }
+        }
+
+        $log_detail = DB::table(app(PurchaseLog::class)->getTable(). ' as pcs_log')
+            ->whereIn('pcs_log.id', $log_ids)
+            ->get();
+        return $log_detail;
+    }
 }

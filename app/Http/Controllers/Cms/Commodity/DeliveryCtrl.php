@@ -393,7 +393,24 @@ class DeliveryCtrl extends Controller
             ->where('lgt_tb.delivery_id', '=', $delivery->id)
             ->first();
         $ord_items_arr = ReceiveDepot::getRcvDepotBackQty($delivery->id, $delivery->event, $delivery->event_id);
+
         if (isset($ord_items_arr) && 0 < count($ord_items_arr)) {
+            $sendBackData = PurchaseLog::getSendBackData($delivery->id, $delivery->event_id);
+            //整合退貨入庫時 輸入的說明
+            if (isset($sendBackData) && 0 < count(($sendBackData))) {
+                foreach ($ord_items_arr as $key => $ord_item) {
+                    if (isset($ord_item->receive_depot) && 0 < count($ord_item->receive_depot)) {
+                        foreach ($ord_item->receive_depot as $key_rcv_depot => $rcv_depot) {
+                            foreach ($sendBackData as $key_send_back => $val_send_back) {
+                                if ($rcv_depot->id == $val_send_back->event_id) {
+                                    $ord_item->receive_depot[$key_rcv_depot]->memo = $val_send_back->note;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            //移除數量為空的資料
             foreach ($ord_items_arr as $key => $ord_item) {
                 if (isset($ord_item->receive_depot) && 0 < count($ord_item->receive_depot)) {
                     foreach ($ord_item->receive_depot as $key_rcv_depot => $rcv_depot) {

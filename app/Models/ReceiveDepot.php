@@ -803,6 +803,7 @@ class ReceiveDepot extends Model
 
     //找欲退貨數量
     public static function getRcvDepotToBackQty($delivery_id) {
+        //找一般商品欲退貨入庫資料
         $rcv_repot_p = DB::table(app(ReceiveDepot::class)->getTable(). ' as rcv_depot')
             ->where('rcv_depot.delivery_id', $delivery_id)
             ->where('rcv_depot.prd_type', '=', 'p')
@@ -820,8 +821,8 @@ class ReceiveDepot extends Model
                 , DB::raw('rcv_depot.qty as qty') //出貨數量
                 , DB::raw('1 as unit_qty') //單位數量
                 , 'back.qty as to_back_qty' //欲退數量
-                , 'back.memo as memo'
             );
+        //找組合包欲退貨入庫資料
         $rcv_repot_combo = DB::table(app(ReceiveDepot::class)->getTable(). ' as rcv_depot')
             ->where('rcv_depot.delivery_id', $delivery_id)
             ->where('rcv_depot.prd_type', '=', 'c')
@@ -842,7 +843,6 @@ class ReceiveDepot extends Model
                 , DB::raw('rcv_depot.qty as qty') //出貨數量
                 , DB::raw('style_combo.qty as unit_qty') //單位數量
                 , 'back.qty as to_back_qty' //欲退數量
-                , 'back.memo as memo'
             );
         $rcv_repot_combo = $rcv_repot_combo->union($rcv_repot_p)->get();
         return $rcv_repot_combo;
@@ -865,7 +865,6 @@ class ReceiveDepot extends Model
                 //組合包元素
                 for ($num_combo = 0; $num_combo < count($rcv_repot_combo); $num_combo++) {
 //                    dd($sub_order, $ord_items_arr[0], $rcv_repot_combo);
-                    $ord_items_arr[$num_item]->memo = $rcv_repot_combo[$num_combo]->memo;
                     if ($ord_items_arr[$num_item]->prd_type == 'c'
                         && $ord_items_arr[$num_item]->papa_product_style_id == $rcv_repot_combo[$num_combo]->product_style_id
                         && $ord_items_arr[$num_item]->product_style_id == $rcv_repot_combo[$num_combo]->product_style_child_id
