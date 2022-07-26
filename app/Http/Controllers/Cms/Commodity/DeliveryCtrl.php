@@ -269,9 +269,9 @@ class DeliveryCtrl extends Controller
         ]);
 
         $errors = [];
-        $msg = DB::transaction(function () use ($request, $delivery_id) {
+        $delivery = Delivery::where('id', $delivery_id)->first();
+        $msg = DB::transaction(function () use ($request, $delivery, $delivery_id) {
             $dlv_memo = $request->input('dlv_memo', null);
-            $delivery = Delivery::where('id', $delivery_id)->first();
             $back_sn = str_replace("DL","BK",$delivery->sn); //將出貨單號改為銷貨退回單號
             Delivery::where('id', $delivery_id)->update([
                 'back_date' => date("Y-m-d H:i:s")
@@ -325,7 +325,10 @@ class DeliveryCtrl extends Controller
             throw ValidationException::withMessages(['item_error' => $msg['error_msg']]);
         } else {
             wToast('儲存成功');
-            return redirect()->back()->withInput()->withErrors($errors);
+            return redirect(Route('cms.delivery.back_detail', [
+                'event' => $delivery->event,
+                'eventId' => $delivery->event_id,
+            ], true));
         }
     }
 
@@ -403,6 +406,8 @@ class DeliveryCtrl extends Controller
                     unset($ord_items_arr[$key]);
                 }
             }
+            $ord_items_arr = json_decode($ord_items_arr);
+            $ord_items_arr = array_values((array)$ord_items_arr);
         }
 
         $rsp_arr['logistic'] = $logistic;
@@ -598,7 +603,7 @@ class DeliveryCtrl extends Controller
                 throw ValidationException::withMessages(['error_msg' => $msg['error_msg']]);
             } else {
                 wToast('儲存成功');
-                return redirect(Route('cms.delivery.back_inbound', [
+                return redirect(Route('cms.delivery.back_detail', [
                     'event' => $delivery->event,
                     'eventId' => $delivery->event_id,
                 ], true));
