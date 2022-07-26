@@ -6,6 +6,8 @@ use App\Enums\Customer\ProfitStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Discount\DividendCategory;
 use App\Enums\Order\UserAddrType;
+use App\Enums\Supplier\Payment;
+
 use App\Http\Controllers\Controller;
 use App\Models\AccountPayable;
 use App\Models\Addr;
@@ -16,6 +18,7 @@ use App\Models\CustomerProfit;
 use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\Discount;
+use App\Models\GeneralLedger;
 use App\Models\Order;
 use App\Models\OrderCart;
 use App\Models\OrderInvoice;
@@ -24,10 +27,17 @@ use App\Models\OrderPayCreditCard;
 use App\Models\OrderProfit;
 use App\Models\OrderProfitLog;
 use App\Models\OrderRemit;
+use App\Models\PayableAccount;
+use App\Models\PayableCash;
+use App\Models\PayableCheque;
+use App\Models\PayableRemit;
+use App\Models\PayableForeignCurrency;
+use App\Models\PayableOther;
 use App\Models\PayableDefault;
 use App\Models\PayingOrder;
 use App\Models\PurchaseInbound;
 use App\Models\ReceiveDepot;
+use App\Models\ReceivedDefault;
 use App\Models\ReceivedOrder;
 use App\Models\SaleChannel;
 use App\Models\ShipmentStatus;
@@ -610,7 +620,7 @@ class OrderCtrl extends Controller
         ]));
     }
 
-    public function pay_order(Request $request, $id, $sid)
+    public function logistic_pay_order(Request $request, $id, $sid)
     {
         $request->merge([
             'id' => $id,
@@ -659,7 +669,7 @@ class OrderCtrl extends Controller
                 );
             }
 
-            return redirect(Route('cms.order.pay-order', [
+            return redirect(Route('cms.order.logistic-pay-order', [
                 'id' => $id,
                 'sid' => $sid,
             ]));
@@ -690,7 +700,7 @@ class OrderCtrl extends Controller
                 $accountant = User::find($pay_record->latest()->first()->accountant_id_fk);
             }
 
-            return view('cms.commodity.order.pay_order', [
+            return view('cms.commodity.order.logistic_pay_order', [
                 'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
 
                 'paying_order' => $paying_order,
@@ -703,6 +713,289 @@ class OrderCtrl extends Controller
                 'pay_off' => $pay_off,
                 'pay_off_date' => $pay_off_date,
                 'accountant' => $accountant,
+            ]);
+        }
+    }
+
+    public function return_pay_order(Request $request, $id, $sid = null)
+    {
+        $request->merge([
+            'id' => $id,
+            'sid' => $sid,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:ord_orders,id',
+            'sid' => 'nullable|exists:ord_sub_orders,id',
+        ]);
+
+        $source_type = app(Order::class)->getTable();
+        $type = 9;
+
+        $paying_order = PayingOrder::where([
+            'source_type' => $source_type,
+            'source_id' => $id,
+            'source_sub_id' => $sid,
+            'type' => $type,
+            'deleted_at' => null,
+        ])->first();
+
+        list($order, $sub_order) = $this->getOrderAndSubOrders($id, $sid);
+
+        $buyer = Customer::leftJoin('usr_customers_address AS customer_add', function ($join) {
+                $join->on('usr_customers.id', '=', 'customer_add.usr_customers_id_fk');
+                $join->where([
+                    'customer_add.is_default_addr'=>1,
+                ]);
+            })->where([
+                'usr_customers.email'=>$order->email,
+            ])->select(
+                'usr_customers.id',
+                'usr_customers.name',
+                'usr_customers.phone AS phone',
+                'usr_customers.email',
+                'customer_add.address AS address'
+            )->first();
+
+        if($sid){
+            $price = $sub_order[0]->discounted_price + $sub_order[0]->dlv_fee;
+
+        } else {
+            $price = $order->total_price;
+        }
+
+        if (!$paying_order) {
+            $product_grade = ReceivedDefault::where('name', '=', 'product')->first()->default_grade_id;
+            $logistics_grade = ReceivedDefault::where('name', '=', 'logistics')->first()->default_grade_id;
+
+            $result = PayingOrder::createPayingOrder(
+                $source_type,
+                $id,
+                $sid,
+                $request->user()->id,
+                $type,
+                $product_grade,
+                $logistics_grade,
+                $price ?? 0,
+                '',
+                '',
+                $buyer->id,
+                $buyer->name,
+                $buyer->phone,
+                $buyer->address
+            );
+
+            $paying_order = PayingOrder::findOrFail($result['id']);
+        }
+
+        $undertaker = User::find($paying_order->usr_users_id);
+        $applied_company = DB::table('acc_company')->where('id', 1)->first();
+
+        $product_grade_name = AllGrade::find($paying_order->product_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->product_grade_id)->eachGrade->name;
+        $logistics_grade_name = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
+
+        $order_discount = DB::table('ord_discounts')->where([
+                'order_type'=>'main',
+                'order_id'=>request('id'),
+            ])->where('discount_value', '>', 0)->get()->toArray();
+        foreach($order_discount as $value){
+            $value->account_code = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->code : '4000';
+            $value->account_name = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->name : '無設定會計科目';
+        }
+
+        $pay_off = false;
+        $pay_off_date = date('Y-m-d', strtotime($paying_order->created_at));
+        $accountant = null;
+
+        if ($paying_order->balance_date) {
+            $pay_off = true;
+            $pay_off_date = date('Y-m-d', strtotime($paying_order->balance_date));
+        }
+
+        $payable_data = PayingOrder::get_payable_detail($paying_order->id);
+
+        $accountant = User::whereIn('id', $payable_data->pluck('accountant_id_fk')->toArray())->get();
+        $accountant = array_unique($accountant->pluck('name')->toArray());
+        asort($accountant);
+
+        $zh_price = num_to_str($paying_order->price);
+
+        return view('cms.commodity.order.return_pay_order', [
+            'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
+
+            'paying_order' => $paying_order,
+            'payable_data' => $payable_data,
+            'order' => $order,
+            'sub_order' => $sub_order,
+            'order_discount' => $order_discount,
+            'buyer' => $buyer,
+            'undertaker' => $undertaker,
+            'applied_company' => $applied_company,
+            'product_grade_name' => $product_grade_name,
+            'logistics_grade_name' => $logistics_grade_name,
+            'pay_off' => $pay_off,
+            'pay_off_date' => $pay_off_date,
+            'accountant'=>implode(',', $accountant),
+            'zh_price' => $zh_price,
+        ]);
+    }
+
+    public function return_pay_create(Request $request, $id, $sid = null)
+    {
+        $request->merge([
+            'id'=>$id,
+            'sid'=>$sid,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:ord_orders,id',
+            'sid' => 'nullable|exists:ord_sub_orders,id',
+        ]);
+
+        $source_type = app(Order::class)->getTable();
+        $type = 9;
+
+        $paying_order = PayingOrder::where([
+            'source_type' => $source_type,
+            'source_id' => $id,
+            'source_sub_id' => $sid,
+            'type' => $type,
+            'deleted_at' => null,
+        ])->first();
+
+        if($request->isMethod('post')){
+            if(! $paying_order) {
+                return abort(404);
+            }
+
+            $request->merge([
+                'pay_order_id'=>$paying_order->id,
+            ]);
+
+            $request->validate([
+                'acc_transact_type_fk' => 'required|regex:/^[1-6]$/',
+            ]);
+
+            $req = $request->all();
+
+            $payable_type = $req['acc_transact_type_fk'];
+
+            switch ($payable_type) {
+                case Payment::Cash:
+                    PayableCash::storePayableCash($req);
+                    break;
+                case Payment::Cheque:
+                    PayableCheque::storePayableCheque($req);
+                    break;
+                case Payment::Remittance:
+                    PayableRemit::storePayableRemit($req);
+                    break;
+                case Payment::ForeignCurrency:
+                    PayableForeignCurrency::storePayableCurrency($req);
+                    break;
+                case Payment::AccountsPayable:
+                    PayableAccount::storePayablePayableAccount($req);
+                    break;
+                case Payment::Other:
+                    PayableOther::storePayableOther($req);
+                    break;
+            }
+
+            $payable_data = PayingOrder::get_payable_detail($paying_order->id);
+            if (count($payable_data) > 0 && $paying_order->price == $payable_data->sum('tw_price')) {
+                $paying_order->update([
+                    'balance_date'=>date("Y-m-d H:i:s"),
+                ]);
+            }
+
+            if (PayingOrder::find($paying_order->id) && PayingOrder::find($paying_order->id)->balance_date) {
+                return redirect()->route('cms.order.return-pay-order', [
+                    'id' => $id,
+                    'sid' => $sid,
+                ]);
+
+            } else {
+                return redirect()->route('cms.order.return-pay-create', [
+                    'id' => $id,
+                    'sid' => $sid,
+                ]);
+            }
+
+        } else {
+
+            if(! $paying_order || $paying_order->balance_date) {
+                return abort(404);
+            }
+
+            list($order, $sub_order) = $this->getOrderAndSubOrders($id, $sid);
+
+            $buyer = Customer::leftJoin('usr_customers_address AS customer_add', function ($join) {
+                    $join->on('usr_customers.id', '=', 'customer_add.usr_customers_id_fk');
+                    $join->where([
+                        'customer_add.is_default_addr'=>1,
+                    ]);
+                })->where([
+                    'usr_customers.email'=>$order->email,
+                ])->select(
+                    'usr_customers.id',
+                    'usr_customers.name',
+                    'usr_customers.phone AS phone',
+                    'usr_customers.email',
+                    'customer_add.address AS address'
+                )->first();
+
+            $product_grade_name = AllGrade::find($paying_order->product_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->product_grade_id)->eachGrade->name;
+            $logistics_grade_name = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
+
+            $order_discount = DB::table('ord_discounts')->where([
+                    'order_type'=>'main',
+                    'order_id'=>request('id'),
+                ])->where('discount_value', '>', 0)->get()->toArray();
+            foreach($order_discount as $value){
+                $value->account_code = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->code : '4000';
+                $value->account_name = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->name : '無設定會計科目';
+            }
+
+            $currency = DB::table('acc_currency')->find($paying_order->acc_currency_fk);
+            if(!$currency){
+                $currency = (object)[
+                    'name'=>'NTD',
+                    'rate'=>1,
+                ];
+            }
+
+            $payable_data = PayingOrder::get_payable_detail($paying_order->id);
+
+            $tw_price = $paying_order->price - $payable_data->sum('tw_price');
+
+            $total_grades = GeneralLedger::total_grade_list();
+
+            return view('cms.commodity.order.return_pay_create', [
+                'breadcrumb_data' => ['id' => $id, 'sid' => $sid, 'sn' => $order->sn],
+                'paying_order' => $paying_order,
+                'payable_data' => $payable_data,
+                'order' => $order,
+                'sub_order' => $sub_order,
+                'order_discount' => $order_discount,
+                'buyer' => $buyer,
+                'product_grade_name' => $product_grade_name,
+                'logistics_grade_name' => $logistics_grade_name,
+                'currency' => $currency,
+                'tw_price' => $tw_price,
+                'total_grades' => $total_grades,
+
+                'cashDefault' => PayableDefault::where('name', 'cash')->pluck('default_grade_id')->toArray(),
+                'chequeDefault' => PayableDefault::where('name', 'cheque')->pluck('default_grade_id')->toArray(),
+                'remitDefault' => PayableDefault::where('name', 'remittance')->pluck('default_grade_id')->toArray(),
+                'all_currency' => PayableDefault::getCurrencyOptionData()['selectedCurrencyResult']->toArray(),
+                'currencyDefault' => PayableDefault::where('name', 'foreign_currency')->pluck('default_grade_id')->toArray(),
+                'accountPayableDefault' => PayableDefault::where('name', 'accounts_payable')->pluck('default_grade_id')->toArray(),
+                'otherDefault' => PayableDefault::where('name', 'other')->pluck('default_grade_id')->toArray(),
+
+                'form_action' => Route('cms.order.return-pay-create', ['id' => $id, 'sid' => $sid]),
+                'method' => 'create',
+                'transactTypeList' => AccountPayable::getTransactTypeList(),
+                'chequeStatus' => AccountPayable::getChequeStatus(),
             ]);
         }
     }
