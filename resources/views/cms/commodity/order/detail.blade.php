@@ -47,6 +47,9 @@
                 <a href="{{ Route('cms.order.cancel-order', ['id' => $order->id]) }}" role="button" class="btn btn-outline-danger btn-sm my-1 ms-1">取消訂單</a>
             @endif
 
+            <a href="{{ Route('cms.order.split-order', ['id' => $order->id]) }}" role="button" class="btn btn-outline-success btn-sm my-1 ms-1">分割訂單</a>
+
+
         </div>
     </nav>
 

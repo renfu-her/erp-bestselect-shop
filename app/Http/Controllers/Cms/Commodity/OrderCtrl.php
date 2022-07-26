@@ -995,14 +995,14 @@ class OrderCtrl extends Controller
 
         $customer_id = $request->input('customer_id');
 
-        OrderProfit::changeOwner($id,$customer_id,$request->user()->id);
+        OrderProfit::changeOwner($id, $customer_id, $request->user()->id);
 
         return redirect()->back();
     }
 
     // 取消訂單
-    public function cancel_order(Request $request, $id){
-
+    public function cancel_order(Request $request, $id)
+    {
 
         Order::cancelOrder($id);
 
@@ -1011,5 +1011,11 @@ class OrderCtrl extends Controller
         return redirect()->back();
     }
 
-}
+    // 分割訂單
+    public function split_order(Request $request, $id)
+    {
+        return view('cms.commodity.order.split_order', [
+        ]);
+    }
 
+}
