@@ -41,6 +41,8 @@ class ProductCtrl extends Controller
         $onlineTypes = [['all', '不限'], ['online', '線上 (對外網站)'], ['offline', '線下 (ERP)']];
         $consumes = [['all', '不限'], ['1', '耗材'], ['0', '商品']];
         $publics = [['all', '不限'], ['1', '公開'], ['0', '不公開']];
+        $hasDelivery = [['all', '不限'], ['1', '有'], ['0', '無']];
+        $hasSpecList = [['all', '不限'], ['1', '有'], ['0', '無']];
         $page = getPageCount(Arr::get($query, 'data_per_page'));
         $cond = [];
         $cond['keyword'] = Arr::get($query, 'keyword');
@@ -56,11 +58,15 @@ class ProductCtrl extends Controller
         $cond['consume'] = Arr::get($query, 'consume', 'all');
         $cond['public'] = Arr::get($query, 'public', 'all');
         $cond['online'] = Arr::get($query, 'online', 'all');
+        $cond['hasDelivery'] = Arr::get($query, 'hasDelivery', 'all');
+        $cond['hasSpecList'] = Arr::get($query, 'hasSpecList', 'all');
 
         $products = Product::productList($cond['keyword'], null, ['user' => $condUser,
             'product_type' => $cond['product_type'],
             'consume' => $cond['consume'] == 'all' ? null : $cond['consume'],
             'public' => $cond['public'] == 'all' ? null : $cond['public'],
+            'hasDelivery' => $cond['hasDelivery'],
+            'hasSpecList' => $cond['hasSpecList'],
             'online' => $cond['online'],
         ])
             ->paginate($page)->appends($query);
@@ -73,6 +79,8 @@ class ProductCtrl extends Controller
             'data_per_page' => $page,
             'consumes' => $consumes,
             'publics' => $publics,
+            'hasDelivery' => $hasDelivery,
+            'hasSpecList' => $hasSpecList,
             'cond' => $cond]);
     }
 

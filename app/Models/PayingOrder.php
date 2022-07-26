@@ -138,6 +138,7 @@ class PayingOrder extends Model
                     SUM(price) AS price,
                     GROUP_CONCAT(DISTINCT logistics_grade_id) AS logistics_grade_id,
                     GROUP_CONCAT(DISTINCT product_grade_id) AS product_grade_id,
+                    balance_date,
                     payee_id,
                     payee_name,
                     payee_phone,
@@ -229,10 +230,18 @@ class PayingOrder extends Model
                 $join->whereNotNull('shi_group.supplier_fk');
             })
 
+            // stitute
+            ->leftJoin('acc_stitute_orders AS so', function ($join) {
+                $join->on('po.source_id', '=', 'so.id');
+                $join->where([
+                    'po.source_type'=>app(StituteOrder::class)->getTable(),
+                ]);
+            })
+
             ->whereColumn([
                 ['po.price', '=', 'v_table_2.payable_price'],
             ])
-            ->whereRaw('( (v_table_1.price + purchase.logistics_price) = v_table_2.payable_price OR dlv_logistic.cost = v_table_2.payable_price )')
+            // ->whereRaw('( (v_table_1.price + purchase.logistics_price) = v_table_2.payable_price OR dlv_logistic.cost = v_table_2.payable_price )')
 
             ->select(
                 'po.source_id as po_source_id',
@@ -243,6 +252,7 @@ class PayingOrder extends Model
                 'po.price as po_price',// 付款單金額(應付)
                 'po.logistics_grade_id as po_logistics_grade_id',
                 'po.product_grade_id as po_product_grade_id',
+                'po.balance_date AS po_balance_date',
                 'po.payee_id AS po_target_id',
                 'po.payee_name AS po_target_name',
                 'po.payee_phone AS po_target_phone',
