@@ -808,7 +808,7 @@ class OrderCtrl extends Controller
         Order::cancelOrder($d['order_id']);
 
         return [
-            'status' => 0,
+            'status' => '0',
         ];
 
     }
