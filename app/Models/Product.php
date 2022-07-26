@@ -144,6 +144,36 @@ class Product extends Model
 
         }
 
+        if (isset($options['hasDelivery'])) {
+            if ($options['hasDelivery'] == 'all') {
+                $re->leftJoin('prd_product_shipment', 'product.id', '=', 'prd_product_shipment.product_id')
+                    ->leftJoin('shi_category', function ($join) {
+                        $join->on('prd_product_shipment.category_id', '=', 'shi_category.id');
+                    })
+                    ->addSelect(
+                        'shi_category.code as hasDelivery',
+                    );
+            } elseif ($options['hasDelivery'] == '1') {
+                $re->join('prd_product_shipment', 'product.id', '=', 'prd_product_shipment.product_id')
+                    ->join('shi_category', function ($join) {
+                        $join->on('prd_product_shipment.category_id', '=', 'shi_category.id')
+                            ->where('shi_category.code', '=', 'deliver');
+                    })
+                    ->addSelect(
+                        'shi_category.code as hasDelivery',
+                    );
+            } else {
+                $re->join('prd_product_shipment', 'product.id', '<>', 'prd_product_shipment.product_id')
+                    ->leftJoin('shi_category', function ($join) {
+                        $join->on('prd_product_shipment.category_id', '=', 'shi_category.id')
+                            ->where('shi_category.code', '<>', 'deliver');
+                    })
+                    ->addSelect(
+                        'shi_category.code as hasDelivery',
+                    );
+            }
+        }
+
         return $re;
     }
 
