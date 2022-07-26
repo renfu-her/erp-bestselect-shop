@@ -599,6 +599,20 @@ Breadcrumbs::for('cms.navinode.edit', function ($trail, $value) {
     // $trail->push($value['title']);
 });
 
+// 自訂頁面管理
+Breadcrumbs::for('cms.custom-pages.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('自訂頁面管理', route('cms.custom-pages.index'));
+});
+Breadcrumbs::for('cms.custom-pages.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.custom-pages.index');
+    $trail->push('新增');
+});
+Breadcrumbs::for('cms.custom-pages.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.custom-pages.index');
+    $trail->push('編輯');
+});
+
 /**
  * 帳號管理
  **/

@@ -59,7 +59,8 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/Delivery.php');
     require base_path('routes/cms/Logistic.php');
     require base_path('routes/cms/UserMnt.php');
-
+    require base_path('routes/cms/CustomPages.php');
+    
     require base_path('routes/cms/Discount.php');
     require base_path('routes/cms/PromoCoupon.php');
     require base_path('routes/cms/GoogleMarketing.php');

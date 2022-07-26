@@ -86,9 +86,26 @@ class ImportNewProcutFromExcelSeeder extends Seeder
                 $userId = $userAccountId->id;
             }
 
-            //開始建立商品
+            $styleSkuData = DB::table('prd_product_styles')
+                ->whereNull('deleted_at')
+                ->select('sku')
+                ->get();
+            $styleSkuArray = [];
+            foreach ($styleSkuData as $styleSkuDatum) {
+                $styleSkuArray[] = $styleSkuDatum->sku;
+            }
+
+            $containStyleSku = false;
+            foreach ($productArray['variants'] as $variant) {
+                if (in_array($variant['sku'], $styleSkuArray, true)) {
+                    $containStyleSku = true;
+                }
+            }
+
+                //開始建立商品
             if ($containProductSku &&
-                !in_array($productArray['id'], $cyberbizIdsArray, true)
+                !in_array($productArray['id'], $cyberbizIdsArray, true) &&
+                !$containStyleSku
             ) {
                 $re = Product::createProduct(
                     $productArray['title'],
