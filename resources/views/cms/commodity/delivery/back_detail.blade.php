@@ -75,7 +75,7 @@
             </div>
             <div class="col">
                 <dt>發票日期</dt>
-                <dd>{{ $orderInvoice->created_at ? date('Y/m/d', strtotime($orderInvoice->created_at)) : '' }}</dd>
+                <dd>{{ (isset($orderInvoice) && $orderInvoice->created_at) ? date('Y/m/d', strtotime($orderInvoice->created_at)) : '' }}</dd>
             </div>
             <div class="col">
                 <dt>課稅別</dt>

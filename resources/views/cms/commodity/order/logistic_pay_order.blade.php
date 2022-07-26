@@ -18,12 +18,14 @@
         <div class="card shadow mb-4 -detail -detail-primary">
             <div class="card-body px-4">
                 <h2>物流付款單</h2>
+
                 <dl class="row">
                     <div class="col">
                         <dt>{{ $applied_company->company }}</dt>
                         <dd></dd>
                     </div>
                 </dl>
+
                 <dl class="row">
                     <div class="col">
                         <dt>地址：{{ $applied_company->address }}</dt>
@@ -38,6 +40,7 @@
                         <dd></dd>
                     </div>
                 </dl>
+
                 <dl class="row mb-0 border-top">
                     <div class="col">
                         <dt>付款單號：{{ $paying_order->sn }}</dt>
@@ -48,6 +51,7 @@
                         <dd></dd>
                     </div>
                 </dl>
+
                 <dl class="row mb-0">
                     <div class="col">
                         <dt>單據編號：<a href="{{ Route('cms.order.detail', ['id' => $sub_order->order_id, 'subOrderId' => $sub_order->id]) }}">{{ $sub_order->sn }}</a></dt>
@@ -60,6 +64,7 @@
                     </div>
                     @endif
                 </dl>
+
                 <dl class="row mb-0">
                     <div class="col">
                         <dt>支付對象：

@@ -76,6 +76,8 @@ class AccountPayableCtrl extends Controller
             $p_order_payment_date,
         )->paginate($page)->appends($query);
 
+        // dd($dataList);
+
         // accounting classification start
         foreach($dataList as $value){
             $debit = [];
