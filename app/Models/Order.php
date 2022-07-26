@@ -835,6 +835,8 @@ class Order extends Model
         OrderProfit::where('order_id', $order_id)->delete();
 
         DB::commit();
+        
+        return;
 
     }
 }

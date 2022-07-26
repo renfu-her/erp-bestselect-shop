@@ -176,7 +176,7 @@ class OrderCtrl extends Controller
             ->leftJoin('ord_payment_credit_card_log as cc_log', function ($join) use ($source_type) {
                 $join->on('cc_log.source_id', '=', 'order.id');
                 $join->where([
-                    'cc_log.source_type'=>$source_type,
+                    'cc_log.source_type' => $source_type,
                 ]);
             })
             ->addSelect([
@@ -224,20 +224,20 @@ class OrderCtrl extends Controller
                             $data = [];
                             $data['acc_transact_type_fk'] = $received_method;
                             $data[$received_method] = [
-                                'cardnumber'=>$CardNumber,
-                                'authamt'=>$authAmt ?? 0,
-                                'checkout_date'=>date("Y-m-d H:i:s"),
-                                'card_type_code'=>null,
-                                'card_type'=>null,
-                                'card_owner_name'=>$order ? '訂購人' . $order->ord_name : null,
-                                'authcode'=>$authCode,
-                                'all_grades_id'=>$grade_id,
-                                'checkout_area_code'=>'taipei',
-                                'checkout_area'=>'台北',
-                                'installment'=>'none',
-                                'status_code'=>0,
-                                'card_nat'=>'local',
-                                'checkout_mode'=>'online',
+                                'cardnumber' => $CardNumber,
+                                'authamt' => $authAmt ?? 0,
+                                'checkout_date' => date("Y-m-d H:i:s"),
+                                'card_type_code' => null,
+                                'card_type' => null,
+                                'card_owner_name' => $order ? '訂購人' . $order->ord_name : null,
+                                'authcode' => $authCode,
+                                'all_grades_id' => $grade_id,
+                                'checkout_area_code' => 'taipei',
+                                'checkout_area' => '台北',
+                                'installment' => 'none',
+                                'status_code' => 0,
+                                'card_nat' => 'local',
+                                'checkout_mode' => 'online',
                             ];
                             $result_id = ReceivedOrder::store_received_method($data);
 
@@ -322,7 +322,6 @@ class OrderCtrl extends Controller
 
         // $received_order_data = $received_order_collection->get();
         // $received_data = ReceivedOrder::get_received_detail($received_order_data->pluck('id')->toArray());
-
 
         if (!$order || !$order->log_created_at) {
             return abort(404);
@@ -659,20 +658,20 @@ class OrderCtrl extends Controller
                         $data = [];
                         $data['acc_transact_type_fk'] = $received_method;
                         $data[$received_method] = [
-                            'cardnumber'=>$CardNumber,
-                            'authamt'=>$authAmt ?? 0,
-                            'checkout_date'=>date("Y-m-d H:i:s"),
-                            'card_type_code'=>null,
-                            'card_type'=>null,
-                            'card_owner_name'=>$order ? '訂購人' . $order->ord_name : null,
-                            'authcode'=>$authCode,
-                            'all_grades_id'=>$grade_id,
-                            'checkout_area_code'=>'taipei',
-                            'checkout_area'=>'台北',
-                            'installment'=>'none',
-                            'status_code'=>0,
-                            'card_nat'=>'local',
-                            'checkout_mode'=>'online',
+                            'cardnumber' => $CardNumber,
+                            'authamt' => $authAmt ?? 0,
+                            'checkout_date' => date("Y-m-d H:i:s"),
+                            'card_type_code' => null,
+                            'card_type' => null,
+                            'card_owner_name' => $order ? '訂購人' . $order->ord_name : null,
+                            'authcode' => $authCode,
+                            'all_grades_id' => $grade_id,
+                            'checkout_area_code' => 'taipei',
+                            'checkout_area' => '台北',
+                            'installment' => 'none',
+                            'status_code' => 0,
+                            'card_nat' => 'local',
+                            'checkout_mode' => 'online',
                         ];
                         $result_id = ReceivedOrder::store_received_method($data);
 
@@ -701,7 +700,8 @@ class OrderCtrl extends Controller
     }
 
     //消費者 建立訂單匯款資料
-    public function create_remit(Request $request) {
+    public function create_remit(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'id' => 'required|numeric',
             'name' => 'required|string',
@@ -720,7 +720,6 @@ class OrderCtrl extends Controller
 
         $cr = OrderRemit::createRemit(request('id'), request('name'), request('price'), request('remit_date'), request('bank_code'));
 
-
         $re = [];
         if ($cr['success'] == '1') {
             $re[ResponseParam::status()->key] = '0';
@@ -738,7 +737,8 @@ class OrderCtrl extends Controller
     }
 
     //消費者 修改訂單匯款資料
-    public function store_remit(Request $request) {
+    public function store_remit(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'id' => 'required|numeric',
             'name' => 'required|string',
@@ -772,7 +772,8 @@ class OrderCtrl extends Controller
     }
 
     //消費者 取得訂單匯款資料
-    public function get_remit(Request $request, $order_id) {
+    public function get_remit(Request $request, $order_id)
+    {
         $remit = OrderRemit::getData($order_id)->get()->first();
         $re = [];
         if (null == $remit) {
@@ -785,5 +786,30 @@ class OrderCtrl extends Controller
             $re[ResponseParam::data()->key] = $remit;
         }
         return response()->json($re);
+    }
+
+    // 取消訂單
+
+    public function cancelOrder(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'order_id' => 'required|numeric',
+        ]);
+
+        if ($validator->fails()) {
+            $re = [];
+            $re[ResponseParam::status()->key] = 'E01';
+            $re[ResponseParam::msg()->key] = $validator->errors();
+
+            return response()->json($re);
+        }
+
+        $d = $request->all();
+        Order::cancelOrder($d['order_id']);
+
+        return [
+            'status' => 0,
+        ];
+
     }
 }
