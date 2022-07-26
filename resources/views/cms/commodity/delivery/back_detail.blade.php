@@ -161,51 +161,64 @@
     @if (null != $ord_items_arr && 0 < count($ord_items_arr))
     <div class="card shadow p-4 mb-4">
         <h6>退回入庫清單</h6>
-        @foreach ($ord_items_arr as $key => $ord)
-            <tr class="--prod">
-                <th scope="row">{{ $key + 1 }}</th>
-                <td>
-                    @if ($ord->combo_product_title)
-                        <span class="badge rounded-pill bg-warning text-dark">組合包</span> [
-                    @else
-                        <span class="badge rounded-pill bg-success">一般</span>
-                    @endif
-                    {{ $ord->product_title }} @if($ord->combo_product_title) ] {{$ord->combo_product_title}} @endif
-                </td>
-                <td>{{ $ord->sku }}</td>
-            </tr>
-            <tr class="--rece">
-                <td></td>
-                <td colspan="7" class="pt-0 ps-0">
-                    <table class="table mb-0 table-sm table-hover border-start border-end">
-                        <thead>
-                        <tr class="border-top-0" style="border-bottom-color:var(--bs-secondary);">
-                            <td>入庫單</td>
-                            <td>倉庫</td>
-                            <td>效期</td>
-                            <td class="text-center" style="width: 10%">退回數量</td>
-                            <td>入庫說明</td>
+        <div class="table-responsive tableOverBox">
+            <table class="table table-striped tableList">
+                <thead>
+                    <tr>
+                        <th style="width:3rem;">#</th>
+                        <th>商品名稱</th>
+                        <th>SKU</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($ord_items_arr as $key => $ord)
+                        <tr>
+                            <th scope="row">{{ $key + 1 }}</th>
+                            <td>
+                                @if ($ord->combo_product_title)
+                                    <span class="badge rounded-pill bg-warning text-dark">組合包</span> [
+                                @else
+                                    <span class="badge rounded-pill bg-success">一般</span>
+                                @endif
+                                {{ $ord->product_title }} @if($ord->combo_product_title) ] {{$ord->combo_product_title}} @endif
+                            </td>
+                            <td>{{ $ord->sku }}</td>
                         </tr>
-                        </thead>
-                        <tbody class="border-top-0 -appendClone --selectedIB">
-                        @foreach ($ord->receive_depot as $rec)
-                            @if(0 < $rec->back_qty)
-                                <tr class="-cloneElem --selectedIB">
-                                    <input type="hidden" name="id[]" value="{{ $rec->id }}">
-                                    <input type="hidden" value="{{$ord->total_to_back_qty}}" name="total_to_back_qty[]" class="form-control form-control-sm text-center" readonly>
-                                    <td data-td="sn">{{ $rec->inbound_sn }}</td>
-                                    <td data-td="depot">{{ $rec->depot_name }}</td>
-                                    <td data-td="expiry">{{ date('Y/m/d', strtotime($rec->expiry_date)) }}</td>
-                                    <td class="text-center">{{ $rec->back_qty }}</td>
-                                    <td>{{ $rec->memo ?? '' }}</td>
-                                </tr>
-                            @endif
-                        @endforeach
-                        </tbody>
-                    </table>
-                </td>
-            </tr>
-        @endforeach
+                        <tr>
+                            <td></td>
+                            <td colspan="2" class="pt-0 ps-0">
+                                <table class="table mb-0 table-sm table-hover border-start border-end">
+                                    <thead>
+                                    <tr class="border-top-0" style="border-bottom-color:var(--bs-secondary);">
+                                        <td>入庫單</td>
+                                        <td>倉庫</td>
+                                        <td>效期</td>
+                                        <td class="text-center" style="width: 10%">退回數量</td>
+                                        <td>入庫說明</td>
+                                    </tr>
+                                    </thead>
+                                    <tbody class="border-top-0 -appendClone --selectedIB">
+                                    @foreach ($ord->receive_depot as $rec)
+                                        @if(0 < $rec->back_qty)
+                                            <tr class="-cloneElem --selectedIB">
+                                                <input type="hidden" name="id[]" value="{{ $rec->id }}">
+                                                <input type="hidden" value="{{$ord->total_to_back_qty}}" name="total_to_back_qty[]" class="form-control form-control-sm text-center" readonly>
+                                                <td data-td="sn">{{ $rec->inbound_sn }}</td>
+                                                <td data-td="depot">{{ $rec->depot_name }}</td>
+                                                <td data-td="expiry">{{ date('Y/m/d', strtotime($rec->expiry_date)) }}</td>
+                                                <td class="text-center">{{ $rec->back_qty }}</td>
+                                                <td>{{ $rec->memo ?? '' }}</td>
+                                            </tr>
+                                        @endif
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
     @endif
 
