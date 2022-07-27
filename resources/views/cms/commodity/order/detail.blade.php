@@ -387,7 +387,7 @@
                                 @else
                                     @if ($subOrder->logistic_pay_order_sn)
                                         <a href="{{ Route('cms.order.logistic-pay-order', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}"
-                                            class="text-decoration-none">付款單號-{{ $subOrder->logistic_pay_order_sn }}</a>
+                                            class="text-decoration-none">{{ $subOrder->logistic_pay_order_sn }}</a>
                                     @else
                                         <input type="hidden" class="form_url"
                                             value="{{ Route('cms.order.logistic-pay-order', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}">

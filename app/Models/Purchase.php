@@ -311,4 +311,106 @@ class Purchase extends Model
         return $result;
     }
 
+
+    public static function purchase_item($purchase_id = null)
+    {
+        $query = DB::table('pcs_purchase as purchase')
+            ->leftJoin(DB::raw('(
+                SELECT
+                    purchase_id,
+                    SUM(pcs_purchase_items.price) AS total_price,
+                    CONCAT(\'[\', GROUP_CONCAT(\'{
+                        "id":"\', pcs_purchase_items.id, \'",
+                        "sku":"\', pcs_purchase_items.sku, \'",
+                        "product_title":"\', pcs_purchase_items.title, \'",
+                        "price":"\', pcs_purchase_items.price / pcs_purchase_items.num, \'",
+                        "qty":"\', pcs_purchase_items.num, \'",
+                        "total_price":"\', pcs_purchase_items.price, \'",
+                        "memo":"\', COALESCE(pcs_purchase_items.memo, ""), \'",
+                        "taxation":"\', product.has_tax, \'"
+                    }\' ORDER BY pcs_purchase_items.id), \']\') AS items
+                FROM pcs_purchase_items
+                LEFT JOIN prd_product_styles ON prd_product_styles.id = pcs_purchase_items.product_style_id
+                LEFT JOIN prd_products AS product ON product.id = prd_product_styles.product_id WHERE product.deleted_at IS NULL
+                GROUP BY purchase_id
+                ) AS purchase_table'), function ($join){
+                    $join->on('purchase_table.purchase_id', '=', 'purchase.id');
+            })
+            ->leftJoin('prd_suppliers as supplier', 'supplier.id', '=', 'purchase.supplier_id')
+            ->leftJoin('pcs_paying_orders AS po_deposit', function ($join) {
+                $join->on('po_deposit.source_id', '=', 'purchase.id');
+                $join->where([
+                    'po_deposit.source_type'=>app(self::class)->getTable(),
+                    'po_deposit.source_sub_id'=>null,
+                    'po_deposit.type'=>0,
+                    'po_deposit.deleted_at'=>null,
+                ]);
+            })
+            ->leftJoin('pcs_paying_orders AS po_balance', function ($join) {
+                $join->on('po_balance.source_id', '=', 'purchase.id');
+                $join->where([
+                    'po_balance.source_type'=>app(self::class)->getTable(),
+                    'po_balance.source_sub_id'=>null,
+                    'po_balance.type'=>1,
+                    'po_balance.deleted_at'=>null,
+                ]);
+            })
+
+            ->where(function ($q) use ($purchase_id) {
+                if($purchase_id){
+                    if(gettype($purchase_id) == 'array') {
+                        $q->whereIn('purchase.id', $purchase_id);
+                    } else {
+                        $q->where('purchase.id', $purchase_id);
+                    }
+                }
+
+                $q->where('purchase.deleted_at', null);
+            })
+
+            ->select(
+                'purchase.id AS purchase_id',
+                'purchase.sn AS purchase_sn',
+                'purchase.purchase_user_name AS purchase_user_name',
+                'purchase.logistics_price AS purchase_logistics_price',
+                'purchase.logistics_memo AS purchase_logistics_memo',
+                'purchase.audit_user_name AS purchase_audit_user_name',
+
+                'purchase_table.items AS purchase_table_items',
+                'purchase_table.total_price AS purchase_table_total_price',
+
+                'supplier.id AS supplier_id',
+                'supplier.name AS supplier_name',
+                'supplier.contact_tel AS supplier_phone',
+                'supplier.email AS supplier_email',
+                'supplier.contact_address AS supplier_address',
+
+                'po_deposit.id AS po_deposit_id',
+                'po_deposit.sn AS po_deposit_sn',
+                'po_deposit.price AS po_deposit_price',
+                'po_deposit.balance_date AS po_deposit_balance_date',
+                'po_deposit.summary AS po_deposit_summary',
+                'po_deposit.memo AS po_deposit_memo',
+                'po_deposit.payee_id AS po_deposit_payee_id',
+                'po_deposit.payee_name AS po_deposit_payee_name',
+                'po_deposit.payee_phone AS po_deposit_payee_phone',
+                'po_deposit.payee_address AS po_deposit_payee_address',
+                'po_deposit.created_at AS po_deposit_created_at',
+
+                'po_balance.id AS po_balance_id',
+                'po_balance.sn AS po_balance_sn',
+                'po_balance.price AS po_balance_price',
+                'po_balance.balance_date AS po_balance_balance_date',
+                'po_balance.summary AS po_balance_summary',
+                'po_balance.memo AS po_balance_memo',
+                'po_balance.payee_id AS po_balance_payee_id',
+                'po_balance.payee_name AS po_balance_payee_name',
+                'po_balance.payee_phone AS po_balance_payee_phone',
+                'po_balance.payee_address AS po_balance_payee_address',
+                'po_balance.created_at AS po_balance_created_at'
+            )
+            ->orderBy('purchase.id', 'desc');
+
+        return $query;
+    }
 }

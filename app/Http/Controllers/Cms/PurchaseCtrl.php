@@ -566,28 +566,38 @@ class PurchaseCtrl extends Controller
      */
     public function payOrder(Request $request, int $id)
     {
-        $val = Validator::make($request->all(), [
-            'type'    => ['required', 'string', 'regex:/^(0|1)$/'],
-            'summary' => ['required', 'string'],
-            'price' => ['required', 'int', 'min:1'],
-            'memo' => ['nullable', 'string']
+        $request->merge([
+            'id' => $id,
+            'type' => request('type'),
         ]);
 
-        $validatedReq = $val->validated();
+        $request->validate([
+            'id' => 'required|exists:pcs_purchase,id',
+            'type' => 'required|in:0,1',
+        ]);
+
+        $source_type = app(Purchase::class)->getTable();
+        $source_sub_id = null;
+        $type = request('type');
+
+        $paying_order = PayingOrder::where([
+            'source_type' => $source_type,
+            'source_id' => $id,
+            'source_sub_id' => $source_sub_id,
+            'type' => $type,
+            'deleted_at' => null,
+        ])->first();
+
+        $validatedReq = $request->except('_token');
+
+        $purchase = Purchase::purchase_item($id)->get();
+        foreach ($purchase as $key => $value) {
+            $purchase[$key]->purchase_table_items = json_decode($value->purchase_table_items);
+        }
+        $purchase = $purchase->first();
 
         //產生付款單
         if ($request->isMethod('POST')) {
-            $source_type = app(Purchase::class)->getTable();
-            $source_sub_id = null;
-
-            $paying_order = PayingOrder::where([
-                'source_type'=>$source_type,
-                'source_id'=>$id,
-                'source_sub_id'=>$source_sub_id,
-                'type'=>1,
-                'deleted_at'=>null,
-            ])->first();
-
             if(! $paying_order){
                 if ($validatedReq['type'] === '1') {
                     $totalPrice = self::getPaymentPrice($id)['finalPaymentPrice'];
@@ -595,13 +605,10 @@ class PurchaseCtrl extends Controller
                     $totalPrice = intval($validatedReq['price']);
                 }
 
-                $purchaseData = Purchase::getPurchase($id)->first();
-                $supplier = Supplier::where('id', '=', $purchaseData->supplier_id)->get()->first();
-
                 $product_grade = PayableDefault::where('name', '=', 'product')->first()->default_grade_id;
                 $logistics_grade = PayableDefault::where('name', '=', 'logistics')->first()->default_grade_id;
 
-                PayingOrder::createPayingOrder(
+                $result = PayingOrder::createPayingOrder(
                     $source_type,
                     $id,
                     $source_sub_id,
@@ -612,11 +619,13 @@ class PurchaseCtrl extends Controller
                     $totalPrice ?? 0,
                     $request['deposit_summary'] ?? '',
                     $request['deposit_memo'] ?? '',
-                    $supplier->id,
-                    $supplier->name,
-                    $supplier->contact_tel,
-                    $supplier->contact_address
+                    $purchase->supplier_id,
+                    $purchase->supplier_name,
+                    $purchase->supplier_phone,
+                    $purchase->supplier_address
                 );
+
+                $paying_order = PayingOrder::findOrFail($result['id']);
             }
         }
 
@@ -659,11 +668,10 @@ class PurchaseCtrl extends Controller
 
         $pay_off = false;
         $pay_off_date = null;
-        $pay_record = AccountPayable::where('pay_order_id', $payingOrderData->id);
-        $sum_pay = $pay_record->sum('tw_price');
-        if($payingOrderData->price == $sum_pay ){
+        $payable_data = PayingOrder::get_payable_detail($paying_order->id);
+        if($payingOrderData->price == $payable_data->sum('tw_price') ){
             $pay_off = true;
-            if($payingOrderData->price == 0 && $pay_record->count() == 0){
+            if($payingOrderData->price == 0 && $payable_data->count() == 0){
                 $pay_off_date = date('Y-m-d', strtotime($payingOrderData->created_at));
             } else {
                 $pay_off_date = date('Y-m-d', strtotime($payingOrderData->balance_date));
@@ -674,21 +682,6 @@ class PurchaseCtrl extends Controller
             $accountant = DB::table('usr_users')
                             ->find($accountPayable->accountant_id_fk, ['name'])
                             ->name;
-        }
-
-        $payable_data = $pay_record->get();
-        foreach($payable_data as $value){
-            $value->payable_method_name = AccountPayable::getPayableNameByModelName($value->payable_type);
-            $value->account = AllGrade::find($value->all_grades_id)->eachGrade;
-
-            // if($value->payable_method == 'foreign_currency'){
-            //     $arr = explode('-', AllGrade::find($value->all_grades_id)->eachGrade->name);
-            //     $value->currency_name = $arr[0] == '外幣' ? $arr[1] . ' - ' . $arr[2] : 'NTD';
-            //     $value->currency_rate = DB::table('acc_payable_currency')->find($value->payable_method_id)->currency;
-            // } else {
-            //     $value->currency_name = 'NTD';
-            //     $value->currency_rate = 1;
-            // }
         }
 
         // session([
