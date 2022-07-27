@@ -27,6 +27,18 @@
             <a href="{{ Route('cms.order.personal-bonus', ['id' => $order->id]) }}"
                 class="btn btn-warning btn-sm my-1 ms-1" role="button">個人獎金</a>
 
+            <a href="{{ Route('cms.order.split-order', ['id' => $order->id]) }}" role="button" class="btn btn-dark btn-sm my-1 ms-1">分割訂單</a>
+
+
+            @if ($received_order_data && !$order->invoice_number)
+                <a href="{{ Route('cms.order.create-invoice', ['id' => $order->id]) }}" role="button"
+                    class="btn btn-success btn-sm my-1 ms-1">開立發票</a>
+            @endif
+            
+            @if ($canCancel)
+                <a href="{{ Route('cms.order.cancel-order', ['id' => $order->id]) }}" role="button" class="btn btn-outline-danger btn-sm my-1 ms-1">取消訂單</a>
+            @endif
+
             @if ($received_order_data)
                 @if (!in_array($order->status, ['已入款', '結案']))
                     <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm my-1 ms-1"
@@ -36,20 +48,6 @@
                     <button type="button" class="btn btn-outline-danger btn-sm my-1 ms-1" disabled>刪除收款單</button>
                 @endif
             @endif
-
-            @if ($received_order_data && !$order->invoice_number)
-                <a href="{{ Route('cms.order.create-invoice', ['id' => $order->id]) }}" role="button"
-                    class="btn btn-success btn-sm my-1 ms-1">開立發票</a>
-            @endif
-
-            <a href="#" role="button" class="btn btn-outline-success btn-sm my-1 ms-1">訂單完成（暫放）</a>
-            @if ($canCancel)
-                <a href="{{ Route('cms.order.cancel-order', ['id' => $order->id]) }}" role="button" class="btn btn-outline-danger btn-sm my-1 ms-1">取消訂單</a>
-            @endif
-
-            <a href="{{ Route('cms.order.split-order', ['id' => $order->id]) }}" role="button" class="btn btn-outline-success btn-sm my-1 ms-1">分割訂單</a>
-
-
         </div>
     </nav>
 
@@ -258,8 +256,8 @@
                                 @endif
                                 <a class="btn btn-sm btn-success -in-header mb-1"
                                    href="{{ Route('cms.delivery.back_detail', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">銷貨退回明細</a>
-{{--                                <a class="btn btn-sm btn-success -in-header mb-1"--}}
-{{--                                   href="{{ Route('cms.delivery.back_inbound', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">退貨入庫審核</a>--}}
+                                {{--<a class="btn btn-sm btn-success -in-header mb-1"--}}
+                                {{--   href="{{ Route('cms.delivery.back_inbound', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">退貨入庫審核</a>--}}
                             @else
                                 <a class="btn btn-sm btn-success -in-header mb-1"
                                    href="{{ Route('cms.delivery.back', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">退貨</a>

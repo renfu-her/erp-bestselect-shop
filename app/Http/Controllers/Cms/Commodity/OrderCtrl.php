@@ -1015,6 +1015,7 @@ class OrderCtrl extends Controller
     public function split_order(Request $request, $id)
     {
         return view('cms.commodity.order.split_order', [
+            'breadcrumb_data' => ['id' => $id, 'sn' => 'sn'],
         ]);
     }
 
