@@ -33,7 +33,7 @@ Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
 
     Route::get('cancel-order/{id}', [OrderCtrl::class, 'cancel_order'])->name('cancel-order');
     Route::get('split-order/{id}', [OrderCtrl::class, 'split_order'])->name('split-order');
-    Route::get('update-split-order/{id}', [OrderCtrl::class, 'update_split_order']);
+    Route::post('split-order/{id}', [OrderCtrl::class, 'update_split_order']);
 
 
 });
