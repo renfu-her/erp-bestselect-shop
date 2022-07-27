@@ -1017,5 +1017,9 @@ class OrderCtrl extends Controller
         return view('cms.commodity.order.split_order', [
         ]);
     }
-
+    // 儲存
+    public function update_split_order(Request $request, $id)
+    {
+        Order::splitOrder($id);
+    }
 }

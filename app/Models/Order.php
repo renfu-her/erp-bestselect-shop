@@ -835,8 +835,58 @@ class Order extends Model
         OrderProfit::where('order_id', $order_id)->delete();
 
         DB::commit();
-        
+
         return;
 
     }
+    // 分割訂單
+    public static function splitOrder($order_id)
+    {
+        $order = self::where('id', $order_id)->get()->first();
+        if (!$order) {
+            return;
+        }
+
+        if ($order->status_code != OrderStatus::Add()) {
+            return;
+        }
+
+        dd('aa');
+
+        DB::beginTransaction();
+
+        $order_sn = "O" . date("Ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
+                ->get()
+                ->count()) + 1, 4, '0', STR_PAD_LEFT);
+
+        $nid = self::create([
+            'sn' => $order_sn,
+            'email' => $order->email,
+            'sale_channel_id' => $order->sale_channel_id,
+            'status_code' => $order->status_code,
+            'status' => $order->status,
+            'mcode' => $order->mcode,
+            'dlv_fee' => $order->dlv_fee,
+            'dlv_taxation' => $order->dlv_taxation,
+            'origin_price' => $order->origin_price,
+            'total_price' => $order->total_price,
+            'discount_value' => $order->discount_value,
+            'discounted_price' => $order->discounted_price,
+            'note' => $order->sn . " 拆單",
+            'auto_dividend' => $order->auto_dividend,
+            'allotted_dividend' => $order->allotted_dividend,
+            'dividend_lifecycle' => $order->dividend_lifecycle,
+            'active_delay_day' => $order->active_delay_day,
+            'unique_id' => self::generate_unique_id(),
+            'category' => $order->category,
+            'carrier_type' => $order->carrier_type,
+            'carrier_num' => $order->carrier_num,
+            'payment_status' => $order->payment_status,
+            'payment_status_title' => $order->payment_status_title,
+        ])->id;
+
+        DB::commit();
+
+    }
+
 }
