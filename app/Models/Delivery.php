@@ -315,6 +315,7 @@ class Delivery extends Model
                 $join->on('csn.item_id', '=', 'rec_depot.event_item_id');
                 $join->where('rec_depot.delivery_id', $delivery_id);
             })
+            ->whereIn('rec_depot.prd_type', ['p', 'c'])
             ->whereNotNull('rec_depot.delivery_id')
             ->whereNotNull('csn.item_id')
             ->select('*');
