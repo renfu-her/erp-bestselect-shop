@@ -272,9 +272,10 @@ class Delivery extends Model
 
         $query = DB::table(DB::raw("({$sub_rec_depot->toSql()}) as rec_depot"))
             ->leftJoinSub($sub_orders, 'orders', function($join) use($delivery_id) {
-                $join->on('orders.sub_order_id', '=', 'rec_depot.event_item_id');
+                $join->on('orders.item_id', '=', 'rec_depot.event_item_id');
                 $join->where('rec_depot.delivery_id', $delivery_id);
             })
+            ->whereIn('rec_depot.prd_type', ['p', 'c'])
             ->whereNotNull('rec_depot.delivery_id')
             ->whereNotNull('orders.item_id')
             ->select('*');
