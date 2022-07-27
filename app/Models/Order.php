@@ -167,7 +167,7 @@ class Order extends Model
             'sku' => 'item.sku',
             'price' => 'item.price',
             'qty' => 'item.qty',
-            'style_id'=>'item.product_style_id',
+            'style_id' => 'item.product_style_id',
             'img_url' => 'IF(item.img_url IS NULL,"",item.img_url)',
             'total_price' => 'item.origin_price']);
 
@@ -858,7 +858,7 @@ class Order extends Model
         $nSubOrders = [];
         //  $originDiscount = $order->dlv_fee;
         $total_price = 0;
-       // dd($items);
+        // dd($items);
         foreach ($items as $key => $qty) {
             $_item = OrderItem::where('order_id', $order_id)->where('product_style_id', $key)->get()->first();
             //  dd($_item);
@@ -917,7 +917,7 @@ class Order extends Model
             'discounted_price' => $order->discounted_price - $total_price,
             'note' => $order->note . " " . "拆分" . $order_sn,
         ]);
-
+        // create order
         $nid = self::create([
             'sn' => $order_sn,
             'email' => $order->email,
@@ -943,6 +943,24 @@ class Order extends Model
             'payment_status' => $order->payment_status,
             'payment_status_title' => $order->payment_status_title,
         ])->id;
+        // copy address
+        $address = DB::table('ord_address')->where('order_id', $order_id)->get()->toArray();
+
+        DB::table('ord_address')->insert(array_map(function ($n) use ($nid) {
+            return [
+                "order_id" => $nid,
+                "type" => $n->type,
+                "city_id" => $n->city_id,
+                "city_title" => $n->city_title,
+                "region_id" => $n->region_id,
+                "region_title" => $n->region_title,
+                "addr" => $n->addr,
+                "address" => $n->address,
+                "zipcode" => $n->zipcode,
+                "name" => $n->name,
+                "phone" => $n->phone,
+            ];
+        }, $address));
 
         $idx = 1;
         foreach ($nSubOrders as $sorder) {
