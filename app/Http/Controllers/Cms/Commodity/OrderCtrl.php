@@ -1014,9 +1014,36 @@ class OrderCtrl extends Controller
     // 分割訂單
     public function split_order(Request $request, $id)
     {
+        list($order, $subOrder) = $this->getOrderAndSubOrders($id);
+
+        if (!$order) {
+            return abort(404);
+        }
+        //  dd($subOrder);
+
         return view('cms.commodity.order.split_order', [
-            'breadcrumb_data' => ['id' => $id, 'sn' => 'sn'],
+            'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
+            'subOrders' => $subOrder,
+            'order' => $order,
         ]);
     }
+    // 儲存
+    public function update_split_order(Request $request, $id)
+    {
 
+        $request->validate([
+            'style_id' => 'required|array',
+            'qty' => 'required|array',
+        ]);
+
+        $d = $request->all();
+        $items = [];
+        foreach ($d['style_id'] as $key => $style) {
+            $items[$style] = $d['qty'][$key];
+        }
+
+        Order::splitOrder($id, $items);
+        wToast('分割完成');
+        return redirect()->back();
+    }
 }
