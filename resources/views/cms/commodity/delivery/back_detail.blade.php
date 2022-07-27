@@ -19,9 +19,8 @@
     @enderror
 
     <div class="col-12 d-flex justify-content mt-2 flex-wrap">
-        @if($delivery->event == App\Enums\Delivery\Event::order()->value)
-            <a class="btn btn-sm btn-success -in-header mb-1"
-               href="{{ Route('cms.delivery.back_detail', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $delivery->event_id], true) }}">新增退貨付款單</a>
+        @if(! $back_item->po_sn)
+            <a class="btn btn-sm btn-primary -in-header mb-1" href="{{ Route('cms.delivery.return-pay-order', ['id' => $delivery_id]) }}">新增退貨付款單</a>
         @endif
     </div>
     <div class="card shadow p-4 mb-4">
@@ -112,6 +111,14 @@
                 <dd>{{$order->sn ?? ''}}</dd>
             </div>
         </dl>
+        @if($back_item->po_sn)
+        <dl class="row">
+            <div class="col">
+                <dt>退貨付款單號</dt>
+                <dd><a href="{{ route('cms.delivery.return-pay-order', ['id' => $back_item->delivery_id]) }}" class="-text">{{ $back_item->po_sn }}</a></dd>
+            </div>
+        </dl>
+        @endif
     </div>
 
     <div class="card shadow p-4 mb-4">

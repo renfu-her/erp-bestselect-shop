@@ -20,7 +20,7 @@ Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
 
     Route::match(['get', 'post'], 'logistic_pay/{id}/{sid}', [OrderCtrl::class, 'logistic_pay_order'])->name('logistic-pay-order')->middleware('permission:cms.order.logistic-pay-order');
     Route::get('return_pay/{id}/{sid?}', [OrderCtrl::class, 'return_pay_order'])->name('return-pay-order')->middleware('permission:cms.order.return-pay-order');
-    Route::match(['get', 'post'], 'return_pay_create/{id}/{sid?}', [OrderCtrl::class, 'return_pay_create'])->name('return-pay-create')->middleware('permission:cms.order.return-pay-create');
+    Route::match(['get', 'post'], 'return_pay_create/{id}/{sid?}', [OrderCtrl::class, 'return_pay_create'])->name('return-pay-create')->middleware('permission:cms.order.return-pay-order');
 
     Route::get('invoice/{id}', [OrderCtrl::class, 'create_invoice'])->name('create-invoice')->middleware('permission:cms.order.create-invoice');
     Route::post('invoice/{id}', [OrderCtrl::class, 'store_invoice'])->name('store-invoice');
