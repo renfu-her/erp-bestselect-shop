@@ -173,12 +173,12 @@
                                 @endif
                             </td>
                             <td>
-                                @if (!is_null($data->hasDelivery))
+                                @if (isset($data->hasDelivery) && !is_null($data->hasDelivery))
                                     是
                                 @endif
                             </td>
                             <td>
-                                @if (!is_null($data->hasSpecList))
+                                @if (isset($data->hasSpecList) && !is_null($data->hasSpecList))
                                     是
                                 @endif
                             </td>
