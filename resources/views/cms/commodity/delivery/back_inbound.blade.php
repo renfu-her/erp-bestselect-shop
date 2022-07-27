@@ -96,7 +96,7 @@
                                                         <input type="text" name="qty[]" value="{{ $rec->qty }}" class="form-control form-control-sm text-center" readonly>
                                                     </td>
                                                     <td class="text-center">
-                                                        <input type="number" name="back_qty[]" value="{{ $rec->qty }}" max="{{ $rec->qty }}" min="1" class="form-control form-control-sm text-center">
+                                                        <input type="number" name="back_qty[]" value="{{ $rec->back_qty }}" max="{{ $rec->qty }}" min="1" class="form-control form-control-sm text-center">
                                                     </td>
                                                     <td>
                                                         <input type="text" name="memo[]" value="" class="form-control form-control-sm">
@@ -120,7 +120,9 @@
         </div>
         <div id="submitDiv">
             <div class="col-auto">
-                <button type="submit" class="btn btn-primary px-4" >送出</button>
+                @if(false == isset($delivery->back_inbound_date))
+                    <button type="submit" class="btn btn-primary px-4" >送出</button>
+                @endif
                 @if($delivery->event == App\Enums\Delivery\Event::order()->value)
                     <a href="{{ Route('cms.order.detail', ['id' => $order_id, 'subOrderId' => $eventId ]) }}" class="btn btn-outline-primary px-4" role="button">返回明細</a>
                 @elseif($delivery->event == App\Enums\Delivery\Event::consignment()->value)

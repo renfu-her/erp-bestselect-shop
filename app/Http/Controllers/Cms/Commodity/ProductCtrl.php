@@ -65,8 +65,8 @@ class ProductCtrl extends Controller
             'product_type' => $cond['product_type'],
             'consume' => $cond['consume'] == 'all' ? null : $cond['consume'],
             'public' => $cond['public'] == 'all' ? null : $cond['public'],
-            'hasDelivery' => $cond['hasDelivery'],
-            'hasSpecList' => $cond['hasSpecList'],
+            'hasDelivery' => $cond['hasDelivery'] == 'all' ? null : $cond['hasDelivery'],
+            'hasSpecList' => $cond['hasSpecList'] == 'all' ? null : $cond['hasSpecList'],
             'online' => $cond['online'],
         ])
             ->paginate($page)->appends($query);
