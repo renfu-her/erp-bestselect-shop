@@ -979,8 +979,9 @@ class Order extends Model
 
         $idx = 1;
         foreach ($nSubOrders as $sorder) {
+            $ssn = $order_sn . "-" . str_pad($idx, 2, '0', STR_PAD_LEFT);
             $soid = SubOrders::create([
-                'sn' => $order_sn . "-" . str_pad($idx, 2, '0', STR_PAD_LEFT),
+                'sn' => $ssn,
                 'order_id' => $nid,
                 "ship_sn" => null,
                 "ship_category" => $sorder->ship_category,
@@ -1003,6 +1004,17 @@ class Order extends Model
                 "close_date" => null,
                 "dlv_audit_date" => null,
             ])->id;
+
+            Delivery::createData(
+                Event::order()->value
+                , $soid
+                , $ssn 
+                , $sorder->ship_temp_id ?? null
+                , $sorder->ship_temp ?? null
+                , $sorder->ship_category ?? null
+                , $sorder->ship_category_name ?? null
+                , $sorder->ship_event_id ?? null
+            );
 
             foreach ($sorder->items as $item) {
 
