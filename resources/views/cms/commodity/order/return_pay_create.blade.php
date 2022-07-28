@@ -68,7 +68,7 @@
                             @if($order->dlv_fee > 0)
                             <tr>
                                 <td>{{ $paying_order->sn }}</td>
-                                <td></td>
+                                <td>{{ $so_value->sn }}</td>
                                 <td>{{ $logistics_grade_name }}</td>
                                 <td>物流費用</td>
                                 <td class="text-end">{{ number_format($order->dlv_fee, 2) }}</td>
@@ -84,7 +84,7 @@
                                 @foreach($order_discount ?? [] as $d_value)
                                 <tr>
                                     <td>{{ $paying_order->sn }}</td>
-                                    <td></td>
+                                    <td>{{ $so_value->sn }}</td>
                                     <td>{{ $d_value->account_code }} {{ $d_value->account_name }}</td>
                                     <td>{{ $d_value->title }}</td>
                                     <td class="text-end">-{{ number_format($d_value->discount_value, 2) }}</td>
