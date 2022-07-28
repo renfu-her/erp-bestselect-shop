@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('sub-content')
-    @if(! $sub_order->logistic_po_balance_date)
+    @if(! $paying_order->balance_date)
         <a href="{{ Route('cms.order.logistic-po-create', ['id' => $sub_order->order_id, 'sid' => $sub_order->id]) }}" class="btn btn-primary" role="button">付款</a>
     @endif
     <button type="submit" class="btn btn-danger">中一刀列印畫面</button>
@@ -38,11 +38,11 @@
 
                 <dl class="row mb-0 border-top">
                     <div class="col">
-                        <dt>付款單號：{{ $sub_order->logistic_po_sn }}</dt>
+                        <dt>付款單號：{{ $paying_order->sn }}</dt>
                         <dd></dd>
                     </div>
                     <div class="col">
-                        <dt>製表日期：{{ date('Y-m-d', strtotime($sub_order->logistic_po_created_at)) }}</dt>
+                        <dt>製表日期：{{ date('Y-m-d', strtotime($paying_order->created_at)) }}</dt>
                         <dd></dd>
                     </div>
                 </dl>
@@ -52,9 +52,9 @@
                         <dt>單據編號：<a href="{{ Route('cms.order.detail', ['id' => $sub_order->order_id, 'subOrderId' => $sub_order->id]) }}">{{ $sub_order->sn }}</a></dt>
                         <dd></dd>
                     </div>
-                    @if($sub_order->logistic_po_balance_date)
+                    @if($paying_order->balance_date)
                     <div class="col">
-                        <dt>付款日期：{{ date('Y-m-d', strtotime($sub_order->logistic_po_balance_date)) }}</dt>
+                        <dt>付款日期：{{ date('Y-m-d', strtotime($paying_order->balance_date)) }}</dt>
                         <dd></dd>
                     </div>
                     @endif

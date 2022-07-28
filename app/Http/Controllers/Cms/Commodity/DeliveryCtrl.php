@@ -813,6 +813,12 @@ class DeliveryCtrl extends Controller
             );
 
             $paying_order = PayingOrder::findOrFail($result['id']);
+
+            $delivery = Delivery::back_item($id)->get();
+            foreach ($delivery as $key => $value) {
+                $delivery[$key]->delivery_back_items = json_decode($value->delivery_back_items);
+            }
+            $delivery = $delivery->first();
         }
 
         $applied_company = DB::table('acc_company')->where('id', 1)->first();
