@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\Delivery\Event;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 
 class LogisticFlow extends Model
 {
@@ -48,10 +48,18 @@ class LogisticFlow extends Model
 
             $logistic_status_last = reset($logistic_status);
 
-            $delivery->update([
+            $updateData = [
                 'logistic_status' => $logistic_status_last->value,
                 'logistic_status_code' => $logistic_status_last->key,
-            ]);
+            ];
+            $delivery->update($updateData);
+            if (Event::order()->value == $deliveryGet->event) {
+                SubOrders::where('id', '=', $deliveryGet->event_id)->update($updateData);
+            } else if (Event::consignment()->value == $deliveryGet->event) {
+                Consignment::where('id', '=', $deliveryGet->event_id)->update($updateData);
+            } else if (Event::csn_order()->value == $deliveryGet->event) {
+                CsnOrder::where('id', '=', $deliveryGet->event_id)->update($updateData);
+            }
             return ['success' => 1, 'error_msg' => ""];
 //        }
     }

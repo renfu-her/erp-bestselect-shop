@@ -8,7 +8,10 @@ use App\Enums\Delivery\LogisticStatus;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Purchase\LogEventFeature;
 use App\Enums\StockEvent;
+use App\Enums\Supplier\Payment;
 use App\Http\Controllers\Controller;
+use App\Models\AllGrade;
+use App\Models\AccountPayable;
 use App\Models\Consignment;
 use App\Models\ConsignmentItem;
 use App\Models\CsnOrder;
@@ -17,18 +20,29 @@ use App\Models\CsnOrderItem;
 use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\DlvBack;
+use App\Models\GeneralLedger;
 use App\Models\Logistic;
 use App\Models\Order;
 use App\Models\OrderFlow;
 use App\Models\OrderInvoice;
 use App\Models\OrderItem;
+use App\Models\PayingOrder;
+use App\Models\PayableAccount;
+use App\Models\PayableCash;
+use App\Models\PayableCheque;
+use App\Models\PayableRemit;
+use App\Models\PayableForeignCurrency;
+use App\Models\PayableOther;
+use App\Models\PayableDefault;
 use App\Models\ProductStock;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseLog;
+use App\Models\ReceivedDefault;
 use App\Models\ReceiveDepot;
 use App\Models\ShipmentCategory;
 use App\Models\ShipmentGroup;
 use App\Models\SubOrders;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -380,6 +394,8 @@ class DeliveryCtrl extends Controller
                     DB::raw('ifnull(item_tb.unit_cost, "") as uni_cost')
                     , DB::raw('ifnull(item_tb.bonus, "") as bonus')
                 );
+
+                $dlvBack->where('dlv_back.delivery_id', $delivery->id);
             }
             $dlvBack = $dlvBack->get();
         }
@@ -436,6 +452,11 @@ class DeliveryCtrl extends Controller
         $rsp_arr['dlvBack'] = $dlvBack;
         $rsp_arr['ord_items_arr'] = $ord_items_arr;
         $rsp_arr['breadcrumb_data'] = ['sn' => $delivery->event_sn, 'parent' => $event ];
+        $back_item = Delivery::back_item($delivery->id)->get();
+        foreach ($back_item as $key => $value) {
+            $back_item[$key]->delivery_back_items = json_decode($value->delivery_back_items);
+        }
+        $rsp_arr['back_item'] = $back_item->first();
         return view('cms.commodity.delivery.back_detail', $rsp_arr);
     }
 
@@ -740,6 +761,246 @@ class DeliveryCtrl extends Controller
             }
         } else {
             throw ValidationException::withMessages(['error_msg' => '無可退貨入庫數量']);
+        }
+    }
+
+    public function return_pay_order(Request $request, $id)
+    {
+        $request->merge([
+            'id' => $id,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:dlv_delivery,id',
+        ]);
+
+        $source_type = app(Delivery::class)->getTable();
+        $type = 9;
+
+        $paying_order = PayingOrder::where([
+            'source_type' => $source_type,
+            'source_id' => $id,
+            'source_sub_id' => null,
+            'type' => $type,
+            'deleted_at' => null,
+        ])->first();
+
+        $delivery = Delivery::back_item($id)->get();
+        foreach ($delivery as $key => $value) {
+            $delivery[$key]->delivery_back_items = json_decode($value->delivery_back_items);
+        }
+        $delivery = $delivery->first();
+
+        if (!$paying_order) {
+            $product_grade = ReceivedDefault::where('name', '=', 'product')->first()->default_grade_id;
+            $logistics_grade = ReceivedDefault::where('name', '=', 'logistics')->first()->default_grade_id;
+
+            $result = PayingOrder::createPayingOrder(
+                $source_type,
+                $id,
+                null,
+                $request->user()->id,
+                $type,
+                $product_grade,
+                $logistics_grade,
+                $delivery->delivery_back_total_price ?? 0,
+                '',
+                '',
+                $delivery->buyer_id,
+                $delivery->buyer_name,
+                $delivery->buyer_phone,
+                $delivery->buyer_address
+            );
+
+            $paying_order = PayingOrder::findOrFail($result['id']);
+
+            $delivery = Delivery::back_item($id)->get();
+            foreach ($delivery as $key => $value) {
+                $delivery[$key]->delivery_back_items = json_decode($value->delivery_back_items);
+            }
+            $delivery = $delivery->first();
+        }
+
+        $applied_company = DB::table('acc_company')->where('id', 1)->first();
+
+        $product_grade_name = AllGrade::find($paying_order->product_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->product_grade_id)->eachGrade->name;
+        $logistics_grade_name = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
+
+        // $order_discount = DB::table('ord_discounts')->where([
+        //         'order_type'=>'main',
+        //         'order_id'=>request('id'),
+        //     ])->where('discount_value', '>', 0)->get()->toArray();
+        // foreach($order_discount as $value){
+        //     $value->account_code = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->code : '4000';
+        //     $value->account_name = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->name : '無設定會計科目';
+        // }
+
+        $payable_data = PayingOrder::get_payable_detail($paying_order->id);
+
+        $accountant = User::whereIn('id', $payable_data->pluck('accountant_id_fk')->toArray())->get();
+        $accountant = array_unique($accountant->pluck('name')->toArray());
+        asort($accountant);
+
+        $undertaker = User::find($paying_order->usr_users_id);
+
+        $zh_price = num_to_str($paying_order->price);
+
+        return view('cms.commodity.delivery.return_pay_order', [
+            'breadcrumb_data' => ['event' => $delivery->delivery_event, 'eventId' => $delivery->delivery_event_id, 'sn' => $delivery->delivery_event_sn],
+
+            'paying_order' => $paying_order,
+            'payable_data' => $payable_data,
+            'delivery' => $delivery,
+            // 'order_discount' => $order_discount,
+            'applied_company' => $applied_company,
+            'product_grade_name' => $product_grade_name,
+            'logistics_grade_name' => $logistics_grade_name,
+            'accountant'=>implode(',', $accountant),
+            'undertaker' => $undertaker,
+            'zh_price' => $zh_price,
+        ]);
+    }
+
+    public function return_pay_create(Request $request, $id)
+    {
+        $request->merge([
+            'id' => $id,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:dlv_delivery,id',
+        ]);
+
+        $source_type = app(Delivery::class)->getTable();
+        $type = 9;
+
+        $paying_order = PayingOrder::where([
+            'source_type' => $source_type,
+            'source_id' => $id,
+            'source_sub_id' => null,
+            'type' => $type,
+            'deleted_at' => null,
+        ])->first();
+
+        if(! $paying_order) {
+            return abort(404);
+        }
+
+        $delivery = Delivery::back_item($id)->get();
+        foreach ($delivery as $key => $value) {
+            $delivery[$key]->delivery_back_items = json_decode($value->delivery_back_items);
+        }
+        $delivery = $delivery->first();
+
+        if($request->isMethod('post')){
+            $request->merge([
+                'pay_order_id'=>$paying_order->id,
+            ]);
+
+            $request->validate([
+                'acc_transact_type_fk' => 'required|regex:/^[1-6]$/',
+            ]);
+
+            $req = $request->all();
+
+            $payable_type = $req['acc_transact_type_fk'];
+
+            switch ($payable_type) {
+                case Payment::Cash:
+                    PayableCash::storePayableCash($req);
+                    break;
+                case Payment::Cheque:
+                    PayableCheque::storePayableCheque($req);
+                    break;
+                case Payment::Remittance:
+                    PayableRemit::storePayableRemit($req);
+                    break;
+                case Payment::ForeignCurrency:
+                    PayableForeignCurrency::storePayableCurrency($req);
+                    break;
+                case Payment::AccountsPayable:
+                    PayableAccount::storePayablePayableAccount($req);
+                    break;
+                case Payment::Other:
+                    PayableOther::storePayableOther($req);
+                    break;
+            }
+
+            $payable_data = PayingOrder::get_payable_detail($paying_order->id);
+            if (count($payable_data) > 0 && $paying_order->price == $payable_data->sum('tw_price')) {
+                $paying_order->update([
+                    'balance_date'=>date("Y-m-d H:i:s"),
+                ]);
+            }
+
+            if (PayingOrder::find($paying_order->id) && PayingOrder::find($paying_order->id)->balance_date) {
+                return redirect()->route('cms.delivery.return-pay-order', [
+                    'id' => $delivery->delivery_id,
+                ]);
+
+            } else {
+                return redirect()->route('cms.delivery.return-pay-create', [
+                    'id' => $delivery->delivery_id,
+                ]);
+            }
+
+        } else {
+
+            if($paying_order->balance_date) {
+                return abort(404);
+            }
+
+            $product_grade_name = AllGrade::find($paying_order->product_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->product_grade_id)->eachGrade->name;
+            $logistics_grade_name = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
+
+            // $order_discount = DB::table('ord_discounts')->where([
+            //         'order_type'=>'main',
+            //         'order_id'=>request('id'),
+            //     ])->where('discount_value', '>', 0)->get()->toArray();
+            // foreach($order_discount as $value){
+            //     $value->account_code = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->code : '4000';
+            //     $value->account_name = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->name : '無設定會計科目';
+            // }
+
+            $currency = DB::table('acc_currency')->find($paying_order->acc_currency_fk);
+            if(!$currency){
+                $currency = (object)[
+                    'name'=>'NTD',
+                    'rate'=>1,
+                ];
+            }
+
+            $payable_data = PayingOrder::get_payable_detail($paying_order->id);
+
+            $tw_price = $paying_order->price - $payable_data->sum('tw_price');
+
+            $total_grades = GeneralLedger::total_grade_list();
+
+            return view('cms.commodity.delivery.return_pay_create', [
+                'breadcrumb_data' => ['event' => $delivery->delivery_event, 'eventId' => $delivery->delivery_event_id, 'sn' => $delivery->delivery_event_sn, 'id' => $delivery->delivery_id],
+
+                'paying_order' => $paying_order,
+                'payable_data' => $payable_data,
+                'delivery' => $delivery,
+                // 'order_discount' => $order_discount,
+                'product_grade_name' => $product_grade_name,
+                'logistics_grade_name' => $logistics_grade_name,
+                'currency' => $currency,
+                'tw_price' => $tw_price,
+                'total_grades' => $total_grades,
+
+                'cashDefault' => PayableDefault::where('name', 'cash')->pluck('default_grade_id')->toArray(),
+                'chequeDefault' => PayableDefault::where('name', 'cheque')->pluck('default_grade_id')->toArray(),
+                'remitDefault' => PayableDefault::where('name', 'remittance')->pluck('default_grade_id')->toArray(),
+                'all_currency' => PayableDefault::getCurrencyOptionData()['selectedCurrencyResult']->toArray(),
+                'currencyDefault' => PayableDefault::where('name', 'foreign_currency')->pluck('default_grade_id')->toArray(),
+                'accountPayableDefault' => PayableDefault::where('name', 'accounts_payable')->pluck('default_grade_id')->toArray(),
+                'otherDefault' => PayableDefault::where('name', 'other')->pluck('default_grade_id')->toArray(),
+
+                'form_action' => Route('cms.delivery.return-pay-create', ['id' => $delivery->delivery_id]),
+                'transactTypeList' => AccountPayable::getTransactTypeList(),
+                'chequeStatus' => AccountPayable::getChequeStatus(),
+            ]);
         }
     }
 }

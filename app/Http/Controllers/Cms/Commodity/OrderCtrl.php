@@ -396,7 +396,7 @@ class OrderCtrl extends Controller
         } else {
             $dividend = 0;
         }
-
+      
         return view('cms.commodity.order.detail', [
             'sn' => $sn,
             'order' => $order,
@@ -411,6 +411,7 @@ class OrderCtrl extends Controller
             'dividend' => $dividend,
             'canCancel' => Order::checkCanCancel($id),
             'delivery' => $delivery,
+            'canSplit' => Order::checkCanSplit($id),
         ]);
     }
 
@@ -620,7 +621,7 @@ class OrderCtrl extends Controller
         ]));
     }
 
-    public function logistic_pay_order(Request $request, $id, $sid)
+    public function logistic_po(Request $request, $id, $sid)
     {
         $request->merge([
             'id' => $id,
@@ -643,79 +644,200 @@ class OrderCtrl extends Controller
             'deleted_at' => null,
         ])->first();
 
-        if ($request->isMethod('post')) {
-            if (!$paying_order) {
-                $sub_order = Order::subOrderDetail($id, $sid, true)->get()->toArray()[0];
-                $supplier = Supplier::find($sub_order->supplier_id);
-                $price = $sub_order->logistic_cost;
-                $product_grade = PayableDefault::where('name', '=', 'product')->first()->default_grade_id;
-                $logistics_grade = PayableDefault::where('name', '=', 'logistics')->first()->default_grade_id;
+        $order = Order::orderDetail($id)->get()->first();
+        $sub_order = Order::subOrderDetail($id, $sid, true)->get()->toArray()[0];
+        $supplier = Supplier::find($sub_order->supplier_id);
 
-                PayingOrder::createPayingOrder(
-                    $source_type,
-                    $id,
-                    $sid,
-                    $request->user()->id,
-                    $type,
-                    $product_grade,
-                    $logistics_grade,
-                    $price ?? 0,
-                    '',
-                    '',
-                    $supplier ? $supplier->id : null,
-                    $supplier ? $supplier->name : null,
-                    $supplier ? $supplier->contact_tel : null,
-                    $supplier ? $supplier->contact_address : null
-                );
+        if (!$paying_order) {
+            $price = $sub_order->logistic_cost;
+            $product_grade = PayableDefault::where('name', '=', 'product')->first()->default_grade_id;
+            $logistics_grade = PayableDefault::where('name', '=', 'logistics')->first()->default_grade_id;
+
+            $result = PayingOrder::createPayingOrder(
+                $source_type,
+                $id,
+                $sid,
+                $request->user()->id,
+                $type,
+                $product_grade,
+                $logistics_grade,
+                $price ?? 0,
+                '',
+                '',
+                $supplier ? $supplier->id : null,
+                $supplier ? $supplier->name : null,
+                $supplier ? $supplier->contact_tel : null,
+                $supplier ? $supplier->contact_address : null
+            );
+
+            $paying_order = PayingOrder::findOrFail($result['id']);
+        }
+
+        $applied_company = DB::table('acc_company')->where('id', 1)->first();
+
+        $logistics_grade_name = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
+
+        $payable_data = PayingOrder::get_payable_detail($paying_order->id);
+
+        $accountant = User::whereIn('id', $payable_data->pluck('accountant_id_fk')->toArray())->get();
+        $accountant = array_unique($accountant->pluck('name')->toArray());
+        asort($accountant);
+
+        $undertaker = User::find($paying_order->usr_users_id);
+
+        $zh_price = num_to_str($paying_order->price);
+
+        return view('cms.commodity.order.logistic_po', [
+            'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
+
+            'paying_order' => $paying_order,
+            'payable_data' => $payable_data,
+            'order' => $order,
+            'sub_order' => $sub_order,
+            'undertaker' => $undertaker,
+            'applied_company' => $applied_company,
+            'logistics_grade_name' => $logistics_grade_name,
+            'accountant'=>implode(',', $accountant),
+            'zh_price' => $zh_price,
+        ]);
+    }
+
+
+    public function logistic_po_create(Request $request, $id, $sid)
+    {
+        $request->merge([
+            'id'=>$id,
+            'sid'=>$sid,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:ord_orders,id',
+            'sid' => 'required|exists:ord_sub_orders,id',
+        ]);
+
+        $source_type = app(Order::class)->getTable();
+        $type = 1;
+
+        $paying_order = PayingOrder::where([
+            'source_type'=>$source_type,
+            'source_id'=>$id,
+            'source_sub_id'=>$sid,
+            'type'=>$type,
+            'deleted_at'=>null,
+        ])->first();
+
+        if(! $paying_order) {
+            return abort(404);
+        }
+
+        if($request->isMethod('post')){
+            $request->merge([
+                'pay_order_id'=>$paying_order->id,
+            ]);
+
+            $request->validate([
+                'acc_transact_type_fk' => 'required|regex:/^[1-6]$/',
+            ]);
+
+            $req = $request->all();
+
+            $payable_type = $req['acc_transact_type_fk'];
+
+            switch ($payable_type) {
+                case Payment::Cash:
+                    PayableCash::storePayableCash($req);
+                    break;
+                case Payment::Cheque:
+                    PayableCheque::storePayableCheque($req);
+                    break;
+                case Payment::Remittance:
+                    PayableRemit::storePayableRemit($req);
+                    break;
+                case Payment::ForeignCurrency:
+                    PayableForeignCurrency::storePayableCurrency($req);
+                    break;
+                case Payment::AccountsPayable:
+                    PayableAccount::storePayablePayableAccount($req);
+                    break;
+                case Payment::Other:
+                    PayableOther::storePayableOther($req);
+                    break;
             }
 
-            return redirect(Route('cms.order.logistic-pay-order', [
-                'id' => $id,
-                'sid' => $sid,
-            ]));
+            $payable_data = PayingOrder::get_payable_detail($paying_order->id);
+            if (count($payable_data) > 0 && $paying_order->price == $payable_data->sum('tw_price')) {
+                $paying_order->update([
+                    'balance_date'=>date("Y-m-d H:i:s"),
+                ]);
+            }
+
+            if (PayingOrder::find($paying_order->id) && PayingOrder::find($paying_order->id)->balance_date) {
+                return redirect()->route('cms.order.logistic-po', [
+                    'id' => $id,
+                    'sid' => $sid,
+                ]);
+
+            } else {
+                return redirect()->route('cms.order.logistic-po-create', [
+                    'id' => $id,
+                    'sid' => $sid,
+                ]);
+            }
 
         } else {
 
-            if (!$paying_order) {
+            if($paying_order->balance_date) {
                 return abort(404);
             }
 
             $order = Order::orderDetail($id)->get()->first();
             $sub_order = Order::subOrderDetail($id, $sid, true)->get()->toArray()[0];
-
             $supplier = Supplier::find($sub_order->supplier_id);
-            $undertaker = User::find($paying_order->usr_users_id);
-            $applied_company = DB::table('acc_company')->where('id', 1)->first();
 
-            $logistics_grade = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' - ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
+            $logistics_grade_name = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
 
-            $pay_off = false;
-            $pay_off_date = date('Y-m-d', strtotime($paying_order->created_at));
-            $accountant = null;
-
-            if ($paying_order->balance_date) {
-                $pay_off = true;
-                $pay_off_date = date('Y-m-d', strtotime($paying_order->balance_date));
-                $pay_record = AccountPayable::where('pay_order_id', $paying_order->id);
-                $accountant = User::find($pay_record->latest()->first()->accountant_id_fk);
+            $currency = DB::table('acc_currency')->find($paying_order->acc_currency_fk);
+            if(!$currency){
+                $currency = (object)[
+                    'name'=>'NTD',
+                    'rate'=>1,
+                ];
             }
 
-            return view('cms.commodity.order.logistic_pay_order', [
-                'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
+            $payable_data = PayingOrder::get_payable_detail($paying_order->id);
 
+            $tw_price = $paying_order->price - $payable_data->sum('tw_price');
+
+            $total_grades = GeneralLedger::total_grade_list();
+
+            return view('cms.commodity.order.logistic_po_create', [
+                'breadcrumb_data' => ['id' => $id, 'sid' => $sid, 'sn' => $order->sn],
                 'paying_order' => $paying_order,
+                'payable_data' => $payable_data,
                 'order' => $order,
                 'sub_order' => $sub_order,
                 'supplier' => $supplier,
-                'undertaker' => $undertaker,
-                'applied_company' => $applied_company,
-                'logistics_grade' => $logistics_grade,
-                'pay_off' => $pay_off,
-                'pay_off_date' => $pay_off_date,
-                'accountant' => $accountant,
+                'logistics_grade_name' => $logistics_grade_name,
+                'currency' => $currency,
+                'tw_price' => $tw_price,
+                'total_grades' => $total_grades,
+
+                'cashDefault' => PayableDefault::where('name', 'cash')->pluck('default_grade_id')->toArray(),
+                'chequeDefault' => PayableDefault::where('name', 'cheque')->pluck('default_grade_id')->toArray(),
+                'remitDefault' => PayableDefault::where('name', 'remittance')->pluck('default_grade_id')->toArray(),
+                'all_currency' => PayableDefault::getCurrencyOptionData()['selectedCurrencyResult']->toArray(),
+                'currencyDefault' => PayableDefault::where('name', 'foreign_currency')->pluck('default_grade_id')->toArray(),
+                'accountPayableDefault' => PayableDefault::where('name', 'accounts_payable')->pluck('default_grade_id')->toArray(),
+                'otherDefault' => PayableDefault::where('name', 'other')->pluck('default_grade_id')->toArray(),
+
+                'form_action' => Route('cms.order.logistic-po-create', ['id' => $id, 'sid' => $sid]),
+                'method' => 'create',
+                'transactTypeList' => AccountPayable::getTransactTypeList(),
+                'chequeStatus' => AccountPayable::getChequeStatus(),
             ]);
         }
     }
+
 
     public function return_pay_order(Request $request, $id, $sid = null)
     {
@@ -803,15 +925,6 @@ class OrderCtrl extends Controller
             $value->account_name = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->name : '無設定會計科目';
         }
 
-        $pay_off = false;
-        $pay_off_date = date('Y-m-d', strtotime($paying_order->created_at));
-        $accountant = null;
-
-        if ($paying_order->balance_date) {
-            $pay_off = true;
-            $pay_off_date = date('Y-m-d', strtotime($paying_order->balance_date));
-        }
-
         $payable_data = PayingOrder::get_payable_detail($paying_order->id);
 
         $accountant = User::whereIn('id', $payable_data->pluck('accountant_id_fk')->toArray())->get();
@@ -833,8 +946,6 @@ class OrderCtrl extends Controller
             'applied_company' => $applied_company,
             'product_grade_name' => $product_grade_name,
             'logistics_grade_name' => $logistics_grade_name,
-            'pay_off' => $pay_off,
-            'pay_off_date' => $pay_off_date,
             'accountant'=>implode(',', $accountant),
             'zh_price' => $zh_price,
         ]);
@@ -863,11 +974,11 @@ class OrderCtrl extends Controller
             'deleted_at' => null,
         ])->first();
 
-        if($request->isMethod('post')){
-            if(! $paying_order) {
-                return abort(404);
-            }
+        if(! $paying_order) {
+            return abort(404);
+        }
 
+        if($request->isMethod('post')){
             $request->merge([
                 'pay_order_id'=>$paying_order->id,
             ]);
@@ -923,7 +1034,7 @@ class OrderCtrl extends Controller
 
         } else {
 
-            if(! $paying_order || $paying_order->balance_date) {
+            if($paying_order->balance_date) {
                 return abort(404);
             }
 
@@ -1288,14 +1399,14 @@ class OrderCtrl extends Controller
 
         $customer_id = $request->input('customer_id');
 
-        OrderProfit::changeOwner($id,$customer_id,$request->user()->id);
+        OrderProfit::changeOwner($id, $customer_id, $request->user()->id);
 
         return redirect()->back();
     }
 
     // 取消訂單
-    public function cancel_order(Request $request, $id){
-
+    public function cancel_order(Request $request, $id)
+    {
 
         Order::cancelOrder($id);
 
@@ -1304,5 +1415,40 @@ class OrderCtrl extends Controller
         return redirect()->back();
     }
 
-}
+    // 分割訂單
+    public function split_order(Request $request, $id)
+    {
+        Order::checkCanSplit($id);
+        list($order, $subOrder) = $this->getOrderAndSubOrders($id);
 
+        if (!$order) {
+            return abort(404);
+        }
+        //  dd($subOrder);
+
+        return view('cms.commodity.order.split_order', [
+            'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
+            'subOrders' => $subOrder,
+            'order' => $order,
+        ]);
+    }
+    // 儲存
+    public function update_split_order(Request $request, $id)
+    {
+
+        $request->validate([
+            'style_id' => 'required|array',
+            'qty' => 'required|array',
+        ]);
+
+        $d = $request->all();
+        $items = [];
+        foreach ($d['style_id'] as $key => $style) {
+            $items[$style] = $d['qty'][$key];
+        }
+
+        Order::splitOrder($id, $items);
+        wToast('分割完成');
+        return redirect()->back();
+    }
+}

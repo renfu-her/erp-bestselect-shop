@@ -23,8 +23,27 @@
             <a href="{{ Route('cms.order.bonus-gross', ['id' => $order->id]) }}" class="btn btn-warning btn-sm my-1 ms-1"
                 role="button">獎金毛利</a>
 
-            <a href="{{ Route('cms.order.personal-bonus', ['id' => $order->id]) }}"
-                class="btn btn-warning btn-sm my-1 ms-1" role="button">個人獎金</a>
+            <a href="{{ Route('cms.order.personal-bonus', ['id' => $order->id]) }}" class="btn btn-warning btn-sm my-1 ms-1"
+                role="button">個人獎金</a>
+
+            @if ($canSplit)
+                <a href="{{ Route('cms.order.split-order', ['id' => $order->id]) }}" role="button"
+                    class="btn btn-dark btn-sm my-1 ms-1">分割訂單</a>
+            @endif
+
+            @if ($received_order_data && !$order->invoice_number)
+                <a href="{{ Route('cms.order.create-invoice', ['id' => $order->id]) }}" role="button"
+                    class="btn btn-success btn-sm my-1 ms-1">開立發票</a>
+            @endif
+
+            @if ($canCancel)
+                <a href="{{ Route('cms.order.cancel-order', ['id' => $order->id]) }}" role="button"
+                    class="btn btn-outline-danger btn-sm my-1 ms-1">取消訂單</a>
+            @endif
+
+            @if (!$order->return_pay_order_id && in_array($order->status, ['取消']))
+                <a href="{{ Route('cms.order.return-pay-order', ['id' => $order->id]) }}" role="button" class="btn btn-primary btn-sm my-1 ms-1">新增退貨付款單</a>
+            @endif
 
             @if ($received_order_data)
                 @if (!in_array($order->status, ['已入款', '結案']))
@@ -34,20 +53,6 @@
                 @else
                     <button type="button" class="btn btn-outline-danger btn-sm my-1 ms-1" disabled>刪除收款單</button>
                 @endif
-            @endif
-
-            @if ($received_order_data && !$order->invoice_number)
-                <a href="{{ Route('cms.order.create-invoice', ['id' => $order->id]) }}" role="button"
-                    class="btn btn-success btn-sm my-1 ms-1">開立發票</a>
-            @endif
-
-            <a href="#" role="button" class="btn btn-outline-success btn-sm my-1 ms-1">訂單完成（暫放）</a>
-            @if ($canCancel)
-                <a href="{{ Route('cms.order.cancel-order', ['id' => $order->id]) }}" role="button" class="btn btn-outline-danger btn-sm my-1 ms-1">取消訂單</a>
-            @endif
-
-            @if (!$order->return_pay_order_id && in_array($order->status, ['取消']))
-                <a href="{{ Route('cms.order.return-pay-order', ['id' => $order->id]) }}" role="button" class="btn btn-primary btn-sm my-1 ms-1">新增退貨付款單</a>
             @endif
         </div>
     </nav>
@@ -223,7 +228,7 @@
         @php
             $dlv_fee = 0;
             $price = 0;
-
+            
         @endphp
         @foreach ($subOrders as $subOrder)
             @php
@@ -254,17 +259,19 @@
                             {{-- <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.order.inbound', ['subOrderId' => $subOrderId], true) }}">入庫審核</a> --}}
                             {{-- @endif --}}
 
-                            @if(isset($delivery) && isset($delivery->back_date))
-                                @if( false == isset($delivery->back_inbound_date))
+                            @if (isset($delivery) && isset($delivery->back_date))
+                                @if (false == isset($delivery->back_inbound_date))
                                     <button type="button"
-                                            data-href="{{ Route('cms.delivery.back_delete', ['deliveryId' => $delivery->id], true) }}"
-                                            data-bs-toggle="modal" data-bs-target="#confirm-delete-back"
-                                            class="btn btn-sm btn-danger -in-header mb-1">
+                                        data-href="{{ Route('cms.delivery.back_delete', ['deliveryId' => $delivery->id], true) }}"
+                                        data-bs-toggle="modal" data-bs-target="#confirm-delete-back"
+                                        class="btn btn-sm btn-danger -in-header mb-1">
                                         刪除退貨
                                     </button>
                                 @endif
+
                                 <a class="btn btn-sm btn-success -in-header mb-1"
                                    href="{{ Route('cms.delivery.back_detail', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">銷貨退回明細</a>
+
                                 @if(isset($delivery->back_inbound_date))
                                     <a class="btn btn-sm btn-danger -in-header mb-1"
                                        href="{{ Route('cms.delivery.back_inbound_delete', ['deliveryId' => $delivery->id], true) }}">刪除退貨入庫</a>
@@ -272,9 +279,12 @@
                                     <a class="btn btn-sm btn-success -in-header mb-1"
                                        href="{{ Route('cms.delivery.back_inbound', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">退貨入庫審核</a>
                                 @endif
+                                    
+                                {{-- <a class="btn btn-sm btn-success -in-header mb-1" --}}
+                                {{-- href="{{ Route('cms.delivery.back_inbound', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">退貨入庫審核</a> --}}
                             @else
                                 <a class="btn btn-sm btn-success -in-header mb-1"
-                                   href="{{ Route('cms.delivery.back', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">退貨</a>
+                                    href="{{ Route('cms.delivery.back', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">退貨</a>
                             @endif
 
                             <a target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary -in-header mb-1"
@@ -375,7 +385,7 @@
                 <div class="card-body px-4 pb-4">
                     <dl class="row">
                         <div class="col">
-                            <dt>物流付款單@if ($subOrder->logistic_pay_order_balance_date)
+                            <dt>物流付款單@if ($subOrder->logistic_po_balance_date)
                                     <span class="text-danger">（已付款完成）</span>
                                 @endif
                             </dt>
@@ -385,15 +395,7 @@
                                 @elseif(false == isset($subOrder->delivery_audit_date))
                                     尚未做出貨審核
                                 @else
-                                    @if ($subOrder->logistic_pay_order_sn)
-                                        <a href="{{ Route('cms.order.logistic-pay-order', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}"
-                                            class="text-decoration-none">付款單號-{{ $subOrder->logistic_pay_order_sn }}</a>
-                                    @else
-                                        <input type="hidden" class="form_url"
-                                            value="{{ Route('cms.order.logistic-pay-order', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}">
-                                        <button type="button"
-                                            class="btn btn-link text-decoration-none p-0 m-0 submit_btn">新增付款單</button>
-                                    @endif
+                                    <a href="{{ Route('cms.order.logistic-po', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}" class="text-decoration-none">{{ $subOrder->logistic_po_sn ? $subOrder->logistic_po_sn : '新增付款單' }}</a>
                                 @endif
                             </dd>
                         </div>
@@ -697,17 +699,11 @@
     @endpush
     @push('sub-scripts')
         <script>
-            $('.submit_btn').on('click', function(e) {
-                e.preventDefault();
-                let url = $(this).prev().val();
-                $('#form1').attr('action', url).submit();
-            });
-
             // Modal Control
             $('#confirm-delete').on('show.bs.modal', function(e) {
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
             });
-            $('#confirm-delete-back').on('show.bs.modal', function (e) {
+            $('#confirm-delete-back').on('show.bs.modal', function(e) {
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
             });
 

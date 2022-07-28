@@ -1,8 +1,8 @@
 @extends('layouts.main')
 
 @section('sub-content')
-    @if(! $pay_off)
-        <a href="{{ Route('cms.ap.logistics-create', ['id' => $sub_order->order_id, 'sid' => $sub_order->id]) }}" class="btn btn-primary" role="button">付款</a>
+    @if(! $paying_order->balance_date)
+        <a href="{{ Route('cms.order.logistic-po-create', ['id' => $sub_order->order_id, 'sid' => $sub_order->id]) }}" class="btn btn-primary" role="button">付款</a>
     @endif
     <button type="submit" class="btn btn-danger">中一刀列印畫面</button>
     <button type="submit" class="btn btn-danger">A4列印畫面</button>
@@ -10,11 +10,6 @@
     <br>
     <form id="" method="POST" action="">
         @csrf
-
-        @error('id')
-        <div class="alert alert-danger mt-3">{{ $message }}</div>
-        @enderror
-
         <div class="card shadow mb-4 -detail -detail-primary">
             <div class="card-body px-4">
                 <h2>物流付款單</h2>
@@ -57,9 +52,9 @@
                         <dt>單據編號：<a href="{{ Route('cms.order.detail', ['id' => $sub_order->order_id, 'subOrderId' => $sub_order->id]) }}">{{ $sub_order->sn }}</a></dt>
                         <dd></dd>
                     </div>
-                    @if($pay_off)
+                    @if($paying_order->balance_date)
                     <div class="col">
-                        <dt>付款日期：{{ $pay_off_date }}</dt>
+                        <dt>付款日期：{{ date('Y-m-d', strtotime($paying_order->balance_date)) }}</dt>
                         <dd></dd>
                     </div>
                     @endif
@@ -68,9 +63,9 @@
                 <dl class="row mb-0">
                     <div class="col">
                         <dt>支付對象：
-                            @if($supplier)
-                            <a href="{{ Route('cms.supplier.edit', ['id' => $supplier->id,]) }}" target="_blank">
-                                {{ $supplier->name }}
+                            @if($paying_order->payee_id)
+                            <a href="{{ Route('cms.supplier.edit', ['id' => $paying_order->payee_id,]) }}" target="_blank">
+                                {{ $paying_order->payee_name }}
                                 <span class="icon"><i class="bi bi-box-arrow-up-right"></i></span>
                             </a>
                             @endif
@@ -83,6 +78,7 @@
                     </div>
                 </dl>
             </div>
+
             <div class="card-body px-4 py-2">
                 <div class="table-responsive tableoverbox">
                     <table class="table tablelist table-sm mb-0">
@@ -95,12 +91,13 @@
                             <th scope="col">備註</th>
                         </tr>
                         </thead>
+
                         <tbody>
                             @if($sub_order->logistic_cost > 0)
                                 <tr>
-                                    <td>{{ $logistics_grade . ' - 物流費用' }}</td>
-                                    <td></td>
-                                    <td></td>
+                                    <td>{{ $logistics_grade_name . ' - 物流費用' }}</td>
+                                    <td>1</td>
+                                    <td>{{ number_format($sub_order->logistic_cost, 2) }}</td>
                                     <td>{{ number_format($sub_order->logistic_cost) }}</td>
                                     <td>{{ $sub_order->logistic_memo }}</td>
                                 </tr>
@@ -108,7 +105,7 @@
                             <tr class="table-light">
                                 <td>合計：</td>
                                 <td></td>
-                                <td></td>
+                                <td>（{{ $zh_price }}）</td>
                                 <td>{{ number_format($paying_order->price) }}</td>
                                 <td></td>
                             </tr>
@@ -118,13 +115,32 @@
             </div>
 
             <div class="card-body px-4 pb-4">
+                @foreach($payable_data as $value)
+                <dl class="row">
+                    <div class="col">
+                        <dt></dt>
+                        <dd>
+                            {{ $value->account->code . ' ' . $value->account->name }}
+                            {{ number_format($value->tw_price) }}
+                            @if($value->acc_income_type_fk == 3)
+                                {{ '（' . $value->payable_method_name . ' - ' . $value->summary . '）' }}
+                            @else
+                                {{ '（' . $value->payable_method_name . ' - ' . $value->account->name . ' - ' . $value->summary . '）' }}
+                            @endif
+                        </dd>
+                    </div>
+                </dl>
+                @endforeach
+            </div>
+
+            <div class="card-body px-4 pb-4">
                 <dl class="row">
                     <div class="col">
                         <dt>財務主管：</dt>
                         <dd></dd>
                     </div>
                     <div class="col">
-                        <dt>會計：{{ $accountant ? $accountant->name : '' }}</dt>
+                        <dt>會計：{{ $accountant }}</dt>
                         <dd></dd>
                     </div>
                     <div class="col">
@@ -138,9 +154,6 @@
                 </dl>
             </div>
         </div>
-        @error('del_error')
-        <div class="alert alert-danger mt-3">{{ $message }}</div>
-        @enderror
 
         <div id="submitDiv">
             <div class="col-auto">

@@ -14,17 +14,8 @@
 {{--    <button type="submit" class="btn btn-primary">新增細項</button>--}}
 {{--    <button type="submit" class="btn btn-primary">變更支付對象</button>--}}
 {{--    <button type="submit" class="btn btn-primary">取消訂金折抵</button>--}}
-    @if($pay_off)
-    {{--
-    <a href="{{ Route('cms.ap.edit', ['payOrdId' => $payOrdId,
-                                        'id' => $accountPayableId,
-                                        'payOrdType' => 'pcs',
-                                        'isFinalPay' => ($type === 'final' ? 1 : 0),
-                                        'purchaseId' => $id], true) }}"
-        class="btn btn-primary" role="button">編輯付款</a>
-    --}}
-    @else
-        <a href="{{ Route('cms.ap.create', [
+    @if(!$pay_off)
+        <a href="{{ Route('cms.purchase.po-create', [
             'payOrdId' => $payOrdId,
             'payOrdType' => 'pcs',
             'isFinalPay' => ($type === 'final' ? 1 : 0),
@@ -183,16 +174,11 @@
                         <dd>
                             {{ $value->account->code . ' ' . $value->account->name }}
                             {{ number_format($value->tw_price) }}
-                            {{ '（' . $value->payable_method_name . ' - ' . $value->account->name . ' - ' . $value->summary . '）' }}
-                            {{--
-                            @if($value->payable_method == 'credit_card')
-                                {{ '（' . $value->payable_method_name . ' - ' . $value->credit_card_number . '（' . $value->credit_card_owner_name . '）' . '）' }}
-                            @elseif($value->payable_method == 'remit')
-                                {{ '（' . $value->payable_method_name . ' - ' . $value->summary . '（' . $value->remit_memo . '）' . '）' }}
+                            @if($value->acc_income_type_fk == 3)
+                                {{ '（' . $value->payable_method_name . ' - ' . $value->summary . '）' }}
                             @else
                                 {{ '（' . $value->payable_method_name . ' - ' . $value->account->name . ' - ' . $value->summary . '）' }}
                             @endif
-                            --}}
                         </dd>
                     </div>
                 </dl>

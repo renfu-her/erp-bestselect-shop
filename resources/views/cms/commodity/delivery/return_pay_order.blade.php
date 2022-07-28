@@ -2,8 +2,8 @@
 
 @section('sub-content')
     <h2 class="mb-3">退貨付款單</h2>
-    @if(! $paying_order->balance_date)
-        <a href="{{ Route('cms.order.return-pay-create', ['id' => $paying_order->source_id, 'sid' => $paying_order->source_sub_id]) }}" class="btn btn-primary" role="button">付款</a>
+    @if(! $delivery->po_balance_date)
+        <a href="{{ Route('cms.delivery.return-pay-create', ['id' => $delivery->delivery_id]) }}" class="btn btn-primary" role="button">付款</a>
     @endif
 
     <button type="submit" class="btn btn-danger">中一刀列印畫面</button>
@@ -40,22 +40,22 @@
 
                 <dl class="row mb-0 border-top">
                     <div class="col">
-                        <dt>客戶：{{ $paying_order->payee_name }}</dt>
+                        <dt>客戶：{{ $delivery->po_payee_name }}</dt>
                         <dd></dd>
                     </div>
                     <div class="col">
-                        <dt>編號：{{ $paying_order->sn }}</dt>
+                        <dt>編號：{{ $delivery->po_sn }}</dt>
                         <dd></dd>
                     </div>
                 </dl>
 
                 <dl class="row mb-0">
                     <div class="col">
-                        <dt>電話：{{ $paying_order->payee_phone }}</dt>
+                        <dt>電話：{{ $delivery->po_payee_phone }}</dt>
                         <dd></dd>
                     </div>
                     <div class="col">
-                        <dt>日期：{{ date('Y-m-d', strtotime($paying_order->created_at)) }}</dt>
+                        <dt>日期：{{ date('Y-m-d', strtotime($delivery->po_created_at)) }}</dt>
                         <dd></dd>
                     </div>
                 </dl>
@@ -75,45 +75,45 @@
                         </thead>
 
                         <tbody>
-                            @foreach($sub_order as $so_value)
-                            @foreach($so_value->items as $p_value)
+                            @foreach($delivery->delivery_back_items as $db_value)
                                 <tr>
-                                    <td>{{ $product_grade_name }} - {{ $p_value->product_title }}{{'（' . $so_value->ship_event . ' - ' . $so_value->ship_category_name . '）'}}{{'（' . $p_value->price . ' * ' . $p_value->qty . '）'}}</td>
-                                    <td>{{ $p_value->qty }}</td>
-                                    <td>{{ number_format($p_value->price, 2) }}</td>
-                                    <td>{{ number_format($p_value->total_price) }}</td>
-                                    <td>{{ $paying_order->memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id]) }}">{{ $order->sn }}</a> {{ $p_value->product_taxation == 1 ? '應稅' : '免稅' }} {{ $order->note }}</td>
+                                    <td>{{ $product_grade_name }} - {{ $db_value->product_title }}{{'（' . $delivery->sub_order_ship_event . ' - ' . $delivery->sub_order_ship_category_name . '）'}}{{'（' . $db_value->price . ' * ' . $db_value->qty . '）'}}</td>
+                                    <td>{{ $db_value->qty }}</td>
+                                    <td>{{ number_format($db_value->price, 2) }}</td>
+                                    <td>{{ number_format($db_value->total_price) }}</td>
+                                    <td>{{ $delivery->po_memo }} <a href="{{ route('cms.delivery.back_detail', ['event' => $delivery->delivery_event, 'eventId' => $delivery->delivery_event_id]) }}">{{ $delivery->delivery_event_sn }}</a> {{ $db_value->taxation == 1 ? '應稅' : '免稅' }} {{ $delivery->order_note }}</td>
                                 </tr>
                             @endforeach
-                            @endforeach
 
+                            {{--
                             @if($order->dlv_fee > 0)
                                 <tr>
                                     <td>{{ $logistics_grade_name }} - 物流費用</td>
                                     <td>1</td>
                                     <td>{{ number_format($order->dlv_fee, 2) }}</td>
                                     <td>{{ number_format($order->dlv_fee) }}</td>
-                                    <td>{{ $paying_order->memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id]) }}">{{ $order->sn }}</a> {{ $order->dlv_taxation == 1 ? '應稅' : '免稅' }}</td>
+                                    <td>{{ $delivery->po_memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id]) }}">{{ $order->sn }}</a> {{ $order->dlv_taxation == 1 ? '應稅' : '免稅' }}</td>
                                 </tr>
                             @endif
 
                             @if($order->discount_value > 0)
-                            @foreach($order_discount ?? [] as $d_value)
+                            @foreach($order_discount ?? [] as $delivery)
                                 <tr>
-                                    <td>{{ $d_value->account_code }} {{ $d_value->account_name }} - {{ $d_value->title }}</td>
+                                    <td>{{ $delivery->account_code }} {{ $delivery->account_name }} - {{ $delivery->title }}</td>
                                     <td>1</td>
-                                    <td>-{{ number_format($d_value->discount_value, 2) }}</td>
-                                    <td>-{{ number_format($d_value->discount_value) }}</td>
-                                    <td>{{ $paying_order->memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id]) }}">{{ $order->sn }}</a> {{ $d_value->discount_taxation == 1 ? '應稅' : '免稅' }}</td>
+                                    <td>-{{ number_format($delivery->discount_value, 2) }}</td>
+                                    <td>-{{ number_format($delivery->discount_value) }}</td>
+                                    <td>{{ $delivery->po_memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id]) }}">{{ $order->sn }}</a> {{ $delivery->discount_taxation == 1 ? '應稅' : '免稅' }}</td>
                                 </tr>
                             @endforeach
                             @endif
+                            --}}
 
                             <tr class="table-light">
                                 <td>合計：</td>
                                 <td></td>
                                 <td>（{{ $zh_price }}）</td>
-                                <td>{{ number_format($paying_order->price) }}</td>
+                                <td>{{ number_format($delivery->po_price) }}</td>
                                 <td></td>
                             </tr>
                         </tbody>

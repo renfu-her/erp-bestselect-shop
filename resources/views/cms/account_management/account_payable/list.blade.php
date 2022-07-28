@@ -116,7 +116,7 @@
                                 @endphp
                                 @foreach($po_sn as $po_key => $po_value)
                                 <span class="d-block">
-                                    <a href="{{ $data->purchase_id ? route('cms.purchase.view-pay-order', ['id' => $data->po_source_id, 'type' => $po_type[$po_key]]) : route('cms.order.logistic-pay-order', ['id' => $data->po_source_id, 'sid' => $data->po_source_sub_id]) }}">{{ $po_value }}</a>
+                                    <a href="{{ $data->purchase_id ? route('cms.purchase.view-pay-order', ['id' => $data->po_source_id, 'type' => $po_type[$po_key]]) : route('cms.order.logistic-po', ['id' => $data->po_source_id, 'sid' => $data->po_source_sub_id]) }}">{{ $po_value }}</a>
                                 </span>
                                 @endforeach
                             </td>

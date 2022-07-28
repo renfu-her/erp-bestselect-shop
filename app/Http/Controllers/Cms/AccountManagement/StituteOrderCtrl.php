@@ -311,7 +311,7 @@ class StituteOrderCtrl extends Controller
                 break;
         }
 
-        $payable_data = PayingOrder::get_payable_detail($stitute_order->pay_order_id);
+        $payable_data = PayingOrder::get_payable_detail($paying_order->id);
         if (count($payable_data) > 0 && $paying_order->price == $payable_data->sum('tw_price')) {
             $paying_order->update([
                 'balance_date'=>date("Y-m-d H:i:s"),

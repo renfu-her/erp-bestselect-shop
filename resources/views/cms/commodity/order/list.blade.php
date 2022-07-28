@@ -177,7 +177,9 @@
                                     <i class="bi bi-card-list"></i>
                                 </a>
                             </td>
-                            <td>{{ $data->order_status }}</td>
+                            <td @class(['text-danger' => $data->order_status === '取消'])>
+                                {{ $data->order_status }}
+                            </td>
                             <td></td>
                             <td>{{ $data->order_date }}</td>
                             <td>{{ $data->name }}</td>

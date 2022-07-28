@@ -134,17 +134,10 @@ Breadcrumbs::for('cms.purchase.pay-deposit', function (BreadcrumbTrail $trail, $
 //     $trail->push('新增尾款付款單');
 // });
 // 編輯 - 採購單資訊 - 新增付款單--訂金&&尾款
-Breadcrumbs::for('cms.ap.create', function (BreadcrumbTrail $trail, $value) {
+Breadcrumbs::for('cms.purchase.po-create', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.purchase.edit', $value);
     $trail->push($value['type'] == 0 ? '訂金付款單' : '尾款付款單', route('cms.purchase.view-pay-order', ['id' => $value['id'], 'type' => $value['type']]));
     $trail->push('新增付款');
-});
-// 編輯 - 採購單資訊 - 編輯付款單
-Breadcrumbs::for('cms.ap.edit', function (BreadcrumbTrail $trail, $value) {
-    $trail->parent('cms.purchase.edit', $value);
-    $trail->push('付款單', route('cms.purchase.view-pay-order', ['id' => $value['id'], 'type' => $value['type']]));
-    // $trail->push('新增訂金付款單');
-    $trail->push('編輯付款');
 });
 
 //顯示訂單付款單
@@ -202,6 +195,11 @@ Breadcrumbs::for('cms.order.personal-bonus', function (BreadcrumbTrail $trail, $
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
     $trail->push('個人獎金');
 });
+Breadcrumbs::for('cms.order.split-order', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
+    $trail->push('分割訂單');
+});
 
 // 訂單自取入庫審核
 Breadcrumbs::for('cms.order.inbound', function (BreadcrumbTrail $trail, $value) {
@@ -246,15 +244,15 @@ Breadcrumbs::for('cms.collection_received.taxation', function (BreadcrumbTrail $
     $trail->push('收款單', route('cms.collection_received.receipt', ['id'=>$value['id']]));
     $trail->push('修改摘要/稅別');
 });
-Breadcrumbs::for('cms.order.logistic-pay-order', function (BreadcrumbTrail $trail, $value) {
+Breadcrumbs::for('cms.order.logistic-po', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
     $trail->push('物流付款單');
 });
-Breadcrumbs::for('cms.ap.logistics-create', function (BreadcrumbTrail $trail, $value) {
+Breadcrumbs::for('cms.order.logistic-po-create', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
-    $trail->push('物流付款單', route('cms.order.logistic-pay-order', ['id' => $value['id'], 'sid' => $value['sid']]));
+    $trail->push('物流付款單', route('cms.order.logistic-po', ['id' => $value['id'], 'sid' => $value['sid']]));
     $trail->push('新增付款');
 });
 Breadcrumbs::for('cms.order.return-pay-order', function (BreadcrumbTrail $trail, $value) {
@@ -374,7 +372,17 @@ Breadcrumbs::for('cms.delivery.back_detail', function (BreadcrumbTrail $trail, $
     $trail->parent('cms.' . $value['parent'] . '.index');
     $trail->push('#' . $value['sn'] . ' 銷貨退回明細');
 });
-
+Breadcrumbs::for('cms.delivery.return-pay-order', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('#' . $value['sn'] . ' 銷貨退回明細', route('cms.delivery.back_detail', ['event' => $value['event'], 'eventId' => $value['eventId']]));
+    $trail->push('退貨付款單');
+});
+Breadcrumbs::for('cms.delivery.return-pay-create', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('#' . $value['sn'] . ' 銷貨退回明細', route('cms.delivery.back_detail', ['event' => $value['event'], 'eventId' => $value['eventId']]));
+    $trail->push('退貨付款單', route('cms.delivery.return-pay-order', ['id' => $value['id']]));
+    $trail->push('新增付款');
+});
 /**
  * 行銷設定
  **/
