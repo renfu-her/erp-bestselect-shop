@@ -386,7 +386,7 @@ class OrderCtrl extends Controller
         } else {
             $dividend = 0;
         }
-
+      
         return view('cms.commodity.order.detail', [
             'sn' => $sn,
             'order' => $order,
@@ -401,6 +401,7 @@ class OrderCtrl extends Controller
             'dividend' => $dividend,
             'canCancel' => Order::checkCanCancel($id),
             'delivery' => $delivery,
+            'canSplit' => Order::checkCanSplit($id),
         ]);
     }
 
@@ -1014,6 +1015,7 @@ class OrderCtrl extends Controller
     // 分割訂單
     public function split_order(Request $request, $id)
     {
+        Order::checkCanSplit($id);
         list($order, $subOrder) = $this->getOrderAndSubOrders($id);
 
         if (!$order) {

@@ -843,6 +843,9 @@ class Order extends Model
     // 分割訂單
     public static function splitOrder($order_id, $items)
     {
+        if (!Order::checkCanSplit($order_id)) {
+            return;
+        }
 
         $order = self::where('id', $order_id)->get()->first();
         if (!$order) {
@@ -1013,6 +1016,19 @@ class Order extends Model
 
         DB::commit();
 
+    }
+
+    // 是否可取消訂單
+    public static function checkCanSplit($order_id)
+    {
+
+        $sub = SubOrders::where('order_id', $order_id)->whereNotNull('dlv_audit_date')->get();
+
+        if (count($sub) == 0) {
+            return true;
+        }
+
+        return false;
     }
 
 }
