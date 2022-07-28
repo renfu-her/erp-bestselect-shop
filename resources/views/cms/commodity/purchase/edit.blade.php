@@ -292,9 +292,7 @@
                             <div class="form-control p-sm-1" readonly>
                                 @if($hasCreatedDepositPayment)
                                     <button type="button" class="btn btn-link btn-sm">
-                                        <a href="{{ Route('cms.purchase.view-pay-order', ['id' => $id, 'type' => '0'], true) }}" >
-                                            付款單號-{{ $depositPayData->sn }}
-                                        </a>
+                                        <a href="{{ Route('cms.purchase.view-pay-order', ['id' => $id, 'type' => '0'], true) }}" >{{ $depositPayData->sn }}</a>
                                     </button>
                                 @elseif($hasCreatedFinalPayment)
                                     已先建立尾款（無訂金付款單）
@@ -312,9 +310,7 @@
                             <div class="form-control p-sm-1" readonly>
                                 @if($hasCreatedFinalPayment)
                                     <button type="button" class="btn btn-link btn-sm">
-                                        <a href="{{ Route('cms.purchase.view-pay-order', ['id' => $id, 'type' => '1'], true) }}">
-                                            付款單號-{{ $finalPayData->sn }}
-                                        </a>
+                                        <a href="{{ Route('cms.purchase.view-pay-order', ['id' => $id, 'type' => '1'], true) }}">{{ $finalPayData->sn }}</a>
                                     </button>
                                 @else
                                     @if($hasCreatedDepositPayment && !$hasReceivedDepositPayment)

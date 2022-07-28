@@ -122,8 +122,7 @@
                     <input class="form-control @error('tw_price') is-invalid @enderror"
                            name="tw_price"
                            required
-                           type="number"
-                           step="0.01"
+                           type="text"
                            value="{{ old('tw_price', $tw_price ?? '') }}"/>
                 </x-b-form-group>
 

@@ -178,6 +178,7 @@ class Order extends Model
             'sku' => 'item.sku',
             'price' => 'item.price',
             'qty' => 'item.qty',
+            'style_id' => 'item.product_style_id',
             'img_url' => 'IF(item.img_url IS NULL,"",item.img_url)',
             'total_price' => 'item.origin_price']);
 
@@ -290,8 +291,9 @@ class Order extends Model
                 ]);
             })
             // ->selectRaw("('" . app(Order::class)->getTable() . "') as payable_source_type")
-                ->selectRaw("IF(po.sn IS NULL, NULL, po.sn) as logistic_pay_order_sn")
-                ->selectRaw("IF(po.balance_date IS NULL, NULL, po.balance_date) as logistic_pay_order_balance_date");
+                ->selectRaw("IF(po.sn IS NULL, NULL, po.sn) as logistic_po_sn")
+                ->selectRaw("IF(po.balance_date IS NULL, NULL, po.balance_date) as logistic_po_balance_date")
+                ->selectRaw("IF(po.created_at IS NULL, NULL, po.created_at) as logistic_po_created_at");
         }
 
         return $orderQuery;
@@ -847,5 +849,198 @@ class Order extends Model
 
         DB::commit();
 
+        return;
+
     }
+    // 分割訂單
+    public static function splitOrder($order_id, $items)
+    {
+        if (!Order::checkCanSplit($order_id)) {
+            return;
+        }
+
+        $order = self::where('id', $order_id)->get()->first();
+        if (!$order) {
+            return;
+        }
+
+        if ($order->status_code != OrderStatus::Add()) {
+            return;
+        }
+
+        DB::beginTransaction();
+
+        $nSubOrders = [];
+        //  $originDiscount = $order->dlv_fee;
+        $total_price = 0;
+        // dd($items);
+        foreach ($items as $key => $qty) {
+            $_item = OrderItem::where('order_id', $order_id)->where('product_style_id', $key)->get()->first();
+            //  dd($_item);
+
+            $n_price = $_item->price * $qty;
+
+            $total_price += $n_price;
+
+            OrderItem::where('order_id', $order_id)->where('product_style_id', $key)
+                ->update([
+                    'qty' => $_item->qty - $qty,
+                    'origin_price' => $_item->origin_price - $n_price,
+                    'discounted_price' => $_item->discounted_price - $n_price,
+                ]);
+
+            $_item->qty = $qty;
+            $_item->origin_price = $n_price;
+            $_item->discounted_price = $n_price;
+
+            $_suborder = SubOrders::where('id', $_item->sub_order_id)->get()->first();
+
+            SubOrders::where('id', $_item->sub_order_id)->update([
+                'total_price' => $_suborder->total_price - $n_price,
+                'origin_price' => $_suborder->origin_price - $n_price,
+                'discounted_price' => $_suborder->discounted_price - $n_price,
+            ]);
+
+            if (!isset($nSubOrders[$_suborder->sn])) {
+                $_suborder->items = collect([]);
+                $_suborder->total_price = 0;
+                $_suborder->origin_price = 0;
+                $_suborder->discounted_price = 0;
+                $_suborder->discount_value = 0;
+
+                $nSubOrders[$_suborder->sn] = $_suborder;
+
+                // $originDiscount += $_suborder->dlv_fee;
+
+            }
+
+            $_suborder->total_price += $n_price;
+            $_suborder->origin_price += $n_price;
+            $_suborder->discounted_price += $n_price;
+
+            $nSubOrders[$_suborder->sn]->items[] = $_item;
+
+        }
+
+        $order_sn = "O" . date("Ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
+                ->get()
+                ->count()) + 1, 4, '0', STR_PAD_LEFT);
+
+        $order->where('id', $order_id)->update([
+            'origin_price' => $order->origin_price - $total_price,
+            'total_price' => $order->total_price - $total_price,
+            'discounted_price' => $order->discounted_price - $total_price,
+            'note' => $order->note . " " . "拆分" . $order_sn,
+        ]);
+        // create order
+        $nid = self::create([
+            'sn' => $order_sn,
+            'email' => $order->email,
+            'sale_channel_id' => $order->sale_channel_id,
+            'status_code' => $order->status_code,
+            'status' => $order->status,
+            'mcode' => $order->mcode,
+            'dlv_fee' => 0,
+            'dlv_taxation' => $order->dlv_taxation,
+            'origin_price' => $total_price,
+            'total_price' => $total_price,
+            'discount_value' => 0,
+            'discounted_price' => $total_price,
+            'note' => $order->sn . " 拆單",
+            'auto_dividend' => $order->auto_dividend,
+            'allotted_dividend' => $order->allotted_dividend,
+            'dividend_lifecycle' => $order->dividend_lifecycle,
+            'active_delay_day' => $order->active_delay_day,
+            'unique_id' => self::generate_unique_id(),
+            'category' => $order->category,
+            'carrier_type' => $order->carrier_type,
+            'carrier_num' => $order->carrier_num,
+            'payment_status' => $order->payment_status,
+            'payment_status_title' => $order->payment_status_title,
+        ])->id;
+        // copy address
+        $address = DB::table('ord_address')->where('order_id', $order_id)->get()->toArray();
+
+        DB::table('ord_address')->insert(array_map(function ($n) use ($nid) {
+            return [
+                "order_id" => $nid,
+                "type" => $n->type,
+                "city_id" => $n->city_id,
+                "city_title" => $n->city_title,
+                "region_id" => $n->region_id,
+                "region_title" => $n->region_title,
+                "addr" => $n->addr,
+                "address" => $n->address,
+                "zipcode" => $n->zipcode,
+                "name" => $n->name,
+                "phone" => $n->phone,
+            ];
+        }, $address));
+
+        $idx = 1;
+        foreach ($nSubOrders as $sorder) {
+            $soid = SubOrders::create([
+                'sn' => $order_sn . "-" . str_pad($idx, 2, '0', STR_PAD_LEFT),
+                'order_id' => $nid,
+                "ship_sn" => null,
+                "ship_category" => $sorder->ship_category,
+                "ship_category_name" => $sorder->ship_category_name,
+                "ship_event" => $sorder->ship_event,
+                "ship_event_id" => $sorder->ship_event_id,
+                "ship_temp" => $sorder->ship_temp,
+                "ship_temp_id" => $sorder->ship_temp_id,
+                "ship_rule_id" => $sorder->ship_rule_id,
+                "package_sn" => null,
+                "actual_ship_group_id" => null,
+                "dlv_fee" => 0,
+                "status" => $sorder->status,
+                "total_price" => $sorder->total_price,
+                "origin_price" => $sorder->origin_price,
+                "discount_value" => $sorder->discount_value,
+                "discounted_price" => $sorder->discounted_price,
+                "statu" => null,
+                "statu_code" => null,
+                "close_date" => null,
+                "dlv_audit_date" => null,
+            ])->id;
+
+            foreach ($sorder->items as $item) {
+
+                OrderItem::create([
+                    "order_id" => $nid,
+                    "sub_order_id" => $soid,
+                    "product_style_id" => $item->product_style_id,
+                    "sku" => $item->sku,
+                    "product_title" => $item->product_title,
+                    "price" => $item->price,
+                    "unit_cost" => null,
+                    "qty" => $item->qty,
+                    "bonus" => 0,
+                    "type" => null,
+                    "origin_price" => $item->origin_price,
+                    "discount_value" => 0,
+                    "discounted_price" => $item->discounted_price,
+                    "img_url" => null,
+                ]);
+            }
+            $idx++;
+        }
+
+        DB::commit();
+
+    }
+
+    // 是否可取消訂單
+    public static function checkCanSplit($order_id)
+    {
+
+        $sub = SubOrders::where('order_id', $order_id)->whereNotNull('dlv_audit_date')->get();
+
+        if (count($sub) == 0) {
+            return true;
+        }
+
+        return false;
+    }
+
 }

@@ -12,7 +12,7 @@
     </style>
 
     <div class="pt-2 mb-3">
-        <a href="{{ Route('cms.order.logistic-pay-order', ['id' => $sub_order->order_id, 'sid' => $sub_order->id]) }}" class="btn btn-primary" role="button">
+        <a href="{{ Route('cms.delivery.return-pay-order', ['id' => $delivery->delivery_id]) }}" class="btn btn-primary" role="button">
             <i class="bi bi-arrow-left"></i> 返回上一頁
         </a>
     </div>
@@ -25,7 +25,7 @@
                 <div class="card-body">
                     <div class="col">
                         <dl class="row mb-0">
-                            <dt>支付對象：{{ $supplier ? $supplier->name . ' - ' . $supplier->contact_person : '' }}</dt>
+                            <dt>支付對象：{{ $delivery->buyer_name }}</dt>
                         </dl>
                     </div>
                 </div>
@@ -48,27 +48,61 @@
                         </thead>
 
                         <tbody class="product_list">
-                            @if($sub_order->logistic_cost > 0)
+                            @foreach($delivery->delivery_back_items as $db_value)
+                            <tr>
+                                <td>{{ $delivery->po_sn }}</td>
+                                <td>{{ $delivery->sub_order_sn }}</td>
+                                <td>{{ $product_grade_name }}</td>
+                                <td>{{ $db_value->product_title }}{{'（' . $delivery->sub_order_ship_event . ' - ' . $delivery->sub_order_ship_category_name . '）'}}{{'（' . $db_value->price . ' * ' . $db_value->qty . '）'}}</td>
+                                <td class="text-end">{{ number_format($db_value->price, 2) }}</td>
+                                <td class="text-end">{{$db_value->qty}}</td>
+                                <td class="text-end">{{ $currency->rate }}</td>
+                                <td>{{ $currency->name }}</td>
+                                <td class="text-end">{{ number_format($db_value->total_price) }}</td>
+                                <td class="text-end"></td>
+                            </tr>
+                            @endforeach
+
+                            {{--
+                            @if($delivery->dlv_fee > 0)
+                            <tr>
+                                <td>{{ $delivery->po_sn }}</td>
+                                <td></td>
+                                <td>{{ $logistics_grade_name }}</td>
+                                <td>物流費用</td>
+                                <td class="text-end">{{ number_format($delivery->dlv_fee, 2) }}</td>
+                                <td class="text-end">1</td>
+                                <td class="text-end">1</td>
+                                <td>NTD</td>
+                                <td class="text-end">{{ number_format($delivery->dlv_fee) }}</td>
+                                <td class="text-end"></td>
+                            </tr>
+                            @endif
+
+                            @if($delivery->discount_value > 0)
+                                @foreach($order_discount ?? [] as $d_value)
                                 <tr>
-                                    <td>{{ $paying_order->sn }}</td>
-                                    <td>{{ $sub_order->sn }}</td>
-                                    <td>{{ $logistics_grade }}</td>
-                                    <td>{{ $sub_order->logistic_memo }}</td>
-                                    <td class="text-end">{{ number_format($sub_order->logistic_cost, 2) }}</td>
+                                    <td>{{ $delivery->po_sn }}</td>
+                                    <td></td>
+                                    <td>{{ $d_value->account_code }} {{ $d_value->account_name }}</td>
+                                    <td>{{ $d_value->title }}</td>
+                                    <td class="text-end">-{{ number_format($d_value->discount_value, 2) }}</td>
                                     <td class="text-end">1</td>
-                                    <td class="text-end">{{ $currency->rate }}</td>
-                                    <td>{{ $currency->name }}</td>
-                                    <td class="text-end">{{ number_format($sub_order->logistic_cost) }}</td>
+                                    <td class="text-end">1</td>
+                                    <td>NTD</td>
+                                    <td class="text-end">-{{ number_format($d_value->discount_value) }}</td>
                                     <td class="text-end"></td>
                                 </tr>
+                                @endforeach
                             @endif
+                            --}}
+
                             @foreach($payable_data as $value)
-                            @if($value->payingOrder->type == 1)
                             <tr>
-                                <td>{{ $paying_order->sn }}</td>
-                                <td>{{ $sub_order->sn }}</td>
-                                <td>{{ $value->payable->all_grade->eachGrade->code . ' - ' . $value->payable->all_grade->eachGrade->name }}</td>
-                                <td>{{ $value->note }}</td>
+                                <td>{{ $delivery->po_sn }}</td>
+                                <td></td>
+                                <td>{{ $value->account->code . ' ' . $value->account->name }}</td>
+                                <td>{{ $value->payable_method_name . ' - ' . $value->summary }}</td>
                                 <td class="text-end">{{ number_format($value->tw_price, 2) }}</td>
                                 <td class="text-end">1</td>
                                 <td class="text-end">{{ $value->currency_rate }}</td>
@@ -76,7 +110,6 @@
                                 <td class="text-end"></td>
                                 <td class="text-end">{{ number_format($value->tw_price) }}</td>
                             </tr>
-                            @endif
                             @endforeach
                         </tbody>
 
@@ -97,7 +130,7 @@
                     @foreach($transactTypeList as $transactData)
                         <div class="form-check form-check-inline">
                             <label class="form-check-label transactType" data-type="{{ $transactData['key'] }}">
-                                <input class="form-check-input" name="acc_transact_type_fk" type="radio" {{ ( $method == 'edit' && count($payable_data) > 0 ? $payable_data->last()->acc_income_type_fk : 0) === $transactData['value'] ? 'checked' : ''}} value="{{ $transactData['value'] }}" required>
+                                <input class="form-check-input" name="acc_transact_type_fk" type="radio" {{ ( count($payable_data) > 0 ? $payable_data->last()->acc_income_type_fk : 0) === $transactData['value'] ? 'checked' : ''}} value="{{ $transactData['value'] }}" required>
                                 {{ $transactData['name'] }}
                             </label>
                         </div>
@@ -108,8 +141,7 @@
                     <input class="form-control @error('tw_price') is-invalid @enderror"
                             name="tw_price"
                             required
-                            type="number"
-                            step="0.01"
+                            type="text"
                             value="{{ old('tw_price', $tw_price ?? '') }}"/>
                 </x-b-form-group>
 
@@ -295,12 +327,12 @@
                         <input class="form-control @error('summary') is-invalid @enderror" name="summary" type="text" value="{{ old('summary', '') }}">
                     </x-b-form-group>
                     <x-b-form-group name="note" title="備註" required="false" class="col-12 col-sm-6 mb-3">
-                        <input class="form-control @error('note') is-invalid @enderror" name="note" type="text" value="{{ old('note', ($method == 'edit' && count($payable_data) > 0 ? $payable_data->last()->note : '')) }}"/>
+                        <input class="form-control @error('note') is-invalid @enderror" name="note" type="text" value="{{ old('note', (count($payable_data) > 0 ? $payable_data->last()->note : '')) }}"/>
                     </x-b-form-group>
                 </div>
             </div>
             <div class="px-0">
-                <button type="submit" class="btn btn-primary px-4">{{ $method == 'create' ? '儲存' : '更新' }}</button>
+                <button type="submit" class="btn btn-primary px-4">儲存</button>
                 <a onclick="history.back()" class="btn btn-outline-primary px-4" role="button">取消</a>
             </div>
         </div>
