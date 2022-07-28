@@ -385,7 +385,7 @@
                 <div class="card-body px-4 pb-4">
                     <dl class="row">
                         <div class="col">
-                            <dt>物流付款單@if ($subOrder->logistic_pay_order_balance_date)
+                            <dt>物流付款單@if ($subOrder->logistic_po_balance_date)
                                     <span class="text-danger">（已付款完成）</span>
                                 @endif
                             </dt>
@@ -395,15 +395,7 @@
                                 @elseif(false == isset($subOrder->delivery_audit_date))
                                     尚未做出貨審核
                                 @else
-                                    @if ($subOrder->logistic_pay_order_sn)
-                                        <a href="{{ Route('cms.order.logistic-pay-order', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}"
-                                            class="text-decoration-none">{{ $subOrder->logistic_pay_order_sn }}</a>
-                                    @else
-                                        <input type="hidden" class="form_url"
-                                            value="{{ Route('cms.order.logistic-pay-order', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}">
-                                        <button type="button"
-                                            class="btn btn-link text-decoration-none p-0 m-0 submit_btn">新增付款單</button>
-                                    @endif
+                                    <a href="{{ Route('cms.order.logistic-po', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}" class="text-decoration-none">{{ $subOrder->logistic_po_sn ? $subOrder->logistic_po_sn : '新增付款單' }}</a>
                                 @endif
                             </dd>
                         </div>
@@ -707,12 +699,6 @@
     @endpush
     @push('sub-scripts')
         <script>
-            $('.submit_btn').on('click', function(e) {
-                e.preventDefault();
-                let url = $(this).prev().val();
-                $('#form1').attr('action', url).submit();
-            });
-
             // Modal Control
             $('#confirm-delete').on('show.bs.modal', function(e) {
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));

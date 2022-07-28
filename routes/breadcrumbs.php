@@ -244,15 +244,15 @@ Breadcrumbs::for('cms.collection_received.taxation', function (BreadcrumbTrail $
     $trail->push('收款單', route('cms.collection_received.receipt', ['id'=>$value['id']]));
     $trail->push('修改摘要/稅別');
 });
-Breadcrumbs::for('cms.order.logistic-pay-order', function (BreadcrumbTrail $trail, $value) {
+Breadcrumbs::for('cms.order.logistic-po', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
     $trail->push('物流付款單');
 });
-Breadcrumbs::for('cms.ap.logistics-create', function (BreadcrumbTrail $trail, $value) {
+Breadcrumbs::for('cms.order.logistic-po-create', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
-    $trail->push('物流付款單', route('cms.order.logistic-pay-order', ['id' => $value['id'], 'sid' => $value['sid']]));
+    $trail->push('物流付款單', route('cms.order.logistic-po', ['id' => $value['id'], 'sid' => $value['sid']]));
     $trail->push('新增付款');
 });
 Breadcrumbs::for('cms.order.return-pay-order', function (BreadcrumbTrail $trail, $value) {
