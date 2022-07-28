@@ -17,4 +17,9 @@ Route::group(['prefix' => 'delivery','as'=>'delivery.'], function () {
     //退貨入庫審核
     Route::get('back_inbound/{event}/{eventId}', [DeliveryCtrl::class, 'back_inbound'])->name('back_inbound')->middleware('permission:cms.delivery.create');
     Route::post('back_inbound_store/{deliveryId}', [DeliveryCtrl::class, 'back_inbound_store'])->name('back_inbound_store')->middleware('permission:cms.delivery.create');
+    Route::get('back_inbound_delete/{deliveryId}', [DeliveryCtrl::class, 'back_inbound_delete'])->name('back_inbound_delete')->middleware('permission:cms.delivery.create');
+
+
+    Route::get('return_pay/{id}', [DeliveryCtrl::class, 'return_pay_order'])->name('return-pay-order')->middleware('permission:cms.delivery.return-pay-order');
+    Route::match(['get', 'post'], 'return_pay_create/{id}', [DeliveryCtrl::class, 'return_pay_create'])->name('return-pay-create')->middleware('permission:cms.delivery.return-pay-order');
 });

@@ -31,6 +31,7 @@ class Product extends Model
                 'product.offline as offline',
                 'product.public as public')
             ->selectRaw('CASE product.type WHEN "p" THEN "一般商品" WHEN "c" THEN "組合包商品" END as type_title')
+            ->orderBy('id')
 
             ->whereNull('product.deleted_at');
 
@@ -142,6 +143,51 @@ class Product extends Model
                 }
             }
 
+        }
+
+        if (isset($options['hasDelivery']) && $options['hasDelivery'] != 'all') {
+            if ($options['hasDelivery'] == '1') {
+                $re->join('prd_product_shipment', 'product.id', '=', 'prd_product_shipment.product_id')
+                    ->join('shi_category', function ($join) {
+                        $join->on('prd_product_shipment.category_id', '=', 'shi_category.id')
+                            ->where('shi_category.code', '=', 'deliver');
+                    })
+                    ->addSelect(
+                        'shi_category.code as hasDelivery',
+                    );
+            } else {
+                $re->leftJoin('prd_product_shipment', 'product.id', '=',
+                    'prd_product_shipment.product_id')
+                    ->whereNotIn('product.id', function ($q) {
+                        $q->select('prd_product_shipment.product_id')
+                            ->from('prd_product_shipment')
+                            //category_id = 1 宅配
+                            ->where('prd_product_shipment.category_id', '=', 1);
+                    })
+                    ->addSelect(
+                        'prd_product_shipment.category_id as hasDelivery',
+                    );
+            }
+        }
+
+        if (isset($options['hasSpecList']) && $options['hasSpecList'] != 'all') {
+            if ($options['hasSpecList'] == '1') {
+                $re->join('prd_speclists', 'product.id', '=',
+                    'prd_speclists.product_id')
+                    ->distinct('prd_speclists.product_id')
+                    ->addSelect(
+                        'prd_speclists.product_id as hasSpecList',
+                    );
+            } else {
+                $re->leftJoin('prd_speclists', 'product.id', '=', 'prd_speclists.product_id')
+                    ->whereNotIn('product.id', function ($q) {
+                        $q->select('prd_speclists.product_id')
+                            ->from('prd_speclists');
+                    })
+                    ->addSelect(
+                        'prd_speclists.product_id as hasSpecList',
+                    );
+            }
         }
 
         return $re;

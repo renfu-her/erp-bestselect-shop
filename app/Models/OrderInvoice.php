@@ -38,9 +38,9 @@ class OrderInvoice extends Model
         } else {
             // formal env
             $valid = [
-                'key'=>'ib4VvhGsGqlmH2uE4OWARw1YjKK4l4il',
-                'iv'=>'CUCdlIDbOq2EpTJP',
-                'MerchantID'=>'32854745',
+                'key'=>'FcgVCBhjBKm0yC5L0m4LiKOWxnaCGk9w',
+                'iv'=>'PhLZ8W7nbcBF7iSC',
+                'MerchantID'=>'316943976',
             ];
 
             $data['url'] = [

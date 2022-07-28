@@ -4,9 +4,8 @@
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
-            @if (!$receivable)
-                <a href="{{ Route('cms.collection_received.create', ['id' => $order->id]) }}"
-                    class="btn btn-primary btn-sm my-1 ms-1" role="button">新增收款單</a>
+            @if (!$receivable && in_array($order->status, ['建立', '收款單未平']))
+                <a href="{{ Route('cms.collection_received.create', ['id' => $order->id]) }}" class="btn btn-primary btn-sm my-1 ms-1" role="button">新增收款單</a>
             @endif
 
             @if ($received_order_data || !in_array($order->status, ['建立']))
@@ -40,6 +39,10 @@
             @if ($canCancel)
                 <a href="{{ Route('cms.order.cancel-order', ['id' => $order->id]) }}" role="button"
                     class="btn btn-outline-danger btn-sm my-1 ms-1">取消訂單</a>
+            @endif
+
+            @if (!$order->return_pay_order_id && in_array($order->status, ['取消']))
+                <a href="{{ Route('cms.order.return-pay-order', ['id' => $order->id]) }}" role="button" class="btn btn-primary btn-sm my-1 ms-1">新增退貨付款單</a>
             @endif
 
             @if ($received_order_data)
@@ -213,6 +216,14 @@
                     </div>
                 </dl>
             @endif
+            @if ($order->return_pay_order_id)
+            <dl class="row">
+                <div class="col">
+                    <dt>退貨付款單號</dt>
+                    <dd><a href="{{ route('cms.order.return-pay-order', ['id' => $order->id]) }}" class="-text">{{ $order->return_pay_order_sn }}</a></dd>
+                </div>
+            </dl>
+            @endif
         </div>
         @php
             $dlv_fee = 0;
@@ -257,8 +268,18 @@
                                         刪除退貨
                                     </button>
                                 @endif
+
                                 <a class="btn btn-sm btn-success -in-header mb-1"
-                                    href="{{ Route('cms.delivery.back_detail', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">銷貨退回明細</a>
+                                   href="{{ Route('cms.delivery.back_detail', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">銷貨退回明細</a>
+
+                                @if(isset($delivery->back_inbound_date))
+                                    <a class="btn btn-sm btn-danger -in-header mb-1"
+                                       href="{{ Route('cms.delivery.back_inbound_delete', ['deliveryId' => $delivery->id], true) }}">刪除退貨入庫</a>
+                                @else
+                                    <a class="btn btn-sm btn-success -in-header mb-1"
+                                       href="{{ Route('cms.delivery.back_inbound', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">退貨入庫審核</a>
+                                @endif
+                                    
                                 {{-- <a class="btn btn-sm btn-success -in-header mb-1" --}}
                                 {{-- href="{{ Route('cms.delivery.back_inbound', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">退貨入庫審核</a> --}}
                             @else
@@ -364,7 +385,7 @@
                 <div class="card-body px-4 pb-4">
                     <dl class="row">
                         <div class="col">
-                            <dt>物流付款單@if ($subOrder->payable_balance_date)
+                            <dt>物流付款單@if ($subOrder->logistic_po_balance_date)
                                     <span class="text-danger">（已付款完成）</span>
                                 @endif
                             </dt>
@@ -374,15 +395,7 @@
                                 @elseif(false == isset($subOrder->delivery_audit_date))
                                     尚未做出貨審核
                                 @else
-                                    @if ($subOrder->payable_sn)
-                                        <a href="{{ Route('cms.order.pay-order', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}"
-                                            class="text-decoration-none">付款單號-{{ $subOrder->payable_sn }}</a>
-                                    @else
-                                        <input type="hidden" class="form_url"
-                                            value="{{ Route('cms.order.pay-order', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}">
-                                        <button type="button"
-                                            class="btn btn-link text-decoration-none p-0 m-0 submit_btn">新增付款單</button>
-                                    @endif
+                                    <a href="{{ Route('cms.order.logistic-po', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}" class="text-decoration-none">{{ $subOrder->logistic_po_sn ? $subOrder->logistic_po_sn : '新增付款單' }}</a>
                                 @endif
                             </dd>
                         </div>
@@ -686,12 +699,6 @@
     @endpush
     @push('sub-scripts')
         <script>
-            $('.submit_btn').on('click', function(e) {
-                e.preventDefault();
-                let url = $(this).prev().val();
-                $('#form1').attr('action', url).submit();
-            });
-
             // Modal Control
             $('#confirm-delete').on('show.bs.modal', function(e) {
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));

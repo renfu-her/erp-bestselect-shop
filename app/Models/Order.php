@@ -113,6 +113,15 @@ class Order extends Model
                 $join->on('customer_m.sn', '=', 'order.mcode')
                     ->whereNotNull('order.mcode');
             })
+            ->leftJoin('pcs_paying_orders as po', function ($join) {
+                $join->on('po.source_id', '=', 'order.id');
+                $join->where([
+                    'po.source_type' => app(Order::class)->getTable(),
+                    'po.source_sub_id' => null,
+                    'po.type' => 9,
+                    'po.deleted_at' => null,
+                ]);
+            })
             ->select([
                 'order.id',
                 'order.sn',
@@ -146,6 +155,8 @@ class Order extends Model
             ->selectRaw("IF(order.payment_method IS NULL,'',order.payment_method) as payment_method")
             ->selectRaw("IF(order.payment_method_title IS NULL,'',order.payment_method_title) as payment_method_title")
             ->selectRaw("IF(order.dlv_taxation IS NULL,'',order.dlv_taxation) as dlv_taxation")
+            ->selectRaw("IF(po.id IS NOT NULL, po.id, '') as return_pay_order_id")
+            ->selectRaw("IF(po.sn IS NOT NULL, po.sn, '') as return_pay_order_sn")
 
             ->where('order.id', $order_id);
 
@@ -157,7 +168,7 @@ class Order extends Model
         return $orderQuery;
     }
 
-    public static function subOrderDetail($order_id, $sub_order_id = null, $get_paying = null)
+    public static function subOrderDetail($order_id, $sub_order_id = null, $get_logistic_paying = null)
     {
         $concatString = concatStr([
             'product_id' => 'product.id',
@@ -269,7 +280,7 @@ class Order extends Model
             $orderQuery->where('sub_order.id', $sub_order_id);
         }
 
-        if ($get_paying) {
+        if ($get_logistic_paying) {
             $orderQuery->leftJoin('pcs_paying_orders as po', function ($join) {
                 $join->on('po.source_id', '=', 'sub_order.order_id');
                 $join->where([
@@ -280,8 +291,9 @@ class Order extends Model
                 ]);
             })
             // ->selectRaw("('" . app(Order::class)->getTable() . "') as payable_source_type")
-                ->selectRaw("IF(po.sn IS NULL, NULL, po.sn) as payable_sn")
-                ->selectRaw("IF(po.balance_date IS NULL, NULL, po.balance_date) as payable_balance_date");
+                ->selectRaw("IF(po.sn IS NULL, NULL, po.sn) as logistic_po_sn")
+                ->selectRaw("IF(po.balance_date IS NULL, NULL, po.balance_date) as logistic_po_balance_date")
+                ->selectRaw("IF(po.created_at IS NULL, NULL, po.created_at) as logistic_po_created_at");
         }
 
         return $orderQuery;

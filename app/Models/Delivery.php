@@ -272,9 +272,10 @@ class Delivery extends Model
 
         $query = DB::table(DB::raw("({$sub_rec_depot->toSql()}) as rec_depot"))
             ->leftJoinSub($sub_orders, 'orders', function($join) use($delivery_id) {
-                $join->on('orders.sub_order_id', '=', 'rec_depot.event_item_id');
+                $join->on('orders.item_id', '=', 'rec_depot.event_item_id');
                 $join->where('rec_depot.delivery_id', $delivery_id);
             })
+            ->whereIn('rec_depot.prd_type', ['p', 'c'])
             ->whereNotNull('rec_depot.delivery_id')
             ->whereNotNull('orders.item_id')
             ->select('*');
@@ -314,6 +315,7 @@ class Delivery extends Model
                 $join->on('csn.item_id', '=', 'rec_depot.event_item_id');
                 $join->where('rec_depot.delivery_id', $delivery_id);
             })
+            ->whereIn('rec_depot.prd_type', ['p', 'c'])
             ->whereNotNull('rec_depot.delivery_id')
             ->whereNotNull('csn.item_id')
             ->select('*');
@@ -398,5 +400,117 @@ class Delivery extends Model
             'back_status' => $status->value
             , 'back_status_date' => date('Y-m-d H:i:s')
         ]);
+    }
+
+
+    public static function back_item($delivery_id = null)
+    {
+        $query = DB::table('dlv_delivery as delivery')
+            ->leftJoin(DB::raw('(
+                SELECT
+                    delivery_id,
+                    SUM(dlv_back.price * dlv_back.qty) AS total_price,
+                    CONCAT(\'[\', GROUP_CONCAT(\'{
+                        "id":"\', dlv_back.id, \'",
+                        "event_item_id":"\', dlv_back.event_item_id, \'",
+                        "sku":"\', dlv_back.sku, \'",
+                        "product_title":"\', dlv_back.product_title, \'",
+                        "price":"\', dlv_back.price, \'",
+                        "qty":"\', dlv_back.qty, \'",
+                        "total_price":"\', dlv_back.price * dlv_back.qty, \'",
+                        "memo":"\', COALESCE(dlv_back.memo, ""), \'",
+                        "taxation":"\', product.has_tax, \'"
+                    }\' ORDER BY dlv_back.id), \']\') AS items
+                FROM dlv_back
+                LEFT JOIN prd_product_styles ON prd_product_styles.id = dlv_back.product_style_id
+                LEFT JOIN prd_products AS product ON product.id = prd_product_styles.product_id WHERE product.deleted_at IS NULL
+                GROUP BY delivery_id
+                ) AS delivery_back'), function ($join){
+                    $join->on('delivery_back.delivery_id', '=', 'delivery.id');
+            })
+            ->leftJoin('ord_sub_orders AS sub_order', function ($join) {
+                $join->on('sub_order.id', '=', 'delivery.event_id');
+                $join->where([
+                    'delivery.event'=>'order',
+                ]);
+            })
+            ->leftJoin('ord_orders as order', 'order.id', '=', 'sub_order.order_id')
+            ->leftJoin('usr_customers as buyer', 'buyer.email', '=', 'order.email')
+            ->leftJoin('usr_customers_address AS buyer_add', function ($join) {
+                $join->on('buyer.id', '=', 'buyer_add.usr_customers_id_fk');
+                $join->where([
+                    'buyer_add.is_default_addr'=>1,
+                ]);
+            })
+            ->leftJoin('pcs_paying_orders AS po', function ($join) {
+                $join->on('po.source_id', '=', 'delivery.id');
+                $join->where([
+                    'po.source_type'=>app(self::class)->getTable(),
+                    'po.source_sub_id'=>null,
+                    'po.deleted_at'=>null,
+                ]);
+            })
+            ->where(function ($q) use ($delivery_id) {
+                if($delivery_id){
+                    if(gettype($delivery_id) == 'array') {
+                        $q->whereIn('delivery.id', $delivery_id);
+                    } else {
+                        $q->where('delivery.id', $delivery_id);
+                    }
+                }
+
+                $q->where('delivery.deleted_at', null);
+            })
+
+            ->select(
+                'delivery.id AS delivery_id',
+                'delivery.sn AS delivery_sn',
+                'delivery.event AS delivery_event',
+                'delivery.event_id AS delivery_event_id',
+                'delivery.event_sn AS delivery_event_sn',
+                'delivery.memo AS delivery_memo',
+
+                'delivery_back.items AS delivery_back_items',
+                'delivery_back.total_price AS delivery_back_total_price',
+
+                'order.id AS order_id',
+                'order.sn AS order_sn',
+                'order.dlv_fee AS order_dlv_fee',
+                'order.origin_price AS order_origin_price',
+                'order.total_price AS order_total_price',
+                'order.discount_value AS order_discount_value',
+                'order.dlv_taxation AS order_dlv_taxation',
+                'order.note AS order_note',
+
+                'sub_order.id AS sub_order_id',
+                'sub_order.sn AS sub_order_sn',
+                'sub_order.ship_category AS sub_order_ship_category',
+                'sub_order.ship_category_name AS sub_order_ship_category_name',
+                'sub_order.ship_event AS sub_order_ship_event',
+                'sub_order.dlv_fee AS sub_order_dlv_fee',
+                'sub_order.total_price AS sub_order_total_price',
+                'sub_order.discount_value AS sub_order_discount_value',
+
+                'buyer.id AS buyer_id',
+                'buyer.name AS buyer_name',
+                'buyer.phone AS buyer_phone',
+                'buyer.email AS buyer_email',
+                'buyer_add.address AS buyer_address',
+
+                'po.id AS po_id',
+                'po.sn AS po_sn',
+                'po.price AS po_price',
+                'po.balance_date AS po_balance_date',
+                'po.summary AS po_summary',
+                'po.memo AS po_memo',
+                'po.payee_id AS po_payee_id',
+                'po.payee_name AS po_payee_name',
+                'po.payee_phone AS po_payee_phone',
+                'po.payee_address AS po_payee_address',
+                'po.created_at AS po_created_at'
+            )
+            ->orderBy('delivery.id', 'desc');
+
+        return $query;
     }
 }

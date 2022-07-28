@@ -30,7 +30,7 @@
                 <tbody>
                     @foreach ($deliveryList as $prod)
                         @php
-                            $combo = $prod->product_title !== $prod->rec_product_title
+                            $combo = ('c' === $prod->prd_type) ? true : false;
                         @endphp
                         <tr>
                             <td>

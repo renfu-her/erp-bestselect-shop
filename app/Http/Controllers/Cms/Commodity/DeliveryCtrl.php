@@ -8,7 +8,10 @@ use App\Enums\Delivery\LogisticStatus;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Purchase\LogEventFeature;
 use App\Enums\StockEvent;
+use App\Enums\Supplier\Payment;
 use App\Http\Controllers\Controller;
+use App\Models\AllGrade;
+use App\Models\AccountPayable;
 use App\Models\Consignment;
 use App\Models\ConsignmentItem;
 use App\Models\CsnOrder;
@@ -17,18 +20,29 @@ use App\Models\CsnOrderItem;
 use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\DlvBack;
+use App\Models\GeneralLedger;
 use App\Models\Logistic;
 use App\Models\Order;
 use App\Models\OrderFlow;
 use App\Models\OrderInvoice;
 use App\Models\OrderItem;
+use App\Models\PayingOrder;
+use App\Models\PayableAccount;
+use App\Models\PayableCash;
+use App\Models\PayableCheque;
+use App\Models\PayableRemit;
+use App\Models\PayableForeignCurrency;
+use App\Models\PayableOther;
+use App\Models\PayableDefault;
 use App\Models\ProductStock;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseLog;
+use App\Models\ReceivedDefault;
 use App\Models\ReceiveDepot;
 use App\Models\ShipmentCategory;
 use App\Models\ShipmentGroup;
 use App\Models\SubOrders;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -269,9 +283,9 @@ class DeliveryCtrl extends Controller
         ]);
 
         $errors = [];
-        $msg = DB::transaction(function () use ($request, $delivery_id) {
+        $delivery = Delivery::where('id', $delivery_id)->first();
+        $msg = DB::transaction(function () use ($request, $delivery, $delivery_id) {
             $dlv_memo = $request->input('dlv_memo', null);
-            $delivery = Delivery::where('id', $delivery_id)->first();
             $back_sn = str_replace("DL","BK",$delivery->sn); //將出貨單號改為銷貨退回單號
             Delivery::where('id', $delivery_id)->update([
                 'back_date' => date("Y-m-d H:i:s")
@@ -325,7 +339,10 @@ class DeliveryCtrl extends Controller
             throw ValidationException::withMessages(['item_error' => $msg['error_msg']]);
         } else {
             wToast('儲存成功');
-            return redirect()->back()->withInput()->withErrors($errors);
+            return redirect(Route('cms.delivery.back_detail', [
+                'event' => $delivery->event,
+                'eventId' => $delivery->event_id,
+            ], true));
         }
     }
 
@@ -377,6 +394,8 @@ class DeliveryCtrl extends Controller
                     DB::raw('ifnull(item_tb.unit_cost, "") as uni_cost')
                     , DB::raw('ifnull(item_tb.bonus, "") as bonus')
                 );
+
+                $dlvBack->where('dlv_back.delivery_id', $delivery->id);
             }
             $dlvBack = $dlvBack->get();
         }
@@ -389,6 +408,41 @@ class DeliveryCtrl extends Controller
             )
             ->where('lgt_tb.delivery_id', '=', $delivery->id)
             ->first();
+        $ord_items_arr = ReceiveDepot::getRcvDepotBackQty($delivery->id, $delivery->event, $delivery->event_id);
+
+        if (isset($ord_items_arr) && 0 < count($ord_items_arr)) {
+            $sendBackData = PurchaseLog::getSendBackData($delivery->id, $delivery->event_id);
+            //整合退貨入庫時 輸入的說明
+            if (isset($sendBackData) && 0 < count(($sendBackData))) {
+                foreach ($ord_items_arr as $key => $ord_item) {
+                    if (isset($ord_item->receive_depot) && 0 < count($ord_item->receive_depot)) {
+                        foreach ($ord_item->receive_depot as $key_rcv_depot => $rcv_depot) {
+                            foreach ($sendBackData as $key_send_back => $val_send_back) {
+                                if ($rcv_depot->id == $val_send_back->event_id) {
+                                    $ord_item->receive_depot[$key_rcv_depot]->memo = $val_send_back->note;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            //移除數量為空的資料
+            foreach ($ord_items_arr as $key => $ord_item) {
+                if (isset($ord_item->receive_depot) && 0 < count($ord_item->receive_depot)) {
+                    foreach ($ord_item->receive_depot as $key_rcv_depot => $rcv_depot) {
+                        if (0 == ($rcv_depot->back_qty)) {
+                            unset($ord_item->receive_depot[$key_rcv_depot]);
+                        }
+                    }
+                }
+                if (isset($ord_item->receive_depot) && 0 == count($ord_item->receive_depot)) {
+                    unset($ord_items_arr[$key]);
+                }
+            }
+            $ord_items_arr = json_decode($ord_items_arr);
+            $ord_items_arr = array_values((array)$ord_items_arr);
+        }
+
         $rsp_arr['logistic'] = $logistic;
 
         $rsp_arr['event'] = $event;
@@ -396,7 +450,13 @@ class DeliveryCtrl extends Controller
         $rsp_arr['delivery_id'] = $delivery->id;
         $rsp_arr['sn'] = $delivery->sn;
         $rsp_arr['dlvBack'] = $dlvBack;
+        $rsp_arr['ord_items_arr'] = $ord_items_arr;
         $rsp_arr['breadcrumb_data'] = ['sn' => $delivery->event_sn, 'parent' => $event ];
+        $back_item = Delivery::back_item($delivery->id)->get();
+        foreach ($back_item as $key => $value) {
+            $back_item[$key]->delivery_back_items = json_decode($value->delivery_back_items);
+        }
+        $rsp_arr['back_item'] = $back_item->first();
         return view('cms.commodity.delivery.back_detail', $rsp_arr);
     }
 
@@ -411,42 +471,20 @@ class DeliveryCtrl extends Controller
         $delivery_id = $delivery->id;
         $event_sn = $delivery->event_sn;
 
-        $rcv_repot_combo = ReceiveDepot::getRcvDepotToBackQty($delivery_id);
-
-        $event_sn = '';
         if(Event::order()->value == $event) {
             $sub_order = SubOrders::getListWithShiGroupById($eventId)->get()->first();
             if (null == $sub_order) {
                 return abort(404);
             }
             $rsp_arr['order_id'] = $sub_order->order_id;
-            $ord_items_arr = ReceiveDepot::getOrderShipItemWithDeliveryWithReceiveDepotList($event, $eventId, $delivery_id);
         } else if(Event::consignment()->value == $event) {
-            $ord_items_arr = ReceiveDepot::getCSNShipItemWithDeliveryWithReceiveDepotList($event, $eventId, $delivery_id);
             $consignment = Consignment::where('id', $delivery->event_id)->get()->first();
             $rsp_arr['depot_id'] = $consignment->send_depot_id;
         } else if(Event::csn_order()->value == $event) {
-            $ord_items_arr = ReceiveDepot::getCSNOrderShipItemWithDeliveryWithReceiveDepotList($event, $eventId, $delivery_id);
             $csn_order = CsnOrder::where('id', $delivery->event_id)->get()->first();
             $rsp_arr['depot_id'] = $csn_order->depot_id;
         }
-        if (isset($ord_items_arr) && 0 < count($ord_items_arr) && isset($rcv_repot_combo) && 0 < count($rcv_repot_combo)) {
-            //出貨商品
-            for ($num_item = 0; $num_item < count($ord_items_arr); $num_item++) {
-                //組合包元素
-                for ($num_combo = 0; $num_combo < count($rcv_repot_combo); $num_combo++) {
-//                    dd($sub_order, $ord_items_arr[0], $rcv_repot_combo);
-                    if ($ord_items_arr[$num_item]->prd_type == 'c'
-                        && $ord_items_arr[$num_item]->papa_product_style_id == $rcv_repot_combo[$num_combo]->product_style_id
-                        && $ord_items_arr[$num_item]->product_style_id == $rcv_repot_combo[$num_combo]->product_style_child_id
-                    ) {
-                        $ord_items_arr[$num_item]->total_to_back_qty = $rcv_repot_combo[$num_combo]->to_back_qty * $rcv_repot_combo[$num_combo]->unit_qty;
-                    } else if ($ord_items_arr[$num_item]->prd_type == 'p' && null == $ord_items_arr[$num_item]->papa_product_style_id) {
-                        $ord_items_arr[$num_item]->total_to_back_qty = $rcv_repot_combo[$num_combo]->to_back_qty;
-                    }
-                }
-            }
-        }
+        $ord_items_arr = ReceiveDepot::getRcvDepotBackQty($delivery->id, $delivery->event, $delivery->event_id);
 
         $rsp_arr['event'] = $event;
         $rsp_arr['delivery'] = $delivery;
@@ -470,13 +508,15 @@ class DeliveryCtrl extends Controller
 
         $items_to_back = $request->only('id', 'back_qty', 'memo');
         if (count($items_to_back['id']) != count($items_to_back['back_qty']) && count($items_to_back['id']) != count($items_to_back['memo'])) {
-            $errors['error_msg'] = '各資料個數不同';
+            throw ValidationException::withMessages(['error_msg' => '各資料個數不同']);
         }
 
         $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
         if (null == $delivery) {
             return abort(404);
         }
+
+
         //判斷OK後 回寫入各出貨商品的product_style_id prd_type combo_id
         $bdcisc = ReceiveDepot::checkBackDlvComboItemSameCount($delivery_id, $items_to_back);
 //        dd($request->all(), $bdcisc);
@@ -489,22 +529,53 @@ class DeliveryCtrl extends Controller
                 ]);
                 Delivery::changeBackStatus($delivery->id, BackStatus::add_back_inbound());
 
-                if(isset($bdcisc['data']) && 0 < count($bdcisc['data'])) {
-                    foreach ($bdcisc['data'] as $rcv_depot_item) {
-                        dd($bdcisc, $rcv_depot_item);
-//                        dd($rcv_depot_item->memo ?? null);
+                //直接依據退貨數量 寫回出貨單組合包的退貨數量
+                $dlvBack = DB::table(app(DlvBack::class)->getTable(). ' as dlv_back')
+                    ->leftJoin(app(ReceiveDepot::class)->getTable(). ' as rcv_depot', function ($join) {
+                        $join->on('rcv_depot.delivery_id', '=', 'dlv_back.delivery_id')
+                            ->on('rcv_depot.event_item_id', '=', 'dlv_back.event_item_id');
+                    })
+                    ->where('rcv_depot.prd_type', '=', 'c')
+                    ->where('dlv_back.qty', '>', 0)
+                    ->select(
+                        'rcv_depot.id as rcv_depot_id'
+                        , 'dlv_back.event_item_id'
+                        , 'dlv_back.product_style_id'
+                        , 'dlv_back.qty'
+                    )
+                    ->get();
+                if (isset($dlvBack) && 0 < count($dlvBack)) {
+                    foreach ($dlvBack as $key_back => $val_back) {
+                        ReceiveDepot::where('id', '=', $val_back->rcv_depot_id)->update([
+                            'back_qty' => $val_back->qty
+                        ]);
+                    }
+                }
+
+                if(isset($bdcisc['data']) && 0 < count($bdcisc['data']) && isset($bdcisc['data']['id']) && 0 < count($bdcisc['data']['id'])) {
+                    for ($num_bdcisc = 0; $num_bdcisc < count($bdcisc['data']['id']); $num_bdcisc++) {
+                        $rcv_depot_item = new \stdClass();
+                        $rcv_depot_item->id = $bdcisc['data']['id'][$num_bdcisc];
+                        $rcv_depot_item->back_qty = $bdcisc['data']['back_qty'][$num_bdcisc];
+                        $rcv_depot_item->memo = $bdcisc['data']['memo'][$num_bdcisc];
+                        $rcv_depot_item->product_style_id = $bdcisc['data']['product_style_id'][$num_bdcisc];
+                        $rcv_depot_item->product_title = $bdcisc['data']['product_title'][$num_bdcisc];
+                        $rcv_depot_item->inbound_id = $bdcisc['data']['inbound_id'][$num_bdcisc];
+                        $rcv_depot_item->prd_type = $bdcisc['data']['prd_type'][$num_bdcisc];
+                        $rcv_depot_item->combo_id = $bdcisc['data']['combo_id'][$num_bdcisc];
+
                         //增加back_num
-                        ReceiveDepot::where('id', $rcv_depot_item->id)->update(['back_qty' => DB::raw("back_qty + $rcv_depot_item->qty")]);
+                        ReceiveDepot::where('id', $rcv_depot_item->id)->update(['back_qty' => DB::raw("back_qty + $rcv_depot_item->back_qty")]);
                         //加回對應入庫單num
                         $update_arr = [];
                         if (Event::order()->value == $delivery->event || Event::ord_pickup()->value == $delivery->event) {
                             OrderFlow::changeOrderStatus($delivery->event_id, OrderStatus::Backed());
-                            $update_arr['sale_num'] = DB::raw("sale_num - $rcv_depot_item->qty");
+                            $update_arr['sale_num'] = DB::raw("sale_num - $rcv_depot_item->back_qty");
                             //TODO 自取可能有入庫 若有入庫過 則需判斷退貨的數量 不得大於後面入庫扣除售出之類的數量
                             // 並須把後面入庫單的退貨數量更新
                             if (Event::ord_pickup()->value == $delivery->event) {
                                 DB::rollBack();
-                                return ['success' => 0, 'error_msg' => '訂單自取暫無退貨功能'];
+                                return ['success' => 0, 'error_msg' => '訂單自取暫無退貨入庫功能'];
                                 $pcsInbound = DB::table(app(PurchaseInbound::class)->getTable(). ' as inbound')
                                     ->where('inbound.event', '=', Event::ord_pickup()->value)
                                     ->where('inbound.event_id', '=', $rcv_depot_item->id)
@@ -521,19 +592,19 @@ class DeliveryCtrl extends Controller
                             }
                         } else if (Event::consignment()->value == $delivery->event) {
                             DB::rollBack();
-                            return ['success' => 0, 'error_msg' => '寄倉暫無退貨功能'];
+                            return ['success' => 0, 'error_msg' => '寄倉暫無退貨入庫功能'];
                             //TODO 寄倉可能有入庫 若有入庫過 須先把那邊的入庫退貨
-                            $update_arr['csn_num'] = DB::raw("csn_num - $rcv_depot_item->qty");
+                            $update_arr['csn_num'] = DB::raw("csn_num - $rcv_depot_item->back_qty");
                         } else if (Event::csn_order()->value == $delivery->event) {
                             DB::rollBack();
-                            return ['success' => 0, 'error_msg' => '寄倉訂購暫無退貨功能'];
-                            $update_arr['sale_num'] = DB::raw("sale_num - $rcv_depot_item->qty");
+                            return ['success' => 0, 'error_msg' => '寄倉訂購暫無退貨入庫功能'];
+                            $update_arr['sale_num'] = DB::raw("sale_num - $rcv_depot_item->back_qty");
                         }
                         PurchaseInbound::where('id', $rcv_depot_item->inbound_id)->update($update_arr);
 
                         //寫入LOG
                         $rePcsLSC = PurchaseLog::stockChange($delivery->event_id, $rcv_depot_item->product_style_id, $delivery->event, $rcv_depot_item->id
-                            , LogEventFeature::send_back()->value, $rcv_depot_item->inbound_id, $rcv_depot_item->qty, $rcv_depot_item->memo ?? null
+                            , LogEventFeature::send_back()->value, $rcv_depot_item->inbound_id, $rcv_depot_item->back_qty, $rcv_depot_item->memo ?? null
                             , $rcv_depot_item->product_title, $rcv_depot_item->prd_type
                             , $request->user()->id, $request->user()->name);
                         if ($rePcsLSC['success'] == 0) {
@@ -553,7 +624,7 @@ class DeliveryCtrl extends Controller
                                 || Event::consignment()->value == $delivery->event)
                         ) {
                             $memo = $rcv_depot_item->memo ?? '';
-                            $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $rcv_depot_item->qty
+                            $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $rcv_depot_item->back_qty
                                 , StockEvent::send_back()->value, $delivery->event_id
                                 , $request->user()->name. ' '. $delivery->sn. ' ' . $memo
                                 , false, $inboundDataGet->can_tally);
@@ -567,17 +638,363 @@ class DeliveryCtrl extends Controller
                 return ['success' => 1];
             });
             if ($msg['success'] == 0) {
-                throw ValidationException::withMessages(['item_error' => $msg['error_msg']]);
+                throw ValidationException::withMessages(['error_msg' => $msg['error_msg']]);
             } else {
                 wToast('儲存成功');
-                return redirect(Route('cms.delivery.back_inbound', [
+                return redirect(Route('cms.delivery.back_detail', [
                     'event' => $delivery->event,
                     'eventId' => $delivery->event_id,
                 ], true));
             }
         } else {
-            throw ValidationException::withMessages(['item_error' => $bdcisc['error_msg']]);
+            throw ValidationException::withMessages(['error_msg' => $bdcisc['error_msg']]);
         }
     }
 
+    public function back_inbound_delete(Request $request, int $delivery_id) {
+        $delivery = Delivery::where('id', '=', $delivery_id)->get()->first();
+        if (false == isset($delivery) || false == isset($delivery->back_inbound_date)) {
+            return abort(404);
+        }
+        $rcv_depot = DB::table(app(Delivery::class)->getTable(). ' as dlv_tb')
+            ->leftJoin(app(ReceiveDepot::class)->getTable(). ' as rcv_depot', 'rcv_depot.delivery_id', '=', 'dlv_tb.id')
+            ->select(
+                'rcv_depot.id'
+                , 'rcv_depot.back_qty'
+                , 'rcv_depot.product_style_id'
+                , 'rcv_depot.product_title'
+                , 'rcv_depot.inbound_id'
+                , 'rcv_depot.prd_type'
+                , 'rcv_depot.combo_id'
+            )
+            ->where('rcv_depot.back_qty', '>', 0)
+            ->get();
+        if (isset($rcv_depot) && 0 < count($rcv_depot)) {
+            $msg = DB::transaction(function () use ($delivery, $rcv_depot, $request) {
+                Delivery::where('id', '=', $delivery->id)->update([
+                    'back_inbound_user_id' => null
+                    , 'back_inbound_user_name' => null
+                    , 'back_inbound_date' => null
+                ]);
+                Delivery::changeBackStatus($delivery->id, BackStatus::del_back_inbound());
+                //直接依據退貨數量 寫回出貨單組合包的退貨數量
+                $dlvBack = DB::table(app(DlvBack::class)->getTable(). ' as dlv_back')
+                    ->leftJoin(app(ReceiveDepot::class)->getTable(). ' as rcv_depot', function ($join) {
+                        $join->on('rcv_depot.delivery_id', '=', 'dlv_back.delivery_id')
+                            ->on('rcv_depot.event_item_id', '=', 'dlv_back.event_item_id');
+                    })
+                    ->where('rcv_depot.prd_type', '=', 'c')
+                    ->where('dlv_back.qty', '>', 0)
+                    ->select(
+                        'rcv_depot.id as rcv_depot_id'
+                        , 'dlv_back.event_item_id'
+                        , 'dlv_back.product_style_id'
+                        , 'dlv_back.qty'
+                    )
+                    ->get();
+
+                foreach ($rcv_depot as $key_rcv => $val_rcv) {
+                    //減少back_num
+                    ReceiveDepot::where('id', $val_rcv->id)->update(['back_qty' => DB::raw("back_qty - $val_rcv->back_qty")]);
+                    //減回對應入庫單num
+                    $update_arr = [];
+                    if (Event::order()->value == $delivery->event || Event::ord_pickup()->value == $delivery->event) {
+                        OrderFlow::changeOrderStatus($delivery->event_id, OrderStatus::CancleBack());
+                        $update_arr['sale_num'] = DB::raw("sale_num + $val_rcv->back_qty");
+                        //TODO 自取可能有入庫 若有入庫過 則需判斷退貨的數量 不得大於後面入庫扣除售出之類的數量
+                        // 並須把後面入庫單的退貨數量更新
+                        if (Event::ord_pickup()->value == $delivery->event) {
+                            DB::rollBack();
+                            return ['success' => 0, 'error_msg' => '訂單自取暫無退貨入庫功能'];
+                        }
+                    } else if (Event::consignment()->value == $delivery->event) {
+                        DB::rollBack();
+                        return ['success' => 0, 'error_msg' => '寄倉暫無退貨入庫功能'];
+                        $update_arr['csn_num'] = DB::raw("csn_num + $val_rcv->back_qty");
+                    } else if (Event::csn_order()->value == $delivery->event) {
+                        DB::rollBack();
+                        return ['success' => 0, 'error_msg' => '寄倉訂購暫無退貨入庫功能'];
+                        $update_arr['sale_num'] = DB::raw("sale_num + $val_rcv->back_qty");
+                    }
+                    PurchaseInbound::where('id', $val_rcv->inbound_id)->update($update_arr);
+
+                    //寫入LOG
+                    $rePcsLSC = PurchaseLog::stockChange($delivery->event_id, $val_rcv->product_style_id, $delivery->event, $val_rcv->id
+                        , LogEventFeature::send_back_cancle()->value, $val_rcv->inbound_id, $val_rcv->back_qty * -1, $val_rcv->memo ?? null
+                        , $val_rcv->product_title, $val_rcv->prd_type
+                        , $request->user()->id, $request->user()->name);
+                    if ($rePcsLSC['success'] == 0) {
+                        DB::rollBack();
+                        return $rePcsLSC;
+                    }
+                    //訂單、寄倉 須將通路庫存減回
+                    //若為理貨倉can_tally 需修改通路庫存
+                    $inboundData = DB::table('pcs_purchase_inbound as inbound')
+                        ->leftJoin('depot', 'depot.id', 'inbound.depot_id')
+                        ->where('inbound.id', '=', $val_rcv->inbound_id)
+                        ->whereNull('inbound.deleted_at');
+                    $inboundDataGet = $inboundData->get()->first();
+                    if (isset($inboundDataGet) && isset($inboundDataGet->can_tally) && $inboundDataGet->can_tally
+                        && (Event::order()->value == $delivery->event
+                            || Event::ord_pickup()->value == $delivery->event
+                            || Event::consignment()->value == $delivery->event)
+                    ) {
+                        $memo = '';
+                        $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $val_rcv->back_qty * -1
+                            , StockEvent::send_back_cancle()->value, $delivery->event_id
+                            , $request->user()->name. ' '. $delivery->sn. ' ' . $memo
+                            , false, $inboundDataGet->can_tally);
+                        if ($rePSSC['success'] == 0) {
+                            DB::rollBack();
+                            return $rePSSC;
+                        }
+                    }
+                }
+
+                return ['success' => 1];
+            });
+            if ($msg['success'] == 0) {
+                throw ValidationException::withMessages(['error_msg' => $msg['error_msg']]);
+            } else {
+                wToast('儲存成功');
+                return redirect()->back()->withInput();
+            }
+        } else {
+            throw ValidationException::withMessages(['error_msg' => '無可退貨入庫數量']);
+        }
+    }
+
+    public function return_pay_order(Request $request, $id)
+    {
+        $request->merge([
+            'id' => $id,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:dlv_delivery,id',
+        ]);
+
+        $source_type = app(Delivery::class)->getTable();
+        $type = 9;
+
+        $paying_order = PayingOrder::where([
+            'source_type' => $source_type,
+            'source_id' => $id,
+            'source_sub_id' => null,
+            'type' => $type,
+            'deleted_at' => null,
+        ])->first();
+
+        $delivery = Delivery::back_item($id)->get();
+        foreach ($delivery as $key => $value) {
+            $delivery[$key]->delivery_back_items = json_decode($value->delivery_back_items);
+        }
+        $delivery = $delivery->first();
+
+        if (!$paying_order) {
+            $product_grade = ReceivedDefault::where('name', '=', 'product')->first()->default_grade_id;
+            $logistics_grade = ReceivedDefault::where('name', '=', 'logistics')->first()->default_grade_id;
+
+            $result = PayingOrder::createPayingOrder(
+                $source_type,
+                $id,
+                null,
+                $request->user()->id,
+                $type,
+                $product_grade,
+                $logistics_grade,
+                $delivery->delivery_back_total_price ?? 0,
+                '',
+                '',
+                $delivery->buyer_id,
+                $delivery->buyer_name,
+                $delivery->buyer_phone,
+                $delivery->buyer_address
+            );
+
+            $paying_order = PayingOrder::findOrFail($result['id']);
+        }
+
+        $applied_company = DB::table('acc_company')->where('id', 1)->first();
+
+        $product_grade_name = AllGrade::find($paying_order->product_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->product_grade_id)->eachGrade->name;
+        $logistics_grade_name = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
+
+        // $order_discount = DB::table('ord_discounts')->where([
+        //         'order_type'=>'main',
+        //         'order_id'=>request('id'),
+        //     ])->where('discount_value', '>', 0)->get()->toArray();
+        // foreach($order_discount as $value){
+        //     $value->account_code = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->code : '4000';
+        //     $value->account_name = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->name : '無設定會計科目';
+        // }
+
+        $payable_data = PayingOrder::get_payable_detail($paying_order->id);
+
+        $accountant = User::whereIn('id', $payable_data->pluck('accountant_id_fk')->toArray())->get();
+        $accountant = array_unique($accountant->pluck('name')->toArray());
+        asort($accountant);
+
+        $undertaker = User::find($paying_order->usr_users_id);
+
+        $zh_price = num_to_str($paying_order->price);
+
+        return view('cms.commodity.delivery.return_pay_order', [
+            'breadcrumb_data' => ['event' => $delivery->delivery_event, 'eventId' => $delivery->delivery_event_id, 'sn' => $delivery->delivery_event_sn],
+
+            'paying_order' => $paying_order,
+            'payable_data' => $payable_data,
+            'delivery' => $delivery,
+            // 'order_discount' => $order_discount,
+            'applied_company' => $applied_company,
+            'product_grade_name' => $product_grade_name,
+            'logistics_grade_name' => $logistics_grade_name,
+            'accountant'=>implode(',', $accountant),
+            'undertaker' => $undertaker,
+            'zh_price' => $zh_price,
+        ]);
+    }
+
+    public function return_pay_create(Request $request, $id)
+    {
+        $request->merge([
+            'id' => $id,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:dlv_delivery,id',
+        ]);
+
+        $source_type = app(Delivery::class)->getTable();
+        $type = 9;
+
+        $paying_order = PayingOrder::where([
+            'source_type' => $source_type,
+            'source_id' => $id,
+            'source_sub_id' => null,
+            'type' => $type,
+            'deleted_at' => null,
+        ])->first();
+
+        if(! $paying_order) {
+            return abort(404);
+        }
+
+        $delivery = Delivery::back_item($id)->get();
+        foreach ($delivery as $key => $value) {
+            $delivery[$key]->delivery_back_items = json_decode($value->delivery_back_items);
+        }
+        $delivery = $delivery->first();
+
+        if($request->isMethod('post')){
+            $request->merge([
+                'pay_order_id'=>$paying_order->id,
+            ]);
+
+            $request->validate([
+                'acc_transact_type_fk' => 'required|regex:/^[1-6]$/',
+            ]);
+
+            $req = $request->all();
+
+            $payable_type = $req['acc_transact_type_fk'];
+
+            switch ($payable_type) {
+                case Payment::Cash:
+                    PayableCash::storePayableCash($req);
+                    break;
+                case Payment::Cheque:
+                    PayableCheque::storePayableCheque($req);
+                    break;
+                case Payment::Remittance:
+                    PayableRemit::storePayableRemit($req);
+                    break;
+                case Payment::ForeignCurrency:
+                    PayableForeignCurrency::storePayableCurrency($req);
+                    break;
+                case Payment::AccountsPayable:
+                    PayableAccount::storePayablePayableAccount($req);
+                    break;
+                case Payment::Other:
+                    PayableOther::storePayableOther($req);
+                    break;
+            }
+
+            $payable_data = PayingOrder::get_payable_detail($paying_order->id);
+            if (count($payable_data) > 0 && $paying_order->price == $payable_data->sum('tw_price')) {
+                $paying_order->update([
+                    'balance_date'=>date("Y-m-d H:i:s"),
+                ]);
+            }
+
+            if (PayingOrder::find($paying_order->id) && PayingOrder::find($paying_order->id)->balance_date) {
+                return redirect()->route('cms.delivery.return-pay-order', [
+                    'id' => $delivery->delivery_id,
+                ]);
+
+            } else {
+                return redirect()->route('cms.delivery.return-pay-create', [
+                    'id' => $delivery->delivery_id,
+                ]);
+            }
+
+        } else {
+
+            if($paying_order->balance_date) {
+                return abort(404);
+            }
+
+            $product_grade_name = AllGrade::find($paying_order->product_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->product_grade_id)->eachGrade->name;
+            $logistics_grade_name = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
+
+            // $order_discount = DB::table('ord_discounts')->where([
+            //         'order_type'=>'main',
+            //         'order_id'=>request('id'),
+            //     ])->where('discount_value', '>', 0)->get()->toArray();
+            // foreach($order_discount as $value){
+            //     $value->account_code = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->code : '4000';
+            //     $value->account_name = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->name : '無設定會計科目';
+            // }
+
+            $currency = DB::table('acc_currency')->find($paying_order->acc_currency_fk);
+            if(!$currency){
+                $currency = (object)[
+                    'name'=>'NTD',
+                    'rate'=>1,
+                ];
+            }
+
+            $payable_data = PayingOrder::get_payable_detail($paying_order->id);
+
+            $tw_price = $paying_order->price - $payable_data->sum('tw_price');
+
+            $total_grades = GeneralLedger::total_grade_list();
+
+            return view('cms.commodity.delivery.return_pay_create', [
+                'breadcrumb_data' => ['event' => $delivery->delivery_event, 'eventId' => $delivery->delivery_event_id, 'sn' => $delivery->delivery_event_sn, 'id' => $delivery->delivery_id],
+
+                'paying_order' => $paying_order,
+                'payable_data' => $payable_data,
+                'delivery' => $delivery,
+                // 'order_discount' => $order_discount,
+                'product_grade_name' => $product_grade_name,
+                'logistics_grade_name' => $logistics_grade_name,
+                'currency' => $currency,
+                'tw_price' => $tw_price,
+                'total_grades' => $total_grades,
+
+                'cashDefault' => PayableDefault::where('name', 'cash')->pluck('default_grade_id')->toArray(),
+                'chequeDefault' => PayableDefault::where('name', 'cheque')->pluck('default_grade_id')->toArray(),
+                'remitDefault' => PayableDefault::where('name', 'remittance')->pluck('default_grade_id')->toArray(),
+                'all_currency' => PayableDefault::getCurrencyOptionData()['selectedCurrencyResult']->toArray(),
+                'currencyDefault' => PayableDefault::where('name', 'foreign_currency')->pluck('default_grade_id')->toArray(),
+                'accountPayableDefault' => PayableDefault::where('name', 'accounts_payable')->pluck('default_grade_id')->toArray(),
+                'otherDefault' => PayableDefault::where('name', 'other')->pluck('default_grade_id')->toArray(),
+
+                'form_action' => Route('cms.delivery.return-pay-create', ['id' => $delivery->delivery_id]),
+                'transactTypeList' => AccountPayable::getTransactTypeList(),
+                'chequeStatus' => AccountPayable::getChequeStatus(),
+            ]);
+        }
+    }
 }
