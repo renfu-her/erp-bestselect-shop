@@ -5,7 +5,8 @@
         <div class="alert alert-danger mt-3">{!! implode('', $errors->all('<div>:message</div>')) !!}</div>
     @endif
     <div class="card shadow p-4 mb-4">
-        <h6><span class="badge -step user">第一步</span>上傳檔案</h6>
+        <h6>上傳檔案</h6>
+        <h8>重新匯入相同採購單號時，不會再次產生採購單和入庫單，請自行手動調整</h8>
 
         <form method="POST" id="upload-excel" enctype="multipart/form-data"
               action="{{ Route('cms.inbound_import.upload_excel') }}">

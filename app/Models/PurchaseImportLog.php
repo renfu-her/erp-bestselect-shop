@@ -16,7 +16,6 @@ class PurchaseImportLog extends Model
 
     public static function createData($purchase, $item = null, $inbound_sn = null, $errMsg, $user) {
         $sn = 'PI' . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
-                    ->withTrashed()
                     ->get()
                     ->count()) + 1, 4, '0', STR_PAD_LEFT);
         $status = Status::success()->value;
@@ -38,10 +37,10 @@ class PurchaseImportLog extends Model
         if (isset($item)) {
             $createData['sku'] = $item['sku'] ?? null;
             $createData['title'] = $item['product_title'] ?? null;
-            $createData['qty'] = $item['qty'] ?? null;
+            $createData['qty'] = $item['remaining_qty'] ?? null;
             $createData['expiry_date'] = $item['expiry_date'] ?? null;
             $createData['unit_cost'] = $item['unit_cost'] ?? null;
-            $createData['price'] = intval($item['qty'], 0) * intval($item['unit_cost'], 0);
+            $createData['price'] = intval($item['remaining_qty'], 0) * intval($item['unit_cost'], 0);
         }
 
         $purchaseImportLog = PurchaseImportLog::create($createData);
@@ -54,7 +53,7 @@ class PurchaseImportLog extends Model
             $style = DB::table(app(ProductStyle::class)->getTable(). ' as style')
                 ->leftJoin(app(Product::class)->getTable(). ' as product', 'product.id', '=', 'style.product_id')
                 ->where('style.sku', '=', $val_style['sku'])
-                ->select(DB::raw('Concat(product.title, "-", style.title) AS product_title'))
+                ->select('style.id as product_style_id', DB::raw('Concat(product.title, "-", style.title) AS product_title'))
                 ->first();
             if (false == isset($style)) {
                 $errMsg = '有無效商品:'. $val_style['sku']. ' '. '請先於商品管理新增';

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Cms\Commodity;
 
+use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Globals\Status;
 use App\Http\Controllers\Controller;
@@ -21,7 +22,7 @@ class InboundImportCtrl extends Controller
     public function index(Request $request)
     {
         $depotList = Depot::all()->toArray();
-        return view('cms.commodity.inbound_import.list', [
+        return view('cms.commodity.inbound_import.index', [
             'depotList' => $depotList,
         ]);
     }
@@ -63,6 +64,7 @@ class InboundImportCtrl extends Controller
                 throw ValidationException::withMessages(['error_msg' => $errMsg]);
             }
 
+            $curr_date = date('Y-m-d H:i:s');
             $purchaseImportLog = null;
             $curr_pcs = null;
             foreach ($data as $key_pcs => $val_pcs) {
@@ -88,7 +90,8 @@ class InboundImportCtrl extends Controller
                     $errMsg = $checkSKU['error_msg'];
                     break;
                 } else {
-                    $data[$key_pcs] = $checkSKU['data'];
+                    $val_pcs = $checkSKU['val_pcs'];
+                    $curr_pcs = $val_pcs;
                 }
 
                 //判斷採購人員是否存在
@@ -99,7 +102,8 @@ class InboundImportCtrl extends Controller
                     break;
                 } else {
                     $user = $checkUser['data'];
-                    $data[$key_pcs] = $checkUser['val_pcs'];
+                    $val_pcs = $checkSKU['val_pcs'];
+                    $curr_pcs = $val_pcs;
                 }
 
                 // 判斷是否有此廠商
@@ -110,11 +114,13 @@ class InboundImportCtrl extends Controller
                     break;
                 } else {
                     $supplier = $checkSupplier['data'];
-                    $data[$key_pcs] = $checkSupplier['val_pcs'];
+                    $val_pcs = $checkSKU['val_pcs'];
+                    $curr_pcs = $val_pcs;
                 }
 
                 $msg = DB::transaction(function () use (
                     $request
+                    , $curr_date
                     , $depot
                     , $val_pcs
                     , $user
@@ -134,6 +140,13 @@ class InboundImportCtrl extends Controller
                         DB::rollBack();
                         return ['success' => 0, 'error_msg' => $purchase['error_msg']];
                     }
+                    //自動匯入 直接寫入應稅、審核狀態為核可
+                    $updArr['has_tax'] = 1;
+                    $updArr['audit_date'] = $curr_date;
+                    $updArr['audit_user_id'] = $request->user()->id;
+                    $updArr['audit_user_name'] = $request->user()->name;
+                    $updArr['audit_status'] = AuditStatus::approved()->value;
+                    Purchase::where('id', $purchase['id'])->update($updArr);
 
                     //建立採購商品
                     foreach ($val_pcs['data'] as $key_style => $val_style) {
@@ -145,6 +158,7 @@ class InboundImportCtrl extends Controller
                                 'sku' => $val_style['sku'],
                                 'price' => $val_style['remaining_qty'] * $val_style['unit_cost'],
                                 'num' => $val_style['remaining_qty'],
+                                'temp_id' => null,
                             ],
                             $request->user()->id,
                             $request->user()->name
@@ -171,8 +185,8 @@ class InboundImportCtrl extends Controller
                             $val_style['remaining_qty'],
                             $depot->id,
                             $depot->name,
-                            $user->id,
-                            $user->name,
+                            $request->user()->id,
+                            $request->user()->name
                         );
                         if ($purchaseInbound['success'] != '1') {
                             DB::rollBack();
@@ -192,7 +206,7 @@ class InboundImportCtrl extends Controller
             }
         }
         if (isset($errMsg) && isset($curr_pcs)) {
-            PurchaseImportLog::createData($curr_pcs, null, $errMsg, $request->user());
+            PurchaseImportLog::createData($curr_pcs, null, null, $errMsg, $request->user());
             $errors['error_msg'] = '採購單號:'. $curr_pcs['purchase_sn']. ' '. $errMsg;
             return redirect()->back()->withInput()->withErrors($errors);
         }
