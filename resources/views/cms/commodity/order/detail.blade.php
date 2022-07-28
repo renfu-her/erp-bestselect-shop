@@ -43,6 +43,8 @@
 
             @if (!$order->return_pay_order_id && in_array($order->status, ['取消']))
                 <a href="{{ Route('cms.order.return-pay-order', ['id' => $order->id]) }}" role="button" class="btn btn-primary btn-sm my-1 ms-1">新增退貨付款單</a>
+            @endif
+
             @if ($received_order_data)
                 @if (!in_array($order->status, ['已入款', '結案']))
                     <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm my-1 ms-1"
