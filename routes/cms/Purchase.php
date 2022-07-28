@@ -9,11 +9,6 @@ Route::group(['prefix' => 'purchase', 'as' => 'purchase.'], function () {
     Route::post('create', [PurchaseCtrl::class, 'store']);
     Route::get('edit/{id}', [PurchaseCtrl::class, 'edit'])->name('edit')->middleware('permission:cms.purchase.edit');
     Route::post('edit/{id}', [PurchaseCtrl::class, 'update']);
-
-    Route::get('edit/{id}/pay-deposit', [PurchaseCtrl::class, 'payDeposit'])->name('pay-deposit');
-    Route::get('pay-order/{id}', [PurchaseCtrl::class, 'payOrder'])->name('view-pay-order')->middleware('permission:cms.purchase.view-pay-order');
-    Route::post('pay-order/{id}', [PurchaseCtrl::class, 'payOrder'])->name('pay-order')->middleware('permission:cms.purchase.pay-order');
-
     Route::get('delete/{id}', [PurchaseCtrl::class, 'destroy'])->name('delete')->middleware('permission:cms.purchase.delete');
     Route::post('close/{id}', [PurchaseCtrl::class, 'close'])->name('close')->middleware('permission:cms.purchase.close');
 
@@ -22,4 +17,10 @@ Route::group(['prefix' => 'purchase', 'as' => 'purchase.'], function () {
     Route::get('delete_inbound/{id}', [PurchaseCtrl::class, 'deleteInbound'])->name('delete_inbound')->middleware('permission:cms.purchase.delete_inbound');
 
     Route::get('log/{id}', [PurchaseCtrl::class, 'historyLog'])->name('log')->middleware('permission:cms.purchase.historyLog');
+
+
+    Route::get('edit/{id}/pay-deposit', [PurchaseCtrl::class, 'payDeposit'])->name('pay-deposit');
+    Route::get('pay-order/{id}', [PurchaseCtrl::class, 'payOrder'])->name('view-pay-order')->middleware('permission:cms.purchase.view-pay-order');
+    Route::post('pay-order/{id}', [PurchaseCtrl::class, 'payOrder'])->name('pay-order')->middleware('permission:cms.purchase.pay-order');
+    Route::match(['get', 'post'], 'po_create', [PurchaseCtrl::class, 'po_create'])->name('po-create');
 });

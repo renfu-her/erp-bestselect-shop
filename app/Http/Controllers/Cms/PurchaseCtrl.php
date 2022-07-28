@@ -4,25 +4,30 @@ namespace App\Http\Controllers\Cms;
 
 use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
+use App\Enums\Supplier\Payment;
 use App\Http\Controllers\Controller;
 
 use App\Models\AllGrade;
 use App\Models\Depot;
 use App\Models\PayingOrder;
 use App\Models\Purchase;
+use App\Models\PayableAccount;
+use App\Models\PayableCash;
+use App\Models\PayableCheque;
+use App\Models\PayableRemit;
+use App\Models\PayableForeignCurrency;
+use App\Models\PayableOther;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseItem;
 use App\Models\PurchaseLog;
 use App\Models\Supplier;
 use App\Models\User;
-use App\Models\Order;
-use App\Models\SubOrders;
+use App\Models\GeneralLedger;
 use App\Models\PayableDefault;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use App\Enums\Purchase\InboundStatus;
 
@@ -715,9 +720,172 @@ class PurchaseCtrl extends Controller
         ]);
     }
 
-    /**
-     * 新增訂金付款單
-     */
+
+    public function po_create(Request $request)
+    {
+        if($request->isMethod('post')){
+            $request->validate([
+                'acc_transact_type_fk'    => ['required', 'string', 'regex:/^[1-6]$/'],
+                'pay_order_type' => ['required', 'string', 'regex:/^(pcs)$/'],
+                'pay_order_id' => 'required|exists:pcs_paying_orders,id',
+                'is_final_payment' => ['required', 'int', 'regex:/^(0|1)$/']
+            ]);
+            $req = $request->all();
+            $payableType = $req['acc_transact_type_fk'];
+
+            switch ($payableType) {
+                case Payment::Cash:
+                    PayableCash::storePayableCash($req);
+                    break;
+                case Payment::Cheque:
+                    PayableCheque::storePayableCheque($req);
+                    break;
+                case Payment::Remittance:
+                    PayableRemit::storePayableRemit($req);
+                    break;
+                case Payment::ForeignCurrency:
+                    PayableForeignCurrency::storePayableCurrency($req);
+                    break;
+                case Payment::AccountsPayable:
+                    PayableAccount::storePayablePayableAccount($req);
+                    break;
+                case Payment::Other:
+                    PayableOther::storePayableOther($req);
+                    break;
+            }
+
+            $paying_order = PayingOrder::find(request('pay_order_id'));
+            $pay_list = AccountPayable::where('pay_order_id', request('pay_order_id'))->get();
+            if (count($pay_list) > 0 && $paying_order->price == $pay_list->sum('tw_price')) {
+                $paying_order->update([
+                    'balance_date'=>date("Y-m-d H:i:s"),
+                ]);
+            }
+
+            if (PayingOrder::find(request('pay_order_id')) && PayingOrder::find(request('pay_order_id'))->balance_date) {
+                return redirect()->route('cms.purchase.view-pay-order', [
+                    'id' => $req['purchase_id'],
+                    'type' => $req['is_final_payment']
+                ]);
+
+            } else {
+                return redirect()->route('cms.purchase.po-create', [
+                    'payOrdId' => request('pay_order_id'),
+                    'payOrdType' => 'pcs',
+                    'isFinalPay' => request('is_final_payment'),
+                    'purchaseId' => $paying_order->source_id
+                ]);
+            }
+
+        } else {
+
+            $request->validate([
+                'payOrdType' => 'required|regex:/^(pcs)$/',
+                'payOrdId' => 'required|exists:pcs_paying_orders,id',
+                'isFinalPay' => 'required|in:0,1',
+                'purchaseId' => 'required|exists:pcs_purchase,id',
+            ]);
+
+            $payOrdId = $request['payOrdId'];
+
+            $all_payable_type_data = [
+                'payableCash' => [],
+                'payableCheque' => [],
+                'payableRemit' => [],
+                'payableForeignCurrency' => [],
+                'payableAccount' => [],
+                'payableOther' => [],
+            ];
+
+            $paying_order = PayingOrder::findOrFail($payOrdId);
+
+            $product_grade_name = AllGrade::find($paying_order->product_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->product_grade_id)->eachGrade->name;
+            $logistics_grade_name = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
+
+            $purchase_item_data = PurchaseItem::getPurchaseItemsByPurchaseId($paying_order->source_id);
+            $logistics = Purchase::findOrFail($paying_order->source_id);
+
+            $deposit_payment_data = PayingOrder::getPayingOrdersWithPurchaseID($paying_order->source_id, 0)->first();
+
+            $purchase_data = Purchase::getPurchase($paying_order->source_id)->first();
+            $supplier = Supplier::where('id', '=', $purchase_data->supplier_id)->first();
+            $currency = DB::table('acc_currency')->find($paying_order->acc_currency_fk);
+            if(!$currency){
+                $currency = (object)[
+                    'name'=>'NTD',
+                    'rate'=>1,
+                ];
+            }
+
+            $paid_paying_order_data = PayingOrder::where(function ($q){
+                    $q->where([
+                        'source_type'=>app(Purchase::class)->getTable(),
+                        'source_id'=>request('purchaseId'),
+                        'deleted_at'=>null,
+                    ]);
+
+                    if(request('isFinalPay') === '0'){
+                        $q->where([
+                            'type'=>request('isFinalPay'),
+                        ]);
+                    }
+                })->get();
+
+            // $payable_data = PayingOrder::get_payable_detail($paid_paying_order_data->pluck('id')->toArray());
+            $payable_data = AccountPayable::whereIn('pay_order_id', $paid_paying_order_data->pluck('id')->toArray())->get();
+            foreach($payable_data as $value){
+                if($value->acc_income_type_fk == 4){
+                    $value->currency_name = DB::table('acc_currency')->find($value->payable->acc_currency_fk)->name;
+                    $value->currency_rate = $value->payable->rate;
+                } else {
+                    $value->currency_name = 'NTD';
+                    $value->currency_rate = 1;
+                }
+            }
+            $tw_price = $paid_paying_order_data->sum('price') - $payable_data->sum('tw_price');
+
+            $total_grades = GeneralLedger::total_grade_list();
+
+            return view('cms.commodity.purchase.po_create', [
+                'tw_price' => $tw_price,
+                'payable_data' => $payable_data,
+
+                // 'thirdGradesDataList' => $thirdGradesDataList,
+                // 'fourthGradesDataList' => $fourthGradesDataList,
+                // 'currencyData' => $currencyData,
+                // 'paymentStatusList' => $payStatusArray,
+                'cashDefault' => PayableDefault::where('name', 'cash')->pluck('default_grade_id')->toArray(),
+                'chequeDefault' => PayableDefault::where('name', 'cheque')->pluck('default_grade_id')->toArray(),
+                'remitDefault' => PayableDefault::where('name', 'remittance')->pluck('default_grade_id')->toArray(),
+                'all_currency' => PayableDefault::getCurrencyOptionData()['selectedCurrencyResult']->toArray(),
+                'currencyDefault' => PayableDefault::where('name', 'foreign_currency')->pluck('default_grade_id')->toArray(),
+                'accountPayableDefault' => PayableDefault::where('name', 'accounts_payable')->pluck('default_grade_id')->toArray(),
+                'otherDefault' => PayableDefault::where('name', 'other')->pluck('default_grade_id')->toArray(),
+
+                'method' => 'create',
+                'transactTypeList' => AccountPayable::getTransactTypeList(),
+                'chequeStatus' => AccountPayable::getChequeStatus(),
+                'formAction' => Route('cms.purchase.po-create'),
+
+                'breadcrumb_data' => ['id' => $paying_order->source_id, 'sn' => $purchase_data->purchase_sn, 'type' => request('isFinalPay')],
+                'product_grade_name' => $product_grade_name,
+                'logistics_grade_name' => $logistics_grade_name,
+                'logistics_price' => $logistics->logistics_price,
+                'purchase_item_data' => $purchase_item_data,
+                'deposit_payment_data' => $deposit_payment_data,
+                'paying_order' => $paying_order,
+                'currency' => $currency,
+                'type' => request('isFinalPay') === '0' ? 'deposit' : 'final',
+                'all_payable_type_data' => $all_payable_type_data,
+                'purchase_data' => $purchase_data,
+                'supplier' => $supplier,
+
+                'total_grades' => $total_grades,
+            ]);
+        }
+    }
+
+
     public function payDeposit(Request $request, $id) {
         $purchaseData = Purchase::getPurchase($id)->first();
 //        $supplier = Supplier::where('id', '=', $purchaseData->supplier_id)->get()->first();

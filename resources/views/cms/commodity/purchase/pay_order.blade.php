@@ -14,17 +14,8 @@
 {{--    <button type="submit" class="btn btn-primary">新增細項</button>--}}
 {{--    <button type="submit" class="btn btn-primary">變更支付對象</button>--}}
 {{--    <button type="submit" class="btn btn-primary">取消訂金折抵</button>--}}
-    @if($pay_off)
-    {{--
-    <a href="{{ Route('cms.ap.edit', ['payOrdId' => $payOrdId,
-                                        'id' => $accountPayableId,
-                                        'payOrdType' => 'pcs',
-                                        'isFinalPay' => ($type === 'final' ? 1 : 0),
-                                        'purchaseId' => $id], true) }}"
-        class="btn btn-primary" role="button">編輯付款</a>
-    --}}
-    @else
-        <a href="{{ Route('cms.ap.create', [
+    @if(!$pay_off)
+        <a href="{{ Route('cms.purchase.po-create', [
             'payOrdId' => $payOrdId,
             'payOrdType' => 'pcs',
             'isFinalPay' => ($type === 'final' ? 1 : 0),

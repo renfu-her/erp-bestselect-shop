@@ -134,17 +134,10 @@ Breadcrumbs::for('cms.purchase.pay-deposit', function (BreadcrumbTrail $trail, $
 //     $trail->push('新增尾款付款單');
 // });
 // 編輯 - 採購單資訊 - 新增付款單--訂金&&尾款
-Breadcrumbs::for('cms.ap.create', function (BreadcrumbTrail $trail, $value) {
+Breadcrumbs::for('cms.purchase.po-create', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.purchase.edit', $value);
     $trail->push($value['type'] == 0 ? '訂金付款單' : '尾款付款單', route('cms.purchase.view-pay-order', ['id' => $value['id'], 'type' => $value['type']]));
     $trail->push('新增付款');
-});
-// 編輯 - 採購單資訊 - 編輯付款單
-Breadcrumbs::for('cms.ap.edit', function (BreadcrumbTrail $trail, $value) {
-    $trail->parent('cms.purchase.edit', $value);
-    $trail->push('付款單', route('cms.purchase.view-pay-order', ['id' => $value['id'], 'type' => $value['type']]));
-    // $trail->push('新增訂金付款單');
-    $trail->push('編輯付款');
 });
 
 //顯示訂單付款單

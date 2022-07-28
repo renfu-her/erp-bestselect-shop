@@ -215,18 +215,6 @@ return [
                 "cms.ap.index",
                 "瀏覽",
             ],
-            [
-                "cms.ap.create",
-                "新增",
-            ],
-            [
-                "cms.ap.edit",
-                "編輯",
-            ],
-            [
-                "cms.ap.delete",
-                "刪除",
-            ],
         ],
     ],
     [
@@ -235,18 +223,6 @@ return [
             [
                 "cms.collection_received.index",
                 "瀏覽",
-            ],
-            [
-                "cms.collection_received.create",
-                "新增",
-            ],
-            [
-                "cms.collection_received.edit",
-                "編輯",
-            ],
-            [
-                "cms.collection_received.delete",
-                "刪除",
             ],
         ],
     ],

@@ -11,11 +11,6 @@
         }
     </style>
     <div class="pt-2 mb-3">
-        {{--
-        <a href="{{ Route('cms.ap.index', [], true) }}" class="btn btn-primary" role="button">
-            <i class="bi bi-arrow-left"></i> 返回付款單
-        </a>
-        --}}
         <a href="{{ Route('cms.purchase.view-pay-order', ['id' => request('purchaseId'), 'type' => request('isFinalPay')], true) }}" class="btn btn-primary" role="button">
             <i class="bi bi-arrow-left"></i> 返回上一頁
         </a>
@@ -26,8 +21,6 @@
         <div class="row justify-content-end mb-4">
             <h2 class="mb-4">付款管理</h2>
             <div class="card shadow p-4 mb-4">
-                {{-- <h6>付款紀錄</h6> --}}
-
                 <div class="card-body">
                     <div class="col">
                         <dl class="row mb-0">
@@ -67,6 +60,7 @@
                                     <td class="text-end">{{ number_format($deposit_payment_data->price) }}</td>
                                     <td class="text-end"></td>
                                 </tr>
+
                                 @foreach($payable_data as $value)
                                 @if($value->payingOrder->type == 0)
                                     <tr>
@@ -87,7 +81,7 @@
                             @elseif($type === 'final')
                                 @foreach($purchase_item_data as $value)
                                     <tr>
-                                        <td>{{ $pay_order->sn }}</td>
+                                        <td>{{ $paying_order->sn }}</td>
                                         <td>{{ $purchase_data->purchase_sn }}</td>
                                         <td>{{ $product_grade_name }}</td>
                                         <td>{{ $value->title . '（負責人：' . $value->name }}）</td>
@@ -99,9 +93,10 @@
                                         <td class="text-end"></td>
                                     </tr>
                                 @endforeach
+
                                 @if($logistics_price > 0)
                                     <tr>
-                                        <td>{{ $pay_order->sn }}</td>
+                                        <td>{{ $paying_order->sn }}</td>
                                         <td>{{ $purchase_data->purchase_sn }}</td>
                                         <td>{{ $logistics_grade_name }}</td>
                                         <td>{{ '物流費用' }}</td>
@@ -113,6 +108,7 @@
                                         <td class="text-end"></td>
                                     </tr>
                                 @endif
+
                                 @if(!is_null($deposit_payment_data))
                                     <tr>
                                         <td>{{ $deposit_payment_data->sn }}</td>
@@ -127,10 +123,11 @@
                                         <td class="text-end"></td>
                                     </tr>
                                 @endif
+
                                 @foreach($payable_data as $value)
                                 @if($value->payingOrder->type == 1)
                                 <tr>
-                                    <td>{{ $pay_order->sn }}</td>
+                                    <td>{{ $paying_order->sn }}</td>
                                     <td>{{ $purchase_data->purchase_sn }}</td>
                                     <td>{{ $value->payable->all_grade->eachGrade->code . ' - ' . $value->payable->all_grade->eachGrade->name }}</td>
                                     <td>{{ $value->note }}</td>
