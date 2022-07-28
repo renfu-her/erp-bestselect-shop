@@ -12,7 +12,7 @@
     </style>
 
     <div class="pt-2 mb-3">
-        <a href="{{ Route('cms.order.logistic-pay-order', ['id' => $sub_order->order_id, 'sid' => $sub_order->id]) }}" class="btn btn-primary" role="button">
+        <a href="{{ Route('cms.order.logistic-po', ['id' => $sub_order->order_id, 'sid' => $sub_order->id]) }}" class="btn btn-primary" role="button">
             <i class="bi bi-arrow-left"></i> 返回上一頁
         </a>
     </div>
@@ -52,7 +52,7 @@
                                 <tr>
                                     <td>{{ $paying_order->sn }}</td>
                                     <td>{{ $sub_order->sn }}</td>
-                                    <td>{{ $logistics_grade }}</td>
+                                    <td>{{ $logistics_grade_name }}</td>
                                     <td>{{ $sub_order->logistic_memo }}</td>
                                     <td class="text-end">{{ number_format($sub_order->logistic_cost, 2) }}</td>
                                     <td class="text-end">1</td>
@@ -62,13 +62,13 @@
                                     <td class="text-end"></td>
                                 </tr>
                             @endif
+
                             @foreach($payable_data as $value)
-                            @if($value->payingOrder->type == 1)
                             <tr>
                                 <td>{{ $paying_order->sn }}</td>
                                 <td>{{ $sub_order->sn }}</td>
-                                <td>{{ $value->payable->all_grade->eachGrade->code . ' - ' . $value->payable->all_grade->eachGrade->name }}</td>
-                                <td>{{ $value->note }}</td>
+                                <td>{{ $value->account->code . ' ' . $value->account->name }}</td>
+                                <td>{{ $value->payable_method_name . ' - ' . $value->summary }}</td>
                                 <td class="text-end">{{ number_format($value->tw_price, 2) }}</td>
                                 <td class="text-end">1</td>
                                 <td class="text-end">{{ $value->currency_rate }}</td>
@@ -76,7 +76,6 @@
                                 <td class="text-end"></td>
                                 <td class="text-end">{{ number_format($value->tw_price) }}</td>
                             </tr>
-                            @endif
                             @endforeach
                         </tbody>
 

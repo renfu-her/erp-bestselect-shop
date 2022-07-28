@@ -291,8 +291,9 @@ class Order extends Model
                 ]);
             })
             // ->selectRaw("('" . app(Order::class)->getTable() . "') as payable_source_type")
-                ->selectRaw("IF(po.sn IS NULL, NULL, po.sn) as logistic_pay_order_sn")
-                ->selectRaw("IF(po.balance_date IS NULL, NULL, po.balance_date) as logistic_pay_order_balance_date");
+                ->selectRaw("IF(po.sn IS NULL, NULL, po.sn) as logistic_po_sn")
+                ->selectRaw("IF(po.balance_date IS NULL, NULL, po.balance_date) as logistic_po_balance_date")
+                ->selectRaw("IF(po.created_at IS NULL, NULL, po.created_at) as logistic_po_created_at");
         }
 
         return $orderQuery;
