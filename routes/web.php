@@ -60,7 +60,7 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/Logistic.php');
     require base_path('routes/cms/UserMnt.php');
     require base_path('routes/cms/CustomPages.php');
-    
+
     require base_path('routes/cms/Discount.php');
     require base_path('routes/cms/PromoCoupon.php');
     require base_path('routes/cms/GoogleMarketing.php');
@@ -80,6 +80,8 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
 
     require base_path('routes/cms/RequestOrder.php');
     require base_path('routes/cms/StituteOrder.php');
+
+    require base_path('routes/cms/InboundImport.php');
 });
 
 Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => 'guest:customer'], function () {

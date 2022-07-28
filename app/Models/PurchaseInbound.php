@@ -105,7 +105,7 @@ class PurchaseInbound extends Model
                     return $rePSSC;
                 }
             }
-            return ['success' => 1, 'error_msg' => "", 'id' => $id];
+            return ['success' => 1, 'error_msg' => "", 'id' => $id, 'sn' => $sn];
         });
     }
 
