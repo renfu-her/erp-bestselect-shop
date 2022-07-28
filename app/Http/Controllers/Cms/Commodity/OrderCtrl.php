@@ -925,15 +925,6 @@ class OrderCtrl extends Controller
             $value->account_name = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->name : '無設定會計科目';
         }
 
-        $pay_off = false;
-        $pay_off_date = date('Y-m-d', strtotime($paying_order->created_at));
-        $accountant = null;
-
-        if ($paying_order->balance_date) {
-            $pay_off = true;
-            $pay_off_date = date('Y-m-d', strtotime($paying_order->balance_date));
-        }
-
         $payable_data = PayingOrder::get_payable_detail($paying_order->id);
 
         $accountant = User::whereIn('id', $payable_data->pluck('accountant_id_fk')->toArray())->get();
@@ -955,8 +946,6 @@ class OrderCtrl extends Controller
             'applied_company' => $applied_company,
             'product_grade_name' => $product_grade_name,
             'logistics_grade_name' => $logistics_grade_name,
-            'pay_off' => $pay_off,
-            'pay_off_date' => $pay_off_date,
             'accountant'=>implode(',', $accountant),
             'zh_price' => $zh_price,
         ]);
@@ -985,11 +974,11 @@ class OrderCtrl extends Controller
             'deleted_at' => null,
         ])->first();
 
-        if($request->isMethod('post')){
-            if(! $paying_order) {
-                return abort(404);
-            }
+        if(! $paying_order) {
+            return abort(404);
+        }
 
+        if($request->isMethod('post')){
             $request->merge([
                 'pay_order_id'=>$paying_order->id,
             ]);
@@ -1045,7 +1034,7 @@ class OrderCtrl extends Controller
 
         } else {
 
-            if(! $paying_order || $paying_order->balance_date) {
+            if($paying_order->balance_date) {
                 return abort(404);
             }
 

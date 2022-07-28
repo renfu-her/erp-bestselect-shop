@@ -2,7 +2,7 @@
 
 @section('sub-content')
     <h2 class="mb-3">退貨付款單</h2>
-    @if(! $pay_off)
+    @if(! $paying_order->balance_date)
         <a href="{{ Route('cms.order.return-pay-create', ['id' => $paying_order->source_id, 'sid' => $paying_order->source_sub_id]) }}" class="btn btn-primary" role="button">付款</a>
     @endif
 
