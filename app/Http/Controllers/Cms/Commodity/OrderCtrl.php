@@ -396,7 +396,7 @@ class OrderCtrl extends Controller
         } else {
             $dividend = 0;
         }
-
+      
         return view('cms.commodity.order.detail', [
             'sn' => $sn,
             'order' => $order,
@@ -411,6 +411,7 @@ class OrderCtrl extends Controller
             'dividend' => $dividend,
             'canCancel' => Order::checkCanCancel($id),
             'delivery' => $delivery,
+            'canSplit' => Order::checkCanSplit($id),
         ]);
     }
 
@@ -1288,14 +1289,14 @@ class OrderCtrl extends Controller
 
         $customer_id = $request->input('customer_id');
 
-        OrderProfit::changeOwner($id,$customer_id,$request->user()->id);
+        OrderProfit::changeOwner($id, $customer_id, $request->user()->id);
 
         return redirect()->back();
     }
 
     // 取消訂單
-    public function cancel_order(Request $request, $id){
-
+    public function cancel_order(Request $request, $id)
+    {
 
         Order::cancelOrder($id);
 
@@ -1304,5 +1305,40 @@ class OrderCtrl extends Controller
         return redirect()->back();
     }
 
-}
+    // 分割訂單
+    public function split_order(Request $request, $id)
+    {
+        Order::checkCanSplit($id);
+        list($order, $subOrder) = $this->getOrderAndSubOrders($id);
 
+        if (!$order) {
+            return abort(404);
+        }
+        //  dd($subOrder);
+
+        return view('cms.commodity.order.split_order', [
+            'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
+            'subOrders' => $subOrder,
+            'order' => $order,
+        ]);
+    }
+    // 儲存
+    public function update_split_order(Request $request, $id)
+    {
+
+        $request->validate([
+            'style_id' => 'required|array',
+            'qty' => 'required|array',
+        ]);
+
+        $d = $request->all();
+        $items = [];
+        foreach ($d['style_id'] as $key => $style) {
+            $items[$style] = $d['qty'][$key];
+        }
+
+        Order::splitOrder($id, $items);
+        wToast('分割完成');
+        return redirect()->back();
+    }
+}

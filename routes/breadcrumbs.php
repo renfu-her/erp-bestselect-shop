@@ -195,6 +195,11 @@ Breadcrumbs::for('cms.order.personal-bonus', function (BreadcrumbTrail $trail, $
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
     $trail->push('個人獎金');
 });
+Breadcrumbs::for('cms.order.split-order', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
+    $trail->push('分割訂單');
+});
 
 // 訂單自取入庫審核
 Breadcrumbs::for('cms.order.inbound', function (BreadcrumbTrail $trail, $value) {

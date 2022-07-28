@@ -13,4 +13,5 @@ Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
     Route::post('credit_card_checkout_api/{id}', [OrderCtrl::class, 'credit_card_checkout_api'])->name('credit_card_checkout_api');
 
     Route::post('detail', [OrderCtrl::class, 'orderDetail']);
+
 });
