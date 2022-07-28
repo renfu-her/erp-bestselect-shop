@@ -13,6 +13,7 @@ use App\Models\PurchaseImportLog;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Excel;
@@ -212,5 +213,37 @@ class InboundImportCtrl extends Controller
         }
         wToast('匯入成功');
         return redirect()->back();
+    }
+
+    public function import_log(Request $request)
+    {
+        $query = $request->query();
+        $cond = [];
+        $cond['sn'] = Arr::get($query, 'sn', null);
+        $cond['purchase_sn'] = Arr::get($query, 'purchase_sn', null);
+        $cond['title'] = Arr::get($query, 'title', null);
+
+        $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 10));
+
+        $pcsImportLog = DB::table(app(PurchaseImportLog::class)->getTable(). ' as pcs_import_log');
+
+        if (isset($cond['sn'])) {
+            $pcsImportLog->where('pcs_import_log.sn', $cond['sn']);
+        }
+        if (isset($cond['purchase_sn'])) {
+            $pcsImportLog->where('pcs_import_log.purchase_sn', $cond['purchase_sn']);
+        }
+        if (isset($cond['title'])) {
+            $pcsImportLog->where('pcs_import_log.title', 'LIKE', "%{$cond['title']}%");
+        }
+
+        $pcsImportLog = $pcsImportLog->paginate($cond['data_per_page'])->appends($query);
+
+
+        return view('cms.commodity.inbound_import.import_log', [
+            'dataList' => $pcsImportLog,
+            'searchParam' => $cond,
+            'data_per_page' => $cond['data_per_page']
+        ]);
     }
 }

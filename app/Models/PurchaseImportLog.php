@@ -13,6 +13,11 @@ class PurchaseImportLog extends Model
     protected $table = 'pcs_import_log';
     protected $guarded = [];
     public $timestamps = true;
+    protected $casts = [
+        'expiry_date'  => 'datetime:Y-m-d',
+        'created_at'  => 'datetime:Y-m-d',
+        'updated_at'  => 'datetime:Y-m-d',
+    ];
 
     public static function createData($purchase, $item = null, $inbound_sn = null, $errMsg, $user) {
         $sn = 'PI' . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
@@ -99,4 +104,6 @@ class PurchaseImportLog extends Model
 
         return ['success' => '1', 'val_pcs' => $val_pcs, 'data' => $supplier];
     }
+
+
 }

@@ -108,6 +108,17 @@ Breadcrumbs::for('cms.stock.index', function (BreadcrumbTrail $trail) {
     $trail->push('庫存管理', route('cms.stock.index'));
 });
 
+// 採購單庫存匯入
+Breadcrumbs::for('cms.inbound_import.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('採購單庫存匯入', route('cms.inbound_import.index'));
+});
+// 採購單庫存匯入紀錄
+Breadcrumbs::for('cms.inbound_import.import_log', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.inbound_import.index');
+    $trail->push('匯入紀錄');
+});
+
 // 採購單管理
 Breadcrumbs::for('cms.purchase.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');

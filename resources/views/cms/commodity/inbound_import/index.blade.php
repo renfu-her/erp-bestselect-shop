@@ -1,6 +1,9 @@
 @extends('layouts.main')
 @section('sub-content')
 
+    <a class="btn btn-sm btn-success -in-header mb-1"
+       href="{{ Route('cms.inbound_import.import_log', [], true) }}">匯入紀錄</a>
+
     @if($errors->any())
         <div class="alert alert-danger mt-3">{!! implode('', $errors->all('<div>:message</div>')) !!}</div>
     @endif
