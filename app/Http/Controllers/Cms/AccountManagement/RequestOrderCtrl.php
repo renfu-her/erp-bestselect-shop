@@ -420,6 +420,8 @@ class RequestOrderCtrl extends Controller
         $accountant = array_unique($accountant->pluck('name')->toArray());
         asort($accountant);
 
+        $zh_price = num_to_str($received_order->price);
+
         return view('cms.account_management.request.ro_receipt', [
             'breadcrumb_data' => ['id' => $request_order->id],
             'request_grade' => $request_grade,
@@ -429,6 +431,7 @@ class RequestOrderCtrl extends Controller
             'purchaser' => $purchaser,
             'undertaker'=>$undertaker,
             'accountant'=>implode(',', $accountant),
+            'zh_price' => $zh_price,
         ]);
     }
 

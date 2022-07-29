@@ -137,7 +137,6 @@ class CsnOrderItem extends Model
                 'ord_items.title AS product_title',
                 'ord_items.price AS product_price',
                 'ord_items.num AS product_qty',
-                'ord_items.price AS product_origin_price',
 //                'ord_items.discount_value AS product_discount',
 //                'ord_items.discounted_price AS product_after_discounting_price',
 
@@ -146,7 +145,8 @@ class CsnOrderItem extends Model
 
                 'users.id as product_user_id',
                 'users.name as product_user_name'
-            );
+            )
+            ->selectRaw('(ord_items.price * ord_items.num) AS product_origin_price');
 
         return $query;
     }

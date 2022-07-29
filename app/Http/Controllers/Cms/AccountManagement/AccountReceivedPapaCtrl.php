@@ -14,6 +14,7 @@ use App\Models\AllGrade;
 use App\Models\CrdCreditCard;
 use App\Models\Customer;
 use App\Models\GeneralLedger;
+use App\Models\IncomeOrder;
 use App\Models\OrderPayCreditCard;
 use App\Models\Product;
 use App\Models\ReceivedDefault;
@@ -71,8 +72,8 @@ abstract class AccountReceivedPapaCtrl extends Controller
             $cond['drawee'] = [];
         }
 
-        $cond['r_order_sn'] = Arr::get($query, 'r_order_sn', null);
-        $cond['order_sn'] = Arr::get($query, 'order_sn', null);
+        $cond['ro_sn'] = Arr::get($query, 'ro_sn', null);
+        $cond['source_sn'] = Arr::get($query, 'source_sn', null);
 
         $cond['r_order_min_price'] = Arr::get($query, 'r_order_min_price', null);
         $cond['r_order_max_price'] = Arr::get($query, 'r_order_max_price', null);
@@ -99,14 +100,15 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
         $dataList = ReceivedOrder::received_order_list(
             $cond['drawee'],
-            $cond['r_order_sn'],
-            $cond['order_sn'],
+            $cond['ro_sn'],
+            $cond['source_sn'],
             $r_order_price,
             $r_order_receipt_date,
             $received_date,
             $cond['check_review'],
         )->paginate($page)->appends($query);
 
+        // dd($dataList);
         // accounting classification start
         foreach($dataList as $value){
             $debit = [];
@@ -155,16 +157,16 @@ abstract class AccountReceivedPapaCtrl extends Controller
             }
 
             // 商品
-            if($value->order_item){
+            if($value->order_items){
                 $product_account = AllGrade::find($value->ro_product_grade_id) ? AllGrade::find($value->ro_product_grade_id)->eachGrade : null;
                 $account_code = $product_account ? $product_account->code : '4000';
                 $account_name = $product_account ? $product_account->name : '無設定會計科目';
                 $product_name = $account_code . ' ' . $account_name;
-                foreach(json_decode($value->order_item) as $o_value){
+                foreach(json_decode($value->order_items) as $o_value){
                     $name = $product_name . ' --- ' . $o_value->product_title . '（' . $o_value->price . ' * ' . $o_value->qty . '）';
                     $product_title = $o_value->product_title;
 
-                    if($value->ro_source_type == 'ord_received_orders'){
+                    if($value->ro_source_type == 'ord_received_orders' || $value->ro_source_type == 'acc_request_orders'){
                         $product_account = AllGrade::find($o_value->all_grades_id) ? AllGrade::find($o_value->all_grades_id)->eachGrade : null;
                         $account_code = $product_account ? $product_account->code : '4000';
                         $account_name = $product_account ? $product_account->name : '無設定會計科目';
@@ -262,8 +264,25 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
             $value->debit = $debit;
             $value->credit = $credit;
+
+            if($value->ro_source_type == 'ord_orders'){
+                $value->ro_url_link = route('cms.collection_received.receipt', ['id' => $value->ro_source_id]);
+
+            } else if($value->ro_source_type == 'csn_orders'){
+                $value->ro_url_link = route('cms.ar_csnorder.receipt', ['id' => $value->ro_source_id]);
+
+            } else if($value->ro_source_type == 'ord_received_orders'){
+                $value->ro_url_link = route('cms.account_received.ro-receipt', ['id' => $value->ro_source_id]);
+
+            } else if($value->ro_source_type == 'acc_request_orders'){
+                $value->ro_url_link = route('cms.request.ro-receipt', ['id' => $value->ro_source_id]);
+
+            } else {
+                $value->ro_url_link = "javascript:void(0);";
+            }
         }
         // accounting classification end
+        // dd($dataList);
 
         $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
@@ -560,11 +579,11 @@ abstract class AccountReceivedPapaCtrl extends Controller
         $accountant = array_unique($accountant->pluck('name')->toArray());
         asort($accountant);
 
-        $product_grade_name = AllGrade::find($received_order_collection->first()->product_grade_id)->eachGrade->code . ' - ' . AllGrade::find($received_order_collection->first()->product_grade_id)->eachGrade->name;
+        $product_grade_name = AllGrade::find($received_order_collection->first()->product_grade_id)->eachGrade->code . ' ' . AllGrade::find($received_order_collection->first()->product_grade_id)->eachGrade->name;
 
         $logistics_grade = AllGrade::find($received_order_collection->first()->logistics_grade_id);
         if (isset($logistics_grade)) {
-            $logistics_grade_name = $logistics_grade->eachGrade->code . ' - '. $logistics_grade->eachGrade->name;
+            $logistics_grade_name = $logistics_grade->eachGrade->code . ' '. $logistics_grade->eachGrade->name;
         }
 
         $order_discount = DB::table('ord_discounts')->where([
@@ -577,7 +596,11 @@ abstract class AccountReceivedPapaCtrl extends Controller
             $value->account_name = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->name : '無設定會計科目';
         }
 
+        $zh_price = num_to_str($received_order_collection->first()->price);
+
         return view($this->getViewReceipt(), [
+            'breadcrumb_data' => ['id'=>$order->id, 'sn'=>$order->sn],
+
             'received_order'=>$received_order_collection->first(),
             'order'=>$order,
             'order_discount'=>$order_discount,
@@ -589,8 +612,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
             'accountant'=>implode(',', $accountant),
             'product_grade_name'=>$product_grade_name,
             'logistics_grade_name'=>$logistics_grade_name ?? '',
-
-            'breadcrumb_data' => ['id'=>$order->id, 'sn'=>$order->sn],
+            'zh_price' => $zh_price,
         ]);
     }
 
@@ -1038,21 +1060,21 @@ abstract class AccountReceivedPapaCtrl extends Controller
                 $this->doDestroy($target->source_id);
             }
 
-            // income order record update
-            // $r_method_list = ReceivedOrder::get_received_detail($id, ReceivedMethod::CreditCard)->where('credit_card_status_code', 2)->groupBy('credit_card_io_id');
+            // credit card - income order record update
+            $r_method_list = ReceivedOrder::get_received_detail($id, ReceivedMethod::CreditCard)->where('credit_card_status_code', 2)->groupBy('credit_card_io_id');
+            foreach($r_method_list as $group){
+                foreach($group as $data){
+                    $parm = [
+                        'credit_card_received_id'=>[$data->received_method_id],
+                        'status_code'=>1,
+                        'transaction_date'=>$data->credit_card_transaction_date,
+                    ];
+                    ReceivedOrder::update_credit_received_method($parm);
+                }
 
-            // foreach($r_method_list as $group){
-            //     foreach($group as $data){
-            //         $parm = [
-            //             'credit_card_received_id'=>[$data->received_method_id],
-            //             'status_code'=>1,
-            //             'transaction_date'=>$data->credit_card_transaction_date,
-            //         ];
-            //         ReceivedOrder::update_credit_received_method($parm);
-            //     }
+                IncomeOrder::store_income_order($group->first()->credit_card_posting_date);
+            }
 
-            //     IncomeOrder::store_income_order($group->first()->credit_card_posting_date);
-            // }
 
             wToast('刪除完成');
 

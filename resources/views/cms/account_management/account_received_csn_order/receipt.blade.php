@@ -134,7 +134,7 @@
                         <tr class="table-light">
                             <td>合計：</td>
                             <td></td>
-                            <td></td>
+                            <td>（{{ $zh_price }}）</td>
                             <td>{{ number_format($received_order->price) }}</td>
                             <td></td>
                         </tr>

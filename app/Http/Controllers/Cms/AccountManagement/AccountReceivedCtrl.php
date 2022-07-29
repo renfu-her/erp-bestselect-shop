@@ -384,6 +384,8 @@ class AccountReceivedCtrl extends Controller
         $accountant = array_unique($accountant->pluck('name')->toArray());
         asort($accountant);
 
+        $zh_price = num_to_str($received_order->price);
+
         return view('cms.account_management.account_received.ro_receipt', [
             'order_list_data' => $order_list_data,
             'received_order' => $received_order,
@@ -391,6 +393,7 @@ class AccountReceivedCtrl extends Controller
             'purchaser' => $purchaser,
             'undertaker'=>$undertaker,
             'accountant'=>implode(',', $accountant),
+            'zh_price' => $zh_price,
         ]);
     }
 
