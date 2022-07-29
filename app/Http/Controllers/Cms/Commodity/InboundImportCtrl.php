@@ -209,11 +209,17 @@ class InboundImportCtrl extends Controller
 
     public function import_log(Request $request)
     {
+        $all_status = [];
+        foreach (Status::asArray() as $data) {
+            $all_status[$data] = Status::getDescription($data);
+        }
+
         $query = $request->query();
         $cond = [];
         $cond['sn'] = Arr::get($query, 'sn', null);
         $cond['purchase_sn'] = Arr::get($query, 'purchase_sn', null);
         $cond['title'] = Arr::get($query, 'title', null);
+        $cond['status'] = Arr::get($query, 'status', 'all');
 
         $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 100));
 
@@ -229,12 +235,17 @@ class InboundImportCtrl extends Controller
             $pcsImportLog->where('pcs_import_log.title', 'LIKE', "%{$cond['title']}%");
         }
 
+        if (isset($cond['status']) && true == is_numeric($cond['status'])
+            && true == Status::hasValue(intval($cond['status'], null))) {
+            $pcsImportLog->where('pcs_import_log.status', '=', $cond['status']);
+        }
         $pcsImportLog = $pcsImportLog->paginate($cond['data_per_page'])->appends($query);
 
 
         return view('cms.commodity.inbound_import.import_log', [
             'dataList' => $pcsImportLog,
             'searchParam' => $cond,
+            'all_status' => $all_status,
             'data_per_page' => $cond['data_per_page']
         ]);
     }

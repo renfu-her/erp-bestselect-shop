@@ -21,6 +21,26 @@
                     <input class="form-control" value="{{ $searchParam['title'] }}" type="text" name="title"
                            placeholder="輸入商品款式名稱">
                 </div>
+                <x-b-form-group name="status" title="匯入狀態">
+                    <div class="px-1">
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                全部
+                                <input class="form-check-input" value="all" name="status" type="radio"
+                                       @if ('all' == $searchParam['status'] ) checked @endif >
+                            </label>
+                        </div>
+                        @foreach($all_status as $key_status => $val_status)
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    {{$val_status}}
+                                    <input class="form-check-input" value="{{$key_status}}" name="status" type="radio"
+                                           @if ($key_status.'' == $searchParam['status'] ) checked @endif >
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                </x-b-form-group>
             </div>
 
             <div class="col">
