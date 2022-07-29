@@ -75,8 +75,8 @@ class HomeCtrl extends Controller
             $data['name'] = $dataList[0]->collection_name;
             $data['list'] = array_map(function ($n) {
                 if ($n->img_url) {
-                    if (App::environment(AppEnvClass::Release ||
-                        App::environment(AppEnvClass::Development))) {
+                    if (App::environment(AppEnvClass::Release) ||
+                        App::environment(AppEnvClass::Development)) {
                         $n->img_url =  ImageDomain::CDN . $n->img_url;
                     } else {
                         $n->img_url = asset($n->img_url);
