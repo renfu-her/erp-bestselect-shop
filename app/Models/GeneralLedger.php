@@ -547,10 +547,14 @@ class GeneralLedger extends Model
                 array_push($credit, $tmp);
 
             } else if(in_array($code, [2, 3, 4]) && $price >= 0){
-                // 貸方
+                if( in_array($d_type, ['discount']) && $code == 4){
+                    $price = (-$price);
+                } else {
+                    $price = (+$price);
+                }
                 $tmp = (object)[
                     'name'=>$name,
-                    'price'=>+$price,
+                    'price'=>$price,
                     'type'=>$type,
                     'd_type'=>$d_type,
 
@@ -569,8 +573,14 @@ class GeneralLedger extends Model
                     'payable_type'=>$payable_type,
                     'received_info'=>$received_info,
                 ];
+                if( in_array($d_type, ['logistics', 'product', 'discount'])){
+                    // 借方
+                    array_push($debit, $tmp);
 
-                array_push($credit, $tmp);
+                } else {
+                    // 貸方
+                    array_push($credit, $tmp);
+                }
 
             } else if(in_array($code, [2, 3, 4]) && $price < 0){
                 // 借方
