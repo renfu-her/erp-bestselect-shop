@@ -72,7 +72,6 @@ class InboundImportCtrl extends Controller
                 $errMsg = null;
                 // 判斷是否有相同採購單
                 //  與目前同 狀態成功 則跳過
-                //  與目前同 狀態失敗 則取得該筆
                 //  無 則新增
                 $purchaseImportLog = PurchaseImportLog::where('purchase_sn', '=', $val_pcs['purchase_sn'])->first();
                 if (isset($purchaseImportLog)) {
