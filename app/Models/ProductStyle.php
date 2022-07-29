@@ -103,7 +103,7 @@ class ProductStyle extends Model
             ->leftJoin(DB::raw("({$channelSub->toSql()}) as price"), function ($join) {
                 $join->on('style.id', '=', 'price.style_id');
             })
-           ->mergeBindings($channelSub)
+            ->mergeBindings($channelSub)
             ->select('style.*', 'price.*')
             ->selectRaw('IF(price.dealer_price,price.dealer_price,0) as dealer_price')
             ->selectRaw('IF(price.origin_price,price.origin_price,0) as origin_price')
@@ -304,4 +304,13 @@ class ProductStyle extends Model
         });
     }
 
+    public static function batchOverbought()
+    {
+        DB::beginTransaction();
+        self::query()->update([
+            'overbought' => 10,
+        ]);
+        echo "超買設定完成";
+        DB::commit();
+    }
 }
