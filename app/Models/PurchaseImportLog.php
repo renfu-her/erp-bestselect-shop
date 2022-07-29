@@ -61,7 +61,7 @@ class PurchaseImportLog extends Model
                 ->select('style.id as product_style_id', DB::raw('Concat(product.title, "-", style.title) AS product_title'))
                 ->first();
             if (false == isset($style)) {
-                $errMsg = '有無效商品:'. $val_style['sku']. ' '. '請先於商品管理新增';
+                $errMsg = '無效商品:'. $val_style['sku']. ' '. '請先於商品管理新增';
                 break;
             } else {
                 //紀錄存在資料表的名稱、product_style_id 以利建立採購商品、入庫單使用

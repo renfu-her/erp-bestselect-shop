@@ -13,8 +13,8 @@ class InboundImport implements ToCollection
         $purchase = [];
         foreach ($collection as $key => $row) {
             //標頭不解析
-            //剩餘數量0不寫入
-            if (0 == $key || 0 == $row[13]) {
+            //剩餘數量小於等於0不寫入
+            if (0 == $key || 0 >= $row[13]) {
                 continue;
             }
             $data = [
@@ -25,10 +25,10 @@ class InboundImport implements ToCollection
                 , 'user_code' => $row[5]
                 , 'supplier_name' => $row[6]
                 , 'supplier_vat_no' => $row[7]
-                , 'inbound_date' => \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[8])->format('Y-m-d')
+                , 'inbound_date' => (isset($row[8])) ? \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[8])->format('Y-m-d') : null
                 , 'remaining_qty' => $row[13]
                 , 'unit_cost' => $row[10]
-                , 'expiry_date' =>  \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[11])->format('Y-m-d')
+                , 'expiry_date' =>  (isset($row[11])) ? \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[11])->format('Y-m-d') : null
             ];
             if(0 == count($purchase) || (0 < count($purchase) && $row[1] != $purchase[ count($purchase) - 1 ]['purchase_sn'])) {
                 $purchase[] = [
@@ -36,7 +36,7 @@ class InboundImport implements ToCollection
                     , 'supplier_name' => [$row[6]]
                     , 'supplier_vat_no' => [$row[7]]
                     , 'purchase_user_name' => $row[4] //採購人員使用同採購單 欄位負責人 第一位
-                    , 'purchase_user_code' => $row[5]
+                    , 'purchase_user_code' => str_pad($row[5], 5, '0', STR_PAD_LEFT)
                     , 'data' => [$data]
                 ];
             }

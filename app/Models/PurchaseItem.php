@@ -22,11 +22,11 @@ class PurchaseItem extends Model
     public static function createPurchase(array $newData, $operator_user_id, $operator_user_name)
     {
         if (isset($newData['purchase_id'])
-            && $newData['product_style_id']
-            && $newData['title']
-            && $newData['sku']
-            && $newData['price']
-            && $newData['num']
+            && isset($newData['product_style_id'])
+            && isset($newData['title'])
+            && isset($newData['sku'])
+            && isset($newData['price'])
+            && isset($newData['num'])
         ) {
             return DB::transaction(function () use ($newData, $operator_user_id, $operator_user_name
             ) {

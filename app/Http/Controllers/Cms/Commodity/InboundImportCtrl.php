@@ -66,21 +66,15 @@ class InboundImportCtrl extends Controller
             }
 
             $curr_date = date('Y-m-d H:i:s');
-            $purchaseImportLog = null;
-            $curr_pcs = null;
             foreach ($data as $key_pcs => $val_pcs) {
+                $curr_pcs = null;
                 $errMsg = null;
                 // 判斷是否有相同採購單
-                //  與目前同 狀態成功 則跳過
+                //  有 則跳過
                 //  無 則新增
-                $purchaseImportLog = PurchaseImportLog::where('purchase_sn', '=', $val_pcs['purchase_sn'])->first();
-                if (isset($purchaseImportLog)) {
-                    if (Status::success()->value == $purchaseImportLog->status) {
-                        $curr_pcs = null;
-                        continue;
-                    } else {
-                        $curr_pcs = $val_pcs;
-                    }
+                $purchase = Purchase::where('sn', '=', $val_pcs['purchase_sn'])->first();
+                if (isset($purchase)) {
+                    continue;
                 } else {
                     $curr_pcs = $val_pcs;
                 }
@@ -88,7 +82,6 @@ class InboundImportCtrl extends Controller
                 $checkSKU = PurchaseImportLog::checkSKU($val_pcs);
                 if ($checkSKU['success'] != '1') {
                     $errMsg = $checkSKU['error_msg'];
-                    break;
                 } else {
                     $val_pcs = $checkSKU['val_pcs'];
                     $curr_pcs = $val_pcs;
@@ -99,10 +92,9 @@ class InboundImportCtrl extends Controller
                 $user = null;
                 if ($checkUser['success'] != '1') {
                     $errMsg = $checkUser['error_msg'];
-                    break;
                 } else {
                     $user = $checkUser['data'];
-                    $val_pcs = $checkSKU['val_pcs'];
+                    $val_pcs = $checkUser['val_pcs'];
                     $curr_pcs = $val_pcs;
                 }
 
@@ -111,11 +103,14 @@ class InboundImportCtrl extends Controller
                 $supplier = null;
                 if ($checkSupplier['success'] != '1') {
                     $errMsg = $checkSupplier['error_msg'];
-                    break;
                 } else {
                     $supplier = $checkSupplier['data'];
-                    $val_pcs = $checkSKU['val_pcs'];
+                    $val_pcs = $checkSupplier['val_pcs'];
                     $curr_pcs = $val_pcs;
+                }
+                if (isset($errMsg) && isset($curr_pcs)) {
+                    PurchaseImportLog::createData($curr_pcs, null, null, $errMsg, $request->user());
+                    continue;
                 }
 
                 $msg = DB::transaction(function () use (
@@ -193,24 +188,22 @@ class InboundImportCtrl extends Controller
                             return ['success' => 0, 'error_msg' => $purchaseInbound['error_msg']];
                         } else {
                             $inbound_sn = $purchaseInbound['sn'];
+                            //紀錄新增LOG
                             PurchaseImportLog::createData($val_pcs, $val_style, $inbound_sn, null, $request->user());
                         }
                     }
                     return ['success' => 1, 'error_msg' => ""];
                 });
 
+                //判斷新增採購庫存時中斷 則紀錄LOG
                 if ($msg['success'] != '1') {
                     $errMsg = $msg['error_msg'];
-                    break;
+                    PurchaseImportLog::createData($curr_pcs, null, null, $errMsg, $request->user());
+                    continue;
                 }
             }
         }
-        if (isset($errMsg) && isset($curr_pcs)) {
-            PurchaseImportLog::createData($curr_pcs, null, null, $errMsg, $request->user());
-            $errors['error_msg'] = '採購單號:'. $curr_pcs['purchase_sn']. ' '. $errMsg;
-            return redirect()->back()->withInput()->withErrors($errors);
-        }
-        wToast('匯入成功');
+        wToast('匯入成功 請前往匯入紀錄查看結果');
         return redirect()->back();
     }
 
