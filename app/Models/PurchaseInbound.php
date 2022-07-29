@@ -410,6 +410,82 @@ class PurchaseInbound extends Model
         return $result;
     }
 
+    public static function getInboundListWithEventSn($event, $param, $showDelete = true)
+    {
+        $result = DB::table('pcs_purchase_inbound as inbound')
+            ->leftJoin('pcs_purchase as event', function ($join) use($event) {
+                $join->on('event.id', '=', 'inbound.event_id')
+                    ->whereIn('inbound.event', $event);
+            })
+            ->leftJoin('prd_product_styles as style', 'style.id', '=', 'inbound.product_style_id')
+            ->leftJoin('prd_products as product', 'product.id', '=', 'style.product_id')
+            ->select('inbound.event_id as event_id' //採購ID
+                , 'event.sn as event_sn'
+                , 'inbound.event as event'
+                , 'inbound.event_item_id as event_item_id'
+                , 'product.title as product_title' //商品名稱
+                , 'product.user_id as user_id' //負責人
+                , 'style.title as style_title' //款式名稱
+                , 'style.id as product_style_id' //款式id
+                , 'style.sku as style_sku' //款式SKU
+                , 'inbound.id as inbound_id' //入庫ID
+                , 'inbound.sn as inbound_sn' //入庫sn
+                , 'inbound.inbound_num as inbound_num' //入庫實進數量
+                , 'inbound.depot_id as depot_id'  //入庫倉庫ID
+                , 'inbound.depot_name as depot_name'  //入庫倉庫名稱
+                , 'inbound.inbound_user_id as inbound_user_id'  //入庫人員ID
+                , 'inbound.inbound_user_name as inbound_user_name' //入庫人員名稱
+                , 'inbound.close_date as inbound_close_date'
+                , 'inbound.memo as inbound_memo' //入庫備註
+                , DB::raw('(inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num - inbound.back_num - inbound.scrap_num) as qty') //可出庫剩餘數量
+            )
+            ->selectRaw('DATE_FORMAT(inbound.expiry_date,"%Y-%m-%d") as expiry_date') //有效期限
+            ->selectRaw('DATE_FORMAT(inbound.inbound_date,"%Y-%m-%d") as inbound_date') //入庫日期
+            ->selectRaw('DATE_FORMAT(inbound.deleted_at,"%Y-%m-%d") as deleted_at') //刪除日期
+            ->selectRaw('DATE_FORMAT(inbound.created_at,"%Y-%m-%d") as created_at') //新增日期
+            ->selectRaw('DATE_FORMAT(inbound.updated_at,"%Y-%m-%d") as updated_at') //修改日期
+            ->whereNotNull('inbound.id')
+            ->whereNotNull('event.sn');
+
+        //判斷不顯示刪除歷史
+        if (false == $showDelete) {
+            $result->whereNull('inbound.deleted_at');
+        }
+        if (isset($param['event'])) {
+            $result->where('inbound.event', '=', $param['event']);
+        }
+        if (isset($param['purchase_id'])) {
+            $result->where('inbound.event_id', '=', $param['purchase_id']);
+        }
+        if (isset($param['keyword'])) {
+            $keyword = $param['keyword'];
+            $result->where(function ($q) use ($keyword) {
+                if ($keyword) {
+                    $q->where('product.title', 'like', "%$keyword%");
+                    $q->orWhere('style.title', 'like', "%$keyword%");
+                    $q->orWhere('style.sku', 'like', "%$keyword%");
+                }
+            });
+        }
+
+        if (isset($param['product_style_id'])) {
+            $result->where('inbound.product_style_id', '=', $param['product_style_id']);
+        }
+        if (isset($param['inbound_id'])) {
+            $result->where('inbound.id', '=', $param['inbound_id']);
+        }
+        if (isset($param['purchase_sn'])) {
+            $result->where('event.sn', '=', $param['purchase_sn']);
+        }
+        if (isset($param['title'])) {
+            $result->where(function ($q) use ($param) {
+                $q->where('product.title', 'like', "%{$param['title']}%")
+                    ->orWhere('style.title', 'like', "%{$param['title']}%");
+            });
+        }
+        return $result;
+    }
+
     //採購單入庫總覽
     public static function getOverviewInboundList($event, $event_id)
     {

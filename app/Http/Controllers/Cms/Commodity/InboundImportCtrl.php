@@ -215,7 +215,7 @@ class InboundImportCtrl extends Controller
         $cond['purchase_sn'] = Arr::get($query, 'purchase_sn', null);
         $cond['title'] = Arr::get($query, 'title', null);
 
-        $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 10));
+        $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 100));
 
         $pcsImportLog = DB::table(app(PurchaseImportLog::class)->getTable(). ' as pcs_import_log');
 
@@ -238,4 +238,48 @@ class InboundImportCtrl extends Controller
             'data_per_page' => $cond['data_per_page']
         ]);
     }
+
+    public function inbound_list(Request $request)
+    {
+        $query = $request->query();
+        $cond = [];
+        $cond['event'] = Arr::get($query, 'event', null);
+        $cond['purchase_sn'] = Arr::get($query, 'purchase_sn', null);
+        $cond['title'] = Arr::get($query, 'title', null);
+
+        $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 100));
+
+        $param = ['event' => null, 'purchase_sn' => $cond['purchase_sn'], 'title' => $cond['title']];
+        $inboundList_purchase = PurchaseInbound::getInboundListWithEventSn([Event::purchase()->value], $param);
+        $inboundList_order = PurchaseInbound::getInboundListWithEventSn([Event::order()->value, Event::ord_pickup()->value], $param);
+        $inboundList_consignment = PurchaseInbound::getInboundListWithEventSn([Event::consignment()->value], $param);
+        $inboundList_csn_order = PurchaseInbound::getInboundListWithEventSn([Event::csn_order()->value], $param);
+        $inboundList_purchase->union($inboundList_order);
+        $inboundList_purchase->union($inboundList_consignment);
+        $inboundList_purchase->union($inboundList_csn_order);
+        $inboundList_purchase = $inboundList_purchase->orderByDesc('created_at')
+            ->paginate($cond['data_per_page'])->appends($query);
+
+        return view('cms.commodity.inbound_import.inbound_list', [
+            'dataList' => $inboundList_purchase,
+            'searchParam' => $cond,
+            'data_per_page' => $cond['data_per_page']
+        ]);
+    }
+
+    public function inbound_edit(Request $request, $inbound_id)
+    {
+        dd('inbound_edit', $inbound_id);
+    }
+
+    public function inbound_edit_store(Request $request, $inbound_id)
+    {
+        dd('inbound_edit_store', $inbound_id);
+    }
+
+    public function inbound_log(Request $request)
+    {
+        dd('inbound_log');
+    }
+
 }

@@ -118,6 +118,21 @@ Breadcrumbs::for('cms.inbound_import.import_log', function (BreadcrumbTrail $tra
     $trail->parent('cms.inbound_import.index');
     $trail->push('匯入紀錄');
 });
+// 入庫單列表
+Breadcrumbs::for('cms.inbound_import.inbound_list', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.inbound_import.index');
+    $trail->push('入庫單列表');
+});
+// 入庫單庫存調整
+Breadcrumbs::for('cms.inbound_import.inbound_edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.inbound_import.index');
+    $trail->push('入庫單庫存調整');
+});
+// 入庫單調整紀錄
+Breadcrumbs::for('cms.inbound_import.inbound_log', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.inbound_import.index');
+    $trail->push('入庫單調整紀錄');
+});
 
 // 採購單管理
 Breadcrumbs::for('cms.purchase.index', function (BreadcrumbTrail $trail) {

@@ -1,12 +1,14 @@
 @extends('layouts.main')
 @section('sub-content')
 
-    <a class="btn btn-sm btn-success -in-header mb-1"
-       href="{{ Route('cms.inbound_import.import_log', [], true) }}">匯入紀錄</a>
-
-    @if($errors->any())
-        <div class="alert alert-danger mt-3">{!! implode('', $errors->all('<div>:message</div>')) !!}</div>
-    @endif
+    <div class="card-header px-4 d-flex align-items-center bg-white flex-wrap">
+        <a class="btn btn-sm btn-success -in-header mb-1"
+           href="{{ Route('cms.inbound_import.import_log', [], true) }}">匯入紀錄</a>
+        <a class="btn btn-sm btn-success -in-header mb-1"
+           href="{{ Route('cms.inbound_import.inbound_list', [], true) }}">入庫單列表</a>
+        <a class="btn btn-sm btn-success -in-header mb-1"
+           href="{{ Route('cms.inbound_import.inbound_log', [], true) }}">入庫單調整紀錄</a>
+    </div>
     <div class="card shadow p-4 mb-4">
         <h6>上傳檔案</h6>
         <h8>重新匯入相同採購單號時，不會再次產生採購單和入庫單，請自行手動調整</h8>
@@ -55,6 +57,9 @@
                 </div>
             </div>
         </form>
+        @if($errors->any())
+            <div class="alert alert-danger mt-3">{!! implode('', $errors->all('<div>:message</div>')) !!}</div>
+        @endif
     </div>
 
 @endsection
