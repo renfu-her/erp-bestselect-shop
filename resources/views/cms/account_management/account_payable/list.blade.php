@@ -19,24 +19,24 @@
 
                 <div class="col-12 col-sm-4 mb-3">
                     <label class="form-label">付款單號</label>
-                    <input class="form-control" type="text" name="p_order_sn" value="{{ $cond['p_order_sn'] }}" placeholder="請輸入付款單號">
+                    <input class="form-control" type="text" name="po_sn" value="{{ $cond['po_sn'] }}" placeholder="請輸入付款單號">
                 </div>
 
                 <div class="col-12 col-sm-4 mb-3">
                     <label class="form-label">單據編號</label>
-                    <input class="form-control" type="text" name="purchase_sn" value="{{ $cond['purchase_sn'] }}" placeholder="請輸入單據編號">
+                    <input class="form-control" type="text" name="source_sn" value="{{ $cond['source_sn'] }}" placeholder="請輸入單據編號">
                 </div>
 
                 <div class="col-12 mb-3">
                     <label class="form-label">付款金額</label>
                     <div class="input-group has-validation">
-                        <input type="number" step="1" min="0" class="form-control @error('p_order_min_price') is-invalid @enderror" name="p_order_min_price" value="{{ $cond['p_order_min_price'] }}" aria-label="付款起始金額" />
-                        <input type="number" step="1" min="0" class="form-control @error('p_order_max_price') is-invalid @enderror" name="p_order_max_price" value="{{ $cond['p_order_max_price'] }}" aria-label="付款結束金額" />
+                        <input type="number" step="1" min="0" class="form-control @error('po_min_price') is-invalid @enderror" name="po_min_price" value="{{ $cond['po_min_price'] }}" aria-label="付款起始金額">
+                        <input type="number" step="1" min="0" class="form-control @error('po_max_price') is-invalid @enderror" name="po_max_price" value="{{ $cond['po_max_price'] }}" aria-label="付款結束金額">
                         <div class="invalid-feedback">
-                            @error('p_order_min_price')
+                            @error('po_min_price')
                                 {{ $message }}
                             @enderror
-                            @error('p_order_max_price')
+                            @error('po_max_price')
                                 {{ $message }}
                             @enderror
                         </div>
@@ -47,18 +47,18 @@
                     {{-- last payment_date field of acc_payable table --}}
                     <label class="form-label">付款日期起訖</label>
                     <div class="input-group has-validation">
-                        <input type="date" class="form-control -startDate @error('p_order_sdate') is-invalid @enderror" name="p_order_sdate" value="{{ $cond['p_order_sdate'] }}" aria-label="入款起始日期" />
-                        <input type="date" class="form-control -endDate @error('p_order_edate') is-invalid @enderror" name="p_order_edate" value="{{ $cond['p_order_edate'] }}" aria-label="入款結束日期" />
+                        <input type="date" class="form-control -startDate @error('po_sdate') is-invalid @enderror" name="po_sdate" value="{{ $cond['po_sdate'] }}" aria-label="入款起始日期">
+                        <input type="date" class="form-control -endDate @error('po_edate') is-invalid @enderror" name="po_edate" value="{{ $cond['po_edate'] }}" aria-label="入款結束日期">
                         <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
                         <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
                         <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
                         <button class="btn px-2" data-daysBefore="6" type="button">近7日</button>
                         <button class="btn" data-daysBefore="month" type="button">本月</button>
                         <div class="invalid-feedback">
-                            @error('p_order_sdate')
+                            @error('po_sdate')
                                 {{ $message }}
                             @enderror
-                            @error('p_order_edate')
+                            @error('po_edate')
                                 {{ $message }}
                             @enderror
                         </div>
@@ -116,11 +116,15 @@
                                 @endphp
                                 @foreach($po_sn as $po_key => $po_value)
                                 <span class="d-block">
-                                    <a href="{{ $data->purchase_id ? route('cms.purchase.view-pay-order', ['id' => $data->po_source_id, 'type' => $po_type[$po_key]]) : route('cms.order.logistic-po', ['id' => $data->po_source_id, 'sid' => $data->po_source_sub_id]) }}">{{ $po_value }}</a>
+                                    @if($data->po_source_type == 'pcs_purchase')
+                                    <a href="{{ route('cms.purchase.view-pay-order', ['id' => $data->po_source_id, 'type' => $po_type[$po_key]]) }}">{{ $po_value }}</a>
+                                    @else
+                                    <a href="{{ $data->po_url_link }}">{{ $po_value }}</a>
+                                    @endif
                                 </span>
                                 @endforeach
                             </td>
-                            <td>{{ $data->po_target_name }} {{ $data->supplier_contact_person }}</td>
+                            <td>{{ $data->po_target_name }}{{-- ' ' . $data->supplier_contact_person --}}</td>
                             <td class="p-0">
                                 @foreach($data->debit as $d_value)
                                 <span class="border-bottom d-block bg-warning p-1">{{$d_value->account_code}} {{$d_value->account_name}}</span>
@@ -135,20 +139,20 @@
                                 @foreach($data->debit as $d_value)
                                 <span class="border-bottom d-block bg-warning p-1">
                                     @if($d_value->d_type == 'logistics')
-                                        {{$d_value->account_name}} {{ $data->purchase_order_sn }}
+                                        {{$d_value->account_name}} {{ $data->source_sn }}
                                     @elseif($d_value->d_type == 'discount')
-                                        {{$d_value->discount_title}} - {{$data->purchase_order_sn}}
+                                        {{$d_value->discount_title}} - {{$data->source_sn}}
                                     @else
-                                        {{$d_value->product_title}}({{ $d_value->product_price }} * {{$d_value->product_qty}})({{ $d_value->product_owner }}) - {{$data->purchase_order_sn}}
+                                        {{$d_value->product_title}}({{ $d_value->product_price }} * {{$d_value->product_qty}})({{ $d_value->product_owner }}) - {{$data->source_sn}}
                                     @endif
                                 </span>
                                 @endforeach
 
                                 @foreach($data->credit as $c_value)
                                 @if($c_value->payable_type == 0)
-                                <span class="border-bottom d-block bg-white p-1">{{$c_value->method_name}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{ $data->purchase_order_sn }} - {{ $po_sn[0] }}</span>
-                                @elseif($c_value->payable_type == 1)
-                                <span class="border-bottom d-block bg-white p-1">{{$c_value->method_name}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{ $data->purchase_order_sn }} - {{ count($po_sn) > 1 ? $po_sn[1] : $po_sn[0]  }}</span>
+                                <span class="border-bottom d-block bg-white p-1">{{$c_value->method_name}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{ $data->source_sn }} - {{ $po_sn[0] }}</span>
+                                @else
+                                <span class="border-bottom d-block bg-white p-1">{{$c_value->method_name}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{ $data->source_sn }} - {{ count($po_sn) > 1 ? $po_sn[1] : $po_sn[0]  }}</span>
                                 @endif
                                 @endforeach
                             </td>
@@ -169,7 +173,7 @@
                                 @endforeach
                             </td>
 
-                            <td class="">{{ $data->payment_date ? date('Y-m-d', strtotime($data->payment_date)) : '0000-00-00' }}</td>
+                            <td class="">{{ $data->po_balance_date ? date('Y-m-d', strtotime($data->po_balance_date)) : '0000-00-00' }}</td>
                         </tr>
                     @endforeach
                 </tbody>
