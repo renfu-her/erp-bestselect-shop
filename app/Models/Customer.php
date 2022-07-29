@@ -326,8 +326,8 @@ class Customer extends Authenticatable
         foreach ($customers as $customer) {
             /*$sn = "M" . str_pad((self::whereNull('sn')->get()
                     ->count()) + 1, 9, '0', STR_PAD_LEFT);*/
-            $cc = self::get()->count()+self::whereNull('sn')->get()->count();
-            $sn = "M" . str_pad($cc + 1, 9, '0', STR_PAD_LEFT);
+            $cc = self::whereNotNull('sn')->get()->count()+1;
+            $sn = "M" . str_pad($cc, 9, '0', STR_PAD_LEFT);
             self::where('id', $customer->id)->update([
                 'sn' => $sn,
             ]);
