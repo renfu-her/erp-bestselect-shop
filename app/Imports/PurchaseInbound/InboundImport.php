@@ -35,7 +35,7 @@ class InboundImport implements ToCollection
                     'purchase_sn' => $row[1]
                     , 'supplier_name' => [$row[6]]
                     , 'supplier_vat_no' => [$row[7]]
-                    , 'purchase_user_name' => $row[4]
+                    , 'purchase_user_name' => $row[4] //採購人員使用同採購單 欄位負責人 第一位
                     , 'purchase_user_code' => $row[5]
                     , 'data' => [$data]
                 ];
