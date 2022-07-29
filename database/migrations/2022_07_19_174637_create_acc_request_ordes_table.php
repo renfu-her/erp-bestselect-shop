@@ -28,8 +28,8 @@ class CreateAccRequestOrdesTable extends Migration
             $table->tinyInteger('taxation')->default(1)->comment('應稅與否');
             $table->integer('client_id')->nullable()->comment('對象id');
             $table->string('client_name')->nullable()->comment('對象名稱');
-            $table->string('client_phone')->nullable()->comment('對象名稱');
-            $table->string('client_address')->nullable()->comment('對象名稱');
+            $table->string('client_phone')->nullable()->comment('對象電話');
+            $table->string('client_address')->nullable()->comment('對象地址');
             $table->integer('creator_id')->comment('建立人員id');
             $table->integer('accountant_id')->nullable()->comment('會計id');
             $table->dateTime('posting_date')->nullable()->comment('入款日期');
@@ -53,8 +53,8 @@ class CreateAccRequestOrdesTable extends Migration
             $table->tinyInteger('taxation')->default(1)->comment('應稅與否');
             $table->integer('client_id')->nullable()->comment('對象id');
             $table->string('client_name')->nullable()->comment('對象名稱');
-            $table->string('client_phone')->nullable()->comment('對象名稱');
-            $table->string('client_address')->nullable()->comment('對象名稱');
+            $table->string('client_phone')->nullable()->comment('對象電話');
+            $table->string('client_address')->nullable()->comment('對象地址');
             $table->integer('creator_id')->comment('建立人員id');
             $table->integer('accountant_id')->nullable()->comment('會計id');
             $table->dateTime('payment_date')->nullable()->comment('入款日期');
@@ -67,8 +67,8 @@ class CreateAccRequestOrdesTable extends Migration
             $table->after('memo', function ($tb) {
                 $tb->integer('payee_id')->nullable()->comment('對象id');
                 $tb->string('payee_name')->nullable()->comment('對象名稱');
-                $tb->string('payee_phone')->nullable()->comment('對象名稱');
-                $tb->string('payee_address')->nullable()->comment('對象名稱');
+                $tb->string('payee_phone')->nullable()->comment('對象電話');
+                $tb->string('payee_address')->nullable()->comment('對象地址');
             });
         });
     }
