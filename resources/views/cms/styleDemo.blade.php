@@ -540,8 +540,8 @@
         <script src="{{ Asset('dist/js/dashboard.js') }}"></script>
         <script src="{{ Asset('dist/js/helpers.js') }}"></script>
         <script src="{{ Asset('dist/js/components.js') }}"></script>
-        <script src="{{ Asset("plug-in/tinymce/tinymce.min.js") }}"></script>
-        <script src="{{ Asset("plug-in/tinymce/myTinymce.js") }}"></script>
+        <script src="{{ Asset('plug-in/tinymce/tinymce.min.js') }}"></script>
+        <script src="{{ Asset('plug-in/tinymce/myTinymce.js') }}"></script>
         <script>
             window.Laravel = {!! json_encode([
                 'apiToken' => auth()->user()->api_token ?? null,
