@@ -83,7 +83,7 @@ class SaleChannel extends Model
     {
         return DB::table('prd_sale_channels as c')
             ->leftJoin('prd_salechannel_style_price as price', 'c.id', '=', 'price.sale_channel_id', 'left outer')
-            ->select('c.id as sale_id', 'c.title', 'c.is_realtime', 'c.is_master', 'c.discount','c.dividend_limit')
+            ->select('c.id as sale_id', 'c.title', 'c.is_realtime', 'c.is_master', 'c.discount', 'c.dividend_limit')
             ->selectRaw('IF(price.dealer_price,price.dealer_price,0) as dealer_price')
             ->selectRaw('IF(price.origin_price,price.origin_price,0) as origin_price')
             ->selectRaw('IF(price.price,price.price,0) as price')
@@ -139,14 +139,14 @@ class SaleChannel extends Model
 
             $currentSale = self::where('is_master', '<>', 1)
                 ->where('id', $sale_id)
-                ->select('id', 'discount','dividend_rate')
+                ->select('id', 'discount', 'dividend_rate')
                 ->get()
                 ->first();
 
             $originProduct = DB::table('prd_salechannel_style_price')
                 ->where('sale_channel_id', $masterSale->id)
                 ->get();
-            
+
             foreach ($originProduct as $product) {
                 // dd($product);
                 $newPrice = DB::table('prd_salechannel_style_price')
@@ -187,7 +187,7 @@ class SaleChannel extends Model
             }
 
             $saleChannels = self::where('is_master', '<>', 1)
-                ->select('id', 'discount','dividend_rate')
+                ->select('id', 'discount', 'dividend_rate')
                 ->get();
 
             foreach ($saleChannels as $sale) {
@@ -216,4 +216,80 @@ class SaleChannel extends Model
             }
         });
     }
+    // 批次經銷
+    public static function batchDealer()
+    {
+        DB::beginTransaction();
+        $c = 0;
+        $styles = DB::table('prd_salechannel_style_price as sp')->where('sp.sale_channel_id', 1)->get();
+        foreach ($styles as $style) {
+            DB::table('prd_salechannel_style_price as sp')
+                ->where('sp.style_id', $style->style_id)
+                ->update([
+                    'dealer_price' => $style->dealer_price,
+                ]);
+            $c++;
+        }
+        DB::commit();
+        echo "經銷價同步完成{$c}筆";
+    }
+    // 批次獎金
+    public static function batchBonus()
+    {
+        DB::beginTransaction();
+        $styles = DB::table('prd_salechannel_style_price as sp')->get();
+        $c = 0;
+        foreach ($styles as $style) {
+            $bonus = round(($style->price - $style->dealer_price) * Bonus::bonus()->value);
+
+            if ($bonus < 0) {
+                $bonus = 0;
+            }
+
+            DB::table('prd_salechannel_style_price as sp')
+                ->where('sp.style_id', $style->style_id)
+                ->where('sp.sale_channel_id', $style->sale_channel_id)
+                ->update([
+                    'bonus' => $bonus,
+                ]);
+
+            $c++;
+        }
+        DB::commit();
+        echo "獎金同步完成{$c}筆";
+        //
+
+    }
+    // 批次紅利
+    public static function batchDividend()
+    {
+        DB::beginTransaction();
+        $sales = self::get();
+        $c = 0;
+        foreach ($sales as $sale) {
+
+            $styles = DB::table('prd_salechannel_style_price as sp')
+                ->where('sale_channel_id', $sale->id)->get();
+          
+            foreach ($styles as $style) {
+                $dividend = round($style->price * $sale->dividend_rate / 100);
+                $dividend = ($dividend > 0) ? $dividend : 0;
+                DB::table('prd_salechannel_style_price as sp')
+                    ->where('sp.style_id', $style->style_id)
+                    ->where('sp.sale_channel_id', $style->sale_channel_id)
+                    ->update([
+                        'dividend' => $dividend,
+                    ]);
+                $c++;
+            }
+
+        }
+
+        DB::commit();
+        echo "紅利同步完成{$c}筆";
+
+    }
+
+   
+
 }
