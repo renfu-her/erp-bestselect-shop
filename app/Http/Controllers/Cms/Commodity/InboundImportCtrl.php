@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Cms\Commodity;
 use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Globals\Status;
+use App\Enums\Purchase\LogEventFeature;
 use App\Http\Controllers\Controller;
 use App\Imports\PurchaseInbound\InboundImport;
 use App\Models\Consignment;
@@ -15,6 +16,7 @@ use App\Models\Purchase;
 use App\Models\PurchaseImportLog;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseItem;
+use App\Models\PurchaseLog;
 use App\Models\SubOrders;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -341,7 +343,25 @@ class InboundImportCtrl extends Controller
 
     public function inbound_log(Request $request)
     {
-        dd('inbound_log');
+        $query = $request->query();
+        $data_per_page = Arr::get($query, 'data_per_page', 100);
+        $data_per_page = is_numeric($data_per_page) ? $data_per_page : 100;
+
+        $logEvent = [
+            Event::purchase()->value
+            , Event::order()->value
+            , Event::ord_pickup()->value
+            , Event::consignment()->value
+            , Event::csn_order()->value
+        ];
+        $logPurchase = PurchaseLog::getStockData($logEvent, null, null, [LogEventFeature::inbound_update()->value])
+            ->orderByDesc('id');
+        $logPurchase = $logPurchase->paginate($data_per_page)->appends($query);
+
+        return view('cms.commodity.inbound_import.inbound_log', [
+            'data_per_page' => $data_per_page,
+            'purchaseLog' => $logPurchase,
+        ]);
     }
 
 }
