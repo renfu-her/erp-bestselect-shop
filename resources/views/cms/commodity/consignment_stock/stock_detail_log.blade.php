@@ -3,6 +3,17 @@
     <h2 class="mb-3">{{$title}} {{ $productStyle->sku }}</h2>
 
     <div class="card shadow p-4 mb-4">
+        <div class="row justify-content-end mb-4">
+            <div class="col-auto">
+                顯示
+                <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
+                    @foreach (config('global.dataPerPage') as $value)
+                        <option value="{{ $value }}" @if ($data_per_page == $value) selected @endif>{{ $value }}</option>
+                    @endforeach
+                </select>
+                筆
+            </div>
+        </div>
         <h6>明細</h6>
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList mb-1">
@@ -40,11 +51,11 @@
                 role="button">返回列表</a>
         </div>
         <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">
-            {{-- @if($dataList) --}}
-            <div class="mx-3">共 1 頁(共找到 10 筆資料)</div>
+             @if($purchaseLog)
+            <div class="mx-3">共 {{ $purchaseLog->lastPage() }} 頁(共找到 {{ $purchaseLog->total() }} 筆資料)</div>
             {{-- 頁碼 --}}
-            <div class="d-flex justify-content-center"></div>
-            {{-- @endif --}}
+            <div class="d-flex justify-content-center">{{ $purchaseLog->links() }}</div>
+             @endif
         </div>
     </div>
 
