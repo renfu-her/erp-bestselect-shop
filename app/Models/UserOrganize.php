@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
 class UserOrganize extends Model
@@ -18,9 +19,11 @@ class UserOrganize extends Model
         $root_title = '喜鴻購物';
         $url = "https://www.besttour.com.tw/api/empdep.asp?type=6";
         $re = Http::get($url)->json();
-
+        
         $r_id = self::create(['title' => $root_title,
             'level' => 1])->id;
+
+        DB::beginTransaction();
 
         foreach ($re as $dep1) {
             $d1_id = self::create(['title' => $dep1['dep1'],
@@ -34,6 +37,7 @@ class UserOrganize extends Model
         }
 
         self::rebuild_tree(1,1);
+        DB::commit();
         // dd($re);
     }
 
