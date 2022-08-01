@@ -1,5 +1,11 @@
 <nav id="sidebarMenu" class="col-12 col-sm-3 p-0 sidebar collapse">
     <ul class="list-unstyled ps-0">
+        <li class="mb-1">
+            <a href="{{ route('cms.dashboard') }}">
+                <div class="btn btn-toggle"><i class="bi bi-house-fill"></i>首頁</div>
+            </a>
+        </li>
+
         @foreach ($tree as $unit)
             <!-- 第一層 -->
 
