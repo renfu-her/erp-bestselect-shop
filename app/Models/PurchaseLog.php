@@ -204,7 +204,7 @@ class PurchaseLog extends Model
     }
 
     //庫存明細
-    public static function getStockData($logEvent_event, $depot_id, $style_id) {
+    public static function getStockData($logEvent_event, $depot_id, $style_id, $logFeature = null) {
         $logEventFeatureKey_delivery = [];
         array_push($logEventFeatureKey_delivery, LogEventFeature::delivery()->value);
 //        array_push($logEventFeatureKey_delivery, LogEventFeature::combo()->value);
@@ -213,13 +213,12 @@ class PurchaseLog extends Model
             ->leftJoin('dlv_receive_depot as rcv_depot', function($join) use($logEvent_event, $logEventFeatureKey_delivery) {
                 $join->on('rcv_depot.id', '=', 'log.event_id');
                 $join->where('log.event', $logEvent_event);
-                $join->whereIn('log.feature', $logEventFeatureKey_delivery);
+                $join->whereIn('log.feature', $logEventFeatureKey_delivery); //出貨單商品 將其對應回去
             })
             ->leftJoin('pcs_purchase_inbound as inbound', function($join) use($logEvent_event, $logEventFeatureKey_delivery) {
                 $join->on('inbound.id', '=', 'log.inbound_id');
             })
             ->whereIn('log.event', $logEvent_event)
-            ->where('log.product_style_id', $style_id)
             ->whereNotNull('log.product_style_id')
             ->whereNotNull('log.inbound_id')
             ->select(
@@ -238,6 +237,7 @@ class PurchaseLog extends Model
                 , DB::raw('(case
                     when "'. LogEventFeature::inbound_add()->value. '" = log.feature then "'. LogEventFeature::getDescription(LogEventFeature::inbound_add). '"
                     when "'. LogEventFeature::inbound_del()->value. '" = log.feature then "'. LogEventFeature::getDescription(LogEventFeature::inbound_del). '"
+                    when "'. LogEventFeature::inbound_update()->value. '" = log.feature then "'. LogEventFeature::getDescription(LogEventFeature::inbound_update). '"
                     when "'. LogEventFeature::delivery()->value. '" = log.feature then "'. LogEventFeature::getDescription(LogEventFeature::delivery). '"
                     when "'. LogEventFeature::consume_delivery()->value. '" = log.feature then "'. LogEventFeature::getDescription(LogEventFeature::consume_delivery). '"
                     when "'. LogEventFeature::send_back()->value. '" = log.feature then "'. LogEventFeature::getDescription(LogEventFeature::send_back). '"
@@ -259,6 +259,12 @@ class PurchaseLog extends Model
             );
         if (isset($depot_id)) {
             $logPurchase->where('inbound.depot_id', '=', $depot_id);
+        }
+        if (isset($style_id)) {
+            $logPurchase->where('log.product_style_id', '=', $style_id);
+        }
+        if (isset($logFeature)) {
+            $logPurchase->whereIn('log.feature', $logFeature);
         }
 
         return $logPurchase;
