@@ -171,11 +171,11 @@ return
             //     "controller_name" => "StituteOrderCtrl",
             //     "route_name" => "cms.stitute.index",
             // ],
-            // [
-            //     "title" => "請款單作業",
-            //     "controller_name" => "RequestOrderCtrl",
-            //     "route_name" => "cms.request.index",
-            // ],
+            [
+                "title" => "請款單作業",
+                "controller_name" => "RequestOrderCtrl",
+                "route_name" => "cms.request.index",
+            ],
             [
                 "title" => "應收帳款",
                 "controller_name" => "AccountReceivedCtrl",

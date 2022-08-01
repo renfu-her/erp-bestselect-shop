@@ -125,7 +125,7 @@ class PayingOrder extends Model
         $source_sn = null,
         $po_price = null,
         $po_payment_date = null,
-        $check_balance = null
+        $check_balance = 'all'
     ){
         $query = DB::table(DB::raw('(
                 SELECT
@@ -139,7 +139,7 @@ class PayingOrder extends Model
                     SUM(price) AS price,
                     GROUP_CONCAT(DISTINCT logistics_grade_id) AS logistics_grade_id,
                     GROUP_CONCAT(DISTINCT product_grade_id) AS product_grade_id,
-                    balance_date,
+                    CASE WHEN COUNT(*) = COUNT(balance_date) THEN MAX(balance_date) END AS balance_date,
                     payee_id,
                     payee_name,
                     payee_phone,

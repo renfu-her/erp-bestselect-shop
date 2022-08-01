@@ -28,8 +28,62 @@ class RequestOrderCtrl extends Controller
         $query = $request->query();
         $page = getPageCount(Arr::get($query, 'data_per_page', 100)) > 0 ? getPageCount(Arr::get($query, 'data_per_page', 100)) : 100;
 
+        $cond = [];
+
+        $cond['client_key'] = Arr::get($query, 'client_key', null);
+        if (gettype($cond['client_key']) == 'string') {
+            $key = explode('|', $cond['client_key']);
+            $cond['client']['id'] = $key[0];
+            $cond['client']['name'] = $key[1];
+        } else {
+            $cond['client'] = [];
+        }
+
+        $cond['request_sn'] = Arr::get($query, 'request_sn', null);
+        $cond['source_sn'] = Arr::get($query, 'source_sn', null);
+
+        $cond['request_min_price'] = Arr::get($query, 'request_min_price', null);
+        $cond['request_max_price'] = Arr::get($query, 'request_max_price', null);
+        $request_price = [
+            $cond['request_min_price'],
+            $cond['request_max_price']
+        ];
+
+        $cond['request_sdate'] = Arr::get($query, 'request_sdate', null);
+        $cond['request_edate'] = Arr::get($query, 'request_edate', null);
+        $request_posting_date = [
+            $cond['request_sdate'],
+            $cond['request_edate']
+        ];
+
+        $cond['check_posting'] = Arr::get($query, 'check_posting', 'all');
+
+        $dataList = RequestOrder::request_order_list(
+            $cond['client'],
+            $cond['request_sn'],
+            $cond['source_sn'],
+            $request_price,
+            $request_posting_date,
+            $cond['check_posting'],
+        )->paginate($page)->appends($query);
+
+        $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $client_merged = array_merge($customer, $depot, $supplier);
+
+        $check_posting_status = [
+            'all'=>'不限',
+            '0'=>'未入款',
+            '1'=>'已入款',
+        ];
+
         return view('cms.account_management.request.list', [
             'data_per_page' => $page,
+            'dataList' => $dataList,
+            'cond' => $cond,
+            'client' => $client_merged,
+            'check_posting_status' => $check_posting_status,
         ]);
     }
 
