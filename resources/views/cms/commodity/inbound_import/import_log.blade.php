@@ -1,6 +1,21 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">匯入紀錄</h2>
+    
+    <ul class="nav pm_navbar">
+        <li class="nav-item">
+            <a class="nav-link" href="{{ Route('cms.inbound_import.index', [], true) }}">上傳檔案</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{{ Route('cms.inbound_import.import_log', [], true) }}">匯入紀錄</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ Route('cms.inbound_import.inbound_list', [], true) }}">入庫單列表</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ Route('cms.inbound_import.inbound_log', [], true) }}">入庫單調整紀錄</a>
+        </li>
+    </ul>
+    <hr class="narbarBottomLine mb-3">
 
     <form id="search" action="{{ Route('cms.inbound_import.import_log') }}" method="GET">
         <div class="card shadow p-4 mb-4">
@@ -21,7 +36,8 @@
                     <input class="form-control" value="{{ $searchParam['title'] }}" type="text" name="title"
                            placeholder="輸入商品款式名稱">
                 </div>
-                <x-b-form-group name="status" title="匯入狀態">
+                <fieldset class="col-12 col-sm-6 mb-3">
+                    <legend class="col-form-label p-0 mb-2">匯入狀態</legend>
                     <div class="px-1">
                         <div class="form-check form-check-inline">
                             <label class="form-check-label">
@@ -40,7 +56,7 @@
                             </div>
                         @endforeach
                     </div>
-                </x-b-form-group>
+                </fieldset>
             </div>
 
             <div class="col">
@@ -75,9 +91,9 @@
                         <th scope="col">說明</th>
                         <th scope="col">SKU</th>
                         <th scope="col">商品款式名稱</th>
-                        <th scope="col">庫存</th>
+                        <th scope="col" class="text-end">庫存</th>
                         <th scope="col">效期</th>
-                        <th scope="col">庫存採購總價</th>
+                        <th scope="col" class="text-end">庫存採購總價</th>
                         <th scope="col">更新時間</th>
                         <th scope="col">匯入人員</th>
                     </tr>
@@ -93,10 +109,10 @@
                             <td>{{ $data->memo }}</td>
                             <td>{{ $data->sku }}</td>
                             <td>{{ $data->title }}</td>
-                            <td>{{ $data->qty }}</td>
-                            <td>{{ $data->expiry_date ? date('Y-m-d', strtotime($data->expiry_date)) : '' }}</td>
-                            <td>${{ (isset($data->price)) ? number_format($data->price) : '' }}</td>
-                            <td>{{ $data->updated_at }}</td>
+                            <td class="text-end">{{ number_format($data->qty) }}</td>
+                            <td>{{ $data->expiry_date ? date('Y/m/d', strtotime($data->expiry_date)) : '' }}</td>
+                            <td class="text-end">${{ (isset($data->price)) ? number_format($data->price) : '' }}</td>
+                            <td>{{ $data->updated_at ? date('Y/m/d H:i:s', strtotime($data->updated_at)) : '' }}</td>
                             <td>{{ $data->import_user_name }}</td>
                         </tr>
                     @endforeach
