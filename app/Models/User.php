@@ -227,7 +227,18 @@ class User extends Authenticatable
         $re = Http::get($url)->json();
         DB::beginTransaction();
         foreach ($re as $u) {
-            self::createUser($u['NAME'], $u['NUMBER'], null, $u['PASSWORD'], [], [], null, $u['TITLE'], $u['COMPANY'], $u['DEPARTMENT'], $u['GROUP']);
+            if (self::where('account', $u['NUMBER'])->get()->first()) {
+                self::where('account', $u['NUMBER'])->update([
+                    'name' => $u['NAME'],
+                    'password' => Hash::make($u['PASSWORD']),
+                    'title' => $u['TITLE'],
+                    'company' => $u['COMPANY'],
+                    'department' => $u['DEPARTMENT'],
+                    'group' => $u['GROUP'],
+                ]);
+            } else {
+                self::createUser($u['NAME'], $u['NUMBER'], null, $u['PASSWORD'], [], [], null, $u['TITLE'], $u['COMPANY'], $u['DEPARTMENT'], $u['GROUP']);
+            }
         }
         DB::commit();
         echo "匯入完成";
