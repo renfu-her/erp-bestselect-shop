@@ -19,7 +19,7 @@
 
     <div class="card shadow p-4 mb-4">
         <p>重新匯入相同採購單號時，不會再次產生採購單和入庫單，請自行手動調整。
-            <span class="text-danger">上傳成功後可至匯入紀錄察看結果。</span>
+            <span class="text-danger">上傳時將造成伺服器停滯，待轉檔完畢後可至匯入紀錄查看結果。</span>
         </p>
 
         <form method="POST" id="upload-excel" enctype="multipart/form-data"
@@ -59,7 +59,7 @@
                         </div>
                     </div>
                 </div>
-        
+
                 <div class="col-auto">
                     <button id="button1" class="btn btn-primary px-4" type="submit" disabled>上傳</button>
                 </div>
@@ -103,7 +103,7 @@
                 console.log('該瀏覽器不支援檔案上傳');
             }
 
-            $('#upload-excel').submit(function (e) { 
+            $('#upload-excel').submit(function (e) {
                 $('#button1').prop('disabled', true).html(`
                     <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
                     上傳中... 請稍後
