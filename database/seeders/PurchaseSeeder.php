@@ -24,6 +24,7 @@ class PurchaseSeeder extends Seeder
         $supplier2 = Supplier::where('id', '=', 2)->get()->first();
 
         $purchase1 = Purchase::createPurchase(
+            null,
             $supplier2->id,
             $supplier2->name,
             $supplier2->nickname,
@@ -37,6 +38,7 @@ class PurchaseSeeder extends Seeder
             $purchaseID1 = $purchase1['id'];
         }
         $purchase2 = Purchase::createPurchase(
+            null,
             $supplier->id,
             $supplier->name,
             $supplier->nickname,
@@ -51,6 +53,7 @@ class PurchaseSeeder extends Seeder
         }
 
         $purchase3 = Purchase::createPurchase(
+            null,
             $supplier2->id,
             $supplier2->name,
             $supplier2->nickname,

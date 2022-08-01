@@ -20,12 +20,13 @@ class Purchase extends Model
         'audit_date'  => 'datetime:Y-m-d',
     ];
 
-    public static function createPurchase($supplier_id, $supplier_name, $supplier_nickname, $supplier_sn = null, $purchase_user_id, $purchase_user_name
+    public static function createPurchase($sn = null, $supplier_id, $supplier_name, $supplier_nickname, $supplier_sn = null, $purchase_user_id, $purchase_user_name
         , $scheduled_date
         , $logistics_price = 0, $logistics_memo = null, $invoice_num = null, $invoice_date = null
     )
     {
         return DB::transaction(function () use (
+            $sn,
             $supplier_id,
             $supplier_name,
             $supplier_nickname,
@@ -39,10 +40,13 @@ class Purchase extends Model
             $invoice_date
             ) {
 
-            $sn = "B" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
-                        ->withTrashed()
-                        ->get()
-                        ->count()) + 1, 4, '0', STR_PAD_LEFT);
+            //判斷若無sn 則產生新的
+            if(false == isset($sn)) {
+                $sn = "B" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
+                            ->withTrashed()
+                            ->get()
+                            ->count()) + 1, 4, '0', STR_PAD_LEFT);
+            }
 
             $id = self::create([
                 "sn" => $sn,

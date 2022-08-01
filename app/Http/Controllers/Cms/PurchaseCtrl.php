@@ -155,6 +155,7 @@ class PurchaseCtrl extends Controller
 
         $supplier = Supplier::where('id', '=', $purchaseReq['supplier'])->get()->first();
         $rePcs = Purchase::createPurchase(
+            null,
             $purchaseReq['supplier'],
             $supplier->name,
             $supplier->nickname,

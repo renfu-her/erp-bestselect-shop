@@ -123,6 +123,7 @@ class InboundImportCtrl extends Controller
                 ) {
                     //建立採購單
                     $purchase = Purchase::createPurchase(
+                        $val_pcs['purchase_sn'],
                         $supplier->id,
                         $supplier->name,
                         $supplier->nickname,
