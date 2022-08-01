@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    
+
     <ul class="nav pm_navbar">
         <li class="nav-item">
             <a class="nav-link" href="{{ Route('cms.inbound_import.index', [], true) }}">上傳檔案</a>
@@ -30,6 +30,11 @@
                     <label class="form-label">採購單號</label>
                     <input class="form-control" value="{{ $searchParam['purchase_sn'] }}" type="text" name="purchase_sn"
                            placeholder="輸入採購單號">
+                </div>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">入庫單號</label>
+                    <input class="form-control" value="{{ $searchParam['inbound_sn'] }}" type="text" name="inbound_sn"
+                           placeholder="輸入入庫單號">
                 </div>
             </div>
 
@@ -62,7 +67,7 @@
                         <th scope="col">採購單號</th>
                         <th scope="col">SKU</th>
                         <th scope="col">商品款式名稱</th>
-                        <th scope="col" class="text-end">入庫單</th>
+                        <th scope="col">入庫單</th>
                         <th scope="col">庫存剩餘數量</th>
                         <th scope="col">效期</th>
                         <th scope="col">倉庫</th>

@@ -266,11 +266,12 @@ class InboundImportCtrl extends Controller
         $cond = [];
         $cond['event'] = Arr::get($query, 'event', null);
         $cond['purchase_sn'] = Arr::get($query, 'purchase_sn', null);
+        $cond['inbound_sn'] = Arr::get($query, 'inbound_sn', null);
         $cond['title'] = Arr::get($query, 'title', null);
 
         $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 100));
 
-        $param = ['event' => null, 'purchase_sn' => $cond['purchase_sn'], 'title' => $cond['title']];
+        $param = ['event' => null, 'purchase_sn' => $cond['purchase_sn'], 'inbound_sn' => $cond['inbound_sn'], 'title' => $cond['title']];
         $inboundList_purchase = PurchaseInbound::getInboundListWithEventSn([Event::purchase()->value], $param);
         $inboundList_order = PurchaseInbound::getInboundListWithEventSn([Event::order()->value, Event::ord_pickup()->value], $param);
         $inboundList_consignment = PurchaseInbound::getInboundListWithEventSn([Event::consignment()->value], $param);
