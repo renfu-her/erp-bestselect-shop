@@ -92,7 +92,7 @@ class PurchaseImportLog extends Model
                 $query->where('supplier.vat_no', $val_pcs['supplier_vat_no']);
             })->first();
         if (false == isset($supplier)) {
-            return ['success' => '0', 'error_msg' => '無此廠商:'. $val_pcs['supplier_name'][0]. ' '. $val_pcs['supplier_vat_no']. ' '. '請先新增廠商'];
+            return ['success' => '0', 'error_msg' => '無此廠商:'. $val_pcs['supplier_name'][0]. ' '. $val_pcs['supplier_vat_no'][0]. ' '. '請先新增廠商'];
         }
 
         return ['success' => '1', 'val_pcs' => $val_pcs, 'data' => $supplier];
