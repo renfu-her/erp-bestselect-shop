@@ -157,7 +157,7 @@
                     <dd></dd>
                 </div>
                 <div class="col">
-                    <dt>商品負責人：</dt>
+                    <dt>商品負責人：{{-- $product_qc --}}</dt>
                     <dd></dd>
                 </div>
             </dl>

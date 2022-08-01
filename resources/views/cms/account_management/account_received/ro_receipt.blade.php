@@ -102,9 +102,9 @@
                         @foreach($order_list_data as $value)
                             <tr>
                                 <td>{{ $value->ro_received_grade_code }} {{ $value->ro_received_grade_name }}</td>
-                                <td class="text-end">1</td>
-                                <td class="text-end">{{ number_format($value->tw_price, 2) }}</td>
-                                <td class="text-end">{{ number_format($value->account_amt_net) }}</td>
+                                <td>1</td>
+                                <td>{{ number_format($value->tw_price, 2) }}</td>
+                                <td>{{ number_format($value->account_amt_net) }}</td>
                                 <td>{{ $received_order->memo }} {{ $value->taxation == 1 ? '應稅' : '免稅' }} {{ $value->note }}</td>
                             </tr>
                         @endforeach
@@ -157,7 +157,7 @@
                     <dd></dd>
                 </div>
                 <div class="col">
-                    <dt>商品負責人：</dt>
+                    <dt>商品負責人：{{-- $product_qc --}}</dt>
                     <dd></dd>
                 </div>
             </dl>

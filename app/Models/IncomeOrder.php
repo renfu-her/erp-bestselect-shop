@@ -114,7 +114,6 @@ class IncomeOrder extends Model
                 received.received_method_id,
                 received.all_grades_id AS ro_received_grade_id,
                 received.tw_price,
-                received.accountant_id_fk,
                 received.taxation,
                 received.summary,
                 received.note,

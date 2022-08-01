@@ -46,7 +46,6 @@ class ReceivedOrder extends Model
                         "received_method_id":"\', COALESCE(acc_received.received_method_id, ""), \'",
                         "all_grades_id":"\', acc_received.all_grades_id, \'",
                         "tw_price":"\', acc_received.tw_price, \'",
-                        "accountant_id_fk":"\', acc_received.accountant_id_fk, \'",
                         "summary":"\', COALESCE(acc_received.summary, ""),\'",
                         "note":"\', COALESCE(acc_received.note, ""),\'",
                         "created_at":"\', acc_received.created_at,\'",
@@ -449,7 +448,7 @@ class ReceivedOrder extends Model
         $received_method_id = isset($parm['received_method_id']) ? $parm['received_method_id'] : null;
         $grade_id = $parm['grade_id'];
         $price = $parm['price'];
-        $accountant_id_fk = isset($parm['accountant_id_fk']) ? $parm['accountant_id_fk'] : 0;
+        // $accountant_id_fk = isset($parm['accountant_id_fk']) ? $parm['accountant_id_fk'] : 0;
         $summary = isset($parm['summary']) ? $parm['summary'] : null;
         $note = isset($parm['note']) ? $parm['note'] : null;
 
@@ -461,7 +460,7 @@ class ReceivedOrder extends Model
             'all_grades_id'=>$grade_id,
             'tw_price'=>$price,
             'review_date'=>null,
-            'accountant_id_fk'=>$accountant_id_fk,
+            // 'accountant_id_fk'=>$accountant_id_fk,
             'taxation'=>1,
             'summary'=>$summary,
             'note'=>$note,
@@ -742,7 +741,6 @@ class ReceivedOrder extends Model
                 received.received_method_id,
                 received.all_grades_id,
                 received.tw_price,
-                received.accountant_id_fk,
                 received.taxation,
                 received.summary,
                 received.note
@@ -948,7 +946,6 @@ class ReceivedOrder extends Model
                 received.received_method_id,
                 received.all_grades_id AS ro_received_grade_id,
                 received.tw_price,
-                received.accountant_id_fk,
                 received.taxation,
                 received.summary,
                 received.note,

@@ -108,7 +108,6 @@ abstract class AccountReceivedPapaCtrl extends Controller
             $cond['check_review'],
         )->paginate($page)->appends($query);
 
-        // dd($dataList);
         // accounting classification start
         foreach($dataList as $value){
             $debit = [];
@@ -282,7 +281,6 @@ abstract class AccountReceivedPapaCtrl extends Controller
             }
         }
         // accounting classification end
-        // dd($dataList);
 
         $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
@@ -515,7 +513,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
             $parm['received_method_id'] = $result_id;
             $parm['grade_id'] = $data[$data['acc_transact_type_fk']]['grade'];
             $parm['price'] = $data['tw_price'];
-            $parm['accountant_id_fk'] = auth('user')->user()->id;
+            // $parm['accountant_id_fk'] = auth('user')->user()->id;
             $parm['summary'] = $data['summary'];
             $parm['note'] = $data['note'];
             ReceivedOrder::store_received($parm);
@@ -575,9 +573,10 @@ abstract class AccountReceivedPapaCtrl extends Controller
         $order_purchaser = $this->getOrderPurchaser($order);
         $undertaker = User::find($received_order_collection->first()->usr_users_id);
 
-        $accountant = User::whereIn('id', $received_data->pluck('accountant_id_fk')->toArray())->get();
-        $accountant = array_unique($accountant->pluck('name')->toArray());
-        asort($accountant);
+        // $accountant = User::whereIn('id', $received_data->pluck('accountant_id_fk')->toArray())->get();
+        // $accountant = array_unique($accountant->pluck('name')->toArray());
+        // asort($accountant);
+        $accountant = User::find($received_order_collection->first()->accountant_id) ? User::find($received_order_collection->first()->accountant_id)->name : null;
 
         $product_grade_name = AllGrade::find($received_order_collection->first()->product_grade_id)->eachGrade->code . ' ' . AllGrade::find($received_order_collection->first()->product_grade_id)->eachGrade->name;
 
@@ -609,7 +608,8 @@ abstract class AccountReceivedPapaCtrl extends Controller
             'order_purchaser' => $order_purchaser,
             'undertaker'=>$undertaker,
             'product_qc'=>implode(',', $product_qc),
-            'accountant'=>implode(',', $accountant),
+            // 'accountant'=>implode(',', $accountant),
+            'accountant'=>$accountant,
             'product_grade_name'=>$product_grade_name,
             'logistics_grade_name'=>$logistics_grade_name ?? '',
             'zh_price' => $zh_price,
@@ -644,6 +644,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
             ]);
 
             $received_order->update([
+                'accountant_id'=>auth('user')->user()->id,
                 'receipt_date'=>request('receipt_date'),
                 'invoice_number'=>request('invoice_number'),
             ]);
@@ -664,6 +665,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
         } else if($request->isMethod('get')){
             if($received_order->receipt_date){
                 $received_order->update([
+                    'accountant_id'=>null,
                     'receipt_date'=>null,
                 ]);
 
