@@ -203,7 +203,7 @@ class InboundImportCtrl extends Controller
                 }
             }
         }
-        wToast('匯入成功 請前往匯入紀錄查看結果');
+        wToast('匯入成功！請前往匯入紀錄查看結果');
         return redirect()->back();
     }
 

@@ -1,6 +1,21 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">入庫單庫存列表</h2>
+    
+    <ul class="nav pm_navbar">
+        <li class="nav-item">
+            <a class="nav-link" href="{{ Route('cms.inbound_import.index', [], true) }}">上傳檔案</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ Route('cms.inbound_import.import_log', [], true) }}">匯入紀錄</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{{ Route('cms.inbound_import.inbound_list', [], true) }}">入庫單列表</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ Route('cms.inbound_import.inbound_log', [], true) }}">入庫單調整紀錄</a>
+        </li>
+    </ul>
+    <hr class="narbarBottomLine mb-3">
 
     <form id="search" action="{{ Route('cms.inbound_import.inbound_list') }}" method="GET">
         <div class="card shadow p-4 mb-4">
@@ -43,28 +58,20 @@
                 <thead>
                     <tr>
                         <th scope="col">#</th>
+                        <th scope="col">編輯</th>
                         <th scope="col">採購單號</th>
                         <th scope="col">SKU</th>
                         <th scope="col">商品款式名稱</th>
-                        <th scope="col">入庫單</th>
+                        <th scope="col" class="text-end">入庫單</th>
                         <th scope="col">庫存剩餘數量</th>
                         <th scope="col">效期</th>
                         <th scope="col">倉庫</th>
-                        <th scope="col">編輯</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
-                            <td>{{ $data->event_sn }}</td>
-                            <td>{{ $data->style_sku }}</td>
-                            <td>{{ $data->product_title }}-{{ $data->style_title }}</td>
-                            <td>{{ $data->inbound_sn }}</td>
-                            <td>{{ $data->qty }}</td>
-
-                            <td>{{ $data->expiry_date }}</td>
-                            <td>{{ $data->depot_name }}</td>
                             <td>
                                 <a href="{{ Route('cms.inbound_import.inbound_edit', ['inboundId' => $data->inbound_id], true) }}"
                                    data-bs-toggle="tooltip" title="編輯"
@@ -72,6 +79,13 @@
                                     <i class="bi bi-pencil-square"></i>
                                 </a>
                             </td>
+                            <td>{{ $data->event_sn }}</td>
+                            <td>{{ $data->style_sku }}</td>
+                            <td>{{ $data->product_title }}-{{ $data->style_title }}</td>
+                            <td>{{ $data->inbound_sn }}</td>
+                            <td class="text-end">{{ number_format($data->qty) }}</td>
+                            <td>{{ $data->expiry_date ? date('Y/m/d', strtotime($data->expiry_date)) : '' }}</td>
+                            <td>{{ $data->depot_name }}</td>
                         </tr>
                     @endforeach
                 </tbody>
