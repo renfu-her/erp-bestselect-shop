@@ -320,7 +320,7 @@ class RequestOrderCtrl extends Controller
             'previou_url' => route('cms.request.show', ['id' => $request_order->id]),
             'purchaser' => $request_order->client_name,
             'request_grade' => $request_grade,
-            'order_list_data' => $request_order->get(),
+            'request_order' => $request_order,
 
             'received_order' => $received_order,
             'received_data' => $received_data,
@@ -480,7 +480,7 @@ class RequestOrderCtrl extends Controller
         return view('cms.account_management.request.ro_receipt', [
             'breadcrumb_data' => ['id' => $request_order->id],
             'request_grade' => $request_grade,
-            'order_list_data' => $request_order->get(),
+            'request_order' => $request_order,
             'received_order' => $received_order,
             'received_data' => $received_data,
             'purchaser' => $purchaser,
