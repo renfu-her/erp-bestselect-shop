@@ -124,7 +124,8 @@ class PayingOrder extends Model
         $po_sn = null,
         $source_sn = null,
         $po_price = null,
-        $po_payment_date = null
+        $po_payment_date = null,
+        $check_balance = null
     ){
         $query = DB::table(DB::raw('(
                 SELECT
@@ -331,7 +332,7 @@ class PayingOrder extends Model
             })
 
             ->whereColumn([
-                ['po.price', '=', 'payable_table.payable_price'],
+                // ['po.price', '=', 'payable_table.payable_price'],
             ])
             // ->whereRaw('( (purchase_item_table.price + purchase.logistics_price) = payable_table.payable_price OR dlv_logistic.cost = payable_table.payable_price )')
 
@@ -482,6 +483,14 @@ class PayingOrder extends Model
                 // $query->where('payable_table.payment_date', '<', $e_payment_date);
                 $query->where('po.balance_date', '<', $e_payment_date);
             }
+        }
+
+        if ($check_balance == 'all') {
+            //
+        } else if ($check_balance == 0) {
+            $query->whereNull('po.balance_date');
+        } else if($check_balance == 1){
+            $query->whereNotNull('po.balance_date');
         }
 
         return $query->orderBy('po.created_at', 'DESC');

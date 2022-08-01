@@ -64,6 +64,20 @@
                         </div>
                     </div>
                 </div>
+
+                <fieldset class="col-12 col-sm-4 mb-3">
+                    <legend class="col-form-label p-0 mb-2">付款狀態</legend>
+                    <div class="px-1 pt-1">
+                        @foreach ($check_balance_status as $key => $value)
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="check_balance" type="radio" value="{{ $key }}" {{ (string)$key == $cond['check_balance'] ? 'checked' : '' }}>
+                                    {{ $value }}
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                </fieldset>
             </div>
 
             <div class="col">
@@ -127,17 +141,17 @@
                             <td>{{ $data->po_target_name }}{{-- ' ' . $data->supplier_contact_person --}}</td>
                             <td class="p-0">
                                 @foreach($data->debit as $d_value)
-                                <span class="border-bottom d-block bg-warning p-1">{{$d_value->account_code}} {{$d_value->account_name}}</span>
+                                <span class="border-bottom d-block bg-warning p-2">{{$d_value->account_code}} {{$d_value->account_name}}</span>
                                 @endforeach
 
                                 @foreach($data->credit as $c_value)
-                                <span class="border-bottom d-block bg-white p-1">{{$c_value->account_code}} {{$c_value->account_name}}</span>
+                                <span class="border-bottom d-block bg-white p-2">{{$c_value->account_code}} {{$c_value->account_name}}</span>
                                 @endforeach
                             </td>
 
                             <td class="p-0">
                                 @foreach($data->debit as $d_value)
-                                <span class="border-bottom d-block bg-warning p-1">
+                                <span class="border-bottom d-block bg-warning p-2">
                                     @if($d_value->d_type == 'logistics')
                                         {{$d_value->account_name}} {{ $data->source_sn }}
                                     @elseif($d_value->d_type == 'discount')
@@ -150,9 +164,9 @@
 
                                 @foreach($data->credit as $c_value)
                                 @if($c_value->payable_type == 0)
-                                <span class="border-bottom d-block bg-white p-1">{{$c_value->method_name}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{ $data->source_sn }} - {{ $po_sn[0] }}</span>
+                                <span class="border-bottom d-block bg-white p-2">{{$c_value->method_name}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{ $data->source_sn }} - {{ $po_sn[0] }}</span>
                                 @else
-                                <span class="border-bottom d-block bg-white p-1">{{$c_value->method_name}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{ $data->source_sn }} - {{ count($po_sn) > 1 ? $po_sn[1] : $po_sn[0]  }}</span>
+                                <span class="border-bottom d-block bg-white p-2">{{$c_value->method_name}}{{$c_value->note ? ' - ' . $c_value->note : ''}} - {{ $data->source_sn }} - {{ count($po_sn) > 1 ? $po_sn[1] : $po_sn[0]  }}</span>
                                 @endif
                                 @endforeach
                             </td>
@@ -160,15 +174,15 @@
                             <td class="p-0 text-end">
                                 @foreach($data->debit as $d_value)
                                 <span class="border-bottom d-flex flex-row" style="min-width:150px">
-                                    <span class="bg-warning d-block p-1 w-50">{{ number_format($d_value->price) }}</span>
-                                    <span class="bg-warning d-block p-1 w-50"></span>
+                                    <span class="bg-warning d-block p-2 w-50">{{ number_format($d_value->price) }}</span>
+                                    <span class="bg-warning d-block p-2 w-50"></span>
                                 </span>
                                 @endforeach
 
                                 @foreach($data->credit as $c_value)
                                 <span class="border-bottom d-flex flex-row" style="min-width:150px">
-                                    <span class="d-block bg-white p-1 w-50"></span>
-                                    <span class="d-block bg-white p-1 w-50">{{ number_format($c_value->price) }}</span>
+                                    <span class="d-block bg-white p-2 w-50"></span>
+                                    <span class="d-block bg-white p-2 w-50">{{ number_format($c_value->price) }}</span>
                                 </span>
                                 @endforeach
                             </td>

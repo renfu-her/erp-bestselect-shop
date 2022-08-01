@@ -64,12 +64,15 @@ class AccountPayableCtrl extends Controller
             $cond['po_edate']
         ];
 
+        $cond['check_balance'] = Arr::get($query, 'check_balance', 'all');
+
         $dataList = PayingOrder::paying_order_list(
             $cond['payee'],
             $cond['po_sn'],
             $cond['source_sn'],
             $po_price,
             $po_payment_date,
+            $cond['check_balance'],
         )->paginate($page)->appends($query);
 
         // accounting classification start
@@ -251,11 +254,18 @@ class AccountPayableCtrl extends Controller
 
         $payee_merged = array_merge($customer, $depot, $supplier);
 
+        $check_balance_status = [
+            'all'=>'不限',
+            '0'=>'未付款',
+            '1'=>'已付款',
+        ];
+
         return view('cms.account_management.account_payable.list', [
             'data_per_page' => $page,
             'dataList' => $dataList,
             'cond' => $cond,
             'payee' => $payee_merged,
+            'check_balance_status' => $check_balance_status,
         ]);
     }
 }
