@@ -7,14 +7,21 @@ use App\Enums\Delivery\Event;
 use App\Enums\Globals\Status;
 use App\Http\Controllers\Controller;
 use App\Imports\PurchaseInbound\InboundImport;
+use App\Models\Consignment;
+use App\Models\CsnOrder;
 use App\Models\Depot;
+use App\Models\ProductStyle;
 use App\Models\Purchase;
 use App\Models\PurchaseImportLog;
 use App\Models\PurchaseInbound;
 use App\Models\PurchaseItem;
+use App\Models\SubOrders;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Excel;
 
@@ -281,12 +288,55 @@ class InboundImportCtrl extends Controller
 
     public function inbound_edit(Request $request, $inbound_id)
     {
-        dd('inbound_edit', $inbound_id);
+        $inbound = DB::table(app(PurchaseInbound::class)->getTable(). ' as inbound')
+            ->where('inbound.id', '=', $inbound_id);
+        $inboundGet = $inbound->first();
+
+        $event_table = null;
+        if (Event::purchase()->value == $inboundGet->event) {
+            $event_table = app(Purchase::class)->getTable();
+        } else if (Event::order()->value == $inboundGet->event || Event::ord_pickup()->value == $inboundGet->event) {
+            $event_table = app(SubOrders::class)->getTable();
+        } else if (Event::consignment()->value == $inboundGet->event) {
+            $event_table = app(Consignment::class)->getTable();
+        } else if (Event::csn_order()->value == $inboundGet->event) {
+            $event_table = app(CsnOrder::class)->getTable();
+        }
+        $inbound = $inbound
+            ->leftJoin($event_table. ' as event', function ($join) {
+                $join->on('event.id', '=', 'inbound.event_id');
+            })
+            ->leftJoin(app(ProductStyle::class)->getTable(). ' as style', 'style.id', '=', 'inbound.product_style_id')
+            ->select('event.sn as event_sn', 'style.sku', 'inbound.*'
+                , DB::raw('(inbound.inbound_num - inbound.sale_num - inbound.csn_num - inbound.consume_num - inbound.back_num - inbound.scrap_num) as remaining_qty') //庫存剩餘數量
+            )
+            ->first();
+
+        return view('cms.commodity.inbound_import.inbound_edit', [
+            'inboundData' => $inbound,
+            'formAction' => Route('cms.inbound_import.inbound_edit_store', ['inboundId' => $inbound_id]),
+            ])
+            ->with('backUrl', Session::get('backUrl', URL::previous()));
     }
 
     public function inbound_edit_store(Request $request, $inbound_id)
     {
-        dd('inbound_edit_store', $inbound_id);
+        $request->validate([
+            'id' => 'required|numeric',
+            'update_num' => 'required|numeric|not_in:0',
+            'memo' => 'required|string',
+        ]);
+        $update_num = $request->input('update_num', 0);
+        $memo = $request->input('memo', null);
+
+        $updIb = PurchaseInbound::updateInbound($inbound_id, $update_num, $memo, $request->user()->id, $request->user()->name);
+        if ($updIb['success'] == '1') {
+            wToast('儲存成功');
+            return Redirect::away($request->get('backUrl'));
+        }
+        $errors['error_msg'] = $updIb['error_msg'];
+
+        return redirect()->back()->withInput()->withErrors($errors);
     }
 
     public function inbound_log(Request $request)
