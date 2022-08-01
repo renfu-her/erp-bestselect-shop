@@ -27,7 +27,7 @@
             @csrf
             <div class="row mb-3">
                 <div class="col-12 mb-3">
-                    <label class="form-label">選擇倉庫 <span class="text-danger">*</span></label>
+                    <label class="form-label">選擇倉庫 <span class="text-danger">* 請確認EXCEL倉庫於所選倉庫相同</span></label>
                     <select name="depot_id"
                             class="form-select @error('depot_id') is-invalid @enderror"
                             aria-label="請選擇倉庫" required>
