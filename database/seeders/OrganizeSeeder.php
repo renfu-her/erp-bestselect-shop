@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Http;
-
+use App\Models\UserOrganize;
 
 class OrganizeSeeder extends Seeder
 {
@@ -16,8 +17,7 @@ class OrganizeSeeder extends Seeder
     public function run()
     {
         //
-        $re = Http::get("https://www.besttour.com.tw/api/empdep.asp?type=6")->json();
-
-        dd($re);
+     //   UserOrganize::initData();
+     UserOrganize::initData();
     }
 }
