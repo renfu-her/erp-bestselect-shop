@@ -409,7 +409,7 @@ class OrderCtrl extends Controller
             'received_order_data' => $received_order_data,
             'received_credit_card_log' => $received_credit_card_log,
             'dividend' => $dividend,
-            'canCancel' => Order::checkCanCancel($id),
+            'canCancel' => Order::checkCanCancel($id,'backend'),
             'delivery' => $delivery,
             'canSplit' => Order::checkCanSplit($id),
         ]);
@@ -1409,7 +1409,7 @@ class OrderCtrl extends Controller
     public function cancel_order(Request $request, $id)
     {
 
-        Order::cancelOrder($id);
+        Order::cancelOrder($id,'backend');
 
         wToast('訂單已經取消');
 

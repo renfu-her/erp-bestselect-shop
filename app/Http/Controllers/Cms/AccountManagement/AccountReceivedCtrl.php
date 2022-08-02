@@ -318,7 +318,7 @@ class AccountReceivedCtrl extends Controller
             $parm['received_method_id'] = $result_id;
             $parm['grade_id'] = $data[$data['acc_transact_type_fk']]['grade'];
             $parm['price'] = $data['tw_price'];
-            $parm['accountant_id_fk'] = auth('user')->user()->id;
+            // $parm['accountant_id_fk'] = auth('user')->user()->id;
             $parm['summary'] = $data['summary'];
             $parm['note'] = $data['note'];
             ReceivedOrder::store_received($parm);
@@ -380,9 +380,12 @@ class AccountReceivedCtrl extends Controller
         $purchaser = $order_list_data->first();
         $undertaker = User::find($received_order->usr_users_id);
 
-        $accountant = User::whereIn('id', $received_data->pluck('accountant_id_fk')->toArray())->get();
-        $accountant = array_unique($accountant->pluck('name')->toArray());
-        asort($accountant);
+        // $accountant = User::whereIn('id', $received_data->pluck('accountant_id_fk')->toArray())->get();
+        // $accountant = array_unique($accountant->pluck('name')->toArray());
+        // asort($accountant);
+        $accountant = User::find($received_order->accountant_id) ? User::find($received_order->accountant_id)->name : null;
+
+        $zh_price = num_to_str($received_order->price);
 
         return view('cms.account_management.account_received.ro_receipt', [
             'order_list_data' => $order_list_data,
@@ -390,7 +393,9 @@ class AccountReceivedCtrl extends Controller
             'received_data' => $received_data,
             'purchaser' => $purchaser,
             'undertaker'=>$undertaker,
-            'accountant'=>implode(',', $accountant),
+            // 'accountant'=>implode(',', $accountant),
+            'accountant'=>$accountant,
+            'zh_price' => $zh_price,
         ]);
     }
 
@@ -417,6 +422,7 @@ class AccountReceivedCtrl extends Controller
             ]);
 
             $received_order->update([
+                'accountant_id'=>auth('user')->user()->id,
                 'receipt_date'=>request('receipt_date'),
                 'invoice_number'=>request('invoice_number'),
             ]);
@@ -435,6 +441,7 @@ class AccountReceivedCtrl extends Controller
         } else if($request->isMethod('get')){
             if($received_order->receipt_date){
                 $received_order->update([
+                    'accountant_id'=>null,
                     'receipt_date'=>null,
                 ]);
 

@@ -316,4 +316,22 @@ class Customer extends Authenticatable
 
         return $re->get()->first();
     }
+
+    public static function batchCreateMcode()
+    {
+        DB::beginTransaction();
+
+        $customers = self::whereNull('sn')->get();
+        $c = 0;
+        foreach ($customers as $customer) {
+         
+            $sn = "M" . str_pad($customer->id, 9, '0', STR_PAD_LEFT);
+            self::where('id', $customer->id)->update([
+                'sn' => $sn,
+            ]);
+            $c++;
+        }
+        DB::commit();
+        echo "更新{$c}筆mcode";
+    }
 }

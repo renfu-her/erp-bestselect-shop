@@ -22,18 +22,19 @@ class ReceivedOrder extends Model
 
     public static function received_order_list(
         $drawee = null,
-        $r_order_sn = null,
-        $order_sn = null,
+        $ro_sn = null,
+        $source_sn = null,
         $r_order_price = null,
         $r_order_receipt_date = null,
         $received_date = null,
         $check_review = 'all'
     ){
-        $received_order = DB::table('ord_received_orders AS ro')
-            ->leftJoin('usr_users AS sales', function($join){
-                $join->on('ro.usr_users_id', '=', 'sales.id');
+        $query = DB::table('ord_received_orders AS ro')
+            ->leftJoin('usr_users AS undertaker', function($join){
+                $join->on('ro.usr_users_id', '=', 'undertaker.id');
                 $join->where([
-                    'sales.deleted_at'=>null,
+                    'undertaker.deleted_at'=>null,
+                    'ro.deleted_at'=>null,
                 ]);
             })
             ->leftJoin(DB::raw('(
@@ -45,13 +46,12 @@ class ReceivedOrder extends Model
                         "received_method_id":"\', COALESCE(acc_received.received_method_id, ""), \'",
                         "all_grades_id":"\', acc_received.all_grades_id, \'",
                         "tw_price":"\', acc_received.tw_price, \'",
-                        "accountant_id_fk":"\', acc_received.accountant_id_fk, \'",
                         "summary":"\', COALESCE(acc_received.summary, ""),\'",
                         "note":"\', COALESCE(acc_received.note, ""),\'",
                         "created_at":"\', acc_received.created_at,\'",
                         "credit_card_number":"\', COALESCE(_credit.cardnumber, ""),\'",
                         "remit_memo":"\', COALESCE(_remit.memo, ""),\'"
-                    }\' ORDER BY acc_received.id), \']\') AS list
+                    }\' ORDER BY acc_received.id), \']\') AS received_list
                 FROM acc_received
                 LEFT JOIN acc_received_account AS _account ON acc_received.received_method_id = _account.id AND acc_received.received_method = "account_received"
                 LEFT JOIN acc_received_credit AS _credit ON acc_received.received_method_id = _credit.id AND acc_received.received_method = "credit_card"
@@ -59,8 +59,8 @@ class ReceivedOrder extends Model
                 LEFT JOIN acc_received_currency AS _currency ON acc_received.received_method_id = _currency.id AND acc_received.received_method = "foreign_currency"
                 LEFT JOIN acc_received_remit AS _remit ON acc_received.received_method_id = _remit.id AND acc_received.received_method = "remit"
                 GROUP BY acc_received.received_order_id
-                ) AS acc_received_table'), function ($join){
-                    $join->on('acc_received_table.received_order_id', '=', 'ro.id');
+                ) AS received_table'), function ($join){
+                    $join->on('received_table.received_order_id', '=', 'ro.id');
             })
 
             // order
@@ -84,7 +84,7 @@ class ReceivedOrder extends Model
                         "origin_price":"\', origin_price, \'",
                         "discount_value":"\', discount_value, \'",
                         "discounted_price":"\', discounted_price, \'"
-                    }\' ORDER BY ord_items.id), \']\') AS item
+                    }\' ORDER BY ord_items.id), \']\') AS items
                 FROM ord_items
                 GROUP BY order_id
                 ) AS order_item_table'), function ($join){
@@ -131,7 +131,7 @@ class ReceivedOrder extends Model
                         "price":"\', price, \'",
                         "qty":"\', num, \'",
                         "origin_price":"\', price * num, \'"
-                    }\' ORDER BY csn_order_items.id), \']\') AS item
+                    }\' ORDER BY csn_order_items.id), \']\') AS items
                 FROM csn_order_items
                 GROUP BY csnord_id
                 ) AS csn_order_item_table'), function ($join){
@@ -139,6 +139,14 @@ class ReceivedOrder extends Model
             })
 
             // ord_received_orders
+            ->leftJoin('ord_received_orders AS _account_ro', function ($join) {
+                $join->on('ro.source_id', '=', '_account_ro.id');
+                $join->where([
+                    'ro.source_type'=>app(self::class)->getTable(),
+                    'ro.deleted_at'=>null,
+                    '_account_ro.deleted_at'=>null,
+                ]);
+            })
             ->leftJoin(DB::raw('(
                 SELECT _account.append_received_order_id,
                 CONCAT(\'[\', GROUP_CONCAT(\'{
@@ -147,7 +155,7 @@ class ReceivedOrder extends Model
                         "price":"\', _account.amt_net, \'",
                         "qty":"\', 1, \'",
                         "origin_price":"\', _account.amt_net * 1, \'"
-                    }\' ORDER BY acc_received.id), \']\') AS item
+                    }\' ORDER BY acc_received.id), \']\') AS items
                 FROM acc_received
                 LEFT JOIN acc_received_account AS _account ON acc_received.received_method_id = _account.id AND acc_received.received_method = "account_received"
                 GROUP BY _account.append_received_order_id
@@ -155,13 +163,34 @@ class ReceivedOrder extends Model
                     $join->on('received_account_table.append_received_order_id', '=', 'ro.id');
             })
 
+            // request order
+            ->leftJoin('acc_request_orders AS request_o', function ($join) {
+                $join->on('ro.id', '=', 'request_o.received_order_id');
+            })
+            ->leftJoin(DB::raw('(
+                SELECT
+                    id,
+                    CONCAT(\'[\', GROUP_CONCAT(\'{
+                        "product_title":"\', "", \'",
+                        "all_grades_id":"\', request_grade_id, \'",
+                        "price":"\', price, \'",
+                        "qty":"\', qty, \'",
+                        "origin_price":"\', total_price, \'"
+                    }\' ORDER BY id), \']\') AS items
+                FROM acc_request_orders
+                WHERE deleted_at IS NULL
+                GROUP BY id
+                ) AS request_table'), function ($join){
+                    $join->on('request_o.id', '=', 'request_table.id');
+            })
 
             ->whereNull('ro.deleted_at')
             ->whereColumn([
-                ['ro.price', '=', 'acc_received_table.received_price'],
+                ['ro.price', '=', 'received_table.received_price'],
             ])
 
             ->select(
+                'ro.id AS ro_id',
                 'ro.source_type AS ro_source_type',
                 'ro.source_id AS ro_source_id',
                 'ro.sn AS ro_sn',
@@ -169,59 +198,64 @@ class ReceivedOrder extends Model
                 'ro.logistics_grade_id AS ro_logistics_grade_id',
                 'ro.product_grade_id AS ro_product_grade_id',
                 'ro.receipt_date AS ro_receipt_date',// 收款單入帳審核日期
-                'ro.invoice_number AS ro_invoice_number',
+                'ro.balance_date AS ro_balance_date',
                 'ro.drawee_id AS ro_target_id',
                 'ro.drawee_name AS ro_target_name',
                 'ro.drawee_phone AS ro_target_phone',
                 'ro.drawee_address AS ro_target_address',
 
+                'received_table.received_list AS received_list',
+                'received_table.received_date AS received_date',// 收款單完成收款日期
+                'received_table.received_price AS received_price',// 收款單金額(實收)
+
+
                 'order.dlv_fee AS order_dlv_fee',
-                'order.origin_price AS order_origin_price',
-                'order.total_price AS order_total_price',
                 'order.discount_value AS order_discount_value',
-                'order.discounted_price AS order_discounted_price',
 
-                'sales.name AS creator',
-
-                'acc_received_table.list AS received_list',
-                'acc_received_table.received_date AS received_date',// 收款單完成收款日期
-                'acc_received_table.received_price AS received_price',// 收款單金額(實收)
+                // 'undertaker.name AS undertaker_name',
 
                 'discounts_table.discount_list AS order_discount',
             )
 
             ->selectRaw('
                 CASE
-                    WHEN ro.source_type = "ord_orders" THEN order.sn
-                    WHEN ro.source_type = "csn_orders" THEN csn_order.sn
-                END AS order_sn
+                    WHEN ro.source_type = "' . app(Order::class)->getTable() . '" THEN order.sn
+                    WHEN ro.source_type = "' . app(CsnOrder::class)->getTable() . '" THEN csn_order.sn
+                    WHEN ro.source_type = "' . app(self::class)->getTable() . '" THEN _account_ro.sn
+                    WHEN ro.source_type = "' . app(RequestOrder::class)->getTable() . '" THEN request_o.sn
+                    ELSE NULL
+                END AS source_sn
             ')
             ->selectRaw('
                 CASE
-                    WHEN ro.source_type = "ord_orders" THEN order_item_table.item
-                    WHEN ro.source_type = "csn_orders" THEN csn_order_item_table.item
-                    WHEN ro.source_type = "ord_received_orders" THEN received_account_table.item
-                END AS order_item
+                    WHEN ro.source_type = "' . app(Order::class)->getTable() . '" THEN order_item_table.items
+                    WHEN ro.source_type = "' . app(CsnOrder::class)->getTable() . '" THEN csn_order_item_table.items
+                    WHEN ro.source_type = "' . app(self::class)->getTable() . '" THEN received_account_table.items
+                    WHEN ro.source_type = "' . app(RequestOrder::class)->getTable() . '" THEN request_table.items
+                    ELSE NULL
+                END AS order_items
             ');
 
         if ($drawee) {
             if (gettype($drawee) == 'array') {
-                $received_order->where([
+                $query->where([
                         'ro.drawee_id'=>$drawee['id'],
                     ])->where('ro.drawee_name', 'like', "%{$drawee['name']}%");
             }
         }
 
-        if ($r_order_sn) {
-            $received_order->where(function ($query) use ($r_order_sn) {
-                $query->where('ro.sn', 'like', "%{$r_order_sn}%");
+        if ($ro_sn) {
+            $query->where(function ($query) use ($ro_sn) {
+                $query->where('ro.sn', 'like', "%{$ro_sn}%");
             });
         }
 
-        if ($order_sn) {
-            $received_order->where(function ($query) use ($order_sn) {
-                $query->where('order.sn', 'like', "%{$order_sn}%")
-                    ->orWhere('csn_order.sn', 'like', "%{$order_sn}%");
+        if ($source_sn) {
+            $query->where(function ($query) use ($source_sn) {
+                $query->where('order.sn', 'like', "%{$source_sn}%")
+                    ->orWhere('csn_order.sn', 'like', "%{$source_sn}%")
+                    ->orWhere('_account_ro.sn', 'like', "%{$source_sn}%")
+                    ->orWhere('request_o.sn', 'like', "%{$source_sn}%");
             });
         }
 
@@ -230,10 +264,10 @@ class ReceivedOrder extends Model
                 $min_price = $r_order_price[0] ?? null;
                 $max_price = $r_order_price[1] ?? null;
                 if($min_price){
-                    $received_order->where('ro.price', '>=', $min_price);
+                    $query->where('ro.price', '>=', $min_price);
                 }
                 if($max_price){
-                    $received_order->where('ro.price', '<=', $max_price);
+                    $query->where('ro.price', '<=', $max_price);
                 }
             }
         }
@@ -243,10 +277,10 @@ class ReceivedOrder extends Model
             $e_receipt_date = $r_order_receipt_date[1] ? date('Y-m-d', strtotime($r_order_receipt_date[1] . ' +1 day')) : null;
 
             if($s_receipt_date){
-                $received_order->where('ro.receipt_date', '>=', $s_receipt_date);
+                $query->where('ro.receipt_date', '>=', $s_receipt_date);
             }
             if($e_receipt_date){
-                $received_order->where('ro.receipt_date', '<', $e_receipt_date);
+                $query->where('ro.receipt_date', '<', $e_receipt_date);
             }
         }
 
@@ -255,22 +289,24 @@ class ReceivedOrder extends Model
             $e_received_date = $received_date[1] ? date('Y-m-d', strtotime($received_date[1] . ' +1 day')) : null;
 
             if($s_received_date){
-                $received_order->where('v_table_1.received_date', '>=', $s_received_date);
+                // $query->where('received_table.received_date', '>=', $s_received_date);
+                $query->where('ro.balance_date', '>=', $s_received_date);
             }
             if($e_received_date){
-                $received_order->where('v_table_1.received_date', '<', $e_received_date);
+                // $query->where('received_table.received_date', '<', $e_received_date);
+                $query->where('ro.balance_date', '<', $e_received_date);
             }
         }
 
         if ($check_review == 'all') {
             //
         } else if ($check_review == 0) {
-            $received_order->whereNull('ro.receipt_date');
+            $query->whereNull('ro.receipt_date');
         } else if($check_review == 1){
-            $received_order->whereNotNull('ro.receipt_date');
+            $query->whereNotNull('ro.receipt_date');
         }
 
-        return $received_order;
+        return $query->orderBy('ro.created_at', 'DESC');
     }
 
 
@@ -412,7 +448,7 @@ class ReceivedOrder extends Model
         $received_method_id = isset($parm['received_method_id']) ? $parm['received_method_id'] : null;
         $grade_id = $parm['grade_id'];
         $price = $parm['price'];
-        $accountant_id_fk = isset($parm['accountant_id_fk']) ? $parm['accountant_id_fk'] : 0;
+        // $accountant_id_fk = isset($parm['accountant_id_fk']) ? $parm['accountant_id_fk'] : 0;
         $summary = isset($parm['summary']) ? $parm['summary'] : null;
         $note = isset($parm['note']) ? $parm['note'] : null;
 
@@ -424,7 +460,7 @@ class ReceivedOrder extends Model
             'all_grades_id'=>$grade_id,
             'tw_price'=>$price,
             'review_date'=>null,
-            'accountant_id_fk'=>$accountant_id_fk,
+            // 'accountant_id_fk'=>$accountant_id_fk,
             'taxation'=>1,
             'summary'=>$summary,
             'note'=>$note,
@@ -705,7 +741,6 @@ class ReceivedOrder extends Model
                 received.received_method_id,
                 received.all_grades_id,
                 received.tw_price,
-                received.accountant_id_fk,
                 received.taxation,
                 received.summary,
                 received.note
@@ -911,7 +946,6 @@ class ReceivedOrder extends Model
                 received.received_method_id,
                 received.all_grades_id AS ro_received_grade_id,
                 received.tw_price,
-                received.accountant_id_fk,
                 received.taxation,
                 received.summary,
                 received.note,

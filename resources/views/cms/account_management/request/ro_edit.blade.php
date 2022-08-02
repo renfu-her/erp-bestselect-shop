@@ -60,18 +60,16 @@
                         </thead>
 
                         <tbody>
-                            @foreach($order_list_data as $value)
                             <tr>
-                                <td>{{ $value->sn }}</td>
-                                <td>{{ $request_grade->code . ' ' . $request_grade->name . ' ' . $value->summary }}</td>
-                                <td class="text-end">{{ number_format($value->price, 2) }}</td>
-                                <td class="text-end">{{ number_format($value->qty) }}</td>
+                                <td>{{ $request_order->sn }}</td>
+                                <td>{{ $request_grade->code . ' ' . $request_grade->name . ' ' . $request_order->summary }}</td>
+                                <td class="text-end">{{ number_format($request_order->price, 2) }}</td>
+                                <td class="text-end">{{ number_format($request_order->qty) }}</td>
                                 <td class="text-end">1</td>
                                 <td>NTD</td>
-                                <td class="text-end">{{ number_format($value->total_price) }}</td>
+                                <td class="text-end">{{ number_format($request_order->total_price) }}</td>
                                 <td class="text-end"></td>
                             </tr>
-                            @endforeach
 
                             @foreach($received_data as $value)
                             <tr>

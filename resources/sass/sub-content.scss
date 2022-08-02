@@ -407,6 +407,15 @@ input.form-control[type="month"] {
     background-position: right calc(2em + 0.1875rem) center;
   }
 }
+// .form-switch
+.form-switch {
+  width: fit-content;
+}
+.text-center > .form-switch,
+.form-switch.text-center {
+  margin-left: auto;
+  margin-right: auto;
+}
 // checkbox .form-switch 大
 .form-switch.form-switch-lg {
   .form-check-input {

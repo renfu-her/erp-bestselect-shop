@@ -19,12 +19,12 @@
 
                 <div class="col-12 col-sm-4 mb-3">
                     <label class="form-label">收款單號</label>
-                    <input class="form-control" type="text" name="r_order_sn" value="{{ $cond['r_order_sn'] }}" placeholder="請輸入收款單號">
+                    <input class="form-control" type="text" name="ro_sn" value="{{ $cond['ro_sn'] }}" placeholder="請輸入收款單號">
                 </div>
 
                 <div class="col-12 col-sm-4 mb-3">
                     <label class="form-label">單據編號</label>
-                    <input class="form-control" type="text" name="order_sn" value="{{ $cond['order_sn'] }}" placeholder="請輸入單據編號">
+                    <input class="form-control" type="text" name="source_sn" value="{{ $cond['source_sn'] }}" placeholder="請輸入單據編號">
                 </div>
 
                 <div class="col-12 mb-3">
@@ -140,15 +140,7 @@
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <td>{{ $key + 1 }}</td>
-                            <td>
-                                @if($data->ro_source_type == 'ord_orders')
-                                <a href="{{ route('cms.collection_received.receipt', ['id' => $data->ro_source_id]) }}" class="-text">{{ $data->ro_sn }}</a>
-                                @elseif($data->ro_source_type == 'csn_orders')
-                                <a href="{{ route('cms.ar_csnorder.receipt', ['id' => $data->ro_source_id]) }}" class="-text">{{ $data->ro_sn }}</a>
-                                @elseif($data->ro_source_type == 'ord_received_orders')
-                                <a href="{{ route('cms.account_received.ro-receipt', ['id' => $data->ro_source_id]) }}" class="-text">{{ $data->ro_sn }}</a>
-                                @endif
-                            </td>
+                            <td><a href="{{ $data->ro_url_link }}" class="-text">{{ $data->ro_sn }}</a></td>
                             <td>{{ $data->ro_target_name }}</td>
                             <td class="p-0">
                                 @foreach($data->debit as $d_value)
@@ -165,11 +157,11 @@
                                     @if($d_value->received_info)
                                     <span class="border-bottom bg-warning d-block p-1">
                                         @if($d_value->received_info->received_method == 'credit_card')
-                                            {{ $d_value->method_name }}{{$d_value->received_info->credit_card_number ? ' - ' . $d_value->received_info->credit_card_number : ''}} - {{ $data->order_sn }}
+                                            {{ $d_value->method_name }}{{$d_value->received_info->credit_card_number ? ' - ' . $d_value->received_info->credit_card_number : ''}} - {{ $data->source_sn }}
                                         @elseif($d_value->received_info->received_method == 'remit')
-                                            {{ $d_value->method_name }} {{ $d_value->account_code . ' - ' . $d_value->account_name . '（' . $d_value->received_info->remit_memo . '）'}} - {{ $data->order_sn }}
+                                            {{ $d_value->method_name }} {{ $d_value->account_code . ' - ' . $d_value->account_name . '（' . $d_value->received_info->remit_memo . '）'}} - {{ $data->source_sn }}
                                         @else
-                                            {{ $d_value->method_name }}{{$d_value->note ? ' - ' . $d_value->note : ''}} - {{ $data->order_sn }}
+                                            {{ $d_value->method_name }}{{$d_value->note ? ' - ' . $d_value->note : ''}} - {{ $data->source_sn }}
                                         @endif
                                     </span>
                                     @endif
@@ -178,13 +170,13 @@
                                 @foreach($data->credit as $c_value)
                                 <span class="border-bottom d-block bg-white p-1">
                                     @if($c_value->d_type == 'logistics')
-                                        {{ $c_value->account_name }} - {{ $data->order_sn }}
+                                        {{ $c_value->account_name }} - {{ $data->source_sn }}
                                     @elseif($c_value->d_type == 'discount')
-                                        {{ $c_value->discount_title }} - {{ $data->order_sn }}
+                                        {{ $c_value->discount_title }} - {{ $data->source_sn }}
                                     @elseif($c_value->d_type == 'product')
-                                        {{ $c_value->product_title }}({{ $c_value->product_price }} * {{ $c_value->product_qty }}) - {{ $data->order_sn }}
+                                        {{ $c_value->product_title }}({{ $c_value->product_price }} * {{ $c_value->product_qty }}) - {{ $data->source_sn }}
                                     @else
-                                        {{ $c_value->method_name }}{{ $c_value->note ? ' - ' . $c_value->note : '' }} - {{ $data->order_sn }}
+                                        {{ $c_value->method_name }}{{ $c_value->note ? ' - ' . $c_value->note : '' }} - {{ $data->source_sn }}
                                     @endif
                                 </span>
                                 @endforeach

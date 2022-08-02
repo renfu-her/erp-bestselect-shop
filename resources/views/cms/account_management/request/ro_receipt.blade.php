@@ -99,20 +99,18 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($order_list_data as $value)
-                            <tr>
-                                <td>{{ $request_grade->code . ' ' . $request_grade->name . ' ' . $value->summary }}</td>
-                                <td>{{ $value->qty }}</td>
-                                <td>{{ number_format($value->price, 2) }}</td>
-                                <td>{{ number_format($value->total_price) }}</td>
-                                <td>{{ $value->taxation == 1 ? '應稅' : '免稅' }} {{ $value->memo }}</td>
-                            </tr>
-                        @endforeach
+                        <tr>
+                            <td>{{ $request_grade->code . ' ' . $request_grade->name . ' ' . $request_order->summary }}</td>
+                            <td>{{ $request_order->qty }}</td>
+                            <td>{{ number_format($request_order->price, 2) }}</td>
+                            <td>{{ number_format($request_order->total_price) }}</td>
+                            <td>{{ $request_order->taxation == 1 ? '應稅' : '免稅' }} {{ $request_order->memo }}</td>
+                        </tr>
 
                         <tr class="table-light">
                             <td>合計：</td>
                             <td></td>
-                            <td></td>
+                            <td>（{{ $zh_price }}）</td>
                             <td>{{ number_format($received_order->price) }}</td>
                             <td></td>
                         </tr>
@@ -157,7 +155,7 @@
                     <dd></dd>
                 </div>
                 <div class="col">
-                    <dt>商品負責人：</dt>
+                    <dt>商品負責人：{{-- $product_qc --}}</dt>
                     <dd></dd>
                 </div>
             </dl>

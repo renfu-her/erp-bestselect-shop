@@ -171,11 +171,11 @@ return
                 "controller_name" => "CollectionReceivedCtrl",
                 "route_name" => "cms.collection_received.index",
             ],
-            [
-                "title" => "代墊單作業",
-                "controller_name" => "StituteOrderCtrl",
-                "route_name" => "cms.stitute.index",
-            ],
+            // [
+            //     "title" => "代墊單作業",
+            //     "controller_name" => "StituteOrderCtrl",
+            //     "route_name" => "cms.stitute.index",
+            // ],
             [
                 "title" => "請款單作業",
                 "controller_name" => "RequestOrderCtrl",

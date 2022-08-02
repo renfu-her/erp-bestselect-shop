@@ -10,7 +10,9 @@
         </div>
         <!-- logo -->
         <div class="mainLogo d-flex align-items-center justify-content-center flex-grow-1 flex-sm-grow-0">
-            <img src="{{ Asset('images/Best-logo-white.png') }}" alt="喜鴻國際">
+            <a href="{{ route('cms.dashboard') }}" class="h-100">
+                <img src="{{ Asset('images/Best-logo-white.png') }}" alt="喜鴻國際">
+            </a>
         </div>
         <!-- 站名 brand -->
         <div class="navbar-brand d-none d-sm-block m-0 d-flex flex-grow-1" aria-label="購物系統"></div>

@@ -46,14 +46,7 @@
                 </div>
             </dl>
 
-            <dl class="row">
-                <div class="col">
-                    <dt>喜鴻國際企業股份有限公司</dt>
-                    <dd></dd>
-                </div>
-            </dl>
-
-            <dl class="row">
+            <dl class="row mb-0 border-top">
                 <div class="col">
                     <dt>客戶：{{ $request_order->client_name }}</dt>
                     <dd></dd>
@@ -72,7 +65,7 @@
                 </div>
             </dl>
 
-            <dl class="row mb-0 border-top">
+            <dl class="row">
                 <div class="col">
                     <dt>請款單號：{{ $request_order->sn }}</dt>
                     <dd></dd>

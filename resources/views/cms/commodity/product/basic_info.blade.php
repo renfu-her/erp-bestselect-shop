@@ -240,11 +240,13 @@
                     {{-- 舊增圖Box放這裡；sortabled_box 拿掉 hidden，不用input[type="file"] --}}
                     @foreach ($images as $key => $image)
                         <div class="sortabled_box" data-id="{{ $image->id }}">
-                            <!-- /* 預覽圖 */ -->
+                            <!-- /* 預覽圖 */ --
                             <span class="browser_box box">
                                 <span class="icon -move" hidden><i class="bi bi-arrows-move"></i></span>
                                 <span class="icon -x"><i class="bi bi-x"></i></span>
-                                @if(\Illuminate\Support\Facades\App::environment(\App\Enums\Globals\AppEnvClass::Release))
+                                @if(\Illuminate\Support\Facades\App::environment(\App\Enums\Globals\AppEnvClass::Release) ||
+                                    \Illuminate\Support\Facades\App::environment(\App\Enums\Globals\AppEnvClass::Development)
+                                    )
                                     <img src="{{ \App\Enums\Globals\ImageDomain::CDN . $image->url }}" />
                                 @else
                                     <img src="{{ asset($image->url) }}" />

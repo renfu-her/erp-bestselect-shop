@@ -645,7 +645,8 @@ class Product extends Model
 
         if ($re->imgs) {
             $output['info']['image'] = array_map(function ($n) {
-                if (App::environment(AppEnvClass::Release)) {
+                if (App::environment(AppEnvClass::Release) ||
+                    App::environment(AppEnvClass::Development)) {
                     $n->url = ImageDomain::CDN . $n->url;
                 } else {
                     $n->url = asset($n->url);
@@ -1179,7 +1180,8 @@ class Product extends Model
         $productData = [];
         foreach ($productQueries as $productQuery) {
             if (!is_null($productQuery['img_url'])) {
-                if (App::environment(AppEnvClass::Release)) {
+                if (App::environment(AppEnvClass::Release) ||
+                    App::environment(AppEnvClass::Development)) {
                     $imageUrl = ImageDomain::CDN . $productQuery['img_url'];
                 } else {
                     $imageUrl = asset($productQuery['img_url']);

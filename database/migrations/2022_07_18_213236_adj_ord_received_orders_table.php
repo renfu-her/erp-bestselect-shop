@@ -17,8 +17,8 @@ class AdjOrdReceivedOrdersTable extends Migration
             $table->after('memo', function ($tb) {
                 $tb->integer('drawee_id')->nullable()->comment('對象id');
                 $tb->string('drawee_name')->nullable()->comment('對象名稱');
-                $tb->string('drawee_phone')->nullable()->comment('對象名稱');
-                $tb->string('drawee_address')->nullable()->comment('對象名稱');
+                $tb->string('drawee_phone')->nullable()->comment('對象電話');
+                $tb->string('drawee_address')->nullable()->comment('對象地址');
             });
         });
 

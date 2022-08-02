@@ -771,25 +771,38 @@ class Order extends Model
 
     }
     // 是否可取消訂單
-    public static function checkCanCancel($order_id)
+    public static function checkCanCancel($order_id, $type)
     {
         $order = self::where('id', $order_id)->select('status_code', 'payment_status')->get()->first();
 
-        $order_status = [OrderStatus::Add()];
-        $payment_status = [PaymentStatus::Unpaid()];
+        if ($type == 'frontend') {
+            $order_status = [OrderStatus::Add()];
+            $payment_status = [PaymentStatus::Unpaid()];
 
-        //   dd(in_array($order->status_code, $order_status) ,in_array($order->payment_status, $payment_status));
-        if (in_array($order->status_code, $order_status) && in_array($order->payment_status, $payment_status)) {
-            return true;
-        } else {
-            return false;
+            //   dd(in_array($order->status_code, $order_status) ,in_array($order->payment_status, $payment_status));
+            if (in_array($order->status_code, $order_status) && in_array($order->payment_status, $payment_status)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        if ($type == 'backend') {
+
+            $order_status = [OrderStatus::Closed(),OrderStatus::Canceled()];
+
+            if (!in_array($order->status_code, $order_status)) {
+                return true;
+            } else {
+                return false;
+            }
         }
 
     }
     // 取消訂單
-    public static function cancelOrder($order_id)
+    public static function cancelOrder($order_id, $type)
     {
-        if (!self::checkCanCancel($order_id)) {
+        if (!self::checkCanCancel($order_id, $type)) {
             return;
         }
 
@@ -1008,7 +1021,7 @@ class Order extends Model
             Delivery::createData(
                 Event::order()->value
                 , $soid
-                , $ssn 
+                , $ssn
                 , $sorder->ship_temp_id ?? null
                 , $sorder->ship_temp ?? null
                 , $sorder->ship_category ?? null
