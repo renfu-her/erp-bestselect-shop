@@ -94,6 +94,7 @@ class CustomPages extends Model
         }
 
         $dataList = $query->addSelect([
+                                    'csp_custom_pages.id',
                                     'page_name',
                                     'url',
                                     'title',
@@ -174,5 +175,16 @@ class CustomPages extends Model
             'csp_html_type_fk' => $html_id,
             //                'link' => $link,
         ]);
+    }
+
+    /**
+     * @param string $pathName csp_custom_pages' column url
+     * @param  string  $id table csp_custom_pages的 primary ID
+     * 回傳自訂頁面的URL完整路徑
+     * @return string
+     */
+    public static function getFullUrlPath(string $pathName, string $id)
+    {
+        return frontendUrl() . 'event/' . $id . '/' . $pathName;
     }
 }
