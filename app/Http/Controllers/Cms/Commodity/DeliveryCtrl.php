@@ -668,6 +668,7 @@ class DeliveryCtrl extends Controller
                 , 'rcv_depot.combo_id'
             )
             ->where('rcv_depot.back_qty', '>', 0)
+            ->where('dlv_tb.id', '=', $delivery_id)
             ->get();
         if (isset($rcv_depot) && 0 < count($rcv_depot)) {
             $msg = DB::transaction(function () use ($delivery, $rcv_depot, $request) {
