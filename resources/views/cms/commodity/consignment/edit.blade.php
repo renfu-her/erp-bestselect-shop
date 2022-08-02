@@ -127,9 +127,9 @@
                                 @endif
                                 <th scope="col">商品名稱</th>
                                 <th scope="col">SKU</th>
-                                <th scope="col">寄倉數量</th>
-                                <th scope="col">寄倉價錢</th>
-                                <th scope="col" class="text-end">小計</th>
+                                <th scope="col" style="width: 10%">寄倉數量</th>
+                                <th scope="col" style="width: 12%" class="text-end">寄倉價錢</th>
+                                <th scope="col" style="width: 12%" class="text-end">小計</th>
                                 <th scope="col">採購入庫單號</th>
                                 <th scope="col">狀態</th>
                                 <th scope="col">入庫人員</th>
@@ -155,7 +155,7 @@
                                 <td>
                                     <input type="number" class="form-control form-control-sm" name="num[]" min="1" value="" required/>
                                 </td>
-                                <td data-td="price"></td>
+                                <td data-td="price" class="text-end"></td>
                                 <td data-td="total" class="text-end"></td>
                                 <td></td>
                                 <td></td>
@@ -191,7 +191,7 @@
                                             <input type="hidden" name="num[]" value="{{ $psItemVal->num }}">
                                         @endif
                                     </td>
-                                    <td data-td="price">$ {{ old('price.'. $psItemKey, $psItemVal->price ?? '') }}</td>
+                                    <td data-td="price" class="text-end">$ {{ old('price.'. $psItemKey, $psItemVal->price ?? '') }}</td>
                                     <td data-td="total" class="text-end">$ 0</td>
                                     <td data-td="inbound_type">{{$psItemVal->origin_inbound_sn ?? ''}}</td>
                                     <td data-td="inbound_type">{{$psItemVal->inbound_type ?? ''}}</td>
@@ -206,7 +206,7 @@
                             <th class="lh-1"></th>
                             @if ($editable) <th class="lh-1"></th> @endif
                             <th class="lh-1"></th>
-                            <th class="lh-1">價錢小計</th>
+                            <th class="lh-1 text-end">價錢小計</th>
                             <th class="lh-1 text-end -sum">$ 0</th>
                             <th class="lh-1"></th>
                             <th class="lh-1"></th>
