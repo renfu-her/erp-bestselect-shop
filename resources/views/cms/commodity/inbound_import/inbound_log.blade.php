@@ -1,9 +1,27 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-3">{{$title}} {{ $productStyle->sku }}</h2>
+
+    <ul class="nav pm_navbar">
+        <li class="nav-item">
+            <a class="nav-link" href="{{ Route('cms.inbound_import.index', [], true) }}">上傳檔案</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ Route('cms.inbound_import.import_log', [], true) }}">匯入紀錄</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ Route('cms.inbound_import.inbound_list', [], true) }}">入庫單列表</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{{ Route('cms.inbound_import.inbound_log', [], true) }}">入庫單調整紀錄</a>
+        </li>
+    </ul>
+    <hr class="narbarBottomLine mb-3">
 
     <div class="card shadow p-4 mb-4">
         <div class="row justify-content-end mb-4">
+            <div class="col">
+                <h6>明細</h6>
+            </div>
             <div class="col-auto">
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
@@ -14,11 +32,11 @@
                 筆
             </div>
         </div>
-        <h6>明細</h6>
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList mb-1">
                 <thead>
                 <tr>
+                    <th scope="col">#</th>
                     <th scope="col">時間</th>
                     <th scope="col">倉庫</th>
                     <th scope="col">商品名稱</th>
@@ -31,6 +49,7 @@
                 <tbody>
                  @foreach ($purchaseLog as $key =>$data)
                      <tr>
+                         <th scope="row">{{ $key + 1 }}</th>
                          <td>{{$data->created_at}}</td>
                          <td>{{$data->depot_name}}</td>
                          <td>{{$data->title}}</td>
@@ -46,10 +65,6 @@
     </div>
 
     <div class="row flex-column-reverse flex-sm-row">
-        <div class="col-auto">
-            <a href="{{ $returnAction }}" class="btn btn-outline-primary px-4"
-                role="button">返回列表</a>
-        </div>
         <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">
              @if($purchaseLog)
             <div class="mx-3">共 {{ $purchaseLog->lastPage() }} 頁(共找到 {{ $purchaseLog->total() }} 筆資料)</div>

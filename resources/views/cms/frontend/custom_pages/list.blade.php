@@ -31,19 +31,23 @@
                 @foreach ($dataList as $key => $data)
                     <tr>
                         <th scope="row">{{ $key + 1 }}</th>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                        <td>{{ $data->page_name }}</td>
+                        <td>
+                            {{ \App\Enums\FrontEnd\CustomPageType::getDescription($data->type) }}
+                        </td>
+                        <td>
+                            {{ date('Y-m-d', strtotime($data->updated_at)) ?? '' }}
+                        </td>
+                        <td>{{ $data->user_name ?? '' }}</td>
                         <td class="text-center">
                             <button type="button" data-bs-toggle="tooltip" title="複製"
-                                data-url="https://dev-shopp.bestselection.com.tw/activity/1/夏日出遊-戶外攻略"
+                                data-url="{{ frontendUrl() . 'event/' . $data->url }}"
                                 class="icon -copy icon-btn fs-5 text-primary rounded-circle border-0">
                                 <i class="bi bi-clipboard2-check"></i>
                             </button>
                         </td>
                         <td class="text-center">
-                            <a href="{{ Route('cms.custom-pages.edit', ['id', ''], true) }}"
+                            <a href="{{ Route('cms.custom-pages.edit', ['id' => $data->id], true) }}"
                                data-bs-toggle="tooltip" title="編輯"
                                class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                 <i class="bi bi-pencil-square"></i>
@@ -51,7 +55,7 @@
                         </td>
                         <td class="text-center">
                             <a href="javascript:void(0)"
-                               data-href="{{ Route('cms.custom-pages.delete', ['id', ''], true) }}"
+                               data-href="{{ Route('cms.custom-pages.delete', ['id' => $data->id], true) }}"
                                data-bs-toggle="modal" data-bs-target="#confirm-delete"
                                class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
                                 <i class="bi bi-trash"></i>

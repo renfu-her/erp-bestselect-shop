@@ -21,12 +21,12 @@ class ConsignmentItem extends Model
     public static function createData(array $newData, $operator_user_id, $operator_user_name)
     {
         if (isset($newData['consignment_id'])
-            && $newData['product_style_id']
-            && $newData['title']
-            && $newData['prd_type']
-            && $newData['num']
-            && $newData['price']
-            && $newData['sku']
+            && isset($newData['product_style_id'])
+            && isset($newData['title'])
+            && isset($newData['prd_type'])
+            && isset($newData['num'])
+            && isset($newData['price'])
+            && isset($newData['sku'])
         ) {
             return DB::transaction(function () use ($newData, $operator_user_id, $operator_user_name
             ) {

@@ -24,6 +24,7 @@ class PurchaseSeeder extends Seeder
         $supplier2 = Supplier::where('id', '=', 2)->get()->first();
 
         $purchase1 = Purchase::createPurchase(
+            null,
             $supplier2->id,
             $supplier2->name,
             $supplier2->nickname,
@@ -37,6 +38,7 @@ class PurchaseSeeder extends Seeder
             $purchaseID1 = $purchase1['id'];
         }
         $purchase2 = Purchase::createPurchase(
+            null,
             $supplier->id,
             $supplier->name,
             $supplier->nickname,
@@ -51,6 +53,7 @@ class PurchaseSeeder extends Seeder
         }
 
         $purchase3 = Purchase::createPurchase(
+            null,
             $supplier2->id,
             $supplier2->name,
             $supplier2->nickname,
@@ -220,6 +223,9 @@ class PurchaseSeeder extends Seeder
             $purchaseID1,
             $purchaseItemID1,
             $product_style1->id,
+            'title'. $product_style1->title,
+            $product_style1->sku,
+            0,
             '2022-12-14 00:00:00',
             null,
             5,
@@ -240,6 +246,9 @@ class PurchaseSeeder extends Seeder
             $purchaseID1,
             $purchaseItemID1,
             $product_style1->id,
+            'title'. $product_style1->title,
+            $product_style1->sku,
+            0,
             '2022-12-14 00:00:00',
             '2022-01-05 00:00:00',
             99,
@@ -259,6 +268,9 @@ class PurchaseSeeder extends Seeder
             $purchaseID1,
             $purchaseItemID1,
             $product_style1->id,
+            'title'. $product_style1->title,
+            $product_style1->sku,
+            0,
             '2022-12-14 00:00:00',
             '2022-01-06 00:00:00',
             1,
@@ -274,6 +286,9 @@ class PurchaseSeeder extends Seeder
             $purchaseID1,
             $purchaseItemID2,
             $product_style2->id,
+            'title'. $product_style2->title,
+            $product_style2->sku,
+            0,
             '2022-11-14 00:00:00',
             '2022-02-03 00:00:00',
             25,
@@ -288,6 +303,9 @@ class PurchaseSeeder extends Seeder
             $purchaseID1,
             $purchaseItemID3,
             $product_style3->id,
+            'title'. $product_style3->title,
+            $product_style3->sku,
+            0,
             '2022-11-14 00:00:00',
             '2022-02-03 00:00:00',
             26,
@@ -302,6 +320,9 @@ class PurchaseSeeder extends Seeder
             $purchaseID3,
             $purchaseItemID4,
             $product_style2->id,
+            'title'. $product_style2->title,
+            $product_style2->sku,
+            0,
             '2022-11-14 00:00:00',
             '2022-02-03 00:00:00',
             35,
@@ -316,6 +337,9 @@ class PurchaseSeeder extends Seeder
             $purchaseID3,
             $purchaseItemID5,
             $product_style5->id,
+            'title'. $product_style5->title,
+            $product_style5->sku,
+            0,
             '2022-09-15 00:00:00',
             '2022-03-14 00:00:00',
             45,

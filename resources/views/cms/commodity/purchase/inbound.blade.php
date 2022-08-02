@@ -84,7 +84,7 @@
                             <th scope="col">應進數量</th>
                             <th scope="col">實進數量</th>
                             <th scope="col">有效期限
-                                <button type="button" data-bs-toggle="tooltip" title="一鍵複製(同第一行資料)" 
+                                <button type="button" data-bs-toggle="tooltip" title="一鍵複製(同第一行資料)"
                                     class="icon icon-btn fs-5 rounded-circle border-0 text-success -copy">
                                     <i class="bi bi-arrow-down-square-fill"></i>
                                 </button>
@@ -157,7 +157,6 @@
                     <th scope="col">入庫單號</th>
                     <th scope="col">入庫日期</th>
                     <th scope="col">商品名稱</th>
-                    <th scope="col">款式名稱</th>
                     <th scope="col">SKU</th>
                     <th scope="col">實進數量</th>
                     <th scope="col">有效期限</th>
@@ -183,7 +182,6 @@
                         <td>{{ $inbound->inbound_sn }}</td>
                         <td>{{ $inbound->inbound_date }}</td>
                         <td>{{ $inbound->product_title }}</td>
-                        <td>{{ $inbound->style_title }}</td>
                         <td>{{ $inbound->style_sku }}</td>
                         <td>{{ $inbound->inbound_num }}</td>
                         <td>{{ $inbound->expiry_date }}</td>

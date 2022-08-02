@@ -49,7 +49,7 @@ class ConsignmentStockCtrl extends Controller
             Event::consignment()->value
             , Event::csn_order()->value
         ];
-        $logPurchase = PurchaseLog::getStockData($logEvent, $depot_id, $id);
+        $logPurchase = PurchaseLog::getStockData($logEvent, $depot_id, $id, null);
         $logPurchase = $logPurchase->paginate($data_per_page)->appends($query);
         $title = $product->title. '-'. $productStyle->title;
 
