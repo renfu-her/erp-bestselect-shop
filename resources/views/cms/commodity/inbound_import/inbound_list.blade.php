@@ -69,6 +69,7 @@
                         <th scope="col">商品款式名稱</th>
                         <th scope="col">入庫單</th>
                         <th scope="col">庫存剩餘數量</th>
+                        <th scope="col">單價</th>
                         <th scope="col">效期</th>
                         <th scope="col">倉庫</th>
                     </tr>
@@ -86,9 +87,10 @@
                             </td>
                             <td>{{ $data->event_sn }}</td>
                             <td>{{ $data->style_sku }}</td>
-                            <td>{{ $data->product_title }}-{{ $data->style_title }}</td>
+                            <td>{{ $data->product_title }}</td>
                             <td>{{ $data->inbound_sn }}</td>
                             <td class="text-end">{{ number_format($data->qty) }}</td>
+                            <td class="text-end">{{ ($data->unit_cost) }}</td>
                             <td>{{ $data->expiry_date ? date('Y/m/d', strtotime($data->expiry_date)) : '' }}</td>
                             <td>{{ $data->depot_name }}</td>
                         </tr>

@@ -515,6 +515,7 @@ class PurchaseCtrl extends Controller
                         $inboundItemReq['event_item_id'][$key],
                         $inboundItemReq['product_style_id'][$key],
                         $val['item']['title'] . '-'. $val['item']['spec'],
+                        $val['sku'],
                         $val['unit_cost'],
                         $inboundItemReq['expiry_date'][$key],
                         $inboundItemReq['inbound_date'][$key],

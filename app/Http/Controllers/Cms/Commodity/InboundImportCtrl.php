@@ -184,6 +184,7 @@ class InboundImportCtrl extends Controller
                             $val_style['pcs_item_id'],
                             $val_style['product_style_id'],
                             $val_style['product_title'],
+                            $val_style['sku'],
                             $val_style['unit_cost'],
                             $val_style['expiry_date'],
                             $val_style['inbound_date'],
@@ -272,10 +273,10 @@ class InboundImportCtrl extends Controller
         $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 100));
 
         $param = ['event' => null, 'purchase_sn' => $cond['purchase_sn'], 'inbound_sn' => $cond['inbound_sn'], 'title' => $cond['title']];
-        $inboundList_purchase = PurchaseInbound::getInboundListWithEventSn([Event::purchase()->value], $param);
-        $inboundList_order = PurchaseInbound::getInboundListWithEventSn([Event::order()->value, Event::ord_pickup()->value], $param);
-        $inboundList_consignment = PurchaseInbound::getInboundListWithEventSn([Event::consignment()->value], $param);
-        $inboundList_csn_order = PurchaseInbound::getInboundListWithEventSn([Event::csn_order()->value], $param);
+        $inboundList_purchase = PurchaseInbound::getInboundListWithEventSn(app(Purchase::class)->getTable(), [Event::purchase()->value], $param);
+        $inboundList_order = PurchaseInbound::getInboundListWithEventSn(app(SubOrders::class)->getTable(), [Event::order()->value, Event::ord_pickup()->value], $param);
+        $inboundList_consignment = PurchaseInbound::getInboundListWithEventSn(app(Consignment::class)->getTable(), [Event::consignment()->value], $param);
+        $inboundList_csn_order = PurchaseInbound::getInboundListWithEventSn(app(CsnOrder::class)->getTable(), [Event::csn_order()->value], $param);
         $inboundList_purchase->union($inboundList_order);
         $inboundList_purchase->union($inboundList_consignment);
         $inboundList_purchase->union($inboundList_csn_order);

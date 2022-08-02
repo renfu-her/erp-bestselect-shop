@@ -19,13 +19,13 @@ class PurchaseInbound extends Model
     protected $table = 'pcs_purchase_inbound';
     protected $guarded = [];
 
-    public static function createInbound($event, $event_id, $event_item_id, $product_style_id, $title, $unit_cost = 0, $expiry_date = null, $inbound_date = null
+    public static function createInbound($event, $event_id, $event_item_id, $product_style_id, $title, $sku, $unit_cost = 0, $expiry_date = null, $inbound_date = null
         , $inbound_num = 0, $depot_id = null, $depot_name = null, $inbound_user_id = null, $inbound_user_name = null, $memo = null, $prd_type = null, $parent_inbound_id = null, $origin_inbound_id = null)
     {
         $can_tally = Depot::can_tally($depot_id);
 
         return DB::transaction(function () use (
-            $event, $event_id, $event_item_id, $product_style_id, $title, $unit_cost, $expiry_date, $inbound_date,
+            $event, $event_id, $event_item_id, $product_style_id, $title, $sku, $unit_cost, $expiry_date, $inbound_date,
             $inbound_num, $depot_id, $depot_name, $inbound_user_id, $inbound_user_name, $memo, $can_tally, $prd_type, $parent_inbound_id, $origin_inbound_id
         ) {
             $sn = "IB" . date("ymd") . str_pad((self::whereDate('created_at', '=', date('Y-m-d'))
@@ -41,6 +41,7 @@ class PurchaseInbound extends Model
                 "event_item_id" => $event_item_id,
                 "product_style_id" => $product_style_id,
                 "title" => $title,
+                "sku" => $sku,
                 "unit_cost" => $unit_cost,
                 "expiry_date" => $expiry_date,
                 "inbound_date" => $inbound_date,
@@ -144,6 +145,7 @@ class PurchaseInbound extends Model
             ->select('style.id'
                 , 'product.title'
                 , 'style.title as spec'
+                , 'style.sku as sku'
             )
             ->get()->toArray();
         $styles = json_decode(json_encode($styles), true);
@@ -194,6 +196,7 @@ class PurchaseInbound extends Model
             foreach ($styles as $styleItem) {
                 if ($style_arr[$key]['id'] == $styleItem['id']) {
                     $style_arr[$key]['item'] = $styleItem;
+                    $style_arr[$key]['sku'] = $styleItem['sku'];
                     foreach ($pcs_items as $pcsItem) {
                         if ($style_arr[$key]['event_item_id'] == $pcsItem['item_id']) {
                             $style_arr[$key]['unit_cost'] = $pcsItem['unit_cost'];
@@ -436,29 +439,25 @@ class PurchaseInbound extends Model
         return $result;
     }
 
-    public static function getInboundListWithEventSn($event, $param, $showDelete = true)
+    public static function getInboundListWithEventSn($event_table, $event, $param, $showDelete = true)
     {
         $result = DB::table('pcs_purchase_inbound as inbound')
-            ->leftJoin('pcs_purchase as event', function ($join) use($event) {
+            ->leftJoin($event_table. ' as event', function ($join) use($event) {
                 $join->on('event.id', '=', 'inbound.event_id')
                     ->whereIn('inbound.event', $event);
             })
-            ->leftJoin('prd_product_styles as style', 'style.id', '=', 'inbound.product_style_id')
-            ->leftJoin('prd_products as product', 'product.id', '=', 'style.product_id')
             ->select('inbound.event_id as event_id' //採購ID
                 , 'event.sn as event_sn'
                 , 'inbound.event as event'
                 , 'inbound.event_item_id as event_item_id'
-                , 'product.title as product_title' //商品名稱
-                , 'product.user_id as user_id' //負責人
-                , 'style.title as style_title' //款式名稱
-                , 'style.id as product_style_id' //款式id
-                , 'style.sku as style_sku' //款式SKU
+                , 'inbound.title as product_title' //商品名稱
+                , 'inbound.sku as style_sku' //款式SKU
                 , 'inbound.id as inbound_id' //入庫ID
                 , 'inbound.sn as inbound_sn' //入庫sn
                 , 'inbound.inbound_num as inbound_num' //入庫實進數量
                 , 'inbound.depot_id as depot_id'  //入庫倉庫ID
                 , 'inbound.depot_name as depot_name'  //入庫倉庫名稱
+                , 'inbound.unit_cost as unit_cost'  //單價
                 , 'inbound.inbound_user_id as inbound_user_id'  //入庫人員ID
                 , 'inbound.inbound_user_name as inbound_user_name' //入庫人員名稱
                 , 'inbound.close_date as inbound_close_date'

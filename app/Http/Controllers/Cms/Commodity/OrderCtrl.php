@@ -396,7 +396,7 @@ class OrderCtrl extends Controller
         } else {
             $dividend = 0;
         }
-      
+
         return view('cms.commodity.order.detail', [
             'sn' => $sn,
             'order' => $order,
@@ -571,6 +571,7 @@ class OrderCtrl extends Controller
                         $inboundItemReq['event_item_id'][$key], //存入 dlv_receive_depot.id
                         $inboundItemReq['product_style_id'][$key],
                         $val['item']['title'] . '-' . $val['item']['spec'],
+                        $val['sku'],
                         $val['unit_cost'],
                         $inboundItemReq['expiry_date'][$key],
                         $inboundItemReq['inbound_date'][$key],

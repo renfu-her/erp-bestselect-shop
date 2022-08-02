@@ -58,7 +58,10 @@ class PurchaseImportLog extends Model
             $style = DB::table(app(ProductStyle::class)->getTable(). ' as style')
                 ->leftJoin(app(Product::class)->getTable(). ' as product', 'product.id', '=', 'style.product_id')
                 ->where('style.sku', '=', $val_style['sku'])
-                ->select('style.id as product_style_id', DB::raw('Concat(product.title, "-", style.title) AS product_title'))
+                ->select(
+                    'style.id as product_style_id'
+                    , 'style.sku as sku'
+                    , DB::raw('Concat(product.title, "-", style.title) AS product_title'))
                 ->first();
             if (false == isset($style)) {
                 $errMsg = '無效商品:'. $val_style['sku']. ' '. '請先於商品管理新增';
