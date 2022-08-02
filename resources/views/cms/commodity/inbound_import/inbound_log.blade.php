@@ -38,12 +38,16 @@
                 <tr>
                     <th scope="col">#</th>
                     <th scope="col">時間</th>
-                    <th scope="col">倉庫</th>
+                    <th scope="col">採購單號</th>
+                    <th scope="col">SKU</th>
                     <th scope="col">商品名稱</th>
+                    <th scope="col">入庫單</th>
+                    <th scope="col">調整數量</th>
+                    <th scope="col">調整人員</th>
+                    <th scope="col">調整原因</th>
                     <th scope="col">事件</th>
-                    <th scope="col">動作</th>
-                    <th scope="col">數量</th>
-                    <th scope="col">操作者</th>
+                    <th scope="col">行為</th>
+                    <th scope="col">倉庫</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -51,12 +55,16 @@
                      <tr>
                          <th scope="row">{{ $key + 1 }}</th>
                          <td>{{$data->created_at}}</td>
-                         <td>{{$data->depot_name}}</td>
+                         <td>{{$data->event_sn}}</td>
+                         <td>{{$data->sku}}</td>
                          <td>{{$data->title}}</td>
-                         <td>{{$data->event}}</td>
-                         <td>{{$data->feature}}</td>
+                         <td>{{$data->inbound_sn}}</td>
                          <td>{{$data->qty}}</td>
                          <td>{{$data->user_name}}</td>
+                         <td>{{$data->note}}</td>
+                         <td>{{$data->event}}</td>
+                         <td>{{$data->feature}}</td>
+                         <td>{{$data->depot_name}}</td>
                      </tr>
                  @endforeach
                 </tbody>

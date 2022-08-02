@@ -356,8 +356,15 @@ class InboundImportCtrl extends Controller
             , Event::consignment()->value
             , Event::csn_order()->value
         ];
-        $logPurchase = PurchaseLog::getStockData($logEvent, null, null, [LogEventFeature::inbound_update()->value])
-            ->orderByDesc('id');
+        $logPurchase_purchase = PurchaseLog::getStockDataWithEventSn(app(Purchase::class)->getTable(), [Event::purchase()->value], null, null, [LogEventFeature::inbound_update()->value]);
+        $logPurchase_order = PurchaseLog::getStockDataWithEventSn(app(SubOrders::class)->getTable(), [Event::order()->value, Event::ord_pickup()->value], null, null, [LogEventFeature::inbound_update()->value]);
+        $logPurchase_consignment = PurchaseLog::getStockDataWithEventSn(app(Consignment::class)->getTable(), [Event::consignment()->value], null, null, [LogEventFeature::inbound_update()->value]);
+        $logPurchase_csn_order = PurchaseLog::getStockDataWithEventSn(app(CsnOrder::class)->getTable(), [Event::csn_order()->value], null, null, [LogEventFeature::inbound_update()->value]);
+
+        $logPurchase_purchase->union($logPurchase_order);
+        $logPurchase_purchase->union($logPurchase_consignment);
+        $logPurchase_purchase->union($logPurchase_csn_order);
+        $logPurchase = $logPurchase_purchase->orderByDesc('id');
         $logPurchase = $logPurchase->paginate($data_per_page)->appends($query);
 
         return view('cms.commodity.inbound_import.inbound_log', [
