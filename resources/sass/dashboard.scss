@@ -177,7 +177,7 @@ header .navbar-member .dropdown-item {
   position: relative;
 }
 
-#sidebarMenu.sidebar .btn-toggle::after {
+#sidebarMenu.sidebar .btn-toggle:not(.-not-toggle):after {
   width: 1.1em;
   line-height: 0;
   content: url("data:image/svg+xml,<svg viewBox='0 0 16 16' fill='currentColor' xmlns='http://www.w3.org/2000/svg'><path fill='none' stroke='rgba(0,0,0,.5)' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 14l6-6-6-6' /></svg>");

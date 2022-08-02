@@ -7,7 +7,7 @@ use Diglactic\Breadcrumbs\Generator as BreadcrumbTrail;
 
 // Home
 Breadcrumbs::for('cms.dashboard', function (BreadcrumbTrail $trail) {
-    $trail->push('首頁', route('cms.dashboard'));
+    $trail->push('總覽', route('cms.dashboard'));
 });
 
 /**
@@ -225,6 +225,11 @@ Breadcrumbs::for('cms.order.split-order', function (BreadcrumbTrail $trail, $val
     $trail->parent('cms.order.index');
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
     $trail->push('分割訂單');
+});
+Breadcrumbs::for('cms.order.edit-item', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
+    $trail->push('編輯訂單');
 });
 
 // 訂單自取入庫審核
