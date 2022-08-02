@@ -155,7 +155,6 @@
                     <th scope="col">入庫單號</th>
                     <th scope="col">入庫日期</th>
                     <th scope="col">商品名稱</th>
-                    <th scope="col">款式名稱</th>
                     <th scope="col">SKU</th>
                     <th scope="col">實進數量</th>
                     <th scope="col">有效期限</th>
@@ -181,7 +180,6 @@
                         <td>{{ $inbound->inbound_sn }}</td>
                         <td>{{ $inbound->inbound_date }}</td>
                         <td>{{ $inbound->product_title }}</td>
-                        <td>{{ $inbound->style_title }}</td>
                         <td>{{ $inbound->style_sku }}</td>
                         <td>{{ $inbound->inbound_num }}</td>
                         <td>{{ $inbound->expiry_date }}</td>

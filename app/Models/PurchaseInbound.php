@@ -384,15 +384,11 @@ class PurchaseInbound extends Model
     public static function getInboundList($param, $showDelete = true)
     {
         $result = DB::table('pcs_purchase_inbound as inbound')
-            ->leftJoin('prd_product_styles as style', 'style.id', '=', 'inbound.product_style_id')
-            ->leftJoin('prd_products as product', 'product.id', '=', 'style.product_id')
             ->select('inbound.event_id as event_id' //採購ID
                 , 'inbound.event_item_id as event_item_id'
-                , 'product.title as product_title' //商品名稱
-                , 'product.user_id as user_id' //負責人
-                , 'style.title as style_title' //款式名稱
-                , 'style.id as product_style_id' //款式id
-                , 'style.sku as style_sku' //款式SKU
+                , 'inbound.title as product_title' //商品名稱
+                , 'inbound.product_style_id as product_style_id' //款式id
+                , 'inbound.sku as style_sku' //款式SKU
                 , 'inbound.id as inbound_id' //入庫ID
                 , 'inbound.sn as inbound_sn' //入庫sn
                 , 'inbound.inbound_num as inbound_num' //入庫實進數量
