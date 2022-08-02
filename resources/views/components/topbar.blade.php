@@ -46,6 +46,11 @@
                             <i class="bi bi-link-45deg me-1"></i>會員綁定
                         </a>
                     </li>
+                    <li>
+                        <a class="dropdown-item" href="{{ $url }}" target="_blank">
+                            <i class="bi bi-bag-fill me-1"></i>喜鴻購物<i class="bi bi-box-arrow-up-right ms-1 text-black-50" style="font-size: 8px"></i>
+                        </a>
+                    </li>
 
                     <li>
                         <hr class="dropdown-divider">
