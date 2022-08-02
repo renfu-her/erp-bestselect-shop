@@ -1452,11 +1452,23 @@ class OrderCtrl extends Controller
         return redirect()->back();
     }
 
-    public function editItem(Request $request,$id){
-        dd('aaaa');
+    public function editItem(Request $request, $id){
+        
+        Order::checkCanSplit($id);
+        list($order, $subOrder) = $this->getOrderAndSubOrders($id);
+
+        if (!$order) {
+            return abort(404);
+        }
+
+        return view('cms.commodity.order.edit_old_order', [
+            'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
+            'subOrders' => $subOrder,
+            'order' => $order,
+        ]);
     }
 
-    public function updateItem(Request $request,$id){
+    public function updateItem(Request $request, $id){
         
     }
 }
