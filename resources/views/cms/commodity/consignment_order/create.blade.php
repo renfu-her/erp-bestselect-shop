@@ -20,6 +20,8 @@
     @endphp
 
     @if ($method === 'edit')
+    <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
+        <div class="p-1 pe-2">
         @if (!$receivable)
             <a href="{{ Route('cms.ar_csnorder.create', ['id' => $id]) }}" class="btn btn-primary" role="button">新增收款單</a>
         @endif
@@ -30,6 +32,8 @@
                 <button type="button" class="btn btn-danger" disabled>刪除收款單</button>
             @endif
         @endif
+        </div>
+    </nav>
     @endif
     <form id="form1" method="post" action="{{ $formAction }}">
         @method('POST')
@@ -86,17 +90,16 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            @if ($method === 'create')
-            <div class="row">
-                <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label mt-3">備註</label>
-                    <textarea id="order_memo" name="order_memo" class="form-control" rows="3"
+
+                @if ($method === 'create')
+                <div class="col-12 mb-3">
+                    <label class="form-label">備註</label>
+                    <textarea id="order_memo" name="order_memo" class="form-control"
                               @if(null == $consignmentData || (isset($consignmentData) && true == $editable)) @else disabled @endif
                     >{{ old('order_memo', $consignmentData->memo  ?? '') }}</textarea>
                 </div>
+                @endif
             </div>
-            @endif
         </div>
 
         @if ($method === 'edit')
@@ -112,20 +115,20 @@
                         <dd>{{ $consignmentData->payment_status_title ?? '' }}</dd>
                     </div>
                     <div class="col">
-                        <dt>物態</dt>
-                        <dd>{{ $delivery->flow_status ?? '' }}</dd>
-                    </div>
-                    <div class="col-sm-5">
-                        <dt>物態日期</dt>
-                        <dd>{{ $delivery->flow_created_at ?? '' }}</dd>
+                        <dt>訂購人</dt>
+                        <dd>{{$consignmentData->create_user_name ?? ''}}</dd>
                     </div>
                 </dl>
                 <dl class="row">
                     <div class="col">
-                        <dt>訂購人</dt>
-                        <dd>{{$consignmentData->create_user_name ?? ''}}</dd>
+                        <dt>物態</dt>
+                        <dd>{{ $delivery->flow_status ?? '' }}</dd>
                     </div>
-                    <div class="col-sm-5">
+                    <div class="col">
+                        <dt>物態日期</dt>
+                        <dd>{{ $delivery->flow_created_at ? date('Y/m/d', strtotime($delivery->flow_created_at)) : '' }}</dd>
+                    </div>
+                    <div class="col">
                         <dt>收貨人名稱</dt>
                         <dd>{{$consignmentData->depot_name ?? ''}}</dd>
                     </div>
@@ -140,7 +143,7 @@
                             <span>尚未完成收款</span>
                         @endif
                     </div>
-                    <div class="col-sm-5">
+                    <div class="col">
                         <dt>發票類型</dt>
                         <dd>(待處理)</dd>
                     </div>
@@ -164,14 +167,12 @@
                 <table class="table @if ($editable) table-hover @else table-striped @endif tableList mb-0">
                     <thead>
                     <tr>
-                        @if ($editable)
-                            <th scope="col" class="text-center">刪除</th>
-                        @endif
+                        <th scope="col" class="text-center">刪除</th>
                         <th scope="col">商品名稱</th>
                         <th scope="col">SKU</th>
-                        <th scope="col">訂購數量</th>
-                        <th scope="col">訂購價錢</th>
-                        <th scope="col" class="text-end">小計</th>
+                        <th scope="col" style="width: 10%">訂購數量</th>
+                        <th scope="col" style="width: 12%" class="text-end">訂購價錢</th>
+                        <th scope="col" style="width: 12%" class="text-end">小計</th>
                         <th scope="col">備註</th>
                     </tr>
                     </thead>
@@ -195,7 +196,7 @@
                             <td>
                                 <input type="number" class="form-control form-control-sm" name="num[]" min="1" value="" required/>
                             </td>
-                            <td data-td="price"></td>
+                            <td data-td="price" class="text-end"></td>
                             <td data-td="total" class="text-end"></td>
                             <td>
                                 <input type="text" class="form-control form-control-sm" name="memo[]" />
@@ -204,20 +205,18 @@
                     @elseif(0 < count(old('item_id', $consignmentItemData?? [])))
                         @foreach (old('item_id', $consignmentItemData ?? []) as $psItemKey => $psItemVal)
                             <tr class="-cloneElem --selectedP">
-                                @if ($editable)
-                                    <th class="text-center">
-                                        <button type="button"
-                                                class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </th>
-                                @endif
-                                <input type="hidden" name="item_id[]" value="{{ old('item_id.'. $psItemKey, $psItemVal->id?? '') }}">
-                                <input type="hidden" name="product_style_id[]" value="{{ old('product_style_id.'. $psItemKey, $psItemVal->product_style_id?? '') }}">
-                                <input type="hidden" name="name[]" value="{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}">
-                                <input type="hidden" name="prd_type[]" value="{{ old('prd_type.'. $psItemKey, $psItemVal->prd_type?? '') }}">
-                                <input type="hidden" name="sku[]" value="{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}">
-                                <input type="hidden" name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}">
+                                <th class="text-center">
+                                    <button type="button" @if (!$editable) disabled @endif
+                                            class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                    <input type="hidden" name="item_id[]" value="{{ old('item_id.'. $psItemKey, $psItemVal->id?? '') }}">
+                                    <input type="hidden" name="product_style_id[]" value="{{ old('product_style_id.'. $psItemKey, $psItemVal->product_style_id?? '') }}">
+                                    <input type="hidden" name="name[]" value="{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}">
+                                    <input type="hidden" name="prd_type[]" value="{{ old('prd_type.'. $psItemKey, $psItemVal->prd_type?? '') }}">
+                                    <input type="hidden" name="sku[]" value="{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}">
+                                    <input type="hidden" name="price[]" value="{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}">
+                                </th>
                                 <td data-td="name">{{ old('name.'. $psItemKey, $psItemVal->title?? '') }}</td>
                                 <td data-td="sku">{{ old('sku.'. $psItemKey, $psItemVal->sku?? '') }}</td>
                                 <td>
@@ -229,11 +228,11 @@
                                         <input type="hidden" name="num[]" value="{{ $psItemVal->num }}">
                                     @endif
                                 </td>
-                                <td data-td="price">{{ old('price.'. $psItemKey, $psItemVal->price?? '') }}</td>
+                                <td data-td="price" class="text-end">{{ old('price.'. $psItemKey, '$'.number_format($psItemVal->price)?? '') }}</td>
                                 <td data-td="total" class="text-end">$ 0</td>
                                 <td>
                                     @if ($editable)
-                                        <input type="text" class="form-control form-control-sm @error('memo.' . $psItemKey) is-invalid @enderror"
+                                        <input type="text" class="form-control form-control-sm -l @error('memo.' . $psItemKey) is-invalid @enderror"
                                                name="memo[]" value="{{ old('memo.'. $psItemKey, $psItemVal->memo?? '') }}"/>
                                     @else
                                         {{ $psItemVal->memo }}
@@ -250,8 +249,9 @@
                         <th class="lh-1"></th>
                         @if ($editable) <th class="lh-1"></th> @endif
                         <th class="lh-1"></th>
-                        <th class="lh-1">價錢小計</th>
+                        <th class="lh-1 text-end">價錢小計</th>
                         <th class="lh-1 text-end -sum">$ 0</th>
+                        <th class="lh-1"></th>
                     </tr>
                     </tfoot>
                 </table>

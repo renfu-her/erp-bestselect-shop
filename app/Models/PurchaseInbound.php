@@ -253,7 +253,7 @@ class PurchaseInbound extends Model
                 }
                 if (false == empty($main_table)) {
                     $purchaseData = DB::table($main_table. ' as main_tb')
-                        ->leftJoin('pcs_purchase_inbound as inbound', 'inbound.event_id', '=', 'purchase.id')
+                        ->leftJoin('pcs_purchase_inbound as inbound', 'inbound.event_id', '=', 'main_tb.id')
                         ->select('main_tb.id as id', 'main_tb.close_date as close_date')
                         ->where('main_tb.id', '=', $inboundDataGet->event_id)
                         ->where('inbound.event', '=', $event)
@@ -308,7 +308,7 @@ class PurchaseInbound extends Model
     }
 
     //售出 更新資料
-    public static function shippingInbound($event, $event_parent_id, $event_id, $feature, $id, $sale_num = 0)
+    public static function shippingInbound($event, $event_parent_id, $event_id, $feature, $id, $sale_num = 0, $user_id, $user_name)
     {
         return DB::transaction(function () use (
             $event,
@@ -316,7 +316,9 @@ class PurchaseInbound extends Model
             $event_id,
             $feature,
             $id,
-            $sale_num
+            $sale_num,
+            $user_id,
+            $user_name
         ) {
             $inboundData = DB::table('pcs_purchase_inbound as inbound')
                 ->leftJoin('depot', 'depot.id', 'inbound.depot_id')
@@ -357,7 +359,7 @@ class PurchaseInbound extends Model
 
                     PurchaseInbound::where('id', $id)
                         ->update($update_arr);
-                    $reStockChange =PurchaseLog::stockChange($event_parent_id, $inboundDataGet->product_style_id, $event, $event_id, $feature, $id, $sale_num, null, $inboundDataGet->title, $inboundDataGet->prd_type, $inboundDataGet->inbound_user_id, $inboundDataGet->inbound_user_name);
+                    $reStockChange =PurchaseLog::stockChange($event_parent_id, $inboundDataGet->product_style_id, $event, $event_id, $feature, $id, $sale_num * -1, null, $inboundDataGet->title, $inboundDataGet->prd_type, $user_id, $user_name);
                     if ($reStockChange['success'] == 0) {
                         DB::rollBack();
                         return $reStockChange;

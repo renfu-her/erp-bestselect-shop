@@ -96,9 +96,9 @@
                         <th scope="col" class="text-center">刪除</th>
                         <th scope="col">商品名稱</th>
                         <th scope="col">SKU</th>
-                        <th scope="col">寄倉數量</th>
-                        <th scope="col">寄倉價錢</th>
-                        <th scope="col" class="text-end">小計</th>
+                        <th scope="col" style="width: 10%">寄倉數量</th>
+                        <th scope="col" style="width: 12%" class="text-end">寄倉價錢</th>
+                        <th scope="col" style="width: 12%" class="text-end">小計</th>
                     </tr>
                     </thead>
                     <tbody class="-appendClone --selectedP">
@@ -121,7 +121,7 @@
                             <td>
                                 <input type="number" class="form-control form-control-sm" name="num[]" min="1" value="" required/>
                             </td>
-                            <td data-td="price"></td>
+                            <td data-td="price" class="text-end"></td>
                             <td data-td="total" class="text-end"></td>
                         </tr>
                     @elseif(0 < count(old('item_id', $consignmentItemData?? [])))
@@ -157,7 +157,7 @@
                         <th class="lh-1"></th>
                         <th class="lh-1"></th>
                         <th class="lh-1"></th>
-                        <th class="lh-1">價錢小計</th>
+                        <th class="lh-1 text-end">價錢小計</th>
                         <th class="lh-1 text-end -sum">$ 0</th>
                     </tr>
                     </tfoot>
