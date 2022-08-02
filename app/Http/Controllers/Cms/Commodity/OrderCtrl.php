@@ -1451,4 +1451,12 @@ class OrderCtrl extends Controller
         wToast('分割完成');
         return redirect()->back();
     }
+
+    public function editItem(Request $request,$id){
+        dd('aaaa');
+    }
+
+    public function updateItem(Request $request,$id){
+        
+    }
 }
