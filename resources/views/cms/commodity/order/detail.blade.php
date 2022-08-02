@@ -26,6 +26,10 @@
             <a href="{{ Route('cms.order.personal-bonus', ['id' => $order->id]) }}" class="btn btn-warning btn-sm my-1 ms-1"
                 role="button">個人獎金</a>
 
+
+            <a href="{{ Route('cms.order.edit-item', ['id' => $order->id]) }}" role="button"
+                    class="btn btn-dark btn-sm my-1 ms-1">編輯訂單</a>
+                    
             @if ($canSplit)
                 <a href="{{ Route('cms.order.split-order', ['id' => $order->id]) }}" role="button"
                     class="btn btn-dark btn-sm my-1 ms-1">分割訂單</a>
@@ -41,6 +45,7 @@
                     class="btn btn-outline-danger btn-sm my-1 ms-1">取消訂單</a>
             @endif
 
+        
             @if (!$order->return_pay_order_id && in_array($order->status, ['取消']))
                 <a href="{{ Route('cms.order.return-pay-order', ['id' => $order->id]) }}" role="button" class="btn btn-primary btn-sm my-1 ms-1">新增退貨付款單</a>
             @endif
