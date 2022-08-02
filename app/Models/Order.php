@@ -501,6 +501,7 @@ class Order extends Model
                         'sku' => $product->sku,
                         'product_title' => $product->product_title . '-' . $product->spec,
                         'price' => $product->price,
+                        'dealer_price' => $product->dealer_price,
                         'bonus' => $product->bonus,
                         'qty' => $product->qty,
                         'discounted_price' => $product->discounted_price,
