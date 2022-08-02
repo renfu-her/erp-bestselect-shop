@@ -7,7 +7,7 @@ use Diglactic\Breadcrumbs\Generator as BreadcrumbTrail;
 
 // Home
 Breadcrumbs::for('cms.dashboard', function (BreadcrumbTrail $trail) {
-    $trail->push('首頁', route('cms.dashboard'));
+    $trail->push('總覽', route('cms.dashboard'));
 });
 
 /**
