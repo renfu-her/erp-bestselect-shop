@@ -37,7 +37,7 @@
                 <thead>
                 <tr>
                     <th scope="col">#</th>
-                    <th scope="col">時間</th>
+                    <th scope="col">更新日期</th>
                     <th scope="col">採購單號</th>
                     <th scope="col">SKU</th>
                     <th scope="col">商品名稱</th>
