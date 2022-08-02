@@ -2,7 +2,7 @@
 @section('sub-content')
     <h2 class="mb-3">#{{ $order->sn }} 編輯訂單</h2>
 
-    <form action="#" method="post">
+    <form action="{{ route('cms.order.edit-item', ['id' => $order->id]) }}" method="post">
         @csrf
         @foreach ($subOrders as $subOrder)
             <div @class([
@@ -25,13 +25,14 @@
                                     <th scope="col">SKU</th>
                                     <th>售價</th>
                                     <th>經銷價</th>
-                                    <th>預估成本</th>
+
                                     <th>數量</th>
                                     <th>說明</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($subOrder->items as $key => $item)
+                                    <input type="hidden" name="item_id[]" value="{{$item->item_id}}">
                                     <tr>
                                         <td>{{ $item->product_title }}
                                             <input type="hidden" name="style_id[]" value="{{ $item->style_id }}">
@@ -39,23 +40,20 @@
                                         <td>{{ $item->sku }}</td>
                                         <td>
                                             <input class="form-control form-control-sm -sx" type="text" aria-label="售價"
-                                                value="{{ $item->price }}" >
+                                                value="{{ $item->price }}" disabled>
                                         </td>
                                         <td>
                                             <input class="form-control form-control-sm -sx" type="text" aria-label="經銷價"
-                                                value="" >
+                                                value="{{ $item->dealer_price }}" disabled>
                                         </td>
-                                        <td>
-                                            <input class="form-control form-control-sm -sx" type="text" aria-label="預估成本"
-                                                value="" >
-                                        </td>
+
                                         <td class="text-center">
                                             <input class="form-control form-control-sm -sx" type="text" aria-label="數量"
-                                                value="{{ $item->qty }}" >
+                                                value="{{ $item->qty }}" disabled>
                                         </td>
                                         <td>
-                                            <input class="form-control form-control-sm -l" type="text" aria-label="說明"
-                                                value="" >
+                                            <input class="form-control form-control-sm -l" type="text" name="note[]"
+                                                aria-label="說明" value="{{ $item->note }}">
                                         </td>
                                     </tr>
                                 @endforeach
@@ -69,10 +67,10 @@
 
         <div class="col-auto">
             <button type="submit" class="btn btn-primary px-4">送出</button>
-            <a href="{{ Route('cms.order.detail', ['id' => $order->id]) }}" class="btn btn-outline-primary px-4" role="button">返回明細</a>
+            <a href="{{ Route('cms.order.detail', ['id' => $order->id]) }}" class="btn btn-outline-primary px-4"
+                role="button">返回明細</a>
         </div>
     </form>
-
 @endsection
 
 @once
@@ -82,7 +80,6 @@
         </style>
     @endpush
     @push('sub-scripts')
-        <script>
-        </script>
+        <script></script>
     @endpush
 @endonce

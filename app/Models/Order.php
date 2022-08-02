@@ -180,7 +180,11 @@ class Order extends Model
             'qty' => 'item.qty',
             'style_id' => 'item.product_style_id',
             'img_url' => 'IF(item.img_url IS NULL,"",item.img_url)',
-            'total_price' => 'item.origin_price']);
+            'total_price' => 'item.origin_price',
+            'note'=>'IF(item.note IS NULL,"",item.note)',
+            'dealer_price' => 'item.dealer_price',
+            'item_id'=>'item.id'
+        ]);
 
         $itemQuery = DB::table('ord_items as item')
             ->leftJoin('prd_product_styles as style', 'item.product_style_id', '=', 'style.id')
@@ -189,6 +193,7 @@ class Order extends Model
             ->select('item.sub_order_id')
             ->selectRaw($concatString . ' as items')
             ->where('item.order_id', $order_id);
+
 
         $concatConsumeString = concatStr([
             'consum_id' => 'dlv_consum.id',
