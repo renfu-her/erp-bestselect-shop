@@ -16,11 +16,10 @@
                         value="{{ old('page_name', $dataList->page_name ?? '')}}"
                         required
                         aria-label="頁面名稱"/>
+                    <p class="mark m-0"><i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>
+                        系統會自動將「頁面名稱」代入網頁連結、標題、描述中，如需調整搜尋引擎SEO成效，可自行修改
+                    </p>
                 </x-b-form-group>
-                <p class="mark m-0"><i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>
-                    系統會自動將「頁面名稱」代入網頁連結、標題、描述中
-                    ，如需調整搜尋引擎SEO成效，可自行修改
-                </p>
                 <x-b-form-group name="url" title="網頁連結名稱" required="false">
                     <input type="text"
                         class="form-control @error('url') is-invalid @enderror"
@@ -95,27 +94,21 @@
                 <div class="col-12 mb-3">
                     <label class="form-label">Head 資訊（例：<code>&lt;meta&gt;</code>、<code>&lt;script src=""&gt;</code> JS引用連結）</label>
                     <textarea class="form-control @error('head') is-invalid @enderror" rows="5" name="head"
-                    placeholder="<meta charset=&quot;utf-8&quot;>
-<script src=&quot;https://.../jquery.min.js&quot;></script>">
-                        {{ old('head', $dataList->head ?? '')}}
-                    </textarea>
+                    placeholder="<meta charset=&quot;utf-8&quot;>&#10;<script src=&quot;https://.../jquery.min.js&quot;></script>"
+                    >{{ old('head', $dataList->head ?? '')}}</textarea>
                 </div>
                 <div class="col-12 mb-3">
                     <label class="form-label">網頁內容程式碼（例：<code>&lt;body&gt;</code>）</label>
                     <textarea class="form-control @error('body') is-invalid @enderror" rows="5" name="body"
-                    placeholder="<body>
-...
-</body>">
-                        {{ old('body', $dataList->body ?? '')}}
-                    </textarea>
+                    placeholder="<body>&#10;...&#10;</body>"
+                    >{{ old('body', $dataList->body ?? '')}}</textarea>
                 </div>
                 <div class="col-12 mb-3">
                     <label class="form-label">網頁內嵌 javascript 程式碼（勿含<code>&lt;script&gt;</code> tag）</label>
                     <div class="textarea-group">
                         <span class="input-group-text">&lt;script&gt;</span>
-                        <textarea class="form-control @error('script') is-invalid @enderror" rows="5" name="script" placeholder="new WOW().init();">
-                            {{ old('script', $dataList->script ?? '')}}
-                        </textarea>
+                        <textarea class="form-control @error('script') is-invalid @enderror" rows="5" name="script" placeholder="new WOW().init();"
+                        >{{ old('script', $dataList->script ?? '')}}</textarea>
                         <span class="input-group-text">&lt;/script&gt;</span>
                     </div>
                 </div>
