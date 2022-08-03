@@ -30,7 +30,7 @@
                 <x-b-form-group name="title" title="網頁標題" required="false">
                     <input type="text"
                         class="form-control @error('title') is-invalid @enderror"
-                        name="meta_title"
+                        name="title"
                         value="{{ old('title', $dataList->title ?? '')}}"
                         aria-label="網頁標題"/>
                 </x-b-form-group>

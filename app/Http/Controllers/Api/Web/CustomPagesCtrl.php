@@ -41,7 +41,7 @@ class CustomPagesCtrl extends Controller
                 'body' => $data->body ?? '',
                 'script' => $data->script ?? '',
                 'page_name' => $data->page_name,
-                'url' => CustomPages::getFullUrlPath($data->url, $data->id),
+                'url' => $data->url,
                 'title' => $data->title,
                 'desc' => $data->desc,
                 'type' => CustomPageType::getDescription($data->type),
