@@ -423,4 +423,27 @@ class OrderInvoice extends Model
 
         return $target;
     }
+
+    public static function getData($param) {
+        $query = DB::table(app(OrderInvoice::class)->getTable(). ' as ord_invoice')
+            ->select('ord_invoice.*'
+                , DB::raw('DATE_FORMAT((ifnull(ord_invoice.create_status_time, ord_invoice.created_at)),"%Y-%m-%d") as invoice_date')
+            )
+            ->whereNull('ord_invoice.deleted_at');
+        if (isset($param['invoice_number'])) {
+            $query->where('ord_invoice.invoice_number', '=', $param['invoice_number']);
+        }
+        if (isset($param['buyer_name'])) {
+            $query->where('ord_invoice.buyer_name', '=', $param['buyer_name']);
+        }
+        if (isset($param['buyer_ubn'])) {
+            $query->where('ord_invoice.buyer_ubn', '=', $param['buyer_ubn']);
+        }
+        if (isset($param['invoice_sdate']) && isset($param['invoice_edate'])) {
+            $s_invoice_date = date('Y-m-d', strtotime($param['invoice_sdate']));
+            $e_invoice_date = date('Y-m-d', strtotime($param['invoice_edate'] . ' +1 day'));
+            $query->whereBetween(DB::raw('ifnull(ord_invoice.create_status_time, ord_invoice.created_at)'), [$s_invoice_date, $e_invoice_date]);
+        }
+        return $query;
+    }
 }

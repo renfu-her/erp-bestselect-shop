@@ -320,6 +320,15 @@ return [
         ],
     ],
     [
+        "unit" => "發票作業管理",
+        "permissions" => [
+            [
+                "cms.order_invoice_manager.index",
+                "瀏覽",
+            ],
+        ],
+    ],
+    [
         "unit" => "會計科目",
         "permissions" => [
             [
