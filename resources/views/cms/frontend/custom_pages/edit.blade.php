@@ -62,7 +62,7 @@
                                     {{ $type }}
                                     <input class="form-check-input"
                                            value="{{ $key }}"
-                                           @if(old('type', $dataList->type ?? '') === $key)
+                                           @if(old('type', $dataList->type ?? 1) === $key)
                                                checked
                                            @endif
                                            name="type"
@@ -72,11 +72,15 @@
                             </div>
                         @endforeach
                     </div>
+                    <div class="bg-light small text-secondary px-3 py-2">
+                        <p class="mb-0">* 一般頁：基本文字、排版、圖片，<span class="text-danger">不支援 javascript 程式碼、外部引用 CSS / JS 等套件</span></p>
+                        <p class="mb-0">* 活動頁：支援較複雜的網頁內容（行內/內嵌 javascript 程式碼、外部引用套件）</p>
+                    </div>
                 </x-b-form-group>
             </div>
         </div>
 
-        <div id="content_1" class="card shadow p-4 mb-4 -content">
+        <div id="content_1" class="card shadow p-4 mb-4 -content" @if(old('type', $dataList->type ?? 1) !== 1) hidden @endif>
             <div class="d-flex align-items-center mb-4">
                 <h6 class="mb-0">【一般】自訂內容</h6>
                 <a href="https://img.bestselection.com.tw/fadd1.asp?name="
@@ -88,19 +92,19 @@
             </textarea>
         </div>
 
-        <div id="content_2" class="card shadow p-4 mb-4 -content" hidden>
+        <div id="content_2" class="card shadow p-4 mb-4 -content"  @if(old('type', $dataList->type ?? 1) !== 2) hidden @endif>
             <h6>【活動頁】自訂內容</h6>
             <div class="row">
                 <div class="col-12 mb-3">
-                    <label class="form-label">Head 資訊（例：<code>&lt;meta&gt;</code>、<code>&lt;script src=""&gt;</code> JS引用連結）</label>
+                    <label class="form-label">Head 資訊（例：<code>&lt;meta&gt;</code>、<code>&lt;script src=""&gt;</code>、<code>&lt;link href=""&gt;</code> 引用連結）</label>
                     <textarea class="form-control @error('head') is-invalid @enderror" rows="5" name="head"
-                    placeholder="<meta charset=&quot;utf-8&quot;>&#10;<script src=&quot;https://.../jquery.min.js&quot;></script>"
+                    placeholder="<meta charset=&quot;utf-8&quot;>&#10;<script src=&quot;.../jquery.min.js&quot;></script>&#10;<link href=&quot;...css&quot; rel=&quot;stylesheet&quot; type=&quot;text/css&quot; />"
                     >{{ old('head', $dataList->head ?? '')}}</textarea>
                 </div>
                 <div class="col-12 mb-3">
-                    <label class="form-label">網頁內容程式碼（例：<code>&lt;body&gt;</code>）</label>
-                    <textarea class="form-control @error('body') is-invalid @enderror" rows="5" name="body"
-                    placeholder="<body>&#10;...&#10;</body>"
+                    <label class="form-label">網頁內容程式碼（例：<code>&lt;body&gt;</code>、<code>&lt;style&gt;</code>）</label>
+                    <textarea class="form-control @error('body') is-invalid @enderror" rows="6" name="body"
+                    placeholder="<style>&#10;...&#10;</style>&#10;<body>&#10;...&#10;</body>"
                     >{{ old('body', $dataList->body ?? '')}}</textarea>
                 </div>
                 <div class="col-12 mb-3">
