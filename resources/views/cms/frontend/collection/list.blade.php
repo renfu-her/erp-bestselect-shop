@@ -37,11 +37,11 @@
                     <th scope="col" style="width:10%">#</th>
                     <th scope="col">商品群組</th>
                     @if(auth()->user()->can('cms/collection/publish'))
-                        <th scope="col">公開上架</th>
+                        <th scope="col" class="text-center">公開上架</th>
                     @endif
-                    <th scope="col">酒類</th>
-                    <th scope="col">編輯</th>
-                    <th scope="col">刪除</th>
+                    <th scope="col" class="text-center">酒類</th>
+                    <th scope="col" class="text-center">編輯</th>
+                    <th scope="col" class="text-center">刪除</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -58,15 +58,21 @@
                                 </div>
                             </td>
                         @endif
-                        <td>{{ ($data->is_liquor == 1) ? '是': '否' }}</td>
-                        <td>
+                        <td class="text-center">
+                            @if ($data->is_liquor == 1)
+                                <i class="bi bi-check-lg text-success fs-5"></i>
+                            @else
+                                <i class="bi bi-x-lg text-danger fs-6"></i>
+                            @endif
+                        </td>
+                        <td class="text-center">
                             <a href="{{ Route('cms.collection.edit', ['id' => $data->id], true) }}"
                                data-bs-toggle="tooltip" title="編輯"
                                class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
                         </td>
-                        <td>
+                        <td class="text-center">
                             <a href="javascript:void(0)"
                                data-href="{{ Route('cms.collection.delete', ['id' => $data->id], true) }}"
                                data-bs-toggle="modal" data-bs-target="#confirm-delete"
@@ -80,12 +86,35 @@
             </table>
         </div>
     </div>
-    <div class="row flex-column-reverse flex-sm-row">
-        <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">
-            {{-- 頁碼 --}}
-            <div class="d-flex justify-content-center">{{ $dataList->links() }}</div>
+    
+    @if ($dataList->hasPages())
+        <div class="row flex-column-reverse flex-sm-row mb-4">
+            <div class="col d-flex justify-content-end align-items-center">
+                {{-- 頁碼 --}}
+                <div class="d-flex justify-content-center">{{ $dataList->links() }}</div>
+            </div>
         </div>
-    </div>
+    @endif
+
+    {{-- 首頁推薦群組 --}}
+    <form action="" method="post">
+        <div class="card shadow p-4 mb-4">
+            <h6>【總覽】推薦商品群組設定</h6>
+            <div class="row">
+                <div class="col-12 mb-3">
+                    <label class="form-label">請選擇最多4項群組</label>
+                    <select name="[]" multiple class="-select2 -multiple form-select" data-maximum-selection-length="4">
+                        @foreach ($dataList as $key => $data)
+                        <option value="{{ $data->id }}">{{ $data->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="col">
+                <button type="submit" class="btn btn-primary px-4">儲存</button>
+            </div>
+        </div>
+    </form>
 
     <!-- Modal -->
     <x-b-modal id="confirm-delete">
