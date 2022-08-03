@@ -560,10 +560,6 @@ class Product extends Model
             'sku' => 's.sku',
             'in_stock' => 's.in_stock',
             'overbought' => 's.overbought',
-            'available_qty' => DB::raw('CASE
-                    WHEN s.in_stock < s.overbought and 0 <= s.in_stock THEN s.overbought
-                    ELSE s.in_stock + s.overbought
-                END'),
             'origin_price' => 'p.origin_price',
             'price' => 'p.price',
             'dividend' => 'p.dividend']);
