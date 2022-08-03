@@ -185,6 +185,6 @@ class CustomPages extends Model
      */
     public static function getFullUrlPath(string $pathName, string $id)
     {
-        return frontendUrl() . 'event/' . $id . '/' . $pathName;
+        return frontendUrl() . 'activity/' . $id . '/' . $pathName;
     }
 }
