@@ -16,7 +16,7 @@
                 <div class="col-12 mb-3">
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">報表月份</label>
-                        <input type="month" name="invoice_month" class="form-control">
+                        <input type="month" name="invoice_month" class="form-control" value="{{$cond['invoice_month'] ?? ''}}">
                     </div>
                 </div>
             </div>
@@ -30,6 +30,9 @@
 
     <div class="card shadow p-4 mb-4">
         <div class="row justify-content-end mb-4">
+            <div class="col">
+                <button type="button" id="exportBtn" class="btn btn-primary px-4" @cannot('cms.order_invoice_manager.export_excel_month') disabled @endcannot>匯出Excel</button>
+            </div>
             <div class="col-auto">
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
@@ -53,7 +56,7 @@
                         <th scope="col">訂購單號</th>
                         <th scope="col">統一編號</th>
                         <th scope="col">摘要</th>
-                        <th scope="col">銷售金額</th>
+                        <th scope="col">未稅金額</th>
                         <th scope="col">稅金</th>
                         <th scope="col">含稅金額</th>
 {{--                        <th scope="col">是否作廢</th>--}}
@@ -68,7 +71,7 @@
                             <td>{{ $data->buyer_name }}</td>
                             <td>{{ $data->merchant_order_no }}</td>
                             <td>{{ $data->buyer_ubn }}</td>
-                            <td>{{ $data->item_name }}</td>
+                            <td>{{ $data->item_1_name }}</td>
                             <td>{{ number_format($data->amt, 2) }}</td>
                             <td>{{ number_format($data->tax_amt, 2) }}</td>
                             <td>{{ number_format($data->total_amt, 2) }}</td>
@@ -106,6 +109,25 @@
                     $('input[name=data_per_page]').val($(this).val());
                     $('#search').submit();
                 });
+            });
+
+            // Form URL
+            let searchForm = $('#search');
+            let urls = [
+                @json(Route('cms.order_invoice_manager.month')),
+                @json(Route('cms.order_invoice_manager.export_excel_month'))
+            ];
+            let csrf = @json(csrf_token());
+
+            $('#exportBtn').on('click', function() {
+                searchForm.attr('action', urls[1]).attr('method', 'post').attr('target', '_blank');
+                let csrfELem = $("<input />").attr("type", "hidden")
+                    .attr("name", "_token")
+                    .attr("value", csrf)
+                    .appendTo("#search");
+                searchForm.submit();
+                csrfELem.remove();
+                searchForm.attr('action', urls[0]).attr('method', 'get').attr('target', '_self');
             });
         </script>
     @endpush

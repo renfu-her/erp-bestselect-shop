@@ -326,6 +326,10 @@ return [
                 "cms.order_invoice_manager.index",
                 "瀏覽",
             ],
+            [
+                "cms.order_invoice_manager.export_excel_month",
+                "匯出月報表",
+            ],
         ],
     ],
     [

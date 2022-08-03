@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Cms\Settings;
 
+use App\Exports\OrderInvoice\OrderInvoiceExport;
 use App\Http\Controllers\Controller;
 use App\Models\OrderInvoice;
 use Illuminate\Http\Request;
@@ -49,5 +50,16 @@ class OrderInvoiceManagerCtrl extends Controller
             'data_list' => $data_list,
             'cond' => $cond,
         ]);
+    }
+
+    public function export_excel_month(Request $request)
+    {
+        $cond = [];
+        $cond['invoice_month'] = $request->input('invoice_month', null);
+        if (isset($cond['invoice_month'])) {
+            $cond['invoice_sdate'] = date("Y-m-1", strtotime($cond['invoice_month']));
+            $cond['invoice_edate'] = date("Y-m-t", strtotime($cond['invoice_month']));
+        }
+        return (new OrderInvoiceExport($cond))->download("report-" . date('YmdHis') . ".xlsx");
     }
 }
