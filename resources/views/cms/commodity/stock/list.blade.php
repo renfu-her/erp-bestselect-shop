@@ -131,11 +131,13 @@
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td class="text-center">
+                                @if(isset($data->depot_id) && isset($data->id))
                                 <a href="{{ Route('cms.stock.stock_detail_log', ['depot_id' => $data->depot_id ?? -1, 'id' => $data->id], true) }}"
                                    data-bs-toggle="tooltip" title="明細"
                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-card-list"></i>
                                 </a>
+                                @endif
                             </td>
                             <td> <a
                                     href="{{ Route('cms.product.edit', ['id' => $data->product_id], true) }}">{{ $data->product_title }}</a>
