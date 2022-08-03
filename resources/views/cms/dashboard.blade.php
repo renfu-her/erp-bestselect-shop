@@ -10,57 +10,68 @@
         <h6 class="px-2"><i class="bi bi-cart-fill me-2"></i>電商訂單</h6>
         <div class="d-flex flex-column flex-md-row mb-3 border bg-white inner-border">
             <div class="col px-3 py-2 d-flex align-items-end">
-                <div>NT$ <span class="data text-nowrap">123456</span> / <span class="text-nowrap">78筆訂單</span></div>
+                <div>
+                    NT$ <span class="data text-nowrap">{{ number_format(123456) }}</span> / 
+                    <span class="text-nowrap">78筆訂單</span>
+                </div>
                 <div class="title bg-danger text-white">今天</div>
             </div>
             <div class="col px-3 py-2 d-flex align-items-end">
-                <div>NT$ <span class="data text-nowrap">123456</span> / <span class="text-nowrap">78筆訂單</span></div>
+                <div>
+                    NT$ <span class="data text-nowrap">{{ number_format(123456) }}</span> / 
+                    <span class="text-nowrap">78筆訂單</span>
+                </div>
                 <div class="title bg-secondary text-white">本月</div>
             </div>
             <div class="col px-3 py-2 d-flex align-items-end">
-                <div>NT$ <span class="data text-nowrap">123456</span> / <span class="text-nowrap">78筆訂單</span></div>
+                <div>
+                    NT$ <span class="data text-nowrap">{{ number_format(123456) }}</span> / 
+                    <span class="text-nowrap">78筆訂單</span>
+                </div>
                 <div class="title bg-secondary text-white">上月</div>
             </div>
         </div>
 
         {{-- 電商流量 --}}
+        {{--
         <h6 class="px-2"><i class="bi bi-bar-chart-line-fill me-2"></i>電商流量</h6>
         <div class="d-flex flex-column flex-md-row mb-3 border bg-white inner-border">
             <div class="col px-3 py-2 d-flex align-items-end">
-                <div><span class="data">135790</span> 來訪數</div>
+                <div><span class="data">{{ number_format(135790) }}</span> 來訪數</div>
                 <div class="title bg-success text-white">昨日</div>
             </div>
             <div class="col px-3 py-2 d-flex align-items-end">
-                <div><span class="data">135790</span> 來訪數</div>
+                <div><span class="data">{{ number_format(135790) }}</span> 來訪數</div>
                 <div class="title bg-secondary text-white">本月</div>
             </div>
             <div class="col px-3 py-2 d-flex align-items-end">
-                <div><span class="data">135790</span> 來訪數</div>
+                <div><span class="data">{{ number_format(135790) }}</span> 來訪數</div>
                 <div class="title bg-secondary text-white">上月</div>
             </div>
         </div>
+        --}}
 
         {{-- 推薦商品 --}}
         <h6 class="px-2"><i class="bi bi-hand-thumbs-up-fill me-2"></i>推薦商品</h6>
-        <div class="row g-3 mb-3 text-center">
-            <div class="col-6 col-md">
-                <a href="#" target="_blank" data-bs-toggle="tooltip" title="查看群組" data-bs-placement="right">
-                    <div class="p-3 border d-flex align-items-center justify-content-end lh-lg">群組1</div>
+        <div id="Rec_group" class="row g-3 mb-3 text-center">
+            <div class="col-6 col-xl">
+                <a href="#" target="_blank" data-bs-toggle="tooltip" title="查看群組">
+                    <div class="px-3 py-2 text-end d-flex align-items-center justify-content-end lh-sm">冷凍商品超值組合</div>
                 </a>
             </div>
-            <div class="col-6 col-md">
+            <div class="col-6 col-xl">
                 <a href="#" target="_blank" data-bs-toggle="tooltip" title="查看群組" >
-                    <div class="p-3 border d-flex align-items-center justify-content-end lh-lg">群組2</div>
+                    <div class="px-3 py-2 text-end d-flex align-items-center justify-content-end lh-sm">冷凍商品超值組合</div>
                 </a>
             </div>
-            <div class="col-6 col-md">
+            <div class="col-6 col-xl">
                 <a href="#" target="_blank" data-bs-toggle="tooltip" title="查看群組" >
-                    <div class="p-3 border d-flex align-items-center justify-content-end lh-lg">群組3</div>
+                    <div class="px-3 py-2 text-end d-flex align-items-center justify-content-end lh-sm">冷凍商品超值組合</div>
                 </a>
             </div>
-            <div class="col-6 col-md">
+            <div class="col-6 col-xl">
                 <a href="#" target="_blank" data-bs-toggle="tooltip" title="查看群組" >
-                    <div class="p-3 border d-flex align-items-center justify-content-end lh-lg">群組4</div>
+                    <div class="px-3 py-2 text-end d-flex align-items-center justify-content-end lh-sm">冷凍商品超值組合</div>
                 </a>
             </div>
         </div>
@@ -177,8 +188,8 @@
                     @for ($i = 1; $i <= 20; $i++)
                         <tr>
                             <td class="text-center">{{ $i }}</td>
-                            <td>理查 / 9999</td>
-                            <td>理查 / 9999</td>
+                            <td>理查 / {{ number_format(9999) }}</td>
+                            <td>理查 / {{ number_format(9999) }}</td>
                         </tr>
                     @endfor
                 </tbody>
@@ -223,6 +234,33 @@
         }
         table {
             font-size: .9rem;
+        }
+        #Rec_group > div div {
+            color: #FFFFFF;
+            background-position: left center;
+            background-size: auto 100%;
+            background-repeat: no-repeat;
+            background-origin: border-box;
+            min-height: 60px;
+        }
+        #Rec_group > div div:hover {
+            box-shadow: 0 0.3rem 0.25rem rgb(0 0 0 / 20%);
+        }
+        #Rec_group > div:nth-child(1) div {
+            background-color: #EBBA0B;
+            background-image: url('/../images/bg_1.png');
+        }
+        #Rec_group > div:nth-child(2) div {
+            background-color: #26A1D7;
+            background-image: url('/../images/bg_2.png');
+        }
+        #Rec_group > div:nth-child(3) div {
+            background-color: #9ABB1F;
+            background-image: url('/../images/bg_3.png');
+        }
+        #Rec_group > div:nth-child(4) div {
+            background-color: #58C4D1;
+            background-image: url('/../images/bg_4.png');
         }
     </style>
     @endpush
