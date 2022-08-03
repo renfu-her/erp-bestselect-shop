@@ -1,0 +1,12 @@
+<?php
+
+use App\Http\Controllers\Cms\Settings\OrderInvoiceManagerCtrl;
+use Illuminate\Support\Facades\Route;
+
+/**
+ * 請款比例
+ */
+Route::group(['prefix' => 'order_invoice_manager', 'as' => 'order_invoice_manager.'], function () {
+    Route::get('', [OrderInvoiceManagerCtrl::class, 'index'])->name('index')->middleware('permission:cms.order_invoice_manager.index');
+    Route::get('month', [OrderInvoiceManagerCtrl::class, 'month'])->name('month')->middleware('permission:cms.order_invoice_manager.index');
+});
