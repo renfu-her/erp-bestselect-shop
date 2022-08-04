@@ -282,10 +282,11 @@ abstract class AccountReceivedPapaCtrl extends Controller
         }
         // accounting classification end
 
-        $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
-        $drawee_merged = array_merge($customer, $depot, $supplier);
+        $drawee_merged = array_merge($user, $customer, $depot, $supplier);
 
         return view('cms.account_management.collection_received.list', [
             'data_per_page' => $page,

@@ -28,6 +28,7 @@ use App\Models\PayingOrder;
 use App\Models\Supplier;
 use App\Models\GeneralLedger;
 use App\Models\PayableDefault;
+use App\Models\User;
 
 class AccountPayableCtrl extends Controller
 {
@@ -248,11 +249,11 @@ class AccountPayableCtrl extends Controller
         }
         // accounting classification end
 
-        $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
-
-        $payee_merged = array_merge($customer, $depot, $supplier);
+        $payee_merged = array_merge($user, $customer, $depot, $supplier);
 
         $check_balance_status = [
             'all'=>'不限',
