@@ -9,6 +9,7 @@ use App\Models\Customer;
 use App\Models\CustomerCoupon;
 use App\Models\CustomerDividend;
 use App\Models\Order;
+use App\Models\OrderReportDaily;
 use Illuminate\Http\Request;
 
 class ScheduleCtrl extends Controller
@@ -36,6 +37,12 @@ class ScheduleCtrl extends Controller
             CustomerCoupon::activeCoupon($ord->id, now());
         }
 
+        return ['status' => '0'];
+    }
+
+    public function orderReportDaily()
+    {
+        OrderReportDaily::createData();
         return ['status' => '0'];
     }
 
