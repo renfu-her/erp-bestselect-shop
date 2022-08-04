@@ -192,7 +192,7 @@ return
                 "route_name" => "cms.credit_manager.index",
             ],
             [
-                "title" => "發票作業管理",
+                "title" => "電子發票作業管理",
                 "controller_name" => "OrderInvoiceManagerCtrl",
                 "route_name" => "cms.order_invoice_manager.index",
             ],

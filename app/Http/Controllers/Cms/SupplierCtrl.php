@@ -43,6 +43,14 @@ class SupplierCtrl extends Controller
         $query = $request->query();
         $this->validInputValue($request);
         $paramReq_supplier = $this->getInputValue($request);
+        //判斷統一編號沒有重複
+        if ('NIL' != $paramReq_supplier['vat_no']) {
+            $supplier = Supplier::where('vat_no', '=', $paramReq_supplier['vat_no'])->get();
+            if (isset($supplier) && 0 < count($supplier)) {
+                return redirect()->back()->withInput()->withErrors(['vat_no' => '重複的統一編號']);
+            }
+        }
+
         $id = Supplier::create([
             'name' => $paramReq_supplier['name'],
             'nickname' => $paramReq_supplier['nickname'],
@@ -227,6 +235,16 @@ class SupplierCtrl extends Controller
         $query = $request->query();
         $this->validInputValue($request);
         $paramReq_supplier = $this->getInputValue($request);
+
+        //判斷除了此ID之外的統一編號沒有重複
+        if ('NIL' != $paramReq_supplier['vat_no']) {
+            $supplier = Supplier::where('vat_no', '=', $paramReq_supplier['vat_no'])
+                ->where('id', '<>', $id)
+                ->get();
+            if (isset($supplier) && 0 < count($supplier)) {
+                return redirect()->back()->withInput()->withErrors(['vat_no' => '重複的統一編號']);
+            }
+        }
 
         Supplier::where('id', '=', $id)->update([
             'name' => $paramReq_supplier['name'],
