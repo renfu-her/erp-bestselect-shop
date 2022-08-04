@@ -87,8 +87,32 @@ class ImportComboProcutSeeder extends Seeder
                 }
             }
 
+            // check style sku exists in databases
+            // 組合包裡面的產品，可以在資料庫找到才建立組合包產品
+            // TODO 局部匯入、或是全部匯入?
+            $productStylesExist = false;
+            foreach ($productArray['variants'] as $variant) {
+                foreach ($jsonDataFromErp as $jsonDatum) {
+                    if ($variant['sku'] == $jsonDatum['sku']) {
+                        foreach ($jsonDatum['data'] as $productData) {
+                            if (DB::table('prd_product_styles')
+                                ->where('sku', '=', $productData['sku'])
+                                ->exists()
+                            ) {
+                                $productStylesExist = true;
+                            } else {
+                                $productStylesExist = false;
+                                print_r('組合包' . $variant['sku'] . '缺少單一產品：'. $productData['sku'] . '-' . $jsonFile . PHP_EOL);
+                                break 3;
+                            }
+                        }
+                    }
+                }
+            }
+
             //開始建立商品
             if ($containProductSku &&
+                $productStylesExist &&
                 !in_array($productArray['id'], $cyberbizIdsArray, true) &&
                 !$containStyleSku
             ) {
@@ -146,24 +170,6 @@ class ImportComboProcutSeeder extends Seeder
                             $comboStyleId = ProductStyle::createComboStyle($productId, $variant['title']);
                         }
 
-                        // check style sku exists in databases
-                        // 組合包裡面的產品，可以在資料庫找到才建立組合包產品
-                        // TODO 局部匯入、或是全部匯入?
-                        $productStylesExist = false;
-                        foreach ($jsonDataFromErp as $jsonDatum) {
-                            if ($variant['sku'] == $jsonDatum['sku']) {
-                                foreach ($jsonDatum['data'] as $productData) {
-                                    if (DB::table('prd_product_styles')
-                                        ->where('sku', '=', $productData['sku'])
-                                        ->exists()
-                                    ) {
-                                        $productStylesExist = true;
-                                    } else {
-                                        $productStylesExist = false;
-                                    }
-                                }
-                            }
-                        }
                         if ($productStylesExist) {
                             foreach ($jsonDataFromErp as $jsonDatum) {
                                 if ($variant['sku'] == $jsonDatum['sku']) {
