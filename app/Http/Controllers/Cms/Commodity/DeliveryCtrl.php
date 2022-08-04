@@ -611,28 +611,29 @@ class DeliveryCtrl extends Controller
                             DB::rollBack();
                             return $rePcsLSC;
                         }
-                        //訂單、寄倉 須將通路庫存加回
-                        //若為理貨倉can_tally 需修改通路庫存
-                        $inboundData = DB::table('pcs_purchase_inbound as inbound')
-                            ->leftJoin('depot', 'depot.id', 'inbound.depot_id')
-                            ->where('inbound.id', '=', $rcv_depot_item->inbound_id)
-                            ->whereNull('inbound.deleted_at');
-                        $inboundDataGet = $inboundData->get()->first();
-                        if ($inboundDataGet->can_tally
-                            && (Event::order()->value == $delivery->event
-                                || Event::ord_pickup()->value == $delivery->event
-                                || Event::consignment()->value == $delivery->event)
-                        ) {
-                            $memo = $rcv_depot_item->memo ?? '';
-                            $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $rcv_depot_item->back_qty
-                                , StockEvent::send_back()->value, $delivery->event_id
-                                , $request->user()->name. ' '. $delivery->sn. ' ' . $memo
-                                , false, $inboundDataGet->can_tally);
-                            if ($rePSSC['success'] == 0) {
-                                DB::rollBack();
-                                return $rePSSC;
-                            }
-                        }
+                        //20220804 在前面取消訂單時 就會把可售數量加回 所以後面不用再做
+//                        //訂單、寄倉 須將通路庫存加回
+//                        //若為理貨倉can_tally 需修改通路庫存
+//                        $inboundData = DB::table('pcs_purchase_inbound as inbound')
+//                            ->leftJoin('depot', 'depot.id', 'inbound.depot_id')
+//                            ->where('inbound.id', '=', $rcv_depot_item->inbound_id)
+//                            ->whereNull('inbound.deleted_at');
+//                        $inboundDataGet = $inboundData->get()->first();
+//                        if ($inboundDataGet->can_tally
+//                            && (Event::order()->value == $delivery->event
+//                                || Event::ord_pickup()->value == $delivery->event
+//                                || Event::consignment()->value == $delivery->event)
+//                        ) {
+//                            $memo = $rcv_depot_item->memo ?? '';
+//                            $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $rcv_depot_item->back_qty
+//                                , StockEvent::send_back()->value, $delivery->event_id
+//                                , $request->user()->name. ' '. $delivery->sn. ' ' . $memo
+//                                , false, $inboundDataGet->can_tally);
+//                            if ($rePSSC['success'] == 0) {
+//                                DB::rollBack();
+//                                return $rePSSC;
+//                            }
+//                        }
                     }
                 }
                 return ['success' => 1];
@@ -728,28 +729,30 @@ class DeliveryCtrl extends Controller
                         DB::rollBack();
                         return $rePcsLSC;
                     }
-                    //訂單、寄倉 須將通路庫存減回
-                    //若為理貨倉can_tally 需修改通路庫存
-                    $inboundData = DB::table('pcs_purchase_inbound as inbound')
-                        ->leftJoin('depot', 'depot.id', 'inbound.depot_id')
-                        ->where('inbound.id', '=', $val_rcv->inbound_id)
-                        ->whereNull('inbound.deleted_at');
-                    $inboundDataGet = $inboundData->get()->first();
-                    if (isset($inboundDataGet) && isset($inboundDataGet->can_tally) && $inboundDataGet->can_tally
-                        && (Event::order()->value == $delivery->event
-                            || Event::ord_pickup()->value == $delivery->event
-                            || Event::consignment()->value == $delivery->event)
-                    ) {
-                        $memo = '';
-                        $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $val_rcv->back_qty * -1
-                            , StockEvent::send_back_cancle()->value, $delivery->event_id
-                            , $request->user()->name. ' '. $delivery->sn. ' ' . $memo
-                            , false, $inboundDataGet->can_tally);
-                        if ($rePSSC['success'] == 0) {
-                            DB::rollBack();
-                            return $rePSSC;
-                        }
-                    }
+
+                    //20220804 在前面取消訂單時 就會把可售數量加回 所以後面不用再做
+//                    //訂單、寄倉 須將通路庫存減回
+//                    //若為理貨倉can_tally 需修改通路庫存
+//                    $inboundData = DB::table('pcs_purchase_inbound as inbound')
+//                        ->leftJoin('depot', 'depot.id', 'inbound.depot_id')
+//                        ->where('inbound.id', '=', $val_rcv->inbound_id)
+//                        ->whereNull('inbound.deleted_at');
+//                    $inboundDataGet = $inboundData->get()->first();
+//                    if (isset($inboundDataGet) && isset($inboundDataGet->can_tally) && $inboundDataGet->can_tally
+//                        && (Event::order()->value == $delivery->event
+//                            || Event::ord_pickup()->value == $delivery->event
+//                            || Event::consignment()->value == $delivery->event)
+//                    ) {
+//                        $memo = '';
+//                        $rePSSC = ProductStock::stockChange($inboundDataGet->product_style_id, $val_rcv->back_qty * -1
+//                            , StockEvent::send_back_cancle()->value, $delivery->event_id
+//                            , $request->user()->name. ' '. $delivery->sn. ' ' . $memo
+//                            , false, $inboundDataGet->can_tally);
+//                        if ($rePSSC['success'] == 0) {
+//                            DB::rollBack();
+//                            return $rePSSC;
+//                        }
+//                    }
                 }
 
                 return ['success' => 1];
