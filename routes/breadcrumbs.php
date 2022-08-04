@@ -827,6 +827,24 @@ Breadcrumbs::for('cms.account_received.ro-taxation', function (BreadcrumbTrail $
     $trail->push('修改摘要/稅別');
 });
 
+// 轉帳傳票
+Breadcrumbs::for('cms.transfer_voucher.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('轉帳傳票', route('cms.transfer_voucher.index'));
+});
+Breadcrumbs::for('cms.transfer_voucher.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.transfer_voucher.index');
+    $trail->push('新增轉帳傳票');
+});
+Breadcrumbs::for('cms.transfer_voucher.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.transfer_voucher.index');
+    $trail->push('編輯轉帳傳票');
+});
+Breadcrumbs::for('cms.transfer_voucher.show', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.transfer_voucher.index');
+    $trail->push('轉帳傳票');
+});
+
 // 信用卡作業管理
 Breadcrumbs::for('cms.credit_manager.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
@@ -866,12 +884,12 @@ Breadcrumbs::for('cms.credit_card.edit', function (BreadcrumbTrail $trail) {
     $trail->push('編輯');
 });
 
-// 發票作業管理
+// 電子發票作業管理
 Breadcrumbs::for('cms.order_invoice_manager.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
     $trail->push('發票查詢', route('cms.order_invoice_manager.index'));
 });
-// 發票作業管理
+// 電子發票作業管理
 Breadcrumbs::for('cms.order_invoice_manager.month', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
     $trail->push('發票月報表', route('cms.order_invoice_manager.month'));

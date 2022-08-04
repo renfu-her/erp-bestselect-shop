@@ -34,8 +34,62 @@ class StituteOrderCtrl extends Controller
         $query = $request->query();
         $page = getPageCount(Arr::get($query, 'data_per_page', 100)) > 0 ? getPageCount(Arr::get($query, 'data_per_page', 100)) : 100;
 
+        $cond = [];
+
+        $cond['client_key'] = Arr::get($query, 'client_key', null);
+        if (gettype($cond['client_key']) == 'string') {
+            $key = explode('|', $cond['client_key']);
+            $cond['client']['id'] = $key[0];
+            $cond['client']['name'] = $key[1];
+        } else {
+            $cond['client'] = [];
+        }
+
+        $cond['so_sn'] = Arr::get($query, 'so_sn', null);
+        $cond['source_sn'] = Arr::get($query, 'source_sn', null);
+
+        $cond['stitute_min_price'] = Arr::get($query, 'stitute_min_price', null);
+        $cond['stitute_max_price'] = Arr::get($query, 'stitute_max_price', null);
+        $stitute_price = [
+            $cond['stitute_min_price'],
+            $cond['stitute_max_price']
+        ];
+
+        $cond['stitute_sdate'] = Arr::get($query, 'stitute_sdate', null);
+        $cond['stitute_edate'] = Arr::get($query, 'stitute_edate', null);
+        $stitute_payment_date = [
+            $cond['stitute_sdate'],
+            $cond['stitute_edate']
+        ];
+
+        $cond['check_payment'] = Arr::get($query, 'check_payment', 'all');
+
+        $dataList = StituteOrder::stitute_order_list(
+            $cond['client'],
+            $cond['so_sn'],
+            $cond['source_sn'],
+            $stitute_price,
+            $stitute_payment_date,
+            $cond['check_payment'],
+        )->paginate($page)->appends($query);
+
+        $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $client_merged = array_merge($customer, $depot, $supplier);
+
+        $check_payment_status = [
+            'all'=>'不限',
+            '0'=>'未入款',
+            '1'=>'已入款',
+        ];
+
         return view('cms.account_management.stitute.list', [
             'data_per_page' => $page,
+            'dataList' => $dataList,
+            'cond' => $cond,
+            'client' => $client_merged,
+            'check_payment_status' => $check_payment_status,
         ]);
     }
 

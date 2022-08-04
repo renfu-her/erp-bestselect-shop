@@ -320,7 +320,7 @@ class InboundImportCtrl extends Controller
             'inboundData' => $inbound,
             'formAction' => Route('cms.inbound_import.inbound_edit_store', ['inboundId' => $inbound_id]),
             ])
-            ->with('backUrl', Session::get('backUrl', URL::previous()));
+            ->with('backUrl', old('backUrl', Session::get('backUrl', URL::previous())));
     }
 
     public function inbound_edit_store(Request $request, $inbound_id)

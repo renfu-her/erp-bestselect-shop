@@ -28,7 +28,7 @@
                     <input class="form-control" type="text" name="buyer_ubn" value="{{ $cond['buyer_ubn'] }}" placeholder="請輸入統一編號">
                 </div>
                 <div class="col-12 mb-3">
-                    <label class="form-label">刷卡日期起訖</label>
+                    <label class="form-label">發票日期起訖</label>
                     <div class="input-group has-validation">
                         <input type="date" class="form-control -startDate @error('invoice_sdate') is-invalid @enderror" name="invoice_sdate" value="{{ $cond['invoice_sdate'] }}" aria-label="起始日期" />
                         <input type="date" class="form-control -endDate @error('invoice_edate') is-invalid @enderror" name="invoice_edate" value="{{ $cond['invoice_edate'] }}" aria-label="結束日期" />

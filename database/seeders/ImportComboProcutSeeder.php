@@ -19,7 +19,11 @@ class ImportComboProcutSeeder extends Seeder
      */
     public function run()
     {
-        if (App::environment(AppEnvClass::Release)) {
+        if (App::environment([
+            AppEnvClass::Local,
+            AppEnvClass::Development,
+            AppEnvClass::Release,
+        ])) {
             $userId = 1;
             $categoryId = 1;
             $supplierId = 1;
@@ -87,8 +91,32 @@ class ImportComboProcutSeeder extends Seeder
                 }
             }
 
-                //開始建立商品
+            // check style sku exists in databases
+            // 組合包裡面的產品，可以在資料庫找到才建立組合包產品
+            // TODO 局部匯入、或是全部匯入?
+            $productStylesExist = false;
+            foreach ($productArray['variants'] as $variant) {
+                foreach ($jsonDataFromErp as $jsonDatum) {
+                    if ($variant['sku'] == $jsonDatum['sku']) {
+                        foreach ($jsonDatum['data'] as $productData) {
+                            if (DB::table('prd_product_styles')
+                                ->where('sku', '=', $productData['sku'])
+                                ->exists()
+                            ) {
+                                $productStylesExist = true;
+                            } else {
+                                $productStylesExist = false;
+                                print_r('組合包' . $variant['sku'] . '缺少單一產品：'. $productData['sku'] . '-' . $jsonFile . PHP_EOL);
+                                break 3;
+                            }
+                        }
+                    }
+                }
+            }
+
+            //開始建立商品
             if ($containProductSku &&
+                $productStylesExist &&
                 !in_array($productArray['id'], $cyberbizIdsArray, true) &&
                 !$containStyleSku
             ) {
@@ -146,24 +174,6 @@ class ImportComboProcutSeeder extends Seeder
                             $comboStyleId = ProductStyle::createComboStyle($productId, $variant['title']);
                         }
 
-                        // check style sku exists in databases
-                        // 組合包裡面的產品，可以在資料庫找到才建立組合包產品
-                        // TODO 局部匯入、或是全部匯入?
-                        $productStylesExist = false;
-                        foreach ($jsonDataFromErp as $jsonDatum) {
-                            if ($variant['sku'] == $jsonDatum['sku']) {
-                                foreach ($jsonDatum['data'] as $productData) {
-                                    if (DB::table('prd_product_styles')
-                                        ->where('sku', '=', $productData['sku'])
-                                        ->exists()
-                                    ) {
-                                        $productStylesExist = true;
-                                    } else {
-                                        $productStylesExist = false;
-                                    }
-                                }
-                            }
-                        }
                         if ($productStylesExist) {
                             foreach ($jsonDataFromErp as $jsonDatum) {
                                 if ($variant['sku'] == $jsonDatum['sku']) {
@@ -213,5 +223,36 @@ class ImportComboProcutSeeder extends Seeder
                 }
             }
         }
+    }
+
+    /**
+     * @param $allJsonFile
+     * @param $jsonDataFromErp
+     * 統計缺少單一產品SKU,所以無法建立組合包
+     * Ex. 組合包C220729003缺少單一產品:P220729006-42:37590636.json
+     * @return void
+     */
+    public static function calculateLackSku($allJsonFile, $jsonDataFromErp)
+    {
+        foreach ($allJsonFile as $jsonFile) {
+            $strJsonFileContents = file_get_contents(database_path('seeders/Json/').$jsonFile);
+            $productArray = json_decode($strJsonFileContents, true);
+
+            foreach ($productArray['variants'] as $variant) {
+                foreach ($jsonDataFromErp as $jsonDatum) {
+                    if ($variant['sku'] == $jsonDatum['sku']) {
+                        foreach ($jsonDatum['data'] as $productData) {
+                            if (DB::table('prd_product_styles')
+                                ->where('sku', '=', $productData['sku'])
+                                ->doesntExist()
+                            ) {
+                                print_r('組合包'.$variant['sku'].'缺少單一產品:'.$productData['sku'].':'.$jsonFile.PHP_EOL);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        dd(1);
     }
 }

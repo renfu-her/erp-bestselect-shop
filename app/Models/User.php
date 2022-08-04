@@ -243,4 +243,12 @@ class User extends Authenticatable
         DB::commit();
         echo "匯入完成";
     }
+
+    public static function getUserCustomer($user_id)
+    {
+        return DB::table('usr_users as user')
+            ->join('usr_customers as customer', 'user.customer_id', '=', 'customer.id')
+            ->get()
+            ->first();
+    }
 }

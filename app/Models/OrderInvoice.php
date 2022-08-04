@@ -427,6 +427,7 @@ class OrderInvoice extends Model
     public static function getData($param) {
         $query = DB::table(app(OrderInvoice::class)->getTable(). ' as ord_invoice')
             ->select('ord_invoice.*'
+                , DB::raw('(substring_index(ord_invoice.item_name, "|", 1)) as item_1_name')
                 , DB::raw('DATE_FORMAT((ifnull(ord_invoice.create_status_time, ord_invoice.created_at)),"%Y-%m-%d") as invoice_date')
             )
             ->whereNull('ord_invoice.deleted_at');
