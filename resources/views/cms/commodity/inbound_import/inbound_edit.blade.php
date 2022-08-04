@@ -1,7 +1,7 @@
 @extends('layouts.main')
 @section('sub-content')
     <div class="pt-2 mb-3">
-        <a href="{{ URL::previous() }}" class="btn btn-primary" role="button">
+        <a href="{{ $backUrl }}" class="btn btn-primary" role="button">
             <i class="bi bi-arrow-left"></i> 返回上一頁
         </a>
     </div>
