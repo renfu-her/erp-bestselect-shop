@@ -827,6 +827,24 @@ Breadcrumbs::for('cms.account_received.ro-taxation', function (BreadcrumbTrail $
     $trail->push('修改摘要/稅別');
 });
 
+// 轉帳傳票
+Breadcrumbs::for('cms.transfer_voucher.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('轉帳傳票', route('cms.transfer_voucher.index'));
+});
+Breadcrumbs::for('cms.transfer_voucher.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.transfer_voucher.index');
+    $trail->push('新增轉帳傳票');
+});
+Breadcrumbs::for('cms.transfer_voucher.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.transfer_voucher.index');
+    $trail->push('編輯轉帳傳票');
+});
+Breadcrumbs::for('cms.transfer_voucher.show', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.transfer_voucher.index');
+    $trail->push('轉帳傳票');
+});
+
 // 信用卡作業管理
 Breadcrumbs::for('cms.credit_manager.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');

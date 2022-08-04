@@ -171,11 +171,11 @@ return
                 "controller_name" => "CollectionReceivedCtrl",
                 "route_name" => "cms.collection_received.index",
             ],
-            // [
-            //     "title" => "代墊單作業",
-            //     "controller_name" => "StituteOrderCtrl",
-            //     "route_name" => "cms.stitute.index",
-            // ],
+            [
+                "title" => "代墊單作業",
+                "controller_name" => "StituteOrderCtrl",
+                "route_name" => "cms.stitute.index",
+            ],
             [
                 "title" => "請款單作業",
                 "controller_name" => "RequestOrderCtrl",
@@ -185,6 +185,11 @@ return
                 "title" => "應收帳款",
                 "controller_name" => "AccountReceivedCtrl",
                 "route_name" => "cms.account_received.index",
+            ],
+            [
+                "title" => "轉帳傳票",
+                "controller_name" => "TransferVoucherCtrl",
+                "route_name" => "cms.transfer_voucher.index",
             ],
             [
                 "title" => "信用卡作業管理",

@@ -15,7 +15,7 @@
             <div class="row">
                 <div class="col-12 col-sm-4 mb-3">
                     <label class="form-label">客戶</label>
-                    <select class="form-select -select2 -single" name="client_key" aria-label="客戶" data-placeholder="請輸入客戶">
+                    <select class="form-select -select2 -single" name="client_key" aria-label="客戶" data-placeholder="請選擇客戶">
                         <option value="" selected>不限</option>
                         @foreach ($client as $value)
                             <option value="{{ $value['id'] . '|' . $value['name'] }}" {{ $value['id'] . '|' . $value['name'] == $cond['client_key'] ? 'selected' : '' }}>{{ $value['name'] }}</option>
