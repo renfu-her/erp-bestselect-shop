@@ -320,7 +320,7 @@ return [
         ],
     ],
     [
-        "unit" => "發票作業管理",
+        "unit" => "電子發票作業管理",
         "permissions" => [
             [
                 "cms.order_invoice_manager.index",
