@@ -19,7 +19,11 @@ class ImportComboProcutSeeder extends Seeder
      */
     public function run()
     {
-        if (App::environment(AppEnvClass::Release)) {
+        if (App::environment([
+            AppEnvClass::Local,
+            AppEnvClass::Development,
+            AppEnvClass::Release,
+        ])) {
             $userId = 1;
             $categoryId = 1;
             $supplierId = 1;
