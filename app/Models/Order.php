@@ -795,7 +795,9 @@ class Order extends Model
 
         if ($type == 'backend') {
 
-            $order_status = [OrderStatus::Closed(),OrderStatus::Canceled()];
+            $order_status = [OrderStatus::Closed(),OrderStatus::Canceled()
+                ,OrderStatus::BackProcessing(),OrderStatus::CancleBack(),OrderStatus::Backed()
+            ];
 
             if (!in_array($order->status_code, $order_status)) {
                 return true;
