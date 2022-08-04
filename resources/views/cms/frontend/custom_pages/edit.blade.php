@@ -65,6 +65,9 @@
                                            @if(old('type', $dataList->type ?? 1) === $key)
                                                checked
                                            @endif
+                                           @if ($key === 2)
+                                               disabled
+                                           @endif
                                            name="type"
                                            required
                                            type="radio">
@@ -74,7 +77,7 @@
                     </div>
                     <div class="bg-light small text-secondary px-3 py-2">
                         <p class="mb-0">* 一般頁：基本文字、排版、圖片，<span class="text-danger">不支援 javascript 程式碼、外部引用 CSS / JS 等套件</span></p>
-                        <p class="mb-0">* 活動頁：支援較複雜的網頁內容（行內/內嵌 javascript 程式碼、外部引用套件）</p>
+                        {{-- <p class="mb-0">* 活動頁：支援較複雜的網頁內容（行內/內嵌 javascript 程式碼、外部引用套件）</p> --}}
                     </div>
                 </x-b-form-group>
             </div>
