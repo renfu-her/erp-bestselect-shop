@@ -36,7 +36,7 @@ class OrderInvoiceManagerCtrl extends Controller
     {
         $query = $request->query();
         $cond = [];
-        $cond['invoice_month'] = Arr::get($query, 'invoice_month', null);
+        $cond['invoice_month'] = Arr::get($query, 'invoice_month', date('Y-m'));
         $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 100)) > 0 ? getPageCount(Arr::get($query, 'data_per_page', 100)) : 100;;
 
         if (isset($cond['invoice_month'])) {
