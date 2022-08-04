@@ -1,7 +1,8 @@
 @extends('layouts.main')
 @section('sub-content')
     @if ($_SERVER['SERVER_NAME'] === '127.0.0.1' || $_SERVER['SERVER_NAME'] === 'localhost')
-        <a href="/demo" class="btn btn-warning mb-3">Demo page</a>
+        <a href="/demo" class="btn btn-warning mb-3">
+            Demo page</a>
     @endif
 
     <div class="d-flex flex-wrap">
@@ -30,15 +31,39 @@
                 </div>
                 <div class="col px-3 py-2 d-flex align-items-end">
                     <div>
-                        NT$ <span class="data text-nowrap">{{ number_format(123456) }}</span> /
-                        <span class="text-nowrap">78筆訂單</span>
+                        NT$ <span class="data text-nowrap">
+                            @if (isset($reportMonth->price))
+                                {{ number_format($reportMonth->price) }}
+                            @else
+                                0
+                            @endif
+                        </span> /
+                        <span class="text-nowrap">
+                            @if (isset($reportMonth->qty))
+                                {{ $reportMonth->qty }}
+                            @else
+                                0
+                            @endif 筆訂單
+                        </span>
                     </div>
                     <div class="title bg-secondary text-white">本月</div>
                 </div>
                 <div class="col px-3 py-2 d-flex align-items-end">
                     <div>
-                        NT$ <span class="data text-nowrap">{{ number_format(123456) }}</span> /
-                        <span class="text-nowrap">78筆訂單</span>
+                        NT$ <span class="data text-nowrap">
+                            @if (isset($reportPrevMonth->price))
+                                {{ number_format($reportPrevMonth->price) }}
+                            @else
+                                0
+                            @endif
+                        </span> /
+                        <span class="text-nowrap">
+                            @if (isset($reportPrevMonth->qty))
+                                {{ $reportPrevMonth->qty }}
+                            @else
+                                0
+                            @endif 筆訂單
+                        </span>
                     </div>
                     <div class="title bg-secondary text-white">上月</div>
                 </div>
