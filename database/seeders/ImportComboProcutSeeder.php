@@ -87,7 +87,7 @@ class ImportComboProcutSeeder extends Seeder
                 }
             }
 
-                //開始建立商品
+            //開始建立商品
             if ($containProductSku &&
                 !in_array($productArray['id'], $cyberbizIdsArray, true) &&
                 !$containStyleSku
@@ -213,5 +213,36 @@ class ImportComboProcutSeeder extends Seeder
                 }
             }
         }
+    }
+
+    /**
+     * @param $allJsonFile
+     * @param $jsonDataFromErp
+     * 統計缺少單一產品SKU,所以無法建立組合包
+     * Ex. 組合包C220729003缺少單一產品:P220729006-42:37590636.json
+     * @return void
+     */
+    public static function calculateLackSku($allJsonFile, $jsonDataFromErp)
+    {
+        foreach ($allJsonFile as $jsonFile) {
+            $strJsonFileContents = file_get_contents(database_path('seeders/Json/').$jsonFile);
+            $productArray = json_decode($strJsonFileContents, true);
+
+            foreach ($productArray['variants'] as $variant) {
+                foreach ($jsonDataFromErp as $jsonDatum) {
+                    if ($variant['sku'] == $jsonDatum['sku']) {
+                        foreach ($jsonDatum['data'] as $productData) {
+                            if (DB::table('prd_product_styles')
+                                ->where('sku', '=', $productData['sku'])
+                                ->doesntExist()
+                            ) {
+                                print_r('組合包'.$variant['sku'].'缺少單一產品:'.$productData['sku'].':'.$jsonFile.PHP_EOL);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        dd(1);
     }
 }
