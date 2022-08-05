@@ -404,9 +404,7 @@ class LogisticCtrl extends Controller
         if ($createOrder['success'] == 0) {
             throw ValidationException::withMessages(['createOrder' => json_encode($createOrder['error_msg'])]);
         } else {
-            Logistic::where('id', $logistic_id)->update([
-                'projlgt_order_sn' => $createOrder['sn']
-            ]);
+            Logistic::updateProjlgtOrderSn($logistic_id, $createOrder['sn'], $delivery->event, $delivery->event_id);
             wToast('新增託運單成功');
         }
 
@@ -437,9 +435,7 @@ class LogisticCtrl extends Controller
         if ($delSn['success'] == 0) {
             throw ValidationException::withMessages(['sn' => $delSn['error_msg']]);
         } else {
-            Logistic::where('id', $logisticId)->update([
-                'projlgt_order_sn' => null
-            ]);
+            Logistic::updateProjlgtOrderSn($logisticId, null, $event, $eventId);
             wToast('刪除託運單成功');
         }
         return redirect(Route('cms.logistic.create', [

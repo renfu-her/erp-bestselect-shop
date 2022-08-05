@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Delivery\Event;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -88,5 +89,21 @@ class Logistic extends Model
                 return ['success' => 1, 'error_msg' => ""];
             }
         });
+    }
+
+    public static function updateProjlgtOrderSn($logistic_id, $order_sn, $dlv_event, $dvl_event_id) {
+        $updateData = ['projlgt_order_sn' => $order_sn];
+
+        Logistic::where('id', $logistic_id)->update($updateData);
+
+        $event_table = null;
+        if (Event::order()->value == $dlv_event) {
+            $event_table = app(SubOrders::class)->getTable();
+        } else if (Event::consignment()->value == $dlv_event) {
+            $event_table = app(Consignment::class)->getTable();
+        } else if (Event::csn_order()->value == $dlv_event) {
+            $event_table = app(CsnOrder::class)->getTable();
+        }
+        DB::table($event_table. ' as event_tb')->where('event_tb.id', '=', $dvl_event_id)->update($updateData);
     }
 }
