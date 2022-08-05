@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Cms\Settings\OrderInvoiceManagerCtrl;
+use App\Http\Controllers\Cms\AccountManagement\OrderInvoiceManagerCtrl;
 use Illuminate\Support\Facades\Route;
 
 /**

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Cms\Settings;
+namespace App\Http\Controllers\Cms\AccountManagement;
 
 use App\Exports\OrderInvoice\OrderInvoiceExport;
 use App\Http\Controllers\Controller;
@@ -25,7 +25,7 @@ class OrderInvoiceManagerCtrl extends Controller
 
         $data_list = OrderInvoice::getData($cond)->paginate($cond['data_per_page'])->appends($query);
 
-        return view('cms.settings.order_invoice_manager.list', [
+        return view('cms.account_management.order_invoice_manager.list', [
             'data_per_page' => $cond['data_per_page'],
             'data_list' => $data_list,
             'cond' => $cond,
@@ -45,7 +45,7 @@ class OrderInvoiceManagerCtrl extends Controller
         }
         $data_list = OrderInvoice::getData($cond)->paginate($cond['data_per_page'])->appends($query);
 
-        return view('cms.settings.order_invoice_manager.month', [
+        return view('cms.account_management.order_invoice_manager.month', [
             'data_per_page' => $cond['data_per_page'],
             'data_list' => $data_list,
             'cond' => $cond,
