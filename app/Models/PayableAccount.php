@@ -12,10 +12,8 @@ class PayableAccount extends Model
     use HasFactory;
 
     protected $table = 'acc_payable_account';
-    protected $fillable = [
-        'grade_type',
-        'grade_id',
-    ];
+    protected $guarded = [];
+
 
     /**
      * 取得「應付帳款」方式對應到acc_payable table資料
@@ -43,8 +41,8 @@ class PayableAccount extends Model
     public static function storePayablePayableAccount($req)
     {
         $payableData =self::create([
-            'grade_type' => AllGrade::findOrFail($req['payable_account']['grade_id_fk'])->grade_type,
-            'grade_id' => $req['payable_account']['grade_id_fk'],
+            'status_code'=>0,
+            'created_at'=>date("Y-m-d H:i:s"),
         ]);
 
         AccountPayable::create([

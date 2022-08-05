@@ -203,14 +203,18 @@
                             <td>{{ $data->credit_card_type }}</td>
                             <td>
                                 @if($data->ro_source_type == 'ord_orders')
-                                <a href="{{ route('cms.collection_received.receipt', ['id' => $data->ro_source_id]) }}" class="-text">{{ $data->ro_sn }}</a>
+                                <a href="{{ route('cms.collection_received.receipt', ['id' => $data->ro_source_id]) }}">{{ $data->ro_sn }}</a>
                                 @elseif($data->ro_source_type == 'csn_orders')
-                                <a href="{{ route('cms.ar_csnorder.receipt', ['id' => $data->ro_source_id]) }}" class="-text">{{ $data->ro_sn }}</a>
+                                <a href="{{ route('cms.ar_csnorder.receipt', ['id' => $data->ro_source_id]) }}">{{ $data->ro_sn }}</a>
+                                @elseif($data->ro_source_type == 'ord_received_orders')
+                                <a href="{{ route('cms.account_received.ro-receipt', ['id' => $data->ro_source_id]) }}">{{ $data->ro_sn }}</a>
+                                @elseif($data->ro_source_type == 'acc_request_orders')
+                                <a href="{{ route('cms.request.ro-receipt', ['id' => $data->ro_source_id]) }}">{{ $data->ro_sn }}</a>
                                 @endif
                             </td>
                             <td>{!! $data->credit_card_checkout_mode == 'online' ? '<i class="bi bi-check-lg"></i>' : '<i class="bi bi-x-lg"></i>' !!}</td>
                             <td>{{ $data->credit_card_posting_date ? date('Y-m-d', strtotime($data->credit_card_posting_date)) : '' }}</td>
-                            <td><a href="{{ $data->io_id ? route('cms.credit_manager.income-detail', ['id' => $data->io_id]) : 'javascript:void(0);'}}" class="-text">{{ $data->io_sn }}</a></td>
+                            <td><a href="{{ $data->io_id ? route('cms.credit_manager.income-detail', ['id' => $data->io_id]) : 'javascript:void(0);'}}">{{ $data->io_sn }}</a></td>
                             <td>{{ $data->credit_card_area }}</td>
                             <td>{{ $data->bank_name }}</td>
                         </tr>

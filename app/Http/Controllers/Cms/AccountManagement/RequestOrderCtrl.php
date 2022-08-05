@@ -481,8 +481,12 @@ class RequestOrderCtrl extends Controller
         $received_order = ReceivedOrder::findOrFail($request_order->received_order_id);
         $received_data = ReceivedOrder::get_received_detail($request_order->received_order_id);
 
-        if (!$received_order || !$received_order->balance_date) {
-            return abort(404);
+        if (!$received_order->balance_date) {
+            // return abort(404);
+
+            return redirect()->route('cms.request.ro-edit', [
+                'id' => $id,
+            ]);
         }
 
         $purchaser = $request_order;

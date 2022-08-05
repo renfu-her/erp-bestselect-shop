@@ -722,9 +722,9 @@ Breadcrumbs::for('cms.received_default.edit', function (BreadcrumbTrail $trail) 
 });
 
 // 付款作業
-Breadcrumbs::for('cms.ap.index', function (BreadcrumbTrail $trail) {
+Breadcrumbs::for('cms.collection_payment.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('付款作業', route('cms.ap.index'));
+    $trail->push('付款作業', route('cms.collection_payment.index'));
 });
 
 // 代墊單作業
@@ -797,6 +797,24 @@ Breadcrumbs::for('cms.request.ro-taxation', function (BreadcrumbTrail $trail, $v
     $trail->push('請款單', route('cms.request.show', ['id' => $value['id']]));
     $trail->push('收款單', route('cms.request.ro-receipt', ['id' => $value['id']]));
     $trail->push('修改摘要/稅別');
+});
+
+// 應付帳款
+Breadcrumbs::for('cms.accounts_payable.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('應付帳款', route('cms.accounts_payable.index'));
+});
+Breadcrumbs::for('cms.accounts_payable.claim', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.accounts_payable.index');
+    $trail->push('應付帳款付款');
+});
+Breadcrumbs::for('cms.accounts_payable.po-edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.accounts_payable.index');
+    $trail->push('新增付款單');
+});
+Breadcrumbs::for('cms.accounts_payable.po-show', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.accounts_payable.index');
+    $trail->push('付款單');
 });
 
 // 應收帳款

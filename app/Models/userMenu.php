@@ -163,8 +163,8 @@ return
         "child" => [
             [
                 "title" => "付款作業",
-                "controller_name" => "AccountPayableCtrl",
-                "route_name" => "cms.ap.index",
+                "controller_name" => "CollectionPaymentCtrl",
+                "route_name" => "cms.collection_payment.index",
             ],
             [
                 "title" => "收款作業",
@@ -180,6 +180,11 @@ return
                 "title" => "請款單作業",
                 "controller_name" => "RequestOrderCtrl",
                 "route_name" => "cms.request.index",
+            ],
+            [
+                "title" => "應付帳款",
+                "controller_name" => "AccountsPayableCtrl",
+                "route_name" => "cms.accounts_payable.index",
             ],
             [
                 "title" => "應收帳款",

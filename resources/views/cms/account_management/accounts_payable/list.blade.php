@@ -1,6 +1,7 @@
 @extends('layouts.main')
+
 @section('sub-content')
-    <h2 class="mb-4">應收帳款查詢</h2>
+    <h2 class="mb-4">應付帳款查詢</h2>
 
     <form id="search" method="GET">
         <div class="card shadow p-4 mb-4">
@@ -8,24 +9,24 @@
             <div class="row">
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">會計科目</label>
-                    <select class="form-select -select2 -single" name="account_received_grade_id" aria-label="會計科目" data-placeholder="請選擇會計科目">
+                    <select class="form-select -select2 -single" name="accounts_payable_grade_id" aria-label="會計科目" data-placeholder="請選擇會計科目">
                         <option value="" selected>不限</option>
-                        @foreach ($account_received_grade as $value)
-                            <option value="{{ $value->grade_id }}" {{ in_array($value->grade_id, $cond['account_received_grade_id']) ? 'selected' : '' }}>{{ $value->grade_code }} {{ $value->grade_name }}</option>
+                        @foreach ($accounts_payable_grade as $value)
+                            <option value="{{ $value->grade_id }}" {{ in_array($value->grade_id, $cond['accounts_payable_grade_id']) ? 'selected' : '' }}>{{ $value->grade_code }} {{ $value->grade_name }}</option>
                         @endforeach
                     </select>
                 </div>
 
                 <fieldset class="col-12 col-sm-6 mb-3">
-                    <legend class="col-form-label p-0 mb-2">應收帳款狀態</legend>
+                    <legend class="col-form-label p-0 mb-2">應付帳款狀態</legend>
                     <div class="px-1 pt-1">
                         @foreach (['', 0, 1] as $value)
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
                                     <input class="form-check-input" name="status_code" type="radio" value="{{ $value }}" {{ (string)$value == $cond['status_code'] ? 'checked' : '' }}>
                                     @if($value === '') 不限
-                                    @elseif($value === 0) 未入款
-                                    @elseif($value === 1) 已入款
+                                    @elseif($value === 0) 未付款
+                                    @elseif($value === 1) 已付款
                                     @endif
 
                                 </label>
@@ -35,20 +36,20 @@
                 </fieldset>
 
                 <div class="col-12 mb-3">
-                    <label class="form-label">收款單日期起訖</label>
+                    <label class="form-label">付款單日期起訖</label>
                     <div class="input-group has-validation">
-                        <input type="date" class="form-control -startDate @error('ro_created_sdate') is-invalid @enderror" name="ro_created_sdate" value="{{ $cond['ro_created_sdate'] }}" aria-label="收款單起始日期">
-                        <input type="date" class="form-control -endDate @error('ro_created_edate') is-invalid @enderror" name="ro_created_edate" value="{{ $cond['ro_created_edate'] }}" aria-label="收款單結束日期">
+                        <input type="date" class="form-control -startDate @error('po_created_sdate') is-invalid @enderror" name="po_created_sdate" value="{{ $cond['po_created_sdate'] }}" aria-label="付款單起始日期">
+                        <input type="date" class="form-control -endDate @error('po_created_edate') is-invalid @enderror" name="po_created_edate" value="{{ $cond['po_created_edate'] }}" aria-label="付款單結束日期">
                         <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
                         <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
                         <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
                         <button class="btn px-2" data-daysBefore="6" type="button">近7日</button>
                         <button class="btn" data-daysBefore="month" type="button">本月</button>
                         <div class="invalid-feedback">
-                            @error('ro_created_sdate')
+                            @error('po_created_sdate')
                                 {{ $message }}
                             @enderror
-                            @error('ro_created_edate')
+                            @error('po_created_edate')
                                 {{ $message }}
                             @enderror
                         </div>
@@ -114,29 +115,44 @@
                     @foreach ($data_list as $key => $data)
                         <tr>
                             <td>{{ $key + 1 }}</td>
-                            <td><a href="{{ route('cms.account_received.claim', ['type'=>'t', 'id'=>$data->ro_target_id, 'key'=>$data->ro_target_name])}}">{{ $data->ro_target_name }}</a></td>
-                            <td><a href="{{ route('cms.account_received.claim', ['type'=>'g', 'id'=>$data->ro_received_grade_id, 'key'=>$data->ro_received_grade_name])}}">{{ $data->ro_received_grade_code }} {{ $data->ro_received_grade_name }}</a></td>
+                            <td><a href="{{ route('cms.accounts_payable.claim', ['type'=>'t', 'id'=>$data->po_target_id, 'key'=>$data->po_target_name])}}">{{ $data->po_target_name }}</a></td>
+                            <td><a href="{{ route('cms.accounts_payable.claim', ['type'=>'g', 'id'=>$data->po_payable_grade_id, 'key'=>$data->po_payable_grade_name])}}">{{ $data->po_payable_grade_code }} {{ $data->po_payable_grade_name }}</a></td>
                             <td>{{ $data->summary }}</td>
                             <td>{{ number_format($data->tw_price) }}</td>
-                            <td>{{ $data->account_status_code == 0 ? '未入款' : '已入款' }}</td>
-                            <td>{{ $data->ro_created ? date('Y-m-d', strtotime($data->ro_created)) : '' }}</td>
+                            <td>{{ $data->account_status_code == 0 ? '未付款' : '已付款' }}</td>
+                            <td>{{ $data->po_created ? date('Y-m-d', strtotime($data->po_created)) : '' }}</td>
                             <td>
-                                @if($data->append_ro_source_type == 'ord_received_orders' && $data->account_status_code == 0)
-                                <a href="{{ route('cms.account_received.ro-edit', ['id' => $data->append_ro_source_id]) }}">{{ $data->append_ro_sn }}</a>
-                                @elseif($data->append_ro_source_type == 'ord_received_orders' && $data->account_status_code == 1)
-                                <a href="{{ route('cms.account_received.ro-receipt', ['id' => $data->append_ro_source_id]) }}">{{ $data->append_ro_sn }}</a>
+                                @if($data->append_po_source_type == 'pcs_paying_orders' && $data->account_status_code == 0)
+                                <a href="{{ route('cms.accounts_payable.po-edit', ['id' => $data->append_po_source_id]) }}">{{ $data->append_po_sn }}</a>
+                                @elseif($data->append_po_source_type == 'pcs_paying_orders' && $data->account_status_code == 1)
+                                <a href="{{ route('cms.accounts_payable.po-show', ['id' => $data->append_po_source_id]) }}">{{ $data->append_po_sn }}</a>
                                 @endif
                             </td>
                             <td>
-                                @if($data->ro_source_type == 'ord_orders')
-                                <a href="{{ route('cms.collection_received.receipt', ['id' => $data->ro_source_id]) }}">{{ $data->ro_sn }}</a>
-                                @elseif($data->ro_source_type == 'csn_orders')
-                                <a href="{{ route('cms.ar_csnorder.receipt', ['id' => $data->ro_source_id]) }}">{{ $data->ro_sn }}</a>
-                                @elseif($data->ro_source_type == 'ord_received_orders')
-                                <a href="{{ route('cms.account_received.ro-receipt', ['id' => $data->ro_source_id]) }}">{{ $data->ro_sn }}</a>
-                                @elseif($data->ro_source_type == 'acc_request_orders')
-                                <a href="{{ route('cms.request.ro-receipt', ['id' => $data->ro_source_id]) }}">{{ $data->ro_sn }}</a>
-                                @endif
+                                @php
+                                    if($data->po_source_type == 'pcs_purchase'){
+                                        $url_link = route('cms.purchase.view-pay-order', ['id' => $data->po_source_id, 'type' => $data->po_type]);
+
+                                    } else if($data->po_source_type == 'ord_orders' && $data->po_source_sub_id != null){
+                                        $url_link = route('cms.order.logistic-po', ['id' => $data->po_source_id, 'sid' => $data->po_source_sub_id]);
+
+                                    } else if($data->po_source_type == 'acc_stitute_orders'){
+                                        $url_link = route('cms.stitute.po-show', ['id' => $data->po_source_id]);
+
+                                    } else if($data->po_source_type == 'ord_orders' && $data->po_source_sub_id == null){
+                                        $url_link = route('cms.order.return-pay-order', ['id' => $data->po_source_id]);
+
+                                    } else if($data->po_source_type == 'dlv_delivery'){
+                                        $url_link = route('cms.delivery.return-pay-order', ['id' => $data->po_source_id]);
+
+                                    } else if($data->po_source_type == 'pcs_paying_orders'){
+                                        $url_link = route('cms.accounts_payable.po-show', ['id' => $data->po_source_id]);
+
+                                    } else {
+                                        $url_link = "javascript:void(0);";
+                                    }
+                                @endphp
+                                <a href="{{ $url_link }}">{{ $data->po_sn }}</a>
                             </td>
                         </tr>
                     @endforeach

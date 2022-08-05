@@ -476,12 +476,10 @@ class PayingOrder extends Model
             $e_payment_date = $po_payment_date[1] ? date('Y-m-d', strtotime($po_payment_date[1] . ' +1 day')) : null;
 
             if($s_payment_date){
-                // $query->where('payable_table.payment_date', '>=', $s_payment_date);
-                $query->where('po.balance_date', '>=', $s_payment_date);
+                $query->where('payable_table.payment_date', '>=', $s_payment_date);
             }
             if($e_payment_date){
-                // $query->where('payable_table.payment_date', '<', $e_payment_date);
-                $query->where('po.balance_date', '<', $e_payment_date);
+                $query->where('payable_table.payment_date', '<', $e_payment_date);
             }
         }
 
@@ -557,12 +555,14 @@ class PayingOrder extends Model
 
             ->selectRaw('
                 po.sn AS po_sn,
+                po.type AS po_type,
 
                 payable.id AS payable_id,
                 payable.pay_order_id,
                 payable.acc_income_type_fk,
                 payable.all_grades_id,
                 payable.tw_price,
+                payable.payment_date,
                 payable.accountant_id_fk,
                 payable.taxation,
                 payable.summary,
@@ -611,5 +611,197 @@ class PayingOrder extends Model
         }
 
         return $query;
+    }
+
+
+    public static function get_accounts_payable_list(
+        $payable_account_id = null,
+        $account_status_code = null,
+        $sn = null,
+
+        $account_payable_grade_id = null,
+        $authamt_price = null,
+        $po_created_date = null,
+        $po_target = null
+    ){
+        $query = DB::table('acc_payable AS payable')
+            ->leftJoin('acc_income_type AS i_type', function($join){
+                $join->on('payable.acc_income_type_fk', '=', 'i_type.id');
+            })
+            ->join('pcs_paying_orders AS po', function($join){
+                $join->on('payable.pay_order_id', '=', 'po.id');
+                $join->where([
+                    'po.deleted_at'=>null,
+                ]);
+            })
+            ->leftJoin('acc_currency AS currency', function($join){
+                $join->on('currency.id', '=', 'po.acc_currency_fk');
+            })
+            ->leftJoin('usr_users AS undertaker', function($join){
+                $join->on('po.usr_users_id', '=', 'undertaker.id');
+                $join->where([
+                    'undertaker.deleted_at'=>null,
+                ]);
+            })
+
+            ->join('acc_payable_account AS _account', function($join){
+                $join->on('payable.payable_id', '=', '_account.id');
+                $join->where([
+                    'payable.acc_income_type_fk'=>5,
+                ]);
+            })
+            ->leftJoinSub(GeneralLedger::getAllGrade(), 'all_grade', function($join) {
+                $join->on('all_grade.primary_id', 'payable.all_grades_id');
+            })
+            ->leftJoin('pcs_paying_orders AS append_po', function($join){
+                $join->on('_account.append_pay_order_id', '=', 'append_po.id');
+            })
+
+            ->where([
+                'po.deleted_at'=>null,
+            ])
+            ->whereNotNull('po.balance_date')
+            ->selectRaw('
+                po.id AS po_id,
+                po.source_type AS po_source_type,
+                po.source_id AS po_source_id,
+                po.source_sub_id AS po_source_sub_id,
+                po.type AS po_type,
+                po.sn AS po_sn,
+                undertaker.name AS po_undertaker,
+                po.payee_id AS po_target_id,
+                po.payee_name AS po_target_name,
+                po.payee_phone AS po_target_phone,
+                po.payee_address AS po_target_address,
+                po.created_at AS po_created,
+                currency.id AS currency_id,
+                IF(currency.name IS NOT NULL, currency.name, "NTD") AS currency_name,
+                IF(currency.rate IS NOT NULL, currency.rate, "1") AS currency_rate,
+
+                payable.id AS payable_id,
+                i_type.id AS payable_method_id,
+                i_type.type AS payable_method_type,
+                payable.all_grades_id AS po_payable_grade_id,
+                payable.tw_price,
+                payable.taxation,
+                payable.summary,
+                payable.note,
+
+                all_grade.code AS po_payable_grade_code,
+                all_grade.name AS po_payable_grade_name,
+
+                _account.id AS account_payable_id,
+                _account.status_code AS account_status_code,
+                _account.amt_net AS account_amt_net,
+                _account.payment_date AS account_payment_date,
+
+                append_po.id AS append_po_id,
+                append_po.source_type AS append_po_source_type,
+                append_po.source_id AS append_po_source_id,
+                append_po.source_sub_id AS append_po_source_sub_id,
+                append_po.type AS append_po_type,
+                append_po.sn AS append_po_sn
+            ')
+            ->orderBy('_account.id', 'asc');
+
+        if($payable_account_id) {
+            if(gettype($payable_account_id) == 'array') {
+                $query->whereIn('_account.id', $payable_account_id);
+            } else {
+                $query->where('_account.id', $payable_account_id);
+            }
+        }
+
+        if($account_status_code !== null){
+            $query->where('_account.status_code', $account_status_code);
+        }
+
+        if($sn){
+            $query->where('po.sn', 'like', "%{$sn}%")
+                ->orWhere('append_po.sn', 'like', "%{$sn}%");
+        }
+
+        if($account_payable_grade_id) {
+            if(gettype($account_payable_grade_id) == 'array') {
+                $query->whereIn('payable.all_grades_id', $account_payable_grade_id);
+            } else {
+                $query->where('payable.all_grades_id', $account_payable_grade_id);
+            }
+        }
+
+        if($authamt_price) {
+            if (gettype($authamt_price) == 'array' && count($authamt_price) == 2) {
+                $min_price = $authamt_price[0] ?? null;
+                $max_price = $authamt_price[1] ?? null;
+                if($min_price){
+                    $query->where('_account.amt_net', '>=', $min_price);
+                }
+                if($max_price){
+                    $query->where('_account.amt_net', '<=', $max_price);
+                }
+            }
+        }
+
+        if($po_created_date){
+            $s_po_created_date = $po_created_date[0] ? date('Y-m-d', strtotime($po_created_date[0])) : null;
+            $e_po_created_date = $po_created_date[1] ? date('Y-m-d', strtotime($po_created_date[1] . ' +1 day')) : null;
+
+            if($s_po_created_date){
+                $query->where('po.created_at', '>=', $s_po_created_date);
+            }
+            if($e_po_created_date){
+                $query->where('po.created_at', '<', $e_po_created_date);
+            }
+        }
+
+        if($po_target && gettype($po_target) == 'array') {
+            $target_id = $po_target[0];
+            $target_name = $po_target[1];
+
+            // $query->where(function ($q1) use ($target_id, $target_name) {
+            //     $q1->where([
+            //         'customer.id'=>$target_id,
+            //         'customer.name'=>$target_name,
+            //     ])->orWhere(function ($q2) use ($target_id, $target_name) {
+            //         $q2->where([
+            //             'depot.id'=>$target_id,
+            //             'depot.name'=>$target_name,
+            //         ]);
+            //     });
+            // });
+
+            $query->where([
+                'po.payee_id'=>$target_id,
+                'po.payee_name'=>$target_name,
+            ]);
+        }
+
+        return $query;
+    }
+
+
+    public static function update_account_payable_method($request)
+    {
+        if($request['status_code'] == 0){
+            foreach($request['accounts_payable_id'] as $key => $value){
+                DB::table('acc_payable_account')->where('id', $value)->update([
+                    'status_code'=>0,
+                    'append_pay_order_id'=>$request['append_pay_order_id'],
+                    'sn'=>$request['sn'],
+                    'amt_net'=>$request['amt_net'][$key],
+                    'payment_date'=>null,
+                    'updated_at'=>date("Y-m-d H:i:s"),
+                ]);
+            }
+
+        } else if($request['status_code'] == 1){
+            DB::table('acc_payable_account')->whereIn('id', $request['accounts_payable_id'])->update([
+                'status_code'=>1,
+                'append_pay_order_id'=>$request['append_pay_order_id'],
+                'sn'=>$request['sn'],
+                'payment_date'=>date("Y-m-d H:i:s"),
+                'updated_at'=>date("Y-m-d H:i:s"),
+            ]);
+        }
     }
 }

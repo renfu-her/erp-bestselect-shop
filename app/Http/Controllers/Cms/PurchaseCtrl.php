@@ -833,17 +833,8 @@ class PurchaseCtrl extends Controller
                     }
                 })->get();
 
-            // $payable_data = PayingOrder::get_payable_detail($paid_paying_order_data->pluck('id')->toArray());
-            $payable_data = AccountPayable::whereIn('pay_order_id', $paid_paying_order_data->pluck('id')->toArray())->get();
-            foreach($payable_data as $value){
-                if($value->acc_income_type_fk == 4){
-                    $value->currency_name = DB::table('acc_currency')->find($value->payable->acc_currency_fk)->name;
-                    $value->currency_rate = $value->payable->rate;
-                } else {
-                    $value->currency_name = 'NTD';
-                    $value->currency_rate = 1;
-                }
-            }
+            $payable_data = PayingOrder::get_payable_detail($paid_paying_order_data->pluck('id')->toArray());
+
             $tw_price = $paid_paying_order_data->sum('price') - $payable_data->sum('tw_price');
 
             $total_grades = GeneralLedger::total_grade_list();

@@ -373,8 +373,12 @@ class AccountReceivedCtrl extends Controller
         $received_order = ReceivedOrder::findOrFail($id);
         $received_data = ReceivedOrder::get_received_detail($id);
 
-        if (!$received_order || !$received_order->balance_date) {
-            return abort(404);
+        if (!$received_order->balance_date) {
+            // return abort(404);
+
+            return redirect()->route('cms.account_received.ro-edit', [
+                'id' => $id,
+            ]);
         }
 
         $purchaser = $order_list_data->first();
