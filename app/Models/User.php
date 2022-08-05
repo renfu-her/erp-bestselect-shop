@@ -248,6 +248,7 @@ class User extends Authenticatable
     {
         return DB::table('usr_users as user')
             ->join('usr_customers as customer', 'user.customer_id', '=', 'customer.id')
+            ->where('user.id', $user_id)
             ->get()
             ->first();
     }

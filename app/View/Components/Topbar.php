@@ -44,7 +44,7 @@ class Topbar extends Component
         }
 
         $customer = User::getUserCustomer(Auth::user()->id);
-
+     
         $domain = $domain . '?mcode=' . ($customer ? $customer->sn : '');
 
         return view('components.topbar', [
