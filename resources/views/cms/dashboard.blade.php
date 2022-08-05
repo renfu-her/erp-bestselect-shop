@@ -173,8 +173,8 @@
                                     </tr>
                                     <tr>
                                         <td>{{ date('Y/m/d H:i', strtotime('2022-08-01 15:13:55')) }}</td>
-                                        <td>拉肚子了</td>
-                                        <td class="text-nowrap">之谷</td>
+                                        <td>趕工中</td>
+                                        <td class="text-nowrap">理查</td>
                                     </tr>
                                 @endfor
                             </tbody>
