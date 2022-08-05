@@ -117,7 +117,7 @@
                         @if($order->discount_value > 0)
                         @foreach($order_discount ?? [] as $d_value)
                             <tr>
-                                <td>{{ $d_value->account_code }} {{ $d_value->account_name }} {{ $d_value->title }}</td>
+                                <td>{{ $d_value->account_code }} {{ $d_value->account_name }} - {{ $d_value->title }}</td>
                                 <td class="text-end">1</td>
                                 <td class="text-end">-{{ number_format($d_value->discount_value, 2) }}</td>
                                 <td class="text-end">-{{ number_format($d_value->discount_value) }}</td>

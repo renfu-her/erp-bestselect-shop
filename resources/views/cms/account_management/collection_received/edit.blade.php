@@ -1,22 +1,5 @@
 @extends('layouts.main')
 @section('sub-content')
-    <style>
-        .grade_1 {
-            padding-left: 1ch;
-        }
-
-        .grade_2 {
-            padding-left: 2ch;
-        }
-
-        .grade_3 {
-            padding-left: 4ch;
-        }
-
-        .grade_4 {
-            padding-left: 8ch;
-        }
-    </style>
     @php
         $CHEQUE = \App\Enums\Received\ReceivedMethod::Cheque;
         $CREDIT_CARD = \App\Enums\Received\ReceivedMethod::CreditCard;
@@ -25,140 +8,136 @@
         $REMIT = \App\Enums\Received\ReceivedMethod::Remittance;
     @endphp
 
-    <div class="pt-2 mb-3">
-        <a href="{{ Route('cms.order.detail', ['id' => $ord_orders_id]) }}" class="btn btn-primary" role="button">
-            <i class="bi bi-arrow-left"></i> 返回上一頁
-        </a>
-    </div>
     <form method="POST" action="{{ $formAction }}">
         @csrf
         <input type="hidden" name="id" value="{{ $ord_orders_id }}">
-        <div class="row justify-content-end mb-4">
-            <h2 class="mb-4">收款管理</h2>
-            <div class="card shadow p-4 mb-4">
-                {{-- <h6>收款紀錄</h6> --}}
+        <h2 class="mb-4">收款管理</h2>
 
-                <div class="card-body">
-                    <div class="col">
-                        <dl class="row mb-0">
-                            <dt>收款單明細：{{ $order_purchaser->name }}</dt>
-                        </dl>
-                    </div>
-                </div>
+        <div class="card shadow p-4 mb-4">
+            <h6>收款單明細</h6>
 
-                <div class="table-responsive tableOverBox">
-                    <table class="table table-hover table-bordered tableList mb-0">
-                        <thead>
-                            <tr>
-                                <th scope="col">請款單號</th>
-                                <th scope="col">說明</th>
-                                <th scope="col">單價</th>
-                                <th scope="col">數量</th>
-                                <th scope="col">匯率</th>
-                                <th scope="col">幣別</th>
-                                <th scope="col">應收款項</th>
-                                <th scope="col">已收款項</th>
-                            </tr>
-                        </thead>
+            <p class="fw-bold">客戶：{{ $order_purchaser->name }}</p>
 
-                        <tbody class="product_list">
-                            @foreach($order_list_data as $value)
+            <div class="table-responsive tableOverBox">
+                <table class="table table-sm table-hover tableList mb-0">
+                    <thead class="table-secondary">
+                        <tr>
+                            <th scope="col">請款單號</th>
+                            <th scope="col">說明</th>
+                            <th scope="col" class="text-end">單價</th>
+                            <th scope="col" class="text-end">數量</th>
+                            <th scope="col" class="text-end">匯率</th>
+                            <th scope="col">幣別</th>
+                            <th scope="col" class="text-end">應收款項</th>
+                            <th scope="col" class="text-end">已收款項</th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="product_list">
+                        @foreach($order_list_data as $value)
+                        <tr>
+                            <td>{{ $received_order_data->first()->sn }}</td>
+                            <td class="text-wrap">{{ $value->product_title }}{{'（' . $value->del_even . ' - ' . $value->del_category_name . '）'}}{{'（' . $value->product_price . ' * ' . $value->product_qty . '）'}}</td>
+                            <td class="text-end">${{ number_format($value->product_price, 2) }}</td>
+                            <td class="text-end">{{$value->product_qty}}</td>
+                            <td class="text-end">1</td>
+                            <td>NTD</td>
+                            <td class="text-end">${{ number_format($value->product_origin_price) }}</td>
+                            <td class="text-end"></td>
+                        </tr>
+                        @endforeach
+                        @if($order_data->dlv_fee > 0)
+                        <tr>
+                            <td>{{ $received_order_data->first()->sn }}</td>
+                            <td>物流費用</td>
+                            <td class="text-end">${{ number_format($order_data->dlv_fee, 2) }}</td>
+                            <td class="text-end">1</td>
+                            <td class="text-end">1</td>
+                            <td>NTD</td>
+                            <td class="text-end">${{ number_format($order_data->dlv_fee) }}</td>
+                            <td class="text-end"></td>
+                        </tr>
+                        @endif
+                        @if($order_data->discount_value > 0)
+                            @foreach($order_discount ?? [] as $d_value)
                             <tr>
                                 <td>{{ $received_order_data->first()->sn }}</td>
-                                <td>{{ $value->product_title }}{{'（' . $value->del_even . ' - ' . $value->del_category_name . '）'}}{{'（' . $value->product_price . ' * ' . $value->product_qty . '）'}}</td>
-                                <td class="text-end">{{ number_format($value->product_price, 2) }}</td>
-                                <td class="text-end">{{$value->product_qty}}</td>
+                                <td>{{ $d_value->account_code }} {{ $d_value->account_name }} - {{ $d_value->title }}</td>
+                                <td class="text-end">-${{ number_format($d_value->discount_value, 2) }}</td>
+                                <td class="text-end">1</td>
                                 <td class="text-end">1</td>
                                 <td>NTD</td>
-                                <td class="text-end">{{ number_format($value->product_origin_price) }}</td>
+                                <td class="text-end">-${{ number_format($d_value->discount_value) }}</td>
                                 <td class="text-end"></td>
                             </tr>
                             @endforeach
-                            @if($order_data->dlv_fee > 0)
-                            <tr>
-                                <td>{{ $received_order_data->first()->sn }}</td>
-                                <td>物流費用</td>
-                                <td class="text-end">{{ number_format($order_data->dlv_fee, 2) }}</td>
-                                <td class="text-end">1</td>
-                                <td class="text-end">1</td>
-                                <td>NTD</td>
-                                <td class="text-end">{{ number_format($order_data->dlv_fee) }}</td>
-                                <td class="text-end"></td>
-                            </tr>
-                            @endif
-                            @if($order_data->discount_value > 0)
-                                @foreach($order_discount ?? [] as $d_value)
-                                <tr>
-                                    <td>{{ $received_order_data->first()->sn }}</td>
-                                    <td>{{ $d_value->account_code }} {{ $d_value->account_name }} {{ $d_value->title }}</td>
-                                    <td class="text-end">-{{ number_format($d_value->discount_value, 2) }}</td>
-                                    <td class="text-end">1</td>
-                                    <td class="text-end">1</td>
-                                    <td>NTD</td>
-                                    <td class="text-end">-{{ number_format($d_value->discount_value) }}</td>
-                                    <td class="text-end"></td>
-                                </tr>
-                                @endforeach
-                            @endif
-                            @foreach($received_data as $value)
-                            <tr>
-                                <td>{{ $received_order_data->first()->sn }}</td>
-                                <td>{{ $value->received_method_name }} {{ $value->note }}{{ '（' . $value->account->code . ' - ' . $value->account->name . '）'}}</td>
-                                <td class="text-end">{{ number_format($value->tw_price, 2) }}</td>
-                                <td class="text-end">1</td>
-                                <td class="text-end">{{ $value->currency_rate }}</td>
-                                <td>{{ $value->currency_name }}</td>
-                                <td class="text-end"></td>
-                                <td class="text-end">{{ number_format($value->tw_price) }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-
-                        <tfoot>
-                            <tr>
-                                <th scope="row" colspan="10" class="text-end">應收總計金額：{{ number_format($tw_price) }}</th>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
+                        @endif
+                        @foreach($received_data as $value)
+                        <tr>
+                            <td>{{ $received_order_data->first()->sn }}</td>
+                            <td>{{ $value->received_method_name }} {{ $value->note }}{{ '（' . $value->account->code . ' - ' . $value->account->name . '）'}}</td>
+                            <td class="text-end">${{ number_format($value->tw_price, 2) }}</td>
+                            <td class="text-end">1</td>
+                            <td class="text-end">{{ $value->currency_rate }}</td>
+                            <td>{{ $value->currency_name }}</td>
+                            <td class="text-end"></td>
+                            <td class="text-end">${{ number_format($value->tw_price) }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
+            <table class="table table-sm tableList mb-0">
+                <tfoot>
+                    <tr>
+                        <th scope="row" class="text-end">應收總計金額：${{ number_format($tw_price) }}</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
 
-            <div class="card shadow p-4 mb-4">
-                <fieldset class="col-12 mb-4 ">
+        <div class="card shadow p-4 mb-4">
+            <div class="row">
+                <fieldset class="col-12 mb-3">
                     <h6>收款方式
                         <span class="text-danger">*</span>
                     </h6>
                     @php
-                      $isFirst = true;
+                    $isFirst = true;
                     @endphp
                     @foreach($receivedMethods as $name => $receivedMethod)
                         <div class="form-check form-check-inline">
                             <label class="form-check-label transactType" data-type="{{ $name }}">
                                 <input class="form-check-input"
-                                       name="acc_transact_type_fk"
-                                       type="radio"
-                                       @if($isFirst)
-                                           checked
-                                       @endif
-                                       @php
-                                           $isFirst = false;
-                                       @endphp
-                                       value="{{ $name }}">
+                                    name="acc_transact_type_fk"
+                                    type="radio"
+                                    @if($isFirst)
+                                        checked
+                                    @endif
+                                    @php
+                                        $isFirst = false;
+                                    @endphp
+                                    value="{{ $name }}">
                                 {{ $receivedMethod }}
                             </label>
                         </div>
                     @endforeach
                 </fieldset>
-                <x-b-form-group title="金額（台幣）" required="true" class="col-12 col-sm-4 mb-3">
+
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">金額（台幣）<span class="text-danger">*</span></label>
                     <input class="form-control @error('tw_price') is-invalid @enderror"
-                           name="tw_price"
-                           required
-                           type="text"
-                           value="{{ old('tw_price', $tw_price ?? '') }}"/>
-                </x-b-form-group>
+                        name="tw_price"
+                        required
+                        type="text"
+                        value="{{ old('tw_price', $tw_price ?? '') }}" />
+                    @error('tw_price')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
                 @foreach($defaultArray as $methodName => $defaultData)
-                    <div class="col-12 col-sm-4 mb-3 {{ $methodName }}">
+                    <div class="col-12 col-sm-6 mb-3 {{ $methodName }}">
                         <label for="" class="form-label {{ $methodName }}">
                             會計科目
                             <span class="text-danger">*</span>
@@ -185,135 +164,198 @@
                         </select>
                     </div>
                 @endforeach
-                <x-b-form-group name="{{ $CHEQUE }}[ticket_number]"
-                                title="票號"
-                                required="true"
-                                class="col-12 col-sm-4 mb-3 {{ $CHEQUE }}"
-                                id="ticket_number">
-                    <input class="form-control
-                                @error($CHEQUE . '[ticket_number]') is-invalid @enderror"
-                           name="{{ $CHEQUE }}[ticket_number]"
-                           required
-                           type="text"
-                           value="{{ old( $CHEQUE . '[ticket_number]', '') }}"/>
-                </x-b-form-group>
-                <x-b-form-group name="{{ $CHEQUE }}[due_date]"
-                                title="到期日"
-                                required="true"
-                                class="col-12 col-sm-4 mb-3 {{ $CHEQUE }}"
-                                id="{{ $CHEQUE }}[due_date]">
-                    <input class="form-control @error($CHEQUE . '[due_date]') is-invalid @enderror"
-                           name="{{ $CHEQUE }}[due_date]"
-                           required
-                           type="date"
-                           value="{{ old($CHEQUE . '[due_date]', date('Y-m-d', strtotime( date('Y-m-d')))) }}"/>
-                </x-b-form-group>
 
-                {{-- credit card --}}
-                <x-b-form-group name="{{ $CREDIT_CARD }}[card_owner_name]" title="持卡人" class="col-12 col-sm-4 mb-3 {{ $CREDIT_CARD }}" id="{{ $CREDIT_CARD }}[card_owner_name]">
-                    <input type="text" class="form-control @error($CREDIT_CARD . '[card_owner_name]') is-invalid @enderror" name="{{ $CREDIT_CARD }}[card_owner_name]" value="{{ old($CREDIT_CARD . '[card_owner_name]') }}">
-                </x-b-form-group>
-                <div class="col-12 col-sm-4 mb-3 {{ $CREDIT_CARD }}">
-                    <label for="" class="form-label {{ $CREDIT_CARD }}">信用卡別</label>
-                    <select class="form-select -select2 -single" name="{{ $CREDIT_CARD }}[card_type_code]" data-placeholder="請選擇信用卡別">
+                {{-- 支票 --}}
+                <div class="col-12 col-sm-6 mb-3 {{ $CHEQUE }}">
+                    <label class="form-label">票號 <span class="text-danger">*</span></label>
+                    <input class="form-control
+                        @error($CHEQUE . '[ticket_number]') is-invalid @enderror"
+                        name="{{ $CHEQUE }}[ticket_number]"
+                        required
+                        type="text"
+                        value="{{ old($CHEQUE . '[ticket_number]', '') }}" />
+                    @error('{{ $CHEQUE }}[ticket_number]')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-12 col-sm-6 mb-3 {{ $CHEQUE }}">
+                    <label class="form-label">到期日 <span class="text-danger">*</span></label>
+                    <input class="form-control @error('{{ $CHEQUE }}[due_date]') is-invalid @enderror"
+                        name="{{ $CHEQUE }}[due_date]"
+                        required
+                        type="date"
+                        value="{{ old($CHEQUE . '[due_date]', date('Y-m-d', strtotime( date('Y-m-d')))) }}" />
+                    @error('{{ $CHEQUE }}[due_date]')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                {{-- 信用卡 --}}
+                <div class="col-12 col-sm-6 mb-3 {{ $CREDIT_CARD }}">
+                    <label class="form-label">持卡人</label>
+                    <input class="form-control @error('{{ $CREDIT_CARD }}[card_owner_name]') is-invalid @enderror" 
+                        type="text"
+                        name="{{ $CREDIT_CARD }}[card_owner_name]" 
+                        value="{{ old($CREDIT_CARD . '[card_owner_name]') }}" />
+                    @error('{{ $CREDIT_CARD }}[card_owner_name]')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-12 col-sm-6 mb-3 {{ $CREDIT_CARD }}">
+                    <label class="form-label {{ $CREDIT_CARD }}">信用卡別</label>
+                    <select class="form-select -select2 -single @error('{{ $CREDIT_CARD }}[card_type_code]') is-invalid @enderror" 
+                        name="{{ $CREDIT_CARD }}[card_type_code]" data-placeholder="請選擇信用卡別" >
                         <option value="">請選擇</option>
                         @foreach($card_type as $key => $value)
-                            <option value="{{ $key }}"{{ $key == old($CREDIT_CARD . '[card_type_code]') ? 'selected' : ''}}>{{ $value }}</option>
+                            <option value="{{ $key }}" {{ $key == old($CREDIT_CARD . '[card_type_code]') ? 'selected' : ''}}>{{ $value }}</option>
                         @endforeach
                     </select>
+                    @error('{{ $CREDIT_CARD }}[card_type_code]')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
-                <x-b-form-group name="{{ $CREDIT_CARD }}[cardnumber]" title="卡號" class="col-12 col-sm-4 mb-3 {{ $CREDIT_CARD }}" id="{{ $CREDIT_CARD }}[cardnumber]">
-                    <input type="text" class="form-control @error($CREDIT_CARD . '[cardnumber]') is-invalid @enderror" name="{{ $CREDIT_CARD }}[cardnumber]" value="{{ old($CREDIT_CARD . '[cardnumber]') }}">
-                </x-b-form-group>
-                <x-b-form-group name="{{ $CREDIT_CARD }}[checkout_date]" title="刷卡日期" class="col-12 col-sm-4 mb-3 {{ $CREDIT_CARD }}" id="{{ $CREDIT_CARD }}[checkout_date]">
-                    <input type="date" class="form-control @error($CREDIT_CARD . '[checkout_date]') is-invalid @enderror" name="{{ $CREDIT_CARD }}[checkout_date]" value="{{ old($CREDIT_CARD . '[checkout_date]', date('Y-m-d', strtotime( date('Y-m-d'))) ) }}">
-                </x-b-form-group>
-                <x-b-form-group name="{{ $CREDIT_CARD }}[authcode]" title="授權碼" class="col-12 col-sm-4 mb-3 {{ $CREDIT_CARD }}" id="{{ $CREDIT_CARD }}[authcode]">
-                    <input type="text" class="form-control @error($CREDIT_CARD . '[authcode]') is-invalid @enderror" name="{{ $CREDIT_CARD }}[authcode]" value="{{ old($CREDIT_CARD . '[authcode]') }}">
-                </x-b-form-group>
+                <div class="col-12 col-sm-6 mb-3 {{ $CREDIT_CARD }}">
+                    <label class="form-label">卡號</label>
+                    <input type="text" class="form-control @error('{{ $CREDIT_CARD }}[cardnumber]') is-invalid @enderror" 
+                        name="{{ $CREDIT_CARD }}[cardnumber]" value="{{ old($CREDIT_CARD . '[cardnumber]') }}" />
+                    @error('{{ $CREDIT_CARD }}[cardnumber]')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-12 col-sm-6 mb-3 {{ $CREDIT_CARD }}">
+                    <label class="form-label">刷卡日期</label>
+                    <input type="date" class="form-control @error('{{ $CREDIT_CARD }}[checkout_date]') is-invalid @enderror" 
+                        name="{{ $CREDIT_CARD }}[checkout_date]" 
+                        value="{{ old($CREDIT_CARD . '[checkout_date]', date('Y-m-d', strtotime( date('Y-m-d'))) ) }}" />
+                    @error('{{ $CREDIT_CARD }}[checkout_date]')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-12 col-sm-6 mb-3 {{ $CREDIT_CARD }}">
+                    <label class="form-label">授權碼</label>
+                    <input type="text" class="form-control @error('{{ $CREDIT_CARD }}[authcode]') is-invalid @enderror" 
+                        name="{{ $CREDIT_CARD }}[authcode]" value="{{ old($CREDIT_CARD . '[authcode]') }}" />
+                    @error('{{ $CREDIT_CARD }}[authcode]')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
                 {{--
-                <div class="col-12 col-sm-4 mb-3 {{ $CREDIT_CARD }}">
-                    <label for="" class="form-label {{ $CREDIT_CARD }}">結帳地區</label>
-                    <select class="form-select -select2 -single" name="{{ $CREDIT_CARD }}[credit_card_area_code]" data-placeholder="請選擇結帳地區">
-                        <option value="">請選擇</option>
-                        @foreach($checkout_area as $key => $value)
-                            <option value="{{ $key }}"{{ $key == old($CREDIT_CARD . '[credit_card_area_code]') ? 'selected' : ''}}>{{ $value }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-12 col-sm-4 mb-3 {{ $CREDIT_CARD }}">
-                    <label for="" class="form-label {{ $CREDIT_CARD }}">信用卡分期數</label>
-                    <select class="form-select -select2 -single" name="{{ $CREDIT_CARD }}[installment]" data-placeholder="請選擇信用卡分期數">
-                        <option value="none">不分期</option>
-                    </select>
-                </div>
+                    <div class="col-12 col-sm-6 mb-3 {{ $CREDIT_CARD }}">
+                        <label for="" class="form-label {{ $CREDIT_CARD }}">結帳地區</label>
+                        <select class="form-select -select2 -single" name="{{ $CREDIT_CARD }}[credit_card_area_code]" data-placeholder="請選擇結帳地區">
+                            <option value="">請選擇</option>
+                            @foreach($checkout_area as $key => $value)
+                                <option value="{{ $key }}"{{ $key == old($CREDIT_CARD . '[credit_card_area_code]') ? 'selected' : ''}}>{{ $value }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-12 col-sm-6 mb-3 {{ $CREDIT_CARD }}">
+                        <label for="" class="form-label {{ $CREDIT_CARD }}">信用卡分期數</label>
+                        <select class="form-select -select2 -single" name="{{ $CREDIT_CARD }}[installment]" data-placeholder="請選擇信用卡分期數">
+                            <option value="none">不分期</option>
+                        </select>
+                    </div>
                 --}}
 
+                {{-- 匯款 --}}
+                <div class="col-12 col-sm-6 mb-3 {{ $REMIT }}">
+                    <label class="form-label">匯款日期 <span class="text-danger">*</span></label>
+                    <input class="form-control @error('{{ $REMIT }}[remittance]') is-invalid @enderror"
+                        name="{{ $REMIT }}[remittance]"
+                        type="date"
+                        required
+                        value="{{ old($REMIT . '[remittance]',  $all_payable_type_data['payableRemit']['remittance'] ?? date('Y-m-d', strtotime( date('Y-m-d')))) }}" />
+                    @error('{{ $REMIT }}[remittance]')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-12 col-sm-6 mb-3 {{ $REMIT }}">
+                    <label class="form-label">水單末5碼或匯款人姓名 <span class="text-danger">*</span></label>
+                    <input class="form-control @error('{{ $REMIT }}[bank_slip_name]') is-invalid @enderror"
+                        name="{{ $REMIT }}[bank_slip_name]"
+                        required
+                        type="text"
+                        value="{{ old( $REMIT . '[bank_slip_name]', '') }}" />
+                    @error('{{ $REMIT }}[bank_slip_name]')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
-                <x-b-form-group name="{{ $REMIT }}[remittance]" title="匯款日期" required="true"
-                                class="col-12 col-sm-4 mb-3 remit">
-                    <input class="form-control @error($REMIT . '[remittance]') is-invalid @enderror"
-                           name="{{ $REMIT }}[remittance]"
-                           type="date"
-                           required
-                           value="{{ old($REMIT . '[remittance]',  $all_payable_type_data['payableRemit']['remittance'] ?? date('Y-m-d', strtotime( date('Y-m-d')))) }}"/>
-                </x-b-form-group>
-                <x-b-form-group name="{{ $REMIT }}[bank_slip_name]"
-                                title="水單末5碼或匯款人姓名"
-                                required="true"
-                                class="col-12 col-sm-4 mb-3 {{ $REMIT }}"
-                                id="bank_slip_name">
-                    <input class="form-control
-                                @error($REMIT . '[bank_slip_name]') is-invalid @enderror"
-                           name="{{ $REMIT }}[bank_slip_name]"
-                           required
-                           type="text"
-                           value="{{ old( $REMIT . '[bank_slip_name]', '') }}"/>
-                </x-b-form-group>
-
-                <x-b-form-group name="{{ $FOREIGN_CURRENCY }}[rate]" title="匯率" required="true" class="col-12 col-sm-4 mb-3 {{ $FOREIGN_CURRENCY }}">
-                    <input class="form-control @error($FOREIGN_CURRENCY . '[rate]') is-invalid @enderror"
-                           name="{{ $FOREIGN_CURRENCY }}[rate]"
-                           required
-                           id="rate"
-                           type="number"
-                           step="0.01"
-                           value="{{ old($FOREIGN_CURRENCY . '[rate]', '') }}"/>
-                </x-b-form-group>
-                <x-b-form-group name="{{ $FOREIGN_CURRENCY }}[foreign_price]" title="金額（外幣）" required="true"
-                                class="col-12 col-sm-4 mb-3 {{ $FOREIGN_CURRENCY }}"
-                                id="{{ $FOREIGN_CURRENCY }}">
-                    <input class="form-control @error($FOREIGN_CURRENCY . '[foreign_price]') is-invalid @enderror"
-                           name="{{ $FOREIGN_CURRENCY }}[foreign_price]"
-                           required
-                           type="number"
-                           step="0.01"
-                           value="{{ old($FOREIGN_CURRENCY . '[foreign_price]', $all_payable_type_data['payableForeignCurrency'][$FOREIGN_CURRENCY] ?? '') }}"/>
-                </x-b-form-group>
+                {{-- 外幣 --}}
+                <div class="col-12 col-sm-6 mb-3 {{ $FOREIGN_CURRENCY }}">
+                    <label class="form-label">匯率 <span class="text-danger">*</span></label>
+                    <input class="form-control @error('{{ $FOREIGN_CURRENCY }}[rate]') is-invalid @enderror"
+                        name="{{ $FOREIGN_CURRENCY }}[rate]"
+                        required
+                        id="rate"
+                        type="number"
+                        step="0.01"
+                        value="{{ old($FOREIGN_CURRENCY . '[rate]', '') }}" />
+                    @error('{{ $FOREIGN_CURRENCY }}[rate]')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-12 col-sm-6 mb-3 {{ $FOREIGN_CURRENCY }}">
+                    <label class="form-label">金額（外幣）<span class="text-danger">*</span></label>
+                    <input class="form-control @error('{{ $FOREIGN_CURRENCY }}[foreign_price]') is-invalid @enderror"
+                        name="{{ $FOREIGN_CURRENCY }}[foreign_price]"
+                        required
+                        type="number"
+                        step="0.01"
+                        value="{{ old($FOREIGN_CURRENCY . '[foreign_price]', $all_payable_type_data['payableForeignCurrency'][$FOREIGN_CURRENCY] ?? '') }}" />
+                    @error('{{ $FOREIGN_CURRENCY }}[foreign_price]')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
             </div>
+        </div>
 
-            <div class="card shadow p-4 mb-4">
-                <h6>收款設定</h6>
+        <div class="card shadow p-4 mb-4">
+            <h6>收款設定</h6>
             <div class="row">
                 <x-b-form-group name="summary" title="摘要" required="false" class="col-12 col-sm-6 mb-3">
                     <input class="form-control @error('summary') is-invalid @enderror" name="summary" type="text" value="{{ old('summary', '') }}">
                 </x-b-form-group>
                 <x-b-form-group name="note" title="備註" required="false" class="col-12 col-sm-6 mb-3">
                     <input class="form-control @error('note') is-invalid @enderror"
-                           name="note"
-                           type="text"
-                           value="{{ old('note', '') }}"/>
+                        name="note"
+                        type="text"
+                        value="{{ old('note', '') }}"/>
                 </x-b-form-group>
             </div>
+        </div>
 
-            <div class="px-0">
-                <button type="submit" class="btn btn-primary px-4">儲存</button>
-                <a onclick="history.back()" class="btn btn-outline-primary px-4" role="button">取消</a>
-            </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary px-4">儲存</button>
+            <a href="{{ Route('cms.order.detail', ['id' => $ord_orders_id]) }}" class="btn btn-outline-primary px-4" role="button">
+                返回明細
+            </a>
         </div>
     </form>
 @endsection
 @once
+    @push('sub-styles')
+    <style>
+        .grade_1 {
+            padding-left: 1ch;
+        }
+
+        .grade_2 {
+            padding-left: 2ch;
+        }
+
+        .grade_3 {
+            padding-left: 4ch;
+        }
+
+        .grade_4 {
+            padding-left: 8ch;
+        }
+        .tableList > :not(caption) > * > * {
+            line-height: initial;
+        }
+    </style>
+    @endpush
     @push('sub-scripts')
         <script>
             // 會計科目樹狀排版
