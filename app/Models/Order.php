@@ -180,7 +180,11 @@ class Order extends Model
             'qty' => 'item.qty',
             'style_id' => 'item.product_style_id',
             'img_url' => 'IF(item.img_url IS NULL,"",item.img_url)',
-            'total_price' => 'item.origin_price']);
+            'total_price' => 'item.origin_price',
+            'note'=>'IF(item.note IS NULL,"",item.note)',
+            'dealer_price' => 'item.dealer_price',
+            'item_id'=>'item.id'
+        ]);
 
         $itemQuery = DB::table('ord_items as item')
             ->leftJoin('prd_product_styles as style', 'item.product_style_id', '=', 'style.id')
@@ -189,6 +193,7 @@ class Order extends Model
             ->select('item.sub_order_id')
             ->selectRaw($concatString . ' as items')
             ->where('item.order_id', $order_id);
+
 
         $concatConsumeString = concatStr([
             'consum_id' => 'dlv_consum.id',
@@ -496,6 +501,7 @@ class Order extends Model
                         'sku' => $product->sku,
                         'product_title' => $product->product_title . '-' . $product->spec,
                         'price' => $product->price,
+                        'dealer_price' => $product->dealer_price,
                         'bonus' => $product->bonus,
                         'qty' => $product->qty,
                         'discounted_price' => $product->discounted_price,
@@ -771,25 +777,40 @@ class Order extends Model
 
     }
     // 是否可取消訂單
-    public static function checkCanCancel($order_id)
+    public static function checkCanCancel($order_id, $type)
     {
         $order = self::where('id', $order_id)->select('status_code', 'payment_status')->get()->first();
 
-        $order_status = [OrderStatus::Add()];
-        $payment_status = [PaymentStatus::Unpaid()];
+        if ($type == 'frontend') {
+            $order_status = [OrderStatus::Add()];
+            $payment_status = [PaymentStatus::Unpaid()];
 
-        //   dd(in_array($order->status_code, $order_status) ,in_array($order->payment_status, $payment_status));
-        if (in_array($order->status_code, $order_status) && in_array($order->payment_status, $payment_status)) {
-            return true;
-        } else {
-            return false;
+            //   dd(in_array($order->status_code, $order_status) ,in_array($order->payment_status, $payment_status));
+            if (in_array($order->status_code, $order_status) && in_array($order->payment_status, $payment_status)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        if ($type == 'backend') {
+
+            $order_status = [OrderStatus::Closed(),OrderStatus::Canceled()
+                ,OrderStatus::BackProcessing(),OrderStatus::CancleBack(),OrderStatus::Backed()
+            ];
+
+            if (!in_array($order->status_code, $order_status)) {
+                return true;
+            } else {
+                return false;
+            }
         }
 
     }
     // 取消訂單
-    public static function cancelOrder($order_id)
+    public static function cancelOrder($order_id, $type)
     {
-        if (!self::checkCanCancel($order_id)) {
+        if (!self::checkCanCancel($order_id, $type)) {
             return;
         }
 
@@ -1008,7 +1029,7 @@ class Order extends Model
             Delivery::createData(
                 Event::order()->value
                 , $soid
-                , $ssn 
+                , $ssn
                 , $sorder->ship_temp_id ?? null
                 , $sorder->ship_temp ?? null
                 , $sorder->ship_category ?? null

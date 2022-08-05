@@ -28,8 +28,63 @@ class RequestOrderCtrl extends Controller
         $query = $request->query();
         $page = getPageCount(Arr::get($query, 'data_per_page', 100)) > 0 ? getPageCount(Arr::get($query, 'data_per_page', 100)) : 100;
 
+        $cond = [];
+
+        $cond['client_key'] = Arr::get($query, 'client_key', null);
+        if (gettype($cond['client_key']) == 'string') {
+            $key = explode('|', $cond['client_key']);
+            $cond['client']['id'] = $key[0];
+            $cond['client']['name'] = $key[1];
+        } else {
+            $cond['client'] = [];
+        }
+
+        $cond['request_sn'] = Arr::get($query, 'request_sn', null);
+        $cond['source_sn'] = Arr::get($query, 'source_sn', null);
+
+        $cond['request_min_price'] = Arr::get($query, 'request_min_price', null);
+        $cond['request_max_price'] = Arr::get($query, 'request_max_price', null);
+        $request_price = [
+            $cond['request_min_price'],
+            $cond['request_max_price']
+        ];
+
+        $cond['request_sdate'] = Arr::get($query, 'request_sdate', null);
+        $cond['request_edate'] = Arr::get($query, 'request_edate', null);
+        $request_posting_date = [
+            $cond['request_sdate'],
+            $cond['request_edate']
+        ];
+
+        $cond['check_posting'] = Arr::get($query, 'check_posting', 'all');
+
+        $dataList = RequestOrder::request_order_list(
+            $cond['client'],
+            $cond['request_sn'],
+            $cond['source_sn'],
+            $request_price,
+            $request_posting_date,
+            $cond['check_posting'],
+        )->paginate($page)->appends($query);
+
+        $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $client_merged = array_merge($user, $customer, $depot, $supplier);
+
+        $check_posting_status = [
+            'all'=>'不限',
+            '0'=>'未入款',
+            '1'=>'已入款',
+        ];
+
         return view('cms.account_management.request.list', [
             'data_per_page' => $page,
+            'dataList' => $dataList,
+            'cond' => $cond,
+            'client' => $client_merged,
+            'check_posting_status' => $check_posting_status,
         ]);
     }
 
@@ -42,52 +97,69 @@ class RequestOrderCtrl extends Controller
                 'request_grade_id' => 'required|exists:acc_all_grades,id',
                 'price' => 'required|numeric|between:0,9999999999.9999',
                 'qty' => 'required|numeric|between:0,9999999999.9999',
-                'summary' => 'string',
-                'memo' => 'string',
+                'summary' => 'nullable|string',
+                'memo' => 'nullable|string',
             ]);
 
             $client_key = explode('|', request('client_key'));
 
             if(count($client_key) > 1){
-                $client = Customer::leftJoin('usr_customers_address AS customer_add', function ($join) {
-                        $join->on('usr_customers.id', '=', 'customer_add.usr_customers_id_fk');
-                        $join->where([
-                            'customer_add.is_default_addr'=>1,
-                        ]);
-                    })->where([
-                        'usr_customers.id'=>$client_key[0],
+                $client = User::where([
+                        'id'=>$client_key[0],
                     ])
-                    ->where('usr_customers.name', 'LIKE', "%{$client_key[1]}%")
+                    ->where('name', 'LIKE', "%{$client_key[1]}%")
                     ->select(
-                        'usr_customers.id',
-                        'usr_customers.name',
-                        'usr_customers.phone AS phone',
-                        'usr_customers.email',
-                        'customer_add.address AS address'
-                    )->first();
+                        'id',
+                        'name',
+                        'email'
+                    )
+                    ->selectRaw('
+                        IF(id IS NOT NULL, "", "") AS phone,
+                        IF(id IS NOT NULL, "", "") AS address
+                    ')
+                    ->first();
 
                 if(! $client){
-                    $client = Depot::where('id', '=', $client_key[0])
-                        ->where('name', 'LIKE', "%{$client_key[1]}%")
+                    $client = Customer::leftJoin('usr_customers_address AS customer_add', function ($join) {
+                            $join->on('usr_customers.id', '=', 'customer_add.usr_customers_id_fk');
+                            $join->where([
+                                'customer_add.is_default_addr'=>1,
+                            ]);
+                        })->where([
+                            'usr_customers.id'=>$client_key[0],
+                        ])
+                        ->where('usr_customers.name', 'LIKE', "%{$client_key[1]}%")
                         ->select(
-                            'depot.id',
-                            'depot.name',
-                            'depot.tel AS phone',
-                            'depot.address AS address'
+                            'usr_customers.id',
+                            'usr_customers.name',
+                            'usr_customers.phone AS phone',
+                            'usr_customers.email',
+                            'customer_add.address AS address'
                         )->first();
 
                     if(! $client){
-                        $client = Supplier::where([
-                            'id'=>$client_key[0],
-                        ])
-                        ->where('name', 'LIKE', "%{$client_key[1]}%")
-                        ->select(
-                            'id',
-                            'name',
-                            'contact_tel AS phone',
-                            'email',
-                            'contact_address AS address'
-                        )->first();
+                        $client = Depot::where('id', '=', $client_key[0])
+                            ->where('name', 'LIKE', "%{$client_key[1]}%")
+                            ->select(
+                                'depot.id',
+                                'depot.name',
+                                'depot.tel AS phone',
+                                'depot.address AS address'
+                            )->first();
+
+                        if(! $client){
+                            $client = Supplier::where([
+                                'id'=>$client_key[0],
+                            ])
+                            ->where('name', 'LIKE', "%{$client_key[1]}%")
+                            ->select(
+                                'id',
+                                'name',
+                                'contact_tel AS phone',
+                                'email',
+                                'contact_address AS address'
+                            )->first();
+                        }
                     }
                 }
 
@@ -121,11 +193,11 @@ class RequestOrderCtrl extends Controller
             return redirect()->back();
         }
 
-        $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
-
-        $client_merged = array_merge($customer, $depot, $supplier);
+        $client_merged = array_merge($user, $customer, $depot, $supplier);
 
         $total_grades = GeneralLedger::total_grade_list();
 
@@ -266,7 +338,7 @@ class RequestOrderCtrl extends Controller
             'previou_url' => route('cms.request.show', ['id' => $request_order->id]),
             'purchaser' => $request_order->client_name,
             'request_grade' => $request_grade,
-            'order_list_data' => $request_order->get(),
+            'request_order' => $request_order,
 
             'received_order' => $received_order,
             'received_data' => $received_data,
@@ -362,7 +434,7 @@ class RequestOrderCtrl extends Controller
             $parm['received_method_id'] = $result_id;
             $parm['grade_id'] = $data[$data['acc_transact_type_fk']]['grade'];
             $parm['price'] = $data['tw_price'];
-            $parm['accountant_id_fk'] = auth('user')->user()->id;
+            // $parm['accountant_id_fk'] = auth('user')->user()->id;
             $parm['summary'] = $data['summary'];
             $parm['note'] = $data['note'];
             ReceivedOrder::store_received($parm);
@@ -416,19 +488,24 @@ class RequestOrderCtrl extends Controller
         $purchaser = $request_order;
         $undertaker = User::find($received_order->usr_users_id);
 
-        $accountant = User::whereIn('id', $received_data->pluck('accountant_id_fk')->toArray())->get();
-        $accountant = array_unique($accountant->pluck('name')->toArray());
-        asort($accountant);
+        // $accountant = User::whereIn('id', $received_data->pluck('accountant_id_fk')->toArray())->get();
+        // $accountant = array_unique($accountant->pluck('name')->toArray());
+        // asort($accountant);
+        $accountant = User::find($received_order->accountant_id) ? User::find($received_order->accountant_id)->name : null;
+
+        $zh_price = num_to_str($received_order->price);
 
         return view('cms.account_management.request.ro_receipt', [
             'breadcrumb_data' => ['id' => $request_order->id],
             'request_grade' => $request_grade,
-            'order_list_data' => $request_order->get(),
+            'request_order' => $request_order,
             'received_order' => $received_order,
             'received_data' => $received_data,
             'purchaser' => $purchaser,
             'undertaker'=>$undertaker,
-            'accountant'=>implode(',', $accountant),
+            // 'accountant'=>implode(',', $accountant),
+            'accountant'=>$accountant,
+            'zh_price' => $zh_price,
         ]);
     }
 
@@ -457,6 +534,7 @@ class RequestOrderCtrl extends Controller
             ]);
 
             $received_order->update([
+                'accountant_id'=>auth('user')->user()->id,
                 'receipt_date'=>request('receipt_date'),
                 'invoice_number'=>request('invoice_number'),
             ]);
@@ -475,6 +553,7 @@ class RequestOrderCtrl extends Controller
         } else if($request->isMethod('get')){
             if($received_order->receipt_date){
                 $received_order->update([
+                    'accountant_id'=>null,
                     'receipt_date'=>null,
                 ]);
 

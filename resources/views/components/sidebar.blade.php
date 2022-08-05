@@ -1,9 +1,15 @@
 <nav id="sidebarMenu" class="col-12 col-sm-3 p-0 sidebar collapse">
     <ul class="list-unstyled ps-0">
+        <li class="mb-1">
+            <a href="{{ route('cms.dashboard') }}">
+                <div class="btn btn-toggle -not-toggle"><i class="bi bi-house-fill"></i>總覽</div>
+            </a>
+        </li>
+
         @foreach ($tree as $unit)
             <!-- 第一層 -->
 
-            <li class="mb-1">
+            <li class="mb-1 border-top">
                 <div class="btn btn-toggle collapsed" data-bs-toggle="collapse"
                     data-bs-target="#collapse-{{ $unit['menu_id'] }}" aria-expanded="true">
                     <i class="bi {{ $unit['icon'] ?? 'bi-box' }}"></i>{{ $unit['title'] }}

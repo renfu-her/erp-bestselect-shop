@@ -7,7 +7,6 @@ use App\Enums\Delivery\Event;
 use App\Enums\Discount\DividendCategory;
 use App\Enums\Order\UserAddrType;
 use App\Enums\Supplier\Payment;
-
 use App\Http\Controllers\Controller;
 use App\Models\AccountPayable;
 use App\Models\Addr;
@@ -30,14 +29,14 @@ use App\Models\OrderRemit;
 use App\Models\PayableAccount;
 use App\Models\PayableCash;
 use App\Models\PayableCheque;
-use App\Models\PayableRemit;
+use App\Models\PayableDefault;
 use App\Models\PayableForeignCurrency;
 use App\Models\PayableOther;
-use App\Models\PayableDefault;
+use App\Models\PayableRemit;
 use App\Models\PayingOrder;
 use App\Models\PurchaseInbound;
-use App\Models\ReceiveDepot;
 use App\Models\ReceivedDefault;
+use App\Models\ReceiveDepot;
 use App\Models\ReceivedOrder;
 use App\Models\SaleChannel;
 use App\Models\ShipmentStatus;
@@ -396,7 +395,7 @@ class OrderCtrl extends Controller
         } else {
             $dividend = 0;
         }
-      
+
         return view('cms.commodity.order.detail', [
             'sn' => $sn,
             'order' => $order,
@@ -409,7 +408,7 @@ class OrderCtrl extends Controller
             'received_order_data' => $received_order_data,
             'received_credit_card_log' => $received_credit_card_log,
             'dividend' => $dividend,
-            'canCancel' => Order::checkCanCancel($id),
+            'canCancel' => Order::checkCanCancel($id, 'backend'),
             'delivery' => $delivery,
             'canSplit' => Order::checkCanSplit($id),
         ]);
@@ -571,6 +570,7 @@ class OrderCtrl extends Controller
                         $inboundItemReq['event_item_id'][$key], //存入 dlv_receive_depot.id
                         $inboundItemReq['product_style_id'][$key],
                         $val['item']['title'] . '-' . $val['item']['spec'],
+                        $val['sku'],
                         $val['unit_cost'],
                         $inboundItemReq['expiry_date'][$key],
                         $inboundItemReq['inbound_date'][$key],
@@ -697,17 +697,16 @@ class OrderCtrl extends Controller
             'undertaker' => $undertaker,
             'applied_company' => $applied_company,
             'logistics_grade_name' => $logistics_grade_name,
-            'accountant'=>implode(',', $accountant),
+            'accountant' => implode(',', $accountant),
             'zh_price' => $zh_price,
         ]);
     }
 
-
     public function logistic_po_create(Request $request, $id, $sid)
     {
         $request->merge([
-            'id'=>$id,
-            'sid'=>$sid,
+            'id' => $id,
+            'sid' => $sid,
         ]);
 
         $request->validate([
@@ -719,20 +718,20 @@ class OrderCtrl extends Controller
         $type = 1;
 
         $paying_order = PayingOrder::where([
-            'source_type'=>$source_type,
-            'source_id'=>$id,
-            'source_sub_id'=>$sid,
-            'type'=>$type,
-            'deleted_at'=>null,
+            'source_type' => $source_type,
+            'source_id' => $id,
+            'source_sub_id' => $sid,
+            'type' => $type,
+            'deleted_at' => null,
         ])->first();
 
-        if(! $paying_order) {
+        if (!$paying_order) {
             return abort(404);
         }
 
-        if($request->isMethod('post')){
+        if ($request->isMethod('post')) {
             $request->merge([
-                'pay_order_id'=>$paying_order->id,
+                'pay_order_id' => $paying_order->id,
             ]);
 
             $request->validate([
@@ -767,7 +766,7 @@ class OrderCtrl extends Controller
             $payable_data = PayingOrder::get_payable_detail($paying_order->id);
             if (count($payable_data) > 0 && $paying_order->price == $payable_data->sum('tw_price')) {
                 $paying_order->update([
-                    'balance_date'=>date("Y-m-d H:i:s"),
+                    'balance_date' => date("Y-m-d H:i:s"),
                 ]);
             }
 
@@ -786,7 +785,7 @@ class OrderCtrl extends Controller
 
         } else {
 
-            if($paying_order->balance_date) {
+            if ($paying_order->balance_date) {
                 return abort(404);
             }
 
@@ -797,10 +796,10 @@ class OrderCtrl extends Controller
             $logistics_grade_name = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
 
             $currency = DB::table('acc_currency')->find($paying_order->acc_currency_fk);
-            if(!$currency){
-                $currency = (object)[
-                    'name'=>'NTD',
-                    'rate'=>1,
+            if (!$currency) {
+                $currency = (object) [
+                    'name' => 'NTD',
+                    'rate' => 1,
                 ];
             }
 
@@ -838,7 +837,6 @@ class OrderCtrl extends Controller
         }
     }
 
-
     public function return_pay_order(Request $request, $id, $sid = null)
     {
         $request->merge([
@@ -865,21 +863,21 @@ class OrderCtrl extends Controller
         list($order, $sub_order) = $this->getOrderAndSubOrders($id, $sid);
 
         $buyer = Customer::leftJoin('usr_customers_address AS customer_add', function ($join) {
-                $join->on('usr_customers.id', '=', 'customer_add.usr_customers_id_fk');
-                $join->where([
-                    'customer_add.is_default_addr'=>1,
-                ]);
-            })->where([
-                'usr_customers.email'=>$order->email,
-            ])->select(
-                'usr_customers.id',
-                'usr_customers.name',
-                'usr_customers.phone AS phone',
-                'usr_customers.email',
-                'customer_add.address AS address'
-            )->first();
+            $join->on('usr_customers.id', '=', 'customer_add.usr_customers_id_fk');
+            $join->where([
+                'customer_add.is_default_addr' => 1,
+            ]);
+        })->where([
+            'usr_customers.email' => $order->email,
+        ])->select(
+            'usr_customers.id',
+            'usr_customers.name',
+            'usr_customers.phone AS phone',
+            'usr_customers.email',
+            'customer_add.address AS address'
+        )->first();
 
-        if($sid){
+        if ($sid) {
             $price = $sub_order[0]->discounted_price + $sub_order[0]->dlv_fee;
 
         } else {
@@ -917,10 +915,10 @@ class OrderCtrl extends Controller
         $logistics_grade_name = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
 
         $order_discount = DB::table('ord_discounts')->where([
-                'order_type'=>'main',
-                'order_id'=>request('id'),
-            ])->where('discount_value', '>', 0)->get()->toArray();
-        foreach($order_discount as $value){
+            'order_type' => 'main',
+            'order_id' => request('id'),
+        ])->where('discount_value', '>', 0)->get()->toArray();
+        foreach ($order_discount as $value) {
             $value->account_code = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->code : '4000';
             $value->account_name = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->name : '無設定會計科目';
         }
@@ -946,7 +944,7 @@ class OrderCtrl extends Controller
             'applied_company' => $applied_company,
             'product_grade_name' => $product_grade_name,
             'logistics_grade_name' => $logistics_grade_name,
-            'accountant'=>implode(',', $accountant),
+            'accountant' => implode(',', $accountant),
             'zh_price' => $zh_price,
         ]);
     }
@@ -954,8 +952,8 @@ class OrderCtrl extends Controller
     public function return_pay_create(Request $request, $id, $sid = null)
     {
         $request->merge([
-            'id'=>$id,
-            'sid'=>$sid,
+            'id' => $id,
+            'sid' => $sid,
         ]);
 
         $request->validate([
@@ -974,13 +972,13 @@ class OrderCtrl extends Controller
             'deleted_at' => null,
         ])->first();
 
-        if(! $paying_order) {
+        if (!$paying_order) {
             return abort(404);
         }
 
-        if($request->isMethod('post')){
+        if ($request->isMethod('post')) {
             $request->merge([
-                'pay_order_id'=>$paying_order->id,
+                'pay_order_id' => $paying_order->id,
             ]);
 
             $request->validate([
@@ -1015,7 +1013,7 @@ class OrderCtrl extends Controller
             $payable_data = PayingOrder::get_payable_detail($paying_order->id);
             if (count($payable_data) > 0 && $paying_order->price == $payable_data->sum('tw_price')) {
                 $paying_order->update([
-                    'balance_date'=>date("Y-m-d H:i:s"),
+                    'balance_date' => date("Y-m-d H:i:s"),
                 ]);
             }
 
@@ -1034,44 +1032,44 @@ class OrderCtrl extends Controller
 
         } else {
 
-            if($paying_order->balance_date) {
+            if ($paying_order->balance_date) {
                 return abort(404);
             }
 
             list($order, $sub_order) = $this->getOrderAndSubOrders($id, $sid);
 
             $buyer = Customer::leftJoin('usr_customers_address AS customer_add', function ($join) {
-                    $join->on('usr_customers.id', '=', 'customer_add.usr_customers_id_fk');
-                    $join->where([
-                        'customer_add.is_default_addr'=>1,
-                    ]);
-                })->where([
-                    'usr_customers.email'=>$order->email,
-                ])->select(
-                    'usr_customers.id',
-                    'usr_customers.name',
-                    'usr_customers.phone AS phone',
-                    'usr_customers.email',
-                    'customer_add.address AS address'
-                )->first();
+                $join->on('usr_customers.id', '=', 'customer_add.usr_customers_id_fk');
+                $join->where([
+                    'customer_add.is_default_addr' => 1,
+                ]);
+            })->where([
+                'usr_customers.email' => $order->email,
+            ])->select(
+                'usr_customers.id',
+                'usr_customers.name',
+                'usr_customers.phone AS phone',
+                'usr_customers.email',
+                'customer_add.address AS address'
+            )->first();
 
             $product_grade_name = AllGrade::find($paying_order->product_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->product_grade_id)->eachGrade->name;
             $logistics_grade_name = AllGrade::find($paying_order->logistics_grade_id)->eachGrade->code . ' ' . AllGrade::find($paying_order->logistics_grade_id)->eachGrade->name;
 
             $order_discount = DB::table('ord_discounts')->where([
-                    'order_type'=>'main',
-                    'order_id'=>request('id'),
-                ])->where('discount_value', '>', 0)->get()->toArray();
-            foreach($order_discount as $value){
+                'order_type' => 'main',
+                'order_id' => request('id'),
+            ])->where('discount_value', '>', 0)->get()->toArray();
+            foreach ($order_discount as $value) {
                 $value->account_code = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->code : '4000';
                 $value->account_name = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade->name : '無設定會計科目';
             }
 
             $currency = DB::table('acc_currency')->find($paying_order->acc_currency_fk);
-            if(!$currency){
-                $currency = (object)[
-                    'name'=>'NTD',
-                    'rate'=>1,
+            if (!$currency) {
+                $currency = (object) [
+                    'name' => 'NTD',
+                    'rate' => 1,
                 ];
             }
 
@@ -1408,7 +1406,7 @@ class OrderCtrl extends Controller
     public function cancel_order(Request $request, $id)
     {
 
-        Order::cancelOrder($id);
+        Order::cancelOrder($id, 'backend');
 
         wToast('訂單已經取消');
 
@@ -1450,5 +1448,45 @@ class OrderCtrl extends Controller
         Order::splitOrder($id, $items);
         wToast('分割完成');
         return redirect()->back();
+    }
+
+    public function editItem(Request $request, $id)
+    {
+
+        Order::checkCanSplit($id);
+        list($order, $subOrder) = $this->getOrderAndSubOrders($id);
+
+        if (!$order) {
+            return abort(404);
+        }
+
+        // dd($subOrder);
+
+        return view('cms.commodity.order.edit_old_order', [
+            'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
+            'subOrders' => $subOrder,
+            'order' => $order,
+        ]);
+    }
+
+    public function updateItem(Request $request, $id)
+    {
+        $request->validate([
+            'item_id' => 'required|array',
+            'note' => 'required|array',
+        ]);
+
+        $d = $request->all();
+
+        foreach ($d['item_id'] as $key => $value) {
+            if (isset($d['note'][$key])) {
+                OrderItem::where('id', $value)->update([
+                    'note' => $d['note'][$key],
+                ]);
+            }
+        }
+
+        return redirect(route('cms.order.detail',['id'=>$id]));
+
     }
 }

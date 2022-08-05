@@ -10,7 +10,9 @@
         </div>
         <!-- logo -->
         <div class="mainLogo d-flex align-items-center justify-content-center flex-grow-1 flex-sm-grow-0">
-            <img src="{{ Asset('images/Best-logo-white.png') }}" alt="喜鴻國際">
+            <a href="{{ route('cms.dashboard') }}" class="h-100">
+                <img src="{{ Asset('images/Best-logo-white.png') }}" alt="喜鴻國際">
+            </a>
         </div>
         <!-- 站名 brand -->
         <div class="navbar-brand d-none d-sm-block m-0 d-flex flex-grow-1" aria-label="購物系統"></div>
@@ -42,6 +44,11 @@
                     <li>
                         <a class="dropdown-item" href="{{ route('cms.usermnt.customer-binding') }}">
                             <i class="bi bi-link-45deg me-1"></i>會員綁定
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="{{ $url }}" target="_blank">
+                            <i class="bi bi-bag-fill me-1"></i>喜鴻購物<i class="bi bi-box-arrow-up-right ms-1 text-black-50" style="font-size: 8px"></i>
                         </a>
                     </li>
 

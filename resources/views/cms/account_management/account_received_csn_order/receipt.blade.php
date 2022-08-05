@@ -134,7 +134,7 @@
                         <tr class="table-light">
                             <td>合計：</td>
                             <td></td>
-                            <td></td>
+                            <td>（{{ $zh_price }}）</td>
                             <td>{{ number_format($received_order->price) }}</td>
                             <td></td>
                         </tr>
@@ -179,7 +179,7 @@
                     <dd></dd>
                 </div>
                 <div class="col">
-                    <dt>商品負責人：{{ $product_qc }}</dt>
+                    <dt>商品負責人：{{-- $product_qc --}}</dt>
                     <dd></dd>
                 </div>
             </dl>

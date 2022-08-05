@@ -25,6 +25,7 @@ final class LogEventFeature extends Enum
     //入庫
     const inbound_add = 'inbound_add';
     const inbound_del = 'inbound_del';
+    const inbound_update = 'inbound_update';
 
     const combo = 'combo'; //組成組合包
     const decompose = 'decompose'; //組合包分解
@@ -78,6 +79,9 @@ final class LogEventFeature extends Enum
                 break;
             case self::inbound_del:
                 $result = '刪除入庫';
+                break;
+            case self::inbound_update:
+                $result = '入庫單庫存調整';
                 break;
 
             case self::combo:

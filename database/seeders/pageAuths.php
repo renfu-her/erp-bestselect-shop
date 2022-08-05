@@ -320,6 +320,19 @@ return [
         ],
     ],
     [
+        "unit" => "電子發票作業管理",
+        "permissions" => [
+            [
+                "cms.order_invoice_manager.index",
+                "瀏覽",
+            ],
+            [
+                "cms.order_invoice_manager.export_excel_month",
+                "匯出月報表",
+            ],
+        ],
+    ],
+    [
         "unit" => "會計科目",
         "permissions" => [
             [

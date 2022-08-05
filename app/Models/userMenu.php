@@ -17,6 +17,11 @@ return
                 "route_name" => "cms.stock.index",
             ],
             [
+                "title" => "採購單庫存匯入",
+                "controller_name" => "InboundImportCtrl",
+                "route_name" => "cms.inbound_import.index",
+            ],
+            [
                 "title" => "採購單管理",
                 "controller_name" => "PurchaseCtrl",
                 "route_name" => "cms.purchase.index",
@@ -182,9 +187,19 @@ return
                 "route_name" => "cms.account_received.index",
             ],
             [
+                "title" => "轉帳傳票",
+                "controller_name" => "TransferVoucherCtrl",
+                "route_name" => "cms.transfer_voucher.index",
+            ],
+            [
                 "title" => "信用卡作業管理",
                 "controller_name" => "CreditManagerCtrl",
                 "route_name" => "cms.credit_manager.index",
+            ],
+            [
+                "title" => "電子發票作業管理",
+                "controller_name" => "OrderInvoiceManagerCtrl",
+                "route_name" => "cms.order_invoice_manager.index",
             ],
             [
                 "title" => "分潤報表",

@@ -7,7 +7,7 @@ use Diglactic\Breadcrumbs\Generator as BreadcrumbTrail;
 
 // Home
 Breadcrumbs::for('cms.dashboard', function (BreadcrumbTrail $trail) {
-    $trail->push('Home', route('cms.dashboard'));
+    $trail->push('總覽', route('cms.dashboard'));
 });
 
 /**
@@ -108,6 +108,32 @@ Breadcrumbs::for('cms.stock.index', function (BreadcrumbTrail $trail) {
     $trail->push('庫存管理', route('cms.stock.index'));
 });
 
+// 採購單庫存匯入
+Breadcrumbs::for('cms.inbound_import.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('採購單庫存匯入', route('cms.inbound_import.index'));
+});
+// 採購單庫存匯入紀錄
+Breadcrumbs::for('cms.inbound_import.import_log', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.inbound_import.index');
+    $trail->push('匯入紀錄');
+});
+// 入庫單列表
+Breadcrumbs::for('cms.inbound_import.inbound_list', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.inbound_import.index');
+    $trail->push('入庫單列表');
+});
+// 入庫單庫存調整
+Breadcrumbs::for('cms.inbound_import.inbound_edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.inbound_import.index');
+    $trail->push('入庫單庫存調整');
+});
+// 入庫單調整紀錄
+Breadcrumbs::for('cms.inbound_import.inbound_log', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.inbound_import.index');
+    $trail->push('入庫單調整紀錄');
+});
+
 // 採購單管理
 Breadcrumbs::for('cms.purchase.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
@@ -199,6 +225,11 @@ Breadcrumbs::for('cms.order.split-order', function (BreadcrumbTrail $trail, $val
     $trail->parent('cms.order.index');
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
     $trail->push('分割訂單');
+});
+Breadcrumbs::for('cms.order.edit-item', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.order.index');
+    $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
+    $trail->push('編輯訂單');
 });
 
 // 訂單自取入庫審核
@@ -796,6 +827,24 @@ Breadcrumbs::for('cms.account_received.ro-taxation', function (BreadcrumbTrail $
     $trail->push('修改摘要/稅別');
 });
 
+// 轉帳傳票
+Breadcrumbs::for('cms.transfer_voucher.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('轉帳傳票', route('cms.transfer_voucher.index'));
+});
+Breadcrumbs::for('cms.transfer_voucher.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.transfer_voucher.index');
+    $trail->push('新增轉帳傳票');
+});
+Breadcrumbs::for('cms.transfer_voucher.edit', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.transfer_voucher.index');
+    $trail->push('編輯轉帳傳票');
+});
+Breadcrumbs::for('cms.transfer_voucher.show', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.transfer_voucher.index');
+    $trail->push('轉帳傳票');
+});
+
 // 信用卡作業管理
 Breadcrumbs::for('cms.credit_manager.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
@@ -833,6 +882,17 @@ Breadcrumbs::for('cms.credit_card.create', function (BreadcrumbTrail $trail) {
 Breadcrumbs::for('cms.credit_card.edit', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.credit_card.index');
     $trail->push('編輯');
+});
+
+// 電子發票作業管理
+Breadcrumbs::for('cms.order_invoice_manager.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('發票查詢', route('cms.order_invoice_manager.index'));
+});
+// 電子發票作業管理
+Breadcrumbs::for('cms.order_invoice_manager.month', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('發票月報表', route('cms.order_invoice_manager.month'));
 });
 
 // 請款銀行

@@ -7,18 +7,8 @@
     @if ($event === 'csn_order')
         <x-b-csnorder-navi :id="$delivery->event_id"></x-b-csnorder-navi>
     @endif
-    @error('error_msg')
-    <div class="alert alert-danger" role="alert">
-        {{ $message }}
-    </div>
-    @enderror
-    @error('item_error')
-    <div class="alert alert-danger" role="alert">
-        {{ $message }}
-    </div>
-    @enderror
     @if($errors->any())
-        {!! implode('', $errors->all('<div>:message</div>')) !!}
+        <div class="alert alert-danger mt-3">{!! implode('', $errors->all('<div>:message</div>')) !!}</div>
     @endif
 
     <form method="post" action="{{ $formAction }}">
@@ -59,7 +49,7 @@
                                         <input type="text" value="" name="qty_actual[]" class="form-control form-control-sm text-center" readonly>
                                     </td>
                                     <td>
-                                        <input type="text" value="{{$ord->total_to_back_qty}}" name="" class="form-control form-control-sm text-center" readonly>
+                                        <input type="text" value="{{$ord->total_to_back_qty ?? ''}}" name="" class="form-control form-control-sm text-center" readonly>
                                     </td>
                                 </tr>
                                 <tr class="--rece">

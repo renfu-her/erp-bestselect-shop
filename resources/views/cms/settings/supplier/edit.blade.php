@@ -22,7 +22,7 @@
                     <x-b-form-group name="nickname" title="廠商簡稱" required="true" class="col-12 col-sm-6">
                         <input class="form-control @error('nickname') is-invalid @enderror" name="nickname" value="{{ old('nickname', (isset($supplierData)?($supplierData->nickname ?? ''): '')) }}" />
                     </x-b-form-group>
-                    <x-b-form-group name="vat_no" title="統一編號" required="true" class="col-12 col-sm-6">
+                    <x-b-form-group name="vat_no" title="統一編號 若無統編請填NIL" required="true" class="col-12 col-sm-6">
                         <input class="form-control @error('vat_no') is-invalid @enderror" name="vat_no" value="{{ old('vat_no', (isset($supplierData)?($supplierData->vat_no ?? ''): '')) }}" />
                     </x-b-form-group>
                     <x-b-form-group name="postal_code" title="公司郵遞區號" required="true" class="col-12 col-sm-6">

@@ -805,7 +805,7 @@ class OrderCtrl extends Controller
         }
 
         $d = $request->all();
-        Order::cancelOrder($d['order_id']);
+        Order::cancelOrder($d['order_id'],'frontend');
 
         return [
             'status' => '0',

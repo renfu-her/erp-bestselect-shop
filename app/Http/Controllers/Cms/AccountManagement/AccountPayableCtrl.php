@@ -28,6 +28,7 @@ use App\Models\PayingOrder;
 use App\Models\Supplier;
 use App\Models\GeneralLedger;
 use App\Models\PayableDefault;
+use App\Models\User;
 
 class AccountPayableCtrl extends Controller
 {
@@ -47,32 +48,33 @@ class AccountPayableCtrl extends Controller
             $cond['payee'] = [];
         }
 
-        $cond['p_order_sn'] = Arr::get($query, 'p_order_sn', null);
-        $cond['purchase_sn'] = Arr::get($query, 'purchase_sn', null);
+        $cond['po_sn'] = Arr::get($query, 'po_sn', null);
+        $cond['source_sn'] = Arr::get($query, 'source_sn', null);
 
-        $cond['p_order_min_price'] = Arr::get($query, 'p_order_min_price', null);
-        $cond['p_order_max_price'] = Arr::get($query, 'p_order_max_price', null);
-        $p_order_price = [
-            $cond['p_order_min_price'],
-            $cond['p_order_max_price']
+        $cond['po_min_price'] = Arr::get($query, 'po_min_price', null);
+        $cond['po_max_price'] = Arr::get($query, 'po_max_price', null);
+        $po_price = [
+            $cond['po_min_price'],
+            $cond['po_max_price']
         ];
 
-        $cond['p_order_sdate'] = Arr::get($query, 'p_order_sdate', null);
-        $cond['p_order_edate'] = Arr::get($query, 'p_order_edate', null);
-        $p_order_payment_date = [
-            $cond['p_order_sdate'],
-            $cond['p_order_edate']
+        $cond['po_sdate'] = Arr::get($query, 'po_sdate', null);
+        $cond['po_edate'] = Arr::get($query, 'po_edate', null);
+        $po_payment_date = [
+            $cond['po_sdate'],
+            $cond['po_edate']
         ];
+
+        $cond['check_balance'] = Arr::get($query, 'check_balance', 'all');
 
         $dataList = PayingOrder::paying_order_list(
             $cond['payee'],
-            $cond['p_order_sn'],
-            $cond['purchase_sn'],
-            $p_order_price,
-            $p_order_payment_date,
+            $cond['po_sn'],
+            $cond['source_sn'],
+            $po_price,
+            $po_payment_date,
+            $cond['check_balance'],
         )->paginate($page)->appends($query);
-
-        // dd($dataList);
 
         // accounting classification start
         foreach($dataList as $value){
@@ -96,7 +98,7 @@ class AccountPayableCtrl extends Controller
                     //     $pay_v->currency_rate = 1;
                     // }
 
-                    $name = $payment_method_name . ' ' . $pay_v->summary . '（' . $account_code . ' - ' . $account_name . '）';
+                    $name = $payment_method_name . ' ' . $pay_v->summary . '（' . $account_code . ' ' . $account_name . '）';
 
                     $tmp = [
                         'account_code'=>$account_code,
@@ -127,9 +129,9 @@ class AccountPayableCtrl extends Controller
             $product_account = AllGrade::find($value->po_product_grade_id) ? AllGrade::find($value->po_product_grade_id)->eachGrade : null;
             $account_code = $product_account ? $product_account->code : '1000';
             $account_name = $product_account ? $product_account->name : '無設定會計科目';
-            $product_name = $account_code . ' - ' . $account_name;
-            if($value->product_list){
-                foreach(json_decode($value->product_list) as $pro_v){
+            $product_name = $account_code . ' ' . $account_name;
+            if($value->product_items){
+                foreach(json_decode($value->product_items) as $pro_v){
                     $avg_price = $pro_v->price / $pro_v->num;
                     $name = $product_name . ' --- ' . $pro_v->title . '（' . $avg_price . ' * ' . $pro_v->num . '）';
 
@@ -163,7 +165,7 @@ class AccountPayableCtrl extends Controller
                 $log_account = AllGrade::find($value->po_logistics_grade_id) ? AllGrade::find($value->po_logistics_grade_id)->eachGrade : null;
                 $account_code = $log_account ? $log_account->code : '5000';
                 $account_name = $log_account ? $log_account->name : '無設定會計科目';
-                $name = $account_code . ' - ' . $account_name;
+                $name = $account_code . ' ' . $account_name;
 
                 $tmp = [
                     'account_code'=>$account_code,
@@ -189,22 +191,82 @@ class AccountPayableCtrl extends Controller
                 GeneralLedger::classification_processing($debit, $credit, $tmp);
             }
 
+            // 折扣
+            if($value->discount_value > 0){
+                foreach(json_decode($value->order_discount) ?? [] as $d_value){
+                    $dis_account = AllGrade::find($d_value->discount_grade_id) ? AllGrade::find($d_value->discount_grade_id)->eachGrade : null;
+                    $account_code = $dis_account ? $dis_account->code : '4000';
+                    $account_name = $dis_account ? $dis_account->name : '無設定會計科目';
+                    $name = $account_code . ' ' . $account_name;
+
+                    $tmp = [
+                        'account_code'=>$account_code,
+                        'name'=>$name,
+                        'price'=>$d_value->discount_value,
+                        'type'=>'p',
+                        'd_type'=>'discount',
+
+                        'account_name'=>$account_name,
+                        'method_name'=>null,
+                        'summary'=>null,
+                        'note'=>null,
+                        'product_title'=>null,
+                        'del_even'=>null,
+                        'del_category_name'=>null,
+                        'product_price'=>null,
+                        'product_qty'=>null,
+                        'product_owner'=>null,
+                        'discount_title'=>$d_value->title,
+                        'payable_type'=>null,
+                        'received_info'=>null,
+                    ];
+                    GeneralLedger::classification_processing($debit, $credit, $tmp);
+                }
+            }
+
+
             $value->debit = $debit;
             $value->credit = $credit;
+
+            if($value->po_source_type == 'pcs_purchase'){
+                $value->po_url_link = "javascript:void(0);";
+
+            } else if($value->po_source_type == 'ord_orders' && $value->po_source_sub_id != null){
+                $value->po_url_link = route('cms.order.logistic-po', ['id' => $value->po_source_id, 'sid' => $value->po_source_sub_id]);
+
+            } else if($value->po_source_type == 'acc_stitute_orders'){
+                $value->po_url_link = route('cms.stitute.po-show', ['id' => $value->po_source_id]);
+
+            } else if($value->po_source_type == 'ord_orders' && $value->po_source_sub_id == null){
+                $value->po_url_link = route('cms.order.return-pay-order', ['id' => $value->po_source_id]);
+
+            } else if($value->po_source_type == 'dlv_delivery'){
+                $value->po_url_link = route('cms.delivery.return-pay-order', ['id' => $value->po_source_id]);
+
+            } else {
+                $value->po_url_link = "javascript:void(0);";
+            }
         }
         // accounting classification end
 
-        $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $payee_merged = array_merge($user, $customer, $depot, $supplier);
 
-        $payee_merged = array_merge($customer, $depot, $supplier);
+        $check_balance_status = [
+            'all'=>'不限',
+            '0'=>'未付款',
+            '1'=>'已付款',
+        ];
 
         return view('cms.account_management.account_payable.list', [
             'data_per_page' => $page,
             'dataList' => $dataList,
             'cond' => $cond,
             'payee' => $payee_merged,
+            'check_balance_status' => $check_balance_status,
         ]);
     }
 }

@@ -160,9 +160,9 @@
                             <td>{{ $data->logistic_status }}</td>
                             <td>{{ $data->ship_category_name }}</td>
                             <td>{{ $data->method }}</td>
+                            <td>{{ $data->sed_name }}</td>
                             <td>{{ $data->rec_name }}</td>
-                            <td>{{ $data->ord_name }}</td>
-                            <td>{{ $data->ord_address }}</td>
+                            <td>{{ $data->rec_address }}</td>
                         </tr>
                     @endforeach
                 </tbody>

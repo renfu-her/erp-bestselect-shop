@@ -2,8 +2,8 @@
 
 namespace App\View\Components;
 
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
 use Illuminate\View\Component;
 
 class Topbar extends Component
@@ -26,23 +26,32 @@ class Topbar extends Component
      */
     public function render()
     {
-        // echo 'sa';
-        // $userType = Auth::User()->userType;
-        // switch ($userType) {
-        //     case "admin":
-        //         $logout = 'admin.logout';
-        //         break;
-        //     case "deliveryman":
-        //         $logout = 'deliveryman.logout';
-        //         break;
-        //     default:
-        //         $logout = "logout";
-        // }
+        $domain = '';
+        switch ($_SERVER['SERVER_NAME']) {
+            case '127.0.0.1':
+            case 'localhost':
+                $domain = 'http://localhost:3000';
+                break;
+            case 'dev-shop.bestselection.com.tw':
+                $domain = 'https://dev-shopp.bestselection.com.tw';
+                break;
+
+            case 'release.bestselection.com.tw':
+            default:
+                $domain = 'https://shopp.bestselection.com.tw';
+                // $domain = 'https://www.bestselection.com.tw';
+                break;
+        }
+
+        $customer = User::getUserCustomer(Auth::user()->id);
+     
+        $domain = $domain . '?mcode=' . ($customer ? $customer->sn : '');
 
         return view('components.topbar', [
             'name' => isset(Auth::User()->name) ? Auth::User()->name : '旅客',
             'userType' => 'user',
-            'logout' => 'logout'
+            'url' => $domain,
+            'logout' => 'logout',
         ]);
     }
 }

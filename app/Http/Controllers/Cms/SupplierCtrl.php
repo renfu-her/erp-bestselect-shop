@@ -43,6 +43,14 @@ class SupplierCtrl extends Controller
         $query = $request->query();
         $this->validInputValue($request);
         $paramReq_supplier = $this->getInputValue($request);
+        //判斷統一編號沒有重複
+        if ('NIL' != $paramReq_supplier['vat_no']) {
+            $supplier = Supplier::where('vat_no', '=', $paramReq_supplier['vat_no'])->get();
+            if (isset($supplier) && 0 < count($supplier)) {
+                return redirect()->back()->withInput()->withErrors(['vat_no' => '重複的統一編號']);
+            }
+        }
+
         $id = Supplier::create([
             'name' => $paramReq_supplier['name'],
             'nickname' => $paramReq_supplier['nickname'],
@@ -111,7 +119,7 @@ class SupplierCtrl extends Controller
             'name'                 => 'required|string',
             'nickname'             => 'required|string',
             'vat_no'               => 'required|string',
-            'postal_code'          => 'required|int',
+            'postal_code'          => 'required|string',
             'contact_address'      => 'nullable|string',
             'contact_person'       => 'required|string',
             'job'                  => 'required|string',
@@ -121,7 +129,7 @@ class SupplierCtrl extends Controller
             'mobile_line'          => 'required|string',
             'email'                => 'nullable|string',
             'invoice_address'      => 'nullable|string',
-            'invoice_postal_code'  => 'nullable|int',
+            'invoice_postal_code'  => 'nullable|string',
             'invoice_recipient'    => 'nullable|string',
             'invoice_email'        => 'nullable|string',
             'invoice_phone'        => 'nullable|string',
@@ -130,7 +138,7 @@ class SupplierCtrl extends Controller
             'invoice_ship_fk'      => 'required|string',
             'invoice_date_fk'      => 'required|string',
             'shipping_address'     => 'nullable|string',
-            'shipping_postal_code' => 'nullable|int',
+            'shipping_postal_code' => 'nullable|string',
             'shipping_recipient'   => 'nullable|string',
             'shipping_phone'       => 'nullable|string',
             'shipping_method_fk'   => 'required|string',
@@ -227,6 +235,16 @@ class SupplierCtrl extends Controller
         $query = $request->query();
         $this->validInputValue($request);
         $paramReq_supplier = $this->getInputValue($request);
+
+        //判斷除了此ID之外的統一編號沒有重複
+        if ('NIL' != $paramReq_supplier['vat_no']) {
+            $supplier = Supplier::where('vat_no', '=', $paramReq_supplier['vat_no'])
+                ->where('id', '<>', $id)
+                ->get();
+            if (isset($supplier) && 0 < count($supplier)) {
+                return redirect()->back()->withInput()->withErrors(['vat_no' => '重複的統一編號']);
+            }
+        }
 
         Supplier::where('id', '=', $id)->update([
             'name' => $paramReq_supplier['name'],

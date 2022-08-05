@@ -26,6 +26,10 @@
             <a href="{{ Route('cms.order.personal-bonus', ['id' => $order->id]) }}" class="btn btn-warning btn-sm my-1 ms-1"
                 role="button">個人獎金</a>
 
+
+            <a href="{{ Route('cms.order.edit-item', ['id' => $order->id]) }}" role="button"
+                    class="btn btn-dark btn-sm my-1 ms-1">編輯訂單</a>
+
             @if ($canSplit)
                 <a href="{{ Route('cms.order.split-order', ['id' => $order->id]) }}" role="button"
                     class="btn btn-dark btn-sm my-1 ms-1">分割訂單</a>
@@ -40,6 +44,7 @@
                 <a href="{{ Route('cms.order.cancel-order', ['id' => $order->id]) }}" role="button"
                     class="btn btn-outline-danger btn-sm my-1 ms-1">取消訂單</a>
             @endif
+
 
             @if (!$order->return_pay_order_id && in_array($order->status, ['取消']))
                 <a href="{{ Route('cms.order.return-pay-order', ['id' => $order->id]) }}" role="button" class="btn btn-primary btn-sm my-1 ms-1">新增退貨付款單</a>
@@ -228,7 +233,7 @@
         @php
             $dlv_fee = 0;
             $price = 0;
-            
+
         @endphp
         @foreach ($subOrders as $subOrder)
             @php
@@ -253,38 +258,43 @@
                                 href="{{ Route('cms.logistic.changeLogisticStatus', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">配送狀態</a>
                             <a class="btn btn-sm btn-success -in-header mb-1"
                                 href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">物流設定</a>
-                            <a class="btn btn-sm btn-success -in-header mb-1"
-                                href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">出貨審核</a>
-                            {{-- @if ('pickup' == $subOrder->ship_category) --}}
-                            {{-- <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.order.inbound', ['subOrderId' => $subOrderId], true) }}">入庫審核</a> --}}
-                            {{-- @endif --}}
 
-                            @if (isset($delivery) && isset($delivery->back_date))
-                                @if (false == isset($delivery->back_inbound_date))
-                                    <button type="button"
-                                        data-href="{{ Route('cms.delivery.back_delete', ['deliveryId' => $delivery->id], true) }}"
-                                        data-bs-toggle="modal" data-bs-target="#confirm-delete-back"
-                                        class="btn btn-sm btn-danger -in-header mb-1">
-                                        刪除退貨
-                                    </button>
-                                @endif
-
+                            @if (true == $canCancel)
                                 <a class="btn btn-sm btn-success -in-header mb-1"
-                                   href="{{ Route('cms.delivery.back_detail', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">銷貨退回明細</a>
+                                    href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">出貨審核</a>
+                                {{-- @if ('pickup' == $subOrder->ship_category) --}}
+                                {{-- <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.order.inbound', ['subOrderId' => $subOrderId], true) }}">入庫審核</a> --}}
+                                {{-- @endif --}}
+                            @endif
 
-                                @if(isset($delivery->back_inbound_date))
-                                    <a class="btn btn-sm btn-danger -in-header mb-1"
-                                       href="{{ Route('cms.delivery.back_inbound_delete', ['deliveryId' => $delivery->id], true) }}">刪除退貨入庫</a>
+                            @if (false == $canCancel)
+                                @if (isset($delivery) && isset($delivery->back_date))
+                                    @if (false == isset($delivery->back_inbound_date))
+                                        <button type="button"
+                                            data-href="{{ Route('cms.delivery.back_delete', ['deliveryId' => $delivery->id], true) }}"
+                                            data-bs-toggle="modal" data-bs-target="#confirm-delete-back"
+                                            class="btn btn-sm btn-danger -in-header mb-1">
+                                            刪除退貨
+                                        </button>
+                                    @endif
+
+                                    <a class="btn btn-sm btn-success -in-header mb-1"
+                                       href="{{ Route('cms.delivery.back_detail', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">銷貨退回明細</a>
+
+                                    @if(isset($delivery->back_inbound_date))
+                                        <a class="btn btn-sm btn-danger -in-header mb-1"
+                                           href="{{ Route('cms.delivery.back_inbound_delete', ['deliveryId' => $delivery->id], true) }}">刪除退貨入庫</a>
+                                    @else
+                                        <a class="btn btn-sm btn-success -in-header mb-1"
+                                           href="{{ Route('cms.delivery.back_inbound', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">退貨入庫審核</a>
+                                    @endif
+
+                                    {{-- <a class="btn btn-sm btn-success -in-header mb-1" --}}
+                                    {{-- href="{{ Route('cms.delivery.back_inbound', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">退貨入庫審核</a> --}}
                                 @else
                                     <a class="btn btn-sm btn-success -in-header mb-1"
-                                       href="{{ Route('cms.delivery.back_inbound', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">退貨入庫審核</a>
+                                        href="{{ Route('cms.delivery.back', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">退貨</a>
                                 @endif
-                                    
-                                {{-- <a class="btn btn-sm btn-success -in-header mb-1" --}}
-                                {{-- href="{{ Route('cms.delivery.back_inbound', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">退貨入庫審核</a> --}}
-                            @else
-                                <a class="btn btn-sm btn-success -in-header mb-1"
-                                    href="{{ Route('cms.delivery.back', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">退貨</a>
                             @endif
 
                             <a target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary -in-header mb-1"

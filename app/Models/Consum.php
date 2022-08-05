@@ -116,7 +116,7 @@ class Consum extends Model
 
                 //扣除入庫單庫存
                 foreach ($dataGet as $item) {
-                    $reShipIb = PurchaseInbound::shippingInbound($event, $delivery->event_id, $item->id, LogEventFeature::consume_delivery()->value, $item->inbound_id, $item->qty);
+                    $reShipIb = PurchaseInbound::shippingInbound($event, $delivery->event_id, $item->id, LogEventFeature::consume_delivery()->value, $item->inbound_id, $item->qty, $user_id, $user_name);
                     if ($reShipIb['success'] == 0) {
                         DB::rollBack();
                         return $reShipIb;

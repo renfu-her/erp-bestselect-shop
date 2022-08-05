@@ -19,12 +19,12 @@ class CsnOrderItem extends Model
     public static function createData(array $newData, $operator_user_id, $operator_user_name)
     {
         if (isset($newData['csnord_id'])
-            && $newData['product_style_id']
-            && $newData['prd_type']
-            && $newData['title']
-            && $newData['sku']
-            && $newData['price']
-            && $newData['num']
+            && isset($newData['product_style_id'])
+            && isset($newData['prd_type'])
+            && isset($newData['title'])
+            && isset($newData['sku'])
+            && isset($newData['price'])
+            && isset($newData['num'])
         ) {
             return DB::transaction(function () use ($newData, $operator_user_id, $operator_user_name
             ) {
@@ -99,7 +99,7 @@ class CsnOrderItem extends Model
                 CsnOrderItem::whereIn('id', $del_item_id_arr)->forceDelete();
 
                 foreach ($items as $item) {
-                    PurchaseLog::stockChange($purchase_id, $item->product_style_id, Event::csn_order()->value, $item->id, LogEventFeature::style_del()->value, null, $item->num, null, $item->title, $item->prd_type, $operator_user_id, $operator_user_name);
+                    PurchaseLog::stockChange($purchase_id, $item->product_style_id, Event::csn_order()->value, $item->id, LogEventFeature::style_del()->value, null, $item->num * -1, null, $item->title, $item->prd_type, $operator_user_id, $operator_user_name);
                 }
                 return ['success' => 1, 'error_msg' => ''];
             });
@@ -137,7 +137,6 @@ class CsnOrderItem extends Model
                 'ord_items.title AS product_title',
                 'ord_items.price AS product_price',
                 'ord_items.num AS product_qty',
-                'ord_items.price AS product_origin_price',
 //                'ord_items.discount_value AS product_discount',
 //                'ord_items.discounted_price AS product_after_discounting_price',
 
@@ -146,7 +145,8 @@ class CsnOrderItem extends Model
 
                 'users.id as product_user_id',
                 'users.name as product_user_name'
-            );
+            )
+            ->selectRaw('(ord_items.price * ord_items.num) AS product_origin_price');
 
         return $query;
     }

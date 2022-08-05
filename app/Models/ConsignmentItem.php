@@ -21,12 +21,12 @@ class ConsignmentItem extends Model
     public static function createData(array $newData, $operator_user_id, $operator_user_name)
     {
         if (isset($newData['consignment_id'])
-            && $newData['product_style_id']
-            && $newData['title']
-            && $newData['prd_type']
-            && $newData['num']
-            && $newData['price']
-            && $newData['sku']
+            && isset($newData['product_style_id'])
+            && isset($newData['title'])
+            && isset($newData['prd_type'])
+            && isset($newData['num'])
+            && isset($newData['price'])
+            && isset($newData['sku'])
         ) {
             return DB::transaction(function () use ($newData, $operator_user_id, $operator_user_name
             ) {
@@ -93,9 +93,14 @@ class ConsignmentItem extends Model
             //判斷若其一有到貨 則不可刪除
 
             $query = DB::table('csn_consignment_items as csn_items')
+                ->leftJoin('dlv_delivery as delivery', function ($join) {
+                    $join->on('delivery.event_id', '=', 'csn_items.consignment_id')
+                        ->where('delivery.event', '=', Event::consignment()->value);
+                })
                 ->leftJoin('dlv_receive_depot as rcv_depot', function ($join) {
                     $join->on('rcv_depot.event_item_id', '=', 'csn_items.id');
                     $join->where('rcv_depot.csn_arrived_qty', '>', 0);
+                    $join->where('rcv_depot.delivery_id', '=', 'delivery.id');
                 })
                 ->whereNotNull('rcv_depot.id')
                 ->whereIn('csn_items.id', $del_item_id_arr)->get();
@@ -110,7 +115,7 @@ class ConsignmentItem extends Model
                     ConsignmentItem::whereIn('id', $del_item_id_arr)->forceDelete();
 
                     foreach ($items as $item) {
-                        PurchaseLog::stockChange($purchase_id, $item->product_style_id, Event::consignment()->value, $item->id, LogEventFeature::style_del()->value, null, $item->num, null, $item->title, $item->prd_type, $operator_user_id, $operator_user_name);
+                        PurchaseLog::stockChange($purchase_id, $item->product_style_id, Event::consignment()->value, $item->id, LogEventFeature::style_del()->value, null, $item->num * -1, null, $item->title, $item->prd_type, $operator_user_id, $operator_user_name);
                     }
                     return ['success' => 1, 'error_msg' => ''];
                 });

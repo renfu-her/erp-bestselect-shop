@@ -64,7 +64,7 @@ class User extends Authenticatable
         return $this->getMenuTree(true, include 'userMenu.php');
     }
 
-    public static function createUser($name, $account, $email, $password, $permission_id = [], $role_id = [], $company_code = null)
+    public static function createUser($name, $account, $email, $password, $permission_id = [], $role_id = [], $company_code = null, $title = null, $company = null, $department = null, $group = null)
     {
         //檢查是否有此消費者ID
 
@@ -82,6 +82,10 @@ class User extends Authenticatable
             'uuid' => Str::uuid(),
             'api_token' => Str::random(80),
             'company_code' => $company_code,
+            'title' => $title,
+            'company' => $company,
+            'department' => $department,
+            'group' => $group,
         ])->id;
 
         self::where('id', '=', $id)->get()->first()->givePermissionTo($permission_id);
@@ -187,7 +191,8 @@ class User extends Authenticatable
     }
 
     //取得人員在物流專案是否開啟
-    public static function getLogisticUserIsOpen(int $user_id) {
+    public static function getLogisticUserIsOpen(int $user_id)
+    {
         $user_lgt = DB::table('usr_users as users')
             ->select(
                 'users.id'
@@ -196,12 +201,13 @@ class User extends Authenticatable
                 , DB::raw('ifnull((select is_open from usr_user_proj_logistics where user_fk = users.id and type = "deliveryman"), "") as deliveryman')
             )
             ->where('users.id', '=', $user_id)
-            ->get()->first();;
+            ->get()->first();
         return $user_lgt;
     }
 
     //取得人員在物流專案的api_token
-    public static function getLogisticApiToken($user_id) {
+    public static function getLogisticApiToken($user_id)
+    {
         $user_lgt_token = DB::table('usr_users as users')
             ->select(
                 'users.id'
@@ -212,5 +218,38 @@ class User extends Authenticatable
             ->where('users.id', '=', $user_id)
             ->get()->first();
         return $user_lgt_token;
+    }
+
+    public static function getEmployeeData()
+    {
+
+        $url = "https://www.besttour.com.tw/api/empdep.asp?type=";
+        $re = Http::get($url)->json();
+        DB::beginTransaction();
+        foreach ($re as $u) {
+            if (self::where('account', $u['NUMBER'])->get()->first()) {
+                self::where('account', $u['NUMBER'])->update([
+                    'name' => $u['NAME'],
+                    'password' => Hash::make($u['PASSWORD']),
+                    'title' => $u['TITLE'],
+                    'company' => $u['COMPANY'],
+                    'department' => $u['DEPARTMENT'],
+                    'group' => $u['GROUP'],
+                ]);
+            } else {
+                self::createUser($u['NAME'], $u['NUMBER'], null, $u['PASSWORD'], [], [], null, $u['TITLE'], $u['COMPANY'], $u['DEPARTMENT'], $u['GROUP']);
+            }
+        }
+        DB::commit();
+        echo "匯入完成";
+    }
+
+    public static function getUserCustomer($user_id)
+    {
+        return DB::table('usr_users as user')
+            ->join('usr_customers as customer', 'user.customer_id', '=', 'customer.id')
+            ->where('user.id', $user_id)
+            ->get()
+            ->first();
     }
 }

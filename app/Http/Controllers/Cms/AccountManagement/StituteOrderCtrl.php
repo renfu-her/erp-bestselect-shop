@@ -34,8 +34,63 @@ class StituteOrderCtrl extends Controller
         $query = $request->query();
         $page = getPageCount(Arr::get($query, 'data_per_page', 100)) > 0 ? getPageCount(Arr::get($query, 'data_per_page', 100)) : 100;
 
+        $cond = [];
+
+        $cond['client_key'] = Arr::get($query, 'client_key', null);
+        if (gettype($cond['client_key']) == 'string') {
+            $key = explode('|', $cond['client_key']);
+            $cond['client']['id'] = $key[0];
+            $cond['client']['name'] = $key[1];
+        } else {
+            $cond['client'] = [];
+        }
+
+        $cond['so_sn'] = Arr::get($query, 'so_sn', null);
+        $cond['source_sn'] = Arr::get($query, 'source_sn', null);
+
+        $cond['stitute_min_price'] = Arr::get($query, 'stitute_min_price', null);
+        $cond['stitute_max_price'] = Arr::get($query, 'stitute_max_price', null);
+        $stitute_price = [
+            $cond['stitute_min_price'],
+            $cond['stitute_max_price']
+        ];
+
+        $cond['stitute_sdate'] = Arr::get($query, 'stitute_sdate', null);
+        $cond['stitute_edate'] = Arr::get($query, 'stitute_edate', null);
+        $stitute_payment_date = [
+            $cond['stitute_sdate'],
+            $cond['stitute_edate']
+        ];
+
+        $cond['check_payment'] = Arr::get($query, 'check_payment', 'all');
+
+        $dataList = StituteOrder::stitute_order_list(
+            $cond['client'],
+            $cond['so_sn'],
+            $cond['source_sn'],
+            $stitute_price,
+            $stitute_payment_date,
+            $cond['check_payment'],
+        )->paginate($page)->appends($query);
+
+        $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $client_merged = array_merge($user, $customer, $depot, $supplier);
+
+        $check_payment_status = [
+            'all'=>'不限',
+            '0'=>'未入款',
+            '1'=>'已入款',
+        ];
+
         return view('cms.account_management.stitute.list', [
             'data_per_page' => $page,
+            'dataList' => $dataList,
+            'cond' => $cond,
+            'client' => $client_merged,
+            'check_payment_status' => $check_payment_status,
         ]);
     }
 
@@ -48,52 +103,69 @@ class StituteOrderCtrl extends Controller
                 'stitute_grade_id' => 'required|exists:acc_all_grades,id',
                 'price' => 'required|numeric|between:0,9999999999.9999',
                 'qty' => 'required|numeric|between:0,9999999999.9999',
-                'summary' => 'string',
-                'memo' => 'string',
+                'summary' => 'nullable|string',
+                'memo' => 'nullable|string',
             ]);
 
             $client_key = explode('|', request('client_key'));
 
             if(count($client_key) > 1){
-                $client = Customer::leftJoin('usr_customers_address AS customer_add', function ($join) {
-                        $join->on('usr_customers.id', '=', 'customer_add.usr_customers_id_fk');
-                        $join->where([
-                            'customer_add.is_default_addr'=>1,
-                        ]);
-                    })->where([
-                        'usr_customers.id'=>$client_key[0],
+                $client = User::where([
+                        'id'=>$client_key[0],
                     ])
-                    ->where('usr_customers.name', 'LIKE', "%{$client_key[1]}%")
+                    ->where('name', 'LIKE', "%{$client_key[1]}%")
                     ->select(
-                        'usr_customers.id',
-                        'usr_customers.name',
-                        'usr_customers.phone AS phone',
-                        'usr_customers.email',
-                        'customer_add.address AS address'
-                    )->first();
+                        'id',
+                        'name',
+                        'email'
+                    )
+                    ->selectRaw('
+                        IF(id IS NOT NULL, "", "") AS phone,
+                        IF(id IS NOT NULL, "", "") AS address
+                    ')
+                    ->first();
 
                 if(! $client){
-                    $client = Depot::where('id', '=', $client_key[0])
-                        ->where('name', 'LIKE', "%{$client_key[1]}%")
+                    $client = Customer::leftJoin('usr_customers_address AS customer_add', function ($join) {
+                            $join->on('usr_customers.id', '=', 'customer_add.usr_customers_id_fk');
+                            $join->where([
+                                'customer_add.is_default_addr'=>1,
+                            ]);
+                        })->where([
+                            'usr_customers.id'=>$client_key[0],
+                        ])
+                        ->where('usr_customers.name', 'LIKE', "%{$client_key[1]}%")
                         ->select(
-                            'depot.id',
-                            'depot.name',
-                            'depot.tel AS phone',
-                            'depot.address AS address'
+                            'usr_customers.id',
+                            'usr_customers.name',
+                            'usr_customers.phone AS phone',
+                            'usr_customers.email',
+                            'customer_add.address AS address'
                         )->first();
 
                     if(! $client){
-                        $client = Supplier::where([
-                            'id'=>$client_key[0],
-                        ])
-                        ->where('name', 'LIKE', "%{$client_key[1]}%")
-                        ->select(
-                            'id',
-                            'name',
-                            'contact_tel AS phone',
-                            'email',
-                            'contact_address AS address'
-                        )->first();
+                        $client = Depot::where('id', '=', $client_key[0])
+                            ->where('name', 'LIKE', "%{$client_key[1]}%")
+                            ->select(
+                                'depot.id',
+                                'depot.name',
+                                'depot.tel AS phone',
+                                'depot.address AS address'
+                            )->first();
+
+                        if(! $client){
+                            $client = Supplier::where([
+                                'id'=>$client_key[0],
+                            ])
+                            ->where('name', 'LIKE', "%{$client_key[1]}%")
+                            ->select(
+                                'id',
+                                'name',
+                                'contact_tel AS phone',
+                                'email',
+                                'contact_address AS address'
+                            )->first();
+                        }
                     }
                 }
 
@@ -127,11 +199,11 @@ class StituteOrderCtrl extends Controller
             return redirect()->back();
         }
 
-        $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
-
-        $client_merged = array_merge($customer, $depot, $supplier);
+        $client_merged = array_merge($user, $customer, $depot, $supplier);
 
         $total_grades = GeneralLedger::total_grade_list();
 
