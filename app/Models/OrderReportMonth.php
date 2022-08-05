@@ -31,7 +31,8 @@ class OrderReportMonth extends Model
             ->where('order.payment_status', PaymentStatus::Received())
             ->whereBetween('ro.receipt_date', [$sdate, $edate])
             ->groupBy()->get()->first();
-
+        
+          
         if (self::where('date', Date("Y-m-1", strtotime($sdate)))->get()->first()) {
             self::where('date', Date("Y-m-1", strtotime($sdate)))->update([
                 'price' => $re->price ? $re->price : 0,
@@ -44,6 +45,11 @@ class OrderReportMonth extends Model
                 'qty' => $re->qty,
             ]);
         }
+
+        $re->sdate = $sdate;
+        $re->edate = $edate;
+
+        return $re;
 
     }
 }

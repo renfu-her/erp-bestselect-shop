@@ -89,26 +89,15 @@
             {{-- 推薦商品 --}}
             <h6 class="px-2"><i class="bi bi-hand-thumbs-up-fill me-2"></i>推薦商品</h6>
             <div id="Rec_group" class="row g-3 mb-3 text-center">
-                <div class="col-6 col-xl">
-                    <a href="#" target="_blank" data-bs-toggle="tooltip" title="查看群組">
-                        <div class="px-3 py-2 text-end d-flex align-items-center justify-content-end lh-sm">冷凍商品超值組合</div>
-                    </a>
-                </div>
-                <div class="col-6 col-xl">
-                    <a href="#" target="_blank" data-bs-toggle="tooltip" title="查看群組">
-                        <div class="px-3 py-2 text-end d-flex align-items-center justify-content-end lh-sm">冷凍商品超值組合</div>
-                    </a>
-                </div>
-                <div class="col-6 col-xl">
-                    <a href="#" target="_blank" data-bs-toggle="tooltip" title="查看群組">
-                        <div class="px-3 py-2 text-end d-flex align-items-center justify-content-end lh-sm">冷凍商品超值組合</div>
-                    </a>
-                </div>
-                <div class="col-6 col-xl">
-                    <a href="#" target="_blank" data-bs-toggle="tooltip" title="查看群組">
-                        <div class="px-3 py-2 text-end d-flex align-items-center justify-content-end lh-sm">冷凍商品超值組合</div>
-                    </a>
-                </div>
+                @foreach ($topCollections as $key => $collections)
+                    <div class="col-6 col-xl">
+                        <a href="{{ $collections['url'] }}" target="_blank" data-bs-toggle="tooltip" title="查看群組">
+                            <div class="px-3 py-2 text-end d-flex align-items-center justify-content-end lh-sm">
+                                {{ $collections['name'] }}</div>
+                        </a>
+                    </div>
+                @endforeach
+
             </div>
 
             <div class="row g-3 mb-3">

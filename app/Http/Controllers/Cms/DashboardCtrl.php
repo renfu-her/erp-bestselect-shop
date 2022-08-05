@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cms;
 
 use App\Http\Controllers\Controller;
 use App\Models\Addr;
+use App\Models\Collection;
 use App\Models\OrderReportDaily;
 use App\Models\OrderReportMonth;
 use Illuminate\Http\Request;
@@ -22,7 +23,11 @@ class DashboardCtrl extends Controller
         $reportMonth = OrderReportMonth::where('date', Date('Y-m-1'))->get()->first();
         $reportPrevMonth = OrderReportMonth::where('date', Date('Y-m-1', strtotime("-1 months")))->get()->first();
 
-     //   dd($reportPrevMonth);
+        $topCollections = Collection::where('erp_top', 1)->get()->toArray();
+        $topCollections = array_map(function ($n) {
+            return ['url' => frontendUrl() . "collection/${n['id']}/${n['name']}",
+                'name' => $n['name']];
+        }, $topCollections);
 
         $regions = Addr::getRegions($citys[0]['city_id']);
         return view('cms.dashboard', [
@@ -31,6 +36,7 @@ class DashboardCtrl extends Controller
             'reportDaily' => $reportDaily,
             'reportMonth' => $reportMonth,
             'reportPrevMonth' => $reportPrevMonth,
+            'topCollections' => $topCollections,
         ]);
 
     }

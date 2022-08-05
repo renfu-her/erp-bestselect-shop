@@ -18,6 +18,7 @@ class CollectionCtrl extends Controller
      */
     public function index(Request $request, Collection $collection)
     {
+
         $query = $request->query();
         $dataList = $collection->getDataList($query);
         $data_per_page = Arr::get($query, 'data_per_page', 10);
@@ -25,7 +26,8 @@ class CollectionCtrl extends Controller
 
         return view('cms.frontend.collection.list', [
             'dataList' => $dataList,
-            'data_per_page' => $data_per_page
+            'data_per_page' => $data_per_page,
+            'topList' => Collection::where('is_liquor', 0)->get(),
         ]);
     }
 
@@ -50,17 +52,17 @@ class CollectionCtrl extends Controller
     public function store(Request $request, Collection $collection)
     {
         $request->validate([
-            'collection_name'  => [
+            'collection_name' => [
                 'required',
                 'string',
-                'unique:App\Models\Collection,name'
+                'unique:App\Models\Collection,name',
             ],
-            'url'              => 'nullable|string',
-            'meta_title'       => 'nullable|string',
+            'url' => 'nullable|string',
+            'meta_title' => 'nullable|string',
             'meta_description' => 'nullable|string',
-            'is_public'        => 'bool',
-            'is_liquor'        => ['required', 'int', 'min:0', 'max:1'],
-            'id.*'             => 'required|int|min:0'
+            'is_public' => 'bool',
+            'is_liquor' => ['required', 'int', 'min:0', 'max:1'],
+            'id.*' => 'required|int|min:0',
         ]);
 
         $req = $request->all();
@@ -104,10 +106,10 @@ class CollectionCtrl extends Controller
         $dataList = $collection->getCollectionDataById($id);
 
         return view('cms.frontend.collection.edit', [
-            'dataList'    => $dataList,
-            'method'      => 'edit',
-            'formAction'  => Route('cms.collection.edit', $id),
-            'collectionData' => $dataList->first()
+            'dataList' => $dataList,
+            'method' => 'edit',
+            'formAction' => Route('cms.collection.edit', $id),
+            'collectionData' => $dataList->first(),
         ]);
     }
 
@@ -125,15 +127,15 @@ class CollectionCtrl extends Controller
             ->id;
 
         $request->validate([
-            'collection_name'  => [
+            'collection_name' => [
                 'required',
                 'string',
                 Rule::unique('collection', 'name')->ignore($ignoreId)],
-            'url'              => 'nullable|string',
-            'meta_title'       => 'nullable|string',
+            'url' => 'nullable|string',
+            'meta_title' => 'nullable|string',
             'meta_description' => 'nullable|string',
-            'is_liquor'        => 'required|int|min:0',
-            'id.*'             => 'required|int|min:0'
+            'is_liquor' => 'required|int|min:0',
+            'id.*' => 'required|int|min:0',
         ]);
 
         $req = $request->all();
@@ -192,5 +194,23 @@ class CollectionCtrl extends Controller
 
         return response()->json(['status' => 'success']);
 //        return redirect(Route('cms.collection.index'));
+    }
+
+    public function setErpTop(Request $request)
+    {
+        $request->validate([
+            'top_id' => 'array|nullable',
+        ]);
+
+        $top_id = $request->input('top_id');
+        Collection::query()->update(['erp_top' => 0]);
+        if ($top_id) {
+
+            Collection::whereIn('id', $top_id)->update(['erp_top' => 1]);
+
+        }
+        wToast('設定完成');
+
+        return redirect()->back();
     }
 }

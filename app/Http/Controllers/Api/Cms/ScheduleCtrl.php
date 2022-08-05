@@ -55,8 +55,8 @@ class ScheduleCtrl extends Controller
 
         $date = Arr::get($query, 'date', null);
 
-        OrderReportMonth::createData($date);
-        return ['status' => '0'];
+        // OrderReportMonth::createData($date);
+        return ['status' => '0', 'data' => OrderReportMonth::createData($date)];
     }
 
 }
