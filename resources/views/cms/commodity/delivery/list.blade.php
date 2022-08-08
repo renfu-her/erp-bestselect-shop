@@ -46,10 +46,33 @@
                     <select class="form-select -select2 -multiple" multiple name="ship_category[]" aria-label="物流型態" data-placeholder="多選">
                         @foreach ($shipmentCategory as $key => $value)
                             <option value="{{ $value->code }}"
-                            @if (in_array($value->code, $searchParam['ship_category'] ?? [])) selected @endif>{{ $value->category }}</option>
+                                    @if (in_array($value->code, $searchParam['ship_category'] ?? [])) selected @endif>{{ $value->category }}</option>
                         @endforeach
                     </select>
                 </div>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">訂單狀態</label>
+                    <select class="form-select -select2 -multiple" multiple name="order_status[]" aria-label="訂單狀態" data-placeholder="多選">
+                        @foreach ($order_status as $key => $value)
+                            <option value="{{ $value }}"
+                                    @if (in_array($value, $searchParam['order_status'] ?? [])) selected @endif>{{ $value }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <fieldset class="col-12 col-sm-6 mb-3">
+                    <legend class="col-form-label p-0 mb-2">含寄倉出貨</legend>
+                    <div class="px-1 pt-1">
+                        @foreach ($has_csn as $key => $value)
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="has_csn" type="radio"
+                                           value="{{ $value[0] }}" @if ($value[0] == $searchParam['has_csn']) checked @endif>
+                                    {{ $value[1] }}
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                </fieldset>
 
                 <div class="col-12 mb-3">
                     <label class="form-label">訂單起訖日期</label>
@@ -127,6 +150,7 @@
                         <th scope="col">出貨單號</th>
                         <th scope="col">單據編號</th>
                         <th scope="col">寄件倉</th>
+                        <th scope="col">訂單狀態</th>
                         <th scope="col">物態</th>
                         <th scope="col">型態</th>
                         <th scope="col">物流分類</th>
@@ -157,6 +181,7 @@
                             <td>{{ $data->delivery_sn }}</td>
                             <td>{{ $data->event_sn }}</td>
                             <td>{{ $data->depot_name }}</td>
+                            <td>{{ $data->order_status }}</td>
                             <td>{{ $data->logistic_status }}</td>
                             <td>{{ $data->ship_category_name }}</td>
                             <td>{{ $data->method }}</td>

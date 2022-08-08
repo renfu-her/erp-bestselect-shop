@@ -43,10 +43,10 @@ class Topbar extends Component
                 break;
         }
 
-        $customer = User::getUserCustomer(Auth::user()->id);
-     
-        $domain = $domain . '?mcode=' . ($customer ? $customer->sn : '');
-
+        if (Auth::user()) {
+            $customer = User::getUserCustomer(Auth::user()->id);
+            $domain = $domain . '?mcode=' . ($customer ? $customer->sn : '');
+        }
         return view('components.topbar', [
             'name' => isset(Auth::User()->name) ? Auth::User()->name : '旅客',
             'userType' => 'user',

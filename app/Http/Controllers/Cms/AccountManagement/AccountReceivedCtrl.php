@@ -110,7 +110,8 @@ class AccountReceivedCtrl extends Controller
             $compare = array_diff(request('selected'), request('account_received_id'));
             if(count($compare) == 0){
                 $source_type = app(ReceivedOrder::class)->getTable();
-                $n_id = DB::select("SHOW TABLE STATUS LIKE '" . $source_type . "'")[0]->Auto_increment;
+                // $n_id = DB::select("SHOW TABLE STATUS LIKE '" . $source_type . "'")[0]->Auto_increment;
+                $n_id = ReceivedOrder::get()->count() + 1;
                 $account_received_id = current(request('account_received_id'));
                 $received = DB::table('acc_received')->where([
                     'received_method'=>'account_received',

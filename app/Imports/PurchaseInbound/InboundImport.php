@@ -2,21 +2,18 @@
 
 namespace App\Imports\PurchaseInbound;
 
-use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\ToCollection;
+use Maatwebsite\Excel\Concerns\OnEachRow;
+use Maatwebsite\Excel\Row;
 
-class InboundImport implements ToCollection
+class InboundImport implements OnEachRow
 {
-    public $data;
-    public function collection(Collection $collection)
+    public $purchase = [];
+
+    public function onRow(Row $row)
     {
-        $purchase = [];
-        foreach ($collection as $key => $row) {
-            //標頭不解析
-            //剩餘數量小於等於0不寫入
-            if (0 == $key || 0 >= $row[13]) {
-                continue;
-            }
+        $rowIndex = $row->getIndex();
+        $row = $row->toArray();
+        if (1 < $rowIndex) {
             $data = [
                 'purchase_sn' => $row[1]
                 , 'sku' => $row[2]
@@ -28,10 +25,10 @@ class InboundImport implements ToCollection
                 , 'inbound_date' => (isset($row[8])) ? \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[8])->format('Y-m-d') : null
                 , 'remaining_qty' => $row[13]
                 , 'unit_cost' => $row[10]
-                , 'expiry_date' =>  (isset($row[11])) ? \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[11])->format('Y-m-d') : null
+                , 'expiry_date' => (isset($row[11])) ? \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[11])->format('Y-m-d') : null
             ];
-            if(0 == count($purchase) || (0 < count($purchase) && $row[1] != $purchase[ count($purchase) - 1 ]['purchase_sn'])) {
-                $purchase[] = [
+            if (0 == count($this->purchase) || (0 < count($this->purchase) && $row[1] != $this->purchase[count($this->purchase) - 1]['purchase_sn'])) {
+                $this->purchase[] = [
                     'purchase_sn' => $row[1]
                     , 'supplier_name' => [$row[6]]
                     , 'supplier_vat_no' => [$row[7]]
@@ -42,16 +39,11 @@ class InboundImport implements ToCollection
             }
             //判斷採購單耗若相同 則指新增後面商品
             //否則再新增一筆採購單
-            else if ((0 < count($purchase) && $row[1] == $purchase[ count($purchase) - 1 ]['purchase_sn'])) {
-                $purchase[ count($purchase) - 1 ]['supplier_name'][] = $row[6];
-                array_push($purchase[ count($purchase) - 1 ]['data'], $data);
+            else if ((0 < count($this->purchase) && $row[1] == $this->purchase[count($this->purchase) - 1]['purchase_sn'])) {
+                $this->purchase[count($this->purchase) - 1]['supplier_name'][] = $row[6];
+                array_push($this->purchase[count($this->purchase) - 1]['data'], $data);
             }
         }
-        if (0 < count($purchase)) {
-            foreach ($purchase as $key_pcs => $key_val) {
-                $purchase[$key_pcs]['supplier_name'] = array_unique($purchase[$key_pcs]['supplier_name'], SORT_STRING);
-            }
-        }
-        $this->data = $purchase;
+        return;
     }
 }

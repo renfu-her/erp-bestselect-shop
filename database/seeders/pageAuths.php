@@ -333,6 +333,15 @@ return [
         ],
     ],
     [
+        "unit" => "匯款紀錄",
+        "permissions" => [
+            [
+                "cms.remittance_record.index",
+                "瀏覽",
+            ],
+        ],
+    ],
+    [
         "unit" => "會計科目",
         "permissions" => [
             [

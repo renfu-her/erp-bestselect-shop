@@ -1,47 +1,41 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">發票查詢</h2>
-
-    <fieldset class="col-12 mb-2">
-        <div class="p-2 border rounded">
-            <a href="{{ Route('cms.order_invoice_manager.index') }}" class="btn btn-primary active" aria-current="page" role="button">發票查詢</a>
-            <a href="{{ Route('cms.order_invoice_manager.month') }}" class="btn btn-primary" role="button">月報表</a>
-        </div>
-    </fieldset>
+    <h2 class="mb-4">匯款紀錄</h2>
 
     <form id="search" method="GET">
         <div class="card shadow p-4 mb-4">
             <h6>搜尋條件</h6>
             <div class="row">
                 <div class="col-12 col-sm-4 mb-3">
-                    <label class="form-label">發票號碼</label>
-                    <input class="form-control" type="text" name="invoice_number" value="{{ $cond['invoice_number'] }}" placeholder="請輸入發票號碼">
+                    <label class="form-label">收/付款單號</label>
+                    <input class="form-control" type="text" name="sn" value="{{ $cond['sn'] }}" placeholder="請輸入收/付款單號">
                 </div>
 
                 <div class="col-12 col-sm-4 mb-3">
-                    <label class="form-label">客戶名稱</label>
-                    <input class="form-control" type="text" name="buyer_name" value="{{ $cond['buyer_name'] }}" placeholder="請輸入客戶名稱">
+                    <label class="form-label">匯出/入</label>
+                    <select class="form-select -select2 -single" name="remit_type" aria-label="匯出/入" data-placeholder="請選擇">
+                        <option value="all" selected>不限</option>
+                        <option value="payable" {{ in_array('payable', [$cond['remit_type']]) ? 'selected' : '' }}>匯出</option>
+                        <option value="received" {{ in_array('received', [$cond['remit_type']]) ? 'selected' : '' }}>匯入</option>
+
+                    </select>
                 </div>
 
-                <div class="col-12 col-sm-4 mb-3">
-                    <label class="form-label">統一編號</label>
-                    <input class="form-control" type="text" name="buyer_ubn" value="{{ $cond['buyer_ubn'] }}" placeholder="請輸入統一編號">
-                </div>
                 <div class="col-12 mb-3">
-                    <label class="form-label">發票日期起訖</label>
+                    <label class="form-label">匯款日期起訖</label>
                     <div class="input-group has-validation">
-                        <input type="date" class="form-control -startDate @error('invoice_sdate') is-invalid @enderror" name="invoice_sdate" value="{{ $cond['invoice_sdate'] }}" aria-label="起始日期" />
-                        <input type="date" class="form-control -endDate @error('invoice_edate') is-invalid @enderror" name="invoice_edate" value="{{ $cond['invoice_edate'] }}" aria-label="結束日期" />
+                        <input type="date" class="form-control -startDate @error('sdate') is-invalid @enderror" name="sdate" value="{{ $cond['sdate'] }}" aria-label="起始日期" />
+                        <input type="date" class="form-control -endDate @error('edate') is-invalid @enderror" name="edate" value="{{ $cond['edate'] }}" aria-label="結束日期" />
                         <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
                         <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
                         <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
                         <button class="btn px-2" data-daysBefore="6" type="button">近7日</button>
                         <button class="btn" data-daysBefore="month" type="button">本月</button>
                         <div class="invalid-feedback">
-                            @error('invoice_sdate')
+                            @error('sdate')
                                 {{ $message }}
                             @enderror
-                            @error('invoice_edate')
+                            @error('edate')
                                 {{ $message }}
                             @enderror
                         </div>
@@ -75,34 +69,24 @@
                 <thead>
                     <tr>
                         <th scope="col">編號</th>
-                        <th scope="col">發票號碼</th>
-                        <th scope="col">訂購單號</th>
-                        <th scope="col">日期</th>
-                        <th scope="col">類型</th>
-                        <th scope="col">買受人</th>
+                        <th scope="col">類別</th>
+                        <th scope="col">單號</th>
+                        <th scope="col">匯款日期</th>
                         <th scope="col">金額</th>
-{{--                        <th scope="col">是否作廢</th>--}}
+                        <th scope="col">會計代碼</th>
+                        <th scope="col">會計科目</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($data_list as $key => $data)
                         <tr>
                             <td>{{ $key + 1 }}</td>
-                            @if(app(\App\Models\Order::class)->getTable() == $data->source_type)
-                                <td><a href="{{ route('cms.order.show-invoice', ['id' => $data->source_id]) }}">{{ $data->invoice_number }}</a></td>
-                            @else
-                                <td>{{ $data->invoice_number }}</td>
-                            @endif
-                            @if(app(\App\Models\Order::class)->getTable() == $data->source_type)
-                                <td><a href="{{ route('cms.order.detail', ['id' => $data->source_id]) }}">{{ $data->merchant_order_no }}</a></td>
-                            @else
-                                <td>{{ $data->merchant_order_no }}</td>
-                            @endif
-                            <td>{{ $data->invoice_date }}</td>
-                            <td>{{ $data->category }}</td>
-                            <td>{{ $data->buyer_name }}</td>
-                            <td>{{ number_format($data->total_amt, 2) }}</td>
-{{--                            <td>是否作廢</td>--}}
+                            <td>{{ $data->type }}</td>
+                            <td><a href="{{ Route('cms.remittance_record.detail', ['sn' => $data->sn], true) }}">{{ $data->sn }}</a></td>
+                            <td>{{ $data->remit_date }}</td>
+                            <td>{{ number_format($data->tw_price, 2) }}</td>
+                            <td>{{ $data->code }}</td>
+                            <td>{{ $data->name }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -112,7 +96,7 @@
 
     <div class="row flex-column-reverse flex-sm-row">
         <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">
-            @if($data_list)
+            @if(isset($data_list))
                 <div class="mx-3">共 {{ $data_list->lastPage() }} 頁(共找到 {{ $data_list->total() }} 筆資料)</div>
                 {{-- 頁碼 --}}
                 <div class="d-flex justify-content-center">{{ $data_list->links() }}</div>

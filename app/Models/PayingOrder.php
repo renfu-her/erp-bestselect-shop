@@ -655,6 +655,9 @@ class PayingOrder extends Model
             })
             ->leftJoin('pcs_paying_orders AS append_po', function($join){
                 $join->on('_account.append_pay_order_id', '=', 'append_po.id');
+                $join->where([
+                    'append_po.deleted_at'=>null,
+                ]);
             })
 
             ->where([

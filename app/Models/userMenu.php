@@ -211,6 +211,11 @@ return
                 "controller_name" => "OrderBonusCtrl",
                 "route_name" => "cms.order-bonus.index",
             ],
+            [
+                "title" => "匯款紀錄",
+                "controller_name" => "RemittanceRecordCtrl",
+                "route_name" => "cms.remittance_record.index",
+            ],
         ],
     ],
     [
