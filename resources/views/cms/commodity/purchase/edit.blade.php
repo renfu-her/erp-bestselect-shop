@@ -426,7 +426,7 @@
                         <th scope="col">商品名稱</th>
                         <th scope="col">款式</th>
                         <th scope="col">SKU</th>
-                        <th scope="col">庫存數量</th>
+                        <th scope="col">官網可售數量</th>
                         <th scope="col">預扣庫存量</th>
                     </tr>
                     </thead>
