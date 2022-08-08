@@ -11,6 +11,9 @@ use App\Models\CustomerDividend;
 use App\Models\Order;
 use App\Models\OrderReportDaily;
 use App\Models\OrderReportMonth;
+use App\Models\CustomerReportDaily;
+use App\Models\CustomerReportMonth;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
@@ -58,5 +61,23 @@ class ScheduleCtrl extends Controller
         // OrderReportMonth::createData($date);
         return ['status' => '0', 'data' => OrderReportMonth::createData($date)];
     }
+
+    public function customerReportDaily()
+    {
+        CustomerReportDaily::createData();
+        return ['status' => '0'];
+    }
+
+    public function customerReportMonth(Request $request)
+    {
+       
+        $query = $request->query();
+
+        $date = Arr::get($query, 'date', null);
+
+        // OrderReportMonth::createData($date);
+        return ['status' => '0', 'data' => CustomerReportMonth::createData($date)];
+    }
+
 
 }
