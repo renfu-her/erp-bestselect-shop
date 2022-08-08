@@ -75,6 +75,7 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/CreditBank.php');
     require base_path('routes/cms/CreditPercent.php');
     require base_path('routes/cms/OrderInvoiceManager.php');
+    require base_path('routes/cms/RemittanceRecord.php');
 
     require base_path('routes/cms/AccountReceived.php');
     require base_path('routes/cms/OrderBonus.php');

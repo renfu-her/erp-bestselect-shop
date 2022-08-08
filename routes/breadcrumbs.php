@@ -261,6 +261,17 @@ Breadcrumbs::for('cms.order.show-invoice', function (BreadcrumbTrail $trail, $va
     $trail->push('#' . $value['sn'] . ' 訂單明細', route('cms.order.detail', ['id' => $value['id']]));
     $trail->push('電子發票');
 });
+
+// 匯款紀錄
+Breadcrumbs::for('cms.remittance_record.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push(' 匯款紀錄', route('cms.remittance_record.index', []));
+});
+// 匯款明細
+Breadcrumbs::for('cms.remittance_record.detail', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.remittance_record.index');
+    $trail->push('匯款明細');
+});
 //編輯收款單入帳日期
 Breadcrumbs::for('cms.collection_received.review', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.order.index');
