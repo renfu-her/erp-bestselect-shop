@@ -33,19 +33,18 @@ class CustomerReportMonth extends Model
             ->whereNotNull('order.mcode')
             ->groupBy('order.mcode')->get();
 
-       
         foreach ($re as $data) {
             $customer = Customer::where('sn', $data->mcode)->get()->first();
 
             if ($customer) {
-                if (self::where('date', Date("Y-m-1"))->where('customer_id', $customer->id)->get()->first()) {
-                    self::where('date', Date("Y-m-1"))->where('customer_id', $customer->id)->update([
+                if (self::where('date', Date("Y-m-1", strtotime($sdate)))->where('customer_id', $customer->id)->get()->first()) {
+                    self::where('date', Date("Y-m-1", strtotime($sdate)))->where('customer_id', $customer->id)->update([
                         'price' => $data->price ? $data->price : 0,
 
                     ]);
                 } else {
                     self::create([
-                        'date' => Date("Y-m-1"),
+                        'date' => Date("Y-m-1", strtotime($sdate)),
                         'price' => $data->price ? $data->price : 0,
                         'customer_id' => $customer->id,
                     ]);
