@@ -43,7 +43,6 @@ class Topbar extends Component
                 break;
         }
 
-        $domain = '';
         if (Auth::user()) {
             $customer = User::getUserCustomer(Auth::user()->id);
             $domain = $domain . '?mcode=' . ($customer ? $customer->sn : '');
