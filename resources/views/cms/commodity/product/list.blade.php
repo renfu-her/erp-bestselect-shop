@@ -144,12 +144,12 @@
                         <th scope="col">SKU</th>
                         <th scope="col">負責人</th>
                         <th scope="col">類型</th>
-                        <th scope="col">耗材</th>
-                        <th scope="col">宅配</th>
-                        <th scope="col">規格說明</th>
-                        <th scope="col">公開</th>
-                        <th scope="col">線上</th>
-                        <th scope="col">線下</th>
+                        <th scope="col" class="text-center">耗材</th>
+                        <th scope="col" class="text-center">宅配</th>
+                        {{-- <th scope="col">規格說明</th> --}}
+                        <th scope="col" class="text-center">公開</th>
+                        <th scope="col" class="text-center">線上</th>
+                        <th scope="col" class="text-center">線下</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -167,34 +167,44 @@
                             <td>{{ $data->sku }}</td>
                             <td>{{ $data->user_name }}</td>
                             <td>{{ $data->type_title }}</td>
-                            <td>
+                            <td class="text-center">
                                 @if ($data->consume == '1')
-                                    是
+                                    <i class="bi bi-check-lg text-success fs-5"></i>
+                                @else
+                                    <i class="bi bi-x-lg text-danger"></i>
                                 @endif
                             </td>
-                            <td>
+                            <td class="text-center">
                                 @if (isset($data->hasDelivery) && !is_null($data->hasDelivery))
-                                    是
+                                    <i class="bi bi-check-lg text-success fs-5"></i>
+                                @else
+                                    <i class="bi bi-x-lg text-danger"></i>
                                 @endif
                             </td>
-                            <td>
+                            {{-- <td>
                                 @if (isset($data->hasSpecList) && !is_null($data->hasSpecList))
-                                    是
+                                    <i class="bi bi-check-lg text-success"></i>
                                 @endif
-                            </td>
-                            <td>
+                            </td> --}}
+                            <td class="text-center">
                                 @if ($data->public == '1')
-                                    是
+                                    <i class="bi bi-eye-fill fs-5"></i>
+                                @else
+                                    <i class="bi bi-eye-slash text-secondary fs-5"></i>
                                 @endif
                             </td>
-                            <td>
+                            <td class="text-center">
                                 @if ($data->online == '1')
-                                    是
+                                    <i class="bi bi-check-lg text-success fs-5"></i>
+                                @else
+                                    <i class="bi bi-x-lg text-danger"></i>
                                 @endif
                             </td>
-                            <td>
+                            <td class="text-center">
                                 @if ($data->offline == '1')
-                                    是
+                                    <i class="bi bi-check-lg text-success fs-5"></i>
+                                @else
+                                    <i class="bi bi-x-lg text-danger"></i>
                                 @endif
                             </td>
                         </tr>

@@ -112,14 +112,11 @@
                     <tr>
                         <th scope="col" style="width:10%">#</th>
                         <th scope="col" class="text-center">明細</th>
-                        <th scope="col">商品名稱</th>
-                        <th scope="col">款式</th>
-                        <th scope="col">類型</th>
-                        <th scope="col">SKU</th>
+                        <th scope="col">商品款式</th>
                         <th scope="col">倉庫名稱</th>
-                        <th scope="col">理貨倉庫存</th>
+                        <th scope="col" class="wrap -sm">理貨倉庫存</th>
                         <th scope="col">寄倉庫存</th>
-                        <th scope="col">官網可售數量</th>
+                        <th scope="col" class="wrap -sm">官網可售數量</th>
                         <!--<th scope="col">預扣庫存</th>-->
                         <th scope="col">安全庫存</th>
                         <th scope="col">廠商名稱</th>
@@ -139,13 +136,20 @@
                                 </a>
                                 @endif
                             </td>
-                            <td> <a
-                                    href="{{ Route('cms.product.edit', ['id' => $data->product_id], true) }}">{{ $data->product_title }}</a>
+                            <td class="wrap">
+                                <div class="lh-1 small text-nowrap">
+                                    <span @class(['badge rounded-pill me-2', 
+                                        'bg-warning text-dark' => $data->type_title === '組合包商品',
+                                        'bg-success' => $data->type_title === '一般商品'])
+                                    >{{ $data->type_title === '組合包商品' ? '組合包' : '一般' }}</span>
+                                    <span class="text-secondary">{{ $data->sku }}</span>
+                                </div>
+                                <div class="lh-lg">
+                                    <a href="{{ Route('cms.product.edit', ['id' => $data->product_id], true) }}">{{ $data->product_title }}</a>
+                                </div>
+                                <div class="lh-1 small"><span class="badge bg-secondary">{{ $data->spec }}</span></div>
                             </td>
-                            <td>{{ $data->spec }}</td>
-                            <td>{{ $data->type_title }}</td>
-                            <td>{{ $data->sku }}</td>
-                            <td>{{ $data->depot_name }}</td>
+                            <td class="wrap -md">{{ $data->depot_name }}</td>
                             <td>{{ $data->total_in_stock_num }}</td>
                             <td>{{ $data->total_in_stock_num_csn }}</td>
                             <td>
@@ -166,7 +170,7 @@
                                 @endif
 
                             </td>
-                            <td>
+                            <td class="wrap -md">
                                 {{ $data->suppliers_name }}
                             </td>
                             <td>{{ $data->user_name }}</td>
