@@ -89,7 +89,7 @@
             {{-- 推薦商品 --}}
             <h6 class="px-2"><i class="bi bi-hand-thumbs-up-fill me-2"></i>推薦商品</h6>
             @if (count($topCollections) > 0)
-            <div id="Rec_group" class="row g-3 mb-3 text-center">
+                <div id="Rec_group" class="row g-3 mb-3 text-center">
                     @foreach ($topCollections as $key => $collections)
                         <div class="col-6 col-xl">
                             <a href="{{ $collections['url'] }}" target="_blank" data-bs-toggle="tooltip" title="查看群組">
@@ -98,7 +98,7 @@
                             </a>
                         </div>
                     @endforeach
-            </div>
+                </div>
             @else
                 <div class="alert alert-warning text-center" role="alert">
                     尚未設定群組！
@@ -214,15 +214,24 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @for ($i = 1; $i <= 20; $i++)
+                        @for ($i = 0; $i < 20; $i++)
                             <tr>
-                                <td class="text-center">{{ $i }}</td>
-                                <td>理查 / {{ number_format(9999) }}</td>
-                                <td>理查 / {{ number_format(9999) }}</td>
+                                <td class="text-center">{{ $i + 1 }}</td>
+                                <td>
+                                    @if (isset($customerDaily[$i]))
+                                        {{ $customerDaily[$i]->name }} / {{ number_format($customerDaily[$i]->price) }}
+                                    @endif
+                                </td>
+                                <td>
+                                    @if (isset($customerPrevMonth[$i]))
+                                        {{ $customerPrevMonth[$i]->name }} /
+                                        {{ number_format($customerPrevMonth[$i]->price) }}
+                                    @endif
+                                </td>
                             </tr>
                         @endfor
                     </tbody>
-                    <caption class="text-end border-top-0">更新時間：{{ date('Y/m/d H:i', strtotime('2022-7-27 18:29:30')) }}
+                    <caption class="text-end border-top-0">更新時間：{{ date('Y/m/d H:i', strtotime($reportUpdatedTime)) }}
                     </caption>
                 </table>
             </div>
