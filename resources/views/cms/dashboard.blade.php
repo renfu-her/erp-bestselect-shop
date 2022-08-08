@@ -218,8 +218,8 @@
                             <tr>
                                 <td class="text-center">{{ $i + 1 }}</td>
                                 <td>
-                                    @if (isset($customerDaily[$i]))
-                                        {{ $customerDaily[$i]->name }} / {{ number_format($customerDaily[$i]->price) }}
+                                    @if (isset($customerMonth[$i]))
+                                        {{ $customerMonth[$i]->name }} / {{ number_format($customerMonth[$i]->price) }}
                                     @endif
                                 </td>
                                 <td>
