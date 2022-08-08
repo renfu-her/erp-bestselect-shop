@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Cms;
 use App\Http\Controllers\Controller;
 use App\Models\Addr;
 use App\Models\Collection;
-use App\Models\CustomerReportDaily;
 use App\Models\CustomerReportMonth;
 use App\Models\OrderReportDaily;
 use App\Models\OrderReportMonth;
@@ -25,10 +24,11 @@ class DashboardCtrl extends Controller
         $reportMonth = OrderReportMonth::where('date', Date('Y-m-1'))->get()->first();
         $reportPrevMonth = OrderReportMonth::where('date', Date('Y-m-1', strtotime("-1 months")))->get()->first();
 
-        $customerDaily = CustomerReportDaily::dataList()->where('daily.date', Date('Y-m-d'))->limit(20)->get()->toArray();
+        $customerMonth = CustomerReportMonth::dataList()->where('month.date', Date('Y-m-1'))->limit(20)->get()->toArray();
         $customerPrevMonth = CustomerReportMonth::dataList()->where('month.date', Date('Y-m-1', strtotime("-1 months")))->limit(20)->get()->toArray();
 
-       // $reportUpdatedTime = CustomerReportDaily::orderBy('updated_at', "DESC")->get()->first()->updated_at;
+        $reportUpdatedTime = CustomerReportMonth::orderBy('updated_at', "DESC")->get()->first();
+        $reportUpdatedTime = $reportUpdatedTime ? date('Y/m/d H:i', strtotime($reportUpdatedTime->updated_at)) : '';
 
         $topCollections = Collection::where('erp_top', 1)->get()->toArray();
         $topCollections = array_map(function ($n) {
@@ -44,9 +44,9 @@ class DashboardCtrl extends Controller
             'reportMonth' => $reportMonth,
             'reportPrevMonth' => $reportPrevMonth,
             'topCollections' => $topCollections,
-            'customerDaily' => $customerDaily,
+            'customerMonth' => $customerMonth,
             'customerPrevMonth' => $customerPrevMonth,
-            'reportUpdatedTime' => now(),
+            'reportUpdatedTime' => $reportUpdatedTime,
         ]);
 
     }
