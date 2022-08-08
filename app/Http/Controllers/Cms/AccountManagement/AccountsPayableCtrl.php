@@ -123,7 +123,8 @@ class AccountsPayableCtrl extends Controller
             $compare = array_diff(request('selected'), request('accounts_payable_id'));
             if(count($compare) == 0){
                 $source_type = app(PayingOrder::class)->getTable();
-                $n_id = DB::select("SHOW TABLE STATUS LIKE '" . $source_type . "'")[0]->Auto_increment;
+                // $n_id = DB::select("SHOW TABLE STATUS LIKE '" . $source_type . "'")[0]->Auto_increment;
+                $n_id = PayingOrder::get()->count() + 1;
                 $accounts_payable_id = current(request('accounts_payable_id'));
                 $payable = DB::table('acc_payable')->where([
                     'acc_income_type_fk'=>5,

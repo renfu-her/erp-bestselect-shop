@@ -924,6 +924,9 @@ class ReceivedOrder extends Model
             })
             ->leftJoin('ord_received_orders AS append_ro', function($join){
                 $join->on('_account.append_received_order_id', '=', 'append_ro.id');
+                $join->where([
+                    'append_ro.deleted_at'=>null,
+                ]);
             })
 
             ->where([
