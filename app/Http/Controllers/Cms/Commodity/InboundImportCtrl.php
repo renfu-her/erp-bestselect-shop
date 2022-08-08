@@ -39,7 +39,7 @@ class InboundImportCtrl extends Controller
 
     public function uploadExcel(Excel $excel, Request $request)
     {
-        ini_set('memory_limit', '-1');
+//        ini_set('memory_limit', '-1');
         $request->validate([
             'depot_id' => 'required|numeric',
             'file' => 'required|max:10000|mimes:xlsx,xls',
@@ -58,7 +58,13 @@ class InboundImportCtrl extends Controller
 
         $inboundImport = new InboundImport;
         $excel->import($inboundImport, storage_path('app/' . $path));
-        $data = $inboundImport->data;
+        $purchase = $inboundImport->purchase;
+        if (0 < count($purchase)) {
+            foreach ($purchase as $key_pcs => $key_val) {
+                $purchase[$key_pcs]['supplier_name'] = array_unique($purchase[$key_pcs]['supplier_name'], SORT_STRING);
+            }
+        }
+        $data = $purchase;
         if (isset($data) && 0 < count($data) && false == isset($errMsg)) {
             //判斷是否有重複採購單號
             $purchase_sn = [];
