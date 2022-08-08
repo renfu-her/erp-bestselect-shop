@@ -39,7 +39,7 @@ class InboundImportCtrl extends Controller
 
     public function uploadExcel(Excel $excel, Request $request)
     {
-        ini_set('memory_limit', '128M');
+        ini_set('memory_limit', '256M');
         $request->validate([
             'depot_id' => 'required|numeric',
             'file' => 'required|max:10000|mimes:xlsx,xls',
