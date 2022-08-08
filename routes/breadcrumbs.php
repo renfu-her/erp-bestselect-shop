@@ -126,6 +126,7 @@ Breadcrumbs::for('cms.inbound_import.inbound_list', function (BreadcrumbTrail $t
 // 入庫單庫存調整
 Breadcrumbs::for('cms.inbound_import.inbound_edit', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.inbound_import.index');
+    $trail->push('入庫單列表', route('cms.inbound_import.inbound_list'));
     $trail->push('入庫單庫存調整');
 });
 // 入庫單調整紀錄
