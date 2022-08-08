@@ -28,7 +28,7 @@ class DashboardCtrl extends Controller
         $customerDaily = CustomerReportDaily::dataList()->where('daily.date', Date('Y-m-d'))->limit(20)->get()->toArray();
         $customerPrevMonth = CustomerReportMonth::dataList()->where('month.date', Date('Y-m-1', strtotime("-1 months")))->limit(20)->get()->toArray();
 
-        $reportUpdatedTime = CustomerReportDaily::orderBy('updated_at', "DESC")->get()->first()->updated_at;
+       // $reportUpdatedTime = CustomerReportDaily::orderBy('updated_at', "DESC")->get()->first()->updated_at;
 
         $topCollections = Collection::where('erp_top', 1)->get()->toArray();
         $topCollections = array_map(function ($n) {
@@ -46,7 +46,7 @@ class DashboardCtrl extends Controller
             'topCollections' => $topCollections,
             'customerDaily' => $customerDaily,
             'customerPrevMonth' => $customerPrevMonth,
-            'reportUpdatedTime' => $reportUpdatedTime,
+            'reportUpdatedTime' => now(),
         ]);
 
     }
