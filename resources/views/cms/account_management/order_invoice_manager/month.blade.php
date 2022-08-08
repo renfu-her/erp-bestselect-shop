@@ -66,10 +66,18 @@
                     @foreach ($data_list as $key => $data)
                         <tr>
                             <td>{{ $key + 1 }}</td>
-                            <td>{{ $data->invoice_number }}</td>
+                            @if(app(\App\Models\Order::class)->getTable() == $data->source_type)
+                                <td><a href="{{ route('cms.order.show-invoice', ['id' => $data->source_id]) }}">{{ $data->invoice_number }}</a></td>
+                            @else
+                                <td>{{ $data->invoice_number }}</td>
+                            @endif
                             <td>{{ $data->invoice_date }}</td>
                             <td>{{ $data->buyer_name }}</td>
-                            <td>{{ $data->merchant_order_no }}</td>
+                            @if(app(\App\Models\Order::class)->getTable() == $data->source_type)
+                                <td><a href="{{ route('cms.order.detail', ['id' => $data->source_id]) }}">{{ $data->merchant_order_no }}</a></td>
+                            @else
+                                <td>{{ $data->merchant_order_no }}</td>
+                            @endif
                             <td>{{ $data->buyer_ubn }}</td>
                             <td>{{ $data->item_1_name }}</td>
                             <td>{{ number_format($data->amt, 2) }}</td>
