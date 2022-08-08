@@ -60,6 +60,7 @@ class DeliveryCtrl extends Controller
         $cond['ship_method'] = Arr::get($query, 'ship_method', []);
         $cond['logistic_status_code'] = Arr::get($query, 'logistic_status_code', []);
         $cond['ship_category'] = Arr::get($query, 'ship_category', []);
+        $cond['order_status'] = Arr::get($query, 'order_status', []);
 
         $cond['order_sdate'] = Arr::get($query, 'order_sdate', null);
         $cond['order_edate'] = Arr::get($query, 'order_edate', null);
@@ -81,12 +82,17 @@ class DeliveryCtrl extends Controller
         } else {
             $delivery = Delivery::getList($cond)->paginate($cond['data_per_page'])->appends($query);
         }
+        $order_status = [];
+        foreach (OrderStatus::asArray() as $item) {
+            $order_status[$item] = OrderStatus::getDescription($item);
+        }
 
         return view('cms.commodity.delivery.list', [
             'dataList' => $delivery,
             'depotList' => Depot::all(),
             'shipmentCategory' => ShipmentCategory::all(),
             'logisticStatus' => LogisticStatus::asArray(),
+            'order_status' => $order_status,
             'searchParam' => $cond,
             'data_per_page' => $cond['data_per_page']]);
     }

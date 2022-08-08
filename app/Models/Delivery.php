@@ -140,6 +140,7 @@ class Delivery extends Model
         $query_order = DB::table('ord_orders as order')
             ->leftJoin('ord_sub_orders', 'ord_sub_orders.order_id', '=', 'order.id')
             ->select('order.id as order_id'
+                , 'order.status as order_status'
                 , 'order.created_at as order_created_at'
                 , 'ord_sub_orders.id as sub_order_id'
                 , 'ord_sub_orders.ship_category as ship_category'
@@ -212,6 +213,9 @@ class Delivery extends Model
         }
         if (isset($param['ship_category']) && 0 < count($param['ship_category'])) {
             $query->whereIn('query_order.ship_category', $param['ship_category']);
+        }
+        if (isset($param['order_status']) && 0 < count($param['order_status'])) {
+            $query->whereIn('query_order.order_status', $param['order_status']);
         }
         if (isset($param['order_sdate']) && isset($param['order_edate'])) {
             $order_sdate = date('Y-m-d 00:00:00', strtotime($param['order_sdate']));
