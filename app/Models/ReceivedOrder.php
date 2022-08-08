@@ -887,31 +887,31 @@ class ReceivedOrder extends Model
             })
 
             // order
-            ->leftJoin('ord_orders AS order', function ($join) {
-                $join->on('ro.source_id', '=', 'order.id');
-                $join->where([
-                    'ro.source_type'=>app(Order::class)->getTable(),
-                    'ro.deleted_at'=>null,
-                ]);
-            })
-            ->leftJoin('usr_customers AS customer', 'customer.email', '=', 'order.email')
-            ->leftJoin('usr_customers_address AS customer_add', function ($join) {
-                $join->on('customer.id', '=', 'customer_add.usr_customers_id_fk');
-                $join->where([
-                    'customer_add.is_default_addr'=>1,
-                ]);
-            })
+            // ->leftJoin('ord_orders AS order', function ($join) {
+            //     $join->on('ro.source_id', '=', 'order.id');
+            //     $join->where([
+            //         'ro.source_type'=>app(Order::class)->getTable(),
+            //         'ro.deleted_at'=>null,
+            //     ]);
+            // })
+            // ->leftJoin('usr_customers AS customer', 'customer.email', '=', 'order.email')
+            // ->leftJoin('usr_customers_address AS customer_add', function ($join) {
+            //     $join->on('customer.id', '=', 'customer_add.usr_customers_id_fk');
+            //     $join->where([
+            //         'customer_add.is_default_addr'=>1,
+            //     ]);
+            // })
 
             // csn_order
-            ->leftJoin('csn_orders AS csn_order', function ($join) {
-                $join->on('ro.source_id', '=', 'csn_order.id');
-                $join->where([
-                    'ro.source_type'=>app(CsnOrder::class)->getTable(),
-                    'ro.deleted_at'=>null,
-                    'csn_order.deleted_at'=>null,
-                ]);
-            })
-            ->leftJoin('depot', 'depot.id', '=', 'csn_order.depot_id')
+            // ->leftJoin('csn_orders AS csn_order', function ($join) {
+            //     $join->on('ro.source_id', '=', 'csn_order.id');
+            //     $join->where([
+            //         'ro.source_type'=>app(CsnOrder::class)->getTable(),
+            //         'ro.deleted_at'=>null,
+            //         'csn_order.deleted_at'=>null,
+            //     ]);
+            // })
+            // ->leftJoin('depot', 'depot.id', '=', 'csn_order.depot_id')
 
             ->join('acc_received_account AS _account', function($join){
                 $join->on('received.received_method_id', '=', '_account.id');

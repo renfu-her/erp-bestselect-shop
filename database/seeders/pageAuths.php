@@ -212,7 +212,7 @@ return [
         "unit" => "付款作業",
         "permissions" => [
             [
-                "cms.ap.index",
+                "cms.collection_payment.index",
                 "瀏覽",
             ],
         ],

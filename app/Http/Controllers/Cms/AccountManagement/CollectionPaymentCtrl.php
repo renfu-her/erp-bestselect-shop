@@ -2,35 +2,23 @@
 
 namespace App\Http\Controllers\Cms\AccountManagement;
 
-
-
 use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
 
 use App\Enums\Supplier\Payment;
 
 use App\Models\AllGrade;
-use App\Models\AccountPayable;
 use App\Models\Customer;
 use App\Models\Depot;
-use App\Models\Order;
-use App\Models\PayableAccount;
-use App\Models\PayableCash;
-use App\Models\PayableCheque;
-use App\Models\PayableForeignCurrency;
-use App\Models\PayableOther;
-use App\Models\PayableRemit;
 use App\Models\PayingOrder;
 use App\Models\Supplier;
 use App\Models\GeneralLedger;
-use App\Models\PayableDefault;
 use App\Models\User;
 
-class AccountPayableCtrl extends Controller
+class CollectionPaymentCtrl extends Controller
 {
     public function index(Request $request)
     {
@@ -243,6 +231,9 @@ class AccountPayableCtrl extends Controller
             } else if($value->po_source_type == 'dlv_delivery'){
                 $value->po_url_link = route('cms.delivery.return-pay-order', ['id' => $value->po_source_id]);
 
+            } else if($value->po_source_type == 'pcs_paying_orders'){
+                $value->po_url_link = route('cms.accounts_payable.po-show', ['id' => $value->po_source_id]);
+
             } else {
                 $value->po_url_link = "javascript:void(0);";
             }
@@ -261,7 +252,7 @@ class AccountPayableCtrl extends Controller
             '1'=>'已付款',
         ];
 
-        return view('cms.account_management.account_payable.list', [
+        return view('cms.account_management.collection_payment.list', [
             'data_per_page' => $page,
             'dataList' => $dataList,
             'cond' => $cond,

@@ -187,7 +187,7 @@
                                 @endforeach
                             </td>
 
-                            <td class="">{{ $data->po_balance_date ? date('Y-m-d', strtotime($data->po_balance_date)) : '0000-00-00' }}</td>
+                            <td class="">{{ $data->po_balance_date ? date('Y-m-d', strtotime($data->payment_date)) : '0000-00-00' }}</td>
                         </tr>
                     @endforeach
                 </tbody>

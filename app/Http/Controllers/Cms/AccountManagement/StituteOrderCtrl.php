@@ -423,8 +423,12 @@ class StituteOrderCtrl extends Controller
         $paying_order = PayingOrder::findOrFail($stitute_order->pay_order_id);
         $payable_data = PayingOrder::get_payable_detail($stitute_order->pay_order_id);
 
-        if (!$paying_order || !$paying_order->balance_date) {
-            return abort(404);
+        if (!$paying_order->balance_date) {
+            // return abort(404);
+
+            return redirect()->route('cms.stitute.po-edit', [
+                'id' => $id,
+            ]);
         }
 
         $undertaker = User::find($stitute_order->creator_id);

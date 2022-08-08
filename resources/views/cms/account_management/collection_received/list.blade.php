@@ -140,7 +140,7 @@
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <td>{{ $key + 1 }}</td>
-                            <td><a href="{{ $data->ro_url_link }}" class="-text">{{ $data->ro_sn }}</a></td>
+                            <td><a href="{{ $data->ro_url_link }}">{{ $data->ro_sn }}</a></td>
                             <td>{{ $data->ro_target_name }}</td>
                             <td class="p-0">
                                 @foreach($data->debit as $d_value)

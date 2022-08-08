@@ -32,7 +32,7 @@
                             <th class="table-light" style="width:15%">刷卡人</th>
                             <td style="width:35%">{{ $record->credit_card_owner_name }}</td>
                             <th class="table-light" style="width:15%">入款單號</th>
-                            <td style="width:35%"><a href="{{ $record->io_id ? route('cms.credit_manager.income-detail', ['id' => $record->io_id]) : 'javascript:void(0);'}}" class="-text">{{ $record->io_sn }}</a></td>
+                            <td style="width:35%"><a href="{{ $record->io_id ? route('cms.credit_manager.income-detail', ['id' => $record->io_id]) : 'javascript:void(0);'}}">{{ $record->io_sn }}</a></td>
                         </tr>
 
                         <tr>
@@ -41,9 +41,13 @@
                             <th class="table-light" style="width:15%">收款單號</th>
                             <td style="width:35%">
                                 @if($record->ro_source_type == 'ord_orders')
-                                <a href="{{ route('cms.collection_received.receipt', ['id' => $record->ro_source_id]) }}" class="-text">{{ $record->ro_sn }}</a>
+                                <a href="{{ route('cms.collection_received.receipt', ['id' => $record->ro_source_id]) }}">{{ $record->ro_sn }}</a>
                                 @elseif($record->ro_source_type == 'csn_orders')
-                                <a href="{{ route('cms.ar_csnorder.receipt', ['id' => $record->ro_source_id]) }}" class="-text">{{ $record->ro_sn }}</a>
+                                <a href="{{ route('cms.ar_csnorder.receipt', ['id' => $record->ro_source_id]) }}">{{ $record->ro_sn }}</a>
+                                @elseif($record->ro_source_type == 'ord_received_orders')
+                                <a href="{{ route('cms.account_received.ro-receipt', ['id' => $record->ro_source_id]) }}">{{ $record->ro_sn }}</a>
+                                @elseif($record->ro_source_type == 'acc_request_orders')
+                                <a href="{{ route('cms.request.ro-receipt', ['id' => $record->ro_source_id]) }}">{{ $record->ro_sn }}</a>
                                 @endif
                             </td>
                         </tr>
