@@ -113,13 +113,25 @@ thead, tbody, tfoot, tr, td, th {
 .tableList > :not(caption) > * > th.wrap,
 .tableList > :not(caption) > * > td.wrap {
   white-space: normal;
+  &.-sm {
+    min-width: 70px;
+  }
+  &.-md {
+    min-width: 120px;
+  }
+  &.-lg {
+    min-width: 200px;
+  }
+  &.-xl {
+    min-width: 250px;
+  }
 }
 .tableList > tbody th,
 .tableList > tbody td {
   vertical-align: middle;
 }
 .tableList > :not(caption) > * > .wrap {
-  line-height: 1.8rem;
+  line-height: 1.5rem;
 }
 .tableList > :not(caption) > * > * {
   line-height: 40px;
