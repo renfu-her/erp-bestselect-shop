@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Delivery\BackStatus;
-use App\Helpers\IttmsUtils;
+use App\Enums\Delivery\Event;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -216,6 +216,9 @@ class Delivery extends Model
         }
         if (isset($param['order_status']) && 0 < count($param['order_status'])) {
             $query->whereIn('query_order.order_status', $param['order_status']);
+        }
+        if (isset($param['has_csn']) && "false" == $param['has_csn']) {
+            $query->whereNotIn('delivery.event', [Event::consignment()->value]);
         }
         if (isset($param['order_sdate']) && isset($param['order_edate'])) {
             $order_sdate = date('Y-m-d 00:00:00', strtotime($param['order_sdate']));

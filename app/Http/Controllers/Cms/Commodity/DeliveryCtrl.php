@@ -53,6 +53,8 @@ class DeliveryCtrl extends Controller
     public function index(Request $request)
     {
         $query = $request->query();
+
+        $has_csn = [['false', '否'], ['true', '是']];
         $cond = [];
         $cond['delivery_sn'] = Arr::get($query, 'delivery_sn', null);
         $cond['event_sn'] = Arr::get($query, 'event_sn', null);
@@ -66,6 +68,7 @@ class DeliveryCtrl extends Controller
         $cond['order_edate'] = Arr::get($query, 'order_edate', null);
         $cond['delivery_sdate'] = Arr::get($query, 'delivery_sdate', null);
         $cond['delivery_edate'] = Arr::get($query, 'delivery_edate', null);
+        $cond['has_csn'] = Arr::get($query, 'has_csn', $has_csn[0][0]);
 
         $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 10));
 
@@ -93,6 +96,7 @@ class DeliveryCtrl extends Controller
             'shipmentCategory' => ShipmentCategory::all(),
             'logisticStatus' => LogisticStatus::asArray(),
             'order_status' => $order_status,
+            'has_csn' => $has_csn,
             'searchParam' => $cond,
             'data_per_page' => $cond['data_per_page']]);
     }

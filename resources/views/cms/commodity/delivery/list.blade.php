@@ -59,6 +59,20 @@
                         @endforeach
                     </select>
                 </div>
+                <fieldset class="col-12 col-sm-6 mb-3">
+                    <legend class="col-form-label p-0 mb-2">含寄倉出貨</legend>
+                    <div class="px-1 pt-1">
+                        @foreach ($has_csn as $key => $value)
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="has_csn" type="radio"
+                                           value="{{ $value[0] }}" @if ($value[0] == $searchParam['has_csn']) checked @endif>
+                                    {{ $value[1] }}
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                </fieldset>
 
                 <div class="col-12 mb-3">
                     <label class="form-label">訂單起訖日期</label>
