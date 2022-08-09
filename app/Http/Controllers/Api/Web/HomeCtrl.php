@@ -83,7 +83,7 @@ class HomeCtrl extends Controller
     public function getRecommendCollectionList(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'product_id' => 'required',
+            'product_sku' => 'required',
         ]);
         if ($validator->fails()) {
             $re = [];
@@ -93,7 +93,7 @@ class HomeCtrl extends Controller
             return response()->json($re);
         }
         $d = $request->all();
-        $product = Product::where('id', '=', $d['product_id'])->first();
+        $product = Product::where('sku', '=', $d['product_sku'])->first();
         //找同群組商品
         $collection_1 = DB::table('collection_prd as collection_prd')
             ->where('collection_prd.collection_id_fk', '=', $product->recommend_collection_id)
@@ -119,7 +119,7 @@ class HomeCtrl extends Controller
     public function getSameCategoryList(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'product_id' => 'required',
+            'product_sku' => 'required',
         ]);
         if ($validator->fails()) {
             $re = [];
@@ -129,7 +129,7 @@ class HomeCtrl extends Controller
             return response()->json($re);
         }
         $d = $request->all();
-        $product = Product::where('id', '=', $d['product_id'])->first();
+        $product = Product::where('sku', '=', $d['product_sku'])->first();
 
         //找同物流商品
         $prd_shipment_1 = DB::table('prd_product_shipment as prd_shipment')
