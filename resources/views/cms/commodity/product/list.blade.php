@@ -139,7 +139,7 @@
                 <thead class="small">
                     <tr>
                         <th scope="col" style="width:40px">#</th>
-                        <th scope="col" class="text-center">編輯</th>
+                        <th scope="col" style="width:40px" class="text-center">編輯</th>
                         <th scope="col">商品名稱</th>
                         <th scope="col">負責人</th>
                         <th scope="col" class="text-center">耗材</th>

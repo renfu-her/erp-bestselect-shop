@@ -198,37 +198,26 @@
 
             <div class="table-responsive tableOverBox">
                 <table class="table table-striped tableList">
-                    <thead>
-                    <tr>
-                        <th scope="col" style="width:10%">#</th>
-                        <th scope="col">採購單號</th>
-                        <th scope="col" class="text-center">編輯</th>
-                        <th scope="col">商品名稱</th>
-                        <th scope="col">採購日期</th>
-                        <th scope="col">審核狀態</th>
-                        <th scope="col">入庫狀態</th>
-                        <th scope="col">訂金單號</th>
-                        <th scope="col">尾款單號</th>
-                        <th scope="col">SKU</th>
-                        <th scope="col">總價</th>
-                        <th scope="col">單價</th>
-                        <th scope="col">數量</th>
-                        <th scope="col">入庫數量</th>
-                        <th scope="col">異常數量</th>
-                        <th scope="col">採購人員</th>
-                        <th scope="col">入庫人員</th>
-                        <th scope="col">廠商</th>
-                        <th scope="col">發票號碼</th>
-
-                        <th scope="col" class="text-center">刪除</th>
-                    </tr>
+                    <thead class="small">
+                        <tr>
+                            <th scope="col" style="width:40px">#</th>
+                            <th scope="col" style="width:40px" class="text-center">編輯</th>
+                            <th scope="col">採購單號</th>
+                            <th scope="col">商品名稱</th>
+                            <th scope="col">採購日期</th>
+                            <th scope="col">審核狀態</th>
+                            <th scope="col">入庫狀態</th>
+                            <th scope="col">訂金單號</th>
+                            <th scope="col">尾款單號</th>
+                            
+                            <th scope="col" class="text-center">刪除</th>
+                        </tr>
                     </thead>
                     <tbody>
                     @if($dataList)
                         @foreach ($dataList as $key => $data)
                             <tr>
                                 <th scope="row">{{ $key + 1 }}</th>
-                                <td>{{ $data->sn }}</td>
                                 <td class="text-center">
                                     {{--                            @can('admin.purchase.edit')--}}
                                     <a href="{{ Route('cms.purchase.edit', ['id' => $data->id], true) }}"
@@ -238,22 +227,16 @@
                                     </a>
                                     {{--                            @endcan--}}
                                 </td>
-                                <td>{{ $data->title }}</td>
-                                <td>{{ $data->created_at }}</td>
+                                <td>{{ $data->sn }}</td>
+                                <td class="wrap">
+                                    <div class="lh-1 small text-nowrap text-secondary">{{ $data->sku }}</div>
+                                    <div class="lh-base">{{ $data->title }}</div>
+                                </td>
+                                <td>{{ date('Y/m/d', strtotime($data->created_at)) }}</td>
                                 <td>{{ $data->audit_status }}</td>
                                 <td>{{ $data->inbound_status }}</td>
                                 <td>{{ $data->deposit_num }}</td>
                                 <td>{{ $data->final_pay_num }}</td>
-                                <td>{{ $data->sku }}</td>
-                                <td>${{ number_format(floatval($data->price)) }}</td>
-                                <td>${{ number_format(floatval($data->single_price)) }}</td>
-                                <td>{{ $data->num }}</td>
-                                <td>{{ $data->arrived_num }}</td>
-                                <td>{{ $data->error_num }}</td>
-                                <td>{{ $data->purchase_user_name }}</td>
-                                <td>{{ $data->inbound_user_names ?? '' }}</td>
-                                <td>{{ $data->supplier_name }}</td>
-                                <td>{{ $data->invoice_num }}</td>
 
                                 <td class="text-center">
                                     {{--                            @can('admin.purchase.delete')--}}
@@ -263,6 +246,39 @@
                                         <i class="bi bi-trash"></i>
                                     </a>
                                     {{--                            @endcan--}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td colspan="9" class="pt-0 ps-0">
+                                    <table class="table table-bordered table-sm mb-0">
+                                        <thead class="small table-light">
+                                            <tr class="border-top-0" style="border-bottom-color:var(--bs-secondary);">
+                                                <td scope="col">總價</td>
+                                                <td scope="col">單價</td>
+                                                <td scope="col">數量</td>
+                                                <td scope="col">入庫數量</td>
+                                                <td scope="col">異常數量</td>
+                                                <td scope="col">採購人員</td>
+                                                <td scope="col">入庫人員</td>
+                                                <td scope="col">廠商</td>
+                                                <td scope="col">發票號碼</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="border-top-0">
+                                            <tr>
+                                                <td>${{ number_format(floatval($data->price)) }}</td>
+                                                <td>${{ number_format(floatval($data->single_price)) }}</td>
+                                                <td>{{ number_format($data->num) }}</td>
+                                                <td>{{ number_format($data->arrived_num) }}</td>
+                                                <td>{{ $data->error_num }}</td>
+                                                <td>{{ $data->purchase_user_name }}</td>
+                                                <td>{{ $data->inbound_user_names ?? '' }}</td>
+                                                <td>{{ $data->supplier_name }}</td>
+                                                <td>{{ $data->invoice_num }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </td>
                             </tr>
                         @endforeach

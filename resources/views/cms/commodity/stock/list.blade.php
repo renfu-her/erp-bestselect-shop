@@ -111,14 +111,14 @@
                 <thead class="small">
                     <tr>
                         <th scope="col" style="width:40px">#</th>
-                        <th scope="col" class="text-center">明細</th>
+                        <th scope="col" style="width:40px" class="text-center">明細</th>
                         <th scope="col">商品款式</th>
                         <th scope="col">倉庫名稱</th>
-                        <th scope="col" class="wrap -sm">理貨倉庫存</th>
-                        <th scope="col">寄倉庫存</th>
-                        <th scope="col" class="wrap -sm">官網可售數量</th>
+                        <th scope="col" class="wrap lh-sm -sm text-center">理貨倉庫存</th>
+                        <th scope="col" class="wrap lh-sm text-center" style="min-width:50px">寄倉庫存</th>
+                        <th scope="col" class="wrap lh-sm -sm text-center">官網可售數量</th>
                         <!--<th scope="col">預扣庫存</th>-->
-                        <th scope="col">安全庫存</th>
+                        <th scope="col" class="wrap lh-sm text-center" style="min-width:50px">安全庫存</th>
                         <th scope="col">廠商名稱</th>
                         <th scope="col">負責人</th>
                     </tr>
@@ -150,25 +150,24 @@
                                 <div class="lh-1 small"><span class="badge bg-secondary">{{ $data->spec }}</span></div>
                             </td>
                             <td class="wrap -md">{{ $data->depot_name }}</td>
-                            <td>{{ $data->total_in_stock_num }}</td>
-                            <td>{{ $data->total_in_stock_num_csn }}</td>
-                            <td>
-                                {{ $data->in_stock }}
-                            </td>
+                            <td class="text-center">{{ $data->total_in_stock_num }}</td>
+                            <td class="text-center">{{ $data->total_in_stock_num_csn }}</td>
+                            <td class="text-center">{{ $data->in_stock }}</td>
                             <!--
-                            <td>
-                                {{-- if (銷售控管 = 0) --}}
-                                <a
-                                    href="{{ Route('cms.product.edit-stock', ['id' => $data->product_id, 'sid' => $data->id]) }}"></a>
-                            </td>
-                        -->
-                            <td>{{ $data->safety_stock }}
-
+                                <td>
+                                    {{-- if (銷售控管 = 0) --}}
+                                    <a
+                                        href="{{ Route('cms.product.edit-stock', ['id' => $data->product_id, 'sid' => $data->id]) }}"></a>
+                                </td>
+                            -->
+                            <td class="text-center">
+                                <div class="lh-base">{{ $data->safety_stock }}</div>
                                 @if ($data->in_stock <= $data->safety_stock)
-                                    <a href="{{ Route('cms.product.edit-stock', ['id' => $data->product_id, 'sid' => $data->id]) }}"
-                                        class="link-danger">(未達)</a>
+                                    <div class="lh-1 small">
+                                        <a href="{{ Route('cms.product.edit-stock', ['id' => $data->product_id, 'sid' => $data->id]) }}"
+                                            class="link-danger">(未達)</a>
+                                    </div>
                                 @endif
-
                             </td>
                             <td class="wrap -md">
                                 {{ $data->suppliers_name }}
