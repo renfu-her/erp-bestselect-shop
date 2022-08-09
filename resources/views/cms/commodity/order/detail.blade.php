@@ -134,7 +134,7 @@
                 </div>
                 <div class="col-md-5">
                     <dt>收件人地址</dt>
-                    <dd>{{ $order->ord_address }}</dd>
+                    <dd>{{ $order->rec_address }}</dd>
                 </div>
             </dl>
             <dl class="row">
