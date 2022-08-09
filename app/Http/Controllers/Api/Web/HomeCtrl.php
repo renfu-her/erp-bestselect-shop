@@ -61,10 +61,12 @@ class HomeCtrl extends Controller
         }
         $d = $request->all();
 
-        $dataList = $this->getProductList([
+        $cond = [
             'img' => 1,
             'collection' => $d['collection_id'] ?? null,
-        ]);
+        ];
+        $dataList = Product::productList(null, null, $cond)->get()->toArray();
+        Product::getMinPriceProducts(1, null, $dataList);
 
         $data = [];
         if ($dataList) {
@@ -102,10 +104,12 @@ class HomeCtrl extends Controller
             return $n->product_id_fk;
         }, $collection_1->toArray());
 
-        $dataList = $this->getProductList([
+        $cond = [
             'img' => 1,
             'product_ids' => $product_id_fks ?? null,
-        ]);
+        ];
+        $dataList = Product::productList(null, null, $cond)->get()->toArray();
+        Product::getMinPriceProducts(1, null, $dataList);
         $data = $this->getImgUrl($dataList);
 
         $re = [];
@@ -158,7 +162,8 @@ class HomeCtrl extends Controller
             //打勾 找同歸類
             $cond['category_id'] = $product->category_id ?? null;
         }
-        $dataList = $this->getProductList($cond);
+        $dataList = Product::productList(null, null, $cond)->get()->toArray();
+        Product::getMinPriceProducts(1, null, $dataList);
         $data = $this->getImgUrl($dataList);
 
         $re = [];
@@ -166,12 +171,6 @@ class HomeCtrl extends Controller
         $re[ResponseParam::msg()->key] = '';
         $re[ResponseParam::data()->key] = $data;
         return response()->json($re);
-    }
-
-    private static function getProductList($cond) {
-        $dataList = Product::productList(null, null, $cond)->get()->toArray();
-        Product::getMinPriceProducts(1, null, $dataList);
-        return $dataList;
     }
 
     private static function getImgUrl($dataList) {
