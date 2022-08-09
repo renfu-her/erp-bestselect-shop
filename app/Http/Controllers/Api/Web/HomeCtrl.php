@@ -65,7 +65,13 @@ class HomeCtrl extends Controller
             'img' => 1,
             'collection' => $d['collection_id'] ?? null,
         ];
-        $dataList = Product::productList(null, null, $cond)->get()->toArray();
+        $dataList = Product::productList(null, null, $cond);
+        if (isset($d['page'])) {
+            $limit = 10;
+            $offset = (($d['page'] ?? 1) - 1) * $limit;
+            $dataList = $dataList->offset($offset)->limit(10);
+        }
+        $dataList = $dataList->get()->toArray();
         Product::getMinPriceProducts(1, null, $dataList);
 
         $data = [];
@@ -85,7 +91,8 @@ class HomeCtrl extends Controller
     public function getRecommendCollectionList(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'product_sku' => 'required',
+            'product_sku' => 'required|string',
+            'page' => 'filled|numeric',
         ]);
         if ($validator->fails()) {
             $re = [];
@@ -108,7 +115,13 @@ class HomeCtrl extends Controller
             'img' => 1,
             'product_ids' => $product_id_fks ?? null,
         ];
-        $dataList = Product::productList(null, null, $cond)->get()->toArray();
+        $dataList = Product::productList(null, null, $cond);
+        if (isset($d['page'])) {
+            $limit = 10;
+            $offset = (($d['page'] ?? 1) - 1) * $limit;
+            $dataList = $dataList->offset($offset)->limit(10);
+        }
+        $dataList = $dataList->get()->toArray();
         Product::getMinPriceProducts(1, null, $dataList);
         $data = $this->getImgUrl($dataList);
 
@@ -123,7 +136,8 @@ class HomeCtrl extends Controller
     public function getSameCategoryList(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'product_sku' => 'required',
+            'product_sku' => 'required|string',
+            'page' => 'filled|numeric',
         ]);
         if ($validator->fails()) {
             $re = [];
@@ -162,7 +176,13 @@ class HomeCtrl extends Controller
             //打勾 找同歸類
             $cond['category_id'] = $product->category_id ?? null;
         }
-        $dataList = Product::productList(null, null, $cond)->get()->toArray();
+        $dataList = Product::productList(null, null, $cond);
+        if (isset($d['page'])) {
+            $limit = 10;
+            $offset = (($d['page'] ?? 1) - 1) * $limit;
+            $dataList = $dataList->offset($offset)->limit(10);
+        }
+        $dataList = $dataList->get()->toArray();
         Product::getMinPriceProducts(1, null, $dataList);
         $data = $this->getImgUrl($dataList);
 
