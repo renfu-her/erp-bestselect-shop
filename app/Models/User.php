@@ -38,6 +38,10 @@ class User extends Authenticatable
         'uuid',
         'api_token',
         'company_code',
+        'title',
+        'group',
+        'department',
+        'company'
     ];
 
     /**

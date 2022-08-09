@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Cms\Commodity\DiscountCtrl;
 use App\Http\Controllers\Api\CustomerCtrl;
 use App\Http\Controllers\Api\Web\NaviCtrl;
 use App\Http\Controllers\Api\Web\OrderCtrl;
+use App\Http\Controllers\Api\Cms\User\UserCtrl;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -97,3 +98,9 @@ require base_path('routes/api/Addr.php');
 require base_path('routes/api/Schedule.php');
 require base_path('routes/api/Bank.php');
 
+
+Route::group(['prefix' => 'erp', 'as' => 'erp.'], function () {
+    Route::post('user', [UserCtrl::class, 'erpUser']);
+
+
+});
