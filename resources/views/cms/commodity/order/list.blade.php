@@ -85,9 +85,8 @@
                         <select class="form-select" id="shipment_status" aria-label="物態">
                             <option value="" selected>請選擇</option>
                             @foreach ($shipmentStatus as $sStatus)
-                                <option value="{{ $sStatus->id }}" class="text-success">{{ $sStatus->title }}</option>
+                                <option value="{{ $sStatus->id }}" class="{{ $sStatus->style }}">{{ $sStatus->title }}</option>
                             @endforeach
-
                         </select>
                         <button class="btn btn-outline-secondary" type="button" id="clear_shipment_status"
                             data-bs-toggle="tooltip" title="清空">
@@ -151,34 +150,36 @@
             <table class="table table-striped tableList">
                 <thead class="small">
                     <tr>
+                        <th scope="col" style="width:40px">#</th>
+                        <th scope="col" style="width:40px" class="text-center">明細</th>
                         <th scope="col">訂單編號</th>
-                        <th scope="col" class="text-center">明細</th>
-                        <th scope="col">訂單狀態</th>
+                        <th scope="col" class="wrap lh-sm">訂單狀態 /<br>物流狀態</th>
                         <th scope="col">出貨單號</th>
                         <th scope="col">訂購日期</th>
                         <th scope="col">購買人</th>
                         <th scope="col">銷售通路</th>
-                        <th scope="col">物態</th>
                         <th scope="col">收款單號</th>
-                        <th scope="col">物流型態</th>
-                        <th scope="col">客戶物流方式</th>
+                        <th scope="col">客戶物流</th>
                         <th scope="col">實際物流</th>
                         <th scope="col">包裹編號</th>
-                        <th scope="col">退貨狀態</th>
+                        {{-- <th scope="col">退貨狀態</th> --}}
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($dataList as $key => $data)
                         <tr>
-                            <td>{{ $data->order_sn }}</td>
+                            <th scope="row">{{ $key + 1 }}</th>
                             <td class="text-center">
                                 <a href="{{ Route('cms.order.detail', ['id' => $data->id]) }}" data-bs-toggle="tooltip"
                                     title="明細" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-card-list"></i>
                                 </a>
                             </td>
-                            <td @class(['text-danger' => $data->order_status === '取消'])>
-                                {{ $data->order_status }}
+                            <td>{{ $data->order_sn }}</td>
+                            <td class="wrap">
+                                <div class="text-nowrap lh-sm @if ($data->order_status === '取消') text-danger @endif">
+                                    {{ $data->order_status ?? '-' }} /</div>
+                                <div class="text-nowrap lh-base">{{ $data->logistic_status }}</div>
                             </td>
                             <td>
                                 @if ($data->projlgt_order_sn)
@@ -187,25 +188,26 @@
                                         class="btn btn-link">
                                         {{ $data->projlgt_order_sn }}
                                     </a>
-
                                 @else
                                     {{ $data->package_sn }}
                                 @endif
-
-
                             </td>
                             <td>{{ date('Y/m/d', strtotime($data->order_date)) }}</td>
                             <td>{{ $data->name }}</td>
                             <td>{{ $data->sale_title }}</td>
-                            <td class="text-success">{{ $data->logistic_status }}</td>
                             <td>{{ $data->or_sn }}</td>
-                            <td>
-                                {{ $data->ship_category_name }}
+                            <td class="wrap">
+                                <div class="lh-1 small text-nowrap">
+                                    <span @class(['badge -badge', 
+                                        '-primary' => $data->ship_category_name === '宅配',
+                                        '-warning' => $data->ship_category_name === '自取'])
+                                    >{{ $data->ship_category_name }}</span>
+                                </div>
+                                <div class="lh-base text-nowrap">{{ $data->ship_event }}</div>
                             </td>
-                            <td>{{ $data->ship_event }}</td>
                             <td>{{ $data->ship_group_name }}</td>
                             <td>{{ $data->package_sn }}</td>
-                            <td>-</td>
+                            {{-- <td>-</td> --}}
                         </tr>
                     @endforeach
                 </tbody>
@@ -223,6 +225,19 @@
     </div>
 @endsection
 @once
+    @push('sub-styles')
+        <style>
+            .badge.-badge {
+                color: #484848;
+            }
+            .badge.-badge.-primary {
+                background-color: #cfe2ff;
+            }
+            .badge.-badge.-warning {
+                background-color: #fff3cd;
+            }
+        </style>
+    @endpush
     @push('sub-scripts')
         <script>
             // 顯示筆數

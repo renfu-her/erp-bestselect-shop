@@ -94,12 +94,11 @@ class OrderCtrl extends Controller
             $orderStatus[$val] = \App\Enums\Order\OrderStatus::getDescription($val);
         }
 
-        // dd(OrderStatus::select('code as id','title')->toBase()->get()->toArray());
         return view('cms.commodity.order.list', [
             'dataList' => $dataList,
             'cond' => $cond,
             'orderStatus' => $orderStatus,
-            'shipmentStatus' => ShipmentStatus::select('code as id', 'title')->toBase()->get(),
+            'shipmentStatus' => ShipmentStatus::select('*')->toBase()->get(),
             'saleChannels' => SaleChannel::select('id', 'title')->get()->toArray(),
             'data_per_page' => $page]);
     }

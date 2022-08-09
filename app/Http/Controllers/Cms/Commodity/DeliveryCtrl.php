@@ -70,7 +70,7 @@ class DeliveryCtrl extends Controller
         $cond['delivery_edate'] = Arr::get($query, 'delivery_edate', null);
         $cond['has_csn'] = Arr::get($query, 'has_csn', $has_csn[0][0]);
 
-        $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page', 10));
+        $cond['data_per_page'] = getPageCount(Arr::get($query, 'data_per_page'));
 
         $delivery = null;
         if (false == empty($cond['ship_category'])) {
