@@ -136,14 +136,12 @@
 
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
-                <thead>
+                <thead class="small">
                     <tr>
-                        <th scope="col">#</th>
+                        <th scope="col" style="width:40px">#</th>
                         <th scope="col" class="text-center">編輯</th>
                         <th scope="col">商品名稱</th>
-                        <th scope="col">SKU</th>
                         <th scope="col">負責人</th>
-                        <th scope="col">類型</th>
                         <th scope="col" class="text-center">耗材</th>
                         <th scope="col" class="text-center">宅配</th>
                         {{-- <th scope="col">規格說明</th> --}}
@@ -163,10 +161,18 @@
                                     <i class="bi bi-pencil-square"></i>
                                 </a>
                             </td>
-                            <td>{{ $data->title }}</td>
-                            <td>{{ $data->sku }}</td>
+                            <td class="wrap">
+                                <div class="lh-1 small text-nowrap">
+                                    <span @class(['badge rounded-pill me-2', 
+                                        'bg-warning text-dark' => $data->type_title === '組合包商品',
+                                        'bg-success' => $data->type_title === '一般商品'])
+                                    >{{ $data->type_title === '組合包商品' ? '組合包' : '一般' }}
+                                    </span>
+                                    <span class="text-secondary">{{ $data->sku }}</span>
+                                </div>
+                                <div class="lh-base">{{ $data->title }}</div>
+                            </td>
                             <td>{{ $data->user_name }}</td>
-                            <td>{{ $data->type_title }}</td>
                             <td class="text-center">
                                 @if ($data->consume == '1')
                                     <i class="bi bi-check-lg text-success fs-5"></i>

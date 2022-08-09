@@ -149,7 +149,7 @@
 
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
-                <thead>
+                <thead class="small">
                     <tr>
                         <th scope="col">訂單編號</th>
                         <th scope="col" class="text-center">明細</th>
@@ -181,7 +181,7 @@
                                 {{ $data->order_status }}
                             </td>
                             <td></td>
-                            <td>{{ $data->order_date }}</td>
+                            <td>{{ date('Y/m/d', strtotime($data->order_date)) }}</td>
                             <td>{{ $data->name }}</td>
                             <td>{{ $data->sale_title }}</td>
                             <td class="text-success">{{ $data->logistic_status }}</td>

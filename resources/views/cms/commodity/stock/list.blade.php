@@ -108,9 +108,9 @@
 
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
-                <thead>
+                <thead class="small">
                     <tr>
-                        <th scope="col" style="width:10%">#</th>
+                        <th scope="col" style="width:40px">#</th>
                         <th scope="col" class="text-center">明細</th>
                         <th scope="col">商品款式</th>
                         <th scope="col">倉庫名稱</th>

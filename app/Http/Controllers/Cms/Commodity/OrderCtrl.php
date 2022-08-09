@@ -65,7 +65,7 @@ class OrderCtrl extends Controller
         $query = $request->query();
         //   dd($query);
         $cond = [];
-        $page = getPageCount(Arr::get($query, 'data_per_page', 10));
+        $page = getPageCount(Arr::get($query, 'data_per_page'));
         $cond['keyword'] = Arr::get($query, 'keyword', null);
         $cond['order_status'] = Arr::get($query, 'order_status', []);
         $cond['shipment_status'] = Arr::get($query, 'shipment_status', []);
