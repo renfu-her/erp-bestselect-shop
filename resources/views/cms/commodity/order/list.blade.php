@@ -60,8 +60,8 @@
                     <div class="input-group has-validation">
                         <input type="date" class="form-control -startDate @error('_sdate') is-invalid @enderror"
                             name="_sdate" value="" aria-label="出貨起始日期" />
-                        <input type="date" class="form-control -endDate @error('_edate') is-invalid @enderror" name="_edate"
-                            value="" aria-label="出貨結束日期" />
+                        <input type="date" class="form-control -endDate @error('_edate') is-invalid @enderror"
+                            name="_edate" value="" aria-label="出貨結束日期" />
                         <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
                         <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
                         <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
@@ -94,7 +94,7 @@
                             <i class="bi bi-x-lg"></i>
                         </button>
                     </div>
-                    <input type="hidden" name="shipment_status" value="{{ implode(',', $cond['shipment_status']) }}"/>
+                    <input type="hidden" name="shipment_status" value="{{ implode(',', $cond['shipment_status']) }}" />
                     <div id="chip-group-shipment" class="d-flex flex-wrap bd-highlight chipGroup"></div>
 
                     <!-- Modal 說明 -->
@@ -103,7 +103,7 @@
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">訂單狀態</label>
                     <select name="order_status[]" multiple class="-select2 -multiple form-select"
-                            data-placeholder="請選擇訂單狀態">
+                        data-placeholder="請選擇訂單狀態">
                         @foreach ($orderStatus as $key => $oStatus)
                             <option value="{{ $key }}" @if (in_array($key, $cond['order_status'])) selected @endif>
                                 {{ $oStatus }}</option>
@@ -149,7 +149,7 @@
 
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
-                <thead>
+                <thead class="small">
                     <tr>
                         <th scope="col">訂單編號</th>
                         <th scope="col" class="text-center">明細</th>
@@ -180,8 +180,21 @@
                             <td @class(['text-danger' => $data->order_status === '取消'])>
                                 {{ $data->order_status }}
                             </td>
-                            <td></td>
-                            <td>{{ $data->order_date }}</td>
+                            <td>
+                                @if ($data->projlgt_order_sn)
+                                    <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $data->projlgt_order_sn }}"
+                                        target="_blank"
+                                        class="btn btn-link">
+                                        {{ $data->projlgt_order_sn }}
+                                    </a>
+
+                                @else
+                                    {{ $data->package_sn }}
+                                @endif
+
+
+                            </td>
+                            <td>{{ date('Y/m/d', strtotime($data->order_date)) }}</td>
                             <td>{{ $data->name }}</td>
                             <td>{{ $data->sale_title }}</td>
                             <td class="text-success">{{ $data->logistic_status }}</td>
@@ -201,7 +214,7 @@
     </div>
     <div class="row flex-column-reverse flex-sm-row">
         <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">
-            @if($dataList)
+            @if ($dataList)
                 <div class="mx-3">共 {{ $dataList->lastPage() }} 頁(共找到 {{ $dataList->total() }} 筆資料)</div>
                 {{-- 頁碼 --}}
                 <div class="d-flex justify-content-center">{{ $dataList->links() }}</div>

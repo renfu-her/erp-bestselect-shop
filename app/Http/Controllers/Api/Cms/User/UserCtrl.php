@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\UserSalechannel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class UserCtrl extends Controller
@@ -117,10 +118,104 @@ class UserCtrl extends Controller
         return response()->json([
             'status' => '0',
             'data' => Customer::getCustomerBySearch($keyword, $profit)->select(['customer.id',
-            'customer.name',
-            'customer.sn as mcode',
-            'customer.email'])->get(),
+                'customer.name',
+                'customer.sn as mcode',
+                'customer.email'])->get(),
         ]);
+
+    }
+
+    public function erpUser(Request $request)
+    {
+
+        $validator = Validator::make($request->all(),
+            [
+                'TYPE' => 'required|in:ADDNEW,UPDATE,DELETE',
+            ]
+        );
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'E01',
+                'message' => $validator->errors(),
+            ]);
+        }
+
+        switch ($request->input('TYPE')) {
+            case 'ADDNEW':
+            case 'UPDATE':
+                $validator = Validator::make($request->all(),
+                    [
+                        "NUMBER" => "required",
+                        "NAME" => "required",
+                        "TITLE" => "required",
+                        "PASSWORD" => "required",
+                        "COMPANY" => "required",
+                        "DEPARTMENT" => "required",
+                        "GROUP" => "required",
+                    ],
+                );
+                break;
+
+            case 'DELETE':
+                $validator = Validator::make($request->all(),
+                    [
+                        "NUMBER" => "required",
+                    ],
+                );
+                break;
+        }
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'E01',
+                'message' => $validator->errors(),
+            ]);
+        }
+
+        $d = $request->all();
+        switch ($request->input('TYPE')) {
+            case 'ADDNEW':
+                if (!User::where('account', $d['NUMBER'])->get()->first()) {
+                    User::createUser($d['NAME'],
+                        $d['NUMBER'],
+                        null,
+                        $d['PASSWORD'], [], [], 'C000061',
+                        $d['TITLE'], $d['COMPANY'], $d['DEPARTMENT'], $d['GROUP']);
+
+                    return response()->json(['status' => '0']);
+                } else {
+                    return response()->json([
+                        'status' => 'E03',
+                        'message' => '重複帳號',
+                    ]);
+                }
+
+                break;
+            case 'UPDATE':
+                if (User::where('account', $d['NUMBER'])->get()->first()) {
+                    User::where('account', $d['NUMBER'])->update([
+                        'name' => $d['NAME'],
+                        'password' => Hash::make($d['PASSWORD']),
+                        'title' => $d['TITLE'],
+                        'company' => $d['COMPANY'],
+                        'department' => $d['DEPARTMENT'],
+                        'group' => $d['GROUP'],
+                    ]);
+
+                    return response()->json(['status' => '0']);
+                } else {
+                    return response()->json([
+                        'status' => 'E04',
+                        'message' => '查無此帳號',
+                    ]);
+                }
+                break;
+            case 'DELETE':
+                User::where('account', $d['NUMBER'])->delete();
+                return response()->json(['status' => '0']);
+                break;
+        }
 
     }
 

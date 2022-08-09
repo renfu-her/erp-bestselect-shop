@@ -5,7 +5,8 @@
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
             @if (!$receivable && in_array($order->status, ['建立', '收款單未平']))
-                <a href="{{ Route('cms.collection_received.create', ['id' => $order->id]) }}" class="btn btn-primary btn-sm my-1 ms-1" role="button">新增收款單</a>
+                <a href="{{ Route('cms.collection_received.create', ['id' => $order->id]) }}"
+                    class="btn btn-primary btn-sm my-1 ms-1" role="button">新增收款單</a>
             @endif
 
             @if ($received_order_data || !in_array($order->status, ['建立']))
@@ -28,7 +29,7 @@
 
 
             <a href="{{ Route('cms.order.edit-item', ['id' => $order->id]) }}" role="button"
-                    class="btn btn-dark btn-sm my-1 ms-1">編輯訂單</a>
+                class="btn btn-dark btn-sm my-1 ms-1">編輯訂單</a>
 
             @if ($canSplit)
                 <a href="{{ Route('cms.order.split-order', ['id' => $order->id]) }}" role="button"
@@ -47,7 +48,8 @@
 
 
             @if (!$order->return_pay_order_id && in_array($order->status, ['取消']))
-                <a href="{{ Route('cms.order.return-pay-order', ['id' => $order->id]) }}" role="button" class="btn btn-primary btn-sm my-1 ms-1">新增退貨付款單</a>
+                <a href="{{ Route('cms.order.return-pay-order', ['id' => $order->id]) }}" role="button"
+                    class="btn btn-primary btn-sm my-1 ms-1">新增退貨付款單</a>
             @endif
 
             @if ($received_order_data)
@@ -222,18 +224,19 @@
                 </dl>
             @endif
             @if ($order->return_pay_order_id)
-            <dl class="row">
-                <div class="col">
-                    <dt>退貨付款單號</dt>
-                    <dd><a href="{{ route('cms.order.return-pay-order', ['id' => $order->id]) }}" class="-text">{{ $order->return_pay_order_sn }}</a></dd>
-                </div>
-            </dl>
+                <dl class="row">
+                    <div class="col">
+                        <dt>退貨付款單號</dt>
+                        <dd><a href="{{ route('cms.order.return-pay-order', ['id' => $order->id]) }}"
+                                class="-text">{{ $order->return_pay_order_sn }}</a></dd>
+                    </div>
+                </dl>
             @endif
         </div>
         @php
             $dlv_fee = 0;
             $price = 0;
-
+            
         @endphp
         @foreach ($subOrders as $subOrder)
             @php
@@ -279,14 +282,14 @@
                                     @endif
 
                                     <a class="btn btn-sm btn-success -in-header mb-1"
-                                       href="{{ Route('cms.delivery.back_detail', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">銷貨退回明細</a>
+                                        href="{{ Route('cms.delivery.back_detail', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">銷貨退回明細</a>
 
-                                    @if(isset($delivery->back_inbound_date))
+                                    @if (isset($delivery->back_inbound_date))
                                         <a class="btn btn-sm btn-danger -in-header mb-1"
-                                           href="{{ Route('cms.delivery.back_inbound_delete', ['deliveryId' => $delivery->id], true) }}">刪除退貨入庫</a>
+                                            href="{{ Route('cms.delivery.back_inbound_delete', ['deliveryId' => $delivery->id], true) }}">刪除退貨入庫</a>
                                     @else
                                         <a class="btn btn-sm btn-success -in-header mb-1"
-                                           href="{{ Route('cms.delivery.back_inbound', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">退貨入庫審核</a>
+                                            href="{{ Route('cms.delivery.back_inbound', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">退貨入庫審核</a>
                                     @endif
 
                                     {{-- <a class="btn btn-sm btn-success -in-header mb-1" --}}
@@ -405,7 +408,8 @@
                                 @elseif(false == isset($subOrder->delivery_audit_date))
                                     尚未做出貨審核
                                 @else
-                                    <a href="{{ Route('cms.order.logistic-po', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}" class="text-decoration-none">{{ $subOrder->logistic_po_sn ? $subOrder->logistic_po_sn : '新增付款單' }}</a>
+                                    <a href="{{ Route('cms.order.logistic-po', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}"
+                                        class="text-decoration-none">{{ $subOrder->logistic_po_sn ? $subOrder->logistic_po_sn : '新增付款單' }}</a>
                                 @endif
                             </dd>
                         </div>
@@ -422,6 +426,15 @@
                         <div class="col">
                             <dt>包裹編號</dt>
                             <dd>
+                                @if ($subOrder->projlgt_order_sn)
+                                    <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $subOrder->projlgt_order_sn }}"
+                                        target="_blank" class="btn btn-link">
+                                        {{ $subOrder->projlgt_order_sn }}
+                                    </a>
+                                @else
+                                    {{ $subOrder->package_sn }}
+                                @endif
+                                    <!--
                                 @if (false == empty($subOrder->projlgt_order_sn))
                                     <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $subOrder->projlgt_order_sn }}"
                                         class="btn btn-link">
@@ -430,6 +443,7 @@
                                 @else
                                     {{ $subOrder->package_sn ?? '(待處理)' }}
                                 @endif
+                                -->
                             </dd>
                         </div>
                         <div class="col">
