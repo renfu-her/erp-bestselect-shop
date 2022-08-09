@@ -87,6 +87,8 @@ class OrderCtrl extends Controller
         $dataList = Order::orderList($cond['keyword'], $cond['order_status'], $cond['sale_channel_id'], $order_date)
             ->paginate($page)->appends($query);
 
+
+
         $orderStatus = [];
         foreach (\App\Enums\Order\OrderStatus::asArray() as $key => $val) {
             $orderStatus[$val] = \App\Enums\Order\OrderStatus::getDescription($val);

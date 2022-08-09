@@ -37,7 +37,10 @@ class Order extends Model
                 'dlv_delivery.logistic_status as logistic_status',
                 'dlv_logistic.package_sn as package_sn',
                 'shi_group.name as ship_group_name',
-                'ord_received_orders.sn as or_sn'])
+                'ord_received_orders.sn as or_sn',
+                'so.projlgt_order_sn',
+                'so.package_sn'
+                ])
             ->selectRaw('DATE_FORMAT(order.created_at,"%Y-%m-%d") as order_date')
             ->selectRaw('so.sn as order_sn')
             ->leftJoin('ord_sub_orders as so', 'order.id', '=', 'so.order_id')
@@ -258,6 +261,8 @@ class Order extends Model
                 , 'dlv_delivery.audit_date as delivery_audit_date'
                 , 'consume_items.consume_items'
                 , 'ord_received_orders.sn as received_sn'
+                , 'sub_order.projlgt_order_sn'
+
             )
             ->selectRaw("IF(sub_order.ship_sn IS NULL,'',sub_order.ship_sn) as ship_sn")
             ->selectRaw("IF(sub_order.actual_ship_group_id IS NULL,'',sub_order.actual_ship_group_id) as actual_ship_group_id")
@@ -270,7 +275,7 @@ class Order extends Model
             ->selectRaw("IF(dlv_logistic.ship_group_id IS NULL,'',dlv_logistic.ship_group_id) as ship_group_id")
             ->selectRaw("IF(dlv_logistic.cost IS NULL,'',dlv_logistic.cost) as logistic_cost")
             ->selectRaw("IF(dlv_logistic.memo IS NULL,'',dlv_logistic.memo) as logistic_memo")
-            ->selectRaw("IF(dlv_logistic.projlgt_order_sn IS NULL,'',dlv_logistic.projlgt_order_sn) as projlgt_order_sn")
+           // ->selectRaw("IF(dlv_logistic.projlgt_order_sn IS NULL,'',dlv_logistic.projlgt_order_sn) as projlgt_order_sn")
             ->selectRaw("IF(shi_group.name IS NULL,'',shi_group.name) as ship_group_name")
             ->selectRaw("IF(shi_group.note IS NULL,'',shi_group.note) as ship_group_note")
             ->selectRaw("IF(shi_method.method IS NULL,'',shi_method.method) as ship_method")
