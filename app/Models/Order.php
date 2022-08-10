@@ -26,7 +26,8 @@ class Order extends Model
     public static function orderList($keyword = null,
         $order_status = null,
         $sale_channel_id = null,
-        $order_date = null) {
+        $order_date = null,
+        $shipment_status = null) {
         $order = DB::table('ord_orders as order')
             ->select(['order.id as id',
                 'order.status as order_status',
@@ -39,8 +40,8 @@ class Order extends Model
                 'shi_group.name as ship_group_name',
                 'ord_received_orders.sn as or_sn',
                 'so.projlgt_order_sn',
-                'so.package_sn'
-                ])
+                'so.package_sn',
+            ])
             ->selectRaw('DATE_FORMAT(order.created_at,"%Y-%m-%d") as order_date')
             ->selectRaw('so.sn as order_sn')
             ->leftJoin('ord_sub_orders as so', 'order.id', '=', 'so.order_id')
@@ -101,6 +102,12 @@ class Order extends Model
                 $order->whereBetween('order.created_at', [$sDate, $eDate]);
             }
         }
+
+        if($shipment_status && is_array($shipment_status)){
+            $order->whereIn('so.logistic_status_code', $shipment_status);
+        }
+
+
         $order->orderByDesc('order.id');
 
         return $order;
@@ -184,9 +191,9 @@ class Order extends Model
             'style_id' => 'item.product_style_id',
             'img_url' => 'IF(item.img_url IS NULL,"",item.img_url)',
             'total_price' => 'item.origin_price',
-            'note'=>'IF(item.note IS NULL,"",item.note)',
+            'note' => 'IF(item.note IS NULL,"",item.note)',
             'dealer_price' => 'item.dealer_price',
-            'item_id'=>'item.id'
+            'item_id' => 'item.id',
         ]);
 
         $itemQuery = DB::table('ord_items as item')
@@ -196,7 +203,6 @@ class Order extends Model
             ->select('item.sub_order_id')
             ->selectRaw($concatString . ' as items')
             ->where('item.order_id', $order_id);
-
 
         $concatConsumeString = concatStr([
             'consum_id' => 'dlv_consum.id',
@@ -275,7 +281,7 @@ class Order extends Model
             ->selectRaw("IF(dlv_logistic.ship_group_id IS NULL,'',dlv_logistic.ship_group_id) as ship_group_id")
             ->selectRaw("IF(dlv_logistic.cost IS NULL,'',dlv_logistic.cost) as logistic_cost")
             ->selectRaw("IF(dlv_logistic.memo IS NULL,'',dlv_logistic.memo) as logistic_memo")
-           // ->selectRaw("IF(dlv_logistic.projlgt_order_sn IS NULL,'',dlv_logistic.projlgt_order_sn) as projlgt_order_sn")
+        // ->selectRaw("IF(dlv_logistic.projlgt_order_sn IS NULL,'',dlv_logistic.projlgt_order_sn) as projlgt_order_sn")
             ->selectRaw("IF(shi_group.name IS NULL,'',shi_group.name) as ship_group_name")
             ->selectRaw("IF(shi_group.note IS NULL,'',shi_group.note) as ship_group_note")
             ->selectRaw("IF(shi_method.method IS NULL,'',shi_method.method) as ship_method")
@@ -800,8 +806,8 @@ class Order extends Model
 
         if ($type == 'backend') {
 
-            $order_status = [OrderStatus::Closed(),OrderStatus::Canceled()
-                ,OrderStatus::BackProcessing(),OrderStatus::CancleBack(),OrderStatus::Backed()
+            $order_status = [OrderStatus::Closed(), OrderStatus::Canceled()
+                , OrderStatus::BackProcessing(), OrderStatus::CancleBack(), OrderStatus::Backed(),
             ];
 
             if (!in_array($order->status_code, $order_status)) {

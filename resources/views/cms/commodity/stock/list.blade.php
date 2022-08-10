@@ -108,7 +108,7 @@
 
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
-                <thead class="small">
+                <thead class="small align-middle">
                     <tr>
                         <th scope="col" style="width:40px">#</th>
                         <th scope="col" style="width:40px" class="text-center">明細</th>

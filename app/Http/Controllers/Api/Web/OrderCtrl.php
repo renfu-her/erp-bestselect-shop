@@ -517,6 +517,8 @@ class OrderCtrl extends Controller
                 'created_at' => $order->created_at,
                 'total_price' => $order->total_price,
                 'sub_order' => $subOrderArray,
+                'logistic_url' => env('LOGISTIC_URL') . 'guest/order-flow/'
+                
             ];
         }
 
@@ -604,6 +606,8 @@ class OrderCtrl extends Controller
         $order->str_mac_string = $str_mac_string;
         $order->str_mer_id = $str_mer_id;
         $order->str_url_enc = $str_url_enc;
+
+        $order->logistic_url = env('LOGISTIC_URL') . 'guest/order-flow/';
         // credit card end
 
         $re = [];

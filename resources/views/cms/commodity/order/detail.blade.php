@@ -81,7 +81,7 @@
                 </div>
                 <div class="col">
                     <dt>訂購時間</dt>
-                    <dd>{{ $order->created_at }}</dd>
+                    <dd>{{ date('Y/m/d H:i:s', strtotime($order->created_at)) }}</dd>
                 </div>
                 <div class="col-sm-5">
                     <dt>E-mail</dt>
@@ -346,8 +346,10 @@
                             <tbody>
                                 @foreach ($subOrder->items as $item)
                                     <tr>
-                                        <td><a href="{{ Route('cms.product.edit', ['id' => $item->product_id], true) }}"
-                                                class="-text">{{ $item->product_title }}</a></td>
+                                        <td class="wrap lh-sm">
+                                            <a href="{{ Route('cms.product.edit', ['id' => $item->product_id], true) }}"
+                                                class="-text">{{ $item->product_title }}</a>
+                                        </td>
                                         <td>{{ $item->sku }}</td>
                                         <td>${{ number_format($item->price) }}</td>
                                         <td>{{ $item->qty }}</td>
@@ -408,8 +410,9 @@
                                 @elseif(false == isset($subOrder->delivery_audit_date))
                                     尚未做出貨審核
                                 @else
-                                    <a href="{{ Route('cms.order.logistic-po', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}"
-                                        class="text-decoration-none">{{ $subOrder->logistic_po_sn ? $subOrder->logistic_po_sn : '新增付款單' }}</a>
+                                    <a href="{{ Route('cms.order.logistic-po', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}">
+                                        {{ $subOrder->logistic_po_sn ? $subOrder->logistic_po_sn : '新增付款單' }}
+                                    </a>
                                 @endif
                             </dd>
                         </div>
@@ -427,8 +430,7 @@
                             <dt>包裹編號</dt>
                             <dd>
                                 @if ($subOrder->projlgt_order_sn)
-                                    <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $subOrder->projlgt_order_sn }}"
-                                        target="_blank" class="btn btn-link">
+                                    <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $subOrder->projlgt_order_sn }}" target="_blank">
                                         {{ $subOrder->projlgt_order_sn }}
                                     </a>
                                 @else
@@ -436,8 +438,7 @@
                                 @endif
                                     <!--
                                 @if (false == empty($subOrder->projlgt_order_sn))
-                                    <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $subOrder->projlgt_order_sn }}"
-                                        class="btn btn-link">
+                                    <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $subOrder->projlgt_order_sn }}">
                                         {{ $subOrder->projlgt_order_sn }}
                                     </a>
                                 @else
