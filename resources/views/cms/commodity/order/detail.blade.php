@@ -81,7 +81,7 @@
                 </div>
                 <div class="col">
                     <dt>訂購時間</dt>
-                    <dd>{{ $order->created_at }}</dd>
+                    <dd>{{ date('Y/m/d H:i:s', strtotime($order->created_at)) }}</dd>
                 </div>
                 <div class="col-sm-5">
                     <dt>E-mail</dt>
