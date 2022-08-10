@@ -168,18 +168,13 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @for ($i = 0; $i < 5; $i++)
+                                @foreach ($bulletinBoard as $bulletinBoardData)
                                     <tr>
-                                        <td>{{ date('Y/m/d H:i', strtotime('2022-08-01 15:18:55')) }}</td>
-                                        <td>系統上線啦!</td>
-                                        <td class="text-nowrap">理查</td>
+                                        <td>{{ date('Y/m/d H:i', strtotime($bulletinBoardData->created_at ?? '')) }}</td>
+                                        <td>{{ $bulletinBoardData->title }}</td>
+                                        <td class="text-nowrap">{{ $bulletinBoardData->user_name }}</td>
                                     </tr>
-                                    <tr>
-                                        <td>{{ date('Y/m/d H:i', strtotime('2022-08-01 15:13:55')) }}</td>
-                                        <td>趕工中</td>
-                                        <td class="text-nowrap">理查</td>
-                                    </tr>
-                                @endfor
+                                @endforeach
                             </tbody>
                         </table>
                         <nav class="mx-3 my-2">
