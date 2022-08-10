@@ -346,8 +346,10 @@
                             <tbody>
                                 @foreach ($subOrder->items as $item)
                                     <tr>
-                                        <td><a href="{{ Route('cms.product.edit', ['id' => $item->product_id], true) }}"
-                                                class="-text">{{ $item->product_title }}</a></td>
+                                        <td class="wrap lh-sm">
+                                            <a href="{{ Route('cms.product.edit', ['id' => $item->product_id], true) }}"
+                                                class="-text">{{ $item->product_title }}</a>
+                                        </td>
                                         <td>{{ $item->sku }}</td>
                                         <td>${{ number_format($item->price) }}</td>
                                         <td>{{ $item->qty }}</td>

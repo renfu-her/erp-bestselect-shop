@@ -81,6 +81,9 @@
         $elems.each(function () {
             let num = $(this).val().length;
             let max = $(this).attr('maxlength');
+            if ($(this).next('div.show_words_length')) {
+                $(this).next('div.show_words_length').remove();
+            }
             let $DIV = $('<div></div>').addClass('show_words_length')
                 .attr('data-after', num + '/' + max);
             $(this).after($DIV);
