@@ -227,7 +227,7 @@ class User extends Authenticatable
     public static function getEmployeeData()
     {
 
-        $url = "https://www.besttour.com.tw/api/empdep.asp?type=";
+        $url = "https://www.besttour.com.tw/api/empdep.asp?type=1";
         $re = Http::get($url)->json();
         DB::beginTransaction();
         foreach ($re as $u) {
