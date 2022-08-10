@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cms\Commodity;
 
 use App\Enums\Customer\ProfitStatus;
 use App\Enums\Delivery\Event;
+use App\Enums\Delivery\LogisticStatus;
 use App\Enums\Discount\DividendCategory;
 use App\Enums\Order\UserAddrType;
 use App\Enums\Supplier\Payment;
@@ -39,7 +40,6 @@ use App\Models\ReceivedDefault;
 use App\Models\ReceiveDepot;
 use App\Models\ReceivedOrder;
 use App\Models\SaleChannel;
-use App\Models\ShipmentStatus;
 use App\Models\Supplier;
 use App\Models\User;
 use App\Models\UserSalechannel;
@@ -65,7 +65,7 @@ class OrderCtrl extends Controller
         $query = $request->query();
         //   dd($query);
         $cond = [];
-        $page = getPageCount(Arr::get($query, 'data_per_page', 10));
+        $page = getPageCount(Arr::get($query, 'data_per_page'));
         $cond['keyword'] = Arr::get($query, 'keyword', null);
         $cond['order_status'] = Arr::get($query, 'order_status', []);
         $cond['shipment_status'] = Arr::get($query, 'shipment_status', []);
@@ -84,20 +84,20 @@ class OrderCtrl extends Controller
             $cond['shipment_status'] = [];
         }
 
-        $dataList = Order::orderList($cond['keyword'], $cond['order_status'], $cond['sale_channel_id'], $order_date)
+        $dataList = Order::orderList($cond['keyword'], $cond['order_status'], $cond['sale_channel_id'], $order_date, $cond['shipment_status'])
             ->paginate($page)->appends($query);
 
         $orderStatus = [];
         foreach (\App\Enums\Order\OrderStatus::asArray() as $key => $val) {
             $orderStatus[$val] = \App\Enums\Order\OrderStatus::getDescription($val);
         }
+        //  dd(LogisticStatus::asArray());
 
-        // dd(OrderStatus::select('code as id','title')->toBase()->get()->toArray());
         return view('cms.commodity.order.list', [
             'dataList' => $dataList,
             'cond' => $cond,
             'orderStatus' => $orderStatus,
-            'shipmentStatus' => ShipmentStatus::select('code as id', 'title')->toBase()->get(),
+            'shipmentStatus' => LogisticStatus::asArray(),
             'saleChannels' => SaleChannel::select('id', 'title')->get()->toArray(),
             'data_per_page' => $page]);
     }
@@ -1486,7 +1486,7 @@ class OrderCtrl extends Controller
             }
         }
 
-        return redirect(route('cms.order.detail',['id'=>$id]));
+        return redirect(route('cms.order.detail', ['id' => $id]));
 
     }
 }

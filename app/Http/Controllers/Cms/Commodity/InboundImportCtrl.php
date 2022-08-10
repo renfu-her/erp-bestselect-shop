@@ -257,7 +257,9 @@ class InboundImportCtrl extends Controller
             && true == Status::hasValue(intval($cond['status'], null))) {
             $pcsImportLog->where('pcs_import_log.status', '=', $cond['status']);
         }
-        $pcsImportLog = $pcsImportLog->paginate($cond['data_per_page'])->appends($query);
+        $pcsImportLog = $pcsImportLog
+            ->orderByDesc('pcs_import_log.id')
+            ->paginate($cond['data_per_page'])->appends($query);
 
 
         return view('cms.commodity.inbound_import.import_log', [

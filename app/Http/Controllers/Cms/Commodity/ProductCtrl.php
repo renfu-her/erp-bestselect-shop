@@ -767,8 +767,20 @@ class ProductCtrl extends Controller
 
         $d = $request->all();
         $collection = isset($d['collection']) ? $d['collection'] : [];
+        $recommend_collection_id = isset($d['recommend_collection_id']) ? $d['recommend_collection_id'] : null;
+        $only_show_category = isset($d['only_show_category']) ? $d['only_show_category'] : 0;
 
         Collection::addProductToCollections($id, $collection);
+        $update_arr = [];
+        if (isset($recommend_collection_id)) {
+            $update_arr['recommend_collection_id'] = $recommend_collection_id;
+        }
+        if (isset($only_show_category)) {
+            $update_arr['only_show_category'] = $only_show_category;
+        }
+        Product::where('id', $id)->update($update_arr);
+
+
         foreach ($d['category_id'] as $key => $value) {
             Product::changeShipment($id, $value, $d['group_id'][$key]);
         }

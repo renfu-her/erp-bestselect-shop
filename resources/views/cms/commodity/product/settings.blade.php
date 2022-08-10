@@ -19,11 +19,39 @@
                         @endforeach
                     </select>
                 </div>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">店長推薦</label>
+                    <select name="recommend_collection_id" class="form-select -select2" data-placeholder="請選擇店長推薦群組"
+                            hidden>
+                        <option value="" selected disabled>請選擇</option>
+                        @foreach ($collections as $collection)
+                            <option value="{{ $collection->id }}" @if ($collection->id == $product->recommend_collection_id ?? null) selected @endif>
+                                {{ $collection->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-12 mb-3">
+                    <label class="form-label">同賣場商品範圍</label>
+                    <div class="px-1 pt-1">
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" name="only_show_category" type="radio" value="0" @if ('0' == $product->only_show_category) checked @endif>
+                                不限商品歸類
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" name="only_show_category" type="radio" value="1" @if ('1' == $product->only_show_category) checked @endif>
+                                僅提供同類商品
+                            </label>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="card shadow p-4 mb-4">
             <h6>物流綁定</h6>
-            <div>
+            <div class="row">
                 @foreach ($shipments as $key => $value)
                     @if ($value->category === '全家')
                         <div class="col-12 col-sm-6 mb-3">
@@ -31,10 +59,12 @@
                             <label class="form-label">全家(待串接開發)</label>
                             <select name="group_id[]" class="form-select" disabled>
                                 <option value="0">無</option>
+                                @if(isset($value->groupConcat))
                                 @foreach ($value->groupConcat as $key2 => $group)
                                     <option value="{{ $group->id }}" @if (in_array($group->id, $currentShipment)) selected @endif>
                                         {{ $group->name }}</option>
                                 @endforeach
+                                @endif
                             </select>
                         </div>
                     @elseif($value->category === '自取')
@@ -44,10 +74,12 @@
                             <label class="form-label">{{ $value->category }}</label>
                             <select name="group_id[]" class="form-select">
                                 <option value="0">無</option>
+                                @if(isset($value->groupConcat))
                                 @foreach ($value->groupConcat as $key2 => $group)
                                     <option value="{{ $group->id }}" @if (in_array($group->id, $currentShipment)) selected @endif>
                                         {{ $group->name }}</option>
                                 @endforeach
+                                @endif
                             </select>
                         </div>
                     @endif

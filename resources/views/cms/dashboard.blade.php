@@ -70,21 +70,23 @@
             </div>
 
             {{-- 電商流量 --}}
-            {{-- <h6 class="px-2"><i class="bi bi-bar-chart-line-fill me-2"></i>電商流量</h6>
-        <div class="d-flex flex-column flex-md-row mb-3 border bg-white inner-border">
-            <div class="col px-3 py-2 d-flex align-items-end">
-                <div><span class="data">{{ number_format(135790) }}</span> 來訪數</div>
-                <div class="title bg-success text-white">昨日</div>
+            <div hidden>
+                <h6 class="px-2"><i class="bi bi-bar-chart-line-fill me-2"></i>電商流量</h6>
+                <div class="d-flex flex-column flex-md-row mb-3 border bg-white inner-border">
+                    <div class="col px-3 py-2 d-flex align-items-end">
+                        <div><span class="data">{{ number_format(135790) }}</span> 來訪數</div>
+                        <div class="title bg-success text-white">昨日</div>
+                    </div>
+                    <div class="col px-3 py-2 d-flex align-items-end">
+                        <div><span class="data">{{ number_format(135790) }}</span> 來訪數</div>
+                        <div class="title bg-secondary text-white">本月</div>
+                    </div>
+                    <div class="col px-3 py-2 d-flex align-items-end">
+                        <div><span class="data">{{ number_format(135790) }}</span> 來訪數</div>
+                        <div class="title bg-secondary text-white">上月</div>
+                    </div>
+                </div>
             </div>
-            <div class="col px-3 py-2 d-flex align-items-end">
-                <div><span class="data">{{ number_format(135790) }}</span> 來訪數</div>
-                <div class="title bg-secondary text-white">本月</div>
-            </div>
-            <div class="col px-3 py-2 d-flex align-items-end">
-                <div><span class="data">{{ number_format(135790) }}</span> 來訪數</div>
-                <div class="title bg-secondary text-white">上月</div>
-            </div>
-        </div> --}}
 
             {{-- 推薦商品 --}}
             <h6 class="px-2"><i class="bi bi-hand-thumbs-up-fill me-2"></i>推薦商品</h6>
@@ -106,7 +108,7 @@
             @endif
 
             <div class="row g-3 mb-3">
-                <div class="col-12 col-md-6">
+                <div class="col-12 col-md" hidden>
                     <h6 class="px-2"><i class="bi bi-bell-fill me-2"></i>通知事項</h6>
                     <div class="border bg-body">
                         {{-- <h6 class="px-3 py-2 mb-0 border-bottom"><i class="bi bi-bell-fill"></i> 通知事項</h6> --}}
@@ -152,7 +154,8 @@
                         </nav>
                     </div>
                 </div>
-                <div class="col-12 col-md-6">
+
+                <div class="col-12 col-md">
                     <h6 class="px-2"><i class="bi bi-megaphone-fill me-2"></i>公告事項</h6>
                     <div class="border bg-body">
                         {{-- <h6 class="px-3 py-2 mb-0 border-bottom"><i class="bi bi-megaphone-fill"></i> 公告事項</h6> --}}

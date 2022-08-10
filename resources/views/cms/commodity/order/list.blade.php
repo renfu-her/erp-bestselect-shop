@@ -60,8 +60,8 @@
                     <div class="input-group has-validation">
                         <input type="date" class="form-control -startDate @error('_sdate') is-invalid @enderror"
                             name="_sdate" value="" aria-label="出貨起始日期" />
-                        <input type="date" class="form-control -endDate @error('_edate') is-invalid @enderror" name="_edate"
-                            value="" aria-label="出貨結束日期" />
+                        <input type="date" class="form-control -endDate @error('_edate') is-invalid @enderror"
+                            name="_edate" value="" aria-label="出貨結束日期" />
                         <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
                         <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
                         <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
@@ -82,19 +82,18 @@
                         {{-- <i class="bi bi-question-circle" data-bs-toggle="modal" data-bs-target="#status_info"></i> --}}
                     </label>
                     <div class="input-group mb-1">
-                        <select class="form-select" id="shipment_status" aria-label="物態">
+                        <select class="form-select" id="shipment_status" name="shipment_status" aria-label="物態">
                             <option value="" selected>請選擇</option>
-                            @foreach ($shipmentStatus as $sStatus)
-                                <option value="{{ $sStatus->id }}" class="text-success">{{ $sStatus->title }}</option>
+                            @foreach ($shipmentStatus as $key => $sStatus)
+                                <option value="{{ $key }}">{{ $sStatus }}</option>
                             @endforeach
-
                         </select>
                         <button class="btn btn-outline-secondary" type="button" id="clear_shipment_status"
                             data-bs-toggle="tooltip" title="清空">
                             <i class="bi bi-x-lg"></i>
                         </button>
                     </div>
-                    <input type="hidden" name="shipment_status" value="{{ implode(',', $cond['shipment_status']) }}"/>
+                    <input type="hidden" name="shipment_status" value="{{ implode(',', $cond['shipment_status']) }}" />
                     <div id="chip-group-shipment" class="d-flex flex-wrap bd-highlight chipGroup"></div>
 
                     <!-- Modal 說明 -->
@@ -103,7 +102,7 @@
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">訂單狀態</label>
                     <select name="order_status[]" multiple class="-select2 -multiple form-select"
-                            data-placeholder="請選擇訂單狀態">
+                        data-placeholder="請選擇訂單狀態">
                         @foreach ($orderStatus as $key => $oStatus)
                             <option value="{{ $key }}" @if (in_array($key, $cond['order_status'])) selected @endif>
                                 {{ $oStatus }}</option>
@@ -149,50 +148,66 @@
 
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
-                <thead>
+                <thead class="small align-middle">
                     <tr>
+                        <th scope="col" style="width:40px">#</th>
+                        <th scope="col" style="width:40px" class="text-center">明細</th>
                         <th scope="col">訂單編號</th>
-                        <th scope="col" class="text-center">明細</th>
-                        <th scope="col">訂單狀態</th>
+                        <th scope="col" class="wrap lh-sm">訂單狀態 /<br>物流狀態</th>
                         <th scope="col">出貨單號</th>
                         <th scope="col">訂購日期</th>
                         <th scope="col">購買人</th>
                         <th scope="col">銷售通路</th>
-                        <th scope="col">物態</th>
                         <th scope="col">收款單號</th>
-                        <th scope="col">物流型態</th>
-                        <th scope="col">客戶物流方式</th>
+                        <th scope="col">客戶物流</th>
                         <th scope="col">實際物流</th>
                         <th scope="col">包裹編號</th>
-                        <th scope="col">退貨狀態</th>
+                        {{-- <th scope="col">退貨狀態</th> --}}
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($dataList as $key => $data)
                         <tr>
-                            <td>{{ $data->order_sn }}</td>
+                            <th scope="row">{{ $key + 1 }}</th>
                             <td class="text-center">
                                 <a href="{{ Route('cms.order.detail', ['id' => $data->id]) }}" data-bs-toggle="tooltip"
                                     title="明細" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-card-list"></i>
                                 </a>
                             </td>
-                            <td @class(['text-danger' => $data->order_status === '取消'])>
-                                {{ $data->order_status }}
+                            <td>{{ $data->order_sn }}</td>
+                            <td class="wrap">
+                                <div class="text-nowrap lh-sm @if ($data->order_status === '取消') text-danger @endif">
+                                    {{ $data->order_status ?? '-' }} /</div>
+                                <div class="text-nowrap lh-base">{{ $data->logistic_status }}</div>
                             </td>
-                            <td></td>
-                            <td>{{ $data->order_date }}</td>
+                            <td>
+                                @if ($data->projlgt_order_sn)
+                                    <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $data->projlgt_order_sn }}"
+                                        target="_blank" class="btn btn-link">
+                                        {{ $data->projlgt_order_sn }}
+                                    </a>
+                                @else
+                                    {{ $data->package_sn }}
+                                @endif
+                            </td>
+                            <td>{{ date('Y/m/d', strtotime($data->order_date)) }}</td>
                             <td>{{ $data->name }}</td>
                             <td>{{ $data->sale_title }}</td>
-                            <td class="text-success">{{ $data->logistic_status }}</td>
                             <td>{{ $data->or_sn }}</td>
-                            <td>
-                                {{ $data->ship_category_name }}
+                            <td class="wrap">
+                                <div class="lh-1 small text-nowrap">
+                                    <span @class([
+                                        'badge -badge',
+                                        '-primary' => $data->ship_category_name === '宅配',
+                                        '-warning' => $data->ship_category_name === '自取',
+                                    ])>{{ $data->ship_category_name }}</span>
+                                </div>
+                                <div class="lh-base text-nowrap">{{ $data->ship_event }}</div>
                             </td>
-                            <td>{{ $data->ship_event }}</td>
                             <td>{{ $data->ship_group_name }}</td>
                             <td>{{ $data->package_sn }}</td>
-                            <td>-</td>
+                            {{-- <td>-</td> --}}
                         </tr>
                     @endforeach
                 </tbody>
@@ -201,7 +216,7 @@
     </div>
     <div class="row flex-column-reverse flex-sm-row">
         <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">
-            @if($dataList)
+            @if ($dataList)
                 <div class="mx-3">共 {{ $dataList->lastPage() }} 頁(共找到 {{ $dataList->total() }} 筆資料)</div>
                 {{-- 頁碼 --}}
                 <div class="d-flex justify-content-center">{{ $dataList->links() }}</div>
@@ -210,6 +225,21 @@
     </div>
 @endsection
 @once
+    @push('sub-styles')
+        <style>
+            .badge.-badge {
+                color: #484848;
+            }
+
+            .badge.-badge.-primary {
+                background-color: #cfe2ff;
+            }
+
+            .badge.-badge.-warning {
+                background-color: #fff3cd;
+            }
+        </style>
+    @endpush
     @push('sub-scripts')
         <script>
             // 顯示筆數
@@ -224,9 +254,11 @@
             let selectedShipment = $('input[name="shipment_status"]').val();
             const shipmentStatus = @json($shipmentStatus) || [];
             let all_shipmentStatus = {};
-            shipmentStatus.forEach(code => {
-                all_shipmentStatus[code.id] = code.title;
+
+            Object.keys(shipmentStatus).forEach((key) => {
+                all_shipmentStatus[key] = shipmentStatus[key];
             });
+           
             let Chips_shipment = new ChipElem($('#chip-group-shipment'));
 
             // 初始化

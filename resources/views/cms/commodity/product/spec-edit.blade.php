@@ -35,10 +35,10 @@
                                 </div>
                             </div>
                             <div class="row -appendClone -item">
-                                <div class="col-12 col-sm-6 mb-2 -cloneElem -item">
+                                <div class="col-12 col-lg-6 mb-2 -cloneElem -item">
                                     <div class="input-group has-validation">
-                                        <input class="form-control" value="" name="item_new[]" type="text" required placeholder="請輸入項目"
-                                            aria-label="項目">
+                                        <input class="form-control" value="" name="item_new[]" type="text" required 
+                                            placeholder="請輸入項目" aria-label="項目" maxlength="20">
                                         <button class="btn btn-outline-secondary -del -item" type="button" title="刪除">
                                             <i class="bi bi-x-lg"></i>
                                         </button>
@@ -72,10 +72,10 @@
                             </div>
                             <div class="row -appendClone -item">
                                 @foreach ($cSpec->items as $item)
-                                    <div class="col-12 col-sm-6 mb-2 -cloneElem -item">
+                                    <div class="col-12 col-lg-6 mb-2 -cloneElem -item">
                                         <div class="input-group has-validation">
                                             <input class="form-control" name="item_value[]" value="{{ $item->value }}" 
-                                                type="text" placeholder="請輸入項目"
+                                                type="text" placeholder="請輸入項目" maxlength="20"
                                                 aria-label="項目" @if ($data->spec_locked) disabled @endif>
                                             <input type="hidden" name="item_id[]" value="{{ $item->key }}">
                                             <button class="btn btn-outline-secondary -del -item" @if ($data->spec_locked) disabled @endif 
@@ -138,6 +138,8 @@
             let del_item_id = [];
 
             // init
+            // 顯示字數
+            showWordsLength($('input[maxlength]'));
             Clone_bindDelElem($(Spec.del), {
                 appendClone: Spec.append,
                 cloneElem: Spec.clone,
@@ -161,6 +163,8 @@
                     $c_s.find('select.-single').addClass('-select2').select2();
                     $c_s.find('input[name="item_id[]"]').remove();
                     $c_s.find('input[name="item_value[]"]').attr('name', 'item_new[]');
+                    // 顯示字數
+                    showWordsLength($c_s.find('input[maxlength]'));
 
                     // 規格裡的btn: 新增項目
                     $c_s.find('.-newItem').off('click').on('click', function() {
@@ -169,6 +173,8 @@
                             $c_i.find('input, button').prop('disabled', false);
                             $c_i.find('input[name="item_id[]"]').remove();
                             $c_i.find('input[name="item_value[]"]').attr('name', 'item_new[]');
+                            // 顯示字數
+                            showWordsLength($c_i.find('input[maxlength]'));
                         }, {
                             cloneElem: Items.clone,
                             delElem: Items.del,
@@ -197,6 +203,8 @@
                     $c_i.find('input, button').prop('disabled', false);
                     $c_i.find('input[name="item_id[]"]').remove();
                     $c_i.find('input[name="item_value[]"]').attr('name', 'item_new[]');
+                    // 顯示字數
+                    showWordsLength($c_i.find('input[maxlength]'));
                 }, {
                     cloneElem: Items.clone,
                     delElem: Items.del,

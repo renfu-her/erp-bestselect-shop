@@ -505,6 +505,7 @@ input.form-control[type="month"] {
   font-size: .7rem;
   color: #999;
   background-color: $input-bg;
+  z-index: 10;
 }
 :disabled + .show_words_length::after {
   background-color: $input-disabled-bg;

@@ -143,16 +143,14 @@
 
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
-                <thead>
+                <thead class="small align-middle">
                     <tr>
-                        <th scope="col">#</th>
-                        <th scope="col" class="text-center">編輯</th>
+                        <th scope="col" style="width:40px">#</th>
+                        <th scope="col" style="width:40px" class="text-center">編輯</th>
                         <th scope="col">出貨單號</th>
                         <th scope="col">單據編號</th>
                         <th scope="col">寄件倉</th>
-                        <th scope="col">訂單狀態</th>
-                        <th scope="col">物態</th>
-                        <th scope="col">型態</th>
+                        <th scope="col" class="wrap lh-sm">訂單狀態 /<br>物流狀態</th>
                         <th scope="col">物流分類</th>
                         <th scope="col">寄件人姓名</th>
                         <th scope="col">收件人姓名</th>
@@ -164,7 +162,6 @@
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td class="text-center">
-
                                 <a href="
                                     @if($data->event == App\Enums\Delivery\Event::order()->value)
                                 {{ Route('cms.order.detail', ['id' => $data->order_id, 'subOrderId' => $data->sub_order_id], true) }}
@@ -180,11 +177,22 @@
                             </td>
                             <td>{{ $data->delivery_sn }}</td>
                             <td>{{ $data->event_sn }}</td>
-                            <td>{{ $data->depot_name }}</td>
-                            <td>{{ $data->order_status }}</td>
-                            <td>{{ $data->logistic_status }}</td>
-                            <td>{{ $data->ship_category_name }}</td>
-                            <td>{{ $data->method }}</td>
+                            <td>{{ $data->depot_name ?? '-' }}</td>
+                            <td class="wrap">
+                                <div class="text-nowrap lh-sm @if ($data->order_status === '取消') text-danger @endif">
+                                    {{ $data->order_status ?? '-' }} /
+                                </div>
+                                <div class="text-nowrap lh-base">{{ $data->logistic_status }}</div>
+                            </td>
+                            <td class="wrap">
+                                <div class="lh-1 small text-nowrap">
+                                    <span @class(['badge -badge', 
+                                        '-primary' => $data->ship_category_name === '宅配',
+                                        '-warning' => $data->ship_category_name === '自取'])
+                                    >{{ $data->ship_category_name }}</span>
+                                </div>
+                                <div class="lh-base text-nowrap">{{ $data->method ?? '-' }}</div>
+                            </td>
                             <td>{{ $data->sed_name }}</td>
                             <td>{{ $data->rec_name }}</td>
                             <td>{{ $data->rec_address }}</td>
@@ -207,10 +215,15 @@
 @once
     @push('sub-styles')
         <style>
-            .icon.-close_eye+span.label::before {
-                content: '不';
+            .badge.-badge {
+                color: #484848;
             }
-
+            .badge.-badge.-primary {
+                background-color: #cfe2ff;
+            }
+            .badge.-badge.-warning {
+                background-color: #fff3cd;
+            }
         </style>
     @endpush
     @push('sub-scripts')
