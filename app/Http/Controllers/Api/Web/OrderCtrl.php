@@ -517,6 +517,8 @@ class OrderCtrl extends Controller
                 'created_at' => $order->created_at,
                 'total_price' => $order->total_price,
                 'sub_order' => $subOrderArray,
+                'logistic_url' => env('LOGISTIC_URL') . 'guest/order-flow/'
+                
             ];
         }
 
