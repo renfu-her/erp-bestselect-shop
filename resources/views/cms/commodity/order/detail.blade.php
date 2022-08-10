@@ -408,8 +408,9 @@
                                 @elseif(false == isset($subOrder->delivery_audit_date))
                                     尚未做出貨審核
                                 @else
-                                    <a href="{{ Route('cms.order.logistic-po', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}"
-                                        class="text-decoration-none">{{ $subOrder->logistic_po_sn ? $subOrder->logistic_po_sn : '新增付款單' }}</a>
+                                    <a href="{{ Route('cms.order.logistic-po', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}">
+                                        {{ $subOrder->logistic_po_sn ? $subOrder->logistic_po_sn : '新增付款單' }}
+                                    </a>
                                 @endif
                             </dd>
                         </div>
@@ -427,8 +428,7 @@
                             <dt>包裹編號</dt>
                             <dd>
                                 @if ($subOrder->projlgt_order_sn)
-                                    <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $subOrder->projlgt_order_sn }}"
-                                        target="_blank" class="btn btn-link">
+                                    <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $subOrder->projlgt_order_sn }}" target="_blank">
                                         {{ $subOrder->projlgt_order_sn }}
                                     </a>
                                 @else
@@ -436,8 +436,7 @@
                                 @endif
                                     <!--
                                 @if (false == empty($subOrder->projlgt_order_sn))
-                                    <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $subOrder->projlgt_order_sn }}"
-                                        class="btn btn-link">
+                                    <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $subOrder->projlgt_order_sn }}">
                                         {{ $subOrder->projlgt_order_sn }}
                                     </a>
                                 @else
