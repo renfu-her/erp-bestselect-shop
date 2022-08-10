@@ -53,9 +53,9 @@
                         <tr class="small wrap">
                             <th scope="col" style="width:10%"></th>
                             <th scope="col" style="width:35%" class="text-center">借</th>
-                            <th scope="col" style="width:10%" class="text-end">借方金額</th>
+                            <th scope="col" style="width:10%" class="text-end">借方<br class="d-block d-lg-none">金額</th>
                             <th scope="col" style="width:35%" class="text-center">貸</th>
-                            <th scope="col" style="width:10%" class="text-end">貸方金額</th>
+                            <th scope="col" style="width:10%" class="text-end">貸方<br class="d-block d-lg-none">金額</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -71,7 +71,7 @@
                                 <table class="table mb-0">
                                     @foreach($debit as $d_key => $d_value)
                                     <tr>
-                                        <td style="width:77.77%" class="border-end">
+                                        <td style="width:calc(35/45*100%)" class="border-end">
                                             @if ($d_value->received_info)
                                                 @if ($d_value->received_info->received_method == 'credit_card')
                                                     @php
@@ -147,7 +147,7 @@
                                                 @endif
                                             @endif
                                         </td>
-                                        <td style="width:22.22%" class="text-end">
+                                        <td style="width:calc(10/45*100%)" class="text-end">
                                             @if ($d_value->price < 0)
                                                 -${{ number_format(abs($d_value->price)) }}
                                             @else
@@ -166,10 +166,10 @@
                                 <table class="table mb-0">
                                     @foreach($credit as $value)
                                     <tr class="border-bottom">
-                                        <td style="width:77.78%" class="border-end">
+                                        <td style="width:calc(35/45*100%)" class="border-end">
                                             {{ $value->name }}
                                         </td>
-                                        <td style="width:22.22%" class="text-end">
+                                        <td style="width:calc(10/45*100%)" class="text-end">
                                             @if ($value->price < 0)
                                                 -${{ number_format(abs($value->price)) }}
                                             @else
