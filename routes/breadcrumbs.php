@@ -189,6 +189,24 @@ Breadcrumbs::for('cms.purchase.inbound', function (BreadcrumbTrail $trail, $valu
     $trail->push('#' . $value . ' 入庫審核');
 });
 
+//公佈欄
+Breadcrumbs::for('cms.bulletin_board.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('公佈欄列表');
+});
+Breadcrumbs::for('cms.bulletin_board.create', function (BreadcrumbTrail $trail) {
+    $trail->push('公佈欄列表', Route('cms.bulletin_board.index'));
+    $trail->push('新增公吿');
+});
+Breadcrumbs::for('cms.bulletin_board.edit', function (BreadcrumbTrail $trail) {
+    $trail->push('公佈欄列表', Route('cms.bulletin_board.index'));
+    $trail->push('編輯公吿');
+});
+Breadcrumbs::for('cms.bulletin_board.show', function (BreadcrumbTrail $trail) {
+    $trail->push('公佈欄列表', Route('cms.bulletin_board.index'));
+    $trail->push('公吿');
+});
+
 // 組合包組裝
 Breadcrumbs::for('cms.combo-purchase.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');

@@ -258,9 +258,21 @@ return
         ],
     ],
     [
+        "title" => "行政管理",
+        "icon" => "bi-person-workspace",
+        "menu_id" => "7",
+        "child" => [
+            [
+                "title" => "佈告欄",
+                "controller_name" => "BulletinBoardCtrl",
+                "route_name" => "cms.bulletin_board.index",
+            ],
+        ],
+    ],
+    [
         "title" => "帳號管理",
         "icon" => "bi-person-circle",
-        "menu_id" => "7",
+        "menu_id" => "8",
         "child" => [
             [
                 "title" => "員工帳號管理",
