@@ -17,10 +17,10 @@ class CreateIdxNewsTables extends Migration
             $table->id();
             $table->string('title')->comment('標題');
             $table->text('content')->comment('內容');
-            $table->string('weight')->comment('權重');     
+            $table->string('weight')->comment('權重');
             $table->string('weight_title')->comment('權重標題');
             $table->dateTime('expire_time')->comment('過期時間');
-            $table->string('type')->nullable()->comment('權重');
+            $table->string('type')->nullable()->comment('公告對象');
             $table->timestamps();
         });
     }
