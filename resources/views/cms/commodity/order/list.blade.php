@@ -82,10 +82,10 @@
                         {{-- <i class="bi bi-question-circle" data-bs-toggle="modal" data-bs-target="#status_info"></i> --}}
                     </label>
                     <div class="input-group mb-1">
-                        <select class="form-select" id="shipment_status" aria-label="物態">
+                        <select class="form-select" id="shipment_status" name="shipment_status" aria-label="物態">
                             <option value="" selected>請選擇</option>
-                            @foreach ($shipmentStatus as $sStatus)
-                                <option value="{{ $sStatus->id }}" class="{{ $sStatus->style }}">{{ $sStatus->title }}</option>
+                            @foreach ($shipmentStatus as $key => $sStatus)
+                                <option value="{{ $key }}">{{ $sStatus }}</option>
                             @endforeach
                         </select>
                         <button class="btn btn-outline-secondary" type="button" id="clear_shipment_status"
@@ -184,8 +184,7 @@
                             <td>
                                 @if ($data->projlgt_order_sn)
                                     <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $data->projlgt_order_sn }}"
-                                        target="_blank"
-                                        class="btn btn-link">
+                                        target="_blank" class="btn btn-link">
                                         {{ $data->projlgt_order_sn }}
                                     </a>
                                 @else
@@ -198,10 +197,11 @@
                             <td>{{ $data->or_sn }}</td>
                             <td class="wrap">
                                 <div class="lh-1 small text-nowrap">
-                                    <span @class(['badge -badge', 
+                                    <span @class([
+                                        'badge -badge',
                                         '-primary' => $data->ship_category_name === '宅配',
-                                        '-warning' => $data->ship_category_name === '自取'])
-                                    >{{ $data->ship_category_name }}</span>
+                                        '-warning' => $data->ship_category_name === '自取',
+                                    ])>{{ $data->ship_category_name }}</span>
                                 </div>
                                 <div class="lh-base text-nowrap">{{ $data->ship_event }}</div>
                             </td>
@@ -230,9 +230,11 @@
             .badge.-badge {
                 color: #484848;
             }
+
             .badge.-badge.-primary {
                 background-color: #cfe2ff;
             }
+
             .badge.-badge.-warning {
                 background-color: #fff3cd;
             }
@@ -252,9 +254,11 @@
             let selectedShipment = $('input[name="shipment_status"]').val();
             const shipmentStatus = @json($shipmentStatus) || [];
             let all_shipmentStatus = {};
-            shipmentStatus.forEach(code => {
-                all_shipmentStatus[code.id] = code.title;
+
+            Object.keys(shipmentStatus).forEach((key) => {
+                all_shipmentStatus[key] = shipmentStatus[key];
             });
+           
             let Chips_shipment = new ChipElem($('#chip-group-shipment'));
 
             // 初始化
