@@ -604,6 +604,8 @@ class OrderCtrl extends Controller
         $order->str_mac_string = $str_mac_string;
         $order->str_mer_id = $str_mer_id;
         $order->str_url_enc = $str_url_enc;
+
+        $order->logistic_url = env('LOGISTIC_URL') . 'guest/order-flow/';
         // credit card end
 
         $re = [];
