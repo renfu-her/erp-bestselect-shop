@@ -629,6 +629,10 @@ class ReceivedOrder extends Model
 
                 if($request['status_code']){
                     NoteReceivableLog::create_cheque_log($request['received_method_id'], $request['status_code']);
+
+                    if($request['cashing_date'] && $request['status_code'] == 'cashed'){
+                        NoteReceivableOrder::store_note_receivable_order($request['cashing_date']);
+                    }
                 }
 
                 break;
