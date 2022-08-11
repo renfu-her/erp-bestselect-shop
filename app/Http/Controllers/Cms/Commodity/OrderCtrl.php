@@ -289,7 +289,7 @@ class OrderCtrl extends Controller
         $payinfo['carrier_type'] = $d['carrier_type'] ?? null;
         $payinfo['carrier_num'] = $d['carrier_num'] ?? null;
 
-        $re = Order::createOrder($customer->email, $d['salechannel_id'], $address, $items, $d['mcode'] ?? null, $d['note'], $coupon, $payinfo, null, $dividend);
+        $re = Order::createOrder($customer->email, $d['salechannel_id'], $address, $items, $d['mcode'] ?? null, $d['note'], $coupon, $payinfo, null, $dividend, $request->user());
 
         if ($re['success'] == '1') {
             wToast('訂單新增成功');
@@ -572,7 +572,7 @@ class OrderCtrl extends Controller
                         $val['item']['title'] . '-' . $val['item']['spec'],
                         $val['sku'],
                         $val['unit_cost'],
-                        $inboundItemReq['expiry_date'][$key],
+                        $inboundItemReq['expiry_date'][$key] ?? null,
                         $inboundItemReq['inbound_date'][$key],
                         $inboundItemReq['inbound_num'][$key],
                         $depot_id,
@@ -1445,7 +1445,7 @@ class OrderCtrl extends Controller
             $items[$style] = $d['qty'][$key];
         }
 
-        Order::splitOrder($id, $items);
+        Order::splitOrder($id, $items, $request->user());
         wToast('分割完成');
         return redirect()->back();
     }

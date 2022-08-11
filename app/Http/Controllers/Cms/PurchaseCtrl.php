@@ -518,7 +518,7 @@ class PurchaseCtrl extends Controller
                         $val['sku'],
                         $val['unit_cost'],
                         $inboundItemReq['expiry_date'][$key],
-                        $inboundItemReq['inbound_date'][$key],
+                        $inboundItemReq['inbound_date'][$key] ?? null,
                         $inboundItemReq['inbound_num'][$key],
                         $depot_id,
                         $depot->name,

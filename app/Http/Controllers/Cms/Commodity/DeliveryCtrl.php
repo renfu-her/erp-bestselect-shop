@@ -22,6 +22,7 @@ use App\Models\Depot;
 use App\Models\DlvBack;
 use App\Models\GeneralLedger;
 use App\Models\Logistic;
+use App\Models\LogisticFlow;
 use App\Models\Order;
 use App\Models\OrderFlow;
 use App\Models\OrderInvoice;
@@ -315,6 +316,13 @@ class DeliveryCtrl extends Controller
                 return ['success' => 0, 'error_msg' => '寄倉訂購暫無退貨功能'];
                 CsnOrderFlow::changeOrderStatus($delivery->event_id, OrderStatus::BackProcessing());
             }
+
+            $reLFCDS = LogisticFlow::createDeliveryStatus($request->user(), $delivery->id, [LogisticStatus::C2000()]);
+            if ($reLFCDS['success'] == 0) {
+                DB::rollBack();
+                return $reLFCDS;
+            }
+
             $input_items = $request->only('id', 'event_item_id', 'product_style_id', 'product_title', 'sku', 'price', 'origin_qty', 'back_qty', 'memo');
             if (isset($input_items['id']) && 0 < count($input_items['id'])) {
                 if(true == isset($input_items['id'][0])) {
@@ -538,6 +546,12 @@ class DeliveryCtrl extends Controller
                     , 'back_inbound_date' => date("Y-m-d H:i:s")
                 ]);
                 Delivery::changeBackStatus($delivery->id, BackStatus::add_back_inbound());
+
+                $reLFCDS = LogisticFlow::createDeliveryStatus($request->user(), $delivery->id, [LogisticStatus::C3000()]);
+                if ($reLFCDS['success'] == 0) {
+                    DB::rollBack();
+                    return $reLFCDS;
+                }
 
                 //直接依據退貨數量 寫回出貨單組合包的退貨數量
                 $dlvBack = DB::table(app(DlvBack::class)->getTable(). ' as dlv_back')

@@ -2,7 +2,12 @@
 
 namespace App\Http\Controllers\Cms\AccountManagement;
 
+use App\Enums\Delivery\Event;
+use App\Enums\Delivery\LogisticStatus;
 use App\Http\Controllers\Controller;
+use App\Models\Delivery;
+use App\Models\LogisticFlow;
+use App\Models\SubOrders;
 use Illuminate\Http\Request;
 
 use App\Enums\Received\ReceivedMethod;
@@ -659,6 +664,20 @@ abstract class AccountReceivedPapaCtrl extends Controller
             }
 
             $this->doReviewWhenReceived($id);
+            //修改子訂單物流配送狀態為檢貨中
+            $sub_orders = SubOrders::where('order_id', '=', $id)->get();
+            if (isset($sub_orders) && 0 < count($sub_orders)) {
+                $sub_order_ids = [];
+                foreach ($sub_orders as $sub_order) {
+                    array_push($sub_order_ids, $sub_order->id);
+                }
+                $delivery = Delivery::whereIn('event_id', $sub_order_ids)->where('event', '=', Event::order()->value)->get();
+                if (isset($delivery) && 0 < count($delivery)) {
+                    foreach ($delivery as $dlv) {
+                        $reLFCDS = LogisticFlow::createDeliveryStatus($request->user(), $dlv->id, [LogisticStatus::A2000()]);
+                    }
+                }
+            }
 
             wToast(__('入帳日期更新成功'));
             return redirect()->route($this->getRouteReceipt(), ['id'=>request('id')]);

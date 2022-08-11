@@ -138,7 +138,8 @@ class ConsignmentOrderCtrl extends Controller
 
             $csn = CsnOrder::where('id', $consignmentID)->get()->first();
             $reDelivery = Delivery::createData(
-                Event::csn_order()->value
+                $request->user()
+                , Event::csn_order()->value
                 , $consignmentID
                 , $csn->sn
             );

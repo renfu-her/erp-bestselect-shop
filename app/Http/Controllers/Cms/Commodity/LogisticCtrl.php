@@ -405,6 +405,7 @@ class LogisticCtrl extends Controller
             throw ValidationException::withMessages(['createOrder' => json_encode($createOrder['error_msg'])]);
         } else {
             Logistic::updateProjlgtOrderSn($logistic_id, $createOrder['sn'], $delivery->event, $delivery->event_id);
+            $reLFCDS = LogisticFlow::createDeliveryStatus($request->user(), $delivery->id, [LogisticStatus::A4000()]);
             wToast('新增託運單成功');
         }
 

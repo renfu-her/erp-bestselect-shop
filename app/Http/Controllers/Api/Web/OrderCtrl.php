@@ -437,7 +437,7 @@ class OrderCtrl extends Controller
             $dividend = $payLoad['points'];
         }
 
-        $re = Order::createOrder($customer->email, 1, $address, $payLoad['products'], $payLoad['mcode'] ?? null, $payLoad['note'], $couponObj, $payinfo, ReceivedMethod::fromValue($payLoad['payment']), $dividend);
+        $re = Order::createOrder($customer->email, 1, $address, $payLoad['products'], $payLoad['mcode'] ?? null, $payLoad['note'], $couponObj, $payinfo, ReceivedMethod::fromValue($payLoad['payment']), $dividend, $request->user());
 
         if ($re['success'] == '1') {
             DB::commit();
@@ -518,7 +518,7 @@ class OrderCtrl extends Controller
                 'total_price' => $order->total_price,
                 'sub_order' => $subOrderArray,
                 'logistic_url' => env('LOGISTIC_URL') . 'guest/order-flow/'
-                
+
             ];
         }
 

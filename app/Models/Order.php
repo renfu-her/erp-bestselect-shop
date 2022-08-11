@@ -356,9 +356,9 @@ class Order extends Model
      * @param array $coupon_obj [type,value]
      *
      */
-    public static function createOrder($email, $sale_channel_id, $address, $items, $mcode = null, $note = null, $coupon_obj = null, $payinfo = null, ReceivedMethod $payment = null, $dividend = [])
+    public static function createOrder($email, $sale_channel_id, $address, $items, $mcode = null, $note = null, $coupon_obj = null, $payinfo = null, ReceivedMethod $payment = null, $dividend = [], $operator_user)
     {
-        return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $mcode, $note, $coupon_obj, $payinfo, $payment, $dividend) {
+        return DB::transaction(function () use ($email, $sale_channel_id, $address, $items, $mcode, $note, $coupon_obj, $payinfo, $payment, $dividend, $operator_user) {
 
             $customer = Customer::where('email', $email)->get()->first();
             if (isset($mcode) && !empty($mcode)) {
@@ -484,7 +484,8 @@ class Order extends Model
                 Discount::createOrderDiscount('sub', $order_id, $customer, $value->discounts, $subOrderId);
                 //TODO 目前做DEMO 在新增訂單時，就新增出貨單，若未來串好付款，則在付款完畢後才新增出貨單
                 $reDelivery = Delivery::createData(
-                    Event::order()->value
+                    $operator_user
+                    , Event::order()->value
                     , $subOrderId
                     , $insertData['sn']
                     , $insertData['ship_temp_id'] ?? null
@@ -883,7 +884,7 @@ class Order extends Model
 
     }
     // 分割訂單
-    public static function splitOrder($order_id, $items)
+    public static function splitOrder($order_id, $items, $operator_user)
     {
         if (!Order::checkCanSplit($order_id)) {
             return;
@@ -1036,7 +1037,8 @@ class Order extends Model
             ])->id;
 
             Delivery::createData(
-                Event::order()->value
+                $operator_user
+                , Event::order()->value
                 , $soid
                 , $ssn
                 , $sorder->ship_temp_id ?? null

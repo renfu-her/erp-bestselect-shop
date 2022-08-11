@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Delivery\BackStatus;
 use App\Enums\Delivery\Event;
+use App\Enums\Delivery\LogisticStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -27,7 +28,7 @@ class Delivery extends Model
 
     //新增資料
     //創建時，將上層資料複製進來
-    public static function createData($event, $event_id, $event_sn, $temp_id = null, $temp_name = null, $ship_category = null, $ship_category_name = null, $ship_group_id = null, $memo = null)
+    public static function createData($user, $event, $event_id, $event_sn, $temp_id = null, $temp_name = null, $ship_category = null, $ship_category_name = null, $ship_group_id = null, $memo = null)
     {
         $data = Delivery::getData($event, $event_id);
         $dataGet = null;
@@ -55,44 +56,15 @@ class Delivery extends Model
                 'ship_group_id' => $ship_group_id,
                 'memo' => $memo,
             ])->id;
-            $reDlvUpd = Delivery::updateLogisticStatus(null, $event, $event_id, \App\Enums\Delivery\LogisticStatus::A1000());
-            if ($reDlvUpd['success'] == 0) {
+            $reLFCDS = LogisticFlow::createDeliveryStatus($user, $result, [LogisticStatus::A1000()]);
+            if ($reLFCDS['success'] == 0) {
                 DB::rollBack();
-                return $reDlvUpd;
+                return $reLFCDS;
             }
             return ['success' => 1, 'error_msg' => "", 'id' => $result];
         } else {
             $result = $dataGet->id;
             return ['success' => 1, 'error_msg' => "", 'id' => $result];
-        }
-    }
-
-    //更新物流狀態
-    public static function updateLogisticStatus($user, $event, $event_id, \App\Enums\Delivery\LogisticStatus $logistic_status)
-    {
-        if (null == $logistic_status) {
-            return ['success' => 0, 'error_msg' => '無此物流狀態'];
-        }
-
-        $data = Delivery::getData($event, (int)$event_id);
-        $dataGet = null;
-        if (null != $data) {
-            $dataGet = $data->get()->first();
-        }
-        $result = null;
-        if (null != $dataGet) {
-            return DB::transaction(function () use ($data, $dataGet, $logistic_status, $user
-            ) {
-                $reLFCDS = LogisticFlow::createDeliveryStatus($user, $dataGet->id, [$logistic_status]);
-
-                if ($reLFCDS['success'] == 0) {
-                    DB::rollBack();
-                }
-
-                return ['success' => 1, 'error_msg' => "", 'id' => $dataGet->id];
-            });
-        } else {
-            return ['success' => 0, 'error_msg' => "更新失敗 無此物流單"];
         }
     }
 
