@@ -1,6 +1,38 @@
 @extends('layouts.main')
 @section('sub-content')
     <h2 class="mb-4">公佈欄</h2>
+    <form id="search" action="{{ Route('cms.bulletin_board.index') }}" method="GET">
+        <div class="card shadow p-4 mb-4">
+            <h6>搜尋條件</h6>
+            <div class="row">
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">主旨</label>
+                    <input class="form-control" type="text" name="title" value="{{ $cond['title'] }}"
+                           placeholder="輸入主旨">
+                </div>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">公告內容</label>
+                    <input class="form-control" type="text" name="content" value="{{ $cond['content'] }}"
+                           placeholder="輸入公告內容">
+                </div>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">負責人</label>
+                    <select class="form-select -select2 -multiple" multiple name="user[]" aria-label="負責人"
+                            data-placeholder="多選">
+                        @foreach ($users as $user)
+                            <option value="{{ $user->id }}" @if (in_array($user->id, $cond['user'])) selected @endif>
+                                {{ $user->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="col">
+                <input type="hidden" name="data_per_page" value="{{ $data_per_page }}" />
+                <button type="submit" class="btn btn-primary px-4">搜尋</button>
+            </div>
+        </div>
+    </form>
+
     <div class="card shadow p-4 mb-4">
         <div class="row mb-4">
             <div class="col">
@@ -10,7 +42,7 @@
                     </a>
                 @endcan
             </div>
-            {{-- <div class="col-auto">
+            <div class="col-auto">
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
                     @foreach (config('global.dataPerPage') as $value)
@@ -18,7 +50,7 @@
                     @endforeach
                 </select>
                 筆
-            </div> --}}
+            </div>
         </div>
 
         <div class="table-responsive tableOverBox">
@@ -95,6 +127,11 @@
         <script>
             $('#confirm-delete').on('show.bs.modal', function(e) {
                 $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+            });
+
+            $('#dataPerPageElem').on('change', function(e) {
+                $('input[name=data_per_page]').val($(this).val());
+                $('#search').submit();
             });
         </script>
     @endpush

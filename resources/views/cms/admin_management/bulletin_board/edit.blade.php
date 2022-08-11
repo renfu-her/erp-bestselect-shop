@@ -108,7 +108,7 @@
         <div id="content" class="card shadow p-4 mb-4 -content">
             <div class="d-flex align-items-center mb-4">
                 <h6 class="mb-0">公告內容</h6>
-                <a href="https://img.bestselection.com.tw/fadd1.asp?name="
+                <a href="https://img.bestselection.com.tw/fadd1.asp?name={{ $data->user_name ?? ''}}"
                    class="btn btn-outline-primary -in-header ms-4" target="_blank">
                     <i class="bi bi-upload"></i> 上傳圖片
                 </a>
