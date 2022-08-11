@@ -189,6 +189,24 @@ Breadcrumbs::for('cms.purchase.inbound', function (BreadcrumbTrail $trail, $valu
     $trail->push('#' . $value . ' 入庫審核');
 });
 
+//公佈欄
+Breadcrumbs::for('cms.bulletin_board.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('公佈欄列表');
+});
+Breadcrumbs::for('cms.bulletin_board.create', function (BreadcrumbTrail $trail) {
+    $trail->push('公佈欄列表', Route('cms.bulletin_board.index'));
+    $trail->push('新增公吿');
+});
+Breadcrumbs::for('cms.bulletin_board.edit', function (BreadcrumbTrail $trail) {
+    $trail->push('公佈欄列表', Route('cms.bulletin_board.index'));
+    $trail->push('編輯公吿');
+});
+Breadcrumbs::for('cms.bulletin_board.show', function (BreadcrumbTrail $trail) {
+    $trail->push('公佈欄列表', Route('cms.bulletin_board.index'));
+    $trail->push('公吿');
+});
+
 // 組合包組裝
 Breadcrumbs::for('cms.combo-purchase.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
@@ -874,6 +892,26 @@ Breadcrumbs::for('cms.transfer_voucher.show', function (BreadcrumbTrail $trail) 
     $trail->parent('cms.transfer_voucher.index');
     $trail->push('轉帳傳票');
 });
+
+// 應收票據
+Breadcrumbs::for('cms.note_receivable.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('應收票據', route('cms.note_receivable.index'));
+});
+Breadcrumbs::for('cms.note_receivable.record', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.note_receivable.index');
+    $trail->push('應收票據明細');
+});
+Breadcrumbs::for('cms.note_receivable.ask', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.note_receivable.index');
+    $trail->push($value['title']);
+});
+Breadcrumbs::for('cms.note_receivable.detail', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.note_receivable.index');
+    $trail->push($value['title']);
+});
+
+
 
 // 信用卡作業管理
 Breadcrumbs::for('cms.credit_manager.index', function (BreadcrumbTrail $trail) {

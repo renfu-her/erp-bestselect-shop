@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Enums\Received\ReceivedMethod;
+use App\Enums\Received\ChequeStatus;
 
 use App\Models\AllGrade;
 use App\Models\Customer;
@@ -330,6 +331,7 @@ class RequestOrderCtrl extends Controller
 
         $checkout_area = [
             'taipei'=>'台北',
+            'hsinchu'=>'新竹',
         ];
 
         return view('cms.account_management.request.ro_edit', [
@@ -399,6 +401,7 @@ class RequestOrderCtrl extends Controller
 
                 $checkout_area = [
                     'taipei'=>'台北',
+                    'hsinchu'=>'新竹',
                 ];
 
                 $data[$data['acc_transact_type_fk']] = [
@@ -480,6 +483,12 @@ class RequestOrderCtrl extends Controller
 
         $received_order = ReceivedOrder::findOrFail($request_order->received_order_id);
         $received_data = ReceivedOrder::get_received_detail($request_order->received_order_id);
+        $data_status_check = false;
+        foreach($received_data as $rd_value){
+            if($rd_value->credit_card_status_code == 2 || $rd_value->cheque_status_code == 'cashed'){
+                $data_status_check = true;
+            }
+        }
 
         if (!$received_order->balance_date) {
             // return abort(404);
@@ -505,6 +514,7 @@ class RequestOrderCtrl extends Controller
             'request_order' => $request_order,
             'received_order' => $received_order,
             'received_data' => $received_data,
+            'data_status_check' => $data_status_check,
             'purchaser' => $purchaser,
             'undertaker'=>$undertaker,
             // 'accountant'=>implode(',', $accountant),
@@ -537,25 +547,55 @@ class RequestOrderCtrl extends Controller
                 'invoice_number' => 'nullable|string',
             ]);
 
-            $received_order->update([
-                'accountant_id'=>auth('user')->user()->id,
-                'receipt_date'=>request('receipt_date'),
-                'invoice_number'=>request('invoice_number'),
-            ]);
+            DB::beginTransaction();
 
-            if( in_array(request('received_method'), ReceivedMethod::asArray()) && is_array(request(request('received_method')))){
-                $req = request(request('received_method'));
-                foreach($req as $r){
-                    $r['received_method'] = request('received_method');
-                    ReceivedOrder::update_received_method($r);
+            try {
+                $received_order->update([
+                    'accountant_id'=>auth('user')->user()->id,
+                    'receipt_date'=>request('receipt_date'),
+                    'invoice_number'=>request('invoice_number'),
+                ]);
+
+                if(is_array(request('received_method'))){
+                    $unique_m = array_unique(request('received_method'));
+
+                    foreach($unique_m as $m_value){
+                        if( in_array($m_value, ReceivedMethod::asArray()) && is_array(request($m_value))){
+                            $req = request($m_value);
+                            foreach($req as $r){
+                                $r['received_method'] = $m_value;
+                                ReceivedOrder::update_received_method($r);
+                            }
+                        }
+                    }
+                }
+
+                DB::commit();
+                wToast(__('入帳日期更新成功'));
+
+                return redirect()->route('cms.request.ro-receipt', ['id'=>request('id')]);
+
+            } catch (\Exception $e) {
+                DB::rollback();
+                wToast(__('入帳日期更新失敗', ['type'=>'danger']));
+
+                return redirect()->back();
+            }
+
+        } else if($request->isMethod('get')){
+            $received_data = ReceivedOrder::get_received_detail($request_order->received_order_id);
+            $data_status_check = false;
+            foreach($received_data as $rd_value){
+                if($rd_value->credit_card_status_code == 2 || $rd_value->cheque_status_code == 'cashed'){
+                    $data_status_check = true;
                 }
             }
 
-            wToast(__('入帳日期更新成功'));
-            return redirect()->route('cms.request.ro-receipt', ['id'=>request('id')]);
-
-        } else if($request->isMethod('get')){
             if($received_order->receipt_date){
+                if($data_status_check){
+                    return redirect()->back();
+                }
+
                 $received_order->update([
                     'accountant_id'=>null,
                     'receipt_date'=>null,
@@ -568,7 +608,6 @@ class RequestOrderCtrl extends Controller
                 $undertaker = User::find($received_order->usr_users_id);
 
                 $order_list_data = $request_order->get();
-                $received_data = ReceivedOrder::get_received_detail($request_order->received_order_id);
 
                 $debit = [];
                 $credit = [];
@@ -637,6 +676,7 @@ class RequestOrderCtrl extends Controller
 
                 $checkout_area = [
                     'taipei'=>'台北',
+                    'hsinchu'=>'新竹',
                 ];
 
                 // grade process start
@@ -701,6 +741,11 @@ class RequestOrderCtrl extends Controller
                     }
                 // grade process end
 
+                $cheque_status = [];
+                foreach (ChequeStatus::asArray() as $data) {
+                    $cheque_status[$data] = ChequeStatus::getDescription($data);
+                }
+
                 return view('cms.account_management.request.ro_review', [
                     'breadcrumb_data' => ['id' => $request_order->id],
                     'form_action' => route('cms.request.ro-review', ['id'=>request('id')]),
@@ -713,7 +758,9 @@ class RequestOrderCtrl extends Controller
                     'credit'=>$credit,
                     'card_type'=>$card_type,
                     'checkout_area'=>$checkout_area,
+                    'cheque_status'=>$cheque_status,
                     'credit_card_grade'=>$default_grade[ReceivedMethod::CreditCard],
+                    'cheque_grade'=>$default_grade[ReceivedMethod::Cheque],
                     // 'default_grade'=>$default_grade,
                     // 'currency_default_grade'=>$currency_default_grade,
                 ]);

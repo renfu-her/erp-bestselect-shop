@@ -11,6 +11,7 @@ use App\Models\SubOrders;
 use Illuminate\Http\Request;
 
 use App\Enums\Received\ReceivedMethod;
+use App\Enums\Received\ChequeStatus;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -207,7 +208,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
                 $log_account = AllGrade::find($value->ro_logistics_grade_id) ? AllGrade::find($value->ro_logistics_grade_id)->eachGrade : null;
                 $account_code = $log_account ? $log_account->code : '4000';
                 $account_name = $log_account ? $log_account->name : '無設定會計科目';
-                $name = $account_code . ' - ' . $account_name;
+                $name = $account_code . ' ' . $account_name;
 
                 $tmp = [
                     'account_code'=>$account_code,
@@ -239,7 +240,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
                     $dis_account = AllGrade::find($d_value->discount_grade_id) ? AllGrade::find($d_value->discount_grade_id)->eachGrade : null;
                     $account_code = $dis_account ? $dis_account->code : '4000';
                     $account_name = $dis_account ? $dis_account->name : '無設定會計科目';
-                    $name = $account_code . ' - ' . $account_name;
+                    $name = $account_code . ' ' . $account_name;
 
                     $tmp = [
                         'account_code'=>$account_code,
@@ -427,6 +428,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
         $checkout_area = [
             'taipei'=>'台北',
+            'hsinchu'=>'新竹',
         ];
 
 
@@ -484,6 +486,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
                 $checkout_area = [
                     'taipei'=>'台北',
+                    'hsinchu'=>'新竹',
                 ];
 
                 $data[$data['acc_transact_type_fk']] = [
@@ -575,6 +578,12 @@ abstract class AccountReceivedPapaCtrl extends Controller
         asort($product_qc);
 
         $received_data = ReceivedOrder::get_received_detail($received_order_data->pluck('id')->toArray());
+        $data_status_check = false;
+        foreach($received_data as $rd_value){
+            if($rd_value->credit_card_status_code == 2 || $rd_value->cheque_status_code == 'cashed'){
+                $data_status_check = true;
+            }
+        }
 
         $order_purchaser = $this->getOrderPurchaser($order);
         $undertaker = User::find($received_order_collection->first()->usr_users_id);
@@ -611,6 +620,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
             'order_discount'=>$order_discount,
             'order_list_data' => $order_list_data,
             'received_data' => $received_data,
+            'data_status_check' => $data_status_check,
             'order_purchaser' => $order_purchaser,
             'undertaker'=>$undertaker,
             'product_qc'=>implode(',', $product_qc),
@@ -649,41 +659,71 @@ abstract class AccountReceivedPapaCtrl extends Controller
                 'invoice_number' => 'nullable|string',
             ]);
 
-            $received_order->update([
-                'accountant_id'=>auth('user')->user()->id,
-                'receipt_date'=>request('receipt_date'),
-                'invoice_number'=>request('invoice_number'),
-            ]);
+            DB::beginTransaction();
 
-            if( in_array(request('received_method'), ReceivedMethod::asArray()) && is_array(request(request('received_method')))){
-                $req = request(request('received_method'));
-                foreach($req as $r){
-                    $r['received_method'] = request('received_method');
-                    ReceivedOrder::update_received_method($r);
-                }
-            }
+            try {
+                $received_order->update([
+                    'accountant_id'=>auth('user')->user()->id,
+                    'receipt_date'=>request('receipt_date'),
+                    'invoice_number'=>request('invoice_number'),
+                ]);
 
-            $this->doReviewWhenReceived($id);
-            //修改子訂單物流配送狀態為檢貨中
-            $sub_orders = SubOrders::where('order_id', '=', $id)->get();
-            if (isset($sub_orders) && 0 < count($sub_orders)) {
-                $sub_order_ids = [];
-                foreach ($sub_orders as $sub_order) {
-                    array_push($sub_order_ids, $sub_order->id);
-                }
-                $delivery = Delivery::whereIn('event_id', $sub_order_ids)->where('event', '=', Event::order()->value)->get();
-                if (isset($delivery) && 0 < count($delivery)) {
-                    foreach ($delivery as $dlv) {
-                        $reLFCDS = LogisticFlow::createDeliveryStatus($request->user(), $dlv->id, [LogisticStatus::A2000()]);
+                if(is_array(request('received_method'))){
+                    $unique_m = array_unique(request('received_method'));
+
+                    foreach($unique_m as $m_value){
+                        if( in_array($m_value, ReceivedMethod::asArray()) && is_array(request($m_value))){
+                            $req = request($m_value);
+                            foreach($req as $r){
+                                $r['received_method'] = $m_value;
+                                ReceivedOrder::update_received_method($r);
+                            }
+                        }
                     }
                 }
+
+                $this->doReviewWhenReceived($id);
+	            //修改子訂單物流配送狀態為檢貨中
+	            $sub_orders = SubOrders::where('order_id', '=', $id)->get();
+	            if (isset($sub_orders) && 0 < count($sub_orders)) {
+	                $sub_order_ids = [];
+	                foreach ($sub_orders as $sub_order) {
+	                    array_push($sub_order_ids, $sub_order->id);
+	                }
+	                $delivery = Delivery::whereIn('event_id', $sub_order_ids)->where('event', '=', Event::order()->value)->get();
+	                if (isset($delivery) && 0 < count($delivery)) {
+	                    foreach ($delivery as $dlv) {
+	                        $reLFCDS = LogisticFlow::createDeliveryStatus($request->user(), $dlv->id, [LogisticStatus::A2000()]);
+	                    }
+	                }
+	            }
+
+                DB::commit();
+                wToast(__('入帳日期更新成功'));
+
+                return redirect()->route($this->getRouteReceipt(), ['id'=>request('id')]);
+
+            } catch (\Exception $e) {
+                DB::rollback();
+                wToast(__('入帳日期更新失敗', ['type'=>'danger']));
+
+                return redirect()->back();
             }
 
-            wToast(__('入帳日期更新成功'));
-            return redirect()->route($this->getRouteReceipt(), ['id'=>request('id')]);
-
         } else if($request->isMethod('get')){
+            $received_data = ReceivedOrder::get_received_detail($received_order_data->pluck('id')->toArray());
+            $data_status_check = false;
+            foreach($received_data as $rd_value){
+                if($rd_value->credit_card_status_code == 2 || $rd_value->cheque_status_code == 'cashed'){
+                    $data_status_check = true;
+                }
+            }
+
             if($received_order->receipt_date){
+                if($data_status_check){
+                    return redirect()->back();
+                }
+
                 $received_order->update([
                     'accountant_id'=>null,
                     'receipt_date'=>null,
@@ -698,8 +738,6 @@ abstract class AccountReceivedPapaCtrl extends Controller
                 $order = $this->getOrderData(request('id'));
 
                 $order_list_data = $this->getOrderListData(request('id'));
-
-                $received_data = ReceivedOrder::get_received_detail($received_order_data->pluck('id')->toArray());
 
                 $debit = [];
                 $credit = [];
@@ -738,7 +776,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
                 $product_account = AllGrade::find($received_order->product_grade_id) ? AllGrade::find($received_order->product_grade_id)->eachGrade : null;
                 $account_code = $product_account ? $product_account->code : '4000';
                 $account_name = $product_account ? $product_account->name : '無設定會計科目';
-                $product_grade_name = $account_code . ' - ' . $account_name;
+                $product_grade_name = $account_code . ' ' . $account_name;
                 foreach($order_list_data as $value){
                     $name = $product_grade_name . ' --- ' . $this->getOrderListItemMsg($value);
                     // GeneralLedger::classification_processing($debit, $credit, $product_master_account->code, $name, $value->product_origin_price, 'r', 'product');
@@ -772,8 +810,8 @@ abstract class AccountReceivedPapaCtrl extends Controller
                     $log_account = AllGrade::find($received_order->logistics_grade_id) ? AllGrade::find($received_order->logistics_grade_id)->eachGrade : null;
                     $account_code = $log_account ? $log_account->code : '4000';
                     $account_name = $log_account ? $log_account->name : '無設定會計科目';
-                    // $name = $logistics_grade_name = $account_code . ' - ' . $account_name;
-                    $name = $account_code . ' - ' . $account_name;
+                    // $name = $logistics_grade_name = $account_code . ' ' . $account_name;
+                    $name = $account_code . ' ' . $account_name;
                     // GeneralLedger::classification_processing($debit, $credit, $logistics_master_account->code, $name, $order->dlv_fee, 'r', 'logistics');
 
                     $tmp = [
@@ -811,7 +849,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
                         $dis_account = AllGrade::find($value->discount_grade_id) ? AllGrade::find($value->discount_grade_id)->eachGrade : null;
                         $account_code = $dis_account ? $dis_account->code : '4000';
                         $account_name = $dis_account ? $dis_account->name : '無設定會計科目';
-                        $name = $account_code . ' - ' . $account_name . ' - ' . $value->title;
+                        $name = $account_code . ' ' . $account_name . ' - ' . $value->title;
                         // GeneralLedger::classification_processing($debit, $credit, 4, $name, $order->discount_value, 'r', 'discount');
 
                         $tmp = [
@@ -843,70 +881,76 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
                 $checkout_area = [
                     'taipei'=>'台北',
+                    'hsinchu'=>'新竹',
                 ];
 
                 // grade process start
-                $defaultData = [];
-                foreach (ReceivedMethod::asArray() as $receivedMethod) {
-                    $defaultData[$receivedMethod] = DB::table('acc_received_default')->where('name', '=', $receivedMethod)
-                        ->doesntExistOr(function () use ($receivedMethod) {
-                            return DB::table('acc_received_default')->where('name', '=', $receivedMethod)
-                                ->select('default_grade_id')
-                                ->get();
-                        });
-                }
+                    $defaultData = [];
+                    foreach (ReceivedMethod::asArray() as $receivedMethod) {
+                        $defaultData[$receivedMethod] = DB::table('acc_received_default')->where('name', '=', $receivedMethod)
+                            ->doesntExistOr(function () use ($receivedMethod) {
+                                return DB::table('acc_received_default')->where('name', '=', $receivedMethod)
+                                    ->select('default_grade_id')
+                                    ->get();
+                            });
+                    }
 
-                $total_grades = GeneralLedger::total_grade_list();
-                $allGradeArray = [];
+                    $total_grades = GeneralLedger::total_grade_list();
+                    $allGradeArray = [];
 
-                foreach ($total_grades as $grade) {
-                    $allGradeArray[$grade['primary_id']] = $grade;
-                }
-                $default_grade = [];
-                foreach ($defaultData as $recMethod => $ids) {
-                    if ($ids !== true &&
-                        $recMethod !== 'other') {
-                        foreach ($ids as $id) {
-                            $default_grade[$recMethod][$id->default_grade_id] = [
-                                // 'methodName' => $recMethod,
-                                'method' => ReceivedMethod::getDescription($recMethod),
-                                'grade_id' => $id->default_grade_id,
-                                'grade_num' => $allGradeArray[$id->default_grade_id]['grade_num'],
-                                'code' => $allGradeArray[$id->default_grade_id]['code'],
-                                'name' => $allGradeArray[$id->default_grade_id]['name'],
-                            ];
-                        }
-                    } else {
-                        if($recMethod == 'other'){
-                            $default_grade[$recMethod] = $allGradeArray;
+                    foreach ($total_grades as $grade) {
+                        $allGradeArray[$grade['primary_id']] = $grade;
+                    }
+                    $default_grade = [];
+                    foreach ($defaultData as $recMethod => $ids) {
+                        if ($ids !== true &&
+                            $recMethod !== 'other') {
+                            foreach ($ids as $id) {
+                                $default_grade[$recMethod][$id->default_grade_id] = [
+                                    // 'methodName' => $recMethod,
+                                    'method' => ReceivedMethod::getDescription($recMethod),
+                                    'grade_id' => $id->default_grade_id,
+                                    'grade_num' => $allGradeArray[$id->default_grade_id]['grade_num'],
+                                    'code' => $allGradeArray[$id->default_grade_id]['code'],
+                                    'name' => $allGradeArray[$id->default_grade_id]['name'],
+                                ];
+                            }
                         } else {
-                            $default_grade[$recMethod] = [];
+                            if($recMethod == 'other'){
+                                $default_grade[$recMethod] = $allGradeArray;
+                            } else {
+                                $default_grade[$recMethod] = [];
+                            }
                         }
                     }
-                }
 
 
-                $currencyDefault = DB::table('acc_currency')
-                    ->leftJoin('acc_received_default', 'acc_currency.received_default_fk', '=', 'acc_received_default.id')
-                    ->select(
-                        'acc_currency.name as currency_name',
-                        'acc_currency.id as currency_id',
-                        'acc_currency.rate',
-                        'default_grade_id',
-                        'acc_received_default.name as method_name'
-                    )
-                    ->orderBy('acc_currency.id')
-                    ->get();
-                $currency_default_grade = [];
-                foreach ($currencyDefault as $default) {
-                    $currency_default_grade[$default->default_grade_id][] = [
-                        'currency_id'    => $default->currency_id,
-                        'currency_name'    => $default->currency_name,
-                        'rate'             => $default->rate,
-                        'default_grade_id' => $default->default_grade_id,
-                    ];
-                }
+                    $currencyDefault = DB::table('acc_currency')
+                        ->leftJoin('acc_received_default', 'acc_currency.received_default_fk', '=', 'acc_received_default.id')
+                        ->select(
+                            'acc_currency.name as currency_name',
+                            'acc_currency.id as currency_id',
+                            'acc_currency.rate',
+                            'default_grade_id',
+                            'acc_received_default.name as method_name'
+                        )
+                        ->orderBy('acc_currency.id')
+                        ->get();
+                    $currency_default_grade = [];
+                    foreach ($currencyDefault as $default) {
+                        $currency_default_grade[$default->default_grade_id][] = [
+                            'currency_id'    => $default->currency_id,
+                            'currency_name'    => $default->currency_name,
+                            'rate'             => $default->rate,
+                            'default_grade_id' => $default->default_grade_id,
+                        ];
+                    }
                 // grade process end
+
+                $cheque_status = [];
+                foreach (ChequeStatus::asArray() as $data) {
+                    $cheque_status[$data] = ChequeStatus::getDescription($data);
+                }
 
                 return view($this->getViewReview(), [
                     'form_action'=>route($this->getRouteReview() , ['id'=>request('id')]),
@@ -921,7 +965,9 @@ abstract class AccountReceivedPapaCtrl extends Controller
                     'credit'=>$credit,
                     'card_type'=>$card_type,
                     'checkout_area'=>$checkout_area,
+                    'cheque_status'=>$cheque_status,
                     'credit_card_grade'=>$default_grade[ReceivedMethod::CreditCard],
+                    'cheque_grade'=>$default_grade[ReceivedMethod::Cheque],
                     // 'default_grade'=>$default_grade,
                     // 'currency_default_grade'=>$currency_default_grade,
 
@@ -1106,3 +1152,4 @@ abstract class AccountReceivedPapaCtrl extends Controller
         return redirect()->back();
     }
 }
+

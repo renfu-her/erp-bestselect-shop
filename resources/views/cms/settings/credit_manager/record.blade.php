@@ -75,7 +75,7 @@
                             <th class="table-light" style="width:15%">刷卡對象</th>
                             <td style="width:35%">{{ $record->credit_card_owner_name }}</td>
                             <th class="table-light" style="width:15%">業務員</th>
-                            <td style="width:35%">{{ $record->ro_sales }}</td>
+                            <td style="width:35%">{{ $record->ro_undertaker }}</td>
                         </tr>
                         <tr>
                             <th class="table-light" style="width:15%">會計科目</th>

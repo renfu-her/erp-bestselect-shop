@@ -477,6 +477,27 @@ return [
         ],
     ],
     [
+        "unit" => "佈告欄",
+        "permissions" => [
+            [
+                "cms.bulletin_board.index",
+                "瀏覽",
+            ],
+            [
+                "cms.bulletin_board.index",
+                "新增",
+            ],
+            [
+                "cms.bulletin_board.index",
+                "編輯",
+            ],
+            [
+                "cms.bulletin_board.index",
+                "刪除",
+            ],
+        ],
+    ],
+    [
         "unit" => "員工帳號管理",
         "permissions" => [
             [

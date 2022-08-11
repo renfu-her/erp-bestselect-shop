@@ -86,6 +86,8 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/InboundImport.php');
     require base_path('routes/cms/TransferVoucher.php');
     require base_path('routes/cms/AccountsPayable.php');
+    require base_path('routes/cms/NoteReceivable.php');
+    require base_path('routes/cms/BulletinBoard.php');
 });
 
 Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => 'guest:customer'], function () {

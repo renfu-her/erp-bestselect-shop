@@ -90,6 +90,7 @@ class CreditManagerCtrl extends Controller
         $bank = CrdBank::orderBy('id', 'asc')->pluck('title', 'id')->toArray();
         $checkout_area = [
             'taipei'=>'台北',
+            'hsinchu'=>'新竹',
         ];
         $card_type = CrdCreditCard::distinct('title')->groupBy('title')->orderBy('id', 'asc')->pluck('title', 'id')->toArray();
 
@@ -171,6 +172,7 @@ class CreditManagerCtrl extends Controller
         $total_grades = GeneralLedger::total_grade_list();
         $checkout_area = [
             'taipei'=>'台北',
+            'hsinchu'=>'新竹',
         ];
 
         if($request->isMethod('post')){
