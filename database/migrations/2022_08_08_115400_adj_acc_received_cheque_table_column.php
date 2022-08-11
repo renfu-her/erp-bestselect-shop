@@ -71,15 +71,16 @@ class AdjAccReceivedChequeTableColumn extends Migration
             $table->dropColumn('banks');
             $table->dropColumn('accounts');
             $table->dropColumn('drawer');
+            $table->dropColumn('deposited_area_code');
+            $table->dropColumn('deposited_area');
             $table->dropColumn('status_code');
             $table->dropColumn('status');
             $table->dropColumn('c_n_date');
             $table->dropColumn('cashing_date');
-            $table->dropColumn('cashing_order_id');
+            $table->dropColumn('draw_date');
+            $table->dropColumn('note_receivable_order_id');
             $table->dropColumn('sn');
             $table->dropColumn('amt_net');
-            $table->dropColumn('deposited_area_code');
-            $table->dropColumn('deposited_area');
         });
 
         Schema::dropIfExists('acc_received_cheque_log');

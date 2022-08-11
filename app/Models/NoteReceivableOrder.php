@@ -253,7 +253,7 @@ class NoteReceivableOrder extends Model
                 ]);
             }
 
-            $note_receivable_order = self::store_income_order($request['cashing_date']);
+            $note_receivable_order = self::store_note_receivable_order($request['cashing_date']);
 
             foreach($request['cheque_received_id'] as $key => $value){
                 DB::table('acc_received_cheque')->where('id', $value)->update([
@@ -272,7 +272,7 @@ class NoteReceivableOrder extends Model
     }
 
 
-    public static function store_income_order($cashing_date)
+    public static function store_note_receivable_order($cashing_date)
     {
         $target = self::whereDate('cashing_date', $cashing_date)->first();
         $net = DB::table('acc_received_cheque')->whereDate('cashing_date', $cashing_date)->sum('amt_net');
@@ -281,6 +281,7 @@ class NoteReceivableOrder extends Model
             $target->update([
                 'amt_total_net'=>$net,
                 'affirmant_id'=>auth('user')->user() ? auth('user')->user()->id : null,
+                'updated_at'=>date("Y-m-d H:i:s"),
             ]);
 
         } else {
