@@ -124,7 +124,18 @@ class BulletinBoardCtrl extends Controller
             $weights[$value] = Weight::getDescription($value);
         }
 
-        $data = BulletinBoard::where('id', $id)->get()->first();
+        $data = BulletinBoard::where('idx_news.id', $id)
+            ->leftJoin('usr_users', 'usr_users.id', '=', 'idx_news.usr_users_id_fk')
+            ->select([
+                'idx_news.id',
+                'idx_news.title',
+                'idx_news.content',
+                'idx_news.weight',
+                'idx_news.expire_time',
+                'usr_users.name as user_name',
+            ])
+            ->get()
+            ->first();
 
         return view('cms.admin_management.bulletin_board.edit', [
             'method' => 'edit',
