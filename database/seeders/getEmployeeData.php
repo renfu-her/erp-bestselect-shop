@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
-
+use App\Models\Role;
 class getEmployeeData extends Seeder
 {
     /**
@@ -14,6 +14,9 @@ class getEmployeeData extends Seeder
      */
     public function run()
     {
-        User::getEmployeeData();
+
+       // dd('aa');
+      //  Role::where('')
+      //  User::getEmployeeData();
     }
 }
