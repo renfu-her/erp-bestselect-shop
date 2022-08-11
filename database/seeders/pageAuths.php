@@ -484,15 +484,15 @@ return [
                 "瀏覽",
             ],
             [
-                "cms.bulletin_board.index",
+                "cms.bulletin_board.create",
                 "新增",
             ],
             [
-                "cms.bulletin_board.index",
+                "cms.bulletin_board.edit",
                 "編輯",
             ],
             [
-                "cms.bulletin_board.index",
+                "cms.bulletin_board.delete",
                 "刪除",
             ],
         ],
