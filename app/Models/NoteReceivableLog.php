@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 use Illuminate\Support\Facades\DB;
 
@@ -12,7 +11,7 @@ use App\Enums\Received\ChequeStatus;
 
 class NoteReceivableLog extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory;
 
     protected $table = 'acc_received_cheque_log';
     protected $guarded = [];
@@ -27,5 +26,29 @@ class NoteReceivableLog extends Model
         ]);
     }
 
-    // NoteReceivableLog::orderBy('id', 'desc')->skip(1)->first();
+
+    public static function reverse_cheque_status($cheque_id)
+    {
+        // orderBy('id', 'desc')->skip(1)->first()
+        $target = NoteReceivableLog::where('cheque_id', $cheque_id)->where('status_code', '!=', 'cashed')->orderBy('id', 'desc')->first();
+        $cheque = DB::table('acc_received_cheque')->where('id', $cheque_id)->first();
+
+        if($target && $cheque){
+            DB::table('acc_received_cheque')->where('id', $cheque_id)->update([
+                'status_code'=>$target->status_code,
+                'status'=>$target->status,
+
+                'amt_net'=>0,
+                'note_receivable_order_id'=>null,
+                'sn'=>null,
+                'updated_at'=>date("Y-m-d H:i:s"),
+            ]);
+
+            self::create_cheque_log($cheque_id, $target->status_code);
+
+            NoteReceivableOrder::store_note_receivable_order($cheque->cashing_date);
+        }
+
+        return $target;
+    }
 }

@@ -78,7 +78,8 @@ class Customer extends Authenticatable
      * @param $name
      * @param $email
      * @param $password
-     * @param $phone
+     * @param $phone string 會員電話
+     * @param $recipient_phone string 收件人電話
      * @param $birthday
      * @param $sex
      * @param $acount_status
@@ -96,6 +97,7 @@ class Customer extends Authenticatable
         , $address = null, $city_id = null, $region_id = null, $addr = null
         , $newsletter = null
         , $loginMethods = null
+        , $recipient_phone = ""
     ) {
         DB::beginTransaction();
         $sn = "M" . str_pad((self::get()
@@ -134,7 +136,7 @@ class Customer extends Authenticatable
             CustomerAddress::create([
                 'usr_customers_id_fk' => $id,
                 'name' => $name,
-                'phone' => $phone,
+                'phone' => $recipient_phone,
                 'address' => $address,
                 'city_id' => $city_id,
                 'region_id' => $region_id,
@@ -324,7 +326,7 @@ class Customer extends Authenticatable
         $customers = self::whereNull('sn')->get();
         $c = 0;
         foreach ($customers as $customer) {
-         
+
             $sn = "M" . str_pad($customer->id, 9, '0', STR_PAD_LEFT);
             self::where('id', $customer->id)->update([
                 'sn' => $sn,
