@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 use App\Models\GeneralLedger;
 use App\Models\NoteReceivableOrder;
-use App\Models\TransferVoucher;
+use App\Models\NoteReceivableLog;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -117,21 +117,25 @@ class NoteReceivableCtrl extends Controller
 
                 try {
                     if($type == 'collection' || $type == 'nd'){
+                        $qd = request('c_n_date');
+
                         $parm = [
                             'cheque_received_id'=>request('cheque_received_id'),
                             'status_code'=>$type,
                             'status'=>$status_name,
-                            'c_n_date'=>request('c_n_date'),
+                            'c_n_date'=>$qd,
                         ];
                         NoteReceivableOrder::update_cheque_received_method($parm);
 
                     } else if($type == 'cashed'){
+                        $qd = request('cashing_date');
+
                         $parm = [
                             'cheque_received_id'=>request('cheque_received_id'),
                             'amt_net'=>request('amt_net'),
                             'status_code'=>$type,
                             'status'=>$status_name,
-                            'cashing_date'=>request('cashing_date'),
+                            'cashing_date'=>$qd,
                         ];
                         $re = NoteReceivableOrder::update_cheque_received_method($parm);
                     }
@@ -139,7 +143,7 @@ class NoteReceivableCtrl extends Controller
                     DB::commit();
                     wToast(__('整批' . $status_name . '儲存成功'));
 
-                    return redirect()->route('cms.note_receivable.detail', ['type'=>$type, 'qd' => request('c_n_date')]);
+                    return redirect()->route('cms.note_receivable.detail', ['type'=>$type, 'qd' => $qd]);
 
                 } catch (\Exception $e) {
                     DB::rollback();
@@ -226,16 +230,17 @@ class NoteReceivableCtrl extends Controller
     }
 
 
-    public function destroy($id)
+    public function reverse($id)
     {
-        $target = TransferVoucher::delete_voucher($id);
+        $log = NoteReceivableLog::reverse_cheque_status($id);
 
-        if($target){
-            wToast('刪除完成');
+        if($log){
+            wToast('應收票據取消兌現成功');
+            return redirect()->route('cms.note_receivable.record', ['id'=>$id]);
+
         } else {
-            wToast('刪除失敗', ['type'=>'danger']);
+            wToast('應收票據取消兌現失敗', ['type'=>'danger']);
+            return redirect()->back();
         }
-
-        return redirect()->route('cms.note_receivable.index');
     }
 }

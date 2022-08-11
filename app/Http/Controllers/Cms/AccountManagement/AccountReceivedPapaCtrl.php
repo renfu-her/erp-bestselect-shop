@@ -694,6 +694,10 @@ abstract class AccountReceivedPapaCtrl extends Controller
 	                if (isset($delivery) && 0 < count($delivery)) {
 	                    foreach ($delivery as $dlv) {
 	                        $reLFCDS = LogisticFlow::createDeliveryStatus($request->user(), $dlv->id, [LogisticStatus::A2000()]);
+                            if ($reLFCDS['success'] == 0) {
+                                DB::rollBack();
+                                return $reLFCDS;
+                            }
 	                    }
 	                }
 	            }

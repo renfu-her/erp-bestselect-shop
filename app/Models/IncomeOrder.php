@@ -274,6 +274,7 @@ class IncomeOrder extends Model
                 'amt_total_service_fee'=>$service_fee,
                 'amt_total_net'=>$net,
                 'affirmant_id'=>auth('user')->user() ? auth('user')->user()->id : null,
+                'updated_at'=>date("Y-m-d H:i:s"),
             ]);
 
         } else {

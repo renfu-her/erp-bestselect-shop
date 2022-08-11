@@ -7,7 +7,9 @@
     </a>
 
     @if($cheque->cheque_status_code == 'cashed')
-
+    <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm my-1 ms-1"
+    data-bs-toggle="modal" data-bs-target="#confirm-reverse"
+    data-href="{{ Route('cms.note_receivable.reverse', ['id' => $cheque->cheque_received_id]) }}">取消兌現</a>
     @endif
 
     <div class="card mb-4">
@@ -100,6 +102,15 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal -->
+    <x-b-modal id="confirm-reverse">
+        <x-slot name="title">取消確認</x-slot>
+        <x-slot name="body">確認要取消此兌現狀態？</x-slot>
+        <x-slot name="foot">
+            <a class="btn btn-danger btn-ok" href="#">確認並取消</a>
+        </x-slot>
+    </x-b-modal>
 @endsection
 
 @once
@@ -111,6 +122,10 @@
 
     @push('sub-scripts')
         <script>
+            // Modal Control
+            $('#confirm-reverse').on('show.bs.modal', function(e) {
+                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+            });
 
         </script>
     @endpush
