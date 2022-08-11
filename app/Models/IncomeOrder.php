@@ -38,10 +38,10 @@ class IncomeOrder extends Model
                     'ro.deleted_at'=>null,
                 ]);
             })
-            ->leftJoin('usr_users AS sales', function($join){
-                $join->on('ro.usr_users_id', '=', 'sales.id');
+            ->leftJoin('usr_users AS undertaker', function($join){
+                $join->on('ro.usr_users_id', '=', 'undertaker.id');
                 $join->where([
-                    'sales.deleted_at'=>null,
+                    'undertaker.deleted_at'=>null,
                 ]);
             })
             ->join('acc_received_credit AS _credit', function($join){
@@ -107,7 +107,7 @@ class IncomeOrder extends Model
                 ro.source_type AS ro_source_type,
                 ro.source_id AS ro_source_id,
                 ro.sn AS ro_sn,
-                sales.name AS ro_sales,
+                undertaker.name AS ro_undertaker,
 
                 received.id AS received_id,
                 received.received_method,

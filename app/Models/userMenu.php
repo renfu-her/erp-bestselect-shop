@@ -197,6 +197,11 @@ return
                 "route_name" => "cms.transfer_voucher.index",
             ],
             [
+                "title" => "應收票據",
+                "controller_name" => "NoteReceivableCtrl",
+                "route_name" => "cms.note_receivable.index",
+            ],
+            [
                 "title" => "信用卡作業管理",
                 "controller_name" => "CreditManagerCtrl",
                 "route_name" => "cms.credit_manager.index",

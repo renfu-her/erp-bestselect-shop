@@ -893,6 +893,26 @@ Breadcrumbs::for('cms.transfer_voucher.show', function (BreadcrumbTrail $trail) 
     $trail->push('轉帳傳票');
 });
 
+// 應收票據
+Breadcrumbs::for('cms.note_receivable.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('應收票據', route('cms.note_receivable.index'));
+});
+Breadcrumbs::for('cms.note_receivable.record', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.note_receivable.index');
+    $trail->push('應收票據明細');
+});
+Breadcrumbs::for('cms.note_receivable.ask', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.note_receivable.index');
+    $trail->push($value['title']);
+});
+Breadcrumbs::for('cms.note_receivable.detail', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.note_receivable.index');
+    $trail->push($value['title']);
+});
+
+
+
 // 信用卡作業管理
 Breadcrumbs::for('cms.credit_manager.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');

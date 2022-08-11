@@ -98,6 +98,7 @@ class OrderItem extends Model
 
                 'ord_items.sku AS product_sku',
                 'ord_items.product_title AS product_title',
+                'ord_items.note AS product_note',
                 'ord_items.price AS product_price',
                 'ord_items.qty AS product_qty',
                 'ord_items.origin_price AS product_origin_price',

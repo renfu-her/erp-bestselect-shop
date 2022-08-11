@@ -59,7 +59,7 @@
                 <div class="col-12 mb-3">
                     <div class="form-group">
                         <label class="form-label">發票號碼：</label>
-                        <input type="text" class="form-control col-4 @error('invoice_number') is-invalid @enderror" name="invoice_number" value="{{ old('invoice_number', $received_order->invoice_number) }}" aria-label="發票號碼"/>
+                        <input type="text" class="form-control col-4 @error('invoice_number') is-invalid @enderror" name="invoice_number" value="{{ old('invoice_number', $received_order->invoice_number) }}" aria-label="發票號碼">
                     </div>
                     <div class="invalid-feedback">
                         @error('invoice_number')
@@ -93,12 +93,12 @@
                                             <div class="col-12 mb-3">
                                                 {{ $d_key + 1 . '.' . $d_value->method_name }}
                                                 <input type="hidden" name="credit_card[{{ $received_id }}][received_id]" value="{{ $d_value->received_info->received_id }}">
-                                                <input type="hidden" name="received_method" value="credit_card">
+                                                <input type="hidden" name="received_method[]" value="credit_card">
                                                 <input type="hidden" name="credit_card[{{ $received_id }}][received_method_id]" value="{{ $d_value->received_info->received_method_id }}">
                                             </div>
                                             <div class="col-12 mb-3 form-group">
                                                 <label class="form-label">信用卡號：</label>
-                                                <input type="text" class="form-control" name="credit_card[{{ $received_id }}][cardnumber]" value="{{ $d_value->received_info->credit_card_number }}" data-placeholder="信用卡號"/>
+                                                <input type="text" class="form-control" name="credit_card[{{ $received_id }}][cardnumber]" value="{{ $d_value->received_info->credit_card_number }}" data-placeholder="信用卡號">
                                             </div>
                                             <div class="col-12 mb-3 form-group">
                                                 <label class="form-label">刷卡金額：</label>
@@ -106,7 +106,7 @@
                                             </div>
                                             <div class="col-12 mb-3 form-group">
                                                 <label class="form-label">刷卡日期：</label>
-                                                <input type="date" class="form-control" name="credit_card[{{ $received_id }}][checkout_date]" value="{{ date('Y-m-d', strtotime($d_value->received_info->credit_card_checkout_date)) ?? date('Y-m-d', strtotime( date('Y-m-d'))) }}" data-placeholder="刷卡日期">
+                                                <input type="date" class="form-control" name="credit_card[{{ $received_id }}][checkout_date]" value="{{ date('Y-m-d', strtotime($d_value->received_info->credit_card_checkout_date ?? date('Y-m-d', strtotime( date('Y-m-d'))) )) }}" data-placeholder="刷卡日期">
                                             </div>
                                             <div class="col-12 mb-3 form-group">
                                                 <label class="form-label">信用卡別：</label>
@@ -119,7 +119,7 @@
                                             </div>
                                             <div class="col-12 mb-3 form-group">
                                                 <label class="form-label">持卡人：</label>
-                                                <input type="text" class="form-control" name="credit_card[{{ $received_id }}][card_owner_name]" value="{{ $d_value->received_info->credit_card_owner_name }}" data-placeholder="持卡人"/>
+                                                <input type="text" class="form-control" name="credit_card[{{ $received_id }}][card_owner_name]" value="{{ $d_value->received_info->credit_card_owner_name }}" data-placeholder="持卡人">
                                             </div>
                                             <div class="col-12 mb-3 form-group">
                                                 <label class="form-label">授權碼：</label>
@@ -146,7 +146,7 @@
                                             </div>
                                             <div class="col-12 mb-3 form-group">
                                                 <label class="form-label">結帳地區：</label>
-                                                <select class="form-select -select2 -single" name="credit_card[{{ $received_id }}][checkout_area_code]" data-placeholder="請選擇信用卡別">
+                                                <select class="form-select -select2 -single" name="credit_card[{{ $received_id }}][checkout_area_code]" data-placeholder="請選擇結帳地區">
                                                     <option value="">請選擇</option>
                                                     @foreach($checkout_area as $key => $value)
                                                         <option value="{{ $key }}"{{ $key == $d_value->received_info->credit_card_area_code ? 'selected' : ''}}>{{ $value }}</option>
@@ -155,6 +155,85 @@
                                             </div>
                                         @elseif($d_value->received_info->received_method == 'remit')
                                             <div class="col-12 mb-3">{{ $d_key + 1 . '.' . $d_value->method_name . ' ' . $d_value->account_code . ' - ' . $d_value->account_name . ' - ' . $d_value->summary . '（' . $d_value->received_info->remit_memo . '）' }}</div>
+                                        @elseif($d_value->received_info->received_method == 'cheque')
+                                            @php
+                                                $received_id = $d_value->received_info->received_id;
+                                            @endphp
+                                            <div class="col-12 mb-3">
+                                                {{ $d_key + 1 . '.' . $d_value->method_name . ' ' . $d_value->received_info->cheque_ticket_number . '(' . date('Y-m-d', strtotime($d_value->received_info->cheque_due_date)) . ')'}}
+                                                <input type="hidden" name="cheque[{{ $received_id }}][received_id]" value="{{ $d_value->received_info->received_id }}">
+                                                <input type="hidden" name="received_method[]" value="cheque">
+                                                <input type="hidden" name="cheque[{{ $received_id }}][received_method_id]" value="{{ $d_value->received_info->received_method_id }}">
+                                            </div>
+                                            <div class="col-12 mb-3 form-group">
+                                                <label class="form-label">票號：<span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" name="cheque[{{ $received_id }}][ticket_number]" value="{{ $d_value->received_info->cheque_ticket_number }}" data-placeholder="票號" required>
+                                            </div>
+                                            <div class="col-12 mb-3 form-group">
+                                                <label class="form-label">金額：</label>
+                                                <span>{{ number_format($d_value->received_info->tw_price) }}</span>
+                                            </div>
+                                            <div class="col-12 mb-3 form-group">
+                                                <label class="form-label">到期日：<span class="text-danger">*</span></label>
+                                                <input type="date" class="form-control" name="cheque[{{ $received_id }}][due_date]" value="{{ date('Y-m-d', strtotime($d_value->received_info->cheque_due_date ?? date('Y-m-d', strtotime( date('Y-m-d'))) )) }}" data-placeholder="到期日" required>
+                                            </div>
+                                            <div class="col-12 mb-3 form-group">
+                                                <label class="form-label">兌現日：</label>
+                                                <input type="date" class="form-control" name="cheque[{{ $received_id }}][cashing_date]" value="{{ date('Y-m-d', strtotime($d_value->received_info->cheque_cashing_date ?? date('Y-m-d', strtotime( date('Y-m-d'))) ))  }}" data-placeholder="兌現日">
+                                            </div>
+                                            <div class="col-12 mb-3 form-group">
+                                                <label class="form-label">抽票日：</label>
+                                                <input type="date" class="form-control" name="cheque[{{ $received_id }}][draw_date]" value="{{ date('Y-m-d', strtotime($d_value->received_info->cheque_draw_date ?? date('Y-m-d', strtotime( date('Y-m-d'))) ))  }}" data-placeholder="抽票日">
+                                            </div>
+                                            <div class="col-12 mb-3 form-group">
+                                                <label class="form-label">發票銀行：</label>
+                                                <input type="text" class="form-control" name="cheque[{{ $received_id }}][banks]" value="{{ $d_value->received_info->cheque_banks }}" data-placeholder="發票銀行">
+                                            </div>
+                                            <div class="col-12 mb-3 form-group">
+                                                <label class="form-label">付款帳號：</label>
+                                                <input type="text" class="form-control" name="cheque[{{ $received_id }}][accounts]" value="{{ $d_value->received_info->cheque_accounts }}" data-placeholder="付款帳號">
+                                            </div>
+                                            <div class="col-12 mb-3 form-group">
+                                                <label class="form-label">發票人：</label>
+                                                <input type="text" class="form-control" name="cheque[{{ $received_id }}][drawer]" value="{{ $d_value->received_info->cheque_drawer }}" data-placeholder="發票人">
+                                            </div>
+                                            <div class="col-12 mb-3 form-group">
+                                                <label class="form-label">會計科目：<span class="text-danger">*</span></label>
+                                                <select class="form-select -select2 -single" name="cheque[{{ $received_id }}][all_grades_id]" data-placeholder="請選擇會計科目" required>
+                                                    <option value="" selected disabled>請選擇</option>
+                                                    @foreach($cheque_grade as $value)
+                                                        <option value="{{ $value['grade_id'] }}"{{ $value['grade_id'] == $d_value->received_info->all_grades_id ? 'selected' : ''}}
+                                                            @if($value['grade_num'] === 1)
+                                                                class="grade_1"
+                                                                @elseif($value['grade_num'] === 2)
+                                                                class="grade_2"
+                                                                @elseif($value['grade_num'] === 3)
+                                                                class="grade_3"
+                                                                @elseif($value['grade_num'] === 4)
+                                                                class="grade_4"
+                                                            @endif
+                                                        >{{ $value['name'] }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-12 mb-3 form-group">
+                                                <label class="form-label">票據狀態：<span class="text-danger">*</span></label>
+                                                <select class="form-select -select2 -single" name="cheque[{{ $received_id }}][status_code]" data-placeholder="請選擇票據狀態" required>
+                                                    <option value="">請選擇</option>
+                                                    @foreach($cheque_status as $key => $value)
+                                                        <option value="{{ $key }}"{{ $key == $d_value->received_info->cheque_status_code ? 'selected' : ''}}>{{ $value }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-12 mb-3 form-group">
+                                                <label class="form-label">存入地區：</label>
+                                                <select class="form-select -select2 -single" name="cheque[{{ $received_id }}][deposited_area_code]" data-placeholder="請選擇存入地區">
+                                                    <option value="">請選擇</option>
+                                                    @foreach($checkout_area as $key => $value)
+                                                        <option value="{{ $key }}"{{ $key == $d_value->received_info->cheque_deposited_area_code ? 'selected' : ''}}>{{ $value }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
                                         @else
                                             <div class="col-12 mb-3">{{ $d_key + 1 . '.' . $d_value->name }}</div>
                                         @endif
