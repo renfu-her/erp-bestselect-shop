@@ -44,4 +44,20 @@ class IttmsUtils {
         }
         return $merge;
     }
+
+    /**
+     * 設定分頁效果
+     * @param $list
+     * @param $request
+     * @return mixed
+     */
+    public static function setPager($list, $request) {
+        $d = $request->all();
+        if (isset($list) && isset($d['page']) && isset($d['limit'])) {
+            $limit = is_numeric($d['limit']) ? $d['limit'] : 10;
+            $offset = (($d['page'] ?? 1) - 1) * $limit;
+            $list = $list->offset($offset)->limit($limit);
+        }
+        return $list;
+    }
 }

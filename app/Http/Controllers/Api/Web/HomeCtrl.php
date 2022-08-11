@@ -6,6 +6,7 @@ use App\Enums\Globals\ApiStatusMessage;
 use App\Enums\Globals\AppEnvClass;
 use App\Enums\Globals\ImageDomain;
 use App\Enums\Globals\ResponseParam;
+use App\Helpers\IttmsUtils;
 use App\Http\Controllers\Controller;
 use App\Models\Banner;
 use App\Models\Product;
@@ -66,11 +67,7 @@ class HomeCtrl extends Controller
             'collection' => $d['collection_id'] ?? null,
         ];
         $dataList = Product::productList(null, null, $cond);
-        if (isset($d['page']) && isset($d['limit'])) {
-            $limit = is_numeric($d['limit']) ? $d['limit'] : 10;
-            $offset = (($d['page'] ?? 1) - 1) * $limit;
-            $dataList = $dataList->offset($offset)->limit($limit);
-        }
+        $dataList = IttmsUtils::setPager($dataList, $request);
         $dataList = $dataList->get()->toArray();
         Product::getMinPriceProducts(1, null, $dataList);
 
@@ -116,11 +113,7 @@ class HomeCtrl extends Controller
             'product_ids' => $product_id_fks ?? null,
         ];
         $dataList = Product::productList(null, null, $cond);
-        if (isset($d['page']) && isset($d['limit'])) {
-            $limit = is_numeric($d['limit']) ? $d['limit'] : 10;
-            $offset = (($d['page'] ?? 1) - 1) * $limit;
-            $dataList = $dataList->offset($offset)->limit($limit);
-        }
+        $dataList = IttmsUtils::setPager($dataList, $request);
         $dataList = $dataList->get()->toArray();
         Product::getMinPriceProducts(1, null, $dataList);
         $data = $this->getImgUrl($dataList);
@@ -177,11 +170,7 @@ class HomeCtrl extends Controller
             $cond['category_id'] = $product->category_id ?? null;
         }
         $dataList = Product::productList(null, null, $cond);
-        if (isset($d['page'])) {
-            $limit = 10;
-            $offset = (($d['page'] ?? 1) - 1) * $limit;
-            $dataList = $dataList->offset($offset)->limit(10);
-        }
+        $dataList = IttmsUtils::setPager($dataList, $request);
         $dataList = $dataList->get()->toArray();
         Product::getMinPriceProducts(1, null, $dataList);
         $data = $this->getImgUrl($dataList);
