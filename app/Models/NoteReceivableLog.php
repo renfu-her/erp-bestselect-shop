@@ -29,12 +29,12 @@ class NoteReceivableLog extends Model
 
     public static function reverse_cheque_status($cheque_id)
     {
-        // skip(1)->first()
-        $target = NoteReceivableLog::where('cheque_id', $cheque_id)->where('status_code', '!=', 'cashed')->orderBy('created_at', 'desc')->first();
+        // orderBy('id', 'desc')->skip(1)->first()
+        $target = NoteReceivableLog::where('cheque_id', $cheque_id)->where('status_code', '!=', 'cashed')->orderBy('id', 'desc')->first();
         $cheque = DB::table('acc_received_cheque')->where('id', $cheque_id)->first();
-        dd($cheque);
+
         if($target && $cheque){
-            $cheque->update([
+            DB::table('acc_received_cheque')->where('id', $cheque_id)->update([
                 'status_code'=>$target->status_code,
                 'status'=>$target->status,
 

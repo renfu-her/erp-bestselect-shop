@@ -131,7 +131,7 @@ class NoteReceivableOrder extends Model
             }
         }
 
-        if($cheque_status_code !== null){
+        if($cheque_status_code){
             if(gettype($cheque_status_code) == 'array') {
                 $query->whereIn('_cheque.status_code', $cheque_status_code);
             } else {

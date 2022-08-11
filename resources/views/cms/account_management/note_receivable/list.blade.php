@@ -9,139 +9,155 @@
             <a href="{{ Route('cms.note_receivable.ask', ['type'=>'cashed']) }}" class="btn btn-success" role="button">整批兌現</a>
         </div>
     </fieldset>
-{{--
+
     <form id="search" method="GET">
         <div class="card shadow p-4 mb-4">
             <h6>搜尋條件</h6>
             <div class="row">
                 <div class="col-12 col-sm-4 mb-3">
-                    <label class="form-label">銀行名稱</label>
-                    <select class="form-select -select2 -single" name="bank_id" aria-label="銀行名稱" data-placeholder="請輸入銀行名稱">
+                    <label class="form-label">票據狀態</label>
+                    <select class="form-select -select2 -single" name="cheque_status_code" aria-label="票據狀態" data-placeholder="請選擇票據狀態">
                         <option value="" selected>不限</option>
-                        @foreach ($bank as $key => $value)
-                            <option value="{{ $key }}" {{ in_array($key, $cond['bank_id']) ? 'selected' : '' }}>{{ $value }}</option>
+                        @foreach ($cheque_status_code as $key => $value)
+                            <option value="{{ $key }}" {{ in_array($key, $cond['cheque_status_code']) ? 'selected' : '' }}>{{ $value }}</option>
                         @endforeach
                     </select>
                 </div>
 
                 <div class="col-12 col-sm-4 mb-3">
-                    <label class="form-label">結帳地區</label>
-                    <select class="form-select -select2 -single" name="area_id" aria-label="結帳地區" data-placeholder="請輸入結帳地區">
+                    <label class="form-label">託收銀行</label>
+                    <select class="form-select -select2 -single" name="banks" aria-label="託收銀行" data-placeholder="請選擇託收銀行">
+                        <option value="" selected>不限</option>
+                        @foreach ($banks as $key => $value)
+                            <option value="{{ $value }}" {{ $value == $cond['banks'] ? 'selected' : '' }}>{{ $value }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-12 col-sm-4 mb-3">
+                    <label class="form-label">存入地區</label>
+                    <select class="form-select -select2 -single" name="deposited_area_code" aria-label="存入地區" data-placeholder="請選擇存入地區">
                         <option value="" selected>不限</option>
                         @foreach ($checkout_area as $key => $value)
-                            <option value="{{ $key }}" {{ in_array($key, $cond['area_id']) ? 'selected' : '' }}>{{ $value }}</option>
+                            <option value="{{ $key }}" {{ $key == $cond['deposited_area_code'] ? 'selected' : '' }}>{{ $value }}</option>
                         @endforeach
                     </select>
                 </div>
 
                 <div class="col-12 col-sm-4 mb-3">
-                    <label class="form-label">信用卡別</label>
-                    <select class="form-select -select2 -single" name="card_type_id" aria-label="信用卡別" data-placeholder="請輸入信用卡別">
+                    <label class="form-label">票據號碼</label>
+                    <input class="form-control" type="text" name="ticket_number" value="{{ $cond['ticket_number'] }}" placeholder="請輸入票據號碼">
+                </div>
+
+                <div class="col-12 col-sm-4 mb-3">
+                    <label class="form-label">發票人</label>
+                    <input class="form-control" type="text" name="drawer" value="{{ $cond['drawer'] }}" placeholder="請輸入發票人">
+                </div>
+
+                <div class="col-12 col-sm-4 mb-3">
+                    <label class="form-label">業務員</label>
+                    <select class="form-select -select2 -single" name="undertaker" aria-label="業務員" data-placeholder="請選擇業務員">
                         <option value="" selected>不限</option>
-                        @foreach ($card_type as $key => $value)
-                            <option value="{{ $key }}" {{ in_array($key, $cond['card_type_id']) ? 'selected' : '' }}>{{ $value }}</option>
+                        @foreach ($undertaker as $key => $value)
+                            <option value="{{ $value->id }}" {{ in_array($value->id, $cond['undertaker']) ? 'selected' : '' }}>{{ $value->name }}</option>
                         @endforeach
                     </select>
                 </div>
 
-                <div class="col-12 col-sm-4 mb-3">
-                    <label class="form-label">信用卡號</label>
-                    <input class="form-control" type="text" name="card_number" value="{{ $cond['card_number'] }}" placeholder="請輸入信用卡號">
-                </div>
-
-                <div class="col-12 col-sm-4 mb-3">
-                    <label class="form-label">持卡人</label>
-                    <input class="form-control" type="text" name="card_owner" value="{{ $cond['card_owner'] }}" placeholder="請輸入持卡人">
-                </div>
-
-                <div class="col-12 col-sm-4 mb-3">
-                    <label class="form-label">刷卡金額</label>
+                <div class="col-12 col-sm-12 mb-3">
+                    <label class="form-label">金額</label>
                     <div class="input-group has-validation">
-                        <input type="number" step="1" min="0" class="form-control @error('authamt_min_price') is-invalid @enderror" name="authamt_min_price" value="{{ $cond['authamt_min_price'] }}" aria-label="刷卡起始金額">
-                        <input type="number" step="1" min="0" class="form-control @error('authamt_max_price') is-invalid @enderror" name="authamt_max_price" value="{{ $cond['authamt_max_price'] }}" aria-label="刷卡結束金額">
+                        <input type="number" step="1" min="0" class="form-control @error('received_min_price') is-invalid @enderror" name="received_min_price" value="{{ $cond['received_min_price'] }}" aria-label="起始金額">
+                        <input type="number" step="1" min="0" class="form-control @error('received_max_price') is-invalid @enderror" name="received_max_price" value="{{ $cond['received_max_price'] }}" aria-label="結束金額">
                         <div class="invalid-feedback">
-                            @error('authamt_min_price')
+                            @error('received_min_price')
                                 {{ $message }}
                             @enderror
-                            @error('authamt_max_price')
+                            @error('received_max_price')
                                 {{ $message }}
                             @enderror
                         </div>
                     </div>
                 </div>
 
-                <fieldset class="col-12 col-sm-6 mb-3">
-                    <legend class="col-form-label p-0 mb-2">信用卡狀態</legend>
-                    <div class="px-1 pt-1">
-                        @foreach (['', 0, 1, 2] as $value)
-                            <div class="form-check form-check-inline">
-                                <label class="form-check-label">
-                                    <input class="form-check-input" name="status_code" type="radio" value="{{ $value }}" {{ (string)$value == $cond['status_code'] ? 'checked' : '' }}>
-                                    @if($value === '') 不限
-                                    @elseif($value === 0) 刷卡
-                                    @elseif($value === 1) 請款
-                                    @elseif($value === 2) 入款
-                                    @endif
-
-                                </label>
-                            </div>
-                        @endforeach
-                    </div>
-                </fieldset>
-
-                <fieldset class="col-12 col-sm-6 mb-3">
-                    <legend class="col-form-label p-0 mb-2">交易狀態</legend>
-                    <div class="px-1 pt-1">
-                        @foreach (['', 'online', 'offline'] as $value)
-                            <div class="form-check form-check-inline">
-                                <label class="form-check-label">
-                                    <input class="form-check-input" name="mode" type="radio" value="{{ $value }}" {{ (string)$value == $cond['mode'] ? 'checked' : '' }}>
-                                    @if($value == '') 不限
-                                    @elseif($value == 'online') 線上
-                                    @elseif($value == 'offline') 線下
-                                    @endif
-                                </label>
-                            </div>
-                        @endforeach
-                    </div>
-                </fieldset>
-
-                <div class="col-12 mb-3">
-                    <label class="form-label">刷卡日期起訖</label>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">收票日期起訖</label>
                     <div class="input-group has-validation">
-                        <input type="date" class="form-control -startDate @error('checkout_sdate') is-invalid @enderror" name="checkout_sdate" value="{{ $cond['checkout_sdate'] }}" aria-label="刷卡起始日期" />
-                        <input type="date" class="form-control -endDate @error('checkout_edate') is-invalid @enderror" name="checkout_edate" value="{{ $cond['checkout_edate'] }}" aria-label="刷卡結束日期" />
+                        <input type="date" class="form-control -startDate @error('ro_receipt_sdate') is-invalid @enderror" name="ro_receipt_sdate" value="{{ $cond['ro_receipt_sdate'] }}" aria-label="收票起始日期">
+                        <input type="date" class="form-control -endDate @error('ro_receipt_edate') is-invalid @enderror" name="ro_receipt_edate" value="{{ $cond['ro_receipt_edate'] }}" aria-label="收票結束日期">
                         <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
                         <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
                         <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
                         <button class="btn px-2" data-daysBefore="6" type="button">近7日</button>
                         <button class="btn" data-daysBefore="month" type="button">本月</button>
                         <div class="invalid-feedback">
-                            @error('checkout_sdate')
+                            @error('ro_receipt_sdate')
                                 {{ $message }}
                             @enderror
-                            @error('checkout_edate')
+                            @error('ro_receipt_edate')
                                 {{ $message }}
                             @enderror
                         </div>
                     </div>
                 </div>
 
-                <div class="col-12 mb-3">
-                    <label class="form-label">入款日期起訖</label>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">託收、次交日期起訖</label>
                     <div class="input-group has-validation">
-                        <input type="date" class="form-control -startDate @error('posting_sdate') is-invalid @enderror" name="posting_sdate" value="{{ $cond['posting_sdate'] }}" aria-label="入款起始日期" />
-                        <input type="date" class="form-control -endDate @error('posting_edate') is-invalid @enderror" name="posting_edate" value="{{ $cond['posting_edate'] }}" aria-label="入款結束日期" />
+                        <input type="date" class="form-control -startDate @error('cheque_c_n_sdate') is-invalid @enderror" name="cheque_c_n_sdate" value="{{ $cond['cheque_c_n_sdate'] }}" aria-label="託收、次交起始日期" />
+                        <input type="date" class="form-control -endDate @error('cheque_c_n_edate') is-invalid @enderror" name="cheque_c_n_edate" value="{{ $cond['cheque_c_n_edate'] }}" aria-label="託收、次交結束日期" />
                         <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
                         <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
                         <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
                         <button class="btn px-2" data-daysBefore="6" type="button">近7日</button>
                         <button class="btn" data-daysBefore="month" type="button">本月</button>
                         <div class="invalid-feedback">
-                            @error('posting_sdate')
+                            @error('cheque_c_n_sdate')
                                 {{ $message }}
                             @enderror
-                            @error('posting_edate')
+                            @error('cheque_c_n_edate')
+                                {{ $message }}
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">到期日期起訖</label>
+                    <div class="input-group has-validation">
+                        <input type="date" class="form-control -startDate @error('cheque_due_sdate') is-invalid @enderror" name="cheque_due_sdate" value="{{ $cond['cheque_due_sdate'] }}" aria-label="到期起始日期">
+                        <input type="date" class="form-control -endDate @error('cheque_due_edate') is-invalid @enderror" name="cheque_due_edate" value="{{ $cond['cheque_due_edate'] }}" aria-label="到期結束日期">
+                        <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
+                        <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
+                        <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
+                        <button class="btn px-2" data-daysBefore="6" type="button">近7日</button>
+                        <button class="btn" data-daysBefore="month" type="button">本月</button>
+                        <div class="invalid-feedback">
+                            @error('cheque_due_sdate')
+                                {{ $message }}
+                            @enderror
+                            @error('cheque_due_edate')
+                                {{ $message }}
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">兌現日期起訖</label>
+                    <div class="input-group has-validation">
+                        <input type="date" class="form-control -startDate @error('cheque_cashing_sdate') is-invalid @enderror" name="cheque_cashing_sdate" value="{{ $cond['cheque_cashing_sdate'] }}" aria-label="兌現起始日期">
+                        <input type="date" class="form-control -endDate @error('cheque_cashing_edate') is-invalid @enderror" name="cheque_cashing_edate" value="{{ $cond['cheque_cashing_edate'] }}" aria-label="兌現結束日期">
+                        <button class="btn px-2" data-daysBefore="yesterday" type="button">昨天</button>
+                        <button class="btn px-2" data-daysBefore="day" type="button">今天</button>
+                        <button class="btn px-2" data-daysBefore="tomorrow" type="button">明天</button>
+                        <button class="btn px-2" data-daysBefore="6" type="button">近7日</button>
+                        <button class="btn" data-daysBefore="month" type="button">本月</button>
+                        <div class="invalid-feedback">
+                            @error('cheque_cashing_sdate')
+                                {{ $message }}
+                            @enderror
+                            @error('cheque_cashing_edate')
                                 {{ $message }}
                             @enderror
                         </div>
@@ -175,46 +191,45 @@
                 <thead>
                     <tr>
                         <th scope="col">編號</th>
-                        <th scope="col">持卡人</th>
-                        <th scope="col">卡號</th>
-                        <th scope="col">刷卡金額</th>
+                        <th scope="col">支票號碼</th>
+                        <th scope="col">金額</th>
                         <th scope="col">狀態</th>
-                        <th scope="col">刷卡日期</th>
-                        <th scope="col">卡別</th>
                         <th scope="col">收款單號</th>
-                        <th scope="col">線上交易</th>
-                        <th scope="col">入款日期</th>
-                        <th scope="col">入款單號</th>
-                        <th scope="col">結帳地區</th>
-                        <th scope="col">請款銀行</th>
+                        <th scope="col">收票日期</th>
+                        <th scope="col">託收次交日期</th>
+                        <th scope="col">到期日</th>
+                        <th scope="col">兌現日期</th>
+                        <th scope="col">抽票日期</th>
+                        <th scope="col">業務員</th>
+                        <th scope="col">發票人</th>
+                        <th scope="col">託收銀行</th>
+                        <th scope="col">應付帳號</th>
+                        <th scope="col">付款行別</th>
+                        <th scope="col">存入地區</th>
+                        <th scope="col">備註</th>
                     </tr>
                 </thead>
+
                 <tbody>
                     @foreach ($data_list as $key => $data)
                         <tr>
                             <td>{{ $key + 1 }}</td>
-                            <td>{{ $data->credit_card_owner_name }}</td>
-                            <td><a href="{{ route('cms.credit_manager.record', ['id'=>$data->credit_card_received_id])}}">{{ $data->credit_card_number }}</a></td>
-                            <td>{{ number_format($data->credit_card_price) }}</td>
-                            <td>{{ $data->credit_card_status_code == 0 ? '刷卡' : ($data->credit_card_status_code == 1 ? '請款' : '入款') }}</td>
-                            <td>{{ $data->credit_card_checkout_date ? date('Y-m-d', strtotime($data->credit_card_checkout_date)) : '' }}</td>
-                            <td>{{ $data->credit_card_type }}</td>
-                            <td>
-                                @if($data->ro_source_type == 'ord_orders')
-                                <a href="{{ route('cms.collection_received.receipt', ['id' => $data->ro_source_id]) }}">{{ $data->ro_sn }}</a>
-                                @elseif($data->ro_source_type == 'csn_orders')
-                                <a href="{{ route('cms.ar_csnorder.receipt', ['id' => $data->ro_source_id]) }}">{{ $data->ro_sn }}</a>
-                                @elseif($data->ro_source_type == 'ord_received_orders')
-                                <a href="{{ route('cms.account_received.ro-receipt', ['id' => $data->ro_source_id]) }}">{{ $data->ro_sn }}</a>
-                                @elseif($data->ro_source_type == 'acc_request_orders')
-                                <a href="{{ route('cms.request.ro-receipt', ['id' => $data->ro_source_id]) }}">{{ $data->ro_sn }}</a>
-                                @endif
-                            </td>
-                            <td>{!! $data->credit_card_checkout_mode == 'online' ? '<i class="bi bi-check-lg"></i>' : '<i class="bi bi-x-lg"></i>' !!}</td>
-                            <td>{{ $data->credit_card_posting_date ? date('Y-m-d', strtotime($data->credit_card_posting_date)) : '' }}</td>
-                            <td><a href="{{ $data->io_id ? route('cms.credit_manager.income-detail', ['id' => $data->io_id]) : 'javascript:void(0);'}}">{{ $data->io_sn }}</a></td>
-                            <td>{{ $data->credit_card_area }}</td>
-                            <td>{{ $data->bank_name }}</td>
+                            <td><a href="{{ route('cms.note_receivable.record', ['id'=>$data->cheque_received_id]) }}">{{ $data->cheque_ticket_number }}</a></td>
+                            <td>{{ number_format($data->tw_price) }}</td>
+                            <td>{{ $data->cheque_status }}</td>
+                            <td>{{ $data->ro_sn }}</td>
+                            <td>{{ $data->ro_receipt_date ? date('Y-m-d', strtotime($data->ro_receipt_date)) : '' }}</td>
+                            <td>{{ $data->cheque_c_n_date ? date('Y-m-d', strtotime($data->cheque_c_n_date)) : '' }}</td>
+                            <td>{{ $data->cheque_due_date ? date('Y-m-d', strtotime($data->cheque_due_date)) : '' }}</td>
+                            <td>{{ $data->cheque_cashing_date ? date('Y-m-d', strtotime($data->cheque_cashing_date)) : '' }}</td>
+                            <td>{{ $data->cheque_draw_date ? date('Y-m-d', strtotime($data->cheque_draw_date)) : '' }}</td>
+                            <td>{{ $data->ro_undertaker }}</td>
+                            <td>{{ $data->cheque_drawer }}</td>
+                            <td>{{ $data->cheque_banks }}</td>
+                            <td>{{ $data->cheque_accounts }}</td>
+                            <td></td>
+                            <td>{{ $data->cheque_deposited_area }}</td>
+                            <td>{{ $data->note}}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -226,14 +241,11 @@
         <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">
             @if($data_list)
                 <div class="mx-3">共 {{ $data_list->lastPage() }} 頁(共找到 {{ $data_list->total() }} 筆資料)</div>
---}}
                 {{-- 頁碼 --}}
-{{--
                 <div class="d-flex justify-content-center">{{ $data_list->links() }}</div>
             @endif
         </div>
     </div>
---}}
 @endsection
 
 @once

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\GeneralLedger;
 use App\Models\NoteReceivableOrder;
 use App\Models\NoteReceivableLog;
+use App\Models\User;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -23,47 +24,100 @@ class NoteReceivableCtrl extends Controller
 
         $cond = [];
 
-        $cond['company_id'] = Arr::get($query, 'company_id', []);
-        if (gettype($cond['company_id']) == 'string') {
-            $cond['company_id'] = explode(',', $cond['company_id']);
+        $cond['cheque_status_code'] = Arr::get($query, 'cheque_status_code', []);
+        if (gettype($cond['cheque_status_code']) == 'string') {
+            $cond['cheque_status_code'] = explode(',', $cond['cheque_status_code']);
         } else {
-            $cond['company_id'] = [];
+            $cond['cheque_status_code'] = [];
         }
 
-        $cond['tv_sn'] = Arr::get($query, 'tv_sn', null);
+        $cond['banks'] = Arr::get($query, 'banks', null);
 
-        $cond['tv_min_price'] = Arr::get($query, 'tv_min_price', null);
-        $cond['tv_max_price'] = Arr::get($query, 'tv_max_price', null);
-        $tv_price = [
-            $cond['tv_min_price'],
-            $cond['tv_max_price']
+        $cond['deposited_area_code'] = Arr::get($query, 'deposited_area_code', null);
+
+        $cond['ticket_number'] = Arr::get($query, 'ticket_number', null);
+
+        $cond['drawer'] = Arr::get($query, 'drawer', null);
+
+        $cond['undertaker'] = Arr::get($query, 'undertaker', []);
+        if (gettype($cond['undertaker']) == 'string') {
+            $cond['undertaker'] = explode(',', $cond['undertaker']);
+        } else {
+            $cond['undertaker'] = [];
+        }
+
+        $cond['received_min_price'] = Arr::get($query, 'received_min_price', null);
+        $cond['received_max_price'] = Arr::get($query, 'received_max_price', null);
+        $received_price = [
+            $cond['received_min_price'],
+            $cond['received_max_price']
         ];
 
-        $cond['voucher_sdate'] = Arr::get($query, 'voucher_sdate', null);
-        $cond['voucher_edate'] = Arr::get($query, 'voucher_edate', null);
-        $voucher_date = [
-            $cond['voucher_sdate'],
-            $cond['voucher_edate']
+        $cond['ro_receipt_sdate'] = Arr::get($query, 'ro_receipt_sdate', null);
+        $cond['ro_receipt_edate'] = Arr::get($query, 'ro_receipt_edate', null);
+        $ro_receipt_date = [
+            $cond['ro_receipt_sdate'],
+            $cond['ro_receipt_edate']
         ];
 
-        $cond['audit_status'] = Arr::get($query, 'audit_status', 'all');
-
-        $dataList = NoteReceivableOrder::get_cheque_received_list([], null)->paginate($page)->appends($query);
-
-        $company = DB::table('acc_company')->get();
-
-        $audit_status = [
-            'all'=>'不限',
-            '0'=>'未審核',
-            '1'=>'已審核',
+        $cond['cheque_c_n_sdate'] = Arr::get($query, 'cheque_c_n_sdate', null);
+        $cond['cheque_c_n_edate'] = Arr::get($query, 'cheque_c_n_edate', null);
+        $cheque_c_n_date = [
+            $cond['cheque_c_n_sdate'],
+            $cond['cheque_c_n_edate']
         ];
+
+        $cond['cheque_due_sdate'] = Arr::get($query, 'cheque_due_sdate', null);
+        $cond['cheque_due_edate'] = Arr::get($query, 'cheque_due_edate', null);
+        $cheque_due_date = [
+            $cond['cheque_due_sdate'],
+            $cond['cheque_due_edate']
+        ];
+
+        $cond['cheque_cashing_sdate'] = Arr::get($query, 'cheque_cashing_sdate', null);
+        $cond['cheque_cashing_edate'] = Arr::get($query, 'cheque_cashing_edate', null);
+        $cheque_cashing_date = [
+            $cond['cheque_cashing_sdate'],
+            $cond['cheque_cashing_edate']
+        ];
+
+        $data_list = NoteReceivableOrder::get_cheque_received_list(
+                [],
+                $cond['cheque_status_code'],
+                $cond['banks'],
+                $cond['deposited_area_code'],
+                $cond['ticket_number'],
+                $cond['drawer'],
+                $cond['undertaker'],
+                $received_price,
+                $ro_receipt_date,
+                $cheque_c_n_date,
+                $cheque_due_date,
+                $cheque_cashing_date
+            )->paginate($page)->appends($query);
+
+        $cheque_status_code = [];
+        foreach (ChequeStatus::asArray() as $data) {
+            $cheque_status_code[$data] = ChequeStatus::getDescription($data);
+        }
+
+        $banks = DB::table('acc_received_cheque')->whereNotNull('banks')->groupBy('banks')->orderBy('banks', 'asc')->distinct()->get()->pluck('banks')->toArray();
+
+        $checkout_area = [
+            'taipei'=>'台北',
+            'hsinchu'=>'新竹',
+        ];
+
+        $undertaker = User::get();
 
         return view('cms.account_management.note_receivable.list', [
             'data_per_page' => $page,
-            'dataList' => $dataList,
+            'data_list' => $data_list,
             'cond' => $cond,
-            'company' => $company,
-            'audit_status' => $audit_status,
+            'cheque_status_code' => $cheque_status_code,
+            'banks' => $banks,
+            'checkout_area' => $checkout_area,
+            'undertaker' => $undertaker,
         ]);
     }
 
