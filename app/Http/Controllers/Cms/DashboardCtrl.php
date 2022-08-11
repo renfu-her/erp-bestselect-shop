@@ -47,6 +47,10 @@ class DashboardCtrl extends Controller
                 'idx_news.created_at',
                 'usr_users.name as user_name',
             ])
+            ->where('expire_time', '>', date('Y-m-d', strtotime('today')))
+            ->orderByDesc('weight')
+            ->orderByDesc('created_at')
+            ->limit(20)
             ->get();
 
         $regions = Addr::getRegions($citys[0]['city_id']);
