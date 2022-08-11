@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use App\Models\Role;
+
 class getEmployeeData extends Seeder
 {
     /**
@@ -15,8 +16,9 @@ class getEmployeeData extends Seeder
     public function run()
     {
 
-       // dd('aa');
-      //  Role::where('')
-      //  User::getEmployeeData();
+        // dd('aa');
+
+       // dd(Role::where('title', "員工")->get()->first());
+        User::getEmployeeData([Role::where('title', "員工")->get()->first()->id]);
     }
 }
