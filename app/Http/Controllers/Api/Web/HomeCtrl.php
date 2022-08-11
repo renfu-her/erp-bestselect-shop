@@ -66,10 +66,10 @@ class HomeCtrl extends Controller
             'collection' => $d['collection_id'] ?? null,
         ];
         $dataList = Product::productList(null, null, $cond);
-        if (isset($d['page'])) {
-            $limit = 10;
+        if (isset($d['page']) && isset($d['limit'])) {
+            $limit = is_numeric($d['limit']) ? $d['limit'] : 10;
             $offset = (($d['page'] ?? 1) - 1) * $limit;
-            $dataList = $dataList->offset($offset)->limit(10);
+            $dataList = $dataList->offset($offset)->limit($limit);
         }
         $dataList = $dataList->get()->toArray();
         Product::getMinPriceProducts(1, null, $dataList);
@@ -116,10 +116,10 @@ class HomeCtrl extends Controller
             'product_ids' => $product_id_fks ?? null,
         ];
         $dataList = Product::productList(null, null, $cond);
-        if (isset($d['page'])) {
-            $limit = 10;
+        if (isset($d['page']) && isset($d['limit'])) {
+            $limit = is_numeric($d['limit']) ? $d['limit'] : 10;
             $offset = (($d['page'] ?? 1) - 1) * $limit;
-            $dataList = $dataList->offset($offset)->limit(10);
+            $dataList = $dataList->offset($offset)->limit($limit);
         }
         $dataList = $dataList->get()->toArray();
         Product::getMinPriceProducts(1, null, $dataList);
