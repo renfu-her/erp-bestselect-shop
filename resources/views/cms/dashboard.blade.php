@@ -171,7 +171,7 @@
                         <table class="table table-striped mb-0">
                             <thead class="text-nowrap">
                                 <tr>
-                                    <th>重要性</th>
+                                    <th style="width: 10%">重要性</th>
                                     <th style="width: 20%">公告日期</th>
                                     <th>公告事項</th>
                                     <th style="width: 10%">公告者</th>
@@ -180,7 +180,8 @@
                             <tbody>
                                 @foreach ($bulletinBoard as $bulletinBoardData)
                                     <tr>
-                                        <td>
+                                        <td @class(['fw-bold text-danger' => $bulletinBoardData->weight === '3',
+                                            'text-success' => $bulletinBoardData->weight === '2'])>
                                             {{ \App\Enums\AdminManagement\Weight::getDescription($bulletinBoardData->weight) }}
                                         </td>
                                         <td>{{ date('Y/m/d H:i', strtotime($bulletinBoardData->created_at ?? '')) }}</td>

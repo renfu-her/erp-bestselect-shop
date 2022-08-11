@@ -13,7 +13,7 @@
 
         <div class="card shadow p-4 mb-4">
             <div class="row">
-                <x-b-form-group name="title" title="主旨" required="true">
+                <x-b-form-group name="title" title="主旨" required="true" class="mb-2">
                     <input type="text"
                            class="form-control @error('title') is-invalid @enderror"
                            id="title"
@@ -23,25 +23,25 @@
                            aria-label="主旨"/>
                 </x-b-form-group>
 
-                <x-b-form-group name="weight" title="重要性" required="true">
-                    <div class="px-4">
+                <x-b-form-group name="weight" title="重要性" required="true" class="mb-2">
+                    <div class="px-1 pt-1">
                         @foreach($weights as $value => $weight)
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
                                     {{ $weight }}
                                     <input class="form-check-input @error('weight') is-invalid @enderror"
-                                           value="{{ $value }}"
-                                           name="weight"
-                                           id="weight"
-                                           type="radio"
-                                           @if ($method === 'create' &&
+                                            value="{{ $value }}"
+                                            name="weight"
+                                            id="weight"
+                                            type="radio"
+                                            @if ($method === 'create' &&
                                                 $value == \App\Enums\AdminManagement\Weight::OneStar
-                                           )
-                                               checked
-                                           @elseif (
-                                             $value == old('weight', $data->weight ?? '')
-                                           )
-                                               checked
+                                            )
+                                                checked
+                                            @elseif (
+                                                $value == old('weight', $data->weight ?? '')
+                                            )
+                                                checked
                                         @endif
                                     >
                                 </label>
@@ -50,9 +50,9 @@
                     </div>
                 </x-b-form-group>
 
-                <div class="col-12 col-sm-4 mb-3">
+                <div class="col-12 mb-2">
                     <label class="form-label">公告期限</label>
-                    <div class="input-group has-validation">
+                    <div class="input-group">
                         <input type="date"
                                name="expire_time"
                                value="{{ old('expire_time', date('Y-m-d', strtotime($data->expire_time ?? ''))) }}"
@@ -62,22 +62,20 @@
                         <button class="btn btn-outline-secondary icon" type="button" data-clear
                                 data-bs-toggle="tooltip" title="清空日期"><i class="bi bi-calendar-x"></i>
                         </button>
-                        <div class="invalid-feedback">
-                        </div>
                     </div>
                 </div>
 
                 <x-b-form-group name="type" title="公告對象" required="true">
-                    <div class="px-4">
+                    <div class="px-1 pt-1">
                         <div class="form-check form-check-inline">
                             <label class="form-check-label">
                                 全公司
                                 <input class="form-check-input"
-                                       value=""
-                                       name="type"
-                                       type="radio"
-                                       checked
-                                       disabled
+                                        value=""
+                                        name="type"
+                                        type="radio"
+                                        checked
+                                        disabled
                                 >
                             </label>
                         </div>
@@ -85,10 +83,10 @@
                             <label class="form-check-label">
                                 個人
                                 <input class="form-check-input"
-                                       value=""
-                                       name="type"
-                                       type="radio"
-                                       disabled
+                                        value=""
+                                        name="type"
+                                        type="radio"
+                                        disabled
                                 >
                             </label>
                         </div>
@@ -96,17 +94,16 @@
                             <label class="form-check-label">
                                 部門
                                 <input class="form-check-input"
-                                       value=""
-                                       name="type"
-                                       type="radio"
-                                       disabled
+                                        value=""
+                                        name="type"
+                                        type="radio"
+                                        disabled
                                 >
                             </label>
                         </div>
                     </div>
                 </x-b-form-group>
             </div>
-
         </div>
         <div id="content" class="card shadow p-4 mb-4 -content">
             <div class="d-flex align-items-center mb-4">
