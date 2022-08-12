@@ -942,10 +942,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
                     }
                 // grade process end
 
-                $cheque_status = [];
-                foreach (ChequeStatus::asArray() as $data) {
-                    $cheque_status[$data] = ChequeStatus::getDescription($data);
-                }
+                $cheque_status = ChequeStatus::get_key_value();
 
                 return view($this->getViewReview(), [
                     'form_action'=>route($this->getRouteReview() , ['id'=>request('id')]),

@@ -35,4 +35,16 @@ final class ChequeStatus extends Enum
                 return parent::getDescription($value);
         }
     }
+
+
+    public static function get_key_value()
+    {
+        $result = [];
+
+        foreach (self::asArray() as $data) {
+            $result[$data] = self::getDescription($data);
+        }
+
+        return $result;
+    }
 }

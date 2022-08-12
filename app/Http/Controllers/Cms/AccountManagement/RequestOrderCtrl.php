@@ -734,10 +734,7 @@ class RequestOrderCtrl extends Controller
                     }
                 // grade process end
 
-                $cheque_status = [];
-                foreach (ChequeStatus::asArray() as $data) {
-                    $cheque_status[$data] = ChequeStatus::getDescription($data);
-                }
+                $cheque_status = ChequeStatus::get_key_value();
 
                 return view('cms.account_management.request.ro_review', [
                     'breadcrumb_data' => ['id' => $request_order->id],

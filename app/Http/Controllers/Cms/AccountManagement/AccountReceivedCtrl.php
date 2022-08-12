@@ -623,10 +623,7 @@ class AccountReceivedCtrl extends Controller
                     }
                 // grade process end
 
-                $cheque_status = [];
-                foreach (ChequeStatus::asArray() as $data) {
-                    $cheque_status[$data] = ChequeStatus::getDescription($data);
-                }
+                $cheque_status = ChequeStatus::get_key_value();
 
                 return view('cms.account_management.account_received.ro_review', [
                     'form_action'=>route('cms.account_received.ro-review' , ['id'=>request('id')]),

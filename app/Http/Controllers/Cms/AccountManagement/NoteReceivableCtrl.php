@@ -97,10 +97,8 @@ class NoteReceivableCtrl extends Controller
                 $cheque_cashing_date
             )->paginate($page)->appends($query);
 
-        $cheque_status_code = [];
-        foreach (ChequeStatus::asArray() as $data) {
-            $cheque_status_code[$data] = ChequeStatus::getDescription($data);
-        }
+
+        $cheque_status_code = ChequeStatus::get_key_value();
 
         $banks = DB::table('acc_received_cheque')->whereNotNull('banks')->groupBy('banks')->orderBy('banks', 'asc')->distinct()->get()->pluck('banks')->toArray();
 
