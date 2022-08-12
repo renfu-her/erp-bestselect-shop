@@ -102,7 +102,7 @@ class Product extends Model
         if (isset($options['category_id']) && $options['category_id']) {
             $re->where('product.category_id', '=', $options['category_id']);
         }
-        if (isset($options['product_ids']) && $options['product_ids']) {
+        if (isset($options['product_ids'])) {
             $re->whereIn('product.id', $options['product_ids']);
         }
 
