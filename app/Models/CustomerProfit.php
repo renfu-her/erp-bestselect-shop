@@ -119,4 +119,11 @@ class CustomerProfit extends Model
 
         return $re->get()->first();
     }
+
+    public static function getUser()
+    {
+        return DB::table('usr_customers as customer')
+            ->leftJoin('usr_customer_profit as cp', 'customer.id', '=', 'cp.customer_id')
+            ->select(['customer.id', 'customer.name']);
+    }
 }

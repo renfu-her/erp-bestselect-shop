@@ -47,7 +47,22 @@ class CustomerProfitCtrl extends Controller
      */
     public function create()
     {
-        //
+        $customers = CustomerProfit::getUser()->whereNull('cp.id')->get();
+
+        $parentCustomers = CustomerProfit::getUser()->where('cp.has_child', '1')->get();
+
+        return view('cms.admin.customer_profit.edit', [
+            'method' => 'add',
+            'customers' => $customers,
+            'parentCustomers' => $parentCustomers,
+            'status' => ProfitStatus::getValueWithDesc(),
+            'banks' => Bank::get(),
+            'profitType' => ProfitType::getValueWithDesc(),
+            'formAction' => route("cms.customer-profit.create"),
+            'data' => null,
+            'customer' => null,
+        ]);
+
     }
 
     /**
@@ -84,7 +99,7 @@ class CustomerProfitCtrl extends Controller
         //  dd(CustomerProfit::where('id',$id)->get());
         $data = CustomerProfit::where('id', $id)->get()->first();
 //    dd($data);
-     //   dd( Customer::detail($data->customer_id)->get()->first());
+        //   dd( Customer::detail($data->customer_id)->get()->first());
         if (!$data) {
             return abort(404);
         }
@@ -140,8 +155,7 @@ class CustomerProfitCtrl extends Controller
             'has_child' => $has_child,
         ];
 
-
-     //   dd($update);
+        //   dd($update);
         // dd($update);
 
         CustomerProfit::where('id', $id)->update($update);
