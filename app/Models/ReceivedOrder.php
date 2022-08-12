@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 use Illuminate\Support\Facades\DB;
 
+use App\Enums\Area\Area;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Order\PaymentStatus;
 use App\Enums\Received\ReceivedMethod;
@@ -597,10 +598,7 @@ class ReceivedOrder extends Model
 
     public static function update_received_method($request)
     {
-        $checkout_area = [
-            'taipei'=>'台北',
-            'hsinchu'=>'新竹',
-        ];
+        $checkout_area = Area::get_key_value();
 
         switch ($request['received_method']) {
             // case ReceivedMethod::Cash:

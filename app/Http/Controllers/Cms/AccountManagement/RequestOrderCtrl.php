@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Cms\AccountManagement;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+use App\Enums\Area\Area;
 use App\Enums\Received\ReceivedMethod;
 use App\Enums\Received\ChequeStatus;
 
@@ -329,10 +330,7 @@ class RequestOrderCtrl extends Controller
 
         $card_type = CrdCreditCard::distinct('title')->groupBy('title')->orderBy('id', 'asc')->pluck('title', 'id')->toArray();
 
-        $checkout_area = [
-            'taipei'=>'台北',
-            'hsinchu'=>'新竹',
-        ];
+        $checkout_area = Area::get_key_value();
 
         return view('cms.account_management.request.ro_edit', [
             'breadcrumb_data' => ['id' => $request_order->id],
@@ -399,10 +397,7 @@ class RequestOrderCtrl extends Controller
             if($data['acc_transact_type_fk'] == ReceivedMethod::CreditCard){
                 $card_type = CrdCreditCard::distinct('title')->groupBy('title')->orderBy('id', 'asc')->pluck('title', 'id')->toArray();
 
-                $checkout_area = [
-                    'taipei'=>'台北',
-                    'hsinchu'=>'新竹',
-                ];
+                $checkout_area = Area::get_key_value();
 
                 $data[$data['acc_transact_type_fk']] = [
                     'cardnumber'=>$data[$data['acc_transact_type_fk']]['cardnumber'],
@@ -674,10 +669,8 @@ class RequestOrderCtrl extends Controller
 
                 $card_type = CrdCreditCard::distinct('title')->groupBy('title')->orderBy('id', 'asc')->pluck('title', 'id')->toArray();
 
-                $checkout_area = [
-                    'taipei'=>'台北',
-                    'hsinchu'=>'新竹',
-                ];
+                $checkout_area = Area::get_key_value();
+
 
                 // grade process start
                     $defaultData = [];
