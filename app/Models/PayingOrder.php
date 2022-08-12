@@ -793,7 +793,7 @@ class PayingOrder extends Model
                     'sn'=>$request['sn'],
                     'amt_net'=>$request['amt_net'][$key],
                     'payment_date'=>null,
-                    'updated_at'=>date("Y-m-d H:i:s"),
+                    'updated_at'=>date('Y-m-d H:i:s'),
                 ]);
             }
 
@@ -802,8 +802,8 @@ class PayingOrder extends Model
                 'status_code'=>1,
                 'append_pay_order_id'=>$request['append_pay_order_id'],
                 'sn'=>$request['sn'],
-                'payment_date'=>date("Y-m-d H:i:s"),
-                'updated_at'=>date("Y-m-d H:i:s"),
+                'payment_date'=>date('Y-m-d H:i:s'),
+                'updated_at'=>date('Y-m-d H:i:s'),
             ]);
         }
     }

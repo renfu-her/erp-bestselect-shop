@@ -236,7 +236,7 @@ class DepotCtrl extends Controller
                         'ost_price'=>$master_channel_product_style ? $master_channel_product_style->price : 0,
                         'depot_price'=>0,
                         'updated_users_id'=>auth('user')->user()->id,
-                        'created_at'=>date("Y-m-d H:i:s"),
+                        'created_at'=>date('Y-m-d H:i:s'),
                     ];
                 }
             }
@@ -321,7 +321,7 @@ class DepotCtrl extends Controller
                             'depot_product_no'=>request('depot_product_no')[$key],
                             'depot_price'=>request('depot_price')[$key],
                             'updated_users_id'=>auth('user')->user()->id,
-                            'updated_at'=>date("Y-m-d H:i:s"),
+                            'updated_at'=>date('Y-m-d H:i:s'),
                         ]);
                     }
                 }

@@ -408,7 +408,7 @@ class OrderInvoice extends Model
                             'bar_code'=>$target->print_flag == 'Y' ? json_decode(json_decode($api_value)->Result)->BarCode : null,
                             'qr_code_l'=>$target->print_flag == 'Y' ? json_decode(json_decode($api_value)->Result)->QRcodeL : null,
                             'qr_code_r'=>$target->print_flag == 'Y' ? json_decode(json_decode($api_value)->Result)->QRcodeR : null,
-                            'updated_at'=>date("Y-m-d H:i:s"),
+                            'updated_at'=>date('Y-m-d H:i:s'),
                         ]);
 
                     } else {
@@ -416,7 +416,7 @@ class OrderInvoice extends Model
                             'r_status'=>json_decode($api_value)->Status,
                             'r_msg'=>mb_convert_encoding(trim(json_decode($api_value)->Message), 'UTF-8', ['BIG5', 'UTF-8']),
                             'r_json'=>json_decode($api_value)->Result,
-                            'updated_at'=>date("Y-m-d H:i:s"),
+                            'updated_at'=>date('Y-m-d H:i:s'),
                         ]);
                     }
                 }

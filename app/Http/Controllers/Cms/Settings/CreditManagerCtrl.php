@@ -204,12 +204,12 @@ class CreditManagerCtrl extends Controller
                 // 'status_code'=>$data['status_code'],
                 // 'card_nat'=>$data['card_nat'],
                 'checkout_mode'=>$data['credit_card_checkout_mode'],
-                'updated_at'=>date("Y-m-d H:i:s"),
+                'updated_at'=>date('Y-m-d H:i:s'),
             ]);
 
             DB::table('acc_received')->where('id', $record->received_id)->update([
                 'note'=>$request['note'],
-                'updated_at'=>date("Y-m-d H:i:s"),
+                'updated_at'=>date('Y-m-d H:i:s'),
             ]);
 
             wToast(__('信用卡刷卡記錄更新成功'));

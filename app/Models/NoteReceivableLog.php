@@ -41,7 +41,7 @@ class NoteReceivableLog extends Model
                 'amt_net'=>0,
                 'note_receivable_order_id'=>null,
                 'sn'=>null,
-                'updated_at'=>date("Y-m-d H:i:s"),
+                'updated_at'=>date('Y-m-d H:i:s'),
             ]);
 
             self::create_cheque_log($cheque_id, $target->status_code);
