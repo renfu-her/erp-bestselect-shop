@@ -110,6 +110,7 @@ class HomeCtrl extends Controller
 
         $cond = [
             'img' => 1,
+            'public' => 1,
             'product_ids' => $product_id_fks ?? null,
         ];
         $dataList = Product::productList(null, null, $cond);
@@ -163,6 +164,7 @@ class HomeCtrl extends Controller
 
         $cond = [
             'img' => 1,
+            'public' => 1,
             'product_ids' => $product_ids ?? null,
         ];
         if(1 == $product->only_show_category) {
