@@ -368,7 +368,7 @@
                     </div>
                     <div class="col-12 col-sm-6 mb-3">
                         <label class="form-label">電話 <span class="text-danger">*</span></label>
-                        <input type="tel" class="form-control" value="{{ old('ord_phone') }}" name="ord_phone"
+                        <input type="tel" class="form-control" value="{{ old('ord_phone', $defaultAddress->phone ?? '') }}" name="ord_phone"
                             placeholder="請輸入購買人電話" required>
                     </div>
                     <div class="col-12 mb-3">

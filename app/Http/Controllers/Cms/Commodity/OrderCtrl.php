@@ -172,6 +172,7 @@ class OrderCtrl extends Controller
             ->select([
                 'usr_customers.id',
                 'usr_customers.name',
+                'usr_customers.phone',
                 'address',
                 'addr',
                 'city_id',
