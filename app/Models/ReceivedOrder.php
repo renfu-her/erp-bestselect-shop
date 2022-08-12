@@ -533,8 +533,7 @@ class ReceivedOrder extends Model
                     'created_at'=>date('Y-m-d H:i:s'),
                 ]);
 
-                NoteReceivableOrder::create_cheque_log($id, 'received');
-
+                NoteReceivableLog::create_cheque_log($id, 'received');
                 break;
 
             case ReceivedMethod::CreditCard:
