@@ -16,12 +16,12 @@
             <table class="table table-striped tableList">
                 <thead>
                 <tr>
-                    <th scope="col" style="width:10%">#</th>
+                    <th scope="col" style="width:40px">#</th>
                     <th scope="col">頁面名稱</th>
                     <th scope="col">權限</th>
-                    <th scope="col" class="text-center">名稱編輯</th>
-                    <th scope="col" class="text-center">權限設定</th>
-                    <th scope="col" class="text-center">刪除</th>
+                    <th scope="col" class="text-center" style="width:40px;">名稱編輯</th>
+                    <th scope="col" class="text-center" style="width:40px;">權限設定</th>
+                    <th scope="col" class="text-center" style="width:40px;">刪除</th>
                 </tr>
                 </thead>
                 <tbody>

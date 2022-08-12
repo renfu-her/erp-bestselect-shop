@@ -186,7 +186,7 @@ class CsnOrder extends Model
             $target->update([
                 'payment_status' => $p_status->value,
                 'payment_status_title' => $p_status->description,
-                'updated_at'=>date("Y-m-d H:i:s"),
+                'updated_at'=>date('Y-m-d H:i:s'),
             ]);
         }
 
@@ -194,7 +194,7 @@ class CsnOrder extends Model
             $target->update([
                 'payment_method' => $r_method->value,
                 'payment_method_title' => $r_method->description,
-                'updated_at'=>date("Y-m-d H:i:s"),
+                'updated_at'=>date('Y-m-d H:i:s'),
             ]);
         }
     }

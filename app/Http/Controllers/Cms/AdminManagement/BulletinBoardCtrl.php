@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Cms\AdminManagement;
 use App\Enums\AdminManagement\Weight;
 use App\Http\Controllers\Controller;
 use App\Models\BulletinBoard;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
@@ -18,11 +19,34 @@ class BulletinBoardCtrl extends Controller
      *
      * @return Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $dataList = DB::table('idx_news')
-            ->leftJoin('usr_users', 'idx_news.usr_users_id_fk', '=', 'usr_users.id')
-            ->select([
+        $request->validate([
+            'title' => 'nullable|string',
+            'content' => 'nullable|string',
+            'user' => 'nullable|array',
+            'user.*' => ['nullable',
+                         'int',
+                         'exists:App\Models\User,id'],
+        ]);
+
+        $query = $request->query();
+        $cond['title'] = Arr::get($query, 'title', '');
+        $cond['user'] = Arr::get($query, 'user', []);
+        $cond['content'] = Arr::get($query, 'content', '');
+        $page = getPageCount(Arr::get($query, 'data_per_page'));
+
+        $q = BulletinBoard::leftJoin('usr_users', 'idx_news.usr_users_id_fk', '=', 'usr_users.id');
+        if (!empty($cond['title'])) {
+            $q->where('idx_news.title', 'like', '%'.$cond['title'].'%');
+        }
+        if (!empty($cond['user'])) {
+            $q->whereIn('usr_users.id', $cond['user']);
+        }
+        if (!empty($cond['content'])) {
+            $q->where('idx_news.content', 'like', '%'.$cond['content'].'%');
+        }
+        $dataList = $q->select([
                 'idx_news.id',
                 'idx_news.title',
                 'idx_news.content',
@@ -30,9 +54,14 @@ class BulletinBoardCtrl extends Controller
                 'idx_news.expire_time',
                 'usr_users.name as user_name',
             ])
-            ->get();
+            ->paginate($page)
+            ->appends($query);
+
         return view('cms.admin_management.bulletin_board.list', [
             'dataList' => $dataList,
+            'users' => User::all(['id', 'name']),
+            'cond' => $cond,
+            'data_per_page' => $page,
         ]);
     }
 
@@ -124,7 +153,18 @@ class BulletinBoardCtrl extends Controller
             $weights[$value] = Weight::getDescription($value);
         }
 
-        $data = BulletinBoard::where('id', $id)->get()->first();
+        $data = BulletinBoard::where('idx_news.id', $id)
+            ->leftJoin('usr_users', 'usr_users.id', '=', 'idx_news.usr_users_id_fk')
+            ->select([
+                'idx_news.id',
+                'idx_news.title',
+                'idx_news.content',
+                'idx_news.weight',
+                'idx_news.expire_time',
+                'usr_users.name as user_name',
+            ])
+            ->get()
+            ->first();
 
         return view('cms.admin_management.bulletin_board.edit', [
             'method' => 'edit',

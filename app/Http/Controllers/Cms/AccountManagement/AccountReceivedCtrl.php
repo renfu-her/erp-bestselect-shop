@@ -292,7 +292,7 @@ class AccountReceivedCtrl extends Controller
                 $data[$data['acc_transact_type_fk']] = [
                     'cardnumber'=>$data[$data['acc_transact_type_fk']]['cardnumber'],
                     'authamt'=>$data['tw_price'] ?? 0,
-                    'checkout_date'=>$data[$data['acc_transact_type_fk']]['checkout_date'] ?? null,// date("Y-m-d H:i:s")
+                    'checkout_date'=>$data[$data['acc_transact_type_fk']]['checkout_date'] ?? null,// date('Y-m-d H:i:s')
                     'card_type_code'=>$data[$data['acc_transact_type_fk']]['card_type_code'] ?? null,
                     'card_type'=>$card_type[$data[$data['acc_transact_type_fk']]['card_type_code']] ?? null,
                     'card_owner_name'=>$data[$data['acc_transact_type_fk']]['card_owner_name'] ?? null,

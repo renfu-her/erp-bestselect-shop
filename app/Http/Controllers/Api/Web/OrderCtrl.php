@@ -226,7 +226,7 @@ class OrderCtrl extends Controller
                             $data[$received_method] = [
                                 'cardnumber' => $CardNumber,
                                 'authamt' => $authAmt ?? 0,
-                                'checkout_date' => date("Y-m-d H:i:s"),
+                                'checkout_date' => date('Y-m-d H:i:s'),
                                 'card_type_code' => null,
                                 'card_type' => null,
                                 'card_owner_name' => $order ? '訂購人' . $order->ord_name : null,
@@ -664,7 +664,7 @@ class OrderCtrl extends Controller
                         $data[$received_method] = [
                             'cardnumber' => $CardNumber,
                             'authamt' => $authAmt ?? 0,
-                            'checkout_date' => date("Y-m-d H:i:s"),
+                            'checkout_date' => date('Y-m-d H:i:s'),
                             'card_type_code' => null,
                             'card_type' => null,
                             'card_owner_name' => $order ? '訂購人' . $order->ord_name : null,

@@ -87,7 +87,7 @@ class OrderPayCreditCard extends Model
             if (preg_match($key, $agent)) $browser = $value;
 
         $installment = 'none';
-        $checkout_date = date("Y-m-d H:i:s");
+        $checkout_date = date('Y-m-d H:i:s');
         $card_type_code = null;
         $card_type = null;
         $card_owner_name = null;

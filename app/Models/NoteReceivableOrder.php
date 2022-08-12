@@ -239,7 +239,7 @@ class NoteReceivableOrder extends Model
                 'status_code'=>$request['status_code'],
                 'status'=>$request['status'],
                 'c_n_date'=>$request['c_n_date'],
-                'updated_at'=>date("Y-m-d H:i:s"),
+                'updated_at'=>date('Y-m-d H:i:s'),
             ]);
 
         } else if($request['status_code'] === 'cashed'){
@@ -249,7 +249,7 @@ class NoteReceivableOrder extends Model
                     'status'=>$request['status'],
                     'amt_net'=>$request['amt_net'][$key],
                     'cashing_date'=>$request['cashing_date'],
-                    'updated_at'=>date("Y-m-d H:i:s"),
+                    'updated_at'=>date('Y-m-d H:i:s'),
                 ]);
             }
 
@@ -259,7 +259,7 @@ class NoteReceivableOrder extends Model
                 DB::table('acc_received_cheque')->where('id', $value)->update([
                     'note_receivable_order_id'=>$note_receivable_order->id,
                     'sn'=>$note_receivable_order->sn,
-                    'updated_at'=>date("Y-m-d H:i:s"),
+                    'updated_at'=>date('Y-m-d H:i:s'),
                 ]);
             }
         }
@@ -281,7 +281,7 @@ class NoteReceivableOrder extends Model
             $target->update([
                 'amt_total_net'=>$net,
                 'affirmant_id'=>auth('user')->user() ? auth('user')->user()->id : null,
-                'updated_at'=>date("Y-m-d H:i:s"),
+                'updated_at'=>date('Y-m-d H:i:s'),
             ]);
 
         } else {

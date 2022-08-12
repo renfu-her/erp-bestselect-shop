@@ -760,7 +760,7 @@ class PurchaseCtrl extends Controller
             $pay_list = AccountPayable::where('pay_order_id', request('pay_order_id'))->get();
             if (count($pay_list) > 0 && $paying_order->price == $pay_list->sum('tw_price')) {
                 $paying_order->update([
-                    'balance_date'=>date("Y-m-d H:i:s"),
+                    'balance_date'=>date('Y-m-d H:i:s'),
                 ]);
             }
 
