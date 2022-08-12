@@ -70,7 +70,7 @@ class ProductCtrl extends Controller
             'hasDelivery' => $cond['hasDelivery'] == 'all' ? null : $cond['hasDelivery'],
             'hasSpecList' => $cond['hasSpecList'] == 'all' ? null : $cond['hasSpecList'],
             'online' => $cond['online'],
-            'search_supplier' => $cond['search_supplier'],
+            'search_supplier' => $cond['search_supplier'] == 'all' ? null : $cond['search_supplier'],
         ])
             ->paginate($page)->appends($query);
 
