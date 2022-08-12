@@ -21,6 +21,17 @@
                         @endforeach
                     </select>
                 </div>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">廠商名稱</label>
+                    <select class="form-select -select2 -single" name="search_supplier" aria-label="廠商名稱">
+                        <option value="" selected disabled>請選擇</option>
+                        @foreach ($suppliers as $supplier)
+                            <option value="{{ $supplier['id'] }}" @if ($supplier['id'] == $cond['search_supplier']) selected @endif>
+                                {{ $supplier['name'] }}（{{ $supplier['vat_no'] }}）
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
                 <fieldset class="col-12 col-sm-6 mb-3">
                     <legend class="col-form-label p-0 mb-2">類型</legend>
                     <div class="px-1 pt-1">
@@ -163,7 +174,7 @@
                             </td>
                             <td class="wrap">
                                 <div class="lh-1 small text-nowrap">
-                                    <span @class(['badge rounded-pill me-2', 
+                                    <span @class(['badge rounded-pill me-2',
                                         'bg-warning text-dark' => $data->type_title === '組合包商品',
                                         'bg-success' => $data->type_title === '一般商品'])
                                     >{{ $data->type_title === '組合包商品' ? '組合包' : '一般' }}

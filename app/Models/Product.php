@@ -74,6 +74,20 @@ class Product extends Model
             $re->where('product.type', $options['product_type']);
         }
 
+        //商品管理-搜尋廠商條件
+        if (!empty($options['search_supplier'])) {
+            $re->leftJoin('prd_product_supplier', 'product.id', '=', 'prd_product_supplier.product_id')
+                ->join('prd_suppliers', function ($join) use ($options) {
+                    $join->on('prd_product_supplier.supplier_id', '=', 'prd_suppliers.id')
+                        ->where('prd_suppliers.id', '=', $options['search_supplier']);
+                })
+                ->addSelect([
+                    'prd_suppliers.id as supplier_id',
+                    'prd_suppliers.name as supplier_name',
+                ]);
+        }
+
+        //銷售控管 - 價格管理
         if (isset($options['supplier'])) {
             $subSupplier = DB::table('prd_product_supplier as ps')
                 ->select('ps.product_id')

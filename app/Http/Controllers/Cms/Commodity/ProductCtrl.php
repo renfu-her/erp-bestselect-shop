@@ -60,14 +60,17 @@ class ProductCtrl extends Controller
         $cond['online'] = Arr::get($query, 'online', 'all');
         $cond['hasDelivery'] = Arr::get($query, 'hasDelivery', 'all');
         $cond['hasSpecList'] = Arr::get($query, 'hasSpecList', 'all');
+        $cond['search_supplier'] = Arr::get($query, 'search_supplier', 'all');
 
-        $products = Product::productList($cond['keyword'], null, ['user' => $condUser,
+        $products = Product::productList($cond['keyword'], null, [
+            'user' => $condUser,
             'product_type' => $cond['product_type'],
             'consume' => $cond['consume'] == 'all' ? null : $cond['consume'],
             'public' => $cond['public'] == 'all' ? null : $cond['public'],
             'hasDelivery' => $cond['hasDelivery'] == 'all' ? null : $cond['hasDelivery'],
             'hasSpecList' => $cond['hasSpecList'] == 'all' ? null : $cond['hasSpecList'],
             'online' => $cond['online'],
+            'search_supplier' => $cond['search_supplier'],
         ])
             ->paginate($page)->appends($query);
 
@@ -81,6 +84,7 @@ class ProductCtrl extends Controller
             'publics' => $publics,
             'hasDelivery' => $hasDelivery,
             'hasSpecList' => $hasSpecList,
+            'suppliers' => Supplier::select('name', 'id', 'vat_no')->get()->toArray(),
             'cond' => $cond]);
     }
 
