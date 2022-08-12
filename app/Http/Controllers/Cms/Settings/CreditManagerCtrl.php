@@ -11,6 +11,8 @@ use App\Models\GeneralLedger;
 use App\Models\IncomeOrder;
 use App\Models\ReceivedOrder;
 
+use App\Enums\Area\Area;
+
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
@@ -88,10 +90,8 @@ class CreditManagerCtrl extends Controller
             )->paginate($page)->appends($query);
 
         $bank = CrdBank::orderBy('id', 'asc')->pluck('title', 'id')->toArray();
-        $checkout_area = [
-            'taipei'=>'台北',
-            'hsinchu'=>'新竹',
-        ];
+        $checkout_area = Area::get_key_value();
+
         $card_type = CrdCreditCard::distinct('title')->groupBy('title')->orderBy('id', 'asc')->pluck('title', 'id')->toArray();
 
         return view('cms.settings.credit_manager.list', [
@@ -170,10 +170,7 @@ class CreditManagerCtrl extends Controller
 
         $card_type = CrdCreditCard::distinct('title')->groupBy('title')->orderBy('id', 'asc')->pluck('title', 'id')->toArray();
         $total_grades = GeneralLedger::total_grade_list();
-        $checkout_area = [
-            'taipei'=>'台北',
-            'hsinchu'=>'新竹',
-        ];
+        $checkout_area = Area::get_key_value();
 
         if($request->isMethod('post')){
             $request->validate([

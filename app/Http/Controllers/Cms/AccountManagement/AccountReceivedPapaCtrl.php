@@ -10,6 +10,7 @@ use App\Models\LogisticFlow;
 use App\Models\SubOrders;
 use Illuminate\Http\Request;
 
+use App\Enums\Area\Area;
 use App\Enums\Received\ReceivedMethod;
 use App\Enums\Received\ChequeStatus;
 
@@ -426,11 +427,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
         $card_type = CrdCreditCard::distinct('title')->groupBy('title')->orderBy('id', 'asc')->pluck('title', 'id')->toArray();
 
-        $checkout_area = [
-            'taipei'=>'台北',
-            'hsinchu'=>'新竹',
-        ];
-
+        $checkout_area = Area::get_key_value();
 
         return view($this->getViewEdit(), [
             'defaultArray' => $defaultArray,
@@ -484,10 +481,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
             if($data['acc_transact_type_fk'] == ReceivedMethod::CreditCard){
                 $card_type = CrdCreditCard::distinct('title')->groupBy('title')->orderBy('id', 'asc')->pluck('title', 'id')->toArray();
 
-                $checkout_area = [
-                    'taipei'=>'台北',
-                    'hsinchu'=>'新竹',
-                ];
+                $checkout_area = Area::get_key_value();
 
                 $data[$data['acc_transact_type_fk']] = [
                     'cardnumber'=>$data[$data['acc_transact_type_fk']]['cardnumber'],
@@ -883,10 +877,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
                 $card_type = CrdCreditCard::distinct('title')->groupBy('title')->orderBy('id', 'asc')->pluck('title', 'id')->toArray();
 
-                $checkout_area = [
-                    'taipei'=>'台北',
-                    'hsinchu'=>'新竹',
-                ];
+                $checkout_area = Area::get_key_value();
 
                 // grade process start
                     $defaultData = [];
@@ -951,10 +942,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
                     }
                 // grade process end
 
-                $cheque_status = [];
-                foreach (ChequeStatus::asArray() as $data) {
-                    $cheque_status[$data] = ChequeStatus::getDescription($data);
-                }
+                $cheque_status = ChequeStatus::get_key_value();
 
                 return view($this->getViewReview(), [
                     'form_action'=>route($this->getRouteReview() , ['id'=>request('id')]),
