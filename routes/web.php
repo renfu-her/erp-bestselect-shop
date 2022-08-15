@@ -88,6 +88,7 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/AccountsPayable.php');
     require base_path('routes/cms/NoteReceivable.php');
     require base_path('routes/cms/BulletinBoard.php');
+    require base_path('routes/cms/MailSet.php');
 });
 
 Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => 'guest:customer'], function () {

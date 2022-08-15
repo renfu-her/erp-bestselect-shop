@@ -126,6 +126,11 @@ return
                 "title" => "團購主公司管理",
                 "controller_name" => "GroupbyCompanyCtrl",
                 "route_name" => "cms.groupby-company.index",
+            ],
+            [
+                "title" => "通知信管理",
+                "controller_name" => "MailSetCtrl",
+                "route_name" => "cms.mail_set.index",
             ]
         ],
     ],
