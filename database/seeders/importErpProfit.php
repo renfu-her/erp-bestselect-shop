@@ -73,7 +73,7 @@ class importErpProfit extends Seeder
             $step5++;
             if (isset($users[$pr[1]])) {
                 CustomerProfit::where('id', $pr[0])->update([
-                    'parent_cusotmer_id' => $users[$pr[1]],
+                    'parent_customer_id' => $users[$pr[1]],
                 ]);
             }
         }

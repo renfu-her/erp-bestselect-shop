@@ -10,6 +10,7 @@ use App\Models\Customer;
 use App\Models\CustomerProfit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 
 class CustomerProfitCtrl extends Controller
 {
@@ -73,7 +74,42 @@ class CustomerProfitCtrl extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'customer_id' => 'required',
+            'status' => 'required',
+            'identity_sn' => 'required',
+            'parent_profit_rate' => 'required',
+            'profit_rate' => 'required',
+            'bank_id' => 'required',
+            'bank_account' => 'required',
+            'bank_account_name' => 'required',
+        ]);
+
+        $d = $request->all();
+        DB::beginTransaction();
+
+        if (isset($d['parent_customer_id'])) {
+            Customer::where('id', $d['customer_id'])->update([
+                'recommend_id' => $d['parent_customer_id'],
+            ]);
+        }
+
+        $re = CustomerProfit::createProfit($d['customer_id'], $d['bank_id'], $d['bank_account'], $d['bank_account_name'], $d['identity_sn']);
+        if ($re['success'] == '0') {
+            return redirect()->back()->withErrors(['customer_id' => $re['message']]);
+        }
+
+        CustomerProfit::where('id', $re['id'])->update([
+            'status' => ProfitStatus::fromValue($d['status']),
+            'status_title' => ProfitStatus::fromValue($d['status'])->description,
+            'profit_rate' => $d['profit_rate'],
+            'parent_profit_rate' => $d['parent_profit_rate'],
+           // 'parent_customer_id' => isset($d['parent_customer_id']) ? $d['parent_customer_id'] : null,
+        ]);
+
+        DB::commit();
+        wToast('新增完成');
+        return redirect(route('cms.customer-profit.index'));
     }
 
     /**
@@ -98,13 +134,12 @@ class CustomerProfitCtrl extends Controller
 
         //  dd(CustomerProfit::where('id',$id)->get());
         $data = CustomerProfit::where('id', $id)->get()->first();
-//    dd($data);
-        //   dd( Customer::detail($data->customer_id)->get()->first());
+
         if (!$data) {
             return abort(404);
         }
-        //   dd(Customer::detail($data->customer_id)->get()->toArray());
-
+      
+       
         return view('cms.admin.customer_profit.edit', [
             'method' => 'edit',
             'customer' => Customer::detail($data->customer_id)->get()->first(),
@@ -155,7 +190,6 @@ class CustomerProfitCtrl extends Controller
             'has_child' => $has_child,
         ];
 
-        //   dd($update);
         // dd($update);
 
         CustomerProfit::where('id', $id)->update($update);
