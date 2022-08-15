@@ -92,6 +92,12 @@ class CustomerProfitCtrl extends Controller
             Customer::where('id', $d['customer_id'])->update([
                 'recommend_id' => $d['parent_customer_id'],
             ]);
+
+            $profit_rate = $d['profit_rate'];
+            $parent_profit_rate = $d['parent_profit_rate'];
+        }else{
+            $profit_rate = 100;
+            $parent_profit_rate = 0;
         }
 
         $re = CustomerProfit::createProfit($d['customer_id'], $d['bank_id'], $d['bank_account'], $d['bank_account_name'], $d['identity_sn']);
@@ -102,9 +108,9 @@ class CustomerProfitCtrl extends Controller
         CustomerProfit::where('id', $re['id'])->update([
             'status' => ProfitStatus::fromValue($d['status']),
             'status_title' => ProfitStatus::fromValue($d['status'])->description,
-            'profit_rate' => $d['profit_rate'],
-            'parent_profit_rate' => $d['parent_profit_rate'],
-           // 'parent_customer_id' => isset($d['parent_customer_id']) ? $d['parent_customer_id'] : null,
+            'profit_rate' => $profit_rate,
+            'parent_profit_rate' => $parent_profit_rate,
+            // 'parent_customer_id' => isset($d['parent_customer_id']) ? $d['parent_customer_id'] : null,
         ]);
 
         DB::commit();
@@ -138,8 +144,7 @@ class CustomerProfitCtrl extends Controller
         if (!$data) {
             return abort(404);
         }
-      
-       
+
         return view('cms.admin.customer_profit.edit', [
             'method' => 'edit',
             'customer' => Customer::detail($data->customer_id)->get()->first(),
@@ -176,13 +181,26 @@ class CustomerProfitCtrl extends Controller
         $d = $request->all();
 
         $has_child = Arr::get($d, 'has_child', 0);
+
+        DB::beginTransaction();
+        $profit = CustomerProfit::where('id', $id)->get()->first();
+        $customer = Customer::where('id', $profit->customer_id)->get()->first();
+
+        if ($customer->recommend_id) {
+            $profit_rate = $d['profit_rate'];
+            $parent_profit_rate = $d['parent_profit_rate'];
+        } else {
+            $profit_rate = 100;
+            $parent_profit_rate = 0;
+        }
+
         // dd($has_child);
         $update = [
             'status' => $d['status'],
             'status_title' => ProfitStatus::fromValue($d['status'])->description,
             'identity_sn' => $d['identity_sn'],
-            'profit_rate' => $d['profit_rate'],
-            'parent_profit_rate' => $d['parent_profit_rate'],
+            'profit_rate' => $profit_rate,
+            'parent_profit_rate' => $parent_profit_rate,
             'bank_id' => $d['bank_id'],
             'bank_account' => $d['bank_account'],
             'bank_account_name' => $d['bank_account_name'],
@@ -193,7 +211,7 @@ class CustomerProfitCtrl extends Controller
         // dd($update);
 
         CustomerProfit::where('id', $id)->update($update);
-
+        DB::commit();
         wToast('修改完成');
 
         return redirect(route('cms.customer-profit.index'));
