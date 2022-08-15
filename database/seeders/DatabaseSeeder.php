@@ -31,7 +31,8 @@ class DatabaseSeeder extends Seeder
             IncomeExpenditureSeeder::class,
             DiscountSeeder::class,
             OrderSeeder::class,
-            BankSeeder::class
+            BankSeeder::class,
+            SharedPreferenceSeeder::class
 //            DeliverySeeder::class,
         ]);
     }

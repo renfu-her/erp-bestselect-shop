@@ -19,6 +19,7 @@ class SharedPreferenceSeeder extends Seeder
      */
     public function run()
     {
+        //新增初始值 預設為開關->關
         SharedPreference::firstOrCreate([
             'category' => Category::mail()->value
             , 'event' => Event::mail_order()->value
