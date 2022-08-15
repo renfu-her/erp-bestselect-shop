@@ -391,6 +391,8 @@ class ReceiveDepot extends Model
                 //20220714 Hans:將出貨日填到子訂單
                 if (Event::order()->value == $delivery->event) {
                     SubOrders::where('id', '=', $delivery->event_id)->update([ 'dlv_audit_date' => $curr_date ]);
+                    //若為訂單 則在出貨審核後 寄送已出貨信件
+                    Order::sendMail_OrderShipped($delivery->event_id);
                 } else if (Event::consignment()->value == $delivery->event) {
                     Consignment::where('id', '=', $delivery->event_id)->update([ 'dlv_audit_date' => $curr_date ]);
                 } else if (Event::csn_order()->value == $delivery->event) {

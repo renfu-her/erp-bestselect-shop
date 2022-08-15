@@ -549,6 +549,7 @@ class Order extends Model
             // CustomerDividend::activeDividend(DividendCategory::Order(), $order_sn);
             //  CustomerCoupon::activeCoupon($order_id);
 
+            Order::sendMail_OrderEstablished($order_id);
             return ['success' => '1', 'order_id' => $order_id];
         });
     }
