@@ -5,6 +5,7 @@
     <fieldset class="col-12 mb-2">
         <div class="p-2 border rounded">
             <a href="{{ Route('cms.note_payable.ask', ['type'=>'cashed']) }}" class="btn btn-success" role="button">整批兌現</a>
+            <a href="{{ Route('cms.note_payable.checkbook') }}" class="btn btn-success" role="button">列印支票本</a>
         </div>
     </fieldset>
 

@@ -242,4 +242,33 @@ class NotePayableCtrl extends Controller
             return redirect()->back();
         }
     }
+
+
+    public function checkbook(Request $request)
+    {
+        if($request->isMethod('post')){
+            $request->validate([
+                'item_per_page' => 'required|between:0,100',
+                'page_height' => 'required|between:0,100.00',
+                'row_height' => 'required|between:0,100.00',
+            ]);
+
+            $data_list = NotePayableOrder::get_cheque_payable_list(null, null, null, null, null, null, null, null)->get();
+
+            return view('cms.account_management.note_payable.checkbook_print', [
+                'previous_url' => route('cms.note_payable.index'),
+                'form_action' => route('cms.note_payable.checkbook'),
+                'data_list' => $data_list,
+                'printer' => auth('user')->user() ? auth('user')->user()->name : null,
+                'item_per_page' => request('item_per_page'),
+                'page_height' => request('page_height'),
+                'row_height' => request('row_height'),
+            ]);
+        }
+
+        return view('cms.account_management.note_payable.checkbook_set', [
+            'previous_url' => route('cms.note_payable.index'),
+            'form_action' => route('cms.note_payable.checkbook'),
+        ]);
+    }
 }

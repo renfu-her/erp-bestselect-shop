@@ -11,4 +11,6 @@ Route::group(['prefix' => 'note_payable', 'as' => 'note_payable.'], function () 
     Route::get('detail/{type}', [NotePayableCtrl::class, 'detail'])->name('detail')->where(['type' => '(cashed)']);
 
     Route::get('reverse/{id}', [NotePayableCtrl::class, 'reverse'])->name('reverse')->middleware('permission:cms.note_payable.reverse');
+
+    Route::match(['get', 'post'], 'checkbook', [NotePayableCtrl::class, 'checkbook'])->name('checkbook')->middleware('permission:cms.note_payable.checkbook');
 });

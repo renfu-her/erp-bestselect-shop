@@ -915,6 +915,10 @@ Breadcrumbs::for('cms.note_payable.detail', function (BreadcrumbTrail $trail, $v
     $trail->parent('cms.note_payable.index');
     $trail->push($value['title']);
 });
+Breadcrumbs::for('cms.note_payable.checkbook', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.note_payable.index');
+    $trail->push('列印支票本');
+});
 
 // 應收票據
 Breadcrumbs::for('cms.note_receivable.index', function (BreadcrumbTrail $trail) {
