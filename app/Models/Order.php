@@ -6,6 +6,7 @@ use App\Enums\Customer\ProfitStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Discount\DividendCategory;
 use App\Enums\Discount\DividendFlag;
+use App\Enums\Globals\AppEnvClass;
 use App\Enums\Order\CarrierType;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Order\PaymentStatus;
@@ -1126,8 +1127,11 @@ class Order extends Model
 
             self::getSendMailAddressInfo($order_id, $orderer, $receiver);
 
-            $email = $order->email;
             $email = 'pntcwz@gmail.com';
+            if (AppEnvClass::Release() == AppEnvClass::fromValue(env('APP_ENV'))) {
+                $email = $order->email;
+            }
+
             $data = [
                 'order_name' => $orderer->name ?? ''
                 , 'sn' => $order->sn ?? ''
@@ -1150,8 +1154,11 @@ class Order extends Model
 
             self::getSendMailAddressInfo($order_id, $orderer, $receiver);
 
-            $email = $order->email;
             $email = 'pntcwz@gmail.com';
+            if (AppEnvClass::Release() == AppEnvClass::fromValue(env('APP_ENV'))) {
+                $email = $order->email;
+            }
+
             $data = [
                 'order_name' => $orderer->name ?? ''
                 , 'sn' => $order->sn ?? ''
@@ -1181,8 +1188,10 @@ class Order extends Model
                 ->where('sub_order_id', '=', $sub_order_id)
                 ->get();
 
-            $email = $order->email;
             $email = 'pntcwz@gmail.com';
+            if (AppEnvClass::Release() == AppEnvClass::fromValue(env('APP_ENV'))) {
+                $email = $order->email;
+            }
             $data = [
                 'order_name' => $orderer->name ?? ''
                 , 'sn' => $order->sn ?? ''
