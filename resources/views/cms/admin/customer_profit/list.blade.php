@@ -35,7 +35,9 @@
     </form>
     <div class="card shadow p-4 mb-4">
         <div class="col mb-4">
-         
+            <a href="{{ Route('cms.customer-profit.create') }}" class="btn btn-primary">
+                <i class="bi bi-plus-lg"></i> 新增分潤成員
+            </a>
         </div>
 
         <div class="table-responsive tableOverBox">
