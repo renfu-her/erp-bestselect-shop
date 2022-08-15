@@ -175,6 +175,12 @@
     @endpush
     @push('sub-scripts')
         <script>
+            $('input[name="parent_profit_rate"]').on('change', function() {
+                const parent_rate = Number($(this).val());
+                if (isFinite(parent_rate)) {
+                    $('input[name="profit_rate"]').val(100 - parent_rate);
+                }
+            });
             $('input[name="profit_rate"]').on('change', function() {
                 const parent_profit_rate = Number($(this).val());
                 if (isFinite(parent_profit_rate)) {
