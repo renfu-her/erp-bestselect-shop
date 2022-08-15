@@ -18,11 +18,11 @@
                 @endif
             </div>
             <div class="card-body">
-                <x-b-form-group title="姓名">
+                <x-b-form-group name="customer_id" title="姓名" required="true">
                     @if ($method == 'edit')
                         <input class="form-control" type="text" disabled value="{{ $customer->name }}">
                     @else
-                        <select class="form-select">
+                        <select class="form-select -select2 -single" data-placeholder="請單選">
                             @foreach ($customers as $customer)
                                 <option value="{{ $customer->id }}">{{ $customer->name }}</option>
                             @endforeach
@@ -41,11 +41,11 @@
                     <input class="form-control @error('identity_sn') is-invalid @enderror" name="identity_sn"
                         value="{{ old('identity_sn', $data->identity_sn ?? '') }}" required />
                 </x-b-form-group>
-                <x-b-form-group title="推薦者">
+                <x-b-form-group name="parent_customer_id" title="推薦者">
                     @if ($method == 'edit')
                         <input class="form-control" type="text" disabled value="{{ $customer->recommend_name ?? '無' }}">
                     @else
-                        <select class="form-select">
+                        <select class="form-select -select2 -single" data-placeholder="請單選">
                             <option value="">無</option>
                             @foreach ($parentCustomers as $pCustomer)
                                 <option value="{{ $pCustomer->id }}">{{ $pCustomer->name }}</option>
@@ -175,10 +175,10 @@
     @endpush
     @push('sub-scripts')
         <script>
-            $('input[name="parent_profit_rate"]').on('change', function() {
-                const parent_rate = Number($(this).val());
-                if (isFinite(parent_rate)) {
-                    $('input[name="profit_rate"]').val(100 - parent_rate);
+            $('input[name="profit_rate"]').on('change', function() {
+                const parent_profit_rate = Number($(this).val());
+                if (isFinite(parent_profit_rate)) {
+                    $('input[name="parent_profit_rate"]').val(100 - parent_profit_rate);
                 }
             });
         </script>

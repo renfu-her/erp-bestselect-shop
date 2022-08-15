@@ -1118,7 +1118,10 @@ Breadcrumbs::for('cms.customer-profit.index', function (BreadcrumbTrail $trail) 
     $trail->parent('cms.dashboard');
     $trail->push('分潤審核管理', route('cms.customer-profit.index'));
 });
-
+Breadcrumbs::for('cms.customer-profit.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.customer-profit.index');
+    $trail->push('新增');
+});
 Breadcrumbs::for('cms.customer-profit.edit', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.customer-profit.index');
     $trail->push('編輯');
