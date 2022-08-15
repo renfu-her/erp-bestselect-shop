@@ -607,6 +607,11 @@ Breadcrumbs::for('cms.groupby-company.edit', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.groupby-company.index');
     $trail->push('編輯');
 });
+// 通知信管理
+Breadcrumbs::for('cms.mail_set.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('通知信管理', route('cms.mail_set.index'));
+});
 
 /**
  * 官網設定

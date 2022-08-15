@@ -6,16 +6,21 @@ use App\Enums\Customer\ProfitStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Discount\DividendCategory;
 use App\Enums\Discount\DividendFlag;
+use App\Enums\Globals\AppEnvClass;
 use App\Enums\Order\CarrierType;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Order\PaymentStatus;
 use App\Enums\Order\UserAddrType;
 use App\Enums\Received\ReceivedMethod;
+use App\Mail\OrderEstablished;
+use App\Mail\OrderPaid;
+use App\Mail\OrderShipped;
 use App\Models\CustomerDividend;
 use App\Models\OrderCart;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class Order extends Model
 {
@@ -545,6 +550,7 @@ class Order extends Model
             // CustomerDividend::activeDividend(DividendCategory::Order(), $order_sn);
             //  CustomerCoupon::activeCoupon($order_id);
 
+            Order::sendMail_OrderEstablished($order_id);
             return ['success' => '1', 'order_id' => $order_id];
         });
     }
@@ -1089,4 +1095,112 @@ class Order extends Model
         return false;
     }
 
+    //取得發信的寄件人、收件人訊息
+    public static function getSendMailAddressInfo($order_id, &$orderer, &$receiver): void
+    {
+        $address = DB::table('ord_address as addr')
+            ->where('addr.order_id', '=', $order_id)
+            ->get();
+
+        if (isset($address) && 0 < count($address)) {
+            foreach ($address as $addr) {
+                if (UserAddrType::orderer()->value == $addr->type) {
+                    $orderer = $addr;
+                } elseif (UserAddrType::receiver()->value == $addr->type) {
+                    $receiver = $addr;
+                }
+            }
+        }
+    }
+
+    //訂單成立 發信給消費者
+    public static function sendMail_OrderEstablished($order_id) {
+        $mail_set = DB::table('shared_preference as sp')
+            ->where('sp.category', '=', \App\Enums\Globals\SharedPreference\Category::mail()->value)
+            ->where('sp.event', '=', \App\Enums\Globals\SharedPreference\Event::mail_order()->value)
+            ->where('sp.feature', '=', \App\Enums\Globals\SharedPreference\Feature::mail_order_established()->value)
+            ->first();
+        if (\App\Enums\Globals\StatusOffOn::On()->value == $mail_set->status) {
+            $order = Order::where('id', '=', $order_id)->first();
+            $orderer = null;
+            $receiver = null;
+
+            self::getSendMailAddressInfo($order_id, $orderer, $receiver);
+
+            $email = 'pntcwz@gmail.com';
+            if (AppEnvClass::Release() == AppEnvClass::fromValue(env('APP_ENV'))) {
+                $email = $order->email;
+            }
+
+            $data = [
+                'order_name' => $orderer->name ?? ''
+                , 'sn' => $order->sn ?? ''
+            ];
+            Mail::to($email)->queue(new OrderEstablished($data));
+        }
+    }
+
+    //訂單已付款 發信給消費者
+    public static function sendMail_OrderPaid($order_id) {
+        $mail_set = DB::table('shared_preference as sp')
+            ->where('sp.category', '=', \App\Enums\Globals\SharedPreference\Category::mail()->value)
+            ->where('sp.event', '=', \App\Enums\Globals\SharedPreference\Event::mail_order()->value)
+            ->where('sp.feature', '=', \App\Enums\Globals\SharedPreference\Feature::mail_order_paid()->value)
+            ->first();
+        if (\App\Enums\Globals\StatusOffOn::On()->value == $mail_set->status) {
+            $order = Order::where('id', '=', $order_id)->first();
+            $orderer = null;
+            $receiver = null;
+
+            self::getSendMailAddressInfo($order_id, $orderer, $receiver);
+
+            $email = 'pntcwz@gmail.com';
+            if (AppEnvClass::Release() == AppEnvClass::fromValue(env('APP_ENV'))) {
+                $email = $order->email;
+            }
+
+            $data = [
+                'order_name' => $orderer->name ?? ''
+                , 'sn' => $order->sn ?? ''
+            ];
+            Mail::to($email)->queue(new OrderPaid($data));
+        }
+    }
+
+    //訂單已出貨 發信給消費者
+    public static function sendMail_OrderShipped($sub_order_id) {
+        $mail_set = DB::table('shared_preference as sp')
+            ->where('sp.category', '=', \App\Enums\Globals\SharedPreference\Category::mail()->value)
+            ->where('sp.event', '=', \App\Enums\Globals\SharedPreference\Event::mail_order()->value)
+            ->where('sp.feature', '=', \App\Enums\Globals\SharedPreference\Feature::mail_order_shipped()->value)
+            ->first();
+        if (\App\Enums\Globals\StatusOffOn::On()->value == $mail_set->status) {
+            $sub_order = SubOrders::where('id', '=', $sub_order_id)->first();
+            $order = Order::where('id', '=', $sub_order->order_id)->first();
+            $order_id = $order->id;
+            $orderer = null;
+            $receiver = null;
+
+            self::getSendMailAddressInfo($order_id, $orderer, $receiver);
+
+            $order_items = DB::table(app(OrderItem::class)->getTable(). ' as item')
+                ->where('order_id', '=', $order_id)
+                ->where('sub_order_id', '=', $sub_order_id)
+                ->get();
+
+            $email = 'pntcwz@gmail.com';
+            if (AppEnvClass::Release() == AppEnvClass::fromValue(env('APP_ENV'))) {
+                $email = $order->email;
+            }
+            $data = [
+                'order_name' => $orderer->name ?? ''
+                , 'sn' => $order->sn ?? ''
+                , 'receive_name' => $receiver->name ?? ''
+                , 'receive_address' => $receiver->address ?? ''
+                , 'receive_phone' => $receiver->phone ?? ''
+                , 'order_items' => $order_items ?? null
+            ];
+            Mail::to($email)->queue(new OrderShipped($data));
+        }
+    }
 }
