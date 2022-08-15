@@ -9,7 +9,7 @@ use App\Models\CustomerProfit;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-class importErpProfit extends Seeder
+class importErpProfitSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -38,7 +38,7 @@ class importErpProfit extends Seeder
                 $users[$puser->MemberID] = $_u->id;
                 if (!CustomerProfit::where('customer_id', $_u->id)->get()->first()) {
                     $step2++;
-                    $bank = Bank::where('title',"like", "%$puser->BankName%")->get()->first();
+                    $bank = Bank::where('title', "like", "%$puser->BankName%")->get()->first();
                     if ($bank) {
                         $step3++;
                         $re = CustomerProfit::createProfit($_u->id, $bank->id, $puser->BankAcct, $puser->Name, $puser->IDNumber, '', '', '');
@@ -54,15 +54,15 @@ class importErpProfit extends Seeder
                             ]);
                             $ucount++;
                             if ($puser->UPLink) {
-                                $parent_relation[] = [$re['id'], $puser->UPLink];
+                                $parent_relation[] = [$re['id'], $puser->UPLink, $_u->id];
+
                             }
 
                         }
 
-                    }else{
-                        $bankName[]=$puser->BankName;
+                    } else {
+                        $bankName[] = $puser->BankName;
                     }
-
 
                 }
 
@@ -72,13 +72,27 @@ class importErpProfit extends Seeder
         foreach ($parent_relation as $pr) {
             $step5++;
             if (isset($users[$pr[1]])) {
+                Customer::where('id', $pr[2])->update([
+                    'recommend_id' => $users[$pr[1]],
+                ]);
+
                 CustomerProfit::where('id', $pr[0])->update([
                     'parent_customer_id' => $users[$pr[1]],
                 ]);
+
             }
         }
-      //  dd($bankName);
-     //    dd($step1,$step2,$step3,$step4,$step5);
+
+        // 修正帶入
+
+        foreach (CustomerProfit::whereNotNull('parent_customer_id')->get() as $pro) {
+            Customer::where('id', $pro->customer_id)->update([
+                'recommend_id' => $pro->parent_customer_id,
+            ]);
+        }
+
+        //  dd($bankName);
+        //    dd($step1,$step2,$step3,$step4,$step5);
         DB::commit();
         dd($ucount);
     }
