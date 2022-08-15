@@ -15,8 +15,8 @@
 $page_count = ceil(count($data_list) / $item_per_page);
 @endphp
 
-@for ($i = 0; $i <= $page_count; $i++)
-    <div style="position: absolute; left: 0; top: 0; width:100%; height:{{ $page_height }}px">
+@for ($i = 0; $i < $page_count; $i++)
+    <div style="left: 0; top: 0; width:100%; height:{{ $page_height }}px">
         <div style="text-align: center;">
             <div style="font-size: x-large; font-family:標楷體">喜鴻國際企業股份有限公司</div>
             <div>
@@ -39,14 +39,20 @@ $page_count = ceil(count($data_list) / $item_per_page);
                         <tr style="height:{{ $row_height }}px">
                             <td>
                                 <span>票號：{{ $value->cheque_ticket_number }}</span>
+                                <br>
                                 <span>金額：{{ $value->tw_price }}</span>
+                                <br>
                                 <span>團號：</span>
+                                <br>
                                 <span>付款單號：{{ $value->po_sn }}</span>
                             </td>
                             <td>
                                 <span>開票：{{ $value->payment_date ? date('Y-m-d', strtotime($value->payment_date)) : '' }}</span>
+                                <br>
                                 <span>到期：{{ $value->cheque_due_date ? date('Y-m-d', strtotime($value->cheque_due_date)) : '' }}</span>
+                                <br>
                                 <span>兌現：{{ $value->cheque_cashing_date ? date('Y-m-d', strtotime($value->cheque_cashing_date)) : '' }}</span>
+                                <br>
                                 <span>狀態：{{ $value->cheque_status }}</span>
                             </td>
                             <td>{{ $value->po_target_name }}</td>
