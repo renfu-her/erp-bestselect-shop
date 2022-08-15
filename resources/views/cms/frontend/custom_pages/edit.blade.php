@@ -76,8 +76,8 @@
                         @endforeach
                     </div>
                     <div class="bg-light small text-secondary px-3 py-2">
-                        <p class="mb-0">* 一般頁：基本文字、排版、圖片，<span class="text-danger">不支援 JS 程式碼、外部引用 CSS / JS 等套件</span></p>
-                        <p class="mb-0">* 活動頁：支援較複雜的網頁內容 (行內 JS 程式碼、外部引用套件)，<span class="text-danger">不支援 &lt;script&gt; tag</span></p>
+                        <p class="mb-0">* 一般頁：基本文字、排版、圖片，<span class="text-danger">不支援 JS 程式碼、外部引用 CSS / JS 套件等</span></p>
+                        <p class="mb-0">* 活動頁 (beta版)：支援較複雜的網頁內容 (行內 JS 程式碼、外部引用套件)，<span class="text-danger">不支援 &lt;script&gt; tag</span></p>
                     </div>
                 </x-b-form-group>
             </div>
@@ -96,7 +96,7 @@
         </div>
 
         <div id="content_2" class="card shadow p-4 mb-4 -content"  @if(old('type', $dataList->type ?? 1) !== 2) hidden @endif>
-            <h6>【活動頁】自訂內容</h6>
+            <h6>【活動頁】自訂內容 (beta版)</h6>
             <div class="row">
                 <div class="col-12 mb-3">
                     <label class="form-label">Head 資訊（例：<code>&lt;meta&gt;</code>、<code>&lt;script src=""&gt;</code>、<code>&lt;link href=""&gt;</code> 引用連結）</label>
