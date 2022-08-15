@@ -741,8 +741,8 @@ class Order extends Model
         //上一代分潤資格
         $parentCustomerProfit = null;
 
-        if ($customerProfit->parent_cusotmer_id) {
-            $parentCustomerProfit = CustomerProfit::getProfitData($customerProfit->parent_cusotmer_id, ProfitStatus::Success());
+        if ($customerProfit->parent_customer_id) {
+            $parentCustomerProfit = CustomerProfit::getProfitData($customerProfit->parent_customer_id, ProfitStatus::Success());
         }
 
         $profit_rate = 100;
@@ -779,7 +779,7 @@ class Order extends Model
                 if ($parentCustomerProfit && $pBonus) {
                     OrderProfit::create(array_merge($updateData, [
                         'bonus' => $pBonus,
-                        'customer_id' => $customerProfit->parent_cusotmer_id,
+                        'customer_id' => $customerProfit->parent_customer_id,
                         'parent_id' => $pid,
                     ]));
                 }

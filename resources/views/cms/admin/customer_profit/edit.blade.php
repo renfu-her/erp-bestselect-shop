@@ -22,7 +22,7 @@
                     @if ($method == 'edit')
                         <input class="form-control" type="text" disabled value="{{ $customer->name }}">
                     @else
-                        <select class="form-select -select2 -single" data-placeholder="請單選">
+                        <select  name="customer_id" class="form-select -select2 -single" data-placeholder="請單選">
                             @foreach ($customers as $customer)
                                 <option value="{{ $customer->id }}">{{ $customer->name }}</option>
                             @endforeach
@@ -45,7 +45,7 @@
                     @if ($method == 'edit')
                         <input class="form-control" type="text" disabled value="{{ $customer->recommend_name ?? '無' }}">
                     @else
-                        <select class="form-select -select2 -single" data-placeholder="請單選">
+                        <select  name="parent_customer_id" class="form-select -select2 -single" data-placeholder="請單選">
                             <option value="">無</option>
                             @foreach ($parentCustomers as $pCustomer)
                                 <option value="{{ $pCustomer->id }}">{{ $pCustomer->name }}</option>
@@ -69,11 +69,11 @@
                     <x-b-form-group name="parent_profit_rate" title="上一代分潤(%)">
                         <input class="form-control @error('parent_profit_rate') is-invalid @enderror"
                             name="parent_profit_rate" readonly type="number" min="0" max="100"
-                            value="" />
+                            value=""  required/>
                     </x-b-form-group>
                     <x-b-form-group name="profit_rate" title="分潤(%)">
                         <input class="form-control" name="profit_rate"
-                            value="" type="number" />
+                            value="" type="number" required />
                     </x-b-form-group>
                 @endif
                 <x-b-form-group name="profit_type" title="分潤回饋方式" required="true">
