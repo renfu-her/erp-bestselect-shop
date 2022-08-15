@@ -223,7 +223,7 @@
                            name="{{ $REMIT }}[remittance]"
                            type="date"
                            required
-                           value="{{ old($REMIT . '[remittance]',  $all_payable_type_data['payableRemit']['remittance'] ?? date('Y-m-d', strtotime( date('Y-m-d')))) }}"/>
+                           value="{{ old($REMIT . '[remittance]', date('Y-m-d', strtotime( date('Y-m-d')))) }}"/>
                 </x-b-form-group>
                 <x-b-form-group name="{{ $REMIT }}[bank_slip_name]"
                                 title="水單末5碼或匯款人姓名"
@@ -255,7 +255,7 @@
                            required
                            type="number"
                            step="0.01"
-                           value="{{ old($FOREIGN_CURRENCY . '[foreign_price]', $all_payable_type_data['payableForeignCurrency'][$FOREIGN_CURRENCY] ?? '') }}"/>
+                           value="{{ old($FOREIGN_CURRENCY . '[foreign_price]', '') }}"/>
                 </x-b-form-group>
             </div>
 

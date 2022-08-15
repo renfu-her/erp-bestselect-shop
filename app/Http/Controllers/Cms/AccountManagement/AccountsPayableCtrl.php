@@ -12,6 +12,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 use App\Enums\Supplier\Payment;
+use App\Enums\Payable\ChequeStatus;
 
 use App\Models\AllGrade;
 use App\Models\AccountPayable;
@@ -220,7 +221,7 @@ class AccountsPayableCtrl extends Controller
             'otherDefault' => PayableDefault::where('name', 'other')->pluck('default_grade_id')->toArray(),
 
             'transactTypeList' => AccountPayable::getTransactTypeList(),
-            'chequeStatus' => AccountPayable::getChequeStatus(),
+            'chequeStatus' => ChequeStatus::get_key_value(),
         ]);
     }
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Enums\Supplier\Payment;
+use App\Enums\Payable\ChequeStatus;
 
 use App\Models\AllGrade;
 use App\Models\AccountPayable;
@@ -298,7 +299,7 @@ class StituteOrderCtrl extends Controller
             'otherDefault' => PayableDefault::where('name', 'other')->pluck('default_grade_id')->toArray(),
 
             'transactTypeList' => AccountPayable::getTransactTypeList(),
-            'chequeStatus' => AccountPayable::getChequeStatus(),
+            'chequeStatus' => ChequeStatus::get_key_value(),
         ]);
     }
 

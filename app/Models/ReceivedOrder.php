@@ -972,6 +972,9 @@ class ReceivedOrder extends Model
             ->where([
                 //
             ])
+            ->whereNotNull('ro.balance_date')
+            ->whereNotNull('ro.receipt_date')
+
             ->selectRaw('
                 ro.id AS ro_id,
                 ro.source_type AS ro_source_type,
@@ -1107,5 +1110,19 @@ class ReceivedOrder extends Model
                 'updated_at'=>date('Y-m-d H:i:s'),
             ]);
         }
+    }
+
+
+    public static function received_data_status_check($collection)
+    {
+        $check_result = false;
+        foreach($collection as $value){
+            if($value->credit_card_status_code == 2 || $value->cheque_status_code == 'cashed' || $value->account_status_code == 2){
+                $check_result = true;
+                break;
+            }
+        }
+
+        return $check_result;
     }
 }

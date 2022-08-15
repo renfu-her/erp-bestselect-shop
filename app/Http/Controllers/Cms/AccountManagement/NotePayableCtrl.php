@@ -1,0 +1,245 @@
+<?php
+
+namespace App\Http\Controllers\Cms\AccountManagement;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+
+use App\Models\GeneralLedger;
+use App\Models\NotePayableOrder;
+use App\Models\NotePayableLog;
+use App\Models\PayableDefault;
+
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
+
+use App\Enums\Payable\ChequeStatus;
+
+class NotePayableCtrl extends Controller
+{
+    public function index(Request $request)
+    {
+        $query = $request->query();
+        $page = getPageCount(Arr::get($query, 'data_per_page', 100)) > 0 ? getPageCount(Arr::get($query, 'data_per_page', 100)) : 100;
+
+        $cond = [];
+
+        $cond['cheque_status_code'] = Arr::get($query, 'cheque_status_code', []);
+        if (gettype($cond['cheque_status_code']) == 'string') {
+            $cond['cheque_status_code'] = explode(',', $cond['cheque_status_code']);
+        } else {
+            $cond['cheque_status_code'] = [];
+        }
+
+        $cond['cheque_payable_grade_id'] = Arr::get($query, 'cheque_payable_grade_id', []);
+        if (gettype($cond['cheque_payable_grade_id']) == 'string') {
+            $cond['cheque_payable_grade_id'] = explode(',', $cond['cheque_payable_grade_id']);
+        } else {
+            $cond['cheque_payable_grade_id'] = [];
+        }
+
+        $cond['ticket_number'] = Arr::get($query, 'ticket_number', null);
+
+        $cond['payable_min_price'] = Arr::get($query, 'payable_min_price', null);
+        $cond['payable_max_price'] = Arr::get($query, 'payable_max_price', null);
+        $payable_price = [
+            $cond['payable_min_price'],
+            $cond['payable_max_price']
+        ];
+
+        $cond['payment_sdate'] = Arr::get($query, 'payment_sdate', null);
+        $cond['payment_edate'] = Arr::get($query, 'payment_edate', null);
+        $payment_date = [
+            $cond['payment_sdate'],
+            $cond['payment_edate']
+        ];
+
+        $cond['cheque_due_sdate'] = Arr::get($query, 'cheque_due_sdate', null);
+        $cond['cheque_due_edate'] = Arr::get($query, 'cheque_due_edate', null);
+        $cheque_due_date = [
+            $cond['cheque_due_sdate'],
+            $cond['cheque_due_edate']
+        ];
+
+        $cond['cheque_cashing_sdate'] = Arr::get($query, 'cheque_cashing_sdate', null);
+        $cond['cheque_cashing_edate'] = Arr::get($query, 'cheque_cashing_edate', null);
+        $cheque_cashing_date = [
+            $cond['cheque_cashing_sdate'],
+            $cond['cheque_cashing_edate']
+        ];
+
+        $data_list = NotePayableOrder::get_cheque_payable_list(
+                [],
+                $cond['cheque_status_code'],
+                $cond['cheque_payable_grade_id'],
+                $cond['ticket_number'],
+                $payable_price,
+                $payment_date,
+                $cheque_due_date,
+                $cheque_cashing_date
+            )->paginate($page)->appends($query);
+
+        $cheque_status_code = ChequeStatus::get_key_value();
+
+        $cheque_payable_grade = PayableDefault::leftJoinSub(GeneralLedger::getAllGrade(), 'grade', function($join) {
+                $join->on('grade.primary_id', 'acc_payable_default.default_grade_id');
+            })
+            ->select(
+                'acc_payable_default.name',
+                'grade.primary_id as grade_id',
+                'grade.code as grade_code',
+                'grade.name as grade_name'
+            )
+            ->where('acc_payable_default.name', 'cheque')
+            ->get();
+
+        return view('cms.account_management.note_payable.list', [
+            'data_per_page' => $page,
+            'data_list' => $data_list,
+            'cond' => $cond,
+            'cheque_status_code' => $cheque_status_code,
+            'cheque_payable_grade' => $cheque_payable_grade,
+        ]);
+    }
+
+
+    public function record(Request $request, $id)
+    {
+        $request->merge([
+            'id'=>$id,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:acc_payable_cheque,id',
+        ]);
+
+        $cheque = NotePayableOrder::get_cheque_payable_list($id)->first();
+        if(! $cheque){
+            return abort(404);
+        }
+
+        return view('cms.account_management.note_payable.record', [
+            'cheque' => $cheque,
+        ]);
+    }
+
+
+    public function ask(Request $request, $type)
+    {
+        $request->merge([
+            'type'=>$type,
+        ]);
+
+        $request->validate([
+            'type' => 'required|in:cashed',
+        ]);
+
+        $status_name = ChequeStatus::getDescription($type);
+
+        if($request->isMethod('post')){
+            $request->validate([
+                'cashing_date' => 'date|date_format:Y-m-d|required_if:type,cashed',
+                'selected' => 'required|array',
+                'selected.*' => 'exists:acc_payable_cheque,id',
+                'cheque_payable_id' => 'required|array',
+                'cheque_payable_id.*' => 'exists:acc_payable_cheque,id',
+            ]);
+
+            $compare = array_diff(request('selected'), request('cheque_payable_id'));
+            if(count($compare) == 0){
+                DB::beginTransaction();
+
+                try {
+                    if($type == 'cashed'){
+                        $qd = request('cashing_date');
+
+                        $parm = [
+                            'cheque_payable_id'=>request('cheque_payable_id'),
+                            'amt_net'=>request('amt_net'),
+                            'status_code'=>$type,
+                            'status'=>$status_name,
+                            'cashing_date'=>$qd,
+                        ];
+                        $re = NotePayableOrder::update_cheque_payable_method($parm);
+                    }
+
+                    DB::commit();
+                    wToast(__('整批' . $status_name . '儲存成功'));
+
+                    return redirect()->route('cms.note_payable.detail', ['type'=>$type, 'qd' => $qd]);
+
+                } catch (\Exception $e) {
+                    DB::rollback();
+                    wToast(__('整批' . $status_name . '儲存失敗', ['type'=>'danger']));
+                    return redirect()->back();
+                }
+            }
+
+            wToast(__('整批' . $status_name . '儲存失敗', ['type'=>'danger']));
+            return redirect()->back();
+        }
+
+        $status = null;
+        if($type == 'cashed'){
+            $status = ['paid', 'cashed'];
+            $data_list = NotePayableOrder::get_cheque_payable_list(null, $status)->get();
+
+        }
+
+        return view('cms.account_management.note_payable.ask', [
+            'breadcrumb_data' => ['title'=>'整批' . $status_name],
+            'previous_url' => route('cms.note_payable.index'),
+            'form_action' => route('cms.note_payable.ask', ['type'=>$type]),
+            'type'=>$type,
+            'data_list'=>$data_list,
+        ]);
+    }
+
+
+    public function detail(Request $request, $type)
+    {
+        $request->merge([
+            'qd'=>request('qd'),
+            'type'=>$type,
+        ]);
+
+        $request->validate([
+            'qd' => 'required|date|date_format:Y-m-d',
+            'type' => 'required|in:cashed',
+        ]);
+
+
+        if($type == 'cashed'){
+            $title = '兌現明細';
+
+            $data_list = NotePayableOrder::get_cheque_payable_list(null, $type, null, null, null, null, null, [request('qd'), request('qd')])->get();
+
+            $note_payable_order = NotePayableOrder::leftJoinSub(GeneralLedger::getAllGrade(), 'grade', function($join) {
+                $join->on('grade.primary_id', 'acc_note_payable_orders.net_grade_id');
+            })->whereDate('acc_note_payable_orders.cashing_date', request('qd'))->first();
+
+            return view('cms.account_management.note_payable.npo_detail', [
+                'breadcrumb_data' => ['title'=>$title],
+                'previous_url' => route('cms.note_payable.ask', ['type'=>$type]),
+                'type'=>$type,
+                'data_list' => $data_list,
+                'note_payable_order' => $note_payable_order,
+            ]);
+        }
+    }
+
+
+    public function reverse($id)
+    {
+        $log = NotePayableLog::reverse_cheque_status($id);
+
+        if($log){
+            wToast('應付票據取消兌現成功');
+            return redirect()->route('cms.note_payable.record', ['id'=>$id]);
+
+        } else {
+            wToast('應付票據取消兌現失敗', ['type'=>'danger']);
+            return redirect()->back();
+        }
+    }
+}

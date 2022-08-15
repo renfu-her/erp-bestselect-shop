@@ -385,6 +385,7 @@ class Purchase extends Model
 
                 'supplier.id AS supplier_id',
                 'supplier.name AS supplier_name',
+                'supplier.nickname AS supplier_nickname',
                 'supplier.contact_tel AS supplier_phone',
                 'supplier.email AS supplier_email',
                 'supplier.contact_address AS supplier_address',

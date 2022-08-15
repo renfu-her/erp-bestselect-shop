@@ -7,13 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 use Illuminate\Support\Facades\DB;
 
-use App\Enums\Received\ChequeStatus;
+use App\Enums\Payable\ChequeStatus;
 
-class NoteReceivableLog extends Model
+class NotePayableLog extends Model
 {
     use HasFactory;
 
-    protected $table = 'acc_received_cheque_log';
+    protected $table = 'acc_payable_cheque_log';
     protected $guarded = [];
 
 
@@ -33,25 +33,25 @@ class NoteReceivableLog extends Model
     {
         // orderBy('id', 'desc')->skip(1)->first()
         $target = self::where('cheque_id', $cheque_id)->where('status_code', '!=', 'cashed')->orderBy('id', 'desc')->first();
-        $cheque = DB::table('acc_received_cheque')->where('id', $cheque_id)->first();
+        $cheque = DB::table('acc_payable_cheque')->where('id', $cheque_id)->first();
 
         if($cheque){
-            $status_code = $target ? $target->status_code : 'received';
-            $status = $target ? $target->status : '收票';
+            $status_code = $target ? $target->status_code : 'paid';
+            $status = $target ? $target->status : '付款';
 
-            DB::table('acc_received_cheque')->where('id', $cheque_id)->update([
+            DB::table('acc_payable_cheque')->where('id', $cheque_id)->update([
                 'status_code'=>$status_code,
                 'status'=>$status,
 
                 'amt_net'=>0,
-                'note_receivable_order_id'=>null,
+                'note_payable_order_id'=>null,
                 'sn'=>null,
                 'updated_at'=>date('Y-m-d H:i:s'),
             ]);
 
             $new_log = self::create_cheque_log($cheque_id, $status_code);
 
-            NoteReceivableOrder::store_note_receivable_order($cheque->cashing_date);
+            NotePayableOrder::store_note_payable_order($cheque->cashing_date);
         }
 
         return $new_log;

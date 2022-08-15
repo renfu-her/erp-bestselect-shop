@@ -478,12 +478,7 @@ class RequestOrderCtrl extends Controller
 
         $received_order = ReceivedOrder::findOrFail($request_order->received_order_id);
         $received_data = ReceivedOrder::get_received_detail($request_order->received_order_id);
-        $data_status_check = false;
-        foreach($received_data as $rd_value){
-            if($rd_value->credit_card_status_code == 2 || $rd_value->cheque_status_code == 'cashed'){
-                $data_status_check = true;
-            }
-        }
+        $data_status_check = ReceivedOrder::received_data_status_check($received_data);
 
         if (!$received_order->balance_date) {
             // return abort(404);
@@ -579,12 +574,7 @@ class RequestOrderCtrl extends Controller
 
         } else if($request->isMethod('get')){
             $received_data = ReceivedOrder::get_received_detail($request_order->received_order_id);
-            $data_status_check = false;
-            foreach($received_data as $rd_value){
-                if($rd_value->credit_card_status_code == 2 || $rd_value->cheque_status_code == 'cashed'){
-                    $data_status_check = true;
-                }
-            }
+            $data_status_check = ReceivedOrder::received_data_status_check($received_data);
 
             if($received_order->receipt_date){
                 if($data_status_check){

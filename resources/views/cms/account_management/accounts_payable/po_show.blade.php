@@ -105,6 +105,8 @@
                             {{ number_format($value->tw_price) }}
                             @if($value->acc_income_type_fk == 3)
                                 {{ '（' . $value->payable_method_name . ' - ' . $value->summary . '）' }}
+                            @elseif($value->acc_income_type_fk == 2)
+                                {!! '（<a href="' . route('cms.note_payable.record', ['id'=>$value->payable_method_id]) . '">' . $value->payable_method_name . ' ' . $value->cheque_ticket_number . '（' . date('Y-m-d', strtotime($value->cheque_due_date)) . '）' . '</a>）' !!}
                             @else
                                 {{ '（' . $value->payable_method_name . ' - ' . $value->account->name . ' - ' . $value->summary . '）' }}
                             @endif

@@ -8,6 +8,8 @@ use App\Enums\Delivery\LogisticStatus;
 use App\Enums\Discount\DividendCategory;
 use App\Enums\Order\UserAddrType;
 use App\Enums\Supplier\Payment;
+use App\Enums\Payable\ChequeStatus;
+
 use App\Http\Controllers\Controller;
 use App\Models\AccountPayable;
 use App\Models\Addr;
@@ -666,7 +668,7 @@ class OrderCtrl extends Controller
                 '',
                 '',
                 $supplier ? $supplier->id : null,
-                $supplier ? $supplier->name : null,
+                $supplier ? ($supplier->nickname ? $supplier->name . ' - ' . $supplier->nickname : $supplier->name) : null,
                 $supplier ? $supplier->contact_tel : null,
                 $supplier ? $supplier->contact_address : null
             );
@@ -833,7 +835,7 @@ class OrderCtrl extends Controller
                 'form_action' => Route('cms.order.logistic-po-create', ['id' => $id, 'sid' => $sid]),
                 'method' => 'create',
                 'transactTypeList' => AccountPayable::getTransactTypeList(),
-                'chequeStatus' => AccountPayable::getChequeStatus(),
+                'chequeStatus' => ChequeStatus::get_key_value(),
             ]);
         }
     }
@@ -1105,7 +1107,7 @@ class OrderCtrl extends Controller
                 'form_action' => Route('cms.order.return-pay-create', ['id' => $id, 'sid' => $sid]),
                 'method' => 'create',
                 'transactTypeList' => AccountPayable::getTransactTypeList(),
-                'chequeStatus' => AccountPayable::getChequeStatus(),
+                'chequeStatus' => ChequeStatus::get_key_value(),
             ]);
         }
     }

@@ -183,7 +183,7 @@
                         <option value="" selected disabled>請選擇</option>
                         @foreach($total_grades as $value)
                             @if(in_array($value['primary_id'], $cashDefault))
-                            <option value="{{ $value['primary_id'] }}" {{ count($all_payable_type_data['payableCash']) > 0 && $all_payable_type_data['payableCash']['grade_id_fk'] == $value['primary_id'] ? 'selected' : ''}}>{{ $value['code'] . ' ' . $value['name'] }}</option>
+                            <option value="{{ $value['primary_id'] }}">{{ $value['code'] . ' ' . $value['name'] }}</option>
                             @endif
                         @endforeach
                     </select>
@@ -197,62 +197,52 @@
                         <option value="" selected disabled>請選擇</option>
                         @foreach($total_grades as $value)
                             @if(in_array($value['primary_id'], $chequeDefault))
-                            <option value="{{ $value['primary_id'] }}" {{ count($all_payable_type_data['payableCheque']) > 0 && $all_payable_type_data['payableCheque']['grade_id_fk'] == $value['primary_id'] ? 'selected' : '' }}>{{ $value['code'] . ' ' . $value['name'] }}</option>
+                            <option value="{{ $value['primary_id'] }}">{{ $value['code'] . ' ' . $value['name'] }}</option>
                             @endif
                         @endforeach
                     </select>
                 </div>
 
-                <x-b-form-group name="cheque[check_num]" title="票號" required="true"
+                <x-b-form-group name="cheque[ticket_number]" title="票號" required="true"
                                 class="col-12 col-sm-4 mb-3 cheque"
-                                id="check_num">
-                    <input class="form-control @error('cheque[check_num]') is-invalid @enderror"
-                           name="cheque[check_num]"
+                                id="ticket_number">
+                    <input class="form-control @error('cheque[ticket_number]') is-invalid @enderror"
+                           name="cheque[ticket_number]"
                            required
                            type="text"
-                           value="{{ old('cheque[check_num]', $all_payable_type_data['payableCheque']['check_num'] ?? '') }}"/>
+                           value="{{ old('cheque[ticket_number]', '') }}"/>
                 </x-b-form-group>
-                <x-b-form-group name="cheque[maturity_date]"
+                <x-b-form-group name="cheque[due_date]"
                                 title="到期日"
                                 required="true"
                                 class="col-12 col-sm-4 mb-3 cheque"
-                                id="cheque[maturity_date]">
-                    <input class="form-control @error('cheque[maturity_date]') is-invalid @enderror"
-                           name="cheque[maturity_date]"
+                                id="cheque[due_date]">
+                    <input class="form-control @error('cheque[due_date]') is-invalid @enderror"
+                           name="cheque[due_date]"
                            required
                            type="date"
-                           value="{{ old('cheque[maturity_date]', $all_payable_type_data['payableCheque']['maturity_date'] ?? date('Y-m-d', strtotime( date('Y-m-d'))) ) }}"/>
+                           value="{{ old('cheque[due_date]', date('Y-m-d', strtotime( date('Y-m-d'))) ) }}"/>
                 </x-b-form-group>
-                <x-b-form-group name="cheque[cash_cheque_date]" title="兌現日" required="true"
+                <x-b-form-group name="cheque[cashing_date]" title="兌現日" required="true"
                                 class="col-12 col-sm-4 mb-3 cheque"
-                                id="cheque[cash_cheque_date]">
-                    <input class="form-control @error('cheque[cash_cheque_date]') is-invalid @enderror"
-                           name="cheque[cash_cheque_date]"
+                                id="cheque[cashing_date]">
+                    <input class="form-control @error('cheque[cashing_date]') is-invalid @enderror"
+                           name="cheque[cashing_date]"
                            required
                            type="date"
-                           value="{{ old('cheque[cash_cheque_date]', $all_payable_type_data['payableCheque']['cash_cheque_date'] ?? date('Y-m-d', strtotime( date('Y-m-d'))) ) }}"/>
+                           value="{{ old('cheque[cashing_date]', date('Y-m-d', strtotime( date('Y-m-d'))) ) }}"/>
                 </x-b-form-group>
                 <div class="col-12 col-sm-4 mb-3 cheque">
                     <label class="form-label">狀態
                         <span class="text-danger">*</span>
                     </label>
-                    <select name="cheque[cheque_status]" class="form-select" aria-label="Select" required data-placeholder="請選擇狀態">
+                    <select name="cheque[status_code]" class="form-select" aria-label="Select" required data-placeholder="請選擇狀態">
                         <option value="" selected disabled>請選擇狀態</option>
-                        @foreach($chequeStatus as $chequeData)
-                            <option value="{{ $chequeData['id'] }}"
-                                @if($method === 'edit')
-                                    @if(count($all_payable_type_data['payableCheque']) > 0 &&
-                                        $all_payable_type_data['payableCheque']['cheque_status'] === $chequeData['id'])
-                                        selected
-                                    @endif
-                                @endif
-                            >
-                                {{ $chequeData['status'] }}
-                            </option>
+                        @foreach($chequeStatus as $c_key => $c_values)
+                            <option value="{{ $c_key }}" {{ $c_key == 'paid' ? 'selected' : '' }}>{{ $c_values }}</option>
                         @endforeach
                     </select>
                 </div>
-                {{--                End of 支票--}}
 
                 <div class="col-12 col-sm-4 mb-3 remit">
                     <label for="" class="form-label remit">匯款銀行
@@ -262,7 +252,7 @@
                         <option value="" selected disabled>請選擇</option>
                         @foreach($total_grades as $value)
                             @if(in_array($value['primary_id'], $remitDefault))
-                                <option value="{{ $value['primary_id'] }}" {{ count($all_payable_type_data['payableRemit']) > 0 && $all_payable_type_data['payableRemit']['grade_id_fk'] == $value['primary_id'] ? 'selected' : ''}}>{{ $value['code'] . ' ' . $value['name'] }}</option>
+                                <option value="{{ $value['primary_id'] }}">{{ $value['code'] . ' ' . $value['name'] }}</option>
                             @endif
                         @endforeach
                     </select>
@@ -274,7 +264,7 @@
                            name="remit[remit_date]"
                            type="date"
                            required
-                           value="{{ old('remit[remit_date]',  $all_payable_type_data['payableRemit']['remit_date'] ?? date('Y-m-d', strtotime( date('Y-m-d'))) ) }}"/>
+                           value="{{ old('remit[remit_date]', date('Y-m-d', strtotime( date('Y-m-d'))) ) }}"/>
                 </x-b-form-group>
 
                 <div class="col-12 col-sm-4 mb-3 foreign_currency">
@@ -284,7 +274,7 @@
                     <select name="foreign_currency[currency]" class="form-select -select2 -single foreign_currency @error('foreign_currency[currency]') is-invalid @enderror" required data-placeholder="請選擇外幣">
                         <option value="" selected disabled>請選擇</option>
                         @foreach($all_currency as $value)
-                            <option value="{{ $value->currency_id }}" {{ count($all_payable_type_data['payableForeignCurrency']) > 0 && $all_payable_type_data['payableForeignCurrency']['acc_currency_fk'] === $value->currency_id ? 'selected' : '' }}>{{ $value->name }}</option>
+                            <option value="{{ $value->currency_id }}">{{ $value->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -296,7 +286,7 @@
                            id="rate"
                            type="number"
                            step="0.01"
-                           value="{{ old('foreign_currency[rate]', $all_payable_type_data['payableForeignCurrency']['rate'] ?? '') }}"/>
+                           value="{{ old('foreign_currency[rate]', '') }}"/>
                 </x-b-form-group>
 
                 <x-b-form-group name="foreign_currency[foreign_price]" title="金額（外幣）" required="true"
@@ -307,7 +297,7 @@
                            required
                            type="number"
                            step="0.01"
-                           value="{{ old('foreign_currency[foreign_price]', $all_payable_type_data['payableForeignCurrency']['foreign_currency'] ?? '') }}"/>
+                           value="{{ old('foreign_currency[foreign_price]', '') }}"/>
                 </x-b-form-group>
 
                 <div class="col-12 col-sm-4 mb-3 foreign_currency">
@@ -318,7 +308,7 @@
                         <option value="" selected disabled>請選擇</option>
                         @foreach($total_grades as $value)
                             @if(in_array($value['primary_id'], $currencyDefault))
-                                <option value="{{ $value['primary_id'] }}" {{ count($all_payable_type_data['payableForeignCurrency']) > 0 && $all_payable_type_data['payableForeignCurrency']['grade_id_fk'] == $value['primary_id'] ? 'selected' : ''}}>{{ $value['code'] . ' ' . $value['name'] }}</option>
+                                <option value="{{ $value['primary_id'] }}">{{ $value['code'] . ' ' . $value['name'] }}</option>
                             @endif
                         @endforeach
                     </select>
@@ -332,7 +322,7 @@
                         <option value="" selected disabled>請選擇</option>
                         @foreach($total_grades ?? [] as $value)
                             @if(in_array($value['primary_id'], $accountPayableDefault))
-                                <option value="{{ $value['primary_id'] }}" {{ count($all_payable_type_data['payableAccount']) > 0 && $all_payable_type_data['payableAccount']['grade_id_fk'] == $value['primary_id'] ? 'selected' : ''}}>{{ $value['code'] . ' ' . $value['name'] }}</option>
+                                <option value="{{ $value['primary_id'] }}">{{ $value['code'] . ' ' . $value['name'] }}</option>
                             @endif
                         @endforeach
                     </select>
@@ -345,7 +335,7 @@
                     <select name="other[grade_id_fk]" class="form-select -select2 -single other @error('other[grade_id_fk]') is-invalid @enderror" required data-placeholder="請選擇會計科目">
                         <option value="" selected disabled>請選擇</option>
                         @foreach($total_grades as $otherData)
-                            <option value="{{ $otherData['primary_id'] }}" {{ count($all_payable_type_data['payableOther']) > 0 && $all_payable_type_data['payableOther']['grade_id_fk'] == $otherData['primary_id'] ? 'selected' : ''}}>{{ $otherData['code'] . ' ' . $otherData['name'] }}</option>
+                            <option value="{{ $otherData['primary_id'] }}">{{ $otherData['code'] . ' ' . $otherData['name'] }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -353,25 +343,6 @@
 
             <div class="card shadow p-4 mb-4">
                 <h6>付款設定</h6>
-                {{--
-                <label class="form-label">付款狀態
-                    <span class="text-danger">*</span>
-                </label>
-                <fieldset class="col-12 mb-4">
-                    @foreach($paymentStatusList as $paymentStatus)
-                        <div class="form-check form-check-inline">
-                            <label class="form-check-label">
-                                <input class="form-check-input"
-                                        name="payable_status"
-                                        required
-                                        type="radio"
-                                        value="{{ $paymentStatus['id'] }}">
-                                {{ $paymentStatus['payment_status'] }}
-                            </label>
-                        </div>
-                    @endforeach
-                </fieldset>
-                --}}
                 <div class="row">
                     <x-b-form-group name="payment_date" title="付款日期" required="true" class="col-12 col-sm-6 mb-3">
                         <input class="form-control @error('payment_date') is-invalid @enderror" name="payment_date" required type="date" value="{{ old('payment_date', $payment_date ?? date('Y-m-d', strtotime( date('Y-m-d'))) ) }}"/>

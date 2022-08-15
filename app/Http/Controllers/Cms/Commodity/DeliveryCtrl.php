@@ -7,7 +7,7 @@ use App\Enums\Delivery\Event;
 use App\Enums\Delivery\LogisticStatus;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Purchase\LogEventFeature;
-use App\Enums\StockEvent;
+use App\Enums\Payable\ChequeStatus;
 use App\Enums\Supplier\Payment;
 use App\Http\Controllers\Controller;
 use App\Models\AllGrade;
@@ -1027,7 +1027,7 @@ class DeliveryCtrl extends Controller
 
                 'form_action' => Route('cms.delivery.return-pay-create', ['id' => $delivery->delivery_id]),
                 'transactTypeList' => AccountPayable::getTransactTypeList(),
-                'chequeStatus' => AccountPayable::getChequeStatus(),
+                'chequeStatus' => ChequeStatus::get_key_value(),
             ]);
         }
     }
