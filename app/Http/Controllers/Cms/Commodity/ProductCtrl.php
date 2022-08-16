@@ -784,7 +784,6 @@ class ProductCtrl extends Controller
         }
         Product::where('id', $id)->update($update_arr);
 
-
         foreach ($d['category_id'] as $key => $value) {
             Product::changeShipment($id, $value, $d['group_id'][$key]);
         }
@@ -977,4 +976,29 @@ class ProductCtrl extends Controller
         return redirect(Route('cms.product.edit-combo', ['id' => $id]));
 
     }
+
+    public function show(Request $request, $id)
+    {
+
+        $product = Product::where('id', $id)->get()->first();
+        if (!$product) {
+            return abort(404);
+        }
+
+        $product_img = ProductImg::where('product_id', $id)->get()->toArray();
+        $product_spec_list = ProductSpecList::where('product_id', $id)->get();
+        $styles = ProductStyle::getStylePrice($id);
+
+        $shipment = DB::table('prd_product_shipment as ps')
+        ->leftJoin('shi_group as group','ps.group_id','=','group.id')
+        ->select('group.note')
+        ->where('ps.product_id','=',$id)->get()->first();
+
+       // dd($shipment);
+
+        return view('cms.commodity.product.show', [
+
+        ]);
+    }
+
 }

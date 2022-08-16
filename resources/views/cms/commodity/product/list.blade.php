@@ -181,7 +181,7 @@
                                     </span>
                                     <span class="text-secondary">{{ $data->sku }}</span>
                                 </div>
-                                <div class="lh-base">{{ $data->title }}</div>
+                                <div class="lh-base"><a href="{{ route('cms.product.show',['id'=>$data->id]) }}">{{ $data->title }}</a></div>
                             </td>
                             <td>{{ $data->user_name }}</td>
                             <td class="text-center">

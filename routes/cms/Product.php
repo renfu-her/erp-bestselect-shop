@@ -44,4 +44,7 @@ Route::group(['prefix' => 'product', 'as' => 'product.'], function () {
     Route::get('create', [ProductCtrl::class, 'create'])->name('create'); //->middleware('permission:cms.product.create');
     Route::post('create', [ProductCtrl::class, 'store']);
     Route::get('delete/{id}', [ProductCtrl::class, 'destroy'])->name('delete'); //->middleware('permission:cms.product.delete');
+
+    Route::get('show/{id}', [ProductCtrl::class, 'show'])->name('show');
+
 });
