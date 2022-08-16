@@ -30,7 +30,7 @@ class OrderShipped extends Mailable
     public function build()
     {
         return $this
-            ->subject('[喜鴻國際企業股份有限公司] 訂單 #'. $this->data['sn']. ' 出貨通知')
+            ->subject('[喜鴻國際企業股份有限公司] 出貨通知')
             ->view('emails.order.order_shipped')->with($this->data);
     }
 }

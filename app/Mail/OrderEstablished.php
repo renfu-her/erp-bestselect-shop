@@ -30,7 +30,7 @@ class OrderEstablished extends Mailable
     public function build()
     {
         return $this
-            ->subject('[喜鴻國際企業股份有限公司] 訂單 #'. $this->data['sn']. ' 下單成功通知')
+            ->subject('[喜鴻國際企業股份有限公司] 下單成功通知')
             ->view('emails.order.order_established')->with($this->data);
     }
 }
