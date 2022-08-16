@@ -49,35 +49,26 @@
             </div>
 
             <div style="font-size: x-large; font-family:標楷體">
-                收　款　單
+                尾款付款單
             </div>
             <hr width="710" style="margin: .5rem auto;">
             <div>
                 <table width="710" style="font-size:small;text-align:left;border:0;margin: 0 auto;">
                     <tbody>
                         <tr>
-                            <td width="50%">客戶：<span style="font-size:medium;">{{ '烏梅' }}</span>　　台鑒</td>
-                            <td width="50%">地址：{{ '' }}</td>
-                        </tr>
-                        <tr>
-                            <td>電話：{{ '0987654321' }}</td>
-                            <td>傳真：{{ '' }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <hr width="710" style="margin: .5rem auto;">
-                <table width="710" style="font-size:small;text-align:left;border:0;margin: 0 auto;">
-                    <tbody>
-                        <tr>
-                            <td width="50%">收款單號：{{ 'MSG2208050001' }}</td>
+                            <td width="50%">付款單號：{{ 'ISG2208160002' }}</td>
                             <td width="50%">製表日期：{{ date('Y/m/d', strtotime('2022-08-05')) }}</td>
                         </tr>
                         <tr>
-                            <td>訂單流水號：{{ 'O202207190001' }}</td>
-                            <td>入帳日期：{{ '' }}</td>
+                            <td>單據編號：{{ 'B2206220001' }}</td>
+                            <td>
+                                @if (false)
+                                    付款日期：{{ '' }}
+                                @endif
+                            </td>
                         </tr>
                         <tr>
-                            <td>收款對象：</td>
+                            <td>支付對象：{{ '無廠商' }}</td>
                             <td>承辦人：{{ '烏梅' }}</td>
                         </tr>
                     </tbody>
@@ -87,37 +78,37 @@
                     style="font-size:small;margin:0 auto;border-collapse:collapse;">
                     <thead style="text-align: left;">
                         <tr height="24">
-                            <th scope="col" width="40%" style="padding-bottom:7px;">收款項目</th>
+                            <th scope="col" width="40%" style="padding-bottom:7px;">付款項目</th>
                             <th scope="col" width="8%" style="padding-bottom:7px;text-align: right;">數量</th>
                             <th scope="col" width="8%" style="padding-bottom:7px;text-align: right;">單價</th>
-                            <th scope="col" width="10%" style="padding-bottom:7px;text-align: right;">應收金額</th>
+                            <th scope="col" width="10%" style="padding-bottom:7px;text-align: right;">應付金額</th>
                             <th scope="col" width="34%" style="padding-bottom:7px;">備註</th>
                         </tr>
                     </thead>
                     <tbody style="text-align: left;">
                         {{-- @foreach ($order_list_data as $value) --}}
                             <tr height="24" style="border-bottom: 0px solid #dee2e6;">
-                                <td>4101 銷貨收入 --- 組合包商品-三包組（咖啡．候機室-新竹2號店 - 自取）（230 * 1）</td>
-                                <td style="text-align: right;">{{ number_format(1) }}</td>
-                                <td style="text-align: right;">{{ number_format(230) }}</td>
-                                <td style="text-align: right;">{{ number_format(230) }}</td>
-                                <td><a href="{{ Route('cms.order.detail', ['id' => 1], true) }}">{{ 'O202207190001' }}</a> 應稅 test back</td>
+                                <td>商品存貨-測試商品-L（負責人：Hans）</td>
+                                <td style="text-align: right;">{{ number_format(10) }}</td>
+                                <td style="text-align: right;">{{ number_format(10.00) }}</td>
+                                <td style="text-align: right;">{{ number_format(100) }}</td>
+                                <td>test memo</td>
                             </tr>
                         {{-- @endforeach --}}
 
                         <tr height="24" style="border-bottom: 0px solid #dee2e6;">
-                            <td>4101 銷貨收入 --- Group-GGGG（集運本倉 - 自取）（0 * 1）</td>
-                            <td style="text-align: right;">{{ number_format(1) }}</td>
-                            <td style="text-align: right;">{{ number_format(0) }}</td>
-                            <td style="text-align: right;">{{ number_format(0) }}</td>
-                            <td><a href="{{ Route('cms.order.detail', ['id' => 1], true) }}">{{ 'O202207190001' }}</a> 應稅 test back</td>
+                            <td>商品存貨-測試商品-X（負責人：Hans）</td>
+                            <td style="text-align: right;">{{ number_format(10) }}</td>
+                            <td style="text-align: right;">{{ number_format(10.00) }}</td>
+                            <td style="text-align: right;">{{ number_format(100) }}</td>
+                            <td>test memo</td>
                         </tr>
                         <tr height="24" style="border-bottom: 0px solid #dee2e6;">
-                            <td>4107 - 全館活動折扣 - 全館85折</td>
-                            <td style="text-align: right;">{{ number_format(1) }}</td>
-                            <td style="text-align: right;">{{ number_format(-35) }}</td>
-                            <td style="text-align: right;">{{ number_format(-35) }}</td>
-                            <td><a href="{{ Route('cms.order.detail', ['id' => 1], true) }}">{{ 'O202207190001' }}</a> 應稅</td>
+                            <td>5231 物流費用- 物流費用</td>
+                            <td style="text-align: right;"></td>
+                            <td style="text-align: right;"></td>
+                            <td style="text-align: right;">{{ number_format(80) }}</td>
+                            <td>物流備註666</td>
                         </tr>
                     </tbody>
                 </table>
@@ -127,17 +118,14 @@
                     <thead>
                         <tr height="24">
                             <td width="20%">合　　計：</td>
-                            <td width="36%" style="text-align: right;">（{{ '壹佰玖拾伍元整' }}）</td>
-                            <td width="10%" style="text-align: right;">{{ number_format(195) }}</td>
+                            <td width="36%" style="text-align: right;">（{{ '貳佰捌拾元整' }}）</td>
+                            <td width="10%" style="text-align: right;">{{ number_format(280) }}</td>
                             <td width="34%"></td>
                         </tr>
                     </thead>
                     <tbody style="text-align: left;">
                         <tr height="22">
-                            <td colspan="4">1101 現金 195 （現金 - 現金 - ）</td>
-                        </tr>
-                        <tr height="22">
-                            <td colspan="4">應收帳款-LINE PAY-1,475(應收帳款-LINE PAY訂單編號:15835N15695R1)-已入款(MSG0027438)</td>
+                            <td colspan="4">1101 現金 280 （現金 - 現金 - ）</td>
                         </tr>
                     </tbody>
                 </table>
@@ -148,7 +136,7 @@
                             <td width="25%">財務主管：</td>                     
                             <td width="25%">會計：</td>
                             <td width="25%">商品主管：</td>
-                            <td width="25%">商品負責：資訊部</td>
+                            <td width="25%">商品負責人：Hans</td>
                         </tr>              
                   </tbody>
                 </table>
