@@ -231,7 +231,7 @@ class User extends Authenticatable
         $re = Http::get($url)->json();
         DB::beginTransaction();
         foreach ($re as $u) {
-            if (self::where('account', $u['NUMBER'])->get()->first()) {
+            if (self::where('account', $u['NUMBER'])->withTrashed()->get()->first()) {
                 self::where('account', $u['NUMBER'])->update([
                     'name' => $u['NAME'],
                     'password' => Hash::make($u['PASSWORD']),
