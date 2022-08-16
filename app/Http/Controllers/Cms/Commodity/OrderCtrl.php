@@ -768,6 +768,9 @@ class OrderCtrl extends Controller
                     PayableCash::storePayableCash($req);
                     break;
                 case Payment::Cheque:
+                    $request->validate([
+                        'cheque.ticket_number'=>'required|regex:/^[A-Z]{2}[0-9]{7}$/'
+                    ]);
                     PayableCheque::storePayableCheque($req);
                     break;
                 case Payment::Remittance:
@@ -1015,6 +1018,9 @@ class OrderCtrl extends Controller
                     PayableCash::storePayableCash($req);
                     break;
                 case Payment::Cheque:
+                    $request->validate([
+                        'cheque.ticket_number'=>'required|regex:/^[A-Z]{2}[0-9]{7}$/'
+                    ]);
                     PayableCheque::storePayableCheque($req);
                     break;
                 case Payment::Remittance:

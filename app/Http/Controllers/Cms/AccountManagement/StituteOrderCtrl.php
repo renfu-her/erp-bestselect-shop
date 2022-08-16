@@ -368,6 +368,9 @@ class StituteOrderCtrl extends Controller
                 PayableCash::storePayableCash($data);
                 break;
             case Payment::Cheque:
+                $request->validate([
+                    'cheque.ticket_number'=>'required|regex:/^[A-Z]{2}[0-9]{7}$/'
+                ]);
                 PayableCheque::storePayableCheque($data);
                 break;
             case Payment::Remittance:
