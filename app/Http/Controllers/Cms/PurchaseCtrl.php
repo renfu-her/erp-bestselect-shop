@@ -52,7 +52,7 @@ class PurchaseCtrl extends Controller
 
         $purchase_sn = Arr::get($query, 'purchase_sn', '');
         $title = Arr::get($query, 'title', '');
-//        $sku = Arr::get($query, 'sku', '');
+        // $sku = Arr::get($query, 'sku', '');
         $purchase_user_id = Arr::get($query, 'purchase_user_id', []);
         $purchase_sdate = Arr::get($query, 'purchase_sdate', '');
         $purchase_edate = Arr::get($query, 'purchase_edate', '');
@@ -729,7 +729,6 @@ class PurchaseCtrl extends Controller
         ]);
     }
 
-
     public function po_create(Request $request)
     {
         if($request->isMethod('post')){
@@ -878,29 +877,28 @@ class PurchaseCtrl extends Controller
         }
     }
 
-
     public function payDeposit(Request $request, $id) {
         $purchaseData = Purchase::getPurchase($id)->first();
-//        $supplier = Supplier::where('id', '=', $purchaseData->supplier_id)->get()->first();
-//        $purchaseChargemanList = PurchaseItem::getPurchaseChargemanList($id)->get();
+        // $supplier = Supplier::where('id', '=', $purchaseData->supplier_id)->get()->first();
+        // $purchaseChargemanList = PurchaseItem::getPurchaseChargemanList($id)->get();
 
-//        $payList = SupplierPayment::where('supplier_id', '=', $purchaseData->supplier_id)->get()->toArray();
+        // $payList = SupplierPayment::where('supplier_id', '=', $purchaseData->supplier_id)->get()->toArray();
         $payTypeList = [];
         if (isset($payList)) {
             foreach ($payList as $key => $value) {
                 array_push($payTypeList, $value['type']);
             }
         }
-//        dd($supplier);
+        // dd($supplier);
 
         return view('cms.commodity.purchase.receipt', [
             'type' => 'deposit',
             'id' => $id,
             'purchaseData' => $purchaseData,
-//            'supplier' => $supplier,
+            // 'supplier' => $supplier,
             'payTypeList' => $payTypeList,
-//            'payList' => $payList,
-//            'purchaseChargemanList' => $purchaseChargemanList,
+            // 'payList' => $payList,
+            // 'purchaseChargemanList' => $purchaseChargemanList,
             'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
             'formAction' => Route('cms.purchase.pay-order', ['id' => $id,]),
         ]);
@@ -927,6 +925,13 @@ class PurchaseCtrl extends Controller
             'formAction' => Route('cms.purchase.pay-order', ['id' => $id,]),
         ]);
     }
+    
+    // 列印－付款單
+    public function print_payment()
+    {
+        return view('doc.print_payment', []);
+    }
+
     /**
      * @param  int  $purchaseId
      * 計算付款單的金額，並回傳
