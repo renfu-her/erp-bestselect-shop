@@ -44,7 +44,6 @@
                         @php
                             $serial = 1;
                             $product_grade_f = true;
-                            $order_note_f = true;
                         @endphp
 
                         @foreach($received_data as $value)
@@ -130,13 +129,7 @@
                                     </div>
                                 </td>
                                 <td>
-                                    @if($order_note_f)
-                                        {{ $value->order_note }}
-                                        {{-- <input class="form-control" name="order_note" type="text" value="{{ $value->order_note }}"> --}}
-                                        @php
-                                            $order_note_f = false;
-                                        @endphp
-                                    @endif
+                                    {{ $value->product_note }}
                                 </td>
                             </tr>
                             @php
