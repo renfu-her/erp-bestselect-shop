@@ -677,6 +677,8 @@ class PayingOrder extends Model
                 'po.deleted_at'=>null,
             ])
             ->whereNotNull('po.balance_date')
+            ->whereNotNull('payable.payment_date')
+
             ->selectRaw('
                 po.id AS po_id,
                 po.source_type AS po_source_type,

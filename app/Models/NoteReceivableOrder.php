@@ -69,6 +69,8 @@ class NoteReceivableOrder extends Model
             ->where([
                 //
             ])
+            ->whereNotNull('ro.balance_date')
+            ->whereNotNull('ro.receipt_date')
 
             ->selectRaw('
                 ro.id AS ro_id,
