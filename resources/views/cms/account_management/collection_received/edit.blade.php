@@ -264,7 +264,7 @@
                         name="{{ $REMIT }}[remittance]"
                         type="date"
                         required
-                        value="{{ old($REMIT . '[remittance]',  $all_payable_type_data['payableRemit']['remittance'] ?? date('Y-m-d', strtotime( date('Y-m-d')))) }}" />
+                        value="{{ old($REMIT . '[remittance]', date('Y-m-d', strtotime( date('Y-m-d')))) }}" />
                     @error('{{ $REMIT }}[remittance]')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -302,7 +302,7 @@
                         required
                         type="number"
                         step="0.01"
-                        value="{{ old($FOREIGN_CURRENCY . '[foreign_price]', $all_payable_type_data['payableForeignCurrency'][$FOREIGN_CURRENCY] ?? '') }}" />
+                        value="{{ old($FOREIGN_CURRENCY . '[foreign_price]', '') }}" />
                     @error('{{ $FOREIGN_CURRENCY }}[foreign_price]')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror

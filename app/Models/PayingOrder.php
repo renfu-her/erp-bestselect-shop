@@ -560,6 +560,7 @@ class PayingOrder extends Model
                 payable.id AS payable_id,
                 payable.pay_order_id,
                 payable.acc_income_type_fk,
+                payable.payable_id AS payable_method_id,
                 payable.all_grades_id,
                 payable.tw_price,
                 payable.payment_date,
@@ -573,9 +574,21 @@ class PayingOrder extends Model
             // ')
 
             ->selectRaw('
-                _cheque.maturity_date AS cheque_maturity_date,
-                _cheque.cash_cheque_date AS cheque_cash_cheque_date,
-                _cheque.cheque_status AS cheque_cheque_status
+                _cheque.id AS cheque_id,
+                _cheque.ticket_number AS cheque_ticket_number,
+                _cheque.due_date AS cheque_due_date,
+
+                _cheque.banks AS cheque_banks,
+                _cheque.accounts AS cheque_accounts,
+                _cheque.drawer AS cheque_drawer,
+
+                _cheque.status_code AS cheque_status_code,
+                _cheque.status AS cheque_status,
+                _cheque.cashing_date AS cheque_cashing_date,
+                _cheque.bounce_date AS cheque_bounce_date,
+                _cheque.note_payable_order_id AS cheque_note_payable_order_id,
+                _cheque.sn AS cheque_sn,
+                _cheque.amt_net AS cheque_amt_net
             ')
 
             ->selectRaw('
@@ -793,7 +806,7 @@ class PayingOrder extends Model
                     'sn'=>$request['sn'],
                     'amt_net'=>$request['amt_net'][$key],
                     'payment_date'=>null,
-                    'updated_at'=>date("Y-m-d H:i:s"),
+                    'updated_at'=>date('Y-m-d H:i:s'),
                 ]);
             }
 
@@ -802,8 +815,8 @@ class PayingOrder extends Model
                 'status_code'=>1,
                 'append_pay_order_id'=>$request['append_pay_order_id'],
                 'sn'=>$request['sn'],
-                'payment_date'=>date("Y-m-d H:i:s"),
-                'updated_at'=>date("Y-m-d H:i:s"),
+                'payment_date'=>date('Y-m-d H:i:s'),
+                'updated_at'=>date('Y-m-d H:i:s'),
             ]);
         }
     }

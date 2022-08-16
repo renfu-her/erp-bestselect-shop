@@ -19,7 +19,7 @@
     </li>
     <li class="nav-item">
         <a href="{{ Route('cms.customer.address', ['id' => $customer], true) }}"
-            class="nav-link {{ isActive('address', $route_name) }}">收件地址管理</a>
+            class="nav-link {{ isActive('address', $route_name) }}">地址管理</a>
     </li>
     <li class="nav-item">
         <a href="#" class="nav-link ">身份驗證</a>

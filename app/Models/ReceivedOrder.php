@@ -8,9 +8,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 use Illuminate\Support\Facades\DB;
 
+use App\Enums\Area\Area;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Order\PaymentStatus;
 use App\Enums\Received\ReceivedMethod;
+use App\Enums\Received\ChequeStatus;
 
 class ReceivedOrder extends Model
 {
@@ -347,7 +349,7 @@ class ReceivedOrder extends Model
                 'drawee_name'=>$purchaser->name,
                 'drawee_phone'=>$purchaser->phone,
                 'drawee_address'=>$purchaser->address,
-                // 'created_at'=>date("Y-m-d H:i:s"),
+                // 'created_at'=>date('Y-m-d H:i:s'),
             ]);
 
             if($re){
@@ -389,7 +391,7 @@ class ReceivedOrder extends Model
                 'drawee_name'=>$purchaser->name,
                 'drawee_phone'=>$purchaser->phone,
                 'drawee_address'=>$purchaser->address,
-                // 'created_at'=>date("Y-m-d H:i:s"),
+                // 'created_at'=>date('Y-m-d H:i:s'),
             ]);
 
             if($re){
@@ -464,14 +466,14 @@ class ReceivedOrder extends Model
             'taxation'=>1,
             'summary'=>$summary,
             'note'=>$note,
-            'created_at'=>date("Y-m-d H:i:s"),
+            'created_at'=>date('Y-m-d H:i:s'),
         ]);
 
         $received_order = self::find($received_order_id);
         $received_list = self::get_received_detail([$received_order_id]);
         if ( count($received_list) > 0 && $received_order->price == $received_list->sum('tw_price')) {
             $received_order->update([
-                'balance_date'=>date("Y-m-d H:i:s"),
+                'balance_date'=>date('Y-m-d H:i:s'),
             ]);
 
             if($received_order->source_type == app(Order::class)->getTable()){
@@ -511,7 +513,7 @@ class ReceivedOrder extends Model
             'taxation'=>$parm['taxation'],
             'summary'=>$parm['summary'],
             'note'=>$parm['note'],
-            'updated_at'=>date("Y-m-d H:i:s"),
+            'updated_at'=>date('Y-m-d H:i:s'),
         ]);
     }
 
@@ -527,8 +529,12 @@ class ReceivedOrder extends Model
                 $id = DB::table('acc_received_cheque')->insertGetId([
                     'ticket_number'=>$request[$request['acc_transact_type_fk']]['ticket_number'],
                     'due_date'=>$request[$request['acc_transact_type_fk']]['due_date'],
-                    'created_at'=>date("Y-m-d H:i:s"),
+                    'status_code'=>ChequeStatus::Received,
+                    'status'=>ChequeStatus::getDescription('received'),
+                    'created_at'=>date('Y-m-d H:i:s'),
                 ]);
+
+                NoteReceivableLog::create_cheque_log($id, 'received');
                 break;
 
             case ReceivedMethod::CreditCard:
@@ -547,14 +553,14 @@ class ReceivedOrder extends Model
                     'status_code'=>$request[$request['acc_transact_type_fk']]['status_code'],
                     'card_nat'=>$request[$request['acc_transact_type_fk']]['card_nat'],
                     'checkout_mode'=>$request[$request['acc_transact_type_fk']]['checkout_mode'],
-                    'created_at'=>date("Y-m-d H:i:s"),
+                    'created_at'=>date('Y-m-d H:i:s'),
                 ]);
                 break;
 
             // case ReceivedMethod::CreditCard3:
             //     $id = DB::table('acc_received_credit')->insertGetId([
             //         'installment'=>3,
-            //         'created_at'=>date("Y-m-d H:i:s"),
+            //         'created_at'=>date('Y-m-d H:i:s'),
             //     ]);
             //     break;
 
@@ -562,7 +568,7 @@ class ReceivedOrder extends Model
                 $id = DB::table('acc_received_remit')->insertGetId([
                     'remittance'=>$request[$request['acc_transact_type_fk']]['remittance'],
                     'memo'=>$request[$request['acc_transact_type_fk']]['bank_slip_name'],
-                    'created_at'=>date("Y-m-d H:i:s"),
+                    'created_at'=>date('Y-m-d H:i:s'),
                 ]);
                 break;
 
@@ -570,14 +576,14 @@ class ReceivedOrder extends Model
                 $id = DB::table('acc_received_currency')->insertGetId([
                     'currency'=>$request[$request['acc_transact_type_fk']]['rate'],
                     'foreign_currency'=>$request[$request['acc_transact_type_fk']]['foreign_price'],
-                    'created_at'=>date("Y-m-d H:i:s"),
+                    'created_at'=>date('Y-m-d H:i:s'),
                 ]);
                 break;
 
             case ReceivedMethod::AccountsReceivable:
                 $id = DB::table('acc_received_account')->insertGetId([
                     'status_code'=>0,
-                    'created_at'=>date("Y-m-d H:i:s"),
+                    'created_at'=>date('Y-m-d H:i:s'),
                 ]);
                 break;
 
@@ -592,23 +598,44 @@ class ReceivedOrder extends Model
 
     public static function update_received_method($request)
     {
+        $checkout_area = Area::get_key_value();
+
         switch ($request['received_method']) {
             // case ReceivedMethod::Cash:
 
             case ReceivedMethod::Cheque:
-                // DB::table('acc_received_cheque')->where('id', $request['received_method_id'])->update([
-                //     'ticket_number'=>$request['ticket_number'],
-                //     'due_date'=>$request['due_date'],
-                //     'created_at'=>date("Y-m-d H:i:s"),
-                // ]);
+                DB::table('acc_received_cheque')->where('id', $request['received_method_id'])->update([
+                    'ticket_number'=>$request['ticket_number'],
+                    'due_date'=>$request['due_date'],
+                    'banks'=>$request['banks'] ?? null,
+                    'accounts'=>$request['accounts'] ?? null,
+                    'drawer'=>$request['drawer'] ?? null,
+
+                    'deposited_area_code'=>$request['deposited_area_code'] ?? null,
+                    'deposited_area'=>$request['deposited_area_code'] ? $checkout_area[$request['deposited_area_code']] : null,
+                    // 'all_grades_id'=>$request['all_grades_id'],
+                    'status_code'=>$request['status_code'] ?? null,
+                    'status'=>$request['status_code'] ? ChequeStatus::getDescription($request['status_code']) : null,
+
+                    // 'c_n_date'=>$request['c_n_date'] ?? null,
+                    'cashing_date'=>$request['cashing_date'] ?? null,
+                    'draw_date'=>$request['draw_date'] ?? null,
+
+                    'updated_at'=>date('Y-m-d H:i:s'),
+                ]);
+
+                if($request['status_code']){
+                    NoteReceivableLog::create_cheque_log($request['received_method_id'], $request['status_code']);
+
+                    if($request['cashing_date'] && $request['status_code'] == 'cashed'){
+                        NoteReceivableOrder::store_note_receivable_order($request['cashing_date']);
+                    }
+                }
+
                 break;
 
             case ReceivedMethod::CreditCard:
                 $card_type = CrdCreditCard::distinct('title')->groupBy('title')->orderBy('id', 'asc')->pluck('title', 'id')->toArray();
-
-                $checkout_area = [
-                    'taipei'=>'台北',
-                ];
 
                 DB::table('acc_received_credit')->where('id', $request['received_method_id'])->update([
                     'cardnumber'=>$request['cardnumber'],
@@ -625,14 +652,14 @@ class ReceivedOrder extends Model
                     // 'status_code'=>$request['status_code'],
                     // 'card_nat'=>$request['card_nat'],
                     // 'checkout_mode'=>$request['checkout_mode'],
-                    'updated_at'=>date("Y-m-d H:i:s"),
+                    'updated_at'=>date('Y-m-d H:i:s'),
                 ]);
                 break;
 
             // case ReceivedMethod::CreditCard3:
             //     DB::table('acc_received_credit')->where('id', $request['received_method_id'])->update([
             //         'installment'=>3,
-            //         'created_at'=>date("Y-m-d H:i:s"),
+            //         'created_at'=>date('Y-m-d H:i:s'),
             //     ]);
             //     break;
 
@@ -640,7 +667,7 @@ class ReceivedOrder extends Model
                 // DB::table('acc_received_remit')->where('id', $request['received_method_id'])->update([
                 //     'remittance'=>$request['remittance'],
                 //     'memo'=>$request['bank_slip_name'],
-                //     'created_at'=>date("Y-m-d H:i:s"),
+                //     'created_at'=>date('Y-m-d H:i:s'),
                 // ]);
                 break;
 
@@ -648,7 +675,7 @@ class ReceivedOrder extends Model
                 // DB::table('acc_received_currency')->where('id', $request['received_method_id'])->update([
                 //     'currency'=>$request['rate'],
                 //     'foreign_currency'=>$request['foreign_price'],
-                //     'created_at'=>date("Y-m-d H:i:s"),
+                //     'created_at'=>date('Y-m-d H:i:s'),
                 // ]);
                 break;
 
@@ -661,7 +688,7 @@ class ReceivedOrder extends Model
 
         DB::table('acc_received')->where('id', $request['received_id'])->update([
             'all_grades_id'=>$request['all_grades_id'],
-            'updated_at'=>date("Y-m-d H:i:s"),
+            'updated_at'=>date('Y-m-d H:i:s'),
         ]);
     }
 
@@ -769,7 +796,20 @@ class ReceivedOrder extends Model
 
             ->selectRaw('
                 _cheque.ticket_number AS cheque_ticket_number,
-                _cheque.due_date AS cheque_due_date
+                _cheque.due_date AS cheque_due_date,
+                _cheque.banks AS cheque_banks,
+                _cheque.accounts AS cheque_accounts,
+                _cheque.drawer AS cheque_drawer,
+                _cheque.deposited_area_code AS cheque_deposited_area_code,
+                _cheque.deposited_area AS cheque_deposited_area,
+                _cheque.status_code AS cheque_status_code,
+                _cheque.status AS cheque_status,
+                _cheque.c_n_date AS cheque_c_n_date,
+                _cheque.cashing_date AS cheque_cashing_date,
+                _cheque.draw_date AS cheque_draw_date,
+                _cheque.note_receivable_order_id AS cheque_note_receivable_order_id,
+                _cheque.sn AS cheque_sn,
+                _cheque.amt_net AS cheque_amt_net
             ')
 
             ->selectRaw('
@@ -820,7 +860,7 @@ class ReceivedOrder extends Model
                 'amt_net'=>0,
                 'transaction_date'=>null,
                 'posting_date'=>null,
-                'updated_at'=>date("Y-m-d H:i:s"),
+                'updated_at'=>date('Y-m-d H:i:s'),
             ]);
 
         } else if($request['status_code'] == 1){
@@ -832,7 +872,7 @@ class ReceivedOrder extends Model
                 'amt_net'=>0,
                 'transaction_date'=>$request['transaction_date'],
                 'posting_date'=>null,
-                'updated_at'=>date("Y-m-d H:i:s"),
+                'updated_at'=>date('Y-m-d H:i:s'),
             ]);
 
         } else if($request['status_code'] == 2){
@@ -843,7 +883,7 @@ class ReceivedOrder extends Model
                     'amt_service_fee'=>$request['authamt'][$key] - $request['amt_net'][$key],
                     'amt_net'=>$request['amt_net'][$key],
                     'posting_date'=>$request['posting_date'],
-                    'updated_at'=>date("Y-m-d H:i:s"),
+                    'updated_at'=>date('Y-m-d H:i:s'),
                 ]);
             }
 
@@ -853,7 +893,7 @@ class ReceivedOrder extends Model
                 DB::table('acc_received_credit')->where('id', $value)->update([
                     'income_order_id'=>$income_order->id,
                     'sn'=>$income_order->sn,
-                    'updated_at'=>date("Y-m-d H:i:s"),
+                    'updated_at'=>date('Y-m-d H:i:s'),
                 ]);
             }
         }
@@ -879,10 +919,10 @@ class ReceivedOrder extends Model
                     'ro.deleted_at'=>null,
                 ]);
             })
-            ->leftJoin('usr_users AS sales', function($join){
-                $join->on('ro.usr_users_id', '=', 'sales.id');
+            ->leftJoin('usr_users AS undertaker', function($join){
+                $join->on('ro.usr_users_id', '=', 'undertaker.id');
                 $join->where([
-                    'sales.deleted_at'=>null,
+                    'undertaker.deleted_at'=>null,
                 ]);
             })
 
@@ -932,12 +972,15 @@ class ReceivedOrder extends Model
             ->where([
                 //
             ])
+            ->whereNotNull('ro.balance_date')
+            ->whereNotNull('ro.receipt_date')
+
             ->selectRaw('
                 ro.id AS ro_id,
                 ro.source_type AS ro_source_type,
                 ro.source_id AS ro_source_id,
                 ro.sn AS ro_sn,
-                sales.name AS ro_sales,
+                undertaker.name AS ro_undertaker,
                 ro.drawee_id AS ro_target_id,
                 ro.drawee_name AS ro_target_name,
                 ro.drawee_phone AS ro_target_phone,
@@ -1054,7 +1097,7 @@ class ReceivedOrder extends Model
                     'sn'=>$request['sn'],
                     'amt_net'=>$request['amt_net'][$key],
                     'posting_date'=>null,
-                    'updated_at'=>date("Y-m-d H:i:s"),
+                    'updated_at'=>date('Y-m-d H:i:s'),
                 ]);
             }
 
@@ -1063,9 +1106,23 @@ class ReceivedOrder extends Model
                 'status_code'=>1,
                 'append_received_order_id'=>$request['append_received_order_id'],
                 'sn'=>$request['sn'],
-                'posting_date'=>date("Y-m-d H:i:s"),
-                'updated_at'=>date("Y-m-d H:i:s"),
+                'posting_date'=>date('Y-m-d H:i:s'),
+                'updated_at'=>date('Y-m-d H:i:s'),
             ]);
         }
+    }
+
+
+    public static function received_data_status_check($collection)
+    {
+        $check_result = false;
+        foreach($collection as $value){
+            if($value->credit_card_status_code == 2 || $value->cheque_status_code == 'cashed' || $value->account_status_code == 2){
+                $check_result = true;
+                break;
+            }
+        }
+
+        return $check_result;
     }
 }

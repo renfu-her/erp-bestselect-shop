@@ -126,6 +126,11 @@ return
                 "title" => "團購主公司管理",
                 "controller_name" => "GroupbyCompanyCtrl",
                 "route_name" => "cms.groupby-company.index",
+            ],
+            [
+                "title" => "通知信管理",
+                "controller_name" => "MailSetCtrl",
+                "route_name" => "cms.mail_set.index",
             ]
         ],
     ],
@@ -197,6 +202,16 @@ return
                 "route_name" => "cms.transfer_voucher.index",
             ],
             [
+                "title" => "應付票據",
+                "controller_name" => "NotePayableCtrl",
+                "route_name" => "cms.note_payable.index",
+            ],
+            [
+                "title" => "應收票據",
+                "controller_name" => "NoteReceivableCtrl",
+                "route_name" => "cms.note_receivable.index",
+            ],
+            [
                 "title" => "信用卡作業管理",
                 "controller_name" => "CreditManagerCtrl",
                 "route_name" => "cms.credit_manager.index",
@@ -258,9 +273,21 @@ return
         ],
     ],
     [
+        "title" => "行政管理",
+        "icon" => "bi-person-workspace",
+        "menu_id" => "7",
+        "child" => [
+            [
+                "title" => "佈告欄",
+                "controller_name" => "BulletinBoardCtrl",
+                "route_name" => "cms.bulletin_board.index",
+            ],
+        ],
+    ],
+    [
         "title" => "帳號管理",
         "icon" => "bi-person-circle",
-        "menu_id" => "7",
+        "menu_id" => "8",
         "child" => [
             [
                 "title" => "員工帳號管理",

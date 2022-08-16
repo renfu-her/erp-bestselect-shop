@@ -8,7 +8,9 @@
     @if(! $received_order->receipt_date)
     <a href="{{ route('cms.request.ro-review', ['id' => $received_order->source_id]) }}" class="btn btn-primary px-4" role="button">收款單入款審核</a>
     @else
-    <a href="{{ route('cms.request.ro-review', ['id' => $received_order->source_id]) }}" class="btn btn-outline-success px-4" role="button">取消入帳</a>
+        @if(! $data_status_check)
+        <a href="{{ route('cms.request.ro-review', ['id' => $received_order->source_id]) }}" class="btn btn-outline-success px-4" role="button">取消入帳</a>
+        @endif
     @endif
     <a href="{{ route('cms.request.ro-taxation', ['id' => $received_order->source_id]) }}" class="btn btn-outline-success px-4" role="button">修改摘要/稅別</a>
     {{--
@@ -131,6 +133,8 @@
                             {{ '（' . $value->received_method_name . ' - ' . $value->credit_card_number . '（' . $value->credit_card_owner_name . '）' . '）' }}
                         @elseif($value->received_method == 'remit')
                             {{ '（' . $value->received_method_name . ' - ' . $value->summary . '（' . $value->remit_memo . '）' . '）' }}
+                        @elseif($value->received_method == 'cheque')
+                            {!! '（<a href="' . route('cms.note_receivable.record', ['id'=>$value->received_method_id]) . '">' . $value->received_method_name . ' - ' . $value->cheque_ticket_number . '（' . date('Y-m-d', strtotime($value->cheque_due_date)) . '）' . '</a>）' !!}
                         @else
                             {{ '（' . $value->received_method_name . ' - ' . $value->account->name . ' - ' . $value->summary . '）' }}
                         @endif

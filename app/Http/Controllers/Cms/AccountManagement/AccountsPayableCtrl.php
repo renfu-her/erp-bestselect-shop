@@ -12,6 +12,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 use App\Enums\Supplier\Payment;
+use App\Enums\Payable\ChequeStatus;
 
 use App\Models\AllGrade;
 use App\Models\AccountPayable;
@@ -123,7 +124,7 @@ class AccountsPayableCtrl extends Controller
             $compare = array_diff(request('selected'), request('accounts_payable_id'));
             if(count($compare) == 0){
                 $source_type = app(PayingOrder::class)->getTable();
-                // $n_id = DB::select("SHOW TABLE STATUS LIKE '" . $source_type . "'")[0]->Auto_increment;
+                // $n_id = DB::select("SHOW TABLE STATUS FROM 'shop-dev' LIKE '" . $source_type . "'")[0]->Auto_increment;
                 $n_id = PayingOrder::get()->count() + 1;
                 $accounts_payable_id = current(request('accounts_payable_id'));
                 $payable = DB::table('acc_payable')->where([
@@ -220,7 +221,7 @@ class AccountsPayableCtrl extends Controller
             'otherDefault' => PayableDefault::where('name', 'other')->pluck('default_grade_id')->toArray(),
 
             'transactTypeList' => AccountPayable::getTransactTypeList(),
-            'chequeStatus' => AccountPayable::getChequeStatus(),
+            'chequeStatus' => ChequeStatus::get_key_value(),
         ]);
     }
 
@@ -272,7 +273,7 @@ class AccountsPayableCtrl extends Controller
         $payable_data = PayingOrder::get_payable_detail($id);
         if (count($payable_data) > 0 && $paying_order->price == $payable_data->sum('tw_price')) {
             $paying_order->update([
-                'balance_date'=>date("Y-m-d H:i:s"),
+                'balance_date'=>date('Y-m-d H:i:s'),
             ]);
         }
 

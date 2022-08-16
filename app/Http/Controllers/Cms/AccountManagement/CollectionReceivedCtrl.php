@@ -82,7 +82,7 @@ class CollectionReceivedCtrl extends AccountReceivedPapaCtrl
     {
         return 'cms.account_management.collection_received.receipt';
     }
-    
+
     // 列印－收款單
     public function print_received()
     {
@@ -122,6 +122,7 @@ class CollectionReceivedCtrl extends AccountReceivedPapaCtrl
         OrderFlow::changeOrderStatus($id, OrderStatus::Received());
         // 配發啟用日期
         Order::assign_dividend_active_date($id);
+        Order::sendMail_OrderPaid($id);
     }
 
     public function doReviewWhenReceiptCancle($id)

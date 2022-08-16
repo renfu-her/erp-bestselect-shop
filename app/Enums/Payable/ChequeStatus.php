@@ -13,11 +13,11 @@ use BenSampo\Enum\Enum;
  */
 final class ChequeStatus extends Enum
 {
-    const Paid = 1;
-    const Cashed = 2;
-    const OnHold = 3;
-    const Returned = 4;
-    const Issued = 5;
+    const Paid = 'paid';
+    const Cashed = 'cashed';
+    const OnHold = 'onhold';
+    const Returned = 'returned';
+    const Issued = 'issued';
 
     public static function getDescription($value): string
     {
@@ -35,5 +35,17 @@ final class ChequeStatus extends Enum
             default:
                 return parent::getDescription($value);
         }
+    }
+
+
+    public static function get_key_value()
+    {
+        $result = [];
+
+        foreach (self::asArray() as $data) {
+            $result[$data] = self::getDescription($data);
+        }
+
+        return $result;
     }
 }

@@ -3,6 +3,9 @@
     <h2 class="mb-3">#{{ $purchaseData->consignment_sn }} 寄倉單</h2>
     <x-b-consign-navi :id="$id"></x-b-consign-navi>
 
+    @if($errors->any())
+        <div class="alert alert-danger mt-3">{!! implode('', $errors->all('<div>:message</div>')) !!}</div>
+    @endif
     <div class="card shadow p-4 mb-4">
         <h6>入庫總覽</h6>
         <div class="table-responsive tableOverBox">

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Cms;
 use App\Enums\Consignment\AuditStatus;
 use App\Enums\Delivery\Event;
 use App\Enums\Supplier\Payment;
+use App\Enums\Payable\ChequeStatus;
 use App\Http\Controllers\Controller;
 
 use App\Models\AllGrade;
@@ -627,7 +628,7 @@ class PurchaseCtrl extends Controller
                     $request['deposit_summary'] ?? '',
                     $request['deposit_memo'] ?? '',
                     $purchase->supplier_id,
-                    $purchase->supplier_name,
+                    $purchase->supplier_nickname ? $purchase->supplier_name . ' - ' . $purchase->supplier_nickname : $purchase->supplier_name,
                     $purchase->supplier_phone,
                     $purchase->supplier_address
                 );
@@ -694,6 +695,11 @@ class PurchaseCtrl extends Controller
         // session([
         //     '_url'=>request()->fullUrl()
         // ]);
+        if($validatedReq['type'] === '0'){
+            $zh_price = num_to_str($depositPaymentData->price);
+        } else {
+            $zh_price = num_to_str($paymentPrice['finalPaymentPrice']);
+        }
 
         return view('cms.commodity.purchase.pay_order', [
             'id' => $id,
@@ -719,6 +725,7 @@ class PurchaseCtrl extends Controller
             'undertaker' => $undertaker,
             'appliedCompanyData' => $appliedCompanyData,
             'supplier' => $supplier,
+            'zh_price' => $zh_price,
         ]);
     }
 
@@ -760,7 +767,7 @@ class PurchaseCtrl extends Controller
             $pay_list = AccountPayable::where('pay_order_id', request('pay_order_id'))->get();
             if (count($pay_list) > 0 && $paying_order->price == $pay_list->sum('tw_price')) {
                 $paying_order->update([
-                    'balance_date'=>date("Y-m-d H:i:s"),
+                    'balance_date'=>date('Y-m-d H:i:s'),
                 ]);
             }
 
@@ -789,15 +796,6 @@ class PurchaseCtrl extends Controller
             ]);
 
             $payOrdId = $request['payOrdId'];
-
-            $all_payable_type_data = [
-                'payableCash' => [],
-                'payableCheque' => [],
-                'payableRemit' => [],
-                'payableForeignCurrency' => [],
-                'payableAccount' => [],
-                'payableOther' => [],
-            ];
 
             $paying_order = PayingOrder::findOrFail($payOrdId);
 
@@ -857,7 +855,7 @@ class PurchaseCtrl extends Controller
 
                 'method' => 'create',
                 'transactTypeList' => AccountPayable::getTransactTypeList(),
-                'chequeStatus' => AccountPayable::getChequeStatus(),
+                'chequeStatus' => ChequeStatus::get_key_value(),
                 'formAction' => Route('cms.purchase.po-create'),
 
                 'breadcrumb_data' => ['id' => $paying_order->source_id, 'sn' => $purchase_data->purchase_sn, 'type' => request('isFinalPay')],
@@ -869,7 +867,6 @@ class PurchaseCtrl extends Controller
                 'paying_order' => $paying_order,
                 'currency' => $currency,
                 'type' => request('isFinalPay') === '0' ? 'deposit' : 'final',
-                'all_payable_type_data' => $all_payable_type_data,
                 'purchase_data' => $purchase_data,
                 'supplier' => $supplier,
 

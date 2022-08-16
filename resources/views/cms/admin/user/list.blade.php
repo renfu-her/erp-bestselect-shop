@@ -15,17 +15,17 @@
             <table class="table table-striped tableList">
                 <thead>
                     <tr>
-                        <th scope="col" style="width:10%">#</th>
-                        <th scope="col">姓名</th>
+                        <th scope="col" style="width:40px;">#</th>
+                        <th scope="col" style="width:10%;">姓名</th>
                         <th scope="col">帳號</th>
                         <th scope="col">api_token</th>
-                        <th scope="col">角色設定狀況</th>
-                        <th scope="col">通路權限</th>
+                        <th scope="col" style="width:10%;">角色設定狀況</th>
+                        <th scope="col" class="text-center" style="width:40px;">通路權限</th>
                         @can('cms.user.edit')
-                            <th scope="col" class="text-center">編輯</th>
+                            <th scope="col" class="text-center" style="width:40px;">編輯</th>
                         @endcan
                         @can('cms.user.delete')
-                            <th scope="col" class="text-center">刪除</th>
+                            <th scope="col" class="text-center" style="width:40px;">刪除</th>
                         @endcan
                     </tr>
                 </thead>

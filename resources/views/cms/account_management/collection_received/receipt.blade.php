@@ -6,11 +6,13 @@
             @if(! $received_order->receipt_date)
                 <a href="{{ route('cms.collection_received.review', ['id' => $received_order->source_id]) }}" class="btn btn-sm btn-primary" role="button">收款單入款審核</a>
             @else
+                @if(! $data_status_check)
                 <a href="{{ route('cms.collection_received.review', ['id' => $received_order->source_id]) }}" class="btn btn-sm btn-outline-danger" role="button">取消入帳</a>
+                @endif
             @endif
 
             <a href="{{ route('cms.collection_received.taxation', ['id' => $received_order->source_id]) }}" class="btn btn-sm btn-dark" role="button">修改摘要/稅別</a>
-            
+
             <a href="{{ route('cms.collection_received.print_received') }}" target="_blank" class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
             {{--
             <button type="submit" class="btn btn-sm btn-warning">A4列印畫面</button>
@@ -100,7 +102,7 @@
                                 <td class="text-end">{{ number_format($value->product_qty) }}</td>
                                 <td class="text-end">{{ number_format($value->product_price, 2) }}</td>
                                 <td class="text-end">{{ number_format($value->product_origin_price) }}</td>
-                                <td>{{ $received_order->memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id], true) }}">{{ $order->sn }}</a> {{ $value->product_taxation == 1 ? '應稅' : '免稅' }} {{ $order->note }}</td>
+                                <td>{{ $received_order->memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id], true) }}">{{ $order->sn }}</a> {{ $value->product_taxation == 1 ? '應稅' : '免稅' }} {{ $value->product_note }}{{-- $order->note --}}</td>
                             </tr>
                         @endforeach
 
@@ -153,6 +155,8 @@
                             {{ '（' . $value->received_method_name . ' - ' . $value->credit_card_number . '（' . $value->credit_card_owner_name . '）' . '）' }}
                         @elseif($value->received_method == 'remit')
                             {{ '（' . $value->received_method_name . ' - ' . $value->summary . '（' . $value->remit_memo . '）' . '）' }}
+                        @elseif($value->received_method == 'cheque')
+                            {!! '（<a href="' . route('cms.note_receivable.record', ['id'=>$value->received_method_id]) . '">' . $value->received_method_name . ' - ' . $value->cheque_ticket_number . '（' . date('Y-m-d', strtotime($value->cheque_due_date)) . '）' . '</a>）' !!}
                         @else
                             {{ '（' . $value->received_method_name . ' - ' . $value->account->name . ' - ' . $value->summary . '）' }}
                         @endif

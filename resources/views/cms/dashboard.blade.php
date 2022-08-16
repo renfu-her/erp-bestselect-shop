@@ -156,49 +156,45 @@
                 </div>
 
                 <div class="col-12 col-md">
-                    <h6 class="px-2"><i class="bi bi-megaphone-fill me-2"></i>公告事項</h6>
+                    <div class="row justify-content-end">
+                        <div class="col">
+                            <h6 class="px-2"><i class="bi bi-megaphone-fill me-2"></i>公告事項</h6>
+                        </div>
+                        <div class="col-auto">
+                            <a href="{{ Route('cms.bulletin_board.index') }}">
+                                更多事項
+                            </a>
+                        </div>
+                    </div>
                     <div class="border bg-body">
                         {{-- <h6 class="px-3 py-2 mb-0 border-bottom"><i class="bi bi-megaphone-fill"></i> 公告事項</h6> --}}
                         <table class="table table-striped mb-0">
                             <thead class="text-nowrap">
                                 <tr>
-                                    <th style="width: 20%">日期</th>
+                                    <th style="width: 10%">重要性</th>
+                                    <th style="width: 20%">公告日期</th>
                                     <th>公告事項</th>
                                     <th style="width: 10%">公告者</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @for ($i = 0; $i < 5; $i++)
+                                @foreach ($bulletinBoard as $bulletinBoardData)
                                     <tr>
-                                        <td>{{ date('Y/m/d H:i', strtotime('2022-08-01 15:18:55')) }}</td>
-                                        <td>系統上線啦!</td>
-                                        <td class="text-nowrap">理查</td>
+                                        <td @class(['fw-bold text-danger' => $bulletinBoardData->weight === '3',
+                                            'text-success' => $bulletinBoardData->weight === '2'])>
+                                            {{ \App\Enums\AdminManagement\Weight::getDescription($bulletinBoardData->weight) }}
+                                        </td>
+                                        <td>{{ date('Y/m/d H:i', strtotime($bulletinBoardData->created_at ?? '')) }}</td>
+                                        <td>
+                                            <a href="{{ Route('cms.bulletin_board.show', ['id' => $bulletinBoardData->id], true) }}">
+                                                {{ $bulletinBoardData->title ?? '' }}
+                                            </a>
+                                        </td>
+                                        <td class="text-nowrap">{{ $bulletinBoardData->user_name }}</td>
                                     </tr>
-                                    <tr>
-                                        <td>{{ date('Y/m/d H:i', strtotime('2022-08-01 15:13:55')) }}</td>
-                                        <td>趕工中</td>
-                                        <td class="text-nowrap">理查</td>
-                                    </tr>
-                                @endfor
+                                @endforeach
                             </tbody>
                         </table>
-                        <nav class="mx-3 my-2">
-                            <ul class="pagination pagination-sm justify-content-end">
-                                <li class="page-item">
-                                    <a class="page-link" href="#" aria-label="Previous">
-                                        <i class="bi bi-chevron-left"></i>
-                                    </a>
-                                </li>
-                                <li class="page-item"><a class="page-link" href="#">1</a></li>
-                                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                <li class="page-item">
-                                    <a class="page-link" href="#" aria-label="Next">
-                                        <i class="bi bi-chevron-right"></i>
-                                    </a>
-                                </li>
-                            </ul>
-                        </nav>
                     </div>
                 </div>
             </div>

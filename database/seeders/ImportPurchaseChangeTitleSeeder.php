@@ -26,33 +26,34 @@ class ImportPurchaseChangeTitleSeeder extends Seeder
      */
     public function run()
     {
-        $pcs_items_calc_leng = DB::table(app(PurchaseItem::class)->getTable() . ' as pcs_item')
+        $pcs_items_calc_leng = DB::table(app(PurchaseImportLog::class)->getTable() . ' as pcs_item')
             ->select(
-                'pcs_item.product_style_id'
-                , 'pcs_item.sku'
+                'pcs_item.sku'
                 , DB::raw('CHAR_LENGTH( pcs_item.title ) AS leng')
-            );
+            )
+            ->whereNotNull('pcs_item.sku')
+        ;
         $pcs_items = DB::query()->fromSub($pcs_items_calc_leng, 'tb')
             ->where('tb.leng', '=', 40)
-            ->groupBy('tb.product_style_id')
-            ->having(DB::raw('count(tb.product_style_id)'), '>', 1)
-            ->orderBy('tb.product_style_id')
+            ->groupBy('tb.sku')
+            ->having(DB::raw('count(tb.sku)'), '>=', 1)
+            ->orderBy('tb.sku')
         ;
 
         $product = DB::table(app(Product::class)->getTable() . ' as product')
             ->leftJoin(app(ProductStyle::class)->getTable() . ' as style', 'style.product_id', '=', 'product.id')
             ->leftJoinSub($pcs_items, 'item', function($join) {
-                $join->on('item.product_style_id', '=', 'style.id')
-                    ->whereNotNull('style.id');
+                $join->on('item.sku', '=', 'style.sku')
+                    ->whereNotNull('style.sku');
             })
             ->select(
-                'item.product_style_id as product_style_id'
+                'style.id as product_style_id'
                 , DB::raw('Concat(product.title, "-", style.title) AS product_title')
                 , 'style.sku as sku'
             )
             ->whereNotNull('product.id')
             ->whereNotNull('style.id')
-            ->whereNotNull('item.product_style_id')
+            ->whereNotNull('item.sku')
             ;
 
         $product = $product->get();
@@ -74,6 +75,6 @@ class ImportPurchaseChangeTitleSeeder extends Seeder
                 DlvBack::where('product_style_id', '=', $item->product_style_id)->update($update_product_title);
             }
         }
-        echo "匯入完成";
+        echo "完成";
     }
 }

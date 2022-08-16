@@ -92,7 +92,8 @@ class LogisticFlow extends Model
      */
     public static function getListByDeliveryId($delivery_id) {
         $query = LogisticFlow::where('delivery_id', $delivery_id)
-            ->orderByDesc('dlv_logistic_flow.created_at');
+            ->orderByDesc('dlv_logistic_flow.created_at')
+            ->orderByDesc('dlv_logistic_flow.id');
         return $query;
     }
 }

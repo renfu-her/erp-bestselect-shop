@@ -41,6 +41,9 @@
             }
 
             $string = preg_replace('/0+/', '零', $string);
+            if(mb_substr($string, -2, 1) != '元' && mb_substr($string, -2, 1) != '整'){
+                $string .= '元整';
+            }
             return $string;
         }
     }

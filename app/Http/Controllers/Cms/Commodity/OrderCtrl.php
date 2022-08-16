@@ -8,6 +8,8 @@ use App\Enums\Delivery\LogisticStatus;
 use App\Enums\Discount\DividendCategory;
 use App\Enums\Order\UserAddrType;
 use App\Enums\Supplier\Payment;
+use App\Enums\Payable\ChequeStatus;
+
 use App\Http\Controllers\Controller;
 use App\Models\AccountPayable;
 use App\Models\Addr;
@@ -172,6 +174,7 @@ class OrderCtrl extends Controller
             ->select([
                 'usr_customers.id',
                 'usr_customers.name',
+                'usr_customers.phone',
                 'address',
                 'addr',
                 'city_id',
@@ -179,12 +182,30 @@ class OrderCtrl extends Controller
             ])
             ->get()->first();
 
+        $otherOftenUsedAddresses = DB::table('usr_customers')
+            ->where('usr_customers.id', '=', $customer_id)
+            ->leftJoin('usr_customers_address', 'usr_customers.id', '=', 'usr_customers_address.usr_customers_id_fk')
+            ->where('is_default_addr', '=', 0)
+            ->select([
+                'usr_customers.id',
+                'usr_customers.name',
+                'usr_customers.phone',
+                'usr_customers_address.id as customer_addr_id',
+                'is_default_addr',
+                'address',
+                'addr',
+                'city_id',
+                'region_id',
+            ])
+            ->get();
+
         //    dd(Discount::getDiscounts('global-normal'));
 
         return view('cms.commodity.order.edit', [
             'customer_id' => $customer_id,
             'customers' => Customer::where('id', $customer_id)->get(),
             'defaultAddress' => $defaultAddress,
+            'otherOftenUsedAddresses' => $otherOftenUsedAddresses,
             'citys' => $citys,
             'cart' => $cart,
             'regions' => $regions,
@@ -289,7 +310,7 @@ class OrderCtrl extends Controller
         $payinfo['carrier_type'] = $d['carrier_type'] ?? null;
         $payinfo['carrier_num'] = $d['carrier_num'] ?? null;
 
-        $re = Order::createOrder($customer->email, $d['salechannel_id'], $address, $items, $d['mcode'] ?? null, $d['note'], $coupon, $payinfo, null, $dividend);
+        $re = Order::createOrder($customer->email, $d['salechannel_id'], $address, $items, $d['mcode'] ?? null, $d['note'], $coupon, $payinfo, null, $dividend, $request->user());
 
         if ($re['success'] == '1') {
             wToast('訂單新增成功');
@@ -572,7 +593,7 @@ class OrderCtrl extends Controller
                         $val['item']['title'] . '-' . $val['item']['spec'],
                         $val['sku'],
                         $val['unit_cost'],
-                        $inboundItemReq['expiry_date'][$key],
+                        $inboundItemReq['expiry_date'][$key] ?? null,
                         $inboundItemReq['inbound_date'][$key],
                         $inboundItemReq['inbound_num'][$key],
                         $depot_id,
@@ -665,7 +686,7 @@ class OrderCtrl extends Controller
                 '',
                 '',
                 $supplier ? $supplier->id : null,
-                $supplier ? $supplier->name : null,
+                $supplier ? ($supplier->nickname ? $supplier->name . ' - ' . $supplier->nickname : $supplier->name) : null,
                 $supplier ? $supplier->contact_tel : null,
                 $supplier ? $supplier->contact_address : null
             );
@@ -766,7 +787,7 @@ class OrderCtrl extends Controller
             $payable_data = PayingOrder::get_payable_detail($paying_order->id);
             if (count($payable_data) > 0 && $paying_order->price == $payable_data->sum('tw_price')) {
                 $paying_order->update([
-                    'balance_date' => date("Y-m-d H:i:s"),
+                    'balance_date' => date('Y-m-d H:i:s'),
                 ]);
             }
 
@@ -832,7 +853,7 @@ class OrderCtrl extends Controller
                 'form_action' => Route('cms.order.logistic-po-create', ['id' => $id, 'sid' => $sid]),
                 'method' => 'create',
                 'transactTypeList' => AccountPayable::getTransactTypeList(),
-                'chequeStatus' => AccountPayable::getChequeStatus(),
+                'chequeStatus' => ChequeStatus::get_key_value(),
             ]);
         }
     }
@@ -1013,7 +1034,7 @@ class OrderCtrl extends Controller
             $payable_data = PayingOrder::get_payable_detail($paying_order->id);
             if (count($payable_data) > 0 && $paying_order->price == $payable_data->sum('tw_price')) {
                 $paying_order->update([
-                    'balance_date' => date("Y-m-d H:i:s"),
+                    'balance_date' => date('Y-m-d H:i:s'),
                 ]);
             }
 
@@ -1104,7 +1125,7 @@ class OrderCtrl extends Controller
                 'form_action' => Route('cms.order.return-pay-create', ['id' => $id, 'sid' => $sid]),
                 'method' => 'create',
                 'transactTypeList' => AccountPayable::getTransactTypeList(),
-                'chequeStatus' => AccountPayable::getChequeStatus(),
+                'chequeStatus' => ChequeStatus::get_key_value(),
             ]);
         }
     }
@@ -1445,7 +1466,7 @@ class OrderCtrl extends Controller
             $items[$style] = $d['qty'][$key];
         }
 
-        Order::splitOrder($id, $items);
+        Order::splitOrder($id, $items, $request->user());
         wToast('分割完成');
         return redirect()->back();
     }

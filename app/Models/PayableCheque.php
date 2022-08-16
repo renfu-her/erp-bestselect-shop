@@ -2,58 +2,45 @@
 
 namespace App\Models;
 
-use App\Enums\Supplier\Payment;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+
+use App\Enums\Supplier\Payment;
+use App\Enums\Payable\ChequeStatus;
+
 
 class PayableCheque extends Model
 {
     use HasFactory;
 
     protected $table = 'acc_payable_cheque';
-    protected $fillable = [
-            'grade_type',
-            'grade_id',
-            'check_num',
-            'maturity_date',
-            'cash_cheque_date',
-            'cheque_status',
-        ];
+    protected $guarded = [];
 
-    /**
-     * 取得支票方式對應到acc_payable table資料
-     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
-     */
-    public function pay()
-    {
-        return $this->morphOne(AccountPayable::class, 'payable');
-    }
-
-    /**
-     * 取得用支票方式對應的科目類別
-     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
-     */
-    public function grade()
-    {
-        return $this->morphTo();
-    }
-
-    public function all_grade()
-    {
-        return $this->belongsTo(AllGrade::class, 'grade_id', 'id');
-    }
 
     public static function storePayableCheque($req)
     {
-        $payableData =self::create([
-            'check_num' => $req['cheque']['check_num'],
-            'grade_type' => AllGrade::findOrFail($req['cheque']['grade_id_fk'])->grade_type,
-            'grade_id' => $req['cheque']['grade_id_fk'],
-            'maturity_date' => $req['cheque']['maturity_date'],
-            'cash_cheque_date' => $req['cheque']['cash_cheque_date'],
-            'cheque_status' => $req['cheque']['cheque_status'],
+        $payableData = self::create([
+            'ticket_number' => $req['cheque']['ticket_number'],
+            'due_date' => $req['cheque']['due_date'],
+            'cashing_date' => $req['cheque']['cashing_date'],
+            'status_code' => $req['cheque']['status_code'],
+            'status' => ChequeStatus::getDescription($req['cheque']['status_code']),
+            'amt_net'=> ($req['cheque']['cashing_date'] && $req['cheque']['status_code'] == 'cashed') ? $req['tw_price'] : 0,
         ]);
+
+        if($req['cheque']['status_code']){
+            NotePayableLog::create_cheque_log($payableData->id, $req['cheque']['status_code']);
+
+            if($req['cheque']['cashing_date'] && $req['cheque']['status_code'] == 'cashed'){
+                $note_payable_order = NotePayableOrder::store_note_payable_order($req['cheque']['cashing_date']);
+
+                self::find($payableData->id)->update([
+                    'note_payable_order_id'=>$note_payable_order->id,
+                    'sn'=>$note_payable_order->sn,
+                ]);
+            }
+        }
 
         AccountPayable::create([
             'pay_order_type' => 'App\Models\PayingOrder',

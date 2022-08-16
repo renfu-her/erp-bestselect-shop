@@ -146,7 +146,8 @@ class ConsignmentCtrl extends Controller
 
             $csn = Consignment::where('id', $consignmentID)->get()->first();
             $reDelivery = Delivery::createData(
-                Event::consignment()->value
+                $request->user()
+                , Event::consignment()->value
                 , $consignmentID
                 , $csn->sn
             );
@@ -378,7 +379,7 @@ class ConsignmentCtrl extends Controller
             'inbound_num.*' => 'required|numeric',
             'error_num.*' => 'required|numeric|min:0',
             'status.*' => 'required|numeric|min:0',
-            'expiry_date.*' => 'required|string',
+            'expiry_date.*' => 'present',
             'prd_type.*' => 'required|string',
         ]);
         $depot_id = $request->input('depot_id');
@@ -406,7 +407,7 @@ class ConsignmentCtrl extends Controller
                         $val['item']['title'] . '-'. $val['item']['spec'],
                         $val['sku'],
                         $val['unit_cost'],
-                        $inboundItemReq['expiry_date'][$key],
+                        $inboundItemReq['expiry_date'][$key] ?? null,
                         $inboundItemReq['inbound_date'][$key],
                         $inboundItemReq['inbound_num'][$key],
                         $depot_id,

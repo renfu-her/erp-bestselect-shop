@@ -42,7 +42,7 @@ class PayableAccount extends Model
     {
         $payableData =self::create([
             'status_code'=>0,
-            'created_at'=>date("Y-m-d H:i:s"),
+            'created_at'=>date('Y-m-d H:i:s'),
         ]);
 
         AccountPayable::create([

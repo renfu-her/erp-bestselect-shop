@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Delivery\Event;
+use App\Enums\Delivery\LogisticStatus;
 use App\Enums\Purchase\LogEventFeature;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -166,6 +167,7 @@ class ReceiveDepot extends Model
             ) {
                 //判斷若為組合包商品 則需新建立一筆資料組合成組合包 並回寫新id
                 $queryComboElement = null;
+                $logisticStatus = [LogisticStatus::A5000()];
                 if (Event::order()->value == $delivery->event) {
                     if ('deliver' == $delivery->ship_category) {
 
@@ -239,14 +241,15 @@ class ReceiveDepot extends Model
                         ->get();
                 }
                 else if (Event::csn_order()->value == $delivery->event) {
-                    $user = new \stdClass();
-                    $user->id = $user_id;
-                    $user->name = $user_name;
-                    $reDlvUpd = Delivery::updateLogisticStatus($user, $event, $event_id, \App\Enums\Delivery\LogisticStatus::D9000());
-                    if ($reDlvUpd['success'] == 0) {
-                        DB::rollBack();
-                        return $reDlvUpd;
-                    }
+                    array_push($logisticStatus, LogisticStatus::D9000());
+                }
+                $user = new \stdClass();
+                $user->id = $user_id;
+                $user->name = $user_name;
+                $reLFCDS = LogisticFlow::createDeliveryStatus($user, $delivery->id, $logisticStatus);
+                if ($reLFCDS['success'] == 0) {
+                    DB::rollBack();
+                    return $reLFCDS;
                 }
                 // 寄倉、訂單自取才會有
                 if (null != $queryComboElement && 0 < count($queryComboElement)) {
@@ -388,6 +391,8 @@ class ReceiveDepot extends Model
                 //20220714 Hans:將出貨日填到子訂單
                 if (Event::order()->value == $delivery->event) {
                     SubOrders::where('id', '=', $delivery->event_id)->update([ 'dlv_audit_date' => $curr_date ]);
+                    //若為訂單 則在出貨審核後 寄送已出貨信件
+                    Order::sendMail_OrderShipped($delivery->event_id);
                 } else if (Event::consignment()->value == $delivery->event) {
                     Consignment::where('id', '=', $delivery->event_id)->update([ 'dlv_audit_date' => $curr_date ]);
                 } else if (Event::csn_order()->value == $delivery->event) {

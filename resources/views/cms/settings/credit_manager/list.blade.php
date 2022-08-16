@@ -18,7 +18,7 @@
             <div class="row">
                 <div class="col-12 col-sm-4 mb-3">
                     <label class="form-label">銀行名稱</label>
-                    <select class="form-select -select2 -single" name="bank_id" aria-label="銀行名稱" data-placeholder="請輸入銀行名稱">
+                    <select class="form-select -select2 -single" name="bank_id" aria-label="銀行名稱" data-placeholder="請選擇銀行名稱">
                         <option value="" selected>不限</option>
                         @foreach ($bank as $key => $value)
                             <option value="{{ $key }}" {{ in_array($key, $cond['bank_id']) ? 'selected' : '' }}>{{ $value }}</option>
@@ -28,7 +28,7 @@
 
                 <div class="col-12 col-sm-4 mb-3">
                     <label class="form-label">結帳地區</label>
-                    <select class="form-select -select2 -single" name="area_id" aria-label="結帳地區" data-placeholder="請輸入結帳地區">
+                    <select class="form-select -select2 -single" name="area_id" aria-label="結帳地區" data-placeholder="請選擇結帳地區">
                         <option value="" selected>不限</option>
                         @foreach ($checkout_area as $key => $value)
                             <option value="{{ $key }}" {{ in_array($key, $cond['area_id']) ? 'selected' : '' }}>{{ $value }}</option>
@@ -38,7 +38,7 @@
 
                 <div class="col-12 col-sm-4 mb-3">
                     <label class="form-label">信用卡別</label>
-                    <select class="form-select -select2 -single" name="card_type_id" aria-label="信用卡別" data-placeholder="請輸入信用卡別">
+                    <select class="form-select -select2 -single" name="card_type_id" aria-label="信用卡別" data-placeholder="請選擇信用卡別">
                         <option value="" selected>不限</option>
                         @foreach ($card_type as $key => $value)
                             <option value="{{ $key }}" {{ in_array($key, $cond['card_type_id']) ? 'selected' : '' }}>{{ $value }}</option>

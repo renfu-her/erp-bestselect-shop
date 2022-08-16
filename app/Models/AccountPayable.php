@@ -2,12 +2,10 @@
 
 namespace App\Models;
 
-use App\Enums\Payable\ChequeStatus;
 use App\Enums\Payable\PayableModelType;
 use App\Enums\Supplier\Payment;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 
 /**
  * 付款管理、應付帳款
@@ -56,18 +54,6 @@ class AccountPayable extends Model
         return $dataArray;
     }
 
-    public static function getChequeStatus()
-    {
-        $dataArray = [];
-        foreach (ChequeStatus::getValues() as $keyValue) {
-            $dataArray[] = [
-                'id' => $keyValue,
-                'status' => ChequeStatus::getDescription($keyValue)
-            ];
-        }
-
-        return $dataArray;
-    }
 
     /**
      * @param $modelName \App\Models\PayingOrder

@@ -139,45 +139,43 @@
                     </select>
                 </div>
 
-                <x-b-form-group name="cheque[check_num]" title="票號" required="true"
+                <x-b-form-group name="cheque[ticket_number]" title="票號" required="true"
                                 class="col-12 col-sm-4 mb-3 cheque"
-                                id="check_num">
-                    <input class="form-control @error('cheque[check_num]') is-invalid @enderror"
-                           name="cheque[check_num]"
+                                id="ticket_number">
+                    <input class="form-control @error('cheque[ticket_number]') is-invalid @enderror"
+                           name="cheque[ticket_number]"
                            required
                            type="text"
-                           value="{{ old('cheque[check_num]') }}"/>
+                           value="{{ old('cheque[ticket_number]') }}"/>
                 </x-b-form-group>
-                <x-b-form-group name="cheque[maturity_date]"
+                <x-b-form-group name="cheque[due_date]"
                                 title="到期日"
                                 required="true"
                                 class="col-12 col-sm-4 mb-3 cheque"
-                                id="cheque[maturity_date]">
-                    <input class="form-control @error('cheque[maturity_date]') is-invalid @enderror"
-                           name="cheque[maturity_date]"
+                                id="cheque[due_date]">
+                    <input class="form-control @error('cheque[due_date]') is-invalid @enderror"
+                           name="cheque[due_date]"
                            required
                            type="date"
-                           value="{{ old('cheque[maturity_date]', date('Y-m-d', strtotime( date('Y-m-d'))) ) }}"/>
+                           value="{{ old('cheque[due_date]', date('Y-m-d', strtotime( date('Y-m-d'))) ) }}"/>
                 </x-b-form-group>
-                <x-b-form-group name="cheque[cash_cheque_date]" title="兌現日" required="true"
+                <x-b-form-group name="cheque[cashing_date]" title="兌現日" required="true"
                                 class="col-12 col-sm-4 mb-3 cheque"
-                                id="cheque[cash_cheque_date]">
-                    <input class="form-control @error('cheque[cash_cheque_date]') is-invalid @enderror"
-                           name="cheque[cash_cheque_date]"
+                                id="cheque[cashing_date]">
+                    <input class="form-control @error('cheque[cashing_date]') is-invalid @enderror"
+                           name="cheque[cashing_date]"
                            required
                            type="date"
-                           value="{{ old('cheque[cash_cheque_date]', date('Y-m-d', strtotime( date('Y-m-d'))) ) }}"/>
+                           value="{{ old('cheque[cashing_date]', date('Y-m-d', strtotime( date('Y-m-d'))) ) }}"/>
                 </x-b-form-group>
                 <div class="col-12 col-sm-4 mb-3 cheque">
                     <label class="form-label">狀態
                         <span class="text-danger">*</span>
                     </label>
-                    <select name="cheque[cheque_status]" class="form-select" aria-label="Select" required data-placeholder="請選擇狀態">
+                    <select name="cheque[status_code]" class="form-select" aria-label="Select" required data-placeholder="請選擇狀態">
                         <option value="" selected disabled>請選擇狀態</option>
-                        @foreach($chequeStatus as $chequeData)
-                            <option value="{{ $chequeData['id'] }}">
-                                {{ $chequeData['status'] }}
-                            </option>
+                        @foreach($chequeStatus as $c_key => $c_values)
+                            <option value="{{ $c_key }}" {{ $c_key == 'paid' ? 'selected' : '' }}>{{ $c_values }}</option>
                         @endforeach
                     </select>
                 </div>

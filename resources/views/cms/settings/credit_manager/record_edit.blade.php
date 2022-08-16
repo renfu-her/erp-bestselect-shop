@@ -77,7 +77,7 @@
 
                     <div class="col-12 col-sm-4 mb-3">
                         <label class="form-label">刷卡日期</label>
-                        <input type="date" class="form-control @error('credit_card_checkout_date') is-invalid @enderror" name="credit_card_checkout_date" value="{{ date('Y-m-d', strtotime($record->credit_card_checkout_date)) ?? date('Y-m-d', strtotime( date('Y-m-d'))) }}" placeholder="請輸入刷卡日期" data-placeholder="刷卡日期">
+                        <input type="date" class="form-control @error('credit_card_checkout_date') is-invalid @enderror" name="credit_card_checkout_date" value="{{ date('Y-m-d', strtotime($record->credit_card_checkout_date ?? date('Y-m-d', strtotime( date('Y-m-d'))) )) }}" placeholder="請輸入刷卡日期" data-placeholder="刷卡日期">
                         <div class="invalid-feedback">
                             @error('credit_card_checkout_date')
                             {{ $message }}
@@ -128,7 +128,7 @@
 
                     <div class="col-12 col-sm-4 mb-3">
                         <label class="form-label">刷卡地區</label>
-                        <select class="form-select -select2 -single @error('credit_card_area_code') is-invalid @enderror" name="credit_card_area_code" data-placeholder="請選擇信用卡別">
+                        <select class="form-select -select2 -single @error('credit_card_area_code') is-invalid @enderror" name="credit_card_area_code" data-placeholder="請選擇刷卡地區">
                             <option value="">請選擇</option>
                             @foreach($checkout_area as $key => $value)
                                 <option value="{{ $key }}"{{ $key == $record->credit_card_area_code ? 'selected' : ''}}>{{ $value }}</option>

@@ -99,7 +99,7 @@ class CyberbizMemberSeeder extends Seeder
                     Customer::where('email', '=', $memberData[self::EMAIL])
                         ->update([
                             'name' => $memberData[self::NAME] ?? null,
-                            'phone' => $memberData[self::PHONE] ?? null,
+                            'phone' => $memberData[self::MOBILE] ?? null,
                             'birthday' => $memberData[self::BIRTH] === 'nan' ? null : $memberData[self::BIRTH],
                             'sex' => is_null($memberData[self::GENDER]) ? null : ($memberData[self::GENDER] === '男' ? 1 : 0),
                             'newsletter' => $memberData[self::NEWS_LETTER] === true ? Newsletter::subscribe : Newsletter::un_subscribe,
@@ -175,7 +175,7 @@ class CyberbizMemberSeeder extends Seeder
                         $memberData[self::NAME] ?? null,
                         $memberData[self::EMAIL] ?? null,
                         $this->faker->password(),
-                        $memberData[self::PHONE] ?? null,
+                        $memberData[self::MOBILE] ?? null,
                         $memberData[self::BIRTH] === 'nan' ? null : $memberData[self::BIRTH],
                         is_null($memberData[self::GENDER]) ? null : ($memberData[self::GENDER] === '男' ? 1 : 0),
                         $memberData[self::ACCOUNT_STATUS] === '帳號已啟用' ? AccountStatus::open : AccountStatus::close,
@@ -185,6 +185,7 @@ class CyberbizMemberSeeder extends Seeder
                         $addressName,
                         $memberData[self::NEWS_LETTER] === true ? Newsletter::subscribe : Newsletter::un_subscribe,
                         $loginMethods,
+                        $memberData[self::PHONE] ?? '',
                     );
 
                     CustomerDividend::create([

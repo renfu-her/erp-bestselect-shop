@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cms;
 
 use App\Http\Controllers\Controller;
 use App\Models\Addr;
+use App\Models\BulletinBoard;
 use App\Models\Collection;
 use App\Models\CustomerReportMonth;
 use App\Models\OrderReportDaily;
@@ -36,6 +37,22 @@ class DashboardCtrl extends Controller
                 'name' => $n['name']];
         }, $topCollections);
 
+        $bulletinBoard = BulletinBoard::leftJoin('usr_users', 'idx_news.usr_users_id_fk', '=', 'usr_users.id')
+            ->select([
+                'idx_news.id',
+                'idx_news.title',
+                'idx_news.content',
+                'idx_news.weight',
+                'idx_news.expire_time',
+                'idx_news.created_at',
+                'usr_users.name as user_name',
+            ])
+            ->where('expire_time', '>', date('Y-m-d', strtotime('today')))
+            ->orderByDesc('weight')
+            ->orderByDesc('created_at')
+            ->limit(20)
+            ->get();
+
         $regions = Addr::getRegions($citys[0]['city_id']);
         return view('cms.dashboard', [
             'citys' => $citys,
@@ -47,6 +64,7 @@ class DashboardCtrl extends Controller
             'customerMonth' => $customerMonth,
             'customerPrevMonth' => $customerPrevMonth,
             'reportUpdatedTime' => $reportUpdatedTime,
+            'bulletinBoard' => $bulletinBoard,
         ]);
 
     }

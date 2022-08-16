@@ -86,6 +86,10 @@ Route::group(['prefix' => 'cms', 'as' => 'cms.', 'middleware' => 'auth:user'], f
     require base_path('routes/cms/InboundImport.php');
     require base_path('routes/cms/TransferVoucher.php');
     require base_path('routes/cms/AccountsPayable.php');
+    require base_path('routes/cms/NoteReceivable.php');
+    require base_path('routes/cms/BulletinBoard.php');
+    require base_path('routes/cms/NotePayable.php');
+    require base_path('routes/cms/MailSet.php');
 });
 
 Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => 'guest:customer'], function () {
@@ -104,3 +108,4 @@ Route::get('_info', function () {
     // dd(app('url')->route('test',[],false));
     return phpinfo();
 });
+

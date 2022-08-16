@@ -21,8 +21,13 @@ class DeliverySeeder extends Seeder
     {
         $sub_order = SubOrders::getListWithShiGroupById(3)->get()->first();
 
+        $user = new \stdClass();
+        $user->id = 5;
+        $user->name = '之谷';
+
         $delivery = Delivery::createData(
-            Event::order()->value
+            $user
+            , Event::order()->value
             , $sub_order->id
             , $sub_order->sn
             , $sub_order->ship_temp_id

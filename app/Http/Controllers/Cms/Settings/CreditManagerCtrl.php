@@ -11,6 +11,8 @@ use App\Models\GeneralLedger;
 use App\Models\IncomeOrder;
 use App\Models\ReceivedOrder;
 
+use App\Enums\Area\Area;
+
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
@@ -88,9 +90,8 @@ class CreditManagerCtrl extends Controller
             )->paginate($page)->appends($query);
 
         $bank = CrdBank::orderBy('id', 'asc')->pluck('title', 'id')->toArray();
-        $checkout_area = [
-            'taipei'=>'台北',
-        ];
+        $checkout_area = Area::get_key_value();
+
         $card_type = CrdCreditCard::distinct('title')->groupBy('title')->orderBy('id', 'asc')->pluck('title', 'id')->toArray();
 
         return view('cms.settings.credit_manager.list', [
@@ -169,9 +170,7 @@ class CreditManagerCtrl extends Controller
 
         $card_type = CrdCreditCard::distinct('title')->groupBy('title')->orderBy('id', 'asc')->pluck('title', 'id')->toArray();
         $total_grades = GeneralLedger::total_grade_list();
-        $checkout_area = [
-            'taipei'=>'台北',
-        ];
+        $checkout_area = Area::get_key_value();
 
         if($request->isMethod('post')){
             $request->validate([
@@ -202,12 +201,12 @@ class CreditManagerCtrl extends Controller
                 // 'status_code'=>$data['status_code'],
                 // 'card_nat'=>$data['card_nat'],
                 'checkout_mode'=>$data['credit_card_checkout_mode'],
-                'updated_at'=>date("Y-m-d H:i:s"),
+                'updated_at'=>date('Y-m-d H:i:s'),
             ]);
 
             DB::table('acc_received')->where('id', $record->received_id)->update([
                 'note'=>$request['note'],
-                'updated_at'=>date("Y-m-d H:i:s"),
+                'updated_at'=>date('Y-m-d H:i:s'),
             ]);
 
             wToast(__('信用卡刷卡記錄更新成功'));
