@@ -253,16 +253,26 @@ class NotePayableCtrl extends Controller
                 'max_number' => 'required|between:0,9999999',
             ]);
 
-            if(request('max_number') < request('min_number')){
+            $chr = request('alphabet_character');
+            $max = request('max_number');
+            $min = request('min_number');
+
+            if($max < $min){
                 wToast(__('票據起始號碼不可大於票據結束號碼', ['type'=>'danger']));
                 return redirect()->back();
             }
 
-            for($i = request('min_number'); $i <= request('max_number'); $i++){
-                $ticket_number[] = request('alphabet_character') . str_pad($i, 7, '0', STR_PAD_LEFT);
-            }
+            ini_set('memory_limit', '-1');
 
-            $data_list = NotePayableOrder::get_cheque_payable_list(null, null, null, $ticket_number, null, null, null, null);
+            // for($i = $min; $i <= $max; $i++){
+            //     $ticket_number[] = $chr . str_pad($i, 7, '0', STR_PAD_LEFT);
+            // }
+
+            // $data_list = NotePayableOrder::get_cheque_payable_list(null, null, null, $ticket_number, null, null, null, null);
+
+            $data_list = NotePayableOrder::get_cheque_payable_list(null, null, null, null, null, null, null, null)->where(function ($q) use ($chr, $max, $min) {
+                $q->whereBetween('_cheque.ticket_number', [$chr . str_pad($min, 7, '0', STR_PAD_LEFT), $chr . str_pad($max, 7, '0', STR_PAD_LEFT)]);
+            });
 
             return view('cms.account_management.note_payable.checkbook_print', [
                 'data_list' => $data_list,
