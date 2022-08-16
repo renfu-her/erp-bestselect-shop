@@ -12,9 +12,9 @@
 </head>
 <body style="margin-top: 0px;">
 @php
-$page_count = ceil(count($data_list->get()) / $item_per_page);
+$page_count = $data_list->count() ? ceil($data_list->count() / 8) : 1;
 @endphp
-<div style="left: 0; top: 0; width:100%; height:{{ $page_height }}px">
+<div style="left: 0; top: 0; width:100%;">
     @for ($i = 0; $i < $page_count; $i++)
     <div style="text-align: center;">
         <div style="font-size: x-large; font-family:標楷體">喜鴻國際企業股份有限公司</div>
@@ -34,8 +34,8 @@ $page_count = ceil(count($data_list->get()) / $item_per_page);
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($data_list->paginate($item_per_page, ['*'], 'page', $i + 1) as $value)
-                    <tr style="height:{{ $row_height }}px">
+                    @foreach($data_list->paginate(8, ['*'], 'page', $i + 1) as $value)
+                    <tr>
                         <td>
                             <span>票號：{{ $value->cheque_ticket_number }}</span>
                             <br>

@@ -151,7 +151,11 @@ class NotePayableOrder extends Model
         }
 
         if($ticket_number){
-            $query->where('_cheque.ticket_number', 'like', "%{$ticket_number}%");
+            if(gettype($ticket_number) == 'array') {
+                $query->whereIn('_cheque.ticket_number', $ticket_number);
+            } else {
+                $query->where('_cheque.ticket_number', 'like', "%{$ticket_number}%");
+            }
         }
 
         if($payable_price) {

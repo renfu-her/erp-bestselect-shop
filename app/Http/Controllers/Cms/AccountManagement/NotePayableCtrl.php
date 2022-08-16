@@ -248,21 +248,26 @@ class NotePayableCtrl extends Controller
     {
         if($request->isMethod('post')){
             $request->validate([
-                'item_per_page' => 'required|between:1,100',
-                'page_height' => 'required|between:0.1,100.0',
-                'row_height' => 'required|between:0.1,100.0',
+                'alphabet_character' => 'required|between:2,2|regex:/^[A-Z]+$/',
+                'min_number' => 'required|between:0,9999999',
+                'max_number' => 'required|between:0,9999999',
             ]);
 
-            $data_list = NotePayableOrder::get_cheque_payable_list(null, null, null, null, null, null, null, null);
+            if(request('max_number') < request('min_number')){
+                wToast(__('票據起始號碼不可大於票據結束號碼', ['type'=>'danger']));
+                return redirect()->back();
+            }
+
+            for($i = request('min_number'); $i <= request('max_number'); $i++){
+                $ticket_number[] = request('alphabet_character') . str_pad($i, 7, '0', STR_PAD_LEFT);
+            }
+
+            $data_list = NotePayableOrder::get_cheque_payable_list(null, null, null, $ticket_number, null, null, null, null);
 
             return view('cms.account_management.note_payable.checkbook_print', [
-                'previous_url' => route('cms.note_payable.index'),
-                'form_action' => route('cms.note_payable.checkbook'),
                 'data_list' => $data_list,
                 'printer' => auth('user')->user() ? auth('user')->user()->name : null,
-                'item_per_page' => request('item_per_page'),
-                'page_height' => request('page_height'),
-                'row_height' => request('row_height'),
+                'alphabet_character' => request('alphabet_character'),
             ]);
         }
 
