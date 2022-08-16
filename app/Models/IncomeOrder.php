@@ -102,6 +102,9 @@ class IncomeOrder extends Model
             ->where([
                 //
             ])
+            ->whereNotNull('ro.balance_date')
+            ->whereNotNull('ro.receipt_date')
+
             ->selectRaw('
                 ro.id AS ro_id,
                 ro.source_type AS ro_source_type,
