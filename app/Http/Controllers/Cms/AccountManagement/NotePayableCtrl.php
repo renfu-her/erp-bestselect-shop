@@ -248,12 +248,12 @@ class NotePayableCtrl extends Controller
     {
         if($request->isMethod('post')){
             $request->validate([
-                'item_per_page' => 'required|between:0,100',
-                'page_height' => 'required|between:0,100.00',
-                'row_height' => 'required|between:0,100.00',
+                'item_per_page' => 'required|between:1,100',
+                'page_height' => 'required|between:0.1,100.0',
+                'row_height' => 'required|between:0.1,100.0',
             ]);
 
-            $data_list = NotePayableOrder::get_cheque_payable_list(null, null, null, null, null, null, null, null)->get();
+            $data_list = NotePayableOrder::get_cheque_payable_list(null, null, null, null, null, null, null, null);
 
             return view('cms.account_management.note_payable.checkbook_print', [
                 'previous_url' => route('cms.note_payable.index'),
