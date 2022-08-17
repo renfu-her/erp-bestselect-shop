@@ -337,7 +337,13 @@ class AccountsPayableCtrl extends Controller
         $accountant = array_unique($accountant->pluck('name')->toArray());
         asort($accountant);
 
-        return view('cms.account_management.accounts_payable.po_show', [
+        $view = 'cms.accounts_payable.accounts_payable.po_show';
+        if (request('method') == 'print') {
+            dd('cms.delivery.po-show 付款單');
+            $view = '';
+        }
+
+        return view($view, [
             'breadcrumb_data' => ['id' => $paying_order->id],
             'applied_company' => $applied_company,
             'paying_order' => $paying_order,

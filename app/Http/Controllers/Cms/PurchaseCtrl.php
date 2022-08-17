@@ -701,7 +701,13 @@ class PurchaseCtrl extends Controller
             $zh_price = num_to_str($paymentPrice['finalPaymentPrice']);
         }
 
-        return view('cms.commodity.purchase.pay_order', [
+        $view = 'cms.commodity.purchase.pay_order';
+        if (request('method') == 'print') {
+            dd('cms.purchase.view-pay-order 付款單');
+//            $view = 'doc.print_payment';
+        }
+
+        return view($view, [
             'id' => $id,
             'accountant' => $accountant ?? '',
             'accountPayableId' => $accountPayable->id ?? null,
@@ -924,12 +930,6 @@ class PurchaseCtrl extends Controller
             'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn],
             'formAction' => Route('cms.purchase.pay-order', ['id' => $id,]),
         ]);
-    }
-    
-    // 列印－付款單
-    public function print_payment()
-    {
-        return view('doc.print_payment', []);
     }
 
     /**

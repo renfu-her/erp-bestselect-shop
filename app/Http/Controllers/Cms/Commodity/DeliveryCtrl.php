@@ -873,7 +873,12 @@ class DeliveryCtrl extends Controller
 
         $zh_price = num_to_str($paying_order->price);
 
-        return view('cms.commodity.delivery.return_pay_order', [
+        $view = 'cms.commodity.delivery.return_pay_order';
+        if (request('method') == 'print') {
+            dd('cms.delivery.return_pay_order 付款單');
+            $view = '';
+        }
+        return view($view, [
             'breadcrumb_data' => ['event' => $delivery->delivery_event, 'eventId' => $delivery->delivery_event_id, 'sn' => $delivery->delivery_event_sn],
 
             'paying_order' => $paying_order,

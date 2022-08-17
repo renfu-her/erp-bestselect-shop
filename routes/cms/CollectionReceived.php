@@ -11,8 +11,6 @@ Route::group(['prefix' => 'collection_received', 'as' => 'collection_received.']
     Route::get('receipt/{id}', [CollectionReceivedCtrl::class, 'receipt'])->name('receipt')->middleware('permission:cms.collection_received.receipt');
     Route::match(['get', 'post'], 'review/{id}', [CollectionReceivedCtrl::class, 'review'])->name('review')->middleware('permission:cms.collection_received.review');
 
-    Route::get('print_received', [CollectionReceivedCtrl::class, 'print_received'])->name('print_received')->middleware('permission:cms.collection_received.receipt');
-
     Route::match(['get', 'post'], 'taxation/{id}', [CollectionReceivedCtrl::class, 'taxation'])->name('taxation')->middleware('permission:cms.collection_received.taxation');
 
     Route::get('delete/{id}', [CollectionReceivedCtrl::class, 'destroy'])->name('delete')->middleware('permission:cms.collection_received.delete');

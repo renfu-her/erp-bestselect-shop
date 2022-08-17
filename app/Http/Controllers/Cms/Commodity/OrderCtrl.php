@@ -707,8 +707,13 @@ class OrderCtrl extends Controller
         $undertaker = User::find($paying_order->usr_users_id);
 
         $zh_price = num_to_str($paying_order->price);
+        $view = 'cms.commodity.order.logistic_po';
+        if (request('method') == 'print') {
+            dd('cms.order.logistic_po 付款單');
+            $view = '';
+        }
 
-        return view('cms.commodity.order.logistic_po', [
+        return view($view, [
             'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
 
             'paying_order' => $paying_order,
@@ -955,7 +960,13 @@ class OrderCtrl extends Controller
 
         $zh_price = num_to_str($paying_order->price);
 
-        return view('cms.commodity.order.return_pay_order', [
+        $view = 'cms.commodity.order.return_pay_order';
+        if (request('method') == 'print') {
+            dd('cms.order.return-pay-order 付款單');
+            $view = '';
+        }
+
+        return view($view, [
             'breadcrumb_data' => ['id' => $id, 'sn' => $order->sn],
 
             'paying_order' => $paying_order,

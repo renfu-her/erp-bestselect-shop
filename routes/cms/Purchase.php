@@ -22,7 +22,4 @@ Route::group(['prefix' => 'purchase', 'as' => 'purchase.'], function () {
     Route::get('pay-order/{id}', [PurchaseCtrl::class, 'payOrder'])->name('view-pay-order')->middleware('permission:cms.purchase.view-pay-order');
     Route::post('pay-order/{id}', [PurchaseCtrl::class, 'payOrder'])->name('pay-order')->middleware('permission:cms.purchase.pay-order');
     Route::match(['get', 'post'], 'po_create', [PurchaseCtrl::class, 'po_create'])->name('po-create');
-    
-    Route::get('print_payment', [PurchaseCtrl::class, 'print_payment'])->name('print_payment')->middleware('permission:cms.purchase.pay-order');
-
 });
