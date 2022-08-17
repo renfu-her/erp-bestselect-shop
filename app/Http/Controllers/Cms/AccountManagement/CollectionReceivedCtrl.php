@@ -83,12 +83,6 @@ class CollectionReceivedCtrl extends AccountReceivedPapaCtrl
         return 'cms.account_management.collection_received.receipt';
     }
 
-    // 列印－收款單
-    public function print_received()
-    {
-        return view('doc.print_received', []);
-    }
-
     public function getRouteReview()
     {
         return 'cms.collection_received.review';
