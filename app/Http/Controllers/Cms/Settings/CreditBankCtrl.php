@@ -84,7 +84,7 @@ class CreditBankCtrl extends Controller
             'grade_fk' => $input['grade_id'],
             'installment' => $input['installment'],
         ])->id;
-        return redirect(Route('cms.credit_bank.edit', ['id' => $id]));
+        return redirect(Route('cms.credit_bank.index', ['id' => $id]));
     }
 
     public function edit(Request $request, int $id)
@@ -118,7 +118,7 @@ class CreditBankCtrl extends Controller
                 'grade_fk' => $input['grade_id'],
                 'installment' => $input['installment'],
             ]);
-        return redirect(Route('cms.credit_bank.edit', ['id' => $id]));
+        return redirect(Route('cms.credit_bank.index', ['id' => $id]));
     }
 
     public function destroy(Request $request, int $id)

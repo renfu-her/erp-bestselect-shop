@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">電子發票管理</h2>
+    <h2 class="mb-4">電子發票作業管理</h2>
 
     <ul class="nav nav-tabs border-bottom-0">
         <li class="nav-item">

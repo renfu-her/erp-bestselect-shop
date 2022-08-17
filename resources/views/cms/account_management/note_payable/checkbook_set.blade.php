@@ -40,6 +40,7 @@
         </div>
         <div class="col">
             <button type="submit" class="btn btn-primary px-4">確認送出</button>
+            <a href="{{ Route('cms.note_payable.index', [], true) }}" class="btn btn-outline-primary px-4" role="button">返回查詢</a>
         </div>
     </form>
 @endsection
