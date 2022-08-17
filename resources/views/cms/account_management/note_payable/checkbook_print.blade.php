@@ -43,48 +43,25 @@
                 </tr>
             </thead>
             <tbody>
-                @for ($i = 0; $i < 30; $i++)
+                @foreach($data_list->get() as $value)
                     <tr height="120" style="page-break-inside: avoid;">
                         <td>
-                            <div>票號：YA7626803</div>
-                            <div>金額：8533.00</div>
+                            <div>票號：{{ $value->cheque_ticket_number }}</div>
+                            <div>金額：{{ $value->tw_price }}</div>
                             <div>團號：</div>
-                            <div>付款單號：ISG0000{{ $i }}</div>
+                            <div>付款單號：{{ $value->po_sn }}</div>
                         </td>
                         <td>
-                            <div>開票：2020-11-17</div>
-                            <div>到期：2020-11-18</div>
-                            <div>兌現：2020-11-18</div>
-                            <div>狀態：</div>
+                            <div>開票：{{ $value->payment_date ? date('Y-m-d', strtotime($value->payment_date)) : '' }}</div>
+                            <div>到期：{{ $value->cheque_due_date ? date('Y-m-d', strtotime($value->cheque_due_date)) : '' }}</div>
+                            <div>兌現：{{ $value->cheque_cashing_date ? date('Y-m-d', strtotime($value->cheque_cashing_date)) : '' }}</div>
+                            <div>狀態：{{ $value->cheque_status }}</div>
                         </td>
                         <td style="vertical-align: top;">
-                            楊勝彬會計事務所(佑誠會計事務所)
+                            {{ $value->po_target_name }}
                         </td>
                     </tr>
-                @endfor
-                {{-- @foreach($data_list->paginate(8, ['*'], 'page', $i + 1) as $value)
-                <tr>
-                    <td>
-                        <span>票號：{{ $value->cheque_ticket_number }}</span>
-                        <br>
-                        <span>金額：{{ $value->tw_price }}</span>
-                        <br>
-                        <span>團號：</span>
-                        <br>
-                        <span>付款單號：{{ $value->po_sn }}</span>
-                    </td>
-                    <td>
-                        <span>開票：{{ $value->payment_date ? date('Y-m-d', strtotime($value->payment_date)) : '' }}</span>
-                        <br>
-                        <span>到期：{{ $value->cheque_due_date ? date('Y-m-d', strtotime($value->cheque_due_date)) : '' }}</span>
-                        <br>
-                        <span>兌現：{{ $value->cheque_cashing_date ? date('Y-m-d', strtotime($value->cheque_cashing_date)) : '' }}</span>
-                        <br>
-                        <span>狀態：{{ $value->cheque_status }}</span>
-                    </td>
-                    <td>{{ $value->po_target_name }}</td>
-                </tr>
-                @endforeach --}}
+                @endforeach
             </tbody>
         </table>
     </div>
