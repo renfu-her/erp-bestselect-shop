@@ -977,15 +977,15 @@ Breadcrumbs::for('cms.credit_card.edit', function (BreadcrumbTrail $trail) {
     $trail->push('編輯');
 });
 
-// 電子發票作業管理
+// 電子發票作業管理 - 查詢
 Breadcrumbs::for('cms.order_invoice_manager.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('發票查詢', route('cms.order_invoice_manager.index'));
+    $trail->push('電子發票管理', route('cms.order_invoice_manager.index'));
 });
-// 電子發票作業管理
+// 電子發票作業管理 - 月報表
 Breadcrumbs::for('cms.order_invoice_manager.month', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('發票月報表', route('cms.order_invoice_manager.month'));
+    $trail->push('電子發票管理', route('cms.order_invoice_manager.month'));
 });
 
 // 請款銀行

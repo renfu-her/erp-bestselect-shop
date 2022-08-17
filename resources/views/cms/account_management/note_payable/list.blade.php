@@ -2,20 +2,20 @@
 @section('sub-content')
     <h2 class="mb-4">應付票據查詢</h2>
 
-    <fieldset class="col-12 mb-2">
-        <div class="p-2 border rounded">
-            <a href="{{ Route('cms.note_payable.ask', ['type'=>'cashed']) }}" class="btn btn-success" role="button">整批兌現</a>
-            <a href="{{ Route('cms.note_payable.checkbook') }}" class="btn btn-success" role="button">列印支票本</a>
+    <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
+        <div class="p-1 pe-2">
+            <a href="{{ Route('cms.note_payable.ask', ['type'=>'cashed']) }}" class="btn btn-sm btn-primary" role="button">整批兌現</a>
+            <a href="{{ Route('cms.note_payable.checkbook') }}" class="btn btn-sm btn-warning" role="button">列印支票本</a>
         </div>
-    </fieldset>
+    </nav>
 
     <form id="search" method="GET">
         <div class="card shadow p-4 mb-4">
             <h6>搜尋條件</h6>
             <div class="row">
-                <div class="col-12 col-sm-4 mb-3">
+                <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">票據狀態</label>
-                    <select class="form-select -select2 -single" name="cheque_status_code" aria-label="票據狀態" data-placeholder="請選擇票據狀態">
+                    <select class="form-select" name="cheque_status_code" aria-label="票據狀態" placeholder="請選擇票據狀態">
                         <option value="" selected>不限</option>
                         @foreach ($cheque_status_code as $key => $value)
                             <option value="{{ $key }}" {{ in_array($key, $cond['cheque_status_code']) ? 'selected' : '' }}>{{ $value }}</option>
@@ -23,7 +23,7 @@
                     </select>
                 </div>
 
-                <div class="col-12 col-sm-4 mb-3">
+                <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">付款帳號</label>
                     <select class="form-select -select2 -single" name="cheque_payable_grade_id" aria-label="付款帳號" data-placeholder="請選擇付款帳號">
                         <option value="" selected>不限</option>
@@ -33,16 +33,19 @@
                     </select>
                 </div>
 
-                <div class="col-12 col-sm-4 mb-3">
+                <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">票據號碼</label>
                     <input class="form-control" type="text" name="ticket_number" value="{{ $cond['ticket_number'] }}" placeholder="請輸入票據號碼">
                 </div>
 
                 <div class="col-12 col-sm-6 mb-3">
-                    <label class="form-label">金額</label>
+                    <label class="form-label">金額範圍</label>
                     <div class="input-group has-validation">
-                        <input type="number" step="1" min="0" class="form-control @error('payable_min_price') is-invalid @enderror" name="payable_min_price" value="{{ $cond['payable_min_price'] }}" aria-label="起始金額">
-                        <input type="number" step="1" min="0" class="form-control @error('payable_max_price') is-invalid @enderror" name="payable_max_price" value="{{ $cond['payable_max_price'] }}" aria-label="結束金額">
+                        <input type="number" step="1" min="0" class="form-control @error('payable_min_price') is-invalid @enderror" 
+                            name="payable_min_price" value="{{ $cond['payable_min_price'] }}" aria-label="起始金額" placeholder="起始金額">
+                        <span class="input-group-text">~</span>
+                        <input type="number" step="1" min="0" class="form-control @error('payable_max_price') is-invalid @enderror" 
+                            name="payable_max_price" value="{{ $cond['payable_max_price'] }}" aria-label="結束金額" placeholder="結束金額">
                         <div class="invalid-feedback">
                             @error('payable_min_price')
                                 {{ $message }}
@@ -54,7 +57,7 @@
                     </div>
                 </div>
 
-                <div class="col-12 col-sm-6 mb-3">
+                <div class="col-12 mb-3">
                     <label class="form-label">開票日期起訖</label>
                     <div class="input-group has-validation">
                         <input type="date" class="form-control -startDate @error('payment_sdate') is-invalid @enderror" name="payment_sdate" value="{{ $cond['payment_sdate'] }}" aria-label="開票起始日期">
@@ -75,7 +78,7 @@
                     </div>
                 </div>
 
-                <div class="col-12 col-sm-6 mb-3">
+                <div class="col-12 mb-3">
                     <label class="form-label">到期日期起訖</label>
                     <div class="input-group has-validation">
                         <input type="date" class="form-control -startDate @error('cheque_due_sdate') is-invalid @enderror" name="cheque_due_sdate" value="{{ $cond['cheque_due_sdate'] }}" aria-label="到期起始日期">
@@ -96,7 +99,7 @@
                     </div>
                 </div>
 
-                <div class="col-12 col-sm-6 mb-3">
+                <div class="col-12 mb-3">
                     <label class="form-label">兌現日期起訖</label>
                     <div class="input-group has-validation">
                         <input type="date" class="form-control -startDate @error('cheque_cashing_sdate') is-invalid @enderror" name="cheque_cashing_sdate" value="{{ $cond['cheque_cashing_sdate'] }}" aria-label="兌現起始日期">
