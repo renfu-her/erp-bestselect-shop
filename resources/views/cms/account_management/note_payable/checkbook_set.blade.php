@@ -2,10 +2,10 @@
 @section('sub-content')
     <h2 class="mb-4">列印票據</h2>
 
-    <form method="POST" action="{{ $form_action }}">
+    <form method="POST" action="{{ $form_action }}" target="_blank">
         @csrf
         <div class="card shadow p-4 mb-4">
-            <h6>搜尋條件</h6>
+            <h6>列印條件</h6>
             <div class="row">
                 <div class="col-12 col-sm-4 mb-3">
                     <label class="form-label">票據英文字軌 <span class="text-danger">*</span></label>
@@ -37,10 +37,9 @@
                     </div>
                 </div>
             </div>
-
-            <div class="col">
-                <button type="submit" class="btn btn-primary px-4">確認送出</button>
-            </div>
+        </div>
+        <div class="col">
+            <button type="submit" class="btn btn-primary px-4">確認送出</button>
         </div>
     </form>
 @endsection
