@@ -1,10 +1,5 @@
 @extends('layouts.main')
 @section('sub-content')
-    <div class="pt-2 mb-3">
-        <a href="{{ Route('cms.credit_manager.index', [], true) }}" class="btn btn-primary" role="button">
-            <i class="bi bi-arrow-left"></i> 返回上一頁
-        </a>
-    </div>
     <h2 class="mb-4">請款比例列表</h2>
 
     <form id="search" action="{{ Route('cms.credit_percent.index') }}" method="GET">
@@ -41,42 +36,48 @@
             <table class="table table-striped tableList">
                 <thead>
                 <tr>
-                    <th scope="col" style="width:10%">#</th>
+                    <th scope="col" style="width:40px">#</th>
+                    @can('cms.credit_percent.edit')
+                        <th scope="col" class="text-center" style="width:40px">編輯</th>
+                    @endcan
                     <th scope="col">請款銀行</th>
                     <th scope="col">信用卡分期期數</th>
                     <th scope="col">信用卡別</th>
                     <th scope="col">會計科目代碼</th>
                     <th scope="col">會計科目</th>
                     <th scope="col">請款比例</th>
-                    @can('cms.credit_percent.edit')
-                        <th scope="col" class="text-center">編輯</th>
-                    @endcan
                 </tr>
                 </thead>
                 <tbody>
                 @foreach ($dataList as $key => $data)
                     <tr>
                         <th scope="row">{{ $key + 1 }}</th>
+                        @can('cms.credit_percent.edit')
+                            <td class="text-center">
+                                <a href="{{ Route('cms.credit_percent.edit', ['bank_id' => $data['bank']['id'], 'credit_id' => $data['credit_card']['id']], true) }}"
+                                   data-bs-toggle="tooltip" title="編輯"
+                                   class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                            </td>
+                        @endcan
                         <td>{{ $data['bank']['title'] }}</td>
                         <td>{{ $installment[$data['bank']['installment']] }}</td>
                         <td>{{ $data['credit_card']['title'] }}</td>
                         <td>{{ $data['bank']['code'] }}</td>
                         <td>{{ $data['bank']['name'] }}</td>
                         <td>{{ $data['percent'] }}</td>
-                        <td class="text-center">
-                            @can('cms.credit_percent.edit')
-                                <a href="{{ Route('cms.credit_percent.edit', ['bank_id' => $data['bank']['id'], 'credit_id' => $data['credit_card']['id']], true) }}"
-                                   data-bs-toggle="tooltip" title="編輯"
-                                   class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                    <i class="bi bi-pencil-square"></i>
-                                </a>
-                            @endcan
-                        </td>
                     </tr>
                 @endforeach
                 </tbody>
             </table>
         </div>
+    </div>
+
+    <div class="col-auto">
+        <a href="{{ Route('cms.credit_manager.index', [], true) }}" class="btn btn-outline-primary px-4" role="button">
+            返回上一頁
+        </a>
     </div>
 @endsection
 
