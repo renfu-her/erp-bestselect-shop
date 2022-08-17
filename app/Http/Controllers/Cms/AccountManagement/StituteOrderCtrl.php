@@ -443,8 +443,7 @@ class StituteOrderCtrl extends Controller
 
         $view = 'cms.account_management.stitute.po_show';
         if (request('method') == 'print') {
-            dd('cms.stitute.po-show 付款單');
-            $view = '';
+            $view = 'doc.print_account_management_stitute_pay';
         }
 
         return view($view, [

@@ -875,8 +875,7 @@ class DeliveryCtrl extends Controller
 
         $view = 'cms.commodity.delivery.return_pay_order';
         if (request('method') == 'print') {
-            dd('cms.delivery.return_pay_order 付款單');
-            $view = '';
+            $view = 'doc.print_delivery_return_order_pay';
         }
         return view($view, [
             'breadcrumb_data' => ['event' => $delivery->delivery_event, 'eventId' => $delivery->delivery_event_id, 'sn' => $delivery->delivery_event_sn],

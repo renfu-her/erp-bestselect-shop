@@ -709,8 +709,7 @@ class OrderCtrl extends Controller
         $zh_price = num_to_str($paying_order->price);
         $view = 'cms.commodity.order.logistic_po';
         if (request('method') == 'print') {
-            dd('cms.order.logistic_po 付款單');
-            $view = '';
+            $view = 'doc.print_order_logistic_pay';
         }
 
         return view($view, [
@@ -962,8 +961,7 @@ class OrderCtrl extends Controller
 
         $view = 'cms.commodity.order.return_pay_order';
         if (request('method') == 'print') {
-            dd('cms.order.return-pay-order 付款單');
-            $view = '';
+            $view = 'doc.print_order_return_order_pay';
         }
 
         return view($view, [

@@ -339,8 +339,7 @@ class AccountsPayableCtrl extends Controller
 
         $view = 'cms.accounts_payable.accounts_payable.po_show';
         if (request('method') == 'print') {
-            dd('cms.delivery.po-show 付款單');
-            $view = '';
+            $view = 'doc.print_accounts_payable_delivery_pay';
         }
 
         return view($view, [

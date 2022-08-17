@@ -703,8 +703,7 @@ class PurchaseCtrl extends Controller
 
         $view = 'cms.commodity.purchase.pay_order';
         if (request('method') == 'print') {
-            dd('cms.purchase.view-pay-order 付款單');
-//            $view = 'doc.print_payment';
+            $view = 'doc.print_purchase_order_pay';
         }
 
         return view($view, [
