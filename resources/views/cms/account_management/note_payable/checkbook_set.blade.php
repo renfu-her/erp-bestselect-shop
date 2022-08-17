@@ -9,7 +9,7 @@
             <div class="row">
                 <div class="col-12 col-sm-4 mb-3">
                     <label class="form-label">票據英文字軌 <span class="text-danger">*</span></label>
-                    <input id="alph_check" class="form-control @error('alphabet_character') is-invalid @enderror" type="text" name="alphabet_character" value="{{ old('alphabet_character', '') }}" placeholder="請輸入票據英文字軌" maxlength="2" style="text-transform: uppercase;" required>
+                    <input id="alph_check" class="form-control @error('alphabet_character') is-invalid @enderror" type="text" name="alphabet_character" value="{{ old('alphabet_character', 'AA') }}" placeholder="請輸入票據英文字軌" maxlength="2" style="text-transform: uppercase;" required>
                     <div class="invalid-feedback">
                         @error('alphabet_character')
                         {{ $message }}
@@ -19,7 +19,7 @@
 
                 <div class="col-12 col-sm-4 mb-3">
                     <label class="form-label">票據起始號碼 <span class="text-danger">*</span></label>
-                    <input type="number" step="1" min="0" max="9999999" maxlength="7" class="form-control @error('min_number') is-invalid @enderror" name="min_number" value="{{ old('min_number', '') }}" aria-label="票據起始號碼" required>
+                    <input type="number" step="1" min="0" max="9999999" maxlength="7" class="form-control @error('min_number') is-invalid @enderror" name="min_number" value="{{ old('min_number', 0) }}" placeholder="請輸入票據起始號碼" required>
                     <div class="invalid-feedback">
                         @error('min_number')
                         {{ $message }}
@@ -29,7 +29,7 @@
 
                 <div class="col-12 col-sm-4 mb-3">
                     <label class="form-label">票據結束號碼 <span class="text-danger">*</span></label>
-                    <input type="number" step="1" min="0" max="9999999" maxlength="7" class="form-control @error('max_number') is-invalid @enderror" name="max_number" value="{{ old('max_number', '') }}" aria-label="票據結束號碼" required>
+                    <input type="number" step="1" min="0" max="9999999" maxlength="7" class="form-control @error('max_number') is-invalid @enderror" name="max_number" value="{{ old('max_number', 0000000) }}" placeholder="請輸入票據結束號碼" required>
                     <div class="invalid-feedback">
                         @error('max_number')
                         {{ $message }}

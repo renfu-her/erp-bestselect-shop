@@ -8,6 +8,10 @@
         <div class="card shadow p-4 mb-4">
             <h6>付款單明細</h6>
 
+            @if($errors->any())
+            <div class="alert alert-danger">{!! implode('', $errors->all('<div>:message</div>')) !!}</div>
+            @endif
+
             <p class="fw-bold">支付對象：{{ $supplier->name . ' - ' . $supplier->contact_person }}</p>
 
             <div class="table-responsive tableOverBox border-bottom border-dark">

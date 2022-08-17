@@ -271,13 +271,14 @@ class NotePayableCtrl extends Controller
             // $data_list = NotePayableOrder::get_cheque_payable_list(null, null, null, $ticket_number, null, null, null, null);
 
             $data_list = NotePayableOrder::get_cheque_payable_list(null, null, null, null, null, null, null, null)->where(function ($q) use ($chr, $max, $min) {
-                $q->whereBetween('_cheque.ticket_number', [$chr . str_pad($min, 7, '0', STR_PAD_LEFT), $chr . str_pad($max, 7, '0', STR_PAD_LEFT)]);
+                $_max = $chr . str_pad($max, 7, '0', STR_PAD_LEFT);
+                $_min = $chr . str_pad($min, 7, '0', STR_PAD_LEFT);
+                $q->whereBetween('_cheque.ticket_number', [$_min, $_max]);
             });
 
             return view('cms.account_management.note_payable.checkbook_print', [
                 'data_list' => $data_list,
                 'printer' => auth('user')->user() ? auth('user')->user()->name : null,
-                'alphabet_character' => request('alphabet_character'),
             ]);
         }
 

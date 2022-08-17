@@ -113,7 +113,6 @@ class ReceivedOrder extends Model
                     $join->on('discounts_table.order_id', '=', 'order.id');
             })
 
-
             // csn_order
             ->leftJoin('csn_orders AS csn_order', function ($join) {
                 $join->on('ro.source_id', '=', 'csn_order.id');
@@ -209,7 +208,6 @@ class ReceivedOrder extends Model
                 'received_table.received_list AS received_list',
                 'received_table.received_date AS received_date',// 收款單完成收款日期
                 'received_table.received_price AS received_price',// 收款單金額(實收)
-
 
                 'order.dlv_fee AS order_dlv_fee',
                 'order.discount_value AS order_discount_value',

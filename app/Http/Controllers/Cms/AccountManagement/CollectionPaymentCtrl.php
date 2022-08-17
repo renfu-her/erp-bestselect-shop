@@ -63,7 +63,7 @@ class CollectionPaymentCtrl extends Controller
             $po_payment_date,
             $cond['check_balance'],
         )->paginate($page)->appends($query);
-
+        // dd($dataList);
         // accounting classification start
         foreach($dataList as $value){
             $debit = [];
@@ -114,19 +114,27 @@ class CollectionPaymentCtrl extends Controller
             }
 
             // 商品
-            $product_account = AllGrade::find($value->po_product_grade_id) ? AllGrade::find($value->po_product_grade_id)->eachGrade : null;
-            $account_code = $product_account ? $product_account->code : '1000';
-            $account_name = $product_account ? $product_account->name : '無設定會計科目';
-            $product_name = $account_code . ' ' . $account_name;
             if($value->product_items){
-                foreach(json_decode($value->product_items) as $pro_v){
-                    $avg_price = $pro_v->price / $pro_v->num;
-                    $name = $product_name . ' --- ' . $pro_v->title . '（' . $avg_price . ' * ' . $pro_v->num . '）';
+                $product_account = AllGrade::find($value->po_product_grade_id) ? AllGrade::find($value->po_product_grade_id)->eachGrade : null;
+                $account_code = $product_account ? $product_account->code : '1000';
+                $account_name = $product_account ? $product_account->name : '無設定會計科目';
+                $product_name = $account_code . ' ' . $account_name;
+                foreach(json_decode($value->product_items) as $p_value){
+                    $avg_price = $p_value->price / $p_value->num;
+                    $name = $product_name . ' --- ' . $p_value->title . '（' . $avg_price . ' * ' . $p_value->num . '）';
+                    $product_title = $p_value->title;
+
+                    if($value->po_source_type == 'pcs_paying_orders'){
+                        $product_account = AllGrade::find($p_value->all_grades_id) ? AllGrade::find($p_value->all_grades_id)->eachGrade : null;
+                        $account_code = $product_account ? $product_account->code : '1000';
+                        $account_name = $product_account ? $product_account->name : '無設定會計科目';
+                        $product_title = $account_name;
+                    }
 
                     $tmp = [
                         'account_code'=>$account_code,
                         'name'=>$name,
-                        'price'=>$pro_v->price,
+                        'price'=>$p_value->price,
                         'type'=>'p',
                         'd_type'=>'product',
 
@@ -134,12 +142,12 @@ class CollectionPaymentCtrl extends Controller
                         'method_name'=>null,
                         'summary'=>null,
                         'note'=>null,
-                        'product_title'=>$pro_v->title,
+                        'product_title'=>$product_title,
                         'del_even'=>null,
                         'del_category_name'=>null,
                         'product_price'=>$avg_price,
-                        'product_qty'=>$pro_v->num,
-                        'product_owner'=>$pro_v->product_owner,
+                        'product_qty'=>$p_value->num,
+                        'product_owner'=>$p_value->product_owner,
                         'discount_title'=>null,
                         'payable_type'=>null,
                         'received_info'=>null,
@@ -239,6 +247,8 @@ class CollectionPaymentCtrl extends Controller
             }
         }
         // accounting classification end
+
+// dd($dataList);
 
         $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
         $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
