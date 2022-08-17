@@ -196,11 +196,11 @@ return
                 "controller_name" => "AccountReceivedCtrl",
                 "route_name" => "cms.account_received.index",
             ],
-            // [
-            //     "title" => "退款作業",
-            //     "controller_name" => "RefundCtrl",
-            //     "route_name" => "cms.refund.index",
-            // ],
+            [
+                "title" => "退款作業",
+                "controller_name" => "RefundCtrl",
+                "route_name" => "cms.refund.index",
+            ],
             [
                 "title" => "轉帳傳票",
                 "controller_name" => "TransferVoucherCtrl",

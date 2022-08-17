@@ -880,6 +880,12 @@ Breadcrumbs::for('cms.account_received.ro-taxation', function (BreadcrumbTrail $
     $trail->push('修改摘要/稅別');
 });
 
+// 退款作業
+Breadcrumbs::for('cms.refund.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('退款作業', route('cms.refund.index'));
+});
+
 // 轉帳傳票
 Breadcrumbs::for('cms.transfer_voucher.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');

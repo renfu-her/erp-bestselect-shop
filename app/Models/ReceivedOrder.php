@@ -31,6 +31,30 @@ class ReceivedOrder extends Model
         $received_date = null,
         $check_review = 'all'
     ){
+        $sq = '
+            SELECT
+                acc_all_grades.id,
+                CASE
+                    WHEN acc_first_grade.code IS NOT NULL THEN acc_first_grade.code
+                    WHEN acc_second_grade.code IS NOT NULL THEN acc_second_grade.code
+                    WHEN acc_third_grade.code IS NOT NULL THEN acc_third_grade.code
+                    WHEN acc_fourth_grade.code IS NOT NULL THEN acc_fourth_grade.code
+                    ELSE ""
+                END AS code,
+                CASE
+                    WHEN acc_first_grade.name IS NOT NULL THEN acc_first_grade.name
+                    WHEN acc_second_grade.name IS NOT NULL THEN acc_second_grade.name
+                    WHEN acc_third_grade.name IS NOT NULL THEN acc_third_grade.name
+                    WHEN acc_fourth_grade.name IS NOT NULL THEN acc_fourth_grade.name
+                    ELSE ""
+                END AS name
+            FROM acc_all_grades
+            LEFT JOIN acc_first_grade ON acc_all_grades.grade_id = acc_first_grade.id AND acc_all_grades.grade_type = "App\\\Models\\\FirstGrade"
+            LEFT JOIN acc_second_grade ON acc_all_grades.grade_id = acc_second_grade.id AND acc_all_grades.grade_type = "App\\\Models\\\SecondGrade"
+            LEFT JOIN acc_third_grade ON acc_all_grades.grade_id = acc_third_grade.id AND acc_all_grades.grade_type = "App\\\Models\\\ThirdGrade"
+            LEFT JOIN acc_fourth_grade ON acc_all_grades.grade_id = acc_fourth_grade.id AND acc_all_grades.grade_type = "App\\\Models\\\FourthGrade"
+        ';
+
         $query = DB::table('ord_received_orders AS ro')
             ->leftJoin('usr_users AS undertaker', function($join){
                 $join->on('ro.usr_users_id', '=', 'undertaker.id');
