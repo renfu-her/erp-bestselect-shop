@@ -2,63 +2,45 @@
 @section('sub-content')
     <h2 class="mb-4">列印票據</h2>
 
-    <form method="POST" action="{{ $form_action }}">
+    <form method="POST" action="{{ $form_action }}" target="_blank">
         @csrf
         <div class="card shadow p-4 mb-4">
-            <h6></h6>
+            <h6>列印條件</h6>
             <div class="row">
-                {{--
-                <div class="col-12 col-sm-12 mb-3">
-                    <label class="form-label">票據號碼</label>
-                    <div class="input-group has-validation">
-                        <input type="number" step="1" min="0" class="form-control @error('payable_min_price') is-invalid @enderror" name="payable_min_price" value="{{ $cond['payable_min_price'] }}" aria-label="起始票據號碼">
-                        <input type="number" step="1" min="0" class="form-control @error('payable_max_price') is-invalid @enderror" name="payable_max_price" value="{{ $cond['payable_max_price'] }}" aria-label="結束票據號碼">
-                        <div class="invalid-feedback">
-                            @error('payable_min_price')
-                                {{ $message }}
-                            @enderror
-                            @error('payable_max_price')
-                                {{ $message }}
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-                --}}
-
                 <div class="col-12 col-sm-4 mb-3">
-                    <label class="form-label">每頁筆數 <span class="text-danger">*</span></label>
-                    <input class="form-control @error('item_per_page') is-invalid @enderror" type="number" step="1" min="1" name="item_per_page" value="{{ old('item_per_page', 8) }}" placeholder="請輸入每頁筆數">
+                    <label class="form-label">票據英文字軌 <span class="text-danger">*</span></label>
+                    <input id="alph_check" class="form-control @error('alphabet_character') is-invalid @enderror" type="text" name="alphabet_character" value="{{ old('alphabet_character', 'AA') }}" placeholder="請輸入票據英文字軌" maxlength="2" style="text-transform: uppercase;" required>
                     <div class="invalid-feedback">
-                        @error('item_per_page')
+                        @error('alphabet_character')
                         {{ $message }}
                         @enderror
                     </div>
                 </div>
 
                 <div class="col-12 col-sm-4 mb-3">
-                    <label class="form-label">每頁高度 <span class="text-danger">*</span></label>
-                    <input class="form-control @error('page_height') is-invalid @enderror" type="number" step="0.1" min="0" name="page_height" value="{{ old('page_height', 27.7) }}" placeholder="請輸入每頁高度">
+                    <label class="form-label">票據起始號碼 <span class="text-danger">*</span></label>
+                    <input type="number" step="1" min="0" max="9999999" maxlength="7" class="form-control @error('min_number') is-invalid @enderror" name="min_number" value="{{ old('min_number', 0) }}" placeholder="請輸入票據起始號碼" required>
                     <div class="invalid-feedback">
-                        @error('page_height')
+                        @error('min_number')
                         {{ $message }}
                         @enderror
                     </div>
                 </div>
 
                 <div class="col-12 col-sm-4 mb-3">
-                    <label class="form-label">每格高度 <span class="text-danger">*</span></label>
-                    <input class="form-control @error('row_height') is-invalid @enderror" type="number" step="1" min="0" name="row_height" value="{{ old('row_height', 120) }}" placeholder="請輸入每格高度">
+                    <label class="form-label">票據結束號碼 <span class="text-danger">*</span></label>
+                    <input type="number" step="1" min="0" max="9999999" maxlength="7" class="form-control @error('max_number') is-invalid @enderror" name="max_number" value="{{ old('max_number', 0000000) }}" placeholder="請輸入票據結束號碼" required>
                     <div class="invalid-feedback">
-                        @error('row_height')
+                        @error('max_number')
                         {{ $message }}
                         @enderror
                     </div>
                 </div>
             </div>
-
-            <div class="col">
-                <button type="submit" class="btn btn-primary px-4">確認送出</button>
-            </div>
+        </div>
+        <div class="col">
+            <button type="submit" class="btn btn-primary px-4">確認送出</button>
+            <a href="{{ Route('cms.note_payable.index', [], true) }}" class="btn btn-outline-primary px-4" role="button">返回查詢</a>
         </div>
     </form>
 @endsection
@@ -72,7 +54,17 @@
 
     @push('sub-scripts')
         <script>
+            $('#alph_check').on('keyup paste blur', function (e) {
+                $(this).val( $(this).val().toUpperCase() );
 
+                if ((e.which >= 65 && e.which <= 90) || (event.charCode >= 97 && event.charCode <= 122) ){
+                    return true;
+
+                } else {
+                    e.preventDefault();
+                    return false;
+                }
+            });
         </script>
     @endpush
 @endonce

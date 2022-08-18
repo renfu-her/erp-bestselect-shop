@@ -2,9 +2,6 @@
 @section('sub-content')
     <h2 class="mb-4">信用卡整批入款</h2>
 
-    <a href="{{ route('cms.credit_manager.index') }}" class="btn btn-primary" role="button">
-        <i class="bi bi-arrow-left"></i> 返回上一頁
-    </a>
 
     <form method="POST" action="{{ $form_action }}">
         @csrf
@@ -12,16 +9,16 @@
             @if($errors->any())
             <div class="alert alert-danger mt-3">{!! implode('', $errors->all('<div>:message</div>')) !!}</div>
             @endif
-            <div class="table-responsive tableOverBox">
+            <div class="table-responsive tableOverBox mb-3">
                 <table class="table table-hover tableList mb-1">
                     <thead class="table-primary">
                         <tr>
                             <th scope="col" class="text-center"><input class="form-check-input" type="checkbox" id="checkAll"></th>
                             <th scope="col">編號</th>
                             <th scope="col">信用卡號</th>
-                            <th scope="col">刷卡金額</th>
+                            <th scope="col" class="text-end">刷卡金額</th>
                             <th scope="col">入款金額</th>
-                            <th scope="col">手續費</th>
+                            <th scope="col" class="text-end">手續費</th>
                             <th scope="col">狀態</th>
                             <th scope="col">刷卡日期</th>
                             <th scope="col">卡別</th>
@@ -42,10 +39,9 @@
                                 </th>
                                 <td>{{ $key + 1 }}</td>
                                 <td>{{ $value->credit_card_number }}</td>
-                                <td>{{ number_format($value->credit_card_price) }}</td>
+                                <td class="text-end">${{ number_format($value->credit_card_price) }}</td>
                                 <td><input class="form-control select_input" type="text" name="amt_net[{{ $key }}]" value="{{ round($value->credit_card_price * $value->bank_percent) }}" placeholder="請輸入入款金額" disabled="disabled"></td>
-                                <td>{{ $value->credit_card_price - round($value->credit_card_price * $value->bank_percent) }}</td>
-
+                                <td class="text-end">${{ $value->credit_card_price - round($value->credit_card_price * $value->bank_percent) }}</td>
 
                                 <td>{{ $value->credit_card_status_code == 0 ? '刷卡' : ($value->credit_card_status_code == 1 ? '請款' : '入款') }}</td>
                                 <td>{{ date('Y-m-d', strtotime($value->credit_card_checkout_date)) }}</td>
@@ -64,20 +60,15 @@
                                 <td>{{ $value->bank_name}}</td>
                             </tr>
                         @endforeach
-                        <tr>
-                            <th></th>
-                            <td></td>
-                            <td>合計張數：{{ count($data_list) }} 張</td>
-                            <td>合計金額：{{ number_format($data_list->sum('credit_card_price')) }}</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
                     </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="2">合計</th>
+                            <td>張數：{{ count($data_list) }} 張</td>
+                            <td class="text-end">金額：${{ number_format($data_list->sum('credit_card_price')) }}</td>
+                            <td colspan="7"></td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
 
@@ -96,6 +87,9 @@
 
         <div class="col-auto">
             <button type="submit" class="btn btn-primary px-4 submit" disabled="disabled">確認</button>
+            <a href="{{ route('cms.credit_manager.index') }}" class="btn btn-outline-primary px-4" role="button">
+                返回上一頁
+            </a>
         </div>
     </form>
 @endsection

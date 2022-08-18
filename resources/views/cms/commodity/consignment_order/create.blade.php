@@ -13,9 +13,7 @@
 
     @php
         $consignmentData = $consignmentData ?? null;
-    @endphp
-
-    @php
+        
         $editable = false == (isset($delivery) && isset($delivery->audit_date));
     @endphp
 
@@ -23,13 +21,15 @@
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
         @if (!$receivable)
-            <a href="{{ Route('cms.ar_csnorder.create', ['id' => $id]) }}" class="btn btn-primary" role="button">新增收款單</a>
+            <a href="{{ Route('cms.ar_csnorder.create', ['id' => $id]) }}" class="btn btn-sm btn-primary" role="button">新增收款單</a>
         @endif
         @if ($received_order_data)
             @if(!in_array($consignmentData->status, ['已入款', '結案']))
-                <a href="javascript:void(0)" role="button" data-bs-toggle="modal" data-bs-target="#confirm-delete" data-href="{{ Route('cms.ar_csnorder.delete', ['id' => $received_order_data->id], true) }}" class="btn btn-danger">刪除收款單</a>
+                <a href="javascript:void(0)" role="button" data-bs-toggle="modal" data-bs-target="#confirm-delete" 
+                    data-href="{{ Route('cms.ar_csnorder.delete', ['id' => $received_order_data->id], true) }}" 
+                    class="btn btn-sm btn-danger">刪除收款單</a>
             @else
-                <button type="button" class="btn btn-danger" disabled>刪除收款單</button>
+                <button type="button" class="btn btn-sm btn-danger" disabled>刪除收款單</button>
             @endif
         @endif
         </div>

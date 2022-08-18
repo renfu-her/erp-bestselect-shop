@@ -2,23 +2,23 @@
 @section('sub-content')
     <h2 class="mb-4">信用卡作業管理</h2>
 
-    <fieldset class="col-12 mb-2">
-        <div class="p-2 border rounded">
-            <a href="{{ Route('cms.credit_manager.ask') }}" class="btn btn-primary" role="button">整批請款</a>
-            <a href="{{ Route('cms.credit_manager.claim') }}" class="btn btn-primary" role="button">整批入款</a>
-            <a href="{{ Route('cms.credit_percent.index') }}" class="btn btn-success" role="button">請款比例列表</a>
-            <a href="{{ Route('cms.credit_bank.index') }}" class="btn btn-primary" role="button">銀行列表</a>
-            <a href="{{ Route('cms.credit_card.index') }}" class="btn btn-danger" role="button">信用卡列表</a>
+    <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
+        <div class="p-1 pe-2">
+            <a href="{{ Route('cms.credit_manager.ask') }}" class="btn btn-sm btn-primary" role="button">整批請款</a>
+            <a href="{{ Route('cms.credit_manager.claim') }}" class="btn btn-sm btn-primary" role="button">整批入款</a>
+            <a href="{{ Route('cms.credit_percent.index') }}" class="btn btn-sm btn-success" role="button">請款比例列表</a>
+            <a href="{{ Route('cms.credit_bank.index') }}" class="btn btn-sm btn-success" role="button">銀行列表</a>
+            <a href="{{ Route('cms.credit_card.index') }}" class="btn btn-sm btn-success" role="button">信用卡列表</a>
         </div>
-    </fieldset>
+    </nav>
 
     <form id="search" method="GET">
         <div class="card shadow p-4 mb-4">
             <h6>搜尋條件</h6>
             <div class="row">
-                <div class="col-12 col-sm-4 mb-3">
+                <div class="col-12 col-sm-6 col-lg-4 mb-3">
                     <label class="form-label">銀行名稱</label>
-                    <select class="form-select -select2 -single" name="bank_id" aria-label="銀行名稱" data-placeholder="請選擇銀行名稱">
+                    <select class="form-select" name="bank_id" aria-label="銀行名稱" data-placeholder="請選擇銀行名稱">
                         <option value="" selected>不限</option>
                         @foreach ($bank as $key => $value)
                             <option value="{{ $key }}" {{ in_array($key, $cond['bank_id']) ? 'selected' : '' }}>{{ $value }}</option>
@@ -26,9 +26,9 @@
                     </select>
                 </div>
 
-                <div class="col-12 col-sm-4 mb-3">
+                <div class="col-12 col-sm-6 col-lg-4 mb-3">
                     <label class="form-label">結帳地區</label>
-                    <select class="form-select -select2 -single" name="area_id" aria-label="結帳地區" data-placeholder="請選擇結帳地區">
+                    <select class="form-select" name="area_id" aria-label="結帳地區" data-placeholder="請選擇結帳地區">
                         <option value="" selected>不限</option>
                         @foreach ($checkout_area as $key => $value)
                             <option value="{{ $key }}" {{ in_array($key, $cond['area_id']) ? 'selected' : '' }}>{{ $value }}</option>
@@ -36,9 +36,9 @@
                     </select>
                 </div>
 
-                <div class="col-12 col-sm-4 mb-3">
+                <div class="col-12 col-sm-6 col-lg-4 mb-3">
                     <label class="form-label">信用卡別</label>
-                    <select class="form-select -select2 -single" name="card_type_id" aria-label="信用卡別" data-placeholder="請選擇信用卡別">
+                    <select class="form-select" name="card_type_id" aria-label="信用卡別" data-placeholder="請選擇信用卡別">
                         <option value="" selected>不限</option>
                         @foreach ($card_type as $key => $value)
                             <option value="{{ $key }}" {{ in_array($key, $cond['card_type_id']) ? 'selected' : '' }}>{{ $value }}</option>
@@ -46,21 +46,24 @@
                     </select>
                 </div>
 
-                <div class="col-12 col-sm-4 mb-3">
+                <div class="col-12 col-sm-6 col-lg-4 mb-3">
                     <label class="form-label">信用卡號</label>
                     <input class="form-control" type="text" name="card_number" value="{{ $cond['card_number'] }}" placeholder="請輸入信用卡號">
                 </div>
 
-                <div class="col-12 col-sm-4 mb-3">
+                <div class="col-12 col-sm-6 col-lg-4 mb-3">
                     <label class="form-label">持卡人</label>
                     <input class="form-control" type="text" name="card_owner" value="{{ $cond['card_owner'] }}" placeholder="請輸入持卡人">
                 </div>
 
-                <div class="col-12 col-sm-4 mb-3">
-                    <label class="form-label">刷卡金額</label>
+                <div class="col-12 col-sm-6 col-lg-4 mb-3">
+                    <label class="form-label">刷卡金額範圍</label>
                     <div class="input-group has-validation">
-                        <input type="number" step="1" min="0" class="form-control @error('authamt_min_price') is-invalid @enderror" name="authamt_min_price" value="{{ $cond['authamt_min_price'] }}" aria-label="刷卡起始金額">
-                        <input type="number" step="1" min="0" class="form-control @error('authamt_max_price') is-invalid @enderror" name="authamt_max_price" value="{{ $cond['authamt_max_price'] }}" aria-label="刷卡結束金額">
+                        <input type="number" step="1" min="0" class="form-control @error('authamt_min_price') is-invalid @enderror" 
+                            name="authamt_min_price" value="{{ $cond['authamt_min_price'] }}" aria-label="刷卡起始金額" placeholder="起始金額">
+                        <span class="input-group-text">~</span>
+                        <input type="number" step="1" min="0" class="form-control @error('authamt_max_price') is-invalid @enderror" 
+                            name="authamt_max_price" value="{{ $cond['authamt_max_price'] }}" aria-label="刷卡結束金額" placeholder="結束金額">
                         <div class="invalid-feedback">
                             @error('authamt_min_price')
                                 {{ $message }}

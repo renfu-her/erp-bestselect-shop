@@ -1,29 +1,31 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">發票查詢</h2>
+    <h2 class="mb-4">電子發票作業管理</h2>
 
-    <fieldset class="col-12 mb-2">
-        <div class="p-2 border rounded">
-            <a href="{{ Route('cms.order_invoice_manager.index') }}" class="btn btn-primary active" aria-current="page" role="button">發票查詢</a>
-            <a href="{{ Route('cms.order_invoice_manager.month') }}" class="btn btn-primary" role="button">月報表</a>
-        </div>
-    </fieldset>
+    <ul class="nav nav-tabs border-bottom-0">
+        <li class="nav-item">
+            <a href="{{ Route('cms.order_invoice_manager.index') }}" class="nav-link active" aria-current="page" role="button">發票查詢</a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ Route('cms.order_invoice_manager.month') }}" class="nav-link" role="button">月報表</a>
+        </li>
+    </ul>
 
     <form id="search" method="GET">
         <div class="card shadow p-4 mb-4">
             <h6>搜尋條件</h6>
             <div class="row">
-                <div class="col-12 col-sm-4 mb-3">
+                <div class="col-12 col-sm-6 col-lg-4 mb-3">
                     <label class="form-label">發票號碼</label>
                     <input class="form-control" type="text" name="invoice_number" value="{{ $cond['invoice_number'] }}" placeholder="請輸入發票號碼">
                 </div>
 
-                <div class="col-12 col-sm-4 mb-3">
+                <div class="col-12 col-sm-6 col-lg-4 mb-3">
                     <label class="form-label">客戶名稱</label>
                     <input class="form-control" type="text" name="buyer_name" value="{{ $cond['buyer_name'] }}" placeholder="請輸入客戶名稱">
                 </div>
 
-                <div class="col-12 col-sm-4 mb-3">
+                <div class="col-12 col-sm-6 col-lg-4 mb-3">
                     <label class="form-label">統一編號</label>
                     <input class="form-control" type="text" name="buyer_ubn" value="{{ $cond['buyer_ubn'] }}" placeholder="請輸入統一編號">
                 </div>

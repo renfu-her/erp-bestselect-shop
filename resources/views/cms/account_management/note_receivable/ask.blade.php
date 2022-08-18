@@ -2,17 +2,13 @@
 @section('sub-content')
     <h2 class="mb-4">整批{{ $type == 'collection' ? '託收' : ($type == 'nd' ? '次交票' : '兌現') }}</h2>
 
-    <a href="{{ $previous_url }}" class="btn btn-primary" role="button">
-        <i class="bi bi-arrow-left"></i> 返回上一頁
-    </a>
-
     <form method="POST" action="{{ $form_action }}">
         @csrf
         <div class="card shadow p-4 mb-4">
             @if($errors->any())
             <div class="alert alert-danger">{!! implode('', $errors->all('<div>:message</div>')) !!}</div>
             @endif
-            <div class="table-responsive tableOverBox">
+            <div class="table-responsive tableOverBox mb-3">
                 <table class="table table-hover tableList mb-1">
                     <thead class="table-primary">
                         <tr>
@@ -71,8 +67,8 @@
                 </table>
             </div>
 
-            <div class="row">
-                <div class="col-11">
+            <div class="row align-items-end">
+                <div class="col">
                     @if ($type == 'collection')
                     <label class="form-label">託收日期 <span class="text-danger">*</span></label>
                     <input type="date" name="c_n_date" class="form-control @error('c_n_date') is-invalid @enderror" placeholder="請輸入託收日期" aria-label="託收日期" value="{{ old('c_n_date', date('Y-m-d', strtotime( date('Y-m-d'))) ) }}" required>
@@ -90,7 +86,7 @@
                     </div>
                 </div>
 
-                <div class="col-1 align-self-end">
+                <div class="col-auto ps-0">
                     <button type="button" class="btn btn-primary px-4 query_date">查詢</button>
                 </div>
             </div>
@@ -98,6 +94,9 @@
 
         <div class="col-auto">
             <button type="submit" class="btn btn-primary px-4 submit" disabled="disabled">確認</button>
+            <a href="{{ $previous_url }}" class="btn btn-outline-primary px-4" role="button">
+                返回上一頁
+            </a>
         </div>
     </form>
 @endsection
