@@ -337,7 +337,7 @@ class AccountsPayableCtrl extends Controller
         $accountant = array_unique($accountant->pluck('name')->toArray());
         asort($accountant);
 
-        $view = 'cms.accounts_payable.accounts_payable.po_show';
+        $view = 'cms.account_management.accounts_payable.po_show';
         if (request('method') == 'print') {
             $view = 'doc.print_accounts_payable_delivery_pay';
         }
