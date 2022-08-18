@@ -920,7 +920,7 @@ class ProductCtrl extends Controller
             }
         }
 
-        ProductStyle::where('id', $sid)->update(['title' => $d['title']]);
+         ProductStyle::where('id', $sid)->update(['title' => $d['title']]);
 
         if (isset($d['del_item_id'])) {
             ProductStyleCombo::whereIn('id', explode(',', $d['del_item_id']))->delete();
