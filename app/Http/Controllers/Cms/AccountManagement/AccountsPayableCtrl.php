@@ -277,6 +277,7 @@ class AccountsPayableCtrl extends Controller
         if (count($payable_data) > 0 && $paying_order->price == $payable_data->sum('tw_price')) {
             $paying_order->update([
                 'balance_date'=>date('Y-m-d H:i:s'),
+                'payment_date' => $data['payment_date'],
             ]);
         }
 

@@ -44,7 +44,6 @@
                 </div>
 
                 <div class="col-12 mb-3">
-                    {{-- last payment_date field of acc_payable table --}}
                     <label class="form-label">付款日期起訖</label>
                     <div class="input-group has-validation">
                         <input type="date" class="form-control -startDate @error('po_sdate') is-invalid @enderror" name="po_sdate" value="{{ $cond['po_sdate'] }}" aria-label="付款起始日期">
@@ -187,7 +186,7 @@
                                 @endforeach
                             </td>
 
-                            <td class="">{{ $data->po_balance_date ? date('Y-m-d', strtotime($data->payment_date)) : '0000-00-00' }}</td>
+                            <td class="">{{ $data->payment_date ? date('Y-m-d', strtotime($data->payment_date)) : '0000-00-00' }}</td>
                         </tr>
                     @endforeach
                 </tbody>
