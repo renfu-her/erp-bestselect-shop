@@ -82,7 +82,7 @@
                         <tr>
                             <td>{{ $key + 1 }}</td>
                             <td>{{ $data->type }}</td>
-                            <td><a href="{{ Route('cms.remittance_record.detail', ['sn' => $data->sn], true) }}">{{ $data->sn }}</a></td>
+                            <td><a href="{{ Route('cms.remittance_record.detail', ['remit_id' => $data->remit_id, 'sn' => $data->sn], true) }}">{{ $data->sn }}</a></td>
                             <td>{{ $data->remit_date }}</td>
                             <td>{{ number_format($data->tw_price, 2) }}</td>
                             <td>{{ $data->code }}</td>

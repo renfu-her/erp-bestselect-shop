@@ -8,5 +8,5 @@ use Illuminate\Support\Facades\Route;
  */
 Route::group(['prefix' => 'remittance_record', 'as' => 'remittance_record.'], function () {
     Route::get('', [RemittanceRecordCtrl::class, 'index'])->name('index')->middleware('permission:cms.remittance_record.index');
-    Route::get('detail/{sn}', [RemittanceRecordCtrl::class, 'detail'])->name('detail')->middleware('permission:cms.remittance_record.index');
+    Route::get('detail/{remit_id}/{sn}', [RemittanceRecordCtrl::class, 'detail'])->name('detail')->middleware('permission:cms.remittance_record.index');
 });

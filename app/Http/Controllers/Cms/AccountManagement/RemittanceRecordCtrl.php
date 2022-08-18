@@ -52,6 +52,7 @@ class RemittanceRecordCtrl extends Controller
                 , 'table.tw_price'
                 , 'grade.code'
                 , 'grade.name'
+                , 'remit.id as remit_id'
                 , 'remit.created_at'
                 , DB::raw('"" as memo')
                 , DB::raw('"payable" as type_eng')
@@ -72,6 +73,7 @@ class RemittanceRecordCtrl extends Controller
                 , 'table.tw_price'
                 , 'grade.code'
                 , 'grade.name'
+                , 'remit.id as remit_id'
                 , 'remit.created_at'
                 , 'remit.memo as memo'
                 , DB::raw('"received" as type_eng')
@@ -83,6 +85,9 @@ class RemittanceRecordCtrl extends Controller
         $data_list = DB::query()->fromSub($union, 'select_list')
             ->orderByDesc('created_at');
 
+        if (isset($cond['remit_id'])) {
+            $data_list->where('remit_id', '=', $cond['remit_id']);
+        }
         if (isset($cond['sn'])) {
             $data_list->where('sn', '=', $cond['sn']);
         }
@@ -101,9 +106,10 @@ class RemittanceRecordCtrl extends Controller
         return $data_list;
     }
 
-    public function detail(Request $request, $sn) {
+    public function detail(Request $request, $remit_id, $sn) {
         $query = $request->query();
         $cond = [];
+        $cond['remit_id'] = $remit_id ?? null;
         $cond['sn'] = $sn ?? null;
         $data = self::getRemitRecord($cond)->first();
         if (false == isset($data)) {
