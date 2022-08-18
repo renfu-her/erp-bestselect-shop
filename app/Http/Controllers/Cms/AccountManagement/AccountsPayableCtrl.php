@@ -205,7 +205,7 @@ class AccountsPayableCtrl extends Controller
         return view('cms.account_management.accounts_payable.po_edit', [
             'breadcrumb_data' => ['id' => $id],
             'form_action' => route('cms.accounts_payable.po-store', ['id' => $paying_order->id]),
-            'previou_url' => route('cms.accounts_payable.index'),
+            'previous_url' => route('cms.accounts_payable.index'),
             'target_items' => $target_items,
             'paying_order' => $paying_order,
             'payable_data' => $payable_data,
@@ -254,6 +254,9 @@ class AccountsPayableCtrl extends Controller
                 PayableCash::storePayableCash($data);
                 break;
             case Payment::Cheque:
+                $request->validate([
+                    'cheque.ticket_number'=>'required|unique:acc_payable_cheque,ticket_number|regex:/^[A-Z]{2}[0-9]{7}$/'
+                ]);
                 PayableCheque::storePayableCheque($data);
                 break;
             case Payment::Remittance:

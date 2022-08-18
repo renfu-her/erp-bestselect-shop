@@ -41,7 +41,7 @@ class User extends Authenticatable
         'title',
         'group',
         'department',
-        'company'
+        'company',
     ];
 
     /**
@@ -68,7 +68,7 @@ class User extends Authenticatable
         return $this->getMenuTree(true, include 'userMenu.php');
     }
 
-    public static function createUser($name, $account, $email, $password, $permission_id = [], $role_id = [], $company_code = null, $title = null, $company = null, $department = null, $group = null)
+    public static function createUser($name, $account, $email, $password, $permission_id = [], $role_id = [], $company_code = null, $title = null, $main_company = null, $company = null, $department = null, $group = null)
     {
         //檢查是否有此消費者ID
 
@@ -90,6 +90,7 @@ class User extends Authenticatable
             'company' => $company,
             'department' => $department,
             'group' => $group,
+            'main_company' => $main_company,
         ])->id;
 
         self::where('id', '=', $id)->get()->first()->givePermissionTo($permission_id);
@@ -224,14 +225,13 @@ class User extends Authenticatable
         return $user_lgt_token;
     }
 
-    public static function getEmployeeData()
+    public static function getEmployeeData($role_id = [])
     {
-
         $url = "https://www.besttour.com.tw/api/empdep.asp?type=1";
         $re = Http::get($url)->json();
         DB::beginTransaction();
         foreach ($re as $u) {
-            if (self::where('account', $u['NUMBER'])->get()->first()) {
+            if (self::where('account', $u['NUMBER'])->withTrashed()->get()->first()) {
                 self::where('account', $u['NUMBER'])->update([
                     'name' => $u['NAME'],
                     'password' => Hash::make($u['PASSWORD']),
@@ -241,7 +241,7 @@ class User extends Authenticatable
                     'group' => $u['GROUP'],
                 ]);
             } else {
-                self::createUser($u['NAME'], $u['NUMBER'], null, $u['PASSWORD'], [], [], null, $u['TITLE'], $u['COMPANY'], $u['DEPARTMENT'], $u['GROUP']);
+                self::createUser($u['NAME'], $u['NUMBER'], null, $u['PASSWORD'], [], $role_id, null, $u['TITLE'],'喜鴻購物', $u['COMPANY'], $u['DEPARTMENT'], $u['GROUP']);
             }
         }
         DB::commit();

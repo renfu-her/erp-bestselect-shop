@@ -1,14 +1,14 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">應收票據查詢</h2>
+    <h2 class="mb-4">應收票據</h2>
 
-    <fieldset class="col-12 mb-2">
-        <div class="p-2 border rounded">
-            <a href="{{ Route('cms.note_receivable.ask', ['type'=>'collection']) }}" class="btn btn-primary" role="button">整批託收</a>
-            <a href="{{ Route('cms.note_receivable.ask', ['type'=>'nd']) }}" class="btn btn-primary" role="button">次交票</a>
-            <a href="{{ Route('cms.note_receivable.ask', ['type'=>'cashed']) }}" class="btn btn-success" role="button">整批兌現</a>
+    <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
+        <div class="p-1 pe-2">
+            <a href="{{ Route('cms.note_receivable.ask', ['type'=>'collection']) }}" class="btn btn-sm btn-primary" role="button">整批託收</a>
+            <a href="{{ Route('cms.note_receivable.ask', ['type'=>'nd']) }}" class="btn btn-sm btn-primary" role="button">整批次交票</a>
+            <a href="{{ Route('cms.note_receivable.ask', ['type'=>'cashed']) }}" class="btn btn-sm btn-primary cc_date" role="button">整批兌現</a>
         </div>
-    </fieldset>
+    </nav>
 
     <form id="search" method="GET">
         <div class="card shadow p-4 mb-4">
@@ -16,7 +16,7 @@
             <div class="row">
                 <div class="col-12 col-sm-4 mb-3">
                     <label class="form-label">票據狀態</label>
-                    <select class="form-select -select2 -single" name="cheque_status_code" aria-label="票據狀態" data-placeholder="請選擇票據狀態">
+                    <select class="form-select" name="cheque_status_code" aria-label="票據狀態" data-placeholder="請選擇票據狀態">
                         <option value="" selected>不限</option>
                         @foreach ($cheque_status_code as $key => $value)
                             <option value="{{ $key }}" {{ in_array($key, $cond['cheque_status_code']) ? 'selected' : '' }}>{{ $value }}</option>
@@ -26,7 +26,7 @@
 
                 <div class="col-12 col-sm-4 mb-3">
                     <label class="form-label">託收銀行</label>
-                    <select class="form-select -select2 -single" name="banks" aria-label="託收銀行" data-placeholder="請選擇託收銀行">
+                    <select class="form-select" name="banks" aria-label="託收銀行" data-placeholder="請選擇託收銀行">
                         <option value="" selected>不限</option>
                         @foreach ($banks as $key => $value)
                             <option value="{{ $value }}" {{ $value == $cond['banks'] ? 'selected' : '' }}>{{ $value }}</option>
@@ -36,7 +36,7 @@
 
                 <div class="col-12 col-sm-4 mb-3">
                     <label class="form-label">存入地區</label>
-                    <select class="form-select -select2 -single" name="deposited_area_code" aria-label="存入地區" data-placeholder="請選擇存入地區">
+                    <select class="form-select" name="deposited_area_code" aria-label="存入地區" data-placeholder="請選擇存入地區">
                         <option value="" selected>不限</option>
                         @foreach ($checkout_area as $key => $value)
                             <option value="{{ $key }}" {{ $key == $cond['deposited_area_code'] ? 'selected' : '' }}>{{ $value }}</option>
@@ -44,17 +44,17 @@
                     </select>
                 </div>
 
-                <div class="col-12 col-sm-4 mb-3">
+                <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">票據號碼</label>
                     <input class="form-control" type="text" name="ticket_number" value="{{ $cond['ticket_number'] }}" placeholder="請輸入票據號碼">
                 </div>
 
-                <div class="col-12 col-sm-4 mb-3">
+                <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">發票人</label>
                     <input class="form-control" type="text" name="drawer" value="{{ $cond['drawer'] }}" placeholder="請輸入發票人">
                 </div>
 
-                <div class="col-12 col-sm-4 mb-3">
+                <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">業務員</label>
                     <select class="form-select -select2 -single" name="undertaker" aria-label="業務員" data-placeholder="請選擇業務員">
                         <option value="" selected>不限</option>
@@ -64,11 +64,14 @@
                     </select>
                 </div>
 
-                <div class="col-12 col-sm-12 mb-3">
-                    <label class="form-label">金額</label>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">金額範圍</label>
                     <div class="input-group has-validation">
-                        <input type="number" step="1" min="0" class="form-control @error('received_min_price') is-invalid @enderror" name="received_min_price" value="{{ $cond['received_min_price'] }}" aria-label="起始金額">
-                        <input type="number" step="1" min="0" class="form-control @error('received_max_price') is-invalid @enderror" name="received_max_price" value="{{ $cond['received_max_price'] }}" aria-label="結束金額">
+                        <input type="number" step="1" min="0" class="form-control @error('received_min_price') is-invalid @enderror" 
+                            name="received_min_price" value="{{ $cond['received_min_price'] }}" aria-label="起始金額" placeholder="起始金額">
+                        <span class="input-group-text">~</span>
+                        <input type="number" step="1" min="0" class="form-control @error('received_max_price') is-invalid @enderror" 
+                            name="received_max_price" value="{{ $cond['received_max_price'] }}" aria-label="結束金額" placeholder="結束金額">
                         <div class="invalid-feedback">
                             @error('received_min_price')
                                 {{ $message }}
@@ -80,7 +83,7 @@
                     </div>
                 </div>
 
-                <div class="col-12 col-sm-6 mb-3">
+                <div class="col-12 mb-3">
                     <label class="form-label">收票日期起訖</label>
                     <div class="input-group has-validation">
                         <input type="date" class="form-control -startDate @error('ro_receipt_sdate') is-invalid @enderror" name="ro_receipt_sdate" value="{{ $cond['ro_receipt_sdate'] }}" aria-label="收票起始日期">
@@ -101,7 +104,7 @@
                     </div>
                 </div>
 
-                <div class="col-12 col-sm-6 mb-3">
+                <div class="col-12 mb-3">
                     <label class="form-label">託收、次交日期起訖</label>
                     <div class="input-group has-validation">
                         <input type="date" class="form-control -startDate @error('cheque_c_n_sdate') is-invalid @enderror" name="cheque_c_n_sdate" value="{{ $cond['cheque_c_n_sdate'] }}" aria-label="託收、次交起始日期" />
@@ -122,7 +125,7 @@
                     </div>
                 </div>
 
-                <div class="col-12 col-sm-6 mb-3">
+                <div class="col-12 mb-3">
                     <label class="form-label">到期日期起訖</label>
                     <div class="input-group has-validation">
                         <input type="date" class="form-control -startDate @error('cheque_due_sdate') is-invalid @enderror" name="cheque_due_sdate" value="{{ $cond['cheque_due_sdate'] }}" aria-label="到期起始日期">
@@ -143,7 +146,7 @@
                     </div>
                 </div>
 
-                <div class="col-12 col-sm-6 mb-3">
+                <div class="col-12 mb-3">
                     <label class="form-label">兌現日期起訖</label>
                     <div class="input-group has-validation">
                         <input type="date" class="form-control -startDate @error('cheque_cashing_sdate') is-invalid @enderror" name="cheque_cashing_sdate" value="{{ $cond['cheque_cashing_sdate'] }}" aria-label="兌現起始日期">
@@ -262,6 +265,16 @@
                 $('#dataPerPageElem').on('change', function(e) {
                     $('input[name=data_per_page]').val($(this).val());
                     $('#search').submit();
+                });
+
+                $('.cc_date').on('click', function(e) {
+                    // e.preventDefault();
+                    const cc_sdate = $('input[name="cheque_cashing_sdate"]').val();
+                    const cc_edate = $('input[name="cheque_cashing_edate"]').val();
+                    if(cc_sdate || cc_edate) {
+                        const new_url = $(this).attr('href') + '?cc_sdate=' + cc_sdate + '&cc_edate=' + cc_edate;
+                        $(this).attr('href', new_url);
+                    }
                 });
             });
         </script>

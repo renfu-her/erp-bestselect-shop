@@ -151,7 +151,11 @@ class NotePayableOrder extends Model
         }
 
         if($ticket_number){
-            $query->where('_cheque.ticket_number', 'like', "%{$ticket_number}%");
+            if(gettype($ticket_number) == 'array') {
+                $query->whereIn('_cheque.ticket_number', $ticket_number);
+            } else {
+                $query->where('_cheque.ticket_number', 'like', "%{$ticket_number}%");
+            }
         }
 
         if($payable_price) {
@@ -261,7 +265,7 @@ class NotePayableOrder extends Model
             ]);
 
         } else {
-            $default_net_grade = payableDefault::where('name', 'cheque')->first() ? payableDefault::where('name', 'cheque')->first()->default_grade_id : 44;
+            $default_net_grade = PayableDefault::where('name', 'cheque')->first() ? PayableDefault::where('name', 'cheque')->first()->default_grade_id : 44;
 
             $target = self::create([
                 'sn'=>'BSG' . date('ymd', strtotime($cashing_date)),

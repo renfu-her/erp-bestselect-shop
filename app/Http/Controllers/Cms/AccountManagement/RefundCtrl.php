@@ -3,22 +3,34 @@
 namespace App\Http\Controllers\Cms\AccountManagement;
 
 use App\Http\Controllers\Controller;
-
 use Illuminate\Http\Request;
 
-use Illuminate\Support\Arr;
-
 use App\Enums\Supplier\Payment;
+use App\Enums\Payable\ChequeStatus;
 
 use App\Models\AllGrade;
+use App\Models\AccountPayable;
 use App\Models\Customer;
+use App\Models\Delivery;
 use App\Models\Depot;
-use App\Models\PayingOrder;
-use App\Models\Supplier;
 use App\Models\GeneralLedger;
+use App\Models\Order;
+use App\Models\PayableDefault;
+use App\Models\PayingOrder;
+use App\Models\PayableAccount;
+use App\Models\PayableCash;
+use App\Models\PayableCheque;
+use App\Models\PayableForeignCurrency;
+use App\Models\PayableOther;
+use App\Models\PayableRemit;
+use App\Models\StituteOrder;
+use App\Models\Supplier;
 use App\Models\User;
 
-class CollectionPaymentCtrl extends Controller
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
+
+class RefundCtrl extends Controller
 {
     public function index(Request $request)
     {
@@ -37,20 +49,12 @@ class CollectionPaymentCtrl extends Controller
         }
 
         $cond['po_sn'] = Arr::get($query, 'po_sn', null);
-        $cond['source_sn'] = Arr::get($query, 'source_sn', null);
 
-        $cond['po_min_price'] = Arr::get($query, 'po_min_price', null);
-        $cond['po_max_price'] = Arr::get($query, 'po_max_price', null);
-        $po_price = [
-            $cond['po_min_price'],
-            $cond['po_max_price']
-        ];
-
-        $cond['po_sdate'] = Arr::get($query, 'po_sdate', null);
-        $cond['po_edate'] = Arr::get($query, 'po_edate', null);
-        $po_payment_date = [
-            $cond['po_sdate'],
-            $cond['po_edate']
+        $cond['po_created_sdate'] = Arr::get($query, 'po_created_sdate', null);
+        $cond['po_created_edate'] = Arr::get($query, 'po_created_edate', null);
+        $po_created_date = [
+            $cond['po_created_sdate'],
+            $cond['po_created_edate']
         ];
 
         $cond['check_balance'] = Arr::get($query, 'check_balance', 'all');
@@ -58,11 +62,30 @@ class CollectionPaymentCtrl extends Controller
         $dataList = PayingOrder::paying_order_list(
             $cond['payee'],
             $cond['po_sn'],
-            $cond['source_sn'],
-            $po_price,
-            $po_payment_date,
+            null,
+            null,
+            null,
             $cond['check_balance'],
-        )->paginate($page)->appends($query);
+        )
+        ->where(function ($q) use ($po_created_date) {
+            $filter = [app(Order::class)->getTable(), app(Delivery::class)->getTable()];
+            $q->whereIn('po.source_type', $filter);
+            // $q->where('po.source_sub_id', null);
+            $q->where('po.type', 9);
+
+            if ($po_created_date) {
+                $s_po_created = $po_created_date[0] ? date('Y-m-d', strtotime($po_created_date[0])) : null;
+                $e_po_created = $po_created_date[1] ? date('Y-m-d', strtotime($po_created_date[1] . ' +1 day')) : null;
+
+                if($s_po_created){
+                    $q->where('po.created_at', '>=', $s_po_created);
+                }
+                if($e_po_created){
+                    $q->where('po.created_at', '<', $e_po_created);
+                }
+            }
+        })
+        ->paginate($page)->appends($query);
 
         // accounting classification start
             foreach($dataList as $value){
@@ -114,27 +137,19 @@ class CollectionPaymentCtrl extends Controller
                 }
 
                 // 商品
+                $product_account = AllGrade::find($value->po_product_grade_id) ? AllGrade::find($value->po_product_grade_id)->eachGrade : null;
+                $account_code = $product_account ? $product_account->code : '1000';
+                $account_name = $product_account ? $product_account->name : '無設定會計科目';
+                $product_name = $account_code . ' ' . $account_name;
                 if($value->product_items){
-                    $product_account = AllGrade::find($value->po_product_grade_id) ? AllGrade::find($value->po_product_grade_id)->eachGrade : null;
-                    $account_code = $product_account ? $product_account->code : '1000';
-                    $account_name = $product_account ? $product_account->name : '無設定會計科目';
-                    $product_name = $account_code . ' ' . $account_name;
-                    foreach(json_decode($value->product_items) as $p_value){
-                        $avg_price = $p_value->price / $p_value->num;
-                        $name = $product_name . ' --- ' . $p_value->title . '（' . $avg_price . ' * ' . $p_value->num . '）';
-                        $product_title = $p_value->title;
-
-                        if($value->po_source_type == 'pcs_paying_orders'){
-                            $product_account = AllGrade::find($p_value->all_grades_id) ? AllGrade::find($p_value->all_grades_id)->eachGrade : null;
-                            $account_code = $product_account ? $product_account->code : '1000';
-                            $account_name = $product_account ? $product_account->name : '無設定會計科目';
-                            $product_title = $account_name;
-                        }
+                    foreach(json_decode($value->product_items) as $pro_v){
+                        $avg_price = $pro_v->price / $pro_v->num;
+                        $name = $product_name . ' --- ' . $pro_v->title . '（' . $avg_price . ' * ' . $pro_v->num . '）';
 
                         $tmp = [
                             'account_code'=>$account_code,
                             'name'=>$name,
-                            'price'=>$p_value->price,
+                            'price'=>$pro_v->price,
                             'type'=>'p',
                             'd_type'=>'product',
 
@@ -142,12 +157,12 @@ class CollectionPaymentCtrl extends Controller
                             'method_name'=>null,
                             'summary'=>null,
                             'note'=>null,
-                            'product_title'=>$product_title,
+                            'product_title'=>$pro_v->title,
                             'del_even'=>null,
                             'del_category_name'=>null,
                             'product_price'=>$avg_price,
-                            'product_qty'=>$p_value->num,
-                            'product_owner'=>$p_value->product_owner,
+                            'product_qty'=>$pro_v->num,
+                            'product_owner'=>$pro_v->product_owner,
                             'discount_title'=>null,
                             'payable_type'=>null,
                             'received_info'=>null,
@@ -226,24 +241,33 @@ class CollectionPaymentCtrl extends Controller
 
                 if($value->po_source_type == 'pcs_purchase'){
                     $value->po_url_link = "javascript:void(0);";
+                    $value->source_url_link = route('cms.purchase.edit', ['id' => $value->po_source_id]);
 
                 } else if($value->po_source_type == 'ord_orders' && $value->po_source_sub_id != null){
                     $value->po_url_link = route('cms.order.logistic-po', ['id' => $value->po_source_id, 'sid' => $value->po_source_sub_id]);
+                    $value->source_url_link = route('cms.order.detail', ['id' => $value->po_source_id, 'subOrderId' => $value->po_source_sub_id]);
 
                 } else if($value->po_source_type == 'acc_stitute_orders'){
                     $value->po_url_link = route('cms.stitute.po-show', ['id' => $value->po_source_id]);
+                    $value->source_url_link = route('cms.stitute.show', ['id' => $value->po_source_id]);
 
                 } else if($value->po_source_type == 'ord_orders' && $value->po_source_sub_id == null){
                     $value->po_url_link = route('cms.order.return-pay-order', ['id' => $value->po_source_id]);
+                    $value->source_url_link = route('cms.order.detail', ['id' => $value->po_source_id]);
 
                 } else if($value->po_source_type == 'dlv_delivery'){
                     $value->po_url_link = route('cms.delivery.return-pay-order', ['id' => $value->po_source_id]);
 
+                    $dlv = Delivery::find($value->po_source_id);
+                    $value->source_url_link = route('cms.delivery.back_detail', ['event' => $dlv->event, 'eventId' => $dlv->event_id]);
+
                 } else if($value->po_source_type == 'pcs_paying_orders'){
                     $value->po_url_link = route('cms.accounts_payable.po-show', ['id' => $value->po_source_id]);
+                    $value->source_url_link = route('cms.accounts_payable.po-show', ['id' => $value->po_source_id]);
 
                 } else {
                     $value->po_url_link = "javascript:void(0);";
+                    $value->source_url_link = "javascript:void(0);";
                 }
             }
         // accounting classification end
@@ -260,7 +284,7 @@ class CollectionPaymentCtrl extends Controller
             '1'=>'已付款',
         ];
 
-        return view('cms.account_management.collection_payment.list', [
+        return view('cms.account_management.refund.list', [
             'data_per_page' => $page,
             'dataList' => $dataList,
             'cond' => $cond,

@@ -22,6 +22,11 @@
         <div class="row justify-content-end mb-4">
             <h2 class="mb-4">付款管理</h2>
             <div class="card shadow p-4 mb-4">
+
+                @if($errors->any())
+                <div class="alert alert-danger">{!! implode('', $errors->all('<div>:message</div>')) !!}</div>
+                @endif
+
                 <div class="card-body">
                     <div class="col">
                         <dl class="row mb-0">
@@ -460,6 +465,17 @@
                         break;
                     default:
                         cashEle.show();
+                }
+            });
+
+            $('form').submit(function(e) {
+                if($('input[name="acc_transact_type_fk"]:checked').val() == '2'){
+                    const reg = new RegExp(/^[A-Z]{2}[0-9]{7}$/);
+                    if(! reg.test($('input[name="cheque[ticket_number]"]').val())){
+                        $('input[name="cheque[ticket_number]"]').addClass('is-invalid');
+                        e.preventDefault();
+                        return false;
+                    }
                 }
             });
         </script>

@@ -335,7 +335,7 @@ class RequestOrderCtrl extends Controller
         return view('cms.account_management.request.ro_edit', [
             'breadcrumb_data' => ['id' => $request_order->id],
             'form_action' => route('cms.request.ro-store', ['id' => $request_order->id]),
-            'previou_url' => route('cms.request.show', ['id' => $request_order->id]),
+            'previous_url' => route('cms.request.show', ['id' => $request_order->id]),
             'purchaser' => $request_order->client_name,
             'request_grade' => $request_grade,
             'request_order' => $request_order,
@@ -729,7 +729,7 @@ class RequestOrderCtrl extends Controller
                 return view('cms.account_management.request.ro_review', [
                     'breadcrumb_data' => ['id' => $request_order->id],
                     'form_action' => route('cms.request.ro-review', ['id'=>request('id')]),
-                    'previou_url' => route('cms.request.ro-receipt', ['id'=>request('id')]),
+                    'previous_url' => route('cms.request.ro-receipt', ['id'=>request('id')]),
                     'received_order'=>$received_order,
                     'order_list_data'=>$order_list_data,
                     'received_data'=>$received_data,
@@ -811,7 +811,7 @@ class RequestOrderCtrl extends Controller
             return view('cms.account_management.request.ro_taxation', [
                 'breadcrumb_data' => ['id' => $request_order->id],
                 'form_action' => route('cms.request.ro-taxation', ['id'=>request('id')]),
-                'previou_url' => route('cms.request.ro-receipt', ['id'=>request('id')]),
+                'previous_url' => route('cms.request.ro-receipt', ['id'=>request('id')]),
                 'received_order'=>$received_order,
                 'order_list_data'=>$order_list_data,
                 'received_data'=>$received_data,

@@ -46,7 +46,7 @@ class CreditCardCtrl extends Controller
         $id = CrdCreditCard::create([
             'title' => $request->input('title')
         ]);
-        return redirect(Route('cms.credit_card.edit', ['id' => $id]));
+        return redirect(Route('cms.credit_card.index', ['id' => $id]));
     }
 
     public function edit(Request $request, int $id)
@@ -63,7 +63,7 @@ class CreditCardCtrl extends Controller
     {
         CrdCreditCard::where('id', $request->input('id'))
             ->update(['title' => $request->input('title')]);
-        return redirect(Route('cms.credit_card.edit', ['id' => $id]));
+        return redirect(Route('cms.credit_card.index', ['id' => $id]));
     }
 
     public function destroy(Request $request, int $id)

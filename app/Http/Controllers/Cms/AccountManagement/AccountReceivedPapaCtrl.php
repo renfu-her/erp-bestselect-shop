@@ -116,139 +116,107 @@ abstract class AccountReceivedPapaCtrl extends Controller
         )->paginate($page)->appends($query);
 
         // accounting classification start
-        foreach($dataList as $value){
-            $debit = [];
-            $credit = [];
+            foreach($dataList as $value){
+                $debit = [];
+                $credit = [];
 
-            // 收款項目
-            if($value->received_list){
-                foreach(json_decode($value->received_list) as $r_value){
-                    $received_method_name = ReceivedMethod::getDescription($r_value->received_method);
-                    $received_account = AllGrade::find($r_value->all_grades_id)->eachGrade;
+                // 收款項目
+                if($value->received_list){
+                    foreach(json_decode($value->received_list) as $r_value){
+                        $received_method_name = ReceivedMethod::getDescription($r_value->received_method);
+                        $received_account = AllGrade::find($r_value->all_grades_id)->eachGrade;
 
-                    if($r_value->received_method == 'foreign_currency'){
-                        $arr = explode('-', AllGrade::find($r_value->all_grades_id)->eachGrade->name);
-                        $r_value->currency_name = $arr[0] == '外幣' ? $arr[1] . ' - ' . $arr[2] : 'NTD';
-                        $r_value->currency_rate = DB::table('acc_received_currency')->find($r_value->received_method_id)->currency;
-                    } else {
-                        $r_value->currency_name = 'NTD';
-                        $r_value->currency_rate = 1;
+                        if($r_value->received_method == 'foreign_currency'){
+                            $arr = explode('-', AllGrade::find($r_value->all_grades_id)->eachGrade->name);
+                            $r_value->currency_name = $arr[0] == '外幣' ? $arr[1] . ' - ' . $arr[2] : 'NTD';
+                            $r_value->currency_rate = DB::table('acc_received_currency')->find($r_value->received_method_id)->currency;
+                        } else {
+                            $r_value->currency_name = 'NTD';
+                            $r_value->currency_rate = 1;
+                        }
+
+                        $name = $received_method_name . ' ' . $r_value->summary . '（' . $received_account->code . ' - ' . $received_account->name . '）';
+
+                        $tmp = [
+                            'account_code'=>$received_account->code,
+                            'name'=>$name,
+                            'price'=>$r_value->tw_price,
+                            'type'=>'r',
+                            'd_type'=>'received',
+
+                            'account_name'=>$received_account->name,
+                            'method_name'=>$received_method_name,
+                            'summary'=>$r_value->summary,
+                            'note'=>$r_value->note,
+                            'product_title'=>null,
+                            'del_even'=>null,
+                            'del_category_name'=>null,
+                            'product_price'=>null,
+                            'product_qty'=>null,
+                            'product_owner'=>null,
+                            'discount_title'=>null,
+                            'payable_type'=>null,
+                            'received_info'=>$r_value,
+                        ];
+                        GeneralLedger::classification_processing($debit, $credit, $tmp);
                     }
-
-                    $name = $received_method_name . ' ' . $r_value->summary . '（' . $received_account->code . ' - ' . $received_account->name . '）';
-
-                    $tmp = [
-                        'account_code'=>$received_account->code,
-                        'name'=>$name,
-                        'price'=>$r_value->tw_price,
-                        'type'=>'r',
-                        'd_type'=>'received',
-
-                        'account_name'=>$received_account->name,
-                        'method_name'=>$received_method_name,
-                        'summary'=>$r_value->summary,
-                        'note'=>$r_value->note,
-                        'product_title'=>null,
-                        'del_even'=>null,
-                        'del_category_name'=>null,
-                        'product_price'=>null,
-                        'product_qty'=>null,
-                        'product_owner'=>null,
-                        'discount_title'=>null,
-                        'payable_type'=>null,
-                        'received_info'=>$r_value,
-                    ];
-                    GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }
-            }
 
-            // 商品
-            if($value->order_items){
-                $product_account = AllGrade::find($value->ro_product_grade_id) ? AllGrade::find($value->ro_product_grade_id)->eachGrade : null;
-                $account_code = $product_account ? $product_account->code : '4000';
-                $account_name = $product_account ? $product_account->name : '無設定會計科目';
-                $product_name = $account_code . ' ' . $account_name;
-                foreach(json_decode($value->order_items) as $o_value){
-                    $name = $product_name . ' --- ' . $o_value->product_title . '（' . $o_value->price . ' * ' . $o_value->qty . '）';
-                    $product_title = $o_value->product_title;
+                // 商品
+                if($value->order_items){
+                    $product_account = AllGrade::find($value->ro_product_grade_id) ? AllGrade::find($value->ro_product_grade_id)->eachGrade : null;
+                    $account_code = $product_account ? $product_account->code : '4000';
+                    $account_name = $product_account ? $product_account->name : '無設定會計科目';
+                    $product_name = $account_code . ' ' . $account_name;
+                    foreach(json_decode($value->order_items) as $o_value){
+                        $name = $product_name . ' --- ' . $o_value->product_title . '（' . $o_value->price . ' * ' . $o_value->qty . '）';
+                        $product_title = $o_value->product_title;
 
-                    if($value->ro_source_type == 'ord_received_orders' || $value->ro_source_type == 'acc_request_orders'){
-                        $product_account = AllGrade::find($o_value->all_grades_id) ? AllGrade::find($o_value->all_grades_id)->eachGrade : null;
-                        $account_code = $product_account ? $product_account->code : '4000';
-                        $account_name = $product_account ? $product_account->name : '無設定會計科目';
-                        $product_title = $account_name;
+                        if($value->ro_source_type == 'ord_received_orders' || $value->ro_source_type == 'acc_request_orders'){
+                            $product_account = AllGrade::find($o_value->all_grades_id) ? AllGrade::find($o_value->all_grades_id)->eachGrade : null;
+                            $account_code = $product_account ? $product_account->code : '4000';
+                            $account_name = $product_account ? $product_account->name : '無設定會計科目';
+                            $product_title = $account_name;
+                        }
+
+                        $tmp = [
+                            'account_code'=>$account_code,
+                            'name'=>$name,
+                            'price'=>$o_value->origin_price,
+                            'type'=>'r',
+                            'd_type'=>'product',
+
+                            'account_name'=>$account_name,
+                            'method_name'=>null,
+                            'summary'=>null,
+                            'note'=>null,
+                            'product_title'=>$product_title,
+                            'del_even'=>null,
+                            'del_category_name'=>null,
+                            'product_price'=>$o_value->price,
+                            'product_qty'=>$o_value->qty,
+                            'product_owner'=>null,
+                            'discount_title'=>null,
+                            'payable_type'=>null,
+                            'received_info'=>null,
+                        ];
+                        GeneralLedger::classification_processing($debit, $credit, $tmp);
                     }
-
-                    $tmp = [
-                        'account_code'=>$account_code,
-                        'name'=>$name,
-                        'price'=>$o_value->origin_price,
-                        'type'=>'r',
-                        'd_type'=>'product',
-
-                        'account_name'=>$account_name,
-                        'method_name'=>null,
-                        'summary'=>null,
-                        'note'=>null,
-                        'product_title'=>$product_title,
-                        'del_even'=>null,
-                        'del_category_name'=>null,
-                        'product_price'=>$o_value->price,
-                        'product_qty'=>$o_value->qty,
-                        'product_owner'=>null,
-                        'discount_title'=>null,
-                        'payable_type'=>null,
-                        'received_info'=>null,
-                    ];
-                    GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }
-            }
 
-            // 物流
-            if($value->order_dlv_fee <> 0){
-                $log_account = AllGrade::find($value->ro_logistics_grade_id) ? AllGrade::find($value->ro_logistics_grade_id)->eachGrade : null;
-                $account_code = $log_account ? $log_account->code : '4000';
-                $account_name = $log_account ? $log_account->name : '無設定會計科目';
-                $name = $account_code . ' ' . $account_name;
-
-                $tmp = [
-                    'account_code'=>$account_code,
-                    'name'=>$name,
-                    'price'=>$value->order_dlv_fee,
-                    'type'=>'r',
-                    'd_type'=>'logistics',
-
-                    'account_name'=>$account_name,
-                    'method_name'=>null,
-                    'summary'=>null,
-                    'note'=>null,
-                    'product_title'=>null,
-                    'del_even'=>null,
-                    'del_category_name'=>null,
-                    'product_price'=>null,
-                    'product_qty'=>null,
-                    'product_owner'=>null,
-                    'discount_title'=>null,
-                    'payable_type'=>null,
-                    'received_info'=>null,
-                ];
-                GeneralLedger::classification_processing($debit, $credit, $tmp);
-            }
-
-            // 折扣
-            if($value->order_discount_value > 0){
-                foreach(json_decode($value->order_discount) ?? [] as $d_value){
-                    $dis_account = AllGrade::find($d_value->discount_grade_id) ? AllGrade::find($d_value->discount_grade_id)->eachGrade : null;
-                    $account_code = $dis_account ? $dis_account->code : '4000';
-                    $account_name = $dis_account ? $dis_account->name : '無設定會計科目';
+                // 物流
+                if($value->order_dlv_fee <> 0){
+                    $log_account = AllGrade::find($value->ro_logistics_grade_id) ? AllGrade::find($value->ro_logistics_grade_id)->eachGrade : null;
+                    $account_code = $log_account ? $log_account->code : '4000';
+                    $account_name = $log_account ? $log_account->name : '無設定會計科目';
                     $name = $account_code . ' ' . $account_name;
 
                     $tmp = [
                         'account_code'=>$account_code,
                         'name'=>$name,
-                        'price'=>$d_value->discount_value,
+                        'price'=>$value->order_dlv_fee,
                         'type'=>'r',
-                        'd_type'=>'discount',
+                        'd_type'=>'logistics',
 
                         'account_name'=>$account_name,
                         'method_name'=>null,
@@ -260,33 +228,65 @@ abstract class AccountReceivedPapaCtrl extends Controller
                         'product_price'=>null,
                         'product_qty'=>null,
                         'product_owner'=>null,
-                        'discount_title'=>$d_value->title,
+                        'discount_title'=>null,
                         'payable_type'=>null,
                         'received_info'=>null,
                     ];
                     GeneralLedger::classification_processing($debit, $credit, $tmp);
                 }
+
+                // 折扣
+                if($value->order_discount_value > 0){
+                    foreach(json_decode($value->order_discount) ?? [] as $d_value){
+                        $dis_account = AllGrade::find($d_value->discount_grade_id) ? AllGrade::find($d_value->discount_grade_id)->eachGrade : null;
+                        $account_code = $dis_account ? $dis_account->code : '4000';
+                        $account_name = $dis_account ? $dis_account->name : '無設定會計科目';
+                        $name = $account_code . ' ' . $account_name;
+
+                        $tmp = [
+                            'account_code'=>$account_code,
+                            'name'=>$name,
+                            'price'=>$d_value->discount_value,
+                            'type'=>'r',
+                            'd_type'=>'discount',
+
+                            'account_name'=>$account_name,
+                            'method_name'=>null,
+                            'summary'=>null,
+                            'note'=>null,
+                            'product_title'=>null,
+                            'del_even'=>null,
+                            'del_category_name'=>null,
+                            'product_price'=>null,
+                            'product_qty'=>null,
+                            'product_owner'=>null,
+                            'discount_title'=>$d_value->title,
+                            'payable_type'=>null,
+                            'received_info'=>null,
+                        ];
+                        GeneralLedger::classification_processing($debit, $credit, $tmp);
+                    }
+                }
+
+                $value->debit = $debit;
+                $value->credit = $credit;
+
+                if($value->ro_source_type == 'ord_orders'){
+                    $value->ro_url_link = route('cms.collection_received.receipt', ['id' => $value->ro_source_id]);
+
+                } else if($value->ro_source_type == 'csn_orders'){
+                    $value->ro_url_link = route('cms.ar_csnorder.receipt', ['id' => $value->ro_source_id]);
+
+                } else if($value->ro_source_type == 'ord_received_orders'){
+                    $value->ro_url_link = route('cms.account_received.ro-receipt', ['id' => $value->ro_source_id]);
+
+                } else if($value->ro_source_type == 'acc_request_orders'){
+                    $value->ro_url_link = route('cms.request.ro-receipt', ['id' => $value->ro_source_id]);
+
+                } else {
+                    $value->ro_url_link = "javascript:void(0);";
+                }
             }
-
-            $value->debit = $debit;
-            $value->credit = $credit;
-
-            if($value->ro_source_type == 'ord_orders'){
-                $value->ro_url_link = route('cms.collection_received.receipt', ['id' => $value->ro_source_id]);
-
-            } else if($value->ro_source_type == 'csn_orders'){
-                $value->ro_url_link = route('cms.ar_csnorder.receipt', ['id' => $value->ro_source_id]);
-
-            } else if($value->ro_source_type == 'ord_received_orders'){
-                $value->ro_url_link = route('cms.account_received.ro-receipt', ['id' => $value->ro_source_id]);
-
-            } else if($value->ro_source_type == 'acc_request_orders'){
-                $value->ro_url_link = route('cms.request.ro-receipt', ['id' => $value->ro_source_id]);
-
-            } else {
-                $value->ro_url_link = "javascript:void(0);";
-            }
-        }
         // accounting classification end
 
         $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();

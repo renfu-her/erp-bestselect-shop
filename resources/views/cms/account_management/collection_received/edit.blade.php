@@ -18,7 +18,7 @@
 
             <p class="fw-bold">客戶：{{ $order_purchaser->name }}</p>
 
-            <div class="table-responsive tableOverBox">
+            <div class="table-responsive tableOverBox border-bottom border-dark">
                 <table class="table table-sm table-hover tableList mb-0">
                     <thead class="table-secondary">
                         <tr>
@@ -97,11 +97,10 @@
         </div>
 
         <div class="card shadow p-4 mb-4">
+            <h6>收款方式 <span class="text-danger">*</span></h6>
+            
             <div class="row">
                 <fieldset class="col-12 mb-3">
-                    <h6>收款方式
-                        <span class="text-danger">*</span>
-                    </h6>
                     @php
                     $isFirst = true;
                     @endphp
