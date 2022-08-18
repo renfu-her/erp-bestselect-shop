@@ -281,7 +281,6 @@ class StituteOrderCtrl extends Controller
         return view('cms.account_management.stitute.po_edit', [
             'breadcrumb_data' => ['id' => $stitute_order->id],
             'form_action' => route('cms.stitute.po-store', ['id' => $stitute_order->id]),
-            'previou_url' => route('cms.stitute.show', ['id' => $stitute_order->id]),
             'stitute_order' => $stitute_order,
             'stitute_grade' => $stitute_grade,
             'currency' => $currency,

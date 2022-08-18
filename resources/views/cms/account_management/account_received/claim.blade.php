@@ -3,7 +3,7 @@
 @section('sub-content')
     <h2 class="mb-4">應收帳款入款</h2>
 
-    <a href="{{ route('cms.account_received.index') }}" class="btn btn-primary" role="button">
+    <a href="{{ url()->previous() }}" class="btn btn-primary" role="button">
         <i class="bi bi-arrow-left"></i> 返回上一頁
     </a>
 
