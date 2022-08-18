@@ -164,6 +164,7 @@ class PayingOrder extends Model
                     GROUP_CONCAT(DISTINCT logistics_grade_id) AS logistics_grade_id,
                     GROUP_CONCAT(DISTINCT product_grade_id) AS product_grade_id,
                     CASE WHEN COUNT(*) = COUNT(balance_date) THEN MAX(balance_date) END AS balance_date,
+                    CASE WHEN COUNT(*) = COUNT(payment_date) THEN MAX(payment_date) END AS payment_date,
                     payee_id,
                     payee_name,
                     payee_phone,
@@ -177,14 +178,13 @@ class PayingOrder extends Model
             ->leftJoin(DB::raw('(
                 SELECT pay_order_id,
                 SUM(tw_price) AS payable_price,
-                MAX(payment_date) AS payment_date,
                 CONCAT(\'[\', GROUP_CONCAT(\'{
                         "payable_type":"\', v_po.type, \'",
                         "acc_income_type_fk":"\', acc_income_type_fk, \'",
                         "payable_id":"\', payable_id, \'",
                         "all_grades_id":"\', all_grades_id, \'",
                         "tw_price":"\', tw_price, \'",
-                        "payment_date":"\', payment_date, \'",
+                        "payment_date":"\', acc_payable.payment_date, \'",
                         "accountant_id_fk":"\', accountant_id_fk, \'",
                         "summary":"\', COALESCE(acc_payable.summary, ""), \'",
                         "note":"\', COALESCE(note, ""), \'"
@@ -397,12 +397,12 @@ class PayingOrder extends Model
                 'po.logistics_grade_id as po_logistics_grade_id',
                 'po.product_grade_id as po_product_grade_id',
                 'po.balance_date AS po_balance_date',
+                'po.payment_date AS payment_date',// 付款單完成付款日期
                 'po.payee_id AS po_target_id',
                 'po.payee_name AS po_target_name',
                 'po.payee_phone AS po_target_phone',
                 'po.payee_address AS po_target_address',
 
-                'payable_table.payment_date as payment_date',// 付款單完成付款日期
                 'payable_table.payable_price as payable_price',// 付款單金額(實付)
                 'payable_table.pay_list as payable_list',
 
@@ -532,10 +532,10 @@ class PayingOrder extends Model
             $e_payment_date = $po_payment_date[1] ? date('Y-m-d', strtotime($po_payment_date[1] . ' +1 day')) : null;
 
             if($s_payment_date){
-                $query->where('payable_table.payment_date', '>=', $s_payment_date);
+                $query->where('po.payment_date', '>=', $s_payment_date);
             }
             if($e_payment_date){
-                $query->where('payable_table.payment_date', '<', $e_payment_date);
+                $query->where('po.payment_date', '<', $e_payment_date);
             }
         }
 
@@ -733,6 +733,7 @@ class PayingOrder extends Model
                 'po.deleted_at'=>null,
             ])
             ->whereNotNull('po.balance_date')
+            ->whereNotNull('po.payment_date')
             ->whereNotNull('payable.payment_date')
 
             ->selectRaw('

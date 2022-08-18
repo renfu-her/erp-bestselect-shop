@@ -116,7 +116,7 @@
                                 @endforeach
                             </td>
 
-                            <td>{{ $data->po_balance_date ? '已付款' : '未付款' }}</td>
+                            <td>{{ $data->payment_date ? '已付款' : '未付款' }}</td>
 
                             <td><span class="d-block"><a href="{{ $data->source_url_link }}">{{ $data->source_sn }}</a></span></td>
 
@@ -175,7 +175,7 @@
                                 --}}
                             </td>
 
-                            <td>{{ $data->po_balance_date ? date('Y-m-d', strtotime($data->payment_date)) : '0000-00-00' }}</td>
+                            <td>{{ $data->payment_date ? date('Y-m-d', strtotime($data->payment_date)) : '0000-00-00' }}</td>
                         </tr>
                     @endforeach
                 </tbody>
