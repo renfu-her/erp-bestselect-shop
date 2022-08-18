@@ -2,7 +2,7 @@
 
 @section('sub-content')
     <h2 class="mb-3">收款單</h2>
-    <a href="{{ url()->previous() }}" class="btn btn-primary" role="button">
+    <a href="{{ route('cms.account_received.index') }}" class="btn btn-primary" role="button">
         <i class="bi bi-arrow-left"></i> 返回上一頁
     </a>
     @if(! $received_order->receipt_date)

@@ -19,7 +19,7 @@
         }
     </style>
     <div class="pt-2 mb-3">
-        <a href="{{ url()->previous() }}" class="btn btn-primary" role="button">
+        <a href="{{ Route('cms.account_received.ro-receipt', ['id' => $received_order->source_id]) }}" class="btn btn-primary" role="button">
             <i class="bi bi-arrow-left"></i> 返回上一頁
         </a>
     </div>
