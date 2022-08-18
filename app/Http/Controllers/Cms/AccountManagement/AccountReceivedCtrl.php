@@ -393,7 +393,7 @@ class AccountReceivedCtrl extends Controller
 
         $view = 'cms.account_management.account_received.ro_receipt';
         if (request('method') == 'print') {
-            dd('cms.account_received.ro_receipt 收款單');
+            dd('cms.account_management.account_received.ro_receipt 收款單');
             $view = '';
         }
 

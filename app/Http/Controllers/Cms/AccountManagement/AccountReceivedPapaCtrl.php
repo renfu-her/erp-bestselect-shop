@@ -604,7 +604,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
         $view = $this->getViewReceipt();
         if (request('method') == 'print') {
             // 列印－收款單
-            dd('cms.collection_received.receipt 收款單');
+//            dd('cms.collection_received.receipt 收款單');
             $view = 'doc.print_received';
         }
         return view($view, [

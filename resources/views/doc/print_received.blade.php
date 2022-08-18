@@ -56,12 +56,12 @@
                 <table width="710" style="font-size:small;text-align:left;border:0;margin: 0 auto;">
                     <tbody>
                         <tr>
-                            <td width="50%">客戶：<span style="font-size:medium;">{{ '烏梅' }}</span>　　台鑒</td>
-                            <td width="50%">地址：{{ '' }}</td>
+                            <td width="50%">客戶：<span style="font-size:medium;">{{ $order_purchaser->name }}</span>　　台鑒</td>
+                            <td width="50%">地址：{{ $order_purchaser->address }}</td>
                         </tr>
                         <tr>
-                            <td>電話：{{ '0987654321' }}</td>
-                            <td>傳真：{{ '' }}</td>
+                            <td>電話：{{ $order_purchaser->phone }}</td>
+                            <td>傳真：{{ $order_purchaser->fax  }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -69,16 +69,18 @@
                 <table width="710" style="font-size:small;text-align:left;border:0;margin: 0 auto;">
                     <tbody>
                         <tr>
-                            <td width="50%">收款單號：{{ 'MSG2208050001' }}</td>
-                            <td width="50%">製表日期：{{ date('Y/m/d', strtotime('2022-08-05')) }}</td>
+                            <td width="50%">收款單號：{{ $received_order->sn }}</td>
+                            <td width="50%">製表日期：{{ date('Y/m/d', strtotime($received_order->created_at)) }}</td>
                         </tr>
                         <tr>
-                            <td>訂單流水號：{{ 'O202207190001' }}</td>
-                            <td>入帳日期：{{ '' }}</td>
+                            <td>訂單流水號：{{ $order->sn }}</td>
+                            @if($received_order->receipt_date)
+                                <td>入帳日期：{{ date('Y-m-d', strtotime($received_order->receipt_date)) }}</td>
+                            @endif
                         </tr>
                         <tr>
                             <td>收款對象：</td>
-                            <td>承辦人：{{ '烏梅' }}</td>
+                            <td>承辦人：{{ $undertaker ? $undertaker->name : '' }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -95,30 +97,36 @@
                         </tr>
                     </thead>
                     <tbody style="text-align: left;">
-                        {{-- @foreach ($order_list_data as $value) --}}
-                            <tr height="24" style="border-bottom: 0px solid #dee2e6;">
-                                <td>4101 銷貨收入 --- 組合包商品-三包組（咖啡．候機室-新竹2號店 - 自取）（230 * 1）</td>
-                                <td style="text-align: right;">{{ number_format(1) }}</td>
-                                <td style="text-align: right;">{{ number_format(230) }}</td>
-                                <td style="text-align: right;">{{ number_format(230) }}</td>
-                                <td><a href="{{ Route('cms.order.detail', ['id' => 1], true) }}">{{ 'O202207190001' }}</a> 應稅 test back</td>
+                        @foreach($order_list_data as $value)
+                            <tr>
+                                <td>{{ $product_grade_name }} --- {{ $value->product_title }}{{'（' . $value->del_even . ' - ' . $value->del_category_name . '）'}}{{'（' . $value->product_price . ' * ' . $value->product_qty . '）'}}</td>
+                                <td style="text-align: right;">{{ number_format($value->product_qty) }}</td>
+                                <td style="text-align: right;">{{ number_format($value->product_price, 2) }}</td>
+                                <td style="text-align: right;">{{ number_format($value->product_origin_price) }}</td>
+                                <td>{{ $received_order->memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id], true) }}">{{ $order->sn }}</a> {{ $value->product_taxation == 1 ? '應稅' : '免稅' }} {{ $value->product_note }}{{-- $order->note --}}</td>
                             </tr>
-                        {{-- @endforeach --}}
+                        @endforeach
+                        @if($order->dlv_fee > 0)
+                            <tr>
+                                <td>{{ $logistics_grade_name }}</td>
+                                <td style="text-align: right;">1</td>
+                                <td style="text-align: right;">{{ number_format($order->dlv_fee, 2) }}</td>
+                                <td style="text-align: right;">{{ number_format($order->dlv_fee) }}</td>
+                                <td>{{ $received_order->memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id], true) }}">{{ $order->sn }}</a> {{ $order->dlv_taxation == 1 ? '應稅' : '免稅' }}</td>
+                            </tr>
+                        @endif
 
-                        <tr height="24" style="border-bottom: 0px solid #dee2e6;">
-                            <td>4101 銷貨收入 --- Group-GGGG（集運本倉 - 自取）（0 * 1）</td>
-                            <td style="text-align: right;">{{ number_format(1) }}</td>
-                            <td style="text-align: right;">{{ number_format(0) }}</td>
-                            <td style="text-align: right;">{{ number_format(0) }}</td>
-                            <td><a href="{{ Route('cms.order.detail', ['id' => 1], true) }}">{{ 'O202207190001' }}</a> 應稅 test back</td>
-                        </tr>
-                        <tr height="24" style="border-bottom: 0px solid #dee2e6;">
-                            <td>4107 - 全館活動折扣 - 全館85折</td>
-                            <td style="text-align: right;">{{ number_format(1) }}</td>
-                            <td style="text-align: right;">{{ number_format(-35) }}</td>
-                            <td style="text-align: right;">{{ number_format(-35) }}</td>
-                            <td><a href="{{ Route('cms.order.detail', ['id' => 1], true) }}">{{ 'O202207190001' }}</a> 應稅</td>
-                        </tr>
+                        @if($order->discount_value > 0)
+                            @foreach($order_discount ?? [] as $d_value)
+                                <tr>
+                                    <td>{{ $d_value->account_code }} {{ $d_value->account_name }} - {{ $d_value->title }}</td>
+                                    <td style="text-align: right;">1</td>
+                                    <td style="text-align: right;">-{{ number_format($d_value->discount_value, 2) }}</td>
+                                    <td style="text-align: right;">-{{ number_format($d_value->discount_value) }}</td>
+                                    <td>{{ $received_order->memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id], true) }}">{{ $order->sn }}</a> {{ $d_value->discount_taxation == 1 ? '應稅' : '免稅' }}</td>
+                                </tr>
+                            @endforeach
+                        @endif
                     </tbody>
                 </table>
                 <hr width="710" style="margin: .5rem auto;">
@@ -127,29 +135,40 @@
                     <thead>
                         <tr height="24">
                             <td width="20%">合　　計：</td>
-                            <td width="36%" style="text-align: right;">（{{ '壹佰玖拾伍元整' }}）</td>
-                            <td width="10%" style="text-align: right;">{{ number_format(195) }}</td>
+                            <td width="36%" style="text-align: right;">（{{ $zh_price }}）</td>
+                            <td width="10%" style="text-align: right;">{{ number_format($received_order->price) }}</td>
                             <td width="34%"></td>
                         </tr>
                     </thead>
                     <tbody style="text-align: left;">
+                    @foreach($received_data as $value)
                         <tr height="22">
-                            <td colspan="4">1101 現金 195 （現金 - 現金 - ）</td>
+                            <td colspan="4">
+                                {{ $value->account->code . ' ' . $value->account->name }}
+                                {{ number_format($value->credit_card_price ?? $value->tw_price) }}
+                                @if($value->received_method == 'credit_card')
+                                    {{ '（' . $value->received_method_name . ' - ' . $value->credit_card_number . '（' . $value->credit_card_owner_name . '）' . '）' }}
+                                @elseif($value->received_method == 'remit')
+                                    {{ '（' . $value->received_method_name . ' - ' . $value->summary . '（' . $value->remit_memo . '）' . '）' }}
+                                @elseif($value->received_method == 'cheque')
+                                    {!! '（<a href="' . route('cms.note_receivable.record', ['id'=>$value->received_method_id]) . '">' . $value->received_method_name . ' - ' . $value->cheque_ticket_number . '（' . date('Y-m-d', strtotime($value->cheque_due_date)) . '）' . '</a>）' !!}
+                                @else
+                                    {{ '（' . $value->received_method_name . ' - ' . $value->account->name . ' - ' . $value->summary . '）' }}
+                                @endif
+                            </td>
                         </tr>
-                        <tr height="22">
-                            <td colspan="4">應收帳款-LINE PAY-1,475(應收帳款-LINE PAY訂單編號:15835N15695R1)-已入款(MSG0027438)</td>
-                        </tr>
+                    @endforeach
                     </tbody>
                 </table>
                 <hr width="710" style="margin: .5rem auto;">
-                <table width="710" style="font-size:small;text-align:left;border:0;margin: 0 auto;">                    
+                <table width="710" style="font-size:small;text-align:left;border:0;margin: 0 auto;">
                     <tbody>
                         <tr>
-                            <td width="25%">財務主管：</td>                     
-                            <td width="25%">會計：</td>
+                            <td width="25%">財務主管：</td>
+                            <td width="25%">會計：{{ $accountant }}</td>
                             <td width="25%">商品主管：</td>
                             <td width="25%">商品負責：資訊部</td>
-                        </tr>              
+                        </tr>
                   </tbody>
                 </table>
             </div>
