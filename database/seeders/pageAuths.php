@@ -19,6 +19,40 @@ return [
                 "cms.product.delete",
                 "刪除",
             ],
+            [
+                "cms.product.show",
+                "ERP商品資訊",
+            ],
+            [
+                "cms.product.edit-stock",
+                "庫存管理",
+            ],
+            [
+                "cms.product.edit-price",
+                "價格管理",
+            ],
+            [
+                "cms.product.edit-style",
+                "規格款式",
+            ],
+            [
+                "cms.product.edit-combo",
+                "組合包",
+            ],
+            [
+                "cms.product.edit-web-desc",
+                "[網頁]商品介紹",
+            ],
+            [
+                "cms.product.edit-web-spec",
+                "[網頁]規格說明",
+            ],  
+            [
+                "cms.product.edit-setting",
+                "設定",
+            ], 
+
+            
         ],
     ],
     [

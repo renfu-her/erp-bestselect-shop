@@ -96,7 +96,7 @@
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
                                     <input class="form-check-input" name="hasDelivery" type="radio"
-                                           value="{{ $value[0] }}" @if ($value[0] == $cond['hasDelivery']) checked @endif>
+                                        value="{{ $value[0] }}" @if ($value[0] == $cond['hasDelivery']) checked @endif>
                                     {{ $value[1] }}
                                 </label>
                             </div>
@@ -110,7 +110,7 @@
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
                                     <input class="form-check-input" name="hasSpecList" type="radio"
-                                           value="{{ $value[0] }}" @if ($value[0] == $cond['hasSpecList']) checked @endif>
+                                        value="{{ $value[0] }}" @if ($value[0] == $cond['hasSpecList']) checked @endif>
                                     {{ $value[1] }}
                                 </label>
                             </div>
@@ -128,11 +128,13 @@
 
     <div class="card shadow p-4 mb-4">
         <div class="row justify-content-end mb-4">
-            <div class="col">
-                <a href="{{ Route('cms.product.create') }}" class="btn btn-primary">
-                    <i class="bi bi-plus-lg"></i> 新增商品
-                </a>
-            </div>
+            @can('cms.product.create')
+                <div class="col">
+                    <a href="{{ Route('cms.product.create') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-lg"></i> 新增商品
+                    </a>
+                </div>
+            @endcan
             <div class="col-auto">
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
@@ -166,22 +168,27 @@
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td class="text-center">
-                                <a href="{{ Route('cms.product.edit', ['id' => $data->id], true) }}"
-                                    data-bs-toggle="tooltip" title="編輯"
-                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                    <i class="bi bi-pencil-square"></i>
-                                </a>
+                                @can('cms.product.edit')
+                                    <a href="{{ Route('cms.product.edit', ['id' => $data->id], true) }}"
+                                        data-bs-toggle="tooltip" title="編輯"
+                                        class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                @endcan
                             </td>
                             <td class="wrap">
                                 <div class="lh-1 small text-nowrap">
-                                    <span @class(['badge rounded-pill me-2',
+                                    <span @class([
+                                        'badge rounded-pill me-2',
                                         'bg-warning text-dark' => $data->type_title === '組合包商品',
-                                        'bg-success' => $data->type_title === '一般商品'])
-                                    >{{ $data->type_title === '組合包商品' ? '組合包' : '一般' }}
+                                        'bg-success' => $data->type_title === '一般商品',
+                                    ])>{{ $data->type_title === '組合包商品' ? '組合包' : '一般' }}
                                     </span>
                                     <span class="text-secondary">{{ $data->sku }}</span>
                                 </div>
-                                <div class="lh-base"><a href="{{ route('cms.product.show',['id'=>$data->id]) }}">{{ $data->title }}</a></div>
+                                <div class="lh-base"><a
+                                        href="{{ route('cms.product.show', ['id' => $data->id]) }}">{{ $data->title }}</a>
+                                </div>
                             </td>
                             <td>{{ $data->user_name }}</td>
                             <td class="text-center">
