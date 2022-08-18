@@ -167,19 +167,14 @@ return
         "menu_id" => "4",
         "child" => [
             [
-                "title" => "付款作業",
-                "controller_name" => "CollectionPaymentCtrl",
-                "route_name" => "cms.collection_payment.index",
-            ],
-            [
                 "title" => "收款作業",
                 "controller_name" => "CollectionReceivedCtrl",
                 "route_name" => "cms.collection_received.index",
             ],
             [
-                "title" => "代墊單作業",
-                "controller_name" => "StituteOrderCtrl",
-                "route_name" => "cms.stitute.index",
+                "title" => "付款作業",
+                "controller_name" => "CollectionPaymentCtrl",
+                "route_name" => "cms.collection_payment.index",
             ],
             [
                 "title" => "請款單作業",
@@ -187,14 +182,19 @@ return
                 "route_name" => "cms.request.index",
             ],
             [
-                "title" => "應付帳款",
-                "controller_name" => "AccountsPayableCtrl",
-                "route_name" => "cms.accounts_payable.index",
+                "title" => "代墊單作業",
+                "controller_name" => "StituteOrderCtrl",
+                "route_name" => "cms.stitute.index",
             ],
             [
                 "title" => "應收帳款",
                 "controller_name" => "AccountReceivedCtrl",
                 "route_name" => "cms.account_received.index",
+            ],
+            [
+                "title" => "應付帳款",
+                "controller_name" => "AccountsPayableCtrl",
+                "route_name" => "cms.accounts_payable.index",
             ],
             [
                 "title" => "退款作業",
@@ -207,14 +207,14 @@ return
                 "route_name" => "cms.transfer_voucher.index",
             ],
             [
-                "title" => "應付票據",
-                "controller_name" => "NotePayableCtrl",
-                "route_name" => "cms.note_payable.index",
-            ],
-            [
                 "title" => "應收票據",
                 "controller_name" => "NoteReceivableCtrl",
                 "route_name" => "cms.note_receivable.index",
+            ],
+            [
+                "title" => "應付票據",
+                "controller_name" => "NotePayableCtrl",
+                "route_name" => "cms.note_payable.index",
             ],
             [
                 "title" => "信用卡作業管理",
@@ -222,19 +222,24 @@ return
                 "route_name" => "cms.credit_manager.index",
             ],
             [
+                "title" => "匯款紀錄",
+                "controller_name" => "RemittanceRecordCtrl",
+                "route_name" => "cms.remittance_record.index",
+            ],
+            [
                 "title" => "電子發票作業管理",
                 "controller_name" => "OrderInvoiceManagerCtrl",
                 "route_name" => "cms.order_invoice_manager.index",
             ],
+            // [
+            //     "title" => "日結作業",
+            //     "controller_name" => "OrderInvoiceManagerCtrl",
+            //     "route_name" => "cms.order_invoice_manager.index",
+            // ],
             [
                 "title" => "分潤報表",
                 "controller_name" => "OrderBonusCtrl",
                 "route_name" => "cms.order-bonus.index",
-            ],
-            [
-                "title" => "匯款紀錄",
-                "controller_name" => "RemittanceRecordCtrl",
-                "route_name" => "cms.remittance_record.index",
             ],
         ],
     ],
