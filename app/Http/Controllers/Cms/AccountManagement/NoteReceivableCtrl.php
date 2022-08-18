@@ -216,8 +216,10 @@ class NoteReceivableCtrl extends Controller
             $data_list = NoteReceivableOrder::get_cheque_received_list(null, $status)->where('_cheque.c_n_date', null)->get();
 
         } else if($type == 'cashed'){
+            $cheque_cashing_date = [request('cc_sdate'), request('cc_edate')];
+
             $status = ['received', 'collection', 'nd', 'demand', 'cashed'];
-            $data_list = NoteReceivableOrder::get_cheque_received_list(null, $status)->get();
+            $data_list = NoteReceivableOrder::get_cheque_received_list(null, $status, null, null, null, null, null, null, null, null, null, $cheque_cashing_date)->get();
 
         }
 

@@ -181,8 +181,10 @@ class NotePayableCtrl extends Controller
 
         $status = null;
         if($type == 'cashed'){
+            $cheque_cashing_date = [request('cc_sdate'), request('cc_edate')];
+
             $status = ['paid', 'cashed'];
-            $data_list = NotePayableOrder::get_cheque_payable_list(null, $status)->get();
+            $data_list = NotePayableOrder::get_cheque_payable_list(null, $status, null, null, null, null, null, $cheque_cashing_date)->get();
 
         }
 

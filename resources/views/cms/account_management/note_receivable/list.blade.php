@@ -6,7 +6,7 @@
         <div class="p-1 pe-2">
             <a href="{{ Route('cms.note_receivable.ask', ['type'=>'collection']) }}" class="btn btn-sm btn-primary" role="button">整批託收</a>
             <a href="{{ Route('cms.note_receivable.ask', ['type'=>'nd']) }}" class="btn btn-sm btn-primary" role="button">整批次交票</a>
-            <a href="{{ Route('cms.note_receivable.ask', ['type'=>'cashed']) }}" class="btn btn-sm btn-primary" role="button">整批兌現</a>
+            <a href="{{ Route('cms.note_receivable.ask', ['type'=>'cashed']) }}" class="btn btn-sm btn-primary cc_date" role="button">整批兌現</a>
         </div>
     </nav>
 
@@ -265,6 +265,16 @@
                 $('#dataPerPageElem').on('change', function(e) {
                     $('input[name=data_per_page]').val($(this).val());
                     $('#search').submit();
+                });
+
+                $('.cc_date').on('click', function(e) {
+                    // e.preventDefault();
+                    const cc_sdate = $('input[name="cheque_cashing_sdate"]').val();
+                    const cc_edate = $('input[name="cheque_cashing_edate"]').val();
+                    if(cc_sdate || cc_edate) {
+                        const new_url = $(this).attr('href') + '?cc_sdate=' + cc_sdate + '&cc_edate=' + cc_edate;
+                        $(this).attr('href', new_url);
+                    }
                 });
             });
         </script>
