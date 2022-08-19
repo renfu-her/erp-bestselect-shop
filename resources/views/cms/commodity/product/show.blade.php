@@ -30,7 +30,7 @@
         '運送方式 shipment' => $shipment
     ]) }} --}}
 
-    <div class="accordion accordion-flush open">
+    <div class="accordion open">
         {{-- 圖片 --}}
         <div class="accordion-item">
             <h3 class="accordion-header">
