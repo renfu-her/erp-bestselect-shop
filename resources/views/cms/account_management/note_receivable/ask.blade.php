@@ -33,7 +33,7 @@
                         </tr>
                     </thead>
 
-                    <tbody class="card_list">
+                    <tbody class="pool">
                         @foreach ($data_list as $key => $value)
                             <tr>
                                 <th class="text-center">
@@ -113,7 +113,7 @@
             $(function() {
                 $('#checkAll').change(function(){
                     $all = $(this)[0];
-                    $('.card_list tr').each(function( index ) {
+                    $('.pool tr').each(function( index ) {
                         if($(this).is(':visible')){
                             $(this).find('th input.single_select').prop('checked', $all.checked);
 

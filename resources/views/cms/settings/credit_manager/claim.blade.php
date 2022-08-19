@@ -2,7 +2,6 @@
 @section('sub-content')
     <h2 class="mb-4">信用卡整批入款</h2>
 
-
     <form method="POST" action="{{ $form_action }}">
         @csrf
         <div class="card shadow p-4 mb-4">
@@ -27,7 +26,7 @@
                         </tr>
                     </thead>
 
-                    <tbody class="card_list">
+                    <tbody class="pool">
                         @foreach ($data_list as $key => $value)
                             <tr>
                                 <th class="text-center">
@@ -106,7 +105,7 @@
             $(function() {
                 $('#checkAll').change(function(){
                     $all = $(this)[0];
-                    $('.card_list tr').each(function( index ) {
+                    $('.pool tr').each(function( index ) {
                         if($(this).is(':visible')){
                             $(this).find('th input.single_select').prop('checked', $all.checked);
 
@@ -127,14 +126,14 @@
 
                 // $('#keyword').on('keyup', function () {
                 //     let keyword = $(this).val().toLowerCase();
-                //     $('.card_list tr').filter(function () {
+                //     $('.pool tr').filter(function () {
                 //         $(this).toggle($(this).children('td:eq(0)').text().toLowerCase().indexOf(keyword) > -1 || $(this).children('td:eq(2)').text().toLowerCase().indexOf(keyword) > -1)
                 //     });
                 // });
 
                 // $('.reset').on('click', function(){
                 //     $('#keyword').val('');
-                //     $('.card_list tr').css('display', '');
+                //     $('.pool tr').css('display', '');
                 // });
             });
         </script>
