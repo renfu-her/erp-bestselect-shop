@@ -106,7 +106,7 @@
                         @foreach($order_list_data as $value)
                             <tr>
                                 <td>{{ $product_grade_name }} --- {{ $value->product_title }}{{'（' . $value->product_price . ' * ' . $value->product_qty . '）'}}</td>
-                                <td>{{ $value->product_qty }}</td>
+                                <td>{{ number_format($value->product_qty) }}</td>
                                 <td>{{ number_format($value->product_price, 2) }}</td>
                                 <td>{{ number_format($value->product_origin_price) }}</td>
                                 <td>{{ $received_order->memo }} <a href="{{ Route('cms.consignment-order.edit', ['id' => $order->id], true) }}">{{ $order->sn }}</a> {{ $value->product_taxation == 1 ? '應稅' : '免稅' }} {{ $order->note }}</td>

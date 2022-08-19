@@ -499,8 +499,7 @@ class RequestOrderCtrl extends Controller
         $zh_price = num_to_str($received_order->price);
         $view = 'cms.account_management.request.ro_receipt';
         if (request('method') == 'print') {
-            dd('cms.account_management.request.ro_receipt 付款單');
-            $view = '';
+            $view = 'doc.print_account_management_request_ro_receipt';
         }
 
         return view($view, [
