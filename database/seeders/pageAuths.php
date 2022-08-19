@@ -46,13 +46,35 @@ return [
             [
                 "cms.product.edit-web-spec",
                 "[網頁]規格說明",
-            ],  
+            ],
             [
                 "cms.product.edit-setting",
                 "設定",
-            ], 
+            ],
 
-            
+
+        ],
+    ],
+    [
+        "unit" => "庫存管理",
+        "permissions" => [
+            [
+                "cms.stock.index",
+                "瀏覽",
+            ],
+        ],
+    ],
+    [
+        "unit" => "採購單庫存匯入",
+        "permissions" => [
+            [
+                "cms.inbound_import.index",
+                "瀏覽",
+            ],
+            [
+                "cms.inbound_import.edit",
+                "編輯",
+            ],
         ],
     ],
     [
@@ -155,6 +177,15 @@ return [
         ],
     ],
     [
+        "unit" => "通知信管理",
+        "permissions" => [
+            [
+                "cms.mail_set.edit",
+                "修改",
+            ],
+        ],
+    ],
+    [
         "unit" => "款式設定",
         "permissions" => [
             [
@@ -222,7 +253,7 @@ return [
         ],
     ],
     [
-        "unit" => "採購單列表",
+        "unit" => "採購單管理",
         "permissions" => [
             [
                 "cms.purchase.index",
@@ -610,12 +641,8 @@ return [
                 "瀏覽",
             ],
             [
-                "cms.delivery.create",
-                "新增",
-            ],
-            [
-                "cms.delivery.delete",
-                "刪除",
+                "cms.delivery.edit",
+                "編輯",
             ],
         ],
     ],

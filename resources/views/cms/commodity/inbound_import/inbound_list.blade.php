@@ -79,11 +79,13 @@
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td>
+                                @can('cms.inbound_import.edit')
                                 <a href="{{ Route('cms.inbound_import.inbound_edit', ['inboundId' => $data->inbound_id], true) }}"
                                    data-bs-toggle="tooltip" title="編輯"
                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-pencil-square"></i>
                                 </a>
+                                @endcan
                             </td>
                             <td>{{ $data->event_sn }}</td>
                             <td>{{ $data->style_sku }}</td>

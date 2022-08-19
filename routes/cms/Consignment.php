@@ -14,11 +14,11 @@ Route::group(['prefix' => 'consignment', 'as' => 'consignment.'], function () {
 //    Route::post('pay-order/{id}', [ConsignmentCtrl::class, 'payOrder'])->name('pay-order')->middleware('permission:cms.consignment.pay-order');
 //    Route::get('pay-order/{id}', [ConsignmentCtrl::class, 'payOrder'])->name('view-pay-order')->middleware('permission:cms.consignment.view-pay-order');
     Route::get('delete/{id}', [ConsignmentCtrl::class, 'destroy'])->name('delete')->middleware('permission:cms.consignment.delete');
-    Route::post('close/{id}', [ConsignmentCtrl::class, 'close'])->name('close')->middleware('permission:cms.consignment.close');
+    Route::post('close/{id}', [ConsignmentCtrl::class, 'close'])->name('close')->middleware('permission:cms.consignment.inbound');
 //
     Route::get('inbound/{id}', [ConsignmentCtrl::class, 'inbound'])->name('inbound')->middleware('permission:cms.consignment.inbound');
     Route::post('store_inbound/{id}', [ConsignmentCtrl::class, 'storeInbound'])->name('store_inbound');
-    Route::get('delete_inbound/{id}', [ConsignmentCtrl::class, 'deleteInbound'])->name('delete_inbound')->middleware('permission:cms.consignment.delete_inbound');
+    Route::get('delete_inbound/{id}', [ConsignmentCtrl::class, 'deleteInbound'])->name('delete_inbound')->middleware('permission:cms.consignment.inbound');
 //
-    Route::get('log/{id}', [ConsignmentCtrl::class, 'historyLog'])->name('log')->middleware('permission:cms.consignment.historyLog');
+    Route::get('log/{id}', [ConsignmentCtrl::class, 'historyLog'])->name('log')->middleware('permission:cms.consignment.index');
 });

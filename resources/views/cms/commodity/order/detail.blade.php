@@ -262,8 +262,10 @@
                             <a class="btn btn-sm btn-success -in-header mb-1"
                                 href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">物流設定</a>
 
+                            @can('cms.delivery.edit')
                             <a class="btn btn-sm btn-success -in-header mb-1"
                                 href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">出貨審核</a>
+                            @endcan
                             {{-- @if ('pickup' == $subOrder->ship_category) --}}
                             {{-- <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.order.inbound', ['subOrderId' => $subOrderId], true) }}">入庫審核</a> --}}
                             {{-- @endif --}}

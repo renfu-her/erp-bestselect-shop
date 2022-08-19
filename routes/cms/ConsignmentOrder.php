@@ -11,5 +11,5 @@ Route::group(['prefix' => 'consignment-order', 'as' => 'consignment-order.'], fu
     Route::get('order_edit/{id}', [ConsignmentOrderCtrl::class, 'edit'])->name('edit')->middleware('permission:cms.consignment_order.edit');
     Route::post('order_edit/{id}', [ConsignmentOrderCtrl::class, 'update']);
 
-    Route::get('log/{id}', [ConsignmentOrderCtrl::class, 'historyLog'])->name('log')->middleware('permission:cms.consignment_order.create');
+    Route::get('log/{id}', [ConsignmentOrderCtrl::class, 'historyLog'])->name('log')->middleware('permission:cms.consignment_order.index');
 });
