@@ -112,7 +112,7 @@
                         @foreach ($dataList as $key => $data)
                             <tr class="-cloneElem --selectedP">
                                 <th class="text-center">
-                <button type="button"
+                                    <button type="button"
                                             class="icon -del icon-btn fs-5 text-danger rounded-circle border-0 p-0">
                                         <i class="bi bi-trash"></i>
                                     </button>
