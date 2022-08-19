@@ -77,6 +77,7 @@
                 </tr>
                 </thead>
                 <tbody style="text-align: left;">
+                @if($delivery->delivery_back_items)
                 @foreach($delivery->delivery_back_items as $db_value)
                     <tr>
                         <td>{{ $product_grade_name }} - {{ $db_value->product_title }}{{'（' . $delivery->sub_order_ship_event . ' - ' . $delivery->sub_order_ship_category_name . '）'}}{{'（' . $db_value->price . ' * ' . $db_value->qty . '）'}}</td>
@@ -86,6 +87,7 @@
                         <td>{{ $delivery->po_memo }} <a href="{{ route('cms.delivery.back_detail', ['event' => $delivery->delivery_event, 'eventId' => $delivery->delivery_event_id]) }}">{{ $delivery->delivery_event_sn }}</a> {{ $db_value->taxation == 1 ? '應稅' : '免稅' }} {{ $delivery->order_note }}</td>
                     </tr>
                 @endforeach
+                @endif
                 </tbody>
             </table>
             <hr width="710" style="margin: .5rem auto;">
