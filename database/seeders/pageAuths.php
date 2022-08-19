@@ -177,11 +177,15 @@ return [
         ],
     ],
     [
-        "unit" => "通知信管理",
+        "unit" => "首頁設定",
         "permissions" => [
             [
-                "cms.mail_set.edit",
-                "修改",
+                "cms.homepage.index",
+                "瀏覽",
+            ],
+            [
+                "cms.homepage.edit",
+                "編輯",
             ],
         ],
     ],
