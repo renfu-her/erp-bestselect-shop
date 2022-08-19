@@ -997,7 +997,12 @@ class ProductCtrl extends Controller
        // dd($shipment);
 
         return view('cms.commodity.product.show', [
-
+            'product' => $product,
+            'images' => $product_img,
+            'specs' => $product_spec_list,
+            'styles' => $styles,
+            'shipment' => $shipment,
+            'breadcrumb_data' => $product,
         ]);
     }
 
