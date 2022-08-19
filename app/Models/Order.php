@@ -1127,11 +1127,7 @@ class Order extends Model
 
             self::getSendMailAddressInfo($order_id, $orderer, $receiver);
 
-            $email = 'pntcwz@gmail.com';
-            if (AppEnvClass::Release() == AppEnvClass::fromValue(env('APP_ENV'))) {
-                $email = $order->email;
-            }
-
+            $email = $order->email;
             $data = [
                 'order_name' => $orderer->name ?? ''
                 , 'sn' => $order->sn ?? ''
@@ -1154,11 +1150,7 @@ class Order extends Model
 
             self::getSendMailAddressInfo($order_id, $orderer, $receiver);
 
-            $email = 'pntcwz@gmail.com';
-            if (AppEnvClass::Release() == AppEnvClass::fromValue(env('APP_ENV'))) {
-                $email = $order->email;
-            }
-
+            $email = $order->email;
             $data = [
                 'order_name' => $orderer->name ?? ''
                 , 'sn' => $order->sn ?? ''
@@ -1188,10 +1180,7 @@ class Order extends Model
                 ->where('sub_order_id', '=', $sub_order_id)
                 ->get();
 
-            $email = 'pntcwz@gmail.com';
-            if (AppEnvClass::Release() == AppEnvClass::fromValue(env('APP_ENV'))) {
-                $email = $order->email;
-            }
+            $email = $order->email;
             $data = [
                 'order_name' => $orderer->name ?? ''
                 , 'sn' => $order->sn ?? ''
