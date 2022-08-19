@@ -329,4 +329,39 @@ class ProductStyle extends Model
         echo "超買設定完成";
         DB::commit();
     }
+
+    public static function getStylePrice($product_id, $salechannel = [1, 2])
+    {
+
+        $column = concatStr([
+            'salechannel_title' => 'channel.title',
+            'style_title' => 'style.title',
+            'price' => 'sp.price',
+            'bonus' => 'sp.bonus',
+            'style_id' => 'style.id',
+        ]);
+
+        $sub = DB::table('prd_salechannel_style_price as sp')
+            ->leftJoin('prd_sale_channels as channel', 'sp.sale_channel_id', '=', 'channel.id')
+            ->leftJoin('prd_product_styles as style', 'sp.style_id', '=', 'style.id')
+            ->select('sp.style_id')
+            ->selectRaw(('(' . $column . ') as prices'))
+            ->groupBy('sp.style_id');
+
+        if ($salechannel && is_array($salechannel)) {
+            $sub->whereIn('sp.sale_channel_id', $salechannel);
+        }
+
+        $output = array_map(function ($v) {
+            $v->prices = json_decode($v->prices);
+            // dd($v);
+            if (isset($v->prices[0])) {
+                $v->title = $v->prices[0]->style_title;
+            }
+            return $v;
+
+        }, $sub->get()->toArray());
+
+        return $output;
+    }
 }

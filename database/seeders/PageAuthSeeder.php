@@ -33,7 +33,7 @@ class PageAuthSeeder extends Seeder
                     ->get()->first();
                 if (!$per) {
                     Permission::create(['guard_name' => $guard, 'name' => $p[0], 'title' => $p[1], 'group_id' => $id]);
-                    echo $key.":".$p[0].":".$p[1] . " done!\n";
+                   // echo $key.":".$p[0].":".$p[1] . " done!\n";
                 }
 
             }
