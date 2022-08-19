@@ -6,7 +6,7 @@
         <a href="{{ Route('cms.order.return-pay-create', ['id' => $paying_order->source_id, 'sid' => $paying_order->source_sub_id]) }}" class="btn btn-primary" role="button">付款</a>
     @endif
 
-    <button type="submit" class="btn btn-danger">中一刀列印畫面</button>
+    <button type="submit" class="btn btn-danger" onclick="location.href='{{ url()->full() . '?method=print' }}'">中一刀列印畫面</button>
     <button type="submit" class="btn btn-danger">A4列印畫面</button>
     <button type="submit" class="btn btn-danger">圖片管理</button>
     <br>

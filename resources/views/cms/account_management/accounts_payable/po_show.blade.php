@@ -6,7 +6,7 @@
         <i class="bi bi-arrow-left"></i> 返回上一頁
     </a>
 
-    <button type="submit" class="btn btn-danger">中一刀列印畫面</button>
+    <button type="submit" class="btn btn-danger" onclick="location.href='{{ url()->full() . '?method=print' }}'">中一刀列印畫面</button>
     <button type="submit" class="btn btn-danger">A4列印畫面</button>
     <button type="submit" class="btn btn-danger">圖片管理</button>
     <br>

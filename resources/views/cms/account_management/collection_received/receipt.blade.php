@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    
+
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
             @if(! $received_order->receipt_date)
@@ -13,7 +13,7 @@
 
             <a href="{{ route('cms.collection_received.taxation', ['id' => $received_order->source_id]) }}" class="btn btn-sm btn-dark" role="button">修改摘要/稅別</a>
 
-            <a href="{{ route('cms.collection_received.print_received') }}" target="_blank" class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
+            <a href="{{ url()->full() . '?method=print' }}" target="_blank" class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
             {{--
             <button type="submit" class="btn btn-sm btn-warning">A4列印畫面</button>
             <button type="submit" class="btn btn-dark">修改記錄</button>
@@ -98,11 +98,11 @@
                     <tbody>
                         @foreach($order_list_data as $value)
                             <tr>
-                                <td>{{ $product_grade_name }} --- {{ $value->product_title }}{{'（' . $value->del_even . ' - ' . $value->del_category_name . '）'}}{{'（' . $value->product_price . ' * ' . $value->product_qty . '）'}}</td>
+                                <td>{{ $product_grade_name }} --- {{ $value->product_title }}{{'（' . ($value->del_even ?? null) . ' - ' . ($value->del_category_name ?? null) . '）'}}{{'（' . $value->product_price . ' * ' . $value->product_qty . '）'}}</td>
                                 <td class="text-end">{{ number_format($value->product_qty) }}</td>
                                 <td class="text-end">{{ number_format($value->product_price, 2) }}</td>
                                 <td class="text-end">{{ number_format($value->product_origin_price) }}</td>
-                                <td>{{ $received_order->memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id], true) }}">{{ $order->sn }}</a> {{ $value->product_taxation == 1 ? '應稅' : '免稅' }} {{ $value->product_note }}{{-- $order->note --}}</td>
+                                <td>{{ $received_order->memo }} <a href="{{ Route('cms.order.detail', ['id' => $order->id], true) }}">{{ $order->sn }}</a> {{ $value->product_taxation == 1 ? '應稅' : '免稅' }} {{ $value->product_note ?? '' }}{{-- $order->note --}}</td>
                             </tr>
                         @endforeach
 

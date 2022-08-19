@@ -497,8 +497,12 @@ class RequestOrderCtrl extends Controller
         $accountant = User::find($received_order->accountant_id) ? User::find($received_order->accountant_id)->name : null;
 
         $zh_price = num_to_str($received_order->price);
+        $view = 'cms.account_management.request.ro_receipt';
+        if (request('method') == 'print') {
+            $view = 'doc.print_account_management_request_ro_receipt';
+        }
 
-        return view('cms.account_management.request.ro_receipt', [
+        return view($view, [
             'breadcrumb_data' => ['id' => $request_order->id],
             'request_grade' => $request_grade,
             'request_order' => $request_order,

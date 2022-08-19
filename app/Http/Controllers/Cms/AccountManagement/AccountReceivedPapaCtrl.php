@@ -601,7 +601,12 @@ abstract class AccountReceivedPapaCtrl extends Controller
 
         $zh_price = num_to_str($received_order_collection->first()->price);
 
-        return view($this->getViewReceipt(), [
+        $view = $this->getViewReceipt();
+        if (request('method') == 'print') {
+            // 列印－收款單
+            $view = 'doc.print_received';
+        }
+        return view($view, [
             'breadcrumb_data' => ['id'=>$order->id, 'sn'=>$order->sn],
 
             'received_order'=>$received_order_collection->first(),

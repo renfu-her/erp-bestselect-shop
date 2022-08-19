@@ -391,7 +391,12 @@ class AccountReceivedCtrl extends Controller
 
         $zh_price = num_to_str($received_order->price);
 
-        return view('cms.account_management.account_received.ro_receipt', [
+        $view = 'cms.account_management.account_received.ro_receipt';
+        if (request('method') == 'print') {
+            $view = 'doc.print_account_management_account_received_ro_receipt';
+        }
+
+        return view($view, [
             'order_list_data' => $order_list_data,
             'received_order' => $received_order,
             'received_data' => $received_data,

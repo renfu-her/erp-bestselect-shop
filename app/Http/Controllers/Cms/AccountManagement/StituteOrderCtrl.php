@@ -441,7 +441,12 @@ class StituteOrderCtrl extends Controller
         $accountant = array_unique($accountant->pluck('name')->toArray());
         asort($accountant);
 
-        return view('cms.account_management.stitute.po_show', [
+        $view = 'cms.account_management.stitute.po_show';
+        if (request('method') == 'print') {
+            $view = 'doc.print_account_management_stitute_pay';
+        }
+
+        return view($view, [
             'breadcrumb_data' => ['id' => $stitute_order->id],
             'applied_company' => $applied_company,
             'stitute_order' => $stitute_order,

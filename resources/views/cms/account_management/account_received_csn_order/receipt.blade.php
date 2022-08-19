@@ -13,6 +13,8 @@
         @endif
     @endif
     <a href="{{ route('cms.ar_csnorder.taxation', ['id' => $received_order->source_id]) }}" class="btn btn-outline-success px-4" role="button">修改摘要/稅別</a>
+
+    <button type="submit" class="btn btn-danger" onclick="location.href='{{ url()->full() . '?method=print' }}'">中一刀列印畫面</button>
     {{--
     <button type="submit" class="btn btn-danger">中一刀列印畫面</button>
     <button type="submit" class="btn btn-danger">A4列印畫面</button>
@@ -104,7 +106,7 @@
                         @foreach($order_list_data as $value)
                             <tr>
                                 <td>{{ $product_grade_name }} --- {{ $value->product_title }}{{'（' . $value->product_price . ' * ' . $value->product_qty . '）'}}</td>
-                                <td>{{ $value->product_qty }}</td>
+                                <td>{{ number_format($value->product_qty) }}</td>
                                 <td>{{ number_format($value->product_price, 2) }}</td>
                                 <td>{{ number_format($value->product_origin_price) }}</td>
                                 <td>{{ $received_order->memo }} <a href="{{ Route('cms.consignment-order.edit', ['id' => $order->id], true) }}">{{ $order->sn }}</a> {{ $value->product_taxation == 1 ? '應稅' : '免稅' }} {{ $order->note }}</td>

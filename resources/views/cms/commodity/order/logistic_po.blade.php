@@ -4,7 +4,7 @@
     @if(! $paying_order->balance_date)
         <a href="{{ Route('cms.order.logistic-po-create', ['id' => $sub_order->order_id, 'sid' => $sub_order->id]) }}" class="btn btn-primary" role="button">付款</a>
     @endif
-    <button type="submit" class="btn btn-danger">中一刀列印畫面</button>
+    <button type="submit" class="btn btn-danger" onclick="location.href='{{ url()->full() . '?method=print' }}'">中一刀列印畫面</button>
     <button type="submit" class="btn btn-danger">A4列印畫面</button>
     <button type="submit" class="btn btn-danger">圖片管理</button>
     <br>
