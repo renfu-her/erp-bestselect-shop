@@ -8,7 +8,11 @@
     </a>
     <a href="{{ frontendUrl() }}product/{{ $sku }}" target="_blank" class="nav-link">
         <span class="icon"><i class="bi bi-box-arrow-up-right"></i></span>
-        <span class="label">前往該商品</span>
+        <span class="label">前往官網商品頁</span>
+    </a>
+    <a href="{{ route('cms.product.show', ['id' => $id]) }}" target="_blank" class="nav-link">
+        <span class="icon"><i class="bi bi-layout-text-window-reverse"></i></span>
+        <span class="label">瀏覽商品資訊頁</span>
     </a>
     <a href="#" data-bs-toggle="modal" data-bs-target="#copyProduct" class="nav-link">
         <span class="icon"><i class="bi bi-files"></i></span>
