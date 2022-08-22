@@ -1,9 +1,9 @@
 {{-- 功能按鈕群 --}}
 <div class="btn-group pm_btnGroup" role="group">
-    <a href="#" class="nav-link">
+    {{-- <a href="#" class="nav-link">
         <span class="icon"><i class="bi bi-printer"></i></span>
         <span class="label">列印</span>
-    </a>
+    </a> --}}
     <a href="javascript:void(0)" data-href="{{ Route('cms.purchase.delete', ['id' => $id], true) }}"
        data-bs-toggle="modal" data-bs-target="#confirm-delete-purchase" class="nav-link">
         <span class="icon"><i class="bi bi-trash"></i></span>
