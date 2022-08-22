@@ -920,7 +920,7 @@ class ProductCtrl extends Controller
             }
         }
 
-         ProductStyle::where('id', $sid)->update(['title' => $d['title']]);
+        ProductStyle::where('id', $sid)->update(['title' => $d['title']]);
 
         if (isset($d['del_item_id'])) {
             ProductStyleCombo::whereIn('id', explode(',', $d['del_item_id']))->delete();
@@ -990,11 +990,11 @@ class ProductCtrl extends Controller
         $styles = ProductStyle::getStylePrice($id);
 
         $shipment = DB::table('prd_product_shipment as ps')
-        ->leftJoin('shi_group as group','ps.group_id','=','group.id')
-        ->select('group.note')
-        ->where('ps.product_id','=',$id)->get()->first();
+            ->leftJoin('shi_group as group', 'ps.group_id', '=', 'group.id')
+            ->select('group.note')
+            ->where('ps.product_id', '=', $id)->get()->first();
 
-       // dd($shipment);
+        // dd($shipment);
 
         return view('cms.commodity.product.show', [
             'product' => $product,
@@ -1004,6 +1004,19 @@ class ProductCtrl extends Controller
             'shipment' => $shipment,
             'breadcrumb_data' => $product,
         ]);
+    }
+
+    function clone (Request $request, $id) {
+        $request->validate([
+            'product_id' => 'required',
+        ]);
+
+        Product::cloneInfo($id,$request->input('product_id'));
+
+        wToast('資訊複製完成');
+
+        return redirect()->back();
+
     }
 
 }

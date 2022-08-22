@@ -47,7 +47,9 @@ Route::group(['prefix' => 'product', 'as' => 'product.'], function () {
     Route::get('create', [ProductCtrl::class, 'create'])->name('create')->middleware('permission:cms.product.create');
     Route::post('create', [ProductCtrl::class, 'store']);
     Route::get('delete/{id}', [ProductCtrl::class, 'destroy'])->name('delete'); //->middleware('permission:cms.product.delete');
-
+    // ERP產品資訊
     Route::get('show/{id}', [ProductCtrl::class, 'show'])->name('show')->middleware('permission:cms.product.show');
+    // 複製產品資訊
+    Route::post('clone/{id}', [ProductCtrl::class, 'clone'])->name('clone')->middleware('permission:cms.product.clone');
 
 });
