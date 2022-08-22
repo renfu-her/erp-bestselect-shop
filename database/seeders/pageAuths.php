@@ -674,4 +674,41 @@ return [
             ],
         ],
     ],
+    [
+        "unit" => "訂單管理",
+        "permissions" => [
+            [
+                "cms.order.index",
+                "瀏覽",
+            ],
+            [
+                "cms.order.cancel_order",
+                "取消訂單",
+            ],
+            [
+                "cms.order.split_order",
+                "分割訂單",
+            ],
+            [
+                "cms.order.change_bonus_owner",
+                "變更推薦業務員"
+            ],
+            [
+                "cms.order.detail",
+                "訂單明細"
+            ],
+            [
+                "cms.order.manual-send-bonus",
+                "手動發送紅利"
+            ],
+            [
+                "cms.order.bonus-gross",
+                "獎金毛利"
+            ],
+            [
+                "cms.order.edit-item",
+                "編輯訂單"
+            ]
+        ],
+    ],
 ];
