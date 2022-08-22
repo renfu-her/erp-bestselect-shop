@@ -39,6 +39,11 @@ Breadcrumbs::for('cms.product.create', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.product.index');
     $trail->push('新增商品');
 });
+// 瀏覽 - 商品資訊
+Breadcrumbs::for('cms.product.show', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.product.index');
+    $trail->push('[' . $value->title . '] 資訊');
+});
 // 編輯 - 商品資訊
 Breadcrumbs::for('cms.product.edit', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.index');

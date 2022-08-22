@@ -1290,7 +1290,7 @@ class Product extends Model
         // shipment
 
         $shipList = DB::table('prd_product_shipment')->where('product_id', $from_id)->get()->toArray();
-        DB::where('product_id', $product_id)->delete();
+        DB::table('prd_product_shipment')->where('product_id', $product_id)->delete();
         if (count($shipList) > 0) {
             DB::table('prd_product_shipment')->insert(array_map(function ($n) use ($product_id) {
                 return [
@@ -1300,7 +1300,8 @@ class Product extends Model
                 ];
             }, $shipList));
         }
-       
+
+        DB::commit();
 
     }
 
