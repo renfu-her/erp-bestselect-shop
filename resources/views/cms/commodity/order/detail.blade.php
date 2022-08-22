@@ -20,20 +20,24 @@
                 <a href="{{ Route('api.web.order.payment_credit_card', ['id' => $order->id, 'unique_id' => $order->unique_id]) }}"
                     class="btn btn-primary btn-sm" role="button" target="_blank">線上刷卡連結</a>
             @endif
-
-            <a href="{{ Route('cms.order.bonus-gross', ['id' => $order->id]) }}" class="btn btn-warning btn-sm my-1 ms-1"
-                role="button">獎金毛利</a>
-
+            @can('cms.order.bonus-gross')
+                <a href="{{ Route('cms.order.bonus-gross', ['id' => $order->id]) }}" class="btn btn-warning btn-sm my-1 ms-1"
+                    role="button">獎金毛利</a>
+            @endcan
             <a href="{{ Route('cms.order.personal-bonus', ['id' => $order->id]) }}" class="btn btn-warning btn-sm my-1 ms-1"
                 role="button">個人獎金</a>
 
 
-            <a href="{{ Route('cms.order.edit-item', ['id' => $order->id]) }}" role="button"
-                class="btn btn-dark btn-sm my-1 ms-1">編輯訂單</a>
+            @can('cms.order.edit-item')
+                <a href="{{ Route('cms.order.edit-item', ['id' => $order->id]) }}" role="button"
+                    class="btn btn-dark btn-sm my-1 ms-1">編輯訂單</a>
+            @endcan
 
             @if ($canSplit)
-                <a href="{{ Route('cms.order.split-order', ['id' => $order->id]) }}" role="button"
-                    class="btn btn-dark btn-sm my-1 ms-1">分割訂單</a>
+                @can('cms.order.split_order')
+                    <a href="{{ Route('cms.order.split-order', ['id' => $order->id]) }}" role="button"
+                        class="btn btn-dark btn-sm my-1 ms-1">分割訂單</a>
+                @endcan
             @endif
 
             @if ($received_order_data && !$order->invoice_number)
@@ -42,8 +46,10 @@
             @endif
 
             @if ($canCancel)
-                <a href="{{ Route('cms.order.cancel-order', ['id' => $order->id]) }}" role="button"
-                    class="btn btn-outline-danger btn-sm my-1 ms-1">取消訂單</a>
+                @can('cms.order.cancel_order')
+                    <a href="{{ Route('cms.order.cancel-order', ['id' => $order->id]) }}" role="button"
+                        class="btn btn-outline-danger btn-sm my-1 ms-1">取消訂單</a>
+                @endcan
             @endif
 
 
@@ -162,11 +168,12 @@
                 <div class="col">
                     <dt>推薦業務員</dt>
                     <dd>{{ $order->name_m ?? '' }} {{ $order->sn_m ?? '' }}
-
-                        <a href="#" data-bs-toggle="modal" data-bs-target="#change-mcode" title="編輯"
-                            class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                            <i class="bi bi-pencil-square"></i>
-                        </a>
+                        @can('cms.order.change_bonus_owner')
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#change-mcode" title="編輯"
+                                class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                        @endcan
 
                     </dd>
                 </div>
@@ -236,7 +243,7 @@
         @php
             $dlv_fee = 0;
             $price = 0;
-
+            
         @endphp
         @foreach ($subOrders as $subOrder)
             @php
@@ -263,8 +270,8 @@
                                 href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">物流設定</a>
 
                             @can('cms.delivery.edit')
-                            <a class="btn btn-sm btn-success -in-header mb-1"
-                                href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">出貨審核</a>
+                                <a class="btn btn-sm btn-success -in-header mb-1"
+                                    href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">出貨審核</a>
                             @endcan
                             {{-- @if ('pickup' == $subOrder->ship_category) --}}
                             {{-- <a class="btn btn-sm btn-success -in-header" href="{{ Route('cms.order.inbound', ['subOrderId' => $subOrderId], true) }}">入庫審核</a> --}}
@@ -408,7 +415,8 @@
                                 @elseif(false == isset($subOrder->delivery_audit_date))
                                     尚未做出貨審核
                                 @else
-                                    <a href="{{ Route('cms.order.logistic-po', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}">
+                                    <a
+                                        href="{{ Route('cms.order.logistic-po', ['id' => $subOrder->order_id, 'sid' => $subOrder->id]) }}">
                                         {{ $subOrder->logistic_po_sn ? $subOrder->logistic_po_sn : '新增付款單' }}
                                     </a>
                                 @endif
@@ -428,21 +436,22 @@
                             <dt>包裹編號</dt>
                             <dd>
                                 @if ($subOrder->projlgt_order_sn)
-                                    <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $subOrder->projlgt_order_sn }}" target="_blank">
+                                    <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $subOrder->projlgt_order_sn }}"
+                                        target="_blank">
                                         {{ $subOrder->projlgt_order_sn }}
                                     </a>
                                 @else
                                     {{ $subOrder->package_sn }}
                                 @endif
-                                    <!--
-                                @if (false == empty($subOrder->projlgt_order_sn))
-                                    <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $subOrder->projlgt_order_sn }}">
-                                        {{ $subOrder->projlgt_order_sn }}
-                                    </a>
-                                @else
-                                    {{ $subOrder->package_sn ?? '(待處理)' }}
-                                @endif
-                                -->
+                                <!--
+                                                    @if (false == empty($subOrder->projlgt_order_sn))
+    <a href="{{ env('LOGISTIC_URL') . 'guest/order-flow/' . $subOrder->projlgt_order_sn }}">
+                                                            {{ $subOrder->projlgt_order_sn }}
+                                                        </a>
+@else
+    {{ $subOrder->package_sn ?? '(待處理)' }}
+    @endif
+                                                    -->
                             </dd>
                         </div>
                         <div class="col">
@@ -542,8 +551,10 @@
                         </label>
                     </div>
                     @if ($order->allotted_dividend === 0)
-                        <button type="button" class="btn btn-sm btn-success -in-header -active-send"
-                            disabled>手動發放</button>
+                        @can('cms.order.manual-send-bonus')
+                            <button type="button" class="btn btn-sm btn-success -in-header -active-send"
+                                disabled>手動發放</button>
+                        @endcan
                     @endif
                 </div>
 
