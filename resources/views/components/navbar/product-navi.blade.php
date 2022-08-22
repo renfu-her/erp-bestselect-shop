@@ -14,10 +14,12 @@
         <span class="icon"><i class="bi bi-layout-text-window-reverse"></i></span>
         <span class="label">瀏覽商品資訊頁</span>
     </a>
+    @can('cms.product.clone')
     <a href="#" data-bs-toggle="modal" data-bs-target="#copyProduct" class="nav-link">
         <span class="icon"><i class="bi bi-files"></i></span>
         <span class="label">複製來源</span>
     </a>
+    @endcan
     <a href="#" class="nav-link disabled" hidden>
         <span class="icon"><i class="bi bi-trash"></i></span>
         <span class="label">刪除商品</span>

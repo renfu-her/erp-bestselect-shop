@@ -51,8 +51,10 @@ return [
                 "cms.product.edit-setting",
                 "設定",
             ],
-
-
+            [
+                "cms.product.clone",
+                "複製來源"
+            ]
         ],
     ],
     [
