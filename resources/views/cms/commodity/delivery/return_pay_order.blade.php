@@ -2,14 +2,20 @@
 
 @section('sub-content')
     <h2 class="mb-3">退貨付款單</h2>
-    @if(! $delivery->po_balance_date)
-        <a href="{{ Route('cms.delivery.return-pay-create', ['id' => $delivery->delivery_id]) }}" class="btn btn-primary" role="button">付款</a>
-    @endif
 
-    <a href="{{ url()->full() . '?method=print' }}" target="_blank" class="btn btn-danger" rel="noopener noreferrer">中一刀列印畫面</a>
-    <button type="submit" class="btn btn-danger">A4列印畫面</button>
-    <button type="submit" class="btn btn-danger">圖片管理</button>
-    <br>
+    <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
+        <div class="p-1 pe-2">
+            @if(! $delivery->po_balance_date)
+                <a href="{{ Route('cms.delivery.return-pay-create', ['id' => $delivery->delivery_id]) }}" 
+                    class="btn btn-primary" role="button">付款</a>
+            @endif
+
+            <a href="{{ url()->full() . '?method=print' }}" target="_blank" class="btn btn-danger" rel="noopener noreferrer">中一刀列印畫面</a>
+            <button type="submit" class="btn btn-danger">A4列印畫面</button>
+            <button type="submit" class="btn btn-danger">圖片管理</button>
+        </div>
+    </nav>
+
     <form id="" method="POST" action="">
         @csrf
         <div class="card shadow mb-4 -detail -detail-primary">

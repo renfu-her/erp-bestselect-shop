@@ -2,6 +2,9 @@
 
 @section('sub-content')
     <h2 class="mb-3">請款單</h2>
+
+    <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
+        <div class="p-1 pe-2">
     <a href="{{ Route('cms.request.index') }}" class="btn btn-primary" role="button">
         <i class="bi bi-arrow-left"></i> 返回上一頁
     </a>
@@ -17,8 +20,8 @@
     <button type="submit" class="btn btn-danger">修改記錄</button>
     <button type="submit" class="btn btn-danger">明細修改記錄</button>
     --}}
-
-    <br>
+        </div>
+    </nav>
 
     <div class="card shadow mb-4 -detail -detail-primary">
         <div class="card-body px-4">

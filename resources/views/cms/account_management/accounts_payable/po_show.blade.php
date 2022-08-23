@@ -2,14 +2,19 @@
 
 @section('sub-content')
     <h2 class="mb-3">付款單</h2>
+
     <a href="{{ route('cms.accounts_payable.index') }}" class="btn btn-primary" role="button">
         <i class="bi bi-arrow-left"></i> 返回上一頁
     </a>
 
-    <a href="{{ url()->full() . '?method=print' }}" target="_blank" class="btn btn-danger" rel="noopener noreferrer">中一刀列印畫面</a>
-    <button type="submit" class="btn btn-danger">A4列印畫面</button>
-    <button type="submit" class="btn btn-danger">圖片管理</button>
-    <br>
+    <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
+        <div class="p-1 pe-2">
+            <a href="{{ url()->full() . '?method=print' }}" target="_blank" class="btn btn-danger" rel="noopener noreferrer">中一刀列印畫面</a>
+            <button type="submit" class="btn btn-danger">A4列印畫面</button>
+            <button type="submit" class="btn btn-danger">圖片管理</button>
+        </div>
+    </nav>
+
     <form id="" method="POST" action="">
         @csrf
         <div class="card shadow mb-4 -detail -detail-primary">

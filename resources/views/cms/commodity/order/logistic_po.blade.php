@@ -1,13 +1,18 @@
 @extends('layouts.main')
-
 @section('sub-content')
-    @if(! $paying_order->balance_date)
-        <a href="{{ Route('cms.order.logistic-po-create', ['id' => $sub_order->order_id, 'sid' => $sub_order->id]) }}" class="btn btn-primary" role="button">付款</a>
-    @endif
-    <a href="{{ url()->full() . '?method=print' }}" target="_blank" class="btn btn-danger" rel="noopener noreferrer">中一刀列印畫面</a>
-    <button type="submit" class="btn btn-danger">A4列印畫面</button>
-    <button type="submit" class="btn btn-danger">圖片管理</button>
-    <br>
+
+    <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
+        <div class="p-1 pe-2">
+        @if(! $paying_order->balance_date)
+            <a href="{{ Route('cms.order.logistic-po-create', ['id' => $sub_order->order_id, 'sid' => $sub_order->id]) }}" 
+                class="btn btn-primary" role="button">付款</a>
+        @endif
+        <a href="{{ url()->full() . '?method=print' }}" target="_blank" class="btn btn-danger" rel="noopener noreferrer">中一刀列印畫面</a>
+        <button type="submit" class="btn btn-danger">A4列印畫面</button>
+        <button type="submit" class="btn btn-danger">圖片管理</button>
+        </div>
+    </nav>
+
     <form id="" method="POST" action="">
         @csrf
         <div class="card shadow mb-4 -detail -detail-primary">

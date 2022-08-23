@@ -23,7 +23,7 @@
             <button type="button" class="btn btn-sm btn-primary">圖片管理</button>
             <a href="{{ url()->full() . '&method=print' }}" target="_blank"
                 class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
-            <a href="#" target="_blank" class="btn btn-sm btn-warning" rel="noopener noreferrer">A4列印畫面</a>
+            {{-- <a href="#" target="_blank" class="btn btn-sm btn-warning" rel="noopener noreferrer">A4列印畫面</a> --}}
 
             {{-- <button type="button" class="btn btn-primary">修改</button> --}}
             {{-- <button type="button" class="btn btn-primary">修改備註</button> --}}
