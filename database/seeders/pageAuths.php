@@ -179,6 +179,15 @@ return [
         ],
     ],
     [
+        "unit" => "通知信管理",
+        "permissions" => [
+            [
+                "cms.mail_set.edit",
+                "修改",
+            ],
+        ],
+    ],
+    [
         "unit" => "首頁設定",
         "permissions" => [
             [
