@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-3">#{{ $sn }} 訂單明細</h2>
+    <h2 class="mb-4">#{{ $sn }} 訂單明細</h2>
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">

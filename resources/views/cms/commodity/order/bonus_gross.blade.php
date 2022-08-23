@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-3">獎金毛利</h2>
+    <h2 class="mb-4">獎金毛利</h2>
 
     <ul class="nav nav-tabs border-bottom-0">
         <li class="nav-item">

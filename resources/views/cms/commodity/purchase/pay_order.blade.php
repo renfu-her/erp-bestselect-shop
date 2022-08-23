@@ -20,10 +20,10 @@
                 ], true) }}" class="btn btn-sm btn-primary px-3" role="button">付款</a>
             @endif
 
-            <button type="button" class="btn btn-sm btn-primary">圖片管理</button>
+            {{-- <button type="button" class="btn btn-sm btn-primary">圖片管理</button> --}}
             <a href="{{ url()->full() . '&action=print' }}" target="_blank"
                 class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
-            <a href="#" target="_blank" class="btn btn-sm btn-warning" rel="noopener noreferrer">A4列印畫面</a>
+            {{-- <a href="#" target="_blank" class="btn btn-sm btn-warning" rel="noopener noreferrer">A4列印畫面</a> --}}
 
             {{-- <button type="button" class="btn btn-primary">修改</button> --}}
             {{-- <button type="button" class="btn btn-primary">修改備註</button> --}}
@@ -132,8 +132,8 @@
                             @endif
                         @endif
                         </tbody>
-                        <tfoot>
-                            <tr class="table-light">
+                        <tfoot class="table-light">
+                            <tr>
                                 <td colspan="3">
                                     <div class="d-flex justify-content-between">
                                         <span>合計：</span>

@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-3">
+    <h2 class="mb-4">
         @if ($method === 'create') 新增 @else 編輯 @endif 商品群組
     </h2>
     <form class="card-body" method="post" action="{{ $formAction }}">

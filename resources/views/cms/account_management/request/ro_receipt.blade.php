@@ -1,27 +1,30 @@
 @extends('layouts.main')
-
 @section('sub-content')
-    <h2 class="mb-3">收款單</h2>
-    <a href="{{ route('cms.request.show', ['id' => $received_order->source_id]) }}" class="btn btn-primary" role="button">
-        <i class="bi bi-arrow-left"></i> 返回上一頁
-    </a>
-    @if(! $received_order->receipt_date)
-    <a href="{{ route('cms.request.ro-review', ['id' => $received_order->source_id]) }}" class="btn btn-primary px-4" role="button">收款單入款審核</a>
-    @else
-        @if(! $data_status_check)
-        <a href="{{ route('cms.request.ro-review', ['id' => $received_order->source_id]) }}" class="btn btn-outline-success px-4" role="button">取消入帳</a>
-        @endif
-    @endif
-    <a href="{{ route('cms.request.ro-taxation', ['id' => $received_order->source_id]) }}" class="btn btn-outline-success px-4" role="button">修改摘要/稅別</a>
+    <h2 class="mb-4">收款單</h2>
 
-    <a href="{{ url()->full() . '?action=print' }}" target="_blank" class="btn btn-danger" rel="noopener noreferrer">中一刀列印畫面</a>
-    {{--
-    <button type="submit" class="btn btn-danger">A4列印畫面</button>
-    <button type="submit" class="btn btn-danger">修改記錄</button>
-    <button type="submit" class="btn btn-danger">明細修改記錄</button>
-    --}}
+    <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
+        <div class="p-1 pe-2">
+            @if(! $received_order->receipt_date)
+            <a href="{{ route('cms.request.ro-review', ['id' => $received_order->source_id]) }}" 
+                class="btn btn-primary px-4" role="button">收款單入款審核</a>
+            @else
+                @if(! $data_status_check)
+                <a href="{{ route('cms.request.ro-review', ['id' => $received_order->source_id]) }}" 
+                    class="btn btn-outline-success px-4" role="button">取消入帳</a>
+                @endif
+            @endif
+            <a href="{{ route('cms.request.ro-taxation', ['id' => $received_order->source_id]) }}" 
+                class="btn btn-outline-success px-4" role="button">修改摘要/稅別</a>
 
-    <br>
+            <a href="{{ url()->full() . '?action=print' }}" target="_blank" class="btn btn-danger" 
+                rel="noopener noreferrer">中一刀列印畫面</a>
+            {{--
+            <button type="submit" class="btn btn-danger">A4列印畫面</button>
+            <button type="submit" class="btn btn-danger">修改記錄</button>
+            <button type="submit" class="btn btn-danger">明細修改記錄</button>
+            --}}
+        </div>
+    </nav>
 
     <div class="card shadow mb-4 -detail -detail-primary">
         <div class="card-body px-4">
@@ -165,6 +168,11 @@
                 </div>
             </dl>
         </div>
+    </div>
+    
+    <div class="col-auto">
+        <a href="{{ route('cms.request.show', ['id' => $received_order->source_id]) }}" 
+            class="btn btn-primary" role="button">返回上一頁</a>
     </div>
 @endsection
 

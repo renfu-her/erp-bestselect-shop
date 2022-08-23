@@ -11,12 +11,7 @@
             font-family: "Nunito", "Noto Sans TC", sans-serif;
             position: relative;
         }
-        @page {
-            size: 214.9mm 140mm;
-            /* A4 直向 */
-            margin: 0;
-            /* 邊界 */
-        }
+        
         .font {
             display: inline-block;
         }

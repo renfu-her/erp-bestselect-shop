@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('sub-content')
-    <h2 class="mb-3">開立電子發票</h2>
+    <h2 class="mb-4">開立電子發票</h2>
 
     <form method="POST" action="{{ $form_action }}">
         @csrf
