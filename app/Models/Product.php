@@ -1267,8 +1267,8 @@ class Product extends Model
             ProductImg::insert(array_map(function ($n) use ($product_id) {
                 return [
                     'product_id' => $product_id,
-                    'url' => $n->url,
-                    'sort' => $n->sort,
+                    'url' => $n['url'],
+                    'sort' => $n['sort'],
                 ];
             }, $fromImg));
         }
