@@ -243,7 +243,7 @@
         @php
             $dlv_fee = 0;
             $price = 0;
-            
+
         @endphp
         @foreach ($subOrders as $subOrder)
             @php
@@ -290,6 +290,7 @@
                                 <a class="btn btn-sm btn-success -in-header mb-1"
                                     href="{{ Route('cms.delivery.back_detail', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">銷貨退回明細</a>
 
+                                @can('cms.delivery.edit')
                                 @if (isset($delivery->back_inbound_date))
                                     <a class="btn btn-sm btn-danger -in-header mb-1"
                                         href="{{ Route('cms.delivery.back_inbound_delete', ['deliveryId' => $delivery->id], true) }}">刪除退貨入庫</a>
@@ -297,6 +298,7 @@
                                     <a class="btn btn-sm btn-success -in-header mb-1"
                                         href="{{ Route('cms.delivery.back_inbound', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">退貨入庫審核</a>
                                 @endif
+                                @endcan
 
                                 {{-- <a class="btn btn-sm btn-success -in-header mb-1" --}}
                                 {{-- href="{{ Route('cms.delivery.back_inbound', ['event' => \App\Enums\Delivery\Event::order()->value, 'eventId' => $subOrderId], true) }}">退貨入庫審核</a> --}}
