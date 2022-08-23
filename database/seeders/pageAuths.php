@@ -14,7 +14,7 @@ return [
             ],
             [
                 "cms.product.edit",
-                "修改",            ],
+                "修改"],
             [
                 "cms.product.delete",
                 "刪除",
@@ -53,8 +53,8 @@ return [
             ],
             [
                 "cms.product.clone",
-                "複製來源"
-            ]
+                "複製來源",
+            ],
         ],
     ],
     [
@@ -92,11 +92,12 @@ return [
             ],
             [
                 "cms.depot.edit",
-                "修改",            ],
+                "修改"],
             [
                 "cms.depot.delete",
                 "刪除",
             ],
+            /*
             [
                 "cms.depot.product-index",
                 "寄倉選品瀏覽",
@@ -113,6 +114,7 @@ return [
                 "cms.depot.product-delete",
                 "寄倉選品刪除",
             ],
+            */
         ],
     ],
     [
@@ -212,13 +214,13 @@ return [
                 "新增",
             ],
 //            [
-//                "cms.spec.edit",
-//                "修改",
-//            ],
-//            [
-//                "cms.spec.delete",
-//                "刪除",
-//            ],
+            //                "cms.spec.edit",
+            //                "修改",
+            //            ],
+            //            [
+            //                "cms.spec.delete",
+            //                "刪除",
+            //            ],
         ],
     ],
     [
@@ -454,13 +456,13 @@ return [
                 "新增",
             ],
 //            [
-//                "cms.first_grade.edit",
-//                "編輯",
-//            ],
-//            [
-//                "cms.first_grade.delete",
-//                "刪除",
-//            ],
+            //                "cms.first_grade.edit",
+            //                "編輯",
+            //            ],
+            //            [
+            //                "cms.first_grade.delete",
+            //                "刪除",
+            //            ],
         ],
     ],
     [
@@ -475,13 +477,13 @@ return [
                 "新增",
             ],
 //            [
-//                "cms.income_statement.edit",
-//                "編輯",
-//            ],
-//            [
-//                "cms.income_statement.delete",
-//                "刪除",
-//            ],
+            //                "cms.income_statement.edit",
+            //                "編輯",
+            //            ],
+            //            [
+            //                "cms.income_statement.delete",
+            //                "刪除",
+            //            ],
         ],
     ],
     [
@@ -553,7 +555,7 @@ return [
             [
                 "cms.consignment_stock.index",
                 "瀏覽",
-            ]
+            ],
         ],
     ],
     [
@@ -700,24 +702,80 @@ return [
             ],
             [
                 "cms.order.change_bonus_owner",
-                "變更推薦業務員"
+                "變更推薦業務員",
             ],
             [
                 "cms.order.detail",
-                "訂單明細"
+                "訂單明細",
             ],
             [
                 "cms.order.manual-send-bonus",
-                "手動發送紅利"
+                "手動發送紅利",
             ],
             [
                 "cms.order.bonus-gross",
-                "獎金毛利"
+                "獎金毛利",
             ],
             [
                 "cms.order.edit-item",
-                "編輯訂單"
-            ]
+                "編輯訂單",
+            ],
+        ],
+    ],
+
+    [
+        "unit" => "組合包組裝",
+        "permissions" => [
+            [
+                "cms.combo-purchase.index",
+                "瀏覽",
+            ],
+            [
+                "cms.combo-purchase.edit",
+                "編輯",
+            ],
+        ],
+    ],
+    [
+        "unit" => "優惠劵/代碼",
+        "permissions" => [
+            [
+                "cms.promo.index",
+                "瀏覽",
+            ],
+            [
+                "cms.promo.create",
+                "新增",
+            ],
+            [
+                "cms.promo.edit",
+                "編輯",
+            ],
+            [
+                "cms.promo.delete",
+                "刪除",
+            ],
+        ],
+    ],
+    [
+        "unit" => "全館優惠",
+        "permissions" => [
+            [
+                "cms.discount.index",
+                "瀏覽",
+            ],
+            [
+                "cms.discount.create",
+                "新增",
+            ],
+            [
+                "cms.discount.edit",
+                "編輯",
+            ],
+            [
+                "cms.discount.delete",
+                "刪除",
+            ],
         ],
     ],
 ];

@@ -17,6 +17,7 @@ use App\Enums\Payable\ChequeStatus;
 use App\Models\AllGrade;
 use App\Models\AccountPayable;
 use App\Models\Customer;
+use App\Models\DayEnd;
 use App\Models\Depot;
 use App\Models\Order;
 use App\Models\PayableAccount;
@@ -276,9 +277,11 @@ class AccountsPayableCtrl extends Controller
         $payable_data = PayingOrder::get_payable_detail($id);
         if (count($payable_data) > 0 && $paying_order->price == $payable_data->sum('tw_price')) {
             $paying_order->update([
-                'balance_date'=>date('Y-m-d H:i:s'),
+                'balance_date' => date('Y-m-d H:i:s'),
                 'payment_date' => $data['payment_date'],
             ]);
+
+            DayEnd::match_day_end_status($data['payment_date'], $paying_order->sn);
         }
 
         if (PayingOrder::find($paying_order->id) && PayingOrder::find($paying_order->id)->balance_date) {
@@ -339,7 +342,7 @@ class AccountsPayableCtrl extends Controller
         asort($accountant);
 
         $view = 'cms.account_management.accounts_payable.po_show';
-        if (request('method') == 'print') {
+        if (request('action') == 'print') {
             $view = 'doc.print_accounts_payable_delivery_pay';
         }
 

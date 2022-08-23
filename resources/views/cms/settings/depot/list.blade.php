@@ -44,7 +44,7 @@
                         <th scope="row">{{ $key + 1 }}</th>
                         <td>{{ $data->name }}</td>
                         <td class="text-center">
-                            @can('cms.depot.product-index')
+                            @can('cms.depot.edit')
                             <a href="{{ Route('cms.depot.product-index', ['id' => $data->id], true) }}" data-bs-toggle="tooltip" title="寄倉選品" class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                 <i class="bi bi-inboxes"></i>
                             </a>

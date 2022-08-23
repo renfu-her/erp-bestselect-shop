@@ -339,6 +339,9 @@ class ProductStyle extends Model
             'price' => 'sp.price',
             'bonus' => 'sp.bonus',
             'style_id' => 'style.id',
+            'dealer_price' => 'sp.dealer_price',
+            'dividend' => 'sp.dividend',
+            'origin_price' => 'sp.origin_price',
         ]);
 
         $sub = DB::table('prd_salechannel_style_price as sp')
@@ -346,7 +349,8 @@ class ProductStyle extends Model
             ->leftJoin('prd_product_styles as style', 'sp.style_id', '=', 'style.id')
             ->select('sp.style_id')
             ->selectRaw(('(' . $column . ') as prices'))
-            ->groupBy('sp.style_id');
+            ->groupBy('sp.style_id')
+            ->where('style.product_id', $product_id);
 
         if ($salechannel && is_array($salechannel)) {
             $sub->whereIn('sp.sale_channel_id', $salechannel);

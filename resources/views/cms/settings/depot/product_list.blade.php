@@ -27,13 +27,13 @@
     <div class="card shadow p-4 mb-4">
         <div class="row justify-content-end mb-4">
             <div class="col">
-                @can('cms.depot.product-create')
+                @can('cms.depot.edit')
                 <a href="{{ Route('cms.depot.product-create', ['id' => $depot->id], true) }}" class="btn btn-success" role="button">
                     <i class="bi bi-inboxes-fill"></i> 選品
                 </a>
                 @endcan
 
-                @can('cms.depot.product-edit')
+                @can('cms.depot.edit')
                 <a href="{{ Route('cms.depot.product-edit', ['id' => $depot->id], true) }}" class="btn btn-primary" role="button">
                     <i class="bi bi-pencil-square"></i> 修改
                 </a>

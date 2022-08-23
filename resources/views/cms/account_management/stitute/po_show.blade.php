@@ -6,7 +6,7 @@
         <i class="bi bi-arrow-left"></i> 返回上一頁
     </a>
 
-    <a href="{{ url()->full() . '?method=print' }}" target="_blank" class="btn btn-danger" rel="noopener noreferrer">中一刀列印畫面</a>
+    <a href="{{ url()->full() . '?action=print' }}" target="_blank" class="btn btn-danger" rel="noopener noreferrer">中一刀列印畫面</a>
     <button type="submit" class="btn btn-danger">A4列印畫面</button>
     <button type="submit" class="btn btn-danger">圖片管理</button>
     <br>

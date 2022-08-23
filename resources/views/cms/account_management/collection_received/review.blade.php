@@ -80,7 +80,7 @@
                                                     <div class="col-12 mb-1">
                                                         {{ $d_key + 1 . '. ' . $d_value->method_name }}
                                                         <input type="hidden" name="credit_card[{{ $received_id }}][received_id]" value="{{ $d_value->received_info->received_id }}">
-                                                        <input type="hidden" name="received_method" value="credit_card">
+                                                        <input type="hidden" name="received_method[]" value="credit_card">
                                                         <input type="hidden" name="credit_card[{{ $received_id }}][received_method_id]" value="{{ $d_value->received_info->received_method_id }}">
                                                     </div>
                                                     <div class="col-12 mb-1">

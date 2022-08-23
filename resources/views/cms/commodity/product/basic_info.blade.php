@@ -89,7 +89,7 @@
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">商品歸類 <span class="text-danger">*</span></label>
-                    <select class="form-select @error('category_id') is-invalid @enderror" required aria-label="Select"
+                    <select class="form-select -select2 -single @error('category_id') is-invalid @enderror" required aria-label="Select"
                         name="category_id">
                         <option value="" disabled selected>請選擇商品歸類</option>
                         @foreach ($categorys as $key => $category)
@@ -105,7 +105,7 @@
 
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">負責人員 <span class="text-danger">*</span></label>
-                    <select class="form-select @error('user_id') is-invalid @enderror" required aria-label="Select"
+                    <select class="form-select -select2 -single @error('user_id') is-invalid @enderror" required aria-label="Select"
                         name="user_id">
                         <option value="" disabled selected>請選擇負責人員</option>
                         @foreach ($users as $key => $user)

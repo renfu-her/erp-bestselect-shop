@@ -14,7 +14,7 @@
     @endif
     <a href="{{ route('cms.request.ro-taxation', ['id' => $received_order->source_id]) }}" class="btn btn-outline-success px-4" role="button">修改摘要/稅別</a>
 
-    <a href="{{ url()->full() . '?method=print' }}" target="_blank" class="btn btn-danger" rel="noopener noreferrer">中一刀列印畫面</a>
+    <a href="{{ url()->full() . '?action=print' }}" target="_blank" class="btn btn-danger" rel="noopener noreferrer">中一刀列印畫面</a>
     {{--
     <button type="submit" class="btn btn-danger">A4列印畫面</button>
     <button type="submit" class="btn btn-danger">修改記錄</button>
