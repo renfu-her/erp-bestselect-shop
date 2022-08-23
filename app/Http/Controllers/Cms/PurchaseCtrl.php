@@ -9,6 +9,7 @@ use App\Enums\Payable\ChequeStatus;
 use App\Http\Controllers\Controller;
 
 use App\Models\AllGrade;
+use App\Models\DayEnd;
 use App\Models\Depot;
 use App\Models\PayingOrder;
 use App\Models\Purchase;
@@ -702,7 +703,7 @@ class PurchaseCtrl extends Controller
         }
 
         $view = 'cms.commodity.purchase.pay_order';
-        if (request('method') == 'print') {
+        if (request('action') == 'print') {
             $view = 'doc.print_purchase_order_pay';
         }
 
@@ -774,9 +775,11 @@ class PurchaseCtrl extends Controller
             $pay_list = AccountPayable::where('pay_order_id', request('pay_order_id'))->get();
             if (count($pay_list) > 0 && $paying_order->price == $pay_list->sum('tw_price')) {
                 $paying_order->update([
-                    'balance_date'=>date('Y-m-d H:i:s'),
+                    'balance_date' => date('Y-m-d H:i:s'),
                     'payment_date' => $req['payment_date'],
                 ]);
+
+                DayEnd::match_day_end_status($req['payment_date'], $paying_order->sn);
             }
 
             if (PayingOrder::find(request('pay_order_id')) && PayingOrder::find(request('pay_order_id'))->balance_date) {

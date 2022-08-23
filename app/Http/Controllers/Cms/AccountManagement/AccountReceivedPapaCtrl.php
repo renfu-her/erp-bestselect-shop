@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\AllGrade;
 use App\Models\CrdCreditCard;
 use App\Models\Customer;
+use App\Models\DayEnd;
 use App\Models\GeneralLedger;
 use App\Models\IncomeOrder;
 use App\Models\OrderPayCreditCard;
@@ -602,7 +603,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
         $zh_price = num_to_str($received_order_collection->first()->price);
 
         $view = $this->getViewReceipt();
-        if (request('method') == 'print') {
+        if (request('action') == 'print') {
             // 列印－收款單
             $view = 'doc.print_received';
         }
@@ -696,6 +697,8 @@ abstract class AccountReceivedPapaCtrl extends Controller
 	                }
 	            }
 
+                DayEnd::match_day_end_status(request('receipt_date'), $received_order->sn);
+
                 DB::commit();
                 wToast(__('入帳日期更新成功'));
 
@@ -719,11 +722,14 @@ abstract class AccountReceivedPapaCtrl extends Controller
                 }
 
                 $received_order->update([
-                    'accountant_id'=>null,
-                    'receipt_date'=>null,
+                    'accountant_id' => null,
+                    'receipt_date' => null,
                 ]);
 
                 $this->doReviewWhenReceiptCancle($id);
+
+                DayEnd::match_day_end_status($received_order->receipt_date, $received_order->sn);
+
                 wToast(__('入帳日期已取消'));
                 return redirect()->route($this->getRouteReceipt(), ['id'=>request('id')]);
 

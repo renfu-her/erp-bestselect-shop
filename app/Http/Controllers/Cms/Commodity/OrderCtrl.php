@@ -17,6 +17,7 @@ use App\Models\AllGrade;
 use App\Models\Customer;
 use App\Models\CustomerDividend;
 use App\Models\CustomerProfit;
+use App\Models\DayEnd;
 use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\Discount;
@@ -708,7 +709,7 @@ class OrderCtrl extends Controller
 
         $zh_price = num_to_str($paying_order->price);
         $view = 'cms.commodity.order.logistic_po';
-        if (request('method') == 'print') {
+        if (request('action') == 'print') {
             $view = 'doc.print_order_logistic_pay';
         }
 
@@ -797,6 +798,8 @@ class OrderCtrl extends Controller
                     'balance_date' => date('Y-m-d H:i:s'),
                     'payment_date' => $req['payment_date'],
                 ]);
+
+                DayEnd::match_day_end_status($req['payment_date'], $paying_order->sn);
             }
 
             if (PayingOrder::find($paying_order->id) && PayingOrder::find($paying_order->id)->balance_date) {
@@ -961,7 +964,7 @@ class OrderCtrl extends Controller
         $zh_price = num_to_str($paying_order->price);
 
         $view = 'cms.commodity.order.return_pay_order';
-        if (request('method') == 'print') {
+        if (request('action') == 'print') {
             $view = 'doc.print_order_return_order_pay';
         }
 
@@ -1053,6 +1056,8 @@ class OrderCtrl extends Controller
                     'balance_date' => date('Y-m-d H:i:s'),
                     'payment_date' => $req['payment_date'],
                 ]);
+
+                DayEnd::match_day_end_status($req['payment_date'], $paying_order->sn);
             }
 
             if (PayingOrder::find($paying_order->id) && PayingOrder::find($paying_order->id)->balance_date) {
