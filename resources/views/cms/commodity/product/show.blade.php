@@ -154,7 +154,7 @@
             <div id="collapse5" class="accordion-collapse collapse show">
                 <div class="accordion-body">
                     @if (isset($shipment))
-                        {{ $shipment->note }}
+                        {!! $shipment->note !!}
                     @endif
                 </div>
             </div>
