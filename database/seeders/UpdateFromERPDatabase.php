@@ -111,12 +111,8 @@ class UpdateFromERPDatabase extends Seeder
                 ];
                 $notFoundInCyberbiz = false;
                 for ($x = 0; $x < count($productStyleSkus); $x++) {
-                    if (($dataArray[$productStyleSkus[$x]]['WebShow'] === '1') &&
-                        ($dataArray[$productStyleSkus[$x]]['SaleFlag'] === '1')
-                    ) {
-                        if (in_array($productStyleSkus[$x], $notInCyberbizSkus)) {
-                            $notFoundInCyberbiz = true;
-                        }
+                    if (in_array($productStyleSkus[$x], $notInCyberbizSkus)) {
+                        $notFoundInCyberbiz = true;
                     }
                 }
                 $public = intval($dataArray[$productStyleSkus[0]]['SaleFlag']);
@@ -128,7 +124,7 @@ class UpdateFromERPDatabase extends Seeder
                     $offline = 0;
                 }
                 //end of 商品資訊和介紹抓CB的若CB沒有就空白而線上和線下就全否
-
+                print_r('產品：' . $productTitle . PHP_EOL);
                 $re = Product::createProduct(
                     $productTitle,
                     $userId,
@@ -192,15 +188,19 @@ class UpdateFromERPDatabase extends Seeder
                                     ->first()
                                     ->id;
 
-                    if ($dataArray[$productStyleSkus[$key]]['PriceWeb'] === 0) {
+                    if ($dataArray[$productStyleSkus[$key]]['PriceWeb'] === 0 &&
+                        $dataArray[$productStyleSkus[$key]]['PriceSell'] === 0
+                    ) {
                         $originPrice = 100000;
+                        $price = 100000;
+                    } else if ($dataArray[$productStyleSkus[$key]]['PriceWeb'] === 0) {
+                        $originPrice = $dataArray[$productStyleSkus[$key]]['PriceSell'];
+                        $price = $dataArray[$productStyleSkus[$key]]['PriceSell'];
+                    } else if ($dataArray[$productStyleSkus[$key]]['PriceSell'] === 0) {
+                        $originPrice = $dataArray[$productStyleSkus[$key]]['PriceWeb'];
+                        $price = $dataArray[$productStyleSkus[$key]]['PriceWeb'];
                     } else {
                         $originPrice = $dataArray[$productStyleSkus[$key]]['PriceWeb'];
-                    }
-
-                    if ($dataArray[$productStyleSkus[$key]]['PriceSell'] === 0) {
-                        $price = $originPrice;
-                    } else {
                         $price = $dataArray[$productStyleSkus[$key]]['PriceSell'];
                     }
 
