@@ -97,6 +97,7 @@ return [
                 "cms.depot.delete",
                 "刪除",
             ],
+            /*
             [
                 "cms.depot.product-index",
                 "寄倉選品瀏覽",
@@ -113,6 +114,7 @@ return [
                 "cms.depot.product-delete",
                 "寄倉選品刪除",
             ],
+            */
         ],
     ],
     [
