@@ -52,9 +52,11 @@ class PageAuthSeeder extends Seeder
                 foreach ($val_del['permissions'] as $per) {
                     $permission = Permission::where('guard_name', '=', $guard)->where('name', '=', $per[0])->where('group_id', '=', $group->id);
                     $permission_get = $permission->first();
-                    $permission->delete();
-                    DB::table('per_role_has_permissions')->where('permission_id', '=', $permission_get->id)->delete();
-                    DB::table('per_model_has_permissions')->where('permission_id', '=', $permission_get->id)->delete();
+                    if (isset($permission_get)) {
+                        $permission->delete();
+                        DB::table('per_role_has_permissions')->where('permission_id', '=', $permission_get->id)->delete();
+                        DB::table('per_model_has_permissions')->where('permission_id', '=', $permission_get->id)->delete();
+                    }
                 }
             }
         }
