@@ -35,16 +35,14 @@ class ImportNewProcutFromExcelSeeder extends Seeder
         上傳圖檔
         */
 
-        if (App::environment(AppEnvClass::Release)) {
+        if (App::environment([AppEnvClass::Release,
+                            AppEnvClass::Development,
+                            AppEnvClass::Local,
+        ])) {
             $userId = 1;
             $categoryId = 1;
             $supplierId = 1;
             $devStyleSku = '';
-        } else {
-            $userId = 9;
-            $categoryId = 3;
-            $supplierId = 2;
-            $devStyleSku = '-test-' . strval(time());
         }
 
         $allJsonFile = preg_grep("~\.(json)$~",
