@@ -746,4 +746,25 @@ return [
             ],
         ],
     ],
+    [
+        "unit" => "全館優惠",
+        "permissions" => [
+            [
+                "cms.discount.index",
+                "瀏覽",
+            ],
+            [
+                "cms.discount.create",
+                "新增",
+            ],
+            [
+                "cms.discount.edit",
+                "編輯",
+            ],
+            [
+                "cms.discount.delete",
+                "刪除",
+            ],
+        ],
+    ],
 ];
