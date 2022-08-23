@@ -711,4 +711,18 @@ return [
             ]
         ],
     ],
+
+    [
+        "unit" => "組合包組裝",
+        "permissions" => [
+            [
+                "cms.combo-purchase.index",
+                "瀏覽",
+            ],
+            [
+                "cms.combo-purchase.edit",
+                "編輯",
+            ],
+        ]
+    ]
 ];

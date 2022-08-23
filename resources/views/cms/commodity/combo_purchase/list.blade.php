@@ -30,7 +30,8 @@
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
                     @foreach (config('global.dataPerPage') as $value)
-                        <option value="{{ $value }}" @if ($data_per_page == $value) selected @endif>{{ $value }}</option>
+                        <option value="{{ $value }}" @if ($data_per_page == $value) selected @endif>
+                            {{ $value }}</option>
                     @endforeach
                 </select>
                 筆
@@ -52,15 +53,17 @@
                     @foreach ($dataList as $key => $data)
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
-                            <td>【{{ $data->product_title}}】{{ $data->spec }}</td>
+                            <td>【{{ $data->product_title }}】{{ $data->spec }}</td>
                             <td>{{ $data->sku }}</td>
                             <td>{{ $data->in_stock }}</td>
                             <td class="text-center">
-                                <a type="button" data-bs-toggle="tooltip" title="組裝/拆包"
-                                    href="{{ Route('cms.combo-purchase.edit', ['id' => $data->id], true) }}"
-                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0 p-0">
-                                    <i class="bi bi-plus-slash-minus"></i>
-                                </a>
+                                @can('cms.combo-purchase.edit')
+                                    <a type="button" data-bs-toggle="tooltip" title="組裝/拆包"
+                                        href="{{ Route('cms.combo-purchase.edit', ['id' => $data->id], true) }}"
+                                        class="icon icon-btn fs-5 text-primary rounded-circle border-0 p-0">
+                                        <i class="bi bi-plus-slash-minus"></i>
+                                    </a>
+                                @endcan
                             </td>
                         </tr>
                     @endforeach
@@ -70,7 +73,7 @@
     </div>
     <div class="row flex-column-reverse flex-sm-row">
         <div class="col d-flex justify-content-end align-items-center mb-3 mb-sm-0">
-            @if($dataList)
+            @if ($dataList)
                 <div class="mx-3">共 {{ $dataList->lastPage() }} 頁(共找到 {{ $dataList->total() }} 筆資料)</div>
                 {{-- 頁碼 --}}
                 <div class="d-flex justify-content-center">{{ $dataList->links() }}</div>
