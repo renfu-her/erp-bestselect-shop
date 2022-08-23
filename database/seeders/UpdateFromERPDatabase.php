@@ -128,7 +128,7 @@ class UpdateFromERPDatabase extends Seeder
                     $offline = 0;
                 }
                 //end of 商品資訊和介紹抓CB的若CB沒有就空白而線上和線下就全否
-
+                print_r('產品：' . $productTitle . PHP_EOL);
                 $re = Product::createProduct(
                     $productTitle,
                     $userId,
