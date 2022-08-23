@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\PermissionGroup;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Permission;
 
 class PageAuthSeeder extends Seeder
@@ -38,6 +39,24 @@ class PageAuthSeeder extends Seeder
 
             }
         }
+        $this->delPermission($guard);
+    }
 
+    //刪除原本已加入 但後面欲刪除的權限 一併刪除對應角色和人員的欲刪除權限
+    private function delPermission($guard) {
+        $permission_to_del = include 'pageAuthsToDel.php';
+        foreach ($permission_to_del as $val_del) {
+            $group = PermissionGroup::where('title', $val_del['unit'])
+                ->where('guard_name', $guard)->get()->first();
+            if (isset($group)) {
+                foreach ($val_del['permissions'] as $per) {
+                    $permission = Permission::where('guard_name', '=', $guard)->where('name', '=', $per[0])->where('group_id', '=', $group->id);
+                    $permission_get = $permission->first();
+                    $permission->delete();
+                    DB::table('per_role_has_permissions')->where('permission_id', '=', $permission_get->id)->delete();
+                    DB::table('per_model_has_permissions')->where('permission_id', '=', $permission_get->id)->delete();
+                }
+            }
+        }
     }
 }
