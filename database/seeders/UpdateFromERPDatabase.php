@@ -111,12 +111,8 @@ class UpdateFromERPDatabase extends Seeder
                 ];
                 $notFoundInCyberbiz = false;
                 for ($x = 0; $x < count($productStyleSkus); $x++) {
-                    if (($dataArray[$productStyleSkus[$x]]['WebShow'] === '1') &&
-                        ($dataArray[$productStyleSkus[$x]]['SaleFlag'] === '1')
-                    ) {
-                        if (in_array($productStyleSkus[$x], $notInCyberbizSkus)) {
-                            $notFoundInCyberbiz = true;
-                        }
+                    if (in_array($productStyleSkus[$x], $notInCyberbizSkus)) {
+                        $notFoundInCyberbiz = true;
                     }
                 }
                 $public = intval($dataArray[$productStyleSkus[0]]['SaleFlag']);
