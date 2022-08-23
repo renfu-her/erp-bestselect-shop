@@ -135,15 +135,19 @@
                             <td class="text-center">
                                 <div class="form-check form-switch form-switch-lg mb-0 mt-1">
                                     <input class="form-check-input active-switch" data-id="{{ $data->id }}"
-                                        type="checkbox" @if ($data->active == '1') checked @endif name="">
+                                        type="checkbox" @if ($data->active == '1') checked @endif name=""
+                                        @cannot('cms.promo.edit') disabled @endcannot>
                                 </div>
+
                             </td>
                             <td>
-                                <a href="{{ Route('cms.promo.edit', ['id' => $data->id], true) }}"
-                                    data-bs-toggle="tooltip" title="編輯"
-                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                    <i class="bi bi-pencil-square"></i>
-                                </a>
+                                @can('cms.promo.edit')
+                                    <a href="{{ Route('cms.promo.edit', ['id' => $data->id], true) }}"
+                                        data-bs-toggle="tooltip" title="編輯"
+                                        class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                @endcan
                             </td>
                             <td>{{ $data->title }}</td>
                             <td>{{ $data->category_title }}</td>
@@ -158,8 +162,8 @@
                             </td>
                             <td>${{ number_format($data->min_consume) }}</td>
                             <td data-td="status" @class([
-                                'text-success' => $data->status === '進行中', 
-                                'text-danger' => $data->status === '結束' || $data->status === '暫停'
+                                'text-success' => $data->status === '進行中',
+                                'text-danger' => $data->status === '結束' || $data->status === '暫停',
                             ])>
                                 {{ $data->status }}
                             </td>
@@ -173,12 +177,14 @@
                             <td>{{ date('Y/m/d', strtotime($data->end_date)) }}</td>
                             <td>{{ $data->max_usage ? number_format($data->max_usage - $data->usage_count) : '不限' }}</td>
                             <td>
-                                <a href="javascript:void(0)"
-                                    data-href="{{ Route('cms.promo.delete', ['id' => $data->id], true) }}"
-                                    data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                                    class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
-                                    <i class="bi bi-trash"></i>
-                                </a>
+                                @can('cms.promo.delete')
+                                    <a href="javascript:void(0)"
+                                        data-href="{{ Route('cms.promo.delete', ['id' => $data->id], true) }}"
+                                        data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                @endcan
                             </td>
                         </tr>
                     @endforeach
@@ -272,11 +278,15 @@
                         if (active) {
                             toast.show('活動已啟用');
                         } else {
-                            toast.show('活動已暫停', { type: 'warning' });
+                            toast.show('活動已暫停', {
+                                type: 'warning'
+                            });
                         }
                     }).catch((err) => {
                         console.error(err);
-                        toast.show('發生錯誤', { type: 'danger' });
+                        toast.show('發生錯誤', {
+                            type: 'danger'
+                        });
                     });
 
             })
