@@ -1,13 +1,6 @@
 @extends('layouts.main')
-
 @section('sub-content')
     <h2 class="mb-4">代墊單查詢</h2>
-
-    <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
-        <div class="p-1 pe-2">
-            <a href="{{ Route('cms.stitute.create') }}" class="btn btn-primary btn-sm my-1 ms-1" role="button">新增代墊單</a>
-        </div>
-    </nav>
 
     <form id="search" method="GET">
         <div class="card shadow p-4 mb-4">
@@ -36,8 +29,10 @@
                 <div class="col-12 mb-3">
                     <label class="form-label">代墊金額</label>
                     <div class="input-group has-validation">
-                        <input type="number" step="1" min="0" class="form-control @error('stitute_min_price') is-invalid @enderror" name="stitute_min_price" value="{{ $cond['stitute_min_price'] }}" aria-label="代墊起始金額">
-                        <input type="number" step="1" min="0" class="form-control @error('stitute_max_price') is-invalid @enderror" name="stitute_max_price" value="{{ $cond['stitute_max_price'] }}" aria-label="代墊結束金額">
+                        <input type="number" step="1" min="0" class="form-control @error('stitute_min_price') is-invalid @enderror" 
+                        name="stitute_min_price" value="{{ $cond['stitute_min_price'] }}" placeholder="起始金額" aria-label="代墊起始金額">
+                        <input type="number" step="1" min="0" class="form-control @error('stitute_max_price') is-invalid @enderror" 
+                        name="stitute_max_price" value="{{ $cond['stitute_max_price'] }}" placeholder="結束金額" aria-label="代墊結束金額">
                         <div class="invalid-feedback">
                             @error('stitute_min_price')
                                 {{ $message }}
@@ -70,7 +65,7 @@
                     </div>
                 </div>
 
-                <fieldset class="col-12 col-sm-4 mb-3">
+                <fieldset class="col-12 mb-3">
                     <legend class="col-form-label p-0 mb-2">代墊狀態</legend>
                     <div class="px-1 pt-1">
                         @foreach ($check_payment_status as $key => $value)
@@ -94,6 +89,11 @@
 
     <div class="card shadow p-4 mb-4">
         <div class="row justify-content-end mb-4">
+            <div class="col">
+                <a href="{{ Route('cms.stitute.create') }}" class="btn btn-primary" role="button">
+                    <i class="bi bi-plus-lg"></i> 新增代墊單
+                </a>
+            </div>
             <div class="col-auto">
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
@@ -108,15 +108,15 @@
 
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
-                <thead>
+                <thead class="small">
                     <tr>
-                        <th scope="col">編號</th>
+                        <th scope="col">#</th>
                         <th scope="col">代墊單號</th>
                         <th scope="col">付款單號</th>
                         <th scope="col">代墊對象</th>
                         <th scope="col">科目</th>
                         <th scope="col">摘要</th>
-                        <th scope="col">代墊金額</th>
+                        <th scope="col" class="text-end">代墊金額</th>
                         <th scope="col">業務員</th>
                         <th scope="col">部門</th>
                     </tr>
@@ -130,7 +130,7 @@
                             <td>{{ $data->so_client_name }}</td>
                             <td>{{ $data->grade_code . ' ' . $data->grade_name }}</td>
                             <td>{{ $data->so_summary }}</td>
-                            <td>{{ number_format($data->so_total_price) }}</td>
+                            <td class="text-end">${{ number_format($data->so_total_price) }}</td>
                             <td>{{ $data->creator_name }}</td>
                             <td></td>
                         </tr>

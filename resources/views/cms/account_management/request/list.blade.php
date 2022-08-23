@@ -1,13 +1,6 @@
 @extends('layouts.main')
-
 @section('sub-content')
     <h2 class="mb-4">請款單查詢</h2>
-
-    <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
-        <div class="p-1 pe-2">
-            <a href="{{ Route('cms.request.create') }}" class="btn btn-primary btn-sm my-1 ms-1" role="button">新增請款單</a>
-        </div>
-    </nav>
 
     <form id="search" method="GET">
         <div class="card shadow p-4 mb-4">
@@ -36,8 +29,10 @@
                 <div class="col-12 mb-3">
                     <label class="form-label">請款金額</label>
                     <div class="input-group has-validation">
-                        <input type="number" step="1" min="0" class="form-control @error('request_min_price') is-invalid @enderror" name="request_min_price" value="{{ $cond['request_min_price'] }}" aria-label="請款起始金額">
-                        <input type="number" step="1" min="0" class="form-control @error('request_max_price') is-invalid @enderror" name="request_max_price" value="{{ $cond['request_max_price'] }}" aria-label="請款結束金額">
+                        <input type="number" step="1" min="0" class="form-control @error('request_min_price') is-invalid @enderror" 
+                        name="request_min_price" value="{{ $cond['request_min_price'] }}" placeholder="起始金額" aria-label="請款起始金額">
+                        <input type="number" step="1" min="0" class="form-control @error('request_max_price') is-invalid @enderror" 
+                        name="request_max_price" value="{{ $cond['request_max_price'] }}" placeholder="結束金額" aria-label="請款結束金額">
                         <div class="invalid-feedback">
                             @error('request_min_price')
                                 {{ $message }}
@@ -70,7 +65,7 @@
                     </div>
                 </div>
 
-                <fieldset class="col-12 col-sm-4 mb-3">
+                <fieldset class="col-12 mb-3">
                     <legend class="col-form-label p-0 mb-2">請款狀態</legend>
                     <div class="px-1 pt-1">
                         @foreach ($check_posting_status as $key => $value)
@@ -94,6 +89,11 @@
 
     <div class="card shadow p-4 mb-4">
         <div class="row justify-content-end mb-4">
+            <div class="col">
+                <a href="{{ Route('cms.request.create') }}" class="btn btn-primary" role="button">
+                    <i class="bi bi-plus-lg"></i> 新增請款單
+                </a>
+            </div>
             <div class="col-auto">
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
@@ -108,15 +108,15 @@
 
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
-                <thead>
+                <thead class="small">
                     <tr>
-                        <th scope="col">編號</th>
+                        <th scope="col">#</th>
                         <th scope="col">請款單號</th>
                         <th scope="col">收款單號</th>
                         <th scope="col">請款對象</th>
                         <th scope="col">科目</th>
                         <th scope="col">摘要</th>
-                        <th scope="col">收款金額</th>
+                        <th scope="col" class="text-end">收款金額</th>
                         <th scope="col">業務員</th>
                         <th scope="col">部門</th>
                     </tr>
@@ -130,7 +130,7 @@
                             <td>{{ $data->request_o_client_name }}</td>
                             <td>{{ $data->grade_code . ' ' . $data->grade_name }}</td>
                             <td>{{ $data->request_o_summary }}</td>
-                            <td>{{ number_format($data->request_o_total_price) }}</td>
+                            <td class="text-end">${{ number_format($data->request_o_total_price) }}</td>
                             <td>{{ $data->creator_name }}</td>
                             <td></td>
                         </tr>

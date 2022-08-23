@@ -1,10 +1,6 @@
 @extends('layouts.main')
-
 @section('sub-content')
-    <h2 class="mb-3">收款單</h2>
-    <a href="{{ route('cms.account_received.index') }}" class="btn btn-primary" role="button">
-        <i class="bi bi-arrow-left"></i> 返回上一頁
-    </a>
+    <h2 class="mb-4">收款單</h2>
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
@@ -173,6 +169,11 @@
                 </div>
             </dl>
         </div>
+    </div>
+    
+    <div class="col-auto">
+        <a href="{{ route('cms.account_received.index') }}" class="btn btn-primary" 
+            role="button">返回上一頁</a>
     </div>
 @endsection
 

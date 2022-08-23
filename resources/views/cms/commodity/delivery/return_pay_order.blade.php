@@ -1,7 +1,6 @@
 @extends('layouts.main')
-
 @section('sub-content')
-    <h2 class="mb-3">退貨付款單</h2>
+    <h2 class="mb-4">退貨付款單</h2>
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
@@ -180,6 +179,5 @@
 
 @once
     @push('sub-scripts')
-
     @endpush
 @endonce
