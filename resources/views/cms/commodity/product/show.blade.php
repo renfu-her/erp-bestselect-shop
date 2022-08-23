@@ -94,10 +94,10 @@
                                         @endif
                                         <td>{{ $price->salechannel_title }}</td>
                                         <td class="text-end">${{ number_format($price->price) }}</td>
-                                        <td class="text-end"></td>
-                                        <td class="text-end"></td>
+                                        <td class="text-end">${{ number_format($price->dealer_price) }}</td>
+                                        <td class="text-end">${{ number_format($price->origin_price) }}</td>
                                         <td class="text-end">${{ number_format($price->bonus) }}</td>
-                                        <td class="text-end"></td>
+                                        <td class="text-end">${{ number_format($price->dividend) }}</td>
                                     </tr>
                                 @endforeach
                             @endforeach
