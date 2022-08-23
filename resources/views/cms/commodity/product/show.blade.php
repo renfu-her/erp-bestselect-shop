@@ -3,11 +3,15 @@
     <div class="d-flex align-items-center mb-1 tableList">
         <h2 class="flex-grow-1 mb-0">{{ $product->title }}</h2>
         <button id="share" type="button" data-bs-toggle="tooltip" title="分享"
-            data-link="{{ 'http://localhost:3000/product/P220621001' }}" data-title="{{ $product->title }}"
+            data-link="{{ frontendUrl() }}product/{{ $product->sku }}" data-title="{{ $product->title }}"
             class="icon icon-btn fs-5 text-dark rounded-circle border border-dark me-1 col-auto">
             <i class="bi bi-share-fill"></i>
         </button>
-        <a href="{{ Route('cms.order.create') }}" data-bs-toggle="tooltip" title="訂購"
+        <a href="{{ frontendUrl() }}product/{{ $product->sku }}" data-bs-toggle="tooltip" title="前往官網商品頁"
+            class="icon icon-btn fs-5 text-primary rounded-circle border border-primary me-1 col-auto" target="_blank">
+            <i class="bi bi-box-arrow-up-right"></i>
+        </a>
+        <a href="{{ Route('cms.order.create') }}" data-bs-toggle="tooltip" title="內網訂購"
             class="icon icon-btn fs-5 text-success rounded-circle border border-success col-auto">
             <i class="bi bi-bag-fill"></i>
         </a>
