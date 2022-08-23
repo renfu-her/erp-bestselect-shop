@@ -1276,13 +1276,13 @@ class Product extends Model
         // spec list
         $fromList = ProductSpecList::where('product_id', $from_id)->get()->toArray();
         ProductSpecList::where('product_id', $product_id)->delete();
-        if (count($fromList) > 0) {
+        if (count($fromList) > 0) {   
             ProductSpecList::insert(array_map(function ($n) use ($product_id) {
                 return [
                     'product_id' => $product_id,
-                    'title' => $n->title,
-                    'content' => $n->content,
-                    'sort' => $n->sort,
+                    'title' => $n['title'],
+                    'content' => $n['content'],
+                    'sort' => $n['sort'],
                 ];
             }, $fromList));
         }
