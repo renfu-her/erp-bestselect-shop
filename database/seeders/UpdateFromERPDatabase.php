@@ -192,15 +192,19 @@ class UpdateFromERPDatabase extends Seeder
                                     ->first()
                                     ->id;
 
-                    if ($dataArray[$productStyleSkus[$key]]['PriceWeb'] === 0) {
+                    if ($dataArray[$productStyleSkus[$key]]['PriceWeb'] === 0 &&
+                        $dataArray[$productStyleSkus[$key]]['PriceSell'] === 0
+                    ) {
                         $originPrice = 100000;
+                        $price = 100000;
+                    } else if ($dataArray[$productStyleSkus[$key]]['PriceWeb'] === 0) {
+                        $originPrice = $dataArray[$productStyleSkus[$key]]['PriceSell'];
+                        $price = $dataArray[$productStyleSkus[$key]]['PriceSell'];
+                    } else if ($dataArray[$productStyleSkus[$key]]['PriceSell'] === 0) {
+                        $originPrice = $dataArray[$productStyleSkus[$key]]['PriceWeb'];
+                        $price = $dataArray[$productStyleSkus[$key]]['PriceWeb'];
                     } else {
                         $originPrice = $dataArray[$productStyleSkus[$key]]['PriceWeb'];
-                    }
-
-                    if ($dataArray[$productStyleSkus[$key]]['PriceSell'] === 0) {
-                        $price = $originPrice;
-                    } else {
                         $price = $dataArray[$productStyleSkus[$key]]['PriceSell'];
                     }
 
