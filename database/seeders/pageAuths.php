@@ -245,7 +245,7 @@ return [
         ],
     ],
     [
-        "unit" => "群組設定",
+        "unit" => "商品群組",
         "permissions" => [
             [
                 "cms.collection.index",
@@ -263,10 +263,12 @@ return [
                 "cms.collection.delete",
                 "刪除",
             ],
+            /*
             [
                 "cms.collection.publish",
                 "公開商品群組",
             ],
+            */
         ],
     ],
     [

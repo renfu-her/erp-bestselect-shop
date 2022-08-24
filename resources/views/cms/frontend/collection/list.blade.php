@@ -37,9 +37,9 @@
                     <tr>
                         <th scope="col" style="width:10%">#</th>
                         <th scope="col">商品群組</th>
-                        @if (auth()->user()->can('cms/collection/publish'))
-                            <th scope="col" class="text-center">公開上架</th>
-                        @endif
+
+                        <th scope="col" class="text-center">公開上架</th>
+
                         <th scope="col" class="text-center">酒類</th>
                         <th scope="col" class="text-center">編輯</th>
                         <th scope="col" class="text-center">刪除</th>
@@ -50,15 +50,16 @@
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td>{{ $data->name }}</td>
-                            @if (auth()->user()->can('cms/collection/publish'))
-                                <td class="text-center">
-                                    <div class="form-check form-switch form-switch-lg">
-                                        <input class="form-check-input" name="is_public[]" value="{{ $data->is_public }}"
-                                            type="checkbox" @if ($data->is_public) checked @endif>
-                                        <input type="hidden" name="id[]" value="{{ $data->id }}">
-                                    </div>
-                                </td>
-                            @endif
+
+                            <td class="text-center">
+                                <div class="form-check form-switch form-switch-lg">
+                                    <input class="form-check-input" name="is_public[]" value="{{ $data->is_public }}"
+                                        type="checkbox" @if ($data->is_public) checked @endif
+                                        @cannot('cms.collection.edit') disabled @endcannot>
+                                    <input type="hidden" name="id[]" value="{{ $data->id }}">
+                                </div>
+                            </td>
+
                             <td class="text-center">
                                 @if ($data->is_liquor == 1)
                                     <i class="bi bi-check-lg text-success fs-5"></i>
@@ -67,19 +68,23 @@
                                 @endif
                             </td>
                             <td class="text-center">
-                                <a href="{{ Route('cms.collection.edit', ['id' => $data->id], true) }}"
-                                    data-bs-toggle="tooltip" title="編輯"
-                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                    <i class="bi bi-pencil-square"></i>
-                                </a>
+                                @can('cms.collection.edit')
+                                    <a href="{{ Route('cms.collection.edit', ['id' => $data->id], true) }}"
+                                        data-bs-toggle="tooltip" title="編輯"
+                                        class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                @endcan
                             </td>
                             <td class="text-center">
-                                <a href="javascript:void(0)"
-                                    data-href="{{ Route('cms.collection.delete', ['id' => $data->id], true) }}"
-                                    data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                                    class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
-                                    <i class="bi bi-trash"></i>
-                                </a>
+                                @can('cms.collection.delete')
+                                    <a href="javascript:void(0)"
+                                        data-href="{{ Route('cms.collection.delete', ['id' => $data->id], true) }}"
+                                        data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                @endcan
                             </td>
                         </tr>
                     @endforeach
@@ -116,7 +121,9 @@
                 </div>
             </div>
             <div class="col">
-                <button type="submit" class="btn btn-primary px-4">儲存</button>
+                @can('cms.collection.edit')
+                    <button type="submit" class="btn btn-primary px-4">儲存</button>
+                @endcan
             </div>
         </div>
     </form>
