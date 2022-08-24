@@ -21,7 +21,7 @@
             echo $product->feature;
         @endphp
     </div>
-    <p class="text-info small">
+    <p class="text-primary small">
         @php
             echo $product->slogan;
         @endphp
