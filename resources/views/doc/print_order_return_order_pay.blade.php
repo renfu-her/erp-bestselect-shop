@@ -26,6 +26,12 @@
             * {
                 font-weight: lighter;
             }
+            a,
+            a:active,
+            a:visited {
+                color: #000000;
+                text-decoration: none;
+            }
             .print {
                 display: none;
             }
