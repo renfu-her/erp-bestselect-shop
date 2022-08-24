@@ -839,4 +839,30 @@ return [
             ],
         ],
     ],
+    [
+        "unit" => "分潤報表",
+        "permissions" => [
+            [
+                "cms.order-bonus.index",
+                "瀏覽",
+            ],
+            [
+                "cms.order-bonus.create",
+                "新增",
+            ],
+            [
+                "cms.order-bonus.delete",
+                "刪除",
+            ],
+            [
+                "cms.order-bonus.detail",
+                "詳細",
+            ],
+            [
+                "cms.order-bonus.export-csv",
+                "輸出csv",
+            ],
+            
+        ],
+    ],
 ];
