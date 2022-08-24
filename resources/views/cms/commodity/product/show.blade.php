@@ -47,9 +47,9 @@
                 <div class="accordion-body pb-0 pe-0" style="overflow-x: auto">
                     <div class="upload_image_block" style="width: max-content">
                         @foreach ($images as $img)
-                            <a href="/{{ $img['url'] }}" target="_blank">
+                            <a href="{{ \App\Enums\Globals\ImageDomain::CDN . $img['url'] }}" target="_blank">
                                 <span class="browser_box rounded-0 border">
-                                    <img src="/{{ $img['url'] }}" alt="{{ '圖片' . $img['id'] }}">
+                                    <img src="{{ \App\Enums\Globals\ImageDomain::CDN . $img['url'] }}" alt="{{ '圖片' . $img['id'] }}">
                                 </span>
                             </a>
                         @endforeach
