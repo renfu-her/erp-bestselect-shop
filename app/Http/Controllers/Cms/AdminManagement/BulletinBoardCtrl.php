@@ -53,6 +53,7 @@ class BulletinBoardCtrl extends Controller
                 'idx_news.weight',
                 'idx_news.expire_time',
                 'usr_users.name as user_name',
+                'usr_users.id as user_id',
             ])
             ->paginate($page)
             ->appends($query);
@@ -146,7 +147,7 @@ class BulletinBoardCtrl extends Controller
      *
      * @return Response
      */
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
         $weights = [];
         foreach (Weight::getValues() as $value) {
@@ -162,9 +163,14 @@ class BulletinBoardCtrl extends Controller
                 'idx_news.weight',
                 'idx_news.expire_time',
                 'usr_users.name as user_name',
+                'usr_users.id as user_id',
             ])
             ->get()
             ->first();
+
+        if ($data->user_id !== $request->user()->id) {
+            return;
+        }
 
         return view('cms.admin_management.bulletin_board.edit', [
             'method' => 'edit',
@@ -218,8 +224,19 @@ class BulletinBoardCtrl extends Controller
      *
      * @return Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
+        $data = BulletinBoard::where('idx_news.id', $id)
+            ->leftJoin('usr_users', 'usr_users.id', '=', 'idx_news.usr_users_id_fk')
+            ->select([
+                'usr_users.id as user_id',
+            ])
+            ->get()
+            ->first();
+        if ($data->user_id !== $request->user()->id) {
+            return;
+        }
+
         BulletinBoard::where('id', $id)->delete();
         wToast('資料刪除完成');
         return redirect(Route('cms.bulletin_board.index'));

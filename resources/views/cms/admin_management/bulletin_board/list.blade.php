@@ -36,11 +36,9 @@
     <div class="card shadow p-4 mb-4">
         <div class="row mb-4">
             <div class="col">
-                @can('cms.bulletin_board.create')
-                    <a href="{{ Route('cms.bulletin_board.create', null, true) }}" class="btn btn-primary">
-                        <i class="bi bi-plus-lg"></i> 新增公佈欄
-                    </a>
-                @endcan
+                <a href="{{ Route('cms.bulletin_board.create', null, true) }}" class="btn btn-primary">
+                    <i class="bi bi-plus-lg"></i> 新增公佈欄
+                </a>
             </div>
             <div class="col-auto">
                 顯示
@@ -82,21 +80,25 @@
                             {{ date('Y/m/d', strtotime($data->expire_time ?? '')) }}
                         </td>
                         <td>{{ $data->user_name }}</td>
-                        <td class="text-center">
-                            <a href="{{ Route('cms.bulletin_board.edit', ['id' => $data->id], true) }}"
-                               data-bs-toggle="tooltip" title="編輯"
-                               class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                        </td>
-                        <td class="text-center">
-                            <a href="javascript:void(0)"
-                               data-href="{{ Route('cms.bulletin_board.delete', ['id' => $data->id], true) }}"
-                               data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                               class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
-                                <i class="bi bi-trash"></i>
-                            </a>
-                        </td>
+                            <td class="text-center">
+                                @if(\Illuminate\Support\Facades\Auth::user()->id === $data->user_id)
+                                    <a href="{{ Route('cms.bulletin_board.edit', ['id' => $data->id], true) }}"
+                                       data-bs-toggle="tooltip" title="編輯"
+                                       class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                @if(\Illuminate\Support\Facades\Auth::user()->id === $data->user_id)
+                                    <a href="javascript:void(0)"
+                                       data-href="{{ Route('cms.bulletin_board.delete', ['id' => $data->id], true) }}"
+                                       data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                                       class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                @endif
+                            </td>
                     </tr>
                 @endforeach
                 </tbody>
