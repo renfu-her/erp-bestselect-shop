@@ -245,7 +245,7 @@ return [
         ],
     ],
     [
-        "unit" => "群組設定",
+        "unit" => "商品群組",
         "permissions" => [
             [
                 "cms.collection.index",
@@ -263,10 +263,12 @@ return [
                 "cms.collection.delete",
                 "刪除",
             ],
+            /*
             [
                 "cms.collection.publish",
                 "公開商品群組",
             ],
+            */
         ],
     ],
     [
@@ -776,6 +778,108 @@ return [
                 "cms.discount.delete",
                 "刪除",
             ],
+        ],
+    ],
+    [
+        "unit" => "團購主公司管理",
+        "permissions" => [
+            [
+                "cms.groupby-company.index",
+                "瀏覽",
+            ],
+            [
+                "cms.groupby-company.create",
+                "新增",
+            ],
+            [
+                "cms.groupby-company.edit",
+                "修改",
+            ],
+        ],
+    ],
+    [
+        "unit" => "選單列表設定",
+        "permissions" => [
+            [
+                "cms.navinode.index",
+                "瀏覽",
+            ],
+            [
+                "cms.navinode.create",
+                "新增",
+            ],
+            [
+                "cms.navinode.edit",
+                "修改",
+            ],
+            [
+                "cms.navinode.delete",
+                "刪除",
+            ],
+        ],
+    ],
+    [
+        "unit" => "自訂頁面管理",
+        "permissions" => [
+            [
+                "cms.custom-pages.index",
+                "瀏覽",
+            ],
+            [
+                "cms.custom-pages.create",
+                "新增",
+            ],
+            [
+                "cms.custom-pages.edit",
+                "修改",
+            ],
+            [
+                "cms.custom-pages.delete",
+                "刪除",
+            ],
+        ],
+    ],
+    [
+        "unit" => "分潤報表",
+        "permissions" => [
+            [
+                "cms.order-bonus.index",
+                "瀏覽",
+            ],
+            [
+                "cms.order-bonus.create",
+                "新增",
+            ],
+            [
+                "cms.order-bonus.delete",
+                "刪除",
+            ],
+            [
+                "cms.order-bonus.detail",
+                "詳細",
+            ],
+            [
+                "cms.order-bonus.export-csv",
+                "輸出csv",
+            ],
+            
+        ],
+    ],
+    [
+        "unit" => "分潤審核管理",
+        "permissions" => [
+            [
+                "cms.customer-profit.index",
+                "瀏覽",
+            ],
+            [
+                "cms.customer-profit.create",
+                "新增",
+            ],      
+            [
+                "cms.customer-profit.edit",
+                "編輯",
+            ],   
         ],
     ],
 ];

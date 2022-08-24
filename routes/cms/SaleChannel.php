@@ -10,7 +10,7 @@ Route::group(['prefix' => 'sale_channel', 'as' => 'sale_channel.'], function () 
     Route::get('edit/{id}', [SaleChannelCtrl::class, 'edit'])->name('edit')->middleware('permission:cms.sale_channel.edit');
     Route::post('edit/{id}', [SaleChannelCtrl::class, 'update']);
     Route::get('delete/{id}', [SaleChannelCtrl::class, 'destroy'])->name('delete')->middleware('permission:cms.sale_channel.delete');
-    Route::get('batch-price/{id}', [SaleChannelCtrl::class, 'batchPrice'])->name('batch-price')->middleware('permission:cms.sale_channel.batch-price');
-    Route::post('update_dividend_setting', [SaleChannelCtrl::class, 'updateDividendSetting'])->name('update-dividend-setting');
+    Route::get('batch-price/{id}', [SaleChannelCtrl::class, 'batchPrice'])->name('batch-price')->middleware('permission:cms.sale_channel.edit');
+    Route::post('update_dividend_setting', [SaleChannelCtrl::class, 'updateDividendSetting'])->name('update-dividend-setting')->middleware('permission:cms.sale_channel.edit');
 
 });

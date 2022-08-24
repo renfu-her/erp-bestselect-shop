@@ -45,32 +45,34 @@
                             </td>
                             <td>{{ $data->discount }}</td>
                             <td class="text-center">
-                                @if ($data->is_master != 1)
-                                    <a href="{{ Route('cms.sale_channel.batch-price', ['id' => $data->id], true) }}"
-                                        data-bs-toggle="tooltip" title="同步價格"
+                                @can('cms.sale_channel.edit')
+                                    @if ($data->is_master != 1)
+                                        <a href="{{ Route('cms.sale_channel.batch-price', ['id' => $data->id], true) }}"
+                                            data-bs-toggle="tooltip" title="同步價格"
+                                            class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                            <i class="bi bi-tag"></i>
+                                        </a>
+                                    @endif
+                                @endcan
+                            </td>
+                            <td class="text-center">
+                                @can('cms.sale_channel.edit')
+                                    <a href="{{ Route('cms.sale_channel.edit', ['id' => $data->id], true) }}"
+                                        data-bs-toggle="tooltip" title="編輯"
                                         class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                        <i class="bi bi-tag"></i>
+                                        <i class="bi bi-pencil-square"></i>
                                     </a>
-                                @endif
+                                @endcan
                             </td>
                             <td class="text-center">
-                                {{-- @can('admin.sale_channel.edit') --}}
-                                <a href="{{ Route('cms.sale_channel.edit', ['id' => $data->id], true) }}"
-                                    data-bs-toggle="tooltip" title="編輯"
-                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                    <i class="bi bi-pencil-square"></i>
-                                </a>
-                                {{-- @endcan --}}
-                            </td>
-                            <td class="text-center">
-                                {{-- @can('admin.sale_channel.delete') --}}
-                                <a href="javascript:void(0)"
-                                    data-href="{{ Route('cms.sale_channel.delete', ['id' => $data->id], true) }}"
-                                    data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                                    class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                                {{-- @endcan --}}
+                                @can('cms.sale_channel.delete')
+                                    <a href="javascript:void(0)"
+                                        data-href="{{ Route('cms.sale_channel.delete', ['id' => $data->id], true) }}"
+                                        data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                @endcan
                             </td>
                         </tr>
                     @endforeach
@@ -78,7 +80,7 @@
             </table>
         </div>
     </div>
-    
+
     <div class="card shadow p-4 mb-4">
         <form action="{{ route('cms.sale_channel.update-dividend-setting') }}" method="post">
             @csrf
@@ -88,7 +90,8 @@
                     <label class="col-form-label">每筆鴻利有效天數：</label>
                 </div>
                 <div class="col-auto">
-                    <input type="number" name="limit_day" value="{{ $dividend_setting->limit_day }}" class="form-control short-input text-center" aria-describedby="鴻利有效天數">
+                    <input type="number" name="limit_day" value="{{ $dividend_setting->limit_day }}"
+                        class="form-control short-input text-center" aria-describedby="鴻利有效天數">
                 </div>
                 <div class="col-auto">
                     <label class="col-form-label">天</label>
@@ -105,7 +108,8 @@
                     </label>
                 </div>
                 <div class="col-auto">
-                    <input type="number" name="auto_active_day" value="{{ $dividend_setting->auto_active_day }}" class="form-control short-input text-center" aria-describedby="自動發放鴻利天數">
+                    <input type="number" name="auto_active_day" value="{{ $dividend_setting->auto_active_day }}"
+                        class="form-control short-input text-center" aria-describedby="自動發放鴻利天數">
                 </div>
                 <div class="col-auto">
                     <label class="col-form-label">天</label>
@@ -116,7 +120,9 @@
             </div>
 
             <div class="col">
-                <button type="submit" class="btn btn-primary px-4">儲存</button>
+                @can('cms.sale_channel.edit')
+                    <button type="submit" class="btn btn-primary px-4">儲存</button>
+                @endcan
             </div>
         </form>
     </div>
