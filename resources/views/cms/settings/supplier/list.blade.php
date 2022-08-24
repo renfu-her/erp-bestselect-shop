@@ -59,8 +59,12 @@
                     <th scope="col">聯絡人</th>
                     <th scope="col">電子郵件</th>
 {{--                    <th scope="col">備註</th>--}}
+                    @can('admin.supplier.edit')
                     <th scope="col" class="text-center">編輯</th>
+                    @endcan
+                    @can('admin.supplier.delete')
                     <th scope="col" class="text-center">刪除</th>
+                    @endcan
                 </tr>
                 </thead>
                 <tbody>
@@ -81,22 +85,22 @@
                         <td>{{ $data->email }}</td>
 {{--                        <td>{{ $data->memo }}</td>--}}
                         <td class="text-center">
-{{--                            @can('admin.supplier.edit')--}}
+                            @can('admin.supplier.edit')
                             <a href="{{ Route('cms.supplier.edit', ['id' => $data->id], true) }}"
                                data-bs-toggle="tooltip" title="編輯"
                                class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
-{{--                            @endcan--}}
+                            @endcan
                         </td>
                         <td class="text-center">
-{{--                            @can('admin.supplier.delete')--}}
+                            @can('admin.supplier.delete')
                             <a href="javascript:void(0)" data-href="{{ Route('cms.supplier.delete', ['id' => $data->id], true) }}"
                                data-bs-toggle="modal" data-bs-target="#confirm-delete"
                                class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
                                 <i class="bi bi-trash"></i>
                             </a>
-{{--                            @endcan--}}
+                            @endcan
                         </td>
                     </tr>
                 @endforeach
