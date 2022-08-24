@@ -538,19 +538,19 @@ return [
         "unit" => "寄倉訂購列表",
         "permissions" => [
             [
-                "cms.consignment_order.index",
+                "cms.consignment-order.index",
                 "瀏覽",
             ],
             [
-                "cms.consignment_order.create",
+                "cms.consignment-order.create",
                 "新增",
             ],
             [
-                "cms.consignment_order.edit",
+                "cms.consignment-order.edit",
                 "修改",
             ],
             [
-                "cms.consignment_order.delete",
+                "cms.consignment-order.delete",
                 "刪除",
             ],
         ],

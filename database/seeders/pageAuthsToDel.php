@@ -32,4 +32,25 @@ return [
             ],
         ],
     ],
+    [
+        "unit" => "寄倉訂購列表",
+        "permissions" => [
+            [
+                "cms.consignment_order.index",
+                "瀏覽",
+            ],
+            [
+                "cms.consignment_order.create",
+                "新增",
+            ],
+            [
+                "cms.consignment_order.edit",
+                "修改",
+            ],
+            [
+                "cms.consignment_order.delete",
+                "刪除",
+            ],
+        ],
+    ],
 ];
