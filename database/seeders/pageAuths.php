@@ -818,4 +818,25 @@ return [
             ],
         ],
     ],
+    [
+        "unit" => "自訂頁面管理",
+        "permissions" => [
+            [
+                "cms.custom-pages.index",
+                "瀏覽",
+            ],
+            [
+                "cms.custom-pages.create",
+                "新增",
+            ],
+            [
+                "cms.custom-pages.edit",
+                "修改",
+            ],
+            [
+                "cms.custom-pages.delete",
+                "刪除",
+            ],
+        ],
+    ],
 ];
