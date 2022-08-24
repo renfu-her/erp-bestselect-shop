@@ -797,4 +797,25 @@ return [
             ],
         ],
     ],
+    [
+        "unit" => "選單列表設定",
+        "permissions" => [
+            [
+                "cms.navinode.index",
+                "瀏覽",
+            ],
+            [
+                "cms.navinode.create",
+                "新增",
+            ],
+            [
+                "cms.navinode.edit",
+                "修改",
+            ],
+            [
+                "cms.navinode.delete",
+                "刪除",
+            ],
+        ],
+    ],
 ];
