@@ -193,7 +193,7 @@ return [
         "unit" => "首頁設定",
         "permissions" => [
             [
-                "cms.homepage.index",
+                "cms.homepage.banner.index",
                 "瀏覽",
             ],
             [

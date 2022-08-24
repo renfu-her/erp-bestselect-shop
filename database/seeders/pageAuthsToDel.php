@@ -14,4 +14,13 @@ return [
             ],
         ],
     ],
+    [
+        "unit" => "首頁設定",
+        "permissions" => [
+            [
+                "cms.homepage.index",
+                "瀏覽",
+            ],
+        ],
+    ],
 ];
