@@ -865,4 +865,21 @@ return [
             
         ],
     ],
+    [
+        "unit" => "分潤審核管理",
+        "permissions" => [
+            [
+                "cms.customer-profit.index",
+                "瀏覽",
+            ],
+            [
+                "cms.customer-profit.create",
+                "新增",
+            ],      
+            [
+                "cms.customer-profit.edit",
+                "編輯",
+            ],   
+        ],
+    ],
 ];
