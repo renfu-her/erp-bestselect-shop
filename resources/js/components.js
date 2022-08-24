@@ -427,4 +427,69 @@
         return arr[0].replace(re, '$1,') + (arr.length > 1 ? '.' + arr[1] : '');
     }
 
+    /* 列印指定區塊 */
+    window.printDiv = function (DivIdToPrint, linkCss = []) {
+        let newWin = window.open('', '_blank');
+        let csses = linkCss.map((css) => (
+            `<link rel="stylesheet" href="${css}">`
+        ));
+        newWin.document.open();
+        newWin.document.write(`
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+                ${csses.join('')}
+                <title>列印視窗</title>
+                <style>
+                    * {
+                        font-family: "Nunito", "Noto Sans TC", sans-serif;
+                        position: relative;
+                    }
+                    .print {
+                        margin-top: 2em;
+                        text-align: center;
+                    }
+                    .print button {
+                        font-size: 1.5rem;
+                        margin: 0 10px;
+                        border-radius: 3px;
+                        border-width: 0.1px;
+                        font-weight: 100;
+                    }
+                    .margin {
+                        margin: 1.5rem;
+                    }
+                    @page {
+                        size: A4 portrait;
+                    }
+                    @media print {
+                        * {
+                            font-weight: lighter;
+                        }
+                        .print {
+                            display:none
+                        }
+                        .margin {
+                            margin: 0;
+                        }
+                    }
+                </style>
+            </head>
+            <body style="margin-top: 0px;">
+                <div style="position: absolute; left: 0; top: 0; width:100%">
+                    <div class="margin">
+                        ${$(DivIdToPrint).html()}
+                        
+                        <div class="print">
+                            <button type="button" onclick="javascript:window.print();">我要列印</button>
+                            <button type="button" onclick="javascript:window.close();">關閉視窗</button>
+                        </div>
+                    </div>
+                </div>
+            </body>
+        </html>
+        `);
+    }
+
 })();
