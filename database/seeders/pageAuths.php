@@ -607,6 +607,27 @@ return [
         ],
     ],
     [
+        "unit" => "消費者帳號管理",
+        "permissions" => [
+            [
+                "cms.customer.index",
+                "瀏覽",
+            ],
+            [
+                "cms.customer.create",
+                "新增",
+            ],
+            [
+                "cms.customer.edit",
+                "編輯",
+            ],
+            [
+                "cms.customer.address",
+                "會員專區",
+            ],
+        ],
+    ],
+    [
         "unit" => "角色管理",
         "permissions" => [
             [
@@ -862,7 +883,7 @@ return [
                 "cms.order-bonus.export-csv",
                 "輸出csv",
             ],
-            
+
         ],
     ],
     [
@@ -875,11 +896,11 @@ return [
             [
                 "cms.customer-profit.create",
                 "新增",
-            ],      
+            ],
             [
                 "cms.customer-profit.edit",
                 "編輯",
-            ],   
+            ],
         ],
     ],
 ];
