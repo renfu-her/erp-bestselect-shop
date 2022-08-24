@@ -691,15 +691,6 @@ return [
         ],
     ],
     [
-        "unit" => "Google數位行銷",
-        "permissions" => [
-            [
-                "cms.google_marketing.index",
-                "瀏覽",
-            ],
-        ],
-    ],
-    [
         "unit" => "物流管理",
         "permissions" => [
             [

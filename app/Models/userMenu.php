@@ -80,11 +80,6 @@ return
                 "controller_name" => "DiscountCtrl",
                 "route_name" => "cms.discount.index",
             ],
-            [
-                "title" => "Google數位行銷",
-                "controller_name" => "GoogleMarketingCtrl",
-                "route_name" => "cms.google_marketing.index",
-            ],
         ],
     ],
     [
