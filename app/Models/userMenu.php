@@ -231,11 +231,11 @@ return
                 "controller_name" => "OrderInvoiceManagerCtrl",
                 "route_name" => "cms.order_invoice_manager.index",
             ],
-            // [
-            //     "title" => "日結作業",
-            //     "controller_name" => "OrderInvoiceManagerCtrl",
-            //     "route_name" => "cms.order_invoice_manager.index",
-            // ],
+            [
+                "title" => "日結作業",
+                "controller_name" => "DayEndCtrl",
+                "route_name" => "cms.day_end.index",
+            ],
             [
                 "title" => "分潤報表",
                 "controller_name" => "OrderBonusCtrl",

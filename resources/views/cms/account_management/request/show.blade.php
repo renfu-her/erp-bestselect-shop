@@ -1,24 +1,24 @@
 @extends('layouts.main')
-
 @section('sub-content')
-    <h2 class="mb-3">請款單</h2>
-    <a href="{{ Route('cms.request.index') }}" class="btn btn-primary" role="button">
-        <i class="bi bi-arrow-left"></i> 返回上一頁
-    </a>
-    {{--
-    <a href="{{ route('cms.request.edit', ['id' => $request_order->id]) }}" class="btn btn-success px-4" role="button">修改</a>
-    --}}
-    @if(! $request_order->posting_date)
-    <a href="{{ route('cms.request.ro-edit', ['id' => $request_order->id]) }}" class="btn btn-primary px-4" role="button">入款</a>
-    @endif
-    {{--
-    <button type="submit" class="btn btn-danger">中一刀列印畫面</button>
-    <button type="submit" class="btn btn-danger">A4列印畫面</button>
-    <button type="submit" class="btn btn-danger">修改記錄</button>
-    <button type="submit" class="btn btn-danger">明細修改記錄</button>
-    --}}
+    <h2 class="mb-4">請款單</h2>
 
-    <br>
+    <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
+        <div class="p-1 pe-2">
+            {{--
+            <a href="{{ route('cms.request.edit', ['id' => $request_order->id]) }}" class="btn btn-success px-4" role="button">修改</a>
+            --}}
+            @if(! $request_order->posting_date)
+            <a href="{{ route('cms.request.ro-edit', ['id' => $request_order->id]) }}" class="btn btn-sm btn-primary px-3" 
+                role="button">入款</a>
+            @endif
+            {{--
+            <button type="submit" class="btn btn-danger">中一刀列印畫面</button>
+            <button type="submit" class="btn btn-danger">A4列印畫面</button>
+            <button type="submit" class="btn btn-danger">修改記錄</button>
+            <button type="submit" class="btn btn-danger">明細修改記錄</button>
+            --}}
+        </div>
+    </nav>
 
     <div class="card shadow mb-4 -detail -detail-primary">
         <div class="card-body px-4">
@@ -186,6 +186,11 @@
                 </div>
             </dl>
         </div>
+    </div>
+    
+    <div class="col-auto">
+        <a href="{{ Route('cms.request.index') }}" class="btn btn-outline-primary px-4" 
+            role="button">返回上一頁</a>
     </div>
 @endsection
 

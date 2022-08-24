@@ -1,68 +1,58 @@
 @extends('layouts.main')
-
 @section('sub-content')
-    @if(! $paying_order->balance_date)
-        <a href="{{ Route('cms.order.logistic-po-create', ['id' => $sub_order->order_id, 'sid' => $sub_order->id]) }}" class="btn btn-primary" role="button">付款</a>
-    @endif
-    <button type="submit" class="btn btn-danger">中一刀列印畫面</button>
-    <button type="submit" class="btn btn-danger">A4列印畫面</button>
-    <button type="submit" class="btn btn-danger">圖片管理</button>
-    <br>
+    <h2 class="mb-4">物流付款單</h2>
+
+    <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
+        <div class="p-1 pe-2">
+            @if(! $paying_order->balance_date)
+                <a href="{{ Route('cms.order.logistic-po-create', ['id' => $sub_order->order_id, 'sid' => $sub_order->id]) }}" 
+                    class="btn btn-sm btn-primary px-3" role="button">付款</a>
+            @endif
+            {{-- <button type="button" class="btn btn-sm btn-primary">圖片管理</button> --}}
+
+            <a href="{{ url()->full() . '?action=print' }}" target="_blank" 
+                class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
+            {{-- <a href="#" target="_blank" class="btn btn-sm btn-warning" rel="noopener noreferrer">A4列印畫面</a> --}}
+        </div>
+    </nav>
+
     <form id="" method="POST" action="">
         @csrf
-        <div class="card shadow mb-4 -detail -detail-primary">
-            <div class="card-body px-4">
-                <h2>物流付款單</h2>
+        <div class="card shadow p-4 mb-4">
+            <div class="mb-3">
+                <h4 class="text-center">{{ $applied_company->company }}</h4>
+                <div class="text-center small mb-2">
+                    <span>地址：{{ $applied_company->address }}</span>
+                    <span class="ms-3">電話：{{ $applied_company->phone }}</span>
+                    <span class="ms-3">傳真：{{ $applied_company->fax }}</span>
+                </div>
+                <h4 class="text-center">物流付款單</h4>
+                <hr>
 
-                <dl class="row">
+                <dl class="row mb-0">
                     <div class="col">
-                        <dt>{{ $applied_company->company }}</dt>
-                        <dd></dd>
-                    </div>
-                </dl>
-
-                <dl class="row">
-                    <div class="col">
-                        <dt>地址：{{ $applied_company->address }}</dt>
-                        <dd></dd>
+                        <dd>付款單號：{{ $paying_order->sn }}</dd>
                     </div>
                     <div class="col">
-                        <dt>電話：{{ $applied_company->phone }}</dt>
-                        <dd></dd>
-                    </div>
-                    <div class="col">
-                        <dt>傳真：{{ $applied_company->fax }}</dt>
-                        <dd></dd>
-                    </div>
-                </dl>
-
-                <dl class="row mb-0 border-top">
-                    <div class="col">
-                        <dt>付款單號：{{ $paying_order->sn }}</dt>
-                        <dd></dd>
-                    </div>
-                    <div class="col">
-                        <dt>製表日期：{{ date('Y-m-d', strtotime($paying_order->created_at)) }}</dt>
-                        <dd></dd>
+                        <dd>製表日期：{{ date('Y-m-d', strtotime($paying_order->created_at)) }}</dd>
                     </div>
                 </dl>
 
                 <dl class="row mb-0">
                     <div class="col">
-                        <dt>單據編號：<a href="{{ Route('cms.order.detail', ['id' => $sub_order->order_id, 'subOrderId' => $sub_order->id]) }}">{{ $sub_order->sn }}</a></dt>
-                        <dd></dd>
+                        <dd>單據編號：<a href="{{ Route('cms.order.detail', ['id' => $sub_order->order_id, 'subOrderId' => $sub_order->id]) }}">{{ $sub_order->sn }}</a>
+                        </dd>
                     </div>
-                    @if($paying_order->balance_date)
                     <div class="col">
-                        <dt>付款日期：{{ date('Y-m-d', strtotime($paying_order->balance_date)) }}</dt>
-                        <dd></dd>
+                        @if($paying_order->balance_date)
+                        <dd>付款日期：{{ date('Y-m-d', strtotime($paying_order->balance_date)) }}</dd>
+                        @endif
                     </div>
-                    @endif
                 </dl>
 
                 <dl class="row mb-0">
                     <div class="col">
-                        <dt>支付對象：
+                        <dd>支付對象：
                             {{ $paying_order->payee_name }}
                             {{--
                             @if($paying_order->payee_id)
@@ -72,56 +62,57 @@
                             </a>
                             @endif
                             --}}
-                        </dt>
-                        <dd></dd>
+                        </dd>
                     </div>
                     <div class="col">
-                        <dt>承辦人：{{ $undertaker ? $undertaker->name : '' }}</dt>
-                        <dd></dd>
+                        <dd>承辦人：{{ $undertaker ? $undertaker->name : '' }}</dd>
                     </div>
                 </dl>
             </div>
 
-            <div class="card-body px-4 py-2">
+            <div class="mb-2">
                 <div class="table-responsive tableoverbox">
-                    <table class="table tablelist table-sm mb-0">
-                        <thead class="table-light text-secondary">
-                        <tr>
-                            <th scope="col">付款項目</th>
-                            <th scope="col">數量</th>
-                            <th scope="col">單價</th>
-                            <th scope="col">應付金額</th>
-                            <th scope="col">備註</th>
-                        </tr>
+                    <table class="table tablelist table-sm mb-0 align-middle">
+                        <thead class="table-light text-secondary text-nowrap">
+                            <tr>
+                                <th scope="col">付款項目</th>
+                                <th scope="col" class="text-end">數量</th>
+                                <th scope="col" class="text-end">單價</th>
+                                <th scope="col" class="text-end">應付金額</th>
+                                <th scope="col">備註</th>
+                            </tr>
                         </thead>
-
                         <tbody>
                             @if($sub_order->logistic_cost > 0)
                                 <tr>
                                     <td>{{ $logistics_grade_name . ' - 物流費用' }}</td>
-                                    <td>1</td>
-                                    <td>{{ number_format($sub_order->logistic_cost, 2) }}</td>
-                                    <td>{{ number_format($sub_order->logistic_cost) }}</td>
+                                    <td class="text-end">1</td>
+                                    <td class="text-end">{{ number_format($sub_order->logistic_cost, 2) }}</td>
+                                    <td class="text-end">{{ number_format($sub_order->logistic_cost) }}</td>
                                     <td>{{ $sub_order->logistic_memo }}</td>
                                 </tr>
                             @endif
+                        </tbody>
+                        <tfoot>
                             <tr class="table-light">
-                                <td>合計：</td>
-                                <td></td>
-                                <td>（{{ $zh_price }}）</td>
-                                <td>{{ number_format($paying_order->price) }}</td>
+                                <td colspan="3">
+                                    <div class="d-flex justify-content-between">
+                                        <span>合計：</span>
+                                        <span>（{{ $zh_price }}）</span>
+                                    </div>
+                                </td>
+                                <td class="text-end">{{ number_format($paying_order->price) }}</td>
                                 <td></td>
                             </tr>
-                        </tbody>
+                        </tfoot>
                     </table>
                 </div>
             </div>
 
-            <div class="card-body px-4 pb-4">
+            <div class="mb-3">
                 @foreach($payable_data as $value)
-                <dl class="row">
-                    <div class="col">
-                        <dt></dt>
+                <dl class="row mb-0">
+                    <div class="col-12">
                         <dd>
                             {{ $value->account->code . ' ' . $value->account->name }}
                             {{ number_format($value->tw_price) }}
@@ -138,34 +129,29 @@
                 @endforeach
             </div>
 
-            <div class="card-body px-4 pb-4">
+            <div>
                 <dl class="row">
                     <div class="col">
-                        <dt>財務主管：</dt>
-                        <dd></dd>
+                        <dd>財務主管：</dd>
                     </div>
                     <div class="col">
-                        <dt>會計：{{ $accountant }}</dt>
-                        <dd></dd>
+                        <dd>會計：{{ $accountant }}</dd>
                     </div>
                     <div class="col">
-                        <dt>商品主管：</dt>
-                        <dd></dd>
+                        <dd>商品主管：</dd>
                     </div>
                     <div class="col">
-                        <dt>商品負責人：</dt>
-                        <dd></dd>
+                        <dd>商品負責人：</dd>
                     </div>
                 </dl>
             </div>
         </div>
 
-        <div id="submitDiv">
-            <div class="col-auto">
-                <input type="hidden" name="del_item_id">
-                <a href="{{ Route('cms.collection_payment.index') }}" class="btn btn-primary px-4" role="button">返回「付款作業」列表</a>
-                <a href="{{ Route('cms.order.detail', ['id' => $sub_order->order_id, 'subOrderId' => $sub_order->id]) }}" class="btn btn-outline-primary px-4" role="button">返回訂單資訊</a>
-            </div>
+        <div class="col-auto">
+            <a href="{{ Route('cms.collection_payment.index') }}" class="btn btn-outline-primary px-4" 
+                role="button">返回 付款作業列表</a>
+            <a href="{{ Route('cms.order.detail', ['id' => $sub_order->order_id, 'subOrderId' => $sub_order->id]) }}" 
+                class="btn btn-outline-primary px-4" role="button">返回 訂單資訊</a>
         </div>
     </form>
 @endsection

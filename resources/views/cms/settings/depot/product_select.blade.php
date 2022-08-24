@@ -101,7 +101,7 @@
                                         <input class="form-control select_input d_price" type="number" step="0.01" min="0" name="depot_price[{{$key}}]" placeholder="請輸入寄倉售價" value="{{ $data->depot_price }}" disabled="disabled">
                                     </td>
                                     <td class="text-center">
-                                        @can('cms.depot.product-delete')
+                                        @can('cms.depot.edit')
                                             <a href="javascript:void(0)" data-href="{{ Route('cms.depot.product-delete', ['id' => $data->select_id]) }}" data-bs-toggle="modal" data-bs-target="#confirm-delete" class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
                                                 <i class="bi bi-trash"></i>
                                             </a>

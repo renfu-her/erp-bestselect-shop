@@ -39,6 +39,11 @@ Breadcrumbs::for('cms.product.create', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.product.index');
     $trail->push('新增商品');
 });
+// 瀏覽 - 商品資訊
+Breadcrumbs::for('cms.product.show', function (BreadcrumbTrail $trail, $value) {
+    $trail->parent('cms.product.index');
+    $trail->push('[' . $value->title . '] 資訊');
+});
 // 編輯 - 商品資訊
 Breadcrumbs::for('cms.product.edit', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.product.index');
@@ -942,6 +947,16 @@ Breadcrumbs::for('cms.note_receivable.ask', function (BreadcrumbTrail $trail, $v
 Breadcrumbs::for('cms.note_receivable.detail', function (BreadcrumbTrail $trail, $value) {
     $trail->parent('cms.note_receivable.index');
     $trail->push($value['title']);
+});
+
+// 日結作業
+Breadcrumbs::for('cms.day_end.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('日結作業', route('cms.day_end.index'));
+});
+Breadcrumbs::for('cms.day_end.show', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.day_end.index');
+    $trail->push('日結清單');
 });
 
 // 信用卡作業管理

@@ -215,6 +215,13 @@ select.-select2 {
 .modal-backdrop ~ .select2-container--open .select2-dropdown.select2-dropdown--below {
     z-index: 1500;
 }
+// form 驗證訊息
+.select2-hidden-accessible[required] {
+    display: block;
+    height: 0;
+    border: 1px solid transparent;
+    margin-bottom: -2px;
+}
 
 /*
     JQuery UI

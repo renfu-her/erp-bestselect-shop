@@ -162,6 +162,7 @@
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td class="text-center">
+                                @can('cms.delivery.edit')
                                 <a href="
                                     @if($data->event == App\Enums\Delivery\Event::order()->value)
                                 {{ Route('cms.order.detail', ['id' => $data->order_id, 'subOrderId' => $data->sub_order_id], true) }}
@@ -174,6 +175,7 @@
                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-pencil-square"></i>
                                 </a>
+                                @endcan
                             </td>
                             <td>{{ $data->delivery_sn }}</td>
                             <td>{{ $data->event_sn }}</td>
@@ -186,7 +188,7 @@
                             </td>
                             <td class="wrap">
                                 <div class="lh-1 small text-nowrap">
-                                    <span @class(['badge -badge', 
+                                    <span @class(['badge -badge',
                                         '-primary' => $data->ship_category_name === '宅配',
                                         '-warning' => $data->ship_category_name === '自取'])
                                     >{{ $data->ship_category_name }}</span>

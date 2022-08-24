@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('sub-content')
-    <h2 class="mb-3">收款單入款審核</h2>
+    <h2 class="mb-4">收款單入款審核</h2>
 
     <form method="POST" action="{{ $form_action }}">
         @csrf
@@ -80,7 +80,7 @@
                                                     <div class="col-12 mb-1">
                                                         {{ $d_key + 1 . '. ' . $d_value->method_name }}
                                                         <input type="hidden" name="credit_card[{{ $received_id }}][received_id]" value="{{ $d_value->received_info->received_id }}">
-                                                        <input type="hidden" name="received_method" value="credit_card">
+                                                        <input type="hidden" name="received_method[]" value="credit_card">
                                                         <input type="hidden" name="credit_card[{{ $received_id }}][received_method_id]" value="{{ $d_value->received_info->received_method_id }}">
                                                     </div>
                                                     <div class="col-12 mb-1">

@@ -10,6 +10,7 @@ use App\Enums\Received\ReceivedMethod;
 use App\Enums\Received\ChequeStatus;
 
 use App\Models\CrdCreditCard;
+use App\Models\DayEnd;
 use App\Models\GeneralLedger;
 use App\Models\OrderPayCreditCard;
 use App\Models\ReceivedDefault;
@@ -391,7 +392,12 @@ class AccountReceivedCtrl extends Controller
 
         $zh_price = num_to_str($received_order->price);
 
-        return view('cms.account_management.account_received.ro_receipt', [
+        $view = 'cms.account_management.account_received.ro_receipt';
+        if (request('action') == 'print') {
+            $view = 'doc.print_account_management_account_received_ro_receipt';
+        }
+
+        return view($view, [
             'order_list_data' => $order_list_data,
             'received_order' => $received_order,
             'received_data' => $received_data,
@@ -449,6 +455,8 @@ class AccountReceivedCtrl extends Controller
                     }
                 }
 
+                DayEnd::match_day_end_status(request('receipt_date'), $received_order->sn);
+
                 DB::commit();
                 wToast(__('入帳日期更新成功'));
 
@@ -471,9 +479,11 @@ class AccountReceivedCtrl extends Controller
                 }
 
                 $received_order->update([
-                    'accountant_id'=>null,
-                    'receipt_date'=>null,
+                    'accountant_id' => null,
+                    'receipt_date' => null,
                 ]);
+
+                DayEnd::match_day_end_status($received_order->receipt_date, $received_order->sn);
 
                 wToast(__('入帳日期已取消'));
                 return redirect()->route('cms.account_received.ro-receipt', ['id'=>request('id')]);

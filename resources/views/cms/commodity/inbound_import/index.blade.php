@@ -60,9 +60,11 @@
                     </div>
                 </div>
 
+                @can('cms.inbound_import.edit')
                 <div class="col-auto">
                     <button id="button1" class="btn btn-primary px-4" type="submit" disabled>上傳</button>
                 </div>
+                @endcan
             </div>
         </form>
         @if($errors->any())

@@ -17,6 +17,7 @@ use App\Models\ConsignmentItem;
 use App\Models\CsnOrder;
 use App\Models\CsnOrderFlow;
 use App\Models\CsnOrderItem;
+use App\Models\DayEnd;
 use App\Models\Delivery;
 use App\Models\Depot;
 use App\Models\DlvBack;
@@ -873,7 +874,11 @@ class DeliveryCtrl extends Controller
 
         $zh_price = num_to_str($paying_order->price);
 
-        return view('cms.commodity.delivery.return_pay_order', [
+        $view = 'cms.commodity.delivery.return_pay_order';
+        if (request('action') == 'print') {
+            $view = 'doc.print_delivery_return_order_pay';
+        }
+        return view($view, [
             'breadcrumb_data' => ['event' => $delivery->delivery_event, 'eventId' => $delivery->delivery_event_id, 'sn' => $delivery->delivery_event_sn],
 
             'paying_order' => $paying_order,
@@ -960,8 +965,11 @@ class DeliveryCtrl extends Controller
             $payable_data = PayingOrder::get_payable_detail($paying_order->id);
             if (count($payable_data) > 0 && $paying_order->price == $payable_data->sum('tw_price')) {
                 $paying_order->update([
-                    'balance_date'=>date('Y-m-d H:i:s'),
+                    'balance_date' => date('Y-m-d H:i:s'),
+                    'payment_date' => $req['payment_date'],
                 ]);
+
+                DayEnd::match_day_end_status($req['payment_date'], $paying_order->sn);
             }
 
             if (PayingOrder::find($paying_order->id) && PayingOrder::find($paying_order->id)->balance_date) {

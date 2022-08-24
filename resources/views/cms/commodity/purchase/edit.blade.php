@@ -241,6 +241,7 @@
         @if ($method === 'edit')
             @php
                 $hasLogistics = $purchaseData->logistics_price !== 0 || !empty($purchaseData->logistics_memo);
+                $audit_approved = $purchaseData->audit_status == App\Enums\Consignment\AuditStatus::approved()->value;
             @endphp
             <div id="logistics" class="card shadow p-4 mb-4">
                 <h6>物流</h6>
@@ -263,14 +264,10 @@
                     </div>
                 </div>
                 <div class="col-auto">
-                    @if ($hasCreatedFinalPayment)
-                        @if (!$hasLogistics)
-                            <label class="text-secondary">無</label>
-                        @endif
-                    @else
+                    @if(false == $audit_approved)
                         <button class="btn btn-primary -add" type="button" role="button"
                                 @if ($hasLogistics) hidden @endif>
-                            <i class="bi bi-plus-lg"></i> 新增物流
+                            <i class="bi bi-plus-lg"></i> 新增物流 {{$audit_approved}}
                         </button>
                         <button class="btn btn-outline-danger -del" type="button"
                                 @if (!$hasLogistics) hidden @endif>
@@ -279,6 +276,10 @@
                         <mark class="fw-light small">
                             <i class="bi bi-exclamation-diamond-fill mx-2 text-warning"></i>有修改需要<b>儲存</b>才會生效呦！
                         </mark>
+                    @else
+                        @if (!$hasLogistics)
+                            <label class="text-secondary">無</label>
+                        @endif
                     @endif
                 </div>
             </div>

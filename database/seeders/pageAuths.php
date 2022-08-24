@@ -14,10 +14,68 @@ return [
             ],
             [
                 "cms.product.edit",
-                "修改",            ],
+                "修改"],
             [
                 "cms.product.delete",
                 "刪除",
+            ],
+            [
+                "cms.product.show",
+                "ERP商品資訊",
+            ],
+            [
+                "cms.product.edit-stock",
+                "庫存管理",
+            ],
+            [
+                "cms.product.edit-price",
+                "價格管理",
+            ],
+            [
+                "cms.product.edit-style",
+                "規格款式",
+            ],
+            [
+                "cms.product.edit-combo",
+                "組合包",
+            ],
+            [
+                "cms.product.edit-web-desc",
+                "[網頁]商品介紹",
+            ],
+            [
+                "cms.product.edit-web-spec",
+                "[網頁]規格說明",
+            ],
+            [
+                "cms.product.edit-setting",
+                "設定",
+            ],
+            [
+                "cms.product.clone",
+                "複製來源",
+            ],
+        ],
+    ],
+    [
+        "unit" => "庫存管理",
+        "permissions" => [
+            [
+                "cms.stock.index",
+                "瀏覽",
+            ],
+        ],
+    ],
+    [
+        "unit" => "採購單庫存匯入",
+        "permissions" => [
+            [
+                "cms.inbound_import.index",
+                "瀏覽",
+            ],
+            [
+                "cms.inbound_import.edit",
+                "編輯",
             ],
         ],
     ],
@@ -34,11 +92,12 @@ return [
             ],
             [
                 "cms.depot.edit",
-                "修改",            ],
+                "修改"],
             [
                 "cms.depot.delete",
                 "刪除",
             ],
+            /*
             [
                 "cms.depot.product-index",
                 "寄倉選品瀏覽",
@@ -55,6 +114,7 @@ return [
                 "cms.depot.product-delete",
                 "寄倉選品刪除",
             ],
+            */
         ],
     ],
     [
@@ -121,6 +181,28 @@ return [
         ],
     ],
     [
+        "unit" => "通知信管理",
+        "permissions" => [
+            [
+                "cms.mail_set.edit",
+                "修改",
+            ],
+        ],
+    ],
+    [
+        "unit" => "首頁設定",
+        "permissions" => [
+            [
+                "cms.homepage.index",
+                "瀏覽",
+            ],
+            [
+                "cms.homepage.edit",
+                "編輯",
+            ],
+        ],
+    ],
+    [
         "unit" => "款式設定",
         "permissions" => [
             [
@@ -132,13 +214,13 @@ return [
                 "新增",
             ],
 //            [
-//                "cms.spec.edit",
-//                "修改",
-//            ],
-//            [
-//                "cms.spec.delete",
-//                "刪除",
-//            ],
+            //                "cms.spec.edit",
+            //                "修改",
+            //            ],
+            //            [
+            //                "cms.spec.delete",
+            //                "刪除",
+            //            ],
         ],
     ],
     [
@@ -188,7 +270,7 @@ return [
         ],
     ],
     [
-        "unit" => "採購單列表",
+        "unit" => "採購單管理",
         "permissions" => [
             [
                 "cms.purchase.index",
@@ -374,13 +456,13 @@ return [
                 "新增",
             ],
 //            [
-//                "cms.first_grade.edit",
-//                "編輯",
-//            ],
-//            [
-//                "cms.first_grade.delete",
-//                "刪除",
-//            ],
+            //                "cms.first_grade.edit",
+            //                "編輯",
+            //            ],
+            //            [
+            //                "cms.first_grade.delete",
+            //                "刪除",
+            //            ],
         ],
     ],
     [
@@ -395,13 +477,13 @@ return [
                 "新增",
             ],
 //            [
-//                "cms.income_statement.edit",
-//                "編輯",
-//            ],
-//            [
-//                "cms.income_statement.delete",
-//                "刪除",
-//            ],
+            //                "cms.income_statement.edit",
+            //                "編輯",
+            //            ],
+            //            [
+            //                "cms.income_statement.delete",
+            //                "刪除",
+            //            ],
         ],
     ],
     [
@@ -473,7 +555,7 @@ return [
             [
                 "cms.consignment_stock.index",
                 "瀏覽",
-            ]
+            ],
         ],
     ],
     [
@@ -576,12 +658,8 @@ return [
                 "瀏覽",
             ],
             [
-                "cms.delivery.create",
-                "新增",
-            ],
-            [
-                "cms.delivery.delete",
-                "刪除",
+                "cms.delivery.edit",
+                "編輯",
             ],
         ],
     ],
@@ -603,6 +681,99 @@ return [
             ],
             [
                 "cms.logistic.delete",
+                "刪除",
+            ],
+        ],
+    ],
+    [
+        "unit" => "訂單管理",
+        "permissions" => [
+            [
+                "cms.order.index",
+                "瀏覽",
+            ],
+            [
+                "cms.order.cancel_order",
+                "取消訂單",
+            ],
+            [
+                "cms.order.split_order",
+                "分割訂單",
+            ],
+            [
+                "cms.order.change_bonus_owner",
+                "變更推薦業務員",
+            ],
+            [
+                "cms.order.detail",
+                "訂單明細",
+            ],
+            [
+                "cms.order.manual-send-bonus",
+                "手動發送紅利",
+            ],
+            [
+                "cms.order.bonus-gross",
+                "獎金毛利",
+            ],
+            [
+                "cms.order.edit-item",
+                "編輯訂單",
+            ],
+        ],
+    ],
+
+    [
+        "unit" => "組合包組裝",
+        "permissions" => [
+            [
+                "cms.combo-purchase.index",
+                "瀏覽",
+            ],
+            [
+                "cms.combo-purchase.edit",
+                "編輯",
+            ],
+        ],
+    ],
+    [
+        "unit" => "優惠劵/代碼",
+        "permissions" => [
+            [
+                "cms.promo.index",
+                "瀏覽",
+            ],
+            [
+                "cms.promo.create",
+                "新增",
+            ],
+            [
+                "cms.promo.edit",
+                "編輯",
+            ],
+            [
+                "cms.promo.delete",
+                "刪除",
+            ],
+        ],
+    ],
+    [
+        "unit" => "全館優惠",
+        "permissions" => [
+            [
+                "cms.discount.index",
+                "瀏覽",
+            ],
+            [
+                "cms.discount.create",
+                "新增",
+            ],
+            [
+                "cms.discount.edit",
+                "編輯",
+            ],
+            [
+                "cms.discount.delete",
                 "刪除",
             ],
         ],

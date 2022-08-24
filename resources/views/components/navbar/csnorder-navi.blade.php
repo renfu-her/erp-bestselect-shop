@@ -12,10 +12,12 @@
         <a href="{{ Route('cms.logistic.create', ['event' => \App\Enums\Delivery\Event::csn_order()->value, 'eventId' => $id], true) }}"
             class="nav-link {{ isActive('cms.logistic.create', $route_name) }}">物流設定</a>
     </li>
+    @can('cms.delivery.edit')
     <li class="nav-item">
         <a href="{{ Route('cms.delivery.create', ['event' => \App\Enums\Delivery\Event::csn_order()->value, 'eventId' => $id], true) }}"
            class="nav-link {{ isActive('cms.delivery.create', $route_name) }}">出貨審核</a>
     </li>
+    @endcan
 {{--    <li class="nav-item">--}}
 {{--        <a href="{{ Route('cms.consignment-order.log', ['id' => $id], true) }}"--}}
 {{--           class="nav-link {{ isActive('cms.consignment-order.log', $route_name) }}">變更紀錄</a>--}}

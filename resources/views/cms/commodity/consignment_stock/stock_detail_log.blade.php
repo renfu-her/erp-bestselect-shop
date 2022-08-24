@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-3">{{$title}} {{ $productStyle->sku }}</h2>
+    <h2 class="mb-4">{{$title}} {{ $productStyle->sku }}</h2>
 
     <div class="card shadow p-4 mb-4">
         <div class="row justify-content-end mb-4">

@@ -2,7 +2,6 @@
 @section('sub-content')
     <h2 class="mb-4">整批{{ $type == 'cashed' ? '兌現' : '' }}</h2>
 
-
     <form method="POST" action="{{ $form_action }}">
         @csrf
         <div class="card shadow p-4 mb-4">
@@ -29,7 +28,7 @@
                         </tr>
                     </thead>
 
-                    <tbody class="card_list">
+                    <tbody class="pool">
                         @foreach ($data_list as $key => $value)
                             <tr>
                                 <th class="text-center">
@@ -98,7 +97,7 @@
             $(function() {
                 $('#checkAll').change(function(){
                     $all = $(this)[0];
-                    $('.card_list tr').each(function( index ) {
+                    $('.pool tr').each(function( index ) {
                         if($(this).is(':visible')){
                             $(this).find('th input.single_select').prop('checked', $all.checked);
 

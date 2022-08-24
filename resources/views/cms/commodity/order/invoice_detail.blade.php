@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('sub-content')
-    <h2 class="mb-3">電子發票</h2>
+    <h2 class="mb-4">電子發票</h2>
     <a href="{{ Route('cms.order.detail', ['id' => $invoice->source_id]) }}" class="btn btn-primary" role="button">
         <i class="bi bi-arrow-left"></i> 返回上一頁
     </a>

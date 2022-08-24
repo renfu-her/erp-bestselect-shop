@@ -1,103 +1,87 @@
 @extends('layouts.main')
-
 @section('sub-content')
-    <h2 class="mb-3">付款單</h2>
-    <a href="{{ route('cms.stitute.show', ['id' => $stitute_order->id]) }}" class="btn btn-primary" role="button">
-        <i class="bi bi-arrow-left"></i> 返回上一頁
-    </a>
+    <h2 class="mb-4">付款單</h2>
 
-    <button type="submit" class="btn btn-danger">中一刀列印畫面</button>
-    <button type="submit" class="btn btn-danger">A4列印畫面</button>
-    <button type="submit" class="btn btn-danger">圖片管理</button>
-    <br>
+    <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
+        <div class="p-1 pe-2">
+            <a href="{{ url()->full() . '?action=print' }}" target="_blank" 
+                class="btn btn-sm btn-warning" rel="noopener noreferrer">中一刀列印畫面</a>
+        </div>
+    </nav>
+
     <form id="" method="POST" action="">
         @csrf
-        <div class="card shadow mb-4 -detail -detail-primary">
-            <div class="card-body px-4">
-                <h2>付款單</h2>
+        <div class="card shadow p-4 mb-4">
+            <div class="mb-3">
+                <h4 class="text-center">{{ $applied_company->company }}</h4>
+                <div class="text-center small mb-2">
+                    <span>地址：{{ $applied_company->address }}</span>
+                    <span class="ms-3">電話：{{ $applied_company->phone }}</span>
+                    <span class="ms-3">傳真：{{ $applied_company->fax }}</span>
+                </div>
+                <h4 class="text-center">付款單</h4>
+                <hr>
 
-                <dl class="row">
+                <dl class="row mb-0">
                     <div class="col">
-                        <dt>{{ $applied_company->company }}</dt>
-                        <dd></dd>
-                    </div>
-                </dl>
-
-                <dl class="row">
-                    <div class="col">
-                        <dt>地址：{{ $applied_company->address }}</dt>
-                        <dd></dd>
+                        <dd>客戶：{{ $paying_order->payee_name }}</dd>
                     </div>
                     <div class="col">
-                        <dt>電話：{{ $applied_company->phone }}</dt>
-                        <dd></dd>
-                    </div>
-                    <div class="col">
-                        <dt>傳真：{{ $applied_company->fax }}</dt>
-                        <dd></dd>
-                    </div>
-                </dl>
-
-                <dl class="row mb-0 border-top">
-                    <div class="col">
-                        <dt>客戶：{{ $paying_order->payee_name }}</dt>
-                        <dd></dd>
-                    </div>
-                    <div class="col">
-                        <dt>編號：{{ $paying_order->sn }} / <a href="{{ route('cms.stitute.show', ['id' => $stitute_order->id]) }}">{{ $stitute_order->sn }}</a></dt>
-                        <dd></dd>
+                        <dd>編號：{{ $paying_order->sn }} / <a href="{{ route('cms.stitute.show', ['id' => $stitute_order->id]) }}">{{ $stitute_order->sn }}</a></dd>
                     </div>
                 </dl>
 
                 <dl class="row mb-0">
                     <div class="col">
-                        <dt>電話：{{ $paying_order->payee_phone }}</dt>
-                        <dd></dd>
+                        <dd>電話：{{ $paying_order->payee_phone }}</dd>
                     </div>
                     <div class="col">
-                        <dt>日期：{{ date('Y-m-d', strtotime($paying_order->created_at)) }}</dt>
-                        <dd></dd>
+                        <dd>日期：{{ date('Y-m-d', strtotime($paying_order->created_at)) }}</dd>
                     </div>
                 </dl>
             </div>
 
-            <div class="card-body px-4 py-2">
+            <div class="mb-2">
                 <div class="table-responsive tableoverbox">
-                    <table class="table tablelist table-sm mb-0">
-                        <thead class="table-light text-secondary">
+                    <table class="table tablelist table-sm mb-0 align-middle">
+                        <thead class="table-light text-secondary text-nowrap">
                             <tr>
                                 <th scope="col">費用說明</th>
-                                <th scope="col">數量</th>
-                                <th scope="col">單價</th>
-                                <th scope="col">金額</th>
+                                <th scope="col" class="text-end">數量</th>
+                                <th scope="col" class="text-end">單價</th>
+                                <th scope="col" class="text-end">金額</th>
                                 <th scope="col">備註</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td>{{ $stitute_grade->code . ' ' . $stitute_grade->name . ' ' . $stitute_order->summary }}</td>
-                                <td>{{ $stitute_order->qty }}</td>
-                                <td>{{ number_format($stitute_order->price, 2) }}</td>
-                                <td>{{ number_format($stitute_order->total_price) }}</td>
+                                <td class="text-end">{{ $stitute_order->qty }}</td>
+                                <td class="text-end">{{ number_format($stitute_order->price, 2) }}</td>
+                                <td class="text-end">{{ number_format($stitute_order->total_price) }}</td>
                                 <td>{{ $stitute_order->taxation == 1 ? '應稅' : '免稅' }} {{ $stitute_order->memo }}</td>
                             </tr>
-                            <tr class="table-light">
-                                <td>合計：</td>
-                                <td></td>
-                                <td>（{{ $zh_price }}）</td>
-                                <td>{{ number_format($paying_order->price) }}</td>
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <td colspan="3">
+                                    <div class="d-flex justify-content-between">
+                                        <span>合計：</span>
+                                        <span>（{{ $zh_price }}）</span>
+                                    </div>
+                                </td>
+                                <td class="text-end">{{ number_format($paying_order->price) }}</td>
                                 <td></td>
                             </tr>
-                        </tbody>
+                        </tfoot>
                     </table>
                 </div>
             </div>
 
-            <div class="card-body px-4 pb-4">
+            <div class="mb-3">
                 @foreach($payable_data as $value)
-                <dl class="row">
-                    <div class="col">
-                        <dt></dt>
+                <dl class="row mb-0">
+                    <div class="col-12">
                         <dd>
                             {{ $value->account->code . ' ' . $value->account->name }}
                             {{ number_format($value->tw_price) }}
@@ -114,30 +98,33 @@
                 @endforeach
             </div>
 
-            <div class="card-body px-4 pb-4">
+            <div>
                 <dl class="row">
                     <div class="col">
-                        <dt>財務主管：</dt>
-                        <dd></dd>
+                        <dd>財務主管：</dd>
                     </div>
                     <div class="col">
-                        <dt>會計：{{ $accountant }}</dt>
-                        <dd></dd>
+                        <dd>會計：{{ $accountant }}</dd>
                     </div>
                     <div class="col">
-                        <dt>商品主管：</dt>
-                        <dd></dd>
+                        <dd>商品主管：</dd>
                     </div>
                     <div class="col">
-                        <dt>商品負責人：</dt>
-                        <dd></dd>
+                        <dd>商品負責人：</dd>
                     </div>
                     <div class="col">
-                        <dt>承辦人：{{ $undertaker ? $undertaker->name : '' }}</dt>
-                        <dd></dd>
+                        <dd>承辦人：{{ $undertaker ? $undertaker->name : '' }}</dd>
                     </div>
                 </dl>
             </div>
+        </div>
+        
+        <div class="col-auto">
+            <a href="{{ route('cms.stitute.show', ['id' => $stitute_order->id]) }}" 
+                class="btn btn-outline-primary px-4" role="button">返回 代墊單</a>
+            <a href="{{ Route('cms.stitute.index') }}" class="btn btn-outline-primary px-4" role="button">
+                返回列表
+            </a>
         </div>
     </form>
 @endsection

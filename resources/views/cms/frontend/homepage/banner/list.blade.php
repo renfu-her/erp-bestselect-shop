@@ -8,9 +8,11 @@
     @csrf
     <div class="card shadow p-4 mb-4">
         <div class="col mb-4">
+            @can('cms.homepage.edit')
             <a href="{{ Route('cms.homepage.banner.create') }}" class="btn btn-primary">
                 <i class="bi bi-plus-lg"></i> 新增橫幅廣告
             </a>
+            @endcan
         </div>
 
         <div class="d-flex col-12 mb-3 border-bottom border-2 border-dark fw-bold">
@@ -35,6 +37,7 @@
                 <div class="input-group col-auto ms-1" @if(false == isset($data->img_pc)) hidden @endif>
                     <img style="max-width:100px" src="@if(true == isset($data->img_pc)) {{asset($data->img_pc)}} @endif" />
                 </div>
+                @can('cms.homepage.edit')
                 <a href="{{ Route('cms.homepage.banner.edit', ['id' => $data->id], true) }}"
                     data-bs-toggle="tooltip" title="編輯"
                     class="icon -edit icon-btn col-auto fs-5 text-primary rounded-circle border-0 p-0">
@@ -49,6 +52,7 @@
                     class="icon -del icon-btn col-auto fs-5 text-danger rounded-circle border-0 p-0">
                     <i class="bi bi-trash"></i>
                 </a>
+                @endcan
             </div>
             @endforeach
         </div>
@@ -56,9 +60,11 @@
 
     <div>
         <div class="col-auto">
+            @can('cms.homepage.edit')
             <button type="submit" class="btn btn-primary px-4"
                 @if(!isset($dataList) || 0 >= count($dataList)) disabled @endif
             >儲存排序</button>
+            @endcan
         </div>
     </div>
 
