@@ -23,4 +23,13 @@ return [
             ],
         ],
     ],
+    [
+        "unit" => "寄倉庫存列表",
+        "permissions" => [
+            [
+                "cms.consignment_stock.index",
+                "瀏覽",
+            ],
+        ],
+    ],
 ];

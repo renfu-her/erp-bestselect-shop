@@ -403,13 +403,13 @@ Breadcrumbs::for('cms.consignment-order.edit', function (BreadcrumbTrail $trail,
 });
 
 //寄倉庫存
-Breadcrumbs::for('cms.consignment-stock.stocklist', function (BreadcrumbTrail $trail) {
+Breadcrumbs::for('cms.consignment-stock.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('寄倉庫存', route('cms.consignment-stock.stocklist'));
+    $trail->push('寄倉庫存', route('cms.consignment-stock.index'));
 });
 // 寄倉庫存明細
 Breadcrumbs::for('cms.consignment-stock.stock_detail_log', function (BreadcrumbTrail $trail, $value) {
-    $trail->parent('cms.consignment-stock.stocklist');
+    $trail->parent('cms.consignment-stock.index');
     $trail->push('#' . $value . ' 明細');
 });
 
