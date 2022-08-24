@@ -778,4 +778,21 @@ return [
             ],
         ],
     ],
+    [
+        "unit" => "團購主公司管理",
+        "permissions" => [
+            [
+                "cms.groupby-company.index",
+                "瀏覽",
+            ],
+            [
+                "cms.groupby-company.create",
+                "新增",
+            ],
+            [
+                "cms.groupby-company.edit",
+                "修改",
+            ],
+        ],
+    ],
 ];
