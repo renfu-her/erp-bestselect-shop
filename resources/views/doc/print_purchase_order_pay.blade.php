@@ -11,12 +11,6 @@
             font-family: "Nunito", "Noto Sans TC", sans-serif;
             position: relative;
         }
-        @page {
-            size: 214.9mm 140mm;
-            /* A4 直向 */
-            margin: 0;
-            /* 邊界 */
-        }
 
         .font {
             display: inline-block;
@@ -57,7 +51,7 @@
                     <tbody>
                         <tr>
                             <td width="50%">付款單號：{{ $payingOrderData->sn }}</td>
-                            <td width="50%">製表日期：{{ date('Y/m/d', strtotime($payingOrderData->created_at)) }}</td>
+                            <td width="50%">製表日期：{{ date('Y-m-d', strtotime($payingOrderData->created_at)) }}</td>
                         </tr>
                         <tr>
                             <td>單據編號：{{ $purchaseData->purchase_sn }}</td>

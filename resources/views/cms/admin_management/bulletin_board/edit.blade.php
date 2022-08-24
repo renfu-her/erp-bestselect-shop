@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-3">
+    <h2 class="mb-4">
         @if ($method === 'create')
             新增
         @else

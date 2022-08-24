@@ -11,12 +11,7 @@
             font-family: "Nunito", "Noto Sans TC", sans-serif;
             position: relative;
         }
-        @page {
-            size: 214.9mm 140mm;
-            /* A4 直向 */
-            margin: 0;
-            /* 邊界 */
-        }
+        
         .font {
             display: inline-block;
         }
@@ -123,11 +118,11 @@
             <table width="710" style="font-size:small;text-align:left;border:0;margin: 0 auto;">
                 <tbody>
                 <tr>
-                    <td width="25%">財務主管：</td>
-                    <td width="25%">會計：{{ $accountant ?? '' }}</td>
-                    <td width="25%">商品主管：</td>
-                    <td width="25%">商品負責人：</td>
-                    <td width="25%">承辦人：{{ $undertaker ? $undertaker->name : '' }}</td>
+                    <td width="20%">財務主管：</td>
+                    <td width="20%">會計：{{ $accountant ?? '' }}</td>
+                    <td width="20%">商品主管：</td>
+                    <td width="20%">商品負責人：</td>
+                    <td width="20%">承辦人：{{ $undertaker ? $undertaker->name : '' }}</td>
                 </tr>
                 </tbody>
             </table>

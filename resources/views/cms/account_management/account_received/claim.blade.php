@@ -3,9 +3,6 @@
 @section('sub-content')
     <h2 class="mb-4">應收帳款入款</h2>
 
-    <a href="{{ route('cms.account_received.index') }}" class="btn btn-primary" role="button">
-        <i class="bi bi-arrow-left"></i> 返回上一頁
-    </a>
 
     <form method="POST" action="{{ $form_action }}">
         @csrf
@@ -65,6 +62,9 @@
 
         <div class="col-auto">
             <button type="submit" class="btn btn-primary px-4 submit" disabled="disabled">確認</button>
+            <a href="{{ route('cms.account_received.index') }}" class="btn btn-outline-primary px-4" role="button">
+                返回上一頁
+            </a>
         </div>
     </form>
 @endsection

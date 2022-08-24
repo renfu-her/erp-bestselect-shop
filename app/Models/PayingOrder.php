@@ -180,16 +180,25 @@ class PayingOrder extends Model
                 SUM(tw_price) AS payable_price,
                 CONCAT(\'[\', GROUP_CONCAT(\'{
                         "payable_type":"\', v_po.type, \'",
+                        "payable_method":"\', COALESCE(i_type.type, ""), \'",
                         "acc_income_type_fk":"\', acc_income_type_fk, \'",
                         "payable_id":"\', payable_id, \'",
                         "all_grades_id":"\', all_grades_id, \'",
+                        "grade_code":"\', COALESCE(grade.code, ""), \'",
+                        "grade_name":"\', COALESCE(grade.name, ""), \'",
                         "tw_price":"\', tw_price, \'",
                         "payment_date":"\', acc_payable.payment_date, \'",
                         "accountant_id_fk":"\', accountant_id_fk, \'",
                         "summary":"\', COALESCE(acc_payable.summary, ""), \'",
-                        "note":"\', COALESCE(note, ""), \'"
+                        "note":"\', COALESCE(note, ""), \'",
+                        "cheque_ticket_number":"\', COALESCE(_cheque.ticket_number, ""),\'",
+                        "cheque_due_date":"\', COALESCE(_cheque.due_date, ""),\'"
                     }\' ORDER BY acc_payable.id), \']\') AS pay_list
                 FROM acc_payable
+                LEFT JOIN (' . $sq . ') AS grade ON grade.id = acc_payable.all_grades_id
+                LEFT JOIN acc_income_type AS i_type ON i_type.id = acc_payable.acc_income_type_fk
+                LEFT JOIN acc_payable_cheque AS _cheque ON acc_payable.payable_id = _cheque.id AND acc_payable.acc_income_type_fk = 2
+
                 LEFT JOIN pcs_paying_orders AS v_po ON v_po.id = acc_payable.pay_order_id WHERE v_po.deleted_at IS NULL
                 GROUP BY v_po.source_type, v_po.source_id, v_po.source_sub_id
                 ) AS payable_table'), function ($join){
@@ -551,7 +560,7 @@ class PayingOrder extends Model
     }
 
 
-    public static function get_payable_detail($pay_order_id = null, int $method_id = null)
+    public static function get_payable_detail($pay_order_id = null, $method_id = null)
     {
         $query = DB::table('acc_payable AS payable')
             ->leftJoin('pcs_paying_orders AS po', function($join){

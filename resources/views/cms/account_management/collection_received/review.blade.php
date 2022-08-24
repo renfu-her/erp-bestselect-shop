@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('sub-content')
-    <h2 class="mb-3">收款單入款審核</h2>
+    <h2 class="mb-4">收款單入款審核</h2>
 
     <form method="POST" action="{{ $form_action }}">
         @csrf

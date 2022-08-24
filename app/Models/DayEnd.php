@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 use Illuminate\Support\Facades\DB;
 
+use App\Enums\Supplier\Payment;
+use App\Enums\Received\ReceivedMethod;
+
+
 class DayEnd extends Model
 {
     use HasFactory;
@@ -144,32 +148,7 @@ class DayEnd extends Model
                     'source_sn' => $real_value->sn,
                 ])->first();
 
-                if($real_value->getTable() == 'pcs_paying_orders'){
-                    $t_data = PayingOrder::paying_order_list(null, $real_value->sn)->first();
-
-                    $d_price = 0;
-                    $c_price = 0;
-                    if($t_data->payable_list){
-                        foreach(json_decode($t_data->payable_list) as $pay_v){
-                            $c_price += $pay_v->tw_price;
-                        }
-                    }
-                    if($t_data->product_items){
-                        foreach(json_decode($t_data->product_items) as $p_value){
-                            $d_price += $p_value->price;
-                        }
-                    }
-                    if($t_data->logistics_price){
-                        $d_price += $t_data->logistics_price;
-                    }
-                    if($t_data->discount_value > 0){
-                        foreach(json_decode($t_data->order_discount) as $d_value){
-                            $d_price -= $d_value->discount_value;
-                        }
-                    }
-                    $d_c_net = $d_price - $c_price;
-
-                } else if($real_value->getTable() == 'ord_received_orders'){
+                if($real_value->getTable() == 'ord_received_orders'){
                     $t_data = ReceivedOrder::received_order_list(null, $real_value->sn)->first();
 
                     $d_price = 0;
@@ -190,6 +169,31 @@ class DayEnd extends Model
                     if($t_data->order_discount_value > 0){
                         foreach(json_decode($t_data->order_discount) as $d_value){
                             $c_price -= $d_value->discount_value;
+                        }
+                    }
+                    $d_c_net = $d_price - $c_price;
+
+                } else if($real_value->getTable() == 'pcs_paying_orders'){
+                    $t_data = PayingOrder::paying_order_list(null, $real_value->sn)->first();
+
+                    $d_price = 0;
+                    $c_price = 0;
+                    if($t_data->payable_list){
+                        foreach(json_decode($t_data->payable_list) as $pay_v){
+                            $c_price += $pay_v->tw_price;
+                        }
+                    }
+                    if($t_data->product_items){
+                        foreach(json_decode($t_data->product_items) as $p_value){
+                            $d_price += $p_value->price;
+                        }
+                    }
+                    if($t_data->logistics_price){
+                        $d_price += $t_data->logistics_price;
+                    }
+                    if($t_data->discount_value > 0){
+                        foreach(json_decode($t_data->order_discount) as $d_value){
+                            $d_price -= $d_value->discount_value;
                         }
                     }
                     $d_c_net = $d_price - $c_price;
@@ -233,7 +237,23 @@ class DayEnd extends Model
     {
         $link = 'javascript:void(0);';
 
-        if($source_type == 'pcs_paying_orders') {
+        if($source_type == 'ord_received_orders') {
+            $target = ReceivedOrder::find($source_id);
+
+            if($target->source_type == 'ord_orders'){
+                $link = route('cms.collection_received.receipt', ['id' => $target->source_id]);
+
+            } else if($target->source_type == 'csn_orders'){
+                $link = route('cms.ar_csnorder.receipt', ['id' => $target->source_id]);
+
+            } else if($target->source_type == 'ord_received_orders'){
+                $link = route('cms.account_received.ro-receipt', ['id' => $target->source_id]);
+
+            } else if($target->source_type == 'acc_request_orders'){
+                $link = route('cms.request.ro-receipt', ['id' => $target->source_id]);
+            }
+
+        } else if($source_type == 'pcs_paying_orders') {
             $target = PayingOrder::find($source_id);
 
             if($target->source_type == 'pcs_purchase'){
@@ -253,22 +273,6 @@ class DayEnd extends Model
 
             } else if($target->source_type == 'pcs_paying_orders'){
                 $link = route('cms.accounts_payable.po-show', ['id' => $target->source_id]);
-            }
-
-        } else if($source_type == 'ord_received_orders') {
-            $target = ReceivedOrder::find($source_id);
-
-            if($target->ro_source_type == 'ord_orders'){
-                $link = route('cms.collection_received.receipt', ['id' => $target->ro_source_id]);
-
-            } else if($target->ro_source_type == 'csn_orders'){
-                $link = route('cms.ar_csnorder.receipt', ['id' => $target->ro_source_id]);
-
-            } else if($target->ro_source_type == 'ord_received_orders'){
-                $link = route('cms.account_received.ro-receipt', ['id' => $target->ro_source_id]);
-
-            } else if($target->ro_source_type == 'acc_request_orders'){
-                $link = route('cms.request.ro-receipt', ['id' => $target->ro_source_id]);
             }
 
         } else if($source_type == 'acc_transfer_voucher') {
@@ -356,6 +360,134 @@ class DayEnd extends Model
                         'status'=>$o_status,
                         'updated_at'=>date('Y-m-d H:i:s'),
                     ]);
+                }
+            }
+        }
+    }
+
+
+    public static function match_day_end_detail(&$data = [], $source_type, $source_id, $source_sn, $de_sn)
+    {
+        if($source_type == 'ord_received_orders'){
+            $t_data = ReceivedOrder::received_order_list(null, $source_sn)->first();
+
+            if($t_data->received_list){
+                foreach(json_decode($t_data->received_list) as $r_value){
+                    $method_name = ReceivedMethod::getDescription($r_value->received_method);
+                    $method_code = null;
+                    $suffix = null;
+                    if($method_name == '現金'){
+                        $method_code = 'cash';
+                        $suffix = $t_data->ro_target_name;
+
+                    } else if($method_name == '支票'){
+                        $method_name = '應收票據';//支票
+                        $method_code = 'note_receivable';//cheque
+                        $suffix = $r_value->cheque_ticket_number . '（' . date('Y-m-d', strtotime($r_value->cheque_due_date)) . '）';
+
+                    } else if($method_name == '匯款'){
+                        $method_code = 'remit';
+                        $suffix = $r_value->grade_name . ' - ' . $r_value->remit_memo;
+
+                    } else if($method_name == '信用卡'){
+                        $method_code = 'credit_card';
+                        $suffix = $r_value->credit_card_number . '（' . $r_value->credit_card_owner . '）';
+                    }
+
+                    if($method_code){
+                        $data[$method_code][] = (object) [
+                            'summary'=>$method_name . ' ' . $suffix . ' ' . $r_value->summary,
+                            'grade_name'=>$r_value->grade_name,
+                            'd_price'=>$r_value->tw_price,
+                            'c_price'=>null,
+                            'source_sn'=>$source_sn,
+                            'source_link'=>self::source_path($source_type, $source_id),
+                            'sn'=>$de_sn,
+                        ];
+                    }
+                }
+            }
+
+        } else if($source_type == 'pcs_paying_orders'){
+            $t_data = PayingOrder::paying_order_list(null, $source_sn)->first();
+
+            if($t_data->payable_list){
+                foreach(json_decode($t_data->payable_list) as $pay_v){
+                    $method_name = Payment::getDescription($pay_v->acc_income_type_fk);
+                    $method_code = null;
+                    if($method_name == '現金'){
+                        $method_code = 'cash';
+                        $suffix = $t_data->po_target_name;
+
+                    } else if($method_name == '支票'){
+                        $method_name = '應付票據';//支票
+                        $method_code = 'note_payable';//cheque
+                        $suffix = $pay_v->cheque_ticket_number . '（' . date('Y-m-d', strtotime($pay_v->cheque_due_date)) . '）';
+
+                    } else if($method_name == '匯款'){
+                        $method_code = 'remit';
+                        $suffix = $pay_v->grade_name;
+                    }
+
+                    if($method_code){
+                        $data[$method_code][] = (object) [
+                            'summary'=>$method_name . ' ' . $suffix . ' ' . $pay_v->summary,
+                            'grade_name'=>$pay_v->grade_name,
+                            'd_price'=>null,
+                            'c_price'=>$pay_v->tw_price,
+                            'source_sn'=>$source_sn,
+                            'source_link'=>self::source_path($source_type, $source_id),
+                            'sn'=>$de_sn,
+                        ];
+                    }
+                }
+            }
+
+        } else if($source_type == 'acc_transfer_voucher'){
+            $t_data = TransferVoucher::voucher_list($source_id)->first();
+
+            if($t_data->tv_items){
+                foreach(json_decode($t_data->tv_items) as $tv_value){
+                    $method_code = null;
+
+                    if($tv_value->debit_credit_code == 'debit'){
+                        $grade = ReceivedDefault::whereIn('name', ['cash', 'cheque', 'remit', 'credit_card'])->where('default_grade_id', $tv_value->grade_id)->first();
+                        $method_name = ReceivedMethod::getDescription($grade->name ?? null);
+                        if($method_name == '現金'){
+                            $method_code = 'cash';
+                        } else if($method_name == '支票'){
+                            $method_name = '應收票據';//支票
+                            $method_code = 'note_receivable';//cheque
+                        } else if($method_name == '匯款'){
+                            $method_code = 'remit';
+                        } else if($method_name == '信用卡'){
+                            $method_code = 'credit_card';
+                        }
+
+                    } else if($tv_value->debit_credit_code == 'credit'){
+                        $grade = PayableDefault::whereIn('name', ['cash', 'cheque', 'remit'])->where('default_grade_id', $tv_value->grade_id)->first();
+                        $method_name = Payment::getDescription($grade->name ?? null);
+                        if($method_name == '現金'){
+                            $method_code = 'cash';
+                        } else if($method_name == '支票'){
+                            $method_name = '應付票據';//支票
+                            $method_code = 'note_payable';//cheque
+                        } else if($method_name == '匯款'){
+                            $method_code = 'remit';
+                        }
+                    }
+
+                    if($method_code){
+                        $data[$method_code][] = (object) [
+                            'summary'=>$method_name . ' ' . $tv_value->summary,
+                            'grade_name'=>$tv_value->grade_name,
+                            'd_price'=>$tv_value->debit_credit_code == 'debit' ? $tv_value->final_price : null,
+                            'c_price'=>$tv_value->debit_credit_code == 'credit' ? $tv_value->final_price : null,
+                            'source_sn'=>$source_sn,
+                            'source_link'=>self::source_path($source_type, $source_id),
+                            'sn'=>$de_sn,
+                        ];
+                    }
                 }
             }
         }

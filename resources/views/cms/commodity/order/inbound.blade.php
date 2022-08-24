@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-3">訂單自取單 {{ $purchaseData->sn }}</h2>
+    <h2 class="mb-4">訂單自取單 {{ $purchaseData->sn }}</h2>
 
     <div class="card shadow p-4 mb-4">
         <h6>自取單入庫總覽</h6>

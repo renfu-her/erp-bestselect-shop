@@ -2,6 +2,18 @@
 @section('sub-content')
     <h2 class="mb-4">日結作業</h2>
 
+    <ul class="nav nav-tabs border-bottom-0">
+        <li class="nav-item">
+            <a href="javascript:void(0);" class="nav-link active" aria-current="page" role="button">日結查詢</a>
+        </li>
+        {{-- <li class="nav-item">
+            <a href="{{ Route('cms.day_end.balance') }}" class="nav-link" role="button">現金/銀行存款餘額</a>
+        </li> --}}
+        <li class="nav-item">
+            <a href="{{ Route('cms.day_end.show') }}" class="nav-link" role="button">日結明細表</a>
+        </li>
+    </ul>
+
     <form method="POST" action="{{ $form_action }}">
         @csrf
         <div class="card shadow p-4 mb-4">
@@ -62,7 +74,7 @@
                                 <td>{{ $data ? date('Y-m-d', strtotime($data->deo_p_date)) : '0000-00-00' }}</td>
                                 <td>{{ $data ? $data->deo_times : '' }}</td>
                                 <td>{{ $data ? $data->clearinger_name : '' }}</td>
-                                <td>{!! $data ? ( $data->deo_id ? '<a href="' . route('cms.day_end.show', ['id'=>$data->deo_id]) . '">' . $data->deo_count . '</a>' : '' ) : '' !!}</td>
+                                <td>{!! $data ? ( $data->deo_id ? '<a href="' . route('cms.day_end.detail', ['id'=>$data->deo_id]) . '">' . $data->deo_count . '</a>' : '' ) : '' !!}</td>
                                 <td>{{ $data ? $data->deo_status : '' }}</td>
                                 <td>{!! $data ? ( $data->deo_remark ? '借貸不平：<br>' . nl2br($data->deo_remark) : '' ) : '' !!}</td>
                             </tr>

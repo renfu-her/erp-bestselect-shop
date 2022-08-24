@@ -54,7 +54,7 @@
                     <dd>收款單號：{{ $received_order->sn }}</dd>
                 </div>
                 <div class="col">
-                    <dd>製表日期：{{ date('Y/m/d', strtotime($received_order->created_at)) }}</dd>
+                    <dd>製表日期：{{ date('Y-m-d', strtotime($received_order->created_at)) }}</dd>
                 </div>
             </dl>
             <dl class="row mb-0">

@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2>庫存管理</h2>
+    <h2 class="mb-4">庫存管理</h2>
 
     <form id="search" action="{{ Route('cms.stock.index') }}" method="GET">
         <div class="card shadow p-4 mb-4">
