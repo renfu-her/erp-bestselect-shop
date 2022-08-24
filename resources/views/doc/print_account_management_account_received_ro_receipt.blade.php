@@ -64,7 +64,7 @@
                     <tbody>
                         <tr>
                             <td width="50%">收款單號：{{ $received_order->sn }}</td>
-                            <td width="50%">製表日期：{{ date('Y/m/d', strtotime($received_order->created_at)) }}</td>
+                            <td width="50%">製表日期：{{ date('Y-m-d', strtotime($received_order->created_at)) }}</td>
                         </tr>
                         <tr>
                             <td>訂單流水號：</td>

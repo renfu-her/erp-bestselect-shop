@@ -51,7 +51,7 @@
                     <tbody>
                         <tr>
                             <td width="50%">付款單號：{{ $payingOrderData->sn }}</td>
-                            <td width="50%">製表日期：{{ date('Y/m/d', strtotime($payingOrderData->created_at)) }}</td>
+                            <td width="50%">製表日期：{{ date('Y-m-d', strtotime($payingOrderData->created_at)) }}</td>
                         </tr>
                         <tr>
                             <td>單據編號：{{ $purchaseData->purchase_sn }}</td>

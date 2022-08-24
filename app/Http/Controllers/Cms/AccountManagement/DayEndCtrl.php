@@ -93,20 +93,20 @@ class DayEndCtrl extends Controller
 
         $compare = array_diff(request('selected'), request('closing_date'));
         if(count($compare) == 0){
-            // DB::beginTransaction();
+            DB::beginTransaction();
 
             try {
                 foreach(request('closing_date') as $key => $value){
                     $day_end = DayEnd::match_day_end_order($value);
                 }
 
-                // DB::commit();
+                DB::commit();
                 wToast(__('整批日結成功'));
 
                 return redirect()->route('cms.day_end.index');
 
             } catch (\Exception $e) {
-                // DB::rollback();
+                DB::rollback();
                 wToast(__('整批日結失敗', ['type'=>'danger']));
                 return redirect()->back();
             }
@@ -117,7 +117,7 @@ class DayEndCtrl extends Controller
     }
 
 
-    public function show($id)
+    public function detail($id)
     {
         $q = DayEnd::findOrFail($id);
         $day_end = DayEnd::date_list($q->closing_date)->first();
@@ -135,6 +135,79 @@ class DayEndCtrl extends Controller
 
         return view('cms.account_management.day_end.detail', [
             'day_end' => $day_end,
+        ]);
+    }
+
+
+    public function balance()
+    {
+
+        return view('cms.account_management.day_end.balance', [
+            // 'day_end' => $day_end,
+        ]);
+    }
+
+
+    public function show(Request $request)
+    {
+        $query = $request->query();
+        $cond = [];
+
+        $cond['current_date'] = Arr::get($query, 'current_date', date('Y-m-d'));
+
+        if($cond['current_date'] > date('Y-m-d')){
+            $cond['current_date'] = date('Y-m-d');
+        }
+
+        $data_list = [
+            'cash'=>[],
+            'credit_card'=>[],
+            'note_payable'=>[],
+            'note_receivable'=>[],
+            'remit'=>[],
+        ];
+
+        $data_title = [
+            'cash'=>'現金',
+            'credit_card'=>'信用卡',
+            'note_payable'=>'應付票據',
+            'note_receivable'=>'應收票據',
+            'remit'=>'匯款',
+        ];
+
+        $day_end = DayEnd::date_list($cond['current_date'])->first();
+
+        if($day_end){
+            if($day_end->deo_items){
+                $day_end->deo_items = json_decode($day_end->deo_items);
+
+                foreach($day_end->deo_items as $di_value){
+                    DayEnd::match_day_end_detail($data_list, $di_value->source_type, $di_value->source_id, $di_value->source_sn, $di_value->sn);
+                }
+
+            } else {
+                $day_end->deo_items = [];
+            }
+        }
+
+
+        $previous_date = date('Y-m-d', strtotime('-1 day', strtotime($cond['current_date'])));
+        $next_date = date('Y-m-d', strtotime('+1 day', strtotime($cond['current_date'])));
+
+        // $data_list = $day_end->deo_items;
+
+
+
+
+
+        // DayEnd::date_list($s_date)->first();
+        // $data_list = DayEnd::date_list($d_range)->appends($query);
+
+
+        return view('cms.account_management.day_end.show', [
+            'data_list' => $data_list,
+            'data_title' => $data_title,
+            'cond' => $cond,
         ]);
     }
 }

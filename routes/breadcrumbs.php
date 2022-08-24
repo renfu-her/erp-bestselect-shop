@@ -954,9 +954,13 @@ Breadcrumbs::for('cms.day_end.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
     $trail->push('日結作業', route('cms.day_end.index'));
 });
-Breadcrumbs::for('cms.day_end.show', function (BreadcrumbTrail $trail) {
+Breadcrumbs::for('cms.day_end.detail', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.day_end.index');
     $trail->push('日結清單');
+});
+Breadcrumbs::for('cms.day_end.show', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.day_end.index');
+    $trail->push('日結明細');
 });
 
 // 信用卡作業管理

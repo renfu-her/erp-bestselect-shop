@@ -52,7 +52,7 @@
                         <dd>付款單號：{{ $payingOrderData->sn }}</dd>
                     </div>
                     <div class="col">
-                        <dd>製表日期：{{ date('Y/m/d', strtotime($payingOrderData->created_at)) }}</dd>
+                        <dd>製表日期：{{ date('Y-m-d', strtotime($payingOrderData->created_at)) }}</dd>
                     </div>
                 </dl>
                 <dl class="row mb-0">
