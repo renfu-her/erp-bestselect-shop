@@ -20,7 +20,7 @@
 
             <div class="table-responsive tableOverBox border-bottom border-dark">
                 <table class="table table-sm table-hover tableList mb-0">
-                    <thead class="table-secondary">
+                    <thead class="table-secondary align-middle">
                         <tr>
                             <th scope="col">請款單號</th>
                             <th scope="col">說明</th>
@@ -28,8 +28,8 @@
                             <th scope="col" class="text-end">數量</th>
                             <th scope="col" class="text-end">匯率</th>
                             <th scope="col">幣別</th>
-                            <th scope="col" class="text-end">應收款項</th>
-                            <th scope="col" class="text-end">已收款項</th>
+                            <th scope="col" class="text-end">應收<br class="d-block d-lg-none">款項</th>
+                            <th scope="col" class="text-end">已收<br class="d-block d-lg-none">款項</th>
                         </tr>
                     </thead>
 

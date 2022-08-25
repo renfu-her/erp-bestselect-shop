@@ -195,7 +195,7 @@
 @endsection
 
 @once
-    @push('styles')
+    @push('sub-styles')
         <style>
             tr td > span:last-child {
                 border: none !important;
