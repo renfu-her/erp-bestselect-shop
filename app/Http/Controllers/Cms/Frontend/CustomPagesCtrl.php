@@ -25,6 +25,7 @@ class CustomPagesCtrl extends Controller
         $data_per_page = is_numeric($data_per_page) ? $data_per_page : 10;
         $dataList = DB::table('csp_custom_pages')
                     ->leftJoin('usr_users', 'csp_custom_pages.usr_users_id_fk', '=', 'usr_users.id')
+                    ->leftJoin('csp_activity_html as html','csp_custom_pages.csp_html_type_fk','html.id')
                     ->select([
                         'csp_custom_pages.id',
                         'page_name',
@@ -32,8 +33,10 @@ class CustomPagesCtrl extends Controller
                         'type',
                         'usr_users.name AS user_name',
                         'csp_custom_pages.updated_at',
+                        'html.body'
                     ])
                     ->get();
+    
 
         return view('cms.frontend.custom_pages.list', [
             'dataList' => $dataList,
