@@ -11,12 +11,12 @@
 
             <li class="mb-1 border-top">
                 <div class="btn btn-toggle collapsed" data-bs-toggle="collapse"
-                    data-bs-target="#collapse-{{ $unit['menu_id'] }}" aria-expanded="false">
+                    data-bs-target="#collapse-{{ $unit['menu_id'] }}" aria-expanded="true">
                     <i class="bi {{ $unit['icon'] ?? 'bi-box' }}"></i>{{ $unit['title'] }}
                 </div>
                 <!-- 第二層 -->
                 @if (isset($unit['child']))
-                    <div class="collapse" id="collapse-{{ $unit['menu_id'] }}">
+                    <div class="collapse show" id="collapse-{{ $unit['menu_id'] }}">
                         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1">
                             @foreach ($unit['child'] as $unit2)
                                 <li class="{{ isActive($unit2['controller_name'], $controllerName) }}">
