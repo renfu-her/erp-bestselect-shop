@@ -119,7 +119,7 @@
                             <td>{{ $data->summary }}</td>
                             <td>{{ number_format($data->tw_price) }}</td>
                             <td>{!! $data->account_status_code == 0 ? '<span class="text-danger">未入款</span>' : '已入款' !!}</td>
-                            <td>{{ $data->ro_created ? date('Y-m-d', strtotime($data->ro_created)) : '' }}</td>
+                            <td>{{ $data->ro_created ? date('Y/m/d', strtotime($data->ro_created)) : '' }}</td>
                             <td>
                                 @if($data->append_ro_source_type == 'ord_received_orders' && $data->account_status_code == 0)
                                 <a href="{{ route('cms.account_received.ro-edit', ['id' => $data->append_ro_source_id]) }}">{{ $data->append_ro_sn }}</a>

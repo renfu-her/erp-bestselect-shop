@@ -6,12 +6,12 @@
         <div class="card shadow p-4 mb-4">
             <h6>搜尋條件</h6>
             <div class="row">
-                <div class="col-12 col-sm-4 mb-3">
+                <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">收/付款單號</label>
                     <input class="form-control" type="text" name="sn" value="{{ $cond['sn'] }}" placeholder="請輸入收/付款單號">
                 </div>
 
-                <div class="col-12 col-sm-4 mb-3">
+                <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">匯出/入</label>
                     <select class="form-select -select2 -single" name="remit_type" aria-label="匯出/入" data-placeholder="請選擇">
                         <option value="all" selected>不限</option>

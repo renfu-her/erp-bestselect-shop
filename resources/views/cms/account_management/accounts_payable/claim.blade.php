@@ -67,7 +67,7 @@
                                 <td>{{ $value->summary }}</td>
                                 <td>{{ number_format($value->tw_price) }}</td>
                                 <td>{{ $value->account_status_code == 0 ? '未入款' : '已入款' }}</td>
-                                <td>{{ $value->po_created ? date('Y-m-d', strtotime($value->po_created)) : '' }}</td>
+                                <td>{{ $value->po_created ? date('Y/m/d', strtotime($value->po_created)) : '' }}</td>
                             </tr>
                         @endforeach
                     </tbody>

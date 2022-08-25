@@ -43,7 +43,7 @@
                                 <td class="text-end">${{ $value->credit_card_price - round($value->credit_card_price * $value->bank_percent) }}</td>
 
                                 <td>{{ $value->credit_card_status_code == 0 ? '刷卡' : ($value->credit_card_status_code == 1 ? '請款' : '入款') }}</td>
-                                <td>{{ date('Y-m-d', strtotime($value->credit_card_checkout_date)) }}</td>
+                                <td>{{ date('Y/m/d', strtotime($value->credit_card_checkout_date)) }}</td>
                                 <td>{{ $value->credit_card_type }}</td>
                                 <td>
                                     @if($value->ro_source_type == 'ord_orders')

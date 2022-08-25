@@ -43,7 +43,6 @@
                     <div class="input-group has-validation">
                         <input type="number" step="1" min="0" class="form-control @error('payable_min_price') is-invalid @enderror" 
                             name="payable_min_price" value="{{ $cond['payable_min_price'] }}" aria-label="起始金額" placeholder="起始金額">
-                        <span class="input-group-text">~</span>
                         <input type="number" step="1" min="0" class="form-control @error('payable_max_price') is-invalid @enderror" 
                             name="payable_max_price" value="{{ $cond['payable_max_price'] }}" aria-label="結束金額" placeholder="結束金額">
                         <div class="invalid-feedback">
@@ -169,9 +168,9 @@
                             <td>{{ number_format($data->tw_price) }}</td>
                             <td>{{ $data->cheque_status }}</td>
                             <td>{{ $data->po_sn }}</td>
-                            <td>{{ $data->payment_date ? date('Y-m-d', strtotime($data->payment_date)) : '' }}</td>
-                            <td>{{ $data->cheque_due_date ? date('Y-m-d', strtotime($data->cheque_due_date)) : '' }}</td>
-                            <td>{{ $data->cheque_cashing_date ? date('Y-m-d', strtotime($data->cheque_cashing_date)) : '' }}</td>
+                            <td>{{ $data->payment_date ? date('Y/m/d', strtotime($data->payment_date)) : '' }}</td>
+                            <td>{{ $data->cheque_due_date ? date('Y/m/d', strtotime($data->cheque_due_date)) : '' }}</td>
+                            <td>{{ $data->cheque_cashing_date ? date('Y/m/d', strtotime($data->cheque_cashing_date)) : '' }}</td>
                             <td>{{ $data->po_payable_grade_code . ' ' . $data->po_payable_grade_name }}</td>
                             <td>{{ $data->po_target_name }}</td>
                             <td></td>

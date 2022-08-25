@@ -7,7 +7,7 @@
         <div class="card shadow p-4 mb-4">
             <h6>搜尋條件</h6>
             <div class="row">
-                <div class="col-12 col-sm-4 mb-3">
+                <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">客戶</label>
                     <select class="form-select -select2 -single" name="payee_key" aria-label="客戶" data-placeholder="請選擇客戶">
                         <option value="" selected>不限</option>
@@ -17,24 +17,10 @@
                     </select>
                 </div>
 
-                <div class="col-12 col-sm-4 mb-3">
+                <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">付款單號</label>
                     <input class="form-control" type="text" name="po_sn" value="{{ $cond['po_sn'] }}" placeholder="請輸入付款單號">
                 </div>
-
-                <fieldset class="col-12 col-sm-4 mb-3">
-                    <legend class="col-form-label p-0 mb-2">付款狀態</legend>
-                    <div class="px-1 pt-1">
-                        @foreach ($check_balance_status as $key => $value)
-                            <div class="form-check form-check-inline">
-                                <label class="form-check-label">
-                                    <input class="form-check-input" name="check_balance" type="radio" value="{{ $key }}" {{ (string)$key == $cond['check_balance'] ? 'checked' : '' }}>
-                                    {{ $value }}
-                                </label>
-                            </div>
-                        @endforeach
-                    </div>
-                </fieldset>
 
                 <div class="col-12 mb-3">
                     <label class="form-label">建立日期起訖</label>
@@ -56,6 +42,20 @@
                         </div>
                     </div>
                 </div>
+
+                <fieldset class="col-12 mb-3">
+                    <legend class="col-form-label p-0 mb-2">付款狀態</legend>
+                    <div class="px-1 pt-1">
+                        @foreach ($check_balance_status as $key => $value)
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" name="check_balance" type="radio" value="{{ $key }}" {{ (string)$key == $cond['check_balance'] ? 'checked' : '' }}>
+                                    {{ $value }}
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                </fieldset>
             </div>
 
             <div class="col">
@@ -175,7 +175,7 @@
                                 --}}
                             </td>
 
-                            <td>{{ $data->payment_date ? date('Y-m-d', strtotime($data->payment_date)) : '0000-00-00' }}</td>
+                            <td>{{ $data->payment_date ? date('Y/m/d', strtotime($data->payment_date)) : '-' }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -195,7 +195,7 @@
 @endsection
 
 @once
-    @push('styles')
+    @push('sub-styles')
         <style>
             tr td > span:last-child {
                 border: none !important;

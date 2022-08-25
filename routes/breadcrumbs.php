@@ -958,6 +958,14 @@ Breadcrumbs::for('cms.day_end.detail', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.day_end.index');
     $trail->push('日結清單');
 });
+Breadcrumbs::for('cms.day_end.balance', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.day_end.index');
+    $trail->push('現金/銀行存款餘額', route('cms.day_end.balance'));
+});
+Breadcrumbs::for('cms.day_end.balance_check', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.day_end.balance');
+    $trail->push('餘額明細');
+});
 Breadcrumbs::for('cms.day_end.show', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.day_end.index');
     $trail->push('日結明細');

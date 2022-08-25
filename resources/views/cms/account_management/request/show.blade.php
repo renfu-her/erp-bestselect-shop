@@ -20,169 +20,137 @@
         </div>
     </nav>
 
-    <div class="card shadow mb-4 -detail -detail-primary">
-        <div class="card-body px-4">
-            <h2>請款單</h2>
+    <div class="card shadow p-4 mb-4">
+        <div class="mb-3">
+            <h4 class="text-center">{{ $applied_company->company }}</h4>
+            <div class="text-center small mb-2">
+                <span>地址：{{ $applied_company->address }}</span>
+                <span class="ms-3">電話：{{ $applied_company->phone }}</span>
+                <span class="ms-3">傳真：{{ $applied_company->fax }}</span>
+            </div>
+            <h4 class="text-center">請款單</h4>
+            <hr>
 
-            <dl class="row">
+            <dl class="row mb-0">
                 <div class="col">
-                    <dt>{{ $applied_company->company }}</dt>
-                    <dd></dd>
+                    <dd>客戶：{{ $request_order->client_name }}</dd>
+                </div>
+                <div class="col">
+                    <dd>地址：{{ $request_order->client_address }}</dd>
+                </div>
+            <dl class="row mb-0">
+            </dl>
+                <div class="col">
+                    <dd>電話：{{ $request_order->client_phone }}</dd>
+                </div>
+                <div class="col">
+                    <dd>傳真：{{ $request_order->client_fax }}</dd>
                 </div>
             </dl>
 
-            <dl class="row">
+            <dl class="row mb-0">
                 <div class="col">
-                    <dt>地址：{{ $applied_company->address }}</dt>
-                    <dd></dd>
+                    <dd>請款單號：{{ $request_order->sn }}</dd>
                 </div>
                 <div class="col">
-                    <dt>電話：{{ $applied_company->phone }}</dt>
-                    <dd></dd>
-                </div>
-                <div class="col">
-                    <dt>傳真：{{ $applied_company->fax }}</dt>
-                    <dd></dd>
-                </div>
-            </dl>
-
-            <dl class="row mb-0 border-top">
-                <div class="col">
-                    <dt>客戶：{{ $request_order->client_name }}</dt>
-                    <dd></dd>
-                </div>
-                <div class="col">
-                    <dt>地址：{{ $request_order->client_address }}</dt>
-                    <dd></dd>
-                </div>
-                <div class="col">
-                    <dt>電話：{{ $request_order->client_phone }}</dt>
-                    <dd></dd>
-                </div>
-                <div class="col">
-                    <dt>傳真：{{ $request_order->client_fax }}</dt>
-                    <dd></dd>
-                </div>
-            </dl>
-
-            <dl class="row">
-                <div class="col">
-                    <dt>請款單號：{{ $request_order->sn }}</dt>
-                    <dd></dd>
-                </div>
-                <div class="col">
-                    <dt>日期：{{ date('Y-m-d', strtotime($request_order->created_at)) }}</dt>
-                    <dd></dd>
+                    <dd>日期：{{ date('Y/m/d', strtotime($request_order->created_at)) }}</dd>
                 </div>
             </dl>
 
             <dl class="row mb-0">
                 <div class="col">
                 {{--
-                    <dt>訂單流水號：<a href="{{ Route('cms.order.detail', ['id' => $order->id], true) }}">{{ $order->sn }}</a></dt>
-                    <dd></dd>
+                    <dd>訂單流水號：<a href="{{ Route('cms.order.detail', ['id' => $order->id], true) }}">{{ $order->sn }}</a></dd>
                 --}}
                 </div>
-                @if($request_order->posting_date)
                 <div class="col">
-                    <dt>入帳日期：{{ date('Y-m-d', strtotime($request_order->posting_date)) }}</dt>
-                    <dd></dd>
+                    @if($request_order->posting_date)
+                    <dd>入帳日期：{{ date('Y/m/d', strtotime($request_order->posting_date)) }}</dd>
+                    @endif
                 </div>
-                @endif
             </dl>
 
-            {{--
-            <dl class="row mb-0">
-                <div class="col">
-                    <dt>收款對象：
-                        <a href="{{ $supplierUrl }}" target="_blank">{{ $supplier->name }}<span class="icon"><i class="bi bi-box-arrow-up-right"></i></span></a>
-                    </dt>
-                    <dd></dd>
-                </div>
-                <div class="col">
-                    <dt>承辦人：{{ $sales ? $sales->name : '' }}</dt>
-                    <dd></dd>
-                </div>
-            </dl>
-            --}}
         </div>
 
-        <div class="card-body px-4 py-2">
+        <div class="mb-2">
             <div class="table-responsive tableoverbox">
-                <table class="table tablelist table-sm mb-0">
-                    <thead class="table-light text-secondary">
+                <table class="table tablelist table-sm mb-0 align-middle">
+                    <thead class="table-light text-secondary text-nowrap">
                         <tr>
                             <th scope="col">費用說明</th>
-                            <th scope="col">數量</th>
-                            <th scope="col">單價</th>
-                            <th scope="col">金額</th>
+                            <th scope="col" class="text-end">數量</th>
+                            <th scope="col" class="text-end">單價</th>
+                            <th scope="col" class="text-end">金額</th>
                             <th scope="col">備註</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>{{ $request_grade->code . ' ' . $request_grade->name . ' ' . $request_order->summary }}</td>
-                            <td>{{ $request_order->qty }}</td>
-                            <td>{{ number_format($request_order->price, 2) }}</td>
-                            <td>{{ number_format($request_order->total_price) }}</td>
+                            <td class="text-end">{{ $request_order->qty }}</td>
+                            <td class="text-end">{{ number_format($request_order->price, 2) }}</td>
+                            <td class="text-end">{{ number_format($request_order->total_price) }}</td>
                             <td>{{ $request_order->taxation == 1 ? '應稅' : '免稅' }} {{ $request_order->memo }}</td>
                         </tr>
-
-                        <tr class="table-light">
-                            <td>合計：</td>
-                            <td></td>
-                            <td>（{{ $zh_price }}）</td>
-                            <td>{{ number_format($request_order->total_price) }}</td>
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <td colspan="3">
+                                <div class="d-flex justify-content-between">
+                                    <span>合計：</span>
+                                    <span>（{{ $zh_price }}）</span>
+                                </div>
+                            </td>
+                            <td class="text-end">{{ number_format($request_order->total_price) }}</td>
                             <td></td>
                         </tr>
-                    </tbody>
+                    </tfoot>
                 </table>
             </div>
         </div>
 
-        <div class="card-body px-4 pb-4">
+        <div class="mb-3">
             <dl class="row">
-                <div class="col">
-                    □支票　□匯款　□信用卡　□現金
-                </div>
+                <div class="col">□支票</div>
+                <div class="col">□匯款</div>
+                <div class="col">□信用卡</div>
+                <div class="col">□現金</div>
             </dl>
             <dl class="row">
-                <div class="col">
-                    匯款帳號：合作金庫(006) 長春分行 0844-871-001158 戶名：喜鴻國際企業股份有限公司
+                <div class="col-auto">
+                    匯款帳號：合作金庫(006) 長春分行 0844-871-001158
                 </div>
+                <div class="col-auto">戶名：喜鴻國際企業股份有限公司</div>
             </dl>
             <dl class="row">
-                <div class="col">
-                    備註：
-                    <br>
-                    1.匯款戶名、支票抬頭請開：喜鴻國際企業股份有限公司
-                    <br>
-                    2.客戶應如期給付團費，如有違反或票據到期未兌現，願負法律責任，並放棄訴抗辯權。
+                <div class="col small">
+                    <dd class="mb-0">備註：</dd>
+                    <dd>
+                        <ol>
+                            <li>匯款戶名、支票抬頭請開：喜鴻國際企業股份有限公司</li>
+                            <li>客戶應如期給付團費，如有違反或票據到期未兌現，願負法律責任，並放棄訴抗辯權。</li>
+                        </ol>
+                    </dd>
                 </div>
             </dl>
         </div>
 
-        <div class="card-body px-4 pb-4">
+        <div>
             <dl class="row">
                 <div class="col">
-                    <dt>財務主管：</dt>
-                    <dd></dd>
+                    <dd>財務主管：</dd>
                 </div>
                 <div class="col">
-                    <dt>會計：{{ $accountant ? $accountant->name : '' }}</dt>
-                    <dd></dd>
+                    <dd>會計：{{ $accountant ? $accountant->name : '' }}</dd>
                 </div>
                 <div class="col">
-                    <dt>部門主管：</dt>
-                    <dd></dd>
+                    <dd>部門主管：</dd>
                 </div>
                 <div class="col">
-                    <dt>承辦人：</dt>
-                    <dd></dd>
+                    <dd>承辦人：</dd>
                 </div>
                 <div class="col">
-                    <dt>業務員：{{ $sales ? $sales->name : '' }}</dt>
-                    <dd></dd>
+                    <dd>業務員：{{ $sales ? $sales->name : '' }}</dd>
                 </div>
             </dl>
         </div>

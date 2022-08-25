@@ -6,11 +6,11 @@
         <li class="nav-item">
             <a href="javascript:void(0);" class="nav-link active" aria-current="page" role="button">日結查詢</a>
         </li>
-        {{-- <li class="nav-item">
-            <a href="{{ Route('cms.day_end.balance') }}" class="nav-link" role="button">現金/銀行存款餘額</a>
-        </li> --}}
         <li class="nav-item">
-            <a href="{{ Route('cms.day_end.show') }}" class="nav-link" role="button">日結明細表</a>
+            <a href="{{ route('cms.day_end.balance') }}" class="nav-link" role="button">現金/銀行存款餘額</a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('cms.day_end.show') }}" class="nav-link" role="button">日結明細表</a>
         </li>
     </ul>
 
@@ -70,8 +70,8 @@
                                     <input class="form-check-input single_select" type="checkbox" name="selected[{{ $key }}]" value="{{ $value->day }}">
                                     <input type="hidden" name="closing_date[{{ $key }}]" class="select_input" value="{{ $value->day }}" disabled>
                                 </th>
-                                <td>{{ $value->day }}</td>
-                                <td>{{ $data ? date('Y-m-d', strtotime($data->deo_p_date)) : '0000-00-00' }}</td>
+                                <td>{{ date('Y/m/d', strtotime($value->day)) }}</td>
+                                <td>{{ $data ? date('Y/m/d', strtotime($data->deo_p_date)) : '-' }}</td>
                                 <td>{{ $data ? $data->deo_times : '' }}</td>
                                 <td>{{ $data ? $data->clearinger_name : '' }}</td>
                                 <td>{!! $data ? ( $data->deo_id ? '<a href="' . route('cms.day_end.detail', ['id'=>$data->deo_id]) . '">' . $data->deo_count . '</a>' : '' ) : '' !!}</td>

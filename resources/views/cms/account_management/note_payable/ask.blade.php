@@ -44,9 +44,9 @@
                                 <td>{{ number_format($value->tw_price) }}</td>
                                 <td>{{ $value->cheque_status }}</td>
                                 <td>{{ $value->po_sn }}</td>
-                                <td>{{ $value->payment_date ? date('Y-m-d', strtotime($value->payment_date)) : '' }}</td>
-                                <td>{{ $value->cheque_due_date ? date('Y-m-d', strtotime($value->cheque_due_date)) : '' }}</td>
-                                <td>{{ $value->cheque_cashing_date ? date('Y-m-d', strtotime($value->cheque_cashing_date)) : '' }}</td>
+                                <td>{{ $value->payment_date ? date('Y/m/d', strtotime($value->payment_date)) : '' }}</td>
+                                <td>{{ $value->cheque_due_date ? date('Y/m/d', strtotime($value->cheque_due_date)) : '' }}</td>
+                                <td>{{ $value->cheque_cashing_date ? date('Y/m/d', strtotime($value->cheque_cashing_date)) : '' }}</td>
                                 <td>{{ $value->po_payable_grade_code . ' ' . $value->po_payable_grade_name }}</td>
                                 <td>{{ $value->po_target_name }}</td>
                                 <td></td>

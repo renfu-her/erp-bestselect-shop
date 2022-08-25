@@ -36,7 +36,7 @@
                                 {{ \App\Enums\FrontEnd\CustomPageType::getDescription($data->type) }}
                             </td>
                             <td>
-                                {{ date('Y-m-d', strtotime($data->updated_at)) ?? '' }}
+                                {{ date('Y/m/d', strtotime($data->updated_at)) ?? '' }}
                             </td>
                             <td>{{ $data->user_name ?? '' }}</td>
                             <td class="text-center">

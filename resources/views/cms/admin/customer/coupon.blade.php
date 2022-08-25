@@ -87,7 +87,7 @@
                         <td>{{ $discount_value_title }}</td>
                         <td>{{ $data->sn }}</td>
                         <td>{{ $note }}</td>
-                        <td>@if(!empty($data->active_sdate)) {{date('Y-m-d', strtotime($data->active_sdate))}} ~ {{date('Y-m-d', strtotime($data->active_edate))}} @else 未啟用 @endif</td>
+                        <td>@if(!empty($data->active_sdate)) {{date('Y/m/d', strtotime($data->active_sdate))}} ~ {{date('Y/m/d', strtotime($data->active_edate))}} @else 未啟用 @endif</td>
                         <td>{{ $status }}</td>
                         <td>@if(0 == $data->is_global)
                                 <a href="{{env('FRONTEND_URL'). 'collection/'. $data->collection_ids }}" class="btn btn-link">查看適用商品</a>
