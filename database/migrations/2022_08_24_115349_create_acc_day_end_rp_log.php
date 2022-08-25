@@ -17,9 +17,9 @@ class CreateAccDayEndRpLog extends Migration
             $table->id();
             $table->string('day_end_id')->nullable()->comment('日結id');
             $table->dateTime('closing_date')->nullable()->comment('日結日期');
-            $table->unsignedInteger('count')->default(0)->comment('張數');//當日
-            $table->decimal('debit_price', 15, 4)->default(0)->comment('借方金額');//當日
-            $table->decimal('credit_price', 15, 4)->default(0)->comment('貸方金額');//當日
+            $table->unsignedInteger('count')->default(0)->comment('張數');
+            $table->decimal('debit_price', 15, 4)->default(0)->comment('借方金額');
+            $table->decimal('credit_price', 15, 4)->default(0)->comment('貸方金額');
             $table->unsignedBigInteger('grade_id')->comment('會計科目id');
             $table->string('grade_code', 100)->comment('會計科目代碼');
             $table->string('grade_name', 100)->comment('會計科目名稱');

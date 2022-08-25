@@ -159,30 +159,14 @@ class DayEnd extends Model
                         foreach(json_decode($t_data->received_list) as $r_value){
                             $d_price += $r_value->tw_price;
 
-                            // 1101
-                            // 1102
-                            // 11020001
-                            // 11020002
-                            // 11020003
-                            // 1104
-                            // 2101
-                            // 1109
-                            // 11090116
-                            if(strpos($r_value->grade_name, '現金') !== false ||
-                                strpos($r_value->grade_name, '銀行存款') !== false ||
-                                strpos($r_value->grade_name, '應收票據') !== false ||
-                                strpos($r_value->grade_name, '應付票據') !== false ||
-                                strpos($r_value->grade_name, '信用卡') !== false
-                            ) {
-                                $data = [
-                                    'grade_id' => $r_value->all_grades_id,
-                                    'grade_code' => $r_value->grade_code,
-                                    'grade_name' => $r_value->grade_name,
-                                    'debit_price' => $r_value->tw_price,
-                                    'credit_price' => null,
-                                ];
-                                DayEndLog::check_day_end_log($day_end_id, $closing_date, $data);
-                            }
+                            $data = [
+                                'grade_id' => $r_value->all_grades_id,
+                                'grade_code' => $r_value->grade_code,
+                                'grade_name' => $r_value->grade_name,
+                                'debit_price' => $r_value->tw_price,
+                                'credit_price' => null,
+                            ];
+                            DayEndLog::check_day_end_log($day_end_id, $closing_date, $data);
                         }
                     }
                     if($t_data->order_items){
@@ -209,21 +193,14 @@ class DayEnd extends Model
                         foreach(json_decode($t_data->payable_list) as $pay_v){
                             $c_price += $pay_v->tw_price;
 
-                            if(strpos($pay_v->grade_name, '現金') !== false ||
-                                strpos($pay_v->grade_name, '銀行存款') !== false ||
-                                strpos($pay_v->grade_name, '應收票據') !== false ||
-                                strpos($pay_v->grade_name, '應付票據') !== false ||
-                                strpos($pay_v->grade_name, '信用卡') !== false
-                            ) {
-                                $data = [
-                                    'grade_id' => $pay_v->all_grades_id,
-                                    'grade_code' => $pay_v->grade_code,
-                                    'grade_name' => $pay_v->grade_name,
-                                    'debit_price' => null,
-                                    'credit_price' => $pay_v->tw_price,
-                                ];
-                                DayEndLog::check_day_end_log($day_end_id, $closing_date, $data);
-                            }
+                            $data = [
+                                'grade_id' => $pay_v->all_grades_id,
+                                'grade_code' => $pay_v->grade_code,
+                                'grade_name' => $pay_v->grade_name,
+                                'debit_price' => null,
+                                'credit_price' => $pay_v->tw_price,
+                            ];
+                            DayEndLog::check_day_end_log($day_end_id, $closing_date, $data);
                         }
                     }
                     if($t_data->product_items){
@@ -250,33 +227,26 @@ class DayEnd extends Model
 
                     if($t_data->tv_items){
                         foreach(json_decode($t_data->tv_items) as $tv_value){
-                            if(strpos($tv_value->grade_name, '現金') !== false ||
-                                strpos($tv_value->grade_name, '銀行存款') !== false ||
-                                strpos($tv_value->grade_name, '應收票據') !== false ||
-                                strpos($tv_value->grade_name, '應付票據') !== false ||
-                                strpos($tv_value->grade_name, '信用卡') !== false
-                            ) {
-                                if($tv_value->debit_credit_code == 'debit'){
-                                    $data = [
-                                        'grade_id' => $tv_value->grade_id,
-                                        'grade_code' => $tv_value->grade_code,
-                                        'grade_name' => $tv_value->grade_name,
-                                        'debit_price' => $tv_value->final_price,
-                                        'credit_price' => null,
-                                    ];
-                                    DayEndLog::check_day_end_log($day_end_id, $closing_date, $data);
+                            if($tv_value->debit_credit_code == 'debit'){
+                                $data = [
+                                    'grade_id' => $tv_value->grade_id,
+                                    'grade_code' => $tv_value->grade_code,
+                                    'grade_name' => $tv_value->grade_name,
+                                    'debit_price' => $tv_value->final_price,
+                                    'credit_price' => null,
+                                ];
 
-                                } else if($tv_value->debit_credit_code == 'credit'){
-                                    $data = [
-                                        'grade_id' => $tv_value->grade_id,
-                                        'grade_code' => $tv_value->grade_code,
-                                        'grade_name' => $tv_value->grade_name,
-                                        'debit_price' => null,
-                                        'credit_price' => $tv_value->final_price,
-                                    ];
-                                    DayEndLog::check_day_end_log($day_end_id, $closing_date, $data);
-                                }
+                            } else if($tv_value->debit_credit_code == 'credit'){
+                                $data = [
+                                    'grade_id' => $tv_value->grade_id,
+                                    'grade_code' => $tv_value->grade_code,
+                                    'grade_name' => $tv_value->grade_name,
+                                    'debit_price' => null,
+                                    'credit_price' => $tv_value->final_price,
+                                ];
                             }
+
+                            DayEndLog::check_day_end_log($day_end_id, $closing_date, $data);
                         }
                     }
                 }

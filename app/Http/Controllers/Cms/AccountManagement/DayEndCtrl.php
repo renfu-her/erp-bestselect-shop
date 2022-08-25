@@ -130,6 +130,11 @@ class DayEndCtrl extends Controller
         $current_day  = date('Y-m') == date('Y-m', strtotime($s_date)) ? date('d') : date('t', strtotime($s_date));
         $e_date = $cond['y'] . '-' . $cond['m'] . '-' . $current_day;
 
+        // 1101
+        // 1102
+        // 11020001
+        // 11020002
+        // 11020003
         $data_list = DayEndLog::where(function ($query) use ($s_date, $e_date) {
                 if($s_date){
                     $query->where('closing_date', '>=', $s_date);
@@ -268,7 +273,16 @@ class DayEndCtrl extends Controller
             }
         }
 
+        // 1102
+        // 11020001
+        // 11020002
+        // 11020003
         $remit = DayEndLog::remit_log($cond['current_date']);
+
+        // 1104
+        // 2101
+        // 1109
+        // 11090116
         $note_credit = DayEndLog::note_credit_log($cond['current_date']);
 
         return view('cms.account_management.day_end.show', [
