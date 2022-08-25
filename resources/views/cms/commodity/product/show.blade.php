@@ -97,7 +97,9 @@
                                     <tr>
                                         @if ($i === 0)
                                             <th rowspan="{{ count($style->prices) }}" class="text-center table-warning">
-                                                {{ $style->title }}</th>
+                                                {{ $style->title }}
+                                                <div class="text-secondary small fw-light">{{ $style->sku }}</div>
+                                            </th>
                                         @endif
                                         <td>{{ $price->salechannel_title }}</td>
                                         <td class="text-end">${{ number_format($price->price) }}</td>
