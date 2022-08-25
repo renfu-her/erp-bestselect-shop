@@ -4,11 +4,11 @@
 
     <ul class="nav nav-tabs border-bottom-0">
         <li class="nav-item">
-            <a href="{{ Route('cms.day_end.index') }}" class="nav-link" role="button">日結查詢</a>
+            <a href="{{ route('cms.day_end.index') }}" class="nav-link" role="button">日結查詢</a>
         </li>
-        {{-- <li class="nav-item">
-            <a href="{{ Route('cms.day_end.balance') }}" class="nav-link" role="button">現金/銀行存款餘額</a>
-        </li> --}}
+        <li class="nav-item">
+            <a href="{{ route('cms.day_end.balance') }}" class="nav-link" role="button">現金/銀行存款餘額</a>
+        </li>
         <li class="nav-item">
             <a href="javascript:void(0);" class="nav-link active" aria-current="page" role="button">日結明細表</a>
         </li>
@@ -115,7 +115,69 @@
                 </table>
             </div>
 
-            
+            <div class="table-responsive tableOverBox mb-3">
+                <table class="table table-hover tableList mb-1">
+                    <thead class="table-primary">
+                        <tr>
+                            <th scope="col">銀行帳戶</th>
+                            <th scope="col">前日結存</th>
+                            <th scope="col">今日收入</th>
+                            <th scope="col">今日支出</th>
+                            <th scope="col">今日結存</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach ($remit as $value)
+                            <tr>
+                                <td>{{ $value->title }}</td>
+                                <td>{{ number_format($value->pre_price) }}</td>
+                                <td>{{ number_format($value->cur_debit_price) }}</td>
+                                <td>{{ number_format($value->cur_credit_price) }}</td>
+                                <td>{{ number_format($value->pre_price + $value->cur_price) }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-responsive tableOverBox mb-3">
+                <table class="table table-hover tableList mb-1">
+                    <thead class="table-primary">
+                        <tr>
+                            <th scope="col">類別</th>
+                            <th scope="col">前日結存</th>
+                            <th scope="col">張數</th>
+                            <th scope="col">本日兌現</th>
+                            <th scope="col">張數</th>
+                            <th scope="col">本日收入</th>
+                            <th scope="col">張數</th>
+                            <th scope="col">本日結存</th>
+                            <th scope="col">張數</th>
+                            <th scope="col">次日兌現</th>
+                            <th scope="col">張數</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach ($note_credit as $value)
+                            <tr>
+                                <td>{{ $value->title }}</td>
+                                <td>{{ number_format($value->pre_price) }}</td>
+                                <td>{{ $value->pre_count }}</td>
+                                <td>{{ number_format($value->cur_cashed_price) }}</td>
+                                <td>{{ $value->cur_cashed_count }}</td>
+                                <td>{{ number_format($value->cur_price) }}</td>
+                                <td>{{ $value->cur_count }}</td>
+                                <td>{{ number_format($value->pre_price + $value->cur_price - $value->cur_cashed_price) }}</td>
+                                <td>{{ $value->pre_count + $value->cur_count - $value->cur_cashed_count }}</td>
+                                <td>{{ $value->nex_cashed_price }}</td>
+                                <td>{{ $value->nex_cashed_count }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     </form>
 @endsection
@@ -130,7 +192,7 @@
     @push('sub-scripts')
         <script>
             $(function() {
-                // 
+
             });
         </script>
     @endpush

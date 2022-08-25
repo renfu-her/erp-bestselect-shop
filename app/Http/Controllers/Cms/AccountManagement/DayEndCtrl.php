@@ -5,27 +5,8 @@ namespace App\Http\Controllers\Cms\AccountManagement;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-use App\Enums\Supplier\Payment;
-use App\Enums\Payable\ChequeStatus;
-
-use App\Models\AllGrade;
-use App\Models\AccountPayable;
-use App\Models\Customer;
-use App\Models\Delivery;
-use App\Models\Depot;
-use App\Models\GeneralLedger;
-use App\Models\Order;
-use App\Models\PayableDefault;
 use App\Models\DayEnd;
-use App\Models\PayableAccount;
-use App\Models\PayableCash;
-use App\Models\PayableCheque;
-use App\Models\PayableForeignCurrency;
-use App\Models\PayableOther;
-use App\Models\PayableRemit;
-use App\Models\StituteOrder;
-use App\Models\Supplier;
-use App\Models\User;
+use App\Models\DayEndLog;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -45,7 +26,7 @@ class DayEndCtrl extends Controller
         $e_date = $cond['y'] . '-' . $cond['m'] . '-' . $current_day;
 
         $data_list = [];
-        if(date('Y-m') >= date('Y-m', strtotime($s_date))){
+        if(date('Y-m', strtotime($s_date)) <= date('Y-m')){
             while(strtotime($s_date) <= strtotime($e_date)) {
                 // $day_num = date('d', strtotime($s_date));
                 // $day_name = date('l', strtotime($s_date));
@@ -56,8 +37,6 @@ class DayEndCtrl extends Controller
                 $s_date = date('Y-m-d', strtotime('+1 day', strtotime($s_date)));
             }
         }
-
-        // $data_list = DayEnd::date_list($d_range)->appends($query);
 
         $year_range = [
             (date('Y') - 2),
@@ -139,11 +118,110 @@ class DayEndCtrl extends Controller
     }
 
 
-    public function balance()
+    public function balance(Request $request)
     {
+        $query = $request->query();
+        $cond = [];
+
+        $cond['y'] = Arr::get($query, 'y', date('Y'));
+        $cond['m'] = Arr::get($query, 'm', date('m'));
+
+        $s_date = $cond['y'] . '-' . $cond['m'] . '-01';
+        $current_day  = date('Y-m') == date('Y-m', strtotime($s_date)) ? date('d') : date('t', strtotime($s_date));
+        $e_date = $cond['y'] . '-' . $cond['m'] . '-' . $current_day;
+
+        $data_list = DayEndLog::where(function ($query) use ($s_date, $e_date) {
+                if($s_date){
+                    $query->where('closing_date', '>=', $s_date);
+                }
+                if($e_date){
+                    $query->where('closing_date', '<', $e_date);
+                }
+            })->where(function ($q) {
+                $q->where('grade_code', 'like', '1101%');
+                $q->orWhere('grade_code', 'like', '1102%');
+            })->groupBy('grade_name')
+            ->orderBy('grade_id', 'asc')
+            ->selectRaw('
+                SUM(debit_price) AS debit_price,
+                SUM(credit_price) AS credit_price,
+                grade_id,
+                grade_code,
+                grade_name
+            ')->get();
+
+        $year_range = [
+            (date('Y') - 2),
+            (date('Y') - 1),
+            date('Y'),
+            (date('Y') + 1),
+            (date('Y') + 2),
+        ];
+
+        $month_rage = [];
+        for($i = 1; $i <= 12; $i++){
+            $month_rage[] = $i;
+        }
 
         return view('cms.account_management.day_end.balance', [
-            // 'day_end' => $day_end,
+            'data_list' => $data_list,
+            'cond' => $cond,
+            'year_range' => $year_range,
+            'month_rage' => $month_rage,
+        ]);
+    }
+
+
+    public function balance_check(Request $request, $id, $date)
+    {
+        $request->merge([
+            'id'=>$id,
+            'date'=>$date,
+        ]);
+
+        $request->validate([
+            'id' => 'required|exists:acc_all_grades,id',
+            'date' => 'required|date|date_format:Y-m|before:tomorrow',
+        ]);
+
+        $s_date =  date('Y-m-01', strtotime($date));
+        $e_date = date('Y-m-t', strtotime($date));
+
+        $data_list = DayEndLog::where(function ($query) use ($s_date, $e_date) {
+                if($s_date){
+                    $query->where('closing_date', '>=', $s_date);
+                }
+                if($e_date){
+                    $query->where('closing_date', '<', $e_date);
+                }
+            })->where('grade_id', '=', $id)
+            ->orderBy('closing_date', 'asc')
+            ->get();
+
+        if($data_list->count() < 1){
+            return abort(404);
+        }
+
+        $pre_data = DayEndLog::whereDate('closing_date', '<', $s_date)
+            ->where('grade_id', '=', $id)
+            ->groupBy('grade_id')
+            ->selectRaw('
+                SUM(debit_price - credit_price) AS price,
+                grade_code,
+                grade_name
+            ')->first();
+
+        if(! $pre_data){
+            $pre_data = (object)[
+                'price' => 0,
+                'grade_code' => $data_list->first()->grade_code,
+                'grade_name' => $data_list->first()->grade_name,
+            ];
+        }
+
+        return view('cms.account_management.day_end.balance_check', [
+            'data_list' => $data_list,
+            'pre_data' => $pre_data,
         ]);
     }
 
@@ -190,24 +268,15 @@ class DayEndCtrl extends Controller
             }
         }
 
-
-        $previous_date = date('Y-m-d', strtotime('-1 day', strtotime($cond['current_date'])));
-        $next_date = date('Y-m-d', strtotime('+1 day', strtotime($cond['current_date'])));
-
-        // $data_list = $day_end->deo_items;
-
-
-
-
-
-        // DayEnd::date_list($s_date)->first();
-        // $data_list = DayEnd::date_list($d_range)->appends($query);
-
+        $remit = DayEndLog::remit_log($cond['current_date']);
+        $note_credit = DayEndLog::note_credit_log($cond['current_date']);
 
         return view('cms.account_management.day_end.show', [
             'data_list' => $data_list,
             'data_title' => $data_title,
             'cond' => $cond,
+            'remit' => $remit,
+            'note_credit' => $note_credit,
         ]);
     }
 }

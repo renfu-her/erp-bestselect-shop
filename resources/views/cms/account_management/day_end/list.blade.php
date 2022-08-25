@@ -6,11 +6,11 @@
         <li class="nav-item">
             <a href="javascript:void(0);" class="nav-link active" aria-current="page" role="button">日結查詢</a>
         </li>
-        {{-- <li class="nav-item">
-            <a href="{{ Route('cms.day_end.balance') }}" class="nav-link" role="button">現金/銀行存款餘額</a>
-        </li> --}}
         <li class="nav-item">
-            <a href="{{ Route('cms.day_end.show') }}" class="nav-link" role="button">日結明細表</a>
+            <a href="{{ route('cms.day_end.balance') }}" class="nav-link" role="button">現金/銀行存款餘額</a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('cms.day_end.show') }}" class="nav-link" role="button">日結明細表</a>
         </li>
     </ul>
 
