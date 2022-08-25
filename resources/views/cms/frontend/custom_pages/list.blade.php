@@ -89,6 +89,13 @@
 @endsection
 
 @once
+@push('sub-styles')
+    <style>
+        .tableList > thead > * > .wrap {
+            line-height: 1.2;
+        }
+    </style>
+@endpush
     @push('sub-scripts')
         <script>
             $('#confirm-delete').on('show.bs.modal', function(e) {
