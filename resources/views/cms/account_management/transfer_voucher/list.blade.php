@@ -3,12 +3,6 @@
 @section('sub-content')
     <h2 class="mb-4">轉帳傳票查詢</h2>
 
-    <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
-        <div class="p-1 pe-2">
-            <a href="{{ Route('cms.transfer_voucher.create') }}" class="btn btn-primary btn-sm my-1 ms-1" role="button">新增轉帳傳票</a>
-        </div>
-    </nav>
-
     <form id="search" method="GET">
         <div class="card shadow p-4 mb-4">
             <h6>搜尋條件</h6>
@@ -49,7 +43,7 @@
                     </div>
                 </div>
 
-                <fieldset class="col-12 col-sm-4 mb-3">
+                <fieldset class="col-12 mb-3">
                     <legend class="col-form-label p-0 mb-2">傳票狀態</legend>
                     <div class="px-1 pt-1">
                         @foreach ($audit_status as $key => $value)
@@ -73,6 +67,11 @@
 
     <div class="card shadow p-4 mb-4">
         <div class="row justify-content-end mb-4">
+            <div class="col">
+                <a href="{{ Route('cms.transfer_voucher.create') }}" class="btn btn-primary" role="button">
+                    <i class="bi bi-plus-lg"></i> 新增轉帳傳票
+                </a>
+            </div>
             <div class="col-auto">
                 顯示
                 <select class="form-select d-inline-block w-auto" id="dataPerPageElem" aria-label="表格顯示筆數">
@@ -136,7 +135,7 @@
                                 @endif
                             </td>
 
-                            <td>{{ $data->tv_audit_date ? date('Y-m-d', strtotime($data->tv_audit_date)) : '0000-00-00' }}</td>
+                            <td>{{ $data->tv_audit_date ? date('Y/m/d', strtotime($data->tv_audit_date)) : '-' }}</td>
                         </tr>
                     @endforeach
                 </tbody>

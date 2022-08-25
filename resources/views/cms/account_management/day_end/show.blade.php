@@ -18,7 +18,7 @@
         <div class="card shadow p-4 mb-4">
 
             <div class="row mb-3 align-items-end">
-                <div class="col-auto">
+                <div class="col">
                     <label class="form-label">日期</label>
                     <input type="date" name="current_date" class="form-control @error('current_date') is-invalid @enderror" placeholder="請輸入日期" aria-label="日期" value="{{ old('current_date', $cond['current_date'] ?? date('Y-m-d', strtotime(date('Y-m-d'))) ) }}" max="{{ date('Y-m-d', strtotime('now')) }}">
                     <div class="invalid-feedback">
@@ -40,13 +40,13 @@
                 @endphp
                 @foreach($data_list as $pro_key => $pro_value)
                 @if(count($pro_value) > 0)
-                    <table class="table table-hover tableList mb-1">
+                    <table class="table table-hover tableList">
                         <thead class="table-primary">
                             <tr>
                                 <th scope="col">摘要</th>
                                 <th scope="col">銀行帳戶</th>
-                                <th scope="col">（收）</th>
-                                <th scope="col">（支）</th>
+                                <th scope="col" class="text-end">（收）</th>
+                                <th scope="col" class="text-end">（支）</th>
                                 <th scope="col">單據編號</th>
                                 <th scope="col">傳票號碼</th>
                             </tr>
@@ -61,8 +61,8 @@
                                 <tr>
                                     <td>{{ $value->summary }}</td>
                                     <td>{{ $value->grade_name }}</td>
-                                    <td>{{ $value->d_price != 0 ? number_format($value->d_price) : '' }}</td>
-                                    <td>{{ $value->c_price != 0 ? number_format($value->c_price) : '' }}</td>
+                                    <td class="text-end">{{ $value->d_price != 0 ? number_format($value->d_price) : '' }}</td>
+                                    <td class="text-end">{{ $value->c_price != 0 ? number_format($value->c_price) : '' }}</td>
                                     <td><a href="{{ $value->source_link }}">{{ $value->source_sn }}</a></td>
                                     <td>{{ $value->sn }}</td>
                                 </tr>
@@ -77,8 +77,8 @@
                             <tr>
                                 <td>{{ $data_title[$pro_key] }}　合計</td>
                                 <td></td>
-                                <td>{{ number_format($d_sub_total) }}</td>
-                                <td>{{ number_format($c_sub_total) }}</td>
+                                <td class="text-end">{{ number_format($d_sub_total) }}</td>
+                                <td class="text-end">{{ number_format($c_sub_total) }}</td>
                                 <td></td>
                                 <td></td>
                             </tr>
@@ -96,8 +96,8 @@
                         <tr>
                             <th scope="col">摘要</th>
                             <th scope="col">銀行帳戶</th>
-                            <th scope="col">（收）</th>
-                            <th scope="col">（支）</th>
+                            <th scope="col" class="text-end">（收）</th>
+                            <th scope="col" class="text-end">（支）</th>
                             <th scope="col">單據編號</th>
                             <th scope="col">傳票號碼</th>
                         </tr>
@@ -106,8 +106,8 @@
                         <tr>
                             <td>今日合計</td>
                             <td></td>
-                            <td>{{ number_format($d_total) }}</td>
-                            <td>{{ number_format($c_total) }}</td>
+                            <td class="text-end">{{ number_format($d_total) }}</td>
+                            <td class="text-end">{{ number_format($c_total) }}</td>
                             <td></td>
                             <td></td>
                         </tr>

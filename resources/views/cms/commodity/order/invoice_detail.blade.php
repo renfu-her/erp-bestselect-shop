@@ -24,7 +24,7 @@
                         </tr>
                         <tr>
                             <td class="col-8">統一編號：{{ $invoice->buyer_ubn }}</td>
-                            <td class="text-end pe-4">開立日期：{{ date('Y-m-d', strtotime($invoice->created_at)) }}</td>
+                            <td class="text-end pe-4">開立日期：{{ date('Y/m/d', strtotime($invoice->created_at)) }}</td>
                         </tr>
                         <tr>
                             <td class="col-8">電子郵件：{{ $invoice->buyer_email }}</td>

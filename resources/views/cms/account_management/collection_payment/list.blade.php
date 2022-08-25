@@ -30,8 +30,10 @@
                 <div class="col-12 mb-3">
                     <label class="form-label">付款金額</label>
                     <div class="input-group has-validation">
-                        <input type="number" step="1" min="0" class="form-control @error('po_min_price') is-invalid @enderror" name="po_min_price" value="{{ $cond['po_min_price'] }}" aria-label="付款起始金額">
-                        <input type="number" step="1" min="0" class="form-control @error('po_max_price') is-invalid @enderror" name="po_max_price" value="{{ $cond['po_max_price'] }}" aria-label="付款結束金額">
+                        <input type="number" step="1" min="0" class="form-control @error('po_min_price') is-invalid @enderror" 
+                            name="po_min_price" value="{{ $cond['po_min_price'] }}" placeholder="起始金額" aria-label="付款起始金額">
+                        <input type="number" step="1" min="0" class="form-control @error('po_max_price') is-invalid @enderror" 
+                            name="po_max_price" value="{{ $cond['po_max_price'] }}" placeholder="結束金額" aria-label="付款結束金額">
                         <div class="invalid-feedback">
                             @error('po_min_price')
                                 {{ $message }}
@@ -64,7 +66,7 @@
                     </div>
                 </div>
 
-                <fieldset class="col-12 col-sm-4 mb-3">
+                <fieldset class="col-12 mb-3">
                     <legend class="col-form-label p-0 mb-2">付款狀態</legend>
                     <div class="px-1 pt-1">
                         @foreach ($check_balance_status as $key => $value)
@@ -143,7 +145,7 @@
                             <td class="p-0 border-bottom-0" height="0"></td>
                             <td class="p-0 border-bottom-0" height="0"></td>
 
-                            <td rowspan="{{ $rows }}">{{ $data->payment_date ? date('Y-m-d', strtotime($data->payment_date)) : '0000-00-00' }}</td>
+                            <td rowspan="{{ $rows }}">{{ $data->payment_date ? date('Y/m/d', strtotime($data->payment_date)) : '-' }}</td>
                         </tr>
                         @foreach ($data->debit as $d_value)
                             <tr>

@@ -70,8 +70,8 @@
                                     <input class="form-check-input single_select" type="checkbox" name="selected[{{ $key }}]" value="{{ $value->day }}">
                                     <input type="hidden" name="closing_date[{{ $key }}]" class="select_input" value="{{ $value->day }}" disabled>
                                 </th>
-                                <td>{{ $value->day }}</td>
-                                <td>{{ $data ? date('Y-m-d', strtotime($data->deo_p_date)) : '0000-00-00' }}</td>
+                                <td>{{ date('Y/m/d', strtotime($value->day)) }}</td>
+                                <td>{{ $data ? date('Y/m/d', strtotime($data->deo_p_date)) : '-' }}</td>
                                 <td>{{ $data ? $data->deo_times : '' }}</td>
                                 <td>{{ $data ? $data->clearinger_name : '' }}</td>
                                 <td>{!! $data ? ( $data->deo_id ? '<a href="' . route('cms.day_end.detail', ['id'=>$data->deo_id]) . '">' . $data->deo_count . '</a>' : '' ) : '' !!}</td>
