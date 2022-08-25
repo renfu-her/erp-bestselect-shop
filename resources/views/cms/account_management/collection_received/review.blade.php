@@ -227,11 +227,7 @@
                                             @endif
                                         </td>
                                         <td style="width:calc(10/45*100%)" class="text-end">
-                                            @if ($d_value->price < 0)
-                                                -${{ number_format(abs($d_value->price)) }}
-                                            @else
-                                                ${{ number_format($d_value->price) }}
-                                            @endif
+                                            {{ number_format($d_value->price) }}
                                         </td>
                                     </tr>
                                     @php
@@ -249,11 +245,7 @@
                                             {{ $value->name }}
                                         </td>
                                         <td style="width:calc(10/45*100%)" class="text-end">
-                                            @if ($value->price < 0)
-                                                -${{ number_format(abs($value->price)) }}
-                                            @else
-                                                ${{ number_format($value->price) }}
-                                            @endif
+                                            {{ number_format($value->price) }}
                                         </td>
                                     </tr>
                                     @php
@@ -268,9 +260,9 @@
                         <tr>
                             <td>合計</td>
                             <td></td>
-                            <td class="text-end">${{ number_format($total_debit_price) }}{{-- number_format($received_order->price) --}}</td>
+                            <td class="text-end">{{ number_format($total_debit_price) }}{{-- number_format($received_order->price) --}}</td>
                             <td></td>
-                            <td class="text-end">${{ number_format($total_credit_price) }}{{-- number_format($received_order->price) --}}</td>
+                            <td class="text-end">{{ number_format($total_credit_price) }}{{-- number_format($received_order->price) --}}</td>
                         </tr>
                     </tfoot>
                 </table>
