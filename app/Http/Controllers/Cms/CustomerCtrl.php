@@ -33,13 +33,12 @@ class CustomerCtrl extends Controller
     public function index(Request $request)
     {
         $query = $request->query();
-        $name = Arr::get($query, 'name', '');
-        $email = Arr::get($query, 'email', '');
-        $customer = Customer::getCustomerBySearch($name)->paginate(10)->appends($query);
+        $keyword = Arr::get($query, 'keyword', '');
+      
+        $customer = Customer::getCustomerBySearch($keyword)->paginate(10)->appends($query);
 
         return view('cms.admin.customer.list', [
-            'name' => $name,
-            'email' => $email,
+            'keyword' => $keyword,
             "dataList" => $customer,
             'formAction' => Route('cms.customer.index'),
         ]);
