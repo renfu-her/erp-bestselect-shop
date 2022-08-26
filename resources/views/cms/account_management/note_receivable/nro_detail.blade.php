@@ -26,7 +26,7 @@
                     @php
                         $d_count = 0;
                     @endphp
-                    @if($note_receivable_order)
+                    @if(count($data_list) > 0)
                         <tr>
                             <th>{{ $d_count + 1 }}</th>
                             <td>{{ $note_receivable_order->code . ' ' . $note_receivable_order->name }}</td>

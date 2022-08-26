@@ -260,12 +260,12 @@ class NoteReceivableCtrl extends Controller
             return view('cms.account_management.note_receivable.detail', [
                 'breadcrumb_data' => ['title'=>$title],
                 'previous_url' => route('cms.note_receivable.ask', ['type'=>$type]),
-                'type'=>$type,
+                'type' => $type,
                 'data_list' => $data_list,
             ]);
 
         } else if($type == 'cashed'){
-            $data_list = NoteReceivableOrder::get_cheque_received_list(null, $type, null, null, null, null, null, null, null, null, null, [request('qd'), request('qd')])->get();
+            $data_list = NoteReceivableOrder::get_cheque_received_list(null, $type, null, null, null, null, null, null, null, null, null, [request('qd'), request('qd')])->whereNotNull('_cheque.sn')->get();
 
             $note_receivable_order = NoteReceivableOrder::leftJoinSub(GeneralLedger::getAllGrade(), 'grade', function($join) {
                 $join->on('grade.primary_id', 'acc_note_receivable_orders.net_grade_id');
@@ -274,7 +274,7 @@ class NoteReceivableCtrl extends Controller
             return view('cms.account_management.note_receivable.nro_detail', [
                 'breadcrumb_data' => ['title'=>$title],
                 'previous_url' => route('cms.note_receivable.ask', ['type'=>$type]),
-                'type'=>$type,
+                'type' => $type,
                 'data_list' => $data_list,
                 'note_receivable_order' => $note_receivable_order,
             ]);

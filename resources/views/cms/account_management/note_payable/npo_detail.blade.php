@@ -38,7 +38,7 @@
                         @endphp
                     @endforeach
 
-                    @if($note_payable_order)
+                    @if(count($data_list) > 0)
                         <tr>
                             <th>{{ $d_count + 1 }}</th>
                             <td>{{ $note_payable_order->code . ' ' . $note_payable_order->name }}</td>
