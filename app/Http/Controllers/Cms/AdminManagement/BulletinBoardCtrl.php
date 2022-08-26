@@ -56,6 +56,7 @@ class BulletinBoardCtrl extends Controller
                 'usr_users.name as user_name',
                 'usr_users.id as user_id',
             ])
+            ->orderByDesc('weight')
             ->orderByDesc('created_at')
             ->paginate($page)
             ->appends($query);
