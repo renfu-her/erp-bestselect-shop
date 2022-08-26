@@ -214,7 +214,7 @@ class NotePayableCtrl extends Controller
         if($type == 'cashed'){
             $title = '兌現明細';
 
-            $data_list = NotePayableOrder::get_cheque_payable_list(null, $type, null, null, null, null, null, [request('qd'), request('qd')])->get();
+            $data_list = NotePayableOrder::get_cheque_payable_list(null, $type, null, null, null, null, null, [request('qd'), request('qd')])->whereNotNull('_cheque.sn')->get();
 
             $note_payable_order = NotePayableOrder::leftJoinSub(GeneralLedger::getAllGrade(), 'grade', function($join) {
                 $join->on('grade.primary_id', 'acc_note_payable_orders.net_grade_id');
@@ -223,7 +223,7 @@ class NotePayableCtrl extends Controller
             return view('cms.account_management.note_payable.npo_detail', [
                 'breadcrumb_data' => ['title'=>$title],
                 'previous_url' => route('cms.note_payable.ask', ['type'=>$type]),
-                'type'=>$type,
+                'type' => $type,
                 'data_list' => $data_list,
                 'note_payable_order' => $note_payable_order,
             ]);

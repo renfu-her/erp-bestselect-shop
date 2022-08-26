@@ -627,7 +627,7 @@ class ReceivedOrder extends Model
     public static function update_received_method($request)
     {
         $checkout_area = Area::get_key_value();
-
+dd($request);
         switch ($request['received_method']) {
             // case ReceivedMethod::Cash:
 
@@ -656,7 +656,16 @@ class ReceivedOrder extends Model
                     NoteReceivableLog::create_cheque_log($request['received_method_id'], $request['status_code']);
 
                     if($request['cashing_date'] && $request['status_code'] == 'cashed'){
-                        NoteReceivableOrder::store_note_receivable_order($request['cashing_date']);
+                        // DB::table('acc_received_cheque')->where('id', $request['received_method_id'])->update([
+                        //     'amt_net'=>0,
+                        // ]);
+
+                        $note_receivable_order = NoteReceivableOrder::store_note_receivable_order($request['cashing_date']);
+
+                        DB::table('acc_received_cheque')->where('id', $request['received_method_id'])->update([
+                            'note_receivable_order_id'=>$note_receivable_order->id,
+                            'sn'=>$note_receivable_order->sn,
+                        ]);
                     }
                 }
 
