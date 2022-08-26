@@ -342,6 +342,7 @@ class ProductStyle extends Model
             'dealer_price' => 'sp.dealer_price',
             'dividend' => 'sp.dividend',
             'origin_price' => 'sp.origin_price',
+            'sku' => 'style.sku',
         ]);
 
         $sub = DB::table('prd_salechannel_style_price as sp')
@@ -361,6 +362,7 @@ class ProductStyle extends Model
             // dd($v);
             if (isset($v->prices[0])) {
                 $v->title = $v->prices[0]->style_title;
+                $v->sku = $v->prices[0]->sku;
             }
             return $v;
 

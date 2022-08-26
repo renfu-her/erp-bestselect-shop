@@ -46,17 +46,10 @@
             <div id="collapse1" class="accordion-collapse collapse show">
                 <div class="accordion-body pb-0 pe-0" style="overflow-x: auto">
                     <div class="upload_image_block" style="width: max-content">
-                        @php
-                            if (\Illuminate\Support\Facades\App::environment(\App\Enums\Globals\AppEnvClass::Release)) {
-                                $imageDomain = \App\Enums\Globals\ImageDomain::CDN;
-                            } else {
-                                $imageDomain = '/';
-                            }
-                        @endphp
                         @foreach ($images as $img)
-                            <a href="{{ $imageDomain . $img['url'] }}" target="_blank">
+                            <a href="{{ getImageUrl($img['url']) }}" target="_blank">
                                 <span class="browser_box rounded-0 border">
-                                    <img src="{{ $imageDomain . $img['url'] }}" alt="{{ '圖片' . $img['id'] }}">
+                                    <img src="{{ getImageUrl($img['url']) }}" alt="{{ '圖片' . $img['id'] }}">
                                 </span>
                             </a>
                         @endforeach
@@ -97,7 +90,9 @@
                                     <tr>
                                         @if ($i === 0)
                                             <th rowspan="{{ count($style->prices) }}" class="text-center table-warning">
-                                                {{ $style->title }}</th>
+                                                {{ $style->title }}
+                                                <div class="text-secondary small fw-light">{{ $style->sku }}</div>
+                                            </th>
                                         @endif
                                         <td>{{ $price->salechannel_title }}</td>
                                         <td class="text-end">${{ number_format($price->price) }}</td>

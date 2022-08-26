@@ -15,14 +15,14 @@
 
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">
-                <thead>
+                <thead class="small align-middle">
                     <tr>
                         <th scope="col" style="width:10%">#</th>
                         <th scope="col">頁面名稱</th>
                         <th scope="col">類型</th>
-                        <th scope="col">最後更新日期</th>
-                        <th scope="col">最後更新人員</th>
-                        <th scope="col" class="text-center">複製連結</th>
+                        <th scope="col" class="wrap">最後更新日期</th>
+                        <th scope="col" class="wrap">最後更新人員</th>
+                        <th scope="col" class="text-center wrap">複製連結</th>
                         <th scope="col" class="text-center">編輯</th>
                         <th scope="col" class="text-center">刪除</th>
                     </tr>
@@ -41,7 +41,7 @@
                             <td>{{ $data->user_name ?? '' }}</td>
                             <td class="text-center">
                                 <button type="button" data-bs-toggle="tooltip" title="複製"
-                                    data-url="{{ \App\Models\CustomPages::getFullUrlPath($data->url, $data->id) }}"
+                                    data-url="{{ $data->type === 2 ? $data->body : \App\Models\CustomPages::getFullUrlPath($data->url, $data->id) }}"
                                     class="icon -copy icon-btn fs-5 text-primary rounded-circle border-0">
                                     <i class="bi bi-clipboard2-check"></i>
                                 </button>
@@ -89,6 +89,13 @@
 @endsection
 
 @once
+@push('sub-styles')
+    <style>
+        .tableList > thead > * > .wrap {
+            line-height: 1.2;
+        }
+    </style>
+@endpush
     @push('sub-scripts')
         <script>
             $('#confirm-delete').on('show.bs.modal', function(e) {
