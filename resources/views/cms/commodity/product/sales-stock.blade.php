@@ -69,7 +69,7 @@
                             </th>
                             <td>
                                 <input type="number" name="overbought" value="{{ $style->overbought }}" placeholder=""
-                                    min="0" class="form-control form-control-sm">
+                                    class="form-control form-control-sm">
                             </td>
                         </tr>
                         <tr>
