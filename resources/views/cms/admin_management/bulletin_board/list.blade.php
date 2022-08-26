@@ -73,7 +73,8 @@
                                 {{ $data->title ?? '' }}
                             </a>
                         </td>
-                        <td>
+                        <td @class(['fw-bold text-danger' => $data->weight === '3',
+                                            'text-success' => $data->weight === '2'])>
                             {{ \App\Enums\AdminManagement\Weight::getDescription($data->weight) }}
                         </td>
                         <td>
