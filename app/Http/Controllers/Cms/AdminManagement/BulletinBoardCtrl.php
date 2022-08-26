@@ -52,9 +52,11 @@ class BulletinBoardCtrl extends Controller
                 'idx_news.content',
                 'idx_news.weight',
                 'idx_news.expire_time',
+                'idx_news.created_at',
                 'usr_users.name as user_name',
                 'usr_users.id as user_id',
             ])
+            ->orderByDesc('created_at')
             ->paginate($page)
             ->appends($query);
 
