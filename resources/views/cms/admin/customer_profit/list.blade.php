@@ -12,8 +12,8 @@
                 </div>
                 <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">員編</label>
-                    <input class="form-control" type="text" name="sn" placeholder="請輸入員編" value="{{ $sn }}"
-                        aria-label="員編">
+                    <input class="form-control" type="text" name="sn" placeholder="請輸入員編"
+                        value="{{ $sn }}" aria-label="員編">
                 </div>
             </div>
             <div class="row">
@@ -35,9 +35,11 @@
     </form>
     <div class="card shadow p-4 mb-4">
         <div class="col mb-4">
-            <a href="{{ Route('cms.customer-profit.create') }}" class="btn btn-primary">
-                <i class="bi bi-plus-lg"></i> 新增分潤成員
-            </a>
+            @can('cms.customer-profit.create')
+                <a href="{{ Route('cms.customer-profit.create') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-lg"></i> 新增分潤成員
+                </a>
+            @endcan
         </div>
 
         <div class="table-responsive tableOverBox">
@@ -59,11 +61,13 @@
                             <td>{{ $data->sn }}</td>
                             <td>{{ $data->status_title }}</td>
                             <td class="text-center">
-                                <a href="{{ Route('cms.customer-profit.edit', ['id' => $data->id], true) }}"
-                                    data-bs-toggle="tooltip" title="編輯"
-                                    class="icon icon-btn fs-5 text-primary rounded-circle border-0">
-                                    <i class="bi bi-pencil-square"></i>
-                                </a>
+                                @can('cms.customer-profit.edit')
+                                    <a href="{{ Route('cms.customer-profit.edit', ['id' => $data->id], true) }}"
+                                        data-bs-toggle="tooltip" title="編輯"
+                                        class="icon icon-btn fs-5 text-primary rounded-circle border-0">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                @endcan
                             </td>
                         </tr>
                     @endforeach

@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">{{ date('Y-m-d', strtotime($day_end->deo_closing_date)) }} 日結清單</h2>
+    <h2 class="mb-4">{{ date('Y/m/d', strtotime($day_end->deo_closing_date)) }} 日結清單</h2>
     
     <div class="card shadow p-4 mb-4">
         <div class="table-responsive tableOverBox">

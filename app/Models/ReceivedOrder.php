@@ -71,14 +71,20 @@ class ReceivedOrder extends Model
                         "received_method":"\', acc_received.received_method, \'",
                         "received_method_id":"\', COALESCE(acc_received.received_method_id, ""), \'",
                         "all_grades_id":"\', acc_received.all_grades_id, \'",
+                        "grade_code":"\', grade.code, \'",
+                        "grade_name":"\', grade.name, \'",
                         "tw_price":"\', acc_received.tw_price, \'",
                         "summary":"\', COALESCE(acc_received.summary, ""),\'",
                         "note":"\', COALESCE(acc_received.note, ""),\'",
                         "created_at":"\', acc_received.created_at,\'",
+                        "cheque_ticket_number":"\', COALESCE(_cheque.ticket_number, ""),\'",
+                        "cheque_due_date":"\', COALESCE(_cheque.due_date, ""),\'",
+                        "remit_memo":"\', COALESCE(_remit.memo, ""),\'",
                         "credit_card_number":"\', COALESCE(_credit.cardnumber, ""),\'",
-                        "remit_memo":"\', COALESCE(_remit.memo, ""),\'"
+                        "credit_card_owner":"\', COALESCE(_credit.card_owner_name, ""),\'"
                     }\' ORDER BY acc_received.id), \']\') AS received_list
                 FROM acc_received
+                LEFT JOIN (' . $sq . ') AS grade ON acc_received.all_grades_id = grade.id
                 LEFT JOIN acc_received_account AS _account ON acc_received.received_method_id = _account.id AND acc_received.received_method = "account_received"
                 LEFT JOIN acc_received_credit AS _credit ON acc_received.received_method_id = _credit.id AND acc_received.received_method = "credit_card"
                 LEFT JOIN acc_received_cheque AS _cheque ON acc_received.received_method_id = _cheque.id AND acc_received.received_method = "cheque"
@@ -621,7 +627,7 @@ class ReceivedOrder extends Model
     public static function update_received_method($request)
     {
         $checkout_area = Area::get_key_value();
-
+dd($request);
         switch ($request['received_method']) {
             // case ReceivedMethod::Cash:
 
@@ -650,7 +656,16 @@ class ReceivedOrder extends Model
                     NoteReceivableLog::create_cheque_log($request['received_method_id'], $request['status_code']);
 
                     if($request['cashing_date'] && $request['status_code'] == 'cashed'){
-                        NoteReceivableOrder::store_note_receivable_order($request['cashing_date']);
+                        // DB::table('acc_received_cheque')->where('id', $request['received_method_id'])->update([
+                        //     'amt_net'=>0,
+                        // ]);
+
+                        $note_receivable_order = NoteReceivableOrder::store_note_receivable_order($request['cashing_date']);
+
+                        DB::table('acc_received_cheque')->where('id', $request['received_method_id'])->update([
+                            'note_receivable_order_id'=>$note_receivable_order->id,
+                            'sn'=>$note_receivable_order->sn,
+                        ]);
                     }
                 }
 

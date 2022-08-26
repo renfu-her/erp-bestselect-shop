@@ -26,9 +26,11 @@
 
     <div class="card shadow p-4 mb-4">
         <div class="col">
-            <a href="{{ Route('cms.order-bonus.create') }}" class="btn btn-primary">
-                <i class="bi bi-plus-lg"></i> 新增報表
-            </a>
+            @can('cms.order-bonus.create')
+                <a href="{{ Route('cms.order-bonus.create') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-lg"></i> 新增報表
+                </a>
+            @endcan
         </div>
 
         <div class="table-responsive tableOverBox">
@@ -39,7 +41,7 @@
                         <th scope="col">報表月份</th>
                         <th scope="col">名稱</th>
                         <th scope="col">筆數</th>
-                        <th scope="col">銷售獎金</th>    
+                        <th scope="col">銷售獎金</th>
                         <th scope="col">建立日期</th>
                         <th scope="col" class="text-center">刪除</th>
                     </tr>
@@ -49,23 +51,27 @@
                         <tr>
                             <th scope="row">{{ $key + 1 }}</th>
                             <td>{{ $data->report_at }}</td>
-                            <td> <a href="{{ route('cms.order-bonus.detail', ['id' => $data->id]) }}">
-                                    {{ $data->title }}
-                                </a>
+                            <td>
+                                @can('cms.order-bonus.detail')
+                                    <a href="{{ route('cms.order-bonus.detail', ['id' => $data->id]) }}">
+                                        {{ $data->title }}
+                                    </a>
+                                @endcan
                             </td>
                             <td>{{ $data->qty }}</td>
                             <td>{{ $data->bonus }}</td>
-                         
-                            
+
+
                             <td>{{ $data->created_at }}</td>
                             <td class="text-center">
-                                <a href="javascript:void(0)"
-                                    data-href="{{ Route('cms.order-bonus.delete', ['id' => $data->id], true) }}"
-                                    data-bs-toggle="modal" data-bs-target="#confirm-delete"
-                                    class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-
+                                @can('cms.order-bonus.delete')
+                                    <a href="javascript:void(0)"
+                                        data-href="{{ Route('cms.order-bonus.delete', ['id' => $data->id], true) }}"
+                                        data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                                        class="icon -del icon-btn fs-5 text-danger rounded-circle border-0">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                @endcan
                             </td>
                         </tr>
                     @endforeach

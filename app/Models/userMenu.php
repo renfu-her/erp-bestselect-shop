@@ -61,7 +61,7 @@ return
             [
                 "title" => "寄倉庫存",
                 "controller_name" => "ConsignmentStockCtrl",
-                "route_name" => "cms.consignment-stock.stocklist",
+                "route_name" => "cms.consignment-stock.index",
             ],
         ],
     ],
@@ -79,11 +79,6 @@ return
                 "title" => "全館優惠",
                 "controller_name" => "DiscountCtrl",
                 "route_name" => "cms.discount.index",
-            ],
-            [
-                "title" => "Google數位行銷",
-                "controller_name" => "GoogleMarketingCtrl",
-                "route_name" => "cms.google_marketing.index",
             ],
         ],
     ],

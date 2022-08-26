@@ -30,8 +30,10 @@
                 <div class="col-12 mb-3">
                     <label class="form-label">收款金額</label>
                     <div class="input-group has-validation">
-                        <input type="number" step="1" min="0" class="form-control @error('r_order_min_price') is-invalid @enderror" name="r_order_min_price" value="{{ $cond['r_order_min_price'] }}" aria-label="收款起始金額">
-                        <input type="number" step="1" min="0" class="form-control @error('r_order_max_price') is-invalid @enderror" name="r_order_max_price" value="{{ $cond['r_order_max_price'] }}" aria-label="收款結束金額">
+                        <input type="number" step="1" min="0" class="form-control @error('r_order_min_price') is-invalid @enderror" 
+                            name="r_order_min_price" value="{{ $cond['r_order_min_price'] }}" placeholder="起始金額" aria-label="收款起始金額">
+                        <input type="number" step="1" min="0" class="form-control @error('r_order_max_price') is-invalid @enderror" 
+                            name="r_order_max_price" value="{{ $cond['r_order_max_price'] }}" placeholder="結束金額" aria-label="收款結束金額">
                         <div class="invalid-feedback">
                             @error('r_order_min_price')
                                 {{ $message }}
@@ -85,7 +87,7 @@
                     </div>
                 </div>
 
-                <fieldset class="col-12 col-sm-4 mb-3">
+                <fieldset class="col-12 mb-3">
                     <legend class="col-form-label p-0 mb-2">入款審核狀態</legend>
                     <div class="px-1 pt-1">
                         @foreach ($check_review_status as $key => $value)
@@ -122,15 +124,15 @@
         </div>
 
         <div class="table-responsive tableOverBox">
-            <table class="table table-striped tableList">
-                <thead>
+            <table class="table tableList border-bottom">
+                <thead class="small align-middle">
                     <tr>
-                        <th scope="col">編號</th>
-                        <th scope="col">單號</th>
-                        <th scope="col">收款對象</th>
+                        <th scope="col" style="width:40px">#</th>
+                        <th scope="col">收款單號</th>
+                        <th scope="col">收款<br class="d-block d-lg-none">對象</th>
                         <th scope="col">科目</th>
                         <th scope="col">摘要</th>
-                        <th scope="col">收款金額</th>
+                        <th scope="col" class="text-end">收款<br class="d-block d-lg-none">金額</th>
                         <th scope="col">業務員</th>
                         <th scope="col">部門</th>
                         <th scope="col">審核日期</th>
@@ -138,37 +140,50 @@
                 </thead>
                 <tbody>
                     @foreach ($dataList as $key => $data)
+                        @php
+                            $rows = count($data->debit) + count($data->credit) + 1;
+                        @endphp
                         <tr>
-                            <td>{{ $key + 1 }}</td>
-                            <td><a href="{{ $data->ro_url_link }}">{{ $data->ro_sn }}</a></td>
-                            <td>{{ $data->ro_target_name }}</td>
-                            <td class="p-0">
-                                @foreach($data->debit as $d_value)
-                                <span class="border-bottom bg-warning d-block p-1">{{ $d_value->account_code }} {{ $d_value->account_name }}</span>
-                                @endforeach
-
-                                @foreach($data->credit as $c_value)
-                                <span class="border-bottom d-block bg-white p-1">{{ $c_value->account_code }} {{ $c_value->account_name }}</span>
-                                @endforeach
+                            <th rowspan="{{ $rows }}">{{ $key + 1 }}</th>
+                            <td rowspan="{{ $rows }}"><a href="{{ $data->ro_url_link }}">{{ $data->ro_sn }}</a></td>
+                            <td rowspan="{{ $rows }}" class="wrap">{{ $data->ro_target_name }}</td>
+                            <td class="p-0 border-bottom-0" height="0">
                             </td>
-
-                            <td class="p-0">
-                                @foreach($data->debit as $d_value)
-                                    @if($d_value->received_info)
-                                    <span class="border-bottom bg-warning d-block p-1">
-                                        @if($d_value->received_info->received_method == 'credit_card')
-                                            {{ $d_value->method_name }}{{$d_value->received_info->credit_card_number ? ' - ' . $d_value->received_info->credit_card_number : ''}} - {{ $data->source_sn }}
-                                        @elseif($d_value->received_info->received_method == 'remit')
-                                            {{ $d_value->method_name }} {{ $d_value->account_code . ' - ' . $d_value->account_name . '（' . $d_value->received_info->remit_memo . '）'}} - {{ $data->source_sn }}
-                                        @else
-                                            {{ $d_value->method_name }}{{$d_value->note ? ' - ' . $d_value->note : ''}} - {{ $data->source_sn }}
-                                        @endif
-                                    </span>
+                            <td class="p-0 border-bottom-0" height="0">
+                            </td>
+                            <td class="p-0 border-bottom-0" height="0">
+                            </td>
+                            <td rowspan="{{ $rows }}">{{-- 業務員 --}}</td>
+                            <td rowspan="{{ $rows }}">{{-- 部門 --}}</td>
+                            <td rowspan="{{ $rows }}" class="table-success">
+                                {{ $data->ro_receipt_date ? date('Y/m/d', strtotime($data->ro_receipt_date)) : '-' }}
+                            </td>
+                        </tr>
+                        @foreach ($data->debit as $d_value)
+                            <tr>
+                                <td class="table-warning wrap ps-2">
+                                    {{ $d_value->account_code }} {{ $d_value->account_name }}
+                                </td>
+                                <td class="table-warning wrap">
+                                    @if($d_value->received_info->received_method == 'credit_card')
+                                        {{ $d_value->method_name }}{{$d_value->received_info->credit_card_number ? ' - ' . $d_value->received_info->credit_card_number : ''}} - {{ $data->source_sn }}
+                                    @elseif($d_value->received_info->received_method == 'remit')
+                                        {{ $d_value->method_name }} {{ $d_value->account_code . ' - ' . $d_value->account_name . '（' . $d_value->received_info->remit_memo . '）'}} - {{ $data->source_sn }}
+                                    @else
+                                        {{ $d_value->method_name }}{{$d_value->note ? ' - ' . $d_value->note : ''}} - {{ $data->source_sn }}
                                     @endif
-                                @endforeach
-
-                                @foreach($data->credit as $c_value)
-                                <span class="border-bottom d-block bg-white p-1">
+                                </td>
+                                <td class="text-end table-warning wrap pe-2">
+                                    {{ number_format($d_value->price) }}
+                                </td>
+                            </tr>
+                        @endforeach
+                        @foreach ($data->credit as $c_value)
+                            <tr>
+                                <td class="wrap ps-2">
+                                    {{ $c_value->account_code }} {{ $c_value->account_name }}
+                                </td>
+                                <td class="wrap">
                                     @if($c_value->d_type == 'logistics')
                                         {{ $c_value->account_name }} - {{ $data->source_sn }}
                                     @elseif($c_value->d_type == 'discount')
@@ -178,24 +193,12 @@
                                     @else
                                         {{ $c_value->method_name }}{{ $c_value->note ? ' - ' . $c_value->note : '' }} - {{ $data->source_sn }}
                                     @endif
-                                </span>
-                                @endforeach
-                            </td>
-
-                            <td class="p-0 text-end">
-                                @foreach($data->debit as $d_value)
-                                <span class="border-bottom bg-warning d-block p-1">{{ number_format($d_value->price) }}</span>
-                                @endforeach
-
-                                @foreach($data->credit as $c_value)
-                                <span class="border-bottom d-block bg-white p-1">{{ number_format($c_value->price) }}</span>
-                                @endforeach
-                            </td>
-
-                            <td>{{-- 業務員 --}}</td>
-                            <td>{{-- 部門 --}}</td>
-                            <td class="bg-success">{{ $data->ro_receipt_date ? date('Y-m-d', strtotime($data->ro_receipt_date)) : '0000-00-00' }}</td>
-                        </tr>
+                                </td>
+                                <td class="text-end wrap pe-2">
+                                    {{ number_format($c_value->price) }}
+                                </td>
+                            </tr>
+                        @endforeach
                     @endforeach
                 </tbody>
             </table>
@@ -214,10 +217,27 @@
 @endsection
 
 @once
-    @push('styles')
+    @push('sub-styles')
         <style>
-            tr td span:last-child {
-                border: none !important;
+            .table-warning {
+                --bs-table-bg: #fff3cd;
+                --bs-table-striped-bg: #f2e7c3;
+                --bs-table-striped-color: #000;
+                --bs-table-active-bg: #e6dbb9;
+                --bs-table-active-color: #000;
+                --bs-table-hover-bg: #ece1be;
+                --bs-table-hover-color: #000;
+                color: #000;
+                background-color: var(--bs-table-bg);
+            }
+            .tableList > tbody th, .tableList > tbody td {
+                vertical-align: top;
+            }
+            .tableList > :not(caption) > * > * {
+                line-height: initial;
+            }
+            .tableList > tbody > * > * {
+                line-height: 1.6;
             }
         </style>
     @endpush

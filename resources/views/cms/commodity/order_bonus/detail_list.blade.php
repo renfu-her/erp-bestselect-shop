@@ -14,7 +14,10 @@
                 <input class="form-check-input" type="radio" name="bank_type" id="bank_type2" value="b">
                 <label class="form-check-label" for="bank_type2">非合作金庫</label>
             </div>
-            <button class="btn btn-primary" type="submit">輸出csv</button>
+
+            <button class="btn btn-primary" type="submit"
+                @cannot('cms.order-bonus.export-csv') disabled @endcannot>輸出csv</button>
+
         </form>
         <div class="table-responsive tableOverBox">
             <table class="table table-striped tableList">

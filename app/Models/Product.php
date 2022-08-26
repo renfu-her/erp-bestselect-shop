@@ -666,12 +666,7 @@ class Product extends Model
 
         if ($re->imgs) {
             $output['info']['image'] = array_map(function ($n) {
-                if (App::environment(AppEnvClass::Release) ||
-                    App::environment(AppEnvClass::Development)) {
-                    $n->url = ImageDomain::CDN . $n->url;
-                } else {
-                    $n->url = asset($n->url);
-                }
+                $n->url = getImageUrl($n->url);
                 return $n;
             }, json_decode($re->imgs));
         }
@@ -1201,8 +1196,7 @@ class Product extends Model
         $productData = [];
         foreach ($productQueries as $productQuery) {
             if (!is_null($productQuery['img_url'])) {
-                if (App::environment(AppEnvClass::Release) ||
-                    App::environment(AppEnvClass::Development)) {
+                if (preg_match('/.*\/cyberbiz\/.*/', $productQuery['img_url']) === 1) {
                     $imageUrl = ImageDomain::CDN . $productQuery['img_url'];
                 } else {
                     $imageUrl = asset($productQuery['img_url']);
@@ -1276,7 +1270,7 @@ class Product extends Model
         // spec list
         $fromList = ProductSpecList::where('product_id', $from_id)->get()->toArray();
         ProductSpecList::where('product_id', $product_id)->delete();
-        if (count($fromList) > 0) {   
+        if (count($fromList) > 0) {
             ProductSpecList::insert(array_map(function ($n) use ($product_id) {
                 return [
                     'product_id' => $product_id,

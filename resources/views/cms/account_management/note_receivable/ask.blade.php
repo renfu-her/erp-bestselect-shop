@@ -49,11 +49,11 @@
                                 <td>{{ number_format($value->tw_price) }}</td>
                                 <td>{{ $value->cheque_status }}</td>
                                 <td>{{ $value->ro_sn }}</td>
-                                <td>{{ $value->ro_receipt_date ? date('Y-m-d', strtotime($value->ro_receipt_date)) : '' }}</td>
-                                <td>{{ $value->cheque_c_n_date ? date('Y-m-d', strtotime($value->cheque_c_n_date)) : '' }}</td>
-                                <td>{{ $value->cheque_due_date ? date('Y-m-d', strtotime($value->cheque_due_date)) : '' }}</td>
-                                <td>{{ $value->cheque_cashing_date ? date('Y-m-d', strtotime($value->cheque_cashing_date)) : '' }}</td>
-                                <td>{{ $value->cheque_draw_date ? date('Y-m-d', strtotime($value->cheque_draw_date)) : '' }}</td>
+                                <td>{{ $value->ro_receipt_date ? date('Y/m/d', strtotime($value->ro_receipt_date)) : '' }}</td>
+                                <td>{{ $value->cheque_c_n_date ? date('Y/m/d', strtotime($value->cheque_c_n_date)) : '' }}</td>
+                                <td>{{ $value->cheque_due_date ? date('Y/m/d', strtotime($value->cheque_due_date)) : '' }}</td>
+                                <td>{{ $value->cheque_cashing_date ? date('Y/m/d', strtotime($value->cheque_cashing_date)) : '' }}</td>
+                                <td>{{ $value->cheque_draw_date ? date('Y/m/d', strtotime($value->cheque_draw_date)) : '' }}</td>
                                 <td>{{ $value->ro_undertaker }}</td>
                                 <td>{{ $value->cheque_drawer }}</td>
                                 <td>{{ $value->cheque_banks }}</td>

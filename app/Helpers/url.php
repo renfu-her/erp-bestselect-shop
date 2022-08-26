@@ -1,6 +1,8 @@
 <?php
 
 use App\Enums\Globals\AppEnvClass;
+use App\Enums\Globals\ImageDomain;
+
 if (!function_exists('isActive')) {
     function isActive(String $routeName, String $currentRouteName)
     {
@@ -61,5 +63,19 @@ if (!function_exists('frontendUrl')) {
         }
         return $url;
 
+    }
+}
+
+/**
+ * 回傳商品資訊url
+ */
+if (!function_exists('getImageUrl')) {
+    function getImageUrl($subImageUrl)
+    {
+        if (preg_match('/.*\/cyberbiz\/.*/', $subImageUrl) === 1) {
+             return ImageDomain::CDN . $subImageUrl;
+        } else {
+             return asset($subImageUrl);
+        }
     }
 }

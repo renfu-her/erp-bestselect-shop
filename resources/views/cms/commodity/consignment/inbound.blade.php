@@ -43,7 +43,7 @@
         @enderror
     </div>
 
-    @if(null != $purchaseData->audit_date)
+    @if(null != $purchaseData->audit_date && false == $purchaseData->close_date)
         <div class="card shadow p-4 mb-4">
             <h6>本次入庫資料</h6>
             <form id="form1" method="post" action="{{ $formAction }}">

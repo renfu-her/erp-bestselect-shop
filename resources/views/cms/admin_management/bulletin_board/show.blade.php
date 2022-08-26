@@ -5,7 +5,7 @@
             主旨：{{ $data->title ?? '' }}
         </h6>
         <h6 class="mb-3">
-            公告期限：{{ date('Y/m/d', strtotime($data->expire_time ?? '')) }}
+            公告日期：{{ date('Y/m/d', strtotime($data->created_at ?? '')) }}
         </h6>
         <h6 class="mb-3">
             重要性：{{ $weight_title ?? '' }}

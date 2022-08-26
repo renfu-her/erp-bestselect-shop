@@ -1,40 +1,17 @@
 @extends('layouts.main')
-
 @section('sub-content')
-    <style>
-        .grade_1 {
-            padding-left: 1ch;
-        }
-
-        .grade_2 {
-            padding-left: 2ch;
-        }
-
-        .grade_3 {
-            padding-left: 4ch;
-        }
-
-        .grade_4 {
-            padding-left: 8ch;
-        }
-    </style>
-    <div class="pt-2 mb-3">
-        <a href="{{ $previous_url }}" class="btn btn-primary" role="button">
-            <i class="bi bi-arrow-left"></i> 返回上一頁
-        </a>
-    </div>
+    <h2 class="mb-4">收款單入款審核</h2>
 
     <form method="POST" action="{{ $form_action }}">
         @csrf
-        <div class="card mb-4">
-            <h2 class="mx-3 my-3">收款單入款審核</h2>
-            <div class="card-body">
-                <div class="col-12 mb-3">
+        <div class="card shadow p-4 mb-4">
+            <div class="row mb-3">
+                <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">收款單號：</label>
                     <span>{{$received_order->sn}}</span>
                 </div>
 
-                <div class="col-12 mb-3">
+                <div class="col-12 col-sm-6 mb-3">
                     <label class="form-label">承辦者：</label>
                     <span>{{ $undertaker ? $undertaker->name : '' }}</span>
                 </div>
@@ -44,11 +21,11 @@
                     <span></span>
                 </div>
 
-                <div class="col-12 mb-3">
-                    <div class="form-group">
-                        <label class="form-label">審核日期：<span class="text-danger">*</span></label>
-                        <input type="date" class="form-control col-4 @error('receipt_date') is-invalid @enderror" name="receipt_date" value="{{ old('receipt_date', $received_order->receipt_date ?? date('Y-m-d', strtotime( date('Y-m-d'))) ) }}" aria-label="審核日期">
-                    </div>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">審核日期：<span class="text-danger">*</span></label>
+                    <input type="date" class="form-control @error('receipt_date') is-invalid @enderror" 
+                        name="receipt_date" 
+                        value="{{ old('receipt_date', $received_order->receipt_date ?? date('Y-m-d', strtotime( date('Y-m-d'))) ) }}" aria-label="審核日期">
                     <div class="invalid-feedback">
                         @error('receipt_date')
                         {{ $message }}
@@ -56,11 +33,11 @@
                     </div>
                 </div>
 
-                <div class="col-12 mb-3">
-                    <div class="form-group">
-                        <label class="form-label">發票號碼：</label>
-                        <input type="text" class="form-control col-4 @error('invoice_number') is-invalid @enderror" name="invoice_number" value="{{ old('invoice_number', $received_order->invoice_number) }}" aria-label="發票號碼">
-                    </div>
+                <div class="col-12 col-sm-6 mb-3">
+                    <label class="form-label">發票號碼：</label>
+                    <input type="text" class="form-control @error('invoice_number') is-invalid @enderror" 
+                        value="{{ old('invoice_number', $received_order->invoice_number) }}" 
+                        name="invoice_number" aria-label="發票號碼">
                     <div class="invalid-feedback">
                         @error('invoice_number')
                         {{ $message }}
@@ -71,13 +48,13 @@
 
             <div class="table-responsive tableoverbox">
                 <table class="table table-bordered">
-                    <thead>
-                        <tr>
+                    <thead class="table-light">
+                        <tr class="small wrap">
                             <th scope="col" style="width:10%"></th>
-                            <th scope="col" style="width:35%">借</th>
-                            <th scope="col" style="width:10%">借方金額</th>
-                            <th scope="col" style="width:35%">貸</th>
-                            <th scope="col" style="width:10%">貸方金額</th>
+                            <th scope="col" style="width:35%" class="text-center">借</th>
+                            <th scope="col" style="width:10%" class="text-end">借方<br class="d-block d-lg-none">金額</th>
+                            <th scope="col" style="width:35%" class="text-center">貸</th>
+                            <th scope="col" style="width:10%" class="text-end">貸方<br class="d-block d-lg-none">金額</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -91,7 +68,7 @@
                                                 $received_id = $d_value->received_info->received_id;
                                             @endphp
                                             <div class="col-12 mb-3">
-                                                {{ $d_key + 1 . '.' . $d_value->method_name }}
+                                                {{ $d_key + 1 . '. ' . $d_value->method_name }}
                                                 <input type="hidden" name="credit_card[{{ $received_id }}][received_id]" value="{{ $d_value->received_info->received_id }}">
                                                 <input type="hidden" name="received_method[]" value="credit_card">
                                                 <input type="hidden" name="credit_card[{{ $received_id }}][received_method_id]" value="{{ $d_value->received_info->received_method_id }}">
@@ -154,13 +131,13 @@
                                                 </select>
                                             </div>
                                         @elseif($d_value->received_info->received_method == 'remit')
-                                            <div class="col-12 mb-3">{{ $d_key + 1 . '.' . $d_value->method_name . ' ' . $d_value->account_code . ' - ' . $d_value->account_name . ' - ' . $d_value->summary . '（' . $d_value->received_info->remit_memo . '）' }}</div>
+                                            <div class="col-12 mb-3">{{ $d_key + 1 . '. ' . $d_value->method_name . ' ' . $d_value->account_code . ' - ' . $d_value->account_name . ' - ' . $d_value->summary . '（' . $d_value->received_info->remit_memo . '）' }}</div>
                                         @elseif($d_value->received_info->received_method == 'cheque')
                                             @php
                                                 $received_id = $d_value->received_info->received_id;
                                             @endphp
                                             <div class="col-12 mb-3">
-                                                {{ $d_key + 1 . '.' . $d_value->method_name . ' ' . $d_value->received_info->cheque_ticket_number . '(' . date('Y-m-d', strtotime($d_value->received_info->cheque_due_date)) . ')'}}
+                                                {{ $d_key + 1 . '. ' . $d_value->method_name . ' ' . $d_value->received_info->cheque_ticket_number . '(' . date('Y-m-d', strtotime($d_value->received_info->cheque_due_date)) . ')'}}
                                                 <input type="hidden" name="cheque[{{ $received_id }}][received_id]" value="{{ $d_value->received_info->received_id }}">
                                                 <input type="hidden" name="received_method[]" value="cheque">
                                                 <input type="hidden" name="cheque[{{ $received_id }}][received_method_id]" value="{{ $d_value->received_info->received_method_id }}">
@@ -235,12 +212,12 @@
                                                 </select>
                                             </div>
                                         @else
-                                            <div class="col-12 mb-3">{{ $d_key + 1 . '.' . $d_value->name }}</div>
+                                            <div class="col-12 mb-3">{{ $d_key + 1 . '. ' . $d_value->name }}</div>
                                         @endif
                                     @endif
                                 @endforeach
                             </td>
-                            <td>
+                            <td class="text-end">
                                 @php
                                 $total_debit_price = 0;
                                 foreach($debit as $value){
@@ -256,7 +233,7 @@
                                 <br>
                                 @endforeach
                             </td>
-                            <td>
+                            <td class="text-end">
                                 @php
                                 $total_credit_price = 0;
                                 foreach($credit as $value){
@@ -266,27 +243,49 @@
                                 @endphp
                             </td>
                         </tr>
-
-                        <tr class="table-light">
-                            <td>合計：</td>
-                            <td></td>
-                            <td>{{ number_format($total_debit_price) }}{{-- number_format($received_order->price) --}}</td>
-                            <td></td>
-                            <td>{{ number_format($total_credit_price) }}{{-- number_format($received_order->price) --}}</td>
-                        </tr>
                     </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <td>合計</td>
+                            <td></td>
+                            <td class="text-end">{{ number_format($total_debit_price) }}{{-- number_format($received_order->price) --}}</td>
+                            <td></td>
+                            <td class="text-end">{{ number_format($total_credit_price) }}{{-- number_format($received_order->price) --}}</td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
         </div>
 
-        <div class="px-0">
+        <div class="col-auto">
             <button type="submit" class="btn btn-primary px-4">確認</button>
-            {{-- <a onclick="history.back()" class="btn btn-outline-primary px-4" role="button">取消</a> --}}
+            <a href="{{ $previous_url }}" class="btn btn-outline-primary px-4" role="button">
+                返回上一頁
+            </a>
         </div>
     </form>
 @endsection
 
 @once
+@push('sub-styles')
+<style>
+    .grade_1 {
+        padding-left: 1ch;
+    }
+
+    .grade_2 {
+        padding-left: 2ch;
+    }
+
+    .grade_3 {
+        padding-left: 4ch;
+    }
+
+    .grade_4 {
+        padding-left: 8ch;
+    }
+</style>
+@endpush
 @push('sub-scripts')
 <script>
     // 會計科目樹狀排版

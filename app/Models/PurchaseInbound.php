@@ -710,7 +710,8 @@ class PurchaseInbound extends Model
                 $join->where('dlv_delivery.event', Event::consignment()->value);
             })
             ->select(
-                'consignment.send_depot_id as depot_id'
+                'dlv_delivery.id as dlv_id'
+                , 'consignment.send_depot_id as depot_id'
                 , 'items.product_style_id as product_style_id'
                 , 'items.title as product_title'
             )
@@ -737,7 +738,8 @@ class PurchaseInbound extends Model
                 $join->on('dlv_receive_depot.delivery_id', '=', 'dlv_delivery.id');
             })
             ->select(//'dlv_receive_depot.inbound_id as inbound_id'
-                'dlv_receive_depot.depot_id as depot_id'
+                'dlv_delivery.id as dlv_id'
+                , 'dlv_receive_depot.depot_id as depot_id'
                 , 'dlv_receive_depot.product_style_id as product_style_id'
                 , 'dlv_receive_depot.product_title as product_title'
             )

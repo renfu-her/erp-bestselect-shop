@@ -10,10 +10,10 @@
                 <strong class="flex-grow-1 mb-0">喜鴻國際企業股份有限公司</strong>
             </div>
             <div class="card-body px-4 d-flex align-items-center bg-white flex-wrap justify-content-end">
-                <strong class="flex-grow-1 mb-0">{{ date('Y-m-d', strtotime($income->posting_date)) }} 信用卡入款明細</strong>
+                <strong class="flex-grow-1 mb-0">{{ date('Y/m/d', strtotime($income->posting_date)) }} 信用卡入款明細</strong>
             </div>
             <div class="card-body px-4 d-flex align-items-center bg-white flex-wrap justify-content-end">
-                <strong class="flex-grow-1 mb-0">入款人員：{{ $income->affirmant_name }} {{ date('Y-m-d H:i:s', strtotime($income->updated_at)) }}</strong>
+                <strong class="flex-grow-1 mb-0">入款人員：{{ $income->affirmant_name }} {{ date('Y/m/d H:i:s', strtotime($income->updated_at)) }}</strong>
             </div>
         </div>
 

@@ -69,7 +69,6 @@
                     <div class="input-group has-validation">
                         <input type="number" step="1" min="0" class="form-control @error('received_min_price') is-invalid @enderror" 
                             name="received_min_price" value="{{ $cond['received_min_price'] }}" aria-label="起始金額" placeholder="起始金額">
-                        <span class="input-group-text">~</span>
                         <input type="number" step="1" min="0" class="form-control @error('received_max_price') is-invalid @enderror" 
                             name="received_max_price" value="{{ $cond['received_max_price'] }}" aria-label="結束金額" placeholder="結束金額">
                         <div class="invalid-feedback">
@@ -221,11 +220,11 @@
                             <td>{{ number_format($data->tw_price) }}</td>
                             <td>{{ $data->cheque_status }}</td>
                             <td>{{ $data->ro_sn }}</td>
-                            <td>{{ $data->ro_receipt_date ? date('Y-m-d', strtotime($data->ro_receipt_date)) : '' }}</td>
-                            <td>{{ $data->cheque_c_n_date ? date('Y-m-d', strtotime($data->cheque_c_n_date)) : '' }}</td>
-                            <td>{{ $data->cheque_due_date ? date('Y-m-d', strtotime($data->cheque_due_date)) : '' }}</td>
-                            <td>{{ $data->cheque_cashing_date ? date('Y-m-d', strtotime($data->cheque_cashing_date)) : '' }}</td>
-                            <td>{{ $data->cheque_draw_date ? date('Y-m-d', strtotime($data->cheque_draw_date)) : '' }}</td>
+                            <td>{{ $data->ro_receipt_date ? date('Y/m/d', strtotime($data->ro_receipt_date)) : '' }}</td>
+                            <td>{{ $data->cheque_c_n_date ? date('Y/m/d', strtotime($data->cheque_c_n_date)) : '' }}</td>
+                            <td>{{ $data->cheque_due_date ? date('Y/m/d', strtotime($data->cheque_due_date)) : '' }}</td>
+                            <td>{{ $data->cheque_cashing_date ? date('Y/m/d', strtotime($data->cheque_cashing_date)) : '' }}</td>
+                            <td>{{ $data->cheque_draw_date ? date('Y/m/d', strtotime($data->cheque_draw_date)) : '' }}</td>
                             <td>{{ $data->ro_undertaker }}</td>
                             <td>{{ $data->cheque_drawer }}</td>
                             <td>{{ $data->cheque_banks }}</td>

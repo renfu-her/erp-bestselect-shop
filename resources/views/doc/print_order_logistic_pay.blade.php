@@ -26,6 +26,12 @@
             * {
                 font-weight: lighter;
             }
+            a,
+            a:active,
+            a:visited {
+                color: #000000;
+                text-decoration: none;
+            }
             .print {
                 display: none;
             }
@@ -51,7 +57,7 @@
                 <tbody>
                 <tr>
                     <td width="50%">付款單號：{{ $paying_order->sn }}</td>
-                    <td width="50%">製表日期：{{ date('Y/m/d', strtotime($paying_order->created_at)) }}</td>
+                    <td width="50%">製表日期：{{ date('Y-m-d', strtotime($paying_order->created_at)) }}</td>
                 </tr>
                 <tr>
                     <td>單據編號：{{ $sub_order->sn }}</td>

@@ -184,6 +184,10 @@ return [
         "unit" => "通知信管理",
         "permissions" => [
             [
+                "cms.mail_set.index",
+                "瀏覽",
+            ],
+            [
                 "cms.mail_set.edit",
                 "修改",
             ],
@@ -193,7 +197,7 @@ return [
         "unit" => "首頁設定",
         "permissions" => [
             [
-                "cms.homepage.index",
+                "cms.homepage.banner.index",
                 "瀏覽",
             ],
             [
@@ -245,7 +249,7 @@ return [
         ],
     ],
     [
-        "unit" => "群組設定",
+        "unit" => "商品群組",
         "permissions" => [
             [
                 "cms.collection.index",
@@ -263,10 +267,12 @@ return [
                 "cms.collection.delete",
                 "刪除",
             ],
+            /*
             [
                 "cms.collection.publish",
                 "公開商品群組",
             ],
+            */
         ],
     ],
     [
@@ -532,19 +538,19 @@ return [
         "unit" => "寄倉訂購列表",
         "permissions" => [
             [
-                "cms.consignment_order.index",
+                "cms.consignment-order.index",
                 "瀏覽",
             ],
             [
-                "cms.consignment_order.create",
+                "cms.consignment-order.create",
                 "新增",
             ],
             [
-                "cms.consignment_order.edit",
+                "cms.consignment-order.edit",
                 "修改",
             ],
             [
-                "cms.consignment_order.delete",
+                "cms.consignment-order.delete",
                 "刪除",
             ],
         ],
@@ -553,7 +559,7 @@ return [
         "unit" => "寄倉庫存列表",
         "permissions" => [
             [
-                "cms.consignment_stock.index",
+                "cms.consignment-stock.index",
                 "瀏覽",
             ],
         ],
@@ -601,6 +607,27 @@ return [
             [
                 "cms.user.permit",
                 "編輯各單元權限",
+            ],
+        ],
+    ],
+    [
+        "unit" => "消費者帳號管理",
+        "permissions" => [
+            [
+                "cms.customer.index",
+                "瀏覽",
+            ],
+            [
+                "cms.customer.create",
+                "新增",
+            ],
+            [
+                "cms.customer.edit",
+                "編輯",
+            ],
+            [
+                "cms.customer.address",
+                "會員專區",
             ],
         ],
     ],
@@ -660,15 +687,6 @@ return [
             [
                 "cms.delivery.edit",
                 "編輯",
-            ],
-        ],
-    ],
-    [
-        "unit" => "Google數位行銷",
-        "permissions" => [
-            [
-                "cms.google_marketing.index",
-                "瀏覽",
             ],
         ],
     ],
@@ -775,6 +793,108 @@ return [
             [
                 "cms.discount.delete",
                 "刪除",
+            ],
+        ],
+    ],
+    [
+        "unit" => "團購主公司管理",
+        "permissions" => [
+            [
+                "cms.groupby-company.index",
+                "瀏覽",
+            ],
+            [
+                "cms.groupby-company.create",
+                "新增",
+            ],
+            [
+                "cms.groupby-company.edit",
+                "修改",
+            ],
+        ],
+    ],
+    [
+        "unit" => "選單列表設定",
+        "permissions" => [
+            [
+                "cms.navinode.index",
+                "瀏覽",
+            ],
+            [
+                "cms.navinode.create",
+                "新增",
+            ],
+            [
+                "cms.navinode.edit",
+                "修改",
+            ],
+            [
+                "cms.navinode.delete",
+                "刪除",
+            ],
+        ],
+    ],
+    [
+        "unit" => "自訂頁面管理",
+        "permissions" => [
+            [
+                "cms.custom-pages.index",
+                "瀏覽",
+            ],
+            [
+                "cms.custom-pages.create",
+                "新增",
+            ],
+            [
+                "cms.custom-pages.edit",
+                "修改",
+            ],
+            [
+                "cms.custom-pages.delete",
+                "刪除",
+            ],
+        ],
+    ],
+    [
+        "unit" => "分潤報表",
+        "permissions" => [
+            [
+                "cms.order-bonus.index",
+                "瀏覽",
+            ],
+            [
+                "cms.order-bonus.create",
+                "新增",
+            ],
+            [
+                "cms.order-bonus.delete",
+                "刪除",
+            ],
+            [
+                "cms.order-bonus.detail",
+                "詳細",
+            ],
+            [
+                "cms.order-bonus.export-csv",
+                "輸出csv",
+            ],
+
+        ],
+    ],
+    [
+        "unit" => "分潤審核管理",
+        "permissions" => [
+            [
+                "cms.customer-profit.index",
+                "瀏覽",
+            ],
+            [
+                "cms.customer-profit.create",
+                "新增",
+            ],
+            [
+                "cms.customer-profit.edit",
+                "編輯",
             ],
         ],
     ],

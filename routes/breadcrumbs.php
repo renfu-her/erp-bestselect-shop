@@ -403,13 +403,13 @@ Breadcrumbs::for('cms.consignment-order.edit', function (BreadcrumbTrail $trail,
 });
 
 //寄倉庫存
-Breadcrumbs::for('cms.consignment-stock.stocklist', function (BreadcrumbTrail $trail) {
+Breadcrumbs::for('cms.consignment-stock.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
-    $trail->push('寄倉庫存', route('cms.consignment-stock.stocklist'));
+    $trail->push('寄倉庫存', route('cms.consignment-stock.index'));
 });
 // 寄倉庫存明細
 Breadcrumbs::for('cms.consignment-stock.stock_detail_log', function (BreadcrumbTrail $trail, $value) {
-    $trail->parent('cms.consignment-stock.stocklist');
+    $trail->parent('cms.consignment-stock.index');
     $trail->push('#' . $value . ' 明細');
 });
 
@@ -954,9 +954,21 @@ Breadcrumbs::for('cms.day_end.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');
     $trail->push('日結作業', route('cms.day_end.index'));
 });
-Breadcrumbs::for('cms.day_end.show', function (BreadcrumbTrail $trail) {
+Breadcrumbs::for('cms.day_end.detail', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.day_end.index');
     $trail->push('日結清單');
+});
+Breadcrumbs::for('cms.day_end.balance', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.day_end.index');
+    $trail->push('現金/銀行存款餘額', route('cms.day_end.balance'));
+});
+Breadcrumbs::for('cms.day_end.balance_check', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.day_end.balance');
+    $trail->push('餘額明細');
+});
+Breadcrumbs::for('cms.day_end.show', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.day_end.index');
+    $trail->push('日結明細');
 });
 
 // 信用卡作業管理
