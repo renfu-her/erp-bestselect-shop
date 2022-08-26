@@ -58,7 +58,7 @@
                     <th scope="col" style="width:10%">#</th>
                     <th scope="col">主旨</th>
                     <th scope="col">重要性</th>
-                    <th scope="col">公告期限</th>
+                    <th scope="col">公告日期</th>
                     <th scope="col">公告者</th>
                     <th scope="col" class="text-center">編輯</th>
                     <th scope="col" class="text-center">刪除</th>
@@ -78,7 +78,7 @@
                             {{ \App\Enums\AdminManagement\Weight::getDescription($data->weight) }}
                         </td>
                         <td>
-                            {{ date('Y/m/d', strtotime($data->expire_time ?? '')) }}
+                            {{ date('Y/m/d', strtotime($data->created_at ?? '')) }}
                         </td>
                         <td>{{ $data->user_name }}</td>
                             <td class="text-center">
