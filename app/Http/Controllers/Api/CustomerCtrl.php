@@ -17,8 +17,8 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class CustomerCtrl extends Controller
@@ -151,7 +151,7 @@ class CustomerCtrl extends Controller
                 $id = Customer::createCustomer(
                     $data['name']
                     , $data['email']
-                    , '!a@b#c$d'
+                    , Hash::make(Str::random(10))
                     , null
                     , null
                     , null
