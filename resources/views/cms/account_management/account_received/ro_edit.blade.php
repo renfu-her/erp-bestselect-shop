@@ -514,6 +514,16 @@
                     }
                 });
 
+                $('form').submit(function(e) {
+                    if($('input[name="acc_transact_type_fk"]:checked').val() == 'cheque'){
+                        const reg = new RegExp(/^[A-Z]{2}[0-9]{7}$/);
+                        if(! reg.test($('input[name="cheque[ticket_number]"]').val())){
+                            $('input[name="cheque[ticket_number]"]').addClass('is-invalid');
+                            e.preventDefault();
+                            return false;
+                        }
+                    }
+                });
             });
         </script>
     @endpush

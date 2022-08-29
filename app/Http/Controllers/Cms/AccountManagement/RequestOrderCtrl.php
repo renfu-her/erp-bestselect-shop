@@ -421,8 +421,10 @@ class RequestOrderCtrl extends Controller
 
                 $EncArray['more_info'] = $data[$data['acc_transact_type_fk']];
 
-            } else if($data['acc_transact_type_fk'] == ReceivedMethod::AccountsReceivable){
-                //
+            } else if($data['acc_transact_type_fk'] == ReceivedMethod::Cheque){
+                $request->validate([
+                    request('acc_transact_type_fk') . 'ticket_number'=>'required|unique:acc_received_cheque,ticket_number|regex:/^[A-Z]{2}[0-9]{7}$/'
+                ]);
             }
 
             $result_id = ReceivedOrder::store_received_method($data);
