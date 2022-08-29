@@ -440,6 +440,12 @@ class Product extends Model
                 if (in_array('out_of_stock', $stock_status)) {
                     $_q->orWhere('s.in_stock', '=', 0);
                 }
+
+                if (in_array('in_stock', $stock_status)) {
+                    $_q->orWhere(DB::raw('s.in_stock + s.overbought'), '>', 0);
+                }
+
+              
             });
         }
 
