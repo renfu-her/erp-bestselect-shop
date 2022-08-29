@@ -111,12 +111,12 @@ class CustomerCtrl extends Controller
         ]);
     }
 
-    //登入
+    //第三方登入
     public function login_third_party(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
-            'email' => 'required|string',
+            'email' => ['required', 'email:rfc,dns'],
             'method' => 'required|numeric',
             'uid' => 'required|string',
         ]);
@@ -127,7 +127,6 @@ class CustomerCtrl extends Controller
                 ResponseParam::msg()->key => $validator->errors(),
             ]);
         }
-
 
         $data = $request->only('name', 'email', 'method', 'uid');
 
@@ -141,33 +140,44 @@ class CustomerCtrl extends Controller
         $customer_method = CustomerLoginMethod::where('method', $data['method'])->where('uid', $data['uid'])->get()->first();
         //有則代表已註冊 否則直接註冊會員後幫登入
         if (false == isset($customer_method)) {
-            $id = Customer::createCustomer(
-                $data['name']
-                , $data['email']
-                , '!a@b#c$d'
-                , null
-                , null
-                , null
-                , AccountStatus::open()->value
-            );
-            $customer_method_id = CustomerLoginMethod::createData($id, $data['method'], $data['uid']);
-            $customer = Customer::where('id', $id)->get()->first();
+            //判斷email是否已註冊過 有則使用該customer
+            $customer = Customer::where('email', $data['email'])->first();
+            if (false == isset($customer)) {
+                $id = Customer::createCustomer(
+                    $data['name']
+                    , $data['email']
+                    , '!a@b#c$d'
+                    , null
+                    , null
+                    , null
+                    , AccountStatus::open()->value
+                );
+                $customer = Customer::where('id', $id)->first();
+            }
+            //判斷email是否已與其他第三方帳號綁定
+            $customer_with_method = DB::table(app(CustomerLoginMethod::class)->getTable(). ' as log_method')
+                ->where('log_method.usr_customer_id_fk', '=', $customer->id)
+                ->where('log_method.method', '=', $data['method'])
+                ->first();
+            if (isset($customer_with_method)) {
+                return response()->json([
+                    ResponseParam::status()->key => 'E03',
+                    ResponseParam::msg()->key => 'email已與其他第三方帳號綁定',
+                ]);
+            }
+            CustomerLoginMethod::createData($customer->id, $data['method'], $data['uid']);
         } else {
-            $customer = Customer::where('id', $customer_method->usr_customer_id_fk)->get()->first();
+            $customer = Customer::where('id', $customer_method->usr_customer_id_fk)->first();
         }
 
-        if (isset($customer)) {
-            $customerProfit = CustomerProfit::getProfitData($customer->id);
-            $customer->profit = $customerProfit;
-        }
-
-        if (null == $customer
-        ) {
+        if (null == $customer) {
             return response()->json([
                 ResponseParam::status()->key => 'E02',
-                ResponseParam::msg()->key => '註冊時有誤 請回報工程師 '. $data['uid'],
+                ResponseParam::msg()->key => '註冊有誤 請回報工程師 '. $data['uid'],
             ]);
         }
+        $customerProfit = CustomerProfit::getProfitData($customer->id);
+        $customer->profit = $customerProfit;
 
         $scope = []; //設定令牌能力
         $token = $customer->createToken($request->device_name ?? $customer->name, $scope);

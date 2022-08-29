@@ -17,6 +17,7 @@ class CustomerLoginMethod extends Model
     protected $guarded = [];
 
 
+    //綁定消費者與第三方登入
     public static function createData($usr_customers_id_fk, $login_method, $uid) {
         if (isset($usr_customers_id_fk) && isset($login_method) && isset($uid)) {
             $data = self::create([
