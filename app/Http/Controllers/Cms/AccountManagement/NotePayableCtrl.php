@@ -218,7 +218,7 @@ class NotePayableCtrl extends Controller
 
             $note_payable_order = NotePayableOrder::leftJoinSub(GeneralLedger::getAllGrade(), 'grade', function($join) {
                 $join->on('grade.primary_id', 'acc_note_payable_orders.net_grade_id');
-            })->whereDate('acc_note_payable_orders.cashing_date', request('qd'))->first();
+            })->whereDate('acc_note_payable_orders.cashing_date', '=', request('qd'))->first();
 
             return view('cms.account_management.note_payable.npo_detail', [
                 'breadcrumb_data' => ['title'=>$title],

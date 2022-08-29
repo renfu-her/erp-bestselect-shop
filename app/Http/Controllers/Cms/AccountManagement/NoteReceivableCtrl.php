@@ -269,7 +269,7 @@ class NoteReceivableCtrl extends Controller
 
             $note_receivable_order = NoteReceivableOrder::leftJoinSub(GeneralLedger::getAllGrade(), 'grade', function($join) {
                 $join->on('grade.primary_id', 'acc_note_receivable_orders.net_grade_id');
-            })->whereDate('acc_note_receivable_orders.cashing_date', request('qd'))->first();
+            })->whereDate('acc_note_receivable_orders.cashing_date', '=', request('qd'))->first();
 
             return view('cms.account_management.note_receivable.nro_detail', [
                 'breadcrumb_data' => ['title'=>$title],
