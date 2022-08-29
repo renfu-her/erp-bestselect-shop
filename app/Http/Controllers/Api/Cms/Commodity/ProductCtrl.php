@@ -48,7 +48,7 @@ class ProductCtrl extends Controller
             $stock_status = [$d['stock_status']];
 
         } else {
-            $stock_status = ['in_stock'];
+            $stock_status = [];
         }
 
         // Arr::get($d, 'supplier_id',''),
