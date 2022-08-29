@@ -445,7 +445,7 @@ class Product extends Model
                     $_q->orWhere(DB::raw('s.in_stock + s.overbought'), '>', 0);
                 }
 
-              
+
             });
         }
 
@@ -1202,11 +1202,7 @@ class Product extends Model
         $productData = [];
         foreach ($productQueries as $productQuery) {
             if (!is_null($productQuery['img_url'])) {
-                if (preg_match('/.*\/cyberbiz\/.*/', $productQuery['img_url']) === 1) {
-                    $imageUrl = ImageDomain::CDN . $productQuery['img_url'];
-                } else {
-                    $imageUrl = asset($productQuery['img_url']);
-                }
+                $imageUrl = getImageUrl($productQuery['img_url']);
             } else {
                 $imageUrl = '';
             }
