@@ -74,6 +74,10 @@ class AccountsPayableCtrl extends Controller
                 $po_created_date
             )->paginate($page)->appends($query);
 
+        foreach($data_list as $value){
+            $value->link = PayingOrder::paying_order_link($value->po_source_type, $value->po_source_id, $value->po_source_sub_id, $value->po_type);
+        }
+
         $accounts_payable_grade = PayableDefault::leftJoinSub(GeneralLedger::getAllGrade(), 'grade', function($join) {
                 $join->on('grade.primary_id', 'acc_payable_default.default_grade_id');
             })
@@ -175,6 +179,9 @@ class AccountsPayableCtrl extends Controller
         }
 
         $data_list = PayingOrder::get_accounts_payable_list(null, 0, null, $grade_id, null, null, $po_target)->get();
+        foreach($data_list as $value){
+            $value->link = PayingOrder::paying_order_link($value->po_source_type, $value->po_source_id, $value->po_source_sub_id, $value->po_type);
+        }
 
         return view('cms.account_management.accounts_payable.claim', [
             'form_action'=>route('cms.accounts_payable.claim', ['type'=>$type, 'id'=>$id, 'key'=>$key]),

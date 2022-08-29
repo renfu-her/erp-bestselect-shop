@@ -36,32 +36,7 @@
                                     <input type="hidden" name="amt_net[{{ $key }}]" class="select_input" value="{{ $value->tw_price }}" disabled>
                                 </th>
                                 <td>{{ $key + 1 }}</td>
-                                <td>
-                                    @php
-                                        if($value->po_source_type == 'pcs_purchase'){
-                                            $url_link = route('cms.purchase.view-pay-order', ['id' => $value->po_source_id, 'type' => $value->po_type]);
-
-                                        } else if($value->po_source_type == 'ord_orders' && $value->po_source_sub_id != null){
-                                            $url_link = route('cms.order.logistic-po', ['id' => $value->po_source_id, 'sid' => $value->po_source_sub_id]);
-
-                                        } else if($value->po_source_type == 'acc_stitute_orders'){
-                                            $url_link = route('cms.stitute.po-show', ['id' => $value->po_source_id]);
-
-                                        } else if($value->po_source_type == 'ord_orders' && $value->po_source_sub_id == null){
-                                            $url_link = route('cms.order.return-pay-order', ['id' => $value->po_source_id]);
-
-                                        } else if($value->po_source_type == 'dlv_delivery'){
-                                            $url_link = route('cms.delivery.return-pay-order', ['id' => $value->po_source_id]);
-
-                                        } else if($value->po_source_type == 'pcs_paying_orders'){
-                                            $url_link = route('cms.accounts_payable.po-show', ['id' => $data->po_source_id]);
-
-                                        } else {
-                                            $url_link = "javascript:void(0);";
-                                        }
-                                    @endphp
-                                    <a href="{{ $url_link }}">{{ $value->po_sn }}</a>
-                                </td>
+                                <td><a href="{{ $value->link }}">{{ $value->po_sn }}</a></td>
                                 <td>{{ $value->po_target_name }}</td>
                                 <td>{{ $value->po_payable_grade_code }} {{ $value->po_payable_grade_name }}</td>
                                 <td>{{ $value->summary }}</td>

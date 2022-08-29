@@ -128,32 +128,7 @@
                                 <a href="{{ route('cms.accounts_payable.po-show', ['id' => $data->append_po_source_id]) }}">{{ $data->append_po_sn }}</a>
                                 @endif
                             </td>
-                            <td>
-                                @php
-                                    if($data->po_source_type == 'pcs_purchase'){
-                                        $url_link = route('cms.purchase.view-pay-order', ['id' => $data->po_source_id, 'type' => $data->po_type]);
-
-                                    } else if($data->po_source_type == 'ord_orders' && $data->po_source_sub_id != null){
-                                        $url_link = route('cms.order.logistic-po', ['id' => $data->po_source_id, 'sid' => $data->po_source_sub_id]);
-
-                                    } else if($data->po_source_type == 'acc_stitute_orders'){
-                                        $url_link = route('cms.stitute.po-show', ['id' => $data->po_source_id]);
-
-                                    } else if($data->po_source_type == 'ord_orders' && $data->po_source_sub_id == null){
-                                        $url_link = route('cms.order.return-pay-order', ['id' => $data->po_source_id]);
-
-                                    } else if($data->po_source_type == 'dlv_delivery'){
-                                        $url_link = route('cms.delivery.return-pay-order', ['id' => $data->po_source_id]);
-
-                                    } else if($data->po_source_type == 'pcs_paying_orders'){
-                                        $url_link = route('cms.accounts_payable.po-show', ['id' => $data->po_source_id]);
-
-                                    } else {
-                                        $url_link = "javascript:void(0);";
-                                    }
-                                @endphp
-                                <a href="{{ $url_link }}">{{ $data->po_sn }}</a>
-                            </td>
+                            <td><a href="{{ $data->link }}">{{ $data->po_sn }}</a></td>
                         </tr>
                     @endforeach
                 </tbody>

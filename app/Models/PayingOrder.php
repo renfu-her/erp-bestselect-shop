@@ -888,4 +888,31 @@ class PayingOrder extends Model
             ]);
         }
     }
+
+
+    public static function paying_order_link($source_type, $source_id, $source_sub_id = null, $type)
+    {
+        $link = 'javascript:void(0);';
+
+        if($source_type == 'pcs_purchase'){
+            $link = route('cms.purchase.view-pay-order', ['id' => $source_id, 'type' => $type]);
+
+        } else if($source_type == 'ord_orders' && $source_sub_id != null){
+            $link = route('cms.order.logistic-po', ['id' => $source_id, 'sid' => $source_sub_id]);
+
+        } else if($source_type == 'acc_stitute_orders'){
+            $link = route('cms.stitute.po-show', ['id' => $source_id]);
+
+        } else if($source_type == 'ord_orders' && $source_sub_id == null){
+            $link = route('cms.order.return-pay-order', ['id' => $source_id]);
+
+        } else if($source_type == 'dlv_delivery'){
+            $link = route('cms.delivery.return-pay-order', ['id' => $source_id]);
+
+        } else if($source_type == 'pcs_paying_orders'){
+            $link = route('cms.accounts_payable.po-show', ['id' => $source_id]);
+        }
+
+        return $link;
+    }
 }

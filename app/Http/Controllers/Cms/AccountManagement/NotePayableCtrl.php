@@ -9,6 +9,7 @@ use App\Models\GeneralLedger;
 use App\Models\NotePayableOrder;
 use App\Models\NotePayableLog;
 use App\Models\PayableDefault;
+use App\Models\PayingOrder;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -116,6 +117,8 @@ class NotePayableCtrl extends Controller
         $cheque = NotePayableOrder::get_cheque_payable_list($id)->first();
         if(! $cheque){
             return abort(404);
+        } else {
+            $cheque->link = PayingOrder::paying_order_link($cheque->po_source_type, $cheque->po_source_id, $cheque->po_source_sub_id, $cheque->po_type);
         }
 
         return view('cms.account_management.note_payable.record', [
