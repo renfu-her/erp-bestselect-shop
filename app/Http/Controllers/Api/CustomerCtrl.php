@@ -85,10 +85,7 @@ class CustomerCtrl extends Controller
         $data = $request->only('email', 'password');
 
         $customer = Customer::where('email', $data['email'])->get()->first();
-        if (isset($customer)) {
-            $customerProfit = CustomerProfit::getProfitData($customer->id);
-            $customer->profit = $customerProfit;
-        }
+        $customer = $this->setProfit($customer);
 
         if (null == $customer
             || false == Hash::check($data['password'], $customer->password)
@@ -109,6 +106,14 @@ class CustomerCtrl extends Controller
             ResponseParam::msg()->key => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
             ResponseParam::data()->key => $this->arrayConverNullValToEmpty($customer->toArray()),
         ]);
+    }
+
+    private function setProfit($customer) {
+        if (isset($customer)) {
+            $customerProfit = CustomerProfit::getProfitData($customer->id);
+            $customer->profit = $customerProfit;
+        }
+        return $customer;
     }
 
     //第三方登入
@@ -170,14 +175,14 @@ class CustomerCtrl extends Controller
             $customer = Customer::where('id', $customer_method->usr_customer_id_fk)->first();
         }
 
+        $customer = $this->setProfit($customer);
+
         if (null == $customer) {
             return response()->json([
                 ResponseParam::status()->key => 'E02',
                 ResponseParam::msg()->key => '註冊有誤 請回報工程師 '. $data['uid'],
             ]);
         }
-        $customerProfit = CustomerProfit::getProfitData($customer->id);
-        $customer->profit = $customerProfit;
 
         $scope = []; //設定令牌能力
         $token = $customer->createToken($request->device_name ?? $customer->name, $scope);
