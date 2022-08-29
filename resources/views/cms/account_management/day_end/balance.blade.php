@@ -53,7 +53,7 @@
                         @foreach ($data_list as $key => $value)
                             <tr>
                                 <td><a href="{{ route('cms.day_end.balance_check', ['id'=>$value->grade_id, 'date'=>date('Y-m', strtotime($cond['y'] . '-' . $cond['m']))]) }}">{{ $value->grade_code . ' ' . $value->grade_name }}</a></td>
-                                <td>{{ number_format($value->debit_price - $value->credit_price) }}</td>
+                                <td>{{ number_format($value->net_price) }}</td>
                             </tr>
                         @endforeach
                     </tbody>

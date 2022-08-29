@@ -627,7 +627,7 @@ class ReceivedOrder extends Model
     public static function update_received_method($request)
     {
         $checkout_area = Area::get_key_value();
-dd($request);
+
         switch ($request['received_method']) {
             // case ReceivedMethod::Cash:
 

@@ -140,7 +140,7 @@ class DayEnd extends Model
         $tv = TransferVoucher::whereDate('created_at', $closing_date)->get();
         $remark = null;
 
-        DayEndLog::reset_log($closing_date);
+        DayEndLog::delete_log($closing_date);
 
         foreach([$po, $ro, $tv] as $collection){
             foreach($collection as $real_value){
@@ -159,14 +159,38 @@ class DayEnd extends Model
                         foreach(json_decode($t_data->received_list) as $r_value){
                             $d_price += $r_value->tw_price;
 
+                            $method_name = ReceivedMethod::getDescription($r_value->received_method);
+                            if($method_name == '現金'){
+                                $suffix = $t_data->ro_target_name;
+
+                            } else if($method_name == '支票'){
+                                $method_name = '應收票據';//支票
+                                $suffix = $r_value->cheque_ticket_number . '（' . date('Y-m-d', strtotime($r_value->cheque_due_date)) . '）';
+
+                            } else if($method_name == '匯款'){
+                                $suffix = $r_value->grade_name . ' - ' . $r_value->remit_memo;
+
+                            } else if($method_name == '信用卡'){
+                                $suffix = $r_value->credit_card_number . '（' . $r_value->credit_card_owner . '）';
+                            } else {
+                                $suffix = $r_value->grade_name;
+                            }
+                            $source_summary = $method_name . ' ' . $suffix . ' ' . $r_value->summary;
+
                             $data = [
+                                'day_end_id'=>$day_end_id,
+                                'closing_date'=>$closing_date,
+                                'source_type' => $real_value->getTable(),
+                                'source_id' => $real_value->id,
+                                'source_sn' => $real_value->sn,
+                                'source_summary' => $source_summary,
+                                'debit_price' => $r_value->tw_price,
+                                'credit_price' => null,
                                 'grade_id' => $r_value->all_grades_id,
                                 'grade_code' => $r_value->grade_code,
                                 'grade_name' => $r_value->grade_name,
-                                'debit_price' => $r_value->tw_price,
-                                'credit_price' => null,
                             ];
-                            DayEndLog::check_day_end_log($day_end_id, $closing_date, $data);
+                            DayEndLog::create_day_end_log($data);
                         }
                     }
                     if($t_data->order_items){
@@ -193,14 +217,36 @@ class DayEnd extends Model
                         foreach(json_decode($t_data->payable_list) as $pay_v){
                             $c_price += $pay_v->tw_price;
 
+                            $method_name = Payment::getDescription($pay_v->acc_income_type_fk);
+                            if($method_name == '現金'){
+                                $suffix = $t_data->po_target_name;
+
+                            } else if($method_name == '支票'){
+                                $method_name = '應付票據';//支票
+                                $suffix = $pay_v->cheque_ticket_number . '（' . date('Y-m-d', strtotime($pay_v->cheque_due_date)) . '）';
+
+                            } else if($method_name == '匯款'){
+                                $suffix = $pay_v->grade_name;
+
+                            } else {
+                                $suffix = $pay_v->grade_name;
+                            }
+                            $source_summary = $method_name . ' ' . $suffix . ' ' . $pay_v->summary;
+
                             $data = [
+                                'day_end_id'=>$day_end_id,
+                                'closing_date'=>$closing_date,
+                                'source_type' => $real_value->getTable(),
+                                'source_id' => $real_value->id,
+                                'source_sn' => $real_value->sn,
+                                'source_summary' => $source_summary,
+                                'debit_price' => null,
+                                'credit_price' => $pay_v->tw_price,
                                 'grade_id' => $pay_v->all_grades_id,
                                 'grade_code' => $pay_v->grade_code,
                                 'grade_name' => $pay_v->grade_name,
-                                'debit_price' => null,
-                                'credit_price' => $pay_v->tw_price,
                             ];
-                            DayEndLog::check_day_end_log($day_end_id, $closing_date, $data);
+                            DayEndLog::create_day_end_log($data);
                         }
                     }
                     if($t_data->product_items){
@@ -227,26 +273,21 @@ class DayEnd extends Model
 
                     if($t_data->tv_items){
                         foreach(json_decode($t_data->tv_items) as $tv_value){
-                            if($tv_value->debit_credit_code == 'debit'){
-                                $data = [
-                                    'grade_id' => $tv_value->grade_id,
-                                    'grade_code' => $tv_value->grade_code,
-                                    'grade_name' => $tv_value->grade_name,
-                                    'debit_price' => $tv_value->final_price,
-                                    'credit_price' => null,
-                                ];
+                            $data = [
+                                'day_end_id'=>$day_end_id,
+                                'closing_date'=>$closing_date,
+                                'source_type' => $real_value->getTable(),
+                                'source_id' => $real_value->id,
+                                'source_sn' => $real_value->sn,
+                                'source_summary' => $tv_value->summary,
+                                'debit_price' => $tv_value->debit_credit_code == 'debit' ? $tv_value->final_price : null,
+                                'credit_price' => $tv_value->debit_credit_code == 'credit' ? $tv_value->final_price : null,
+                                'grade_id' => $tv_value->grade_id,
+                                'grade_code' => $tv_value->grade_code,
+                                'grade_name' => $tv_value->grade_name,
+                            ];
 
-                            } else if($tv_value->debit_credit_code == 'credit'){
-                                $data = [
-                                    'grade_id' => $tv_value->grade_id,
-                                    'grade_code' => $tv_value->grade_code,
-                                    'grade_name' => $tv_value->grade_name,
-                                    'debit_price' => null,
-                                    'credit_price' => $tv_value->final_price,
-                                ];
-                            }
-
-                            DayEndLog::check_day_end_log($day_end_id, $closing_date, $data);
+                            DayEndLog::create_day_end_log($data);
                         }
                     }
                 }

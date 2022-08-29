@@ -11,55 +11,109 @@ class DayEndLog extends Model
 {
     use HasFactory;
 
-    protected $table = 'acc_day_end_rp_log';
+    protected $table = 'acc_day_end_grade_log';
     protected $guarded = [];
 
 
-    public static function check_day_end_log($day_end_id, $closing_date, $parm)
+    public static function day_end_log_list($grade_id = null, $closing_date = null, $source_price)
     {
+        $query = DB::table('acc_day_end_grade_log AS de_log')
+            ->leftJoin('acc_day_end_items AS de_item', function($join){
+                $join->on('de_log.source_sn', '=', 'de_item.source_sn');
+            })
+            ->where(function ($q) use ($grade_id, $closing_date, $source_price) {
+                if($grade_id){
+                    $q->where('de_log.grade_id', $grade_id);
+
+                    // if(gettype($closing_date) == 'array') {
+                    //     $q->whereIn(DB::raw('DATE(deo.closing_date)'), $closing_date);
+                    // } else {
+                    //     $q->whereDate(DB::raw('deo.closing_date'), $closing_date);
+                    // }
+                }
+
+                if ($closing_date) {
+                    if (gettype($source_price) == 'array' && count($source_price) == 2) {
+                        $s_closing_date = $closing_date[0] ? date('Y-m-d', strtotime($closing_date[0])) : null;
+                        $e_closing_date = $closing_date[1] ? date('Y-m-d', strtotime($closing_date[1] . ' +1 day')) : null;
+
+                        if($s_closing_date){
+                            $q->where('de_log.closing_date', '>=', $s_closing_date);
+                        }
+                        if($e_closing_date){
+                            $q->where('de_log.closing_date', '<', $e_closing_date);
+                        }
+                    }
+                }
+
+                if ($source_price) {
+                    if (gettype($source_price) == 'array' && count($source_price) == 2) {
+                        $min_price = $source_price[0] ?? null;
+                        $max_price = $source_price[1] ?? null;
+                        if($min_price){
+                            $q->whereRaw('IF(de_log.debit_price = 0, de_log.credit_price, de_log.debit_price) >= ' . $min_price);
+                        }
+                        if($max_price){
+                            $q->whereRaw('IF(de_log.debit_price = 0, de_log.credit_price, de_log.debit_price) <= ' . $max_price);
+                        }
+                    }
+                }
+            })
+
+            ->select(
+                'de_log.closing_date AS closing_date',
+                'de_log.source_type AS source_type',
+                'de_log.source_id AS source_id',
+                'de_log.source_sn AS source_sn',
+                'de_log.source_summary AS source_summary',
+                'de_log.debit_price AS debit_price',
+                'de_log.credit_price AS credit_price',
+                'de_log.net_price AS net_price',
+                'de_log.grade_id AS grade_id',
+                'de_log.grade_code AS grade_code',
+                'de_log.grade_name AS grade_name',
+                'de_item.sn AS sn'
+            );
+
+        return $query->orderBy('de_log.closing_date', 'ASC');
+    }
+
+
+    public static function delete_log($closing_date)
+    {
+        $target = self::whereDate('closing_date', $closing_date)->delete();
+    }
+
+
+    public static function create_day_end_log($parm)
+    {
+        $day_end_id = $parm['day_end_id'];
+        $closing_date = $parm['closing_date'];
+        $source_type = $parm['source_type'];
+        $source_id = $parm['source_id'];
+        $source_sn = $parm['source_sn'];
+        $source_summary = $parm['source_summary'] ?? null;
+        $debit_price = $parm['debit_price'] ?? 0;
+        $credit_price = $parm['credit_price'] ?? 0;
+        $net_price = $debit_price - $credit_price;
         $grade_id = $parm['grade_id'] ?? null;
         $grade_code = $parm['grade_code'] ?? (AllGrade::find($grade_id) ? AllGrade::find($grade_id)->eachGrade->code : null);
         $grade_name = $parm['grade_name'] ?? (AllGrade::find($grade_id) ? AllGrade::find($grade_id)->eachGrade->name : null);
-        $debit_price = $parm['debit_price'] ?? 0;
-        $credit_price = $parm['credit_price'] ?? 0;
 
-        $target = self::where(function ($q) use ($closing_date, $grade_id, $grade_code, $grade_name) {
-            if($closing_date){
-                $q->whereDate('closing_date', $closing_date);
-            }
-            if($grade_id){
-                $q->where('grade_id', $grade_id);
-            }
-            if($grade_code){
-                $q->where('grade_code', 'like', "%$grade_code%");
-            }
-            if($grade_name){
-                $q->where('grade_name', 'like', "%$grade_name%");
-            }
-        })->first();
-
-        if($target){
-            $target->update([
-                'day_end_id'=>$day_end_id,
-                'closing_date'=>$closing_date,
-                'count'=>DB::raw('count+1'),
-                'debit_price'=>$target->debit_price + $debit_price,
-                'credit_price'=>$target->credit_price + $credit_price,
-                'updated_at'=>date('Y-m-d H:i:s'),
-            ]);
-
-        } else {
-            $target = self::create([
-                'day_end_id'=>$day_end_id,
-                'closing_date'=>$closing_date,
-                'count'=>1,
-                'debit_price'=>$debit_price,
-                'credit_price'=>$credit_price,
-                'grade_id'=>$grade_id,
-                'grade_code'=>$grade_code,
-                'grade_name'=>$grade_name,
-            ]);
-        }
+        $target = self::create([
+            'day_end_id'=>$day_end_id,
+            'closing_date'=>$closing_date,
+            'source_type'=>$source_type,
+            'source_id'=>$source_id,
+            'source_sn'=>$source_sn,
+            'source_summary'=>$source_summary,
+            'debit_price'=>$debit_price,
+            'credit_price'=>$credit_price,
+            'net_price'=>$net_price,
+            'grade_id'=>$grade_id,
+            'grade_code'=>$grade_code,
+            'grade_name'=>$grade_name,
+        ]);
     }
 
 
@@ -78,8 +132,8 @@ class DayEndLog extends Model
                 'grade_name'=>$g_value,
             ])->whereDate('closing_date', '=', $current_date)->get();
 
-            $pre_price = $_previous ? ($_previous->sum('debit_price') - $_previous->sum('credit_price')) : 0;
-            $cur_price = $_current ? ($_current->sum('debit_price') - $_current->sum('credit_price')) : 0;
+            $pre_price = $_previous ? $_previous->sum('net_price') : 0;
+            $cur_price = $_current ? $_current->sum('net_price') : 0;
             $cur_debit_price = $_current ? $_current->sum('debit_price') : 0;
             $cur_credit_price = $_current ? $_current->sum('credit_price') : 0;
 
@@ -105,6 +159,7 @@ class DayEndLog extends Model
             ->orderBy('grade_id', 'asc')
             ->distinct()->pluck('grade_name', 'grade_code')
             ->toArray();
+
         $array = [];
         $tmp_pre_price = 0;
         $tmp_pre_count = 0;
@@ -121,10 +176,10 @@ class DayEndLog extends Model
                 'grade_name'=>$g_value,
             ])->whereDate('closing_date', '=', $current_date)->get();
 
-            $pre_price = $_previous ? ($_previous->sum('debit_price') - $_previous->sum('credit_price')) : 0;
-            $pre_count = $_previous ? $_previous->sum('count') : 0;
-            $cur_price = $_current ? ($_current->sum('debit_price') - $_current->sum('credit_price')) : 0;
-            $cur_count = $_current ? $_current->sum('count') : 0;
+            $pre_price = $_previous ? $_previous->sum('net_price') : 0;
+            $pre_count = $_previous ? $_previous->count() : 0;
+            $cur_price = $_current ? $_current->sum('net_price') : 0;
+            $cur_count = $_current ? $_current->count() : 0;
 
             if(strpos($g_key, '1109') !== false && strpos($g_value, '信用卡') !== false) {
                 $tmp_pre_price += $pre_price;
@@ -184,16 +239,5 @@ class DayEndLog extends Model
         ];
 
         return $array;
-    }
-
-
-    public static function reset_log($closing_date)
-    {
-        $target = self::whereDate('closing_date', $closing_date)->update([
-            'count'=>0,
-            'debit_price'=>0,
-            'credit_price'=>0,
-            'updated_at'=>date('Y-m-d H:i:s'),
-        ]);
     }
 }

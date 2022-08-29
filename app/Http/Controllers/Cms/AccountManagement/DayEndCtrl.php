@@ -150,6 +150,7 @@ class DayEndCtrl extends Controller
             ->selectRaw('
                 SUM(debit_price) AS debit_price,
                 SUM(credit_price) AS credit_price,
+                SUM(net_price) AS net_price,
                 grade_id,
                 grade_code,
                 grade_name
@@ -211,14 +212,14 @@ class DayEndCtrl extends Controller
             ->where('grade_id', '=', $id)
             ->groupBy('grade_id')
             ->selectRaw('
-                SUM(debit_price - credit_price) AS price,
+                SUM(net_price) AS net_price,
                 grade_code,
                 grade_name
             ')->first();
 
         if(! $pre_data){
             $pre_data = (object)[
-                'price' => 0,
+                'net_price' => 0,
                 'grade_code' => $data_list->first()->grade_code,
                 'grade_name' => $data_list->first()->grade_name,
             ];
