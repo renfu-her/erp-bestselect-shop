@@ -971,6 +971,16 @@ Breadcrumbs::for('cms.day_end.show', function (BreadcrumbTrail $trail) {
     $trail->push('日結明細');
 });
 
+// 分類帳
+Breadcrumbs::for('cms.ledger.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.dashboard');
+    $trail->push('分類帳', route('cms.ledger.index'));
+});
+Breadcrumbs::for('cms.ledger.detail', function (BreadcrumbTrail $trail) {
+    $trail->parent('cms.ledger.index');
+    $trail->push('分類帳明細', route('cms.ledger.detail'));
+});
+
 // 信用卡作業管理
 Breadcrumbs::for('cms.credit_manager.index', function (BreadcrumbTrail $trail) {
     $trail->parent('cms.dashboard');

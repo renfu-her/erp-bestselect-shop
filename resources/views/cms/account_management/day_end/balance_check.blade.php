@@ -15,27 +15,29 @@
 
                 <tbody>
                     @php
-                        $a_price = $pre_data->price;
+                        $a_price = $pre_data->net_price;
                     @endphp
                     @foreach($data_list as $key => $value)
                         <tr>
                             <td>{{ date('Y/m/d', strtotime($value->closing_date)) }}</td>
-                            <td>{{ number_format($value->debit_price - $value->credit_price) }}</td>
-                            <td>{{ number_format($a_price) }}</td>
+                            <td>{{ number_format($value->net_price) }}</td>
+                            <td>{{ number_format($a_price + $value->net_price) }}</td>
                         </tr>
                         @php
-                            $a_price += ($value->debit_price - $value->credit_price);
+                            $a_price += $value->net_price;
                         @endphp
                     @endforeach
                 </tbody>
 
+                {{--
                 <tfoot>
                     <tr>
                         <td>小計</td>
-                        <td>{{ number_format($data_list->sum('debit_price') - $data_list->sum('credit_price')) }}</td>
+                        <td>{{ number_format($data_list->sum('net_price')) }}</td>
                         <td>{{ number_format($a_price) }}</td>
                     </tr>
                 </tfoot>
+                --}}
             </table>
         </div>
     </div>

@@ -43,6 +43,11 @@ class ProductCtrl extends Controller
             $options['consume'] = $d['consume'];
         }
 
+        if (isset($d['public'])) {
+            $options['public'] = $d['public'];
+        }
+
+        
         
 
         // Arr::get($d, 'supplier_id',''),
