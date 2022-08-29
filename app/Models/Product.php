@@ -440,6 +440,12 @@ class Product extends Model
                 if (in_array('out_of_stock', $stock_status)) {
                     $_q->orWhere('s.in_stock', '=', 0);
                 }
+
+                if (in_array('in_stock', $stock_status)) {
+                    $_q->orWhere(DB::raw('s.in_stock + s.overbought'), '>', 0);
+                }
+
+
             });
         }
 
@@ -1196,11 +1202,7 @@ class Product extends Model
         $productData = [];
         foreach ($productQueries as $productQuery) {
             if (!is_null($productQuery['img_url'])) {
-                if (preg_match('/.*\/cyberbiz\/.*/', $productQuery['img_url']) === 1) {
-                    $imageUrl = ImageDomain::CDN . $productQuery['img_url'];
-                } else {
-                    $imageUrl = asset($productQuery['img_url']);
-                }
+                $imageUrl = getImageUrl($productQuery['img_url']);
             } else {
                 $imageUrl = '';
             }
