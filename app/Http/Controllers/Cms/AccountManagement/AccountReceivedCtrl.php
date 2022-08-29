@@ -118,7 +118,7 @@ class AccountReceivedCtrl extends Controller
             if(count($compare) == 0){
                 $source_type = app(ReceivedOrder::class)->getTable();
                 // $n_id = DB::select("SHOW TABLE STATUS FROM 'shop-dev' LIKE '" . $source_type . "'")[0]->Auto_increment;
-                $n_id = ReceivedOrder::get()->count() + 1;
+                $n_id = ReceivedOrder::withTrashed()->get()->count() + 1;
                 $account_received_id = current(request('account_received_id'));
                 $received = DB::table('acc_received')->where([
                     'received_method'=>'account_received',

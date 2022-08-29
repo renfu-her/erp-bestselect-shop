@@ -130,7 +130,7 @@ class AccountsPayableCtrl extends Controller
             if(count($compare) == 0){
                 $source_type = app(PayingOrder::class)->getTable();
                 // $n_id = DB::select("SHOW TABLE STATUS FROM 'shop-dev' LIKE '" . $source_type . "'")[0]->Auto_increment;
-                $n_id = PayingOrder::get()->count() + 1;
+                $n_id = PayingOrder::withTrashed()->get()->count() + 1;
                 $accounts_payable_id = current(request('accounts_payable_id'));
                 $payable = DB::table('acc_payable')->where([
                     'acc_income_type_fk'=>5,
