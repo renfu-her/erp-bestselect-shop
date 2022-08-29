@@ -31,7 +31,7 @@ class BannerCtrl extends Controller
 
     public function create(Request $request)
     {
-        $productList = Product::productList();
+        $productList = Product::productList(null, null, ['public' => 1]);
 
         return view('cms.frontend.homepage.banner.edit', [
             'method' => 'create',
