@@ -39,17 +39,7 @@
                             <th class="table-light" style="width:15%">狀態</th>
                             <td style="width:35%">{{ $record->credit_card_status_code == 0 ? '刷卡' : ($record->credit_card_status_code == 1 ? '請款' : '入款') }}</td>
                             <th class="table-light" style="width:15%">收款單號</th>
-                            <td style="width:35%">
-                                @if($record->ro_source_type == 'ord_orders')
-                                <a href="{{ route('cms.collection_received.receipt', ['id' => $record->ro_source_id]) }}">{{ $record->ro_sn }}</a>
-                                @elseif($record->ro_source_type == 'csn_orders')
-                                <a href="{{ route('cms.ar_csnorder.receipt', ['id' => $record->ro_source_id]) }}">{{ $record->ro_sn }}</a>
-                                @elseif($record->ro_source_type == 'ord_received_orders')
-                                <a href="{{ route('cms.account_received.ro-receipt', ['id' => $record->ro_source_id]) }}">{{ $record->ro_sn }}</a>
-                                @elseif($record->ro_source_type == 'acc_request_orders')
-                                <a href="{{ route('cms.request.ro-receipt', ['id' => $record->ro_source_id]) }}">{{ $record->ro_sn }}</a>
-                                @endif
-                            </td>
+                            <td style="width:35%"><a href="{{ $record->link }}">{{ $record->ro_sn }}</a></td>
                         </tr>
                         <tr>
                             <th class="table-light" style="width:15%">刷卡金額</th>

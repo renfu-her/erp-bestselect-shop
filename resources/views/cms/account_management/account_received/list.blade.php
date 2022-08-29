@@ -127,17 +127,7 @@
                                 <a href="{{ route('cms.account_received.ro-receipt', ['id' => $data->append_ro_source_id]) }}">{{ $data->append_ro_sn }}</a>
                                 @endif
                             </td>
-                            <td>
-                                @if($data->ro_source_type == 'ord_orders')
-                                <a href="{{ route('cms.collection_received.receipt', ['id' => $data->ro_source_id]) }}">{{ $data->ro_sn }}</a>
-                                @elseif($data->ro_source_type == 'csn_orders')
-                                <a href="{{ route('cms.ar_csnorder.receipt', ['id' => $data->ro_source_id]) }}">{{ $data->ro_sn }}</a>
-                                @elseif($data->ro_source_type == 'ord_received_orders')
-                                <a href="{{ route('cms.account_received.ro-receipt', ['id' => $data->ro_source_id]) }}">{{ $data->ro_sn }}</a>
-                                @elseif($data->ro_source_type == 'acc_request_orders')
-                                <a href="{{ route('cms.request.ro-receipt', ['id' => $data->ro_source_id]) }}">{{ $data->ro_sn }}</a>
-                                @endif
-                            </td>
+                            <td><a href="{{ $data->link }}">{{ $data->ro_sn }}</a></td>
                         </tr>
                     @endforeach
                 </tbody>

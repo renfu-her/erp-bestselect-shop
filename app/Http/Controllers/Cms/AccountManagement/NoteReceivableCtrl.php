@@ -9,6 +9,7 @@ use App\Models\GeneralLedger;
 use App\Models\NoteReceivableOrder;
 use App\Models\NoteReceivableLog;
 use App\Models\User;
+use App\Models\ReceivedOrder;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -131,6 +132,8 @@ class NoteReceivableCtrl extends Controller
         $cheque = NoteReceivableOrder::get_cheque_received_list($id)->first();
         if(! $cheque){
             return abort(404);
+        } else {
+            $cheque->link = ReceivedOrder::received_order_link($cheque->ro_source_type, $cheque->ro_source_id);
         }
 
         return view('cms.account_management.note_receivable.record', [

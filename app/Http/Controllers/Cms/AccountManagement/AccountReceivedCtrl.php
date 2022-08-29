@@ -62,6 +62,10 @@ class AccountReceivedCtrl extends Controller
                 $ro_created_date
             )->paginate($page)->appends($query);
 
+        foreach($data_list as $value){
+            $value->link = ReceivedOrder::received_order_link($value->ro_source_type, $value->ro_source_id);
+        }
+
         $account_received_grade = ReceivedDefault::leftJoinSub(GeneralLedger::getAllGrade(), 'grade', function($join) {
                 $join->on('grade.primary_id', 'acc_received_default.default_grade_id');
             })
@@ -142,6 +146,9 @@ class AccountReceivedCtrl extends Controller
         }
 
         $data_list = ReceivedOrder::get_account_received_list([], 0, null, $grade_id, null, null, $ro_target)->get();
+        foreach($data_list as $value){
+            $value->link = ReceivedOrder::received_order_link($value->ro_source_type, $value->ro_source_id);
+        }
 
         return view('cms.account_management.account_received.claim', [
             'form_action'=>route('cms.account_received.claim', ['type'=>$type, 'id'=>$id, 'key'=>$key]),

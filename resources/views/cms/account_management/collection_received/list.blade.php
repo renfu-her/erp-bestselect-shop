@@ -145,7 +145,7 @@
                         @endphp
                         <tr>
                             <th rowspan="{{ $rows }}">{{ $key + 1 }}</th>
-                            <td rowspan="{{ $rows }}"><a href="{{ $data->ro_url_link }}">{{ $data->ro_sn }}</a></td>
+                            <td rowspan="{{ $rows }}"><a href="{{ $data->link }}">{{ $data->ro_sn }}</a></td>
                             <td rowspan="{{ $rows }}" class="wrap">{{ $data->ro_target_name }}</td>
                             <td class="p-0 border-bottom-0" height="0">
                             </td>

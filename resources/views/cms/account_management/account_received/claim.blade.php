@@ -36,17 +36,7 @@
                                     <input type="hidden" name="amt_net[{{ $key }}]" class="select_input" value="{{ $value->tw_price }}" disabled>
                                 </th>
                                 <td>{{ $key + 1 }}</td>
-                                <td>
-                                    @if($value->ro_source_type == 'ord_orders')
-                                    <a href="{{ route('cms.collection_received.receipt', ['id' => $value->ro_source_id]) }}">{{ $value->ro_sn }}</a>
-                                    @elseif($value->ro_source_type == 'csn_orders')
-                                    <a href="{{ route('cms.ar_csnorder.receipt', ['id' => $value->ro_source_id]) }}">{{ $value->ro_sn }}</a>
-                                    @elseif($value->ro_source_type == 'ord_received_orders')
-                                    <a href="{{ route('cms.account_received.ro-receipt', ['id' => $value->ro_source_id]) }}">{{ $value->ro_sn }}</a>
-                                    @elseif($value->ro_source_type == 'acc_request_orders')
-                                    <a href="{{ route('cms.request.ro-receipt', ['id' => $value->ro_source_id]) }}">{{ $value->ro_sn }}</a>
-                                    @endif
-                                </td>
+                                <td><a href="{{ $value->link }}">{{ $value->ro_sn }}</a></td>
                                 <td>{{ $value->ro_target_name }}</td>
                                 <td>{{ $value->ro_received_grade_code }} {{ $value->ro_received_grade_name }}</td>
                                 <td>{{ $value->summary }}</td>

@@ -272,21 +272,7 @@ abstract class AccountReceivedPapaCtrl extends Controller
                 $value->debit = $debit;
                 $value->credit = $credit;
 
-                if($value->ro_source_type == 'ord_orders'){
-                    $value->ro_url_link = route('cms.collection_received.receipt', ['id' => $value->ro_source_id]);
-
-                } else if($value->ro_source_type == 'csn_orders'){
-                    $value->ro_url_link = route('cms.ar_csnorder.receipt', ['id' => $value->ro_source_id]);
-
-                } else if($value->ro_source_type == 'ord_received_orders'){
-                    $value->ro_url_link = route('cms.account_received.ro-receipt', ['id' => $value->ro_source_id]);
-
-                } else if($value->ro_source_type == 'acc_request_orders'){
-                    $value->ro_url_link = route('cms.request.ro-receipt', ['id' => $value->ro_source_id]);
-
-                } else {
-                    $value->ro_url_link = "javascript:void(0);";
-                }
+                $value->link = ReceivedOrder::received_order_link($value->ro_source_type, $value->ro_source_id);
             }
         // accounting classification end
 

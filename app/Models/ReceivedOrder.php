@@ -1162,4 +1162,25 @@ class ReceivedOrder extends Model
 
         return $check_result;
     }
+
+
+    public static function received_order_link($source_type, $source_id)
+    {
+        $link = 'javascript:void(0);';
+
+        if($source_type == 'ord_orders'){
+            $link = route('cms.collection_received.receipt', ['id' => $source_id]);
+
+        } else if($source_type == 'csn_orders'){
+            $link = route('cms.ar_csnorder.receipt', ['id' => $source_id]);
+
+        } else if($source_type == 'ord_received_orders'){
+            $link = route('cms.account_received.ro-receipt', ['id' => $source_id]);
+
+        } else if($source_type == 'acc_request_orders'){
+            $link = route('cms.request.ro-receipt', ['id' => $source_id]);
+        }
+
+        return $link;
+    }
 }
