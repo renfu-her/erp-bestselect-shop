@@ -72,7 +72,7 @@ if (!function_exists('frontendUrl')) {
 if (!function_exists('getImageUrl')) {
     function getImageUrl($subImageUrl)
     {
-        if (preg_match('/.*\/cyberbiz\/.*/', $subImageUrl) === 1) {
+        if (preg_match('/.*\/(cyberbiz|liquor)\/.*/', $subImageUrl) === 1) {
              return ImageDomain::CDN . $subImageUrl;
         } else {
              return asset($subImageUrl);

@@ -232,6 +232,11 @@ return
                 "route_name" => "cms.day_end.index",
             ],
             [
+                "title" => "分類帳",
+                "controller_name" => "LedgerCtrl",
+                "route_name" => "cms.ledger.index",
+            ],
+            [
                 "title" => "分潤報表",
                 "controller_name" => "OrderBonusCtrl",
                 "route_name" => "cms.order-bonus.index",

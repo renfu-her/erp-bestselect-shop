@@ -42,6 +42,7 @@ Route::get('/tokens/create', function (Request $request) {
 Route::group(['prefix' => 'customer', 'as' => 'customer.'], function () {
     Route::post('register', [CustomerCtrl::class, 'register']);
     Route::post('login', [CustomerCtrl::class, 'login']);
+    Route::post('login_third_party', [CustomerCtrl::class, 'login_third_party']);
 });
 
 Route::group(['prefix' => 'customer', 'as' => 'customer.', 'middleware' => ['auth:sanctum', 'identity.api.customer']], function () {

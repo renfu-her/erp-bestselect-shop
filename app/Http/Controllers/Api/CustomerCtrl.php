@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\Customer\AccountStatus;
-use App\Enums\Customer\ProfitStatus;
+use App\Enums\Customer\Login;
 use App\Enums\Globals\ApiStatusMessage;
 use App\Enums\Globals\ResponseParam;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\CustomerAddress;
 use App\Models\CustomerIdentity;
+use App\Models\CustomerLoginMethod;
 use App\Models\CustomerProfit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -96,6 +97,75 @@ class CustomerCtrl extends Controller
             return response()->json([
                 ResponseParam::status()->key => 'E02',
                 ResponseParam::msg()->key => '帳號密碼錯誤',
+            ]);
+        }
+
+        $scope = []; //設定令牌能力
+        $token = $customer->createToken($request->device_name ?? $customer->name, $scope);
+        $customer['token'] = $token->plainTextToken;
+
+        return response()->json([
+            ResponseParam::status()->key => ApiStatusMessage::Succeed,
+            ResponseParam::msg()->key => ApiStatusMessage::getDescription(ApiStatusMessage::Succeed),
+            ResponseParam::data()->key => $this->arrayConverNullValToEmpty($customer->toArray()),
+        ]);
+    }
+
+    //登入
+    public function login_third_party(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string',
+            'email' => 'required|string',
+            'method' => 'required|numeric',
+            'uid' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                ResponseParam::status()->key => 'E01',
+                ResponseParam::msg()->key => $validator->errors(),
+            ]);
+        }
+
+
+        $data = $request->only('name', 'email', 'method', 'uid');
+
+        if (!Login::hasValue((int)$data['method'])) {
+            return response()->json([
+                ResponseParam::status()->key => 'E01',
+                ResponseParam::msg()->key => '無此登入方式',
+            ]);
+        }
+        $customer = null;
+        $customer_method = CustomerLoginMethod::where('method', $data['method'])->where('uid', $data['uid'])->get()->first();
+        //有則代表已註冊 否則直接註冊會員後幫登入
+        if (false == isset($customer_method)) {
+            $id = Customer::createCustomer(
+                $data['name']
+                , $data['email']
+                , '!a@b#c$d'
+                , null
+                , null
+                , null
+                , AccountStatus::open()->value
+            );
+            $customer_method_id = CustomerLoginMethod::createData($id, $data['method'], $data['uid']);
+            $customer = Customer::where('id', $id)->get()->first();
+        } else {
+            $customer = Customer::where('id', $customer_method->usr_customer_id_fk)->get()->first();
+        }
+
+        if (isset($customer)) {
+            $customerProfit = CustomerProfit::getProfitData($customer->id);
+            $customer->profit = $customerProfit;
+        }
+
+        if (null == $customer
+        ) {
+            return response()->json([
+                ResponseParam::status()->key => 'E02',
+                ResponseParam::msg()->key => '註冊時有誤 請回報工程師 '. $data['uid'],
             ]);
         }
 
