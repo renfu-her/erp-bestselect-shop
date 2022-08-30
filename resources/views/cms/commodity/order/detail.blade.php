@@ -819,6 +819,7 @@
             // 手動發放紅利
             $('.btn.-active-send').off('click.send').on('click.send', function() {
                 if (!$(this).prop('disabled')) {
+                    $('.btn.-active-send').prop('disabled', true);
                     // API
                     axios.post(activePointUrl, {
                         order_sn: order_sn
