@@ -657,7 +657,6 @@ class PurchaseCtrl extends Controller
         $purchaseItemData = PurchaseItem::getPurchaseItemsByPurchaseId($id);
 
         $purchaseData = Purchase::getPurchase($id)->first();
-        $supplier = Supplier::where('id', '=', $purchaseData->supplier_id)->get()->first();
 
         $purchaseChargemanList = PurchaseItem::getPurchaseChargemanList($id)->get()->unique('user_id');
         $chargemanListArray = [];
@@ -697,9 +696,6 @@ class PurchaseCtrl extends Controller
                             ->name;
         }
 
-        // session([
-        //     '_url'=>request()->fullUrl()
-        // ]);
         if($validatedReq['type'] === '0'){
             $zh_price = num_to_str($depositPaymentData->price);
         } else {
@@ -719,7 +715,6 @@ class PurchaseCtrl extends Controller
             'type' => ($validatedReq['type'] === '0') ? 'deposit' : 'final',
             'breadcrumb_data' => ['id' => $id, 'sn' => $purchaseData->purchase_sn, 'type' => $validatedReq['type']],
             'formAction' => Route('cms.purchase.index', ['id' => $id,]),
-            'supplierUrl' => Route('cms.supplier.edit', ['id' => $supplier->id,]),
             'purchaseData' => $purchaseData,
             'pay_off' => $pay_off,
             'pay_off_date' => $pay_off_date,
@@ -734,7 +729,6 @@ class PurchaseCtrl extends Controller
             'chargemen' => $chargemen,
             'undertaker' => $undertaker,
             'appliedCompanyData' => $appliedCompanyData,
-            'supplier' => $supplier,
             'zh_price' => $zh_price,
         ]);
     }

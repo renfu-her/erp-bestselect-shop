@@ -12,6 +12,7 @@ use App\Enums\Supplier\Payment;
 
 use App\Models\AllGrade;
 use App\Models\Customer;
+use App\Models\DayEnd;
 use App\Models\Depot;
 use App\Models\PayingOrder;
 use App\Models\Supplier;
@@ -267,5 +268,66 @@ class CollectionPaymentCtrl extends Controller
             'payee' => $payee_merged,
             'check_balance_status' => $check_balance_status,
         ]);
+    }
+
+
+    public function edit(Request $request, $id)
+    {
+        $paying_order = PayingOrder::findOrFail($id);
+
+        if($request->isMethod('post')){
+            $request->validate([
+                'client_key' => 'required|string',
+            ]);
+
+            $client_key = explode('|', request('client_key'));
+
+            if(count($client_key) > 1){
+                $client = PayingOrder::payee($client_key[0], $client_key[1]);
+
+                $paying_order->update([
+                    'payee_id' =>$client->id,
+                    'payee_name' =>$client->name,
+                    'payee_phone' =>$client->phone,
+                    'payee_address' =>$client->address,
+                ]);
+
+                wToast(__('付款單更新成功'));
+
+                return redirect()->to(PayingOrder::paying_order_link($paying_order->source_type, $paying_order->source_id, $paying_order->source_sub_id, $paying_order->type));
+            }
+
+            wToast(__('付款單更新失敗', ['type'=>'danger']));
+            return redirect()->back();
+        }
+
+        $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $client_merged = array_merge($user, $customer, $depot, $supplier);
+
+        return view('cms.account_management.collection_payment.edit', [
+            'form_action'=>route('cms.collection_payment.edit', ['id'=>$id]),
+            'client' => $client_merged,
+            'paying_order' => $paying_order,
+        ]);
+    }
+
+
+    public function destroy($id)
+    {
+        $target = PayingOrder::delete_paying_order($id);
+        if($target){
+            if($target->payment_date){
+                DayEnd::match_day_end_status($target->payment_date, $target->sn);
+            }
+
+            wToast('刪除完成');
+
+        } else {
+            wToast('刪除失敗', ['type'=>'danger']);
+        }
+        return redirect()->back();
     }
 }

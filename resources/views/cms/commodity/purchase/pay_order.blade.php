@@ -11,6 +11,8 @@
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
+            <a href="{{ route('cms.collection_payment.edit', ['id' => $payOrdId]) }}" class="btn btn-sm btn-success px-3" role="button">修改</a>
+
             @if(!$pay_off)
                 <a href="{{ Route('cms.purchase.po-create', [
                     'payOrdId' => $payOrdId,
@@ -29,7 +31,10 @@
             {{-- <button type="button" class="btn btn-primary">修改備註</button> --}}
             {{-- <button type="button" class="btn btn-primary">新增細項</button> --}}
             {{-- <button type="button" class="btn btn-primary">變更支付對象</button> --}}
-            {{-- <button type="button" class="btn btn-primary">取消訂金折抵</button> --}}
+
+            <a href="javascript:void(0)" role="button" class="btn btn-outline-danger btn-sm"
+                data-bs-toggle="modal" data-bs-target="#confirm-delete"
+                data-href="{{ Route('cms.collection_payment.delete', ['id' => $payOrdId]) }}">刪除付款單</a>
         </div>
     </nav>
 
@@ -69,11 +74,7 @@
                 </dl>
                 <dl class="row mb-0">
                     <div class="col">
-                        <dd>支付對象：
-                            <a href="{{ $supplierUrl }}" target="_blank">
-                                {{ $supplier->name }} <i class="bi bi-box-arrow-up-right"></i>
-                            </a>
-                        </dd>
+                        <dd>支付對象：{{ $payingOrderData->payee_name }}</dd>
                     </div>
                     <div class="col">
                         <dd>承辦人：{{ $undertaker }}</dd>
@@ -208,9 +209,24 @@
                 role="button">返回 採購單資訊</a>
         </div>
     </form>
+
+    <!-- Modal -->
+    <x-b-modal id="confirm-delete">
+        <x-slot name="title">刪除確認</x-slot>
+        <x-slot name="body">確認要刪除此付款單？</x-slot>
+        <x-slot name="foot">
+            <a class="btn btn-danger btn-ok" href="#">確認並刪除</a>
+        </x-slot>
+    </x-b-modal>
 @endsection
 @once
     @push('sub-scripts')
+    <script>
+        // Modal Control
+        $('#confirm-delete').on('show.bs.modal', function(e) {
+            $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+        });
+    </script>
     @endpush
 @endonce
 

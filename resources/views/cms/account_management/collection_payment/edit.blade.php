@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('sub-content')
-    <h2 class="mb-4">編輯代墊單</h2>
+    <h2 class="mb-4">編輯付款單</h2>
 
     <form method="POST" action="{{ $form_action }}">
         @csrf
@@ -12,9 +12,9 @@
                         <option value="" selected disabled>請選擇</option>
                         @foreach ($client as $value)
                             @php
-                                $client_name = explode(' - ', $stitute_order->client_name);
+                                $payee_name = explode(' - ', $paying_order->payee_name);
                             @endphp
-                            <option value="{{ $value['id'] . '|' . $value['name'] }}" {{ $value['id'] . '|' . $value['name'] == old('client_key', $stitute_order->client_id . '|' . $client_name[0]) ? 'selected' : '' }}>{{ $value['name'] }}</option>
+                            <option value="{{ $value['id'] . '|' . $value['name'] }}" {{ $value['id'] . '|' . $value['name'] == old('client_key', $paying_order->payee_id . '|' . $payee_name[0]) ? 'selected' : '' }}>{{ $value['name'] }}</option>
                         @endforeach
                     </select>
                 </div>

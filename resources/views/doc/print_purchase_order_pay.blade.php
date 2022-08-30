@@ -68,7 +68,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td>支付對象：{{ $supplier->name }}</td>
+                            <td>支付對象：{{ $payingOrderData->payee_name }}</td>
                             <td>承辦人：{{ $undertaker }}</td>
                         </tr>
                     </tbody>
