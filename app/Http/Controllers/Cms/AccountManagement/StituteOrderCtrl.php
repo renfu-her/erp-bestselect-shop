@@ -165,7 +165,7 @@ class StituteOrderCtrl extends Controller
 
     public function edit(Request $request, $id)
     {
-        $stitute = StituteOrder::findOrFail($id);
+        $stitute_order = StituteOrder::findOrFail($id);
 
         if($request->isMethod('post')){
             $request->validate([
@@ -177,7 +177,7 @@ class StituteOrderCtrl extends Controller
             if(count($client_key) > 1){
                 $client = PayingOrder::payee($client_key[0], $client_key[1]);
 
-                $stitute->update([
+                $stitute_order->update([
                     'client_id' =>$client->id,
                     'client_name' =>$client->name,
                     'client_phone' =>$client->phone,
@@ -187,7 +187,7 @@ class StituteOrderCtrl extends Controller
                 wToast(__('代墊單更新成功'));
 
                 return redirect()->route('cms.stitute.show', [
-                    'id'=>$stitute->id,
+                    'id'=>$stitute_order->id,
                 ]);
             }
 
@@ -204,7 +204,7 @@ class StituteOrderCtrl extends Controller
         return view('cms.account_management.stitute.edit', [
             'form_action'=>route('cms.stitute.edit', ['id'=>$id]),
             'client' => $client_merged,
-            'stitute' => $stitute,
+            'stitute_order' => $stitute_order,
         ]);
     }
 

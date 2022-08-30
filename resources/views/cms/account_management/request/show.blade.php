@@ -4,9 +4,8 @@
 
     <nav class="col-12 border border-bottom-0 rounded-top nav-bg">
         <div class="p-1 pe-2">
-            {{--
-            <a href="{{ route('cms.request.edit', ['id' => $request_order->id]) }}" class="btn btn-success px-4" role="button">修改</a>
-            --}}
+            <a href="{{ route('cms.request.edit', ['id' => $request_order->id]) }}" class="btn btn-sm btn-success px-3" role="button">修改</a>
+
             @if(! $request_order->posting_date)
             <a href="{{ route('cms.request.ro-edit', ['id' => $request_order->id]) }}" class="btn btn-sm btn-primary px-3" 
                 role="button">入款</a>
@@ -14,8 +13,6 @@
             {{--
             <button type="submit" class="btn btn-danger">中一刀列印畫面</button>
             <button type="submit" class="btn btn-danger">A4列印畫面</button>
-            <button type="submit" class="btn btn-danger">修改記錄</button>
-            <button type="submit" class="btn btn-danger">明細修改記錄</button>
             --}}
         </div>
     </nav>

@@ -107,64 +107,7 @@ class RequestOrderCtrl extends Controller
             $client_key = explode('|', request('client_key'));
 
             if(count($client_key) > 1){
-                $client = User::where([
-                        'id'=>$client_key[0],
-                    ])
-                    ->where('name', 'LIKE', "%{$client_key[1]}%")
-                    ->select(
-                        'id',
-                        'name',
-                        'email'
-                    )
-                    ->selectRaw('
-                        IF(id IS NOT NULL, "", "") AS phone,
-                        IF(id IS NOT NULL, "", "") AS address
-                    ')
-                    ->first();
-
-                if(! $client){
-                    $client = Customer::leftJoin('usr_customers_address AS customer_add', function ($join) {
-                            $join->on('usr_customers.id', '=', 'customer_add.usr_customers_id_fk');
-                            $join->where([
-                                'customer_add.is_default_addr'=>1,
-                            ]);
-                        })->where([
-                            'usr_customers.id'=>$client_key[0],
-                        ])
-                        ->where('usr_customers.name', 'LIKE', "%{$client_key[1]}%")
-                        ->select(
-                            'usr_customers.id',
-                            'usr_customers.name',
-                            'usr_customers.phone AS phone',
-                            'usr_customers.email',
-                            'customer_add.address AS address'
-                        )->first();
-
-                    if(! $client){
-                        $client = Depot::where('id', '=', $client_key[0])
-                            ->where('name', 'LIKE', "%{$client_key[1]}%")
-                            ->select(
-                                'depot.id',
-                                'depot.name',
-                                'depot.tel AS phone',
-                                'depot.address AS address'
-                            )->first();
-
-                        if(! $client){
-                            $client = Supplier::where([
-                                'id'=>$client_key[0],
-                            ])
-                            ->where('name', 'LIKE', "%{$client_key[1]}%")
-                            ->select(
-                                'id',
-                                'name',
-                                'contact_tel AS phone',
-                                'email',
-                                'contact_address AS address'
-                            )->first();
-                        }
-                    }
-                }
+                $client = ReceivedOrder::drawee($client_key[0], $client_key[1]);
 
                 $parm = [
                     'price' =>request('price'),
@@ -206,11 +149,58 @@ class RequestOrderCtrl extends Controller
 
         $currency = DB::table('acc_currency')->get();
 
-        return view('cms.account_management.request.edit', [
+        return view('cms.account_management.request.create', [
             'form_action'=>route('cms.request.create'),
             'client' => $client_merged,
             'total_grades' => $total_grades,
             'currency' => $currency,
+        ]);
+    }
+
+
+    public function edit(Request $request, $id)
+    {
+        $request_order = RequestOrder::findOrFail($id);
+
+        if($request->isMethod('post')){
+            $request->validate([
+                'client_key' => 'required|string',
+            ]);
+
+            $client_key = explode('|', request('client_key'));
+
+            if(count($client_key) > 1){
+                $client = ReceivedOrder::drawee($client_key[0], $client_key[1]);
+
+                $request_order->update([
+                    'client_id' =>$client->id,
+                    'client_name' =>$client->name,
+                    'client_phone' =>$client->phone,
+                    'client_address' =>$client->address,
+                ]);
+
+                wToast(__('請款單更新成功'));
+
+                return redirect()->route('cms.request.show', [
+                    'id'=>$request_order->id,
+                ]);
+            }
+
+            wToast(__('請款單更新失敗', ['type'=>'danger']));
+            return redirect()->back();
+        }
+
+        $user = User::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $customer = Customer::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $depot = Depot::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $supplier = Supplier::whereNull('deleted_at')->select('id', 'name')->get()->toArray();
+        $client_merged = array_merge($user, $customer, $depot, $supplier);
+
+
+        return view('cms.account_management.request.edit', [
+            'form_action'=>route('cms.request.edit', ['id'=>$id]),
+            'client' => $client_merged,
+            'request_order' => $request_order,
         ]);
     }
 
