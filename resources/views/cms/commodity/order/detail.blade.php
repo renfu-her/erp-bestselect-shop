@@ -662,7 +662,6 @@
         <div id="submitDiv">
             <div class="col-auto">
                 @if (false == isset($subOrderId))
-                    <button type="submit" class="btn btn-primary px-4">列印整張訂購單</button>
                     <a href="{{ Route('cms.order.index') }}" class="btn btn-outline-primary px-4"
                         role="button">返回列表</a>
                 @else
